@@ -4,12 +4,12 @@ import unittest
 class PieceTestCase(unittest.TestCase):
     """Tests the Piece class."""
 
-    def test_symbol_parsing(self):
+    def test_from_symbol(self):
         """Tests symbol parsing."""
-        black_queen = libchess.Piece.parse_symbol('q')
+        black_queen = libchess.Piece.from_symbol('q')
         self.assertEqual(black_queen.get_symbol(), 'q')
 
-        white_pawn = libchess.Piece.parse_symbol('P')
+        white_pawn = libchess.Piece.from_symbol('P')
         self.assertEqual(white_pawn.get_symbol(), 'P')
 
     def test_equality(self):

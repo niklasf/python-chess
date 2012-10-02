@@ -78,7 +78,7 @@ class Piece(object):
         return self.get_symbol()
 
     def __repr__(self):
-        return "Piece.parse_symbol('%s')" % get_symbol()
+        return "Piece.from_symbol('%s')" % get_symbol()
 
     def __eq__(self, other):
         return self.get_symbol() == other.get_symbol()
@@ -87,7 +87,7 @@ class Piece(object):
         return self.get_symbol() != other.get_symbol()
 
     @staticmethod
-    def parse_symbol(symbol):
+    def from_symbol(symbol):
         """Parses a piece symbol.
 
         Args:
