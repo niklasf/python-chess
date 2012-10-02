@@ -2,6 +2,7 @@ import inspect
 
 from libchess.piece import Piece
 from libchess.square import Square
+from libchess.position import Position
 
 def opposite_color(color):
     """Gets the opposite color.
