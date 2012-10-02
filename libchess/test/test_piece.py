@@ -22,6 +22,8 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(a, d)
         self.assertEqual(d, a)
 
+        self.assertEqual(repr(a), repr(d))
+
         self.assertNotEqual(a, b)
         self.assertNotEqual(b, c)
         self.assertNotEqual(b, d)
