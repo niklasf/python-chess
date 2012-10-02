@@ -142,3 +142,14 @@ class Square(object):
         assert rank >= 1 and rank <= 8
         assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
         return Square(ord(file) - ord("a"), rank - 1)
+
+    @staticmethod
+    def get_all():
+        """Gets all squares.
+
+        Yields:
+            All squares.
+        """
+        for x in range(0, 8):
+            for y in range(0, 8):
+                yield Square(x, y)

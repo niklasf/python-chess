@@ -36,3 +36,8 @@ class SquareTestCase(unittest.TestCase):
         self.assertEqual(libchess.Square(3, 5), libchess.Square.from_name('d6'))
         self.assertEqual(libchess.Square.from_0x88_index(2), libchess.Square.from_name('c1'))
         self.assertEqual(libchess.Square.from_rank_and_file(rank=2, file='g'), libchess.Square.from_name('g2'))
+
+    def test_iteration(self):
+        """Tests iteration over all squares."""
+        self.assertTrue(libchess.Square.from_name("h8") in libchess.Square.get_all())
+        self.assertTrue(libchess.Square.from_name("b1") in libchess.Square.get_all())
