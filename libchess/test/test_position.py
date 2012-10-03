@@ -55,3 +55,12 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(pos.is_stalemate())
 
         self.assertEqual(pos.get_fen(), '1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+
+    def test_move_info(self):
+        """Tests move info generation."""
+        pos = libchess.Position.get_default()
+        e4 = pos.get_move_info(libchess.Move.from_uci('e2e4'))
+        self.assertEqual(e4.get_san(), 'e4')
+        self.assertFalse(e4.is_check())
+        self.assertFalse(e4.is_checkmate())
+        self.assertFalse(e4.is_castle())

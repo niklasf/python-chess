@@ -57,6 +57,107 @@ class Position(object):
         """Resets to the default chess position."""
         self.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
+    def _get_disambiguator(self, move):
+        """Gets a disambiguator used by SANs to make moves unambigous.
+
+        Returns:
+            A disambiguator to insert.
+        """
+        same_rank = False
+        same_file = False
+        piece = self.get(move.get_source())
+
+        for m in self.get_legal_moves():
+            ambig_piece = self.get(m.get_source())
+            if piece == ambig_piece and move.get_source() != m.get_source() and move.get_target() == m.get_target():
+                if move.get_source().get_rank() == m.get_source().get_rank():
+                    same_rank = True
+
+                if move.get_source().get_file() == m.get_source().get_file():
+                    same_file = True
+
+                if same_rank and same_file:
+                    break
+
+        if same_rank and same_file:
+            return move.get_source().get_name()
+        elif same_file:
+            return str(move.get_source().get_rank())
+        elif same_rank:
+            return move.get_source().get_file()
+        else:
+            return ""
+
+    def get_move_info(self, move):
+        """Gets information about a move.
+
+        Args:
+            move: The move to get information about.
+        """
+        assert move in self.get_legal_moves()
+        resulting_position = self.copy()
+        resulting_position.make_move(move)
+
+        capture = self.get(move.get_target())
+        piece = self.get(move.get_source())
+
+        # Pawn moves.
+        enpassant = False
+        if piece.get_type() == "p":
+            # En-passant.
+            if move.get_target().get_file() != move.get_source().get_file() and not capture:
+                enpassant = True
+                capture = libchess.Piece(resulting_position.get_turn(), 'p')
+
+        # Castling.
+        is_king_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
+        is_queen_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == -2
+
+        # Checks.
+        is_check = resulting_position.is_check()
+        is_checkmate = resulting_position.is_checkmate()
+
+        # Generate the SAN.
+        san = ""
+        if is_king_side_castle:
+            san += "o-o"
+        elif is_queen_side_castle:
+            san += "o-o-o"
+        else:
+            if piece.get_type() != 'p':
+                san += piece.get_type().upper()
+
+            san += self._get_disambiguator(move)
+
+            if capture:
+                if piece.get_type() == 'p':
+                    san += move.get_source().get_file()
+                san += "x"
+            san += move.get_target().get_name()
+
+            if move.get_promotion():
+                san += "="
+                san += move.get_promotion().upper()
+
+        if is_checkmate:
+            san += "#"
+        elif is_check:
+            san += "+"
+
+        if enpassant:
+            san += " (e.p.)"
+
+        return libchess.MoveInfo(
+            move=move,
+            piece=piece,
+            captured=capture,
+            san=san,
+            is_enpassant=enpassant,
+            is_king_side_castle=is_king_side_castle,
+            is_queen_side_castle=is_queen_side_castle,
+            is_check=is_check,
+            is_checkmate=is_checkmate)
+
     def make_move(self, move):
         """Makes a move.
 
