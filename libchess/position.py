@@ -56,6 +56,66 @@ class Position(object):
         """Resets to the default chess position."""
         self.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
+    def make_move(self, move):
+        """Makes a move.
+
+        Args:
+            move: The move to make.
+        """
+        capture = self.get(move.get_target_square())
+
+        # Move the piece.
+        self.set(move.get_target(), self.get(move.get_source()))
+        self.set(move.get_source(), None)
+
+        # It is the next players turn.
+        self.toggle_turn()
+
+        # Pawn moves.
+        if self.get(move.get_target()).get_type() == 'p':
+            # En-passant.
+            if move.get_target().get_file() != move.get_source().get_file() and not capture:
+                if self.get_turn() == "b":
+                    self._board[move.get_target().get_0x88_index() - 16] = None
+                else:
+                    self._board[move.get_target().get_0x88_index() + 16] = None
+                capture = True
+            # If big pawn move, set the en-passant file.
+            if abs(move.get_target().get_rank() - move.get_source().get_rank()) == 2:
+                self._ep_file = move.get_target().get_file()
+
+        # Promotion.
+        if move.get_promotion():
+            self.set(move.get_target(), libchess.Piece(self.get(move.get_target()).get_color(), move.get_promotion()))
+
+        # Potential castling.
+        if self.get(move.get_target()).get_type() == 'k':
+            steps = move.get_target().get_x() - move.get_source.get_x()
+            if abs(steps) == 2:
+                # Queen-side castling.
+                if steps == -2:
+                    rook_target = move.get_target().get_0x88_index() + 1
+                    rook_source = move.get_target().get_0x88_index() - 2
+                # King-side castling.
+                else:
+                    rook_target = move.get_target().get_0x88_index() - 1
+                    rook_source = move.get_target().get_0x88_index() + 1
+                self._board[rook_target] = self._board[rook_source]
+                self._board[rook_source] = None
+
+        # Increment the half move counter.
+        if self.get(move.get_target()).get_type() == 'p':
+            self._half_moves = 0
+        elif capture:
+            self._half_moves = 0
+        else:
+            self._half_moves += 1
+
+        # Increment the move number.
+        if self.get_turn() == "w":
+            self._move_number += 1
+
+
     def get_turn(self):
         """Gets whos turn it is.
 
