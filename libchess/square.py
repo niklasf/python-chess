@@ -97,6 +97,9 @@ class Square(object):
     def __ne__(self, other):
         return self.get_x() != other.get_x() or self.get_y() != other.get_y()
 
+    def __hash__(self):
+        return self.get_0x88_index()
+
     @staticmethod
     def from_name(name):
         """Parses a square name.

@@ -779,6 +779,22 @@ class Position(object):
         """
         return self.is_checkmate() or self.is_stalemate() or self.is_insufficient_material()
 
+    def __str__(self):
+        return self.get_fen()
+
+    def __repr__(self):
+        return "Position.from_fen('%s)" % self.get_fen()
+
+    def __eq__(self, other):
+        return self.get_fen() == other.get_fen()
+
+    def __ne__(self, other):
+        return self.get_fen() != other.get_fen()
+
+    def __hash__(self, other):
+        # TODO: Use Zobrist hashing.
+        return hash(self.get_fen())
+
     @staticmethod
     def get_default():
         """Gets the default position.
