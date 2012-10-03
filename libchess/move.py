@@ -1,4 +1,5 @@
 import re
+import libchess
 
 class Move(object):
     def __init__(self, source, target, promotion = None):
