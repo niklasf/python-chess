@@ -440,12 +440,12 @@ class Position(object):
                     # Promotion.
                     if target.is_backrank():
                         for promote_to in "bnrq":
-                            yield libchess.Move.get_promotion_move(self, square, target, promote_to)
+                            yield libchess.Move(square, target, promote_to)
 
                     # Two squares ahead. Do not capture.
                     target = libchess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])
                     if (self.get_turn() == "w" and square.get_rank() == 2) or (self.get_turn() == "b" and square.get_rank() == 7) and not board.get(target):
-                        yield libchess.Move.get_big_pawn_move(self, square, target)
+                        yield libchess.Move(square, target)
 
                 # Pawn captures.
                 for j in [2, 3]:
@@ -457,12 +457,12 @@ class Position(object):
                        # Promotion.
                        if target.is_backrank():
                            for promote_to in "bnrq":
-                               yield libchess.Move.get_promotion_move(self, square, target, promote_to)
+                               yield libchess.Move(square, target, promote_to)
                        else:
-                           yield libchess.Move.get_normal_move(self, square, target)
+                           yield libchess.Move(square, target)
                    # En-passant.
                    elif not self.get(target) and target.get_file() == self._ep_file:
-                       yield libchess.Move.get_en_passant_move(self, square, target)
+                       yield libchess.Move(square, target)
             # Other pieces.
             else:
                 for offset in PIECE_OFFSETS[piece.get_type()]:
@@ -473,11 +473,11 @@ class Position(object):
                             break
                         target = libchess.Square.from_0x88_index(target_index)
                         if not self.get(target):
-                            yield libchess.Move.get_normal_move(self, square, target)
+                            yield libchess.Move(square, target)
                         else:
                             if self.get(target).get_color() == self.get_turn():
                                 break
-                            yield libchess.Move.get_normal_move(self, square, target)
+                            yield libchess.Move(square, target)
                             break
 
                         # Knight and king do not go multiple times in their
@@ -493,7 +493,7 @@ class Position(object):
             of = self.get_king(self.get_turn()).get_0x88_index()
             to = of + 2
             if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, libchess.Square.from_0x88_index(of + 1)) and not self.is_attacked(opponent, libchess.Square.from_0x88_index(to)):
-                yield libchess.Move.get_castling_move(self, libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to), "k")
+                yield libchess.Move(libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to))
 
         # Queen-side castling
         q = "q" if self.get_turn() == "b" else "Q"
@@ -502,7 +502,7 @@ class Position(object):
             to = of - 2
 
             if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, libchess.Square.from_0x88_index(of - 1)) and not self.is_attacked(opponent, libchess.Square.from_0x88_index(to)):
-                yield libchess.Move.get_castling_move(self, libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to), "q")
+                yield libchess.Move(libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to))
 
     def get_legal_moves(self):
         """Gets legal moves in the current position.
