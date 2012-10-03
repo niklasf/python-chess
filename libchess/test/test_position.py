@@ -4,6 +4,11 @@ import unittest
 class PositionTestCase(unittest.TestCase):
     """Tests the position class."""
 
+    def test_default_position(self):
+        """Tests the default position."""
+        pos = libchess.Position.get_default()
+        self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+
     def test_scholars_mate(self):
         """Tests the scholars mate."""
         pos = libchess.Position.get_default()
