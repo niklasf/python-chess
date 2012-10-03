@@ -29,6 +29,33 @@ class Move(object):
             promotion = self._promotion
         return self._source.get_name() + self._target.get_name() + promotion
 
+    def get_source(self):
+        """Gets the source square.
+
+        Returns:
+            The source square.
+        """
+        return self._source
+
+    def get_target(self):
+        """Gets the target square.
+
+        Returns:
+            The target square.
+        """
+        return self._target
+
+    def get_promotion(self):
+        """Gets the promotion type.
+
+        Returns:
+            None, "r", "n", "b" or "q".
+        """
+        if not self._promotion:
+            return None
+        else:
+            return self._promotion
+
     def __str__(self):
         return self.get_uci_move()
 
