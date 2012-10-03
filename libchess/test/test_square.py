@@ -26,7 +26,7 @@ class SquareTestCase(unittest.TestCase):
         self.assertEqual(f7.get_rank(), 7)
         self.assertEqual(f7.get_file(), 'f')
         self.assertEqual(f7.get_name(), 'f7')
-        self.assertEqual(f7.get_0x88_index(), 101)
+        self.assertEqual(f7.get_0x88_index(), 21)
         self.assertEqual(f7.get_x(), 5)
         self.assertEqual(f7.get_y(), 6)
         self.assertFalse(f7.is_backrank())
@@ -34,7 +34,7 @@ class SquareTestCase(unittest.TestCase):
     def test_creation(self):
         """Tests creation of Square instances."""
         self.assertEqual(libchess.Square(3, 5), libchess.Square.from_name('d6'))
-        self.assertEqual(libchess.Square.from_0x88_index(2), libchess.Square.from_name('c1'))
+        self.assertEqual(libchess.Square.from_0x88_index(2), libchess.Square.from_name('c8'))
         self.assertEqual(libchess.Square.from_rank_and_file(rank=2, file='g'), libchess.Square.from_name('g2'))
 
     def test_iteration(self):

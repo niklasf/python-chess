@@ -75,7 +75,7 @@ class Square(object):
         Returns:
             An integer between 0 and 119.
         """
-        return self._x + 16 * self._y
+        return self._x + 16 * (7 - self._y)
 
     def is_backrank(self):
         """Checks whether the square is on the backrank of either side.
@@ -123,9 +123,9 @@ class Square(object):
             An object of the Square class.
         """
         index = int(index)
-        assert index > 0 and index <= 128
+        assert index >= 0 and index <= 128
         assert not index & 0x88 # On the board.
-        return Square(index & 7, index >> 4)
+        return Square(index & 7, 7 - (index >> 4))
 
     @staticmethod
     def from_rank_and_file(rank, file):

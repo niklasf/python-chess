@@ -81,10 +81,17 @@ class Piece(object):
         return "Piece.from_symbol('%s')" % self.get_symbol()
 
     def __eq__(self, other):
+        if not other:
+            return True
         return self.get_symbol() == other.get_symbol()
 
     def __ne__(self, other):
+        if not other:
+            return True
         return self.get_symbol() != other.get_symbol()
+
+    def __hash__(self):
+        return hash(self.get_symbol())
 
     @staticmethod
     def from_symbol(symbol):

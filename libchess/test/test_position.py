@@ -7,7 +7,9 @@ class PositionTestCase(unittest.TestCase):
     def test_default_position(self):
         """Tests the default position."""
         pos = libchess.Position.get_default()
+        self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
         self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.assertEqual(pos.get_turn(), "w")
 
     def test_scholars_mate(self):
         """Tests the scholars mate."""
@@ -40,7 +42,7 @@ class PositionTestCase(unittest.TestCase):
 
         self.assertFalse(pos.is_check())
         self.assertFalse(pos.is_checkmate())
-        self.assertFalse(pos.is_gameover())
+        self.assertFalse(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
         Qf7_mate = libchess.Move.from_uci_move('f3f7')
@@ -49,7 +51,7 @@ class PositionTestCase(unittest.TestCase):
 
         self.assertTrue(pos.is_check())
         self.assertTrue(pos.is_checkmate())
-        self.assertTrue(pos.is_gameover())
+        self.assertTrue(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
-        self.assertEqual(pos.get_fen(), '1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR')
+        self.assertEqual(pos.get_fen(), '1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')

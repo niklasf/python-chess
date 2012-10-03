@@ -84,6 +84,10 @@ class Position(object):
             # If big pawn move, set the en-passant file.
             if abs(move.get_target().get_rank() - move.get_source().get_rank()) == 2:
                 self._ep_file = move.get_target().get_file()
+            else:
+                self._ep_file = None
+        else:
+            self._ep_file = None
 
         # Promotion.
         if move.get_promotion():
@@ -91,7 +95,7 @@ class Position(object):
 
         # Potential castling.
         if self.get(move.get_target()).get_type() == 'k':
-            steps = move.get_target().get_x() - move.get_source.get_x()
+            steps = move.get_target().get_x() - move.get_source().get_x()
             if abs(steps) == 2:
                 # Queen-side castling.
                 if steps == -2:
@@ -337,7 +341,7 @@ class Position(object):
         # En-passant.
         ep_flag = "-"
         if self._ep_file:
-            self.ep_flag = self._ep_file
+            ep_flag = self._ep_file
             if self._turn == "w":
                 ep_flag += "6"
             else:
@@ -506,7 +510,7 @@ class Position(object):
 
                     # Two squares ahead. Do not capture.
                     target = libchess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])
-                    if (self.get_turn() == "w" and square.get_rank() == 2) or (self.get_turn() == "b" and square.get_rank() == 7) and not board.get(target):
+                    if (self.get_turn() == "w" and square.get_rank() == 2) or (self.get_turn() == "b" and square.get_rank() == 7) and not self.get(target):
                         yield libchess.Move(square, target)
 
                 # Pawn captures.
