@@ -18,7 +18,7 @@ class Move(object):
             assert target.is_backrank()
             assert promotion in "rnbq"
 
-    def get_uci_move(self):
+    def get_uci(self):
         """Gets an UCI move.
 
         Returns:
@@ -57,22 +57,22 @@ class Move(object):
             return self._promotion
 
     def __str__(self):
-        return self.get_uci_move()
+        return self.get_uci()
 
     def __repr__(self):
-        return "Move.from_uci_move('%s')" % self.get_uci_move()
+        return "Move.from_uci('%s')" % self.get_uci()
 
     def __eq__(self, other):
-        return self.get_uci_move() == other.get_uci_move()
+        return self.get_uci() == other.get_uci()
 
     def __ne__(self, other):
-        return self.get_uci_move() != other.get_uci_move()
+        return self.get_uci() != other.get_uci()
 
     def __hash__(self):
-        return hash(self.get_uci_move())
+        return hash(self.get_uci())
 
     @staticmethod
-    def from_uci_move(move):
+    def from_uci(move):
         """Parses an UCI move like "a1a2" or "b7b8q
 
         Returns:
