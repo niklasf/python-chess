@@ -1,7 +1,7 @@
 class Piece(object):
     """Represents a chess piece."""
 
-    def __init__(self, type, color):
+    def __init__(self, color, type):
         """Inits a piece with type and color.
 
         Args:
@@ -100,6 +100,6 @@ class Piece(object):
         """
         type = symbol.lower()
         if type == symbol:
-            return Piece(type, "b")
+            return Piece("b", type)
         else:
-            return Piece(type, "w")
+            return Piece("w", type)

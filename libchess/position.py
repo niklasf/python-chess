@@ -1,4 +1,5 @@
 import libchess
+import re
 
 class Position(object):
     """Represents a chess position."""
@@ -62,7 +63,7 @@ class Position(object):
         Args:
             move: The move to make.
         """
-        capture = self.get(move.get_target_square())
+        capture = self.get(move.get_target())
 
         # Move the piece.
         self.set(move.get_target(), self.get(move.get_source()))
@@ -173,7 +174,7 @@ class Position(object):
             elif type == "Q":
                 return self.get(libchess.Square.from_name('a1')) == libchess.Piece('w', 'r')
         elif type == "k" or type == "q":
-            if self.get(libchess.Square.from_name('e8')) != libchess.Piece('b', 'l'):
+            if self.get(libchess.Square.from_name('e8')) != libchess.Piece('b', 'k'):
                 return False
             if type == "k":
                 return self.get(libchess.Square.from_name('h8')) == libchess.Piece('b', 'r')
@@ -197,7 +198,7 @@ class Position(object):
             if type == t:
                 if status:
                     castling += t
-            elif self.get_castling_right(self, t):
+            elif self.get_castling_right(t):
                 castling += t
         self._castling = castling
 
@@ -295,9 +296,10 @@ class Position(object):
             The square of the king or None if that player has no king.
         """
         assert color in ["w", "b"]
-        for piece in self._board:
+        for square in libchess.Square.get_all():
+            piece = self.get(square)
             if piece and piece.get_color() == color and piece.get_type() == 'k':
-                return piece
+                return square
 
     def get_fen(self):
         """Gets the FEN representation of the position.
@@ -479,14 +481,14 @@ class Position(object):
         }
 
         PIECE_OFFSETS = {
-            KNIGHT: [-18, -33, -31, -14, 18, 33, 31, 14],
-            BISHOP: [-17, -15, 17, 15],
-            ROOK: [-16, 1, 16, -1],
-            QUEEN: [-17, -16, -15, 1, 17, 16, 15, -1],
-            KING: [-17, -16, -15, 1, 17, 16, 15, -1]
+            "n": [-18, -33, -31, -14, 18, 33, 31, 14],
+            "b": [-17, -15, 17, 15],
+            "r": [-16, 1, 16, -1],
+            "q": [-17, -16, -15, 1, 17, 16, 15, -1],
+            "k": [-17, -16, -15, 1, 17, 16, 15, -1]
         }
 
-        for square in libchess.Squares.get_all():
+        for square in libchess.Square.get_all():
             # Skip pieces of the opponent.
             piece = self.get(square)
             if not piece or piece.get_color() != self.get_turn():
@@ -640,7 +642,7 @@ class Position(object):
             difference = source.get_0x88_index() - square.get_0x88_index()
             index = difference + 119
 
-            if ATTACKS[index] & (1 << libchess.SHIFTS[piece.get_type()]):
+            if ATTACKS[index] & (1 << SHIFTS[piece.get_type()]):
                 # Handle pawns.
                 if piece.get_type() == "p":
                     if difference > 0:
