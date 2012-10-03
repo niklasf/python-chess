@@ -3,6 +3,7 @@ import inspect
 from libchess.piece import Piece
 from libchess.square import Square
 from libchess.move import Move
+from libchess.move_info import MoveInfo
 from libchess.position import Position
 
 def opposite_color(color):
