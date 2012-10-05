@@ -84,3 +84,23 @@ class PositionTestCase(unittest.TestCase):
 
         pos.set(libchess.Square.from_name('e4'), libchess.Piece.from_symbol('r'))
         self.assertEqual(pos.get(libchess.Square.from_name('e4')), libchess.Piece.from_symbol('r'))
+
+    def test_san_moves(self):
+        """Tests making moves from SANs."""
+        pos = libchess.Position.get_default()
+
+        pos.make_move(pos.get_move_from_san('Nc3'))
+        pos.make_move(pos.get_move_from_san('c5'))
+
+        pos.make_move(pos.get_move_from_san('e4'))
+        pos.make_move(pos.get_move_from_san('g6'))
+
+        pos.make_move(pos.get_move_from_san('Nge2'))
+        pos.make_move(pos.get_move_from_san('Bg7'))
+
+        pos.make_move(pos.get_move_from_san('d3'))
+        pos.make_move(pos.get_move_from_san('Bxc3'))
+
+        pos.make_move(pos.get_move_from_san('bxc3'))
+
+        self.assertEqual(pos.get_fen(), 'rnbqk1nr/pp1ppp1p/6p1/2p5/4P3/2PP4/P1P1NPPP/R1BQKB1R b KQkq - 0 5')

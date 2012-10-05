@@ -88,6 +88,49 @@ class Position(object):
         else:
             return ""
 
+    def get_move_from_san(self, san):
+        """Gets a move from standard algebraic notation.
+
+        Args:
+            san: Standard algebraic notation of a move.
+
+        Returns:
+            A move object.
+        """
+        # Castling moves.
+        if san == "o-o" or san == "o-o-o":
+            rank = 1 if self.get_turn() == "w" else 8
+            if san == "o-o":
+                return libchess.Move(
+                    source=libchess.Square.from_rank_and_file(rank, 'e'),
+                    target=libchess.Square.from_rank_and_file(rank, 'g'))
+            else:
+                return libchess.Move(
+                    source=libchess.Square.from_rank_and_file(rank, 'e'),
+                    target=libchess.Square.from_rank_and_file(rank, 'c'))
+        # Regular moves.
+        else:
+            print san
+            matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
+            piece = libchess.Piece(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
+            target = libchess.Square.from_name(matches.group(4))
+            source = None
+            for m in self.get_legal_moves():
+                print "--->", m
+                if self.get(m.get_source()) == piece and m.get_target() == target:
+                    if matches.group(2) and matches.group(2) != m.get_source().get_file():
+                        continue
+                    if matches.group(3) and matches.group(3) != str(m.get_source().get_rank()):
+                        continue
+                    # Move matches. Assert it is not ambigoous.
+                    assert not source
+                    source = m.get_source()
+
+            # Assert a possible source square was found.
+            assert source
+
+            return libchess.Move(source, target, promotion=matches.group(5))
+
     def get_move_info(self, move):
         """Gets information about a move.
 
