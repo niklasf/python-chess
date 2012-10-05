@@ -4,14 +4,10 @@ import re
 class Position(object):
     """Represents a chess position."""
 
-    def __init__(self):
-        """Inits an empty position."""
-        self._board = [None] * 128
-        self._turn = "w"
-        self._castling = ""
-        self._ep_file = None
-        self._half_moves = 0
-        self._move_number = 1
+    def __init__(self, fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
+        """Inits the position."""
+        self._castling = "KQkq"
+        self.set_fen(fen)
 
     def copy(self):
         """Gets a copy of the position. The copy will not change when the
@@ -20,7 +16,7 @@ class Position(object):
         Returns:
             An exact copy of the positon.
         """
-        return Position.from_fen(self.get_fen())
+        return Position(self.get_fen())
 
     def get(self, square):
         """Gets the piece on the given square.
@@ -43,15 +39,9 @@ class Position(object):
         """
         self._board[square.get_0x88_index()] = piece
 
-        # Update castling rights.
-        for type in ["K", "Q", "k", "q"]:
-            if not self.get_theoretical_castling_right(type):
-                self.set_castling_right(type, False)
-
-    def clear(self):
+    def clear_board(self):
         """Removes all pieces from the board."""
         self._board = [None] * 128
-        self._castling = ""
 
     def reset(self):
         """Resets to the default chess position."""
@@ -264,8 +254,12 @@ class Position(object):
 
         # Increment the move number.
         if self.get_turn() == "w":
-            self._move_number += 1
+            self._ply += 1
 
+        # Update castling rights.
+        for type in ["K", "Q", "k", "q"]:
+            if not self.get_theoretical_castling_right(type):
+                self.set_castling_right(type, False)
 
     def get_turn(self):
         """Gets whos turn it is.
@@ -341,7 +335,6 @@ class Position(object):
                 given or denied.
         """
         assert type in ["K", "Q", "k", "q"]
-        assert not status or self.get_theoretical_castling_right(type)
 
         castling = ""
         for t in ["K", "Q", "k", "q"]:
@@ -391,22 +384,22 @@ class Position(object):
         assert half_moves >= 0
         self._half_moves = half_moves
 
-    def get_move_number(self):
+    def get_ply(self):
         """Gets the number of this move. The game starts at 1 and the counter
         is incremented every time white moves.
 
         Returns:
             An integer.
         """
-        return self._move_number
+        return self._ply
 
-    def set_move_number(self, move_number):
+    def set_ply(self, ply):
         """Sets the move number.
 
         Args:
-            move_number: An integer.
+            ply: An integer.
         """
-        return self._move_number
+        return self._ply
 
     def get_piece_counts(self, color = "wb"):
         """Gets a dictionary keyed by "p", "b", "n", "r", "k" and "q" with the
@@ -451,101 +444,89 @@ class Position(object):
             if piece and piece.get_color() == color and piece.get_type() == 'k':
                 return square
 
+
     def get_fen(self):
         """Gets the FEN representation of the position.
 
         Returns:
-            The fen string representing the position.
+            The FEN string representing the position.
         """
         # Board setup.
         empty = 0
         fen = ""
         for y in range(7, -1, -1):
             for x in range(0, 8):
-                i = libchess.Square(x, y).get_0x88_index()
+                square = libchess.Square(x, y)
+
                 # Add pieces.
-                if not self._board[i]:
+                if not self.get(square):
                     empty += 1
                 else:
                     if empty > 0:
                         fen += str(empty)
                         empty = 0
-                    fen += self._board[i].get_symbol()
+                    fen += self.get(square).get_symbol()
 
-            # Border of the board.
+            # Boarder of the board.
             if empty > 0:
                 fen += str(empty)
             if not (x == 7 and y == 0):
                 fen += "/"
             empty = 0
 
-        # Castling.
-        castling_flag = "-"
-        if self._castling:
-            castling_flag = self._castling
-
-        # En-passant.
-        ep_flag = "-"
-        if self._ep_file:
-            ep_flag = self._ep_file
-            if self._turn == "w":
-                ep_flag += "6"
-            else:
-                ep_flag += "3"
-
-        return " ".join([fen, self._turn, castling_flag, ep_flag, str(self._half_moves), str(self._move_number)])
+        # Join the parts together.
+        return " ".join([
+            fen,
+            self.get_turn(),
+            self._castling if self._castling else "-",
+            self._ep_file + ("3" if self._turn == "b" else "6") if self._ep_file else "-",
+            str(self.get_half_moves()),
+            str(self.get_ply())])
 
     def set_fen(self, fen):
-        """Sets the position by a FEN.
+        """Sets the position by A FEN.
 
         Args:
             fen: The FEN.
         """
         # Split into 6 parts.
         tokens = fen.split()
-        assert len(tokens) == 6
+        if len(tokens) != 6:
+            raise libchess.FenError("A FEN does not consist of 6 parts.")
 
-        # Check that every row is valid.
+        # Check that the position part is valid.
         rows = tokens[0].split("/")
         assert len(rows) == 8
         for row in rows:
             field_sum = 0
             previous_was_number = False
             for char in row:
-                assert char in "12345678pnbrkqPNBRKQ"
                 if char in "12345678":
-                    assert not previous_was_number
+                    if previous_was_number:
+                        raise libchess.FenError("Position part of the FEN is invalid: Multiple numbers immediately after each other.")
                     field_sum += int(char)
                     previous_was_number = True
-                else:
+                elif char in "pnbrkqPNBRKQ":
                     field_sum += 1
                     previous_was_number = False
-            assert field_sum == 8
+                else:
+                    raise libchess.FenError("Position part of the FEN is invalid: Invalid character in the position part of the FEN.")
 
-        # Assertions.
-        assert tokens[1] in ["w", "b"]
-        assert re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2])
-        assert re.compile("^(-|[a-h][36])$").match(tokens[3])
+            if field_sum != 8:
+                libchess.FenError("Position part of the FEN is invalid: Row with invalid length.")
 
-        # Set the move counters.
-        half_moves = int(tokens[4])
-        assert half_moves >= 0
-        move_number = int(tokens[5])
-        assert move_number >= 1
-        self._half_moves = half_moves
-        self._move_number = move_number
 
-        # Set the en-passant file.
-        if tokens[3] == "-":
-            self._ep_file = None
-        else:
-            self._ep_file = tokens[3][0]
-
-        # Set the castling.
-        if tokens[2] == "-":
-            self._castling = ""
-        else:
-            self._castling = tokens[2]
+        # Check that the other parts are valid.
+        if not tokens[1] in ["w", "b"]:
+            raise libchess.FenError("Turn part of the FEN is invalid: Expected b or w.")
+        if not re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2]):
+            raise libchess.FenError("Castling part of the FEN is invalid.")
+        if not re.compile("^(-|[a-h][36])$").match(tokens[3]):
+            raise libchess.FenError("En-passant part of the FEN is invalid.")
+        if not re.compile("^(0|[1-9][0-9]*)$").match(tokens[4]):
+            raise libchess.FenError("Half move part of the FEN is invalid.")
+        if not re.compile("^[1-9][0-9]*$").match(tokens[5]):
+            raise libchess.FenError("Ply part of the FEN is invalid.")
 
         # Set pieces on the board.
         self._board = [None] * 128
@@ -562,10 +543,19 @@ class Position(object):
         # Set the turn.
         self._turn = tokens[1]
 
-        # Update castling rights.
+        # Set the castling rights.
         for type in ["K", "Q", "k", "q"]:
-            if not self.get_theoretical_castling_right(type):
-               self.set_castling_right(type, False)
+            self.set_castling_right(type, type in tokens[2])
+
+        # Set the en-passant file.
+        if tokens[3] == "-":
+            self._ep_file = None
+        else:
+            self._ep_file = tokens[3][0]
+
+        # Set the move counters.
+        self._half_moves = int(tokens[4])
+        self._ply = int(tokens[5])
 
     def validate():
         """Validates the position. Castling rights are automatically corrected,
@@ -940,30 +930,5 @@ class Position(object):
         return self.get_fen() != other.get_fen()
 
     def __hash__(self, other):
-        # TODO: Use Zobrist hashing.
+        # TODO: Consider using Zobrist hashing.
         return hash(self.get_fen())
-
-    @staticmethod
-    def get_default():
-        """Gets the default position.
-
-        Returns:
-            A new position, initialized to the default chess position.
-        """
-        default_position = Position()
-        default_position.reset()
-        return default_position
-
-    @staticmethod
-    def from_fen(fen):
-        """Gets a position from a FEN.
-
-        Args:
-            fen: The FEN.
-
-        Returns:
-            A new position created from the fen.
-        """
-        position = Position()
-        position.set_fen(fen)
-        return position

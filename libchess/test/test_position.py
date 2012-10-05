@@ -6,14 +6,14 @@ class PositionTestCase(unittest.TestCase):
 
     def test_default_position(self):
         """Tests the default position."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
         self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
         self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(pos.get_turn(), "w")
 
     def test_scholars_mate(self):
         """Tests the scholars mate."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
 
         e4 = libchess.Move.from_uci('e2e4')
         self.assertTrue(e4 in pos.get_legal_moves())
@@ -58,7 +58,7 @@ class PositionTestCase(unittest.TestCase):
 
     def test_move_info(self):
         """Tests move info generation."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
         e4 = pos.get_move_info(libchess.Move.from_uci('e2e4'))
         self.assertEqual(e4.get_san(), 'e4')
         self.assertFalse(e4.is_check())
@@ -67,7 +67,7 @@ class PositionTestCase(unittest.TestCase):
 
     def test_single_step_pawn_move(self):
         """Tests that single step pawn moves are possible."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
         a3 = libchess.Move.from_uci('a2a3')
         self.assertTrue(a3 in pos.get_pseudo_legal_moves())
         self.assertTrue(a3 in pos.get_legal_moves())
@@ -76,7 +76,7 @@ class PositionTestCase(unittest.TestCase):
 
     def test_get_set(self):
         """Tests the get and set methods."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
         self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
 
         pos.set(libchess.Square.from_name('e2'), None)
@@ -87,7 +87,7 @@ class PositionTestCase(unittest.TestCase):
 
     def test_san_moves(self):
         """Tests making moves from SANs."""
-        pos = libchess.Position.get_default()
+        pos = libchess.Position()
 
         pos.make_move(pos.get_move_from_san('Nc3'))
         pos.make_move(pos.get_move_from_san('c5'))
