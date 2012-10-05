@@ -64,3 +64,14 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(e4.is_check())
         self.assertFalse(e4.is_checkmate())
         self.assertFalse(e4.is_castle())
+
+    def test_get_set(self):
+        """Tests the get and set methods."""
+        pos = libchess.Position.get_default()
+        self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
+
+        pos.set(libchess.Square.from_name('e2'), None)
+        self.assertEqual(pos.get(libchess.Square.from_name('e2')), None)
+
+        pos.set(libchess.Square.from_name('e4'), libchess.Piece.from_symbol('r'))
+        self.assertEqual(pos.get(libchess.Square.from_name('e4')), libchess.Piece.from_symbol('r'))

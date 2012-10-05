@@ -46,7 +46,7 @@ class Position(object):
         # Update castling rights.
         for type in ["K", "Q", "k", "q"]:
             if not self.get_theoretical_castling_right(type):
-               self.set_castling_right(type, False)
+                self.set_castling_right(type, False)
 
     def clear(self):
         """Removes all pieces from the board."""
