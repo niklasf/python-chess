@@ -1,0 +1,2 @@
+class FenError(ValueError):
+    pass

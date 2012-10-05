@@ -5,6 +5,9 @@ from libchess.square import Square
 from libchess.move import Move
 from libchess.move_info import MoveInfo
 from libchess.position import Position
+from libchess.position_builder import PositionBuilder
+
+from libchess.exceptions import FenError
 
 def opposite_color(color):
     """Gets the opposite color.
