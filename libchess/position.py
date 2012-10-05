@@ -610,6 +610,8 @@ class Position(object):
                     if target.is_backrank():
                         for promote_to in "bnrq":
                             yield libchess.Move(square, target, promote_to)
+                    else:
+                        yield libchess.Move(square, target)
 
                     # Two squares ahead. Do not capture.
                     target = libchess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])

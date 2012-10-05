@@ -65,6 +65,15 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(e4.is_checkmate())
         self.assertFalse(e4.is_castle())
 
+    def test_single_step_pawn_move(self):
+        """Tests that single step pawn moves are possible."""
+        pos = libchess.Position.get_default()
+        a3 = libchess.Move.from_uci('a2a3')
+        self.assertTrue(a3 in pos.get_pseudo_legal_moves())
+        self.assertTrue(a3 in pos.get_legal_moves())
+        pos.get_move_info(a3)
+        pos.make_move(a3)
+
     def test_get_set(self):
         """Tests the get and set methods."""
         pos = libchess.Position.get_default()
