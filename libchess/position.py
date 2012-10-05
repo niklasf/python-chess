@@ -158,12 +158,14 @@ class Position(object):
             is_check=is_check,
             is_checkmate=is_checkmate)
 
-    def make_move(self, move):
+    def make_move(self, move, validate=True):
         """Makes a move.
 
         Args:
             move: The move to make.
         """
+        assert not validate or move in self.get_legal_moves()
+
         capture = self.get(move.get_target())
 
         # Move the piece.
@@ -678,7 +680,7 @@ class Position(object):
         """
         for move in self.get_pseudo_legal_moves():
             potential_position = self.copy()
-            potential_position.make_move(move)
+            potential_position.make_move(move, False)
             if not potential_position.is_king_attacked(self.get_turn()):
                 yield move
 
