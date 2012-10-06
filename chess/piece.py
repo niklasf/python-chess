@@ -70,7 +70,7 @@ class Piece(object):
         return self.get_symbol()
 
     def __repr__(self):
-        return "Piece.from_symbol('%s')" % self.get_symbol()
+        return "Piece('%s')" % self.get_symbol()
 
     def __eq__(self, other):
         if not other:
