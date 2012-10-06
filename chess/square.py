@@ -1,17 +1,17 @@
 class Square(object):
     """Represents a square on the chess board."""
 
-    def __init__(self, x, y):
+    def __init__(self, name):
         """Inits a square with via its name.
 
         Args:
             x: The x-coordinate, starting with 0 for the a-file.
             y: The y-coordinate, starting with 0 for the first rank.
         """
-        self._x = int(x)
-        self._y = int(y)
-        assert self._x >= 0 and self._x <= 7
-        assert self._y >= 0 and self._y <= 7
+        assert len(name) == 2
+        assert name[0] in ["a", "b", "c", "d", "e", "f", "g", "h"]
+        assert name[1] in ["1", "2", "3", "4", "5", "6", "7", "8"]
+        self._name = name
 
     def get_x(self):
         """Gets the x-coordinate, starting with 0 for the a-file.
@@ -19,7 +19,7 @@ class Square(object):
         Returns:
             An integer between 0 and 7.
         """
-        return self._x
+        return ord(self._name[0]) - ord("a")
 
     def get_y(self):
         """Gets the y-coordinate, starting with 0 for the first rank.
@@ -27,7 +27,7 @@ class Square(object):
         Returns:
             An integer between 0 and 7.
         """
-        return self._y
+        return ord(self._name[1]) - ord("1")
 
     def is_dark(self):
         """Checks the color of the square.
@@ -35,7 +35,7 @@ class Square(object):
         Returns:
             A boolean indicating if the square is dark.
         """
-        return (self._x - self._y) % 2 == 0
+        return (ord(self._name[0]) - ord(self._name[1])) % 2 == 0
 
     def is_light(self):
         """Checks the color of the square.
@@ -51,7 +51,7 @@ class Square(object):
         Returns:
             An integer between 1 and 8, where 1 is the first rank.
         """
-        return self._y + 1
+        return self.get_y() + 1
 
     def get_file(self):
         """Gets the file.
@@ -59,7 +59,7 @@ class Square(object):
         Returns:
             "a", "b", "c", "d", "e", "f", "g" or "h".
         """
-        return "abcdefgh"[self._x]
+        return self._name[0]
 
     def get_name(self):
         """Gets the algebraic name.
@@ -67,7 +67,7 @@ class Square(object):
         Returns:
             An algebraic name like "a1".
         """
-        return self.get_file() + str(self.get_rank())
+        return self._name
 
     def get_0x88_index(self):
         """Gets the index of the square in 0x88 board representation.
@@ -75,7 +75,7 @@ class Square(object):
         Returns:
             An integer between 0 and 119.
         """
-        return self._x + 16 * (7 - self._y)
+        return self.get_x() + 16 * (7 - self.get_y())
 
     def is_backrank(self):
         """Checks whether the square is on the backrank of either side.
@@ -83,13 +83,13 @@ class Square(object):
         Returns:
             A boolean indicating if it is a backrank square.
         """
-        return self._y == 0 or self._y == 7
+        return self._name[1] in ["1", "8"]
 
     def __str__(self):
         return self.get_name()
 
     def __repr__(self):
-        return "Square.from_name('%s')" % self.get_name()
+        return "Square('%s')" % self.get_name()
 
     def __eq__(self, other):
         return self.get_x() == other.get_x() and self.get_y() == other.get_y()
@@ -99,21 +99,6 @@ class Square(object):
 
     def __hash__(self):
         return self.get_0x88_index()
-
-    @staticmethod
-    def from_name(name):
-        """Parses a square name.
-
-        Args:
-            name: A square name like "a1".
-
-        Returns:
-            An object of the Square class.
-        """
-        assert len(name) == 2
-        assert name[0] in ["a", "b", "c", "d", "e", "f", "g", "h"]
-        assert name[1] in ["1", "2", "3", "4", "5", "6", "7", "8"]
-        return Square(ord(name[0]) - ord('a'), ord(name[1]) - ord('1'))
 
     @staticmethod
     def from_0x88_index(index):
@@ -128,7 +113,7 @@ class Square(object):
         index = int(index)
         assert index >= 0 and index <= 128
         assert not index & 0x88 # On the board.
-        return Square(index & 7, 7 - (index >> 4))
+        return Square("abcdefgh"[index & 7] + "87654321"[index >> 4])
 
     @staticmethod
     def from_rank_and_file(rank, file):
@@ -144,7 +129,13 @@ class Square(object):
         rank = int(rank)
         assert rank >= 1 and rank <= 8
         assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
-        return Square(ord(file) - ord("a"), rank - 1)
+        return Square(file + str(rank))
+
+    @staticmethod
+    def from_x_and_y(x, y):
+        assert x >= 0 and x <= 7
+        assert y >= 0 and y <= 7
+        return Square("abcdefgh"[x] + "12345678"[y])
 
     @staticmethod
     def get_all():
@@ -155,4 +146,4 @@ class Square(object):
         """
         for x in range(0, 8):
             for y in range(0, 8):
-                yield Square(x, y)
+                yield Square.from_x_and_y(x, y)

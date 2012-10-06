@@ -103,7 +103,7 @@ class Position(object):
             print san
             matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
             piece = chess.Piece.from_color_and_type(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
-            target = chess.Square.from_name(matches.group(4))
+            target = chess.Square(matches.group(4))
             source = None
             for m in self.get_legal_moves():
                 print "--->", m
@@ -311,19 +311,19 @@ class Position(object):
         """
         assert type in ["K", "Q", "k", "q"]
         if type == "K" or type == "Q":
-            if self.get(chess.Square.from_name('e1')) != chess.Piece("K"):
+            if self.get(chess.Square("e1")) != chess.Piece("K"):
                 return False
             if type == "K":
-                return self.get(chess.Square.from_name('h1')) == chess.Piece("R")
+                return self.get(chess.Square("h1")) == chess.Piece("R")
             elif type == "Q":
-                return self.get(chess.Square.from_name('a1')) == chess.Piece("R")
+                return self.get(chess.Square("a1")) == chess.Piece("R")
         elif type == "k" or type == "q":
-            if self.get(chess.Square.from_name('e8')) != chess.Piece("k"):
+            if self.get(chess.Square("e8")) != chess.Piece("k"):
                 return False
             if type == "k":
-                return self.get(chess.Square.from_name('h8')) == chess.Piece("r")
+                return self.get(chess.Square("h8")) == chess.Piece("r")
             elif type == "q":
-                return self.get(chess.Square.from_name('a8')) == chess.Piece("r")
+                return self.get(chess.Square("a8")) == chess.Piece("r")
 
     def set_castling_right(self, type, status):
         """Sets a castling right.
@@ -456,7 +456,7 @@ class Position(object):
         fen = ""
         for y in range(7, -1, -1):
             for x in range(0, 8):
-                square = chess.Square(x, y)
+                square = chess.Square.from_x_and_y(x, y)
 
                 # Add pieces.
                 if not self.get(square):
