@@ -71,8 +71,8 @@ class Move(object):
     def __hash__(self):
         return hash(self.get_uci())
 
-    @staticmethod
-    def from_uci(move):
+    @classmethod
+    def from_uci(cls, move):
         """Parses an UCI move like "a1a2" or "b7b8q
 
         Returns:
@@ -80,4 +80,4 @@ class Move(object):
         """
         uci_move_regex = re.compile("^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
         match = uci_move_regex.match(move)
-        return Move(chess.Square(match.group(1)), chess.Square(match.group(2)), match.group(3))
+        return cls(chess.Square(match.group(1)), chess.Square(match.group(2)), match.group(3))

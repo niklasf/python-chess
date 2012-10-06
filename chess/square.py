@@ -100,8 +100,8 @@ class Square(object):
     def __hash__(self):
         return self.get_0x88_index()
 
-    @staticmethod
-    def from_0x88_index(index):
+    @classmethod
+    def from_0x88_index(cls, index):
         """Gets a square from a 0x88 index.
 
         Args:
@@ -113,10 +113,10 @@ class Square(object):
         index = int(index)
         assert index >= 0 and index <= 128
         assert not index & 0x88 # On the board.
-        return Square("abcdefgh"[index & 7] + "87654321"[index >> 4])
+        return cls("abcdefgh"[index & 7] + "87654321"[index >> 4])
 
-    @staticmethod
-    def from_rank_and_file(rank, file):
+    @classmethod
+    def from_rank_and_file(cls, rank, file):
         """Gets a square from rank and file.
 
         Args:
@@ -129,16 +129,16 @@ class Square(object):
         rank = int(rank)
         assert rank >= 1 and rank <= 8
         assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
-        return Square(file + str(rank))
+        return cls(file + str(rank))
 
-    @staticmethod
-    def from_x_and_y(x, y):
+    @classmethod
+    def from_x_and_y(cls, x, y):
         assert x >= 0 and x <= 7
         assert y >= 0 and y <= 7
-        return Square("abcdefgh"[x] + "12345678"[y])
+        return cls("abcdefgh"[x] + "12345678"[y])
 
-    @staticmethod
-    def get_all():
+    @classmethod
+    def get_all(cls):
         """Gets all squares.
 
         Yields:
@@ -146,4 +146,4 @@ class Square(object):
         """
         for x in range(0, 8):
             for y in range(0, 8):
-                yield Square.from_x_and_y(x, y)
+                yield cls.from_x_and_y(x, y)

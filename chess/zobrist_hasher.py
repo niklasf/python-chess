@@ -248,8 +248,8 @@ class ZobristHasher(object):
 
         return key
 
-    @staticmethod
-    def create_random():
+    @classmethod
+    def create_random(cls):
         """Generates a new random number array using the random module and
         creates a new ZobristHasher from it. Its up to the caller to seed the
         random number generator (or not).
@@ -257,4 +257,4 @@ class ZobristHasher(object):
         Returns:
             A new ZobristHasher.
         """
-        return ZobristHasher(tuple(random.randint(0, 2**64) for i in range(0, 781)))
+        return cls(tuple(random.randint(0, 2**64) for i in range(0, 781)))

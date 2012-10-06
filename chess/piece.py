@@ -85,8 +85,8 @@ class Piece(object):
     def __hash__(self):
         return ord(self.get_symbol())
 
-    @staticmethod
-    def from_color_and_type(color, type):
+    @classmethod
+    def from_color_and_type(cls, color, type):
         """Parses a piece symbol.
 
         Args:
@@ -113,8 +113,8 @@ class Piece(object):
             raise ValueError("Invalid piece type: %s." % repr(type))
 
         if color in ["w", "white"]:
-            return Piece(symbol.upper())
+            return cls(symbol.upper())
         elif color in ["b", "black"]:
-            return Piece(symbol)
+            return cls(symbol)
         else:
             raise ValueError("Invalid piece color: %s." % repr(color))
