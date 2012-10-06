@@ -115,6 +115,23 @@ class MoveInfo(object):
         """
         return self._is_legal
 
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        return self.get_move() == other.get_move()
+            and self.get_piece() == other.get_piece()
+            and self.get_capured() == other.get_captured()
+            and self.get_san() == other.get_san()
+            and self.is_enpassant() == other.is_enpassant()
+            and self.is_king_side_castle() == other.is_king_side_castle()
+            and self.is_queen_side_castle() == other.is_queen_side_castle()
+            and self.is_check() == other.is_check()
+            and self.is_checkmate() == other.is_checkmate()
+
+    def __ne__(self, other):
+       return not self.__eq__(other)
+
     def __str__(self):
         return self.get_san()
 
