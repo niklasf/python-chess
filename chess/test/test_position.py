@@ -85,6 +85,10 @@ class PositionTestCase(unittest.TestCase):
         pos.set(chess.Square("e4"), chess.Piece("r"))
         self.assertEqual(pos.get(chess.Square("e4")), chess.Piece("r"))
 
+    def test_ep_file(self):
+        pos = chess.Position("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
+        self.assertEqual(pos.get_ep_file(), "d")
+
     def test_san_moves(self):
         """Tests making moves from SANs."""
         pos = chess.Position()
