@@ -219,7 +219,10 @@ class Position(object):
                 capture = True
             # If big pawn move, set the en-passant file.
             if abs(move.get_target().get_rank() - move.get_source().get_rank()) == 2:
-                self._ep_file = move.get_target().get_file()
+                if self.get_theoretical_ep_right(move.get_target().get_file()):
+                    self._ep_file = move.get_target().get_file()
+                else:
+                    self._ep_file = None
             else:
                 self._ep_file = None
         else:
@@ -324,6 +327,43 @@ class Position(object):
                 return self.get(chess.Square("h8")) == chess.Piece("r")
             elif type == "q":
                 return self.get(chess.Square("a8")) == chess.Piece("r")
+
+    def get_theoretical_ep_right(self, file):
+        """Checks if a player could have an ep-move in theory from looking just
+        at the piece positions.
+
+        Args:
+            type: The file to check the ep-move for. "a", "b", "c", "d", "e",
+                "f", "g", "h".
+
+        Returns:
+            A boolean indicating whether the player could theoretically have
+            that en-passant move.
+        """
+        assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+        # Check there is a pawn.
+        pawn_square = chess.Square.from_rank_and_file(4 if self.get_turn() == "b" else 5, file)
+        if not self.get(pawn_square) or self.get(pawn_square) != chess.Piece.from_color_and_type(chess.opposite_color(self.get_turn()), "p"):
+            return False
+
+        # Check the field below is empty.
+        if self.get(chess.Square.from_rank_and_file(3 if self.get_turn() == "b" else 6, file)):
+            return False
+
+        # Check there is a pawn of the other color on a neighbor file.
+        f = ord(file) - ord("a")
+        if self.get_turn() == "b":
+            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 3)) and self.get(chess.Square.from_x_and_y(f - 1, 3)).get_symbol() == "p":
+                return True
+            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 3)) and self.get(chess.Square.from_x_and_y(f + 1, 3)).get_symbol() == "p":
+                return True
+        else:
+            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 4)) and self.get(chess.Square.from_x_and_y(f - 1, 4)).get_symbol() == "P":
+                return True
+            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 4)) and self.get(chess.Square.from_x_and_y(f + 1, 4)).get_symbol() == "P":
+                return True
+        return False
 
     def set_castling_right(self, type, status):
         """Sets a castling right.
