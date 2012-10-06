@@ -5,6 +5,7 @@ from chess.square import Square
 from chess.move import Move
 from chess.move_info import MoveInfo
 from chess.position import Position
+from chess.zobrist_hasher import ZobristHasher
 
 from chess.exceptions import FenError
 
