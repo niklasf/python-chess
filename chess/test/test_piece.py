@@ -1,4 +1,4 @@
-import libchess
+import chess
 import unittest
 
 class PieceTestCase(unittest.TestCase):
@@ -6,18 +6,18 @@ class PieceTestCase(unittest.TestCase):
 
     def test_from_symbol(self):
         """Tests symbol parsing."""
-        black_queen = libchess.Piece.from_symbol('q')
+        black_queen = chess.Piece.from_symbol('q')
         self.assertEqual(black_queen.get_symbol(), 'q')
 
-        white_pawn = libchess.Piece.from_symbol('P')
+        white_pawn = chess.Piece.from_symbol('P')
         self.assertEqual(white_pawn.get_symbol(), 'P')
 
     def test_equality(self):
         """Tests the overriden equality behavior of the Piece class."""
-        a = libchess.Piece(type='b', color='w')
-        b = libchess.Piece(type='k', color='b')
-        c = libchess.Piece(type='k', color='w')
-        d = libchess.Piece(type='b', color='w')
+        a = chess.Piece(type='b', color='w')
+        b = chess.Piece(type='k', color='b')
+        c = chess.Piece(type='k', color='w')
+        d = chess.Piece(type='b', color='w')
 
         self.assertEqual(a, d)
         self.assertEqual(d, a)
@@ -31,7 +31,7 @@ class PieceTestCase(unittest.TestCase):
 
     def test_simple_properties(self):
         """Tests simple properties."""
-        white_knight = libchess.Piece(type='n', color='w')
+        white_knight = chess.Piece(type='n', color='w')
 
         self.assertEqual(white_knight.get_color(), 'w')
         self.assertEqual(white_knight.get_full_color(), 'white')

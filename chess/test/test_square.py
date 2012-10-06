@@ -1,4 +1,4 @@
-import libchess
+import chess
 import unittest
 
 class SquareTestCase(unittest.TestCase):
@@ -6,10 +6,10 @@ class SquareTestCase(unittest.TestCase):
 
     def test_equality(self):
         """Tests the overriden equality behaviour of the Square class."""
-        a = libchess.Square.from_name('b4')
-        b = libchess.Square.from_name('b4')
-        c = libchess.Square.from_name('b3')
-        d = libchess.Square.from_name('f3')
+        a = chess.Square.from_name('b4')
+        b = chess.Square.from_name('b4')
+        c = chess.Square.from_name('b3')
+        d = chess.Square.from_name('f3')
 
         self.assertEqual(a, b)
         self.assertEqual(b, a)
@@ -20,7 +20,7 @@ class SquareTestCase(unittest.TestCase):
 
     def test_simple_properties(self):
         """Tests simple properties of Square objects."""
-        f7 = libchess.Square.from_name('f7')
+        f7 = chess.Square.from_name('f7')
         self.assertFalse(f7.is_dark())
         self.assertTrue(f7.is_light())
         self.assertEqual(f7.get_rank(), 7)
@@ -33,11 +33,11 @@ class SquareTestCase(unittest.TestCase):
 
     def test_creation(self):
         """Tests creation of Square instances."""
-        self.assertEqual(libchess.Square(3, 5), libchess.Square.from_name('d6'))
-        self.assertEqual(libchess.Square.from_0x88_index(2), libchess.Square.from_name('c8'))
-        self.assertEqual(libchess.Square.from_rank_and_file(rank=2, file='g'), libchess.Square.from_name('g2'))
+        self.assertEqual(chess.Square(3, 5), chess.Square.from_name('d6'))
+        self.assertEqual(chess.Square.from_0x88_index(2), chess.Square.from_name('c8'))
+        self.assertEqual(chess.Square.from_rank_and_file(rank=2, file='g'), chess.Square.from_name('g2'))
 
     def test_iteration(self):
         """Tests iteration over all squares."""
-        self.assertTrue(libchess.Square.from_name("h8") in libchess.Square.get_all())
-        self.assertTrue(libchess.Square.from_name("b1") in libchess.Square.get_all())
+        self.assertTrue(chess.Square.from_name("h8") in chess.Square.get_all())
+        self.assertTrue(chess.Square.from_name("b1") in chess.Square.get_all())

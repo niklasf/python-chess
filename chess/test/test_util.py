@@ -1,4 +1,4 @@
-import libchess
+import chess
 import unittest
 
 class UtilTestCase(unittest.TestCase):
@@ -6,5 +6,5 @@ class UtilTestCase(unittest.TestCase):
 
     def test_opposite_color(self):
         """Tests the opposite color function."""
-        self.assertEqual(libchess.opposite_color("w"), "b")
-        self.assertEqual(libchess.opposite_color("b"), "w")
+        self.assertEqual(chess.opposite_color("w"), "b")
+        self.assertEqual(chess.opposite_color("b"), "w")

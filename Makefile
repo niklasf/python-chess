@@ -1,7 +1,7 @@
 .PHONY: clean test
 
 test:
-	nosetests libchess/
+	nosetests chess/
 
 clean:
 	find . -name '*.pyc' -exec rm -f {} +

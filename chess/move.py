@@ -1,5 +1,5 @@
 import re
-import libchess
+import chess
 
 class Move(object):
     def __init__(self, source, target, promotion = None):
@@ -80,4 +80,4 @@ class Move(object):
         """
         uci_move_regex = re.compile("^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
         match = uci_move_regex.match(move)
-        return Move(libchess.Square.from_name(match.group(1)), libchess.Square.from_name(match.group(2)), match.group(3))
+        return Move(chess.Square.from_name(match.group(1)), chess.Square.from_name(match.group(2)), match.group(3))

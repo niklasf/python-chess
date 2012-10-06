@@ -1,13 +1,17 @@
-import libchess
+import chess
 import re
 
 class Position(object):
     """Represents a chess position."""
 
-    def __init__(self, fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
-        """Inits the position."""
-        self._castling = "KQkq"
-        self.set_fen(fen)
+    def __init__(self):
+        """Inits an empty position."""
+        self._board = [None] * 128
+        self._turn = "w"
+        self._castling = ""
+        self._ep_file = None
+        self._half_moves = 0
+        self._move_number = 1
 
     def copy(self):
         """Gets a copy of the position. The copy will not change when the
@@ -16,7 +20,7 @@ class Position(object):
         Returns:
             An exact copy of the positon.
         """
-        return Position(self.get_fen())
+        return Position.from_fen(self.get_fen())
 
     def get(self, square):
         """Gets the piece on the given square.
@@ -39,9 +43,15 @@ class Position(object):
         """
         self._board[square.get_0x88_index()] = piece
 
-    def clear_board(self):
+        # Update castling rights.
+        for type in ["K", "Q", "k", "q"]:
+            if not self.get_theoretical_castling_right(type):
+                self.set_castling_right(type, False)
+
+    def clear(self):
         """Removes all pieces from the board."""
         self._board = [None] * 128
+        self._castling = ""
 
     def reset(self):
         """Resets to the default chess position."""
@@ -91,19 +101,19 @@ class Position(object):
         if san == "o-o" or san == "o-o-o":
             rank = 1 if self.get_turn() == "w" else 8
             if san == "o-o":
-                return libchess.Move(
-                    source=libchess.Square.from_rank_and_file(rank, 'e'),
-                    target=libchess.Square.from_rank_and_file(rank, 'g'))
+                return chess.Move(
+                    source=chess.Square.from_rank_and_file(rank, 'e'),
+                    target=chess.Square.from_rank_and_file(rank, 'g'))
             else:
-                return libchess.Move(
-                    source=libchess.Square.from_rank_and_file(rank, 'e'),
-                    target=libchess.Square.from_rank_and_file(rank, 'c'))
+                return chess.Move(
+                    source=chess.Square.from_rank_and_file(rank, 'e'),
+                    target=chess.Square.from_rank_and_file(rank, 'c'))
         # Regular moves.
         else:
             print san
             matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
-            piece = libchess.Piece(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
-            target = libchess.Square.from_name(matches.group(4))
+            piece = chess.Piece(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
+            target = chess.Square.from_name(matches.group(4))
             source = None
             for m in self.get_legal_moves():
                 print "--->", m
@@ -119,7 +129,7 @@ class Position(object):
             # Assert a possible source square was found.
             assert source
 
-            return libchess.Move(source, target, promotion=matches.group(5))
+            return chess.Move(source, target, promotion=matches.group(5))
 
     def get_move_info(self, move):
         """Gets information about a move.
@@ -140,7 +150,7 @@ class Position(object):
             # En-passant.
             if move.get_target().get_file() != move.get_source().get_file() and not capture:
                 enpassant = True
-                capture = libchess.Piece(resulting_position.get_turn(), 'p')
+                capture = chess.Piece(resulting_position.get_turn(), 'p')
 
         # Castling.
         is_king_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
@@ -180,7 +190,7 @@ class Position(object):
         if enpassant:
             san += " (e.p.)"
 
-        return libchess.MoveInfo(
+        return chess.MoveInfo(
             move=move,
             piece=piece,
             captured=capture,
@@ -227,7 +237,7 @@ class Position(object):
 
         # Promotion.
         if move.get_promotion():
-            self.set(move.get_target(), libchess.Piece(self.get(move.get_target()).get_color(), move.get_promotion()))
+            self.set(move.get_target(), chess.Piece(self.get(move.get_target()).get_color(), move.get_promotion()))
 
         # Potential castling.
         if self.get(move.get_target()).get_type() == 'k':
@@ -254,12 +264,8 @@ class Position(object):
 
         # Increment the move number.
         if self.get_turn() == "w":
-            self._ply += 1
+            self._move_number += 1
 
-        # Update castling rights.
-        for type in ["K", "Q", "k", "q"]:
-            if not self.get_theoretical_castling_right(type):
-                self.set_castling_right(type, False)
 
     def get_turn(self):
         """Gets whos turn it is.
@@ -280,7 +286,7 @@ class Position(object):
 
     def toggle_turn(self):
         """Toggles whos turn it is."""
-        self.set_turn(libchess.opposite_color(self._turn))
+        self.set_turn(chess.opposite_color(self._turn))
 
     def get_castling_right(self, type):
         """Checks the castling rights.
@@ -311,19 +317,19 @@ class Position(object):
         """
         assert type in ["K", "Q", "k", "q"]
         if type == "K" or type == "Q":
-            if self.get(libchess.Square.from_name('e1')) != libchess.Piece('w', 'k'):
+            if self.get(chess.Square.from_name('e1')) != chess.Piece('w', 'k'):
                 return False
             if type == "K":
-                return self.get(libchess.Square.from_name('h1')) == libchess.Piece('w', 'r')
+                return self.get(chess.Square.from_name('h1')) == chess.Piece('w', 'r')
             elif type == "Q":
-                return self.get(libchess.Square.from_name('a1')) == libchess.Piece('w', 'r')
+                return self.get(chess.Square.from_name('a1')) == chess.Piece('w', 'r')
         elif type == "k" or type == "q":
-            if self.get(libchess.Square.from_name('e8')) != libchess.Piece('b', 'k'):
+            if self.get(chess.Square.from_name('e8')) != chess.Piece('b', 'k'):
                 return False
             if type == "k":
-                return self.get(libchess.Square.from_name('h8')) == libchess.Piece('b', 'r')
+                return self.get(chess.Square.from_name('h8')) == chess.Piece('b', 'r')
             elif type == "q":
-                return self.get(libchess.Square.from_name('a8')) == libchess.Piece('b', 'r')
+                return self.get(chess.Square.from_name('a8')) == chess.Piece('b', 'r')
 
     def set_castling_right(self, type, status):
         """Sets a castling right.
@@ -335,6 +341,7 @@ class Position(object):
                 given or denied.
         """
         assert type in ["K", "Q", "k", "q"]
+        assert not status or self.get_theoretical_castling_right(type)
 
         castling = ""
         for t in ["K", "Q", "k", "q"]:
@@ -384,22 +391,22 @@ class Position(object):
         assert half_moves >= 0
         self._half_moves = half_moves
 
-    def get_ply(self):
+    def get_move_number(self):
         """Gets the number of this move. The game starts at 1 and the counter
         is incremented every time white moves.
 
         Returns:
             An integer.
         """
-        return self._ply
+        return self._move_number
 
-    def set_ply(self, ply):
+    def set_move_number(self, move_number):
         """Sets the move number.
 
         Args:
-            ply: An integer.
+            move_number: An integer.
         """
-        return self._ply
+        return self._move_number
 
     def get_piece_counts(self, color = "wb"):
         """Gets a dictionary keyed by "p", "b", "n", "r", "k" and "q" with the
@@ -439,94 +446,106 @@ class Position(object):
             The square of the king or None if that player has no king.
         """
         assert color in ["w", "b"]
-        for square in libchess.Square.get_all():
+        for square in chess.Square.get_all():
             piece = self.get(square)
             if piece and piece.get_color() == color and piece.get_type() == 'k':
                 return square
-
 
     def get_fen(self):
         """Gets the FEN representation of the position.
 
         Returns:
-            The FEN string representing the position.
+            The fen string representing the position.
         """
         # Board setup.
         empty = 0
         fen = ""
         for y in range(7, -1, -1):
             for x in range(0, 8):
-                square = libchess.Square(x, y)
-
+                i = chess.Square(x, y).get_0x88_index()
                 # Add pieces.
-                if not self.get(square):
+                if not self._board[i]:
                     empty += 1
                 else:
                     if empty > 0:
                         fen += str(empty)
                         empty = 0
-                    fen += self.get(square).get_symbol()
+                    fen += self._board[i].get_symbol()
 
-            # Boarder of the board.
+            # Border of the board.
             if empty > 0:
                 fen += str(empty)
             if not (x == 7 and y == 0):
                 fen += "/"
             empty = 0
 
-        # Join the parts together.
-        return " ".join([
-            fen,
-            self.get_turn(),
-            self._castling if self._castling else "-",
-            self._ep_file + ("3" if self._turn == "b" else "6") if self._ep_file else "-",
-            str(self.get_half_moves()),
-            str(self.get_ply())])
+        # Castling.
+        castling_flag = "-"
+        if self._castling:
+            castling_flag = self._castling
+
+        # En-passant.
+        ep_flag = "-"
+        if self._ep_file:
+            ep_flag = self._ep_file
+            if self._turn == "w":
+                ep_flag += "6"
+            else:
+                ep_flag += "3"
+
+        return " ".join([fen, self._turn, castling_flag, ep_flag, str(self._half_moves), str(self._move_number)])
 
     def set_fen(self, fen):
-        """Sets the position by A FEN.
+        """Sets the position by a FEN.
 
         Args:
             fen: The FEN.
         """
         # Split into 6 parts.
         tokens = fen.split()
-        if len(tokens) != 6:
-            raise libchess.FenError("A FEN does not consist of 6 parts.")
+        assert len(tokens) == 6
 
-        # Check that the position part is valid.
+        # Check that every row is valid.
         rows = tokens[0].split("/")
         assert len(rows) == 8
         for row in rows:
             field_sum = 0
             previous_was_number = False
             for char in row:
+                assert char in "12345678pnbrkqPNBRKQ"
                 if char in "12345678":
-                    if previous_was_number:
-                        raise libchess.FenError("Position part of the FEN is invalid: Multiple numbers immediately after each other.")
+                    assert not previous_was_number
                     field_sum += int(char)
                     previous_was_number = True
-                elif char in "pnbrkqPNBRKQ":
+                else:
                     field_sum += 1
                     previous_was_number = False
-                else:
-                    raise libchess.FenError("Position part of the FEN is invalid: Invalid character in the position part of the FEN.")
+            assert field_sum == 8
 
-            if field_sum != 8:
-                libchess.FenError("Position part of the FEN is invalid: Row with invalid length.")
+        # Assertions.
+        assert tokens[1] in ["w", "b"]
+        assert re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2])
+        assert re.compile("^(-|[a-h][36])$").match(tokens[3])
 
+        # Set the move counters.
+        half_moves = int(tokens[4])
+        assert half_moves >= 0
+        move_number = int(tokens[5])
+        assert move_number >= 1
+        self._half_moves = half_moves
+        self._move_number = move_number
 
-        # Check that the other parts are valid.
-        if not tokens[1] in ["w", "b"]:
-            raise libchess.FenError("Turn part of the FEN is invalid: Expected b or w.")
-        if not re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2]):
-            raise libchess.FenError("Castling part of the FEN is invalid.")
-        if not re.compile("^(-|[a-h][36])$").match(tokens[3]):
-            raise libchess.FenError("En-passant part of the FEN is invalid.")
-        if not re.compile("^(0|[1-9][0-9]*)$").match(tokens[4]):
-            raise libchess.FenError("Half move part of the FEN is invalid.")
-        if not re.compile("^[1-9][0-9]*$").match(tokens[5]):
-            raise libchess.FenError("Ply part of the FEN is invalid.")
+        # Set the en-passant file.
+        if tokens[3] == "-":
+            self._ep_file = None
+        else:
+            self._ep_file = tokens[3][0]
+
+        # Set the castling.
+        if tokens[2] == "-":
+            self._castling = ""
+        else:
+            self._castling = tokens[2]
 
         # Set pieces on the board.
         self._board = [None] * 128
@@ -537,25 +556,16 @@ class Position(object):
             elif symbol in "12345678":
                 i += int(symbol)
             else:
-                self._board[i] = libchess.Piece.from_symbol(symbol)
+                self._board[i] = chess.Piece.from_symbol(symbol)
                 i += 1
 
         # Set the turn.
         self._turn = tokens[1]
 
-        # Set the castling rights.
+        # Update castling rights.
         for type in ["K", "Q", "k", "q"]:
-            self.set_castling_right(type, type in tokens[2])
-
-        # Set the en-passant file.
-        if tokens[3] == "-":
-            self._ep_file = None
-        else:
-            self._ep_file = tokens[3][0]
-
-        # Set the move counters.
-        self._half_moves = int(tokens[4])
-        self._ply = int(tokens[5])
+            if not self.get_theoretical_castling_right(type):
+               self.set_castling_right(type, False)
 
     def validate():
         """Validates the position. Castling rights are automatically corrected,
@@ -593,7 +603,7 @@ class Position(object):
         if self.is_king_attacked("w") and self.is_king_attacked("b"):
             raise "Both sides in check."
 
-        if self.is_king_attacked(libchess.opposite_color(self.get_turn())):
+        if self.is_king_attacked(chess.opposite_color(self.get_turn())):
             raise "Opposite king in check."
 
     def is_king_attacked(self, color):
@@ -606,7 +616,7 @@ class Position(object):
         """
         square = self.get_king(color)
         if square:
-            return self.is_attacked(libchess.opposite_color(color), square)
+            return self.is_attacked(chess.opposite_color(color), square)
         else:
             return False
 
@@ -628,7 +638,7 @@ class Position(object):
             "k": [-17, -16, -15, 1, 17, 16, 15, -1]
         }
 
-        for square in libchess.Square.get_all():
+        for square in chess.Square.get_all():
             # Skip pieces of the opponent.
             piece = self.get(square)
             if not piece or piece.get_color() != self.get_turn():
@@ -637,36 +647,36 @@ class Position(object):
             # Pawn moves.
             if piece.get_type() == "p":
                 # Single square ahead. Do not capture.
-                target = libchess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][0])
+                target = chess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][0])
                 if not self.get(target):
                     # Promotion.
                     if target.is_backrank():
                         for promote_to in "bnrq":
-                            yield libchess.Move(square, target, promote_to)
+                            yield chess.Move(square, target, promote_to)
                     else:
-                        yield libchess.Move(square, target)
+                        yield chess.Move(square, target)
 
                     # Two squares ahead. Do not capture.
-                    target = libchess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])
+                    target = chess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])
                     if (self.get_turn() == "w" and square.get_rank() == 2) or (self.get_turn() == "b" and square.get_rank() == 7) and not self.get(target):
-                        yield libchess.Move(square, target)
+                        yield chess.Move(square, target)
 
                 # Pawn captures.
                 for j in [2, 3]:
                    target_index = square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][j]
                    if target_index & 0x88:
                        continue
-                   target = libchess.Square.from_0x88_index(target_index)
+                   target = chess.Square.from_0x88_index(target_index)
                    if self.get(target) and self.get(target).get_color() != self.get_turn():
                        # Promotion.
                        if target.is_backrank():
                            for promote_to in "bnrq":
-                               yield libchess.Move(square, target, promote_to)
+                               yield chess.Move(square, target, promote_to)
                        else:
-                           yield libchess.Move(square, target)
+                           yield chess.Move(square, target)
                    # En-passant.
                    elif not self.get(target) and target.get_file() == self._ep_file:
-                       yield libchess.Move(square, target)
+                       yield chess.Move(square, target)
             # Other pieces.
             else:
                 for offset in PIECE_OFFSETS[piece.get_type()]:
@@ -675,13 +685,13 @@ class Position(object):
                         target_index += offset
                         if target_index & 0x88:
                             break
-                        target = libchess.Square.from_0x88_index(target_index)
+                        target = chess.Square.from_0x88_index(target_index)
                         if not self.get(target):
-                            yield libchess.Move(square, target)
+                            yield chess.Move(square, target)
                         else:
                             if self.get(target).get_color() == self.get_turn():
                                 break
-                            yield libchess.Move(square, target)
+                            yield chess.Move(square, target)
                             break
 
                         # Knight and king do not go multiple times in their
@@ -689,15 +699,15 @@ class Position(object):
                         if piece.get_type() in ["n", "k"]:
                             break
 
-        opponent = libchess.opposite_color(self.get_turn())
+        opponent = chess.opposite_color(self.get_turn())
 
         # King-side castling.
         k = "k" if self.get_turn() == "b" else "K"
         if self.get_castling_right(k):
             of = self.get_king(self.get_turn()).get_0x88_index()
             to = of + 2
-            if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, libchess.Square.from_0x88_index(of + 1)) and not self.is_attacked(opponent, libchess.Square.from_0x88_index(to)):
-                yield libchess.Move(libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to))
+            if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_0x88_index(of + 1)) and not self.is_attacked(opponent, chess.Square.from_0x88_index(to)):
+                yield chess.Move(chess.Square.from_0x88_index(of), chess.Square.from_0x88_index(to))
 
         # Queen-side castling
         q = "q" if self.get_turn() == "b" else "Q"
@@ -705,8 +715,8 @@ class Position(object):
             of = self.get_king(self.get_turn()).get_0x88_index()
             to = of - 2
 
-            if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, libchess.Square.from_0x88_index(of - 1)) and not self.is_attacked(opponent, libchess.Square.from_0x88_index(to)):
-                yield libchess.Move(libchess.Square.from_0x88_index(of), libchess.Square.from_0x88_index(to))
+            if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_0x88_index(of - 1)) and not self.is_attacked(opponent, chess.Square.from_0x88_index(to)):
+                yield chess.Move(chess.Square.from_0x88_index(of), chess.Square.from_0x88_index(to))
 
     def get_legal_moves(self):
         """Gets legal moves in the current position.
@@ -776,7 +786,7 @@ class Position(object):
             "k": 5
         }
 
-        for source in libchess.Square.get_all():
+        for source in chess.Square.get_all():
             piece = self.get(source)
             if not piece or piece.get_color() != color:
                 continue
@@ -900,7 +910,7 @@ class Position(object):
             black_has_bishop = self.get_piece_counts("b")["b"] != 0
             if white_has_bishop and black_has_bishop:
                 color = None
-                for square in libchess.Square.get_all():
+                for square in chess.Square.get_all():
                     if self.get(square) and self.get(square).get_type() == "b":
                         if color != None and color != square.is_light():
                             return False
@@ -930,5 +940,30 @@ class Position(object):
         return self.get_fen() != other.get_fen()
 
     def __hash__(self, other):
-        # TODO: Consider using Zobrist hashing.
+        # TODO: Use Zobrist hashing.
         return hash(self.get_fen())
+
+    @staticmethod
+    def get_default():
+        """Gets the default position.
+
+        Returns:
+            A new position, initialized to the default chess position.
+        """
+        default_position = Position()
+        default_position.reset()
+        return default_position
+
+    @staticmethod
+    def from_fen(fen):
+        """Gets a position from a FEN.
+
+        Args:
+            fen: The FEN.
+
+        Returns:
+            A new position created from the fen.
+        """
+        position = Position()
+        position.set_fen(fen)
+        return position

@@ -1,4 +1,4 @@
-import libchess
+import chess
 
 class MoveInfo(object):
     """Represents information about a move that depend on its context."""

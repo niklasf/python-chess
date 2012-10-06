@@ -1,13 +1,12 @@
 import inspect
 
-from libchess.piece import Piece
-from libchess.square import Square
-from libchess.move import Move
-from libchess.move_info import MoveInfo
-from libchess.position import Position
-from libchess.position_builder import PositionBuilder
+from chess.piece import Piece
+from chess.square import Square
+from chess.move import Move
+from chess.move_info import MoveInfo
+from chess.position import Position
 
-from libchess.exceptions import FenError
+from chess.exceptions import FenError
 
 def opposite_color(color):
     """Gets the opposite color.

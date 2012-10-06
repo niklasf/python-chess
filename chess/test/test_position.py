@@ -1,4 +1,4 @@
-import libchess
+import chess
 import unittest
 
 class PositionTestCase(unittest.TestCase):
@@ -6,37 +6,37 @@ class PositionTestCase(unittest.TestCase):
 
     def test_default_position(self):
         """Tests the default position."""
-        pos = libchess.Position()
-        self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
+        pos = chess.Position()
+        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece.from_symbol('N'))
         self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(pos.get_turn(), "w")
 
     def test_scholars_mate(self):
         """Tests the scholars mate."""
-        pos = libchess.Position()
+        pos = chess.Position()
 
-        e4 = libchess.Move.from_uci('e2e4')
+        e4 = chess.Move.from_uci('e2e4')
         self.assertTrue(e4 in pos.get_legal_moves())
         pos.make_move(e4)
 
-        e5 = libchess.Move.from_uci('e7e5')
+        e5 = chess.Move.from_uci('e7e5')
         self.assertTrue(e5 in pos.get_legal_moves())
         self.assertFalse(e4 in pos.get_legal_moves())
         pos.make_move(e5)
 
-        Qf3 = libchess.Move.from_uci('d1f3')
+        Qf3 = chess.Move.from_uci('d1f3')
         self.assertTrue(Qf3 in pos.get_legal_moves())
         pos.make_move(Qf3)
 
-        Nc6 = libchess.Move.from_uci('b8c6')
+        Nc6 = chess.Move.from_uci('b8c6')
         self.assertTrue(Nc6 in pos.get_legal_moves())
         pos.make_move(Nc6)
 
-        Bc4 = libchess.Move.from_uci('f1c4')
+        Bc4 = chess.Move.from_uci('f1c4')
         self.assertTrue(Bc4 in pos.get_legal_moves())
         pos.make_move(Bc4)
 
-        Rb8 = libchess.Move.from_uci('a8b8')
+        Rb8 = chess.Move.from_uci('a8b8')
         self.assertTrue(Rb8 in pos.get_legal_moves())
         pos.make_move(Rb8)
 
@@ -45,7 +45,7 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
-        Qf7_mate = libchess.Move.from_uci('f3f7')
+        Qf7_mate = chess.Move.from_uci('f3f7')
         self.assertTrue(Qf7_mate in pos.get_legal_moves())
         pos.make_move(Qf7_mate)
 
@@ -58,8 +58,8 @@ class PositionTestCase(unittest.TestCase):
 
     def test_move_info(self):
         """Tests move info generation."""
-        pos = libchess.Position()
-        e4 = pos.get_move_info(libchess.Move.from_uci('e2e4'))
+        pos = chess.Position()
+        e4 = pos.get_move_info(chess.Move.from_uci('e2e4'))
         self.assertEqual(e4.get_san(), 'e4')
         self.assertFalse(e4.is_check())
         self.assertFalse(e4.is_checkmate())
@@ -67,8 +67,8 @@ class PositionTestCase(unittest.TestCase):
 
     def test_single_step_pawn_move(self):
         """Tests that single step pawn moves are possible."""
-        pos = libchess.Position()
-        a3 = libchess.Move.from_uci('a2a3')
+        pos = chess.Position()
+        a3 = chess.Move.from_uci('a2a3')
         self.assertTrue(a3 in pos.get_pseudo_legal_moves())
         self.assertTrue(a3 in pos.get_legal_moves())
         pos.get_move_info(a3)
@@ -76,18 +76,18 @@ class PositionTestCase(unittest.TestCase):
 
     def test_get_set(self):
         """Tests the get and set methods."""
-        pos = libchess.Position()
-        self.assertEqual(pos.get(libchess.Square.from_name('b1')), libchess.Piece.from_symbol('N'))
+        pos = chess.Position()
+        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece.from_symbol('N'))
 
-        pos.set(libchess.Square.from_name('e2'), None)
-        self.assertEqual(pos.get(libchess.Square.from_name('e2')), None)
+        pos.set(chess.Square.from_name('e2'), None)
+        self.assertEqual(pos.get(chess.Square.from_name('e2')), None)
 
-        pos.set(libchess.Square.from_name('e4'), libchess.Piece.from_symbol('r'))
-        self.assertEqual(pos.get(libchess.Square.from_name('e4')), libchess.Piece.from_symbol('r'))
+        pos.set(chess.Square.from_name('e4'), chess.Piece.from_symbol('r'))
+        self.assertEqual(pos.get(chess.Square.from_name('e4')), chess.Piece.from_symbol('r'))
 
     def test_san_moves(self):
         """Tests making moves from SANs."""
-        pos = libchess.Position()
+        pos = chess.Position()
 
         pos.make_move(pos.get_move_from_san('Nc3'))
         pos.make_move(pos.get_move_from_san('c5'))
