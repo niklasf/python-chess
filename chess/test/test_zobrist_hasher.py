@@ -6,6 +6,8 @@ class ZobristHasherTestCase(unittest.TestCase):
     """Tests the ZobristHasher class."""
 
     def test_polyglot_hashing(self):
+        """Tests zobrist hashing against the polyglot reference examples given
+        on http://hardy.uhasselt.be/Toga/book_format.html."""
         hasher = chess.ZobristHasher(chess.ZobristHasher.POLYGLOT_RANDOM_ARRAY)
 
         pos = chess.Position()
@@ -28,6 +30,7 @@ class ZobristHasherTestCase(unittest.TestCase):
         self.assertEqual(hasher.hash_position(pos), 0x22a48b5a8e47ff78)
 
     def test_random_hasher(self):
+        """Tests zobrist hashing with a random field."""
         random.seed(3456789)
         hasher = chess.ZobristHasher.create_random()
 
