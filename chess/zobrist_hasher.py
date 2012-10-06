@@ -240,7 +240,17 @@ class ZobristHasher(object):
 
         # Hash in the en-passant file.
         if position.get_ep_file():
-            key ^= self._random_array[772 + ord(position.get_ep_file()) - ord("a")]
+            f = ord(position.get_ep_file()) - ord("a")
+            if position.get_turn() == "b":
+                if f > 0 and position.get(chess.Square.from_x_and_y(f - 1, 3)) and position.get(chess.Square.from_x_and_y(f - 1, 3)).get_symbol() == "p":
+                    key ^= self._random_array[772 + f]
+                elif f < 7 and position.get(chess.Square.from_x_and_y(f + 1, 3)) and position.get(chess.Square.from_x_and_y(f + 1, 3)).get_symbol() == "p":
+                    key ^= self._random_array[772 + f]
+            else:
+                if f > 0 and position.get(chess.Square.from_x_and_y(f - 1, 4)) and position.get(chess.Square.from_x_and_y(f - 1, 4)).get_symbol() == "P":
+                    key ^= self._random_array[772 + f]
+                elif f < 7 and position.get(chess.Square.from_x_and_y(f + 1, 4)) and position.get(chess.Square.from_x_and_y(f + 1, 4)).get_symbol() == "P":
+                    key ^= self._random_array[772 + f]
 
         # Hash in the turn.
         if position.get_turn() == "w":
