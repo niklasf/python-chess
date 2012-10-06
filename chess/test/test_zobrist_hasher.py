@@ -1,5 +1,6 @@
 import chess
 import unittest
+import random
 
 class ZobristHasherTestCase(unittest.TestCase):
     """Tests the ZobristHasher class."""
@@ -25,3 +26,14 @@ class ZobristHasherTestCase(unittest.TestCase):
         # Real en-passant possible.
         pos = chess.Position("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3")
         self.assertEqual(hasher.hash_position(pos), 0x22a48b5a8e47ff78)
+
+    def test_random_hasher(self):
+        random.seed(3456789)
+        hasher = chess.ZobristHasher.create_random()
+
+        a = chess.Position()
+
+        b = chess.Position()
+        b.make_move(chess.Move.from_uci("e2e4"))
+
+        self.assertNotEqual(hasher.hash_position(a), hasher.hash_position(b))
