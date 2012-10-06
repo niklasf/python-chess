@@ -100,13 +100,11 @@ class Position(object):
                     target=chess.Square.from_rank_and_file(rank, 'c'))
         # Regular moves.
         else:
-            print san
             matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
             piece = chess.Piece.from_color_and_type(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
             target = chess.Square(matches.group(4))
             source = None
             for m in self.get_legal_moves():
-                print "--->", m
                 if self.get(m.get_source()) == piece and m.get_target() == target:
                     if matches.group(2) and matches.group(2) != m.get_source().get_file():
                         continue
@@ -969,5 +967,5 @@ class Position(object):
     def __ne__(self, other):
         return self.get_fen() != other.get_fen()
 
-    def __hash__(self, other):
+    def __hash__(self):
         return chess.ZobristHasher().hash_position(self)

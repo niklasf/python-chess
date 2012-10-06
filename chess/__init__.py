@@ -6,6 +6,7 @@ from chess.move import Move
 from chess.move_info import MoveInfo
 from chess.position import Position
 from chess.zobrist_hasher import ZobristHasher
+from chess.polyglot_opening_book import PolyglotOpeningBook
 
 from chess.exceptions import FenError
 
