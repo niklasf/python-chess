@@ -102,7 +102,7 @@ class Position(object):
         else:
             print san
             matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
-            piece = chess.Piece(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
+            piece = chess.Piece.from_color_and_type(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
             target = chess.Square.from_name(matches.group(4))
             source = None
             for m in self.get_legal_moves():
@@ -140,7 +140,7 @@ class Position(object):
             # En-passant.
             if move.get_target().get_file() != move.get_source().get_file() and not capture:
                 enpassant = True
-                capture = chess.Piece(resulting_position.get_turn(), 'p')
+                capture = chess.Piece.from_color_and_type(resulting_position.get_turn(), 'p')
 
         # Castling.
         is_king_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
@@ -227,7 +227,7 @@ class Position(object):
 
         # Promotion.
         if move.get_promotion():
-            self.set(move.get_target(), chess.Piece(self.get(move.get_target()).get_color(), move.get_promotion()))
+            self.set(move.get_target(), chess.Piece.from_color_and_type(self.get(move.get_target()).get_color(), move.get_promotion()))
 
         # Potential castling.
         if self.get(move.get_target()).get_type() == 'k':
@@ -311,19 +311,19 @@ class Position(object):
         """
         assert type in ["K", "Q", "k", "q"]
         if type == "K" or type == "Q":
-            if self.get(chess.Square.from_name('e1')) != chess.Piece('w', 'k'):
+            if self.get(chess.Square.from_name('e1')) != chess.Piece("K"):
                 return False
             if type == "K":
-                return self.get(chess.Square.from_name('h1')) == chess.Piece('w', 'r')
+                return self.get(chess.Square.from_name('h1')) == chess.Piece("R")
             elif type == "Q":
-                return self.get(chess.Square.from_name('a1')) == chess.Piece('w', 'r')
+                return self.get(chess.Square.from_name('a1')) == chess.Piece("R")
         elif type == "k" or type == "q":
-            if self.get(chess.Square.from_name('e8')) != chess.Piece('b', 'k'):
+            if self.get(chess.Square.from_name('e8')) != chess.Piece("k"):
                 return False
             if type == "k":
-                return self.get(chess.Square.from_name('h8')) == chess.Piece('b', 'r')
+                return self.get(chess.Square.from_name('h8')) == chess.Piece("r")
             elif type == "q":
-                return self.get(chess.Square.from_name('a8')) == chess.Piece('b', 'r')
+                return self.get(chess.Square.from_name('a8')) == chess.Piece("r")
 
     def set_castling_right(self, type, status):
         """Sets a castling right.
@@ -537,7 +537,7 @@ class Position(object):
             elif symbol in "12345678":
                 i += int(symbol)
             else:
-                self._board[i] = chess.Piece.from_symbol(symbol)
+                self._board[i] = chess.Piece(symbol)
                 i += 1
 
         # Set the turn.

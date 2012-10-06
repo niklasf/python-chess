@@ -7,7 +7,7 @@ class PositionTestCase(unittest.TestCase):
     def test_default_position(self):
         """Tests the default position."""
         pos = chess.Position()
-        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece.from_symbol('N'))
+        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece('N'))
         self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(pos.get_turn(), "w")
 
@@ -77,13 +77,13 @@ class PositionTestCase(unittest.TestCase):
     def test_get_set(self):
         """Tests the get and set methods."""
         pos = chess.Position()
-        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece.from_symbol('N'))
+        self.assertEqual(pos.get(chess.Square.from_name('b1')), chess.Piece('N'))
 
         pos.set(chess.Square.from_name('e2'), None)
         self.assertEqual(pos.get(chess.Square.from_name('e2')), None)
 
-        pos.set(chess.Square.from_name('e4'), chess.Piece.from_symbol('r'))
-        self.assertEqual(pos.get(chess.Square.from_name('e4')), chess.Piece.from_symbol('r'))
+        pos.set(chess.Square.from_name('e4'), chess.Piece('r'))
+        self.assertEqual(pos.get(chess.Square.from_name('e4')), chess.Piece('r'))
 
     def test_san_moves(self):
         """Tests making moves from SANs."""

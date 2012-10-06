@@ -1,18 +1,15 @@
 class Piece(object):
     """Represents a chess piece."""
 
-    def __init__(self, color, type):
+    def __init__(self, symbol):
         """Inits a piece with type and color.
 
         Args:
-            type: The type of the piece (pawn, bishop, knight, rook, king or
-                queen) as "p", "b", "n", "r", "k", or "q".
-            color: The color of the piece as "w" for white or "b" for black.
+            symbol: The symbol of the piece as used in FENs.
         """
-        assert type in ["p", "b", "n", "r", "k", "q"]
-        self._type = type
-        assert color in ["w", "b"]
-        self._color = color
+        if not symbol.lower() in ["p", "b", "n", "r", "k", "q"]:
+            raise ValueError("Invalid piece symbol: %s." % repr(symbol))
+        self._symbol = symbol
 
     def get_color(self):
         """Gets the color of the piece.
@@ -20,7 +17,7 @@ class Piece(object):
         Returns:
             "b" for black or "w" for white.
         """
-        return self._color
+        return "b" if self._symbol.lower() == self._symbol else "w"
 
     def get_full_color(self):
         """Gets the full color of the piece.
@@ -28,10 +25,7 @@ class Piece(object):
         Returns:
             "black" or "white".
         """
-        if self._color == "w":
-            return "white"
-        else:
-            return "black"
+        return "black" if self._symbol.lower() == self._symbol else "white"
 
     def get_type(self):
         """Gets the type of the piece.
@@ -40,7 +34,7 @@ class Piece(object):
             "p", "b", "n", "r", "k", or "q" for pawn, bishop, knight, rook
             king or queen.
         """
-        return self._type
+        return self._symbol.lower()
 
     def get_full_type(self):
         """Gets the full type of the piece.
@@ -48,17 +42,18 @@ class Piece(object):
         Returns:
             "pawn", "bishop", "knight", "rook", "king" or "queen".
         """
-        if self._type == "p":
+        type = self.get_type()
+        if type == "p":
             return "pawn"
-        elif self._type == "b":
+        elif type == "b":
             return "bishop"
-        elif self._type == "n":
+        elif type == "n":
             return "knight"
-        elif self._type == "r":
+        elif type == "r":
             return "rook"
-        elif self._type == "k":
+        elif type == "k":
             return "king"
-        elif self._type == "q":
+        elif type == "q":
             return "queen"
 
     def get_symbol(self):
@@ -69,10 +64,7 @@ class Piece(object):
             "q" for a black pawn, bishop, knight, rook, king or queen. "P",
             "B", "N", "R", "K", or "Q" for the corresponding white piece.
         """
-        if self._color == "w":
-            return self._type.upper()
-        else:
-            return self._type
+        return self._symbol
 
     def __str__(self):
         return self.get_symbol()
@@ -91,22 +83,38 @@ class Piece(object):
         return self.get_symbol() != other.get_symbol()
 
     def __hash__(self):
-        return hash(self.get_symbol())
+        return ord(self.get_symbol())
 
     @staticmethod
-    def from_symbol(symbol):
+    def from_color_and_type(color, type):
         """Parses a piece symbol.
 
         Args:
-            symbol: The symbol of the piece as used in FENs. "p", "b", "n",
-            "r", "k" for a black pawn, bishop, knight, rook or king. "P", "B",
-            "N", "R", "K" or "Q" for the corresponding white piece.
+            color: "w", "b", "white" or "black".
+            type: "p", "pawn", "r", "rook", "n", "knight", "b", "bishop", "q",
+                "queen", "k" or "king".
 
         Returns:
             An object of the Piece class.
         """
-        type = symbol.lower()
-        if type == symbol:
-            return Piece("b", type)
+        if type in ["p", "pawn"]:
+            symbol = "p"
+        elif type in ["r", "rook"]:
+            symbol = "r"
+        elif type in ["n", "knight"]:
+            symbol = "n"
+        elif type in ["b", "bishop"]:
+            symbol = "b"
+        elif type in ["q", "queen"]:
+            symbol = "q"
+        elif type in ["k", "king"]:
+            symbol = "k"
         else:
-            return Piece("w", type)
+            raise ValueError("Invalid piece type: %s." % repr(type))
+
+        if color in ["w", "white"]:
+            return Piece(symbol.upper())
+        elif color in ["b", "black"]:
+            return Piece(symbol)
+        else:
+            raise ValueError("Invalid piece color: %s." % repr(color))
