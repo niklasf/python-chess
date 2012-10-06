@@ -930,5 +930,4 @@ class Position(object):
         return self.get_fen() != other.get_fen()
 
     def __hash__(self, other):
-        # TODO: Consider using Zobrist hashing.
-        return hash(self.get_fen())
+        return chess.ZobristHasher().hash_position(self)
