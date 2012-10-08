@@ -7,6 +7,9 @@ from chess.move_info import MoveInfo
 from chess.position import Position
 from chess.zobrist_hasher import ZobristHasher
 from chess.polyglot_opening_book import PolyglotOpeningBook
+from chess.game_node import GameNode
+from chess.game import Game
+from chess.pgn_file import PgnFile
 
 from chess.exceptions import FenError
 

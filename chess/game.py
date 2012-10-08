@@ -2,7 +2,7 @@ import chess
 import re
 
 class Game(chess.GameNode):
-    def __init__(self, position=chess.Position(), comment=""):
+    def __init__(self, position=None, comment=""):
         chess.GameNode.__init__(self, None, None, (), comment)
 
         self._headers = {
@@ -17,7 +17,7 @@ class Game(chess.GameNode):
 
         self._date_regex = re.compile("^(\\?\\?|[0-9]{4})\\.(\\?\\?|[0-9][0-9])\\.(\\?\\?|[0-9][0-9])$")
 
-        if self._position != chess.Position()
+        if position and position != chess.Position():
             self._headers["FEN"] = self._position.get_fen()
 
     def get_position(self):

@@ -1,9 +1,18 @@
+import chess
+import re
+
 class PgnFile(object):
     def __init__(self):
         self._games = []
 
     def add_game(self, game):
         self._games.append(game)
+
+    def __len__(self):
+        return len(self._games)
+
+    def __getitem__(self, index):
+        return self._games[index]
 
     @classmethod
     def open(cls, path):
@@ -35,12 +44,15 @@ class PgnFile(object):
                 if not current_game:
                     current_game = chess.Game()
                     current_game.set_header(tag_name, tag_value)
+                in_tags = True
             # Parse movetext lines.
             else:
                 if current_game:
                     # TODO: Parse the actual movetext.
+                    pass
                 else:
                     raise PgnError("Invalid PGN. Expected header before movetext: %s", repr(line))
+                in_tags = False
 
         if current_game:
             pgn_file.add_game(current_game)
