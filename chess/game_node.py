@@ -15,7 +15,7 @@ class GameNode(object):
         return self._move
 
     def get_position(self):
-        return self._position
+        return self._position.copy()
 
     def get_nags(self):
         return tuple(self._nags)
