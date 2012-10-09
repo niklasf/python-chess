@@ -11,8 +11,25 @@ class PgnFile(object):
     def __len__(self):
         return len(self._games)
 
-    def __getitem__(self, index):
-        return self._games[index]
+    def __getitem__(self, key):
+        return self._games[key]
+
+    def __setitem__(self, key, value):
+        self._games[key] = value
+
+    def __delitem__(self, key):
+        del self._games[key]
+
+    def __iter__(self):
+        for game in self._games:
+            yield game
+
+    def __reversed__(self):
+        for game in reversed(self._games):
+            yield game
+
+    def __contains__(self, game):
+        return game in self._games
 
     @classmethod
     def open(cls, path):
