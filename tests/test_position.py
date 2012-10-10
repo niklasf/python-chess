@@ -78,9 +78,9 @@ class PositionTestCase(unittest.TestCase):
         """Tests move info generation."""
         pos = chess.Position()
         e4 = pos.get_move_info(chess.Move.from_uci('e2e4'))
-        self.assertEqual(e4.get_san(), 'e4')
-        self.assertFalse(e4.is_check())
-        self.assertFalse(e4.is_checkmate())
+        self.assertEqual(e4.san, 'e4')
+        self.assertFalse(e4.is_check)
+        self.assertFalse(e4.is_checkmate)
         self.assertFalse(e4.is_castle())
 
     def test_single_step_pawn_move(self):
