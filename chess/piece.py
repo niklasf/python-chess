@@ -83,7 +83,7 @@ class Piece(object):
 
     def __eq__(self, other):
         if not other:
-            return True
+            return False
         return self.symbol == other.symbol
 
     def __ne__(self, other):

@@ -39,6 +39,9 @@ class PieceTestCase(unittest.TestCase):
         self.assertNotEqual(b, d)
         self.assertNotEqual(a, c)
 
+        self.assertNotEqual(a, None)
+        self.assertFalse(a == None)
+
     def test_simple_properties(self):
         """Tests simple properties."""
         white_knight = chess.Piece('N')
