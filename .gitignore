@@ -1,3 +1,5 @@
 *.py[cod]
 *~
 nosetests.xml
+dist/
+python_chess.egg-info/
