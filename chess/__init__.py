@@ -32,7 +32,7 @@ from chess.pgn_file import PgnFile
 from chess.exceptions import FenError
 
 def opposite_color(color):
-    """Returns the opposite color.
+    """:return: The opposite color.
 
     :param color:
         "w" for white or "b" for black.
