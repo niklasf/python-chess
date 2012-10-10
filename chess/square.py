@@ -85,8 +85,7 @@ class Square(object):
         return not self.is_dark()
 
     def is_backrank(self):
-        """:return: Whether the square is on the backrank of either
-        side."""
+        """:return: Whether the square is on either sides backrank."""
         return self.__name[1] in ["1", "8"]
 
     def __str__(self):
