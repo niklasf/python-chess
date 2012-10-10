@@ -30,10 +30,10 @@ setuptools.setup(
     author="Niklas Fiekas",
     author_email="niklas.fiekas@tu-clausthal.de",
     description="A chess library.",
-    long_description=read("README.md"),
+    long_description=read("README.rst"),
     license="GPL3",
     keywords="chess fen pgn polyglot",
-    url="http://packages.python.org/python-chess",
+    url="http://github.com/niklasf/python-chess",
     packages=['chess'],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

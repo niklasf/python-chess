@@ -6,17 +6,17 @@ Introduction
 
 This is the scholars mate in python-chess:
 
-```python
-pos = chess.Position()
-pos.make_move(pos.get_move_from_san("e4"))
-pos.make_move(pos.get_move_from_san("e5"))
-pos.make_move(pos.get_move_from_san("Qh5"))
-pos.make_move(pos.get_move_from_san("Nc6"))
-pos.make_move(pos.get_move_from_san("Bc4"))
-pos.make_move(pos.get_move_from_san("Nf6"))
-pos.make_move(pos.get_move_from_san("Qxf7"))
-assert pos.is_checkmate()
-```
+::
+
+    pos = chess.Position()
+    pos.make_move(pos.get_move_from_san("e4"))
+    pos.make_move(pos.get_move_from_san("e5"))
+    pos.make_move(pos.get_move_from_san("Qh5"))
+    pos.make_move(pos.get_move_from_san("Nc6"))
+    pos.make_move(pos.get_move_from_san("Bc4"))
+    pos.make_move(pos.get_move_from_san("Nf6"))
+    pos.make_move(pos.get_move_from_san("Qxf7"))
+    assert pos.is_checkmate()
 
 Features
 --------

@@ -1,5 +1,6 @@
 *.py[cod]
 *~
-nosetests.xml
 dist/
+build/
 python_chess.egg-info/
+nosetests.xml
