@@ -19,70 +19,46 @@
 class Piece(object):
     """Represents a chess piece.
 
-    Every chess piece has a color
+    :param symbol:
+        The symbol of the piece as used in `FENs <http://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation#Definition>`_.
 
-    :"w":
-        white
-    :"b":
-        black
 
-    and a type
+    Piece objects that have the same type and color compare as equal.
 
-    :"p":
-        pawn
-    :"b":
-        bishop
-    :"n":
-        knight
-    :"r":
-        rook
-    :"k":
-        king
-    :"q":
-        queen
+    >>> import chess
+    >>> chess.Piece("Q") == chess.Piece.from_color_and_type("w", "q")
+    True
+
+    :raise ValueError: If the piece symbol is not valid.
     """
     def __init__(self, symbol):
-        """Inits a piece with type and color.
-
-        Args:
-            symbol: The symbol of the piece as used in FENs.
-        """
         if not symbol.lower() in ["p", "b", "n", "r", "k", "q"]:
             raise ValueError("Invalid piece symbol: %s." % repr(symbol))
-        self._symbol = symbol
+        self.__symbol = symbol
 
-    def get_color(self):
-        """Gets the color of the piece.
+    @property
+    def color(self):
+        """The color of the piece as `"b"` or `"w"`."""
+        return "b" if self.__symbol.lower() == self.__symbol else "w"
 
-        Returns:
-            "b" for black or "w" for white.
+    @property
+    def full_color(self):
+        """The full color of the piece as `"black"` or `"white`."""
+        return "black" if self.__symbol.lower() == self.__symbol else "white"
+
+    @property
+    def type(self):
+        """The type of the piece as `"p"`, `"b"`, `"n"`, `"r"`, `"k"`,
+        or `"q"` for pawn, bishop, knight, rook, king or queen.
         """
-        return "b" if self._symbol.lower() == self._symbol else "w"
+        return self.__symbol.lower()
 
-    def get_full_color(self):
-        """Gets the full color of the piece.
-
-        Returns:
-            "black" or "white".
+    @property
+    def full_type(self):
+        """The full type of the piece as `"pawn"`, `"bishop"`,
+        `"knight"`, `"rook"`, `"king"` or `"queen"`.
         """
-        return "black" if self._symbol.lower() == self._symbol else "white"
-
-    def get_type(self):
-        """Gets the type of the piece.
-
-        Returns:
-            "p", "b", "n", "r", "k", or "q" for pawn, bishop, knight, rook
-            king or queen.
-        """
-        return self._symbol.lower()
-
-    def get_full_type(self):
-        """Gets the full type of the piece.
-
-        Returns:
-            "pawn", "bishop", "knight", "rook", "king" or "queen".
-        """
-        type = self.get_type()
+        type = self.type
         if type == "p":
             return "pawn"
         elif type == "b":
@@ -96,46 +72,48 @@ class Piece(object):
         elif type == "q":
             return "queen"
 
-    def get_symbol(self):
-        """Gets the symbol representing the piece.
-
-        Returns:
-            The symbol of the piece as used in FENs. "p", "b", "n", "r", "k" or
-            "q" for a black pawn, bishop, knight, rook, king or queen. "P",
-            "B", "N", "R", "K", or "Q" for the corresponding white piece.
-        """
-        return self._symbol
+    @property
+    def symbol(self):
+        "The symbol of the piece as used in `FENs <http://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation#Definition>`_."""
+        return self.__symbol
 
     def __str__(self):
-        return self.get_symbol()
+        return self.symbol
 
     def __repr__(self):
-        return "Piece('%s')" % self.get_symbol()
+        return "Piece('%s')" % self.symbol
 
     def __eq__(self, other):
         if not other:
             return True
-        return self.get_symbol() == other.get_symbol()
+        return self.symbol == other.symbol
 
     def __ne__(self, other):
         if not other:
             return True
-        return self.get_symbol() != other.get_symbol()
+        return self.symbol != other.symbol
 
     def __hash__(self):
-        return ord(self.get_symbol())
+        return ord(self.symbol)
 
     @classmethod
     def from_color_and_type(cls, color, type):
-        """Parses a piece symbol.
+        """Creates a piece object from color and type.
 
-        Args:
-            color: "w", "b", "white" or "black".
-            type: "p", "pawn", "r", "rook", "n", "knight", "b", "bishop", "q",
-                "queen", "k" or "king".
+        An alternate way of creating pieces is from color and type.
 
-        Returns:
-            An object of the Piece class.
+        :param color:
+            `"w"`, `"b"`, `"white"` or `"black"`.
+        :param type:
+            `"p"`, `"pawn"`, `"r"`, `"rook"`, `"n"`, `"knight"`, `"b"`,
+            `"bishop"`, `"q"`, `"queen"`, `"k"` or `"king"`.
+
+        >>> chess.Piece.from_color_and_type("w", "pawn")
+        Piece('P')
+        >>> chess.Piece.from_color_and_type("black", "q")
+        Piece('q')
+
+        :raise ValueError: If color or type are invalid.
         """
         if type in ["p", "pawn"]:
             symbol = "p"

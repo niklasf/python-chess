@@ -152,15 +152,15 @@ class Position(object):
 
         # Pawn moves.
         enpassant = False
-        if piece.get_type() == "p":
+        if piece.type == "p":
             # En-passant.
             if move.get_target().get_file() != move.get_source().get_file() and not capture:
                 enpassant = True
                 capture = chess.Piece.from_color_and_type(resulting_position.get_turn(), 'p')
 
         # Castling.
-        is_king_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
-        is_queen_side_castle = piece.get_type() == 'k' and move.get_target().get_x() - move.get_source().get_x() == -2
+        is_king_side_castle = piece.type == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
+        is_queen_side_castle = piece.type == 'k' and move.get_target().get_x() - move.get_source().get_x() == -2
 
         # Checks.
         is_check = resulting_position.is_check()
@@ -173,13 +173,13 @@ class Position(object):
         elif is_queen_side_castle:
             san += "o-o-o"
         else:
-            if piece.get_type() != 'p':
-                san += piece.get_type().upper()
+            if piece.type != 'p':
+                san += piece.type.upper()
 
             san += self._get_disambiguator(move)
 
             if capture:
-                if piece.get_type() == 'p':
+                if piece.type == 'p':
                     san += move.get_source().get_file()
                 san += "x"
             san += move.get_target().get_name()
@@ -225,7 +225,7 @@ class Position(object):
         self.toggle_turn()
 
         # Pawn moves.
-        if self.get(move.get_target()).get_type() == 'p':
+        if self.get(move.get_target()).type == 'p':
             # En-passant.
             if move.get_target().get_file() != move.get_source().get_file() and not capture:
                 if self.get_turn() == "b":
@@ -246,10 +246,10 @@ class Position(object):
 
         # Promotion.
         if move.get_promotion():
-            self.set(move.get_target(), chess.Piece.from_color_and_type(self.get(move.get_target()).get_color(), move.get_promotion()))
+            self.set(move.get_target(), chess.Piece.from_color_and_type(self.get(move.get_target()).color, move.get_promotion()))
 
         # Potential castling.
-        if self.get(move.get_target()).get_type() == 'k':
+        if self.get(move.get_target()).type == 'k':
             steps = move.get_target().get_x() - move.get_source().get_x()
             if abs(steps) == 2:
                 # Queen-side castling.
@@ -264,7 +264,7 @@ class Position(object):
                 self._board[rook_source] = None
 
         # Increment the half move counter.
-        if self.get(move.get_target()).get_type() == 'p':
+        if self.get(move.get_target()).type == 'p':
             self._half_moves = 0
         elif capture:
             self._half_moves = 0
@@ -370,14 +370,14 @@ class Position(object):
         # Check there is a pawn of the other color on a neighbor file.
         f = ord(file) - ord("a")
         if self.get_turn() == "b":
-            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 3)) and self.get(chess.Square.from_x_and_y(f - 1, 3)).get_symbol() == "p":
+            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 3)) and self.get(chess.Square.from_x_and_y(f - 1, 3)).symbol == "p":
                 return True
-            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 3)) and self.get(chess.Square.from_x_and_y(f + 1, 3)).get_symbol() == "p":
+            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 3)) and self.get(chess.Square.from_x_and_y(f + 1, 3)).symbol == "p":
                 return True
         else:
-            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 4)) and self.get(chess.Square.from_x_and_y(f - 1, 4)).get_symbol() == "P":
+            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 4)) and self.get(chess.Square.from_x_and_y(f - 1, 4)).symbol == "P":
                 return True
-            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 4)) and self.get(chess.Square.from_x_and_y(f + 1, 4)).get_symbol() == "P":
+            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 4)) and self.get(chess.Square.from_x_and_y(f + 1, 4)).symbol == "P":
                 return True
         return False
 
@@ -480,8 +480,8 @@ class Position(object):
             "q": 0,
         }
         for piece in self._board:
-            if piece and piece.get_color() in color:
-                counts[piece.get_type()] += 1
+            if piece and piece.color in color:
+                counts[piece.type] += 1
         return counts
 
     def get_king(self, color):
@@ -497,7 +497,7 @@ class Position(object):
         assert color in ["w", "b"]
         for square in chess.Square.get_all():
             piece = self.get(square)
-            if piece and piece.get_color() == color and piece.get_type() == 'k':
+            if piece and piece.color == color and piece.type == 'k':
                 return square
 
 
@@ -521,7 +521,7 @@ class Position(object):
                     if empty > 0:
                         fen += str(empty)
                         empty = 0
-                    fen += self.get(square).get_symbol()
+                    fen += self.get(square).symbol
 
             # Boarder of the board.
             if empty > 0:
@@ -687,11 +687,11 @@ class Position(object):
         for square in chess.Square.get_all():
             # Skip pieces of the opponent.
             piece = self.get(square)
-            if not piece or piece.get_color() != self.get_turn():
+            if not piece or piece.color != self.get_turn():
                 continue
 
             # Pawn moves.
-            if piece.get_type() == "p":
+            if piece.type == "p":
                 # Single square ahead. Do not capture.
                 target = chess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][0])
                 if not self.get(target):
@@ -713,7 +713,7 @@ class Position(object):
                    if target_index & 0x88:
                        continue
                    target = chess.Square.from_0x88_index(target_index)
-                   if self.get(target) and self.get(target).get_color() != self.get_turn():
+                   if self.get(target) and self.get(target).color != self.get_turn():
                        # Promotion.
                        if target.is_backrank():
                            for promote_to in "bnrq":
@@ -725,7 +725,7 @@ class Position(object):
                        yield chess.Move(square, target)
             # Other pieces.
             else:
-                for offset in PIECE_OFFSETS[piece.get_type()]:
+                for offset in PIECE_OFFSETS[piece.type]:
                     target_index = square.get_0x88_index()
                     while True:
                         target_index += offset
@@ -735,14 +735,14 @@ class Position(object):
                         if not self.get(target):
                             yield chess.Move(square, target)
                         else:
-                            if self.get(target).get_color() == self.get_turn():
+                            if self.get(target).color == self.get_turn():
                                 break
                             yield chess.Move(square, target)
                             break
 
                         # Knight and king do not go multiple times in their
                         # direction.
-                        if piece.get_type() in ["n", "k"]:
+                        if piece.type in ["n", "k"]:
                             break
 
         opponent = chess.opposite_color(self.get_turn())
@@ -834,25 +834,25 @@ class Position(object):
 
         for source in chess.Square.get_all():
             piece = self.get(source)
-            if not piece or piece.get_color() != color:
+            if not piece or piece.color != color:
                 continue
 
             difference = source.get_0x88_index() - square.get_0x88_index()
             index = difference + 119
 
-            if ATTACKS[index] & (1 << SHIFTS[piece.get_type()]):
+            if ATTACKS[index] & (1 << SHIFTS[piece.type]):
                 # Handle pawns.
-                if piece.get_type() == "p":
+                if piece.type == "p":
                     if difference > 0:
-                        if piece.get_color() == "w":
+                        if piece.color == "w":
                             yield source
                     else:
-                        if piece.get_color() == "b":
+                        if piece.color == "b":
                             yield source
                     continue
 
                 # Handle knights and king.
-                if piece.get_type() in ["n", "k"]:
+                if piece.type in ["n", "k"]:
                     yield source
 
                 # Handle the others.
@@ -957,7 +957,7 @@ class Position(object):
             if white_has_bishop and black_has_bishop:
                 color = None
                 for square in chess.Square.get_all():
-                    if self.get(square) and self.get(square).get_type() == "b":
+                    if self.get(square) and self.get(square).type == "b":
                         if color != None and color != square.is_light():
                             return False
                         color = square.is_light()

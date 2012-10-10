@@ -43,8 +43,8 @@ class PieceTestCase(unittest.TestCase):
         """Tests simple properties."""
         white_knight = chess.Piece('N')
 
-        self.assertEqual(white_knight.get_color(), 'w')
-        self.assertEqual(white_knight.get_full_color(), 'white')
+        self.assertEqual(white_knight.color, 'w')
+        self.assertEqual(white_knight.full_color, 'white')
 
-        self.assertEqual(white_knight.get_type(), 'n')
-        self.assertEqual(white_knight.get_full_type(), 'knight')
+        self.assertEqual(white_knight.type, 'n')
+        self.assertEqual(white_knight.full_type, 'knight')

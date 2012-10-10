@@ -245,7 +245,7 @@ class ZobristHasher(object):
         for square in chess.Square.get_all():
             piece = position.get(square)
             if piece:
-                piece_index = "pPnNbBrRqQkK".index(piece.get_symbol())
+                piece_index = "pPnNbBrRqQkK".index(piece.symbol)
                 key ^= self._random_array[64 * piece_index + 8 * square.get_y() + square.get_x()]
 
         # Hash in the castling flags.

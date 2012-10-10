@@ -5,3 +5,4 @@ API Reference
 
 .. automodule:: chess
    :members:
+   :member-order: bysource
