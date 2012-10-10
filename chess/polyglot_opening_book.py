@@ -106,13 +106,13 @@ class PolyglotOpeningBook(object):
             promotion="nbrq"[promote + 1] if promote else None)
 
         # Replace the non standard castling moves.
-        if move.get_uci() == "e1h1":
+        if move.uci == "e1h1":
             move = chess.Move.from_uci("e1g1")
-        elif move.get_uci() == "e1a1":
+        elif move.uci == "e1a1":
             move = chess.Move.from_uci("e1c1")
-        elif move.get_uci() == "e8h8":
+        elif move.uci == "e8h8":
             move = chess.Move.from_uci("e8g8")
-        elif move.get_uci() == "e8a8":
+        elif move.uci == "e8a8":
             move = chess.Move.from_uci("e8c8")
 
         return {

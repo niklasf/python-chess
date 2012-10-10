@@ -38,5 +38,5 @@ class MoveTestCase(unittest.TestCase):
 
     def test_uci_parsing(self):
         """Tests the UCI move parsing."""
-        self.assertEqual(chess.Move.from_uci('b5c7').get_uci(), 'b5c7')
-        self.assertEqual(chess.Move.from_uci('e7e8q').get_uci(), 'e7e8q')
+        self.assertEqual(chess.Move.from_uci('b5c7').uci, 'b5c7')
+        self.assertEqual(chess.Move.from_uci('e7e8q').uci, 'e7e8q')

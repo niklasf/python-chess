@@ -73,26 +73,26 @@ class Position(object):
         """
         same_rank = False
         same_file = False
-        piece = self.get(move.get_source())
+        piece = self.get(move.source)
 
         for m in self.get_legal_moves():
-            ambig_piece = self.get(m.get_source())
-            if piece == ambig_piece and move.get_source() != m.get_source() and move.get_target() == m.get_target():
-                if move.get_source().rank == m.get_source().rank:
+            ambig_piece = self.get(m.source)
+            if piece == ambig_piece and move.source != m.source and move.target == m.target:
+                if move.source.rank == m.source.rank:
                     same_rank = True
 
-                if move.get_source().file == m.get_source().file:
+                if move.source.file == m.source.file:
                     same_file = True
 
                 if same_rank and same_file:
                     break
 
         if same_rank and same_file:
-            return move.get_source().name
+            return move.source.name
         elif same_file:
-            return str(move.get_source().rank)
+            return str(move.source.rank)
         elif same_rank:
-            return move.get_source().file
+            return move.source.file
         else:
             return ""
 
@@ -123,14 +123,14 @@ class Position(object):
             target = chess.Square(matches.group(4))
             source = None
             for m in self.get_legal_moves():
-                if self.get(m.get_source()) == piece and m.get_target() == target:
-                    if matches.group(2) and matches.group(2) != m.get_source().file:
+                if self.get(m.source) == piece and m.target == target:
+                    if matches.group(2) and matches.group(2) != m.source.file:
                         continue
-                    if matches.group(3) and matches.group(3) != str(m.get_source().rank):
+                    if matches.group(3) and matches.group(3) != str(m.source.rank):
                         continue
                     # Move matches. Assert it is not ambigoous.
                     assert not source
-                    source = m.get_source()
+                    source = m.source
 
             # Assert a possible source square was found.
             assert source
@@ -147,20 +147,20 @@ class Position(object):
         resulting_position = self.copy()
         resulting_position.make_move(move)
 
-        capture = self.get(move.get_target())
-        piece = self.get(move.get_source())
+        capture = self.get(move.target)
+        piece = self.get(move.source)
 
         # Pawn moves.
         enpassant = False
         if piece.type == "p":
             # En-passant.
-            if move.get_target().file != move.get_source().file and not capture:
+            if move.target.file != move.source.file and not capture:
                 enpassant = True
                 capture = chess.Piece.from_color_and_type(resulting_position.get_turn(), 'p')
 
         # Castling.
-        is_king_side_castle = piece.type == 'k' and move.get_target().x - move.get_source().x == 2
-        is_queen_side_castle = piece.type == 'k' and move.get_target().x - move.get_source().x == -2
+        is_king_side_castle = piece.type == 'k' and move.target.x - move.source.x == 2
+        is_queen_side_castle = piece.type == 'k' and move.target.x - move.source.x == -2
 
         # Checks.
         is_check = resulting_position.is_check()
@@ -180,13 +180,13 @@ class Position(object):
 
             if capture:
                 if piece.type == 'p':
-                    san += move.get_source().file
+                    san += move.source.file
                 san += "x"
-            san += move.get_target().name
+            san += move.target.name
 
-            if move.get_promotion():
+            if move.promotion:
                 san += "="
-                san += move.get_promotion().upper()
+                san += move.promotion.upper()
 
         if is_checkmate:
             san += "#"
@@ -215,28 +215,28 @@ class Position(object):
         """
         assert not validate or move in self.get_legal_moves()
 
-        capture = self.get(move.get_target())
+        capture = self.get(move.target)
 
         # Move the piece.
-        self.set(move.get_target(), self.get(move.get_source()))
-        self.set(move.get_source(), None)
+        self.set(move.target, self.get(move.source))
+        self.set(move.source, None)
 
         # It is the next players turn.
         self.toggle_turn()
 
         # Pawn moves.
-        if self.get(move.get_target()).type == 'p':
+        if self.get(move.target).type == 'p':
             # En-passant.
-            if move.get_target().file != move.get_source().file and not capture:
+            if move.target.file != move.source.file and not capture:
                 if self.get_turn() == "b":
-                    self._board[move.get_target().x88 - 16] = None
+                    self._board[move.target.x88 - 16] = None
                 else:
-                    self._board[move.get_target().x88 + 16] = None
+                    self._board[move.target.x88 + 16] = None
                 capture = True
             # If big pawn move, set the en-passant file.
-            if abs(move.get_target().rank - move.get_source().rank) == 2:
-                if self.get_theoretical_ep_right(move.get_target().file):
-                    self._ep_file = move.get_target().file
+            if abs(move.target.rank - move.source.rank) == 2:
+                if self.get_theoretical_ep_right(move.target.file):
+                    self._ep_file = move.target.file
                 else:
                     self._ep_file = None
             else:
@@ -245,26 +245,26 @@ class Position(object):
             self._ep_file = None
 
         # Promotion.
-        if move.get_promotion():
-            self.set(move.get_target(), chess.Piece.from_color_and_type(self.get(move.get_target()).color, move.get_promotion()))
+        if move.promotion:
+            self.set(move.target, chess.Piece.from_color_and_type(self.get(move.target).color, move.promotion))
 
         # Potential castling.
-        if self.get(move.get_target()).type == 'k':
-            steps = move.get_target().x - move.get_source().x
+        if self.get(move.target).type == 'k':
+            steps = move.target.x - move.source.x
             if abs(steps) == 2:
                 # Queen-side castling.
                 if steps == -2:
-                    rook_target = move.get_target().x88 + 1
-                    rook_source = move.get_target().x88 - 2
+                    rook_target = move.target.x88 + 1
+                    rook_source = move.target.x88 - 2
                 # King-side castling.
                 else:
-                    rook_target = move.get_target().x88 - 1
-                    rook_source = move.get_target().x88 + 1
+                    rook_target = move.target.x88 - 1
+                    rook_source = move.target.x88 + 1
                 self._board[rook_target] = self._board[rook_source]
                 self._board[rook_source] = None
 
         # Increment the half move counter.
-        if self.get(move.get_target()).type == 'p':
+        if self.get(move.target).type == 'p':
             self._half_moves = 0
         elif capture:
             self._half_moves = 0

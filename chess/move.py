@@ -19,83 +19,92 @@
 import re
 import chess
 
+uci_move_regex = re.compile("^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
+
 class Move(object):
+    """Represents a move.
+
+    :param source:
+        The source square.
+    :param target:
+        The target square.
+    :param promotion:
+        Optional. If given this indicates which piece a pawn has been
+        promoted to: `"r"`, `"n"`, `"b"` or `"q"`.
+
+    Identical moves compare as equal.
+
+    >>> import chess
+    >>> e4 = chess.Move(chess.Square("e2"), chess.Square("e4"))
+    >>> e4 == chess.Move.from_uci("e2e4")
+    True
+    """
     def __init__(self, source, target, promotion = None):
-        """Inits a move.
+        if type(source) is not chess.Square:
+            raise TypeError(
+                "Expected source to be Square object: %s." % repr(source))
+        if type(target) is not chess.Square:
+            raise TypeError(
+                "Expected target to be Square object: %s." % repr(target))
 
-        Args:
-            source: Source square.
-            target: Target square.
-            promotion: The piece type the pawn has been promoted to, if any.
-        """
-        self._source = source
-        self._target = target
-        self._promotion = promotion
+        if not promotion in ["r", "n", "b", "q", None]:
+            raise ValueError(
+                "Invalid promotion piece: %s.", repr(promotion))
+        if promotion is not None and not target.is_backrank():
+            raise ValueError(
+                "Promotion move even though target is no backrank square.")
 
-        if promotion:
-            assert target.is_backrank()
-            assert promotion in "rnbq"
+        self.__source = source
+        self.__target = target
+        self.__promotion = promotion
 
-    def get_uci(self):
-        """Gets an UCI move.
-
-        Returns:
-            A string like "a1a2" or "b7b8q".
-        """
-        promotion = ""
-        if self._promotion:
-            promotion = self._promotion
-        return self._source.name + self._target.name + promotion
-
-    def get_source(self):
-        """Gets the source square.
-
-        Returns:
-            The source square.
-        """
-        return self._source
-
-    def get_target(self):
-        """Gets the target square.
-
-        Returns:
-            The target square.
-        """
-        return self._target
-
-    def get_promotion(self):
-        """Gets the promotion type.
-
-        Returns:
-            None, "r", "n", "b" or "q".
-        """
-        if not self._promotion:
-            return None
+    @property
+    def uci(self):
+        """The UCI move string like `"a1a2"` or `"b7b8q"`."""
+        if self.__promotion:
+            return self.__source.name + self.__target.name + self.__promotion
         else:
-            return self._promotion
+            return self.__source.name + self.__target.name
+
+    @property
+    def source(self):
+        """The source square."""
+        return self.__source
+
+    @property
+    def target(self):
+        """The target square."""
+        return self.__target
+
+    @property
+    def promotion(self):
+        """The promotion type as `None`, `"r"`, `"n"`, `"b"` or `"q"`."""
+        return self.__promotion
 
     def __str__(self):
-        return self.get_uci()
+        return self.uci
 
     def __repr__(self):
-        return "Move.from_uci('%s')" % self.get_uci()
+        return "Move.from_uci(%s)" % repr(self.uci)
 
     def __eq__(self, other):
-        return self.get_uci() == other.get_uci()
+        return self.uci == other.uci
 
     def __ne__(self, other):
-        return self.get_uci() != other.get_uci()
+        return self.uci != other.uci
 
     def __hash__(self):
-        return hash(self.get_uci())
+        return hash(self.uci)
 
     @classmethod
     def from_uci(cls, move):
-        """Parses an UCI move like "a1a2" or "b7b8q
+        """Creates a move object from an UCI move string.
 
-        Returns:
-            A new move object.
+        :param move: An UCI move string like "a1a2" or "b7b8q".
         """
-        uci_move_regex = re.compile("^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
         match = uci_move_regex.match(move)
-        return cls(chess.Square(match.group(1)), chess.Square(match.group(2)), match.group(3))
+
+        return cls(
+            source=chess.Square(match.group(1)),
+            target=chess.Square(match.group(2)),
+            promotion=match.group(3) or None)
