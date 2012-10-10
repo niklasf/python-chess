@@ -32,18 +32,16 @@ from chess.pgn_file import PgnFile
 from chess.exceptions import FenError
 
 def opposite_color(color):
-    """Gets the opposite color.
+    """Returns the opposite color.
 
-    Args:
-        color: "w" for white or "b" for black.
-
-    Returns:
-        The opposite color as "w" for white or "b" for black.
+    :color:
+        "w" for white or "b" for black.
     """
-    assert color in ["w", "b"]
     if color == "w":
         return "b"
     elif color == "b":
         return "w"
+    else:
+        raise ValueError("Invalid color: %s. Expected 'w' or 'b'." % repr(color))
 
 __all__ = [ name for name, obj in locals().items() if not inspect.ismodule(obj) ]
