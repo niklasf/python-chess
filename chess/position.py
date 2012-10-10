@@ -46,7 +46,7 @@ class Position(object):
             A piece object for the piece that is on that square or None if
             there is no piece on the square.
         """
-        return self._board[square.get_0x88_index()]
+        return self._board[square.x88]
 
     def set(self, square, piece):
         """Sets a piece on the given square.
@@ -55,7 +55,7 @@ class Position(object):
             square: The square to set the piece on.
             piece: The piece to set. None to clear the square.
         """
-        self._board[square.get_0x88_index()] = piece
+        self._board[square.x88] = piece
 
     def clear_board(self):
         """Removes all pieces from the board."""
@@ -78,21 +78,21 @@ class Position(object):
         for m in self.get_legal_moves():
             ambig_piece = self.get(m.get_source())
             if piece == ambig_piece and move.get_source() != m.get_source() and move.get_target() == m.get_target():
-                if move.get_source().get_rank() == m.get_source().get_rank():
+                if move.get_source().rank == m.get_source().rank:
                     same_rank = True
 
-                if move.get_source().get_file() == m.get_source().get_file():
+                if move.get_source().file == m.get_source().file:
                     same_file = True
 
                 if same_rank and same_file:
                     break
 
         if same_rank and same_file:
-            return move.get_source().get_name()
+            return move.get_source().name
         elif same_file:
-            return str(move.get_source().get_rank())
+            return str(move.get_source().rank)
         elif same_rank:
-            return move.get_source().get_file()
+            return move.get_source().file
         else:
             return ""
 
@@ -124,9 +124,9 @@ class Position(object):
             source = None
             for m in self.get_legal_moves():
                 if self.get(m.get_source()) == piece and m.get_target() == target:
-                    if matches.group(2) and matches.group(2) != m.get_source().get_file():
+                    if matches.group(2) and matches.group(2) != m.get_source().file:
                         continue
-                    if matches.group(3) and matches.group(3) != str(m.get_source().get_rank()):
+                    if matches.group(3) and matches.group(3) != str(m.get_source().rank):
                         continue
                     # Move matches. Assert it is not ambigoous.
                     assert not source
@@ -154,13 +154,13 @@ class Position(object):
         enpassant = False
         if piece.type == "p":
             # En-passant.
-            if move.get_target().get_file() != move.get_source().get_file() and not capture:
+            if move.get_target().file != move.get_source().file and not capture:
                 enpassant = True
                 capture = chess.Piece.from_color_and_type(resulting_position.get_turn(), 'p')
 
         # Castling.
-        is_king_side_castle = piece.type == 'k' and move.get_target().get_x() - move.get_source().get_x() == 2
-        is_queen_side_castle = piece.type == 'k' and move.get_target().get_x() - move.get_source().get_x() == -2
+        is_king_side_castle = piece.type == 'k' and move.get_target().x - move.get_source().x == 2
+        is_queen_side_castle = piece.type == 'k' and move.get_target().x - move.get_source().x == -2
 
         # Checks.
         is_check = resulting_position.is_check()
@@ -180,9 +180,9 @@ class Position(object):
 
             if capture:
                 if piece.type == 'p':
-                    san += move.get_source().get_file()
+                    san += move.get_source().file
                 san += "x"
-            san += move.get_target().get_name()
+            san += move.get_target().name
 
             if move.get_promotion():
                 san += "="
@@ -227,16 +227,16 @@ class Position(object):
         # Pawn moves.
         if self.get(move.get_target()).type == 'p':
             # En-passant.
-            if move.get_target().get_file() != move.get_source().get_file() and not capture:
+            if move.get_target().file != move.get_source().file and not capture:
                 if self.get_turn() == "b":
-                    self._board[move.get_target().get_0x88_index() - 16] = None
+                    self._board[move.get_target().x88 - 16] = None
                 else:
-                    self._board[move.get_target().get_0x88_index() + 16] = None
+                    self._board[move.get_target().x88 + 16] = None
                 capture = True
             # If big pawn move, set the en-passant file.
-            if abs(move.get_target().get_rank() - move.get_source().get_rank()) == 2:
-                if self.get_theoretical_ep_right(move.get_target().get_file()):
-                    self._ep_file = move.get_target().get_file()
+            if abs(move.get_target().rank - move.get_source().rank) == 2:
+                if self.get_theoretical_ep_right(move.get_target().file):
+                    self._ep_file = move.get_target().file
                 else:
                     self._ep_file = None
             else:
@@ -250,16 +250,16 @@ class Position(object):
 
         # Potential castling.
         if self.get(move.get_target()).type == 'k':
-            steps = move.get_target().get_x() - move.get_source().get_x()
+            steps = move.get_target().x - move.get_source().x
             if abs(steps) == 2:
                 # Queen-side castling.
                 if steps == -2:
-                    rook_target = move.get_target().get_0x88_index() + 1
-                    rook_source = move.get_target().get_0x88_index() - 2
+                    rook_target = move.get_target().x88 + 1
+                    rook_source = move.get_target().x88 - 2
                 # King-side castling.
                 else:
-                    rook_target = move.get_target().get_0x88_index() - 1
-                    rook_source = move.get_target().get_0x88_index() + 1
+                    rook_target = move.get_target().x88 - 1
+                    rook_source = move.get_target().x88 + 1
                 self._board[rook_target] = self._board[rook_source]
                 self._board[rook_source] = None
 
@@ -693,7 +693,7 @@ class Position(object):
             # Pawn moves.
             if piece.type == "p":
                 # Single square ahead. Do not capture.
-                target = chess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][0])
+                target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.get_turn()][0])
                 if not self.get(target):
                     # Promotion.
                     if target.is_backrank():
@@ -703,16 +703,16 @@ class Position(object):
                         yield chess.Move(square, target)
 
                     # Two squares ahead. Do not capture.
-                    target = chess.Square.from_0x88_index(square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][1])
-                    if (self.get_turn() == "w" and square.get_rank() == 2) or (self.get_turn() == "b" and square.get_rank() == 7) and not self.get(target):
+                    target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.get_turn()][1])
+                    if (self.get_turn() == "w" and square.rank == 2) or (self.get_turn() == "b" and square.rank == 7) and not self.get(target):
                         yield chess.Move(square, target)
 
                 # Pawn captures.
                 for j in [2, 3]:
-                   target_index = square.get_0x88_index() + PAWN_OFFSETS[self.get_turn()][j]
+                   target_index = square.x88 + PAWN_OFFSETS[self.get_turn()][j]
                    if target_index & 0x88:
                        continue
-                   target = chess.Square.from_0x88_index(target_index)
+                   target = chess.Square.from_x88(target_index)
                    if self.get(target) and self.get(target).color != self.get_turn():
                        # Promotion.
                        if target.is_backrank():
@@ -721,17 +721,17 @@ class Position(object):
                        else:
                            yield chess.Move(square, target)
                    # En-passant.
-                   elif not self.get(target) and target.get_file() == self._ep_file:
+                   elif not self.get(target) and target.file == self._ep_file:
                        yield chess.Move(square, target)
             # Other pieces.
             else:
                 for offset in PIECE_OFFSETS[piece.type]:
-                    target_index = square.get_0x88_index()
+                    target_index = square.x88
                     while True:
                         target_index += offset
                         if target_index & 0x88:
                             break
-                        target = chess.Square.from_0x88_index(target_index)
+                        target = chess.Square.from_x88(target_index)
                         if not self.get(target):
                             yield chess.Move(square, target)
                         else:
@@ -750,19 +750,19 @@ class Position(object):
         # King-side castling.
         k = "k" if self.get_turn() == "b" else "K"
         if self.get_castling_right(k):
-            of = self.get_king(self.get_turn()).get_0x88_index()
+            of = self.get_king(self.get_turn()).x88
             to = of + 2
-            if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_0x88_index(of + 1)) and not self.is_attacked(opponent, chess.Square.from_0x88_index(to)):
-                yield chess.Move(chess.Square.from_0x88_index(of), chess.Square.from_0x88_index(to))
+            if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of + 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
+                yield chess.Move(chess.Square.from_x88(of), chess.Square.from_x88(to))
 
         # Queen-side castling
         q = "q" if self.get_turn() == "b" else "Q"
         if self.get_castling_right(q):
-            of = self.get_king(self.get_turn()).get_0x88_index()
+            of = self.get_king(self.get_turn()).x88
             to = of - 2
 
-            if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_0x88_index(of - 1)) and not self.is_attacked(opponent, chess.Square.from_0x88_index(to)):
-                yield chess.Move(chess.Square.from_0x88_index(of), chess.Square.from_0x88_index(to))
+            if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of - 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
+                yield chess.Move(chess.Square.from_x88(of), chess.Square.from_x88(to))
 
     def get_legal_moves(self):
         """Gets legal moves in the current position.
@@ -837,7 +837,7 @@ class Position(object):
             if not piece or piece.color != color:
                 continue
 
-            difference = source.get_0x88_index() - square.get_0x88_index()
+            difference = source.x88 - square.x88
             index = difference + 119
 
             if ATTACKS[index] & (1 << SHIFTS[piece.type]):
@@ -857,9 +857,9 @@ class Position(object):
 
                 # Handle the others.
                 offset = RAYS[index]
-                j = source.get_0x88_index() + offset
+                j = source.x88 + offset
                 blocked = False
-                while j != square.get_0x88_index():
+                while j != square.x88:
                     if self._board[j]:
                         blocked = True
                         break

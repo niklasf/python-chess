@@ -28,8 +28,6 @@ class Piece(object):
     >>> import chess
     >>> chess.Piece("Q") == chess.Piece.from_color_and_type("w", "q")
     True
-
-    :raise ValueError: If the piece symbol is not valid.
     """
     def __init__(self, symbol):
         if not symbol.lower() in ["p", "b", "n", "r", "k", "q"]:
@@ -112,8 +110,6 @@ class Piece(object):
         Piece('P')
         >>> chess.Piece.from_color_and_type("black", "q")
         Piece('q')
-
-        :raise ValueError: If color or type are invalid.
         """
         if type in ["p", "pawn"]:
             symbol = "p"

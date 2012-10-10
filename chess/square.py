@@ -16,152 +16,148 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import types
+
 class Square(object):
-    """Represents a square on the chess board."""
+    """Represents a square on the chess board.
 
+    :param name: The name of the square in algebraic notation.
+
+    Square objects that represent the same square compare as equal.
+
+    >>> import chess
+    >>> chess.Square("e4") == chess.Square("e4")
+    True
+    """
     def __init__(self, name):
-        """Inits a square with via its name.
+        if type(name) is not types.StringType:
+            raise TypeError(
+                "Expected the square name as a string: %s." % repr(name))
+        if not len(name) == 2:
+            raise ValueError(
+                "Invalid length for a square name: %s." % repr(name))
+        if not name[0] in ["a", "b", "c", "d", "e", "f", "g", "h"]:
+            raise ValueError(
+                "File: Expected a, b, c, e, e, f, g or h: %s." % repr(name[0]))
+        if not name[1] in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+            raise ValueError(
+                "Rank: Expected 1, 2, 3, 4, 5, 6, 7 or 8: %s." % repr(name[1]))
 
-        Args:
-            x: The x-coordinate, starting with 0 for the a-file.
-            y: The y-coordinate, starting with 0 for the first rank.
-        """
-        assert len(name) == 2
-        assert name[0] in ["a", "b", "c", "d", "e", "f", "g", "h"]
-        assert name[1] in ["1", "2", "3", "4", "5", "6", "7", "8"]
-        self._name = name
+        self.__name = name
 
-    def get_x(self):
-        """Gets the x-coordinate, starting with 0 for the a-file.
+    @property
+    def x(self):
+        """The x-coordinate, starting with 0 for the a-file."""
+        return ord(self.__name[0]) - ord("a")
 
-        Returns:
-            An integer between 0 and 7.
-        """
-        return ord(self._name[0]) - ord("a")
+    @property
+    def y(self):
+        """The y-coordinate, starting with 0 for the first rank."""
+        return ord(self.__name[1]) - ord("1")
 
-    def get_y(self):
-        """Gets the y-coordinate, starting with 0 for the first rank.
+    @property
+    def rank(self):
+        """The rank as an integer between 1 and 8."""
+        return self.y + 1
 
-        Returns:
-            An integer between 0 and 7.
-        """
-        return ord(self._name[1]) - ord("1")
+    @property
+    def file(self):
+        """The file as a letter between `"a"` and `"h"`."""
+        return self.__name[0]
+
+    @property
+    def name(self):
+        """The algebraic name of the square."""
+        return self.__name
+
+    @property
+    def x88(self):
+        """The `x88 <http://en.wikipedia.org/wiki/Board_representation_(chess)#0x88_method>`_
+        index of the square."""
+        return self.x + 16 * (7 - self.y)
 
     def is_dark(self):
-        """Checks the color of the square.
-
-        Returns:
-            A boolean indicating if the square is dark.
-        """
-        return (ord(self._name[0]) - ord(self._name[1])) % 2 == 0
+        """:return: Whether it is a dark square."""
+        return (ord(self.__name[0]) - ord(self.__name[1])) % 2 == 0
 
     def is_light(self):
-        """Checks the color of the square.
-
-        Returns:
-            A boolean indicating if the square is light.
-        """
+        """:return: Whether it is a light square."""
         return not self.is_dark()
 
-    def get_rank(self):
-        """Gets the rank.
-
-        Returns:
-            An integer between 1 and 8, where 1 is the first rank.
-        """
-        return self.get_y() + 1
-
-    def get_file(self):
-        """Gets the file.
-
-        Returns:
-            "a", "b", "c", "d", "e", "f", "g" or "h".
-        """
-        return self._name[0]
-
-    def get_name(self):
-        """Gets the algebraic name.
-
-        Returns:
-            An algebraic name like "a1".
-        """
-        return self._name
-
-    def get_0x88_index(self):
-        """Gets the index of the square in 0x88 board representation.
-
-        Returns:
-            An integer between 0 and 119.
-        """
-        return self.get_x() + 16 * (7 - self.get_y())
-
     def is_backrank(self):
-        """Checks whether the square is on the backrank of either side.
-
-        Returns:
-            A boolean indicating if it is a backrank square.
-        """
-        return self._name[1] in ["1", "8"]
+        """:return: Whether the square is on the backrank of either
+        side."""
+        return self.__name[1] in ["1", "8"]
 
     def __str__(self):
-        return self.get_name()
+        return self.__name
 
     def __repr__(self):
-        return "Square('%s')" % self.get_name()
+        return "Square('%s')" % self.__name
 
     def __eq__(self, other):
-        return self.get_x() == other.get_x() and self.get_y() == other.get_y()
+        return self.name == other.name
 
     def __ne__(self, other):
-        return self.get_x() != other.get_x() or self.get_y() != other.get_y()
+        return self.name != other.name
 
     def __hash__(self):
-        return self.get_0x88_index()
+        return self.x88
 
     @classmethod
-    def from_0x88_index(cls, index):
-        """Gets a square from a 0x88 index.
+    def from_x88(cls, x88):
+        """Creates a square object from an `x88 <http://en.wikipedia.org/wiki/Board_representation_(chess)#0x88_method>`_
+        index.
 
-        Args:
-            index: An index of the 0x88 board representation.
-
-        Returns:
-            An object of the Square class.
+        :param x88:
+            The x88 index as integer between 0 and 128.
         """
-        index = int(index)
-        assert index >= 0 and index <= 128
-        assert not index & 0x88 # On the board.
-        return cls("abcdefgh"[index & 7] + "87654321"[index >> 4])
+        if type(x88) is not types.IntType:
+            raise TypeError(
+                "Expected the x88 index as an integer: %s." % repr(x88))
+        if x88 < 0 or x88 > 128:
+            raise ValueError("x88 index is out of range: %s." % repr(x88))
+        if x88 & 0x88:
+            raise ValueError(
+                "x88 index is on the second board: %s." % repr(x88))
+
+        return cls("abcdefgh"[x88 & 7] + "87654321"[x88 >> 4])
 
     @classmethod
     def from_rank_and_file(cls, rank, file):
-        """Gets a square from rank and file.
+        """Creates a square object from rank and file.
 
-        Args:
-            rank: An integer between 1 and 8 for the rank.
-            file: "a", "b", "c", "d", "e", "f", "g" or "h".
-
-        Returns:
-            An object of the Square class.
+        :param rank:
+            An integer between 1 and 8.
+        :param file:
+            The rank as a letter between `"a"` and `"h"`.
         """
-        rank = int(rank)
-        assert rank >= 1 and rank <= 8
-        assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
+        if type(rank) is not types.IntType:
+            raise TypeError("Expected rank to be an integer: %s." % repr(rank))
+        if rank < 1 or rank > 8:
+            raise ValueError(
+                "Expected rank to be between 1 and 8: %s." % repr(rank))
+        if not file in ["a", "b", "c", "d", "e", "f", "g", "h"]:
+            raise ValueError(
+                "Expected the file to be a letter between 'a' and 'h': %s."
+                    % repr(file))
+
         return cls(file + str(rank))
 
     @classmethod
     def from_x_and_y(cls, x, y):
-        assert x >= 0 and x <= 7
-        assert y >= 0 and y <= 7
+        """Creates a square object from x and y coordinates.
+
+        :param x:
+            An integer between 0 and 7 where 0 is the a-file.
+        :param y:
+            An integer between 0 and 7 where 0 is the first rank.
+        """
         return cls("abcdefgh"[x] + "12345678"[y])
 
     @classmethod
     def get_all(cls):
-        """Gets all squares.
-
-        Yields:
-            All squares.
-        """
+        """:yield: All squares."""
         for x in range(0, 8):
             for y in range(0, 8):
                 yield cls.from_x_and_y(x, y)

@@ -45,7 +45,7 @@ class Move(object):
         promotion = ""
         if self._promotion:
             promotion = self._promotion
-        return self._source.get_name() + self._target.get_name() + promotion
+        return self._source.name + self._target.name + promotion
 
     def get_source(self):
         """Gets the source square.

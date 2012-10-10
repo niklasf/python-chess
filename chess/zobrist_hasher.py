@@ -246,7 +246,7 @@ class ZobristHasher(object):
             piece = position.get(square)
             if piece:
                 piece_index = "pPnNbBrRqQkK".index(piece.symbol)
-                key ^= self._random_array[64 * piece_index + 8 * square.get_y() + square.get_x()]
+                key ^= self._random_array[64 * piece_index + 8 * square.y + square.x]
 
         # Hash in the castling flags.
         if position.get_castling_right("K"):
