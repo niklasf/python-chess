@@ -1,4 +1,4 @@
-.PHONY: clean test
+.PHONY: clean test doc
 
 test:
 	python setup.py nosetests
@@ -10,3 +10,7 @@ clean:
 	-rm -r build/
 	-rm -r dist/
 	-rm -r python_chess.egg-info/
+	make --directory=doc/ clean
+
+doc:
+	make --directory=doc/ html

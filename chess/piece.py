@@ -17,8 +17,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Piece(object):
-    """Represents a chess piece."""
+    """Represents a chess piece.
 
+    Every chess piece has a color
+
+    :"w":
+        white
+    :"b":
+        black
+
+    and a type
+
+    :"p":
+        pawn
+    :"b":
+        bishop
+    :"n":
+        knight
+    :"r":
+        rook
+    :"k":
+        king
+    :"q":
+        queen
+    """
     def __init__(self, symbol):
         """Inits a piece with type and color.
 

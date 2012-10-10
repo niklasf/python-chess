@@ -225,7 +225,7 @@ class ZobristHasher(object):
         0xCF3145DE0ADD4289, 0xD0E4427A5514FB72, 0x77C621CC9FB3A483, 0x67A34DAC4356550B,
         0xF8D626AAAF278509)
 
-    def __init__(self, random_array=POLYGLOT_RANDOM_ARRAY):
+    def __init__(self, random_array=None):
         """Inits a ZobristHasher.
 
         Args:
@@ -233,6 +233,8 @@ class ZobristHasher(object):
                 Defaults to the random numbers of the Polyglot opening book
                 format.
         """
+        if random_array is None:
+            random_array = POLYGLOT_RANOM_ARRAY
         assert len(random_array) == 781
         self._random_array = random_array
 

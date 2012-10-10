@@ -34,7 +34,7 @@ from chess.exceptions import FenError
 def opposite_color(color):
     """Returns the opposite color.
 
-    :color:
+    :param color:
         "w" for white or "b" for black.
     """
     if color == "w":
