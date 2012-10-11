@@ -764,7 +764,7 @@ class Position(object):
         """:yield: Pseudo legal moves in the current position."""
         # TODO: Maximum line length should be 80 characters.
         PAWN_OFFSETS = {
-            "b": [16, 32, 16, 15],
+            "b": [16, 32, 17, 15],
             "w": [-16, -32, -17, -15]
         }
 
