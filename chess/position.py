@@ -200,6 +200,7 @@ class Position(object):
 
         :return:
             A named tuple with these properties:
+
             `move`:
                 The move object.
             `piece`:
@@ -1003,10 +1004,11 @@ class Position(object):
         """Checks if there is sufficient material to mate.
 
         Mating is impossible in:
-        - A king versus king endgame.
-        - A king with bishop versus king endgame.
-        - A king with knight versus king endgame.
-        - A king with bishop versus king with bishop endgame, where both
+
+        * A king versus king endgame.
+        * A king with bishop versus king endgame.
+        * A king with knight versus king endgame.
+        * A king with bishop versus king with bishop endgame, where both
           bishops are on the same color. Same goes for additional
           bishops on the same color.
 
@@ -1040,9 +1042,12 @@ class Position(object):
         return False
 
     def is_game_over(self):
-        """:return: Whether the game is over by the rules of chess,
-        disregarding that players can agree on a draw, claim a draw or
-        resign.
+        """Checks if the game is over.
+
+        :return:
+            Whether the game is over by the rules of chess,
+            disregarding that players can agree on a draw, claim a draw
+            or resign.
         """
         return (self.is_checkmate() or self.is_stalemate() or
                 self.is_insufficient_material())
