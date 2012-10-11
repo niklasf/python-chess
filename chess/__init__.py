@@ -18,17 +18,23 @@
 
 import inspect
 
+# Stable.
+from chess.exceptions import FenError
+from chess.exceptions import PgnError
+from chess.exceptions import MoveError
 from chess.piece import Piece
 from chess.square import Square
 from chess.move import Move
 from chess.position import Position
 from chess.zobrist_hasher import ZobristHasher
+from chess.game_header_bag import GameHeaderBag
+
+# Design phase.
 from chess.polyglot_opening_book import PolyglotOpeningBook
 from chess.game_node import GameNode
 from chess.game import Game
 from chess.pgn_file import PgnFile
 
-from chess.exceptions import FenError
 
 def opposite_color(color):
     """:return: The opposite color.

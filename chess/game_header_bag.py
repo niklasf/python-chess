@@ -22,18 +22,95 @@ import itertools
 import re
 import types
 
-# TODO!
-date_regex = 
-round_regex =
-time_control_regex = 
-time_regex = 
+date_regex = re.compile(r"^(\?{4}|[0-9]{4})\.(\?\?|[0-9]{2})\.(\?\?|[0-9]{2})$")
+round_regex = re.compile(r"^(\?|[0-9]+)$")
+time_control_regex = re.compile(r"^([0-9]+)\/([0-9]+):([0-9]+)$")
+time_regex = re.compile(r"^([0-9]{2}):([0-9]{2}):([0-9]{2})$")
 
 class GameHeaderBag(collections.MutableMapping):
+    """A glorified dictionary of game headers as used in PGNs.
+
+    :param game:
+        Defaults to `None`. If bound to a game, any value set for
+        `"PlyCount"` is ignored and instead the real ply count of the
+        game is the value.
+        Aditionally the `"FEN"` header can not be modified if the game
+        already contains a move.
+
+    These headers are required by the PGN standard and can not be
+    removed:
+
+    `"Event`":
+        The name of the tournament or match event. Default is `"?"`.
+    `"Site`":
+        The location of the event. Default is `"?"`.
+    `"Date`":
+        The starting date of the game. Defaults to `"????.??.??"`. Must
+        be a valid date of the form YYYY.MM.DD. `"??"` can be used as a
+        placeholder for unknown month or day. `"????"` can be used as a
+        placeholder for an unknown year.
+    `"Round`":
+        The playing round ordinal of the game within the event. Must be
+        digits only or `"?"`. Defaults to `"?"`.
+    `"White`":
+        The player of the white pieces. Defaults to `"?"`.
+    `"Black`":
+        The player of the black pieces. Defaults to `"?"`.
+    `"Result`":
+        Defaults to `"*"`. Other values are `"1-0"` (white won),
+        `"0-1"` (black won) and `"1/2-1/2"` (drawn).
+
+    These additional headers are known:
+
+    `"Annotator"`:
+        The person providing notes to the game.
+    `"PlyCount"`:
+        The total moves played. Must be digits only. If a `game`
+        parameter is given any value set will be ignored and the real
+        ply count of the game will be used as the value.
+    `"TimeControl"`:
+        For example `"40/7200:3600"` (moves per seconds : sudden death
+        seconds). Validated to be of this form.
+    `"Time"`:
+        Time the game started as a valid HH:MM:SS string.
+    `"Termination"`:
+        Can be one of `"abandoned"`, `"adjudication"`, `"death"`,
+        `"emergency"`, `"normal"`, `"rules infraction"`,
+        `"time forfeit"` or `"unterminated"`.
+    `"Mode"`:
+        Can be `"OTB"` (over-the-board) or `"ICS"` (Internet chess
+        server).
+    `"FEN"`:
+        The initial position if the board as a FEN. If a game parameter
+        was given and the game already contains moves, this header can
+        not be set. The header will be deleted when set to the standard
+        chess start FEN.
+    `"SetUp"`:
+        Any value set is ignored. Instead the value is `"1"` is the
+        `"FEN"` header is set. Otherwise this header does not exist.
+
+    An arbitrary amount of other headers can be set. The capitalization
+    of the first occurence of a new header is used to normalize all
+    further occurences to it. Additional headers are not validated.
+
+    >>> import chess
+    >>> bag = chess.GameHeaderBag()
+    >>> bag["Annotator"] = "Alekhine"
+    >>> bag["annOTator"]
+    'Alekhine'
+    >>> del bag["Annotator"]
+    >>> "Annotator" in bag
+    False
+
+    `KNOWN_HEADERS`:
+        The known headers in the order they will appear (if set) when
+        iterating over the keys.
+    """
 
     KNOWN_HEADERS = [
         "Event", "Site", "Date", "Round", "White", "Black", "Result",
         "Annotator", "PlyCount", "TimeControl", "Time", "Termination", "Mode",
-        "FEN"]
+        "FEN", "SetUp"]
 
     def __init__(self, game=None):
         self.__game = game
@@ -74,6 +151,8 @@ class GameHeaderBag(collections.MutableMapping):
         key = self.__normalize_key(key)
         if self.__game and key == "PlyCount":
             return self.__game.ply
+        elif key == "SetUp":
+            return "1" if "FEN" in self else "0"
         elif key in self.__headers:
             return self.__headers[key]
         else:
@@ -86,9 +165,14 @@ class GameHeaderBag(collections.MutableMapping):
                 "Expected value to be a string, got: %s." % repr(value))
 
         if key == "Date":
-            if not date_regex.match(value):
+            matches = date_regex.match(value)
+            if not matches:
                 raise ValueError(
                     "Invalid value for Date header: %s." % repr(value))
+            year = matches.group(1) if matches.group(1) != "????" else "2000"
+            month = int(matches.group(2)) if matches.group(2) != "??" else "10"
+            day = int(matches.group(3)) if matches.group(3) != "??" else "1"
+            datetime.date(int(year), int(month), int(day))
         elif key == "Round":
             if not round_regex.match(value):
                 raise ValueError(
@@ -108,7 +192,11 @@ class GameHeaderBag(collections.MutableMapping):
                 raise ValueError(
                     "Invalid value for TimeControl header: %s." % repr(value))
         elif key == "Time":
-            if not time_regex.match(value):
+            matches = time_regex.match(value)
+            if (not matches or
+                int(matches.group(1)) < 0 or int(matches.group(1)) >= 24 or
+                int(matches.group(2)) < 0 or int(matches.group(2)) >= 60 or
+                int(matches.group(3)) < 0 or int(matches.group(3)) >= 60):
                 raise ValueError(
                     "Invalid value for Time header: %s." % repr(value))
         elif key == "Termination":
@@ -139,7 +227,10 @@ class GameHeaderBag(collections.MutableMapping):
 
             if value == chess.Position.START_FEN:
                 del self["FEN"]
+                del self["SetUp"]
                 return
+            else:
+                self["SetUp"] = "1"
 
         self.__headers[key] = value
 
@@ -154,5 +245,7 @@ class GameHeaderBag(collections.MutableMapping):
         key = self.__normalize_key(key)
         if self.__game and key == "PlyCount":
             return True
+        elif key == "SetUp":
+            return "FEN" in self
         else:
             return self.__normalize_key(key) in self.__headers
