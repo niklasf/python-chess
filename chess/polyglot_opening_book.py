@@ -19,6 +19,8 @@
 import chess
 import struct
 
+# TODO: Also allow writing to opening books and document the class.
+
 class PolyglotOpeningBook(object):
     def __init__(self, path):
         self._entry_struct = struct.Struct(">QHHI")
