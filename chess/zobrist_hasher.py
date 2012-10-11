@@ -319,7 +319,7 @@ class ZobristHasher(object):
 
         # Hash in the board setup.
         for square in chess.Square.get_all():
-            piece = position.get(square)
+            piece = position[square]
             if piece:
                 i = "pPnNbBrRqQkK".index(piece.symbol)
                 key ^= self.__random_array[64 * i + 8 * square.y + square.x]
@@ -335,13 +335,13 @@ class ZobristHasher(object):
             key ^= self.__random_array[768 + 3]
 
         # Hash in the en-passant file.
-        if (position.get_ep_file() and
-               position.get_theoretical_ep_right(position.get_ep_file())):
-            i = ord(position.get_ep_file()) - ord("a")
+        if (position.ep_file and
+               position.get_theoretical_ep_right(position.ep_file)):
+            i = ord(position.ep_file) - ord("a")
             key ^= self.__random_array[772 + i]
 
         # Hash in the turn.
-        if position.get_turn() == "w":
+        if position.turn == "w":
             key ^= self.__random_array[780]
 
         return key

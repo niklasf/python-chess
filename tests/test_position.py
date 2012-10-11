@@ -25,38 +25,45 @@ class PositionTestCase(unittest.TestCase):
     def test_default_position(self):
         """Tests the default position."""
         pos = chess.Position()
-        self.assertEqual(pos.get(chess.Square('b1')), chess.Piece('N'))
-        self.assertEqual(pos.get_fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        self.assertEqual(pos.get_turn(), "w")
+        self.assertEqual(pos[chess.Square('b1')], chess.Piece('N'))
+        self.assertEqual(pos.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.assertEqual(pos.turn, "w")
 
     def test_scholars_mate(self):
         """Tests the scholars mate."""
         pos = chess.Position()
+        self.assertTrue(pos.get_castling_right("q"))
 
         e4 = chess.Move.from_uci('e2e4')
         self.assertTrue(e4 in pos.get_legal_moves())
         pos.make_move(e4)
+        self.assertTrue(pos.get_castling_right("q"))
 
         e5 = chess.Move.from_uci('e7e5')
         self.assertTrue(e5 in pos.get_legal_moves())
         self.assertFalse(e4 in pos.get_legal_moves())
         pos.make_move(e5)
+        self.assertTrue(pos.get_castling_right("q"))
 
         Qf3 = chess.Move.from_uci('d1f3')
         self.assertTrue(Qf3 in pos.get_legal_moves())
         pos.make_move(Qf3)
+        self.assertTrue(pos.get_castling_right("q"))
 
         Nc6 = chess.Move.from_uci('b8c6')
         self.assertTrue(Nc6 in pos.get_legal_moves())
         pos.make_move(Nc6)
+        self.assertTrue(pos.get_castling_right("q"))
 
         Bc4 = chess.Move.from_uci('f1c4')
         self.assertTrue(Bc4 in pos.get_legal_moves())
         pos.make_move(Bc4)
+        self.assertTrue(pos.get_castling_right("q"))
 
         Rb8 = chess.Move.from_uci('a8b8')
         self.assertTrue(Rb8 in pos.get_legal_moves())
         pos.make_move(Rb8)
+        self.assertFalse(pos.get_castling_right("q"))
 
         self.assertFalse(pos.is_check())
         self.assertFalse(pos.is_checkmate())
@@ -72,7 +79,7 @@ class PositionTestCase(unittest.TestCase):
         self.assertTrue(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
-        self.assertEqual(pos.get_fen(), '1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+        self.assertEqual(pos.fen, "1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQk - 0 4")
 
     def test_move_info(self):
         """Tests move info generation."""
@@ -81,7 +88,7 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(e4.san, 'e4')
         self.assertFalse(e4.is_check)
         self.assertFalse(e4.is_checkmate)
-        self.assertFalse(e4.is_castle())
+        self.assertFalse(e4.is_castle)
 
     def test_single_step_pawn_move(self):
         """Tests that single step pawn moves are possible."""
@@ -95,17 +102,17 @@ class PositionTestCase(unittest.TestCase):
     def test_get_set(self):
         """Tests the get and set methods."""
         pos = chess.Position()
-        self.assertEqual(pos.get(chess.Square("b1")), chess.Piece("N"))
+        self.assertEqual(pos["b1"], chess.Piece("N"))
 
-        pos.set(chess.Square("e2"), None)
-        self.assertEqual(pos.get(chess.Square("e2")), None)
+        del pos["e2"]
+        self.assertEqual(pos[chess.Square("e2")], None)
 
-        pos.set(chess.Square("e4"), chess.Piece("r"))
-        self.assertEqual(pos.get(chess.Square("e4")), chess.Piece("r"))
+        pos[chess.Square("e4")] = chess.Piece("r")
+        self.assertEqual(pos["e4"], chess.Piece("r"))
 
     def test_ep_file(self):
         pos = chess.Position("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
-        self.assertEqual(pos.get_ep_file(), "d")
+        self.assertEqual(pos.ep_file, "d")
 
     def test_san_moves(self):
         """Tests making moves from SANs."""
@@ -125,4 +132,4 @@ class PositionTestCase(unittest.TestCase):
 
         pos.make_move(pos.get_move_from_san('bxc3'))
 
-        self.assertEqual(pos.get_fen(), 'rnbqk1nr/pp1ppp1p/6p1/2p5/4P3/2PP4/P1P1NPPP/R1BQKB1R b KQkq - 0 5')
+        self.assertEqual(pos.fen, 'rnbqk1nr/pp1ppp1p/6p1/2p5/4P3/2PP4/P1P1NPPP/R1BQKB1R b KQkq - 0 5')

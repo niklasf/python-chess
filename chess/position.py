@@ -17,67 +17,106 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import collections
 import re
+import types
+
+san_regex = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$')
+
+MoveInfo = collections.namedtuple("MoveInfo", [
+    "move",
+    "piece",
+    "captured",
+    "san",
+    "is_enpassant",
+    "is_king_side_castle",
+    "is_queen_side_castle",
+    "is_castle",
+    "is_check",
+    "is_checkmate"])
+
 
 class Position(object):
-    """Represents a chess position."""
+    """Represents a chess position.
 
-    def __init__(self, fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
-        """Inits the position."""
-        self._castling = "KQkq"
-        self.set_fen(fen)
+    :param fen:
+        Optional. The FEN of the position. Defaults to the standard
+        chess start position.
+
+    Squares can be accessed via their name, a square object and their
+    x88 index:
+
+    >>> import chess
+    >>> pos = chess.Position()
+    >>> pos["e4"] = Piece("Q")
+    >>> pos[chess.Square("e4")]
+    Piece('Q')
+    >>> del pos["a8"]
+    >>> pos[0] # 0 is the x88 index of a8.
+    None
+
+    Equal position compare as equal.
+
+    `START_FEN`:
+        The FEN of the standard chess start position.
+    """
+
+    START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+    def __init__(self, fen=START_FEN):
+        self.__castling = "KQkq"
+        self.fen = fen
 
     def copy(self):
         """Gets a copy of the position. The copy will not change when the
         original instance is changed.
 
-        Returns:
+        :return:
             An exact copy of the positon.
         """
-        return Position(self.get_fen())
+        return Position(self.fen)
 
-    def get(self, square):
-        """Gets the piece on the given square.
+    def __get_square_index(self, square_or_int):
+        if type(square_or_int) is types.IntType:
+            # Validate the index by passing it through the constructor.
+            return chess.Square.from_x88(square_or_int).x88
+        elif type(square_or_int) is types.StringType:
+            return chess.Square(square_or_int).x88
+        elif type(square_or_int) is chess.Square:
+            return square_or_int.x88
+        else:
+            raise TypeError(
+                "Expected integer or Square, got: %s." % repr(square_or_int))
 
-        Args:
-            square: A Square object.
+    def __getitem__(self, key):
+        return self.__board[self.__get_square_index(key)]
 
-        Returns:
-            A piece object for the piece that is on that square or None if
-            there is no piece on the square.
-        """
-        return self._board[square.x88]
+    def __setitem__(self, key, value):
+        if value is None or type(value) is chess.Piece:
+            self.__board[self.__get_square_index(key)] = value
+        else:
+            raise TypeError("Expected Piece or None, got: %s." % repr(value))
 
-    def set(self, square, piece):
-        """Sets a piece on the given square.
-
-        Args:
-            square: The square to set the piece on.
-            piece: The piece to set. None to clear the square.
-        """
-        self._board[square.x88] = piece
+    def __delitem__(self, key):
+        self.__board[self.__get_square_index(key)] = None
 
     def clear_board(self):
         """Removes all pieces from the board."""
-        self._board = [None] * 128
+        self.__board = [None] * 128
 
     def reset(self):
-        """Resets to the default chess position."""
-        self.set_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        """Resets to the standard chess start position."""
+        self.set_fen(START_FEN)
 
-    def _get_disambiguator(self, move):
-        """Gets a disambiguator used by SANs to make moves unambigous.
-
-        Returns:
-            A disambiguator to insert.
-        """
+    def __get_disambiguator(self, move):
         same_rank = False
         same_file = False
-        piece = self.get(move.source)
+        piece = self[move.source]
 
         for m in self.get_legal_moves():
-            ambig_piece = self.get(m.source)
-            if piece == ambig_piece and move.source != m.source and move.target == m.target:
+            ambig_piece = self[m.source]
+            if (piece == ambig_piece and move.source != m.source and
+                move.target == m.target):
                 if move.source.rank == m.source.rank:
                     same_rank = True
 
@@ -99,15 +138,19 @@ class Position(object):
     def get_move_from_san(self, san):
         """Gets a move from standard algebraic notation.
 
-        Args:
-            san: Standard algebraic notation of a move.
+        :param san:
+            A move string in standard algebraic notation.
 
-        Returns:
-            A move object.
+        :return:
+            A Move object.
+
+        :raise MoveError:
+            If not exactly one legal move matches.
         """
         # Castling moves.
         if san == "o-o" or san == "o-o-o":
-            rank = 1 if self.get_turn() == "w" else 8
+            # TODO: Support Chess960, check the castling moves are valid.
+            rank = 1 if self.turn == "w" else 8
             if san == "o-o":
                 return chess.Move(
                     source=chess.Square.from_rank_and_file(rank, 'e'),
@@ -118,37 +161,74 @@ class Position(object):
                     target=chess.Square.from_rank_and_file(rank, 'c'))
         # Regular moves.
         else:
-            matches = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$').match(san)
-            piece = chess.Piece.from_color_and_type(self.get_turn(), matches.group(1).lower() if matches.group(1) else 'p')
+            matches = san_regex.match(san)
+            if not matches:
+                raise ValueError("Invalid SAN: %s." % repr(san))
+
+            piece = chess.Piece.from_color_and_type(
+                color=self.turn,
+                type=matches.group(1).lower() if matches.group(1) else 'p')
             target = chess.Square(matches.group(4))
+
             source = None
             for m in self.get_legal_moves():
-                if self.get(m.source) == piece and m.target == target:
-                    if matches.group(2) and matches.group(2) != m.source.file:
-                        continue
-                    if matches.group(3) and matches.group(3) != str(m.source.rank):
-                        continue
-                    # Move matches. Assert it is not ambigoous.
-                    assert not source
-                    source = m.source
+                if self[m.source] != piece or m.target != target:
+                    continue
 
-            # Assert a possible source square was found.
-            assert source
+                if matches.group(2) and matches.group(2) != m.source.file:
+                    continue
+                if matches.group(3) and matches.group(3) != str(m.source.rank):
+                    continue
 
-            return chess.Move(source, target, promotion=matches.group(5))
+                # Move matches. Assert it is not ambiguous.
+                if source:
+                    raise MoveError(
+                        "Move is ambiguous: %s matches %s and %s."
+                            % san, source, m)
+                source = m.source
+
+            if not source:
+                raise MoveError("No legal move matches %s." % san)
+
+            return chess.Move(source, target, matches.group(5) or None)
 
     def get_move_info(self, move):
         """Gets information about a move.
 
-        Args:
-            move: The move to get information about.
-        """
-        assert move in self.get_legal_moves()
-        resulting_position = self.copy()
-        resulting_position.make_move(move)
+        :param move:
+            The move to get information about.
 
-        capture = self.get(move.target)
-        piece = self.get(move.source)
+        :return:
+            A named tuple with these properties:
+            `move`:
+                The move object.
+            `piece`:
+                The piece that has been moved.
+            `san`:
+                The standard algebraic notation of the move.
+            `captured`:
+                The piece that has been captured or `None`.
+            `is_enpassant`:
+                A boolean indicating if the move is an en-passant
+                capture.
+            `is_king_side_castle`:
+                Whether it is a king-side castling move.
+            `is_queen_side_castle`:
+                Whether it is a queen-side castling move.
+            `is_castle`:
+                Whether it is a castling move.
+            `is_check`:
+                Whether the move gives check.
+            `is_checkmate`:
+                Whether the move gives checkmate.
+
+        :raise MoveError:
+            If the move is not legal in the position.
+        """
+        resulting_position = self.copy().make_move(move)
+
+        capture = self[move.target]
+        piece = self[move.source]
 
         # Pawn moves.
         enpassant = False
@@ -156,11 +236,17 @@ class Position(object):
             # En-passant.
             if move.target.file != move.source.file and not capture:
                 enpassant = True
-                capture = chess.Piece.from_color_and_type(resulting_position.get_turn(), 'p')
+                capture = chess.Piece.from_color_and_type(
+                    color=resulting_position.turn, type='p')
 
         # Castling.
-        is_king_side_castle = piece.type == 'k' and move.target.x - move.source.x == 2
-        is_queen_side_castle = piece.type == 'k' and move.target.x - move.source.x == -2
+        # TODO: Support Chess960.
+        # TODO: Validate the castling move.
+        if piece.type == "k":
+            is_king_side_castle = move.target.x - move.source.x == 2
+            is_queen_side_castle = move.target.x - move.source.x == -2
+        else:
+            is_king_side_castle = is_queen_side_castle = False
 
         # Checks.
         is_check = resulting_position.is_check()
@@ -176,7 +262,7 @@ class Position(object):
             if piece.type != 'p':
                 san += piece.type.upper()
 
-            san += self._get_disambiguator(move)
+            san += self.__get_disambiguator(move)
 
             if capture:
                 if piece.type == 'p':
@@ -196,7 +282,8 @@ class Position(object):
         if enpassant:
             san += " (e.p.)"
 
-        return chess.MoveInfo(
+        # Return the named tuple.
+        return MoveInfo(
             move=move,
             piece=piece,
             captured=capture,
@@ -204,52 +291,62 @@ class Position(object):
             is_enpassant=enpassant,
             is_king_side_castle=is_king_side_castle,
             is_queen_side_castle=is_queen_side_castle,
+            is_castle=is_king_side_castle or is_queen_side_castle,
             is_check=is_check,
             is_checkmate=is_checkmate)
 
     def make_move(self, move, validate=True):
         """Makes a move.
 
-        Args:
-            move: The move to make.
-        """
-        assert not validate or move in self.get_legal_moves()
+        :param move:
+            The move to make.
+        :param validate:
+            Defaults to `True`. Whether the move should be validated.
 
-        capture = self.get(move.target)
+        :return:
+            Making a move changes the position object. The same
+            (changed) object is returned for chainability.
+
+        :raise MoveError:
+            If the validate parameter is `True` and the move is not
+            legal in the position.
+        """
+        if validate and not move in self.get_legal_moves():
+            raise MoveError(
+                "%s is not a legal move in the position %s." % move, fen)
+
+        piece = self[move.source]
+        capture = self[move.target]
 
         # Move the piece.
-        self.set(move.target, self.get(move.source))
-        self.set(move.source, None)
+        self[move.target] = self[move.source]
+        del self[move.source]
 
         # It is the next players turn.
         self.toggle_turn()
 
         # Pawn moves.
-        if self.get(move.target).type == 'p':
+        self.ep_file = None
+        if piece.type == "p":
             # En-passant.
             if move.target.file != move.source.file and not capture:
-                if self.get_turn() == "b":
-                    self._board[move.target.x88 - 16] = None
+                if self.turn == "b":
+                    self[move.target.x88 - 16] = None
                 else:
-                    self._board[move.target.x88 + 16] = None
+                    self[move.target.x88 + 16] = None
                 capture = True
             # If big pawn move, set the en-passant file.
             if abs(move.target.rank - move.source.rank) == 2:
                 if self.get_theoretical_ep_right(move.target.file):
-                    self._ep_file = move.target.file
-                else:
-                    self._ep_file = None
-            else:
-                self._ep_file = None
-        else:
-            self._ep_file = None
+                    self.ep_file = move.target.file
 
         # Promotion.
         if move.promotion:
-            self.set(move.target, chess.Piece.from_color_and_type(self.get(move.target).color, move.promotion))
+            self[move.target] = chess.Piece.from_color_and_type(
+                color=piece.color, type=move.promotion)
 
         # Potential castling.
-        if self.get(move.target).type == 'k':
+        if piece.type == "k":
             steps = move.target.x - move.source.x
             if abs(steps) == 2:
                 # Queen-side castling.
@@ -260,137 +357,153 @@ class Position(object):
                 else:
                     rook_target = move.target.x88 - 1
                     rook_source = move.target.x88 + 1
-                self._board[rook_target] = self._board[rook_source]
-                self._board[rook_source] = None
+                self[rook_target] = self[rook_source]
+                del self[rook_source]
 
         # Increment the half move counter.
-        if self.get(move.target).type == 'p':
-            self._half_moves = 0
-        elif capture:
-            self._half_moves = 0
+        if piece.type == "p" or capture:
+            self.half_moves = 0
         else:
-            self._half_moves += 1
+            self.half_moves += 1
 
         # Increment the move number.
-        if self.get_turn() == "w":
-            self._ply += 1
+        if self.turn == "w":
+            self.ply += 1
 
         # Update castling rights.
         for type in ["K", "Q", "k", "q"]:
             if not self.get_theoretical_castling_right(type):
                 self.set_castling_right(type, False)
 
-    def get_turn(self):
-        """Gets whos turn it is.
+        return self
 
-        Returns:
-            "w" if it is white's turn. "b" if it is black's turn.
-        """
-        return self._turn
+    @property
+    def turn(self):
+        """Whos turn it is as `"w"` or `"b"`."""
+        return self.__turn
 
-    def set_turn(self, turn):
-        """Sets whos turn it is.
-
-        Args:
-            turn: "w" if it is white's turn. "b" is it is black's turn.
-        """
-        assert turn in ["w", "b"]
-        self._turn = turn
+    @turn.setter
+    def turn(self, value):
+        if not value in ["w", "b"]:
+            raise ValueError(
+                "Expected 'w' or 'b' for turn, got: %s." % repr(value))
+        self.__turn = value
 
     def toggle_turn(self):
         """Toggles whos turn it is."""
-        self.set_turn(chess.opposite_color(self._turn))
+        self.turn = chess.opposite_color(self.turn)
 
     def get_castling_right(self, type):
         """Checks the castling rights.
 
-        Args:
-            type: The castling move to check for. "K" for kingside castling of
-                white player, "Q" for queenside castling of the white player.
-                "k" and "q" for the corresponding castling moves of the black
-                 player.
+        :param type:
+            The castling move to check. "K" for king-side castling of
+            the white player, "Q" for queen-side castling of the white
+            player. "k" and "q" for the corresponding castling moves of
+            the black player.
 
-        Returns:
-            A boolean indicating whether the player has that castling right.
+        :return:
+            A boolean indicating whether the player has that castling
+            right.
         """
-        assert type in ["K", "Q", "k", "q"]
-        return type in self._castling
+        if not type in ["K", "Q", "k", "q"]:
+            raise KeyError(
+                "Expected 'K', 'Q', 'k' or 'q' as a castling type, got: %s."
+                    % repr(type))
+        return type in self.__castling
 
     def get_theoretical_castling_right(self, type):
         """Checks if a player could have a castling right in theory from
         looking just at the piece positions.
 
-        Args:
-            type: The castling move to check for. "K", "Q", "k" or "q" as used
-                by get_castling_right().
+        :param type:
+            The castling move to check. See
+            `Position.get_castling_right(type)` for values.
 
-        Returns:
-            A boolean indicating whether the player could theoretically have
-            that castling right.
+        :return:
+            A boolean indicating whether the player could theoretically
+            have that castling right.
         """
-        assert type in ["K", "Q", "k", "q"]
+        if not type in ["K", "Q", "k", "q"]:
+            raise KeyError(
+                "Expected 'K', 'Q', 'k' or 'q' as a castling type, got: %s."
+                    % repr(type))
+        # TODO: Support Chess960.
         if type == "K" or type == "Q":
-            if self.get(chess.Square("e1")) != chess.Piece("K"):
+            if self["e1"] != chess.Piece("K"):
                 return False
             if type == "K":
-                return self.get(chess.Square("h1")) == chess.Piece("R")
+                return self["h1"] == chess.Piece("R")
             elif type == "Q":
-                return self.get(chess.Square("a1")) == chess.Piece("R")
+                return self["a1"] == chess.Piece("R")
         elif type == "k" or type == "q":
-            if self.get(chess.Square("e8")) != chess.Piece("k"):
+            if self["e8"] != chess.Piece("k"):
                 return False
             if type == "k":
-                return self.get(chess.Square("h8")) == chess.Piece("r")
+                return self["h8"] == chess.Piece("r")
             elif type == "q":
-                return self.get(chess.Square("a8")) == chess.Piece("r")
+                return self["a8"] == chess.Piece("r")
 
     def get_theoretical_ep_right(self, file):
-        """Checks if a player could have an ep-move in theory from looking just
-        at the piece positions.
+        """Checks if a player could have an ep-move in theory from
+        looking just at the piece positions.
 
-        Args:
-            type: The file to check the ep-move for. "a", "b", "c", "d", "e",
-                "f", "g", "h".
+        :param file:
+            The file to check as a letter between `"a"` and `"h"`.
 
-        Returns:
-            A boolean indicating whether the player could theoretically have
-            that en-passant move.
+        :return:
+            A boolean indicating whether the player could theoretically
+            have that en-passant move.
         """
-        assert file in ["a", "b", "c", "d", "e", "f", "g", "h"]
+        if not file in ["a", "b", "c", "d", "e", "f", "g", "h"]:
+            raise KeyError(
+                "Expected a letter between 'a' and 'h' for the file, got: %s."
+                    % repr(file))
 
         # Check there is a pawn.
-        pawn_square = chess.Square.from_rank_and_file(4 if self.get_turn() == "b" else 5, file)
-        if not self.get(pawn_square) or self.get(pawn_square) != chess.Piece.from_color_and_type(chess.opposite_color(self.get_turn()), "p"):
+        pawn_square = chess.Square.from_rank_and_file(
+            rank=4 if self.turn == "b" else 5, file=file)
+        opposite_color_pawn = chess.Piece.from_color_and_type(
+            color=chess.opposite_color(self.turn), type="p")
+        if self[pawn_square] != opposite_color_pawn:
             return False
 
-        # Check the field below is empty.
-        if self.get(chess.Square.from_rank_and_file(3 if self.get_turn() == "b" else 6, file)):
+        # Check the square below is empty.
+        square_below = chess.Square.from_rank_and_file(
+            rank=3 if self.turn == "b" else 6, file=file)
+        if self[square_below]:
             return False
 
         # Check there is a pawn of the other color on a neighbor file.
         f = ord(file) - ord("a")
-        if self.get_turn() == "b":
-            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 3)) and self.get(chess.Square.from_x_and_y(f - 1, 3)).symbol == "p":
+        p = chess.Piece("p")
+        P = chess.Piece("P")
+        if self.turn == "b":
+            if f > 0 and self[chess.Square.from_x_and_y(f - 1, 3)] == p:
                 return True
-            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 3)) and self.get(chess.Square.from_x_and_y(f + 1, 3)).symbol == "p":
+            elif f < 7 and self[chess.Square.from_x_and_y(f + 1, 3)] == p:
                 return True
         else:
-            if f > 0 and self.get(chess.Square.from_x_and_y(f - 1, 4)) and self.get(chess.Square.from_x_and_y(f - 1, 4)).symbol == "P":
+            if f > 0 and self[chess.Square.from_x_and_y(f - 1, 4)] == P:
                 return True
-            elif f < 7 and self.get(chess.Square.from_x_and_y(f + 1, 4)) and self.get(chess.Square.from_x_and_y(f + 1, 4)).symbol == "P":
+            elif f < 7 and self[chess.Square.from_x_and_y(f + 1, 4)] == P:
                 return True
         return False
 
     def set_castling_right(self, type, status):
         """Sets a castling right.
 
-        Args:
-            type: "K", "Q", "k" or "q" as used by get_castling_right() for the
-                castling move types.
-            status: A boolean indicating whether that castling right should be
-                given or denied.
+        :param type:
+            `"K"`, `"Q"`, `"k"`, or `"q"` as used by
+            `Position.get_castling_right(type)`.
+        :param status:
+            A boolean indicating whether that castling right should be
+            granted or denied.
         """
-        assert type in ["K", "Q", "k", "q"]
+        if not type in ["K", "Q", "k", "q"]:
+            raise KeyError(
+                "Expected 'K', 'Q', 'k' or 'q' as a castling type, got: %s."
+                    % repr(type))
 
         castling = ""
         for t in ["K", "Q", "k", "q"]:
@@ -399,78 +512,70 @@ class Position(object):
                     castling += t
             elif self.get_castling_right(t):
                 castling += t
-        self._castling = castling
+        self.__castling = castling
 
-    def get_ep_file(self):
-        """The en-passant file.
+    @property
+    def ep_file(self):
+        """The en-passant file as a lowercase letter between `"a"` and
+        `"h"` or `None`."""
+        return self.__ep_file
 
-        Returns:
-            The file on which a pawn has just moved two steps forward as "a",
-            "b", "c", "d", "e", "f", "g", "h" or None, if there is no such
-            file.
-        """
-        return self._ep_file
+    @ep_file.setter
+    def ep_file(self, value):
+        if not value in ["a", "b", "c", "d", "e", "f", "g", "h", None]:
+            raise ValueError(
+                "Expected None or a letter between 'a' and 'h' for the "
+                "en-passant file, got: %s." % repr(value))
 
-    def set_ep_file(self, file):
-        """Sets the en-passant file.
+        self.__ep_file = value
 
-        Args:
-            file: The file on which a pawn has just moved two steps forward as
-                "a", "b", "c", "d", "e", "f", "g", "h" or None, if there is no
-                such file.
-        """
-        assert file in ["a", "b", "c", "d", "e", "f", "g", "h", None]
-        self._ep_file = file
+    @property
+    def half_moves(self):
+        """The number of half-moves since the last capture or pawn move."""
+        return self.__half_moves
 
-    def get_half_moves(self):
-        """Gets the number of half-moves since the last capture or pawn move.
+    @half_moves.setter
+    def half_moves(self, value):
+        if type(value) is not types.IntType:
+            raise TypeError(
+                "Expected integer for half move count, got: %s." % repr(value))
+        if value < 0:
+            raise ValueError("Half move count must be >= 0.")
 
-        Returns:
-            An integer.
-        """
-        return self._half_moves
+        self.__half_moves = value
 
-    def set_half_moves(self, half_moves):
-        """Sets the number of half-moves since the last capture or pawn move.
-
-        Args:
-            half_moves: An integer.
-        """
-        half_moves = int(half_moves)
-        assert half_moves >= 0
-        self._half_moves = half_moves
-
-    def get_ply(self):
-        """Gets the number of this move. The game starts at 1 and the counter
+    @property
+    def ply(self):
+        """The number of this move. The game starts at 1 and the counter
         is incremented every time white moves.
-
-        Returns:
-            An integer.
         """
-        return self._ply
+        return self.__ply
 
-    def set_ply(self, ply):
-        """Sets the move number.
-
-        Args:
-            ply: An integer.
-        """
-        return self._ply
+    @ply.setter
+    def ply(self, value):
+        if type(value) is not types.IntType:
+            raise TypeError(
+                "Expected integer for ply count, got: %s." % repr(value))
+        if value < 1:
+            raise ValueError("Ply count must be >= 1.")
+        self.__ply = value
 
     def get_piece_counts(self, color = "wb"):
-        """Gets a dictionary keyed by "p", "b", "n", "r", "k" and "q" with the
-        counts of pawns, bishops, knights, rooks, kings and queens on the
-        board.
+        """Counts the pieces on the board.
 
-        Args:
-            color: A color to filter the pieces by. Defaults to "wb" for both
-                black and white pieces. Valid arguments are "w", "b", "wb" and
-                "bw".
+        :param color:
+            Defaults to `"wb"`. A color to filter the pieces by. Valid
+            values are "w", "b", "wb" and "bw".
 
-        Returns:
-            A dictionary of piece counts.
+        :return:
+            A dictionary of piece counts, keyed by lowercase piece type
+            letters.
         """
-        assert color in ["w", "b", "wb", "bw"]
+        if not color in ["w", "b", "wb", "bw"]:
+            raise KeyError(
+                "Expected color filter to be one of 'w', 'b', 'wb', 'bw', "
+                "got: %s." % repr(color))
+
         counts = {
             "p": 0,
             "b": 0,
@@ -479,7 +584,7 @@ class Position(object):
             "k": 0,
             "q": 0,
         }
-        for piece in self._board:
+        for piece in self.__board:
             if piece and piece.color in color:
                 counts[piece.type] += 1
         return counts
@@ -487,26 +592,25 @@ class Position(object):
     def get_king(self, color):
         """Gets the square of the king.
 
-        Args:
-            color: "w" for the white players king. "b" for the black players
-                king.
+        :param color:
+            `"w"` for the white players king. `"b"` for the black
+            players king.
 
-        Returns:
-            The square of the king or None if that player has no king.
+        :return:
+            The first square with a matching king or `None` if that
+            player has no king.
         """
-        assert color in ["w", "b"]
+        if not color in ["w", "b"]:
+            raise KeyError("Invalid color: %s." % repr(color))
+
         for square in chess.Square.get_all():
-            piece = self.get(square)
-            if piece and piece.color == color and piece.type == 'k':
+            piece = self[square]
+            if piece and piece.color == color and piece.type == "k":
                 return square
 
-
-    def get_fen(self):
-        """Gets the FEN representation of the position.
-
-        Returns:
-            The FEN string representing the position.
-        """
+    @property
+    def fen(self):
+        """The FEN string representing the position."""
         # Board setup.
         empty = 0
         fen = ""
@@ -515,13 +619,13 @@ class Position(object):
                 square = chess.Square.from_x_and_y(x, y)
 
                 # Add pieces.
-                if not self.get(square):
+                if not self[square]:
                     empty += 1
                 else:
                     if empty > 0:
                         fen += str(empty)
                         empty = 0
-                    fen += self.get(square).symbol
+                    fen += self[square].symbol
 
             # Boarder of the board.
             if empty > 0:
@@ -530,21 +634,22 @@ class Position(object):
                 fen += "/"
             empty = 0
 
+        if self.ep_file and self.get_theoretical_ep_right(self.ep_file):
+            ep_square = self.ep_file + ("3" if self.turn == "b" else "6")
+        else:
+            ep_square = "-"
+
         # Join the parts together.
         return " ".join([
             fen,
-            self.get_turn(),
-            self._castling if self._castling else "-",
-            self._ep_file + ("3" if self._turn == "b" else "6") if self._ep_file else "-",
-            str(self.get_half_moves()),
-            str(self.get_ply())])
+            self.turn,
+            self.__castling if self.__castling else "-",
+            ep_square,
+            str(self.half_moves),
+            str(self.__ply)])
 
-    def set_fen(self, fen):
-        """Sets the position by A FEN.
-
-        Args:
-            fen: The FEN.
-        """
+    @fen.setter
+    def fen(self, fen):
         # Split into 6 parts.
         tokens = fen.split()
         if len(tokens) != 6:
@@ -559,22 +664,29 @@ class Position(object):
             for char in row:
                 if char in "12345678":
                     if previous_was_number:
-                        raise chess.FenError("Position part of the FEN is invalid: Multiple numbers immediately after each other.")
+                        raise chess.FenError(
+                            "Position part of the FEN is invalid: "
+                            "Multiple numbers immediately after each other.")
                     field_sum += int(char)
                     previous_was_number = True
                 elif char in "pnbrkqPNBRKQ":
                     field_sum += 1
                     previous_was_number = False
                 else:
-                    raise chess.FenError("Position part of the FEN is invalid: Invalid character in the position part of the FEN.")
+                    raise chess.FenError(
+                        "Position part of the FEN is invalid: "
+                        "Invalid character in the position part of the FEN.")
 
             if field_sum != 8:
-                chess.FenError("Position part of the FEN is invalid: Row with invalid length.")
+                chess.FenError(
+                    "Position part of the FEN is invalid: "
+                    "Row with invalid length.")
 
 
         # Check that the other parts are valid.
         if not tokens[1] in ["w", "b"]:
-            raise chess.FenError("Turn part of the FEN is invalid: Expected b or w.")
+            raise chess.FenError(
+                "Turn part of the FEN is invalid: Expected b or w.")
         if not re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2]):
             raise chess.FenError("Castling part of the FEN is invalid.")
         if not re.compile("^(-|[a-h][36])$").match(tokens[3]):
@@ -585,7 +697,7 @@ class Position(object):
             raise chess.FenError("Ply part of the FEN is invalid.")
 
         # Set pieces on the board.
-        self._board = [None] * 128
+        self.__board = [None] * 128
         i = 0
         for symbol in tokens[0]:
             if symbol == "/":
@@ -593,11 +705,11 @@ class Position(object):
             elif symbol in "12345678":
                 i += int(symbol)
             else:
-                self._board[i] = chess.Piece(symbol)
+                self.__board[i] = chess.Piece(symbol)
                 i += 1
 
         # Set the turn.
-        self._turn = tokens[1]
+        self.__turn = tokens[1]
 
         # Set the castling rights.
         for type in ["K", "Q", "k", "q"]:
@@ -605,34 +717,16 @@ class Position(object):
 
         # Set the en-passant file.
         if tokens[3] == "-":
-            self._ep_file = None
+            self.__ep_file = None
         else:
-            self._ep_file = tokens[3][0]
+            self.__ep_file = tokens[3][0]
 
         # Set the move counters.
-        self._half_moves = int(tokens[4])
-        self._ply = int(tokens[5])
+        self.__half_moves = int(tokens[4])
+        self.__ply = int(tokens[5])
 
-    def validate():
-        """Validates the position. Castling rights are automatically corrected,
-        invalid en-passant flags are ignored. Players can have more attackers
-        on their king than is possible through discovery.
-
-        Methods that require legal move generation and material counting assume
-        the position is valid. If not, their results are undefined.
-
-        Raises:
-            - Missing black king.
-            - Missing white king.
-            - Too many black kings.
-            - Too many white kings.
-            - Too many black pawns.
-            - Too many white pawns.
-            - Too many black pieces.
-            - Too many white pieces.
-            - Both sides in check.
-            - Opposite king in check.
-        """
+    def __validate():
+        # TODO: Rewrite and make public.
         for color in ["white", "black"]:
             piece_counts = self.get_piece_counts(color[0])
             if piece_counts["k"] == 0:
@@ -649,16 +743,13 @@ class Position(object):
         if self.is_king_attacked("w") and self.is_king_attacked("b"):
             raise "Both sides in check."
 
-        if self.is_king_attacked(chess.opposite_color(self.get_turn())):
+        if self.is_king_attacked(chess.opposite_color(self.turn)):
             raise "Opposite king in check."
 
     def is_king_attacked(self, color):
-        """Checks if the king of a player is attacked.
+        """:return: Whether the king of the given color is attacked.
 
-        color: Check if the king of this color is attacked.
-
-        Returns:
-            A boolean indicating whether the king is attacked.
+        :param color: `"w"` or `"b"`.
         """
         square = self.get_king(color)
         if square:
@@ -667,10 +758,8 @@ class Position(object):
             return False
 
     def get_pseudo_legal_moves(self):
-        """Gets pseudo legal moves in the current position.
-
-        Yields: Pseudo legal moves.
-        """
+        """:yield: Pseudo legal moves in the current position."""
+        # TODO: Maximum line length should be 80 characters.
         PAWN_OFFSETS = {
             "b": [16, 32, 16, 15],
             "w": [-16, -32, -17, -15]
@@ -686,15 +775,15 @@ class Position(object):
 
         for square in chess.Square.get_all():
             # Skip pieces of the opponent.
-            piece = self.get(square)
-            if not piece or piece.color != self.get_turn():
+            piece = self[square]
+            if not piece or piece.color != self.turn:
                 continue
 
             # Pawn moves.
             if piece.type == "p":
                 # Single square ahead. Do not capture.
-                target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.get_turn()][0])
-                if not self.get(target):
+                target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.turn][0])
+                if not self[target]:
                     # Promotion.
                     if target.is_backrank():
                         for promote_to in "bnrq":
@@ -703,17 +792,17 @@ class Position(object):
                         yield chess.Move(square, target)
 
                     # Two squares ahead. Do not capture.
-                    target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.get_turn()][1])
-                    if (self.get_turn() == "w" and square.rank == 2) or (self.get_turn() == "b" and square.rank == 7) and not self.get(target):
+                    target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.turn][1])
+                    if (self.turn == "w" and square.rank == 2) or (self.turn == "b" and square.rank == 7) and not self[target]:
                         yield chess.Move(square, target)
 
                 # Pawn captures.
                 for j in [2, 3]:
-                   target_index = square.x88 + PAWN_OFFSETS[self.get_turn()][j]
+                   target_index = square.x88 + PAWN_OFFSETS[self.turn][j]
                    if target_index & 0x88:
                        continue
                    target = chess.Square.from_x88(target_index)
-                   if self.get(target) and self.get(target).color != self.get_turn():
+                   if self[target] and self[target].color != self.turn:
                        # Promotion.
                        if target.is_backrank():
                            for promote_to in "bnrq":
@@ -721,7 +810,7 @@ class Position(object):
                        else:
                            yield chess.Move(square, target)
                    # En-passant.
-                   elif not self.get(target) and target.file == self._ep_file:
+                   elif not self[target] and target.file == self.ep_file:
                        yield chess.Move(square, target)
             # Other pieces.
             else:
@@ -732,10 +821,10 @@ class Position(object):
                         if target_index & 0x88:
                             break
                         target = chess.Square.from_x88(target_index)
-                        if not self.get(target):
+                        if not self[target]:
                             yield chess.Move(square, target)
                         else:
-                            if self.get(target).color == self.get_turn():
+                            if self[target].color == self.turn:
                                 break
                             yield chess.Move(square, target)
                             break
@@ -745,47 +834,46 @@ class Position(object):
                         if piece.type in ["n", "k"]:
                             break
 
-        opponent = chess.opposite_color(self.get_turn())
+        opponent = chess.opposite_color(self.turn)
 
         # King-side castling.
-        k = "k" if self.get_turn() == "b" else "K"
+        k = "k" if self.turn == "b" else "K"
         if self.get_castling_right(k):
-            of = self.get_king(self.get_turn()).x88
+            of = self.get_king(self.turn).x88
             to = of + 2
-            if not self._board[of + 1] and not self._board[to] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of + 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
+            if not self[of + 1] and not self[to] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of + 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
                 yield chess.Move(chess.Square.from_x88(of), chess.Square.from_x88(to))
 
         # Queen-side castling
-        q = "q" if self.get_turn() == "b" else "Q"
+        q = "q" if self.turn == "b" else "Q"
         if self.get_castling_right(q):
-            of = self.get_king(self.get_turn()).x88
+            of = self.get_king(self.turn).x88
             to = of - 2
 
-            if not self._board[of - 1] and not self._board[of - 2] and not self._board[of - 3] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of - 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
+            if not self[of - 1] and not self[of - 2] and not self[of - 3] and not self.is_check() and not self.is_attacked(opponent, chess.Square.from_x88(of - 1)) and not self.is_attacked(opponent, chess.Square.from_x88(to)):
                 yield chess.Move(chess.Square.from_x88(of), chess.Square.from_x88(to))
 
     def get_legal_moves(self):
-        """Gets legal moves in the current position.
-
-        Yields: All legal moves.
-        """
+        """:yield: All legal moves in the current position."""
         for move in self.get_pseudo_legal_moves():
             potential_position = self.copy()
             potential_position.make_move(move, False)
-            if not potential_position.is_king_attacked(self.get_turn()):
+            if not potential_position.is_king_attacked(self.turn):
                 yield move
 
     def get_attackers(self, color, square):
         """Gets the attackers of a specific square.
 
-        Args:
-            color: Filter by this color.
-            square: The square to check for.
+        :param color:
+            Filter attackers by this piece color.
+        :param square:
+            The square to check for.
 
-        Yields:
+        :yield:
             Source squares of the attack.
         """
-        assert color in ["b", "w"]
+        if not color in ["b", "w"]:
+            raise KeyError("Invalid color: %s." % repr(color))
 
         ATTACKS = [
             20, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 20, 0,
@@ -833,7 +921,7 @@ class Position(object):
         }
 
         for source in chess.Square.get_all():
-            piece = self.get(source)
+            piece = self[source]
             if not piece or piece.color != color:
                 continue
 
@@ -860,7 +948,7 @@ class Position(object):
                 j = source.x88 + offset
                 blocked = False
                 while j != square.x88:
-                    if self._board[j]:
+                    if self[j]:
                         blocked = True
                         break
                     j += offset
@@ -870,13 +958,14 @@ class Position(object):
     def is_attacked(self, color, square):
         """Checks whether a square is attacked.
 
-        Args:
-            color: Check if this player is attacking.
-            square: The square he might be attacking.
+        :param color:
+            Check if this player is attacking.
+        :param square:
+            The square the player might be attacking.
 
-        Returns:
-            A boolean indicating whether the given square is attacked by the
-            player of the given color.
+        :return:
+            A boolean indicating whether the given square is attacked
+            by the player of the given color.
         """
         try:
             self.get_attackers(color, square).next()
@@ -885,20 +974,11 @@ class Position(object):
             return False
 
     def is_check(self):
-        """Checks for checks.
-
-        Returns:
-            A boolean indicating whether the current player is in check.
-        """
-        return self.is_king_attacked(self.get_turn())
+        """:return: Whether the current player is in check."""
+        return self.is_king_attacked(self.turn)
 
     def is_checkmate(self):
-        """Checks for checkmates.
-
-        Returns:
-            A boolean indicating whether the current player has been
-            checkmated.
-        """
+        """:return: Whether the current player has been checkmated."""
         if not self.is_check():
             return False
         else:
@@ -909,11 +989,7 @@ class Position(object):
                 return True
 
     def is_stalemate(self):
-        """Checks for stalemates.
-
-        Returns:
-            A boolean indicating whether the current player is in stalemate.
-        """
+        """:return: Whether the current player is in stalemate."""
         if self.is_check():
             return False
         else:
@@ -924,22 +1000,21 @@ class Position(object):
                 return True
 
     def is_insufficient_material(self):
-        """Checks if thee is sufficient material to mate.
+        """Checks if there is sufficient material to mate.
 
         Mating is impossible in:
         - A king versus king endgame.
         - A king with bishop versus king endgame.
         - A king with knight versus king endgame.
         - A king with bishop versus king with bishop endgame, where both
-          bishops are on the same color. Same goes for additional bishops on
-          the same color.
+          bishops are on the same color. Same goes for additional
+          bishops on the same color.
 
-        Assumes that the position is valid and each player has exactly one
-        king.
+        Assumes that the position is valid and each player has exactly
+        one king.
 
-        Returns:
-            A boolean indicating whether there is insufficient material to
-            mate.
+        :return:
+            Whether there is insufficient material to mate.
         """
         piece_counts = self.get_piece_counts()
         if sum(piece_counts.values()) == 2:
@@ -957,7 +1032,7 @@ class Position(object):
             if white_has_bishop and black_has_bishop:
                 color = None
                 for square in chess.Square.get_all():
-                    if self.get(square) and self.get(square).type == "b":
+                    if self[square] and self[square].type == "b":
                         if color != None and color != square.is_light():
                             return False
                         color = square.is_light()
@@ -965,25 +1040,25 @@ class Position(object):
         return False
 
     def is_game_over(self):
-        """Checks if the game is over by the rules of chess, disregarding that
-        players can agree on a draw, claim a draw or resign.
-
-        Returns:
-            A boolean indicating whether the game is over.
+        """:return: Whether the game is over by the rules of chess,
+        disregarding that players can agree on a draw, claim a draw or
+        resign.
         """
-        return self.is_checkmate() or self.is_stalemate() or self.is_insufficient_material()
+        return (self.is_checkmate() or self.is_stalemate() or
+                self.is_insufficient_material())
 
     def __str__(self):
-        return self.get_fen()
+        return self.fen
 
     def __repr__(self):
-        return "Position.from_fen('%s)" % self.get_fen()
+        return "Position.from_fen(%s)" % repr(self.fen)
 
     def __eq__(self, other):
-        return self.get_fen() == other.get_fen()
+        return self.fen == other.fen
 
     def __ne__(self, other):
-        return self.get_fen() != other.get_fen()
+        return self.fen != other.fen
 
     def __hash__(self):
-        return chess.ZobristHasher().hash_position(self)
+        hasher = chess.ZobristHasher(chess.ZobristHasher.POLYGLOT_RANDOM_ARRAY)
+        return hasher.hash_position(self)

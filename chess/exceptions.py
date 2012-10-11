@@ -23,3 +23,6 @@ class FenError(ValueError):
 class PgnError(ValueError):
     """Thrown when a PGN is invalid."""
     pass
+
+class MoveError(ValueError):
+    """Thrown when a move in invalid."""
