@@ -294,17 +294,20 @@ class ZobristHasher(object):
         0xF8D626AAAF278509)
 
     def __init__(self, random_array):
-        length = len(random_array)
-        if length < 781:
-            raise ValueError(
-                "Expected at least 781 random numbers, got: %d." % length)
-
-        self.__random_array = random_array
+        self.random_array = random_array
 
     @property
-    def random_array():
+    def random_array(self):
         """The tuple of 781 random 64 bit integers used by the hasher."""
         return self.__random_array
+
+    @random_array.setter
+    def random_array(self, value):
+        if len(value) < 781:
+            raise ValueError(
+                "Expected at least 781 random numbers, got: %d." % len(value))
+
+        self.__random_array = value
 
     def hash_position(self, position):
         """Computes the Zobrist hash of a position.
