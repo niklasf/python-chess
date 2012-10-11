@@ -90,6 +90,23 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(e4.is_checkmate)
         self.assertFalse(e4.is_castle)
 
+    def test_pawn_captures(self):
+        """Tests pawn captures in the kings gambit."""
+        pos = chess.Position()
+        pos.make_move(pos.get_move_from_san("e4"))
+        pos.make_move(pos.get_move_from_san("e5"))
+        pos.make_move(pos.get_move_from_san("f4"))
+
+        accepted = pos.copy()
+        self.assertTrue(chess.Move.from_uci("e5f4") in accepted.get_pseudo_legal_moves())
+        self.assertTrue(chess.Move.from_uci("e5f4") in accepted.get_legal_moves())
+        accepted.make_move(accepted.get_move_from_san("exf4"))
+
+        wierd_declined = pos.copy()
+        wierd_declined.make_move(wierd_declined.get_move_from_san("d5"))
+        wierd_declined.make_move(wierd_declined.get_move_from_san("exd5"))
+
+
     def test_single_step_pawn_move(self):
         """Tests that single step pawn moves are possible."""
         pos = chess.Position()

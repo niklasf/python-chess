@@ -184,13 +184,13 @@ class Position(object):
 
                 # Move matches. Assert it is not ambiguous.
                 if source:
-                    raise MoveError(
+                    raise chess.MoveError(
                         "Move is ambiguous: %s matches %s and %s."
                             % san, source, m)
                 source = m.source
 
             if not source:
-                raise MoveError("No legal move matches %s." % san)
+                raise chess.MoveError("No legal move matches %s." % san)
 
             return chess.Move(source, target, matches.group(5) or None)
 
@@ -315,8 +315,8 @@ class Position(object):
             legal in the position.
         """
         if validate and not move in self.get_legal_moves():
-            raise MoveError(
-                "%s is not a legal move in the position %s." % move, fen)
+            raise chess.MoveError(
+                "%s is not a legal move in the position %s." % (move, self.fen))
 
         piece = self[move.source]
         capture = self[move.target]

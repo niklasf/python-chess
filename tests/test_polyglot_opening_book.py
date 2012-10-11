@@ -31,3 +31,14 @@ class PolyglotOpeningBookTestCase(unittest.TestCase):
         e5 = book.get_entries_for_position(pos).next()
         self.assertEqual(e5["move"], pos.get_move_from_san("e5"))
         pos.make_move(e5["move"])
+
+    def test_mainline(self):
+        pos = chess.Position()
+        book = chess.PolyglotOpeningBook("data/opening-books/performance.bin")
+
+        while True:
+            try:
+                entry = book.get_entries_for_position(pos).next()
+                pos.make_move(entry["move"])
+            except StopIteration:
+                break
