@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import chess
 import types
 
 class GameNode(object):
@@ -35,6 +36,7 @@ class GameNode(object):
         The first node of a variation can have a start comment.
         Defaults to no start comment.
     """
+
     def __init__(self, previous_node, move, nags=[], comment="",
                  start_comment=""):
         self.__previous_node = previous_node
@@ -106,3 +108,107 @@ class GameNode(object):
     def nags(self):
         """A list of numeric annotation glyphs."""
         return self.__nags
+
+    def can_have_start_comment(self):
+        if self.__previous_node is None:
+            return True
+        else:
+            return self.__previous_node.index(self) != 0:
+
+    def is_main_line(self):
+        if self.__previous_node is None:
+            return True
+        else:
+            return (self.__previous_node.index(self) == 0 and
+                    self.__previous_node.is_main_line())
+
+    def is_main_variation(self):
+        if self.__previous_node is None:
+            return True
+        else:
+            return self.__previous_node.index(self) == 0
+
+    def __len__(self):
+        return len(self.__variations)
+
+    def __nonzero__(self):
+        return True
+
+    def __getitem__(self, key):
+        if type(key) is types.IntType:
+            return self.__variations[key]
+        elif type(key) is chess.Move:
+            for node in self.__variations:
+                if node.move == key:
+                    return node
+            raise KeyError(key)
+        else:
+            raise TypeError("Expected integer or move as key, got: %s." % key)
+
+    def __delitem__(self, key):
+        if type(key) is chess.Move:
+            for i, node in enumerate(self.__variations):
+                if node.move == key:
+                    key = i
+                    break
+            else:
+                raise KeyError(key)
+        if type(key) is types.IntType:
+            del self.__variations[key]
+        else:
+            raise TypeError("Expected integer or move as key, got: %s." % key)
+
+    def __iter__(self):
+        for node in self.__variations:
+            yield node.move
+
+    def __contains__(self, item):
+        for node in self.__variations:
+            if item == node or item == node.move:
+                return True
+        return False
+
+    def index(self, variation):
+        for i, node in enumeate(self.__variations):
+            if value == node or value == node.move:
+                return i
+        raise ValueError("No such variation: %s." % repr(value))
+
+    def promote(self, variation):
+        i = self.index(variation)
+        if i > 0:
+            old = self.__variations[i - 1]
+            self.__variations[i - 1] = self.__variations[i]
+            self.__variations[i] = old
+
+    def demote(self, variation):
+        i = self.index(variation)
+        if i < len(self._variations) - 1:
+            old = self.__variations[i + 1]
+            self.__variations[i + 1] = self.__variations[i]
+            self.__variations[i] = old
+
+    def promote_to_main(self, variation):
+        i = self.index(variation)
+        new_mainline = self.__variations[i]
+        del self.__variations[i]
+        self.__variations.insert(0, new_mainline)
+
+    def __prepare_variation(self, variation):
+        if type(variation) is chess.Move:
+            variation = GameNode(self, variation)
+        if variation.move in self:
+            raise ValueError("Variation already in set: %s." % variation.move)
+        if variation.previous_node != self:
+            raise ValueError("Variation already has a parent.")
+        return variation
+
+    def add_variation(self, variation):
+        variation = self.__prepare_variation(variation)
+        self.__variations.append(variation)
+        return variation
+
+    def add_main_variation(self, variation):
+        variation = self.__prepare_variation(variation)
+        self.__variations.insert(0, variation)
+        return variation
