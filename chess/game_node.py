@@ -16,52 +16,93 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import types
+
 class GameNode(object):
-    def __init__(self, previous_node, move, nags=[], comment=""):
-        self._previous_node = previous_node
-        self._move = move
+    """A node in the tree of a game.
 
-        if previous_node and previous_node.get_position():
-            self._position = previous_node.get_position().copy()
-            self._position.make_move(self._move)
+    :param previous_node:
+        The parent node.
+    :param move:
+        The move that leads to the position of this node.
+    :param nags:
+        A list of numeric annotation glyphs. Defaults to no annotation
+        glyphs.
+    :param comment:
+        The comment that goes along with the move. Defaults to no
+        comment.
+    :param start_comment:
+        The first node of a variation can have a start comment.
+        Defaults to no start comment.
+    """
+    def __init__(self, previous_node, move, nags=[], comment="",
+                 start_comment=""):
+        self.__previous_node = previous_node
+        self.__move = move
 
-        self._nags = nags
-        self._comment = comment
-        self._variations = []
+        if move:
+            self.__position = previous_node.position.make_move(move)
 
-    def get_move(self):
-        return self._move
+        self.__nags = nags
+        self.comment = comment
+        self.start_comment = start_comment
 
-    def get_position(self):
-        return self._position.copy()
+        self.__variations = []
 
-    def get_nags(self):
-        return tuple(self._nags)
+    @property
+    def previous_node(self):
+        """The previous node of the game."""
+        return self.__previous_node
 
-    def add_nag(self, nag):
-        if not nag in self._nags:
-            self._nags.append(nag)
+    @property
+    def move(self):
+        """The move that makes the position of this node from the
+        previous node.
+        """
+        return self.__move
 
-    def remove_nag(self, nag):
-        self._nags.remove(nag)
+    @property
+    def position(self):
+        """A copy of the position."""
+        return self.__position.copy()
 
-    def get_comment(self):
-        return self._comment
+    @property
+    def comment(self):
+        """The comment. An empty string means no comment."""
+        return self.__comment
 
-    def set_comment(self, comment):
-        self._comment = comment
+    @comment.setter
+    def comment(self, value):
+        if type(value) is not types.StringType:
+            raise TypeError(
+                "Expected comment to be string, got: %s." % comment)
+        self.__comment = value
 
-    def get_variations(self):
-        return tuple(self._variations)
+    @property
+    def start_comment(self):
+        """The start comment of the variation.
 
-    def add_variation(self, node):
-        if not node in self._variations:
-            self._variations.append(node)
+        If the node is not the start of a variation it can not have a
+        start comment.
+        An empty string means no comment.
+        """
+        if self.can_have_start_comment():
+            return self.__start_comment
+        else:
+            return ""
 
-    def add_main_variation(self, node):
-        if node in self._variations:
-            self._variations.remove(node)
-        self._variations.insert(0, node)
+    @start_comment.setter
+    def start_comment(self, value):
+        if type(value) is not types.StringType:
+            raise TypeError(
+                "Expected start comment to be string, got: %s." % comment)
 
-    def remove_variation(self, node):
-        self._variations.remove(node)
+        if value != "" and not self.can_have_start_comment():
+            raise ValueError("Game node can not have a start comment.")
+
+        self.__start_comment = value
+
+    @property
+    def nags(self):
+        """A list of numeric annotation glyphs."""
+        return self.__nags
