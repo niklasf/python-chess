@@ -86,7 +86,7 @@ class PgnFile(object):
                     # TODO: Parse the actual movetext.
                     pass
                 else:
-                    raise PgnError("Invalid PGN. Expected header before movetext: %s", repr(line))
+                    raise chess.PgnError("Invalid PGN. Expected header before movetext: %s", repr(line))
                 in_tags = False
 
         if current_game:
