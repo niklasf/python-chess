@@ -35,6 +35,23 @@ class GameNode(object):
     :param start_comment:
         The first node of a variation can have a start comment.
         Defaults to no start comment.
+
+    You can read the variations of the node as a dictionary. The key
+    can be and index starting with `0` for the main variation or a
+    move.
+
+    >>> import chess
+    >>> root = chess.GameNode(None, None)
+    >>> variation = root.add_variation(chess.Move.from_uci("e2e4"))
+    >>> len(root)
+    1
+    >>> assert root[chess.Move.from_uci("e2e4")] == variation
+    >>> assert root[0] == variation
+    >>> del root[0]
+    >>> variation in root
+    False
+    >>> chess.Move.from_uci("e2e4") in root
+    False
     """
 
     def __init__(self, previous_node, move, nags=[], comment="",
@@ -110,12 +127,18 @@ class GameNode(object):
         return self.__nags
 
     def can_have_start_comment(self):
+        """:return: If the node can have a start comment.
+
+        Only nodes that are at the start of a variation can have a
+        start comment.
+        """
         if self.__previous_node is None:
             return True
         else:
             return self.__previous_node.index(self) != 0:
 
     def is_main_line(self):
+        """:return: If the node is in the main line of the game."""
         if self.__previous_node is None:
             return True
         else:
@@ -123,6 +146,12 @@ class GameNode(object):
                     self.__previous_node.is_main_line())
 
     def is_main_variation(self):
+        """Checks if the node is the main variation.
+
+        :return:
+            If the node is the main variation looking from the previous
+            node.
+        """
         if self.__previous_node is None:
             return True
         else:
@@ -169,12 +198,22 @@ class GameNode(object):
         return False
 
     def index(self, variation):
+        """:return: The index of a variation.
+
+        :param variation:
+            A game node or move to get the index of.
+        """
         for i, node in enumeate(self.__variations):
             if value == node or value == node.move:
                 return i
         raise ValueError("No such variation: %s." % repr(value))
 
     def promote(self, variation):
+        """Moves a variation one up, if possible.
+
+        :param variation:
+            A game node or move to promote.
+        """
         i = self.index(variation)
         if i > 0:
             old = self.__variations[i - 1]
@@ -182,6 +221,11 @@ class GameNode(object):
             self.__variations[i] = old
 
     def demote(self, variation):
+        """Moves a variation one down, if possible.
+
+        :param variation:
+            A game node or move to demote.
+        """
         i = self.index(variation)
         if i < len(self._variations) - 1:
             old = self.__variations[i + 1]
@@ -189,6 +233,11 @@ class GameNode(object):
             self.__variations[i] = old
 
     def promote_to_main(self, variation):
+        """Makes one variation the main variation of the previous node.
+
+        :param variation:
+            The game node or move to promote to the main variation.
+        """
         i = self.index(variation)
         new_mainline = self.__variations[i]
         del self.__variations[i]
@@ -204,11 +253,35 @@ class GameNode(object):
         return variation
 
     def add_variation(self, variation):
+        """Appends a variation to the list of variations.
+
+        :param variation:
+            The game node or move to add.
+
+        :return:
+            The game node that has been added.
+        """
         variation = self.__prepare_variation(variation)
         self.__variations.append(variation)
         return variation
 
     def add_main_variation(self, variation):
+        """Adds a variation and makes it the main variation.
+
+        :param variation:
+            The game node or move to add.
+
+        :return:
+            The game node that has been added.
+        """
         variation = self.__prepare_variation(variation)
         self.__variations.insert(0, variation)
         return variation
+
+    def remove_variation(self, variation):
+        """Removes a variation.
+
+        :param variation:
+            The game node or move to remove.
+        """
+        del self.__variations[self.index(variation)]
