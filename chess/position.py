@@ -82,7 +82,7 @@ class Position(object):
         if type(square_or_int) is types.IntType:
             # Validate the index by passing it through the constructor.
             return chess.Square.from_x88(square_or_int).x88
-        elif type(square_or_int) is types.StringType:
+        elif isinstance(square_or_int, basestring):
             return chess.Square(square_or_int).x88
         elif type(square_or_int) is chess.Square:
             return square_or_int.x88

@@ -30,7 +30,7 @@ class Square(object):
     True
     """
     def __init__(self, name):
-        if type(name) is not types.StringType:
+        if not isinstance(name, basestring):
             raise TypeError(
                 "Expected the square name as a string: %s." % repr(name))
         if not len(name) == 2:

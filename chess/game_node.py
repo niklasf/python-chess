@@ -92,7 +92,7 @@ class GameNode(object):
 
     @comment.setter
     def comment(self, value):
-        if type(value) is not types.StringType:
+        if not isinstance(value, basestring):
             raise TypeError(
                 "Expected comment to be string, got: %s." % comment)
         self.__comment = value
@@ -112,7 +112,7 @@ class GameNode(object):
 
     @start_comment.setter
     def start_comment(self, value):
-        if type(value) is not types.StringType:
+        if not isinstance(value, basestring):
             raise TypeError(
                 "Expected start comment to be string, got: %s." % comment)
 
@@ -135,7 +135,7 @@ class GameNode(object):
         if self.__previous_node is None:
             return True
         else:
-            return self.__previous_node.index(self) != 0:
+            return self.__previous_node.index(self) != 0
 
     def is_main_line(self):
         """:return: If the node is in the main line of the game."""

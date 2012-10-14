@@ -72,13 +72,13 @@ class PgnFile(object):
                 tag_value = tag_match.group(2).replace("\\\\", "\\").replace("\\[", "]").replace("\\\"", "\"")
                 if current_game:
                     if in_tags:
-                        current_game.set_header(tag_name, tag_value)
+                        current_game.headers[tag_name] = tag_value
                     else:
                         pgn_file.add_game(current_game)
                         current_game = None
                 if not current_game:
                     current_game = chess.Game()
-                    current_game.set_header(tag_name, tag_value)
+                    current_game.headers[tag_name] = tag_value
                 in_tags = True
             # Parse movetext lines.
             else:

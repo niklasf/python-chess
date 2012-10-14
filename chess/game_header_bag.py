@@ -18,6 +18,7 @@
 
 import chess
 import collections
+import datetime
 import itertools
 import re
 import types
@@ -124,11 +125,11 @@ class GameHeaderBag(collections.MutableMapping):
             "Result": "*",
         }
 
-    def __normalize_key(key):
-        if type(key) is not types.StringType:
+    def __normalize_key(self, key):
+        if not isinstance(key, basestring):
             raise TypeError(
                 "Expected string for GameHeaderBag key, got: %s." % repr(key))
-        for header in itertools.chain(KNOWN_HEADERS, self.__headers):
+        for header in itertools.chain(self.KNOWN_HEADERS, self.__headers):
             if header.lower() == key.lower():
                 return header
         return key
@@ -160,7 +161,7 @@ class GameHeaderBag(collections.MutableMapping):
 
     def __setitem__(self, key, value):
         key = self.__normalize_key(key)
-        if type(value) is not types.StringType:
+        if not isinstance(value, basestring):
             raise TypeError(
                 "Expected value to be a string, got: %s." % repr(value))
 
@@ -186,7 +187,7 @@ class GameHeaderBag(collections.MutableMapping):
                 raise ValueError(
                     "Invalid value for PlyCount header: %s." % repr(value))
             else:
-                value = str(int(vakue))
+                value = str(int(value))
         elif key == "TimeControl":
             if not time_control_regex.match(value):
                 raise ValueError(
