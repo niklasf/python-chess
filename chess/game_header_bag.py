@@ -129,7 +129,8 @@ class GameHeaderBag(collections.MutableMapping):
         if not isinstance(key, basestring):
             raise TypeError(
                 "Expected string for GameHeaderBag key, got: %s." % repr(key))
-        for header in itertools.chain(self.KNOWN_HEADERS, self.__headers):
+        for header in itertools.chain(GameHeaderBag.KNOWN_HEADERS,
+                                      self.__headers):
             if header.lower() == key.lower():
                 return header
         return key
@@ -141,11 +142,11 @@ class GameHeaderBag(collections.MutableMapping):
         return i
 
     def __iter__(self):
-        for known_header in KNOWN_HEADERS:
+        for known_header in GameHeaderBag.KNOWN_HEADERS:
             if known_header in self:
                 yield known_header
-        for header in self:
-            if not header in KNOWN_HEADERS:
+        for header in self.__headers:
+            if not header in GameHeaderBag.KNOWN_HEADERS:
                 yield header
 
     def __getitem__(self, key):

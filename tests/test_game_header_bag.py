@@ -23,6 +23,7 @@ class GameHeaderBagTestCase(unittest.TestCase):
     """Tests for the GameHeaderBag class."""
 
     def test_contains(self):
+        """Tests checking if a key is in the bag."""
         bag = chess.GameHeaderBag() 
         self.assertTrue("Site" in bag)
         self.assertTrue("Round" in bag)
@@ -40,3 +41,18 @@ class GameHeaderBagTestCase(unittest.TestCase):
         bag["UnknownHeader"] = "foo"
         self.assertTrue("UnknownHeader" in bag)
         self.assertFalse("OtherHeader" in bag)
+
+    def test_iterating(self):
+        """Tests iterating over a bag."""
+        bag = chess.GameHeaderBag()
+        bag["Lorem"] = "Ipsum"
+        bag["Annotator"] = "Awesome annotator"
+
+        order = []
+        for key in bag:
+            order.append(key)
+
+        self.assertEqual(order[0], "Event")
+        self.assertEqual(order[6], "Result")
+        self.assertEqual(order[7], "Annotator")
+        self.assertEqual(order[8], "Lorem")
