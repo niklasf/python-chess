@@ -19,7 +19,7 @@
 import re
 import chess
 
-uci_move_regex = re.compile("^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
+uci_move_regex = re.compile(r"^([a-h][1-8])([a-h][1-8])([rnbq]?)$")
 
 class Move(object):
     """Represents a move.

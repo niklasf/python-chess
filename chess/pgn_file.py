@@ -19,6 +19,22 @@
 import chess
 import re
 
+tag_regex = re.compile(r"\[([A-Za-z0-9]+)\s+\"(.*)\"\]")
+movetext_regex = re.compile(r"""
+    (\;.*?[\n\r])
+    |(\{.*\})
+    |(\$[0-9]+)
+    |(\()
+    |(\))
+    |(\*|1-0|0-1|1/2-1/2)
+    |(
+        ([a-hKQRBN][a-hxKQRBN1-8+#=\-]{1,6}
+        |o\-(?:\-o)?
+        |\-\-)
+        ([\?!]{1,2})*
+    )
+    """, re.DOTALL | re.VERBOSE)
+
 class PgnFile(object):
     def __init__(self):
         self._games = []
@@ -51,8 +67,6 @@ class PgnFile(object):
 
     @classmethod
     def open(cls, path):
-        tag_regex = re.compile("\\[([A-Za-z0-9]+)\\s+\"(.*)\"\\]")
-
         pgn_file = PgnFile()
         current_game = None
         in_tags = False
@@ -74,22 +88,25 @@ class PgnFile(object):
                     if in_tags:
                         current_game.headers[tag_name] = tag_value
                     else:
+                        current_game.headers["_Movetext"] = movetext
                         pgn_file.add_game(current_game)
                         current_game = None
                 if not current_game:
                     current_game = chess.Game()
                     current_game.headers[tag_name] = tag_value
+                    movetext = ""
                 in_tags = True
             # Parse movetext lines.
             else:
                 if current_game:
-                    # TODO: Parse the actual movetext.
+                    movetext += " " + line
                     pass
                 else:
                     raise chess.PgnError("Invalid PGN. Expected header before movetext: %s", repr(line))
                 in_tags = False
 
         if current_game:
+            current_game.headers["_Movetext"] = movetext
             pgn_file.add_game(current_game)
 
         return pgn_file

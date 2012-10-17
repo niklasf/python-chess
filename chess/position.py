@@ -690,13 +690,13 @@ class Position(object):
         if not tokens[1] in ["w", "b"]:
             raise chess.FenError(
                 "Turn part of the FEN is invalid: Expected b or w.")
-        if not re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2]):
+        if not re.compile(r"^(KQ?k?q?|Qk?q?|kq?|q|-)$").match(tokens[2]):
             raise chess.FenError("Castling part of the FEN is invalid.")
-        if not re.compile("^(-|[a-h][36])$").match(tokens[3]):
+        if not re.compile(r"^(-|[a-h][36])$").match(tokens[3]):
             raise chess.FenError("En-passant part of the FEN is invalid.")
-        if not re.compile("^(0|[1-9][0-9]*)$").match(tokens[4]):
+        if not re.compile(r"^(0|[1-9][0-9]*)$").match(tokens[4]):
             raise chess.FenError("Half move part of the FEN is invalid.")
-        if not re.compile("^[1-9][0-9]*$").match(tokens[5]):
+        if not re.compile(r"^[1-9][0-9]*$").match(tokens[5]):
             raise chess.FenError("Ply part of the FEN is invalid.")
 
         # Set pieces on the board.
