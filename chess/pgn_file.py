@@ -22,7 +22,7 @@ import re
 tag_regex = re.compile(r"\[([A-Za-z0-9]+)\s+\"(.*)\"\]")
 movetext_regex = re.compile(r"""
     (\;.*?[\n\r])
-    |(\{.*\})
+    |(\{.*?\})
     |(\$[0-9]+)
     |(\()
     |(\))
