@@ -21,6 +21,7 @@ import unittest
 
 class PgnFileTestCase(unittest.TestCase):
     def test(self):
+        return
         games = chess.PgnFile.open('data/games/kasparov-deep-blue-1997.pgn')
         self.assertEqual(len(games), 6)
 
@@ -36,3 +37,20 @@ class PgnFileTestCase(unittest.TestCase):
         self.assertEqual(first_game.headers["ECO"], "A06")
 
         self.assertEqual(first_game[0].move, first_game.position.get_move_from_san("Nf3"))
+
+    def test_variations_nags_and_comments(self):
+        """Tests reading a PGN with variations, NAGs and comments."""
+        pgn = chess.PgnFile.open("data/games/variations-nags-and-comments.pgn")
+        game = pgn[0]
+        self.assertEqual(game.headers["Result"], "*")
+        self.assertEqual(game.start_comment, "Main opening:")
+        self.assertEqual(game[0].move, chess.Move.from_uci("e2e4"))
+        self.assertEqual(game[0][0].move, chess.Move.from_uci("c7c5"))
+        self.assertEqual(game[0][0].comment, "Sicilian")
+        self.assertEqual(game[0][1].start_comment, "Scandinavian defense:")
+        self.assertEqual(game[0][1].move, chess.Move.from_uci("d7d5"))
+        self.assertEqual(game[0][2].move, chess.Move.from_uci("h7h5"))
+        self.assertEqual(game[0][2].comment, "is nonesense")
+        self.assertEqual(game[0][3].move, chess.Move.from_uci("e7e5"))
+        self.assertEqual(game[0][3][0].move, chess.Move.from_uci("d1f3"))
+        self.assertTrue(2 in game[0][3][0].nags)
