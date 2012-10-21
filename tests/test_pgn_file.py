@@ -34,3 +34,5 @@ class PgnFileTestCase(unittest.TestCase):
         self.assertEqual(first_game.headers["White"], "Garry Kasparov")
         self.assertEqual(first_game.headers["Black"], "Deep Blue (Computer)")
         self.assertEqual(first_game.headers["ECO"], "A06")
+
+        self.assertEqual(first_game[0].move, first_game.position.get_move_from_san("Nf3"))

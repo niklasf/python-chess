@@ -150,10 +150,10 @@ class Position(object):
             If not exactly one legal move matches.
         """
         # Castling moves.
-        if san == "o-o" or san == "o-o-o":
+        if san == "O-O" or san == "O-O-O":
             # TODO: Support Chess960, check the castling moves are valid.
             rank = 1 if self.turn == "w" else 8
-            if san == "o-o":
+            if san == "O-O":
                 return chess.Move(
                     source=chess.Square.from_rank_and_file(rank, 'e'),
                     target=chess.Square.from_rank_and_file(rank, 'g'))

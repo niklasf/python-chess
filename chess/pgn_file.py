@@ -29,8 +29,7 @@ movetext_regex = re.compile(r"""
     |(\*|1-0|0-1|1/2-1/2)
     |(
         ([a-hKQRBN][a-hxKQRBN1-8+#=\-]{1,6}
-        |o\-(?:\-o)?
-        |\-\-)
+        |O-O(?:\-O)?)
         ([\?!]{1,2})*
     )
     """, re.DOTALL | re.VERBOSE)
@@ -65,6 +64,22 @@ class PgnFile(object):
     def __contains__(self, game):
         return game in self._games
 
+    @staticmethod
+    def __parse_movetext(game, movetext):
+        variation_stack = [game]
+        for match in movetext_regex.finditer(movetext):
+            token = match.group(0)
+            if token in ["1-0", "0-1", "1/2-1/2"] and len(variation_stack) == 1:
+                game.headers["Result"] = token
+            else:
+                pos = variation_stack[-1].position
+                print pos, token
+                try:
+                    variation_stack[-1] = variation_stack[-1].add_variation(pos.get_move_from_san(token))
+                except chess.MoveError, e:
+                    raise chess.PgnError(e)
+        print "--------------"
+
     @classmethod
     def open(cls, path):
         pgn_file = PgnFile()
@@ -88,7 +103,7 @@ class PgnFile(object):
                     if in_tags:
                         current_game.headers[tag_name] = tag_value
                     else:
-                        current_game.headers["_Movetext"] = movetext
+                        cls.__parse_movetext(current_game, movetext)
                         pgn_file.add_game(current_game)
                         current_game = None
                 if not current_game:
@@ -99,14 +114,14 @@ class PgnFile(object):
             # Parse movetext lines.
             else:
                 if current_game:
-                    movetext += " " + line
+                    movetext += "\n" + line
                     pass
                 else:
                     raise chess.PgnError("Invalid PGN. Expected header before movetext: %s", repr(line))
                 in_tags = False
 
         if current_game:
-            current_game.headers["_Movetext"] = movetext
+            cls.__parse_movetext(current_game, movetext)
             pgn_file.add_game(current_game)
 
         return pgn_file
