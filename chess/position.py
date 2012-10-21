@@ -795,9 +795,10 @@ class Position(object):
                         yield chess.Move(square, target)
 
                     # Two squares ahead. Do not capture.
-                    target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.turn][1])
-                    if (self.turn == "w" and square.rank == 2) or (self.turn == "b" and square.rank == 7) and not self[target]:
-                        yield chess.Move(square, target)
+                    if (self.turn == "w" and square.rank == 2) or (self.turn == "b" and square.rank == 7):
+                        target = chess.Square.from_x88(square.x88 + PAWN_OFFSETS[self.turn][1])
+                        if not self[target]:
+                            yield chess.Move(square, target)
 
                 # Pawn captures.
                 for j in [2, 3]:

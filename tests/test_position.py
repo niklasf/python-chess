@@ -116,6 +116,12 @@ class PositionTestCase(unittest.TestCase):
         pos.get_move_info(a3)
         pos.make_move(a3)
 
+    def test_pawn_move_generation(self):
+        """Tests pawn move generation in a specific position from a
+        Kasparov vs. Deep Blue game."""
+        pos = chess.Position("8/2R1P3/8/2pp4/2k1r3/P7/8/1K6 w - - 1 55")
+        list(pos.get_pseudo_legal_moves())
+
     def test_get_set(self):
         """Tests the get and set methods."""
         pos = chess.Position()
