@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+{ Main opening: } 1. e4 c5 { Sicilian}  ( { Scandinavian defense: } 1... d5 ) (
+1... h5 $2 { is nonesense}  ) ( 1... e5 2. Qf3 $2 Bc5 3. Bc4 Nc6 $4 { falls for
+mate}  4. Ne2 $4 { throws the mate away}  ( 4. Qxf7# { would have been mate}  )
+) 2. Nf3 g6 { is the accelerated dragon}  3. d4 cxd4 4. Qxd4 Nf6 5. Ba6 $4 {
+loses the bishop}  5... bxa6 $16 6. O-O Nxe4 $2 7. Qxe4 $10  *
+
