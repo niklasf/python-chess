@@ -71,7 +71,6 @@ class PgnFile(object):
         start_comment = ""
         for match in movetext_regex.finditer(movetext):
             token = match.group(0)
-            print token
             if token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 game.headers["Result"] = token
             elif token.startswith("%"):
