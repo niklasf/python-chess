@@ -73,12 +73,10 @@ class PgnFile(object):
                 game.headers["Result"] = token
             else:
                 pos = variation_stack[-1].position
-                print pos, token
                 try:
                     variation_stack[-1] = variation_stack[-1].add_variation(pos.get_move_from_san(token))
                 except chess.MoveError, e:
                     raise chess.PgnError(e)
-        print "--------------"
 
     @classmethod
     def open(cls, path):
