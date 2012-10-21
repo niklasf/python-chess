@@ -23,7 +23,7 @@ import types
 
 # TODO: Find a sane order for the members.
 
-san_regex = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?$')
+san_regex = re.compile('^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?(\+|#)?$')
 
 MoveInfo = collections.namedtuple("MoveInfo", [
     "move",
