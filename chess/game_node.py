@@ -192,10 +192,10 @@ class GameNode(object):
             yield node.move
 
     def __contains__(self, item):
-        for node in self.__variations:
-            if item == node or item == node.move:
-                return True
-        return False
+        if isinstance(item, GameNode):
+            return item in self.__variations
+        else:
+            return item in [node.move for node in self.__variations]
 
     def index(self, variation):
         """:return: The index of a variation.
