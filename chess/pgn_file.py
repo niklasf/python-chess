@@ -67,29 +67,39 @@ class PgnFile(object):
     @staticmethod
     def __parse_movetext(game, movetext):
         variation_stack = [game]
+        in_variation = False
+        start_comment = ""
         for match in movetext_regex.finditer(movetext):
             token = match.group(0)
+            print token
             if token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 game.headers["Result"] = token
             elif token.startswith("%"):
                 # Ignore rest of line comments.
                 pass
             elif token.startswith("{"):
-                # TODO: Do not ignore comments.
-                pass
+                if in_variation:
+                    variation_stack[-1].comment += token[1:-1].strip()
+                elif len(variation_stack) == 1:
+                    variation_stack[0].start_comment += token[1:-1].strip()
+                else:
+                    start_comment += token[1:-1].strip()
             elif token.startswith("$"):
-                # TODO: Do not ignore NAGs.
-                pass
+                if not in_variation:
+                    raise PgnError("NAGs must go behind moves.")
+                variation_stack[-1].nags.append(int(token[1:]))
             elif token == "(":
                 variation_stack.append(variation_stack[-1].previous_node)
+                in_variation = False
             elif token == ")":
                 variation_stack.pop()
             else:
+                in_variation = True
                 pos = variation_stack[-1].position
-                try:
-                    variation_stack[-1] = variation_stack[-1].add_variation(pos.get_move_from_san(token))
-                except chess.MoveError, e:
-                    raise chess.PgnError(e)
+                variation_stack[-1] = variation_stack[-1].add_variation(pos.get_move_from_san(token))
+                variation_stack[-1].start_comment = start_comment
+                start_comment = ""
+
 
     @classmethod
     def open(cls, path):

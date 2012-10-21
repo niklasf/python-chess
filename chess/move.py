@@ -88,7 +88,7 @@ class Move(object):
         return "Move.from_uci(%s)" % repr(self.uci)
 
     def __eq__(self, other):
-        return self.uci == other.uci
+        return isinstance(other, chess.Move) and self.uci == other.uci
 
     def __ne__(self, other):
         return self.uci != other.uci

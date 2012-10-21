@@ -203,8 +203,8 @@ class GameNode(object):
         :param variation:
             A game node or move to get the index of.
         """
-        for i, node in enumeate(self.__variations):
-            if value == node or value == node.move:
+        for i, node in enumerate(self.__variations):
+            if node == variation or node.move == variation:
                 return i
         raise ValueError("No such variation: %s." % repr(value))
 
