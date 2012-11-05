@@ -334,9 +334,9 @@ class Position(object):
             # En-passant.
             if move.target.file != move.source.file and not capture:
                 if self.turn == "b":
-                    self[move.target.x88 - 16] = None
+                    self.__board[move.target.x88 - 16] = None
                 else:
-                    self[move.target.x88 + 16] = None
+                    self.__board[move.target.x88 + 16] = None
                 capture = True
             # If big pawn move, set the en-passant file.
             if abs(move.target.rank - move.source.rank) == 2:
