@@ -17,6 +17,9 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(white_queen.color, "w")
 
         self.assertEqual(black_pawn, libchess.Piece("p"))
+        self.assertNotEqual(black_pawn, white_queen)
+        self.assertNotEqual(black_pawn, None)
+        self.assertFalse(black_pawn != libchess.Piece("p"))
 
 if __name__ == "__main__":
     unittest.main()

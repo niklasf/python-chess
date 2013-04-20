@@ -14,5 +14,7 @@ BOOST_PYTHON_MODULE(libchess)
     class_<Piece>("Piece", init<char>())
         .add_property("symbol", &Piece::symbol)
         .add_property("color", &Piece::color)
-        .add_property("type", &Piece::type);
+        .add_property("type", &Piece::type)
+        .def(self == other<Piece>())
+        .def(self != other<Piece>());
 }

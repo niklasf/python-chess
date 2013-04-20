@@ -12,6 +12,9 @@ namespace chess {
         char type() const;
         char symbol() const;
 
+        bool operator==(const Piece& other) const;
+        bool operator!=(const Piece& other) const;
+
     private:
         char m_symbol;
     };

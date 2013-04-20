@@ -47,4 +47,12 @@ namespace chess {
         return m_symbol;
     }
 
+    bool Piece::operator==(const Piece& other) const {
+        return m_symbol == other.m_symbol;
+    }
+
+    bool Piece::operator!=(const Piece& other) const {
+        return m_symbol != other.m_symbol;
+    }
+
 }
