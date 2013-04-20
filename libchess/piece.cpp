@@ -78,6 +78,10 @@ namespace chess {
         return str(boost::format("Piece('%1%')") % m_symbol);
     }
 
+    int Piece::__hash__() const {
+        return m_symbol;
+    }
+
     bool Piece::operator==(const Piece& other) const {
         return m_symbol == other.m_symbol;
     }

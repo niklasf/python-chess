@@ -13,11 +13,11 @@ namespace chess {
         char color() const;
         char type() const;
         char symbol() const;
-
         std::string full_color() const;
         std::string full_type() const;
 
         std::string __repr__() const;
+        int __hash__() const;
 
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;

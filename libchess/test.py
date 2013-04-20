@@ -31,5 +31,13 @@ class PieceTestCase(unittest.TestCase):
         # String representation.
         self.assertEqual(str(black_pawn), "p")
 
+        # Test dictionary with pieces.
+        a = dict()
+        a[black_pawn] = "foo"
+        a[white_queen] = "bar"
+        a[libchess.Piece("Q")] = "baz"
+        self.assertEqual(a[black_pawn], "foo")
+        self.assertEqual(a[white_queen], "baz")
+
 if __name__ == "__main__":
     unittest.main()
