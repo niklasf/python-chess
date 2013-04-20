@@ -47,6 +47,14 @@ namespace chess {
         return m_symbol;
     }
 
+    std::string Piece::full_color() const {
+        if (color() == 'w') {
+            return "white";
+        } else {
+            return "black";
+        }
+    }
+
     bool Piece::operator==(const Piece& other) const {
         return m_symbol == other.m_symbol;
     }

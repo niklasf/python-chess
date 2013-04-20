@@ -15,6 +15,7 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("symbol", &Piece::symbol)
         .add_property("color", &Piece::color)
         .add_property("type", &Piece::type)
+        .add_property("full_color", &Piece::full_color)
         .def(self == other<Piece>())
         .def(self != other<Piece>())
         .def(self_ns::str(self));
