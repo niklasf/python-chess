@@ -53,5 +53,16 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(white_rook.symbol, "R")
 
 
+class SquareTestCase(unittest.TestCase):
+
+    def test(self):
+        # Properties.
+        a2 = libchess.Square("a2")
+        self.assertEqual(a2.rank, 1)
+        self.assertEqual(a2.file, 0)
+        self.assertEqual(a2.name, "a2")
+        self.assertEqual(a2.file_name, "a")
+
+
 if __name__ == "__main__":
     unittest.main()
