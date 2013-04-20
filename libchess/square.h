@@ -35,7 +35,6 @@ namespace chess {
 
     private:
         int m_index;
-
     };
 
     std::ostream& operator<<(std::ostream& out, const Square& square);

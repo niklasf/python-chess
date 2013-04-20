@@ -2,6 +2,7 @@
 
 #include "piece.h"
 #include "square.h"
+#include "move.h"
 
 namespace chess {
 
@@ -57,4 +58,20 @@ BOOST_PYTHON_MODULE(libchess)
         .staticmethod("from_rank_and_file")
         .def("from_index", &Square::from_index)
         .staticmethod("from_index");
+
+    class_<Move>("Move", init<Square, Square>())
+        .def(init<Square, Square, char>())
+        .add_property("source", &Move::source)
+        .add_property("target", &Move::target)
+        .add_property("promotion", &Move::promotion)
+        .add_property("full_promotion", &Move::full_promotion)
+        .add_property("uci", &Move::uci)
+        .def("is_promotion", &Move::is_promotion)
+        .def(self == other<Move>())
+        .def(self != other<Move>())
+        .def(self_ns::str(self))
+        .def("__repr__", &Move::__repr__)
+        .def("__hash__", &Move::__hash__)
+        .def("from_uci", &Move::from_uci)
+        .staticmethod("from_uci");
 }

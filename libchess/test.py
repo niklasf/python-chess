@@ -64,5 +64,16 @@ class SquareTestCase(unittest.TestCase):
         self.assertEqual(a2.file_name, "a")
 
 
+class MoveTestCase(unittest.TestCase):
+
+    def test(self):
+        # Properties.
+        move = libchess.Move.from_uci("e7e8q")
+        self.assertEqual(move.source, libchess.Square("e7"))
+        self.assertEqual(move.target, libchess.Square("e8"))
+        self.assertEqual(move.promotion, "q")
+        self.assertEqual(move.full_promotion, "queen")
+
+
 if __name__ == "__main__":
     unittest.main()

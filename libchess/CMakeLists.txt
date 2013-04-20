@@ -11,7 +11,11 @@ set (Boost_USE_MULTITHREADED ON)
 
 include_directories (${PYTHON_INCLUDE_DIRS})
 link_directories (${PYTHON_LIBRARIES})
-add_library (chess SHARED libchess.cpp piece.cpp square.cpp)
+add_library (chess SHARED
+    libchess.cpp
+    piece.cpp
+    square.cpp
+    move.cpp)
 target_link_libraries (chess
     ${Boost_PYTHON_LIBRARY}
     ${PYTHON_LIBRARIES})
