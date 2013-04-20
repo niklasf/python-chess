@@ -7,7 +7,7 @@ find_package (PythonLibs REQUIRED)
 
 include_directories (${PYTHON_INCLUDE_DIRS})
 link_directories (${PYTHON_LIBRARIES})
-add_library (chess SHARED libchess.cpp)
+add_library (chess SHARED libchess.cpp piece.cpp)
 target_link_libraries (chess ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
 
 add_executable (libchesstest test.cpp)
