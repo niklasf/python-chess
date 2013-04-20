@@ -6,7 +6,18 @@
 namespace chess {
 
     Piece::Piece(char symbol) {
-        m_symbol = symbol;
+        switch (tolower(symbol)) {
+            case 'p':
+            case 'n':
+            case 'b':
+            case 'r':
+            case 'q':
+            case 'k':
+                m_symbol = symbol;
+                break;
+            default:
+                throw new std::invalid_argument("symbol");
+        }
     }
 
     char Piece::color() const {
@@ -71,6 +82,8 @@ namespace chess {
             return Piece(toupper(type));
         } else if (color == 'b') {
             return Piece(tolower(type));
+        } else {
+            throw new std::invalid_argument("color");
         }
     }
 
