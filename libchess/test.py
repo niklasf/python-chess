@@ -4,7 +4,16 @@
 import unittest
 import libchess
 
+
+class CommonTestCase(unittest.TestCase):
+
+    def test_opposite_color(self):
+        self.assertEqual(libchess.opposite_color("w"), "b")
+        self.assertEqual(libchess.opposite_color("b"), "w")
+
+
 class PieceTestCase(unittest.TestCase):
+
     def test(self):
         # Properties of a black piece.
         black_pawn = libchess.Piece("p")
@@ -42,6 +51,7 @@ class PieceTestCase(unittest.TestCase):
         # Test non-default constructor.
         white_rook = libchess.Piece.from_color_and_type("w", "r")
         self.assertEqual(white_rook.symbol, "R")
+
 
 if __name__ == "__main__":
     unittest.main()

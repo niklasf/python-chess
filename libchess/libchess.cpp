@@ -2,14 +2,26 @@
 
 #include "piece.h"
 
-const char *yay() {
-    return "yay";
+namespace chess {
+
+    char opposite_color(char color) {
+        if (color == 'w') {
+            return 'b';
+        } else if (color == 'b') {
+            return 'w';
+        } else {
+            throw new std::invalid_argument("color");
+        }
+    }
+
 }
 
 BOOST_PYTHON_MODULE(libchess)
 {
     using namespace boost::python;
     using namespace chess;
+
+    def("opposite_color", &opposite_color);
 
     class_<Piece>("Piece", init<char>())
         .add_property("symbol", &Piece::symbol)
