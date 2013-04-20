@@ -55,4 +55,9 @@ namespace chess {
         return m_symbol != other.m_symbol;
     }
 
+    std::ostream& operator<<(std::ostream& out, const Piece& piece) {
+        out << piece.symbol();
+        return out;
+    }
+
 }

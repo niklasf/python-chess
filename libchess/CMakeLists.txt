@@ -5,6 +5,9 @@ project (libchess)
 find_package (Boost COMPONENTS python REQUIRED)
 find_package (PythonLibs REQUIRED)
 
+set (Boost_USE_STATIC_LIBS OFF)
+set (Boost_USE_MULTITHREADED ON)
+
 include_directories (${PYTHON_INCLUDE_DIRS})
 link_directories (${PYTHON_LIBRARIES})
 add_library (chess SHARED libchess.cpp piece.cpp)

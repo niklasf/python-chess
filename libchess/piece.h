@@ -1,6 +1,8 @@
 #ifndef LIBCHESS_PIECE_H
 #define LIBCHESS_PIECE_H
 
+#include <iostream>
+
 namespace chess {
 
     class Piece {
@@ -15,10 +17,12 @@ namespace chess {
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;
 
+
     private:
         char m_symbol;
     };
 
+    std::ostream& operator<<(std::ostream& out, const Piece& piece);
 }
 
 #endif
