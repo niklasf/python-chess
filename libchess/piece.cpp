@@ -1,5 +1,7 @@
 #include "piece.h"
 
+#include <boost/format.hpp>
+
 namespace chess {
 
     Piece::Piece(char symbol) {
@@ -70,6 +72,10 @@ namespace chess {
             case 'q':
                  return "queen";
         }
+    }
+
+    std::string Piece::__repr__() const {
+        return str(boost::format("Piece('%1%')") % m_symbol);
     }
 
     bool Piece::operator==(const Piece& other) const {

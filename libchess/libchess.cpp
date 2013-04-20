@@ -19,5 +19,6 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("full_type", &Piece::full_type)
         .def(self == other<Piece>())
         .def(self != other<Piece>())
-        .def(self_ns::str(self));
+        .def(self_ns::str(self))
+        .def("__repr__", &Piece::__repr__);
 }

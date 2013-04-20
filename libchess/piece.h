@@ -17,6 +17,8 @@ namespace chess {
         std::string full_color() const;
         std::string full_type() const;
 
+        std::string __repr__() const;
+
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;
 
