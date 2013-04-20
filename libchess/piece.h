@@ -15,6 +15,7 @@ namespace chess {
         char symbol() const;
 
         std::string full_color() const;
+        std::string full_type() const;
 
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;

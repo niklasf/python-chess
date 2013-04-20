@@ -55,6 +55,23 @@ namespace chess {
         }
     }
 
+    std::string Piece::full_type() const {
+        switch(type()) {
+            case 'p':
+                return "pawn";
+            case 'b':
+                return "bishop";
+            case 'n':
+                return "knight";
+            case 'r':
+                return "rook";
+            case 'k':
+                return "king";
+            case 'q':
+                 return "queen";
+        }
+    }
+
     bool Piece::operator==(const Piece& other) const {
         return m_symbol == other.m_symbol;
     }

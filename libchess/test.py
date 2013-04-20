@@ -12,6 +12,7 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(black_pawn.symbol, "p")
         self.assertEqual(black_pawn.color, "b")
         self.assertEqual(black_pawn.full_color, "black")
+        self.assertEqual(black_pawn.full_type, "pawn")
 
         # Properties of a white piece.
         white_queen = libchess.Piece("Q")
@@ -19,6 +20,7 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(white_queen.symbol, "Q")
         self.assertEqual(white_queen.color, "w")
         self.assertEqual(white_queen.full_color, "white")
+        self.assertEqual(white_queen.full_type, "queen")
 
         # Comparison.
         self.assertEqual(black_pawn, libchess.Piece("p"))
