@@ -1,6 +1,7 @@
 #include "piece.h"
 
 #include <boost/format.hpp>
+#include <stdlib.h>
 
 namespace chess {
 
@@ -9,40 +10,15 @@ namespace chess {
     }
 
     char Piece::color() const {
-        switch (m_symbol) {
-            case 'p':
-            case 'n':
-            case 'b':
-            case 'r':
-            case 'q':
-            case 'k':
-                return 'b';
-            default:
-                return 'w';
+        if (m_symbol == toupper(m_symbol)) {
+            return 'w';
+        } else {
+            return 'b';
         }
     }
 
     char Piece::type() const {
-        switch (m_symbol) {
-            case 'p':
-            case 'P':
-                return 'p';
-            case 'n':
-            case 'N':
-                return 'n';
-            case 'b':
-            case 'B':
-                return 'b';
-            case 'r':
-            case 'R':
-                return 'r';
-            case 'q':
-            case 'Q':
-                return 'q';
-            case 'k':
-            case 'K':
-                return 'k';
-        }
+        return tolower(m_symbol);
     }
 
     char Piece::symbol() const {
@@ -88,6 +64,14 @@ namespace chess {
 
     bool Piece::operator!=(const Piece& other) const {
         return m_symbol != other.m_symbol;
+    }
+
+    Piece Piece::from_color_and_type(char color, char type) {
+        if (color == 'w') {
+            return Piece(toupper(type));
+        } else if (color == 'b') {
+            return Piece(tolower(type));
+        }
     }
 
     std::ostream& operator<<(std::ostream& out, const Piece& piece) {

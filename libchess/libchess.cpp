@@ -21,5 +21,7 @@ BOOST_PYTHON_MODULE(libchess)
         .def(self != other<Piece>())
         .def(self_ns::str(self))
         .def("__repr__", &Piece::__repr__)
-        .def("__hash__", &Piece::__hash__);
+        .def("__hash__", &Piece::__hash__)
+        .def("from_color_and_type", &Piece::from_color_and_type)
+        .staticmethod("from_color_and_type");
 }

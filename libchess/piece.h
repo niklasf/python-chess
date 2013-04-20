@@ -22,6 +22,8 @@ namespace chess {
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;
 
+        static Piece from_color_and_type(char color, char type);
+
     private:
         char m_symbol;
     };

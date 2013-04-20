@@ -39,5 +39,9 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(a[black_pawn], "foo")
         self.assertEqual(a[white_queen], "baz")
 
+        # Test non-default constructor.
+        white_rook = libchess.Piece.from_color_and_type("w", "r")
+        self.assertEqual(white_rook.symbol, "R")
+
 if __name__ == "__main__":
     unittest.main()
