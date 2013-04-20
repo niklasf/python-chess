@@ -11,15 +11,15 @@ namespace chess {
         m_index = index;
     }
 
-    Square::Square(const std::string& square_name) {
-        if (square_name.length() != 2) {
-            throw new std::invalid_argument("square_name");
+    Square::Square(const std::string& name) {
+        if (name.length() != 2) {
+            throw new std::invalid_argument("name");
         }
 
-        int file = square_name.at(0) - 'a';
-        int rank = square_name.at(1) - '1';
+        int file = name.at(0) - 'a';
+        int rank = name.at(1) - '1';
         if (file < 0 || file >= 8 || rank < 0 || rank >= 8) {
-            throw new std::invalid_argument("square_name");
+            throw new std::invalid_argument("name");
         }
 
         m_index = rank * 8 + file;

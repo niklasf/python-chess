@@ -9,7 +9,7 @@ namespace chess {
 
     public:
         Square(int index);
-        Square(const std::string& square_name);
+        Square(const std::string& name);
         Square(int rank, int file);
 
         int rank() const;
