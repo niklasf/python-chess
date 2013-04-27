@@ -13,6 +13,7 @@ namespace chess {
     public:
 
         Position();
+        Position(std::string fen);
 
         void clear_board();
         void reset();
@@ -43,6 +44,7 @@ namespace chess {
         std::string fen() const;
         void set_fen(std::string fen);
 
+        std::string __repr__() const;
         uint64_t __hash__() const;
 
         bool operator==(const Position& other) const;
@@ -63,6 +65,8 @@ namespace chess {
         int x88_index_from_square_key(boost::python::object square_key) const;
 
     };
+
+    std::ostream& operator<<(std::ostream& out, const Position& position);
 
     extern const uint64_t POLYGLOT_RANDOM_ARRAY[];
 

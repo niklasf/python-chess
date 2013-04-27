@@ -1,4 +1,5 @@
 #include <vector>
+#include <boost/format.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -9,6 +10,10 @@ namespace chess {
 
     Position::Position() {
         reset();
+    }
+
+    Position::Position(std::string fen) {
+        set_fen(fen);
     }
 
     void Position::clear_board() {
@@ -506,6 +511,15 @@ namespace chess {
             Square square = Square(square_name);
             return square.x88_index();
         }
+    }
+
+    std::string Position::__repr__() const {
+        return str(boost::format("Position('%1%')") % fen());
+    }
+
+    std::ostream& operator<<(std::ostream& out, const Position& position) {
+        out << position.fen();
+        return out;
     }
 
     const uint64_t POLYGLOT_RANDOM_ARRAY[] = {

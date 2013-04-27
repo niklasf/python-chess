@@ -80,6 +80,7 @@ BOOST_PYTHON_MODULE(libchess)
         .staticmethod("from_uci");
 
     class_<Position>("Position")
+        .def(init<std::string>())
         .def("reset", &Position::reset)
         .def("clear_board", &Position::clear_board)
         .add_property("turn", &Position::turn, &Position::set_turn)
@@ -91,8 +92,10 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("fen", &Position::fen, &Position::set_fen)
         .def(self == other<Position>())
         .def(self != other<Position>())
+        .def(self_ns::str(self))
         .def("__getitem__", &Position::__getitem__)
         .def("__setitem__", &Position::__setitem__)
         .def("__delitem__", &Position::__delitem__)
+        .def("__repr__", &Position::__repr__)
         .def("__hash__", &Position::__hash__);
 }
