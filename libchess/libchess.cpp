@@ -1,4 +1,5 @@
 #include <boost/python.hpp>
+#include <boost/format.hpp>
 
 #include "piece.h"
 #include "square.h"
@@ -17,12 +18,25 @@ namespace chess {
         }
     }
 
+    void python_translate_invalid_argument(const std::invalid_argument *e) {
+        std::string str = boost::str(
+            boost::format("Invalid argument: %1%.") % std::string(e->what()));
+        PyErr_SetString(PyExc_ValueError, str.c_str());
+    }
+
+    void python_translate_logic_error(const std::logic_error *e) {
+        PyErr_SetString(PyExc_RuntimeError, e->what());
+    }
+
 }
 
 BOOST_PYTHON_MODULE(libchess)
 {
     using namespace boost::python;
     using namespace chess;
+
+    register_exception_translator<std::logic_error *>(&python_translate_logic_error);
+    register_exception_translator<std::invalid_argument *>(&python_translate_invalid_argument);
 
     def("opposite_color", &opposite_color);
 
