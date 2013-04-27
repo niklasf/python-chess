@@ -163,6 +163,30 @@ namespace chess {
         }
     }
 
+    int Position::half_moves() const {
+        return m_half_moves;
+    }
+
+    void Position::set_half_moves(int half_moves) {
+        if (half_moves < 0) {
+            throw new std::invalid_argument("half_moves");
+        } else {
+            m_half_moves = half_moves;
+        }
+    }
+
+    int Position::ply() const {
+        return m_ply;
+    }
+
+    void Position::set_ply(int ply) {
+        if (ply < 1) {
+            throw new std::invalid_argument("ply");
+        } else {
+            m_ply = ply;
+        }
+    }
+
     boost::python::object Position::__getitem__(boost::python::object square_key) const {
         int x88_index = x88_index_from_square_key(square_key);
 

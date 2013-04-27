@@ -30,6 +30,12 @@ namespace chess {
         Square get_ep_square() const;
         boost::python::object python_get_ep_square() const;
 
+        int half_moves() const;
+        void set_half_moves(int half_moves);
+
+        int ply() const;
+        void set_ply(int ply);
+
         boost::python::object __getitem__(boost::python::object square_key) const;
         void __setitem__(boost::python::object square_key, boost::python::object piece);
         void __delitem__(boost::python::object square_key);
