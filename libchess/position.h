@@ -18,6 +18,9 @@ namespace chess {
 
         Piece get(Square square) const;
         void set(Square square, Piece piece);
+        boost::python::object __getitem__(boost::python::object square_key) const;
+        void __setitem__(boost::python::object square_key, boost::python::object piece);
+        void __delitem__(boost::python::object square_key);
 
         char turn() const;
         void set_turn(char turn);
@@ -35,10 +38,6 @@ namespace chess {
 
         int ply() const;
         void set_ply(int ply);
-
-        boost::python::object __getitem__(boost::python::object square_key) const;
-        void __setitem__(boost::python::object square_key, boost::python::object piece);
-        void __delitem__(boost::python::object square_key);
 
     protected:
         Piece m_board[128];

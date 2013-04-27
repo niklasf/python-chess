@@ -66,6 +66,32 @@ namespace chess {
         m_board[square.x88_index()] = piece;
     }
 
+    boost::python::object Position::__getitem__(boost::python::object square_key) const {
+        int x88_index = x88_index_from_square_key(square_key);
+
+        if (m_board[x88_index].is_valid()) {
+            return boost::python::object(m_board[x88_index]);
+        } else {
+            return boost::python::object();
+        }
+    }
+
+    void Position::__setitem__(boost::python::object square_key, boost::python::object piece) {
+        int x88_index = x88_index_from_square_key(square_key);
+
+        if (piece.ptr() == Py_None) {
+            m_board[x88_index] = Piece();
+        } else {
+            Piece& p = boost::python::extract<Piece&>(piece);
+            m_board[x88_index] = p;
+        }
+    }
+
+    void Position::__delitem__(boost::python::object square_key) {
+        m_board[x88_index_from_square_key(square_key)] = Piece();
+    }
+
+
     char Position::turn() const {
         return m_turn;
     }
@@ -185,31 +211,6 @@ namespace chess {
         } else {
             m_ply = ply;
         }
-    }
-
-    boost::python::object Position::__getitem__(boost::python::object square_key) const {
-        int x88_index = x88_index_from_square_key(square_key);
-
-        if (m_board[x88_index].is_valid()) {
-            return boost::python::object(m_board[x88_index]);
-        } else {
-            return boost::python::object();
-        }
-    }
-
-    void Position::__setitem__(boost::python::object square_key, boost::python::object piece) {
-        int x88_index = x88_index_from_square_key(square_key);
-
-        if (piece.ptr() == Py_None) {
-            m_board[x88_index] = Piece();
-        } else {
-            Piece& p = boost::python::extract<Piece&>(piece);
-            m_board[x88_index] = p;
-        }
-    }
-
-    void Position::__delitem__(boost::python::object square_key) {
-        m_board[x88_index_from_square_key(square_key)] = Piece();
     }
 
     int Position::x88_index_from_square_key(boost::python::object square_key) const {
