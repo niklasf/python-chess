@@ -222,7 +222,7 @@ namespace chess {
                 Square square = Square::from_x88_index(i);
 
                 const char *pieces = "pPnNbBrRqQkK";
-                int piece_index;
+                int piece_index = 0;
                 while (m_board[i].symbol() != pieces[piece_index]) {
                     piece_index++;
                 }
