@@ -16,12 +16,14 @@ namespace chess {
         Piece get(Square square) const;
         void set(Square square, Piece piece);
 
-        boost::python::object __getitem__(Square square) const;
-        void __setitem__(Square square, boost::python::object piece);
-        void __delitem__(Square square);
+        boost::python::object __getitem__(boost::python::object square_key) const;
+        void __setitem__(boost::python::object square_key, boost::python::object piece);
+        void __delitem__(boost::python::object square_key);
 
     private:
         Piece m_board[128];
+
+        int x88_index_from_square_key(boost::python::object square_key) const;
 
     };
 

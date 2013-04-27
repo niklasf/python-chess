@@ -100,6 +100,17 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(position[e4], libchess.Piece("P"))
         self.assertTrue(position[e2] is None)
 
+    def test_board_shorthand(self):
+        position = libchess.Position()
+
+        self.assertEqual(position["f8"], libchess.Piece("b"))
+
+        del position["a1"]
+        self.assertTrue(position["a1"] is None)
+
+        position["h8"] = libchess.Piece("q")
+        self.assertEqual(position["h8"], libchess.Piece("q"))
+
 
 if __name__ == "__main__":
     unittest.main()
