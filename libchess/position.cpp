@@ -213,6 +213,34 @@ namespace chess {
         }
     }
 
+    std::string Position::fen() const {
+        std::string fen;
+        char empty = '0';
+        for (int i = 63; i >= 0; i--) {
+            Square square(i);
+            Piece piece = get(square);
+            if (piece.is_valid()) {
+                if (empty != '0') {
+                    fen += empty;
+                    empty = '0';
+                }
+                fen += piece.symbol();
+            } else {
+                empty++;
+            }
+
+            if (i != 0 && i % 8 == 0) {
+                if (empty != '0') {
+                    fen += empty;
+                    empty = '0';
+                }
+                fen += "/";
+            }
+        }
+
+        return fen;
+    }
+
     uint64_t Position::__hash__() const {
         uint64_t hash = 0;
 

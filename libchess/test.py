@@ -142,6 +142,10 @@ class PositionTestCase(unittest.TestCase):
         position = libchess.Position()
         self.assertEqual(hash(position), 0x463b96181691fc9c)
 
+    def test_fen(self):
+        position = libchess.Position()
+        self.assertEqual(position.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+
 
 if __name__ == "__main__":
     unittest.main()

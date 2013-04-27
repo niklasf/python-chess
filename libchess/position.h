@@ -40,6 +40,8 @@ namespace chess {
         int ply() const;
         void set_ply(int ply);
 
+        std::string fen() const;
+
         uint64_t __hash__() const;
 
         bool operator==(const Position& other) const;
