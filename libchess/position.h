@@ -14,6 +14,7 @@ namespace chess {
 
         Position();
         Position(std::string fen);
+        Position(const Position& other);
 
         void clear_board();
         void reset();

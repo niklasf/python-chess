@@ -16,7 +16,8 @@ add_library (chess SHARED
     piece.cpp
     square.cpp
     move.cpp
-    position.cpp)
+    position.cpp
+    pseudo_legal_move_generator.cpp)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})

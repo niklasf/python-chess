@@ -16,6 +16,21 @@ namespace chess {
         set_fen(fen);
     }
 
+    Position::Position(const Position& other) {
+        for (int i = 0; i < 128; i++) {
+            m_board[i] = other.m_board[i];
+        }
+
+        m_turn = other.m_turn;
+        m_ep_file = other.m_ep_file;
+        m_half_moves = other.m_half_moves;
+        m_ply = other.m_ply;
+        m_white_castle_queenside = other.m_white_castle_queenside;
+        m_white_castle_kingside = other.m_white_castle_kingside;
+        m_black_castle_queenside = other.m_black_castle_queenside;
+        m_black_castle_kingside = other.m_black_castle_kingside;
+    }
+
     void Position::clear_board() {
         Piece no_piece;
 

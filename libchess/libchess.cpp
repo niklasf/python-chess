@@ -1,10 +1,7 @@
 #include <boost/python.hpp>
 #include <boost/format.hpp>
 
-#include "piece.h"
-#include "square.h"
-#include "move.h"
-#include "position.h"
+#include "libchess.h"
 
 namespace chess {
 
@@ -114,4 +111,8 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__delitem__", &Position::__delitem__)
         .def("__repr__", &Position::__repr__)
         .def("__hash__", &Position::__hash__);
+
+    class_<PseudoLegalMoveGenerator>("PseudoLegalMoveGenerator", init<Position&>())
+        .def("__iter__", &PseudoLegalMoveGenerator::__iter__)
+        .def("next", &PseudoLegalMoveGenerator::next);
 }

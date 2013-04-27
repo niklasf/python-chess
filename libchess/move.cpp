@@ -53,6 +53,8 @@ namespace chess {
                     default:
                         throw new std::invalid_argument("uci");
                 }
+            } else {
+                m_promotion = 0;
             }
         }
         else {
