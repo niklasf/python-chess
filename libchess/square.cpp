@@ -48,6 +48,10 @@ namespace chess {
         return m_index;
     }
 
+    int Square::x88_index() const {
+        return file() + 16 * (7 - rank());
+    }
+
     std::string Square::name() const {
         std::string name;
         name += (file() + 'a');
@@ -101,6 +105,15 @@ namespace chess {
 
     Square Square::from_index(int index) {
         return Square(index);
+    }
+
+    Square Square::from_x88_index(int x88_index) {
+        if (x88_index < 0 || x88_index > 128 || x88_index & 0x88) {
+            throw new std::invalid_argument("x88_index");
+        }
+        int rank = 7 - (x88_index >> 4);
+        int file = x88_index & 7;
+        return Square(rank, file);
     }
 
     std::ostream& operator<<(std::ostream& out, const Square& square) {

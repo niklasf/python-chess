@@ -15,6 +15,7 @@ namespace chess {
         int rank() const;
         int file() const;
         int index() const;
+        int x88_index() const;
         std::string name() const;
         char file_name() const;
 
@@ -32,6 +33,7 @@ namespace chess {
 
         static Square from_rank_and_file(int rank, int file);
         static Square from_index(int index);
+        static Square from_x88_index(int x88_index);
 
     private:
         int m_index;

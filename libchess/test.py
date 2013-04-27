@@ -63,6 +63,13 @@ class SquareTestCase(unittest.TestCase):
         self.assertEqual(a2.name, "a2")
         self.assertEqual(a2.file_name, "a")
 
+    def test_x88_index(self):
+        f7 = libchess.Square("f7")
+        self.assertEqual(f7.x88_index, 21)
+
+        c8 = libchess.Square("c8")
+        self.assertEqual(libchess.Square.from_x88_index(2), c8)
+
 
 class MoveTestCase(unittest.TestCase):
 

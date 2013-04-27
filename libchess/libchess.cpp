@@ -43,6 +43,7 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("rank", &Square::rank)
         .add_property("file", &Square::file)
         .add_property("index", &Square::index)
+        .add_property("x88_index", &Square::x88_index)
         .add_property("name", &Square::name)
         .add_property("file_name", &Square::file_name)
         .def("is_dark", &Square::is_dark)
@@ -57,7 +58,9 @@ BOOST_PYTHON_MODULE(libchess)
         .def("from_rank_and_file", &Square::from_rank_and_file)
         .staticmethod("from_rank_and_file")
         .def("from_index", &Square::from_index)
-        .staticmethod("from_index");
+        .staticmethod("from_index")
+        .def("from_x88_index", &Square::from_x88_index)
+        .staticmethod("from_x88_index");
 
     class_<Move>("Move", init<Square, Square>())
         .def(init<Square, Square, char>())
