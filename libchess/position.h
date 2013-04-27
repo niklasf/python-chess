@@ -13,6 +13,9 @@ namespace chess {
 
         Position();
 
+        void clear_board();
+        void reset();
+
         Piece get(Square square) const;
         void set(Square square, Piece piece);
 

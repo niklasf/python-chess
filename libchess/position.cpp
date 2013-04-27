@@ -3,6 +3,20 @@
 namespace chess {
 
     Position::Position() {
+        reset();
+    }
+
+    void Position::clear_board() {
+        Piece no_piece;
+
+        for (int i = 0; i < 128; i++) {
+            m_board[i] = no_piece;
+        }
+    }
+
+    void Position::reset() {
+        clear_board();
+
         // Setup the white pieces.
         m_board[112] = Piece('R');
         m_board[113] = Piece('N');

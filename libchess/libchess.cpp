@@ -80,6 +80,8 @@ BOOST_PYTHON_MODULE(libchess)
         .staticmethod("from_uci");
 
     class_<Position>("Position")
+        .def("reset", &Position::reset)
+        .def("clear_board", &Position::clear_board)
         .def("__getitem__", &Position::__getitem__)
         .def("__setitem__", &Position::__setitem__)
         .def("__delitem__", &Position::__delitem__);
