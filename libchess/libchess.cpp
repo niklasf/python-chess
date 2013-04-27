@@ -90,5 +90,6 @@ BOOST_PYTHON_MODULE(libchess)
         .def("get_ep_square", &Position::python_get_ep_square)
         .def("__getitem__", &Position::__getitem__)
         .def("__setitem__", &Position::__setitem__)
-        .def("__delitem__", &Position::__delitem__);
+        .def("__delitem__", &Position::__delitem__)
+        .def("__hash__", &Position::__hash__);
 }

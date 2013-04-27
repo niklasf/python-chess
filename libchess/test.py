@@ -138,5 +138,10 @@ class PositionTestCase(unittest.TestCase):
         position.toggle_turn()
         self.assertEqual(position.turn, "w")
 
+    def test_hash(self):
+        position = libchess.Position()
+        self.assertEqual(hash(position), 0x463b96181691fc9c)
+
+
 if __name__ == "__main__":
     unittest.main()

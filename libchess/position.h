@@ -2,6 +2,7 @@
 #define LIBCHESS_POSITION_H
 
 #include <boost/python.hpp>
+#include <stdint.h>
 
 #include "piece.h"
 #include "square.h"
@@ -39,6 +40,8 @@ namespace chess {
         int ply() const;
         void set_ply(int ply);
 
+        uint64_t __hash__() const;
+
     protected:
         Piece m_board[128];
         char m_turn;
@@ -54,6 +57,8 @@ namespace chess {
         int x88_index_from_square_key(boost::python::object square_key) const;
 
     };
+
+    extern const uint64_t POLYGLOT_RANDOM_ARRAY[];
 
 }
 
