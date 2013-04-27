@@ -119,6 +119,17 @@ class PositionTestCase(unittest.TestCase):
         position.ep_file = None
         self.assertTrue(position.ep_file is None)
 
+        position = libchess.Position()
+        self.assertTrue(position.get_ep_square() is None)
+        position["e4"] = libchess.Piece("P")
+        position.ep_file = "e"
+        self.assertTrue(position.get_ep_square() is None)
+        position.turn = "b"
+        self.assertEqual(position.get_ep_square(), libchess.Square("e3"))
+        del position["e2"]
+        position["e3"] = libchess.Piece("N")
+        self.assertTrue(position.get_ep_square() is None)
+
     def test_turn(self):
         position = libchess.Position()
         self.assertEqual(position.turn, "w")

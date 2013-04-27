@@ -85,6 +85,7 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("turn", &Position::turn, &Position::set_turn)
         .def("toggle_turn", &Position::toggle_turn)
         .add_property("ep_file", &Position::python_ep_file, &Position::python_set_ep_file)
+        .def("get_ep_square", &Position::python_get_ep_square)
         .def("__getitem__", &Position::__getitem__)
         .def("__setitem__", &Position::__setitem__)
         .def("__delitem__", &Position::__delitem__);

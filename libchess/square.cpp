@@ -4,6 +4,10 @@
 
 namespace chess {
 
+    Square::Square() {
+        m_index = 64;
+    }
+
     Square::Square(int index) {
         if (index < 0 || index >= 64) {
             throw new std::invalid_argument("index");
@@ -37,15 +41,27 @@ namespace chess {
     }
 
     int Square::rank() const {
-        return m_index / 8;
+        if (m_index == 64) {
+            throw new std::logic_error("Called rank() of null square.");
+        } else {
+            return m_index / 8;
+        }
     }
 
     int Square::file() const {
-        return m_index % 8;
+        if (m_index == 64) {
+            throw new std::logic_error("Called file() of null square.");
+        } else {
+            return m_index % 8;
+        }
     }
 
     int Square::index() const {
-        return m_index;
+        if (m_index == 64) {
+            throw new std::logic_error("Called index() of null square.");
+        } else {
+            return m_index;
+        }
     }
 
     int Square::x88_index() const {
@@ -64,11 +80,11 @@ namespace chess {
     }
 
     bool Square::is_dark() const {
-        return m_index % 2 == 0;
+        return index() % 2 == 0;
     }
 
     bool Square::is_light() const {
-        return m_index % 2 == 1;
+        return index() % 2 == 1;
     }
 
     bool Square::is_backrank() const {
@@ -83,12 +99,16 @@ namespace chess {
         return boost::str(boost::format("Square('%1%')") % name());
     }
 
+    bool Square::is_valid() const {
+        return m_index != 64;
+    }
+
     int Square::__hash__() const {
-        return m_index;
+        return index();
     }
 
     Square::operator int() const {
-        return m_index;
+        return index();
     }
 
     bool Square::operator==(const Square& other) const {

@@ -27,6 +27,8 @@ namespace chess {
         void set_ep_file(char ep_file);
         boost::python::object python_ep_file() const;
         void python_set_ep_file(boost::python::object ep_file);
+        Square get_ep_square() const;
+        boost::python::object python_get_ep_square() const;
 
         boost::python::object __getitem__(boost::python::object square_key) const;
         void __setitem__(boost::python::object square_key, boost::python::object piece);

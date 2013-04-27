@@ -5,6 +5,14 @@
 namespace chess {
 
     Move::Move(Square source, Square target, char promotion) : m_source(source), m_target(target) {
+        if (!source.is_valid()) {
+            throw new std::invalid_argument("source");
+        }
+
+        if (!target.is_valid()) {
+            throw new std::invalid_argument("target");
+        }
+
         switch (promotion) {
             case 'r':
             case 'n':
@@ -18,6 +26,15 @@ namespace chess {
     }
 
     Move::Move(Square source, Square target) : m_source(source), m_target(target) {
+        if (!source.is_valid()) {
+            throw new std::invalid_argument("source");
+        }
+
+        if (!target.is_valid()) {
+            throw new std::invalid_argument("target");
+        }
+
+
         m_promotion = 0;
     }
 

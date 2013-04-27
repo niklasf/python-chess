@@ -126,6 +126,43 @@ namespace chess {
         }
     }
 
+    Square Position::get_ep_square() const {
+        if (m_ep_file) {
+            int rank = (m_turn == 'b') ? 2 : 5;
+            int pawn_rank = (m_turn == 'b') ? 3 : 4;
+            int file = m_ep_file - 'a';
+
+            // Ensure the square is empty.
+            Square square(rank, file);
+            if (get(square).is_valid()) {
+                return Square();
+            }
+
+            // Ensure a pawn is above the square.
+            Square pawn_square(pawn_rank, file);
+            Piece pawn_square_piece = get(pawn_square);
+            if (!pawn_square_piece.is_valid()) {
+                return Square();
+            }
+            if (pawn_square_piece.type() != 'p') {
+                return Square();
+            }
+
+            return square;
+        } else {
+            return Square();
+        }
+    }
+
+    boost::python::object Position::python_get_ep_square() const {
+        Square ep_square = get_ep_square();
+        if (ep_square.is_valid()) {
+            return boost::python::object(ep_square);
+        } else {
+            return boost::python::object();
+        }
+    }
+
     boost::python::object Position::__getitem__(boost::python::object square_key) const {
         int x88_index = x88_index_from_square_key(square_key);
 

@@ -8,6 +8,7 @@ namespace chess {
     class Square {
 
     public:
+        Square();
         Square(int index);
         Square(const std::string& name);
         Square(int rank, int file);
@@ -23,6 +24,8 @@ namespace chess {
         bool is_light() const;
         bool is_backrank() const;
         bool is_seventh() const;
+
+        bool is_valid() const;
 
         std::string __repr__() const;
         int __hash__() const;
