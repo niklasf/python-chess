@@ -1,4 +1,5 @@
 #include <vector>
+#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -349,7 +350,25 @@ namespace chess {
             throw new std::invalid_argument("fen");
         }
 
-        // TODO: Validate other parts.
+        // Check that the castling flag part is valid.
+        if (!boost::regex_match(parts[2], boost::regex("^(KQ?k?q?|Qk?q?|kq?|q|-)$"))) {
+            throw new std::invalid_argument("fen");
+        }
+
+        // Check that the en-passant part is valid.
+        if (!boost::regex_match(parts[3], boost::regex("^(-|[a-h][36])$"))) {
+            throw new std::invalid_argument("fen");
+        }
+
+        // Check that the half move part is valid.
+        if (!boost::regex_match(parts[4], boost::regex("^0|[1-9][0-9]*$"))) {
+            throw new std::invalid_argument("fen");
+        }
+
+        // Check that the ply part is valid.
+        if (!boost::regex_match(parts[5], boost::regex("^[1-9][0-9]*$"))) {
+            throw new std::invalid_argument("fen");
+        }
 
         // Set the pieces on the board.
         clear_board();
