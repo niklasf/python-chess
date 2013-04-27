@@ -42,6 +42,9 @@ namespace chess {
 
         uint64_t __hash__() const;
 
+        bool operator==(const Position& other) const;
+        bool operator!=(const Position& other) const;
+
     protected:
         Piece m_board[128];
         char m_turn;

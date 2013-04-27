@@ -259,6 +259,32 @@ namespace chess {
         return hash;
     }
 
+    bool Position::operator==(const Position& other) const {
+        if (m_turn != other.m_turn ||
+            m_ep_file != other.m_ep_file ||
+            m_half_moves != other.m_half_moves ||
+            m_ply != other.m_ply ||
+            m_white_castle_queenside != other.m_white_castle_queenside ||
+            m_white_castle_kingside != other.m_white_castle_kingside ||
+            m_black_castle_queenside != other.m_black_castle_queenside ||
+            m_black_castle_kingside != other.m_black_castle_kingside)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < 128; i++) {
+            if (m_board[i] != other.m_board[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool Position::operator!=(const Position& other) const {
+        return !(*this == other);
+    }
+
     int Position::x88_index_from_square_key(boost::python::object square_key) const {
         boost::python::extract<Square&> extract_square(square_key);
         if (extract_square.check()) {
