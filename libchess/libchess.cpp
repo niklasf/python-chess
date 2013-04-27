@@ -26,6 +26,8 @@ BOOST_PYTHON_MODULE(libchess)
 
     def("opposite_color", &opposite_color);
 
+    scope().attr("START_FEN") = START_FEN;
+
     class_<Piece>("Piece", init<char>())
         .add_property("symbol", &Piece::symbol)
         .add_property("color", &Piece::color)
