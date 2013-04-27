@@ -214,29 +214,76 @@ namespace chess {
     }
 
     std::string Position::fen() const {
+        // Generate the board part of the FEN.
         std::string fen;
         char empty = '0';
-        for (int i = 63; i >= 0; i--) {
-            Square square(i);
-            Piece piece = get(square);
-            if (piece.is_valid()) {
-                if (empty != '0') {
-                    fen += empty;
-                    empty = '0';
+        for (int i = 0; i < 128; i++) {
+            if (!(i & 0x88)) {
+                Square square = Square::from_x88_index(i);
+                Piece piece = get(square);
+                if (piece.is_valid()) {
+                    if (empty != '0') {
+                        fen += empty;
+                        empty = '0';
+                    }
+                    fen += piece.symbol();
+                } else {
+                    empty++;
                 }
-                fen += piece.symbol();
-            } else {
-                empty++;
-            }
 
-            if (i != 0 && i % 8 == 0) {
-                if (empty != '0') {
-                    fen += empty;
-                    empty = '0';
+                if (i != 119 && square.file() == 7) {
+                    if (empty != '0') {
+                        fen += empty;
+                        empty = '0';
+                    }
+                    fen += "/";
                 }
-                fen += "/";
             }
         }
+
+        // Add the turn.
+        fen += " ";
+        fen += m_turn;
+
+        // Add castling flags.
+        fen += " ";
+        if (m_white_castle_kingside ||
+            m_white_castle_queenside ||
+            m_black_castle_kingside ||
+            m_black_castle_queenside)
+        {
+            if (m_white_castle_kingside) {
+                fen += 'K';
+            }
+            if (m_white_castle_queenside) {
+                fen += 'Q';
+            }
+            if (m_black_castle_kingside) {
+                fen += 'k';
+            }
+            if (m_black_castle_queenside) {
+                fen += 'q';
+            }
+        } else {
+            fen += '-';
+        }
+
+        // Add the en-passant square.
+        fen += " ";
+        Square ep_square = get_ep_square();
+        if (ep_square.is_valid()) {
+            fen += ep_square.name();
+        } else {
+            fen += '-';
+        }
+
+        // Add the half move count.
+        fen += " ";
+        fen += boost::lexical_cast<std::string>(m_half_moves);
+
+        // Add the ply.
+        fen += " ";
+        fen += boost::lexical_cast<std::string>(m_ply);
 
         return fen;
     }
