@@ -8,6 +8,7 @@ namespace chess {
     class Piece {
 
     public:
+        Piece();
         Piece(char symbol);
 
         char color() const;
@@ -18,6 +19,8 @@ namespace chess {
 
         std::string __repr__() const;
         int __hash__() const;
+
+        bool is_valid() const;
 
         bool operator==(const Piece& other) const;
         bool operator!=(const Piece& other) const;

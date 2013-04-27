@@ -5,6 +5,10 @@
 
 namespace chess {
 
+    Piece::Piece() {
+        m_symbol = 0;
+    }
+
     Piece::Piece(char symbol) {
         switch (tolower(symbol)) {
             case 'p':
@@ -21,7 +25,9 @@ namespace chess {
     }
 
     char Piece::color() const {
-        if (m_symbol == toupper(m_symbol)) {
+        if (m_symbol == 0) {
+            throw new std::logic_error("Called color() of null piece.");
+        } else if (m_symbol == toupper(m_symbol)) {
             return 'w';
         } else {
             return 'b';
@@ -29,11 +35,19 @@ namespace chess {
     }
 
     char Piece::type() const {
-        return tolower(m_symbol);
+        if (m_symbol == 0) {
+            throw new std::logic_error("Called type() of null piece.");
+        } else {
+            return tolower(m_symbol);
+        }
     }
 
     char Piece::symbol() const {
-        return m_symbol;
+        if (m_symbol == 0) {
+            throw new std::logic_error("Called symbol() of null piece.");
+        } else {
+            return m_symbol;
+        }
     }
 
     std::string Piece::full_color() const {
@@ -62,11 +76,15 @@ namespace chess {
     }
 
     std::string Piece::__repr__() const {
-        return str(boost::format("Piece('%1%')") % m_symbol);
+        return str(boost::format("Piece('%1%')") % symbol());
     }
 
     int Piece::__hash__() const {
-        return m_symbol;
+        return symbol();
+    }
+
+    bool Piece::is_valid() const {
+        return m_symbol != 0;
     }
 
     bool Piece::operator==(const Piece& other) const {
