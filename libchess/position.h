@@ -21,6 +21,7 @@ namespace chess {
 
         char turn() const;
         void set_turn(char turn);
+        void toggle_turn();
 
         char ep_file() const;
         void set_ep_file(char ep_file);

@@ -119,6 +119,13 @@ class PositionTestCase(unittest.TestCase):
         position.ep_file = None
         self.assertTrue(position.ep_file is None)
 
+    def test_turn(self):
+        position = libchess.Position()
+        self.assertEqual(position.turn, "w")
+        position.turn = "b"
+        self.assertEqual(position.turn, "b")
+        position.toggle_turn()
+        self.assertEqual(position.turn, "w")
 
 if __name__ == "__main__":
     unittest.main()

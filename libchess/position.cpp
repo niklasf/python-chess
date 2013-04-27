@@ -78,6 +78,14 @@ namespace chess {
         }
     }
 
+    void Position::toggle_turn() {
+        if (m_turn == 'w') {
+            m_turn = 'b';
+        } else {
+            m_turn = 'w';
+        }
+    }
+
     char Position::ep_file() const {
         return m_ep_file;
     }
