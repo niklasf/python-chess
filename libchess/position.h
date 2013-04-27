@@ -18,6 +18,7 @@ namespace chess {
 
         boost::python::object __getitem__(Square square) const;
         void __setitem__(Square square, boost::python::object piece);
+        void __delitem__(Square square);
 
     private:
         Piece m_board[128];

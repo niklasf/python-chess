@@ -3,6 +3,7 @@
 #include "piece.h"
 #include "square.h"
 #include "move.h"
+#include "position.h"
 
 namespace chess {
 
@@ -77,4 +78,9 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__hash__", &Move::__hash__)
         .def("from_uci", &Move::from_uci)
         .staticmethod("from_uci");
+
+    class_<Position>("Position")
+        .def("__getitem__", &Position::__getitem__)
+        .def("__setitem__", &Position::__setitem__)
+        .def("__delitem__", &Position::__delitem__);
 }

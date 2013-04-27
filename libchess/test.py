@@ -82,5 +82,24 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(move.full_promotion, "queen")
 
 
+class PositionTestCase(unittest.TestCase):
+
+    def test_board(self):
+        position = libchess.Position()
+
+        # Read.
+        self.assertEqual(position[libchess.Square("a1")], libchess.Piece("R"))
+        self.assertEqual(position[libchess.Square("e8")], libchess.Piece("k"))
+        self.assertTrue(position[libchess.Square("h3")] is None)
+
+        # Write.
+        e2 = libchess.Square("e2")
+        e4 = libchess.Square("e4")
+        position[e4] = position[e2]
+        del position[e2]
+        self.assertEqual(position[e4], libchess.Piece("P"))
+        self.assertTrue(position[e2] is None)
+
+
 if __name__ == "__main__":
     unittest.main()

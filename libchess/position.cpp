@@ -59,4 +59,7 @@ namespace chess {
         }
     }
 
+    void Position::__delitem__(Square square) {
+        m_board[square.x88_index()] = Piece();
+    }
 }
