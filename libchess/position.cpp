@@ -17,6 +17,16 @@ namespace chess {
     void Position::reset() {
         clear_board();
 
+        // Reset properties.
+        m_turn = 'w';
+        m_ep_file = 0;
+        m_half_moves = 0;
+        m_ply = 1;
+        m_white_castle_queenside = true;
+        m_white_castle_kingside = true;
+        m_black_castle_queenside = true;
+        m_black_castle_kingside = true;
+
         // Setup the white pieces.
         m_board[112] = Piece('R');
         m_board[113] = Piece('N');
@@ -54,6 +64,58 @@ namespace chess {
 
     void Position::set(Square square, Piece piece) {
         m_board[square.x88_index()] = piece;
+    }
+
+    char Position::turn() const {
+        return m_turn;
+    }
+
+    void Position::set_turn(char turn) {
+        if (turn == 'w' || turn == 'b') {
+            m_turn = turn;
+        } else {
+            throw new std::invalid_argument("turn");
+        }
+    }
+
+    char Position::ep_file() const {
+        return m_ep_file;
+    }
+
+    boost::python::object Position::python_ep_file() const {
+        if (m_ep_file) {
+            return boost::python::object(m_ep_file);
+        } else {
+            return boost::python::object();
+        }
+    }
+
+    void Position::set_ep_file(char ep_file) {
+        switch (ep_file) {
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+                m_ep_file = ep_file;
+                break;
+            case '-':
+            case 0:
+                m_ep_file = 0;
+            default:
+                throw new std::invalid_argument("ep_file");
+        }
+    }
+
+    void Position::python_set_ep_file(boost::python::object ep_file) {
+        if (ep_file.ptr() == Py_None) {
+            m_ep_file = 0;
+        } else {
+            set_ep_file(boost::python::extract<char>(ep_file));
+        }
     }
 
     boost::python::object Position::__getitem__(boost::python::object square_key) const {

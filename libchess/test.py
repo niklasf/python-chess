@@ -111,6 +111,14 @@ class PositionTestCase(unittest.TestCase):
         position["h8"] = libchess.Piece("q")
         self.assertEqual(position["h8"], libchess.Piece("q"))
 
+    def test_ep_file(self):
+        position = libchess.Position()
+        self.assertTrue(position.ep_file is None)
+        position.ep_file = "e"
+        self.assertEqual(position.ep_file, "e")
+        position.ep_file = None
+        self.assertTrue(position.ep_file is None)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -82,6 +82,7 @@ BOOST_PYTHON_MODULE(libchess)
     class_<Position>("Position")
         .def("reset", &Position::reset)
         .def("clear_board", &Position::clear_board)
+        .add_property("ep_file", &Position::python_ep_file, &Position::python_set_ep_file)
         .def("__getitem__", &Position::__getitem__)
         .def("__setitem__", &Position::__setitem__)
         .def("__delitem__", &Position::__delitem__);
