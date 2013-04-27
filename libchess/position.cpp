@@ -311,7 +311,7 @@ namespace chess {
             bool previous_was_number = false;
             for (int i = 0; i < row->length(); i++) {
                 char c = row->at(i);
-                if (c >= '1' || c <= '8') {
+                if (c >= '1' && c <= '8') {
                     if (previous_was_number) {
                         throw new std::invalid_argument("fen");
                     }
