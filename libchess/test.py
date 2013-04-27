@@ -146,6 +146,13 @@ class PositionTestCase(unittest.TestCase):
         position = libchess.Position()
         self.assertEqual(position.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
+        position.fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
+        self.assertEqual(position["h1"], libchess.Piece("R"))
+        self.assertEqual(position.turn, "w")
+        self.assertEqual(position.get_ep_square(), libchess.Square("d6"))
+        self.assertEqual(position.half_moves, 0)
+        self.assertEqual(position.ply, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

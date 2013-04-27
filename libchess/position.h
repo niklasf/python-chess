@@ -41,6 +41,7 @@ namespace chess {
         void set_ply(int ply);
 
         std::string fen() const;
+        void set_fen(std::string fen);
 
         uint64_t __hash__() const;
 

@@ -1,3 +1,7 @@
+#include <vector>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 #include "position.h"
 
 namespace chess {
@@ -286,6 +290,118 @@ namespace chess {
         fen += boost::lexical_cast<std::string>(m_ply);
 
         return fen;
+    }
+
+    void Position::set_fen(std::string fen) {
+        // Ensure there are 6 parts.
+        std::vector<std::string> parts;
+        boost::algorithm::split(parts, fen, boost::is_any_of("\t "), boost::token_compress_on);
+        if (parts.size() != 6) {
+            throw new std::invalid_argument("fen");
+        }
+
+        // Ensure the board part is valid.
+        std::vector<std::string> rows;
+        boost::algorithm::split(rows, parts[0], boost::is_any_of("/"));
+        if (rows.size() != 8) {
+            throw new std::invalid_argument("fen");
+        }
+        for (std::vector<std::string>::iterator row = rows.begin(); row != rows.end(); ++row) {
+            int field_sum = 0;
+            bool previous_was_number = false;
+            for (int i = 0; i < row->length(); i++) {
+                char c = row->at(i);
+                if (c >= '1' || c <= '8') {
+                    if (previous_was_number) {
+                        throw new std::invalid_argument("fen");
+                    }
+                    field_sum += c - '0';
+                    previous_was_number = true;
+                } else {
+                    switch (c) {
+                        case 'p':
+                        case 'n':
+                        case 'b':
+                        case 'r':
+                        case 'q':
+                        case 'k':
+                        case 'P':
+                        case 'N':
+                        case 'B':
+                        case 'R':
+                        case 'Q':
+                        case 'K':
+                            field_sum++;
+                            previous_was_number = false;
+                            break;
+                        default:
+                            throw new std::invalid_argument("fen");
+                    }
+                }
+            }
+            if (field_sum != 8) {
+                throw new std::invalid_argument("fen");
+            }
+        }
+
+        // Check that the turn part is valid.
+        if (parts[1] != "w" && parts[1] != "b") {
+            throw new std::invalid_argument("fen");
+        }
+
+        // TODO: Validate other parts.
+
+        // Set the pieces on the board.
+        clear_board();
+        int x88_index = 0;
+        for (int i = 0; i < parts[0].length(); i++) {
+            char c = parts[0].at(i);
+            if (c == '/') {
+                x88_index += 8;
+            } else if (c >= '1' && c <= '8') {
+                x88_index += c - '0';
+            } else {
+                m_board[x88_index] = Piece(c);
+                x88_index++;
+            }
+        }
+
+        // Set the turn.
+        m_turn = parts[1].at(0);
+
+        // Set the castling rights.
+        m_white_castle_kingside = false;
+        m_white_castle_queenside = false,
+        m_black_castle_kingside = false;
+        m_black_castle_queenside = false;
+        for (int i = 0; i < parts[2].length(); i++) {
+            switch (parts[2].at(i)) {
+                case 'K':
+                    m_white_castle_kingside = true;
+                    break;
+                case 'Q':
+                    m_white_castle_queenside = true;
+                    break;
+                case 'k':
+                    m_black_castle_kingside = true;
+                    break;
+                case 'q':
+                    m_black_castle_queenside = true;
+                    break;
+            }
+        }
+
+        // Set the en-passant file.
+        char ep_file = parts[3].at(0);
+        if (ep_file == '-') {
+            m_ep_file = 0;
+        } else {
+            m_ep_file = ep_file;
+        }
+
+        // Set the move counters.
+        m_half_moves = boost::lexical_cast<int>(parts[4]);
+        m_ply = boost::lexical_cast<int>(parts[5]);
     }
 
     uint64_t Position::__hash__() const {
