@@ -503,6 +503,8 @@ namespace chess {
         }
     }
 
+    bool 
+
     bool Position::operator==(const Position& other) const {
         if (m_turn != other.m_turn ||
             m_ep_file != other.m_ep_file ||

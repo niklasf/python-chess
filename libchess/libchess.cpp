@@ -132,4 +132,11 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__len__", &PseudoLegalMoveGenerator::__len__)
         .def("__nonzero__", &PseudoLegalMoveGenerator::__nonzero__)
         .def("next", &PseudoLegalMoveGenerator::next);
+
+    class_<AttackerGenerator>("AttackerGenerator", init<Position, char, Square>())
+        .def("__iter__", &AttackerGenerator::__iter__)
+        .def("__contains__", &AttackerGenerator::__contains__)
+        .def("__len__", &AttackerGenerator::__len__)
+        .def("__nonzero__", &AttackerGenerator::__nonzero__)
+        .def("next", &AttackerGenerator::next);
 }

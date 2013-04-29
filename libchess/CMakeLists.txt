@@ -18,6 +18,7 @@ add_library (chess SHARED
     move.cpp
     move_info.cpp
     position.cpp
+    attacker_generator.cpp
     pseudo_legal_move_generator.cpp)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
