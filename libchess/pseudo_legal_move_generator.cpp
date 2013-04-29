@@ -19,9 +19,8 @@ namespace chess {
             return;
         }
 
-        // Pawn moves.
         if (piece.type() == 'p') {
-            // Single steps forward.
+            // Pawn moves: Single steps forward.
             Square target = Square::from_x88_index(
                 square.x88_index() + ((m_position.turn() == 'b') ? 16 : -16));
 
@@ -75,6 +74,65 @@ namespace chess {
                     m_cache.push(Move(square, target));
                 }
             }
+        } else {
+            // Other pieces.
+            const int offsets[5][9] = {
+                { -18, -33, -31, -14, 18, 33, 31, 14, 0 }, // Knight
+                { -17, -15, 17, 15, 0 }, // Bishop
+                { -16, 1, 16, -1, 0 }, // Rook
+                { -17, -16, -15, 1, 17, 16, 15, -1, 0 }, // Queen
+                { -17, -16, -15, 1, 17, 16, 15, -1, 0 } }; // King
+
+            // Get the index of the piece in the offset table.
+            int piece_index;
+            switch (piece.type()) {
+                case 'n':
+                    piece_index = 0;
+                    break;
+                case 'b':
+                    piece_index = 1;
+                    break;
+                case 'r':
+                    piece_index = 2;
+                    break;
+                case 'q':
+                    piece_index = 3;
+                    break;
+                case 'k':
+                    piece_index = 4;
+                    break;
+            }
+
+            // Generate the moves.
+            for (int i = 0; offsets[piece_index][i] != 0; i++) {
+                int target_index = square.x88_index();
+                while (true) {
+                    target_index += offsets[piece_index][i];
+                    if (target_index & 0x88) {
+                        break;
+                    }
+
+                    Square target = Square::from_x88_index(target_index);
+                    Piece target_piece = m_position.get(target);
+                    if (target_piece.is_valid()) {
+                        // Captures.
+                        if (target_piece.color() != m_position.turn()) {
+                            m_cache.push(Move(square, target));
+                        }
+                        break;
+                    } else {
+                        m_cache.push(Move(square, target));
+                    }
+
+                    // Knight and king do not go multiple times in their
+                    // direction.
+                    if (piece.type() == 'k' || piece.type() == 'n') {
+                        break;
+                    }
+                }
+            }
+
+            // TODO: Generate castling moves.
         }
     }
 

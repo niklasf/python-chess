@@ -169,6 +169,17 @@ class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
         pos.toggle_turn()
         self.assertTrue(libchess.Move.from_uci("d5e4") in pos.get_pseudo_legal_moves())
 
+    def test_knight_moves(self):
+        pos = libchess.Position()
+        self.assertTrue(libchess.Move.from_uci("g1f3") in pos.get_pseudo_legal_moves())
+
+    def test_rook_moves(self):
+        pos = libchess.Position()
+        pos.turn = "b"
+        del pos["h7"]
+        self.assertTrue(libchess.Move.from_uci("h8h5") in pos.get_pseudo_legal_moves())
+        self.assertTrue(libchess.Move.from_uci("h8h2") in pos.get_pseudo_legal_moves())
+        self.assertFalse(libchess.Move.from_uci("h8h1") in pos.get_pseudo_legal_moves())
 
 if __name__ == "__main__":
     unittest.main()
