@@ -7,7 +7,9 @@ namespace chess {
     }
 
     PseudoLegalMoveGenerator PseudoLegalMoveGenerator::__iter__() {
-        return *this;
+        PseudoLegalMoveGenerator self = *this;
+        self.m_index = 0;
+        return self;
     }
 
     void PseudoLegalMoveGenerator::generate_from_square(Square square) {
@@ -66,6 +68,25 @@ namespace chess {
             m_cache.pop();
             return move;
         }
+    }
+
+    bool PseudoLegalMoveGenerator::__contains__(Move move) {
+        // Only need to generate the moves of the source square.
+        generate_from_square(move.source());
+
+        // See if the move is among the possible ones.
+        while (!m_cache.empty()) {
+            Move candidate_move = m_cache.front();
+            m_cache.pop();
+            if (candidate_move == move) {
+                // Found it. Clear the queue.
+                while (!m_cache.empty()) {
+                    m_cache.pop();
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -115,5 +115,6 @@ BOOST_PYTHON_MODULE(libchess)
 
     class_<PseudoLegalMoveGenerator>("PseudoLegalMoveGenerator", init<Position&>())
         .def("__iter__", &PseudoLegalMoveGenerator::__iter__)
+        .def("__contains__", &PseudoLegalMoveGenerator::__contains__)
         .def("next", &PseudoLegalMoveGenerator::next);
 }

@@ -16,6 +16,7 @@ namespace chess {
 
          PseudoLegalMoveGenerator __iter__();
          Move next();
+         bool __contains__(Move move);
 
     protected:
          void generate_from_square(Square square);
