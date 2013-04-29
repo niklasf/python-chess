@@ -37,10 +37,10 @@ namespace chess {
         return false;
     }
 
-    bool AttackerGenerator::__iter__() {
+    AttackerGenerator AttackerGenerator::__iter__() {
         AttackerGenerator self = *this;
         self.m_source_index = 0;
-        return self,
+        return self;
     }
 
     bool AttackerGenerator::__contains__(Square source) {
@@ -108,7 +108,7 @@ namespace chess {
         }
 
         int difference = source.x88_index() - m_target.x88_index();
-        int index = difference + 119
+        int index = difference + 119;
 
         if (attacks[index] & (1 << shift)) {
             // Handle pawns.
@@ -131,7 +131,7 @@ namespace chess {
             }
 
             // Handle the others.
-            int offset = rays[index]
+            int offset = rays[index];
             int j = source.x88_index() + offset;
             bool blocked = false;
             while (j != m_target.x88_index()) {

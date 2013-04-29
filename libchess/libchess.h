@@ -5,6 +5,7 @@
 #include "square.h"
 #include "move.h"
 #include "move_info.h"
+#include "attacker_generator.h"
 #include "pseudo_legal_move_generator.h"
 #include "position.h"
 

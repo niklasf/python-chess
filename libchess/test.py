@@ -202,5 +202,17 @@ class MoveInfoTestCase(unittest.TestCase):
         self.assertFalse(info.is_checkmate)
         self.assertFalse(info.is_castle)
 
+
+class AttackerGeneratorTestCase(unittest.TestCase):
+
+    def test_knight_and_pawn_attack(self):
+        pos = libchess.Position()
+        f6 = libchess.Square("f6")
+        e3 = libchess.Square("e3")
+        e5 = libchess.Square("e5")
+        self.assertEqual(len(libchess.AttackerGenerator(pos, "b", f6)), 3)
+        self.assertEqual(len(libchess.AttackerGenerator(pos, "w", e3)), 2)
+        self.assertFalse(libchess.AttackerGenerator(pos, "b", e5))
+
 if __name__ == "__main__":
     unittest.main()

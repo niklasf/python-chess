@@ -503,7 +503,7 @@ namespace chess {
         }
     }
 
-    bool 
+    // TODO: Get attackers.
 
     bool Position::operator==(const Position& other) const {
         if (m_turn != other.m_turn ||
