@@ -14,9 +14,12 @@ namespace chess {
     public:
          PseudoLegalMoveGenerator(const Position& position);
 
+         int __len__();
+         bool __nonzero__();
          PseudoLegalMoveGenerator __iter__();
-         Move next();
          bool __contains__(Move move);
+
+         Move next();
 
     protected:
          void generate_from_square(Square square);

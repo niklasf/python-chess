@@ -9,6 +9,9 @@ namespace chess {
     PseudoLegalMoveGenerator PseudoLegalMoveGenerator::__iter__() {
         PseudoLegalMoveGenerator self = *this;
         self.m_index = 0;
+        while (!self.m_cache.empty()) {
+            self.m_cache.pop();
+        }
         return self;
     }
 
@@ -160,14 +163,37 @@ namespace chess {
             Move candidate_move = m_cache.front();
             m_cache.pop();
             if (candidate_move == move) {
-                // Found it. Clear the queue.
-                while (!m_cache.empty()) {
-                    m_cache.pop();
-                }
                 return true;
             }
         }
         return false;
+    }
+
+    bool PseudoLegalMoveGenerator::__nonzero__() {
+        // Generate moves until on is found.
+        int index = 0;
+        while (index < 64) {
+            generate_from_square(Square(index++));
+            if (!m_cache.empty()) {
+                 return true;
+            }
+        }
+        return false;
+    }
+
+    int PseudoLegalMoveGenerator::__len__() {
+        // Clear the cache.
+        while (!m_cache.empty()) {
+            m_cache.pop();
+        }
+
+        // Generate all moves.
+        int index = 0;
+        while (index < 64) {
+            generate_from_square(Square(m_index++));
+        }
+
+        return m_cache.size();
     }
 
 }
