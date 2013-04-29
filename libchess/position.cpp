@@ -443,6 +443,10 @@ namespace chess {
         m_ply = boost::lexical_cast<int>(parts[5]);
     }
 
+    const PseudoLegalMoveGenerator *Position::get_pseudo_legal_moves() const {
+        return new PseudoLegalMoveGenerator(*this);
+    }
+
     uint64_t Position::__hash__() const {
         uint64_t hash = 0;
 

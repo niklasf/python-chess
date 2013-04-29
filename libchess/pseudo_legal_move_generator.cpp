@@ -2,9 +2,8 @@
 
 namespace chess {
 
-    PseudoLegalMoveGenerator::PseudoLegalMoveGenerator(Position& position) : m_position(position) {
+    PseudoLegalMoveGenerator::PseudoLegalMoveGenerator(const Position& position) : m_position(position) {
         m_index = 0;
-        m_promotion = 0;
     }
 
     PseudoLegalMoveGenerator PseudoLegalMoveGenerator::__iter__() {
@@ -12,6 +11,12 @@ namespace chess {
     }
 
     Move PseudoLegalMoveGenerator::next() {
+        if (!m_cache.empty()) {
+            Move move = m_cache.front();
+            m_cache.pop();
+            return move;
+        }
+
         while (m_index < 64) {
             // Skip empty square and opposing pieces.
             Square square(m_index++);
@@ -28,32 +33,27 @@ namespace chess {
                 if (!m_position.get(target).is_valid()) {
                     if (target.is_backrank()) {
                         // Promotion.
-                        switch (m_promotion) {
-                            case 0:
-                                m_promotion++;
-                                m_index--;
-                                return Move(square, target, 'b');
-                            case 1:
-                                m_promotion++;
-                                m_index--;
-                                return Move(square, target, 'n');
-                            case 2:
-                                m_promotion++;
-                                m_index--;
-                                return Move(square, target, 'r');
-                            case 3:
-                                m_promotion = 0;
-                                return Move(square, target, 'q');
-                        }
+                        m_cache.push(Move(square, target, 'b'));
+                        m_cache.push(Move(square, target, 'n'));
+                        m_cache.push(Move(square, target, 'r'));
+                        m_cache.push(Move(square, target, 'q'));
+                        break;
                     } else {
-                        return Move(square, target);
+                        m_cache.push(Move(square, target));
+                        break;
                     }
                 }
             }
         }
 
-        PyErr_SetNone(PyExc_StopIteration);
-        throw boost::python::error_already_set();
+        if (m_cache.empty()) {
+            PyErr_SetNone(PyExc_StopIteration);
+            throw boost::python::error_already_set();
+        } else {
+            Move move = m_cache.front();
+            m_cache.pop();
+            return move;
+        }
     }
 
 }

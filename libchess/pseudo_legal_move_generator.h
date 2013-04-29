@@ -1,22 +1,26 @@
 #ifndef LIBCHESS_PSEUDO_LEGAL_MOVE_GENERATOR_H
 #define LIBCHESS_PSEUDO_LEGAL_MOVE_GENERATOR_H
 
+#include <queue>
+
 #include "position.h"
 #include "move.h"
 
 namespace chess {
 
+    class Position;
+
     class PseudoLegalMoveGenerator {
     public:
-         PseudoLegalMoveGenerator(Position& position);
+         PseudoLegalMoveGenerator(const Position& position);
 
          PseudoLegalMoveGenerator __iter__();
          Move next();
 
     private:
-         Position m_position;
+         const Position& m_position;
          int m_index;
-         int m_promotion;
+         std::queue<Move> m_cache;
     };
 
 }

@@ -6,8 +6,11 @@
 
 #include "piece.h"
 #include "square.h"
+#include "pseudo_legal_move_generator.h"
 
 namespace chess {
+
+    class PseudoLegalMoveGenerator;
 
     class Position {
     public:
@@ -44,6 +47,8 @@ namespace chess {
 
         std::string fen() const;
         void set_fen(std::string fen);
+
+        const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
 
         std::string __repr__() const;
         uint64_t __hash__() const;

@@ -4,8 +4,8 @@
 #include "piece.h"
 #include "square.h"
 #include "move.h"
-#include "position.h"
 #include "pseudo_legal_move_generator.h"
+#include "position.h"
 
 namespace chess {
 
