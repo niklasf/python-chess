@@ -158,6 +158,12 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(pos.get_king("w"), libchess.Square("e1"))
         self.assertEqual(pos.get_king("b"), libchess.Square("e8"))
 
+    def test_checks(self):
+        pos = libchess.Position("rnbqk1nr/ppp2ppp/4p3/3p4/1bPP4/5N2/PP2PPPP/RNBQKB1R w KQkq - 2 4")
+        self.assertTrue(pos.is_king_attacked("w"))
+        self.assertFalse(pos.is_king_attacked("b"))
+        self.assertTrue(pos.is_check())
+
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 

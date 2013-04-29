@@ -5,6 +5,7 @@
 #include <boost/algorithm/string/split.hpp>
 
 #include "position.h"
+#include "libchess.h"
 
 namespace chess {
 
@@ -505,6 +506,16 @@ namespace chess {
                 return Square::from_x88_index(i);
             }
         }
+    }
+
+    bool Position::is_king_attacked(char color) const {
+        Square square = get_king(color);
+        AttackerGenerator attackers(*this, opposite_color(color), square);
+        return attackers.__nonzero__();
+    }
+
+    bool Position::is_check() const {
+        return is_king_attacked(m_turn);
     }
 
     bool Position::operator==(const Position& other) const {

@@ -56,6 +56,9 @@ namespace chess {
         Square get_king(char color) const;
         boost::python::object python_get_king(char color) const;
 
+        bool is_king_attacked(char color) const;
+        bool is_check() const;
+
         std::string __repr__() const;
         uint64_t __hash__() const;
 
