@@ -518,6 +518,74 @@ namespace chess {
         return is_king_attacked(m_turn);
     }
 
+    MoveInfo Position::make_unvalidated_move_fast(Move move) {
+        Piece piece = get(move.source);
+        if (!piece.is_valid()) {
+            // TODO: Better exception type.
+            throw new std::invalid_argument("move");
+        }
+        MoveInfo info(move, piece);
+        info.set_captured(get(move.target()));
+
+        // Move the piece.
+        set(move.target(), get(move.source()));
+        set(move.source(), Piece());
+
+        // It is the next players turn.
+        toggle_turn();
+
+        // Pawn moves.
+        m_ep_file = 0;
+        if (piece.type() == 'p') {
+            // En-passant.
+            if (move.target().file() != move.source().file() && !info.captured().is_valid()) {
+                int capture_square_index;
+                if (m_turn == 'b') {
+                    capture_square_index = Square(4, move.target().file()).x88_index()
+                } else {
+                    capture_square_index = Square(3, move.target().file()).x88_index()
+                }
+                info.set_captured(m_board[capture_square_index])
+                info.set_is_enpassant(true);
+            }
+
+            // If two steps forward, set the en-passant file.
+            if (abs(move.target().rank() - move.source().rank()) == 2) {
+                m_ep_file = move.target.file() + 'a';
+            }
+        }
+
+        // Promotion.
+        if (move.promotion()) {
+            set(move.target(), Piece::from_color_and_type(piece.color(), move.promotion()));
+        }
+
+        // TODO: Castling.
+
+        // Update the half move counter.
+        if (piece.type() == 'p' || info.captured().is_valid()) {
+            m_half_moves = 0;
+        } else {
+            m_half_moves++;
+        }
+
+        // Increment the move number.
+        if (m_turn == 'w') {
+           m_ply++;
+        }
+
+        // TODO: Update castling rights.
+
+        return info;
+    }
+
+    MoveInfo Position::make_unvalidated_move(Move move) {
+        MoveInfo info = make_unvalidated_move_fast(move);
+        info.set_is_check(is_check());
+        info.set_is_checkmate(is_checkmate());
+        return info;
+    }
+
     bool Position::operator==(const Position& other) const {
         if (m_turn != other.m_turn ||
             m_ep_file != other.m_ep_file ||
