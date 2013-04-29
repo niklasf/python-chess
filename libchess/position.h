@@ -61,6 +61,8 @@ namespace chess {
 
         bool is_king_attacked(char color) const;
         bool is_check() const;
+        bool is_checkmate() const;
+        bool is_stalemate() const;
 
         MoveInfo make_unvalidated_move_fast(Move move);
         MoveInfo make_unvalidated_move(Move move);

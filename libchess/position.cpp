@@ -522,10 +522,28 @@ namespace chess {
         return is_king_attacked(m_turn);
     }
 
+    bool Position::is_checkmate() const {
+        if (!is_check()) {
+            return false;
+        } else {
+            // TODO: Consider more efficient checkmate detection.
+            LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+            return !legal_moves.__nonzero__();
+        }
+    }
+
+    bool Position::is_stalemate() const {
+       if (is_check()) {
+           return false;
+       } else {
+           LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+           return !legal_moves.__nonzero__();
+       }
+    }
+
     MoveInfo Position::make_unvalidated_move_fast(Move move) {
         Piece piece = get(move.source());
         if (!piece.is_valid()) {
-            // TODO: Better exception type.
             throw new std::invalid_argument("move");
         }
         MoveInfo info(move, piece);
@@ -586,7 +604,7 @@ namespace chess {
     MoveInfo Position::make_unvalidated_move(Move move) {
         MoveInfo info = make_unvalidated_move_fast(move);
         info.set_is_check(is_check());
-        // TODO: info.set_is_checkmate(is_checkmate());
+        info.set_is_checkmate(is_checkmate());
         return info;
     }
 

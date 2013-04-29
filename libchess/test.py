@@ -164,6 +164,29 @@ class PositionTestCase(unittest.TestCase):
         self.assertFalse(pos.is_king_attacked("b"))
         self.assertTrue(pos.is_check())
 
+    def test_checkmate(self):
+        pos = libchess.Position()
+        self.assertFalse(pos.is_checkmate())
+
+        pos.fen = "r1bqkbnr/p1pp1Qpp/2n5/1p2p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+        self.assertTrue(pos.is_checkmate())
+
+        pos.fen = "r1bqkb1r/pppp1Qpp/2n4n/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+        self.assertFalse(pos.is_checkmate())
+
+        pos.fen = "3k1R2/8/3K4/8/8/8/8/8 b - - 11 6"
+        self.assertTrue(pos.is_checkmate())
+
+    def test_stalemate(self):
+        pos = libchess.Position()
+        self.assertFalse(pos.is_stalemate())
+
+        pos.fen = "4k3/4P3/4K3/8/8/8/8/8 b - - 4 9"
+        self.assertTrue(pos.is_stalemate())
+
+        pos.toggle_turn()
+        self.assertFalse(pos.is_stalemate())
+
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 
