@@ -639,12 +639,15 @@ namespace chess {
             }
 
             // Add a disambiguator.
+            bool is_ambigous = false;
             bool same_rank = false;
             bool same_file = false;
             legal_moves.__iter__();
             while (legal_moves.has_more()) {
                 Move m = legal_moves.next();
                 if (get(m.source()) == info.piece() && move.source() != m.source() && move.target() == m.target()) {
+                    is_ambigous = true;
+
                     if (move.source().rank() == m.source().rank()) {
                         same_rank = true;
                     }
@@ -660,7 +663,7 @@ namespace chess {
                 info.set_san(info.san() + move.source().name());
             } else if (same_file) {
                 info.set_san(info.san() + (char)('1' + move.source().rank()));
-            } else if (same_rank) {
+            } else if (same_rank || is_ambigous) {
                 info.set_san(info.san() + move.source().file_name());
             }
 
