@@ -10,7 +10,7 @@ namespace chess {
 
     class MoveInfo {
         public:
-            MoveInfo(Move move, Piece piece, std::string san);
+            MoveInfo(Move move, Piece piece);
 
             Move move() const;
             void set_move(Move move);
@@ -22,9 +22,6 @@ namespace chess {
             boost::python::object python_captured() const;
             void set_captured(Piece captured);
             void python_set_captured(boost::python::object captured);
-
-            std::string san() const;
-            void set_san(std::string san);
 
             bool is_enpassant() const;
             void set_is_enpassant(bool is_enpassant);
@@ -47,7 +44,6 @@ namespace chess {
             Move m_move;
             Piece m_piece;
             Piece m_captured;
-            std::string m_san;
             bool m_is_enpassant;
             bool m_is_kingside_castle;
             bool m_is_queenside_castle;

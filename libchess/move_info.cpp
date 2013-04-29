@@ -2,7 +2,7 @@
 
 namespace chess {
 
-    MoveInfo::MoveInfo(Move move, Piece piece, std::string san) : m_move(move), m_piece(piece), m_san(san) {
+    MoveInfo::MoveInfo(Move move, Piece piece) : m_move(move), m_piece(piece) {
         if (!piece.is_valid()) {
             throw new std::invalid_argument("piece");
         }
@@ -53,14 +53,6 @@ namespace chess {
         } else {
             m_captured = boost::python::extract<Piece>(captured);
         }
-    }
-
-    std::string MoveInfo::san() const {
-        return m_san;
-    }
-
-    void MoveInfo::set_san(std::string san) {
-        m_san = san;
     }
 
     bool MoveInfo::is_enpassant() const {

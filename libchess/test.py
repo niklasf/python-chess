@@ -201,7 +201,7 @@ class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 class MoveInfoTestCase(unittest.TestCase):
 
     def test(self):
-        info = libchess.MoveInfo(libchess.Move.from_uci("e2e4"), libchess.Piece("P"), "e4")
+        info = libchess.MoveInfo(libchess.Move.from_uci("e2e4"), libchess.Piece("P"))
         self.assertEqual(info.move, libchess.Move.from_uci("e2e4"))
         self.assertEqual(info.piece, libchess.Piece("P"))
         self.assertFalse(info.is_check)
