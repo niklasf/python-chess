@@ -220,5 +220,14 @@ class AttackerGeneratorTestCase(unittest.TestCase):
         self.assertEqual(len(pos.get_attackers("w", e3)), 2)
         self.assertFalse(pos.get_attackers("b", e5))
 
+
+class LegalMoveGeneratorTestCase(unittest.TestCase):
+
+    def test_pseudo_legal_moves(self):
+        pos = libchess.Position()
+        legal_moves = libchess.LegalMoveGenerator(pos)
+        self.assertEqual(len(legal_moves), 20)
+        self.assertTrue(libchess.Move.from_uci("e2e4") in legal_moves)
+
 if __name__ == "__main__":
     unittest.main()

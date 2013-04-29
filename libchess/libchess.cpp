@@ -92,11 +92,10 @@ BOOST_PYTHON_MODULE(libchess)
         .def("from_uci", &Move::from_uci)
         .staticmethod("from_uci");
 
-    class_<MoveInfo>("MoveInfo", init<Move, Piece, std::string>())
+    class_<MoveInfo>("MoveInfo", init<Move, Piece>())
         .add_property("move", &MoveInfo::move, &MoveInfo::set_move)
         .add_property("piece", &MoveInfo::piece, &MoveInfo::set_piece)
         .add_property("captured", &MoveInfo::python_captured, &MoveInfo::python_set_captured)
-        .add_property("san", &MoveInfo::san, &MoveInfo::set_san)
         .add_property("is_enpassant", &MoveInfo::is_enpassant, &MoveInfo::set_is_enpassant)
         .add_property("is_kingside_castle", &MoveInfo::is_kingside_castle, &MoveInfo::set_is_kingside_castle)
         .add_property("is_queenside_castle", &MoveInfo::is_queenside_castle, &MoveInfo::set_is_queenside_castle)
@@ -142,4 +141,11 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__len__", &AttackerGenerator::__len__)
         .def("__nonzero__", &AttackerGenerator::__nonzero__)
         .def("next", &AttackerGenerator::next);
+
+    class_<LegalMoveGenerator>("LegalMoveGenerator", init<const Position&>())
+        .def("__len__", &LegalMoveGenerator::__len__)
+        .def("__nonzero__", &LegalMoveGenerator::__nonzero__)
+        .def("__iter__", &LegalMoveGenerator::__iter__)
+        .def("__contains__", &LegalMoveGenerator::__contains__)
+        .def("next", &LegalMoveGenerator::next);
 }

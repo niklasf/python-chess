@@ -519,7 +519,7 @@ namespace chess {
     }
 
     MoveInfo Position::make_unvalidated_move_fast(Move move) {
-        Piece piece = get(move.source);
+        Piece piece = get(move.source());
         if (!piece.is_valid()) {
             // TODO: Better exception type.
             throw new std::invalid_argument("move");
@@ -541,17 +541,17 @@ namespace chess {
             if (move.target().file() != move.source().file() && !info.captured().is_valid()) {
                 int capture_square_index;
                 if (m_turn == 'b') {
-                    capture_square_index = Square(4, move.target().file()).x88_index()
+                    capture_square_index = Square(4, move.target().file()).x88_index();
                 } else {
-                    capture_square_index = Square(3, move.target().file()).x88_index()
+                    capture_square_index = Square(3, move.target().file()).x88_index();
                 }
-                info.set_captured(m_board[capture_square_index])
+                info.set_captured(m_board[capture_square_index]);
                 info.set_is_enpassant(true);
             }
 
             // If two steps forward, set the en-passant file.
             if (abs(move.target().rank() - move.source().rank()) == 2) {
-                m_ep_file = move.target.file() + 'a';
+                m_ep_file = move.target().file() + 'a';
             }
         }
 
@@ -582,7 +582,7 @@ namespace chess {
     MoveInfo Position::make_unvalidated_move(Move move) {
         MoveInfo info = make_unvalidated_move_fast(move);
         info.set_is_check(is_check());
-        info.set_is_checkmate(is_checkmate());
+        // TODO: info.set_is_checkmate(is_checkmate());
         return info;
     }
 

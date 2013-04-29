@@ -8,6 +8,7 @@
 #include "square.h"
 #include "attacker_generator.h"
 #include "pseudo_legal_move_generator.h"
+#include "move_info.h"
 
 namespace chess {
 
@@ -59,6 +60,7 @@ namespace chess {
         bool is_king_attacked(char color) const;
         bool is_check() const;
 
+        MoveInfo make_unvalidated_move_fast(Move move);
         MoveInfo make_unvalidated_move(Move move);
 
         std::string __repr__() const;
@@ -68,8 +70,6 @@ namespace chess {
         bool operator!=(const Position& other) const;
 
     protected:
-        MoveInfo make_unvalidated_move_fast(Move move);
-
         Piece m_board[128];
         char m_turn;
         char m_ep_file;
