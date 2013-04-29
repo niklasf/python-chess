@@ -85,6 +85,8 @@ namespace chess {
             case 'q':
                 return "queen";
         }
+
+        throw std::logic_error("Unknown promotion type.");
     }
 
     std::string Move::uci() const {

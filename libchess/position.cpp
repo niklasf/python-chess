@@ -332,7 +332,7 @@ namespace chess {
         for (std::vector<std::string>::iterator row = rows.begin(); row != rows.end(); ++row) {
             int field_sum = 0;
             bool previous_was_number = false;
-            for (int i = 0; i < row->length(); i++) {
+            for (unsigned int i = 0; i < row->length(); i++) {
                 char c = row->at(i);
                 if (c >= '1' && c <= '8') {
                     if (previous_was_number) {
@@ -395,7 +395,7 @@ namespace chess {
         // Set the pieces on the board.
         clear_board();
         int x88_index = 0;
-        for (int i = 0; i < parts[0].length(); i++) {
+        for (unsigned int i = 0; i < parts[0].length(); i++) {
             char c = parts[0].at(i);
             if (c == '/') {
                 x88_index += 8;
@@ -415,7 +415,7 @@ namespace chess {
         m_white_castle_queenside = false,
         m_black_castle_kingside = false;
         m_black_castle_queenside = false;
-        for (int i = 0; i < parts[2].length(); i++) {
+        for (unsigned int i = 0; i < parts[2].length(); i++) {
             switch (parts[2].at(i)) {
                 case 'K':
                     m_white_castle_kingside = true;
@@ -510,6 +510,17 @@ namespace chess {
             if (m_board[i] == king) {
                 return Square::from_x88_index(i);
             }
+        }
+
+        return Square();
+    }
+
+    boost::python::object Position::python_get_king(char color) const {
+        Square square = get_king(color);
+        if (square.is_valid()) {
+            return boost::python::object(square);
+        } else {
+            return boost::python::object();
         }
     }
 

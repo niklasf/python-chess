@@ -73,6 +73,8 @@ namespace chess {
             case 'q':
                  return "queen";
         }
+
+        throw std::logic_error("Unkown piece type.");
     }
 
     std::string Piece::__repr__() const {
