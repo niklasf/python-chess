@@ -190,7 +190,7 @@ namespace chess {
         // Generate all moves.
         int index = 0;
         while (index < 64) {
-            generate_from_square(Square(m_index++));
+            generate_from_square(Square(index++));
         }
 
         return m_cache.size();

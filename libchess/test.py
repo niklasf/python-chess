@@ -156,6 +156,11 @@ class PositionTestCase(unittest.TestCase):
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 
+    def test(self):
+        # Get the number of moves in the initial position.
+        pos = libchess.Position()
+        self.assertEqual(len(pos.get_pseudo_legal_moves()), 20)
+
     def test_pawn_moves(self):
         # Single step.
         pos = libchess.Position()
