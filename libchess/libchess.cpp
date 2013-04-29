@@ -92,6 +92,18 @@ BOOST_PYTHON_MODULE(libchess)
         .def("from_uci", &Move::from_uci)
         .staticmethod("from_uci");
 
+    class_<MoveInfo>("MoveInfo", init<Move, Piece>())
+        .add_property("move", &MoveInfo::move, &MoveInfo::set_move)
+        .add_property("piece", &MoveInfo::piece, &MoveInfo::set_piece)
+        .add_property("captured", &MoveInfo::python_captured, &MoveInfo::python_set_captured)
+        .add_property("san", &MoveInfo::san, &MoveInfo::set_san)
+        .add_property("is_enpassant", &MoveInfo::is_enpassant, &MoveInfo::set_is_enpassant)
+        .add_property("is_kingside_castle", &MoveInfo::is_kingside_castle, &MoveInfo::set_is_kingside_castle)
+        .add_property("is_queenside_castle", &MoveInfo::is_queenside_castle, &MoveInfo::set_is_queenside_castle)
+        .add_property("is_castle", &MoveInfo::is_castle)
+        .add_property("is_check", &MoveInfo::is_check, &MoveInfo::set_is_check)
+        .add_property("is_checkmate", &MoveInfo::is_checkmate, &MoveInfo::set_is_checkmate);
+
     class_<Position>("Position")
         .def(init<std::string>())
         .def("reset", &Position::reset)

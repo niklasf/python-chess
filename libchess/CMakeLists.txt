@@ -16,6 +16,7 @@ add_library (chess SHARED
     piece.cpp
     square.cpp
     move.cpp
+    move_info.cpp
     position.cpp
     pseudo_legal_move_generator.cpp)
 target_link_libraries (chess
