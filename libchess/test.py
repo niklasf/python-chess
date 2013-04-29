@@ -154,5 +154,21 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(position.ply, 2)
 
 
+class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
+
+    def test_pawn_moves(self):
+        # Single step.
+        pos = libchess.Position()
+        self.assertTrue(libchess.Move.from_uci("e2e4") in pos.get_pseudo_legal_moves())
+        self.assertTrue(libchess.Move.from_uci("h2h3") in pos.get_pseudo_legal_moves())
+
+        # Pawn captures after 1.e4 d5.
+        pos = libchess.Position("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
+        self.assertTrue(libchess.Move.from_uci("e4d5") in pos.get_pseudo_legal_moves())
+        self.assertFalse(libchess.Move.from_uci("d5e4") in pos.get_pseudo_legal_moves())
+        pos.toggle_turn()
+        self.assertTrue(libchess.Move.from_uci("d5e4") in pos.get_pseudo_legal_moves())
+
+
 if __name__ == "__main__":
     unittest.main()
