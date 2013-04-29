@@ -6,6 +6,8 @@ find_package (Boost)
 find_package (Boost COMPONENTS python regex REQUIRED)
 find_package (PythonLibs REQUIRED)
 
+set(CMAKE_CXX_FLAGS "-g -Wall")
+
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 

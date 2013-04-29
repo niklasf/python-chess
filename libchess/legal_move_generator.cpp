@@ -6,21 +6,30 @@ namespace chess {
         : m_position(position)
     {
         m_pseudo_legal_moves = new PseudoLegalMoveGenerator(position);
+        m_len = -1;
+        m_current = 0;
     }
 
     int LegalMoveGenerator::__len__() {
-        m_pseudo_legal_moves->__iter__();
+        if (m_len == -1) {
+            m_pseudo_legal_moves->__iter__();
 
-        int counter = 0;
-        while (m_pseudo_legal_moves->has_more()) {
-            if (would_be_valid_if_pseudo_legal(m_pseudo_legal_moves->next())) {
-               counter++;
+            int counter = 0;
+            while (m_pseudo_legal_moves->has_more()) {
+                if (would_be_valid_if_pseudo_legal(m_pseudo_legal_moves->next())) {
+                    counter++;
+                }
             }
+            m_len = counter;
         }
-        return counter;
+        return m_len;
     }
 
     bool LegalMoveGenerator::__nonzero__() {
+        if (m_len == 0) {
+            return false;
+        }
+
         m_pseudo_legal_moves->__iter__();
 
         while (m_pseudo_legal_moves->has_more()) {
@@ -29,10 +38,12 @@ namespace chess {
             }
         }
 
+        m_len = 0;
         return false;
     }
 
     LegalMoveGenerator LegalMoveGenerator::__iter__() {
+        m_current = 0;
         m_pseudo_legal_moves->__iter__();
         return *this;
     }
@@ -45,13 +56,28 @@ namespace chess {
         }
     }
 
+    Move LegalMoveGenerator::next() {
+        while (true) {
+            Move move = m_pseudo_legal_moves->next();
+            if (would_be_valid_if_pseudo_legal(move)) {
+               m_current++;
+               return move;
+            }
+        }
+    }
+
     Move LegalMoveGenerator::python_next() {
         while (true) {
             Move move = m_pseudo_legal_moves->python_next();
             if (would_be_valid_if_pseudo_legal(move)) {
+                m_current++;
                 return move;
             }
         }
+    }
+
+    bool LegalMoveGenerator::has_more() {
+        return m_current < __len__();
     }
 
     bool LegalMoveGenerator::would_be_valid_if_pseudo_legal(const Move& move) const {

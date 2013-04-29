@@ -609,27 +609,59 @@ namespace chess {
             throw new std::invalid_argument("move");
         }
 
+        // Do the move.
         MoveInfo info = make_unvalidated_move_fast(move);
+
+        // Get extra infos.
         info.set_is_check(is_check());
         info.set_is_checkmate(is_checkmate());
 
+        // Generate the SAN.
         if (info.is_kingside_castle()) {
             info.set_san("o-o");
         } else if (info.is_queenside_castle()) {
             info.set_san("o-o-o");
         } else {
+            // Add the piece type.
             if (info.piece().type() != 'p') {
                 info.set_san(info.san() + (char)toupper(info.piece().type()));
             }
 
-            // TODO: Insert disambiguator.
+            // Add a disambiguator.
+            bool same_rank = false;
+            bool same_file = false;
+            //legal_moves.__iter__();
+            while (legal_moves.has_more()) {
+                Move m = legal_moves.next();
+                if (get(m.source()) == info.piece() && move.source() != m.source() && move.target() == m.target()) {
+                    if (move.source().rank() == m.source().rank()) {
+                        same_rank = true;
+                    }
+                    if (move.source().file() == m.source().file()) {
+                        same_file = true;
+                    }
+                    if (same_rank && same_file) {
+                        break;
+                    }
+                }
+            }
+            if (same_rank && same_file) {
+                info.set_san(info.san() + move.source().name());
+            } else if (same_file) {
+                info.set_san(info.san() + (char)('1' + move.source().rank()));
+            } else if (same_rank) {
+                info.set_san(info.san() + move.source().file_name());
+            }
 
+            // Handle captures.
             if (info.captured().is_valid()) {
                 if (info.piece().type() == 'p') {
                     info.set_san(info.san() + move.source().file_name());
                 }
                 info.set_san(info.san() + "x");
             }
+
+            // Add the target name.
             info.set_san(info.san() + move.target().name());
         }
         if (info.is_checkmate()) {

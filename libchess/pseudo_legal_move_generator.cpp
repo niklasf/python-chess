@@ -145,7 +145,7 @@ namespace chess {
             m_cache.pop();
             return move;
         } else {
-            throw new std::logic_error("Called next() altough there are no more pseudo legal moves.");
+            throw std::logic_error("Called next() altough there are no more pseudo legal moves.");
         }
     }
 
