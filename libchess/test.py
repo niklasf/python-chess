@@ -195,6 +195,17 @@ class PositionTestCase(unittest.TestCase):
         pos.make_move_fast(libchess.Move.from_uci("f1c4"))
         self.assertEqual(pos.fen, "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2")
 
+        # Get move info for 2...Nf6.
+        Nf6 = pos.make_move(libchess.Move.from_uci("g8f6"))
+        self.assertEqual(Nf6.san, "Nf6")
+
+    def test_san_disambiguation(self):
+        pos = libchess.Position("4krN1/8/8/3N4/8/8/8/4K3 w - - 0 1")
+        Ndf6 = pos.make_move(libchess.Move.from_uci("d5f6"))
+        self.assertEqual(Ndf6.san, "Ndf6+")
+        self.assertTrue(Ndf6.is_check)
+        self.assertFalse(Ndf6.is_checkmate)
+
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 

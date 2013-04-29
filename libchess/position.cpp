@@ -641,6 +641,8 @@ namespace chess {
         if (info.is_enpassant()) {
             info.set_san(info.san() + " (e.p.)");
         }
+
+        return info;
     }
 
     void Position::make_move_fast(Move move) {
