@@ -48,10 +48,33 @@ namespace chess {
                 }
             }
 
-            // TODO: Pawn captures.
-
-            // TODO: En-passant.
-
+            // Pawn captures.
+            const int offsets[] = { 17, 15 };
+            for (int i = 0; i < 2; i++) {
+                // Ensure the target square is on the board.
+                int offset = (m_position.turn() == 'b') ? offsets[i] : - offsets[i];
+                int target_index = square.x88_index() + offset;
+                if (target_index & 0x88) {
+                    continue;
+                }
+                Square target = Square::from_x88_index(target_index);
+                Piece target_piece = m_position.get(target);
+                if (target_piece.is_valid() && target_piece.color() != m_position.turn()) {
+                    if (target.is_backrank()) {
+                        // Promotion.
+                        m_cache.push(Move(square, target, 'b'));
+                        m_cache.push(Move(square, target, 'n'));
+                        m_cache.push(Move(square, target, 'r'));
+                        m_cache.push(Move(square, target, 'q'));
+                    } else {
+                        // Normal capture.
+                        m_cache.push(Move(square, target));
+                    }
+                } else if (target == m_position.get_ep_square()) {
+                    // En-passant.
+                    m_cache.push(Move(square, target));
+                }
+            }
         }
     }
 
