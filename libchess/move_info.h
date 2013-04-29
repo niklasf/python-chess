@@ -10,7 +10,7 @@ namespace chess {
 
     class MoveInfo {
         public:
-            MoveInfo(Move move, Piece piece) : m_move(move), m_piece(piece) { }
+            MoveInfo(Move move, Piece piece, std::string san);
 
             Move move() const;
             void set_move(Move move);

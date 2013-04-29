@@ -92,7 +92,7 @@ BOOST_PYTHON_MODULE(libchess)
         .def("from_uci", &Move::from_uci)
         .staticmethod("from_uci");
 
-    class_<MoveInfo>("MoveInfo", init<Move, Piece>())
+    class_<MoveInfo>("MoveInfo", init<Move, Piece, std::string>())
         .add_property("move", &MoveInfo::move, &MoveInfo::set_move)
         .add_property("piece", &MoveInfo::piece, &MoveInfo::set_piece)
         .add_property("captured", &MoveInfo::python_captured, &MoveInfo::python_set_captured)

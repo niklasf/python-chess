@@ -2,6 +2,19 @@
 
 namespace chess {
 
+    MoveInfo::MoveInfo(Move move, Piece piece, std::string san) : m_move(move), m_piece(piece), m_san(san) {
+        if (!piece.is_valid()) {
+            throw new std::invalid_argument("piece");
+        }
+
+        m_captured = Piece();
+        m_is_enpassant = false;
+        m_is_kingside_castle = false;
+        m_is_queenside_castle = false;
+        m_is_check = false;
+        m_is_checkmate = false;
+    }
+
     Move MoveInfo::move() const {
         return m_move;
     }

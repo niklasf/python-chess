@@ -186,5 +186,16 @@ class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertTrue(libchess.Move.from_uci("h8h2") in pos.get_pseudo_legal_moves())
         self.assertFalse(libchess.Move.from_uci("h8h1") in pos.get_pseudo_legal_moves())
 
+
+class MoveInfoTestCase(unittest.TestCase):
+
+    def test(self):
+        info = libchess.MoveInfo(libchess.Move.from_uci("e2e4"), libchess.Piece("P"), "e4")
+        self.assertEqual(info.move, libchess.Move.from_uci("e2e4"))
+        self.assertEqual(info.piece, libchess.Piece("P"))
+        self.assertFalse(info.is_check)
+        self.assertFalse(info.is_checkmate)
+        self.assertFalse(info.is_castle)
+
 if __name__ == "__main__":
     unittest.main()
