@@ -448,6 +448,10 @@ namespace chess {
         return new PseudoLegalMoveGenerator(*this);
     }
 
+    const LegalMoveGenerator *Position::get_legal_moves() const {
+        return new LegalMoveGenerator(*this);
+    }
+
     const AttackerGenerator *Position::get_attackers(char color, Square target) const {
         return new AttackerGenerator(*this, color, target);
     }

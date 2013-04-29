@@ -225,7 +225,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
     def test_pseudo_legal_moves(self):
         pos = libchess.Position()
-        legal_moves = libchess.LegalMoveGenerator(pos)
+        legal_moves = pos.get_legal_moves()
         self.assertEqual(len(legal_moves), 20)
         self.assertTrue(libchess.Move.from_uci("e2e4") in legal_moves)
 

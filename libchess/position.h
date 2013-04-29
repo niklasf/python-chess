@@ -13,6 +13,7 @@
 namespace chess {
 
     class AttackerGenerator;
+    class LegalMoveGenerator;
     class PseudoLegalMoveGenerator;
 
     class Position {
@@ -52,6 +53,7 @@ namespace chess {
         void set_fen(std::string fen);
 
         const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
+        const LegalMoveGenerator *get_legal_moves() const;
         const AttackerGenerator *get_attackers(char color, Square target) const;
 
         Square get_king(char color) const;
