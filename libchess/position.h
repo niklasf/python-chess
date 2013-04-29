@@ -17,6 +17,8 @@ namespace chess {
     class PseudoLegalMoveGenerator;
 
     class Position {
+        friend class LegalMoveGenerator;
+
     public:
 
         Position();
@@ -64,8 +66,8 @@ namespace chess {
         bool is_checkmate() const;
         bool is_stalemate() const;
 
-        MoveInfo make_unvalidated_move_fast(Move move);
-        MoveInfo make_unvalidated_move(Move move);
+        MoveInfo make_move(Move move);
+        void make_move_fast(Move move);
 
         std::string __repr__() const;
         uint64_t __hash__() const;
@@ -74,6 +76,8 @@ namespace chess {
         bool operator!=(const Position& other) const;
 
     protected:
+        MoveInfo make_unvalidated_move_fast(Move move);
+
         Piece m_board[128];
         char m_turn;
         char m_ep_file;

@@ -2,7 +2,7 @@
 
 namespace chess {
 
-    MoveInfo::MoveInfo(Move move, Piece piece) : m_move(move), m_piece(piece) {
+    MoveInfo::MoveInfo(Move move, Piece piece) : m_move(move), m_piece(piece), m_san("") {
         if (!piece.is_valid()) {
             throw new std::invalid_argument("piece");
         }
@@ -97,6 +97,14 @@ namespace chess {
 
     void MoveInfo::set_is_checkmate(bool is_checkmate) {
         m_is_checkmate = is_checkmate;
+    }
+
+    std::string MoveInfo::san() const {
+        return m_san;
+    }
+
+    void MoveInfo::set_san(std::string san) {
+        m_san = san;
     }
 
 }

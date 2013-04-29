@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <vector>
 #include <boost/format.hpp>
 #include <boost/regex.hpp>
@@ -601,11 +602,53 @@ namespace chess {
         return info;
     }
 
-    MoveInfo Position::make_unvalidated_move(Move move) {
+    MoveInfo Position::make_move(Move move) {
+        // Make sure the move is valid.
+        LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+        if (!legal_moves.__contains__(move)) {
+            throw new std::invalid_argument("move");
+        }
+
         MoveInfo info = make_unvalidated_move_fast(move);
         info.set_is_check(is_check());
         info.set_is_checkmate(is_checkmate());
-        return info;
+
+        if (info.is_kingside_castle()) {
+            info.set_san("o-o");
+        } else if (info.is_queenside_castle()) {
+            info.set_san("o-o-o");
+        } else {
+            if (info.piece().type() != 'p') {
+                info.set_san(info.san() + (char)toupper(info.piece().type()));
+            }
+
+            // TODO: Insert disambiguator.
+
+            if (info.captured().is_valid()) {
+                if (info.piece().type() == 'p') {
+                    info.set_san(info.san() + move.source().file_name());
+                }
+                info.set_san(info.san() + "x");
+            }
+            info.set_san(info.san() + move.target().name());
+        }
+        if (info.is_checkmate()) {
+            info.set_san(info.san() + "#");
+        } else if (info.is_check()) {
+            info.set_san(info.san() + "+");
+        }
+
+        if (info.is_enpassant()) {
+            info.set_san(info.san() + " (e.p.)");
+        }
+    }
+
+    void Position::make_move_fast(Move move) {
+        LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+        if (!legal_moves.__contains__(move)) {
+            throw new std::invalid_argument("move");
+        }
+        make_unvalidated_move_fast(move);
     }
 
     bool Position::operator==(const Position& other) const {

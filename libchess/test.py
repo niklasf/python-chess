@@ -187,6 +187,17 @@ class PositionTestCase(unittest.TestCase):
         pos.toggle_turn()
         self.assertFalse(pos.is_stalemate())
 
+    def test_move_making(self):
+        pos = libchess.Position()
+
+        # Play: 1.e4 e5 2.Bc4.
+        e4 = pos.make_move(libchess.Move.from_uci("e2e4"))
+        self.assertEqual(e4.san, "e4")
+        e5 = pos.make_move(libchess.Move.from_uci("e7e5"))
+        self.assertEqual(e5.san, "e5")
+        Bc4 = pos.make_move(libchess.Move.from_uci("f1c4"))
+        self.assertEqual(Bc4.san, "Bc4")
+
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 

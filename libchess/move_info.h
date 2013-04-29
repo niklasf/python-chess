@@ -40,6 +40,9 @@ namespace chess {
             bool is_checkmate() const;
             void set_is_checkmate(bool is_checkmate);
 
+            std::string san() const;
+            void set_san(std::string san);
+
         private:
             Move m_move;
             Piece m_piece;
@@ -49,6 +52,7 @@ namespace chess {
             bool m_is_queenside_castle;
             bool m_is_check;
             bool m_is_checkmate;
+            std::string m_san;
     };
 }
 

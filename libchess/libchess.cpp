@@ -101,7 +101,8 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("is_queenside_castle", &MoveInfo::is_queenside_castle, &MoveInfo::set_is_queenside_castle)
         .add_property("is_castle", &MoveInfo::is_castle)
         .add_property("is_check", &MoveInfo::is_check, &MoveInfo::set_is_check)
-        .add_property("is_checkmate", &MoveInfo::is_checkmate, &MoveInfo::set_is_checkmate);
+        .add_property("is_checkmate", &MoveInfo::is_checkmate, &MoveInfo::set_is_checkmate)
+        .add_property("san", &MoveInfo::san, &MoveInfo::set_san);
 
     class_<Position>("Position")
         .def(init<std::string>())
@@ -121,6 +122,8 @@ BOOST_PYTHON_MODULE(libchess)
         .def("is_check", &Position::is_check)
         .def("is_checkmate", &Position::is_checkmate)
         .def("is_stalemate", &Position::is_stalemate)
+        .def("make_move", &Position::make_move)
+        .def("make_move_fast", &Position::make_move_fast)
         .add_property("fen", &Position::fen, &Position::set_fen)
         .def(self == other<Position>())
         .def(self != other<Position>())
