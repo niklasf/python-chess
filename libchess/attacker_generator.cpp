@@ -38,9 +38,8 @@ namespace chess {
     }
 
     AttackerGenerator AttackerGenerator::__iter__() {
-        AttackerGenerator self = *this;
-        self.m_source_index = 0;
-        return self;
+        m_source_index = 0;
+        return *this;
     }
 
     bool AttackerGenerator::__contains__(Square source) {
