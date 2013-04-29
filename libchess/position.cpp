@@ -447,6 +447,10 @@ namespace chess {
         return new PseudoLegalMoveGenerator(*this);
     }
 
+    const AttackerGenerator *Position::get_attackers(char color, Square target) const {
+        return new AttackerGenerator(*this, color, target);
+    }
+
     uint64_t Position::__hash__() const {
         uint64_t hash = 0;
 
@@ -502,8 +506,6 @@ namespace chess {
             }
         }
     }
-
-    // TODO: Get attackers.
 
     bool Position::operator==(const Position& other) const {
         if (m_turn != other.m_turn ||

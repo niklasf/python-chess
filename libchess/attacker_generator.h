@@ -5,9 +5,11 @@
 
 namespace chess {
 
+   class Position;
+
    class AttackerGenerator {
    public:
-       AttackerGenerator(Position position, char color, Square target);
+       AttackerGenerator(const Position& position, char color, Square target);
 
        int __len__();
        bool __nonzero__();
@@ -17,7 +19,7 @@ namespace chess {
 
    private:
        char m_color;
-       Position m_position;
+       const Position& m_position;
        Square m_target;
        int m_source_index;
    };

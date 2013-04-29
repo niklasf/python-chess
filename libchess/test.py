@@ -210,9 +210,9 @@ class AttackerGeneratorTestCase(unittest.TestCase):
         f6 = libchess.Square("f6")
         e3 = libchess.Square("e3")
         e5 = libchess.Square("e5")
-        self.assertEqual(len(libchess.AttackerGenerator(pos, "b", f6)), 3)
-        self.assertEqual(len(libchess.AttackerGenerator(pos, "w", e3)), 2)
-        self.assertFalse(libchess.AttackerGenerator(pos, "b", e5))
+        self.assertEqual(len(pos.get_attackers("b", f6)), 3)
+        self.assertEqual(len(pos.get_attackers("w", e3)), 2)
+        self.assertFalse(pos.get_attackers("b", e5))
 
 if __name__ == "__main__":
     unittest.main()

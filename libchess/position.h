@@ -6,10 +6,12 @@
 
 #include "piece.h"
 #include "square.h"
+#include "attacker_generator.h"
 #include "pseudo_legal_move_generator.h"
 
 namespace chess {
 
+    class AttackerGenerator;
     class PseudoLegalMoveGenerator;
 
     class Position {
@@ -49,6 +51,7 @@ namespace chess {
         void set_fen(std::string fen);
 
         const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
+        const AttackerGenerator *get_attackers(char color, Square target) const;
 
         Square get_king(char color) const;
         boost::python::object python_get_king(char color) const;
