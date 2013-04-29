@@ -153,6 +153,11 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(position.half_moves, 0)
         self.assertEqual(position.ply, 2)
 
+    def test_get_king(self):
+        pos = libchess.Position()
+        self.assertEqual(pos.get_king("w"), libchess.Square("e1"))
+        self.assertEqual(pos.get_king("b"), libchess.Square("e8"))
+
 
 class PseudoLegalMoveGeneratorTestCase(unittest.TestCase):
 

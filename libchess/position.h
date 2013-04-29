@@ -50,6 +50,9 @@ namespace chess {
 
         const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
 
+        Square get_king(char color) const;
+        boost::python::object python_get_king(char color) const;
+
         std::string __repr__() const;
         uint64_t __hash__() const;
 

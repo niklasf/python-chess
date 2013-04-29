@@ -493,6 +493,16 @@ namespace chess {
         return hash;
     }
 
+    Square Position::get_king(char color) const {
+        Piece king = Piece::from_color_and_type(color, 'k');
+
+        for (int i = 0; i < 128; i++) {
+            if (m_board[i] == king) {
+                return Square::from_x88_index(i);
+            }
+        }
+    }
+
     bool Position::operator==(const Position& other) const {
         if (m_turn != other.m_turn ||
             m_ep_file != other.m_ep_file ||
