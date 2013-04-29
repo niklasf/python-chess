@@ -3,9 +3,8 @@
 namespace chess {
 
     LegalMoveGenerator::LegalMoveGenerator(const Position& position)
-        : m_position(position)
+        : m_position(new Position(position)), m_pseudo_legal_moves(new PseudoLegalMoveGenerator(position))
     {
-        m_pseudo_legal_moves = new PseudoLegalMoveGenerator(position);
         m_len = -1;
         m_current = 0;
     }
@@ -21,6 +20,8 @@ namespace chess {
                 }
             }
             m_len = counter;
+
+            m_pseudo_legal_moves->__iter__();
         }
         return m_len;
     }
@@ -81,12 +82,9 @@ namespace chess {
     }
 
     bool LegalMoveGenerator::would_be_valid_if_pseudo_legal(const Move& move) const {
-        Position position = m_position;
+        Position position = Position(*m_position);
         position.make_unvalidated_move_fast(move);
-        return !position.is_king_attacked(m_position.turn());
+        return !position.is_king_attacked(m_position->turn());
     }
 
-    LegalMoveGenerator::~LegalMoveGenerator() {
-        delete m_pseudo_legal_moves;
-    }
 }

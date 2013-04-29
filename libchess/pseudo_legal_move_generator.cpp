@@ -2,7 +2,7 @@
 
 namespace chess {
 
-    PseudoLegalMoveGenerator::PseudoLegalMoveGenerator(const Position& position) : m_position(position) {
+    PseudoLegalMoveGenerator::PseudoLegalMoveGenerator(const Position& position) : m_position(new Position(position)) {
         m_index = 0;
     }
 
@@ -17,17 +17,17 @@ namespace chess {
 
     void PseudoLegalMoveGenerator::generate_from_square(Square square) {
         // Skip empty square and opposing pieces.
-        Piece piece = m_position.get(square);
-        if (!piece.is_valid() || piece.color() != m_position.turn()) {
+        Piece piece = m_position->get(square);
+        if (!piece.is_valid() || piece.color() != m_position->turn()) {
             return;
         }
 
         if (piece.type() == 'p') {
             // Pawn moves: Single steps forward.
             Square target = Square::from_x88_index(
-                square.x88_index() + ((m_position.turn() == 'b') ? 16 : -16));
+                square.x88_index() + ((m_position->turn() == 'b') ? 16 : -16));
 
-            if (!m_position.get(target).is_valid()) {
+            if (!m_position->get(target).is_valid()) {
                  if (target.is_backrank()) {
                     // Promotion.
                     m_cache.push(Move(square, target, 'b'));
@@ -38,12 +38,12 @@ namespace chess {
                     m_cache.push(Move(square, target));
 
                     // Two steps forward.
-                    if ((m_position.turn() == 'w' && square.rank() == 1) ||
-                        (m_position.turn() == 'b' && square.rank() == 6))
+                    if ((m_position->turn() == 'w' && square.rank() == 1) ||
+                        (m_position->turn() == 'b' && square.rank() == 6))
                     {
                         target = Square::from_x88_index(
-                            square.x88_index() + ((m_position.turn() == 'b') ? 32 : -32));
-                        if (!m_position.get(target).is_valid()) {
+                            square.x88_index() + ((m_position->turn() == 'b') ? 32 : -32));
+                        if (!m_position->get(target).is_valid()) {
                             m_cache.push(Move(square, target));
                          }
                     }
@@ -54,14 +54,14 @@ namespace chess {
             const int offsets[] = { 17, 15 };
             for (int i = 0; i < 2; i++) {
                 // Ensure the target square is on the board.
-                int offset = (m_position.turn() == 'b') ? offsets[i] : - offsets[i];
+                int offset = (m_position->turn() == 'b') ? offsets[i] : - offsets[i];
                 int target_index = square.x88_index() + offset;
                 if (target_index & 0x88) {
                     continue;
                 }
                 Square target = Square::from_x88_index(target_index);
-                Piece target_piece = m_position.get(target);
-                if (target_piece.is_valid() && target_piece.color() != m_position.turn()) {
+                Piece target_piece = m_position->get(target);
+                if (target_piece.is_valid() && target_piece.color() != m_position->turn()) {
                     if (target.is_backrank()) {
                         // Promotion.
                         m_cache.push(Move(square, target, 'b'));
@@ -72,7 +72,7 @@ namespace chess {
                         // Normal capture.
                         m_cache.push(Move(square, target));
                     }
-                } else if (target == m_position.get_ep_square()) {
+                } else if (target == m_position->get_ep_square()) {
                     // En-passant.
                     m_cache.push(Move(square, target));
                 }
@@ -116,10 +116,10 @@ namespace chess {
                     }
 
                     Square target = Square::from_x88_index(target_index);
-                    Piece target_piece = m_position.get(target);
+                    Piece target_piece = m_position->get(target);
                     if (target_piece.is_valid()) {
                         // Captures.
-                        if (target_piece.color() != m_position.turn()) {
+                        if (target_piece.color() != m_position->turn()) {
                             m_cache.push(Move(square, target));
                         }
                         break;

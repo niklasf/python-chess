@@ -1,6 +1,8 @@
 #ifndef LIBCHESS_LEGAL_MOVE_GENERATOR_H
 #define LIBCHESS_LEGAL_MOVE_GENERATOR_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "position.h"
 #include "pseudo_legal_move_generator.h"
 
@@ -11,7 +13,6 @@ namespace chess {
     class LegalMoveGenerator {
     public:
         LegalMoveGenerator(const Position& position);
-        ~LegalMoveGenerator();
 
         int __len__();
         bool __nonzero__();
@@ -25,8 +26,8 @@ namespace chess {
     private:
         bool would_be_valid_if_pseudo_legal(const Move& move) const;
 
-        const Position& m_position;
-        PseudoLegalMoveGenerator *m_pseudo_legal_moves;
+        boost::shared_ptr<Position> m_position;
+        boost::shared_ptr<PseudoLegalMoveGenerator> m_pseudo_legal_moves;
         int m_len;
         int m_current;
     };

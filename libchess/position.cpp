@@ -641,7 +641,7 @@ namespace chess {
             // Add a disambiguator.
             bool same_rank = false;
             bool same_file = false;
-            //legal_moves.__iter__();
+            legal_moves.__iter__();
             while (legal_moves.has_more()) {
                 Move m = legal_moves.next();
                 if (get(m.source()) == info.piece() && move.source() != m.source() && move.target() == m.target()) {

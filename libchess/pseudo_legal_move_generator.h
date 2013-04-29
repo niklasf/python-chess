@@ -1,6 +1,7 @@
 #ifndef LIBCHESS_PSEUDO_LEGAL_MOVE_GENERATOR_H
 #define LIBCHESS_PSEUDO_LEGAL_MOVE_GENERATOR_H
 
+#include <boost/shared_ptr.hpp>
 #include <queue>
 
 #include "position.h"
@@ -28,7 +29,7 @@ namespace chess {
          std::queue<Move> m_cache;
 
     private:
-         const Position& m_position;
+         boost::shared_ptr<Position> m_position;
          int m_index;
     };
 
