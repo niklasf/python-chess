@@ -9,10 +9,10 @@ namespace chess {
     }
 
     int LegalMoveGenerator::__len__() {
+        m_pseudo_legal_moves->__iter__();
+
         int counter = 0;
-        // TODO: Implement and use a better C++ side iterating API.
-        int pseudo_legal_len = m_pseudo_legal_moves->__len__();
-        for (int i = 0; i < pseudo_legal_len; i++) {
+        while (m_pseudo_legal_moves->has_more()) {
             if (would_be_valid_if_pseudo_legal(m_pseudo_legal_moves->next())) {
                counter++;
             }
@@ -21,14 +21,20 @@ namespace chess {
     }
 
     bool LegalMoveGenerator::__nonzero__() {
-        // TODO: Implement.
+        m_pseudo_legal_moves->__iter__();
+
+        while (m_pseudo_legal_moves->has_more()) {
+            if (would_be_valid_if_pseudo_legal(m_pseudo_legal_moves->next())) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     LegalMoveGenerator LegalMoveGenerator::__iter__() {
-        LegalMoveGenerator self = *this;
         m_pseudo_legal_moves->__iter__();
-        return self;
+        return *this;
     }
 
     bool LegalMoveGenerator::__contains__(Move move) {
@@ -39,9 +45,9 @@ namespace chess {
         }
     }
 
-    Move LegalMoveGenerator::next() {
+    Move LegalMoveGenerator::python_next() {
         while (true) {
-            Move move = m_pseudo_legal_moves->next();
+            Move move = m_pseudo_legal_moves->python_next();
             if (would_be_valid_if_pseudo_legal(move)) {
                 return move;
             }

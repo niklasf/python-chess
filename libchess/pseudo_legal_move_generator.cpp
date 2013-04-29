@@ -7,12 +7,12 @@ namespace chess {
     }
 
     PseudoLegalMoveGenerator PseudoLegalMoveGenerator::__iter__() {
-        PseudoLegalMoveGenerator self = *this;
-        self.m_index = 0;
-        while (!self.m_cache.empty()) {
-            self.m_cache.pop();
+        // Rewind.
+        m_index = 0;
+        while (!m_cache.empty()) {
+            m_cache.pop();
         }
-        return self;
+        return *this;
     }
 
     void PseudoLegalMoveGenerator::generate_from_square(Square square) {
@@ -140,18 +140,30 @@ namespace chess {
     }
 
     Move PseudoLegalMoveGenerator::next() {
-        while (m_index < 64 && m_cache.empty()) {
-            generate_from_square(Square(m_index++));
-        }
-
-        if (m_cache.empty()) {
-            PyErr_SetNone(PyExc_StopIteration);
-            throw boost::python::error_already_set();
-        } else {
+        if (has_more()) {
             Move move = m_cache.front();
             m_cache.pop();
             return move;
+        } else {
+            throw new std::logic_error("Called next() altough there are no more pseudo legal moves.");
         }
+    }
+
+    Move PseudoLegalMoveGenerator::python_next() {
+        if (has_more()) {
+            return next();
+        } else {
+            PyErr_SetNone(PyExc_StopIteration);
+            throw boost::python::error_already_set();
+        }
+    }
+
+    bool PseudoLegalMoveGenerator::has_more() {
+        while(m_index < 64 && m_cache.empty()) {
+            generate_from_square(Square(m_index++));
+        }
+
+        return !m_cache.empty();
     }
 
     bool PseudoLegalMoveGenerator::__contains__(Move move) {

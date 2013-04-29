@@ -146,7 +146,7 @@ namespace chess {
         return false;
     }
 
-    Square AttackerGenerator::next() {
+    Square AttackerGenerator::python_next() {
         while (m_source_index < 64) {
             Square square(m_source_index++);
             if (__contains__(square)) {

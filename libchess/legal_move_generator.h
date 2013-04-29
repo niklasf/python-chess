@@ -18,7 +18,7 @@ namespace chess {
         LegalMoveGenerator __iter__();
         bool __contains__(Move move);
 
-        Move next();
+        Move python_next();
 
     private:
         bool would_be_valid_if_pseudo_legal(const Move& move) const;

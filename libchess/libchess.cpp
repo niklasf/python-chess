@@ -134,19 +134,19 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__contains__", &PseudoLegalMoveGenerator::__contains__)
         .def("__len__", &PseudoLegalMoveGenerator::__len__)
         .def("__nonzero__", &PseudoLegalMoveGenerator::__nonzero__)
-        .def("next", &PseudoLegalMoveGenerator::next);
+        .def("next", &PseudoLegalMoveGenerator::python_next);
 
     class_<AttackerGenerator>("AttackerGenerator", init<Position, char, Square>())
         .def("__iter__", &AttackerGenerator::__iter__)
         .def("__contains__", &AttackerGenerator::__contains__)
         .def("__len__", &AttackerGenerator::__len__)
         .def("__nonzero__", &AttackerGenerator::__nonzero__)
-        .def("next", &AttackerGenerator::next);
+        .def("next", &AttackerGenerator::python_next);
 
     class_<LegalMoveGenerator>("LegalMoveGenerator", init<const Position&>())
         .def("__len__", &LegalMoveGenerator::__len__)
         .def("__nonzero__", &LegalMoveGenerator::__nonzero__)
         .def("__iter__", &LegalMoveGenerator::__iter__)
         .def("__contains__", &LegalMoveGenerator::__contains__)
-        .def("next", &LegalMoveGenerator::next);
+        .def("next", &LegalMoveGenerator::python_next);
 }
