@@ -17,10 +17,13 @@ namespace chess {
          PseudoLegalMoveGenerator __iter__();
          Move next();
 
+    protected:
+         void generate_from_square(Square square);
+         std::queue<Move> m_cache;
+
     private:
          const Position& m_position;
          int m_index;
-         std::queue<Move> m_cache;
     };
 
 }
