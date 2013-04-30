@@ -145,6 +145,26 @@ namespace chess {
         return false;
     }
 
+    bool AttackerGenerator::has_more() {
+        for (int i = m_source_index; i < 64; i++) {
+            if (__contains__(Square(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Square AttackerGenerator::next() {
+        while (m_source_index < 64) {
+            Square square(m_source_index++);
+            if (__contains__(square)) {
+                return square;
+            }
+        }
+
+        throw std::logic_error("Called AttackerGenerator::next() although there are no more attacks.");
+    }
+
     Square AttackerGenerator::python_next() {
         while (m_source_index < 64) {
             Square square(m_source_index++);

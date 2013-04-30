@@ -15,6 +15,9 @@ namespace chess {
        bool __nonzero__();
        AttackerGenerator __iter__();
        bool __contains__(Square square);
+
+       bool has_more();
+       Square next();
        Square python_next();
 
    private:

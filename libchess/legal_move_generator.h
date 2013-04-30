@@ -26,8 +26,8 @@ namespace chess {
     private:
         bool would_be_valid_if_pseudo_legal(const Move& move) const;
 
-        boost::shared_ptr<Position> m_position;
-        boost::shared_ptr<PseudoLegalMoveGenerator> m_pseudo_legal_moves;
+        const boost::shared_ptr<Position> m_position;
+        const boost::shared_ptr<PseudoLegalMoveGenerator> m_pseudo_legal_moves;
         int m_len;
         int m_current;
     };

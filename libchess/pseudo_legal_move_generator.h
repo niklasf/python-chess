@@ -29,7 +29,7 @@ namespace chess {
          std::queue<Move> m_cache;
 
     private:
-         boost::shared_ptr<Position> m_position;
+         const boost::shared_ptr<Position> m_position;
          int m_index;
     };
 
