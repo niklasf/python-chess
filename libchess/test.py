@@ -199,6 +199,21 @@ class PositionTestCase(unittest.TestCase):
         Nf6 = pos.make_move(libchess.Move.from_uci("g8f6"))
         self.assertEqual(Nf6.san, "Nf6")
 
+    def test_castling(self):
+        # Black can castle.
+        pos = libchess.Position("rnbqk2r/ppppbppp/5n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 5 4")
+        castle = pos.make_move(libchess.Move.from_uci("e8g8"))
+        self.assertEqual(pos.fen, "rnbq1rk1/ppppbppp/5n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQ - 6 5")
+        self.assertEqual(castle.san, "o-o")
+        self.assertTrue(castle.is_kingside_castle)
+        self.assertFalse(castle.is_queenside_castle)
+
+        # White can not castle kingside because of blacks rook.
+        # White has no queenside castling rights.
+        pos = libchess.Position("4kr2/8/8/8/8/8/8/R3K2R w K - 0 1")
+        self.assertFalse(libchess.Move.from_uci("e1g1") in pos.get_legal_moves())
+        self.assertFalse(libchess.Move.from_uci("e1c1") in pos.get_legal_moves())
+
     def test_san_disambiguation(self):
         pos = libchess.Position("4krN1/8/8/3N4/8/8/8/4K3 w - - 0 1")
         Ndf6 = pos.make_move(libchess.Move.from_uci("d5f6"))
