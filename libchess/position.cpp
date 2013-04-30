@@ -584,9 +584,9 @@ namespace chess {
 
     bool Position::has_kingside_castling_right(char color) const {
         if (color == 'w') {
-            return m_white_kingside_castle;
+            return m_white_castle_kingside;
         } else if (color == 'b') {
-            return m_black_kingside_castle;
+            return m_black_castle_kingside;
         } else {
             throw std::invalid_argument("color");
         }
@@ -594,9 +594,9 @@ namespace chess {
 
     bool Position::has_queenside_castling_right(char color) const {
         if (color == 'w') {
-            return m_white_queenside_castle;
+            return m_white_castle_queenside;
         } else if (color == 'b') {
-            return m_black_queenside_castle;
+            return m_black_castle_queenside;
         } else {
             throw std::invalid_argument("color");
         }
@@ -604,9 +604,9 @@ namespace chess {
 
     void Position::set_kingside_castling_right(char color, bool castle) {
         if (color == 'w') {
-            m_white_kingside_castle = castle;
+            m_white_castle_kingside = castle;
         } else if (color == 'b') {
-            m_black_kingside_castle = castle;
+            m_black_castle_kingside = castle;
         } else {
             throw std::invalid_argument("color");
         }
@@ -614,9 +614,9 @@ namespace chess {
 
     void Position::set_queenside_castling_right(char color, bool castle) {
         if (color == 'w') {
-            m_white_queenside_castle = castle;
+            m_white_castle_queenside = castle;
         } else if (color == 'b') {
-            m_black_queenside_castle = castle;
+            m_black_castle_queenside = castle;
         } else {
             throw std::invalid_argument("color");
         }
@@ -692,11 +692,11 @@ namespace chess {
 
         // Update castling rights.
         if (m_turn == 'w') {
-            m_black_kingside_castle = m_black_kingside_castle && could_have_kingside_castling_right('b');
-            m_black_queenside_castle = m_black_queenside_castle && could_have_queenside_castling_right('b');
+            m_black_castle_kingside = m_black_castle_kingside && could_have_kingside_castling_right('b');
+            m_black_castle_queenside = m_black_castle_queenside && could_have_queenside_castling_right('b');
         } else {
-            m_white_kingside_castle = m_white_kingside_castle && could_have_kingside_castling_right('w');
-            m_white_queenside_castle = m_white_queenside_castle && could_have_queenside_castling_right('w');
+            m_white_castle_kingside = m_white_castle_kingside && could_have_kingside_castling_right('w');
+            m_white_castle_queenside = m_white_castle_queenside && could_have_queenside_castling_right('w');
         }
 
         return info;

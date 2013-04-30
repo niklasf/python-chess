@@ -1,3 +1,4 @@
+#include "libchess.h"
 #include "pseudo_legal_move_generator.h"
 
 namespace chess {
@@ -161,7 +162,7 @@ namespace chess {
                     !m_position->get(bishop_square).is_valid() &&
                     !m_position->get(queen_square).is_valid())
                 {
-                    AttackerGenerator attacks(*m_position, opposite_color(m_position>turn()), queen_square);
+                    AttackerGenerator attacks(*m_position, opposite_color(m_position->turn()), queen_square);
                     if (!attacks.__nonzero__()) {
                         m_cache.push(Move(Square(backrank, 4), bishop_square));
                     }
