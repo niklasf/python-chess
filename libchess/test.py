@@ -202,6 +202,8 @@ class PositionTestCase(unittest.TestCase):
     def test_castling(self):
         # Black can castle.
         pos = libchess.Position("rnbqk2r/ppppbppp/5n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 5 4")
+        self.assertTrue(pos.has_kingside_castling_right("b"))
+        self.assertTrue(pos.could_have_kingside_castling_right("b"))
         castle = pos.make_move(libchess.Move.from_uci("e8g8"))
         self.assertEqual(pos.fen, "rnbq1rk1/ppppbppp/5n2/4p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQ - 6 5")
         self.assertEqual(castle.san, "o-o")
@@ -211,8 +213,15 @@ class PositionTestCase(unittest.TestCase):
         # White can not castle kingside because of blacks rook.
         # White has no queenside castling rights.
         pos = libchess.Position("4kr2/8/8/8/8/8/8/R3K2R w K - 0 1")
+        self.assertTrue(pos.has_kingside_castling_right("w"))
         self.assertFalse(libchess.Move.from_uci("e1g1") in pos.get_legal_moves())
+        self.assertFalse(pos.has_queenside_castling_right("w"))
         self.assertFalse(libchess.Move.from_uci("e1c1") in pos.get_legal_moves())
+
+        # Black could not even have castling rights.
+        self.assertFalse(pos.could_have_kingside_castling_right("b"))
+        self.assertFalse(pos.could_have_queenside_castling_right("b"))
+
 
     def test_san_disambiguation(self):
         pos = libchess.Position("4krN1/8/8/3N4/8/8/8/4K3 w - - 0 1")
