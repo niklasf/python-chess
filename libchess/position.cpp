@@ -553,6 +553,75 @@ namespace chess {
        }
     }
 
+    bool Position::could_have_kingside_castling_right(char color) const {
+        int rank;
+        if (color == 'w') {
+            rank = 0;
+        } else if (color == 'b') {
+            rank = 7;
+        } else {
+            throw std::invalid_argument("color");
+        }
+
+        return (get(Square(rank, 4)) == Piece::from_color_and_type(color, 'k') &&
+                get(Square(rank, 7)) == Piece::from_color_and_type(color, 'r'));
+
+    }
+
+    bool Position::could_have_queenside_castling_right(char color) const {
+        int rank;
+        if (color == 'w') {
+            rank = 0;
+        } else if (color == 'b') {
+            rank = 7;
+        } else {
+            throw std::invalid_argument("color");
+        }
+
+        return (get(Square(rank, 4)) == Piece::from_color_and_type(color, 'k') &&
+                get(Square(rank, 0)) == Piece::from_color_and_type(color, 'r'));
+    }
+
+    bool Position::has_kingside_castling_right(char color) const {
+        if (color == 'w') {
+            return m_white_kingside_castle;
+        } else if (color == 'b') {
+            return m_black_kingside_castle;
+        } else {
+            throw std::invalid_argument("color");
+        }
+    }
+
+    bool Position::has_queenside_castling_right(char color) const {
+        if (color == 'w') {
+            return m_white_queenside_castle;
+        } else if (color == 'b') {
+            return m_black_queenside_castle;
+        } else {
+            throw std::invalid_argument("color");
+        }
+    }
+
+    void Position::set_kingside_castling_right(char color, bool castle) {
+        if (color == 'w') {
+            m_white_kingside_castle = castle;
+        } else if (color == 'b') {
+            m_black_kingside_castle = castle;
+        } else {
+            throw std::invalid_argument("color");
+        }
+    }
+
+    void Position::set_queenside_castling_right(char color, bool castle) {
+        if (color == 'w') {
+            m_white_queenside_castle = castle;
+        } else if (color == 'b') {
+            m_black_queenside_castle = castle;
+        } else {
+            throw std::invalid_argument("color");
+        }
+    }
+
     MoveInfo Position::make_unvalidated_move_fast(Move move) {
         Piece piece = get(move.source());
         if (!piece.is_valid()) {
@@ -594,7 +663,20 @@ namespace chess {
             set(move.target(), Piece::from_color_and_type(piece.color(), move.promotion()));
         }
 
-        // TODO: Castling.
+        // Castling.
+        if (piece.type() == 'k') {
+            int steps = move.target().file() - move.source().file();
+            int backrank = (m_turn == 'b') ? 0 : 7;
+            if (steps == 2) {
+                info.set_is_kingside_castle(true);
+                set(Square(backrank, 5), get(Square(backrank, 7)));
+                set(Square(backrank, 7), Piece());
+            } else if (steps == -2) {
+                info.set_is_queenside_castle(true);
+                set(Square(backrank, 3), get(Square(backrank, 0)));
+                set(Square(backrank, 0), Piece());
+            }
+        }
 
         // Update the half move counter.
         if (piece.type() == 'p' || info.captured().is_valid()) {
@@ -608,7 +690,14 @@ namespace chess {
            m_ply++;
         }
 
-        // TODO: Update castling rights.
+        // Update castling rights.
+        if (m_turn == 'w') {
+            m_black_kingside_castle = m_black_kingside_castle && could_have_kingside_castling_right('b');
+            m_black_queenside_castle = m_black_queenside_castle && could_have_queenside_castling_right('b');
+        } else {
+            m_white_kingside_castle = m_white_kingside_castle && could_have_kingside_castling_right('w');
+            m_white_queenside_castle = m_white_queenside_castle && could_have_queenside_castling_right('w');
+        }
 
         return info;
     }

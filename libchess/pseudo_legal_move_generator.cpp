@@ -135,7 +135,38 @@ namespace chess {
                 }
             }
 
-            // TODO: Generate castling moves.
+        }
+
+        if (piece.type() == 'k') {
+            int backrank = m_position->turn() == 'b' ? 7 : 0;
+
+            // King-side castling.
+            if (m_position->has_kingside_castling_right(m_position->turn())) {
+                Square bishop_square(backrank, 5);
+                Square knight_square(backrank, 6);
+                if (!m_position->get(bishop_square).is_valid() && !m_position->get(knight_square).is_valid()) {
+                    AttackerGenerator attacks(*m_position, opposite_color(m_position->turn()), bishop_square);
+                    if (!attacks.__nonzero__()) {
+                        m_cache.push(Move(Square(backrank, 4), knight_square));
+                    }
+                }
+            }
+
+            // Queen-side castling.
+            if (m_position->has_queenside_castling_right(m_position->turn())) {
+                Square knight_square(backrank, 1);
+                Square bishop_square(backrank, 2);
+                Square queen_square(backrank, 3);
+                if (!m_position->get(knight_square).is_valid() &&
+                    !m_position->get(bishop_square).is_valid() &&
+                    !m_position->get(queen_square).is_valid())
+                {
+                    AttackerGenerator attacks(*m_position, opposite_color(m_position>turn()), queen_square);
+                    if (!attacks.__nonzero__()) {
+                        m_cache.push(Move(Square(backrank, 4), bishop_square));
+                    }
+                }
+            }
         }
     }
 

@@ -66,6 +66,13 @@ namespace chess {
         bool is_checkmate() const;
         bool is_stalemate() const;
 
+        bool could_have_kingside_castling_right(char color) const;
+        bool could_have_queenside_castling_right(char color) const;
+        bool has_kingside_castling_right(char color) const;
+        bool has_queenside_castling_right(char color) const;
+        void set_kingside_castling_right(char color, bool castle);
+        void set_queenside_castling_right(char color, bool castle);
+
         MoveInfo make_move(Move move);
         void make_move_fast(Move move);
 
