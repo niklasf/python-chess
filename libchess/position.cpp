@@ -708,6 +708,10 @@ namespace chess {
         throw std::invalid_argument("san");
     }
 
+    MoveInfo Position::make_move_from_san(std::string san) {
+        return make_move(get_move_from_san(san));
+    }
+
     MoveInfo Position::make_unvalidated_move_fast(Move move) {
         Piece piece = get(move.source());
         if (!piece.is_valid()) {

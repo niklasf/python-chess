@@ -234,10 +234,10 @@ class PositionTestCase(unittest.TestCase):
         pos.make_move(pos.get_move_from_san("e4"))
         pos.make_move(pos.get_move_from_san("e5"))
         pos.make_move(pos.get_move_from_san("Nf3"))
-        pos.make_move(pos.get_move_from_san("Nc6"))
-        pos.make_move(pos.get_move_from_san("Bb5"))
-        pos.make_move(pos.get_move_from_san("Nf6"))
-        pos.make_move(pos.get_move_from_san("o-o"))
+        pos.make_move_from_san("Nc6")
+        pos.make_move_from_san("Bb5")
+        pos.make_move_from_san("Nf6")
+        pos.make_move_from_san("o-o")
         self.assertEqual(pos.fen, "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4")
 
 
