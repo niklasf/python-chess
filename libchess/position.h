@@ -16,6 +16,9 @@ namespace chess {
     class LegalMoveGenerator;
     class PseudoLegalMoveGenerator;
 
+    /**
+     * \brief A chess position.
+     */
     class Position {
         friend class LegalMoveGenerator;
 

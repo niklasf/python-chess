@@ -5,6 +5,9 @@
 
 namespace chess {
 
+    /**
+     * \brief The immutable coordinates of a square on the board.
+     */
     class Square {
 
     public:

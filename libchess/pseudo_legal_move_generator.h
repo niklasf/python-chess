@@ -11,6 +11,9 @@ namespace chess {
 
     class Position;
 
+    /**
+     * \brief Enumerates pseudo legal moves in a given position.
+     */
     class PseudoLegalMoveGenerator {
     public:
          PseudoLegalMoveGenerator(const Position& position);

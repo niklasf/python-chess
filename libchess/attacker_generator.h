@@ -7,6 +7,10 @@ namespace chess {
 
    class Position;
 
+   /**
+    * \brief Enumerates attackers of a given side on a specific square of the
+    *   given position.
+    */
    class AttackerGenerator {
    public:
        AttackerGenerator(const Position& position, char color, Square target);

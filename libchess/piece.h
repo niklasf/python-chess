@@ -5,6 +5,9 @@
 
 namespace chess {
 
+    /**
+     * \brief An immutable chess piece.
+     */
     class Piece {
 
     public:

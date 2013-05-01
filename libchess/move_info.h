@@ -8,6 +8,9 @@
 
 namespace chess {
 
+    /**
+     * \brief Information about a move made in a position.
+     */
     class MoveInfo {
         public:
             MoveInfo(Move move, Piece piece);

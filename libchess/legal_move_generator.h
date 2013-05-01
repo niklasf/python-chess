@@ -10,6 +10,9 @@ namespace chess {
 
     class Position;
 
+    /**
+     * \brief Enumerates legal moves in a given position.
+     */
     class LegalMoveGenerator {
     public:
         LegalMoveGenerator(const Position& position);

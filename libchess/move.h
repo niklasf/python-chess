@@ -7,6 +7,9 @@
 
 namespace chess {
 
+    /**
+     * \brief An immutable move.
+     */
     class Move {
 
     public:
