@@ -58,6 +58,16 @@ Features
       pos = libchess.Position("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
       assert pos["c5"] == libchess.Piece("k")
 
+Building
+--------
+cmake, libboost-regex-dev and libboost-python-dev are required.
+
+::
+
+    cmake .
+    make
+    python setup.py install
+
 Performance
 -----------
 libchess is not intended to be used by chess engines where performance
