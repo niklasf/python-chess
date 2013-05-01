@@ -58,6 +58,10 @@ Features
       pos = libchess.Position("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
       assert pos["c5"] == libchess.Piece("k")
 
+Documentation
+-------------
+http://niklasf.github.io/libchess/
+
 Building
 --------
 cmake, libboost-regex-dev and libboost-python-dev are required.
@@ -78,5 +82,5 @@ and plays moves about 50 times faster than https://github.com/niklasf/python-che
 
 License
 -------
-python-chess is licensed under the GPL3. See the LICENSE file for the
+libchess is licensed under the GPL3. See the LICENSE file for the
 full copyright and license information.
