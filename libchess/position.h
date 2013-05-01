@@ -75,6 +75,7 @@ namespace chess {
 
         MoveInfo make_move(Move move);
         void make_move_fast(Move move);
+        Move get_move_from_san(std::string san) const;
 
         std::string __repr__() const;
         uint64_t __hash__() const;

@@ -267,6 +267,9 @@ namespace chess {
                 }
             }
         }
+        if (empty != '0') {
+            fen += empty;
+        }
 
         // Add the turn.
         fen += " ";
@@ -620,6 +623,89 @@ namespace chess {
         } else {
             throw std::invalid_argument("color");
         }
+    }
+
+    Move Position::get_move_from_san(std::string san) const {
+        LegalMoveGenerator legal_moves(*this);
+
+        if (san == "o-o" || san == "o-o-o") {
+            // Castling moves.
+            Square target;
+            int rank = m_turn == 'w' ? 0 : 7;
+            if (san == "o-o") {
+                target = Square(rank, 6);
+            } else {
+                target = Square(rank, 2);
+            }
+            Move move(Square(rank, 4), target);
+
+            if (legal_moves.__contains__(move)) {
+                return move;
+            }
+        } else {
+            boost::smatch matches;
+            if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?(\\+|#)?$"), boost::match_extra)) {
+                // Get the piece type.
+                std::string matched_piece(matches[1].first, matches[1].second);
+                Piece piece = Piece::from_color_and_type(
+                    m_turn,
+                    matched_piece == "" ? 'p' : tolower(matched_piece.at(0)));
+
+                // Get the target square.
+                std::string matched_target(matches[4].first, matches[4].second);
+                Square target = Square(matched_target);
+
+                // Get the source file and rank.
+                std::string matched_file(matches[2].first, matches[2].second);
+                std::string matched_rank(matches[3].first, matches[3].second);
+                int file = matched_file == "" ? -1 : (matched_file.at(0) - 'a');
+                int rank = matched_rank == "" ? -1 : (matched_file.at(0) - '1');
+
+                // Get the promotion type.
+                std::string matched_promotion(matches[5].first, matches[5].second);
+                char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(0));
+
+                // Find a matching move.
+                legal_moves.__iter__();
+                Square source;
+                while (legal_moves.has_more()) {
+                    Move move = legal_moves.next();
+
+                    if (move.promotion() != promotion) {
+                        continue;
+                    }
+
+                    if (get(move.source()) != piece || move.target() != target) {
+                        continue;
+                    }
+
+                    if (file != -1 && file != move.source().file()) {
+                        continue;
+                    }
+
+                    if (rank != -1 && rank != move.source().rank()) {
+                        continue;
+                    }
+
+                    // Found a matching move. Make sure it is not ambigous.
+                    if (source.is_valid()) {
+                        throw std::invalid_argument("san");
+                    }
+                    source = move.source();
+                }
+
+                // Return the found move.
+                if (source.is_valid()) {
+                    if (promotion) {
+                        return Move(source, target, promotion);
+                    } else {
+                        return Move(source, target);
+                    }
+                }
+            }
+        }
+
+        throw std::invalid_argument("san");
     }
 
     MoveInfo Position::make_unvalidated_move_fast(Move move) {
