@@ -27,4 +27,9 @@ target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
 
+get_property(libchess_LOCATION TARGET chess PROPERTY LOCATION)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/setup.py)
+
 add_test (libchess ./test.py)

@@ -4,5 +4,6 @@ CMakeCache.txt
 CMakeFiles
 Testing
 Makefile
+setup.py
 cmake_install.cmake
 CTestTestfile.cmake
