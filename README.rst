@@ -1,6 +1,18 @@
 python-chess: a chess library
 =============================
 
+Rewritten in C++
+----------------
+python-chess has been rewritten in C++ (with Python bindings).
+Move generation, validation and playing is about 50 times faster.
+The new project can be found at https://github.com/niklasf/libchess.
+
+Currently missing features are only those that weren't stable in
+python-chess:
+
+* Polyglot opening book reading and writing
+* PGN parsing and writing
+
 Introduction
 ------------
 
