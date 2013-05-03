@@ -1,7 +1,8 @@
 /**
  * \mainpage
  * libchess is a high level C++ and Python chess library.
-
+ * https://github.com/niklasf/libchess
+ *
  * \section Introduction
  * This is the scholars mate in libchess:
  * \code{.py}
