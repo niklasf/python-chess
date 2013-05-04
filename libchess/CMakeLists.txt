@@ -22,7 +22,8 @@ add_library (chess SHARED
     position.cpp
     attacker_generator.cpp
     legal_move_generator.cpp
-    pseudo_legal_move_generator.cpp)
+    pseudo_legal_move_generator.cpp
+    polyglot_opening_book_entry.cpp)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})

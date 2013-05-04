@@ -162,4 +162,12 @@ BOOST_PYTHON_MODULE(libchess)
         .def("__iter__", &LegalMoveGenerator::__iter__)
         .def("__contains__", &LegalMoveGenerator::__contains__)
         .def("next", &LegalMoveGenerator::python_next);
+
+    class_<PolyglotOpeningBookEntry>("PolyglotOpeningBookEntry", init<Position, Move, uint16_t, uint32_t>())
+        .def(init<uint64_t, uint16_t, uint16_t, uint32_t>())
+        .add_property("key", &PolyglotOpeningBookEntry::key)
+        .add_property("raw_move", &PolyglotOpeningBookEntry::raw_move)
+        .add_property("move", &PolyglotOpeningBookEntry::move)
+        .add_property("weight", &PolyglotOpeningBookEntry::weight)
+        .add_property("learn", &PolyglotOpeningBookEntry::learn);
 }

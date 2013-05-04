@@ -77,6 +77,7 @@
 #include "legal_move_generator.h"
 #include "pseudo_legal_move_generator.h"
 #include "position.h"
+#include "polyglot_opening_book_entry.h"
 
 namespace chess {
 

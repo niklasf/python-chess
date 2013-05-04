@@ -309,5 +309,17 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         # Move generation did not change the position.
         self.assertEqual(pos, libchess.Position())
 
+
+class PolyglotOpeningBookEntryTestCase(unittest.TestCase):
+
+    def test(self):
+        # Test legal moves in the position after 1.e4 e5 2.Nf3 Nc6 3.Bb5 Nf5
+        # can be hashed and unhashed correctly.
+        pos = libchess.Position("r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4")
+        for move in pos.get_legal_moves():
+            book_entry = libchess.PolyglotOpeningBookEntry(pos, move, 1, 0)
+            self.assertEqual(move, book_entry.move)
+
+
 if __name__ == "__main__":
     unittest.main()
