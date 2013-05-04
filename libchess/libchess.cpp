@@ -168,6 +168,6 @@ BOOST_PYTHON_MODULE(libchess)
         .add_property("key", &PolyglotOpeningBookEntry::key)
         .add_property("raw_move", &PolyglotOpeningBookEntry::raw_move)
         .add_property("move", &PolyglotOpeningBookEntry::move)
-        .add_property("weight", &PolyglotOpeningBookEntry::weight)
-        .add_property("learn", &PolyglotOpeningBookEntry::learn);
+        .add_property("weight", &PolyglotOpeningBookEntry::weight, &PolyglotOpeningBookEntry::set_weight)
+        .add_property("learn", &PolyglotOpeningBookEntry::learn, &PolyglotOpeningBookEntry::set_learn);
 }

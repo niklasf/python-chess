@@ -3,6 +3,9 @@
 namespace chess {
 
     PolyglotOpeningBookEntry::PolyglotOpeningBookEntry(Position key, Move move, uint16_t weight, uint32_t learn) {
+        m_weight = weight;
+        m_learn = learn;
+
         m_key = key.__hash__();
 
         m_move = (move.target().file() << 0) |
@@ -25,8 +28,6 @@ namespace chess {
                 break;
         }
 
-        m_weight = weight;
-        m_learn = learn;
     }
 
     PolyglotOpeningBookEntry::PolyglotOpeningBookEntry(uint64_t key, uint16_t move, uint16_t weight, uint32_t learn) {
@@ -53,7 +54,7 @@ namespace chess {
             ((m_move & 0x3f) >> 3) & 0x7,
             (m_move & 0x3f) & 0x7);
 
-        // Some moves are reserved for castling.
+        // Replace non standard castling moves.
         if (source.name() == "e1") {
             if (target.name() == "h1") {
                 return Move::from_uci("e1g1");
@@ -87,8 +88,16 @@ namespace chess {
         return m_weight;
     }
 
+    void PolyglotOpeningBookEntry::set_weight(uint16_t weight) {
+        m_weight = weight;
+    }
+
     uint32_t PolyglotOpeningBookEntry::learn() const {
         return m_learn;
+    }
+
+    void PolyglotOpeningBookEntry::set_learn(uint32_t learn) {
+        m_learn = learn;
     }
 
 }
