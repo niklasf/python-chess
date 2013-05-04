@@ -47,8 +47,8 @@ namespace chess {
     Move PolyglotOpeningBookEntry::move() const {
         // Extract source and target square.
         Square source(
-            (((m_move >> 6) && 0x3f) >> 3) & 0x7,
-            ((m_move >> 6) && 0x3f) & 0x7);
+            (((m_move >> 6) & 0x3f) >> 3) & 0x7,
+            ((m_move >> 6) & 0x3f) & 0x7);
         Square target(
             ((m_move & 0x3f) >> 3) & 0x7,
             (m_move & 0x3f) & 0x7);
