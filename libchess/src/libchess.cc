@@ -93,7 +93,8 @@ class_<Move>("Move", init<const Square&, const Square&>())
     .def("from_uci", &Move::from_uci)
     .staticmethod("from_uci");
 
-class_<MoveInfo>("MoveInfo", init<Move, Piece>())
+class_<MoveInfo>("MoveInfo", init<const Move&, const Piece&>())
+    .def(init<const MoveInfo&>())
     .add_property("move", &MoveInfo::move, &MoveInfo::set_move)
     .add_property("piece", &MoveInfo::piece, &MoveInfo::set_piece)
     .add_property("captured", &MoveInfo::python_captured, &MoveInfo::python_set_captured)
