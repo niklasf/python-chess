@@ -33,7 +33,7 @@ os.environ["OPT"] = " ".join(flag for flag in opt.split()
 # Module description.
 setuptools.setup(
     name="python-chess",
-    version="0.0.1",
+    version="0.0.2",
     author="Niklas Fiekas",
     author_email="niklas.fiekas@tu-clausthal.de",
     description="A chess library.",
