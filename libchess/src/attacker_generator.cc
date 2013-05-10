@@ -37,7 +37,7 @@ namespace chess {
         return false;
     }
 
-    AttackerGenerator AttackerGenerator::__iter__() {
+    AttackerGenerator& AttackerGenerator::__iter__() {
         m_source_index = 0;
         return *this;
     }

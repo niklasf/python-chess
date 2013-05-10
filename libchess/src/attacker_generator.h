@@ -11,13 +11,13 @@ namespace chess {
     * \brief Enumerates attackers of a given side on a specific square of the
     *   given position.
     */
-   class AttackerGenerator {
+   class AttackerGenerator : boost::noncopyable {
    public:
        AttackerGenerator(const Position& position, char color, Square target);
 
        int __len__();
        bool __nonzero__();
-       AttackerGenerator __iter__();
+       AttackerGenerator& __iter__();
        bool __contains__(Square square);
 
        bool has_more();

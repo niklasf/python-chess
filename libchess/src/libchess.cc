@@ -152,8 +152,8 @@ class_<PseudoLegalMoveGenerator>("PseudoLegalMoveGenerator", init<Position&>())
     .def("__nonzero__", &PseudoLegalMoveGenerator::__nonzero__)
     .def("next", &PseudoLegalMoveGenerator::python_next);
 
-class_<AttackerGenerator>("AttackerGenerator", init<Position, char, Square>())
-    .def("__iter__", &AttackerGenerator::__iter__)
+class_<AttackerGenerator, boost::noncopyable>("AttackerGenerator", init<Position, char, Square>())
+    .def("__iter__", &AttackerGenerator::__iter__, return_value_policy<reference_existing_object>())
     .def("__contains__", &AttackerGenerator::__contains__)
     .def("__len__", &AttackerGenerator::__len__)
     .def("__nonzero__", &AttackerGenerator::__nonzero__)
