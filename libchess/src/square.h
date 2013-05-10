@@ -22,6 +22,7 @@ public:
     int x88_index() const;
     std::string name() const;
     char file_name() const;
+    char rank_name() const;
 
     bool is_dark() const;
     bool is_light() const;

@@ -83,6 +83,10 @@ char Square::file_name() const {
     return file() + 'a';
 }
 
+char Square::rank_name() const {
+    return rank() + '1';
+}
+
 bool Square::is_dark() const {
     return index() % 2 == 0;
 }
