@@ -14,23 +14,23 @@ Position::Position() {
     reset();
 }
 
-Position::Position(std::string fen) {
+Position::Position(const std::string& fen) {
     set_fen(fen);
 }
 
-Position::Position(const Position& other) {
+Position::Position(const Position& position) {
     for (int i = 0; i < 128; i++) {
-	m_board[i] = other.m_board[i];
+	m_board[i] = position.m_board[i];
     }
 
-    m_turn = other.m_turn;
-    m_ep_file = other.m_ep_file;
-    m_half_moves = other.m_half_moves;
-    m_ply = other.m_ply;
-    m_white_castle_queenside = other.m_white_castle_queenside;
-    m_white_castle_kingside = other.m_white_castle_kingside;
-    m_black_castle_queenside = other.m_black_castle_queenside;
-    m_black_castle_kingside = other.m_black_castle_kingside;
+    m_turn = position.m_turn;
+    m_ep_file = position.m_ep_file;
+    m_half_moves = position.m_half_moves;
+    m_ply = position.m_ply;
+    m_white_castle_queenside = position.m_white_castle_queenside;
+    m_white_castle_kingside = position.m_white_castle_kingside;
+    m_black_castle_queenside = position.m_black_castle_queenside;
+    m_black_castle_kingside = position.m_black_castle_kingside;
 }
 
 void Position::clear_board() {
@@ -85,15 +85,15 @@ void Position::reset() {
     }
 }
 
-Piece Position::get(Square square) const {
+Piece Position::get(const Square& square) const {
     return m_board[square.x88_index()];
 }
 
-void Position::set(Square square, Piece piece) {
+void Position::set(const Square& square, const Piece& piece) {
     m_board[square.x88_index()] = piece;
 }
 
-boost::python::object Position::__getitem__(boost::python::object square_key) const {
+boost::python::object Position::__getitem__(const boost::python::object& square_key) const {
     int x88_index = x88_index_from_square_key(square_key);
 
     if (m_board[x88_index].is_valid()) {
@@ -103,7 +103,7 @@ boost::python::object Position::__getitem__(boost::python::object square_key) co
     }
 }
 
-void Position::__setitem__(boost::python::object square_key, boost::python::object piece) {
+void Position::__setitem__(const boost::python::object& square_key, const boost::python::object& piece) {
     int x88_index = x88_index_from_square_key(square_key);
 
     if (piece.ptr() == Py_None) {
@@ -114,7 +114,7 @@ void Position::__setitem__(boost::python::object square_key, boost::python::obje
     }
 }
 
-void Position::__delitem__(boost::python::object square_key) {
+void Position::__delitem__(const boost::python::object& square_key) {
     m_board[x88_index_from_square_key(square_key)] = Piece();
 }
 
@@ -171,7 +171,7 @@ void Position::set_ep_file(char ep_file) {
     }
 }
 
-void Position::python_set_ep_file(boost::python::object ep_file) {
+void Position::python_set_ep_file(const boost::python::object& ep_file) {
     if (ep_file.ptr() == Py_None) {
 	m_ep_file = 0;
     } else {
@@ -318,7 +318,7 @@ std::string Position::fen() const {
     return fen;
 }
 
-void Position::set_fen(std::string fen) {
+void Position::set_fen(const std::string& fen) {
     // Ensure there are 6 parts.
     std::vector<std::string> parts;
     boost::algorithm::split(parts, fen, boost::is_any_of("\t "), boost::token_compress_on);
@@ -625,7 +625,7 @@ void Position::set_queenside_castling_right(char color, bool castle) {
     }
 }
 
-Move Position::get_move_from_san(std::string san) const {
+Move Position::get_move_from_san(const std::string& san) const {
     LegalMoveGenerator legal_moves(*this);
 
     if (san == "o-o" || san == "o-o-o") {
@@ -708,11 +708,11 @@ Move Position::get_move_from_san(std::string san) const {
     throw std::invalid_argument("san");
 }
 
-MoveInfo Position::make_move_from_san(std::string san) {
+MoveInfo Position::make_move_from_san(const std::string& san) {
     return make_move(get_move_from_san(san));
 }
 
-MoveInfo Position::make_unvalidated_move_fast(Move move) {
+MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
     Piece piece = get(move.source());
     if (!piece.is_valid()) {
 	throw new std::invalid_argument("move");
@@ -792,7 +792,7 @@ MoveInfo Position::make_unvalidated_move_fast(Move move) {
     return info;
 }
 
-MoveInfo Position::make_move(Move move) {
+MoveInfo Position::make_move(const Move& move) {
     // Make sure the move is valid.
     LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
     if (!legal_moves.__contains__(move)) {
@@ -870,7 +870,7 @@ MoveInfo Position::make_move(Move move) {
     return info;
 }
 
-void Position::make_move_fast(Move move) {
+void Position::make_move_fast(const Move& move) {
     LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
     if (!legal_moves.__contains__(move)) {
 	throw new std::invalid_argument("move");
@@ -878,21 +878,21 @@ void Position::make_move_fast(Move move) {
     make_unvalidated_move_fast(move);
 }
 
-bool Position::operator==(const Position& other) const {
-    if (m_turn != other.m_turn ||
-	m_ep_file != other.m_ep_file ||
-	m_half_moves != other.m_half_moves ||
-	m_ply != other.m_ply ||
-	m_white_castle_queenside != other.m_white_castle_queenside ||
-	m_white_castle_kingside != other.m_white_castle_kingside ||
-	m_black_castle_queenside != other.m_black_castle_queenside ||
-	m_black_castle_kingside != other.m_black_castle_kingside)
+bool Position::operator==(const Position& rhs) const {
+    if (m_turn != rhs.m_turn ||
+	m_ep_file != rhs.m_ep_file ||
+	m_half_moves != rhs.m_half_moves ||
+	m_ply != rhs.m_ply ||
+	m_white_castle_queenside != rhs.m_white_castle_queenside ||
+	m_white_castle_kingside != rhs.m_white_castle_kingside ||
+	m_black_castle_queenside != rhs.m_black_castle_queenside ||
+	m_black_castle_kingside != rhs.m_black_castle_kingside)
     {
 	return false;
     }
 
     for (int i = 0; i < 128; i++) {
-	if (m_board[i] != other.m_board[i]) {
+	if (m_board[i] != rhs.m_board[i]) {
 	    return false;
 	}
     }
@@ -900,11 +900,11 @@ bool Position::operator==(const Position& other) const {
     return true;
 }
 
-bool Position::operator!=(const Position& other) const {
-    return !(*this == other);
+bool Position::operator!=(const Position& rhs) const {
+    return !(*this == rhs);
 }
 
-int Position::x88_index_from_square_key(boost::python::object square_key) const {
+int Position::x88_index_from_square_key(const boost::python::object& square_key) const {
     boost::python::extract<Square&> extract_square(square_key);
     if (extract_square.check()) {
 	Square& square = extract_square();

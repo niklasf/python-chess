@@ -23,17 +23,17 @@ class Position {
 public:
 
     Position();
-    Position(std::string fen);
-    Position(const Position& other);
+    Position(const std::string& fen);
+    Position(const Position& position);
 
     void clear_board();
     void reset();
 
-    Piece get(Square square) const;
-    void set(Square square, Piece piece);
-    boost::python::object __getitem__(boost::python::object square_key) const;
-    void __setitem__(boost::python::object square_key, boost::python::object piece);
-    void __delitem__(boost::python::object square_key);
+    Piece get(const Square& square) const;
+    void set(const Square& square, const Piece& piece);
+    boost::python::object __getitem__(const boost::python::object& square_key) const;
+    void __setitem__(const boost::python::object& square_key, const boost::python::object& piece);
+    void __delitem__(const boost::python::object& square_key);
 
 
     char turn() const;
@@ -43,7 +43,7 @@ public:
     char ep_file() const;
     void set_ep_file(char ep_file);
     boost::python::object python_ep_file() const;
-    void python_set_ep_file(boost::python::object ep_file);
+    void python_set_ep_file(const boost::python::object& ep_file);
     Square get_ep_square() const;
     boost::python::object python_get_ep_square() const;
 
@@ -54,7 +54,7 @@ public:
     void set_ply(int ply);
 
     std::string fen() const;
-    void set_fen(std::string fen);
+    void set_fen(const std::string& fen);
 
     const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
     const LegalMoveGenerator *get_legal_moves() const;
@@ -75,19 +75,19 @@ public:
     void set_kingside_castling_right(char color, bool castle);
     void set_queenside_castling_right(char color, bool castle);
 
-    MoveInfo make_move(Move move);
-    void make_move_fast(Move move);
-    Move get_move_from_san(std::string san) const;
-    MoveInfo make_move_from_san(std::string san);
+    MoveInfo make_move(const Move& move);
+    void make_move_fast(const Move& move);
+    Move get_move_from_san(const std::string& san) const;
+    MoveInfo make_move_from_san(const std::string& san);
 
     std::string __repr__() const;
     uint64_t __hash__() const;
 
-    bool operator==(const Position& other) const;
-    bool operator!=(const Position& other) const;
+    bool operator==(const Position& rhs) const;
+    bool operator!=(const Position& rhs) const;
 
 protected:
-    MoveInfo make_unvalidated_move_fast(Move move);
+    MoveInfo make_unvalidated_move_fast(const Move& move);
 
     Piece m_board[128];
     char m_turn;
@@ -102,7 +102,7 @@ protected:
 private:
     friend class LegalMoveGenerator;
 
-    int x88_index_from_square_key(boost::python::object square_key) const;
+    int x88_index_from_square_key(const boost::python::object& square_key) const;
 
 };
 
