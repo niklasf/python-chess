@@ -12,9 +12,10 @@ namespace chess {
  */
 class Move {
 public:
-    Move(Square source, Square target, char promotion);
-    Move(Square source, Square target);
-    Move(std::string uci);
+    Move(const Square& source, const Square& target, char promotion);
+    Move(const Square& source, const Square& target);
+    Move(const std::string& uci);
+    Move(const Move& move);
 
     Square source() const;
     Square target() const;
@@ -27,10 +28,11 @@ public:
     std::string __repr__() const;
     int __hash__() const;
 
-    bool operator==(const Move& other) const;
-    bool operator!=(const Move& other) const;
+    Move& operator=(const Move& rhs);
+    bool operator==(const Move& rhs) const;
+    bool operator!=(const Move& rhs) const;
 
-    static Move from_uci(std::string uci);
+    static Move from_uci(const std::string& uci);
 
 private:
     Square m_source;

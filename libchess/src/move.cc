@@ -4,7 +4,7 @@
 
 namespace chess {
 
-Move::Move(Square source, Square target, char promotion) : m_source(source), m_target(target) {
+Move::Move(const Square& source, const Square& target, char promotion) : m_source(source), m_target(target) {
     if (!source.is_valid()) {
         throw std::invalid_argument("source");
     }
@@ -25,7 +25,7 @@ Move::Move(Square source, Square target, char promotion) : m_source(source), m_t
     }
 }
 
-Move::Move(Square source, Square target) : m_source(source), m_target(target) {
+Move::Move(const Square& source, const Square& target) : m_source(source), m_target(target) {
     if (!source.is_valid()) {
         throw std::invalid_argument("source");
     }
@@ -38,7 +38,7 @@ Move::Move(Square source, Square target) : m_source(source), m_target(target) {
     m_promotion = 0;
 }
 
-Move::Move(std::string uci) : m_source(Square(0)), m_target(Square(0)) {
+Move::Move(const std::string& uci) : m_source(Square(0)), m_target(Square(0)) {
     if (uci.length() == 4 || uci.length() == 5) {
         m_source = Square(uci.substr(0, 2));
         m_target = Square(uci.substr(2, 2));
@@ -60,6 +60,12 @@ Move::Move(std::string uci) : m_source(Square(0)), m_target(Square(0)) {
     else {
         throw new std::invalid_argument("uci");
     }
+}
+
+Move::Move(const Move& move) {
+    m_source = move.m_source;
+    m_target = move.m_target;
+    m_promotion = move.m_promotion;
 }
 
 Square Move::source() const {
@@ -109,15 +115,21 @@ int Move::__hash__() const {
     return m_source.__hash__() + 100 * m_target.__hash__() + 10000 * m_promotion;
 }
 
-bool Move::operator==(const Move& other) const {
-    return m_source == other.m_source && m_target == other.m_target && m_promotion == other.m_promotion;
+Move& Move::operator=(const Move& rhs) {
+    m_source = rhs.m_source;
+    m_target = rhs.m_target;
+    m_promotion = rhs.m_promotion;
 }
 
-bool Move::operator!=(const Move& other) const {
-    return m_source != other.m_source || m_target != other.m_target || m_promotion != other.m_promotion;
+bool Move::operator==(const Move& rhs) const {
+    return m_source == rhs.m_source && m_target == rhs.m_target && m_promotion == rhs.m_promotion;
 }
 
-Move Move::from_uci(std::string uci) {
+bool Move::operator!=(const Move& rhs) const {
+    return m_source != rhs.m_source || m_target != rhs.m_target || m_promotion != rhs.m_promotion;
+}
+
+Move Move::from_uci(const std::string& uci) {
     return Move(uci);
 }
 
