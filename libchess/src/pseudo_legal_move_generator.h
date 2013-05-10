@@ -17,6 +17,7 @@ namespace chess {
     class PseudoLegalMoveGenerator : boost::noncopyable {
     public:
          PseudoLegalMoveGenerator(const Position& position);
+         ~PseudoLegalMoveGenerator();
 
          int __len__();
          bool __nonzero__();
@@ -32,7 +33,7 @@ namespace chess {
          std::queue<Move> m_cache;
 
     private:
-         const Position& m_position;
+         Position* m_position;
          int m_index;
     };
 
