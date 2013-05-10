@@ -2,11 +2,16 @@
 
 namespace chess {
 
-LegalMoveGenerator::LegalMoveGenerator(const Position& position)
-    : m_position(new Position(position)), m_pseudo_legal_moves(new PseudoLegalMoveGenerator(position))
-{
+LegalMoveGenerator::LegalMoveGenerator(const Position& position) {
+    m_position = new Position(position);
+    m_pseudo_legal_moves = m_position->get_pseudo_legal_moves();
     m_len = -1;
     m_current = 0;
+}
+
+LegalMoveGenerator::~LegalMoveGenerator() {
+    delete m_position;
+    delete m_pseudo_legal_moves;
 }
 
 int LegalMoveGenerator::__len__() {
@@ -43,13 +48,13 @@ bool LegalMoveGenerator::__nonzero__() {
     return false;
 }
 
-LegalMoveGenerator LegalMoveGenerator::__iter__() {
+LegalMoveGenerator& LegalMoveGenerator::__iter__() {
     m_current = 0;
     m_pseudo_legal_moves->__iter__();
     return *this;
 }
 
-bool LegalMoveGenerator::__contains__(Move move) {
+bool LegalMoveGenerator::__contains__(const Move& move) {
     if (!m_pseudo_legal_moves->__contains__(move)) {
 	return false;
     } else {

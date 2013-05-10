@@ -13,14 +13,15 @@ class Position;
 /**
  * \brief Enumerates legal moves in a given position.
  */
-class LegalMoveGenerator {
+class LegalMoveGenerator : boost::noncopyable {
 public:
     LegalMoveGenerator(const Position& position);
+    ~LegalMoveGenerator();
 
     int __len__();
     bool __nonzero__();
-    LegalMoveGenerator __iter__();
-    bool __contains__(Move move);
+    LegalMoveGenerator& __iter__();
+    bool __contains__(const Move& move);
 
     Move next();
     Move python_next();
@@ -29,8 +30,8 @@ public:
 private:
     bool would_be_valid_if_pseudo_legal(const Move& move) const;
 
-    const boost::shared_ptr<Position> m_position;
-    const boost::shared_ptr<PseudoLegalMoveGenerator> m_pseudo_legal_moves;
+    Position* m_position;
+    PseudoLegalMoveGenerator* m_pseudo_legal_moves;
     int m_len;
     int m_current;
 };

@@ -448,15 +448,15 @@ void Position::set_fen(const std::string& fen) {
     m_ply = boost::lexical_cast<int>(parts[5]);
 }
 
-const PseudoLegalMoveGenerator *Position::get_pseudo_legal_moves() const {
+PseudoLegalMoveGenerator *Position::get_pseudo_legal_moves() const {
     return new PseudoLegalMoveGenerator(*this);
 }
 
-const LegalMoveGenerator *Position::get_legal_moves() const {
+LegalMoveGenerator *Position::get_legal_moves() const {
     return new LegalMoveGenerator(*this);
 }
 
-const AttackerGenerator *Position::get_attackers(char color, Square target) const {
+AttackerGenerator *Position::get_attackers(char color, Square target) const {
     return new AttackerGenerator(*this, color, target);
 }
 
@@ -542,7 +542,7 @@ bool Position::is_checkmate() const {
 	return false;
     } else {
 	// TODO: Consider more efficient checkmate detection.
-	LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+	LegalMoveGenerator legal_moves(*this);
 	return !legal_moves.__nonzero__();
     }
 }
@@ -551,7 +551,7 @@ bool Position::is_stalemate() const {
    if (is_check()) {
        return false;
    } else {
-       LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+       LegalMoveGenerator legal_moves(*this);
        return !legal_moves.__nonzero__();
    }
 }
@@ -794,7 +794,7 @@ MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
 
 MoveInfo Position::make_move(const Move& move) {
     // Make sure the move is valid.
-    LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+    LegalMoveGenerator legal_moves(*this);
     if (!legal_moves.__contains__(move)) {
 	throw new std::invalid_argument("move");
     }
@@ -871,7 +871,7 @@ MoveInfo Position::make_move(const Move& move) {
 }
 
 void Position::make_move_fast(const Move& move) {
-    LegalMoveGenerator legal_moves = LegalMoveGenerator(*this);
+    LegalMoveGenerator legal_moves(*this);
     if (!legal_moves.__contains__(move)) {
 	throw new std::invalid_argument("move");
     }

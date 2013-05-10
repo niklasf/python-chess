@@ -146,23 +146,23 @@ class_<Position>("Position")
     .def("__hash__", &Position::__hash__);
 
 class_<PseudoLegalMoveGenerator, boost::noncopyable>("PseudoLegalMoveGenerator", init<const Position&>())
-    .def("__iter__", &PseudoLegalMoveGenerator::__iter__, return_value_policy<reference_existing_object>())
+    .def("__iter__", &PseudoLegalMoveGenerator::__iter__, return_internal_reference<>())
     .def("__contains__", &PseudoLegalMoveGenerator::__contains__)
     .def("__len__", &PseudoLegalMoveGenerator::__len__)
     .def("__nonzero__", &PseudoLegalMoveGenerator::__nonzero__)
     .def("next", &PseudoLegalMoveGenerator::python_next);
 
 class_<AttackerGenerator, boost::noncopyable>("AttackerGenerator", init<const Position&, char, const Square&>())
-    .def("__iter__", &AttackerGenerator::__iter__, return_value_policy<reference_existing_object>())
+    .def("__iter__", &AttackerGenerator::__iter__, return_internal_reference<>())
     .def("__contains__", &AttackerGenerator::__contains__)
     .def("__len__", &AttackerGenerator::__len__)
     .def("__nonzero__", &AttackerGenerator::__nonzero__)
     .def("next", &AttackerGenerator::python_next);
 
-class_<LegalMoveGenerator>("LegalMoveGenerator", init<const Position&>())
+class_<LegalMoveGenerator, boost::noncopyable>("LegalMoveGenerator", init<const Position&>())
     .def("__len__", &LegalMoveGenerator::__len__)
     .def("__nonzero__", &LegalMoveGenerator::__nonzero__)
-    .def("__iter__", &LegalMoveGenerator::__iter__)
+    .def("__iter__", &LegalMoveGenerator::__iter__, return_internal_reference<>())
     .def("__contains__", &LegalMoveGenerator::__contains__)
     .def("next", &LegalMoveGenerator::python_next);
 

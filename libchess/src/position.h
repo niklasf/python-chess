@@ -56,9 +56,9 @@ public:
     std::string fen() const;
     void set_fen(const std::string& fen);
 
-    const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
-    const LegalMoveGenerator *get_legal_moves() const;
-    const AttackerGenerator *get_attackers(char color, Square target) const;
+    PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
+    LegalMoveGenerator *get_legal_moves() const;
+    AttackerGenerator *get_attackers(char color, Square target) const;
 
     Square get_king(char color) const;
     boost::python::object python_get_king(char color) const;
