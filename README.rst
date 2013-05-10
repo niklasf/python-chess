@@ -81,10 +81,18 @@ Building
 --------
 libboost-regex-dev and libboost-python-dev are required.
 
-::
+* With easy_install:
 
-    python setup.py build
-    sudo python.setup.py install
+  ::
+
+      sudo easy_install python-chess
+
+* From current source code:
+
+  ::
+
+      python setup.py build
+      sudo python setup.py install
 
 License
 -------
