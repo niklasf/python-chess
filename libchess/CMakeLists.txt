@@ -23,8 +23,7 @@ add_library (chess SHARED
     src/attacker_generator.cc
     src/legal_move_generator.cc
     src/pseudo_legal_move_generator.cc
-    src/polyglot_opening_book_entry.cc
-    src/game_header_bag.cc)
+    src/polyglot_opening_book_entry.cc)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
