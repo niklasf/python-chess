@@ -216,7 +216,7 @@ class GameHeaderBag(collections.MutableMapping):
         elif key == "FEN":
             value = chess.Position(value).fen
 
-            if value == chess.Position.START_FEN:
+            if value == chess.START_FEN:
                 if not "FEN" in self:
                     return
             else:
@@ -227,7 +227,7 @@ class GameHeaderBag(collections.MutableMapping):
                 raise ValueError(
                     "FEN header can not be set, when there are already moves.")
 
-            if value == chess.Position.START_FEN:
+            if value == chess.START_FEN:
                 del self["FEN"]
                 del self["SetUp"]
                 return

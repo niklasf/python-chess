@@ -41,21 +41,15 @@ class SquareTestCase(unittest.TestCase):
         f7 = chess.Square("f7")
         self.assertFalse(f7.is_dark())
         self.assertTrue(f7.is_light())
-        self.assertEqual(f7.rank, 7)
-        self.assertEqual(f7.file, 'f')
-        self.assertEqual(f7.name, 'f7')
-        self.assertEqual(f7.x88, 21)
-        self.assertEqual(f7.x, 5)
-        self.assertEqual(f7.y, 6)
+        self.assertEqual(f7.rank_name, "7")
+        self.assertEqual(f7.file_name, "f")
+        self.assertEqual(f7.name, "f7")
+        self.assertEqual(f7.x88_index, 21)
+        self.assertEqual(f7.file, 5)
+        self.assertEqual(f7.rank, 6)
         self.assertFalse(f7.is_backrank())
 
     def test_creation(self):
         """Tests creation of Square instances."""
-        self.assertEqual(chess.Square.from_x_and_y(3, 5), chess.Square("d6"))
-        self.assertEqual(chess.Square.from_x88(2), chess.Square("c8"))
-        self.assertEqual(chess.Square.from_rank_and_file(rank=2, file="g"), chess.Square("g2"))
-
-    def test_iteration(self):
-        """Tests iteration over all squares."""
-        self.assertTrue(chess.Square("h8") in chess.Square.get_all())
-        self.assertTrue(chess.Square("b1") in chess.Square.get_all())
+        self.assertEqual(chess.Square.from_rank_and_file(5, 3), chess.Square("d6"))
+        self.assertEqual(chess.Square.from_x88_index(2), chess.Square("c8"))

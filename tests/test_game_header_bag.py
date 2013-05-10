@@ -31,7 +31,7 @@ class GameHeaderBagTestCase(unittest.TestCase):
         self.assertFalse("FEN" in bag)
         self.assertFalse("SetUp" in bag)
 
-        bag["FEN"] = chess.Position.START_FEN
+        bag["FEN"] = chess.START_FEN
         self.assertFalse("FEN" in bag)
 
         bag["FEN"] = "8/8/8/1kr5/4KR2/5N2/8/8 w - - 0 1"

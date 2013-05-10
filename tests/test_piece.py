@@ -24,10 +24,10 @@ class PieceTestCase(unittest.TestCase):
 
     def test_equality(self):
         """Tests the overriden equality behavior of the Piece class."""
-        a = chess.Piece.from_color_and_type(type='b', color='w')
-        b = chess.Piece.from_color_and_type(type='k', color='b')
-        c = chess.Piece.from_color_and_type(type='k', color='w')
-        d = chess.Piece.from_color_and_type(type='b', color='w')
+        a = chess.Piece.from_color_and_type("w", "b")
+        b = chess.Piece.from_color_and_type("b", "k")
+        c = chess.Piece.from_color_and_type("w", "k")
+        d = chess.Piece.from_color_and_type("w", "b")
 
         self.assertEqual(a, d)
         self.assertEqual(d, a)

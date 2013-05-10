@@ -60,7 +60,8 @@ class GameNode(object):
         self.__move = move
 
         if move:
-            self.__position = previous_node.position.make_move(move)
+            self.__position = chess.Position(previous_node.position)
+            self.__position.make_move(move)
 
         self.__nags = nags
         self.comment = comment
@@ -83,7 +84,7 @@ class GameNode(object):
     @property
     def position(self):
         """A copy of the position."""
-        return self.__position.copy()
+        return chess.Position(self.__position)
 
     @property
     def comment(self):

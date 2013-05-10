@@ -55,8 +55,7 @@ class PolyglotOpeningBook(object):
 
     def seek_position(self, position):
         # Calculate the position hash.
-        hasher = chess.ZobristHasher(chess.ZobristHasher.POLYGLOT_RANDOM_ARRAY)
-        key = hasher.hash_position(position)
+        key = hash(position)
 
         # Do a binary search.
         start = 0
@@ -102,10 +101,15 @@ class PolyglotOpeningBook(object):
 
         promote = (raw_entry[1] >> 12) & 0x7
 
-        move = chess.Move(
-            source=chess.Square.from_x_and_y(source_x, source_y),
-            target=chess.Square.from_x_and_y(target_x, target_y),
-            promotion="nbrq"[promote + 1] if promote else None)
+        if promote:
+            move = chess.Move(
+                chess.Square.from_rank_and_file(source_y, source_x),
+                chess.Square.from_rank_and_file(target_y, target_x),
+                "nbrq"[promote - 1])
+        else:
+            move = chess.Move(
+                chess.Square.from_rank_and_file(source_y, source_x),
+                chess.Square.from_rank_and_file(target_y, source_x))
 
         # Replace the non standard castling moves.
         if move.uci == "e1h1":
@@ -125,8 +129,7 @@ class PolyglotOpeningBook(object):
         }
 
     def get_entries_for_position(self, position):
-        hasher = chess.ZobristHasher(chess.ZobristHasher.POLYGLOT_RANDOM_ARRAY)
-        position_hash = hasher.hash_position(position)
+        position_hash = hash(position)
 
         # Seek the position. Stop iteration if no entry exists.
         try:

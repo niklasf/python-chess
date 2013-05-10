@@ -18,14 +18,17 @@
 
 import inspect
 
+# Import from libchess.
+from libchess import START_FEN
+from libchess import Square
+from libchess import Piece
+from libchess import Move
+from libchess import Position
+
 # Stable.
 from chess.exceptions import FenError
 from chess.exceptions import PgnError
 from chess.exceptions import MoveError
-from chess.piece import Piece
-from chess.square import Square
-from chess.move import Move
-from chess.position import Position
 from chess.zobrist_hasher import ZobristHasher
 from chess.game_header_bag import GameHeaderBag
 
