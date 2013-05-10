@@ -12,105 +12,106 @@
 
 namespace chess {
 
-    class AttackerGenerator;
-    class LegalMoveGenerator;
-    class PseudoLegalMoveGenerator;
+class AttackerGenerator;
+class LegalMoveGenerator;
+class PseudoLegalMoveGenerator;
 
-    /**
-     * \brief A chess position.
-     */
-    class Position {
-        friend class LegalMoveGenerator;
+/**
+ * \brief A chess position.
+ */
+class Position {
+public:
 
-    public:
+    Position();
+    Position(std::string fen);
+    Position(const Position& other);
 
-        Position();
-        Position(std::string fen);
-        Position(const Position& other);
+    void clear_board();
+    void reset();
 
-        void clear_board();
-        void reset();
+    Piece get(Square square) const;
+    void set(Square square, Piece piece);
+    boost::python::object __getitem__(boost::python::object square_key) const;
+    void __setitem__(boost::python::object square_key, boost::python::object piece);
+    void __delitem__(boost::python::object square_key);
 
-        Piece get(Square square) const;
-        void set(Square square, Piece piece);
-        boost::python::object __getitem__(boost::python::object square_key) const;
-        void __setitem__(boost::python::object square_key, boost::python::object piece);
-        void __delitem__(boost::python::object square_key);
 
-        char turn() const;
-        void set_turn(char turn);
-        void toggle_turn();
+    char turn() const;
+    void set_turn(char turn);
+    void toggle_turn();
 
-        char ep_file() const;
-        void set_ep_file(char ep_file);
-        boost::python::object python_ep_file() const;
-        void python_set_ep_file(boost::python::object ep_file);
-        Square get_ep_square() const;
-        boost::python::object python_get_ep_square() const;
+    char ep_file() const;
+    void set_ep_file(char ep_file);
+    boost::python::object python_ep_file() const;
+    void python_set_ep_file(boost::python::object ep_file);
+    Square get_ep_square() const;
+    boost::python::object python_get_ep_square() const;
 
-        int half_moves() const;
-        void set_half_moves(int half_moves);
+    int half_moves() const;
+    void set_half_moves(int half_moves);
 
-        int ply() const;
-        void set_ply(int ply);
+    int ply() const;
+    void set_ply(int ply);
 
-        std::string fen() const;
-        void set_fen(std::string fen);
+    std::string fen() const;
+    void set_fen(std::string fen);
 
-        const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
-        const LegalMoveGenerator *get_legal_moves() const;
-        const AttackerGenerator *get_attackers(char color, Square target) const;
+    const PseudoLegalMoveGenerator *get_pseudo_legal_moves() const;
+    const LegalMoveGenerator *get_legal_moves() const;
+    const AttackerGenerator *get_attackers(char color, Square target) const;
 
-        Square get_king(char color) const;
-        boost::python::object python_get_king(char color) const;
+    Square get_king(char color) const;
+    boost::python::object python_get_king(char color) const;
 
-        bool is_king_attacked(char color) const;
-        bool is_check() const;
-        bool is_checkmate() const;
-        bool is_stalemate() const;
+    bool is_king_attacked(char color) const;
+    bool is_check() const;
+    bool is_checkmate() const;
+    bool is_stalemate() const;
 
-        bool could_have_kingside_castling_right(char color) const;
-        bool could_have_queenside_castling_right(char color) const;
-        bool has_kingside_castling_right(char color) const;
-        bool has_queenside_castling_right(char color) const;
-        void set_kingside_castling_right(char color, bool castle);
-        void set_queenside_castling_right(char color, bool castle);
+    bool could_have_kingside_castling_right(char color) const;
+    bool could_have_queenside_castling_right(char color) const;
+    bool has_kingside_castling_right(char color) const;
+    bool has_queenside_castling_right(char color) const;
+    void set_kingside_castling_right(char color, bool castle);
+    void set_queenside_castling_right(char color, bool castle);
 
-        MoveInfo make_move(Move move);
-        void make_move_fast(Move move);
-        Move get_move_from_san(std::string san) const;
-        MoveInfo make_move_from_san(std::string san);
+    MoveInfo make_move(Move move);
+    void make_move_fast(Move move);
+    Move get_move_from_san(std::string san) const;
+    MoveInfo make_move_from_san(std::string san);
 
-        std::string __repr__() const;
-        uint64_t __hash__() const;
+    std::string __repr__() const;
+    uint64_t __hash__() const;
 
-        bool operator==(const Position& other) const;
-        bool operator!=(const Position& other) const;
+    bool operator==(const Position& other) const;
+    bool operator!=(const Position& other) const;
 
-    protected:
-        MoveInfo make_unvalidated_move_fast(Move move);
+protected:
+    MoveInfo make_unvalidated_move_fast(Move move);
 
-        Piece m_board[128];
-        char m_turn;
-        char m_ep_file;
-        int m_half_moves;
-        int m_ply;
-        bool m_white_castle_queenside;
-        bool m_white_castle_kingside;
-        bool m_black_castle_queenside;
-        bool m_black_castle_kingside;
+    Piece m_board[128];
+    char m_turn;
+    char m_ep_file;
+    int m_half_moves;
+    int m_ply;
+    bool m_white_castle_queenside;
+    bool m_white_castle_kingside;
+    bool m_black_castle_queenside;
+    bool m_black_castle_kingside;
 
-    private:
-        int x88_index_from_square_key(boost::python::object square_key) const;
+private:
+    friend class LegalMoveGenerator;
 
-    };
+    int x88_index_from_square_key(boost::python::object square_key) const;
 
-    std::ostream& operator<<(std::ostream& out, const Position& position);
+};
 
-    const std::string START_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+std::ostream& operator<<(std::ostream& out, const Position& position);
 
-    extern const uint64_t POLYGLOT_RANDOM_ARRAY[];
+const std::string START_FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-}
+extern const uint64_t POLYGLOT_RANDOM_ARRAY[];
 
-#endif
+} // namespace chess
+
+#endif // LIBCHESS_POSITION_H
