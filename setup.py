@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import distutils
 import os
 import setuptools
 
@@ -24,6 +25,12 @@ def read(filename):
     """Utility function that returns a files contents."""
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
+# Work around: -Wstrict-prototypes flag is invalid for C++.
+(opt, ) = distutils.sysconfig.get_config_vars("OPT")
+os.environ["OPT"] = " ".join(flag for flag in opt.split()
+                             if flag != "-Wstrict-prototypes")
+
+# Module description.
 setuptools.setup(
     name="python-chess",
     version="0.0.1",
