@@ -34,8 +34,8 @@ Features
   ::
 
       assert not pos.is_stalemate()
-      # TODO: assert not pos.is_insufficient_material()
-      # TODO: assert pos.is_game_over()
+      assert not pos.is_insufficient_material()
+      assert pos.is_game_over()
 
 * Detects checks and can enumerate attackers and defenders of a square.
 

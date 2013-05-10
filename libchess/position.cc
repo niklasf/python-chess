@@ -556,6 +556,76 @@ bool Position::is_stalemate() const {
    }
 }
 
+bool Position::is_insufficient_material() const {
+    int piece_count = 0;
+    int white_bishops = 0;
+    int black_bishops = 0;
+    int light_square_bishops = 0;
+    int dark_square_bishops = 0;
+
+    // Count pieces.
+    for (int i = 0; i < 128; i++) {
+        if (m_board[i].is_valid()) {
+            piece_count++;
+            switch (m_board[i].symbol()) {
+                case 'b':
+                    white_bishops++;
+                    black_bishops--;
+                case 'B':
+                    black_bishops++;
+                    if (Square::from_x88_index(i).is_dark()) {
+                        dark_square_bishops++;
+                    } else {
+                        light_square_bishops++;
+                    }
+                    break;
+                case 'n':
+                case 'N':
+                    break;
+                case 'q':
+                case 'Q':
+                case 'p':
+                case 'P':
+                case 'r':
+                case 'R':
+                    return false;
+            }
+
+        }
+    }
+
+    if (piece_count == 2) {
+        // King versus king.
+        return true;
+    } else if (piece_count == 3) {
+        // King and knight or bishop versus king.
+        return true;
+    } else if (piece_count == 2 + white_bishops + black_bishops) {
+        // Each player with only king an any number of bishops where all
+        // bishops are on the same color.
+        if (white_bishops && black_bishops) {
+            if ((light_square_bishops && !dark_square_bishops) || (dark_square_bishops && !light_square_bishops)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Position::is_game_over() const {
+    if (is_insufficient_material()) {
+        return true;
+    }
+
+    LegalMoveGenerator legal_moves(*this);
+    if (!legal_moves.__nonzero__()) {
+        return true;
+    }
+
+    return false;
+}
+
 bool Position::could_have_kingside_castling_right(char color) const {
     int rank;
     if (color == 'w') {

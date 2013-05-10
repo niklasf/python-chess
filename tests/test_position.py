@@ -67,7 +67,7 @@ class PositionTestCase(unittest.TestCase):
 
         self.assertFalse(pos.is_check())
         self.assertFalse(pos.is_checkmate())
-        # TODO: self.assertFalse(pos.is_game_over())
+        self.assertFalse(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
         Qf7_mate = chess.Move.from_uci('f3f7')
@@ -76,7 +76,7 @@ class PositionTestCase(unittest.TestCase):
 
         self.assertTrue(pos.is_check())
         self.assertTrue(pos.is_checkmate())
-        # TODO: self.assertTrue(pos.is_game_over())
+        self.assertTrue(pos.is_game_over())
         self.assertFalse(pos.is_stalemate())
 
         self.assertEqual(pos.fen, "1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQk - 0 4")

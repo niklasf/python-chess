@@ -67,6 +67,8 @@ public:
     bool is_check() const;
     bool is_checkmate() const;
     bool is_stalemate() const;
+    bool is_insufficient_material() const;
+    bool is_game_over() const;
 
     bool could_have_kingside_castling_right(char color) const;
     bool could_have_queenside_castling_right(char color) const;
