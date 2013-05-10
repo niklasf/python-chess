@@ -83,6 +83,7 @@ public:
     std::string __repr__() const;
     uint64_t __hash__() const;
 
+    Position& operator=(const Position& rhs);
     bool operator==(const Position& rhs) const;
     bool operator!=(const Position& rhs) const;
 

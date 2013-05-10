@@ -81,8 +81,8 @@
 
 namespace chess {
 
-    char opposite_color(char color);
+char opposite_color(char color);
 
-}
+} // namespace chess
 
-#endif
+#endif // LIBCHESS_LIBCHESS_H

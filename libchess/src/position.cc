@@ -878,6 +878,23 @@ void Position::make_move_fast(const Move& move) {
     make_unvalidated_move_fast(move);
 }
 
+Position& Position::operator=(const Position& rhs) {
+    for (int i = 0; i < 128; i++) {
+        m_board[i] = rhs.m_board[i];
+    }
+
+    m_turn = rhs.m_turn;
+    m_ep_file = rhs.m_ep_file;
+    m_half_moves = rhs.m_half_moves;
+    m_ply = rhs.m_ply;
+    m_white_castle_queenside = rhs.m_white_castle_queenside;
+    m_white_castle_kingside = rhs.m_white_castle_kingside;
+    m_black_castle_queenside = rhs.m_black_castle_queenside;
+    m_black_castle_kingside = rhs.m_black_castle_kingside;
+
+    return *this;
+}
+
 bool Position::operator==(const Position& rhs) const {
     if (m_turn != rhs.m_turn ||
 	m_ep_file != rhs.m_ep_file ||
