@@ -20,16 +20,13 @@ import inspect
 
 # Import from libchess.
 from libchess import START_FEN
+from libchess import opposite_color
 from libchess import Square
 from libchess import Piece
 from libchess import Move
 from libchess import Position
 
 # Stable.
-from chess.exceptions import FenError
-from chess.exceptions import PgnError
-from chess.exceptions import MoveError
-from chess.zobrist_hasher import ZobristHasher
 from chess.game_header_bag import GameHeaderBag
 
 # Design phase.
@@ -37,19 +34,5 @@ from chess.polyglot_opening_book import PolyglotOpeningBook
 from chess.game_node import GameNode
 from chess.game import Game
 from chess.pgn_file import PgnFile
-
-
-def opposite_color(color):
-    """:return: The opposite color.
-
-    :param color:
-        "w" for white or "b" for black.
-    """
-    if color == "w":
-        return "b"
-    elif color == "b":
-        return "w"
-    else:
-        raise ValueError("Invalid color: %s. Expected 'w' or 'b'." % repr(color))
 
 __all__ = [ name for name, obj in locals().items() if not inspect.ismodule(obj) ]
