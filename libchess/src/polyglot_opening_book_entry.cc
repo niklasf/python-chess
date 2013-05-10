@@ -37,6 +37,13 @@ PolyglotOpeningBookEntry::PolyglotOpeningBookEntry(uint64_t key, uint16_t move, 
     m_learn = learn;
 }
 
+PolyglotOpeningBookEntry::PolyglotOpeningBookEntry(const PolyglotOpeningBookEntry& entry) {
+    m_key = entry.m_key;
+    m_move = entry.m_move;
+    m_weight = entry.m_weight;
+    m_learn = entry.m_learn;
+}
+
 uint64_t PolyglotOpeningBookEntry::key() const {
     return m_key;
 }
@@ -98,6 +105,15 @@ uint32_t PolyglotOpeningBookEntry::learn() const {
 
 void PolyglotOpeningBookEntry::set_learn(uint32_t learn) {
     m_learn = learn;
+}
+
+PolyglotOpeningBookEntry& PolyglotOpeningBookEntry::operator=(const PolyglotOpeningBookEntry& rhs) {
+    m_key = rhs.m_key;
+    m_move = rhs.m_move;
+    m_weight = rhs.m_weight;
+    m_learn = rhs.m_learn;
+
+    return *this;
 }
 
 } // namespace chess

@@ -166,8 +166,9 @@ class_<LegalMoveGenerator, boost::noncopyable>("LegalMoveGenerator", init<const 
     .def("__contains__", &LegalMoveGenerator::__contains__)
     .def("next", &LegalMoveGenerator::python_next);
 
-class_<PolyglotOpeningBookEntry>("PolyglotOpeningBookEntry", init<Position, Move, uint16_t, uint32_t>())
+class_<PolyglotOpeningBookEntry>("PolyglotOpeningBookEntry", init<const Position&, const Move&, uint16_t, uint32_t>())
     .def(init<uint64_t, uint16_t, uint16_t, uint32_t>())
+    .def(init<const PolyglotOpeningBookEntry&>())
     .add_property("key", &PolyglotOpeningBookEntry::key)
     .add_property("raw_move", &PolyglotOpeningBookEntry::raw_move)
     .add_property("move", &PolyglotOpeningBookEntry::move)
