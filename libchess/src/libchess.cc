@@ -145,8 +145,8 @@ class_<Position>("Position")
     .def("__repr__", &Position::__repr__)
     .def("__hash__", &Position::__hash__);
 
-class_<PseudoLegalMoveGenerator>("PseudoLegalMoveGenerator", init<Position&>())
-    .def("__iter__", &PseudoLegalMoveGenerator::__iter__)
+class_<PseudoLegalMoveGenerator, boost::noncopyable>("PseudoLegalMoveGenerator", init<const Position&>())
+    .def("__iter__", &PseudoLegalMoveGenerator::__iter__, return_value_policy<reference_existing_object>())
     .def("__contains__", &PseudoLegalMoveGenerator::__contains__)
     .def("__len__", &PseudoLegalMoveGenerator::__len__)
     .def("__nonzero__", &PseudoLegalMoveGenerator::__nonzero__)
