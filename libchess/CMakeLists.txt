@@ -14,16 +14,16 @@ set (Boost_USE_MULTITHREADED ON)
 include_directories (${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 link_directories (${PYTHON_LIBRARIES})
 add_library (chess SHARED
-    libchess.cpp
-    piece.cpp
-    square.cpp
-    move.cpp
-    move_info.cpp
-    position.cpp
-    attacker_generator.cpp
-    legal_move_generator.cpp
-    pseudo_legal_move_generator.cpp
-    polyglot_opening_book_entry.cpp)
+    src/libchess.cc
+    src/piece.cc
+    src/square.cc
+    src/move.cc
+    src/move_info.cc
+    src/position.cc
+    src/attacker_generator.cc
+    src/legal_move_generator.cc
+    src/pseudo_legal_move_generator.cc
+    src/polyglot_opening_book_entry.cc)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
