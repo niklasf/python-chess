@@ -14,6 +14,7 @@ class Position;
 class AttackerGenerator : boost::noncopyable {
 public:
     AttackerGenerator(const Position& position, char color, const Square& target);
+    ~AttackerGenerator();
 
     int __len__();
     bool __nonzero__();
@@ -26,7 +27,7 @@ public:
 
 private:
     char m_color;
-    const Position& m_position;
+    Position* m_position;
     Square m_target;
     int m_source_index;
 };

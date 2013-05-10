@@ -3,7 +3,7 @@
 namespace chess {
 
 AttackerGenerator::AttackerGenerator(const Position& position, char color, const Square& target)
-    : m_position(position), m_target(target)
+    : m_target(target)
 {
     if (!target.is_valid()) {
 	throw new std::invalid_argument("target");
@@ -13,8 +13,13 @@ AttackerGenerator::AttackerGenerator(const Position& position, char color, const
 	throw new std::invalid_argument("color");
     }
 
+    m_position = new Position(position);
     m_color = color;
     m_source_index = 0;
+}
+
+AttackerGenerator::~AttackerGenerator() {
+    delete m_position;
 }
 
 int AttackerGenerator::__len__() {
@@ -43,7 +48,7 @@ AttackerGenerator& AttackerGenerator::__iter__() {
 }
 
 bool AttackerGenerator::__contains__(const Square& source) {
-    Piece piece = m_position.get(source);
+    Piece piece = m_position->get(source);
     if (!piece.is_valid() || piece.color() != m_color) {
 	return false;
     }
@@ -134,7 +139,7 @@ bool AttackerGenerator::__contains__(const Square& source) {
 	int j = source.x88_index() + offset;
 	bool blocked = false;
 	while (j != m_target.x88_index()) {
-	    if (m_position.get(Square::from_x88_index(j)).is_valid()) {
+	    if (m_position->get(Square::from_x88_index(j)).is_valid()) {
 		blocked = true;
 	    }
 	    j += offset;
