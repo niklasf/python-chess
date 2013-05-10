@@ -1,18 +1,6 @@
 python-chess: a chess library
 =============================
 
-Rewritten in C++
-----------------
-python-chess has been rewritten in C++ (with Python bindings).
-Move generation, validation and playing is about 50 times faster.
-The new project can be found at https://github.com/niklasf/libchess.
-
-Currently missing features are only those that weren't stable in
-python-chess:
-
-* Polyglot opening book reading and writing
-* PGN parsing and writing
-
 Introduction
 ------------
 
@@ -21,13 +9,13 @@ This is the scholars mate in python-chess:
 ::
 
     pos = chess.Position()
-    pos.make_move(pos.get_move_from_san("e4"))
-    pos.make_move(pos.get_move_from_san("e5"))
-    pos.make_move(pos.get_move_from_san("Qh5"))
-    pos.make_move(pos.get_move_from_san("Nc6"))
-    pos.make_move(pos.get_move_from_san("Bc4"))
-    pos.make_move(pos.get_move_from_san("Nf6"))
-    pos.make_move(pos.get_move_from_san("Qxf7"))
+    pos.make_move_from_san("e4")
+    pos.make_move_from_san("e5")
+    pos.make_move_from_san("Qh5")
+    pos.make_move_from_san("Nc6")
+    pos.make_move_from_san("Bc4")
+    pos.make_move_from_san("Nf6")
+    pos.make_move_from_san("Qxf7")
     assert pos.is_checkmate()
 
 Features
@@ -46,8 +34,8 @@ Features
   ::
 
       assert not pos.is_stalemate()
-      assert not pos.is_insufficient_material()
-      assert pos.is_game_over()
+      # TODO: assert not pos.is_insufficient_material()
+      # TODO: assert pos.is_game_over()
 
 * Detects checks and can enumerate attackers and defenders of a square.
 
@@ -61,7 +49,7 @@ Features
   ::
 
       pos = chess.Position()
-      assert "e4" == pos.get_move_info(chess.Move("e2e4")).san
+      assert "e4" == pos.make_move(chess.Move("e2e4")).san
 
 * Parses and creates FENs.
 
@@ -77,9 +65,26 @@ Features
 
       book = chess.PolyglotOpeningBook("data/opening-books/performance.bin")
       pos = chess.Position()
-      for entry in book.get_entries_for_position(pos):
-          assert chess.Move.from_uci("e2e4") == entry["move"]
-          break
+      # for entry in book.get_entries_for_position(pos):
+      #    assert chess.Move.from_uci("e2e4") == entry["move"]
+      #    break
+
+Peformance
+----------
+python-chess is not intended to be used by chess engines where performance is
+critical. The goal is rather to create a simple and highlevel library.
+
+However parts like move generation are in C++ (see the libchess directory) to
+improve the performance over pure Python code.
+
+Building
+--------
+libboost-regex-dev and libboost-python-dev are required.
+
+::
+
+    python setup.py build
+    sudo python.setup.py install
 
 License
 -------
