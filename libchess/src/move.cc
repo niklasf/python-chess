@@ -119,6 +119,7 @@ Move& Move::operator=(const Move& rhs) {
     m_source = rhs.m_source;
     m_target = rhs.m_target;
     m_promotion = rhs.m_promotion;
+    return *this;
 }
 
 bool Move::operator==(const Move& rhs) const {
