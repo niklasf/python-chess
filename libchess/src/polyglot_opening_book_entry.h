@@ -6,28 +6,28 @@
 
 namespace chess {
 
-    class PolyglotOpeningBookEntry {
-    public:
-        PolyglotOpeningBookEntry(Position key, Move move, uint16_t weight, uint32_t learn);
-        PolyglotOpeningBookEntry(uint64_t key, uint16_t move, uint16_t weight, uint32_t learn);
+class PolyglotOpeningBookEntry {
+public:
+    PolyglotOpeningBookEntry(const Position& key, const Move& move, uint16_t weight, uint32_t learn);
+    PolyglotOpeningBookEntry(uint64_t key, uint16_t move, uint16_t weight, uint32_t learn);
 
-        uint64_t key() const;
-        uint16_t raw_move() const;
-        Move move() const;
+    uint64_t key() const;
+    uint16_t raw_move() const;
+    Move move() const;
 
-        uint16_t weight() const;
-        void set_weight(uint16_t weight);
+    uint16_t weight() const;
+    void set_weight(uint16_t weight);
 
-        uint32_t learn() const;
-        void set_learn(uint32_t learn);
+    uint32_t learn() const;
+    void set_learn(uint32_t learn);
 
-    private:
-        uint64_t m_key;
-        uint16_t m_move;
-        uint16_t m_weight;
-        uint32_t m_learn;
-    };
-
+private:
+    uint64_t m_key;
+    uint16_t m_move;
+    uint16_t m_weight;
+    uint32_t m_learn;
 };
 
-#endif
+} // namespace chess
+
+#endif // LIBCHESS_POLYGLOT_OPENING_BOOK_ENTRY_H
