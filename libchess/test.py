@@ -328,5 +328,14 @@ class PolyglotOpeningBookEntryTestCase(unittest.TestCase):
             self.assertEqual(move, book_entry.move)
 
 
+class GameHeaderBagTestCase(unittest.TestCase):
+
+    def test(self):
+        bag = libchess.GameHeaderBag()
+        bag["Foo"] = "Bar"
+        self.assertEqual(bag["Foo"], "Bar")
+        self.assertEqual(bag["foo"], "Bar")
+
+
 if __name__ == "__main__":
     unittest.main()

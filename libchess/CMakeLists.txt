@@ -6,7 +6,7 @@ find_package (Boost)
 find_package (Boost COMPONENTS python regex REQUIRED)
 find_package (PythonLibs REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-g -Wall")
+add_definitions(-std=c++11 -g -Wall)
 
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
@@ -23,7 +23,8 @@ add_library (chess SHARED
     src/attacker_generator.cc
     src/legal_move_generator.cc
     src/pseudo_legal_move_generator.cc
-    src/polyglot_opening_book_entry.cc)
+    src/polyglot_opening_book_entry.cc
+    src/game_header_bag.cc)
 target_link_libraries (chess
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES})
