@@ -296,6 +296,13 @@ class AttackerGeneratorTestCase(unittest.TestCase):
         self.assertEqual(len(pos.get_attackers("w", e3)), 2)
         self.assertFalse(pos.get_attackers("b", e5))
 
+    def test_allocation(self):
+        pos = libchess.Position()
+        attackers = pos.get_attackers("w", libchess.Square("a3"))
+        self.assertEqual(attackers.__len__(), 2)
+        del pos
+        self.assertEqual(attackers.__len__(), 2)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

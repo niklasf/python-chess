@@ -2,7 +2,7 @@
 
 namespace chess {
 
-AttackerGenerator::AttackerGenerator(const Position& position, char color, Square target)
+AttackerGenerator::AttackerGenerator(const Position& position, char color, const Square& target)
     : m_position(position), m_target(target)
 {
     if (!target.is_valid()) {
@@ -42,7 +42,7 @@ AttackerGenerator& AttackerGenerator::__iter__() {
     return *this;
 }
 
-bool AttackerGenerator::__contains__(Square source) {
+bool AttackerGenerator::__contains__(const Square& source) {
     Piece piece = m_position.get(source);
     if (!piece.is_valid() || piece.color() != m_color) {
 	return false;
