@@ -62,6 +62,8 @@ public:
     void python_set_ep_file(const boost::python::object& ep_file);
     Square get_ep_square() const;
     boost::python::object python_get_ep_square() const;
+    Square get_real_ep_square() const;
+    boost::python::object python_get_real_ep_square() const;
 
     int half_moves() const;
     void set_half_moves(int half_moves);

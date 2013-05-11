@@ -232,6 +232,34 @@ boost::python::object Position::python_get_ep_square() const {
     }
 }
 
+Square Position::get_real_ep_square() const {
+    Square ep_square = get_ep_square();
+    if (!ep_square.is_valid()) {
+        return ep_square;
+    }
+
+    // A pawn must stand ready to capture.
+    const int offsets[] = { 17, 15 };
+    for (int i = 0; i < 2; i++) {
+        int offset = (m_turn == 'w') ? offsets[i] : - offsets[i];
+        if (m_board[offset].is_valid() && m_board[offset].type() == 'p' &&
+            m_board[offset].color() == m_turn) {
+            return ep_square;
+        }
+    }
+
+    return Square();
+}
+
+boost::python::object Position::python_get_real_ep_square() const {
+    Square real_ep_square = get_real_ep_square();
+    if (real_ep_square.is_valid()) {
+        return boost::python::object(real_ep_square);
+    } else {
+        return boost::python::object();
+   }
+}
+
 int Position::half_moves() const {
     return m_half_moves;
 }
@@ -509,7 +537,7 @@ uint64_t Position::__hash__() const {
     }
 
     // Hash in the en-passant file.
-    Square ep_square = get_ep_square();
+    Square ep_square = get_real_ep_square();
     if (ep_square.is_valid()) {
 	hash ^= POLYGLOT_RANDOM_ARRAY[772 + ep_square.file()];
     }
