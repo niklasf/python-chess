@@ -65,9 +65,9 @@ Features
 
       book = chess.PolyglotOpeningBook("data/opening-books/performance.bin")
       pos = chess.Position()
-      # for entry in book.get_entries_for_position(pos):
-      #    assert chess.Move.from_uci("e2e4") == entry["move"]
-      #    break
+      for entry in book.get_entries_for_position(pos):
+          assert chess.Move.from_uci("e2e4") == entry.move
+          break
 
 Peformance
 ----------
