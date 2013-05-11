@@ -55,7 +55,7 @@ class PolyglotOpeningBook(object):
 
     def seek_position(self, position):
         # Calculate the position hash.
-        key = hash(position)
+        key = position.__hash__()
 
         # Do a binary search.
         start = 0
@@ -92,44 +92,11 @@ class PolyglotOpeningBook(object):
 
     def next(self):
         raw_entry = self.next_raw()
-
-        source_x = ((raw_entry[1] >> 6) & 077) & 0x7
-        source_y = (((raw_entry[1] >> 6) & 077) >> 3) & 0x7
-
-        target_x = (raw_entry[1] & 077) & 0x7
-        target_y = ((raw_entry[1] & 077) >> 3) & 0x7
-
-        promote = (raw_entry[1] >> 12) & 0x7
-
-        if promote:
-            move = chess.Move(
-                chess.Square.from_rank_and_file(source_y, source_x),
-                chess.Square.from_rank_and_file(target_y, target_x),
-                "nbrq"[promote - 1])
-        else:
-            move = chess.Move(
-                chess.Square.from_rank_and_file(source_y, source_x),
-                chess.Square.from_rank_and_file(target_y, source_x))
-
-        # Replace the non standard castling moves.
-        if move.uci == "e1h1":
-            move = chess.Move.from_uci("e1g1")
-        elif move.uci == "e1a1":
-            move = chess.Move.from_uci("e1c1")
-        elif move.uci == "e8h8":
-            move = chess.Move.from_uci("e8g8")
-        elif move.uci == "e8a8":
-            move = chess.Move.from_uci("e8c8")
-
-        return {
-            "position_hash": raw_entry[0],
-            "move": move,
-            "weight": raw_entry[2],
-            "learn": raw_entry[3]
-        }
+        return chess.PolyglotOpeningBookEntry(raw_entry[0], raw_entry[1],
+                                              raw_entry[2], raw_entry[3]);
 
     def get_entries_for_position(self, position):
-        position_hash = hash(position)
+        position_hash = position.__hash__()
 
         # Seek the position. Stop iteration if no entry exists.
         try:
@@ -140,7 +107,7 @@ class PolyglotOpeningBook(object):
         # Iterate.
         while True:
             entry = self.next()
-            if entry["position_hash"] == position_hash:
+            if entry.key == position_hash:
                 yield entry
             else:
                 break

@@ -105,7 +105,7 @@ bool AttackerGenerator::__contains__(const Square& source) {
 	-15, 0, 0, 0, 0, 0, 0, -16, 0, 0, 0, 0, 0, 0, -17
     };
 
-    int shift;
+    int shift = 0;
     switch (piece.type()) {
 	case 'p':
 	    shift = 0;

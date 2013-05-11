@@ -25,6 +25,7 @@ from libchess import Square
 from libchess import Piece
 from libchess import Move
 from libchess import Position
+from libchess import PolyglotOpeningBookEntry
 
 # Stable.
 from chess.game_header_bag import GameHeaderBag
