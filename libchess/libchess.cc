@@ -48,6 +48,14 @@ BOOST_PYTHON_MODULE(libchess) {
 using namespace boost::python;
 using namespace chess;
 
+scope().attr("__author__") = "Niklas Fiekas";
+scope().attr("__copyright__") = "Copyright 2013, Niklas Fiekas";
+scope().attr("__license__") = "GPL";
+scope().attr("__version__") = "0.0.4";
+scope().attr("__maintainer__") = "Niklas Fiekas";
+scope().attr("__email__") = "niklas.fiekas@tu-clausthal.de";
+scope().attr("__status__") = "Development";
+
 register_exception_translator<std::logic_error *>(&python_translate_logic_error);
 register_exception_translator<std::invalid_argument *>(&python_translate_invalid_argument);
 

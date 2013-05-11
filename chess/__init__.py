@@ -16,6 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+__author__ = "Niklas Fiekas"
+__copyright__ = "Copyright 2013, Niklas Fiekas"
+__license__ = "GPL"
+__version__ = "0.0.4"
+__maintainer__ = "Niklas Fiekas"
+__email__ = "niklas.fiekas@tu-clausthal.de"
+__status__ = "Development"
+
 import inspect
 
 # Import from libchess.
