@@ -109,7 +109,7 @@ void PseudoLegalMoveGenerator::generate_from_square(const Square& square) {
 	    { -17, -16, -15, 1, 17, 16, 15, -1, 0 } }; // King
 
 	// Get the index of the piece in the offset table.
-	int piece_index;
+	int piece_index = 0;
 	switch (piece.type()) {
 	    case 'n':
 		piece_index = 0;
