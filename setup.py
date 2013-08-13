@@ -42,6 +42,7 @@ setuptools.setup(
     keywords="chess fen pgn polyglot",
     url="http://github.com/niklasf/python-chess",
     packages=["chess"],
+    scripts=["scripts/ecotool.py"],
     ext_modules=[
         setuptools.extension.Extension(
             name="libchess",
