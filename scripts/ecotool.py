@@ -2,13 +2,14 @@
 
 import argparse
 import chess
+import collections
 import json
 import sys
 
 def read_eco(source):
     result = { }
 
-    tokens = [ ]
+    tokens = collections.deque()
 
     eco = None
     name = None
@@ -22,12 +23,12 @@ def read_eco(source):
             continue
 
         # Split line into tokens.
-        tokens += line.split()
+        tokens.extend(line.split())
 
         # Consume tokens on the fly.
         while tokens:
             try:
-                token = tokens.pop(0)
+                token = tokens.popleft()
 
                 if state == 0:
                     # State 0: Expecting ECO code.
