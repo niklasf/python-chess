@@ -42,8 +42,12 @@ def read_eco(source):
                     if not token.startswith("\""):
                         name = token
                         state = 3
-                    name = token[1:]
-                    state = 2
+                    elif not token.endswith("\""):
+                        name = token[1:]
+                        state = 2
+                    else:
+                        name = token[1:-1]
+                        state = 3
                 elif state == 2:
                     # State 2: Expecting rest of a quoted name.
                     if not token.endswith("\""):
