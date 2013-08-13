@@ -155,3 +155,13 @@ class PositionTestCase(unittest.TestCase):
         pos.make_move(pos.get_move_from_san('bxc3'))
 
         self.assertEqual(pos.fen, 'rnbqk1nr/pp1ppp1p/6p1/2p5/4P3/2PP4/P1P1NPPP/R1BQKB1R b KQkq - 0 5')
+
+    def test_ambigous_rank(self):
+        pos = chess.Position("r1bqkb1r/pp1n1ppp/2p1pn2/6N1/3P4/3B4/PPP2PPP/R1BQK1NR w KQkq - 0 7")
+
+        first_rank_move = pos.get_move_from_san("N1f3")
+        self.assertEqual(first_rank_move, chess.Move.from_uci("g1f3"))
+
+
+        fifth_rank_move = pos.get_move_from_san("N5f3")
+        self.assertEqual(fifth_rank_move, chess.Move.from_uci("g5f3"))

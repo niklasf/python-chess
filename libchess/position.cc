@@ -773,7 +773,7 @@ Move Position::get_move_from_san(const std::string& san) const {
 	    std::string matched_file(matches[2].first, matches[2].second);
 	    std::string matched_rank(matches[3].first, matches[3].second);
 	    int file = matched_file == "" ? -1 : (matched_file.at(0) - 'a');
-	    int rank = matched_rank == "" ? -1 : (matched_file.at(0) - '1');
+	    int rank = matched_rank == "" ? -1 : (matched_rank.at(0) - '1');
 
 	    // Get the promotion type.
 	    std::string matched_promotion(matches[5].first, matches[5].second);
