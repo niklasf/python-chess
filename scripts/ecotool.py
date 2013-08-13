@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-import chess
 import argparse
+import chess
 import json
 import sys
-import itertools
-import textwrap
 
 def read_eco(source):
     result = { }
@@ -57,9 +55,9 @@ def read_eco(source):
                     if token == "*":
                         result[eco] = {
                             "eco": eco,
-                            "name": name,
                             "fen": position.fen,
                             "hash": position.__hash__(),
+                            "name": name,
                         }
                         state = 0
                         eco = None
@@ -89,8 +87,8 @@ def read_eco(source):
                 # Dump current variables.
                 sys.stderr.write("State: %d\n" % state)
                 sys.stderr.write("ECO: %s\n" % eco)
-                sys.stderr.write("Name: %s\n" % name)
                 sys.stderr.write("FEN: %s\n" % position.fen)
+                sys.stderr.write("Name: %s\n" % name)
                 sys.stderr.flush()
                 raise
 
