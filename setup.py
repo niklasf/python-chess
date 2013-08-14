@@ -27,8 +27,9 @@ def read(filename):
 
 # Work around: -Wstrict-prototypes flag is invalid for C++.
 (opt, ) = distutils.sysconfig.get_config_vars("OPT")
-os.environ["OPT"] = " ".join(flag for flag in opt.split()
-                             if flag != "-Wstrict-prototypes")
+if opt:
+    os.environ["OPT"] = " ".join(flag for flag in opt.split()
+                                 if flag != "-Wstrict-prototypes")
 
 # Module description.
 setuptools.setup(
