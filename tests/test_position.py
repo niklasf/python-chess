@@ -157,6 +157,7 @@ class PositionTestCase(unittest.TestCase):
         self.assertEqual(pos.fen, 'rnbqk1nr/pp1ppp1p/6p1/2p5/4P3/2PP4/P1P1NPPP/R1BQKB1R b KQkq - 0 5')
 
     def test_ambigous_rank(self):
+        """Tests ambigous rank in SANs."""
         pos = chess.Position("r1bqkb1r/pp1n1ppp/2p1pn2/6N1/3P4/3B4/PPP2PPP/R1BQK1NR w KQkq - 0 7")
 
         first_rank_move = pos.get_move_from_san("N1f3")
@@ -165,3 +166,18 @@ class PositionTestCase(unittest.TestCase):
 
         fifth_rank_move = pos.get_move_from_san("N5f3")
         self.assertEqual(fifth_rank_move, chess.Move.from_uci("g5f3"))
+
+
+    def test_insufficient_material(self):
+        """Tests material counting."""
+        # Starting position.
+        pos = chess.Position()
+        self.assertFalse(pos.is_insufficient_material())
+
+        # King vs. King + 2 bishops of the same color.
+        pos = chess.Position("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32")
+        self.assertTrue(pos.is_insufficient_material())
+
+        # Add a black bishop of the opposite color for the weaker side.
+        pos["b8"] = chess.Piece("b")
+        self.assertFalse(pos.is_insufficient_material())
