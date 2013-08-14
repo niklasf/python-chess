@@ -647,10 +647,8 @@ bool Position::is_insufficient_material() const {
     } else if (piece_count == 2 + white_bishops + black_bishops) {
         // Each player with only king an any number of bishops where all
         // bishops are on the same color.
-        if (white_bishops && black_bishops) {
-            if ((light_square_bishops && !dark_square_bishops) || (dark_square_bishops && !light_square_bishops)) {
-                return true;
-            }
+        if ((light_square_bishops && !dark_square_bishops) || (dark_square_bishops && !light_square_bishops)) {
+            return true;
         }
     }
 
