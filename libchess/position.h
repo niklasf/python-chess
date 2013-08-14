@@ -18,8 +18,8 @@
 #define LIBCHESS_POSITION_H
 
 #include <boost/python.hpp>
-#include <stdint.h>
 
+#include "uint.h"
 #include "piece.h"
 #include "square.h"
 #include "attacker_generator.h"

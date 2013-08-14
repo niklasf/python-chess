@@ -18,6 +18,7 @@
 #include <boost/format.hpp>
 
 #include "libchess.h"
+#include "uint.h"
 
 namespace chess {
 
