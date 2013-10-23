@@ -87,10 +87,10 @@ def read_eco(source):
                         position = chess.Position()
                     else:
                         san = token.split(".")[-1]
-                        if san in ["0-0", "O-O"]:
-                            san = "o-o"
-                        elif san in ["0-0-0", "O-O-O"]:
-                            san = "o-o-o"
+                        if san in ["0-0", "o-o"]:
+                            san = "O-O"
+                        elif san in ["0-0-0", "o-o-o"]:
+                            san = "O-O-O"
                         position.make_move_from_san(san)
                 elif state == 4:
                     # State 4: Waiting for end of record.

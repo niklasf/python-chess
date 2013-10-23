@@ -740,11 +740,11 @@ void Position::set_queenside_castling_right(char color, bool castle) {
 Move Position::get_move_from_san(const std::string& san) const {
     LegalMoveGenerator legal_moves(*this);
 
-    if (san == "o-o" || san == "o-o-o") {
+    if (san == "O-O" || san == "O-O-O") {
         // Castling moves.
         Square target;
         int rank = m_turn == 'w' ? 0 : 7;
-        if (san == "o-o") {
+        if (san == "O-O") {
             target = Square(rank, 6);
         } else {
             target = Square(rank, 2);
@@ -924,9 +924,9 @@ MoveInfo Position::make_move(const Move& move) {
 
     // Generate the SAN.
     if (info.is_kingside_castle()) {
-        info.set_san("o-o");
+        info.set_san("O-O");
     } else if (info.is_queenside_castle()) {
-        info.set_san("o-o-o");
+        info.set_san("O-O-O");
     } else {
         // Add the piece type.
         if (info.piece().type() != 'p') {
