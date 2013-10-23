@@ -36,7 +36,7 @@ Position::Position(const std::string& fen) {
 
 Position::Position(const Position& position) {
     for (int i = 0; i < 128; i++) {
-	m_board[i] = position.m_board[i];
+        m_board[i] = position.m_board[i];
     }
 
     m_turn = position.m_turn;
@@ -53,7 +53,7 @@ void Position::clear_board() {
     Piece no_piece;
 
     for (int i = 0; i < 128; i++) {
-	m_board[i] = no_piece;
+        m_board[i] = no_piece;
     }
 }
 
@@ -82,7 +82,7 @@ void Position::reset() {
 
     // Setup the white pawns.
     for (int x88_index = 96; x88_index <= 103; x88_index++) {
-	m_board[x88_index] = Piece('P');
+        m_board[x88_index] = Piece('P');
     }
 
     // Setup the black pieces.
@@ -97,7 +97,7 @@ void Position::reset() {
 
     // Setup the black pawns.
     for (int x88_index = 16; x88_index <= 23; x88_index++) {
-	m_board[x88_index] = Piece('p');
+        m_board[x88_index] = Piece('p');
     }
 }
 
@@ -113,9 +113,9 @@ boost::python::object Position::__getitem__(const boost::python::object& square_
     int x88_index = x88_index_from_square_key(square_key);
 
     if (m_board[x88_index].is_valid()) {
-	return boost::python::object(m_board[x88_index]);
+        return boost::python::object(m_board[x88_index]);
     } else {
-	return boost::python::object();
+        return boost::python::object();
     }
 }
 
@@ -123,10 +123,10 @@ void Position::__setitem__(const boost::python::object& square_key, const boost:
     int x88_index = x88_index_from_square_key(square_key);
 
     if (piece.ptr() == Py_None) {
-	m_board[x88_index] = Piece();
+        m_board[x88_index] = Piece();
     } else {
-	Piece& p = boost::python::extract<Piece&>(piece);
-	m_board[x88_index] = p;
+        Piece& p = boost::python::extract<Piece&>(piece);
+        m_board[x88_index] = p;
     }
 }
 
@@ -141,17 +141,17 @@ char Position::turn() const {
 
 void Position::set_turn(char turn) {
     if (turn == 'w' || turn == 'b') {
-	m_turn = turn;
+        m_turn = turn;
     } else {
-	throw new std::invalid_argument("turn");
+        throw new std::invalid_argument("turn");
     }
 }
 
 void Position::toggle_turn() {
     if (m_turn == 'w') {
-	m_turn = 'b';
+        m_turn = 'b';
     } else {
-	m_turn = 'w';
+        m_turn = 'w';
     }
 }
 
@@ -161,74 +161,74 @@ char Position::ep_file() const {
 
 boost::python::object Position::python_ep_file() const {
     if (m_ep_file) {
-	return boost::python::object(m_ep_file);
+        return boost::python::object(m_ep_file);
     } else {
-	return boost::python::object();
+        return boost::python::object();
     }
 }
 
 void Position::set_ep_file(char ep_file) {
     switch (ep_file) {
-	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	    m_ep_file = ep_file;
-	    break;
-	case '-':
-	case 0:
-	    m_ep_file = 0;
-	default:
-	    throw new std::invalid_argument("ep_file");
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+            m_ep_file = ep_file;
+            break;
+        case '-':
+        case 0:
+            m_ep_file = 0;
+        default:
+            throw new std::invalid_argument("ep_file");
     }
 }
 
 void Position::python_set_ep_file(const boost::python::object& ep_file) {
     if (ep_file.ptr() == Py_None) {
-	m_ep_file = 0;
+        m_ep_file = 0;
     } else {
-	set_ep_file(boost::python::extract<char>(ep_file));
+        set_ep_file(boost::python::extract<char>(ep_file));
     }
 }
 
 Square Position::get_ep_square() const {
     if (m_ep_file) {
-	int rank = (m_turn == 'b') ? 2 : 5;
-	int pawn_rank = (m_turn == 'b') ? 3 : 4;
-	int file = m_ep_file - 'a';
+        int rank = (m_turn == 'b') ? 2 : 5;
+        int pawn_rank = (m_turn == 'b') ? 3 : 4;
+        int file = m_ep_file - 'a';
 
-	// Ensure the square is empty.
-	Square square(rank, file);
-	if (get(square).is_valid()) {
-	    return Square();
-	}
+        // Ensure the square is empty.
+        Square square(rank, file);
+        if (get(square).is_valid()) {
+            return Square();
+        }
 
-	// Ensure a pawn is above the square.
-	Square pawn_square(pawn_rank, file);
-	Piece pawn_square_piece = get(pawn_square);
-	if (!pawn_square_piece.is_valid()) {
-	    return Square();
-	}
-	if (pawn_square_piece.type() != 'p') {
-	    return Square();
-	}
+        // Ensure a pawn is above the square.
+        Square pawn_square(pawn_rank, file);
+        Piece pawn_square_piece = get(pawn_square);
+        if (!pawn_square_piece.is_valid()) {
+            return Square();
+        }
+        if (pawn_square_piece.type() != 'p') {
+            return Square();
+        }
 
-	return square;
+        return square;
     } else {
-	return Square();
+        return Square();
     }
 }
 
 boost::python::object Position::python_get_ep_square() const {
     Square ep_square = get_ep_square();
     if (ep_square.is_valid()) {
-	return boost::python::object(ep_square);
+        return boost::python::object(ep_square);
     } else {
-	return boost::python::object();
+        return boost::python::object();
     }
 }
 
@@ -266,9 +266,9 @@ int Position::half_moves() const {
 
 void Position::set_half_moves(int half_moves) {
     if (half_moves < 0) {
-	throw new std::invalid_argument("half_moves");
+        throw new std::invalid_argument("half_moves");
     } else {
-	m_half_moves = half_moves;
+        m_half_moves = half_moves;
     }
 }
 
@@ -278,9 +278,9 @@ int Position::ply() const {
 
 void Position::set_ply(int ply) {
     if (ply < 1) {
-	throw new std::invalid_argument("ply");
+        throw new std::invalid_argument("ply");
     } else {
-	m_ply = ply;
+        m_ply = ply;
     }
 }
 
@@ -289,30 +289,30 @@ std::string Position::fen() const {
     std::string fen;
     char empty = '0';
     for (int i = 0; i < 128; i++) {
-	if (!(i & 0x88)) {
-	    Square square = Square::from_x88_index(i);
-	    Piece piece = get(square);
-	    if (piece.is_valid()) {
-		if (empty != '0') {
-		    fen += empty;
-		    empty = '0';
-		}
-		fen += piece.symbol();
-	    } else {
-		empty++;
-	    }
+        if (!(i & 0x88)) {
+            Square square = Square::from_x88_index(i);
+            Piece piece = get(square);
+            if (piece.is_valid()) {
+                if (empty != '0') {
+                    fen += empty;
+                    empty = '0';
+                }
+                fen += piece.symbol();
+            } else {
+                empty++;
+            }
 
-	    if (i != 119 && square.file() == 7) {
-		if (empty != '0') {
-		    fen += empty;
-		    empty = '0';
-		}
-		fen += "/";
-	    }
-	}
+            if (i != 119 && square.file() == 7) {
+                if (empty != '0') {
+                    fen += empty;
+                    empty = '0';
+                }
+                fen += "/";
+            }
+        }
     }
     if (empty != '0') {
-	fen += empty;
+        fen += empty;
     }
 
     // Add the turn.
@@ -322,33 +322,33 @@ std::string Position::fen() const {
     // Add castling flags.
     fen += " ";
     if (m_white_castle_kingside ||
-	m_white_castle_queenside ||
-	m_black_castle_kingside ||
-	m_black_castle_queenside)
+        m_white_castle_queenside ||
+        m_black_castle_kingside ||
+        m_black_castle_queenside)
     {
-	if (m_white_castle_kingside) {
-	    fen += 'K';
-	}
-	if (m_white_castle_queenside) {
-	    fen += 'Q';
-	}
-	if (m_black_castle_kingside) {
-	    fen += 'k';
-	}
-	if (m_black_castle_queenside) {
-	    fen += 'q';
-	}
+        if (m_white_castle_kingside) {
+            fen += 'K';
+        }
+        if (m_white_castle_queenside) {
+            fen += 'Q';
+        }
+        if (m_black_castle_kingside) {
+            fen += 'k';
+        }
+        if (m_black_castle_queenside) {
+            fen += 'q';
+        }
     } else {
-	fen += '-';
+        fen += '-';
     }
 
     // Add the en-passant square.
     fen += " ";
     Square ep_square = get_ep_square();
     if (ep_square.is_valid()) {
-	fen += ep_square.name();
+        fen += ep_square.name();
     } else {
-	fen += '-';
+        fen += '-';
     }
 
     // Add the half move count.
@@ -367,91 +367,91 @@ void Position::set_fen(const std::string& fen) {
     std::vector<std::string> parts;
     boost::algorithm::split(parts, fen, boost::is_any_of("\t "), boost::token_compress_on);
     if (parts.size() != 6) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Ensure the board part is valid.
     std::vector<std::string> rows;
     boost::algorithm::split(rows, parts[0], boost::is_any_of("/"));
     if (rows.size() != 8) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
     for (std::vector<std::string>::iterator row = rows.begin(); row != rows.end(); ++row) {
-	int field_sum = 0;
-	bool previous_was_number = false;
-	for (unsigned int i = 0; i < row->length(); i++) {
-	    char c = row->at(i);
-	    if (c >= '1' && c <= '8') {
-		if (previous_was_number) {
-		    throw new std::invalid_argument("fen");
-		}
-		field_sum += c - '0';
-		previous_was_number = true;
-	    } else {
-		switch (c) {
-		    case 'p':
-		    case 'n':
-		    case 'b':
-		    case 'r':
-		    case 'q':
-		    case 'k':
-		    case 'P':
-		    case 'N':
-		    case 'B':
-		    case 'R':
-		    case 'Q':
-		    case 'K':
-			field_sum++;
-			previous_was_number = false;
-			break;
-		    default:
-			throw new std::invalid_argument("fen");
-		}
-	    }
-	}
-	if (field_sum != 8) {
-	    throw new std::invalid_argument("fen");
-	}
+        int field_sum = 0;
+        bool previous_was_number = false;
+        for (unsigned int i = 0; i < row->length(); i++) {
+            char c = row->at(i);
+            if (c >= '1' && c <= '8') {
+                if (previous_was_number) {
+                    throw new std::invalid_argument("fen");
+                }
+                field_sum += c - '0';
+                previous_was_number = true;
+            } else {
+                switch (c) {
+                    case 'p':
+                    case 'n':
+                    case 'b':
+                    case 'r':
+                    case 'q':
+                    case 'k':
+                    case 'P':
+                    case 'N':
+                    case 'B':
+                    case 'R':
+                    case 'Q':
+                    case 'K':
+                        field_sum++;
+                        previous_was_number = false;
+                        break;
+                    default:
+                        throw new std::invalid_argument("fen");
+                }
+            }
+        }
+        if (field_sum != 8) {
+            throw new std::invalid_argument("fen");
+        }
     }
 
     // Check that the turn part is valid.
     if (parts[1] != "w" && parts[1] != "b") {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Check that the castling flag part is valid.
     if (!boost::regex_match(parts[2], boost::regex("^(KQ?k?q?|Qk?q?|kq?|q|-)$"))) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Check that the en-passant part is valid.
     if (!boost::regex_match(parts[3], boost::regex("^(-|[a-h][36])$"))) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Check that the half move part is valid.
     if (!boost::regex_match(parts[4], boost::regex("^0|[1-9][0-9]*$"))) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Check that the ply part is valid.
     if (!boost::regex_match(parts[5], boost::regex("^[1-9][0-9]*$"))) {
-	throw new std::invalid_argument("fen");
+        throw new std::invalid_argument("fen");
     }
 
     // Set the pieces on the board.
     clear_board();
     int x88_index = 0;
     for (unsigned int i = 0; i < parts[0].length(); i++) {
-	char c = parts[0].at(i);
-	if (c == '/') {
-	    x88_index += 8;
-	} else if (c >= '1' && c <= '8') {
-	    x88_index += c - '0';
-	} else {
-	    m_board[x88_index] = Piece(c);
-	    x88_index++;
-	}
+        char c = parts[0].at(i);
+        if (c == '/') {
+            x88_index += 8;
+        } else if (c >= '1' && c <= '8') {
+            x88_index += c - '0';
+        } else {
+            m_board[x88_index] = Piece(c);
+            x88_index++;
+        }
     }
 
     // Set the turn.
@@ -463,28 +463,28 @@ void Position::set_fen(const std::string& fen) {
     m_black_castle_kingside = false;
     m_black_castle_queenside = false;
     for (unsigned int i = 0; i < parts[2].length(); i++) {
-	switch (parts[2].at(i)) {
-	    case 'K':
-		m_white_castle_kingside = true;
-		break;
-	    case 'Q':
-		m_white_castle_queenside = true;
-		break;
-	    case 'k':
-		m_black_castle_kingside = true;
-		break;
-	    case 'q':
-		m_black_castle_queenside = true;
-		break;
-	}
+        switch (parts[2].at(i)) {
+            case 'K':
+                m_white_castle_kingside = true;
+                break;
+            case 'Q':
+                m_white_castle_queenside = true;
+                break;
+            case 'k':
+                m_black_castle_kingside = true;
+                break;
+            case 'q':
+                m_black_castle_queenside = true;
+                break;
+        }
     }
 
     // Set the en-passant file.
     char ep_file = parts[3].at(0);
     if (ep_file == '-') {
-	m_ep_file = 0;
+        m_ep_file = 0;
     } else {
-	m_ep_file = ep_file;
+        m_ep_file = ep_file;
     }
 
     // Set the move counters.
@@ -509,42 +509,42 @@ uint64_t Position::__hash__() const {
 
     // Hash in the board setup.
     for (int i = 0; i < 128; i++) {
-	if (m_board[i].is_valid()) {
-	    Square square = Square::from_x88_index(i);
+        if (m_board[i].is_valid()) {
+            Square square = Square::from_x88_index(i);
 
-	    const char *pieces = "pPnNbBrRqQkK";
-	    int piece_index = 0;
-	    while (m_board[i].symbol() != pieces[piece_index]) {
-		piece_index++;
-	    }
+            const char *pieces = "pPnNbBrRqQkK";
+            int piece_index = 0;
+            while (m_board[i].symbol() != pieces[piece_index]) {
+                piece_index++;
+            }
 
-	    hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * square.rank() + square.file()];
-	}
+            hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * square.rank() + square.file()];
+        }
     }
 
     // Hash in the castling flags.
     if (m_white_castle_kingside) {
-	hash ^= POLYGLOT_RANDOM_ARRAY[768];
+        hash ^= POLYGLOT_RANDOM_ARRAY[768];
     }
     if (m_white_castle_queenside) {
-	hash ^= POLYGLOT_RANDOM_ARRAY[768 + 1];
+        hash ^= POLYGLOT_RANDOM_ARRAY[768 + 1];
     }
     if (m_black_castle_kingside) {
-	hash ^= POLYGLOT_RANDOM_ARRAY[768 + 2];
+        hash ^= POLYGLOT_RANDOM_ARRAY[768 + 2];
     }
     if (m_black_castle_queenside) {
-	hash ^= POLYGLOT_RANDOM_ARRAY[768 + 3];
+        hash ^= POLYGLOT_RANDOM_ARRAY[768 + 3];
     }
 
     // Hash in the en-passant file.
     Square ep_square = get_real_ep_square();
     if (ep_square.is_valid()) {
-	hash ^= POLYGLOT_RANDOM_ARRAY[772 + ep_square.file()];
+        hash ^= POLYGLOT_RANDOM_ARRAY[772 + ep_square.file()];
     }
 
     // Hash in the turn.
     if (m_turn == 'w') {
-	hash ^= POLYGLOT_RANDOM_ARRAY[780];
+        hash ^= POLYGLOT_RANDOM_ARRAY[780];
     }
 
     return hash;
@@ -554,9 +554,9 @@ Square Position::get_king(char color) const {
     Piece king = Piece::from_color_and_type(color, 'k');
 
     for (int i = 0; i < 128; i++) {
-	if (m_board[i] == king) {
-	    return Square::from_x88_index(i);
-	}
+        if (m_board[i] == king) {
+            return Square::from_x88_index(i);
+        }
     }
 
     return Square();
@@ -565,9 +565,9 @@ Square Position::get_king(char color) const {
 boost::python::object Position::python_get_king(char color) const {
     Square square = get_king(color);
     if (square.is_valid()) {
-	return boost::python::object(square);
+        return boost::python::object(square);
     } else {
-	return boost::python::object();
+        return boost::python::object();
     }
 }
 
@@ -583,11 +583,11 @@ bool Position::is_check() const {
 
 bool Position::is_checkmate() const {
     if (!is_check()) {
-	return false;
+        return false;
     } else {
-	// TODO: Consider more efficient checkmate detection.
-	LegalMoveGenerator legal_moves(*this);
-	return !legal_moves.__nonzero__();
+        // TODO: Consider more efficient checkmate detection.
+        LegalMoveGenerator legal_moves(*this);
+        return !legal_moves.__nonzero__();
     }
 }
 
@@ -671,69 +671,69 @@ bool Position::is_game_over() const {
 bool Position::could_have_kingside_castling_right(char color) const {
     int rank;
     if (color == 'w') {
-	rank = 0;
+        rank = 0;
     } else if (color == 'b') {
-	rank = 7;
+        rank = 7;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 
     return (get(Square(rank, 4)) == Piece::from_color_and_type(color, 'k') &&
-	    get(Square(rank, 7)) == Piece::from_color_and_type(color, 'r'));
+            get(Square(rank, 7)) == Piece::from_color_and_type(color, 'r'));
 
 }
 
 bool Position::could_have_queenside_castling_right(char color) const {
     int rank;
     if (color == 'w') {
-	rank = 0;
+        rank = 0;
     } else if (color == 'b') {
-	rank = 7;
+        rank = 7;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 
     return (get(Square(rank, 4)) == Piece::from_color_and_type(color, 'k') &&
-	    get(Square(rank, 0)) == Piece::from_color_and_type(color, 'r'));
+            get(Square(rank, 0)) == Piece::from_color_and_type(color, 'r'));
 }
 
 bool Position::has_kingside_castling_right(char color) const {
     if (color == 'w') {
-	return m_white_castle_kingside;
+        return m_white_castle_kingside;
     } else if (color == 'b') {
-	return m_black_castle_kingside;
+        return m_black_castle_kingside;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 }
 
 bool Position::has_queenside_castling_right(char color) const {
     if (color == 'w') {
-	return m_white_castle_queenside;
+        return m_white_castle_queenside;
     } else if (color == 'b') {
-	return m_black_castle_queenside;
+        return m_black_castle_queenside;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 }
 
 void Position::set_kingside_castling_right(char color, bool castle) {
     if (color == 'w') {
-	m_white_castle_kingside = castle;
+        m_white_castle_kingside = castle;
     } else if (color == 'b') {
-	m_black_castle_kingside = castle;
+        m_black_castle_kingside = castle;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 }
 
 void Position::set_queenside_castling_right(char color, bool castle) {
     if (color == 'w') {
-	m_white_castle_queenside = castle;
+        m_white_castle_queenside = castle;
     } else if (color == 'b') {
-	m_black_castle_queenside = castle;
+        m_black_castle_queenside = castle;
     } else {
-	throw std::invalid_argument("color");
+        throw std::invalid_argument("color");
     }
 }
 
@@ -741,80 +741,80 @@ Move Position::get_move_from_san(const std::string& san) const {
     LegalMoveGenerator legal_moves(*this);
 
     if (san == "o-o" || san == "o-o-o") {
-	// Castling moves.
-	Square target;
-	int rank = m_turn == 'w' ? 0 : 7;
-	if (san == "o-o") {
-	    target = Square(rank, 6);
-	} else {
-	    target = Square(rank, 2);
-	}
-	Move move(Square(rank, 4), target);
+        // Castling moves.
+        Square target;
+        int rank = m_turn == 'w' ? 0 : 7;
+        if (san == "o-o") {
+            target = Square(rank, 6);
+        } else {
+            target = Square(rank, 2);
+        }
+        Move move(Square(rank, 4), target);
 
-	if (legal_moves.__contains__(move)) {
-	    return move;
-	}
+        if (legal_moves.__contains__(move)) {
+            return move;
+        }
     } else {
-	boost::smatch matches;
-	if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?(\\+|#)?$"), boost::match_extra)) {
-	    // Get the piece type.
-	    std::string matched_piece(matches[1].first, matches[1].second);
-	    Piece piece = Piece::from_color_and_type(
-		m_turn,
-		matched_piece == "" ? 'p' : tolower(matched_piece.at(0)));
+        boost::smatch matches;
+        if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?(\\+|#)?$"), boost::match_extra)) {
+            // Get the piece type.
+            std::string matched_piece(matches[1].first, matches[1].second);
+            Piece piece = Piece::from_color_and_type(
+                m_turn,
+                matched_piece == "" ? 'p' : tolower(matched_piece.at(0)));
 
-	    // Get the target square.
-	    std::string matched_target(matches[4].first, matches[4].second);
-	    Square target = Square(matched_target);
+            // Get the target square.
+            std::string matched_target(matches[4].first, matches[4].second);
+            Square target = Square(matched_target);
 
-	    // Get the source file and rank.
-	    std::string matched_file(matches[2].first, matches[2].second);
-	    std::string matched_rank(matches[3].first, matches[3].second);
-	    int file = matched_file == "" ? -1 : (matched_file.at(0) - 'a');
-	    int rank = matched_rank == "" ? -1 : (matched_rank.at(0) - '1');
+            // Get the source file and rank.
+            std::string matched_file(matches[2].first, matches[2].second);
+            std::string matched_rank(matches[3].first, matches[3].second);
+            int file = matched_file == "" ? -1 : (matched_file.at(0) - 'a');
+            int rank = matched_rank == "" ? -1 : (matched_rank.at(0) - '1');
 
-	    // Get the promotion type.
-	    std::string matched_promotion(matches[5].first, matches[5].second);
-	    char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(0));
+            // Get the promotion type.
+            std::string matched_promotion(matches[5].first, matches[5].second);
+            char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(0));
 
-	    // Find a matching move.
-	    legal_moves.__iter__();
-	    Square source;
-	    while (legal_moves.has_more()) {
-		Move move = legal_moves.next();
+            // Find a matching move.
+            legal_moves.__iter__();
+            Square source;
+            while (legal_moves.has_more()) {
+                Move move = legal_moves.next();
 
-		if (move.promotion() != promotion) {
-		    continue;
-		}
+                if (move.promotion() != promotion) {
+                    continue;
+                }
 
-		if (get(move.source()) != piece || move.target() != target) {
-		    continue;
-		}
+                if (get(move.source()) != piece || move.target() != target) {
+                    continue;
+                }
 
-		if (file != -1 && file != move.source().file()) {
-		    continue;
-		}
+                if (file != -1 && file != move.source().file()) {
+                    continue;
+                }
 
-		if (rank != -1 && rank != move.source().rank()) {
-		    continue;
-		}
+                if (rank != -1 && rank != move.source().rank()) {
+                    continue;
+                }
 
-		// Found a matching move. Make sure it is not ambigous.
-		if (source.is_valid()) {
-		    throw std::invalid_argument("san");
-		}
-		source = move.source();
-	    }
+                // Found a matching move. Make sure it is not ambigous.
+                if (source.is_valid()) {
+                    throw std::invalid_argument("san");
+                }
+                source = move.source();
+            }
 
-	    // Return the found move.
-	    if (source.is_valid()) {
-		if (promotion) {
-		    return Move(source, target, promotion);
-		} else {
-		    return Move(source, target);
-		}
-	    }
-	}
+            // Return the found move.
+            if (source.is_valid()) {
+                if (promotion) {
+                    return Move(source, target, promotion);
+                } else {
+                    return Move(source, target);
+                }
+            }
+        }
     }
 
     throw std::invalid_argument("san");
@@ -827,7 +827,7 @@ MoveInfo Position::make_move_from_san(const std::string& san) {
 MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
     Piece piece = get(move.source());
     if (!piece.is_valid()) {
-	throw new std::invalid_argument("move");
+        throw new std::invalid_argument("move");
     }
     MoveInfo info(move, piece);
     info.set_captured(get(move.target()));
@@ -842,49 +842,49 @@ MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
     // Pawn moves.
     m_ep_file = 0;
     if (piece.type() == 'p') {
-	// En-passant.
-	if (move.target().file() != move.source().file() && !info.captured().is_valid()) {
-	    int capture_square_index;
-	    if (m_turn == 'b') {
-		capture_square_index = Square(4, move.target().file()).x88_index();
-	    } else {
-		capture_square_index = Square(3, move.target().file()).x88_index();
-	    }
-	    info.set_captured(m_board[capture_square_index]);
-	    info.set_is_enpassant(true);
-	}
+        // En-passant.
+        if (move.target().file() != move.source().file() && !info.captured().is_valid()) {
+            int capture_square_index;
+            if (m_turn == 'b') {
+                capture_square_index = Square(4, move.target().file()).x88_index();
+            } else {
+                capture_square_index = Square(3, move.target().file()).x88_index();
+            }
+            info.set_captured(m_board[capture_square_index]);
+            info.set_is_enpassant(true);
+        }
 
-	// If two steps forward, set the en-passant file.
-	if (abs(move.target().rank() - move.source().rank()) == 2) {
-	    m_ep_file = move.target().file() + 'a';
-	}
+        // If two steps forward, set the en-passant file.
+        if (abs(move.target().rank() - move.source().rank()) == 2) {
+            m_ep_file = move.target().file() + 'a';
+        }
     }
 
     // Promotion.
     if (move.promotion()) {
-	set(move.target(), Piece::from_color_and_type(piece.color(), move.promotion()));
+        set(move.target(), Piece::from_color_and_type(piece.color(), move.promotion()));
     }
 
     // Castling.
     if (piece.type() == 'k') {
-	int steps = move.target().file() - move.source().file();
-	int backrank = (m_turn == 'b') ? 0 : 7;
-	if (steps == 2) {
-	    info.set_is_kingside_castle(true);
-	    set(Square(backrank, 5), get(Square(backrank, 7)));
-	    set(Square(backrank, 7), Piece());
-	} else if (steps == -2) {
-	    info.set_is_queenside_castle(true);
-	    set(Square(backrank, 3), get(Square(backrank, 0)));
-	    set(Square(backrank, 0), Piece());
-	}
+        int steps = move.target().file() - move.source().file();
+        int backrank = (m_turn == 'b') ? 0 : 7;
+        if (steps == 2) {
+            info.set_is_kingside_castle(true);
+            set(Square(backrank, 5), get(Square(backrank, 7)));
+            set(Square(backrank, 7), Piece());
+        } else if (steps == -2) {
+            info.set_is_queenside_castle(true);
+            set(Square(backrank, 3), get(Square(backrank, 0)));
+            set(Square(backrank, 0), Piece());
+        }
     }
 
     // Update the half move counter.
     if (piece.type() == 'p' || info.captured().is_valid()) {
-	m_half_moves = 0;
+        m_half_moves = 0;
     } else {
-	m_half_moves++;
+        m_half_moves++;
     }
 
     // Increment the move number.
@@ -894,11 +894,11 @@ MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
 
     // Update castling rights.
     if (m_turn == 'w') {
-	m_black_castle_kingside = m_black_castle_kingside && could_have_kingside_castling_right('b');
-	m_black_castle_queenside = m_black_castle_queenside && could_have_queenside_castling_right('b');
+        m_black_castle_kingside = m_black_castle_kingside && could_have_kingside_castling_right('b');
+        m_black_castle_queenside = m_black_castle_queenside && could_have_queenside_castling_right('b');
     } else {
-	m_white_castle_kingside = m_white_castle_kingside && could_have_kingside_castling_right('w');
-	m_white_castle_queenside = m_white_castle_queenside && could_have_queenside_castling_right('w');
+        m_white_castle_kingside = m_white_castle_kingside && could_have_kingside_castling_right('w');
+        m_white_castle_queenside = m_white_castle_queenside && could_have_queenside_castling_right('w');
     }
 
     return info;
@@ -908,7 +908,7 @@ MoveInfo Position::make_move(const Move& move) {
     // Make sure the move is valid.
     LegalMoveGenerator legal_moves(*this);
     if (!legal_moves.__contains__(move)) {
-	throw new std::invalid_argument("move");
+        throw new std::invalid_argument("move");
     }
 
     // Do the move.
@@ -920,63 +920,63 @@ MoveInfo Position::make_move(const Move& move) {
 
     // Generate the SAN.
     if (info.is_kingside_castle()) {
-	info.set_san("o-o");
+        info.set_san("o-o");
     } else if (info.is_queenside_castle()) {
-	info.set_san("o-o-o");
+        info.set_san("o-o-o");
     } else {
-	// Add the piece type.
-	if (info.piece().type() != 'p') {
-	    info.set_san(info.san() + (char)toupper(info.piece().type()));
-	}
+        // Add the piece type.
+        if (info.piece().type() != 'p') {
+            info.set_san(info.san() + (char)toupper(info.piece().type()));
+        }
 
-	// Add a disambiguator.
-	bool is_ambigous = false;
-	bool same_rank = false;
-	bool same_file = false;
-	legal_moves.__iter__();
-	while (legal_moves.has_more()) {
-	    Move m = legal_moves.next();
-	    if (get(m.source()) == info.piece() && move.source() != m.source() && move.target() == m.target()) {
-		is_ambigous = true;
+        // Add a disambiguator.
+        bool is_ambigous = false;
+        bool same_rank = false;
+        bool same_file = false;
+        legal_moves.__iter__();
+        while (legal_moves.has_more()) {
+            Move m = legal_moves.next();
+            if (get(m.source()) == info.piece() && move.source() != m.source() && move.target() == m.target()) {
+                is_ambigous = true;
 
-		if (move.source().rank() == m.source().rank()) {
-		    same_rank = true;
-		}
-		if (move.source().file() == m.source().file()) {
-		    same_file = true;
-		}
-		if (same_rank && same_file) {
-		    break;
-		}
-	    }
-	}
-	if (same_rank && same_file) {
-	    info.set_san(info.san() + move.source().name());
-	} else if (same_file) {
-	    info.set_san(info.san() + (char)('1' + move.source().rank()));
-	} else if (same_rank || is_ambigous) {
-	    info.set_san(info.san() + move.source().file_name());
-	}
+                if (move.source().rank() == m.source().rank()) {
+                    same_rank = true;
+                }
+                if (move.source().file() == m.source().file()) {
+                    same_file = true;
+                }
+                if (same_rank && same_file) {
+                    break;
+                }
+            }
+        }
+        if (same_rank && same_file) {
+            info.set_san(info.san() + move.source().name());
+        } else if (same_file) {
+            info.set_san(info.san() + (char)('1' + move.source().rank()));
+        } else if (same_rank || is_ambigous) {
+            info.set_san(info.san() + move.source().file_name());
+        }
 
-	// Handle captures.
-	if (info.captured().is_valid()) {
-	    if (info.piece().type() == 'p') {
-		info.set_san(info.san() + move.source().file_name());
-	    }
-	    info.set_san(info.san() + "x");
-	}
+        // Handle captures.
+        if (info.captured().is_valid()) {
+            if (info.piece().type() == 'p') {
+                info.set_san(info.san() + move.source().file_name());
+            }
+            info.set_san(info.san() + "x");
+        }
 
-	// Add the target name.
-	info.set_san(info.san() + move.target().name());
+        // Add the target name.
+        info.set_san(info.san() + move.target().name());
     }
     if (info.is_checkmate()) {
-	info.set_san(info.san() + "#");
+        info.set_san(info.san() + "#");
     } else if (info.is_check()) {
-	info.set_san(info.san() + "+");
+        info.set_san(info.san() + "+");
     }
 
     if (info.is_enpassant()) {
-	info.set_san(info.san() + " (e.p.)");
+        info.set_san(info.san() + " (e.p.)");
     }
 
     return info;
@@ -985,7 +985,7 @@ MoveInfo Position::make_move(const Move& move) {
 void Position::make_move_fast(const Move& move) {
     LegalMoveGenerator legal_moves(*this);
     if (!legal_moves.__contains__(move)) {
-	throw new std::invalid_argument("move");
+        throw new std::invalid_argument("move");
     }
     make_unvalidated_move_fast(move);
 }
@@ -1009,21 +1009,21 @@ Position& Position::operator=(const Position& rhs) {
 
 bool Position::operator==(const Position& rhs) const {
     if (m_turn != rhs.m_turn ||
-	m_ep_file != rhs.m_ep_file ||
-	m_half_moves != rhs.m_half_moves ||
-	m_ply != rhs.m_ply ||
-	m_white_castle_queenside != rhs.m_white_castle_queenside ||
-	m_white_castle_kingside != rhs.m_white_castle_kingside ||
-	m_black_castle_queenside != rhs.m_black_castle_queenside ||
-	m_black_castle_kingside != rhs.m_black_castle_kingside)
+        m_ep_file != rhs.m_ep_file ||
+        m_half_moves != rhs.m_half_moves ||
+        m_ply != rhs.m_ply ||
+        m_white_castle_queenside != rhs.m_white_castle_queenside ||
+        m_white_castle_kingside != rhs.m_white_castle_kingside ||
+        m_black_castle_queenside != rhs.m_black_castle_queenside ||
+        m_black_castle_kingside != rhs.m_black_castle_kingside)
     {
-	return false;
+        return false;
     }
 
     for (int i = 0; i < 128; i++) {
-	if (m_board[i] != rhs.m_board[i]) {
-	    return false;
-	}
+        if (m_board[i] != rhs.m_board[i]) {
+            return false;
+        }
     }
 
     return true;
@@ -1036,13 +1036,13 @@ bool Position::operator!=(const Position& rhs) const {
 int Position::x88_index_from_square_key(const boost::python::object& square_key) const {
     boost::python::extract<Square&> extract_square(square_key);
     if (extract_square.check()) {
-	Square& square = extract_square();
-	return square.x88_index();
+        Square& square = extract_square();
+        return square.x88_index();
     }
     else {
-	std::string square_name = boost::python::extract<std::string>(square_key);
-	Square square = Square(square_name);
-	return square.x88_index();
+        std::string square_name = boost::python::extract<std::string>(square_key);
+        Square square = Square(square_name);
+        return square.x88_index();
     }
 }
 
