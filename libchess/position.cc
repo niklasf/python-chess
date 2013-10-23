@@ -756,7 +756,7 @@ Move Position::get_move_from_san(const std::string& san) const {
         }
     } else {
         boost::smatch matches;
-        if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[NBRQ])?(\\+|#)?$"), boost::match_extra)) {
+        if (boost::regex_match(san, matches, boost::regex("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$"), boost::match_extra)) {
             // Get the piece type.
             std::string matched_piece(matches[1].first, matches[1].second);
             Piece piece = Piece::from_color_and_type(
