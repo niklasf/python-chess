@@ -844,6 +844,7 @@ MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
     if (piece.type() == 'p') {
         // En-passant.
         if (move.target().file() != move.source().file() && !info.captured().is_valid()) {
+            // Get information about the captured piece.
             int capture_square_index;
             if (m_turn == 'b') {
                 capture_square_index = Square(4, move.target().file()).x88_index();
@@ -852,6 +853,9 @@ MoveInfo Position::make_unvalidated_move_fast(const Move& move) {
             }
             info.set_captured(m_board[capture_square_index]);
             info.set_is_enpassant(true);
+
+            // Remove the captured piece.
+            m_board[capture_square_index] = Piece();
         }
 
         // If two steps forward, set the en-passant file.

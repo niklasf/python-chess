@@ -167,7 +167,6 @@ class PositionTestCase(unittest.TestCase):
         fifth_rank_move = pos.get_move_from_san("N5f3")
         self.assertEqual(fifth_rank_move, chess.Move.from_uci("g5f3"))
 
-
     def test_insufficient_material(self):
         """Tests material counting."""
         # Starting position.
@@ -181,3 +180,10 @@ class PositionTestCase(unittest.TestCase):
         # Add a black bishop of the opposite color for the weaker side.
         pos["b8"] = chess.Piece("b")
         self.assertFalse(pos.is_insufficient_material())
+
+    def test_enpassant(self):
+        """Test pawns captured en passant are removed."""
+        pos = chess.Position("rnbqkbnr/pp2pppp/2p5/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3")
+        move_info = pos.make_move_from_san("exd6")
+        self.assertTrue(move_info.is_enpassant)
+        self.assertEqual(pos.fen, "rnbqkbnr/pp2pppp/2pP4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3")
