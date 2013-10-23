@@ -19,7 +19,7 @@
 __author__ = "Niklas Fiekas"
 __copyright__ = "Copyright 2013, Niklas Fiekas"
 __license__ = "GPL"
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 __maintainer__ = "Niklas Fiekas"
 __email__ = "niklas.fiekas@tu-clausthal.de"
 __status__ = "Development"

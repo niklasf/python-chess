@@ -52,7 +52,7 @@ using namespace chess;
 scope().attr("__author__") = "Niklas Fiekas";
 scope().attr("__copyright__") = "Copyright 2013, Niklas Fiekas";
 scope().attr("__license__") = "GPL";
-scope().attr("__version__") = "0.0.4";
+scope().attr("__version__") = "0.0.5";
 scope().attr("__maintainer__") = "Niklas Fiekas";
 scope().attr("__email__") = "niklas.fiekas@tu-clausthal.de";
 scope().attr("__status__") = "Development";
