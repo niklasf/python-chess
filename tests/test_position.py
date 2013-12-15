@@ -187,3 +187,9 @@ class PositionTestCase(unittest.TestCase):
         move_info = pos.make_move_from_san("exd6")
         self.assertTrue(move_info.is_enpassant)
         self.assertEqual(pos.fen, "rnbqkbnr/pp2pppp/2pP4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3")
+
+    def test_promotion_with_check(self):
+        pos = chess.Position("8/6P1/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 w - - 0 1")
+        move_info = pos.make_move_from_san("g8=Q+")
+        self.assertTrue(move_info.is_check)
+        self.assertEqual(pos.fen, "6Q1/8/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 b - - 0 1")
