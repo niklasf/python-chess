@@ -775,7 +775,7 @@ Move Position::get_move_from_san(const std::string& san) const {
 
             // Get the promotion type.
             std::string matched_promotion(matches[5].first, matches[5].second);
-            char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(0));
+            char promotion = matched_promotion == "" ? 0 : tolower(matched_promotion.at(1));
 
             // Find a matching move.
             legal_moves.__iter__();
