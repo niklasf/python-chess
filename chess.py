@@ -152,6 +152,18 @@ BB_KNIGHT_ATTACKS = tuple((
     for square in BB_SQUARES))
 
 
+BB_KING_ATTACKS = tuple((
+       shift_left(square)
+     | shift_right(square)
+     | shift_up(square)
+     | shift_down(square)
+     | shift_up_left(square)
+     | shift_up_right(square)
+     | shift_down_left(square)
+     | shift_down_right(square)
+    for square in BB_SQUARES))
+
+
 
 
 def visualize(bb):
@@ -164,7 +176,7 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
-visualize(BB_KNIGHT_ATTACKS[H7])
+visualize(BB_KING_ATTACKS[F4])
 
 
 
