@@ -178,6 +178,8 @@ for bb_square in BB_SQUARES:
 
 BB_RANK_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
 
+BB_FILE_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
+
 for square in SQUARES:
     for bitrow in range(0, 64):
         f = file_index(square) + 1
@@ -198,6 +200,23 @@ for square in SQUARES:
             q -= 1
             f -= 1
 
+        r = rank_index(square) + 1
+        q = square + 8
+        while r < 8:
+            BB_FILE_ATTACKS[square][bitrow] |= BB_SQUARES[q]
+            if (1 << (7 - r)) & (bitrow << 1):
+                break
+            q += 8
+            r += 1
+
+        r = rank_index(square) - 1
+        q = square - 8
+        while r >= 0:
+            BB_FILE_ATTACKS[square][bitrow] |= BB_SQUARES[q]
+            if (1 << (7 - r)) & (bitrow << 1):
+                break
+            q -= 8
+            r -= 1
 
 
 def knight_attacks_from(square):
@@ -207,7 +226,8 @@ def king_attacks_from(square):
     return BB_KING_ATTACKS[square]
 
 def rook_attacks_from(square, occupied, occupied_l90):
-    return BB_RANK_ATTACKS[square][(occupied >> ((square & ~7) + 1)) & 63]
+    return (BB_RANK_ATTACKS[square][(occupied >> ((square & ~7) + 1)) & 63] |
+            BB_FILE_ATTACKS[square][(occupied_l90 >> (((square & 7) << 3) + 1)) & 63])
 
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
@@ -220,7 +240,7 @@ def visualize(bb):
     sys.stdout.flush()
 
 
-visualize(rook_attacks_from(E4, BB_FILE_B, BB_VOID))
+visualize(rook_attacks_from(E4, BB_ALL, BB_ALL))
 
 
 class Bitboard:
