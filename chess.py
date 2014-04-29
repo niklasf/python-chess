@@ -356,11 +356,6 @@ def next_bit(b):
 
     return r, b
 
-b = BB_FILE_A
-while b:
-    s, b = next_bit(b)
-    print SQUARE_NAMES[s]
-
 
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
@@ -372,31 +367,82 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
-occupied = BB_FILE_F
-
-occupied_l90 = BB_VOID
-occupied_l45 = BB_VOID
-occupied_r45 = BB_VOID
-
-for i in range(0, 64):
-    if BB_SQUARES[i] & occupied:
-        occupied_l90 |= BB_SQUARES_L90[i]
-        occupied_l45 |= BB_SQUARES_L45[i]
-        occupied_r45 |= BB_SQUARES_R45[i]
-
-visualize(queen_attacks_from(D3, occupied, occupied_l90, occupied_r45, occupied_l45))
-
 
 class Bitboard:
 
     def __init__(self):
-        self.pawns = BB_RANK_2 | BB_RANK_7
+        self.pawns = BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
         self.rooks = BB_A1 | BB_H1 | BB_A8 | BB_H8
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
-        self.occupied_co = [ BB_RANK_1 | BB_RANK_2, BB_RANK_7 | BB_RANK_8 ]
-        self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
+        self.occupied_co = [ BB_RANK_1, BB_RANK_7 | BB_RANK_8 ]
+        self.occupied = BB_RANK_1 | BB_RANK_7 | BB_RANK_8
 
+        self.occupied_l90 = BB_VOID
+        self.occupied_l45 = BB_VOID
+        self.occupied_r45 = BB_VOID
+
+        for i in range(64):
+            if BB_SQUARES[i] & self.occupied:
+                self.occupied_l90 |= BB_SQUARES_L90[i]
+                self.occupied_r45 |= BB_SQUARES_R45[i]
+                self.occupied_l45 |= BB_SQUARES_L45[i]
+
+
+    def generate_pseudo_legal_moves(self):
+        print "Knight moves:"
+        movers = self.knights & self.occupied_co[WHITE]
+        while movers:
+            from_square, movers = next_bit(movers)
+            moves = knight_attacks_from(from_square) & ~self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+
+        print
+        print "Bishop moves:"
+        movers = self.bishops & self.occupied_co[WHITE]
+        while movers:
+            from_square, movers = next_bit(movers)
+            moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+        print
+        print "Rook moves:"
+        movers = self.rooks & self.occupied_co[WHITE]
+        while movers:
+            from_square, movers = next_bit(movers)
+            moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+        print
+        print "Queen moves:"
+        movers = self.queens & self.occupied_co[WHITE]
+        while movers:
+            from_square, movers = next_bit(movers)
+            moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+        print
+        print "King moves:"
+        movers = self.kings & self.occupied_co[WHITE]
+        while movers:
+            from_square, movers = next_bit(movers)
+            moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+
+board = Bitboard()
+board.generate_pseudo_legal_moves()
