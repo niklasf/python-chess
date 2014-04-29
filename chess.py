@@ -1,5 +1,7 @@
-COLORS = ( WHITE, BLACK ) = range(0, 2)
+import sys
 
+
+COLORS = ( WHITE, BLACK ) = range(0, 2)
 
 PIECE_TYPES = ( NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ) = range(0, 7)
 
@@ -101,6 +103,68 @@ BB_RANKS = (
 )
 
 
+def shift_down(b):
+    return b >> 8
+
+def shift_2_down(b):
+    return b >> 16
+
+def shift_up(b):
+    return (b << 8) & BB_ALL
+
+def shift_2_up(b):
+    return (b << 16) & BB_ALL
+
+def shift_right(b):
+    return (b << 1) & ~BB_FILE_A
+
+def shift_2_right(b):
+    return (b << 2) & ~BB_FILE_A & ~BB_FILE_B
+
+def shift_left(b):
+    return (b >> 1) & ~BB_FILE_H
+
+def shift_2_left(b):
+    return (b >> 2) & ~BB_FILE_G & ~BB_FILE_H
+
+def shift_up_left(b):
+    return (b << 7) & ~BB_FILE_H
+
+def shift_up_right(b):
+    return (b << 9) & ~BB_FILE_A
+
+def shift_down_left(b):
+    return (b >> 9) & ~BB_FILE_H
+
+def shift_down_right(b):
+    return (b >> 7) & ~BB_FILE_A
+
+
+
+# Generate knight attack masks.
+
+for square in BB_SQUARES:
+    mask = BB_VOID
+    mask |= 0
+
+def visualize(bb):
+    for i, square in enumerate(BB_SQUARES):
+        if bb & square:
+            sys.stdout.write("[X]")
+        else:
+            sys.stdout.write("[ ]")
+        if i % 8 == 7:
+            sys.stdout.write("\n")
+    sys.stdout.flush()
+
+visualize(BB_F8)
+print
+visualize((BB_F8 << 8))
+print bin(BB_F8 << 8 & BB_ALL)
+print bin(BB_A1 >> 8)
+
+
+
 class Bitboard:
 
     def __init__(self):
@@ -112,5 +176,5 @@ class Bitboard:
         self.kings = BB_E1 | BB_E8
 
         self.occupied_co = [ BB_RANK_1 | BB_RANK_2, BB_RANK_7 | BB_RANK_8 ]
-        self.occupied = [ BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8 ]
+        self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
