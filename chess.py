@@ -140,12 +140,19 @@ def shift_down_right(b):
     return (b >> 7) & ~BB_FILE_A
 
 
+BB_KNIGHT_ATTACKS = tuple((
+       shift_left(shift_2_up(square))
+     | shift_right(shift_2_up(square))
+     | shift_left(shift_2_down(square))
+     | shift_right(shift_2_down(square))
+     | shift_2_left(shift_up(square))
+     | shift_2_right(shift_up(square))
+     | shift_2_left(shift_down(square))
+     | shift_2_right(shift_down(square))
+    for square in BB_SQUARES))
 
-# Generate knight attack masks.
 
-for square in BB_SQUARES:
-    mask = BB_VOID
-    mask |= 0
+
 
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
@@ -157,11 +164,7 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
-visualize(BB_F8)
-print
-visualize((BB_F8 << 8))
-print bin(BB_F8 << 8 & BB_ALL)
-print bin(BB_A1 >> 8)
+visualize(BB_KNIGHT_ATTACKS[H7])
 
 
 
