@@ -315,6 +315,43 @@ def queen_attacks_from(square, occupied, occupied_l90, occupied_r45, occupied_l4
     return (rook_attacks_from(square, occupied, occupied_l90) |
             bishop_attacks_from(square, occupied_r45, occupied_l45))
 
+def next_bit(b):
+    x = b & -b
+    b ^= x
+
+    r = 0
+
+    if not x & 0xffffffff:
+        x >>= 32
+        r |= 32
+
+    if not x & 0xffff:
+        x >>= 16
+        r |= 16
+
+    if not x & 0xff:
+        x >>= 8
+        r |= 8
+
+    if not x & 0xf:
+        x >>= 4
+        r |= 4
+
+    if not x & 0x3:
+        x >>= 2
+        r |= 2
+
+    if not x & 0x1:
+        r |= 1
+
+    return r, b
+
+b = BB_FILE_A
+while b:
+    s, b = next_bit(b)
+    print s
+
+
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
         if bb & square:
@@ -325,16 +362,19 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
-occupied = BB_ALL
+occupied = BB_FILE_F
 
+occupied_l90 = BB_VOID
 occupied_l45 = BB_VOID
 occupied_r45 = BB_VOID
 
 for i in range(0, 64):
-    occupied_l45 |= BB_SQUARES_L45[i]
-    occupied_r45 |= BB_SQUARES_R45[i]
+    if BB_SQUARES[i] & occupied:
+        occupied_l90 |= BB_SQUARES_L90[i]
+        occupied_l45 |= BB_SQUARES_L45[i]
+        occupied_r45 |= BB_SQUARES_R45[i]
 
-visualize(bishop_attacks_from(D3, occupied_r45, occupied_l45))
+visualize(queen_attacks_from(D3, occupied, occupied_l90, occupied_r45, occupied_l45))
 
 
 class Bitboard:
