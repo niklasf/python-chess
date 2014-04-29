@@ -52,7 +52,6 @@ SQUARES_L45 = [
     A8, B1, C2, D3, E4, F5, G6, H7,
     A1, B2, C3, D4, E5, F6, G7, H8 ]
 
-
 BB_VOID = 0x0000000000000000L
 
 BB_ALL = 0xffffffffffffffffL
@@ -67,6 +66,12 @@ BB_SQUARES = [
     BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
 ] = [ 1L << i for i in SQUARES ]
+
+BB_SQUARES_L90 = [ BB_SQUARES[SQUARES_L90[square]] for square in SQUARES ]
+
+BB_SQUARES_L45 = [ BB_SQUARES[SQUARES_L45[square]] for square in SQUARES ]
+
+BB_SQUARES_R45 = [ BB_SQUARES[SQUARES_R45[square]] for square in SQUARES ]
 
 BB_FILES = [
     BB_FILE_A,
@@ -145,6 +150,15 @@ def shift_down_left(b):
 def shift_down_right(b):
     return (b >> 7) & ~BB_FILE_A
 
+def l90(b):
+    mask = BB_VOID
+
+    for i in range(0, 64):
+        if BB_SQUARES[i] & b:
+            mask |= SQUARES_L90[i]
+
+
+
 
 BB_KNIGHT_ATTACKS = []
 
@@ -218,6 +232,70 @@ for square in SQUARES:
             q -= 8
             r -= 1
 
+BB_SHIFT_R45 = [
+    1, 58, 51, 44, 37, 30, 23, 16,
+    9, 1, 58, 51, 44, 37, 30, 23,
+    17, 9, 1, 58, 51, 44, 37, 30,
+    25, 17, 9, 1, 58, 51, 44, 37,
+    33, 25, 17, 9, 1, 58, 51, 44,
+    41, 33, 25, 17, 9, 1, 58, 51,
+    49, 41, 33, 25, 17, 9, 1, 58,
+    57, 49, 41, 33, 25, 17, 9, 1 ]
+
+BB_SHIFT_L45 = [
+    9, 17, 25, 33, 41, 49, 57, 1,
+    17, 25, 33, 41, 49, 57, 1, 10,
+    25, 33, 41, 49, 57, 1, 10, 19,
+    33, 41, 49, 57, 1, 10, 19, 28,
+    41, 49, 57, 1, 10, 19, 28, 37,
+    49, 57, 1, 10, 19, 28, 37, 46,
+    57, 1, 10, 19, 28, 37, 46, 55,
+    1, 10, 19, 28, 37, 46, 55, 64 ]
+
+
+BB_L45_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
+
+BB_R45_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
+
+for s in SQUARES:
+    for b in range(0, 64):
+        mask = BB_VOID
+
+        q = s
+        while file_index(q) > 0 and rank_index(q) < 7:
+            q += 7
+            mask |= BB_SQUARES[q]
+            if b & (BB_SQUARES_L45[q] >> BB_SHIFT_L45[s]):
+                break
+
+        q = s
+        while file_index(q) < 7 and rank_index(q) > 0:
+            q -= 7
+            mask |= BB_SQUARES[q]
+            if b & (BB_SQUARES_L45[q] >> BB_SHIFT_L45[s]):
+                break
+
+        BB_L45_ATTACKS[s][b] = mask
+
+        mask = BB_VOID
+
+        q = s
+        while file_index(q) < 7 and rank_index(q) < 7:
+            q += 9
+            mask |= BB_SQUARES[q]
+            if b & (BB_SQUARES_R45[q] >> BB_SHIFT_R45[s]):
+                break
+
+        q = s
+        while file_index(q) > 0 and rank_index(q) > 0:
+            q -= 9
+            mask |= BB_SQUARES[q]
+            if b & (BB_SQUARES_R45[q] >> BB_SHIFT_R45[s]):
+                break
+
+        BB_R45_ATTACKS[s][b] = mask
+
+
 
 def knight_attacks_from(square):
     return BB_KNIGHT_ATTACKS[square]
@@ -229,6 +307,14 @@ def rook_attacks_from(square, occupied, occupied_l90):
     return (BB_RANK_ATTACKS[square][(occupied >> ((square & ~7) + 1)) & 63] |
             BB_FILE_ATTACKS[square][(occupied_l90 >> (((square & 7) << 3) + 1)) & 63])
 
+def bishop_attacks_from(square, occupied_r45, occupied_l45):
+    return (BB_R45_ATTACKS[square][(occupied_r45 >> BB_SHIFT_R45[square]) & 63] |
+            BB_L45_ATTACKS[square][(occupied_l45 >> BB_SHIFT_L45[square]) & 63])
+
+def queen_attacks_from(square, occupied, occupied_l90, occupied_r45, occupied_l45):
+    return (rook_attacks_from(square, occupied, occupied_l90) |
+            bishop_attacks_from(square, occupied_r45, occupied_l45))
+
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
         if bb & square:
@@ -239,8 +325,16 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
+occupied = BB_ALL
 
-visualize(rook_attacks_from(E4, BB_ALL, BB_ALL))
+occupied_l45 = BB_VOID
+occupied_r45 = BB_VOID
+
+for i in range(0, 64):
+    occupied_l45 |= BB_SQUARES_L45[i]
+    occupied_r45 |= BB_SQUARES_R45[i]
+
+visualize(bishop_attacks_from(D3, occupied_r45, occupied_l45))
 
 
 class Bitboard:
