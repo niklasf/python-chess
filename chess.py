@@ -1,4 +1,5 @@
 import sys
+import time
 
 
 COLORS = [ WHITE, BLACK ] = range(0, 2)
@@ -393,56 +394,60 @@ class Bitboard:
 
 
     def generate_pseudo_legal_moves(self):
-        print "Knight moves:"
         movers = self.knights & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = knight_attacks_from(from_square) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
-                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
 
-
-        print
-        print "Bishop moves:"
         movers = self.bishops & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
-                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
 
-        print
-        print "Rook moves:"
         movers = self.rooks & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
-                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
 
-        print
-        print "Queen moves:"
         movers = self.queens & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
-                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
 
-        print
-        print "King moves:"
         movers = self.kings & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
-                print SQUARE_NAMES[from_square], SQUARE_NAMES[to_square]
+
+    def is_attacked_by(self, color, square):
+        if knight_attacks_from(square) & self.knights & self.occupied_co[color]:
+            return True
+
+        if bishop_attacks_from(square, self.occupied_r45, self.occupied_l45) & (self.bishops | self.queens) & self.occupied_co[color]:
+            return True
+
+        if rook_attacks_from(square, self.occupied, self.occupied_l90) & (self.rooks | self.queens) & self.occupied_co[color]:
+            return True
+
+        if king_attacks_from(square) & (self.kings | self.queens) & self.occupied_co[color]:
+            return True
+
+        return False
 
 
 board = Bitboard()
+t = time.time()
 board.generate_pseudo_legal_moves()
+print time.time() - t
+
+print board.is_attacked_by(WHITE, D4)
