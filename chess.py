@@ -16,6 +16,12 @@ SQUARES = [
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8 ] = range(0, 64)
 
+def file_index(square):
+    return square & 7
+
+def rank_index(square):
+    return square >> 3
+
 SQUARES_L90 = [
     H1, H2, H3, H4, H5, H6, H7, H8,
     G1, G2, G3, G4, G5, G6, G7, G8,
@@ -142,35 +148,66 @@ def shift_down_right(b):
 
 BB_KNIGHT_ATTACKS = []
 
-for square in BB_SQUARES:
+for bb_square in BB_SQUARES:
     mask = BB_VOID
-    mask |= shift_left(shift_2_up(square))
-    mask |= shift_right(shift_2_up(square))
-    mask |= shift_left(shift_2_down(square))
-    mask |= shift_right(shift_2_down(square))
-    mask |= shift_2_left(shift_up(square))
-    mask |= shift_2_right(shift_up(square))
-    mask |= shift_2_left(shift_down(square))
-    mask |= shift_2_right(shift_down(square))
-    BB_KNIGHT_ATTACKS.append(square)
+    mask |= shift_left(shift_2_up(bb_square))
+    mask |= shift_right(shift_2_up(bb_square))
+    mask |= shift_left(shift_2_down(bb_square))
+    mask |= shift_right(shift_2_down(bb_square))
+    mask |= shift_2_left(shift_up(bb_square))
+    mask |= shift_2_right(shift_up(bb_square))
+    mask |= shift_2_left(shift_down(bb_square))
+    mask |= shift_2_right(shift_down(bb_square))
+    BB_KNIGHT_ATTACKS.append(mask)
 
 
 BB_KING_ATTACKS = []
 
-for square in BB_SQUARES:
+for bb_square in BB_SQUARES:
     mask = BB_VOID
-    mask |= shift_left(square)
-    mask |= shift_right(square)
-    mask |= shift_up(square)
-    mask |= shift_down(square)
-    mask |= shift_up_left(square)
-    mask |= shift_up_right(square)
-    mask |= shift_down_left(square)
-    mask |= shift_down_right(square)
+    mask |= shift_left(bb_square)
+    mask |= shift_right(bb_square)
+    mask |= shift_up(bb_square)
+    mask |= shift_down(bb_square)
+    mask |= shift_up_left(bb_square)
+    mask |= shift_up_right(bb_square)
+    mask |= shift_down_left(bb_square)
+    mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask)
 
 
+BB_RANK_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
 
+for square in SQUARES:
+    for bitrow in range(0, 64):
+        f = file_index(square) + 1
+        q = square + 1
+        while f < 8:
+            BB_RANK_ATTACKS[square][bitrow] |= BB_SQUARES[q]
+            if (1 << f) & (bitrow << 1):
+                break
+            q += 1
+            f += 1
+
+        f = file_index(square) - 1
+        q = square - 1
+        while f >= 0:
+            BB_RANK_ATTACKS[square][bitrow] |= BB_SQUARES[q]
+            if (1 << f) & (bitrow << 1):
+                break
+            q -= 1
+            f -= 1
+
+
+
+def knight_attacks_from(square):
+    return BB_KNIGHT_ATTACKS[square]
+
+def king_attacks_from(square):
+    return BB_KING_ATTACKS[square]
+
+def rook_attacks_from(square, occupied, occupied_l90):
+    return BB_RANK_ATTACKS[square][(occupied >> ((square & ~7) + 1)) & 63]
 
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
@@ -182,8 +219,8 @@ def visualize(bb):
             sys.stdout.write("\n")
     sys.stdout.flush()
 
-visualize(BB_KING_ATTACKS[F4])
 
+visualize(rook_attacks_from(E4, BB_FILE_B, BB_VOID))
 
 
 class Bitboard:
