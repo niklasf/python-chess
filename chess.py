@@ -372,15 +372,15 @@ def visualize(bb):
 class Bitboard:
 
     def __init__(self):
-        self.pawns = BB_RANK_7
+        self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
         self.rooks = BB_A1 | BB_H1 | BB_A8 | BB_H8
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
-        self.occupied_co = [ BB_RANK_1, BB_RANK_7 | BB_RANK_8 ]
-        self.occupied = BB_RANK_1 | BB_RANK_7 | BB_RANK_8
+        self.occupied_co = [ BB_RANK_1 | BB_RANK_2, BB_RANK_7 | BB_RANK_8 ]
+        self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
         self.occupied_l90 = BB_VOID
         self.occupied_l45 = BB_VOID
@@ -394,12 +394,60 @@ class Bitboard:
 
 
     def generate_pseudo_legal_moves(self):
+        # TODO: Implement black side.
+
+        if True:
+            movers = self.pawns & self.occupied_co[WHITE]
+
+            # TODO: Castling.
+
+            # TODO: En passant.
+
+            # Pawn captures.
+            moves = shift_up_right(movers) & self.occupied_co[BLACK]
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square - 9
+                if rank_index(to_square) != 7:
+                    pass
+                else:
+                    pass
+
+            moves = shift_up_left(movers) & self.occupied_co[BLACK]
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square - 7
+                if rank_index(to_square) != 7:
+                    pass
+                else:
+                    pass
+
+            # Pawns one forward.
+            moves = shift_up(movers) & ~self.occupied
+            movers = moves
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square - 8
+                if rank_index(to_square) != 7:
+                    pass
+                else:
+                    pass
+
+            # Pawns two forward.
+            moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square - 16
+                pass
+
+
         movers = self.knights & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
             moves = knight_attacks_from(from_square) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
+                pass
 
         movers = self.bishops & self.occupied_co[WHITE]
         while movers:
@@ -407,6 +455,7 @@ class Bitboard:
             moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
+                pass
 
         movers = self.rooks & self.occupied_co[WHITE]
         while movers:
@@ -414,6 +463,7 @@ class Bitboard:
             moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
+                pass
 
         movers = self.queens & self.occupied_co[WHITE]
         while movers:
@@ -421,7 +471,9 @@ class Bitboard:
             moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
+                pass
 
+        # TODO: Use king square directly.
         movers = self.kings & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
@@ -430,6 +482,8 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
 
     def is_attacked_by(self, color, square):
+        # TODO: Pawn attacks.
+
         if knight_attacks_from(square) & self.knights & self.occupied_co[color]:
             return True
 
