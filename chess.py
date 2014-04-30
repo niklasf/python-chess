@@ -346,6 +346,7 @@ def queen_attacks_from(square, occupied, occupied_l90, occupied_r45, occupied_l4
     return (rook_attacks_from(square, occupied, occupied_l90) |
             bishop_attacks_from(square, occupied_r45, occupied_l45))
 
+
 def next_bit(b):
     x = b & -b
     b ^= x
@@ -405,6 +406,8 @@ class Bitboard:
         self.occupied_l90 = BB_VOID
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
+
+        self.side_to_move = WHITE
 
         for i in range(64):
             if BB_SQUARES[i] & self.occupied:
@@ -518,6 +521,21 @@ class Bitboard:
 
         return False
 
+    def pawn_moves_from(self, square):
+        targets = BB_PAWN_F1[self.side_to_move][square] & ~self.occupied
+
+        if targets:
+            targets |= BB_PAWN_F2[self.side_to_move][square] & ~self.occupied
+
+        if not False:
+            targets |= BB_PAWN_ATTACKS[self.side_to_move][square] & self.occupied_co[self.side_to_move ^ 1]
+        else:
+            # TODO: En-passant.
+            pass
+
+        return targets
+
+
 
 board = Bitboard()
 t = time.time()
@@ -525,3 +543,5 @@ board.generate_pseudo_legal_moves()
 print time.time() - t
 
 print board.is_attacked_by(WHITE, D4)
+
+visualize(board.pawn_moves_from(E2))
