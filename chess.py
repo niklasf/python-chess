@@ -307,6 +307,26 @@ for s in SQUARES:
         BB_R45_ATTACKS[s][b] = mask
 
 
+BB_PAWN_ATTACKS = [
+    [ shift_up_left(s) | shift_up_right(s) for s in BB_SQUARES ],
+    [ shift_down_left(s) | shift_down_right(s) for s in BB_SQUARES ]
+]
+
+BB_PAWN_F1 = [
+    [ shift_up(s) for s in BB_SQUARES ],
+    [ shift_down(s) for s in BB_SQUARES ]
+]
+
+BB_PAWN_F2 = [
+    [ shift_2_up(s) for s in BB_SQUARES ],
+    [ shift_2_down(s) for s in BB_SQUARES ]
+]
+
+BB_PAWN_ALL = [
+    [ BB_PAWN_ATTACKS[0][i] | BB_PAWN_F1[0][i] | BB_PAWN_F2[0][i] for i in SQUARES ],
+    [ BB_PAWN_ATTACKS[1][i] | BB_PAWN_F1[1][i] | BB_PAWN_F2[1][i] for i in SQUARES ]
+]
+
 
 def knight_attacks_from(square):
     return BB_KNIGHT_ATTACKS[square]
