@@ -505,7 +505,8 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
 
     def is_attacked_by(self, color, square):
-        # TODO: Pawn attacks.
+        if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
+            return True
 
         if knight_attacks_from(square) & self.knights & self.occupied_co[color]:
             return True
@@ -545,3 +546,5 @@ print time.time() - t
 print board.is_attacked_by(WHITE, D4)
 
 visualize(board.pawn_moves_from(E2))
+print board.is_attacked_by(WHITE, E3)
+print board.is_attacked_by(WHITE, E4)
