@@ -379,6 +379,28 @@ def next_bit(b):
     return r, b
 
 
+def sparse_pop_count(b):
+    count = 0
+
+    while b:
+        count += 1
+        b &= b - 1
+
+    return count
+
+BYTE_POP_COUNT = [ sparse_pop_count(i) for i in range(256) ]
+
+def pop_count(b):
+    return (BYTE_POP_COUNT[  b        & 0xff ] +
+            BYTE_POP_COUNT[ (b >>  8) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 16) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 24) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 32) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 40) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 48) & 0xff ] +
+            BYTE_POP_COUNT[ (b >> 56) & 0xff ])
+
+
 def visualize(bb):
     for i, square in enumerate(BB_SQUARES):
         if bb & square:
@@ -548,3 +570,5 @@ print board.is_attacked_by(WHITE, D4)
 visualize(board.pawn_moves_from(E2))
 print board.is_attacked_by(WHITE, E3)
 print board.is_attacked_by(WHITE, E4)
+
+print sparse_pop_count(board.pawns)
