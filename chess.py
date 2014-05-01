@@ -1078,8 +1078,8 @@ def material_evaluator(bitboard):
     value += 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
     value -= 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
 
-    value += 9 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
-    value -= 9 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
+    value += 9 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[WHITE])
+    value -= 9 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[BLACK])
 
     return value
 
@@ -1110,7 +1110,7 @@ if __name__ == "__main__":
             bitboard.push(move)
 
             t = time.time()
-            value, move = minimax(bitboard, 3, material_evaluator)
+            value, move = minimax(bitboard, 2, material_evaluator)
             print(value, move, time.time() - t)
             bitboard.push(move)
 
