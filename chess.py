@@ -3,6 +3,7 @@
 import collections
 import sys
 import random
+import time
 
 
 COLORS = [ WHITE, BLACK ] = range(2)
@@ -1063,17 +1064,17 @@ def minimax(bitboard, depth, eval_fn):
     return best
 
 def material_evaluator(bitboard):
-    return pop_count(bitboard.occupied_co[bitboard.turn]) - pop_count(bitboard.occupied_co[bitboard.turn ^ 1])
+    return sparse_pop_count(bitboard.occupied_co[bitboard.turn]) - sparse_pop_count(bitboard.occupied_co[bitboard.turn ^ 1])
 
 
 if __name__ == "__main__":
     import sys
 
     bitboard = Bitboard()
+    print_bitboard(bitboard)
 
     while True:
         try:
-            #print_bitboard(bitboard)
             print()
             command = input("UCI> ")
 
@@ -1082,19 +1083,21 @@ if __name__ == "__main__":
 
             if command in ("u", "undo"):
                 bitboard.pop()
+                bitboard.pop()
                 continue
 
             move = Move.from_uci(command)
-            assert move in list(bitboard.generate_moves())
+            if not move in bitboard.generate_moves():
+                continue
+
             bitboard.push(move)
 
-            print(list(bitboard.generate_pseudo_legal_moves()))
-            sys.exit(0)
-
-            value, move = minimax(bitboard, 2, material_evaluator)
-            print(value, move)
+            t = time.time()
+            value, move = minimax(bitboard, 3, material_evaluator)
+            print(value, move, time.time() - t)
             bitboard.push(move)
 
+            print_bitboard(bitboard)
             print()
         finally:
             pass
