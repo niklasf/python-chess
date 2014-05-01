@@ -1064,7 +1064,24 @@ def minimax(bitboard, depth, eval_fn):
     return best
 
 def material_evaluator(bitboard):
-    return sparse_pop_count(bitboard.occupied_co[bitboard.turn]) - sparse_pop_count(bitboard.occupied_co[bitboard.turn ^ 1])
+    value = 0
+
+    value += pop_count(bitboard.pawns & bitboard.occupied_co[WHITE])
+    value -= pop_count(bitboard.pawns & bitboard.occupied_co[BLACK])
+
+    value += 3 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[WHITE])
+    value -= 3 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[BLACK])
+
+    value += 3 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[WHITE])
+    value -= 3 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[BLACK])
+
+    value += 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
+    value -= 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
+
+    value += 9 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
+    value -= 9 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
+
+    return value
 
 
 if __name__ == "__main__":
