@@ -456,9 +456,7 @@ class Bitboard:
 
 
     def generate_pseudo_legal_moves(self):
-        # TODO: Implement black side.
-
-        if True:
+        if self.turn == WHITE:
             # Castling short.
             if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
                 if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
@@ -513,47 +511,101 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square - 16
                 pass
+        else:
+            # Castling short.
+            if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
+                if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
+                    pass
 
+            # Castling long.
+            if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
+                if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
+                    pass
+
+            # En passant moves.
+            movers = self.pawns & self.occupied_co[BLACK]
+            if self.ep_square:
+                moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
+                while moves:
+                    from_square, moves = next_bit(moves)
+                    pass
+
+            # Pawn captures.
+            moves = shift_down_left(movers) & self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square + 9
+                if rank_index(to_square) != 0:
+                    pass
+                else:
+                    pass
+
+            moves = shift_down_right(movers) & self.occupied_co[WHITE]
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square + 7
+                if rank_index(to_square) != 0:
+                    pass
+                else:
+                    pass
+
+            # Pawns one forward.
+            moves = shift_down(movers) & ~self.occupied
+            movers = moves
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square + 8
+                if rank_index(to_square) != 0:
+                    pass
+                else:
+                    pass
+
+            # Pawns two forward.
+            moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
+            while moves:
+                to_square, moves = next_bit(moves)
+                from_square = to_square + 16
+                pass
 
         # Knight moves.
-        movers = self.knights & self.occupied_co[WHITE]
+        movers = self.knights & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = knight_attacks_from(from_square) & ~self.occupied_co[WHITE]
+            moves = knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
 
         # Bishop moves.
-        movers = self.bishops & self.occupied_co[WHITE]
+        movers = self.bishops & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
+            moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
 
         # Rook moves.
-        movers = self.rooks & self.occupied_co[WHITE]
+        movers = self.rooks & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[WHITE]
+            moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
 
         # Queen moves.
-        movers = self.queens & self.occupied_co[WHITE]
+        movers = self.queens & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[WHITE]
+            moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
 
         # King moves.
-        from_square = self.king_squares[WHITE]
-        moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
+        from_square = self.king_squares[self.turn]
+        moves = king_attacks_from(from_square) & ~self.occupied_co[self.turn]
         while moves:
             to_square, moves = next_bit(moves)
 
