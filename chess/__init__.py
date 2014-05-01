@@ -753,6 +753,9 @@ class Bitboard:
 
         return False
 
+    def is_check(self):
+        return self.is_attacked_by(self.turn ^ 1, self.king_squares[self.turn])
+
     def pawn_moves_from(self, square):
         targets = BB_PAWN_F1[self.turn][square] & ~self.occupied
 
