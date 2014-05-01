@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import collections
+import sys
+import random
 
 
 COLORS = [ WHITE, BLACK ] = range(2)
@@ -16,6 +20,16 @@ SQUARES = [
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8 ] = range(64)
+
+SQUARES_180 = [
+    A8, B8, C8, D8, E8, F8, G8, H8,
+    A7, B7, C7, D7, E7, F7, G7, H7,
+    A6, B6, C6, D6, E6, F6, G6, H6,
+    A5, B5, C5, D5, E5, F5, G5, H5,
+    A4, B4, C4, D4, E4, F4, G4, H4,
+    A3, B3, C3, D3, E3, F3, G3, H3,
+    A2, B2, C2, D2, E2, F2, G2, H2,
+    A1, B1, C1, D1, E1, F1, G1, H1 ]
 
 SQUARES_L90 = [
     H1, H2, H3, H4, H5, H6, H7, H8,
@@ -77,10 +91,6 @@ BB_VOID = 0b0000000000000000000000000000000000000000000000000000000000000000
 
 BB_ALL = 0b1111111111111111111111111111111111111111111111111111111111111111
 
-BB_LIGHT_SQUARES = 0b1010101010101010101010101010101010101010101010101010101010101010
-
-BB_DARK_SQUARES = 0b0101010101010101010101010101010101010101010101010101010101010101
-
 BB_SQUARES = [
     BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
     BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2,
@@ -91,6 +101,14 @@ BB_SQUARES = [
     BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
 ] = [ 1 << i for i in SQUARES ]
+
+BB_LIGHT_SQUARES = BB_DARK_SQUARES = BB_VOID
+
+for square, mask in enumerate(BB_SQUARES):
+    if (file_index(square) + rank_index(square)) % 2:
+        BB_LIGHT_SQUARES |= mask
+    else:
+        BB_DARK_SQUARES |= mask
 
 BB_SQUARES_L90 = [ BB_SQUARES[SQUARES_L90[square]] for square in SQUARES ]
 
@@ -510,10 +528,11 @@ class Bitboard:
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
+        self.move_stack = collections.deque()
 
     def piece_at(self, square):
         mask = BB_SQUARES[square]
-        color = int(self.occupied_co[BLACK] & mask)
+        color = int(bool(self.occupied_co[BLACK] & mask))
 
         if mask & self.pawns:
             return Piece(PAWN, color)
@@ -559,7 +578,7 @@ class Bitboard:
         self.queens &= ~mask
         self.kings &= ~mask
 
-        color = int(self.occupied_co[BLACK] & mask)
+        color = int(bool(self.occupied_co[BLACK] & mask))
 
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
@@ -881,6 +900,7 @@ class Bitboard:
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
         self.ep_square_stack.append(self.ep_square)
+        self.move_stack.append(move)
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
@@ -895,7 +915,7 @@ class Bitboard:
         # Set en passant square.
         # TODO: Only set if indeed possible.
         if piece_type == PAWN and abs(move.to_square - move.from_square) == 16:
-            self.ep_square = move.from_square + (move.to_square - move.from_square) / 2
+            self.ep_square = move.from_square + int((move.to_square - move.from_square) / 2)
         else:
             self.ep_square = 0
 
@@ -907,7 +927,9 @@ class Bitboard:
         # Swap turn.
         self.turn ^= 1
 
-    def pop(self, move):
+    def pop(self):
+        move = self.move_stack.pop()
+        # TODO: Implement
         if self.turn == WHITE:
             self.ply -= 1
 
@@ -932,3 +954,87 @@ class Bitboard:
         self.rooks &= all_except_target
         self.queens &= all_except_target
         self.kings &= all_except_target
+
+        return move
+
+    # TODO: FEN parsing
+
+    # TODO: FEN creation
+
+    # TODO: SAN parsing
+
+    # TODO: SAN creation
+
+    # TODO: Validate
+
+def print_bitboard(bitboard):
+    PIECE_CHARS = [
+        [ " ", u"\u2659", u"\u2658", u"\u2657", u"\u2656", u"\u2655", u"\u2654" ],
+        [ " ", u"\u265F", u"\u265e", u"\u265d", u"\u265c", u"\u265b", u"\u265a" ]
+    ]
+
+    SEQ_DARK_SQUARE = "\033[0;30;46m"
+    SEQ_LIGHT_SQUARE = "\033[0;30m"
+    SEQ_END = "\033[0m"
+
+    for square in SQUARES_180:
+        if BB_SQUARES[square] & BB_FILE_A:
+            for border in range(square, square + 8):
+                if BB_SQUARES[border] & BB_DARK_SQUARES:
+                    sys.stdout.write(SEQ_DARK_SQUARE)
+                else:
+                    sys.stdout.write(SEQ_LIGHT_SQUARE)
+
+                sys.stdout.write("    ")
+                sys.stdout.write(SEQ_END)
+
+            sys.stdout.write("\n")
+
+        if BB_SQUARES[square] & BB_DARK_SQUARES:
+            sys.stdout.write("\033[0;30;46m")
+        else:
+            sys.stdout.write("\033[0;30m")
+
+        piece = bitboard.piece_at(square)
+        if piece:
+            sys.stdout.write(" ")
+            sys.stdout.write(PIECE_CHARS[piece.color][piece.piece_type])
+            sys.stdout.write("  ")
+        else:
+            sys.stdout.write("    ")
+
+        sys.stdout.write("\033[0m")
+
+        if BB_SQUARES[square] & BB_FILE_H:
+            sys.stdout.write("\n")
+
+    sys.stdout.flush()
+
+if __name__ == "__main__":
+    import sys
+
+    bitboard = Bitboard()
+
+    while True:
+        try:
+            print_bitboard(bitboard)
+            print()
+            command = input("UCI> ")
+
+            if command in ("q", "quit", "exit"):
+                sys.exit(0)
+
+            if command in ("u", "undo"):
+                bitboard.pop()
+                continue
+
+            move = Move.from_uci(command)
+            bitboard.push(move)
+
+            move = random.choice(list(bitboard.generate_pseudo_legal_moves()))
+            print(move)
+            bitboard.push(move)
+
+            print()
+        finally:
+            pass
