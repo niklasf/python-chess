@@ -1025,7 +1025,7 @@ def minimax_value(bitboard, depth, eval_fn):
         return 0
 
     if depth == 0:
-        return eval_fn(bitboard)
+        return (1 - bitboard.turn * 2) * eval_fn(bitboard)
 
     best = None
 
@@ -1041,7 +1041,7 @@ def minimax_value(bitboard, depth, eval_fn):
 
     if best is None:
         if bitboard.is_check():
-            return -1000
+            return (1 - bitboard.turn * 2) * 1000
         else:
             return 0
 
@@ -1110,7 +1110,7 @@ if __name__ == "__main__":
             bitboard.push(move)
 
             t = time.time()
-            value, move = minimax(bitboard, 2, material_evaluator)
+            value, move = minimax(bitboard, 3, material_evaluator)
             print(value, move, time.time() - t)
             bitboard.push(move)
 
