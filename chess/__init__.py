@@ -398,6 +398,38 @@ def pop_count(b):
             BYTE_POP_COUNT[ (b >> 56) & 0xff ])
 
 
+class Piece:
+
+    def __init__(self, piece_type, color):
+        self.piece_type = piece_type
+        self.color = color
+
+    def symbol(self):
+        if self.color == WHITE:
+            return PIECE_SYMBOLS[self.piece_type].upper()
+        else:
+            return PIECE_SYMBOLS[self.piece_type]
+
+    def __hash__(self):
+        return self.piece_type * (self.color + 1)
+
+    def __repr__(self):
+        return "Piece.from_symbol('{0}')".format(self.symbol())
+
+    def __eq__(self, other):
+        return self.piece_type == other.piece_type and self.color == other.color
+
+    def __neq__(self, other):
+        return self.__eq__(other)
+
+    @classmethod
+    def from_symbol(cls, symbol):
+        if symbol.lower() == symbol:
+            return cls(PIECE_SYMBOLS.index(symbol), WHITE)
+        else:
+            return cls(PIECE_SYMBOLS.index(symbol.lower()), BLACK)
+
+
 class Move:
 
     def __init__(self, from_square, to_square, promotion=NONE):
@@ -434,6 +466,9 @@ class Move:
 class Bitboard:
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
@@ -448,6 +483,7 @@ class Bitboard:
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
 
+        self.pieces = [ ]
         self.king_squares = [ E1, E8 ]
 
         self.ep_square = 0
@@ -462,6 +498,69 @@ class Bitboard:
                 self.occupied_l90 |= BB_SQUARES_L90[i]
                 self.occupied_r45 |= BB_SQUARES_R45[i]
                 self.occupied_l45 |= BB_SQUARES_L45[i]
+
+    def piece_at(self, square):
+        mask = BB_SQUARES[square]
+        color = int(self.occupied_co[BLACK] & mask)
+
+        if mask & self.pawns:
+            return Piece(PAWN, color)
+        elif mask & self.knights:
+            return Piece(KNIGHT, color)
+        elif mask & self.bishops:
+            return Piece(BISHOP, color)
+        elif mask & self.rooks:
+            return Piece(ROOK, color)
+        elif mask & self.queens:
+            return Piece(QUEEN, color)
+        elif mask & self.kings:
+            return Piece(KING, color)
+
+    def remove_piece_at(self, square):
+        mask = BB_SQUARES[square]
+
+        if not self.occupied & mask:
+            return
+
+        self.pawns &= ~mask
+        self.knights &= ~mask
+        self.bishops &= ~mask
+        self.rooks &= ~mask
+        self.queens &= ~mask
+        self.kings &= ~mask
+
+        color = int(self.occupied_co[BLACK] & mask)
+
+        self.occupied ^= mask
+        self.occupied_co[color] ^= mask
+        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
+        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
+        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
+
+    def set_piece_at(self, square, piece):
+        self.remove_piece_at(square)
+
+        mask = BB_SQUARES[square]
+
+        if piece.piece_type == PAWN:
+            self.pawns |= mask
+        elif piece.piece_type == KNIGHTS:
+            self.knights |= mask
+        elif piece.piece_type == BISHOPS:
+            self.bishops |= mask
+        elif piece.piece_type == ROOKS:
+            self.rooks |= mask
+        elif piece.piece_type == QUEENS:
+            self.queens |= mask
+        elif piece.piece_type == KINGS:
+            self.kings |= mask
+            self.king_squares[piece.color] = square
+
+        self.occupied ^= mask
+        self.occupied_co[piece.color] ^= mask
+        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
+        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
+        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
     def generate_pseudo_legal_moves(self):
         if self.turn == WHITE:
