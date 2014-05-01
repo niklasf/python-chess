@@ -1,3 +1,6 @@
+import collections
+
+
 COLORS = [ WHITE, BLACK ] = range(2)
 
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
@@ -458,9 +461,9 @@ class Move:
 
     @classmethod
     def from_uci(cls, uci):
-        if len(uci == 4):
+        if len(uci) == 4:
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
-        elif len(uci == 5):
+        elif len(uci) == 5:
             promotion = PIECE_SYMBOLS.index(uci[4])
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
         else:
@@ -503,6 +506,11 @@ class Bitboard:
                 self.occupied_r45 |= BB_SQUARES_R45[i]
                 self.occupied_l45 |= BB_SQUARES_L45[i]
 
+        self.half_move_stack = collections.deque()
+        self.captured_piece_stack = collections.deque()
+        self.castling_right_stack = collections.deque()
+        self.ep_square_stack = collections.deque()
+
     def piece_at(self, square):
         mask = BB_SQUARES[square]
         color = int(self.occupied_co[BLACK] & mask)
@@ -519,6 +527,24 @@ class Bitboard:
             return Piece(QUEEN, color)
         elif mask & self.kings:
             return Piece(KING, color)
+
+    def piece_type_at(self, square):
+        mask = BB_SQUARES[square]
+
+        if mask & self.pawns:
+            return PAWN
+        elif mask & self.knights:
+            return KNIGHT
+        elif mask & self.bishops:
+            return BISHOP
+        elif mask & self.rooks:
+            return ROOK
+        elif mask & self.queens:
+            return QUEEN
+        elif mask & self.kings:
+            return KING
+        else:
+            return NONE
 
     def remove_piece_at(self, square):
         mask = BB_SQUARES[square]
@@ -845,9 +871,64 @@ class Bitboard:
             return False
 
     def push(self, move):
-        self.ep_square = 0
-        self.half_moves += 1
+        # Increment ply.
+        if self.turn == BLACK:
+            self.ply += 1
+
+        # Remember game state.
+        captured_piece = self.piece_type_at(move.to_square)
+        self.half_move_stack.append(self.half_move)
+        self.castling_right_stack.append(self.castling_rights)
+        self.captured_piece_stack.append(captured_piece)
+        self.ep_square_stack.append(self.ep_square)
+
+        # Update half move counter.
+        piece_type = self.piece_type_at(move.from_square)
+        if piece_type == PAWN or captured_piece:
+            self.half_moves = 0
+        else:
+            self.half_moves += 1
+
+        # Remove piece from target square.
+        self.remove_piece_at(move.from_square)
+
+        # Set en passant square.
+        # TODO: Only set if indeed possible.
+        if piece_type == PAWN and abs(move.to_square - move.from_square) == 16:
+            self.ep_square = self.from_square + (self.to_square - move.from_square) / 2
+        else:
+            self.ep_square = 0
+
+        # TODO: Do castling.
+
+        # Put piece on target square.
+        self.set_piece_at(self.to_square, Piece(piece_type, self.turn))
+
+        # Swap turn.
+        self.turn ^= 1
 
     def pop(self, move):
-        pass
+        if self.turn == WHITE:
+            self.ply -= 1
 
+        self.half_moves = self.half_move_stack.pop()
+        self.castling_rights = self.castling_right_stack.pop()
+        self.ep_square = self.ep_square_stack.pop()
+        captured_piece = self.captured_piece_stack.pop()
+        captured_piece_color = self.turn
+
+        self.turn ^= 1
+
+        self.occupied ^= BB_SQUARES[move.from_square]
+        self.occupied_co[self.turn] ^= BB_SQUARES[move.from_square_mask]
+        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[move.from_square]]
+        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[move.from_square]]
+        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[move.from_square]]
+
+        all_except_target = ~BB_SQUARES[move.to_square]
+        self.pawns &= all_except_target
+        self.knights &= all_except_target
+        self.bishops &= all_except_target
+        self.rooks &= all_except_target
+        self.queens &= all_except_target
+        self.kings &= all_except_target
