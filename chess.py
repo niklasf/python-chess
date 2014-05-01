@@ -6,7 +6,6 @@ COLORS = [ WHITE, BLACK ] = range(0, 2)
 
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(0, 7)
 
-
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -62,6 +61,17 @@ SQUARES_L45 = [
     A7, B8, C1, D2, E3, F4, G5, H6,
     A8, B1, C2, D3, E4, F5, G6, H7,
     A1, B2, C3, D4, E5, F6, G7, H8 ]
+
+
+CASTLING_NONE = 0
+CASTLING_WHITE_KINGSIDE = 1
+CASTLING_BLACK_KINGSIDE = 2
+CASTLING_WHITE_QUEENSIDE = 4
+CASTLING_BLACK_QUEENSIDE = 8
+CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
+CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
+CASTLING = CASTLING_WHITE | CASTLING_BLACK
+
 
 BB_VOID = 0x0000000000000000L
 
@@ -429,13 +439,13 @@ class Bitboard:
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
 
-        self.turn = WHITE
-
         self.king_squares = [ E1, E8 ]
+
         self.ep_square = 0
+        self.castling_rights = CASTLING
 
+        self.turn = WHITE
         self.ply = 1
-
         self.half_moves = 0
 
         for i in range(64):
@@ -449,8 +459,15 @@ class Bitboard:
         # TODO: Implement black side.
 
         if True:
+            # Castling short.
+            if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
+                if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
+                    pass
 
-            # TODO: Castling.
+            # Castling long.
+            if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
+                if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
+                    pass
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
