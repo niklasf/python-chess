@@ -877,7 +877,7 @@ class Bitboard:
 
         # Remember game state.
         captured_piece = self.piece_type_at(move.to_square)
-        self.half_move_stack.append(self.half_move)
+        self.half_move_stack.append(self.half_moves)
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
         self.ep_square_stack.append(self.ep_square)
@@ -895,14 +895,14 @@ class Bitboard:
         # Set en passant square.
         # TODO: Only set if indeed possible.
         if piece_type == PAWN and abs(move.to_square - move.from_square) == 16:
-            self.ep_square = self.from_square + (self.to_square - move.from_square) / 2
+            self.ep_square = move.from_square + (move.to_square - move.from_square) / 2
         else:
             self.ep_square = 0
 
         # TODO: Do castling.
 
         # Put piece on target square.
-        self.set_piece_at(self.to_square, Piece(piece_type, self.turn))
+        self.set_piece_at(move.to_square, Piece(piece_type, self.turn))
 
         # Swap turn.
         self.turn ^= 1
