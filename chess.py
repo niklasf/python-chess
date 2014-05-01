@@ -429,7 +429,7 @@ class Bitboard:
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
 
-        self.side_to_move = WHITE
+        self.turn = WHITE
 
         for i in range(64):
             if BB_SQUARES[i] & self.occupied:
@@ -545,13 +545,13 @@ class Bitboard:
         return False
 
     def pawn_moves_from(self, square):
-        targets = BB_PAWN_F1[self.side_to_move][square] & ~self.occupied
+        targets = BB_PAWN_F1[self.turn][square] & ~self.occupied
 
         if targets:
-            targets |= BB_PAWN_F2[self.side_to_move][square] & ~self.occupied
+            targets |= BB_PAWN_F2[self.turn][square] & ~self.occupied
 
         if not False:
-            targets |= BB_PAWN_ATTACKS[self.side_to_move][square] & self.occupied_co[self.side_to_move ^ 1]
+            targets |= BB_PAWN_ATTACKS[self.turn][square] & self.occupied_co[self.turn ^ 1]
         else:
             # TODO: En-passant.
             pass
