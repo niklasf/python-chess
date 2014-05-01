@@ -614,22 +614,23 @@ class Bitboard:
     def generate_pseudo_legal_moves(self):
         if self.turn == WHITE:
             # Castling short.
-            if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
-                if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                    yield Move(E1, G1)
+            #if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
+            #    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
+            #        pass
+            #        yield Move(E1, G1)
 
             # Castling long.
-            if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
-                if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                    yield Move(E1, C1)
+            #if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
+            #    if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
+            #        yield Move(E1, C1)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-                while moves:
-                    from_square, moves = next_bit(moves)
-                    yield Move(from_square, self.ep_square)
+            #if self.ep_square:
+            #    moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
+            #    while moves:
+            #        from_square, moves = next_bit(moves)
+            #        yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
@@ -678,22 +679,22 @@ class Bitboard:
                 yield Move(from_square, to_square)
         else:
             # Castling short.
-            if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
-                if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                    yield Move(E8, F8)
+            #if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
+            #    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
+            #        yield Move(E8, F8)
 
             # Castling long.
-            if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
-                if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                    yield Move(E8, C8)
+            #if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
+            #    if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
+            #        yield Move(E8, C8)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[BLACK]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-                while moves:
-                    from_square, moves = next_bit(moves)
-                    yield Move(from_square, self.ep_square)
+            #if self.ep_square:
+            #    moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
+            #    while moves:
+            #        from_square, moves = next_bit(moves)
+            #        yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_down_left(movers) & self.occupied_co[WHITE]
@@ -713,7 +714,7 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 7
                 if rank_index(to_square) != 0:
-                    yield Move(form_square, to_square)
+                    yield Move(from_square, to_square)
                 else:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, KNIGHT)
@@ -836,16 +837,18 @@ class Bitboard:
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
 
     def is_into_check(self, move):
+        # TODO: Consider optimizing.
         self.push(move)
-        self.turn = self.turn ^ 1
-        is_check = self.is_check()
-        self.turn = self.turn ^ 1
-        self.pop(move)
+        is_check = self.was_into_check()
+        self.pop()
+
+    def was_into_check(self):
+        return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
     def is_not_into_check(self, move):
-        return self.is_into_check(move)
+        return not self.is_into_check(move)
 
-    def generate_legal_moves(self):
+    def generate_moves(self):
         return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
 
     def is_checkmate(self):
@@ -929,31 +932,33 @@ class Bitboard:
 
     def pop(self):
         move = self.move_stack.pop()
-        # TODO: Implement
+
+        # Decrement ply.
         if self.turn == WHITE:
             self.ply -= 1
 
+        # Restore state.
         self.half_moves = self.half_move_stack.pop()
         self.castling_rights = self.castling_right_stack.pop()
         self.ep_square = self.ep_square_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
         captured_piece_color = self.turn
 
+        # Restore the source square.
+        self.set_piece_at(move.from_square, self.piece_at(move.to_square))
+
+        # Restore target square.
+        if captured_piece:
+            self.set_piece_at(move.to_square, Piece(captured_piece, captured_piece_color))
+        else:
+            self.remove_piece_at(move.to_square)
+
+        # TODO: Restore captured pawn after en passant.
+
+        # TODO: Restore rook position after castling.
+
+        # Swap turn.
         self.turn ^= 1
-
-        self.occupied ^= BB_SQUARES[move.from_square]
-        self.occupied_co[self.turn] ^= BB_SQUARES[move.from_square_mask]
-        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[move.from_square]]
-        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[move.from_square]]
-        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[move.from_square]]
-
-        all_except_target = ~BB_SQUARES[move.to_square]
-        self.pawns &= all_except_target
-        self.knights &= all_except_target
-        self.bishops &= all_except_target
-        self.rooks &= all_except_target
-        self.queens &= all_except_target
-        self.kings &= all_except_target
 
         return move
 
@@ -965,7 +970,10 @@ class Bitboard:
 
     # TODO: SAN creation
 
-    # TODO: Validate
+    # TODO: Validate position
+
+    # TODO: Validate move
+
 
 def print_bitboard(bitboard):
     PIECE_CHARS = [
@@ -1010,6 +1018,54 @@ def print_bitboard(bitboard):
 
     sys.stdout.flush()
 
+
+def minimax_value(bitboard, depth, eval_fn):
+    if bitboard.half_moves > 50:
+        return 0
+
+    if depth == 0:
+        return eval_fn(bitboard)
+
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            value = -1 * minimax_value(bitboard, depth - 1, eval_fn)
+            if best is None or value > best:
+                best = value
+
+        bitboard.pop()
+
+    if best is None:
+        if bitboard.is_check():
+            return -1000
+        else:
+            return 0
+
+    else:
+        return best
+
+def minimax(bitboard, depth, eval_fn):
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            value = -1 * minimax_value(bitboard, depth, eval_fn)
+            if best is None or value > best[0]:
+                best = (value, move)
+
+        bitboard.pop()
+
+    return best
+
+def material_evaluator(bitboard):
+    return pop_count(bitboard.occupied_co[bitboard.turn]) - pop_count(bitboard.occupied_co[bitboard.turn ^ 1])
+
+
 if __name__ == "__main__":
     import sys
 
@@ -1029,10 +1085,11 @@ if __name__ == "__main__":
                 continue
 
             move = Move.from_uci(command)
+            assert move in list(bitboard.generate_moves())
             bitboard.push(move)
 
-            move = random.choice(list(bitboard.generate_pseudo_legal_moves()))
-            print(move)
+            value, move = minimax(bitboard, 4, material_evaluator)
+            print(value, move)
             bitboard.push(move)
 
             print()
