@@ -844,6 +844,10 @@ class Bitboard:
         else:
             return False
 
-    def push(self, from_square, to_square, promotion_piece):
+    def push(self, move):
         self.ep_square = 0
         self.half_moves += 1
+
+    def pop(self, move):
+        pass
+
