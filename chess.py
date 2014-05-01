@@ -593,15 +593,15 @@ class Bitboard:
 
         if piece.piece_type == PAWN:
             self.pawns |= mask
-        elif piece.piece_type == KNIGHTS:
+        elif piece.piece_type == KNIGHT:
             self.knights |= mask
-        elif piece.piece_type == BISHOPS:
+        elif piece.piece_type == BISHOP:
             self.bishops |= mask
-        elif piece.piece_type == ROOKS:
+        elif piece.piece_type == ROOK:
             self.rooks |= mask
-        elif piece.piece_type == QUEENS:
+        elif piece.piece_type == QUEEN:
             self.queens |= mask
-        elif piece.piece_type == KINGS:
+        elif piece.piece_type == KING:
             self.kings |= mask
             self.king_squares[piece.color] = square
 
