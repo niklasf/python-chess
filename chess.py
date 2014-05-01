@@ -344,26 +344,6 @@ BB_PAWN_ALL = [
     [ BB_PAWN_ATTACKS[1][i] | BB_PAWN_F1[1][i] | BB_PAWN_F2[1][i] for i in SQUARES ]
 ]
 
-
-def knight_attacks_from(square):
-    return BB_KNIGHT_ATTACKS[square]
-
-def king_attacks_from(square):
-    return BB_KING_ATTACKS[square]
-
-def rook_attacks_from(square, occupied, occupied_l90):
-    return (BB_RANK_ATTACKS[square][(occupied >> ((square & ~7) + 1)) & 63] |
-            BB_FILE_ATTACKS[square][(occupied_l90 >> (((square & 7) << 3) + 1)) & 63])
-
-def bishop_attacks_from(square, occupied_r45, occupied_l45):
-    return (BB_R45_ATTACKS[square][(occupied_r45 >> BB_SHIFT_R45[square]) & 63] |
-            BB_L45_ATTACKS[square][(occupied_l45 >> BB_SHIFT_L45[square]) & 63])
-
-def queen_attacks_from(square, occupied, occupied_l90, occupied_r45, occupied_l45):
-    return (rook_attacks_from(square, occupied, occupied_l90) |
-            bishop_attacks_from(square, occupied_r45, occupied_l45))
-
-
 def next_bit(b):
     x = b & -b
     b ^= x
@@ -416,6 +396,7 @@ def pop_count(b):
             BYTE_POP_COUNT[ (b >> 40) & 0xff ] +
             BYTE_POP_COUNT[ (b >> 48) & 0xff ] +
             BYTE_POP_COUNT[ (b >> 56) & 0xff ])
+
 
 
 def visualize(bb):
@@ -579,7 +560,7 @@ class Bitboard:
         movers = self.knights & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
+            moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
@@ -588,7 +569,7 @@ class Bitboard:
         movers = self.bishops & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = bishop_attacks_from(from_square, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[self.turn]
+            moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
@@ -597,7 +578,7 @@ class Bitboard:
         movers = self.rooks & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = rook_attacks_from(from_square, self.occupied, self.occupied_l90) & ~self.occupied_co[self.turn]
+            moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
@@ -606,14 +587,14 @@ class Bitboard:
         movers = self.queens & self.occupied_co[self.turn]
         while movers:
             from_square, movers = next_bit(movers)
-            moves = queen_attacks_from(from_square, self.occupied, self.occupied_l90, self.occupied_r45, self.occupied_l45) & ~self.occupied_co[self.turn]
+            moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 pass
 
         # King moves.
         from_square = self.king_squares[self.turn]
-        moves = king_attacks_from(from_square) & ~self.occupied_co[self.turn]
+        moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
         while moves:
             to_square, moves = next_bit(moves)
 
@@ -621,16 +602,16 @@ class Bitboard:
         if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
             return True
 
-        if knight_attacks_from(square) & self.knights & self.occupied_co[color]:
+        if self.knight_attacks_from(square) & self.knights & self.occupied_co[color]:
             return True
 
-        if bishop_attacks_from(square, self.occupied_r45, self.occupied_l45) & (self.bishops | self.queens) & self.occupied_co[color]:
+        if self.bishop_attacks_from(square) & (self.bishops | self.queens) & self.occupied_co[color]:
             return True
 
-        if rook_attacks_from(square, self.occupied, self.occupied_l90) & (self.rooks | self.queens) & self.occupied_co[color]:
+        if self.rook_attacks_from(square) & (self.rooks | self.queens) & self.occupied_co[color]:
             return True
 
-        if king_attacks_from(square) & (self.kings | self.queens) & self.occupied_co[color]:
+        if self.king_attacks_from(square) & (self.kings | self.queens) & self.occupied_co[color]:
             return True
 
         return False
@@ -647,6 +628,23 @@ class Bitboard:
             targets |= BB_PAWN_ATTACKS[self.turn][square] & (self.occupied_co[self.turn ^ 1] | BB_SQUARES[square])
 
         return targets
+
+    def knight_attacks_from(self, square):
+        return BB_KNIGHT_ATTACKS[square]
+
+    def king_attacks_from(self, square):
+        return BB_KING_ATTACKS[square]
+
+    def rook_attacks_from(self, square):
+        return (BB_RANK_ATTACKS[square][(self.occupied >> ((square & ~7) + 1)) & 63] |
+                BB_FILE_ATTACKS[square][(self.occupied_l90 >> (((square & 7) << 3) + 1)) & 63])
+
+    def bishop_attacks_from(self, square):
+        return (BB_R45_ATTACKS[square][(self.occupied_r45 >> BB_SHIFT_R45[square]) & 63] |
+                BB_L45_ATTACKS[square][(self.occupied_l45 >> BB_SHIFT_L45[square]) & 63])
+
+    def queen_attacks_from(self, square):
+        return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
 
 
 
