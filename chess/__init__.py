@@ -70,9 +70,13 @@ CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
 CASTLING = CASTLING_WHITE | CASTLING_BLACK
 
 
-BB_VOID = 0x0000000000000000
+BB_VOID = 0b0000000000000000000000000000000000000000000000000000000000000000
 
-BB_ALL = 0xffffffffffffffff
+BB_ALL = 0b1111111111111111111111111111111111111111111111111111111111111111
+
+BB_LIGHT_SQUARES = 0b1010101010101010101010101010101010101010101010101010101010101010
+
+BB_DARK_SQUARES = 0b0101010101010101010101010101010101010101010101010101010101010101
 
 BB_SQUARES = [
     BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
@@ -785,6 +789,60 @@ class Bitboard:
 
     def queen_attacks_from(self, square):
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
+
+    def is_into_check(self, move):
+        self.push(move)
+        self.turn = self.turn ^ 1
+        is_check = self.is_check()
+        self.turn = self.turn ^ 1
+        self.pop(move)
+
+    def is_not_into_check(self, move):
+        return self.is_into_check(move)
+
+    def generate_legal_moves(self):
+        return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
+
+    def is_checkmate(self):
+        if not self.is_check():
+            return False
+
+        try:
+            next(self.generate_legal_moves().__iter__())
+            return False
+        except StopIteration:
+            return True
+
+    def is_stalemate(self):
+        if self.is_check():
+            return False
+
+        try:
+            next(self.generate_legal_moves().__iter__())
+            return False
+        except StopIteration:
+            return True
+
+    def is_insufficient_material(self):
+        # Enough material to mate.
+        if self.pawns or self.rooks or self.queens:
+            return False
+
+        # A single knight or a single bishop.
+        if sparse_pop_count(self.occupied) == 3:
+            return True
+
+        # More than a single knight.
+        if self.knights:
+            return False
+
+        # All bishops on the same color.
+        if self.bishops ^ BB_DARK_SQUARES == 0:
+            return True
+        elif self.bishops ^ BB_LIGHT_SQUARES == 0:
+            return True
+        else:
+            return False
 
     def push(self, from_square, to_square, promotion_piece):
         self.ep_square = 0
