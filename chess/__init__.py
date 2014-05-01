@@ -2,6 +2,8 @@ COLORS = [ WHITE, BLACK ] = range(2)
 
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
+PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
+
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -398,10 +400,35 @@ def pop_count(b):
 
 class Move:
 
-    def __init__(self, from_square, to_square, promotion_piece=None):
+    def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
         self.to_square = to_square
-        self.promotion_piece = promotion_piece
+        self.promotion = promotion
+
+    def uci(self):
+        return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+
+    def __eq__(self, other):
+        return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
+
+    def __neq__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "Move.from_uci('{0}')".format(self.uci())
+
+    def __hash__(self):
+        return self.to_square | self.from_square << 6 | self.promotion << 12
+
+    @classmethod
+    def from_uci(cls, uci):
+        if len(uci == 4):
+            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
+        elif len(uci == 5):
+            promotion = PIECE_SYMBOLS.index(uci[4])
+            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
+        else:
+            raise ValueError("Expected UCI string to be of length 4 or 5.")
 
 
 class Bitboard:
