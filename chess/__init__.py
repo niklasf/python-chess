@@ -1,6 +1,3 @@
-import sys
-import time
-
 COLORS = [ WHITE, BLACK ] = range(2)
 
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
@@ -69,6 +66,7 @@ CASTLING_BLACK_QUEENSIDE = 8
 CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
 CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
 CASTLING = CASTLING_WHITE | CASTLING_BLACK
+
 
 BB_VOID = 0x0000000000000000
 
@@ -397,6 +395,15 @@ def pop_count(b):
             BYTE_POP_COUNT[ (b >> 48) & 0xff ] +
             BYTE_POP_COUNT[ (b >> 56) & 0xff ])
 
+
+class Move:
+
+    def __init__(self, from_square, to_square, promotion_piece=None):
+        self.from_square = from_square
+        self.to_square = to_square
+        self.promotion_piece = promotion_piece
+
+
 class Bitboard:
 
     def __init__(self):
@@ -429,18 +436,17 @@ class Bitboard:
                 self.occupied_r45 |= BB_SQUARES_R45[i]
                 self.occupied_l45 |= BB_SQUARES_L45[i]
 
-
     def generate_pseudo_legal_moves(self):
         if self.turn == WHITE:
             # Castling short.
             if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
                 if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                    pass
+                    yield Move(E1, G1)
 
             # Castling long.
             if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
                 if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                    pass
+                    yield Move(E1, C1)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
@@ -448,7 +454,7 @@ class Bitboard:
                 moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
                 while moves:
                     from_square, moves = next_bit(moves)
-                    pass
+                    yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
@@ -456,18 +462,24 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square - 9
                 if rank_index(to_square) != 7:
-                    pass
+                    yield Move(from_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
 
             moves = shift_up_left(movers) & self.occupied_co[BLACK]
             while moves:
                 to_square, moves = next_bit(moves)
                 from_square = to_square - 7
                 if rank_index(to_square) != 7:
-                    pass
+                    yield Move(from_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
 
             # Pawns one forward.
             moves = shift_up(movers) & ~self.occupied
@@ -476,26 +488,29 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square - 8
                 if rank_index(to_square) != 7:
-                    pass
+                    yield Move(from_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BIHSOP)
 
             # Pawns two forward.
             moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
             while moves:
                 to_square, moves = next_bit(moves)
                 from_square = to_square - 16
-                pass
+                yield Move(from_square, to_square)
         else:
             # Castling short.
             if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
                 if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                    pass
+                    yield Move(E8, F8)
 
             # Castling long.
             if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
                 if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                    pass
+                    yield Move(E8, C8)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[BLACK]
@@ -503,7 +518,7 @@ class Bitboard:
                 moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
                 while moves:
                     from_square, moves = next_bit(moves)
-                    pass
+                    yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_down_left(movers) & self.occupied_co[WHITE]
@@ -511,18 +526,24 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 9
                 if rank_index(to_square) != 0:
-                    pass
+                    yield Move(from_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
 
             moves = shift_down_right(movers) & self.occupied_co[WHITE]
             while moves:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 7
                 if rank_index(to_square) != 0:
-                    pass
+                    yield Move(form_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
 
             # Pawns one forward.
             moves = shift_down(movers) & ~self.occupied
@@ -531,16 +552,19 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 8
                 if rank_index(to_square) != 0:
-                    pass
+                    yield Move(from_square, to_square)
                 else:
-                    pass
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, KNIGHT)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
 
             # Pawns two forward.
             moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
             while moves:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 16
-                pass
+                yield Move(from_square, to_square)
 
         # Knight moves.
         movers = self.knights & self.occupied_co[self.turn]
@@ -549,7 +573,7 @@ class Bitboard:
             moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
-                pass
+                yield Move(from_square, to_square)
 
         # Bishop moves.
         movers = self.bishops & self.occupied_co[self.turn]
@@ -558,7 +582,7 @@ class Bitboard:
             moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
-                pass
+                yield Move(from_square, to_square)
 
         # Rook moves.
         movers = self.rooks & self.occupied_co[self.turn]
@@ -567,7 +591,7 @@ class Bitboard:
             moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
-                pass
+                yield Move(from_square, to_square)
 
         # Queen moves.
         movers = self.queens & self.occupied_co[self.turn]
@@ -576,13 +600,14 @@ class Bitboard:
             moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
-                pass
+                yield Move(from_square, to_square)
 
         # King moves.
         from_square = self.king_squares[self.turn]
         moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
         while moves:
             to_square, moves = next_bit(moves)
+            yield Move(from_square, to_square)
 
     def is_attacked_by(self, color, square):
         if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
@@ -631,3 +656,7 @@ class Bitboard:
 
     def queen_attacks_from(self, square):
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
+
+    def push(self, from_square, to_square, promotion_piece):
+        self.ep_square = 0
+        self.half_moves += 1
