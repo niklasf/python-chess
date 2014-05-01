@@ -449,11 +449,16 @@ class Bitboard:
         # TODO: Implement black side.
 
         if True:
-            movers = self.pawns & self.occupied_co[WHITE]
 
             # TODO: Castling.
 
-            # TODO: En passant.
+            # En passant moves.
+            movers = self.pawns & self.occupied_co[WHITE]
+            if self.ep_square:
+                moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
+                while moves:
+                    from_square, moves = next_bit(moves)
+                    pass
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
@@ -493,6 +498,7 @@ class Bitboard:
                 pass
 
 
+        # Knight moves.
         movers = self.knights & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
@@ -501,6 +507,7 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 pass
 
+        # Bishop moves.
         movers = self.bishops & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
@@ -509,6 +516,7 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 pass
 
+        # Rook moves.
         movers = self.rooks & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
@@ -517,6 +525,7 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 pass
 
+        # Queen moves.
         movers = self.queens & self.occupied_co[WHITE]
         while movers:
             from_square, movers = next_bit(movers)
@@ -525,6 +534,7 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 pass
 
+        # King moves.
         from_square = self.king_squares[WHITE]
         moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
         while moves:
@@ -554,11 +564,10 @@ class Bitboard:
         if targets:
             targets |= BB_PAWN_F2[self.turn][square] & ~self.occupied
 
-        if not False:
+        if not self.ep_square:
             targets |= BB_PAWN_ATTACKS[self.turn][square] & self.occupied_co[self.turn ^ 1]
         else:
-            # TODO: En-passant.
-            pass
+            targets |= BB_PAWN_ATTACKS[self.turn][square] & (self.occupied_co[self.turn ^ 1] | BB_SQUARES[square])
 
         return targets
 
