@@ -1,10 +1,9 @@
 import sys
 import time
 
+COLORS = [ WHITE, BLACK ] = range(2)
 
-COLORS = [ WHITE, BLACK ] = range(0, 2)
-
-PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(0, 7)
+PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -14,23 +13,7 @@ SQUARES = [
     A5, B5, C5, D5, E5, F5, G5, H5,
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8 ] = range(0, 64)
-
-SQUARE_NAMES = [
-    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" ]
-
-def file_index(square):
-    return square & 7
-
-def rank_index(square):
-    return square >> 3
+    A8, B8, C8, D8, E8, F8, G8, H8 ] = range(64)
 
 SQUARES_L90 = [
     H1, H2, H3, H4, H5, H6, H7, H8,
@@ -62,6 +45,21 @@ SQUARES_L45 = [
     A8, B1, C2, D3, E4, F5, G6, H7,
     A1, B2, C3, D4, E5, F6, G7, H8 ]
 
+SQUARE_NAMES = [
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" ]
+
+def file_index(square):
+    return square & 7
+
+def rank_index(square):
+    return square >> 3
 
 CASTLING_NONE = 0
 CASTLING_WHITE_KINGSIDE = 1
@@ -71,7 +69,6 @@ CASTLING_BLACK_QUEENSIDE = 8
 CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
 CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
 CASTLING = CASTLING_WHITE | CASTLING_BLACK
-
 
 BB_VOID = 0x0000000000000000L
 
@@ -134,7 +131,6 @@ BB_RANKS = [
     BB_A8 | BB_B8 | BB_C8 | BB_D8 | BB_E8 | BB_F8 | BB_G8 | BB_H8
 ]
 
-
 def shift_down(b):
     return b >> 8
 
@@ -174,12 +170,27 @@ def shift_down_right(b):
 def l90(b):
     mask = BB_VOID
 
-    for i in range(0, 64):
-        if BB_SQUARES[i] & b:
-            mask |= SQUARES_L90[i]
+    while b:
+        square, b = next_bit(b)
+        mask |= SQUARES_L90[square]
 
+    mask
 
+def r45(b):
+    mask = BB_VOID
 
+    while b:
+        square, b = next_bit(b)
+        mask |= SQUARES_R45[square]
+
+    return mask
+
+def l45(b):
+    mask = BB_VOID
+
+    while b:
+        square, b = next_bit(b)
+        mask |= SQUARES_L45[square]
 
 BB_KNIGHT_ATTACKS = []
 
@@ -195,7 +206,6 @@ for bb_square in BB_SQUARES:
     mask |= shift_2_right(shift_down(bb_square))
     BB_KNIGHT_ATTACKS.append(mask)
 
-
 BB_KING_ATTACKS = []
 
 for bb_square in BB_SQUARES:
@@ -210,10 +220,9 @@ for bb_square in BB_SQUARES:
     mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask)
 
+BB_RANK_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
 
-BB_RANK_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
-
-BB_FILE_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
+BB_FILE_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
 
 for square in SQUARES:
     for bitrow in range(0, 64):
@@ -273,10 +282,9 @@ BB_SHIFT_L45 = [
     57, 1, 10, 19, 28, 37, 46, 55,
     1, 10, 19, 28, 37, 46, 55, 64 ]
 
+BB_L45_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
 
-BB_L45_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
-
-BB_R45_ATTACKS = [ [ BB_VOID for i in range(0, 64) ] for k in range(0, 64) ]
+BB_R45_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
 
 for s in SQUARES:
     for b in range(0, 64):
@@ -315,7 +323,6 @@ for s in SQUARES:
                 break
 
         BB_R45_ATTACKS[s][b] = mask
-
 
 BB_PAWN_ATTACKS = [
     [ shift_up_left(s) | shift_up_right(s) for s in BB_SQUARES ],
@@ -420,6 +427,7 @@ def visualize(bb):
         if i % 8 == 7:
             sys.stdout.write("\n")
     sys.stdout.flush()
+
 
 
 class Bitboard:
