@@ -736,7 +736,7 @@ class Bitboard:
                     yield Move(from_square, to_square, BISHOP)
 
             # Pawns two forward.
-            moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
+            moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
             while moves:
                 to_square, moves = next_bit(moves)
                 from_square = to_square + 16
@@ -1073,7 +1073,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-            print_bitboard(bitboard)
+            #print_bitboard(bitboard)
             print()
             command = input("UCI> ")
 
@@ -1088,7 +1088,10 @@ if __name__ == "__main__":
             assert move in list(bitboard.generate_moves())
             bitboard.push(move)
 
-            value, move = minimax(bitboard, 4, material_evaluator)
+            print(list(bitboard.generate_pseudo_legal_moves()))
+            sys.exit(0)
+
+            value, move = minimax(bitboard, 2, material_evaluator)
             print(value, move)
             bitboard.push(move)
 
