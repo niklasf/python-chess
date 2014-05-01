@@ -431,6 +431,13 @@ class Bitboard:
 
         self.turn = WHITE
 
+        self.king_squares = [ E1, E8 ]
+        self.ep_square = 0
+
+        self.ply = 1
+
+        self.half_moves = 0
+
         for i in range(64):
             if BB_SQUARES[i] & self.occupied:
                 self.occupied_l90 |= BB_SQUARES_L90[i]
@@ -518,13 +525,10 @@ class Bitboard:
                 to_square, moves = next_bit(moves)
                 pass
 
-        # TODO: Use king square directly.
-        movers = self.kings & self.occupied_co[WHITE]
-        while movers:
-            from_square, movers = next_bit(movers)
-            moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
-            while moves:
-                to_square, moves = next_bit(moves)
+        from_square = self.king_squares[WHITE]
+        moves = king_attacks_from(from_square) & ~self.occupied_co[WHITE]
+        while moves:
+            to_square, moves = next_bit(moves)
 
     def is_attacked_by(self, color, square):
         if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
