@@ -70,9 +70,9 @@ CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
 CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
 CASTLING = CASTLING_WHITE | CASTLING_BLACK
 
-BB_VOID = 0x0000000000000000L
+BB_VOID = 0x0000000000000000
 
-BB_ALL = 0xffffffffffffffffL
+BB_ALL = 0xffffffffffffffff
 
 BB_SQUARES = [
     BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
@@ -83,7 +83,7 @@ BB_SQUARES = [
     BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6,
     BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
-] = [ 1L << i for i in SQUARES ]
+] = [ 1 << i for i in SQUARES ]
 
 BB_SQUARES_L90 = [ BB_SQUARES[SQUARES_L90[square]] for square in SQUARES ]
 
@@ -397,20 +397,6 @@ def pop_count(b):
             BYTE_POP_COUNT[ (b >> 48) & 0xff ] +
             BYTE_POP_COUNT[ (b >> 56) & 0xff ])
 
-
-
-def visualize(bb):
-    for i, square in enumerate(BB_SQUARES):
-        if bb & square:
-            sys.stdout.write("[X]")
-        else:
-            sys.stdout.write("[ ]")
-        if i % 8 == 7:
-            sys.stdout.write("\n")
-    sys.stdout.flush()
-
-
-
 class Bitboard:
 
     def __init__(self):
@@ -645,18 +631,3 @@ class Bitboard:
 
     def queen_attacks_from(self, square):
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
-
-
-
-board = Bitboard()
-t = time.time()
-board.generate_pseudo_legal_moves()
-print time.time() - t
-
-print board.is_attacked_by(WHITE, D4)
-
-visualize(board.pawn_moves_from(E2))
-print board.is_attacked_by(WHITE, E3)
-print board.is_attacked_by(WHITE, E4)
-
-print sparse_pop_count(board.pawns)
