@@ -1050,10 +1050,10 @@ def minimax_value(bitboard, depth, eval_fn):
         bitboard.pop()
 
     if best is None:
-        if bitboard.is_check():
-            return -1000
-        else:
+        if not bitboard.is_check():
             return 0
+        else:
+            return -1000
 
     else:
         return best
@@ -1068,6 +1068,65 @@ def minimax(bitboard, depth, eval_fn):
             value = -1 * minimax_value(bitboard, depth, eval_fn)
             if best is None or value > best[0]:
                 best = (value, move)
+
+        bitboard.pop()
+
+    return best
+
+def alphabeta_value(bitboard, depth, alpha, beta, eval_fn):
+    if bitboard.half_moves >= 50:
+        return 0
+
+    if depth == 0:
+        if bitboard.is_stalemate():
+            return 0
+        elif bitboard.is_checkmate():
+            return -1000
+
+        return (1 - bitboard.turn * 2) * eval_fn(bitboard)
+
+    found_legal_move = False
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            found_legal_move = True
+
+            opp_alpha = None if beta is None else -1 * beta
+            opp_beta = None if alpha is None else -1 * alpha
+
+            value = -1 * alphabeta_value(bitboard, depth - 1, opp_alpha, opp_beta, eval_fn)
+
+            if alpha is None or value > alpha:
+                alpha = value
+
+            if (alpha is not None) and (beta is not None) and alpha >= beta:
+                bitboard.pop()
+                return beta
+
+        bitboard.pop()
+
+    if not found_legal_move:
+        if not bitboard.is_check():
+            return 0
+        else:
+            return -1000
+    else:
+        return alpha
+
+def alphabeta(bitboard, depth, eval_fn):
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            opp_beta = None if best is None else -1 * best[0]
+
+            value = -1 * alphabeta_value(bitboard, depth, None, opp_beta, eval_fn)
+            if best is None or value > best[0]:
+                best = value, move
 
         bitboard.pop()
 
@@ -1120,10 +1179,18 @@ if __name__ == "__main__":
 
         t = time.time()
         if bitboard.turn == WHITE:
-            res = minimax(bitboard, 1, lambda b: mobility_evaluator(b) + material_evaluator(b))
+            res = alphabeta(bitboard, 4, lambda b: material_evaluator(b))
         else:
-            res = minimax(bitboard, 1, lambda b: random.randint(0, 500))
+            res = alphabeta(bitboard, 4, lambda b: material_evaluator(b))
+
         if res is None:
+            break
+
+        if bitboard.is_insufficient_material():
+            break
+
+        if bitboard.half_moves > 50:
+            print("Draw claimed.")
             break
 
         value, move = res
