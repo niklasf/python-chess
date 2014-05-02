@@ -1026,10 +1026,15 @@ def print_bitboard(bitboard):
 
 
 def minimax_value(bitboard, depth, eval_fn):
-    if bitboard.half_moves > 50:
+    if bitboard.half_moves >= 50:
         return 0
 
     if depth == 0:
+        if bitboard.is_stalemate():
+            return 0
+        elif bitboard.is_checkmate():
+            return -1000
+
         return (1 - bitboard.turn * 2) * eval_fn(bitboard)
 
     best = None
@@ -1046,7 +1051,7 @@ def minimax_value(bitboard, depth, eval_fn):
 
     if best is None:
         if bitboard.is_check():
-            return (1 - bitboard.turn * 2) * 1000
+            return -1000
         else:
             return 0
 
