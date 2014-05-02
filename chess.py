@@ -670,7 +670,7 @@ class Bitboard:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, KNIGHT)
                     yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BIHSOP)
+                    yield Move(from_square, to_square, BISHOP)
 
             # Pawns two forward.
             moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
@@ -857,7 +857,7 @@ class Bitboard:
             return False
 
         try:
-            next(self.generate_legal_moves().__iter__())
+            next(self.generate_moves().__iter__())
             return False
         except StopIteration:
             return True
@@ -867,7 +867,7 @@ class Bitboard:
             return False
 
         try:
-            next(self.generate_legal_moves().__iter__())
+            next(self.generate_moves().__iter__())
             return False
         except StopIteration:
             return True
@@ -1064,22 +1064,37 @@ def minimax(bitboard, depth, eval_fn):
     return best
 
 def material_evaluator(bitboard):
-    value = 0
+    value = 0.0
 
     value += pop_count(bitboard.pawns & bitboard.occupied_co[WHITE])
     value -= pop_count(bitboard.pawns & bitboard.occupied_co[BLACK])
 
-    value += 3 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[WHITE])
-    value -= 3 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[BLACK])
+    value += 3.0 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[WHITE])
+    value -= 3.0 * sparse_pop_count(bitboard.knights & bitboard.occupied_co[BLACK])
 
-    value += 3 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[WHITE])
-    value -= 3 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[BLACK])
+    value += 3.1 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[WHITE])
+    value -= 3.1 * sparse_pop_count(bitboard.bishops & bitboard.occupied_co[BLACK])
 
-    value += 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
-    value -= 5 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
+    value += 5.0 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[WHITE])
+    value -= 5.0 * sparse_pop_count(bitboard.rooks & bitboard.occupied_co[BLACK])
 
-    value += 9 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[WHITE])
-    value -= 9 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[BLACK])
+    value += 9.0 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[WHITE])
+    value -= 9.0 * sparse_pop_count(bitboard.queens & bitboard.occupied_co[BLACK])
+
+    return value
+
+def mobility_evaluator(bitboard):
+    value = 0.0
+
+    turn = bitboard.turn
+
+    bitboard.turn = WHITE
+    value += 0.02 * len(list(bitboard.generate_pseudo_legal_moves()))
+
+    bitboard.turn = BLACK
+    value -= 0.02 * len(list(bitboard.generate_pseudo_legal_moves()))
+
+    bitboard.turn = turn
 
     return value
 
@@ -1091,30 +1106,8 @@ if __name__ == "__main__":
     print_bitboard(bitboard)
 
     while True:
-        try:
-            print()
-            command = input("UCI> ")
-
-            if command in ("q", "quit", "exit"):
-                sys.exit(0)
-
-            if command in ("u", "undo"):
-                bitboard.pop()
-                bitboard.pop()
-                continue
-
-            move = Move.from_uci(command)
-            if not move in bitboard.generate_moves():
-                continue
-
-            bitboard.push(move)
-
-            t = time.time()
-            value, move = minimax(bitboard, 3, material_evaluator)
-            print(value, move, time.time() - t)
-            bitboard.push(move)
-
-            print_bitboard(bitboard)
-            print()
-        finally:
-            pass
+        t = time.time()
+        value, move = minimax(bitboard, 2, lambda b: mobility_evaluator(b) + material_evaluator(b))
+        bitboard.push(move)
+        print_bitboard(bitboard)
+        print(value, move, time.time() - t)
