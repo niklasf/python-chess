@@ -913,6 +913,10 @@ class Bitboard:
         else:
             self.half_moves += 1
 
+        # Promotion.
+        if move.promotion:
+            piece_type = move.promotion
+
         # Remove piece from target square.
         self.remove_piece_at(move.from_square)
 
@@ -946,7 +950,8 @@ class Bitboard:
         captured_piece_color = self.turn
 
         # Restore the source square.
-        self.set_piece_at(move.from_square, self.piece_at(move.to_square))
+        piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
+        self.set_piece_at(move.from_square, Piece(piece, self.turn ^ 1))
 
         # Restore target square.
         if captured_piece:
@@ -1106,8 +1111,19 @@ if __name__ == "__main__":
     print_bitboard(bitboard)
 
     while True:
+        print()
+
         t = time.time()
-        value, move = minimax(bitboard, 2, lambda b: mobility_evaluator(b) + material_evaluator(b))
+        if bitboard.turn == WHITE:
+            res = minimax(bitboard, 1, lambda b: mobility_evaluator(b) + material_evaluator(b))
+        else:
+            res = minimax(bitboard, 1, lambda b: random.randint(0, 500))
+        if res is None:
+            break
+
+        value, move = res
+        ply = bitboard.ply
+
         bitboard.push(move)
         print_bitboard(bitboard)
-        print(value, move, time.time() - t)
+        print(str(ply) + ("." if bitboard.turn ^ 1 == WHITE else "..."), move.uci(), value, time.time() - t)
