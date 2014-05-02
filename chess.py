@@ -878,7 +878,7 @@ class Bitboard:
             return False
 
         # A single knight or a single bishop.
-        if sparse_pop_count(self.occupied) == 3:
+        if sparse_pop_count(self.occupied) <= 3:
             return True
 
         # More than a single knight.
@@ -886,9 +886,9 @@ class Bitboard:
             return False
 
         # All bishops on the same color.
-        if self.bishops ^ BB_DARK_SQUARES == 0:
+        if self.bishops & BB_DARK_SQUARES == 0:
             return True
-        elif self.bishops ^ BB_LIGHT_SQUARES == 0:
+        elif self.bishops & BB_LIGHT_SQUARES == 0:
             return True
         else:
             return False
