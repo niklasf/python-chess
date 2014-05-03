@@ -1358,22 +1358,27 @@ if __name__ == "__main__":
             continue
 
         if line == "uci":
+            # Initialize.
             sys.stdout.write("id name python-chess {0}\n".format(__version__))
             sys.stdout.write("id author {0}\n".format(__author__))
             sys.stdout.write("uciok\n")
             sys.stdout.flush()
         elif line == "isready":
+            # Always ready.
             sys.stdout.write("readyok\n")
             sys.stdout.flush()
         elif line == "ucinewgame":
-            pass
+            # No special setup for a new game.
+            continue
         elif line == "quit":
+            # Quit.
             sys.exit(0)
         else:
             parts = line.split()
             command = parts.pop(0)
 
             if command == "position":
+                # Setup a position.
                 while parts:
                     part = parts.pop(0)
                     if part == "startpos":
@@ -1387,11 +1392,17 @@ if __name__ == "__main__":
                 else:
                     position.reset()
             elif command == "go":
-                best = alphabeta(position, 1, material_evaluator)
+                # Do not ponder.
+                if "ponder" in parts:
+                    continue
+
+                # Search.
+                best = alphabeta(position, 2, material_evaluator)
                 if best:
                     value, move = best
                     sys.stdout.write("bestmove {0}\n".format(move.uci()))
                     sys.stdout.flush()
             else:
+                # Unknown command.
                 sys.stderr.write("Unknown command: {0}\n".format(line))
                 sys.stderr.flush()
