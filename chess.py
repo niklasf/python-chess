@@ -19,6 +19,8 @@ PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
+STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -498,8 +500,11 @@ class Move:
 
 class Bitboard:
 
-    def __init__(self):
-        self.reset()
+    def __init__(self, fen=None):
+        if fen is None:
+            self.reset()
+        else:
+            self.set_fen(fen)
 
     def reset(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
@@ -975,7 +980,103 @@ class Bitboard:
 
         return move
 
-    # TODO: FEN parsing
+    def set_fen(self, fen):
+        # Ensure there are six parts.
+        parts = fen.split()
+        if len(parts) != 6:
+            raise ValueError("A FEN string should consist of 6 parts.")
+
+        # Ensure the board part is valid.
+        rows = parts[0].split("/")
+        if len(rows) != 8:
+            raise ValueError("Expected 8 rows in position part of FEN.")
+
+        # Validate each row.
+        for row in rows:
+            field_sum = 0
+            previous_was_digit = False
+
+            for c in row:
+                if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                    if previous_was_number:
+                        raise ValueError("Two subsequent digits in position part of FEN.")
+                    field_sum += int(c)
+                    previous_was_digit = True
+                elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+                    field_sum += 1
+                    previous_was_digit = False
+                else:
+                    raise ValueError("Invalid character in position part of FEN.")
+
+            if field_sum != 8:
+                raise ValueError("Expected 8 columns per row in position part of FEN.")
+
+        # Check that the turn part is valid.
+        if not parts[1] in ["w", "b"]:
+            raise ValueError("Expected w or b for turn part of FEN.")
+
+        # TODO: Check that the castling part is valid.
+
+        # TODO: Check that the en-passant part is valid.
+
+        # TODO: Check that the half move part is valid.
+
+        # TODO: Check that the ply part is valid.
+
+        # Clear board.
+        self.pawns = BB_VOID
+        self.knights = BB_VOID
+        self.bishops = BB_VOID
+        self.rooks = BB_VOID
+        self.queens = BB_VOID
+        self.kings = BB_VOID
+        self.occupied_co = [ BB_VOID, BB_VOID ]
+        self.occupied = BB_VOID
+        self.occupied_l90 = BB_VOID
+        self.occupied_r45 = BB_VOID
+        self.occupied_l45 = BB_VOID
+        self.king_squares = [ E1, E8 ]
+        self.half_move_stack = collections.deque()
+        self.captured_piece_stack = collections.deque()
+        self.castling_right_stack = collections.deque()
+        self.ep_square_stack = collections.deque()
+        self.move_stack = collections.deque()
+
+        # Put pieces on the board.
+        square_index = 0
+        for c in parts[0]:
+            if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                square_index += int(c)
+            elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+                self.set_piece_at(SQUARES_180[square_index], Piece.from_symbol(c))
+                c += 1
+
+        # Set the turn.
+        if parts[1] == "w":
+            self.turn = WHITE
+        else:
+            self.turn = BLACK
+
+        # Set castling flags.
+        self.castling_rights = CASTLING_NONE
+        if "K" in parts[2]:
+            self.castling_rights |= CASTLING_WHITE_KINGSIDE
+        if "Q" in parts[2]:
+            self.castling_rights |= CASTLING_WHITE_QUEENSIDE
+        if "k" in parts[2]:
+            self.castling_rights |= CASTLING_BLACK_KINGSIDE
+        if "q" in parts[2]:
+            self.castling_rights |= CASTLING_BLACK_QUEENSIDE
+
+        # Set the en-passant square.
+        if parts[3] == "-":
+            self.ep_square = 0
+        else:
+            self.ep_square = SQUARE_NAMES.index(parts[3])
+
+        # Set the mover counters.
+        self.half_moves = int(parts[4])
+        self.ply = int(parts[5])
 
     def fen(self):
         fen = []
@@ -1244,10 +1345,8 @@ if __name__ == "__main__":
     sys.stdout.write("python-chess {0}\n".format(__version__))
     sys.stdout.write("Copyright (c) {0} <{1}>\n".format(__author__, __email__))
 
-
-
-    bitboard = Bitboard()
-    print bitboard.fen()
+    bitboard = Bitboard(input("FEN: "))
+    print_bitboard(bitboard)
 
     sys.exit(0)
 
