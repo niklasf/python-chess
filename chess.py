@@ -1365,6 +1365,8 @@ if __name__ == "__main__":
         elif line == "isready":
             sys.stdout.write("readyok\n")
             sys.stdout.flush()
+        elif line == "ucinewgame":
+            pass
         elif line == "quit":
             sys.exit(0)
         else:
