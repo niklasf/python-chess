@@ -460,9 +460,9 @@ class Piece:
     @classmethod
     def from_symbol(cls, symbol):
         if symbol.lower() == symbol:
-            return cls(PIECE_SYMBOLS.index(symbol), WHITE)
+            return cls(PIECE_SYMBOLS.index(symbol), BLACK)
         else:
-            return cls(PIECE_SYMBOLS.index(symbol.lower()), BLACK)
+            return cls(PIECE_SYMBOLS.index(symbol.lower()), WHITE)
 
 
 class Move:
@@ -998,7 +998,7 @@ class Bitboard:
 
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
-                    if previous_was_number:
+                    if previous_was_digit:
                         raise ValueError("Two subsequent digits in position part of FEN.")
                     field_sum += int(c)
                     previous_was_digit = True
@@ -1049,7 +1049,7 @@ class Bitboard:
                 square_index += int(c)
             elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
                 self.set_piece_at(SQUARES_180[square_index], Piece.from_symbol(c))
-                c += 1
+                square_index += 1
 
         # Set the turn.
         if parts[1] == "w":
