@@ -1343,7 +1343,7 @@ def mobility_evaluator(bitboard):
 
 
 if __name__ == "__main__":
-    sys.stdout.write("python-chess {0} by {1}\n".format(__version__, __author__))
+    sys.stdout.write("python-chess {0} by {1} <{2}>\n".format(__version__, __author__, __email__))
 
     f = open("log.txt", "a")
 
@@ -1368,18 +1368,28 @@ if __name__ == "__main__":
         elif line == "quit":
             sys.exit(0)
         else:
-            parts = line.split().__iter__()
-            command = next(parts)
+            parts = line.split()
+            command = parts.pop(0)
 
             if command == "position":
-                part = next(parts)
-                if part == "startpos":
-                    position.reset()
+                while parts:
+                    part = parts.pop(0)
+                    if part == "startpos":
+                        position.reset()
+                    elif part == "moves":
+                        while parts:
+                            position.push(Move.from_uci(parts.pop(0)))
+                        break
+                    elif len(parts) >= 6:
+                        position.set_fen(" ".join([part, parts.pop(0), parts.pop(0), parts.pop(0), parts.pop(0), parts.pop(0)]))
                 else:
-                    position.set_fen(" ".join([part, next(parts), next(parts), next(parts), next(parts), next(parts)]))
-
-                for move in parts:
-                    position.push(Move.from_uci(move))
+                    position.reset()
+            elif command == "go":
+                best = alphabeta(position, 1, material_evaluator)
+                if best:
+                    value, move = best
+                    sys.stdout.write("bestmove {0}\n".format(move.uci()))
+                    sys.stdout.flush()
             else:
                 sys.stderr.write("Unknown command: {0}\n".format(line))
                 sys.stderr.flush()
