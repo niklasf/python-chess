@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 __author__ = "Niklas Fiekas"
@@ -1342,36 +1343,43 @@ def mobility_evaluator(bitboard):
 
 
 if __name__ == "__main__":
-    sys.stdout.write("python-chess {0}\n".format(__version__))
-    sys.stdout.write("Copyright (c) {0} <{1}>\n".format(__author__, __email__))
+    sys.stdout.write("python-chess {0} by {1}\n".format(__version__, __author__))
 
-    bitboard = Bitboard(input("FEN: "))
-    print_bitboard(bitboard)
+    f = open("log.txt", "a")
 
-    sys.exit(0)
+    position = Bitboard()
 
     while True:
-        print()
+        line = sys.stdin.readline()
+        f.write(line)
+        f.flush()
+        line = line.strip()
+        if not line:
+            continue
 
-        t = time.time()
-        if bitboard.turn == WHITE:
-            res = alphabeta(bitboard, 2, lambda b: material_evaluator(b) + random.uniform(-0.1, 0.1))
+        if line == "uci":
+            sys.stdout.write("id name python-chess {0}\n".format(__version__))
+            sys.stdout.write("id author {0}\n".format(__author__))
+            sys.stdout.write("uciok\n")
+            sys.stdout.flush()
+        elif line == "isready":
+            sys.stdout.write("readyok\n")
+            sys.stdout.flush()
+        elif line == "quit":
+            sys.exit(0)
         else:
-            res = alphabeta(bitboard, 2, lambda b: material_evaluator(b) + random.uniform(-0.1, 0.1))
+            parts = line.split().__iter__()
+            command = next(parts)
 
-        if res is None:
-            break
+            if command == "position":
+                part = next(parts)
+                if part == "startpos":
+                    position.reset()
+                else:
+                    position.set_fen(" ".join([part, next(parts), next(parts), next(parts), next(parts), next(parts)]))
 
-        if bitboard.is_insufficient_material():
-            break
-
-        if bitboard.half_moves > 50:
-            print("Draw claimed.")
-            break
-
-        value, move = res
-        ply = bitboard.ply
-
-        bitboard.push(move)
-        print_bitboard(bitboard)
-        print(str(ply) + ("." if bitboard.turn ^ 1 == WHITE else "..."), move.uci(), "val="+str(value), "secs="+str(time.time() - t))
+                for move in parts:
+                    position.push(Move.from_uci(move))
+            else:
+                sys.stderr.write("Unknown command: {0}\n".format(line))
+                sys.stderr.flush()
