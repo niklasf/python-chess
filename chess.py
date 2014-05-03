@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
+__author__ = "Niklas Fiekas"
+
+__email__ = "niklas.fiekas@tu-clausthal.de"
+
+__version__ = "0.1.0"
+
 import collections
 import sys
 import random
 import time
+
 
 
 COLORS = [ WHITE, BLACK ] = range(2)
@@ -970,7 +977,72 @@ class Bitboard:
 
     # TODO: FEN parsing
 
-    # TODO: FEN creation
+    def fen(self):
+        fen = []
+        empty = 0
+
+        # Position part.
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if not piece:
+                empty += 1
+            else:
+                if empty:
+                    fen.append(str(empty))
+                    empty = 0
+                fen.append(piece.symbol())
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if empty:
+                    fen.append(str(empty))
+                    empty = 0
+
+                if square != H1:
+                    fen.append("/")
+
+        fen.append(" ")
+
+        # Side to move.
+        if self.turn == WHITE:
+            fen.append("w")
+        else:
+            fen.append("b")
+
+        fen.append(" ")
+
+        # Castling rights.
+        if not self.castling_rights:
+            fen.append("-")
+        else:
+            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+                fen.append("K")
+            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+                fen.append("Q")
+            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+                fen.append("k")
+            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+                fen.append("q")
+
+        fen.append(" ")
+
+        # En passant square.
+        if self.ep_square:
+            fen.append(SQUARE_NAMES[self.ep_square])
+        else:
+            fen.append("-")
+
+        fen.append(" ")
+
+        # Half moves.
+        fen.append(str(self.half_moves))
+
+        fen.append(" ")
+
+        # Ply.
+        fen.append(str(self.ply))
+
+        return "".join(fen)
 
     # TODO: SAN parsing
 
@@ -1169,19 +1241,24 @@ def mobility_evaluator(bitboard):
 
 
 if __name__ == "__main__":
-    import sys
+    sys.stdout.write("python-chess {0}\n".format(__version__))
+    sys.stdout.write("Copyright (c) {0} <{1}>\n".format(__author__, __email__))
+
+
 
     bitboard = Bitboard()
-    print_bitboard(bitboard)
+    print bitboard.fen()
+
+    sys.exit(0)
 
     while True:
         print()
 
         t = time.time()
         if bitboard.turn == WHITE:
-            res = alphabeta(bitboard, 4, lambda b: material_evaluator(b))
+            res = alphabeta(bitboard, 2, lambda b: material_evaluator(b) + random.uniform(-0.1, 0.1))
         else:
-            res = alphabeta(bitboard, 4, lambda b: material_evaluator(b))
+            res = alphabeta(bitboard, 2, lambda b: material_evaluator(b) + random.uniform(-0.1, 0.1))
 
         if res is None:
             break
@@ -1198,4 +1275,4 @@ if __name__ == "__main__":
 
         bitboard.push(move)
         print_bitboard(bitboard)
-        print(str(ply) + ("." if bitboard.turn ^ 1 == WHITE else "..."), move.uci(), value, time.time() - t)
+        print(str(ply) + ("." if bitboard.turn ^ 1 == WHITE else "..."), move.uci(), "val="+str(value), "secs="+str(time.time() - t))
