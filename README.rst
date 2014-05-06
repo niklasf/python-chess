@@ -8,15 +8,17 @@ This is the scholars mate in python-chess:
 
 ::
 
-    pos = chess.Position()
-    pos.make_move_from_san("e4")
-    pos.make_move_from_san("e5")
-    pos.make_move_from_san("Qh5")
-    pos.make_move_from_san("Nc6")
-    pos.make_move_from_san("Bc4")
-    pos.make_move_from_san("Nf6")
-    pos.make_move_from_san("Qxf7")
-    assert pos.is_checkmate()
+    board = chess.Bitboard()
+    board.push_san("e4")
+    board.push_san("e5")
+    board.push_san("Qh5")
+    board.push_san("e5")
+    board.push_san("Qh5")
+    board.push_san("Nc6")
+    board.push_san("Bc4")
+    board.push_san("Nf6")
+    board.push_san("Qxf7")
+    assert board.is_checkmate()
 
 Features
 --------
@@ -26,38 +28,38 @@ Features
 
   ::
 
-      assert not chess.Move.from_uci("a8a1") in pos.get_legal_moves()
+      assert not chess.Move.from_uci("a8a1") in board.legal_moves
 
 * Detects checkmates, stalemates and draws by insufficient material.
   Has a half-move clock.
 
   ::
 
-      assert not pos.is_stalemate()
-      assert not pos.is_insufficient_material()
-      assert pos.is_game_over()
+      assert not board.is_stalemate()
+      assert not board.is_insufficient_material()
+      assert board.is_game_over()
 
-* Detects checks and can enumerate attackers and defenders of a square.
+* Detects checks and attacks.
 
   ::
 
-      assert pos.is_check()
-      assert chess.Square("f7") in pos.get_attackers("w", chess.Square("e8"))
+      assert board.is_check()
+      assert board.is_attacked_by(chess.WHITE, chess.E8)
 
 * Parses and creates SAN representation of moves.
 
   ::
 
-      pos = chess.Position()
-      assert "e4" == pos.make_move(chess.Move("e2e4")).san
+      board = chess.Bitboard()
+      assert "e4" == board.san(chess.Move(chess.E2, chess.E4))
 
 * Parses and creates FENs.
 
   ::
 
-      assert pos.fen == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-      pos = chess.Position("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
-      assert pos["c5"] == chess.Piece("k")
+      assert board.fen() == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      board = chess.Bitboard("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
+      assert board.piece_at(chess.C5) == chess.Piece.from_symbol("k")
 
 * Read Polyglot opening books.
 
@@ -71,15 +73,16 @@ Features
 
 Peformance
 ----------
-python-chess is not intended to be used by chess engines where performance is
-critical. The goal is rather to create a simple and highlevel library.
+python-chess is not intended to be used by serious chess engines where
+performance is critical. The goal is rather to create a simple and relatively
+highlevel library.
 
-However parts like move generation are in C++ (see the libchess directory) to
-improve the performance over pure Python code.
+However, even though bit fiddling in Python is not as fast as in C or C++,
+the current version is still much faster than previous attemtps including
+the naive x88 move generation from libchess.
 
-Building
---------
-libboost-regex-dev and libboost-python-dev are required.
+Installing
+----------
 
 * With easy_install:
 
