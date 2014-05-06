@@ -153,6 +153,22 @@ class BitboardTestCase(unittest.TestCase):
         bitboard.pop()
         self.assertEqual(bitboard.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
+        # Let white castle long.
+        move = bitboard.parse_san("O-O-O")
+        self.assertTrue(move in bitboard.legal_moves)
+        bitboard.push(move)
+
+        # Let black castle short.
+        move = bitboard.parse_san("O-O")
+        self.assertTrue(move in bitboard.legal_moves)
+        bitboard.push(move)
+        self.assertEqual(bitboard.fen(), "r4rk1/8/8/8/8/8/8/2KR3R w - - 3 2")
+
+        # Undo both castling moves.
+        bitboard.pop()
+        bitboard.pop()
+        self.assertEqual(bitboard.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
+
     def test_insufficient_material(self):
         # Starting position.
         bitboard = chess.Bitboard()
