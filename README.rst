@@ -65,10 +65,11 @@ Features
 
   ::
 
-      book = chess.PolyglotOpeningBook("data/opening-books/performance.bin")
-      pos = chess.Position()
-      for entry in book.get_entries_for_position(pos):
-          assert chess.Move.from_uci("e2e4") == entry.move
+      import chess.polyglot
+      book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+      board = chess.Bitboard()
+      for entry in book.get_entries_for_position(board):
+          assert chess.Move.from_uci("e2e4") == entry.move()
           break
 
 Peformance
