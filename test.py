@@ -349,10 +349,11 @@ class PolyglotReader(unittest.TestCase):
         while True:
             try:
                 entry = book.get_entries_for_position(board).next()
-                #print(board.san(entry.move()))
                 board.push(entry.move())
             except StopIteration:
                 break
+
+        self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
 
 
 if __name__ == "__main__":
