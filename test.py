@@ -200,6 +200,17 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.san(fxe6_mate_ep), "exd6#")
         self.assertEqual(bitboard.fen(), fen)
 
+        # Test ambiguation.
+        fen = "N3k2N/8/8/3N4/N4N1N/2R5/1R6/4K3 w - - 0 1"
+        bitboard = chess.Bitboard(fen)
+        self.assertEqual(bitboard.san(chess.Move.from_uci("e1f1")), "Kf1")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("c3c2")), "Rcc2")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("b2c2")), "Rbc2")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("a4b6")), "N4b6")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("h8g6")), "N8g6")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("h4g6")), "Nh4g6")
+        self.assertEqual(bitboard.fen(), fen)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

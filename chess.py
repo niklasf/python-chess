@@ -1327,7 +1327,7 @@ class Bitboard:
             # TODO: Remove illegal moves.
 
             if others:
-                row, column = False
+                row, column = False, False
 
                 if others & BB_RANKS[rank_index(move.from_square)]:
                     column = True
@@ -1340,7 +1340,7 @@ class Bitboard:
                 if column:
                     san += FILE_NAMES[file_index(move.from_square)]
                 if row:
-                    san += int(rank_index(move.from_square) + 1)
+                    san += str(rank_index(move.from_square) + 1)
 
         # Captures.
         if BB_SQUARES[move.to_square] & self.occupied or en_passant:
