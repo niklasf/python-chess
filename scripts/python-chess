@@ -286,6 +286,9 @@ if __name__ == "__main__":
                             break
                         upto += weight
 
+                    if not best_move:
+                        book = None
+
                 # Search.
                 if not best_move:
                     best = alphabeta(position, 2, material_evaluator)

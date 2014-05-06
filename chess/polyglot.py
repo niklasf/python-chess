@@ -146,7 +146,8 @@ class Reader:
         while True:
             entry = self.next()
             if entry.key == zobrist_hash:
-                yield entry
+                if entry.move() in position.legal_moves:
+                    yield entry
             else:
                 break
 
