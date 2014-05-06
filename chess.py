@@ -1203,6 +1203,13 @@ class Bitboard:
 
     # TODO: Validate move
 
+    def __repr__(self):
+        return "Bitboard.from_fen('{0}')".format(self.fen())
+
+    # TODO: Equality
+
+    # TODO: Zobrist hashing
+
 
 def print_bitboard(bitboard):
     PIECE_CHARS = [
