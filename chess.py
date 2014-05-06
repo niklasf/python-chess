@@ -1091,6 +1091,9 @@ class Bitboard:
 
         return move
 
+    def peek(self):
+        return self.move_stack[-1]
+
     def set_fen(self, fen):
         # Ensure there are six parts.
         parts = fen.split()
