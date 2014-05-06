@@ -920,17 +920,17 @@ class Bitboard:
         if piece == KING:
             # Castling.
             if self.turn == WHITE and move.from_square == E1:
-                if move.to_square == G1 and self.castling_rights & WHITE_CASTLE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
+                if move.to_square == G1 and self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
                         return True
-                elif move.to_square == C1 and self.castling_rights & WHITE_CASTLE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                elif move.to_square == C1 and self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                     if not self.is_attcked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
                         return True
             elif self.turn == BLACK and move.from_square == E8:
-                if move.to_square == G8 and self.castling_rights & BLACK_CASTLE_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
+                if move.to_square == G8 and self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
                         return True
-                elif move.to_square == C8 and self.castling_rights & BLACK_CASTLE_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                elif move.to_square == C8 and self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
 

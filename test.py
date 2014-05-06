@@ -137,9 +137,15 @@ class BitboardTestCase(unittest.TestCase):
     def test_castling(self):
         bitboard = chess.Bitboard("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
-        # Let both sides castle.
-        bitboard.push(chess.Move.from_uci("e1g1"))
-        bitboard.push(chess.Move.from_uci("e8c8"))
+        # Let white castle short.
+        move = bitboard.parse_san("O-O")
+        self.assertTrue(move in bitboard.legal_moves)
+        bitboard.push(move)
+
+        # Let black castle long.
+        move = bitboard.parse_san("O-O-O")
+        self.assertTrue(move in bitboard.legal_moves)
+        bitboard.push(move)
         self.assertEqual(bitboard.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
 
         # Undo both castling moves.
