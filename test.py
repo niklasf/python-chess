@@ -99,8 +99,8 @@ class BitboardTestCase(unittest.TestCase):
 
         # Accepted.
         exf4 = chess.Move.from_uci("e5f4")
-        self.assertTrue(exf4 in bitboard.generate_pseudo_legal_moves())
-        self.assertTrue(exf4 in bitboard.generate_moves())
+        self.assertTrue(exf4 in bitboard.pseudo_legal_moves)
+        self.assertTrue(exf4 in bitboard.legal_moves)
         bitboard.push(exf4)
         bitboard.pop()
 
@@ -111,8 +111,8 @@ class BitboardTestCase(unittest.TestCase):
     def test_single_step_pawn_move(self):
         bitboard = chess.Bitboard()
         a3 = chess.Move.from_uci("a2a3")
-        self.assertTrue(a3 in bitboard.generate_pseudo_legal_moves())
-        self.assertTrue(a3 in bitboard.generate_moves())
+        self.assertTrue(a3 in bitboard.pseudo_legal_moves)
+        self.assertTrue(a3 in bitboard.legal_moves)
         bitboard.push(a3)
         bitboard.pop()
         self.assertEqual(bitboard.fen(), chess.STARTING_FEN)
@@ -153,27 +153,27 @@ class BitboardTestCase(unittest.TestCase):
         bitboard = chess.Bitboard()
 
         e4 = chess.Move.from_uci("e2e4")
-        self.assertTrue(e4 in bitboard.generate_moves())
+        self.assertTrue(e4 in bitboard.legal_moves)
         bitboard.push(e4)
 
         e5 = chess.Move.from_uci("e7e5")
-        self.assertTrue(e5 in bitboard.generate_moves())
+        self.assertTrue(e5 in bitboard.legal_moves)
         bitboard.push(e5)
 
         Qf3 = chess.Move.from_uci("d1f3")
-        self.assertTrue(Qf3 in bitboard.generate_moves())
+        self.assertTrue(Qf3 in bitboard.legal_moves)
         bitboard.push(Qf3)
 
         Nc6 = chess.Move.from_uci("b8c6")
-        self.assertTrue(Nc6 in bitboard.generate_moves())
+        self.assertTrue(Nc6 in bitboard.legal_moves)
         bitboard.push(Nc6)
 
         Bc4 = chess.Move.from_uci("f1c4")
-        self.assertTrue(Bc4 in bitboard.generate_moves())
+        self.assertTrue(Bc4 in bitboard.legal_moves)
         bitboard.push(Bc4)
 
         Rb8 = chess.Move.from_uci("a8b8")
-        self.assertTrue(Rb8 in bitboard.generate_moves())
+        self.assertTrue(Rb8 in bitboard.legal_moves)
         bitboard.push(Rb8)
 
         self.assertFalse(bitboard.is_check())
@@ -182,7 +182,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(bitboard.is_stalemate())
 
         Qf7_mate = chess.Move.from_uci("f3f7")
-        self.assertTrue(Qf7_mate in bitboard.generate_moves())
+        self.assertTrue(Qf7_mate in bitboard.legal_moves)
         bitboard.push(Qf7_mate)
 
         self.assertTrue(bitboard.is_check())

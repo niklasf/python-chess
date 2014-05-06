@@ -501,6 +501,9 @@ class Move:
 class Bitboard:
 
     def __init__(self, fen=None):
+        self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
+        self.legal_moves = LegalMoveGenerator(self)
+
         if fen is None:
             self.reset()
         else:
@@ -862,7 +865,7 @@ class Bitboard:
     def is_not_into_check(self, move):
         return not self.is_into_check(move)
 
-    def generate_moves(self):
+    def generate_legal_moves(self):
         return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
 
     def is_game_over(self):
@@ -870,7 +873,7 @@ class Bitboard:
             return True
 
         try:
-            next(self.generate_moves().__iter__())
+            next(self.generate_legal_moves().__iter__())
             return False
         except StopIteration:
             return True
@@ -880,7 +883,7 @@ class Bitboard:
             return False
 
         try:
-            next(self.generate_moves().__iter__())
+            next(self.generate_legal_moves().__iter__())
             return False
         except StopIteration:
             return True
@@ -890,7 +893,7 @@ class Bitboard:
             return False
 
         try:
-            next(self.generate_moves().__iter__())
+            next(self.generate_legal_moves().__iter__())
             return False
         except StopIteration:
             return True
@@ -1210,6 +1213,71 @@ class Bitboard:
     # TODO: Equality
 
     # TODO: Zobrist hashing
+
+
+class PseudoLegalMoveGenerator:
+
+    def __init__(self, bitboard):
+        self.bitboard = bitboard
+
+    def __nonzero__(self):
+        try:
+            next(self.__iter__())
+            return True
+        except:
+            return False
+
+    def __len__(self):
+        # TODO: Could be more efficient using population counts.
+        count = 0
+        iterator = self.__iter__()
+
+        while True:
+            try:
+                next(iterator)
+                count += 1
+            except StopIteration:
+                return count
+
+    def __iter__(self):
+        return self.bitboard.generate_pseudo_legal_moves()
+
+    def __contains__(self, move):
+        # TODO: Add Bitboard.is_pseudo_legal()
+        return move in self.__iter__()
+
+
+class LegalMoveGenerator:
+
+    def __init__(self, bitboard):
+        self.bitboard = bitboard
+
+    def __nonzero__(self):
+        try:
+            next(self.__iter__())
+            return True
+        except:
+            return False
+
+    def __len__(self):
+        count = 0
+        iterator = self.__iter__()
+
+        while True:
+            try:
+                next(iterator)
+                count += 1
+            except StopIteration:
+                return count
+
+    def __iter__(self):
+        return self.bitboard.generate_legal_moves()
+        # Generate and filter
+        pass
+
+    def __contains__(self, move):
+        # TODO: Add Bitboard.is_legal()
+        return move in self.__iter__()
 
 
 def print_bitboard(bitboard):
