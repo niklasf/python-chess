@@ -1102,6 +1102,10 @@ class Bitboard:
         from_mask = BB_SQUARES[move.from_square]
         to_mask = BB_SQUARES[move.to_square]
 
+        # Check turn.
+        if not self.occupied_co[self.turn] & from_mask:
+            return False
+
         # Destination square can not be occupied.
         if self.occupied_co[self.turn] & to_mask:
             return False
@@ -1134,7 +1138,7 @@ class Bitboard:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
 
-            return bool(self.king_attacks_from(move.to_square) & from_mask)
+            return bool(self.king_attacks_from(move.from_square) & to_mask)
         elif piece == PAWN:
             # Require promotion type if on promotion rank.
             if not move.promotion:
