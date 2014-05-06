@@ -212,7 +212,7 @@ def mobility_evaluator(bitboard):
 if __name__ == "__main__":
     sys.stdout.write("python-chess {0} by {1} <{2}>\n".format(chess.__version__, chess.__author__, chess.__email__))
 
-    #f = open("log.txt", "a")
+    log = open("log.txt", "a")
 
     book = None
     try:
@@ -224,8 +224,8 @@ if __name__ == "__main__":
 
     while True:
         line = sys.stdin.readline()
-        #f.write(line)
-        #f.flush()
+        log.write(line)
+        log.flush()
         line = line.strip()
         if not line:
             continue
@@ -271,10 +271,13 @@ if __name__ == "__main__":
 
                 #  Consider the opening book.
                 if book:
-                    book_move = book.get_entries_for_position(position).next()
-                    sys.stdout.write("bestmove {0}\n".format(book_move.move().uci()))
-                    sys.stdout.flush()
-                    continue
+                    try:
+                        book_move = book.get_entries_for_position(position).next()
+                        sys.stdout.write("bestmove {0}\n".format(book_move.move().uci()))
+                        sys.stdout.flush()
+                        continue
+                    except StopIteration:
+                        pass
 
                 # Search.
                 best = alphabeta(position, 2, material_evaluator)
