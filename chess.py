@@ -643,11 +643,11 @@ class Bitboard:
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
-            #if self.ep_square:
-            #    moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-            #    while moves:
-            #        from_square, moves = next_bit(moves)
-            #        yield Move(from_square, self.ep_square)
+            if self.ep_square:
+                moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
+                while moves:
+                    from_square, moves = next_bit(moves)
+                    yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
@@ -707,11 +707,11 @@ class Bitboard:
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[BLACK]
-            #if self.ep_square:
-            #    moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-            #    while moves:
-            #        from_square, moves = next_bit(moves)
-            #        yield Move(from_square, self.ep_square)
+            if self.ep_square:
+                moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
+                while moves:
+                    from_square, moves = next_bit(moves)
+                    yield Move(from_square, self.ep_square)
 
             # Pawn captures.
             moves = shift_down_left(movers) & self.occupied_co[WHITE]
@@ -1005,12 +1005,25 @@ class Bitboard:
         # Remove piece from target square.
         self.remove_piece_at(move.from_square)
 
-        # Set en passant square.
-        # TODO: Only set if indeed possible.
-        if piece_type == PAWN and abs(move.to_square - move.from_square) == 16:
-            self.ep_square = move.from_square + int((move.to_square - move.from_square) / 2)
-        else:
-            self.ep_square = 0
+
+        # Handle special pawn moves.
+        self.ep_square = 0
+        if piece_type == PAWN:
+            diff = abs(move.to_square - move.from_square)
+
+            # Remove pawns captured en passant.
+            if (diff == 7 or diff == 9) and not self.occupied & BB_SQUARES[move.to_square]:
+                if self.turn == WHITE:
+                    self.remove_piece_at(move.to_square - 8)
+                else:
+                    self.remove_piece_at(move.to_square + 8)
+
+            # Set en passant square.
+            if diff == 16:
+                if self.turn == WHITE:
+                    self.ep_square = move.to_square - 8
+                else:
+                    self.ep_square = move.to_square + 8
 
         # Castling rights.
         if move.from_square == E1:
@@ -1071,7 +1084,12 @@ class Bitboard:
         else:
             self.remove_piece_at(move.to_square)
 
-        # TODO: Restore captured pawn after en passant.
+            # Restore captured pawn after en passant.
+            if piece == PAWN and abs(move.from_square - move.to_square) in (7, 9):
+                if self.turn == WHITE:
+                    self.set_piece_at(move.to_square + 8, Piece(PAWN, WHITE))
+                else:
+                    self.set_piece_at(move.to_square - 8, Piece(PAWN, BLACK))
 
         # Restore rook position after castling.
         if piece == KING:
