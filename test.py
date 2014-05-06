@@ -274,6 +274,10 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), fen)
 
     def test_polyglot(self):
+        # Test polyglot compability using test data from
+        # http://hardy.uhasselt.be/Toga/book_format.html. Forfeiting castling
+        # rights should not reset the half move counter, though.
+
         board = chess.Bitboard()
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(board.__hash__(), 0x463b96181691fc9c)
@@ -295,11 +299,11 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.__hash__(), 0x22a48b5a8e47ff78)
 
         board.push_san("Ke2")
-        #self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3")
+        self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 1 3")
         self.assertEqual(board.__hash__(), 0x652a607ca3f242c1)
 
         board.push_san("Kf7")
-        #self.assertEqual(board.fen(), "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4")
+        self.assertEqual(board.fen(), "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 2 4")
         self.assertEqual(board.__hash__(), 0x00fdd303c946bdd9)
 
         board = chess.Bitboard()
@@ -313,7 +317,7 @@ class BitboardTestCase(unittest.TestCase):
 
         board.push_san("bxc3")
         board.push_san("Ra3")
-        #self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4")
+        self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 1 4")
         self.assertEqual(board.__hash__(), 0x5c3f9b829b279560)
 
 
