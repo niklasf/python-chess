@@ -1265,6 +1265,7 @@ class Bitboard:
 
     def san(self, move):
         piece = self.piece_type_at(move.from_square)
+        en_passant = False
 
         # Castling.
         if piece == KING:
@@ -1279,17 +1280,55 @@ class Bitboard:
                 elif move.to_square == C8:
                     return "O-O-O"
 
-        san = ""
+        if piece == PAWN:
+            san = ""
 
-        # TODO: Disambiguation.
+            # Detect en passant.
+            if not BB_SQUARES[move.to_square] & self.occupied:
+                en_passant = abs(move.from_square - move.to_square) in (7, 9)
+        else:
+            if piece == KNIGHT:
+                san = "N"
+                others = self.knights & self.knight_attacks_from(move.to_square)
+            elif piece == BISHOP:
+                san = "B"
+                others = self.bishops & self.bishop_attacks_from(move.to_square)
+            elif piece == ROOK:
+                san = "R"
+                others = self.rooks & self.rook_attacks_from(move.to_square)
+            elif piece == QUEEN:
+                san = "Q"
+                others = self.queens & self.queen_attacks_from(move.to_square)
+            elif piece == KING:
+                san = "K"
+                others = self.kings & self.king_attacks_from(move.to_square)
+
+            others &= ~BB_SQUARES[move.from_square]
+            others &= self.occupied_co[self.turn]
+
+            # TODO: Remove illegal moves.
+
+            if others:
+                row, column = False
+
+                if others & BB_RANKS[rank_index(move.from_square)]:
+                    column = True
+
+                if others & BB_FILES[file_index(move.from_square)]:
+                    row = True
+                else:
+                    column = True
+
+                if column:
+                    san += FILE_NAMES[file_index(move.from_square)]
+                if row:
+                    san += int(rank_index(move.from_square) + 1)
 
         # Captures.
-        if BB_SQUARES[move.to_square] & self.occupied:
+        if BB_SQUARES[move.to_square] & self.occupied or en_passant:
             if piece == PAWN:
                 san += FILE_NAMES[file_index(move.from_square)]
             san += "x"
-
-        # TODO: En passant.
 
         # Destination square.
         san += SQUARE_NAMES[move.to_square]
