@@ -284,11 +284,11 @@ class BitboardTestCase(unittest.TestCase):
 
         board.push_san("e4")
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
-        #self.assertEqual(board.__hash__(), 0x823c9b50fd114196)
+        self.assertEqual(board.__hash__(), 0x823c9b50fd114196)
 
         board.push_san("d5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
-        #self.assertEqual(board.__hash__(), 0x0756b94461c50fb0)
+        self.assertEqual(board.__hash__(), 0x0756b94461c50fb0)
 
         board.push_san("e5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
