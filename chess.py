@@ -801,6 +801,13 @@ class Bitboard:
             to_square, moves = next_bit(moves)
             yield Move(from_square, to_square)
 
+    def pseudo_legal_move_count(self):
+        # TODO: Use population counts rather than iterating.
+        count = 0
+        for move in self.generate_pseudo_legal_moves():
+            count += 1
+        return count
+
     def is_attacked_by(self, color, square):
         if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
             return True
@@ -867,6 +874,13 @@ class Bitboard:
 
     def generate_legal_moves(self):
         return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
+
+    def is_pseudo_legal(self, move):
+        # TODO: Make use of the move itself to make this more efficient.
+        return move in self.generate_pseudo_legal_moves()
+
+    def is_legal(self, move):
+        return self.is_pseudo_legal(move) and self.is_not_into_check(move)
 
     def is_game_over(self):
         if self.is_insufficient_material():
@@ -1222,29 +1236,19 @@ class PseudoLegalMoveGenerator:
 
     def __nonzero__(self):
         try:
-            next(self.__iter__())
+            next(self.bitboard.generate_pseudo_legal_moves())
             return True
         except:
             return False
 
     def __len__(self):
-        # TODO: Could be more efficient using population counts.
-        count = 0
-        iterator = self.__iter__()
-
-        while True:
-            try:
-                next(iterator)
-                count += 1
-            except StopIteration:
-                return count
+        return self.bitboard.pseudo_legal_move_count()
 
     def __iter__(self):
         return self.bitboard.generate_pseudo_legal_moves()
 
     def __contains__(self, move):
-        # TODO: Add Bitboard.is_pseudo_legal()
-        return move in self.__iter__()
+        return self.bitboard.is_pseudo_legal(move)
 
 
 class LegalMoveGenerator:
@@ -1254,30 +1258,24 @@ class LegalMoveGenerator:
 
     def __nonzero__(self):
         try:
-            next(self.__iter__())
+            next(self.bitboard.generate_legal_moves())
             return True
         except:
             return False
 
     def __len__(self):
         count = 0
-        iterator = self.__iter__()
 
-        while True:
-            try:
-                next(iterator)
-                count += 1
-            except StopIteration:
-                return count
+        for move in self.bitboard.generate_legal_moves():
+            count += 1
+
+        return count
 
     def __iter__(self):
         return self.bitboard.generate_legal_moves()
-        # Generate and filter
-        pass
 
     def __contains__(self, move):
-        # TODO: Add Bitboard.is_legal()
-        return move in self.__iter__()
+        return self.bitboard.is_legal(move)
 
 
 def print_bitboard(bitboard):
