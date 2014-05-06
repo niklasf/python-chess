@@ -868,11 +868,8 @@ class Bitboard:
     def was_into_check(self):
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
-    def is_not_into_check(self, move):
-        return not self.is_into_check(move)
-
     def generate_legal_moves(self):
-        return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
+        return ( move for move in self.generate_pseudo_legal_moves() if not self.is_into_check(move) )
 
     def is_pseudo_legal(self, move):
         # Source square must not be vacant.
@@ -926,7 +923,7 @@ class Bitboard:
             return bool(self.knight_attacks_from(move.from_square) & to_mask)
 
     def is_legal(self, move):
-        return self.is_pseudo_legal(move) and self.is_not_into_check(move)
+        return self.is_pseudo_legal(move) and not self.is_into_check(move)
 
     def is_game_over(self):
         if self.is_insufficient_material():
