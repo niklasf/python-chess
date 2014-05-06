@@ -13,7 +13,6 @@ import random
 import time
 
 
-
 COLORS = [ WHITE, BLACK ] = range(2)
 
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
@@ -628,15 +627,15 @@ class Bitboard:
     def generate_pseudo_legal_moves(self):
         if self.turn == WHITE:
             # Castling short.
-            #if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
-            #    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-            #        pass
-            #        yield Move(E1, G1)
+            if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
+                if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
+                    pass
+                    yield Move(E1, G1)
 
             # Castling long.
-            #if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
-            #    if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-            #        yield Move(E1, C1)
+            if self.castling_rights | CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
+                if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
+                    yield Move(E1, C1)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
@@ -693,14 +692,14 @@ class Bitboard:
                 yield Move(from_square, to_square)
         else:
             # Castling short.
-            #if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
-            #    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-            #        yield Move(E8, F8)
+            if self.castling_rights | CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
+                if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
+                    yield Move(E8, F8)
 
             # Castling long.
-            #if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
-            #    if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-            #        yield Move(E8, C8)
+            if self.castling_rights | CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
+                if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
+                    yield Move(E8, C8)
 
             # En passant moves.
             movers = self.pawns & self.occupied_co[BLACK]
@@ -940,7 +939,34 @@ class Bitboard:
         else:
             self.ep_square = 0
 
-        # TODO: Do castling.
+        # Castling rights.
+        if move.from_square == E1:
+            self.castling_rights &= ~CASTLING_WHITE
+        elif move.from_square == E8:
+            self.castling_rights &= ~CASTLING_BLACK
+        elif move.from_square == A1:
+            self.castling_rights &= ~CASTLING_WHITE_QUEENSIDE
+        elif move.from_square == A8:
+            self.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
+        elif move.from_square == H1:
+            self.castling_rights &= ~CASTLING_WHITE_KINGSIDE
+        elif move.from_square == H8:
+            self.castling_rights &= ~CASTLING_BLACK_KINGSIDE
+
+        # Castling.
+        if piece_type == KING:
+            if move.from_square == E1 and move.to_square == G1:
+                self.set_piece_at(F1, Piece(ROOK, WHITE))
+                self.remove_piece_at(H1)
+            elif move.from_square == E1 and move.to_square == C1:
+                self.set_piece_at(D1, Piece(ROOK, WHITE))
+                self.remove_piece_at(A1)
+            elif move.from_square == E8 and move.to_square == G8:
+                self.set_piece_at(F8, Piece(ROOK, BLACK))
+                self.remove_piece_at(H8)
+            elif move.from_square == E8 and move.to_square == C8:
+                self.set_piece_at(D8, Piece(ROOK, BLACK))
+                self.remove_piece_at(A8)
 
         # Put piece on target square.
         self.set_piece_at(move.to_square, Piece(piece_type, self.turn))
