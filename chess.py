@@ -19,6 +19,8 @@ PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
+FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
+
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 SQUARES = [
@@ -1261,7 +1263,47 @@ class Bitboard:
 
     # TODO: SAN parsing
 
-    # TODO: SAN creation
+    def san(self, move):
+        piece = self.piece_type_at(move.from_square)
+
+        # Castling.
+        if piece == KING:
+            if move.from_square == E1:
+                if move.to_square == G1:
+                    return "O-O"
+                elif move.to_square == C1:
+                    return "O-O-O"
+            elif move.from_square == E8:
+                if move.to_square == G8:
+                    return "O-O"
+                elif move.to_square == C8:
+                    return "O-O-O"
+
+        san = ""
+
+        # TODO: Disambiguation.
+
+        # Captures.
+        if BB_SQUARES[move.to_square] & self.occupied:
+            if piece == PAWN:
+                san += FILE_NAMES[file_index(move.from_square)]
+            san += "x"
+
+        # TODO: En passant.
+
+        # Destination square.
+        san += SQUARE_NAMES[move.to_square]
+
+        # Look ahead for check or checkmate.
+        self.push(move)
+        if self.is_check():
+            if self.is_checkmate():
+                san += "#"
+            else:
+                san += "+"
+        self.pop()
+
+        return san
 
     # TODO: Validate position
 
