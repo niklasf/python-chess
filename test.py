@@ -193,5 +193,11 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), "1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQk - 0 4")
 
 
+class LegalMoveGeneratorTestCase(unittest.TestCase):
+
+    def test_list_conversion(self):
+        list(chess.LegalMoveGenerator(chess.Bitboard()))
+
+
 if __name__ == "__main__":
     unittest.main()
