@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import random
 import chess
 import chess.polyglot
 
@@ -269,21 +270,31 @@ if __name__ == "__main__":
                 if "ponder" in parts:
                     continue
 
+                best_move = None
+
                 #  Consider the opening book.
                 if book:
-                    try:
-                        book_move = book.get_entries_for_position(position).next()
-                        sys.stdout.write("bestmove {0}\n".format(book_move.move().uci()))
-                        sys.stdout.flush()
-                        continue
-                    except StopIteration:
-                        pass
+                    choices = [ (entry.weight, entry.move()) for entry in book.get_entries_for_position(position) ]
+                    total = sum(weight for weight, move in choices)
+
+                    rand = random.randint(0, total)
+                    upto = 0
+
+                    for weight, move in choices:
+                        if upto + weight > rand:
+                            best_move = move
+                            break
+                        upto += weight
 
                 # Search.
-                best = alphabeta(position, 2, material_evaluator)
-                if best:
-                    value, move = best
-                    sys.stdout.write("bestmove {0}\n".format(move.uci()))
+                if not best_move:
+                    best = alphabeta(position, 2, material_evaluator)
+                    if best:
+                        value, best_move = best
+
+                # Output.
+                if best_move:
+                    sys.stdout.write("bestmove {0}\n".format(best_move.uci()))
                     sys.stdout.flush()
             else:
                 # Unknown command.
