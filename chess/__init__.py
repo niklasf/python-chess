@@ -851,12 +851,12 @@ class Bitboard:
     def generate_pseudo_legal_moves(self):
         if self.turn == WHITE:
             # Castling short.
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
+            if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                 if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
                     yield Move(E1, G1)
 
             # Castling long.
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (B1 | C1 | D1) & self.occupied:
+            if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                 if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
                     yield Move(E1, C1)
 
@@ -915,12 +915,12 @@ class Bitboard:
                 yield Move(from_square, to_square)
         else:
             # Castling short.
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (F8 | G8) & self.occupied:
+            if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
                 if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                    yield Move(E8, F8)
+                    yield Move(E8, G8)
 
             # Castling long.
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (B8 | C8 | D8) & self.occupied:
+            if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                 if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
                     yield Move(E8, C8)
 
