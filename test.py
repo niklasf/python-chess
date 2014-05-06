@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import chess.polyglot
 import unittest
 
 
@@ -325,6 +326,33 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
     def test_list_conversion(self):
         list(chess.LegalMoveGenerator(chess.Bitboard()))
+
+
+class PolyglotReader(unittest.TestCase):
+
+    def test_performance_bin(self):
+        pos = chess.Bitboard()
+        book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+
+        e4 = book.get_entries_for_position(pos).next()
+        self.assertEqual(e4.move(), pos.parse_san("e4"))
+        pos.push(e4.move())
+
+        e5 = book.get_entries_for_position(pos).next()
+        self.assertEqual(e5.move(), pos.parse_san("e5"))
+        pos.push(e5.move())
+
+    def test_mainline(self):
+        board = chess.Bitboard()
+        book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+
+        while True:
+            try:
+                entry = book.get_entries_for_position(board).next()
+                #print(board.san(entry.move()))
+                board.push(entry.move())
+            except StopIteration:
+                break
 
 
 if __name__ == "__main__":
