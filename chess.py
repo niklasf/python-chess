@@ -11,6 +11,7 @@ import collections
 import sys
 import random
 import time
+import re
 
 
 COLORS = [ WHITE, BLACK ] = range(2)
@@ -22,6 +23,8 @@ PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
 
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -468,6 +471,8 @@ class Piece:
 
 
 class Move:
+
+    # TODO: Introduce null moves.
 
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
@@ -1289,7 +1294,84 @@ class Bitboard:
 
         return "".join(fen)
 
-    # TODO: SAN parsing
+    def parse_san(self, san):
+        # Castling.
+        if san in ("O-O", "O-O+", "O-O#"):
+            move = Move(E1, G1) if self.turn == WHITE else Move(E8, G8)
+            if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
+                return move
+            else:
+                raise ValueError("Invalid SAN: Can not castle short.")
+        elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
+            move = Move(E1, C1) if self.turn == WHITE else Move(E8, C8)
+            if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
+                return move
+            else:
+                raise ValueError("Invalid SAN: Can not castle long.")
+
+        # Match normal moves.
+        match = SAN_REGEX.match(san)
+        if not match:
+            raise ValueError("Invalid SAN.")
+
+        # Get target square.
+        to_square = SQUARE_NAMES.index(match.group(4))
+
+        # Get the promotion type.
+        if not match.group(5):
+            promotion = NONE
+        else:
+            promotion = PIECE_SYMBOLS.index(match.group(5)[1].lower())
+
+        # Filter by piece type.
+        if match.group(1) == "N":
+            from_mask = self.knights
+        elif match.group(1) == "B":
+            from_mask = self.bishops
+        elif match.group(1) == "K":
+            from_mask = self.kings
+        elif match.group(1) == "R":
+            from_mask = self.rooks
+        elif match.group(1) == "Q":
+            from_mask = self.queens
+        else:
+            from_mask = self.pawns
+
+        # Filter by turn.
+        from_mask &= self.occupied_co[self.turn]
+
+        # Filter by source file.
+        if match.group(2):
+            from_mask &= BB_FILES[FILE_NAMES.index(match.group(2))]
+
+        # Filter by source rank.
+        if match.group(3):
+            from_mask &= BB_RANKS[int(match.group(3)) - 1]
+
+        # Match legal moves.
+        matched_move = None
+        for move in self.generate_pseudo_legal_moves():
+            if move.to_square != to_square:
+                continue
+
+            if move.promotion != promotion:
+                continue
+
+            if not BB_SQUARES[move.from_square] & from_mask:
+                continue
+
+            if self.is_into_check(move):
+                continue
+
+            if matched_move:
+                raise ValueError("Invalid SAN: Move is ambigous.")
+
+            matched_move = move
+
+        return matched_move
+
+    def push_san(self, san):
+        self.push(self.parse_san(san))
 
     def san(self, move):
         piece = self.piece_type_at(move.from_square)
@@ -1381,8 +1463,6 @@ class Bitboard:
         return san
 
     # TODO: Validate position
-
-    # TODO: Validate move
 
     def __repr__(self):
         return "Bitboard('{0}')".format(self.fen())
