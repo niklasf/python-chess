@@ -1501,10 +1501,10 @@ def mobility_evaluator(bitboard):
     turn = bitboard.turn
 
     bitboard.turn = WHITE
-    value += 0.02 * len(list(bitboard.generate_pseudo_legal_moves()))
+    value += 0.02 * bitboard.pseudo_legal_move_count()
 
     bitboard.turn = BLACK
-    value -= 0.02 * len(list(bitboard.generate_pseudo_legal_moves()))
+    value -= 0.02 * bitboard.pseudo_legal_move_count()
 
     bitboard.turn = turn
 
