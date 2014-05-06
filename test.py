@@ -3,6 +3,7 @@
 import chess
 import unittest
 
+
 class MoveTestCase(unittest.TestCase):
 
     def test_uci_parsing(self):
@@ -26,6 +27,13 @@ class BitboardTestCase(unittest.TestCase):
 
         bitboard.push(chess.Move.from_uci("f3d2"))
         self.assertEqual(bitboard.fen(), "6k1/pb3pp1/1p2p2p/1Bn1P3/8/8/PP1N1PPP/6K1 b - - 0 24")
+
+    def test_castling(self):
+        bitboard = chess.Bitboard("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
+        bitboard.push(chess.Move.from_uci("e1g1"))
+        bitboard.push(chess.Move.from_uci("e8c8"))
+        self.assertEqual(bitboard.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
+
 
 if __name__ == "__main__":
     unittest.main()
