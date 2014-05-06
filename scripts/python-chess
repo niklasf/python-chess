@@ -19,6 +19,7 @@
 
 import sys
 import chess
+import chess.polyglot
 
 
 def print_bitboard(bitboard):
@@ -213,6 +214,12 @@ if __name__ == "__main__":
 
     #f = open("log.txt", "a")
 
+    book = None
+    try:
+        book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+    except IOError:
+        pass
+
     position = chess.Bitboard()
 
     while True:
@@ -260,6 +267,13 @@ if __name__ == "__main__":
             elif command == "go":
                 # Do not ponder.
                 if "ponder" in parts:
+                    continue
+
+                #  Consider the opening book.
+                if book:
+                    book_move = book.get_entries_for_position(position).next()
+                    sys.stdout.write("bestmove {0}\n".format(book_move.move().uci()))
+                    sys.stdout.flush()
                     continue
 
                 # Search.
