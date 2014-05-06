@@ -632,7 +632,6 @@ class Bitboard:
             # Castling short.
             if self.castling_rights | CASTLING_WHITE_KINGSIDE and not (F1 | G1) & self.occupied:
                 if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                    pass
                     yield Move(E1, G1)
 
             # Castling long.
@@ -876,8 +875,55 @@ class Bitboard:
         return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
 
     def is_pseudo_legal(self, move):
-        # TODO: Make use of the move itself to make this more efficient.
-        return move in self.generate_pseudo_legal_moves()
+        # Source square must not be vacant.
+        piece = self.piece_type_at(move.from_square)
+        if not piece:
+            return False
+
+        # Get square masks.
+        from_mask = BB_SQUARES[move.from_square]
+        to_mask = BB_SQUARES[move.to_square]
+
+        # Destination square can not be occupied.
+        if self.occupied_co[self.turn] & to_mask:
+            return False
+
+        # Handle moves by piece type.
+        if piece == KING:
+            # Castling.
+            if self.turn == WHITE and move.from_square == E1:
+                if move.to_square == G1 and self.castling_rights & WHITE_CASTLE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
+                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
+                        return True
+                elif move.to_square == C1 and self.castling_rights & WHITE_CASTLE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                    if not self.is_attcked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
+                        return True
+            elif self.turn == BLACK and move.from_square == E8:
+                if move.to_square == G8 and self.castling_rights & BLACK_CASTLE_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
+                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
+                        return True
+                elif move.to_square == C8 and self.castling_rights & BLACK_CASTLE_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
+                        return True
+
+            return bool(self.king_attacks_from(self.to_square) & from_mask)
+        elif piece == PAWN:
+            # Require promotion type if on promotion rank.
+            if not move.promotion:
+                if self.turn == WHITE and rank_index(move.to_square) == 7:
+                    return False
+                if self.turn == BLACK and rank_index(move.to_square) == 0:
+                    return False
+
+            return bool(self.pawn_moves_from(move.from_square) & to_mask)
+        elif piece == QUEEN:
+            return bool(self.queen_attacks_from(move.from_square) & to_mask)
+        elif piece == ROOK:
+            return bool(self.rook_attacks_from(move.from_square) & to_mask)
+        elif piece == BISHOP:
+            return bool(self.bishop_attacks_from(move.from_square) & to_mask)
+        elif piece == KNIGHT:
+            return bool(self.knight_attacks_from(move.from_square) & to_mask)
 
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and self.is_not_into_check(move)
