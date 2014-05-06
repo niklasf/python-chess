@@ -33,10 +33,10 @@ def print_bitboard(bitboard):
     SEQ_LIGHT_SQUARE = "\033[0;30m"
     SEQ_END = "\033[0m"
 
-    for square in SQUARES_180:
-        if BB_SQUARES[square] & BB_FILE_A:
+    for square in chess.SQUARES_180:
+        if chess.BB_SQUARES[square] & chess.BB_FILE_A:
             for border in range(square, square + 8):
-                if BB_SQUARES[border] & BB_DARK_SQUARES:
+                if chess.BB_SQUARES[border] & chess.BB_DARK_SQUARES:
                     sys.stdout.write(SEQ_DARK_SQUARE)
                 else:
                     sys.stdout.write(SEQ_LIGHT_SQUARE)
@@ -46,7 +46,7 @@ def print_bitboard(bitboard):
 
             sys.stdout.write("\n")
 
-        if BB_SQUARES[square] & BB_DARK_SQUARES:
+        if chess.BB_SQUARES[square] & chess.BB_DARK_SQUARES:
             sys.stdout.write("\033[0;30;46m")
         else:
             sys.stdout.write("\033[0;30m")
@@ -61,7 +61,7 @@ def print_bitboard(bitboard):
 
         sys.stdout.write("\033[0m")
 
-        if BB_SQUARES[square] & BB_FILE_H:
+        if chess.BB_SQUARES[square] & chess.BB_FILE_H:
             sys.stdout.write("\n")
 
     sys.stdout.flush()
@@ -247,6 +247,9 @@ if __name__ == "__main__":
         elif line == "quit":
             # Quit.
             sys.exit(0)
+        elif line == "print":
+            print_bitboard(position)
+            print(position)
         else:
             parts = line.split()
             command = parts.pop(0)

@@ -321,6 +321,11 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 1 4")
         self.assertEqual(board.__hash__(), 0x5c3f9b829b279560)
 
+    def test_move_generation(self):
+        board = chess.Bitboard("rnbqkbnr/2pp1ppp/8/4p3/2BPP3/P1N2N2/PB3PPP/2RQ1RK1 b kq - 1 10")
+        illegal_move = chess.Move.from_uci("g1g2")
+        self.assertFalse(illegal_move in list(board.legal_moves))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

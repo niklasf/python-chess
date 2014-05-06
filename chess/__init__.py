@@ -1134,7 +1134,7 @@ class Bitboard:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
 
-            return bool(self.king_attacks_from(self.to_square) & from_mask)
+            return bool(self.king_attacks_from(move.to_square) & from_mask)
         elif piece == PAWN:
             # Require promotion type if on promotion rank.
             if not move.promotion:
