@@ -2006,13 +2006,13 @@
     "A44a": {
         "eco": "A44a",
         "fen": "rnbqkbnr/pp1p1ppp/8/2pPp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3",
-        "hash": 6129156126330893512,
+        "hash": 11114434025341711937,
         "name": "Old Benoni: Czech"
     },
     "A44b": {
         "eco": "A44b",
-        "fen": "rnbqkbnr/pp1p1ppp/4P3/2p1p3/8/8/PPP1PPPP/RNBQKBNR b KQkq - 0 3",
-        "hash": 10602784275657482092,
+        "fen": "rnbqkbnr/pp1p1ppp/4P3/2p5/8/8/PPP1PPPP/RNBQKBNR b KQkq - 0 3",
+        "hash": 17320706915067141932,
         "name": "Old Benoni: Czech, 3.dxe6"
     },
     "A44c": {
@@ -3068,7 +3068,7 @@
     "A56o": {
         "eco": "A56o",
         "fen": "rnbqkb1r/pp1p1ppp/5n2/2pPp3/2P5/8/PP2PPPP/RNBQKBNR w KQkq e6 0 4",
-        "hash": 9422243814999416409,
+        "hash": 5617058603479604432,
         "name": "Benoni: Czech"
     },
     "A56p": {
@@ -16166,7 +16166,7 @@
     "C18e": {
         "eco": "C18e",
         "fen": "rnb1k1nr/ppq3pp/4p3/2ppPp2/3P2Q1/P1P5/2P2PPP/R1B1KBNR w KQkq f6 0 8",
-        "hash": 7453696183076052634,
+        "hash": 13228368797871252968,
         "name": "French: Winawer, 6...Qc7 7.Qg4 f5"
     },
     "C18f": {
@@ -16868,7 +16868,7 @@
     "C29l": {
         "eco": "C29l",
         "fen": "rnbqkb1r/ppp3pp/8/3pPp2/4n3/2N2Q2/PPPP2PP/R1B1KBNR w KQkq f6 0 6",
-        "hash": 14926260692962451874,
+        "hash": 2288102930969254608,
         "name": "Vienna Gambit: Paulsen Attack, Bardeleben Variation"
     },
     "C29m": {
@@ -17551,8 +17551,8 @@
     },
     "C43e": {
         "eco": "C43e",
-        "fen": "rnbqkb1r/ppp2ppp/3n4/3p4/3Q4/2N2N2/PPP2PPP/R1B1KB1R b KQkq - 1 7",
-        "hash": 14699947856544735167,
+        "fen": "rnbqkb1r/ppp2ppp/3n4/8/3Q4/2N2N2/PPP2PPP/R1B1KB1R b KQkq - 1 7",
+        "hash": 14936257590960364208,
         "name": "Russian Game: Modern Attack, 3...exd4, Main Line, 7.Nc3"
     },
     "C43f": {
@@ -18734,7 +18734,7 @@
     "C55p": {
         "eco": "C55p",
         "fen": "r1bqkb1r/ppp2ppp/2n2n2/3pP3/2Bp4/5N2/PPP2PPP/RNBQK2R w KQkq d6 0 6",
-        "hash": 18070752959507119035,
+        "hash": 16596302021288143642,
         "name": "Two Knights: Modern, 5.e5 d5"
     },
     "C55q": {
@@ -18776,7 +18776,7 @@
     "C55w": {
         "eco": "C55w",
         "fen": "r1bqk2r/ppp2ppp/2n2n2/2bpP3/2Bp4/5N2/PPP2PPP/RNBQ1RK1 w kq d6 0 7",
-        "hash": 2999407786074540584,
+        "hash": 3835333701436906121,
         "name": "Two Knights: Max Lange, 6.e5 d5"
     },
     "C55x": {
@@ -19046,31 +19046,31 @@
     "C59h": {
         "eco": "C59h",
         "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/4pP2/8/PPPPB1PP/RNBQK2R b KQkq f3 0 11",
-        "hash": 15813863242485222558,
+        "hash": 833837385646389228,
         "name": "Two Knights: Main Line, 11.f4"
     },
     "C59i": {
         "eco": "C59i",
-        "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/5P2/5p2/PPPPB1PP/RNBQK2R w KQkq - 0 12",
-        "hash": 7217785394873903940,
+        "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/8/5p2/PPPPB1PP/RNBQK2R w KQkq - 0 12",
+        "hash": 7856685951669048093,
         "name": "Two Knights: Main Line, 11.f4 exf3"
     },
     "C59j": {
         "eco": "C59j",
         "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/3Pp3/8/PPP1BPPP/RNBQK2R b KQkq d3 0 11",
-        "hash": 16381125055438412885,
+        "hash": 18432297183787142388,
         "name": "Two Knights: Main Line, 11.d4"
     },
     "C59k": {
         "eco": "C59k",
-        "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/3P4/3p4/PPP1BPPP/RNBQK2R w KQkq - 0 12",
-        "hash": 15148325297852116499,
+        "fen": "r1bqk2r/p4pp1/2pb1n1p/n3N3/8/3p4/PPP1BPPP/RNBQK2R w KQkq - 0 12",
+        "hash": 14634844824036939182,
         "name": "Two Knights: Main Line, 11.d4 exd3"
     },
     "C59l": {
         "eco": "C59l",
-        "fen": "r1b1k2r/p1q2pp1/2pb1n1p/n7/3P4/1P1N4/P1P1BPPP/RNBQK2R b KQkq - 0 13",
-        "hash": 17843483383286310225,
+        "fen": "r1b1k2r/p1q2pp1/2pb1n1p/n7/8/1P1N4/P1P1BPPP/RNBQK2R b KQkq - 0 13",
+        "hash": 17185746986053918444,
         "name": "Two Knights: Main Line, 11.d4, Honfi Variation"
     },
     "C60a": {
@@ -20528,7 +20528,7 @@
     "C82m": {
         "eco": "C82m",
         "fen": "r2q1rk1/2p3pp/p1n1b3/1pbpPp2/4n3/2P2N2/PPBN1PPP/R1BQ1RK1 w - f6 0 12",
-        "hash": 7232278456278671665,
+        "hash": 13022849410062064195,
         "name": "Spanish: Open, St. Petersburg, 11.Bc2 f5"
     },
     "C82n": {
@@ -32408,7 +32408,7 @@
     "E66d": {
         "eco": "E66d",
         "fen": "r1bq1rk1/pp3pbp/3p1np1/n1pPp3/2P5/2N3P1/PP1NPPBP/R1BQ1RK1 w - e6 0 10",
-        "hash": 905473404656526856,
+        "hash": 14096731504382108801,
         "name": "King's Indian: Fianchetto, Yugoslav Panno, 9...e5"
     },
     "E66e": {
@@ -32462,7 +32462,7 @@
     "E66m": {
         "eco": "E66m",
         "fen": "1rbq1rk1/5pbp/p2p1np1/nppPp3/2P5/1PN3P1/PBQNPPBP/R4RK1 w - e6 0 13",
-        "hash": 15781504839867539301,
+        "hash": 1455347502440308204,
         "name": "King's Indian: Fianchetto, Yugoslav Panno, Main Line, 12.Bb2 e5"
     },
     "E66n": {
@@ -34022,7 +34022,7 @@
     "E87c": {
         "eco": "E87c",
         "fen": "rnbq1rk1/pp3pbp/3p1np1/2pPp3/2P1P3/2N1BP2/PP4PP/R2QKBNR w KQ c6 0 8",
-        "hash": 14623704591210015762,
+        "hash": 14612850382315062640,
         "name": "King's Indian: Sämisch, Orthodox, 7.d5 c5"
     },
     "E87d": {
@@ -34586,7 +34586,7 @@
     "E92o": {
         "eco": "E92o",
         "fen": "rnbq1rk1/pp3pbp/3p1np1/2pPp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R w KQ c6 0 8",
-        "hash": 9199982172627383155,
+        "hash": 9193664136391809553,
         "name": "King's Indian: Petrosian, 7...c5"
     },
     "E92p": {
@@ -35024,7 +35024,7 @@
     "E97w": {
         "eco": "E97w",
         "fen": "r1bq1rk1/pp2npbp/3p1np1/2pPp3/2P1P3/2N5/PP1NBPPP/R1BQ1RK1 w - c6 0 10",
-        "hash": 8358389994128701691,
+        "hash": 8341903127824830873,
         "name": "King's Indian: Mar del Plata, 9.Nd2 c5"
     },
     "E97x": {
@@ -35054,7 +35054,7 @@
     "E98b": {
         "eco": "E98b",
         "fen": "r1bq1rk1/pp2npbp/3p1np1/2pPp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 w - c6 0 10",
-        "hash": 4157097393398619538,
+        "hash": 4146242772186854640,
         "name": "King's Indian: Mar del Plata, 9.Ne1 c5"
     },
     "E98c": {
@@ -35132,7 +35132,7 @@
     "E98o": {
         "eco": "E98o",
         "fen": "r1bq1rk1/pp1nn1bp/3p2p1/2pPpp2/2P1P3/2NN4/PP1BBPPP/R2Q1RK1 w - c6 0 12",
-        "hash": 16532852822543740662,
+        "hash": 16522279680586860436,
         "name": "King's Indian: Mar del Plata, Fischer Variation"
     },
     "E98p": {
