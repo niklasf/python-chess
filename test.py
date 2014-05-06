@@ -24,6 +24,38 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
 
 
+class PieceTestCase(unittest.TestCase):
+
+    def test_equality(self):
+        a = chess.Piece(chess.WHITE, chess.BISHOP)
+        b = chess.Piece(chess.BLACK, chess.KING)
+        c = chess.Piece(chess.WHITE, chess.KING)
+        d = chess.Piece(chess.WHITE, chess.BISHOP)
+
+        self.assertEqual(a, d)
+        self.assertEqual(d, a)
+
+        self.assertEqual(repr(a), repr(d))
+
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(b, c)
+        self.assertNotEqual(b, d)
+        self.assertNotEqual(a, c)
+
+    def test_from_symbol(self):
+        white_knight = chess.Piece.from_symbol("N")
+
+        self.assertEqual(white_knight.color, chess.WHITE)
+        self.assertEqual(white_knight.piece_type, chess.KNIGHT)
+        self.assertEqual(white_knight.symbol(), "N")
+
+        black_queen = chess.Piece.from_symbol("q")
+
+        self.assertEqual(black_queen.color, chess.BLACK)
+        self.assertEqual(black_queen.piece_type, chess.QUEEN)
+        self.assertEqual(black_queen.symbol(), "q")
+
+
 class BitboardTestCase(unittest.TestCase):
 
     def test_move_making(self):
