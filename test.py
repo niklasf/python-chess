@@ -211,6 +211,12 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.san(chess.Move.from_uci("h4g6")), "Nh4g6")
         self.assertEqual(bitboard.fen(), fen)
 
+        # Do not disambiguate illegal alternatives.
+        fen = "8/8/8/R2nkn2/8/8/2K5/8 b - - 0 1"
+        bitboard = chess.Bitboard(fen)
+        self.assertEqual(bitboard.san(chess.Move.from_uci("f5e3")), "Ne3+")
+        self.assertEqual(bitboard.fen(), fen)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

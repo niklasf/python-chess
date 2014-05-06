@@ -1305,6 +1305,7 @@ class Bitboard:
             if not BB_SQUARES[move.to_square] & self.occupied:
                 en_passant = abs(move.from_square - move.to_square) in (7, 9)
         else:
+            # Get ambigous move candidates.
             if piece == KNIGHT:
                 san = "N"
                 others = self.knights & self.knight_attacks_from(move.to_square)
@@ -1324,8 +1325,15 @@ class Bitboard:
             others &= ~BB_SQUARES[move.from_square]
             others &= self.occupied_co[self.turn]
 
-            # TODO: Remove illegal moves.
+            # Remove illegal candidates.
+            squares = others
+            while squares:
+                square, squares = next_bit(squares)
 
+                if self.is_into_check(Move(square, move.to_square)):
+                    others &= ~BB_SQUARES[square]
+
+            # Disambiguate.
             if others:
                 row, column = False, False
 
