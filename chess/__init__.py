@@ -924,7 +924,7 @@ class Bitboard:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
                         return True
                 elif move.to_square == C1 and self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                    if not self.is_attcked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
+                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
                         return True
             elif self.turn == BLACK and move.from_square == E8:
                 if move.to_square == G8 and self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
