@@ -185,8 +185,6 @@ class BitboardTestCase(unittest.TestCase):
         self.assertTrue(Qf7_mate in bitboard.generate_moves())
         bitboard.push(Qf7_mate)
 
-        print(bitboard)
-
         self.assertTrue(bitboard.is_check())
         self.assertTrue(bitboard.is_checkmate())
         self.assertTrue(bitboard.is_game_over())
