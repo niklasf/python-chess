@@ -25,13 +25,6 @@ def read(filename):
     """Utility function that returns a files contents."""
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
-# Work around: -Wstrict-prototypes flag is invalid for C++.
-(opt, ) = distutils.sysconfig.get_config_vars("OPT")
-if opt:
-    os.environ["OPT"] = " ".join(flag for flag in opt.split()
-                                 if flag != "-Wstrict-prototypes")
-
-# Module description.
 setuptools.setup(
     name="python-chess",
     version="0.0.5",
@@ -44,34 +37,12 @@ setuptools.setup(
     url="http://github.com/niklasf/python-chess",
     packages=["chess"],
     scripts=["scripts/ecotool.py"],
-    ext_modules=[
-        setuptools.extension.Extension(
-            name="libchess",
-            sources=[
-                "libchess/libchess.cc",
-                "libchess/piece.cc",
-                "libchess/square.cc",
-                "libchess/move.cc",
-                "libchess/move_info.cc",
-                "libchess/position.cc",
-                "libchess/attacker_generator.cc",
-                "libchess/legal_move_generator.cc",
-                "libchess/pseudo_legal_move_generator.cc",
-                "libchess/polyglot_opening_book_entry.cc",
-            ],
-            libraries=[
-                "boost_python",
-                "boost_regex",
-            ],
-        ),
-    ],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: C++",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
