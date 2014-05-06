@@ -194,9 +194,11 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_san(self):
         # En passant mate.
-        bitboard = chess.Bitboard("6bk/7b/8/3pP3/8/8/8/Q3K3 w - d6 0 2")
+        fen = "6bk/7b/8/3pP3/8/8/8/Q3K3 w - d6 0 2"
+        bitboard = chess.Bitboard(fen)
         fxe6_mate_ep = chess.Move.from_uci("e5d6")
         self.assertEqual(bitboard.san(fxe6_mate_ep), "exd6#")
+        self.assertEqual(bitboard.fen(), fen)
 
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
