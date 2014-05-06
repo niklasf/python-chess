@@ -1208,7 +1208,7 @@ class Bitboard:
     # TODO: Validate move
 
     def __repr__(self):
-        return "Bitboard.from_fen('{0}')".format(self.fen())
+        return "Bitboard('{0}')".format(self.fen())
 
     # TODO: Equality
 
