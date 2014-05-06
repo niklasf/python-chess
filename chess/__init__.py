@@ -1483,7 +1483,9 @@ class Bitboard:
 
     # TODO: Equality
 
-    # TODO: Zobrist hashing
+    def __hash__(self):
+        # TODO: Zobrist hashing
+        return self.occupied
 
 
 class PseudoLegalMoveGenerator:
