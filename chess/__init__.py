@@ -1712,10 +1712,18 @@ class Bitboard:
         if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
             zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 3]
 
-        # TODO: Only if en-passant is really possible.
         # Hash in the en-passant file.
         if self.ep_square:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[772 + file_index(self.ep_square)]
+            # But only if theres actually a pawn ready to capture it. Legality
+            # of the potential capture is irrelevant.
+            if self.turn == WHITE:
+                ep_mask = shift_down(BB_SQUARES[self.ep_square])
+            else:
+                ep_mask = shift_up(BB_SQUARES[self.ep_square])
+            ep_mask = shift_left(ep_mask) | shift_right(ep_mask)
+
+            if ep_mask & self.pawns & self.occupied_co[self.turn]:
+                zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[772 + file_index(self.ep_square)]
 
         # Hash in the turn.
         if self.turn == WHITE:
