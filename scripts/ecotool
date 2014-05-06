@@ -30,7 +30,7 @@ def read_eco(source):
 
     eco = None
     name = None
-    position = chess.Position()
+    position = chess.Bitboard()
     state = 0
 
     for lineno, unstripped_line in enumerate(source):
@@ -77,21 +77,21 @@ def read_eco(source):
                     if token == "*":
                         result[eco] = {
                             "eco": eco,
-                            "fen": position.fen,
-                            "hash": position.__hash__(),
+                            "fen": position.fen(),
+                            "hash": 0, position.__hash__(),
                             "name": name,
                         }
                         state = 0
                         eco = None
                         name = None
-                        position = chess.Position()
+                        position = chess.Bitboard()
                     else:
                         san = token.split(".")[-1]
                         if san in ["0-0", "o-o"]:
                             san = "O-O"
                         elif san in ["0-0-0", "o-o-o"]:
                             san = "O-O-O"
-                        position.make_move_from_san(san)
+                        position.push_san(san)
                 elif state == 4:
                     # State 4: Waiting for end of record.
                     if token == "*":
@@ -109,7 +109,7 @@ def read_eco(source):
                 # Dump current variables.
                 sys.stderr.write("State: %d\n" % state)
                 sys.stderr.write("ECO: %s\n" % eco)
-                sys.stderr.write("FEN: %s\n" % position.fen)
+                sys.stderr.write("FEN: %s\n" % position.fen())
                 sys.stderr.write("Name: %s\n" % name)
                 sys.stderr.flush()
                 raise
