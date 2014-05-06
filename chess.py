@@ -1018,13 +1018,13 @@ class Bitboard:
             self.castling_rights &= ~CASTLING_WHITE
         elif move.from_square == E8:
             self.castling_rights &= ~CASTLING_BLACK
-        elif move.from_square == A1:
+        elif move.from_square == A1 or move.to_square == A1:
             self.castling_rights &= ~CASTLING_WHITE_QUEENSIDE
-        elif move.from_square == A8:
+        elif move.from_square == A8 or move.to_square == A8:
             self.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
-        elif move.from_square == H1:
+        elif move.from_square == H1 or move.to_square == H1:
             self.castling_rights &= ~CASTLING_WHITE_KINGSIDE
-        elif move.from_square == H8:
+        elif move.from_square == H8 or move.to_square == H8:
             self.castling_rights &= ~CASTLING_BLACK_KINGSIDE
 
         # Castling.
