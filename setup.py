@@ -36,7 +36,7 @@ setuptools.setup(
     keywords="chess fen pgn polyglot",
     url="http://github.com/niklasf/python-chess",
     packages=["chess"],
-    scripts=["scripts/ecotool.py"],
+    scripts=["scripts/ecotool", "scripts/python-chess"],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",

@@ -1,0 +1,258 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import chess
+
+
+def print_bitboard(bitboard):
+    PIECE_CHARS = [
+        [ " ", u"\u2659", u"\u2658", u"\u2657", u"\u2656", u"\u2655", u"\u2654" ],
+        [ " ", u"\u265F", u"\u265e", u"\u265d", u"\u265c", u"\u265b", u"\u265a" ]
+    ]
+
+    SEQ_DARK_SQUARE = "\033[0;30;46m"
+    SEQ_LIGHT_SQUARE = "\033[0;30m"
+    SEQ_END = "\033[0m"
+
+    for square in SQUARES_180:
+        if BB_SQUARES[square] & BB_FILE_A:
+            for border in range(square, square + 8):
+                if BB_SQUARES[border] & BB_DARK_SQUARES:
+                    sys.stdout.write(SEQ_DARK_SQUARE)
+                else:
+                    sys.stdout.write(SEQ_LIGHT_SQUARE)
+
+                sys.stdout.write("    ")
+                sys.stdout.write(SEQ_END)
+
+            sys.stdout.write("\n")
+
+        if BB_SQUARES[square] & BB_DARK_SQUARES:
+            sys.stdout.write("\033[0;30;46m")
+        else:
+            sys.stdout.write("\033[0;30m")
+
+        piece = bitboard.piece_at(square)
+        if piece:
+            sys.stdout.write(" ")
+            sys.stdout.write(PIECE_CHARS[piece.color][piece.piece_type])
+            sys.stdout.write("  ")
+        else:
+            sys.stdout.write("    ")
+
+        sys.stdout.write("\033[0m")
+
+        if BB_SQUARES[square] & BB_FILE_H:
+            sys.stdout.write("\n")
+
+    sys.stdout.flush()
+
+
+def minimax_value(bitboard, depth, eval_fn):
+    if bitboard.half_moves >= 50:
+        return 0
+
+    if depth == 0:
+        if bitboard.is_stalemate():
+            return 0
+        elif bitboard.is_checkmate():
+            return -1000
+
+        return (1 - bitboard.turn * 2) * eval_fn(bitboard)
+
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            value = -1 * minimax_value(bitboard, depth - 1, eval_fn)
+            if best is None or value > best:
+                best = value
+
+        bitboard.pop()
+
+    if best is None:
+        if not bitboard.is_check():
+            return 0
+        else:
+            return -1000
+
+    else:
+        return best
+
+def minimax(bitboard, depth, eval_fn):
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            value = -1 * minimax_value(bitboard, depth, eval_fn)
+            if best is None or value > best[0]:
+                best = (value, move)
+
+        bitboard.pop()
+
+    return best
+
+def alphabeta_value(bitboard, depth, alpha, beta, eval_fn):
+    if bitboard.half_moves >= 50:
+        return 0
+
+    if depth == 0:
+        if bitboard.is_stalemate():
+            return 0
+        elif bitboard.is_checkmate():
+            return -1000
+
+        return (1 - bitboard.turn * 2) * eval_fn(bitboard)
+
+    found_legal_move = False
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            found_legal_move = True
+
+            opp_alpha = None if beta is None else -1 * beta
+            opp_beta = None if alpha is None else -1 * alpha
+
+            value = -1 * alphabeta_value(bitboard, depth - 1, opp_alpha, opp_beta, eval_fn)
+
+            if alpha is None or value > alpha:
+                alpha = value
+
+            if (alpha is not None) and (beta is not None) and alpha >= beta:
+                bitboard.pop()
+                return beta
+
+        bitboard.pop()
+
+    if not found_legal_move:
+        if not bitboard.is_check():
+            return 0
+        else:
+            return -1000
+    else:
+        return alpha
+
+def alphabeta(bitboard, depth, eval_fn):
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            opp_beta = None if best is None else -1 * best[0]
+
+            value = -1 * alphabeta_value(bitboard, depth, None, opp_beta, eval_fn)
+            if best is None or value > best[0]:
+                best = value, move
+
+        bitboard.pop()
+
+    return best
+
+def material_evaluator(bitboard):
+    value = 0.0
+
+    value += chess.pop_count(bitboard.pawns & bitboard.occupied_co[chess.WHITE])
+    value -= chess.pop_count(bitboard.pawns & bitboard.occupied_co[chess.BLACK])
+
+    value += 3.0 * chess.sparse_pop_count(bitboard.knights & bitboard.occupied_co[chess.WHITE])
+    value -= 3.0 * chess.sparse_pop_count(bitboard.knights & bitboard.occupied_co[chess.BLACK])
+
+    value += 3.1 * chess.sparse_pop_count(bitboard.bishops & bitboard.occupied_co[chess.WHITE])
+    value -= 3.1 * chess.sparse_pop_count(bitboard.bishops & bitboard.occupied_co[chess.BLACK])
+
+    value += 5.0 * chess.sparse_pop_count(bitboard.rooks & bitboard.occupied_co[chess.WHITE])
+    value -= 5.0 * chess.sparse_pop_count(bitboard.rooks & bitboard.occupied_co[chess.BLACK])
+
+    value += 9.0 * chess.sparse_pop_count(bitboard.queens & bitboard.occupied_co[chess.WHITE])
+    value -= 9.0 * chess.sparse_pop_count(bitboard.queens & bitboard.occupied_co[chess.BLACK])
+
+    return value
+
+def mobility_evaluator(bitboard):
+    value = 0.0
+
+    turn = bitboard.turn
+
+    bitboard.turn = chess.WHITE
+    value += 0.02 * bitboard.pseudo_legal_move_count()
+
+    bitboard.turn = chess.BLACK
+    value -= 0.02 * bitboard.pseudo_legal_move_count()
+
+    bitboard.turn = turn
+
+    return value
+
+
+if __name__ == "__main__":
+    sys.stdout.write("python-chess {0} by {1} <{2}>\n".format(chess.__version__, chess.__author__, chess.__email__))
+
+    #f = open("log.txt", "a")
+
+    position = chess.Bitboard()
+
+    while True:
+        line = sys.stdin.readline()
+        #f.write(line)
+        #f.flush()
+        line = line.strip()
+        if not line:
+            continue
+
+        if line == "uci":
+            # Initialize.
+            sys.stdout.write("id name python-chess {0}\n".format(chess.__version__))
+            sys.stdout.write("id author {0}\n".format(chess.__author__))
+            sys.stdout.write("uciok\n")
+            sys.stdout.flush()
+        elif line == "isready":
+            # Always ready.
+            sys.stdout.write("readyok\n")
+            sys.stdout.flush()
+        elif line == "ucinewgame":
+            # No special setup for a new game.
+            continue
+        elif line == "quit":
+            # Quit.
+            sys.exit(0)
+        else:
+            parts = line.split()
+            command = parts.pop(0)
+
+            if command == "position":
+                # Setup a position.
+                while parts:
+                    part = parts.pop(0)
+                    if part == "startpos":
+                        position.reset()
+                    elif part == "moves":
+                        while parts:
+                            position.push(chess.Move.from_uci(parts.pop(0)))
+                        break
+                    elif len(parts) >= 6:
+                        position.set_fen(" ".join([part, parts.pop(0), parts.pop(0), parts.pop(0), parts.pop(0), parts.pop(0)]))
+                else:
+                    position.reset()
+            elif command == "go":
+                # Do not ponder.
+                if "ponder" in parts:
+                    continue
+
+                # Search.
+                best = alphabeta(position, 2, material_evaluator)
+                if best:
+                    value, move = best
+                    sys.stdout.write("bestmove {0}\n".format(move.uci()))
+                    sys.stdout.flush()
+            else:
+                # Unknown command.
+                sys.stderr.write("Unknown command: {0}\n".format(line))
+                sys.stderr.flush()
