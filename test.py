@@ -322,10 +322,43 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.__hash__(), 0x5c3f9b829b279560)
 
     def test_move_generation(self):
-        board = chess.Bitboard("rnbqkbnr/2pp1ppp/8/4p3/2BPP3/P1N2N2/PB3PPP/2RQ1RK1 b kq - 1 10")
+        # Specific test position right after castling.
+        fen = "rnbqkbnr/2pp1ppp/8/4p3/2BPP3/P1N2N2/PB3PPP/2RQ1RK1 b kq - 1 10"
+        board = chess.Bitboard(fen)
         illegal_move = chess.Move.from_uci("g1g2")
         self.assertFalse(illegal_move in board.legal_moves)
         self.assertFalse(illegal_move in list(board.legal_moves))
+        self.assertFalse(illegal_move in board.pseudo_legal_moves)
+        self.assertFalse(illegal_move in list(board.pseudo_legal_moves))
+
+        # Make a move.
+        board.push_san("exd4")
+
+        # Already castled short, can not castle long.
+        illegal_move = chess.Move.from_uci("e1c1")
+        self.assertFalse(illegal_move in board.pseudo_legal_moves)
+        self.assertFalse(illegal_move in board.generate_pseudo_legal_moves())
+        self.assertFalse(illegal_move in board.legal_moves)
+        self.assertFalse(illegal_move in list(board.legal_moves))
+
+        # Unmake the move.
+        board.pop()
+
+        # Generate all pseudo legal moves, two moves deep.
+        for move in board.pseudo_legal_moves:
+            board.push(move)
+            for move in board.pseudo_legal_moves:
+                board.push(move)
+                board.pop()
+            board.pop()
+
+        # Check that board is still consistent.
+        self.assertEqual(board.fen(), fen)
+        self.assertTrue(board.kings & chess.BB_G1)
+        self.assertTrue(board.occupied & chess.BB_G1)
+        self.assertTrue(board.occupied_co[chess.WHITE] & chess.BB_G1)
+        self.assertEqual(board.piece_at(chess.G1), chess.Piece(chess.KING, chess.WHITE))
+        self.assertEqual(board.piece_at(chess.C1), chess.Piece(chess.ROOK, chess.WHITE))
 
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
