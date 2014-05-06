@@ -101,3 +101,6 @@ License
 -------
 python-chess is licensed under the GPL3. See the LICENSE file for the
 full copyright and license information.
+
+Thanks to the developers of http://chessx.sourceforge.net/. Some of the core
+bitboard move generation parts are ported from there.
