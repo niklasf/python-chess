@@ -217,6 +217,23 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.san(chess.Move.from_uci("f5e3")), "Ne3+")
         self.assertEqual(bitboard.fen(), fen)
 
+    def test_is_legal_move(self):
+        fen = "3k4/6P1/7P/8/K7/8/8/4R3 w - - 0 1"
+        bitboard = chess.Bitboard(fen)
+
+        # Legal moves: Rg1, g8=R+.
+        self.assertTrue(chess.Move.from_uci("e1g1") in bitboard.legal_moves)
+        self.assertTrue(chess.Move.from_uci("g7g8r") in bitboard.legal_moves)
+
+        # Impossible promotion: Kb5, h7.
+        self.assertFalse(chess.Move.from_uci("a5b5q") in bitboard.legal_moves)
+        self.assertFalse(chess.Move.from_uci("h6h7n") in bitboard.legal_moves)
+
+        # Missing promotion.
+        self.assertFalse(chess.Move.from_uci("g7g8") in bitboard.legal_moves)
+
+        self.assertEqual(bitboard.fen(), fen)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

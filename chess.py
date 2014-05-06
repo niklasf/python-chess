@@ -887,6 +887,16 @@ class Bitboard:
         if self.occupied_co[self.turn] & to_mask:
             return False
 
+        # Only pawns can promote and only on the backrank.
+        if move.promotion:
+            if piece != PAWN:
+                return False
+
+            if self.turn == WHITE and rank_index(move.to_square) != 7:
+                return False
+            elif self.turn == BLACK and rank_index(move.to_square) != 0:
+                return False
+
         # Handle moves by piece type.
         if piece == KING:
             # Castling.
