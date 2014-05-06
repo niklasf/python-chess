@@ -854,6 +854,7 @@ class Bitboard:
         self.push(move)
         is_check = self.was_into_check()
         self.pop()
+        return is_check
 
     def was_into_check(self):
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
