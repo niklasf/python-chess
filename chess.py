@@ -864,6 +864,16 @@ class Bitboard:
     def generate_moves(self):
         return filter(self.is_not_into_check, self.generate_pseudo_legal_moves())
 
+    def is_game_over(self):
+        if self.is_insufficient_material():
+            return True
+
+        try:
+            next(self.generate_moves().__iter__())
+            return False
+        except StopIteration:
+            return True
+
     def is_checkmate(self):
         if not self.is_check():
             return False
