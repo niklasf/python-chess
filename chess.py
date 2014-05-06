@@ -1000,7 +1000,20 @@ class Bitboard:
 
         # TODO: Restore captured pawn after en passant.
 
-        # TODO: Restore rook position after castling.
+        # Restore rook position after castling.
+        if piece == KING:
+            if move.from_square == E1 and move.to_square == G1:
+                self.remove_piece_at(F1)
+                self.set_piece_at(H1, Piece(ROOK, WHITE))
+            elif move.from_square == E1 and move.to_square == C1:
+                self.remove_piece_at(D1)
+                self.set_piece_at(A1, Piece(ROOK, WHITE))
+            elif move.from_square == E8 and move.to_square == G8:
+                self.remove_piece_at(F8)
+                self.set_piece_at(H8, Piece(ROOK, BLACK))
+            elif move.from_square == E8 and move.to_square == C8:
+                self.remove_piece_at(D8)
+                self.set_piece_at(A8, Piece(ROOK, BLACK))
 
         # Swap turn.
         self.turn ^= 1
