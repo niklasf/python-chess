@@ -386,6 +386,15 @@ class BitboardTestCase(unittest.TestCase):
         # Check that board is still consistent.
         self.assertEqual(board.fen(), fen)
 
+    def test_equality(self):
+        self.assertEqual(chess.Bitboard(), chess.Bitboard())
+
+        a = chess.Bitboard()
+        a.push_san("d4")
+        b = chess.Bitboard()
+        b.push_san("d3")
+        self.assertNotEqual(a, b)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
