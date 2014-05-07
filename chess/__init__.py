@@ -40,6 +40,8 @@ STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
 
+FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
+
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -860,7 +862,7 @@ class Bitboard:
                 if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
                     yield Move(E1, C1)
 
-            # En passant moves.
+            # En-passant moves.
             movers = self.pawns & self.occupied_co[WHITE]
             if self.ep_square:
                 moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
@@ -924,7 +926,7 @@ class Bitboard:
                 if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
                     yield Move(E8, C8)
 
-            # En passant moves.
+            # En-passant moves.
             movers = self.pawns & self.occupied_co[BLACK]
             if self.ep_square:
                 moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
@@ -1381,13 +1383,26 @@ class Bitboard:
         if not parts[1] in ["w", "b"]:
             raise ValueError("Expected w or b for turn part of FEN.")
 
-        # TODO: Check that the castling part is valid.
+        # Check that the castling part is valid.
+        if not FEN_CASTLING_REGEX.match(parts[2]):
+            raise ValueError("Invalid castling part in FEN.")
 
-        # TODO: Check that the en-passant part is valid.
+        # Check that the en-passant part is valid.
+        if parts[3] != "-":
+            if parts[1] == "w":
+                if rank_index(SQUARE_NAMES.index(parts[3])) != 5:
+                    raise ValueError("Expected en-passant square to be on sixth rank.")
+            else:
+                if rank_index(SQUARE_NAMES.index(parts[3])) != 2:
+                    raise ValueError("Expected en-passant square to be on third rank.")
 
-        # TODO: Check that the half move part is valid.
+        # Check that the half move part is valid.
+        if int(parts[4]) < 0:
+            raise ValueError("Half moves can not be negative.")
 
-        # TODO: Check that the ply part is valid.
+        # Check that the ply part is valid.
+        if int(parts[5]) <= 0:
+            raise ValueError("Ply must be positive.")
 
         # Clear board.
         self.pawns = BB_VOID
@@ -1493,7 +1508,7 @@ class Bitboard:
 
         fen.append(" ")
 
-        # En passant square.
+        # En-passant square.
         if self.ep_square:
             fen.append(SQUARE_NAMES[self.ep_square])
         else:
