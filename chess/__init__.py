@@ -1095,7 +1095,6 @@ class Bitboard:
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
 
     def is_into_check(self, move):
-        # TODO: Consider optimizing.
         self.push(move)
         is_check = self.was_into_check()
         self.pop()
@@ -1756,8 +1755,17 @@ class Bitboard:
                     errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.ep_square:
-            ep_rank = 5 if self.turn == WHITE else 2
+            if self.turn == WHITE:
+                ep_rank = 5
+                pawn_mask = shift_up(BB_SQUARES[self.ep_square])
+            else:
+                ep_rank = 2
+                pawn_mask = shift_down(BB_SQUARES[self.ep_square])
+
             if rank_index(self.ep_square) != ep_rank:
+                errors |= STATUS_INVALID_EP_SQUARE
+
+            if not self.pawns & self.occupied_co[self.turn ^ 1] & pawn_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
         if not errors & (STATUS_NO_WHITE_KING | STATUS_NO_BLACK_KING | STATUS_TOO_MANY_KINGS):
