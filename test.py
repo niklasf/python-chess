@@ -395,6 +395,16 @@ class BitboardTestCase(unittest.TestCase):
         b.push_san("d3")
         self.assertNotEqual(a, b)
 
+    def test_status(self):
+        board = chess.Bitboard()
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        board.remove_piece_at(chess.H1)
+        self.assertTrue(board.status() & chess.STATUS_BAD_CASTLING_RIGHTS)
+
+        board.remove_piece_at(chess.E8)
+        self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

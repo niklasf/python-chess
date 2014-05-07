@@ -38,6 +38,19 @@ FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+STATUS_VALID = 0
+STATUS_NO_WHITE_KING = 1
+STATUS_NO_BLACK_KING = 2
+STATUS_TOO_MANY_KINGS = 4
+STATUS_TOO_MANY_WHITE_PAWNS = 8
+STATUS_TOO_MANY_BLACK_PAWNS = 16
+STATUS_PAWNS_ON_BACKRANK = 32
+STATUS_TOO_MANY_WHITE_PIECES = 64
+STATUS_TOO_MANY_BLACK_PIECES = 128
+STATUS_BAD_CASTLING_RIGHTS = 256
+STATUS_INVALID_EP_RANK = 512
+STATUS_OPPOSITE_CHECK = 1024
+
 SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
 
 FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
@@ -1697,7 +1710,61 @@ class Bitboard:
 
         return san
 
-    # TODO: Validate position
+    def status(self):
+        errors = STATUS_VALID
+
+        if not self.occupied_co[WHITE] & self.kings:
+            errors |= STATUS_NO_WHITE_KING
+        if not self.occupied_co[BLACK] & self.kings:
+            errors |= STATUS_NO_BLACK_KING
+        if sparse_pop_count(self.occupied & self.kings) > 2:
+            errors |= STATUS_TOO_MANY_KINGS
+
+        if pop_count(self.occupied_co[WHITE] & self.pawns) > 8:
+            errors |= STATUS_TOO_MANY_WHITE_PAWNS
+        if pop_count(self.occupied_co[BLACK] & self.pawns) > 8:
+            errors |= STATUS_TOO_MANY_BLACK_PAWNS
+
+        if self.pawns & (BB_RANK_1 | BB_RANK_8):
+            errors |= STATUS_PAWNS_ON_BACKRANK
+
+        if pop_count(self.occupied_co[WHITE]) > 16:
+            errors |= STATUS_TOO_MANY_WHITE_PIECES
+        if pop_count(self.occupied_co[BLACK]) > 16:
+            errors |= STATUS_TOO_MANY_BLACK_PIECES
+
+        if self.castling_rights & CASTLING_WHITE:
+            if not self.king_squares[WHITE] == E1:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+                if not BB_A1 & self.occupied_co[WHITE] & self.rooks:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+                if not BB_H1 & self.occupied_co[WHITE] & self.rooks:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+
+        if self.castling_rights & CASTLING_BLACK:
+            if not self.king_squares[BLACK] == E8:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+                if not BB_A8 & self.occupied_co[BLACK] & self.rooks:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+                if not BB_H8 & self.occupied_co[BLACK] & self.rooks:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+
+        if self.ep_square:
+            ep_rank = 5 if self.turn == WHITE else 2
+            if rank_index(self.ep_square) != ep_rank:
+                errors |= STATUS_INVALID_EP_SQUARE
+
+        if not errors & (STATUS_NO_WHITE_KING | STATUS_NO_BLACK_KING | STATUS_TOO_MANY_KINGS):
+            if self.was_into_check():
+                errors |= STATUS_OPPOSITE_CHECK
+
+        return errors
 
     def __repr__(self):
         return "Bitboard('{0}')".format(self.fen())
