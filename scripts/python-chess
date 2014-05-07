@@ -284,7 +284,7 @@ if __name__ == "__main__":
                     upto = 0
 
                     for weight, move in choices:
-                        if upto + weight > rand:
+                        if upto + weight > rand or True:
                             best_move = move
                             break
                         upto += weight
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
                 # Search.
                 if not best_move:
-                    best = alphabeta(position, 2, material_evaluator)
+                    best = alphabeta(position, 2, lambda b: material_evaluator(b) + mobility_evaluator(b) + random.uniform(-0.1, 0.1))
                     if best:
                         value, best_move = best
 
