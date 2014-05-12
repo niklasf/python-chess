@@ -68,7 +68,7 @@ class Reader:
         self.handle = handle
 
         self.seek_entry(0, 2)
-        self.__entry_count = self.handle.tell() / ENTRY_STRUCT.size
+        self.__entry_count = int(self.handle.tell() / ENTRY_STRUCT.size)
 
     def __len__(self):
         return self.__entry_count
@@ -99,7 +99,7 @@ class Reader:
         start = 0
         end = len(self)
         while end >= start:
-            middle = (start + end) / 2
+            middle = int((start + end) / 2)
 
             self.seek_entry(middle)
             raw_entry = self.next_raw()
@@ -152,5 +152,15 @@ class Reader:
                 break
 
 
+class ClosableReader(Reader):
+
+    def __enter__(self):
+        self.handle.__enter__()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.handle.__exit__(type, value, traceback)
+
+
 def open_reader(path):
-    return Reader(open(path, "rb"))
+    return ClosableReader(open(path, "rb"))

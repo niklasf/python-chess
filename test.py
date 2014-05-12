@@ -415,29 +415,29 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 class PolyglotReader(unittest.TestCase):
 
     def test_performance_bin(self):
-        pos = chess.Bitboard()
-        book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            pos = chess.Bitboard()
 
-        e4 = book.get_entries_for_position(pos).next()
-        self.assertEqual(e4.move(), pos.parse_san("e4"))
-        pos.push(e4.move())
+            e4 = next(book.get_entries_for_position(pos))
+            self.assertEqual(e4.move(), pos.parse_san("e4"))
+            pos.push(e4.move())
 
-        e5 = book.get_entries_for_position(pos).next()
-        self.assertEqual(e5.move(), pos.parse_san("e5"))
-        pos.push(e5.move())
+            e5 = next(book.get_entries_for_position(pos))
+            self.assertEqual(e5.move(), pos.parse_san("e5"))
+            pos.push(e5.move())
 
     def test_mainline(self):
-        board = chess.Bitboard()
-        book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            board = chess.Bitboard()
 
-        while True:
-            try:
-                entry = book.get_entries_for_position(board).next()
-                board.push(entry.move())
-            except StopIteration:
-                break
+            while True:
+                try:
+                    entry = next(book.get_entries_for_position(board))
+                    board.push(entry.move())
+                except StopIteration:
+                    break
 
-        self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
+            self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
 
 
 if __name__ == "__main__":
