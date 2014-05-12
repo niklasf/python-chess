@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
                 # Search.
                 if not best_move:
-                    best = alphabeta(position, 2, lambda b: material_evaluator(b) + mobility_evaluator(b) + random.uniform(-0.1, 0.1))
+                    best = alphabeta(position, 3, lambda b: material_evaluator(b) + mobility_evaluator(b) + random.uniform(-0.1, 0.1))
                     if best:
                         value, best_move = best
 
