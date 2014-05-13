@@ -154,12 +154,14 @@ class Reader:
 
 class ClosableReader(Reader):
 
+    def close(self):
+        self.handle.close()
+
     def __enter__(self):
-        self.handle.__enter__()
         return self
 
     def __exit__(self, type, value, traceback):
-        self.handle.__exit__(type, value, traceback)
+        self.close()
 
 
 def open_reader(path):
