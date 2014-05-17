@@ -2100,7 +2100,7 @@ class PseudoLegalMoveGenerator:
         try:
             next(self.bitboard.generate_pseudo_legal_moves())
             return True
-        except:
+        except StopIteration:
             return False
 
     def __len__(self):
@@ -2122,7 +2122,7 @@ class LegalMoveGenerator:
         try:
             next(self.bitboard.generate_legal_moves())
             return True
-        except:
+        except StopIteration:
             return False
 
     def __len__(self):
