@@ -406,10 +406,15 @@ class BitboardTestCase(unittest.TestCase):
         self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
 
     def test_epd(self):
+        # Create an EPD with a move and a string.
         board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
         self.assertEqual(
             board.epd(bm=chess.Move(chess.D6, chess.D1), id="BK.01"),
             "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
+
+        # Create an EPD with a noop.
+        board = chess.Bitboard("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
+        self.assertEqual(board.epd(noop=None), "4k3/8/8/8/8/8/8/4K3 w - - noop;")
 
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
