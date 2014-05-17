@@ -1507,6 +1507,8 @@ class Bitboard:
             in_quotes = False
             escape = False
 
+            position = None
+
             for c in operation_part:
                 if not in_operand:
                     if c == ";":
@@ -1546,7 +1548,10 @@ class Bitboard:
                                 try:
                                     operations[opcode] = float(operand)
                                 except ValueError:
-                                    operations[opcode] = self.parse_san(operand)
+                                    if position is None:
+                                        position = self.__class__(" ".join(parts + ["0", "1"]))
+
+                                    operations[opcode] = position.parse_san(operand)
 
                         opcode = ""
                         operand = ""

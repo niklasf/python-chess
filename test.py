@@ -430,6 +430,11 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(operations["fmvn"], 17)
         self.assertEqual(operations["hmvc"], 13)
 
+        # Test context of parsed SANs.
+        board = chess.Bitboard()
+        operations = board.set_epd("4k3/8/8/2N5/8/8/8/4K3 w - - test Ne4")
+        self.assertEqual(operations["test"], chess.Move(chess.C5, chess.E4))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
