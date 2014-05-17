@@ -91,7 +91,7 @@ performance is critical. The goal is rather to create a simple and relatively
 highlevel library.
 
 However, even though bit fiddling in Python is not as fast as in C or C++,
-the current version is still much faster than previous attemtps including
+the current version is still much faster than previous attempts including
 the naive x88 move generation from libchess.
 
 Installing
