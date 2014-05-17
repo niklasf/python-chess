@@ -1599,8 +1599,8 @@ class Bitboard:
         self.half_moves = int(parts[4])
         self.ply = int(parts[5])
 
-    def fen(self):
-        fen = []
+    def epd(self, **operations):
+        epd = []
         empty = 0
 
         # Position part.
@@ -1611,57 +1611,84 @@ class Bitboard:
                 empty += 1
             else:
                 if empty:
-                    fen.append(str(empty))
+                    epd.append(str(empty))
                     empty = 0
-                fen.append(piece.symbol())
+                epd.append(piece.symbol())
 
             if BB_SQUARES[square] & BB_FILE_H:
                 if empty:
-                    fen.append(str(empty))
+                    epd.append(str(empty))
                     empty = 0
 
                 if square != H1:
-                    fen.append("/")
+                    epd.append("/")
 
-        fen.append(" ")
+        epd.append(" ")
 
         # Side to move.
         if self.turn == WHITE:
-            fen.append("w")
+            epd.append("w")
         else:
-            fen.append("b")
+            epd.append("b")
 
-        fen.append(" ")
+        epd.append(" ")
 
         # Castling rights.
         if not self.castling_rights:
-            fen.append("-")
+            epd.append("-")
         else:
             if self.castling_rights & CASTLING_WHITE_KINGSIDE:
-                fen.append("K")
+                epd.append("K")
             if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-                fen.append("Q")
+                epd.append("Q")
             if self.castling_rights & CASTLING_BLACK_KINGSIDE:
-                fen.append("k")
+                epd.append("k")
             if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-                fen.append("q")
+                epd.append("q")
 
-        fen.append(" ")
+        epd.append(" ")
 
         # En-passant square.
         if self.ep_square:
-            fen.append(SQUARE_NAMES[self.ep_square])
+            epd.append(SQUARE_NAMES[self.ep_square])
         else:
-            fen.append("-")
+            epd.append("-")
 
-        fen.append(" ")
+        # Append operations.
+        for opcode, operand in operations.items():
+            epd.append(" ")
+            epd.append(opcode)
+
+            if hasattr(operand, "from_square") and hasattr(operand, "to_square"):
+                # Append SAN for moves.
+                epd.append(" ")
+                epd.append(self.san(operand))
+            elif isinstance(operand, (int, float)):
+                # Append as integer.
+                epd.append(" ")
+                epd.append(str(operand))
+            else:
+                # Append as escaped string.
+                epd.append(" \"")
+                epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
+                epd.append("\"");
+
+            epd.append(";")
+
+        return "".join(epd)
+
+    def fen(self):
+        fen = []
+
+        # Position, turn, castling and en passant.
+        fen.append(self.epd())
 
         # Half moves.
+        fen.append(" ")
         fen.append(str(self.half_moves))
 
-        fen.append(" ")
-
         # Ply.
+        fen.append(" ")
         fen.append(str(self.ply))
 
         return "".join(fen)
