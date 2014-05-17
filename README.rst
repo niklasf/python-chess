@@ -61,16 +61,28 @@ Features
       board = chess.Bitboard("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
       assert board.piece_at(chess.C5) == chess.Piece.from_symbol("k")
 
+* Parses and creates EPDs.
+
+  ::
+
+      assert board.epd(bm=chess.Move.from_uci("d2d4")) == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - bm d4"
+
+      ops = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
+      assert ops["id"] == "BK.01"
+      assert ops["bm"] == chess.Move(chess.D6, chess.D1)
+
 * Read Polyglot opening books.
 
   ::
 
       import chess.polyglot
-      book = chess.polyglot.open_reader("data/opening-books/performance.bin")
-      board = chess.Bitboard()
-      for entry in book.get_entries_for_position(board):
-          assert chess.Move.from_uci("e2e4") == entry.move()
-          break
+
+      with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+          board = chess.Bitboard()
+
+          for entry in book.get_entries_for_position(board):
+               assert chess.Move.from_uci("e2e4") == entry.move()
+               break
 
 Peformance
 ----------
