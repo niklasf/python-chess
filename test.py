@@ -416,6 +416,20 @@ class BitboardTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
         self.assertEqual(board.epd(noop=None), "4k3/8/8/8/8/8/8/4K3 w - - noop;")
 
+        # Test loading an EPD.
+        board = chess.Bitboard()
+        operations = board.set_epd("r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id \"BK.24\";")
+        self.assertEqual(board.fen(), "r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - 0 1")
+        self.assertEqual(operations["bm"], chess.Move(chess.F2, chess.F4))
+        self.assertEqual(operations["id"], "BK.24")
+
+        # Test loading an EPD with half counter operations.
+        board = chess.Bitboard()
+        operations = board.set_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13;")
+        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/4K3 b - - 13 17")
+        self.assertEqual(operations["fmvn"], 17)
+        self.assertEqual(operations["hmvc"], 13)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

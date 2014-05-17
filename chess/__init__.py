@@ -1488,6 +1488,80 @@ class Bitboard:
     def peek(self):
         return self.move_stack[-1]
 
+    def set_epd(self, epd):
+        # Split into 4 or 5 parts.
+        parts = epd.split(None, 4)
+        if len(parts) < 4:
+            raise ValueError("EPD should consist of at least 4 parts.")
+
+        operations = { }
+
+        # Parse the operations.
+        if len(parts) > 4:
+            operation_part = parts.pop()
+
+            opcode = ""
+            operand = ""
+            in_operand = False
+            in_quotes = False
+            escape = False
+
+            for c in operation_part:
+                if not in_operand:
+                    if c == ";":
+                        operations[opcode] = None
+                        opcode = ""
+                    elif c == " ":
+                        if opcode:
+                            in_operand = True
+                    else:
+                        opcode += c
+                else:
+                    if c == "\"":
+                        if not operand and not in_quotes:
+                            in_quotes = True
+                        elif escape:
+                            operand += c
+                    elif c == "\\":
+                        if escape:
+                            operand += c
+                        else:
+                            escape = True
+                    elif c == "s":
+                        if escape:
+                            operand += ";"
+                        else:
+                            operand += c
+                    elif c == ";":
+                        if escape:
+                            operand += "\\"
+
+                        if in_quotes:
+                            operations[opcode] = operand
+                        else:
+                            try:
+                                operations[opcode] = int(operand)
+                            except ValueError:
+                                try:
+                                    operations[opcode] = float(operand)
+                                except ValueError:
+                                    operations[opcode] = self.parse_san(operand)
+
+                        opcode = ""
+                        operand = ""
+                        in_operand = False
+                        in_quotes = False
+                        escape = False
+                    else:
+                        operand += c
+
+        # Create a full FEN and parse it.
+        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
+        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
+        self.set_fen(" ".join(parts))
+
+        return operations
+
     def set_fen(self, fen):
         # Ensure there are six parts.
         parts = fen.split()
