@@ -425,7 +425,7 @@ class BitboardTestCase(unittest.TestCase):
 
         # Test loading an EPD with half counter operations.
         board = chess.Bitboard()
-        operations = board.set_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13;")
+        operations = board.set_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13")
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/4K3 b - - 13 17")
         self.assertEqual(operations["fmvn"], 17)
         self.assertEqual(operations["hmvc"], 13)

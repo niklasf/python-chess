@@ -1490,7 +1490,7 @@ class Bitboard:
 
     def set_epd(self, epd):
         # Split into 4 or 5 parts.
-        parts = epd.split(None, 4)
+        parts = epd.strip().rstrip(";").split(None, 4)
         if len(parts) < 4:
             raise ValueError("EPD should consist of at least 4 parts.")
 
@@ -1499,6 +1499,7 @@ class Bitboard:
         # Parse the operations.
         if len(parts) > 4:
             operation_part = parts.pop()
+            operation_part += ";"
 
             opcode = ""
             operand = ""
