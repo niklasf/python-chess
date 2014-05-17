@@ -405,6 +405,12 @@ class BitboardTestCase(unittest.TestCase):
         board.remove_piece_at(chess.E8)
         self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
 
+    def test_epd(self):
+        board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+        self.assertEqual(
+            board.epd(bm=chess.Move(chess.D6, chess.D1), id="BK.01"),
+            "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
