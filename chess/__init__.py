@@ -1667,7 +1667,7 @@ class Bitboard:
                 # Append as integer.
                 epd.append(" ")
                 epd.append(str(operand))
-            else:
+            elif not operand is None:
                 # Append as escaped string.
                 epd.append(" \"")
                 epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
