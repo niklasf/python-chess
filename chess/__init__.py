@@ -1744,7 +1744,7 @@ class Bitboard:
                 epd.append(" ")
                 epd.append(self.san(operand))
             elif isinstance(operand, (int, float)):
-                # Append as integer.
+                # Append integer or float.
                 epd.append(" ")
                 epd.append(str(operand))
             elif not operand is None:
