@@ -1,6 +1,9 @@
 python-chess: a chess library
 =============================
 
+.. image:: https://travis-ci.org/niklasf/python-chess.svg?branch=master
+    :target: https://travis-ci.org/niklasf/python-chess
+
 Introduction
 ------------
 
