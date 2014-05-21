@@ -687,6 +687,9 @@ class Piece(object):
     def __repr__(self):
         return "Piece.from_symbol('{0}')".format(self.symbol())
 
+    def __str__(self):
+        return self.symbol()
+
     def __eq__(self, other):
         return self.piece_type == other.piece_type and self.color == other.color
 
@@ -729,6 +732,9 @@ class Move(object):
 
     def __repr__(self):
         return "Move.from_uci('{0}')".format(self.uci())
+
+    def __str__(self):
+        return self.uci()
 
     def __hash__(self):
         return self.to_square | self.from_square << 6 | self.promotion << 12
@@ -2052,6 +2058,9 @@ class Bitboard(object):
 
     def __repr__(self):
         return "Bitboard('{0}')".format(self.fen())
+
+    def __str__(self):
+        return self.fen()
 
     def __eq__(self, bitboard):
         return not self.__neq__(bitboard)
