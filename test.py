@@ -452,7 +452,13 @@ class BitboardTestCase(unittest.TestCase):
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
     def test_list_conversion(self):
-        list(chess.LegalMoveGenerator(chess.Bitboard()))
+        self.assertEqual(len(list(chess.Bitboard().legal_moves)), 20)
+
+    def test_nonzero(self):
+        self.assertTrue(chess.Bitboard().legal_moves)
+
+        caro_kann_mate = chess.Bitboard("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
+        self.assertFalse(caro_kann_mate.legal_moves)
 
 
 class PolyglotReader(unittest.TestCase):
