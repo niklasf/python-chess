@@ -1853,7 +1853,9 @@ class Bitboard:
         return matched_move
 
     def push_san(self, san):
-        self.push(self.parse_san(san))
+        move = self.parse_san(san)
+        self.push(move)
+        return move
 
     def san(self, move):
         piece = self.piece_type_at(move.from_square)
