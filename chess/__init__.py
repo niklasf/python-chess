@@ -2133,12 +2133,14 @@ class PseudoLegalMoveGenerator:
     def __init__(self, bitboard):
         self.bitboard = bitboard
 
-    def __nonzero__(self):
+    def __bool__(self):
         try:
             next(self.bitboard.generate_pseudo_legal_moves())
             return True
         except StopIteration:
             return False
+
+    __nonzero__ = __bool__
 
     def __len__(self):
         return self.bitboard.pseudo_legal_move_count()
@@ -2155,12 +2157,14 @@ class LegalMoveGenerator:
     def __init__(self, bitboard):
         self.bitboard = bitboard
 
-    def __nonzero__(self):
+    def __bool__(self):
         try:
             next(self.bitboard.generate_legal_moves())
             return True
         except StopIteration:
             return False
+
+    __nonzero__ = __bool__
 
     def __len__(self):
         count = 0
