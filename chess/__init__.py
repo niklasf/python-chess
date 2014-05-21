@@ -667,7 +667,9 @@ POLYGLOT_RANDOM_ARRAY = [
 ]
 
 
-class Piece:
+class Piece(object):
+
+    __slots__ = [ "piece_type", "color" ]
 
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
@@ -699,7 +701,9 @@ class Piece:
             return cls(PIECE_SYMBOLS.index(symbol.lower()), WHITE)
 
 
-class Move:
+class Move(object):
+
+    __slots__ = [ "from_square", "to_square", "promotion" ]
 
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
@@ -746,7 +750,7 @@ class Move:
         return cls(0, 0, NONE)
 
 
-class Bitboard:
+class Bitboard(object):
 
     def __init__(self, fen=None):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
@@ -2128,7 +2132,7 @@ class Bitboard:
         return zobrist_hash
 
 
-class PseudoLegalMoveGenerator:
+class PseudoLegalMoveGenerator(object):
 
     def __init__(self, bitboard):
         self.bitboard = bitboard
@@ -2152,7 +2156,7 @@ class PseudoLegalMoveGenerator:
         return self.bitboard.is_pseudo_legal(move)
 
 
-class LegalMoveGenerator:
+class LegalMoveGenerator(object):
 
     def __init__(self, bitboard):
         self.bitboard = bitboard

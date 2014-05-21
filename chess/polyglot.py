@@ -23,7 +23,9 @@ import struct
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
 
-class Entry:
+class Entry(object):
+
+    __slots__ = [ "key", "raw_move", "weight", "learn" ]
 
     def __init__(self, key, raw_move, weight, learn):
         self.key = key
@@ -62,7 +64,7 @@ class Entry:
             return chess.Move(from_square, to_square)
 
 
-class Reader:
+class Reader(object):
 
     def __init__(self, handle):
         self.handle = handle
