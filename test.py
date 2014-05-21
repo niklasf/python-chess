@@ -436,6 +436,18 @@ class BitboardTestCase(unittest.TestCase):
         operations = board.set_epd("4k3/8/8/2N5/8/8/8/4K3 w - - test Ne4")
         self.assertEqual(operations["test"], chess.Move(chess.C5, chess.E4))
 
+    def test_null_moves(self):
+        self.assertFalse(chess.Move.null())
+
+        fen = "rnbqkbnr/ppp1pppp/8/2Pp4/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 2"
+        board = chess.Bitboard(fen)
+
+        self.assertEqual(chess.Move.from_uci("0000"), board.push_san("--"))
+        self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/2Pp4/8/8/PP1PPPPP/RNBQKBNR b KQkq - 1 2")
+
+        self.assertEqual(chess.Move.null(), board.pop())
+        self.assertEqual(board.fen(), fen)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
