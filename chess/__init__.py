@@ -701,15 +701,21 @@ class Piece:
 
 class Move:
 
-    # TODO: Introduce null moves.
-
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
         self.to_square = to_square
         self.promotion = promotion
 
     def uci(self):
-        return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+        if self:
+            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+        else:
+            return "0000"
+
+    def __bool__(self):
+        return bool(self.from_square or self.to_square or self.promotion)
+
+    __nonzero__ = __bool__
 
     def __eq__(self, other):
         return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
@@ -725,13 +731,19 @@ class Move:
 
     @classmethod
     def from_uci(cls, uci):
-        if len(uci) == 4:
+        if uci == "0000":
+            return cls.null()
+        elif len(uci) == 4:
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
         elif len(uci) == 5:
             promotion = PIECE_SYMBOLS.index(uci[4])
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
         else:
             raise ValueError("Expected UCI string to be of length 4 or 5.")
+
+    @classmethod
+    def null(cls):
+        return cls(0, 0, NONE)
 
 
 class Bitboard:
@@ -1235,6 +1247,10 @@ class Bitboard:
         return ( move for move in self.generate_pseudo_legal_moves() if not self.is_into_check(move) )
 
     def is_pseudo_legal(self, move):
+        # Null moves are not pseudo legal.
+        if not move:
+            return False
+
         # Source square must not be vacant.
         piece = self.piece_type_at(move.from_square)
         if not piece:
@@ -1359,7 +1375,7 @@ class Bitboard:
             self.ply += 1
 
         # Remember game state.
-        captured_piece = self.piece_type_at(move.to_square)
+        captured_piece = self.piece_type_at(move.to_square) if move else NONE
         self.half_move_stack.append(self.half_moves)
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
@@ -1372,6 +1388,12 @@ class Bitboard:
             self.half_moves = 0
         else:
             self.half_moves += 1
+
+        # On a null move simply swap turns.
+        if not move:
+            self.turn ^= 1
+            self.ep_square = 0
+            return
 
         # Promotion.
         if move.promotion:
@@ -1447,6 +1469,11 @@ class Bitboard:
         self.ep_square = self.ep_square_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
         captured_piece_color = self.turn
+
+        # On a null move simply swap the turn.
+        if not move:
+            self.turn ^= 1
+            return move
 
         # Restore the source square.
         piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
@@ -1774,6 +1801,10 @@ class Bitboard:
         return "".join(fen)
 
     def parse_san(self, san):
+        # Null moves.
+        if san == "--":
+            return Move.null()
+
         # Castling.
         if san in ("O-O", "O-O+", "O-O#"):
             move = Move(E1, G1) if self.turn == WHITE else Move(E8, G8)
@@ -1858,6 +1889,10 @@ class Bitboard:
         return move
 
     def san(self, move):
+        if not move:
+            # Null move.
+            return "--"
+
         piece = self.piece_type_at(move.from_square)
         en_passant = False
 
