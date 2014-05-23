@@ -1211,6 +1211,17 @@ class Bitboard(object):
 
         return False
 
+    def attacker_mask(self, color, square):
+        attackers = BB_PAWN_ATTACKS[color ^ 1][square] & self.pawns
+        attackers |= self.knight_attacks_from(square) & self.knights
+        attackers |= self.bishop_attacks_from(square) & (self.bishops | self.queens)
+        attackers |= self.rook_attacks_from(square) & (self.rooks | self.queens)
+        attackers |= self.king_attacks_from(square) & self.kings
+        return attackers & self.occupied_co[color]
+
+    def attackers(self, color, square):
+        return SquareSet(self.attacker_mask(color, square))
+
     def is_check(self):
         return self.is_attacked_by(self.turn ^ 1, self.king_squares[self.turn])
 
@@ -2192,3 +2203,72 @@ class LegalMoveGenerator(object):
 
     def __contains__(self, move):
         return self.bitboard.is_legal(move)
+
+
+class SquareSet(object):
+
+    def __init__(self, mask):
+        self.mask = mask
+
+    def __bool__(self):
+        return bool(self.mask)
+
+    __nonzero__ = __bool__
+
+    def __len__(self):
+        return pop_count(self.mask)
+
+    def __iter__(self):
+        squares = self.mask
+        while squares:
+            square, squares = next_bit(squares)
+            yield square
+
+    def __contains__(self, square):
+        return bool(BB_SQUARES[square] & self.mask)
+
+    def __lshift__(self, shift):
+        return self.__class__((self.mask << shift) & BB_ALL)
+
+    def __rshift__(self, shift):
+        return self.__class__(self.mask >> shift)
+
+    def __and__(self, other):
+        try:
+            return self.__class__(self.mask & other.mask)
+        except AttributeError:
+            return self.__class__(self.mask & other)
+
+    def __xor__(self, other):
+        try:
+            return self.__class__((self.mask ^ other.mask) & BB_ALL)
+        except AttributeError:
+            return self.__class__((self.mask ^ other) & BB_ALL)
+
+    def __or__(self, other):
+        try:
+            return self.__class__((self.mask | other.mask) & BB_ALL)
+        except AttributeError:
+            return self.__class__((self.mask | other) & BB_ALL)
+
+    def __repr__(self):
+        return "SquareSet({0})".format(bin(self.mask))
+
+    def __str__(self):
+        builder = []
+
+        for square in SQUARES_180:
+            mask = BB_SQUARES[square]
+
+            if self.mask & mask:
+                builder.append("1")
+            else:
+                builder.append(".")
+
+            if mask & BB_FILE_H:
+                if square != H1:
+                    builder.append("\n")
+            else:
+                builder.append(" ")
+
+        return "".join(builder)

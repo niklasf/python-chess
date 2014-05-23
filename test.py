@@ -448,6 +448,17 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.null(), board.pop())
         self.assertEqual(board.fen(), fen)
 
+    def test_attackers(self):
+        board = chess.Bitboard("r1b1k2r/pp1n1ppp/2p1p3/q5B1/1b1P4/P1n1PN2/1P1Q1PPP/2R1KB1R b Kkq - 3 10")
+
+        attackers = board.attackers(chess.WHITE, chess.C3)
+        self.assertEqual(len(attackers), 3)
+        self.assertTrue(chess.C1 in attackers)
+        self.assertTrue(chess.D2 in attackers)
+        self.assertTrue(chess.B2 in attackers)
+        self.assertFalse(chess.D4 in attackers)
+        self.assertFalse(chess.E1 in attackers)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
