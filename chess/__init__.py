@@ -2251,6 +2251,45 @@ class SquareSet(object):
         except AttributeError:
             return self.__class__((self.mask | other) & BB_ALL)
 
+    def __ilshift__(self, shift):
+        self.mask = (self.mask << shift & BB_ALL)
+
+    def __irshift__(self, shift):
+        self.mask >>= shift
+
+    def __iand__(self, other):
+        try:
+            self.mask &= other.mask
+        except AttributeError:
+            self.mask &= other
+
+    def __ixor__(self, other):
+        try:
+            self.mask = (self.mask ^ other.mask) & BB_ALL
+        except AttributeError:
+            self.mask = (self.mask ^ other) & BB_ALL
+
+    def __ior__(self, other):
+        try:
+            self.mask = (self.mask | other.mask) & BB_ALL
+        except AttributeError:
+            self.mask = (self.mask | other) & BB_ALL
+
+    def __invert__(self):
+        return self.__class__(~self.mask & BB_ALL)
+
+    def __oct__(self):
+        return oct(self.mask)
+
+    def __hex__(self):
+        return hex(self.mask)
+
+    def __int__(self):
+        return self.mask
+
+    def __index__(self):
+        return self.mask
+
     def __repr__(self):
         return "SquareSet({0})".format(bin(self.mask))
 
@@ -2272,3 +2311,6 @@ class SquareSet(object):
                 builder.append(" ")
 
         return "".join(builder)
+
+    def __hash__(self):
+        return self.mask
