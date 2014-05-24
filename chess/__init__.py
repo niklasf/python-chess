@@ -903,18 +903,9 @@ class Bitboard(object):
         mask = BB_SQUARES[square]
         color = int(bool(self.occupied_co[BLACK] & mask))
 
-        if mask & self.pawns:
-            return Piece(PAWN, color)
-        elif mask & self.knights:
-            return Piece(KNIGHT, color)
-        elif mask & self.bishops:
-            return Piece(BISHOP, color)
-        elif mask & self.rooks:
-            return Piece(ROOK, color)
-        elif mask & self.queens:
-            return Piece(QUEEN, color)
-        elif mask & self.kings:
-            return Piece(KING, color)
+        piece_type = self.piece_type_at(square)
+        if piece_type:
+            return Piece(piece_type, color)
 
     def piece_type_at(self, square):
         """Gets the piece type at the given square."""
