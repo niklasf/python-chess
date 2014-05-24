@@ -983,178 +983,187 @@ class Bitboard(object):
         self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
         self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
-    def generate_pseudo_legal_moves(self):
+    def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.turn == WHITE:
-            # Castling short.
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
-                if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                    yield Move(E1, G1)
+            if castling:
+                # Castling short.
+                if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
+                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
+                        yield Move(E1, G1)
 
-            # Castling long.
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                    yield Move(E1, C1)
+                # Castling long.
+                if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                    if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
+                        yield Move(E1, C1)
 
-            # En-passant moves.
-            movers = self.pawns & self.occupied_co[WHITE]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
+            if pawns:
+                # En-passant moves.
+                movers = self.pawns & self.occupied_co[WHITE]
+                if self.ep_square:
+                    moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
+                    while moves:
+                        from_square, moves = next_bit(moves)
+                        yield Move(from_square, self.ep_square)
+
+                # Pawn captures.
+                moves = shift_up_right(movers) & self.occupied_co[BLACK]
                 while moves:
-                    from_square, moves = next_bit(moves)
-                    yield Move(from_square, self.ep_square)
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square - 9
+                    if rank_index(to_square) != 7:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
 
-            # Pawn captures.
-            moves = shift_up_right(movers) & self.occupied_co[BLACK]
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square - 9
-                if rank_index(to_square) != 7:
+                moves = shift_up_left(movers) & self.occupied_co[BLACK]
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square - 7
+                    if rank_index(to_square) != 7:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+
+                # Pawns one forward.
+                moves = shift_up(movers) & ~self.occupied
+                movers = moves
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square - 8
+                    if rank_index(to_square) != 7:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+
+                # Pawns two forward.
+                moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square - 16
                     yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-
-            moves = shift_up_left(movers) & self.occupied_co[BLACK]
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square - 7
-                if rank_index(to_square) != 7:
-                    yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-
-            # Pawns one forward.
-            moves = shift_up(movers) & ~self.occupied
-            movers = moves
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square - 8
-                if rank_index(to_square) != 7:
-                    yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-
-            # Pawns two forward.
-            moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square - 16
-                yield Move(from_square, to_square)
         else:
-            # Castling short.
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
-                if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                    yield Move(E8, G8)
+            if castling:
+                # Castling short.
+                if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
+                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
+                        yield Move(E8, G8)
 
-            # Castling long.
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                    yield Move(E8, C8)
+                # Castling long.
+                if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                    if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
+                        yield Move(E8, C8)
 
-            # En-passant moves.
-            movers = self.pawns & self.occupied_co[BLACK]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
+            if pawns:
+                # En-passant moves.
+                movers = self.pawns & self.occupied_co[BLACK]
+                if self.ep_square:
+                    moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
+                    while moves:
+                        from_square, moves = next_bit(moves)
+                        yield Move(from_square, self.ep_square)
+
+                # Pawn captures.
+                moves = shift_down_left(movers) & self.occupied_co[WHITE]
                 while moves:
-                    from_square, moves = next_bit(moves)
-                    yield Move(from_square, self.ep_square)
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square + 9
+                    if rank_index(to_square) != 0:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
 
-            # Pawn captures.
-            moves = shift_down_left(movers) & self.occupied_co[WHITE]
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square + 9
-                if rank_index(to_square) != 0:
+                moves = shift_down_right(movers) & self.occupied_co[WHITE]
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square + 7
+                    if rank_index(to_square) != 0:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+
+                # Pawns one forward.
+                moves = shift_down(movers) & ~self.occupied
+                movers = moves
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square + 8
+                    if rank_index(to_square) != 0:
+                        yield Move(from_square, to_square)
+                    else:
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, KNIGHT)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+
+                # Pawns two forward.
+                moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    from_square = to_square + 16
                     yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
 
-            moves = shift_down_right(movers) & self.occupied_co[WHITE]
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square + 7
-                if rank_index(to_square) != 0:
+        if knights:
+            # Knight moves.
+            movers = self.knights & self.occupied_co[self.turn]
+            while movers:
+                from_square, movers = next_bit(movers)
+                moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
+                while moves:
+                    to_square, moves = next_bit(moves)
                     yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
 
-            # Pawns one forward.
-            moves = shift_down(movers) & ~self.occupied
-            movers = moves
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square + 8
-                if rank_index(to_square) != 0:
+        if bishops:
+            # Bishop moves.
+            movers = self.bishops & self.occupied_co[self.turn]
+            while movers:
+                from_square, movers = next_bit(movers)
+                moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
+                while moves:
+                    to_square, moves = next_bit(moves)
                     yield Move(from_square, to_square)
-                else:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, KNIGHT)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
 
-            # Pawns two forward.
-            moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
-            while moves:
-                to_square, moves = next_bit(moves)
-                from_square = to_square + 16
-                yield Move(from_square, to_square)
+        if rooks:
+            # Rook moves.
+            movers = self.rooks & self.occupied_co[self.turn]
+            while movers:
+                from_square, movers = next_bit(movers)
+                moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    yield Move(from_square, to_square)
 
-        # Knight moves.
-        movers = self.knights & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
-            moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            while moves:
-                to_square, moves = next_bit(moves)
-                yield Move(from_square, to_square)
+        if queens:
+            # Queen moves.
+            movers = self.queens & self.occupied_co[self.turn]
+            while movers:
+                from_square, movers = next_bit(movers)
+                moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
+                while moves:
+                    to_square, moves = next_bit(moves)
+                    yield Move(from_square, to_square)
 
-        # Bishop moves.
-        movers = self.bishops & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
-            moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            while moves:
-                to_square, moves = next_bit(moves)
-                yield Move(from_square, to_square)
-
-        # Rook moves.
-        movers = self.rooks & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
-            moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
+        if king:
+            # King moves.
+            from_square = self.king_squares[self.turn]
+            moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
             while moves:
                 to_square, moves = next_bit(moves)
                 yield Move(from_square, to_square)
-
-        # Queen moves.
-        movers = self.queens & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
-            moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            while moves:
-                to_square, moves = next_bit(moves)
-                yield Move(from_square, to_square)
-
-        # King moves.
-        from_square = self.king_squares[self.turn]
-        moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
-        while moves:
-            to_square, moves = next_bit(moves)
-            yield Move(from_square, to_square)
 
     def pseudo_legal_move_count(self):
         # In a way duplicates generate_pseudo_legal_moves() in order to use
@@ -1380,8 +1389,8 @@ class Bitboard(object):
         """
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
-    def generate_legal_moves(self):
-        return ( move for move in self.generate_pseudo_legal_moves() if not self.is_into_check(move) )
+    def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+        return ( move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move) )
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -2036,22 +2045,20 @@ class Bitboard(object):
 
         # Filter by piece type.
         if match.group(1) == "N":
-            from_mask = self.knights
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
         elif match.group(1) == "B":
-            from_mask = self.bishops
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
         elif match.group(1) == "K":
-            from_mask = self.kings
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
         elif match.group(1) == "R":
-            from_mask = self.rooks
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
         elif match.group(1) == "Q":
-            from_mask = self.queens
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
         else:
-            from_mask = self.pawns
-
-        # Filter by turn.
-        from_mask &= self.occupied_co[self.turn]
+            moves = self.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
 
         # Filter by source file.
+        from_mask = BB_ALL
         if match.group(2):
             from_mask &= BB_FILES[FILE_NAMES.index(match.group(2))]
 
@@ -2061,7 +2068,7 @@ class Bitboard(object):
 
         # Match legal moves.
         matched_move = None
-        for move in self.generate_pseudo_legal_moves():
+        for move in moves:
             if move.to_square != to_square:
                 continue
 
