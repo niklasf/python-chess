@@ -189,6 +189,10 @@ class BitboardTestCase(unittest.TestCase):
         self.assertTrue(bitboard.is_check())
         self.assertEqual(bitboard.fen(), "6Q1/8/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 b - - 0 1")
 
+        bitboard = chess.Bitboard("8/8/8/3R1P2/8/2k2K2/3p4/r7 b - - 0 82")
+        bitboard.push_san("d1=Q+")
+        self.assertEqual(bitboard.fen(), "8/8/8/3R1P2/8/2k2K2/8/r2q4 w - - 0 83")
+
     def test_scholars_mate(self):
         bitboard = chess.Bitboard()
 
