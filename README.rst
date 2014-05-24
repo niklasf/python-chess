@@ -21,6 +21,11 @@ This is the scholars mate in python-chess:
     board.push_san("Qxf7")
     assert board.is_checkmate()
 
+Documentation
+-------------
+
+http://pythonhosted.org/python-chess/core.html
+
 Features
 --------
 

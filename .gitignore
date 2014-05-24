@@ -5,3 +5,4 @@ dist/
 build/
 python_chess.egg-info/
 nosetests.xml
+docs/_build/
