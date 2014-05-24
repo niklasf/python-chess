@@ -1,5 +1,5 @@
-python-chess: a chess library
-=============================
+python-chess: a pure Python chess library
+=========================================
 
 .. image:: https://travis-ci.org/niklasf/python-chess.svg?branch=master
     :target: https://travis-ci.org/niklasf/python-chess
@@ -100,11 +100,11 @@ the naive x88 move generation from libchess.
 Installing
 ----------
 
-* With easy_install:
+* With pip:
 
   ::
 
-      sudo easy_install python-chess
+      sudo pip install python-chess
 
 * From current source code:
 
