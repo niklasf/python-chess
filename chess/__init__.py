@@ -37,6 +37,7 @@ PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+"""The FEN notation of the standard chess starting position."""
 
 STATUS_VALID = 0
 STATUS_NO_WHITE_KING = 1
@@ -116,9 +117,11 @@ SQUARE_NAMES = [
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" ]
 
 def file_index(square):
+    """Gets the file index of square where `0` is the a file."""
     return square & 7
 
 def rank_index(square):
+    """Gets the rank index of the square where `0` is the first rank."""
     return square >> 3
 
 CASTLING_NONE = 0
@@ -668,14 +671,22 @@ POLYGLOT_RANDOM_ARRAY = [
 
 
 class Piece(object):
+    """A piece with type and color."""
 
     __slots__ = [ "piece_type", "color" ]
 
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
+        """The piece type."""
+
         self.color = color
+        """The color of the piece."""
 
     def symbol(self):
+        """
+        Gets the symbol `P`, `N`, `B`, `R`, `Q` or `K` for white pieces or the
+        lower-case variants for the black pieces.
+        """
         if self.color == WHITE:
             return PIECE_SYMBOLS[self.piece_type].upper()
         else:
@@ -698,6 +709,11 @@ class Piece(object):
 
     @classmethod
     def from_symbol(cls, symbol):
+        """
+        Creates a piece instance from a piece symbol.
+
+        :raises ValueError: If the symbol is invalid.
+        """
         if symbol.lower() == symbol:
             return cls(PIECE_SYMBOLS.index(symbol), BLACK)
         else:
@@ -705,15 +721,35 @@ class Piece(object):
 
 
 class Move(object):
+    """
+    Represents a move from a square to a square and possibly the promotion piece
+    type.
+
+    Null moves are supported.
+
+    >>> bool(chess.Move.null())
+    False
+    """
 
     __slots__ = [ "from_square", "to_square", "promotion" ]
 
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
+        """The source square."""
+
         self.to_square = to_square
+        """The target square."""
+
         self.promotion = promotion
+        """The promotion piece type."""
 
     def uci(self):
+        """
+        Gets an UCI string for the move.
+
+        For example a move from A7 to A8 would be `a7a8` or `a7a8q` if it is
+        a promotion to a queen. The UCI representatin of null moves is `0000`.
+        """
         if self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
         else:
@@ -741,6 +777,11 @@ class Move(object):
 
     @classmethod
     def from_uci(cls, uci):
+        """
+        Parses an UCI string.
+
+        :raises ValueError: If the UCI string is invalid.
+        """
         if uci == "0000":
             return cls.null()
         elif len(uci) == 4:
@@ -753,14 +794,68 @@ class Move(object):
 
     @classmethod
     def null(cls):
+        """Gets a null move."""
         return cls(0, 0, NONE)
 
 
 class Bitboard(object):
+    """
+    A bitboard and additional information representing a position.
+
+    Provides move generation, validation, parsing, attack generation,
+    game end detection, move counters and the capability to make and unmake
+    moves.
+
+    The bitboard is initialized to the starting position, unless otherwise
+    specified in the optional `fen` argument.
+    """
 
     def __init__(self, fen=None):
+        self.ep_square = 0
+        """The potential en-passant square on the third or sixth rank."""
+
+        self.castling_rights = CASTLING
+        """Bitmask of castling rights."""
+
+        self.turn = WHITE
+        """The side to move."""
+
+        self.ply = 1
+        """
+        Counts full moves. Starts at `1` and is incremented after every move
+        of the black side.
+        """
+
+        self.half_moves = 0
+        """
+        The number of half moves since the last capture or pawn move.
+        """
+
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
+        """
+        A dynamic list of pseudo legal moves.
+
+        Pseudo legal moves might leave or put the king in check, but are
+        otherwise valid. Null moves are not pseudo legal. Castling moves are
+        only included if they are completely legal.
+
+        For performance moves are generated on the fly and only when nescessary.
+        The following operations are way more efficient than just generating
+        everything.
+
+        >>> len(board.pseudo_legal_moves)
+        20
+        >>> bool(board.pseudo_legal_moves)
+        True
+        >>> move in board.pseudo_legal_moves
+        True
+        """
+
         self.legal_moves = LegalMoveGenerator(self)
+        """
+        A dynamic list of completely legal moves, much like the pseudo legal
+        move list.
+        """
 
         if fen is None:
             self.reset()
@@ -768,6 +863,7 @@ class Bitboard(object):
             self.set_fen(fen)
 
     def reset(self):
+        """Restores the starting position."""
         self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
@@ -787,7 +883,6 @@ class Bitboard(object):
 
         self.ep_square = 0
         self.castling_rights = CASTLING
-
         self.turn = WHITE
         self.ply = 1
         self.half_moves = 0
@@ -805,6 +900,7 @@ class Bitboard(object):
         self.move_stack = collections.deque()
 
     def piece_at(self, square):
+        """Gets the piece at the given square."""
         mask = BB_SQUARES[square]
         color = int(bool(self.occupied_co[BLACK] & mask))
 
@@ -822,6 +918,7 @@ class Bitboard(object):
             return Piece(KING, color)
 
     def piece_type_at(self, square):
+        """Gets the piece type at the given square."""
         mask = BB_SQUARES[square]
 
         if mask & self.pawns:
@@ -840,6 +937,7 @@ class Bitboard(object):
             return NONE
 
     def remove_piece_at(self, square):
+        """Removes a piece from the given square if present."""
         mask = BB_SQUARES[square]
 
         if not self.occupied & mask:
@@ -861,6 +959,7 @@ class Bitboard(object):
         self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
     def set_piece_at(self, square, piece):
+        """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
 
         mask = BB_SQUARES[square]
@@ -1194,6 +1293,10 @@ class Bitboard(object):
         return count
 
     def is_attacked_by(self, color, square):
+        """
+        Checks if the given side attacks the given square. Pinned pieces still
+        count as attackers.
+        """
         if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
             return True
 
@@ -1220,9 +1323,15 @@ class Bitboard(object):
         return attackers & self.occupied_co[color]
 
     def attackers(self, color, square):
+        """
+        Gets a set of attackers of the given color for the given square.
+
+        :return: A set of squares.
+        """
         return SquareSet(self.attacker_mask(color, square))
 
     def is_check(self):
+        """Checks if the current side to move is in check."""
         return self.is_attacked_by(self.turn ^ 1, self.king_squares[self.turn])
 
     def pawn_moves_from(self, square):
@@ -1256,12 +1365,20 @@ class Bitboard(object):
         return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
 
     def is_into_check(self, move):
+        """
+        Checks if the given move would move would leave the king in check or
+        put it into check.
+        """
         self.push(move)
         is_check = self.was_into_check()
         self.pop()
         return is_check
 
     def was_into_check(self):
+        """
+        Checks if the king of the other side is attacked. Such a position is not
+        valid and could only be reached by an illegal move.
+        """
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
     def generate_legal_moves(self):
@@ -1340,6 +1457,10 @@ class Bitboard(object):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
 
     def is_game_over(self):
+        """
+        Checks if the game is over due to checkmate, stalemate or insufficient
+        mating material.
+        """
         if self.is_insufficient_material():
             return True
 
@@ -1350,6 +1471,7 @@ class Bitboard(object):
             return True
 
     def is_checkmate(self):
+        """Checks if the current position is a checkmate."""
         if not self.is_check():
             return False
 
@@ -1360,6 +1482,7 @@ class Bitboard(object):
             return True
 
     def is_stalemate(self):
+        """Checks if the current position is a stalemate."""
         if self.is_check():
             return False
 
@@ -1370,6 +1493,7 @@ class Bitboard(object):
             return True
 
     def is_insufficient_material(self):
+        """Checks for a draw due to insufficient mating material."""
         # Enough material to mate.
         if self.pawns or self.rooks or self.queens:
             return False
@@ -1391,6 +1515,19 @@ class Bitboard(object):
             return False
 
     def push(self, move):
+        """
+        Updates the position with the given move and puts it onto a stack.
+
+        Null moves just increment the move counters, switch turns and forfeit
+        en passant capturing.
+
+        No validation is performed. For performance moves are assumed to be at
+        least pseudo legal. Otherwise there is no guarantee that the previous
+        board state can be restored. To check it yourself you can use:
+
+        >>> move in board.pseudo_legal_moves
+        True
+        """
         # Increment ply.
         if self.turn == BLACK:
             self.ply += 1
@@ -1478,6 +1615,11 @@ class Bitboard(object):
         self.turn ^= 1
 
     def pop(self):
+        """
+        Restores the previous position and removes the last move from the stack.
+
+        :return: The move removed from the stack.
+        """
         move = self.move_stack.pop()
 
         # Decrement ply.
@@ -1534,9 +1676,21 @@ class Bitboard(object):
         return move
 
     def peek(self):
+        """Gets the last move from the move stack."""
         return self.move_stack[-1]
 
     def set_epd(self, epd):
+        """
+        Parses the given EPD string and uses it to set the position.
+
+        If present the `hmvc` and the `fmvn` are used to set the half move
+        clock and the ply. Otherwise `0` and `1` are used.
+
+        :return: A dictionary of parsed operations. Values can be strings,
+                 integers, floats or move objects.
+
+        :raises ValueError: If the EPD string is invalid.
+        """
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
         if len(parts) < 4:
@@ -1617,6 +1771,11 @@ class Bitboard(object):
         return operations
 
     def set_fen(self, fen):
+        """
+        Parses a FEN and sets the position from it.
+
+        :raises ValueError: If the FEN string is invalid.
+        """
         # Ensure there are six parts.
         parts = fen.split()
         if len(parts) != 6:
@@ -1728,6 +1887,19 @@ class Bitboard(object):
         self.ply = int(parts[5])
 
     def epd(self, **operations):
+        """
+        Gets an EPD representation of the current position.
+
+        `hmvc` and `fmvc` are *not* included by default. You can use:
+
+        >>> board.epd(hmvc=board.half_moves, fmvc=board.ply)
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
+
+        :param **operations: EPD operations to append. The keys are used as
+                             opcodes. Supported operands are strings, integers,
+                             floats and moves. All other operands are converted
+                             to strings.
+        """
         epd = []
         empty = 0
 
@@ -1806,6 +1978,7 @@ class Bitboard(object):
         return "".join(epd)
 
     def fen(self):
+        """Gets the FEN representation of the position."""
         fen = []
 
         # Position, turn, castling and en passant.
@@ -1822,6 +1995,14 @@ class Bitboard(object):
         return "".join(fen)
 
     def parse_san(self, san):
+        """
+        Uses the current position as the context to parse a move in standard
+        algebraic notation and return the corresponding move object.
+
+        The returned move is guaranteed to be either legal or a null move.
+
+        :raises ValueError: If the SAN is invalid or ambigous.
+        """
         # Null moves.
         if san == "--":
             return Move.null()
@@ -1905,11 +2086,27 @@ class Bitboard(object):
         return matched_move
 
     def push_san(self, san):
+        """
+        Parses a move in standard algebraic notation, makes the move and puts
+        it on the the move stack.
+
+        :raises ValueError: If neither legal nor a null move.
+
+        :return: The move.
+        """
         move = self.parse_san(san)
         self.push(move)
         return move
 
     def san(self, move):
+        """
+        Gets the standard algebraic notation of the given move in the context of
+        the current position.
+
+        There is no validation. It is only guaranteed to work if the move is
+        legal or a null move.
+        """
+
         if not move:
             # Null move.
             return "--"
@@ -2107,6 +2304,12 @@ class Bitboard(object):
         return False
 
     def __hash__(self):
+        """
+        Gets a Polyglot compatible Zobrist hash of the current position.
+
+        Careful: Since positions are mutable objects you need to make sure
+        not to change them when using them as keys in a dictionary.
+        """
         zobrist_hash = 0
 
         # Hash in the board setup.
