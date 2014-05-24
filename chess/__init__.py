@@ -879,6 +879,22 @@ class Bitboard(object):
         self.occupied_r45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
+        self.pieces = [ NONE for i in range(64) ]
+
+        for i in range(64):
+            mask = BB_SQUARES[i]
+            if mask & self.pawns:
+                self.pieces[i] = PAWN
+            elif mask & self.knights:
+                self.pieces[i] = KNIGHT
+            elif mask & self.bishops:
+                self.pieces[i] = BISHOP
+            elif mask & self.rooks:
+                self.pieces[i] = ROOK
+            elif mask & self.queens:
+                self.pieces[i] = QUEEN
+            elif mask & self.kings:
+                self.pieces[i] = KING
 
         self.ep_square = 0
         self.castling_rights = CASTLING
@@ -909,22 +925,7 @@ class Bitboard(object):
 
     def piece_type_at(self, square):
         """Gets the piece type at the given square."""
-        mask = BB_SQUARES[square]
-
-        if mask & self.pawns:
-            return PAWN
-        elif mask & self.knights:
-            return KNIGHT
-        elif mask & self.bishops:
-            return BISHOP
-        elif mask & self.rooks:
-            return ROOK
-        elif mask & self.queens:
-            return QUEEN
-        elif mask & self.kings:
-            return KING
-        else:
-            return NONE
+        return self.pieces[square]
 
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
@@ -932,6 +933,8 @@ class Bitboard(object):
 
         if not self.occupied & mask:
             return
+
+        self.pieces[square] = NONE
 
         self.pawns &= ~mask
         self.knights &= ~mask
@@ -951,6 +954,8 @@ class Bitboard(object):
     def set_piece_at(self, square, piece):
         """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
+
+        self.pieces[square] = piece.piece_type
 
         mask = BB_SQUARES[square]
 
@@ -1934,6 +1939,7 @@ class Bitboard(object):
         self.occupied_r45 = BB_VOID
         self.occupied_l45 = BB_VOID
         self.king_squares = [ E1, E8 ]
+        self.pieces = [ NONE for i in range(64) ]
         self.half_move_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
