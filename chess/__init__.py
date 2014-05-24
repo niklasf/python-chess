@@ -1770,6 +1770,97 @@ class Bitboard(object):
 
         return operations
 
+    def epd(self, **operations):
+        """
+        Gets an EPD representation of the current position.
+
+        `hmvc` and `fmvc` are *not* included by default. You can use:
+
+        >>> board.epd(hmvc=board.half_moves, fmvc=board.ply)
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
+
+        :param **operations: EPD operations to append. The keys are used as
+                             opcodes. Supported operands are strings, integers,
+                             floats and moves. All other operands are converted
+                             to strings.
+        """
+        epd = []
+        empty = 0
+
+        # Position part.
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if not piece:
+                empty += 1
+            else:
+                if empty:
+                    epd.append(str(empty))
+                    empty = 0
+                epd.append(piece.symbol())
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if empty:
+                    epd.append(str(empty))
+                    empty = 0
+
+                if square != H1:
+                    epd.append("/")
+
+        epd.append(" ")
+
+        # Side to move.
+        if self.turn == WHITE:
+            epd.append("w")
+        else:
+            epd.append("b")
+
+        epd.append(" ")
+
+        # Castling rights.
+        if not self.castling_rights:
+            epd.append("-")
+        else:
+            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+                epd.append("K")
+            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+                epd.append("Q")
+            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+                epd.append("k")
+            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+                epd.append("q")
+
+        epd.append(" ")
+
+        # En-passant square.
+        if self.ep_square:
+            epd.append(SQUARE_NAMES[self.ep_square])
+        else:
+            epd.append("-")
+
+        # Append operations.
+        for opcode, operand in operations.items():
+            epd.append(" ")
+            epd.append(opcode)
+
+            if hasattr(operand, "from_square") and hasattr(operand, "to_square"):
+                # Append SAN for moves.
+                epd.append(" ")
+                epd.append(self.san(operand))
+            elif isinstance(operand, (int, float)):
+                # Append integer or float.
+                epd.append(" ")
+                epd.append(str(operand))
+            elif not operand is None:
+                # Append as escaped string.
+                epd.append(" \"")
+                epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
+                epd.append("\"");
+
+            epd.append(";")
+
+        return "".join(epd)
+
     def set_fen(self, fen):
         """
         Parses a FEN and sets the position from it.
@@ -1885,97 +1976,6 @@ class Bitboard(object):
         # Set the mover counters.
         self.half_moves = int(parts[4])
         self.ply = int(parts[5])
-
-    def epd(self, **operations):
-        """
-        Gets an EPD representation of the current position.
-
-        `hmvc` and `fmvc` are *not* included by default. You can use:
-
-        >>> board.epd(hmvc=board.half_moves, fmvc=board.ply)
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
-
-        :param **operations: EPD operations to append. The keys are used as
-                             opcodes. Supported operands are strings, integers,
-                             floats and moves. All other operands are converted
-                             to strings.
-        """
-        epd = []
-        empty = 0
-
-        # Position part.
-        for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if not piece:
-                empty += 1
-            else:
-                if empty:
-                    epd.append(str(empty))
-                    empty = 0
-                epd.append(piece.symbol())
-
-            if BB_SQUARES[square] & BB_FILE_H:
-                if empty:
-                    epd.append(str(empty))
-                    empty = 0
-
-                if square != H1:
-                    epd.append("/")
-
-        epd.append(" ")
-
-        # Side to move.
-        if self.turn == WHITE:
-            epd.append("w")
-        else:
-            epd.append("b")
-
-        epd.append(" ")
-
-        # Castling rights.
-        if not self.castling_rights:
-            epd.append("-")
-        else:
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
-                epd.append("K")
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-                epd.append("Q")
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
-                epd.append("k")
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-                epd.append("q")
-
-        epd.append(" ")
-
-        # En-passant square.
-        if self.ep_square:
-            epd.append(SQUARE_NAMES[self.ep_square])
-        else:
-            epd.append("-")
-
-        # Append operations.
-        for opcode, operand in operations.items():
-            epd.append(" ")
-            epd.append(opcode)
-
-            if hasattr(operand, "from_square") and hasattr(operand, "to_square"):
-                # Append SAN for moves.
-                epd.append(" ")
-                epd.append(self.san(operand))
-            elif isinstance(operand, (int, float)):
-                # Append integer or float.
-                epd.append(" ")
-                epd.append(str(operand))
-            elif not operand is None:
-                # Append as escaped string.
-                epd.append(" \"")
-                epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
-                epd.append("\"");
-
-            epd.append(";")
-
-        return "".join(epd)
 
     def fen(self):
         """Gets the FEN representation of the position."""
@@ -2200,6 +2200,11 @@ class Bitboard(object):
         return san
 
     def status(self):
+        """
+        Gets a bitmask of possible problems problems with the position.
+        Move making, generation and validation are only guaranteed to work on
+        a completely valid board.
+        """
         errors = STATUS_VALID
 
         if not self.occupied_co[WHITE] & self.kings:
