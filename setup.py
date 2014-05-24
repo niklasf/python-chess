@@ -27,7 +27,7 @@ def read(filename):
 
 setuptools.setup(
     name="python-chess",
-    version="0.0.5",
+    version="0.1.0",
     author="Niklas Fiekas",
     author_email="niklas.fiekas@tu-clausthal.de",
     description="A chess library.",
