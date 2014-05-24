@@ -98,6 +98,8 @@ the naive x88 move generation from libchess.
 Installing
 ----------
 
+* Get the code from GitHub: https://github.com/niklasf/python-chess
+
 * With pip:
 
   ::
