@@ -878,7 +878,6 @@ class Bitboard(object):
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
 
-        self.pieces = [ ]
         self.king_squares = [ E1, E8 ]
 
         self.ep_square = 0
