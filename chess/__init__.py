@@ -929,22 +929,29 @@ class Bitboard(object):
 
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
-        mask = BB_SQUARES[square]
+        piece_type = self.pieces[square]
 
-        if not self.occupied & mask:
+        if piece_type == NONE:
             return
 
-        self.pieces[square] = NONE
+        mask = BB_SQUARES[square]
 
-        self.pawns &= ~mask
-        self.knights &= ~mask
-        self.bishops &= ~mask
-        self.rooks &= ~mask
-        self.queens &= ~mask
-        self.kings &= ~mask
+        if piece_type == PAWN:
+            self.pawns ^= mask
+        elif piece_type == KNIGHT:
+            self.knights ^= mask
+        elif piece_type == BISHOP:
+            self.bishops ^= mask
+        elif piece_type == ROOK:
+            self.rooks ^= mask
+        elif piece_type == QUEEN:
+            self.queens ^= mask
+        else:
+            self.kings ^= mask
 
         color = int(bool(self.occupied_co[BLACK] & mask))
 
+        self.pieces[square] = NONE
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
         self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
