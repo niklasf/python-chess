@@ -758,7 +758,8 @@ class Move(object):
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion)
 
-    __nonzero__ = __bool__
+    def __nonzero__(self):
+        return self.from_square or self.to_square or self.promotion
 
     def __eq__(self, other):
         return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
