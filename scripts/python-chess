@@ -174,6 +174,65 @@ def alphabeta(bitboard, depth, eval_fn):
 
     return best
 
+
+def negascout_value(bitboard, depth, alpha, beta, eval_fn):
+    if depth == 0:
+        if bitboard.is_stalemate():
+            return 0
+        elif bitboard.is_checkmate():
+            return -1000
+
+        return (1 - bitboard.turn * 2) * eval_fn(bitboard)
+
+    a = alpha
+    b = beta
+
+    found_legal_move = False
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            t = -negascout_value(bitboard, depth - 1, -b, -a, eval_fn)
+            if t > a and t < beta and found_legal_move and depth > 1:
+                a = -negascout_value(bitboard, depth - 1, -beta, -t, eval_fn)
+
+            found_legal_move = True
+
+            a = max(a, t)
+
+            if a >= beta:
+                bitboard.pop()
+                return a
+
+            b = a + 0.1
+
+        bitboard.pop()
+
+    if not found_legal_move:
+        if not bitboard.is_check():
+            return 0
+        else:
+            return -1000
+    else:
+        return a
+
+def negascout(bitboard, depth, eval_fn):
+    best = None
+
+    for move in bitboard.generate_pseudo_legal_moves():
+        bitboard.push(move)
+
+        if not bitboard.was_into_check():
+            value = -1 * negascout_value(bitboard, depth, -3000, 3000, eval_fn)
+            if best is None or value > best[0]:
+                best = value, move
+
+        bitboard.pop()
+
+    return best
+
+
 def material_evaluator(bitboard):
     value = 0.0
 
@@ -276,7 +335,7 @@ if __name__ == "__main__":
                 best_move = None
 
                 #  Consider the opening book.
-                if book:
+                if book and False:
                     choices = [ (entry.weight, entry.move()) for entry in book.get_entries_for_position(position) ]
                     total = sum(weight for weight, move in choices)
 
@@ -294,7 +353,7 @@ if __name__ == "__main__":
 
                 # Search.
                 if not best_move:
-                    best = alphabeta(position, 3, lambda b: material_evaluator(b) + mobility_evaluator(b) + random.uniform(-0.1, 0.1))
+                    best = negascout(position, 3, lambda b: material_evaluator(b))
                     if best:
                         value, best_move = best
 
