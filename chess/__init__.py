@@ -1552,18 +1552,19 @@ class Bitboard(object):
         self.ep_square_stack.append(self.ep_square)
         self.move_stack.append(move)
 
+        # On a null move simply swap turns.
+        if not move:
+            self.turn ^= 1
+            self.ep_square = 0
+            self.half_moves += 1
+            return
+
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
         if piece_type == PAWN or captured_piece:
             self.half_moves = 0
         else:
             self.half_moves += 1
-
-        # On a null move simply swap turns.
-        if not move:
-            self.turn ^= 1
-            self.ep_square = 0
-            return
 
         # Promotion.
         if move.promotion:
