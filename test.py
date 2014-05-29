@@ -19,6 +19,7 @@
 
 import chess
 import chess.polyglot
+import chess.pgn
 import unittest
 
 
@@ -476,7 +477,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertFalse(caro_kann_mate.legal_moves)
 
 
-class PolyglotReader(unittest.TestCase):
+class PolyglotTestCase(unittest.TestCase):
 
     def test_performance_bin(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
@@ -503,6 +504,25 @@ class PolyglotReader(unittest.TestCase):
 
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
 
+
+class PgnTestCase(unittest.TestCase):
+
+    def test_gamenode(self):
+        node = chess.pgn.Game()
+
+        node = node.add_variation(node.board().parse_san("d4"))
+        node = node.add_variation(node.board().parse_san("d5"))
+        node = node.add_variation(node.board().parse_san("c4"))
+        node = node.add_variation(node.board().parse_san("dxc4"))
+        node = node.add_variation(node.board().parse_san("e3"))
+        node = node.add_variation(node.board().parse_san("b5"))
+        node = node.add_variation(node.board().parse_san("a4"))
+        node = node.add_variation(node.board().parse_san("c6"))
+        node = node.add_variation(node.board().parse_san("axb5"))
+        node = node.add_variation(node.board().parse_san("cxb5"))
+        node = node.add_variation(node.board().parse_san("Qf3"))
+
+        self.assertEqual(node.board().fen(), "rnbqkbnr/p3pppp/8/1p6/2pP4/4PQ2/1P3PPP/RNB1KBNR b KQkq - 1 6")
 
 if __name__ == "__main__":
     unittest.main()
