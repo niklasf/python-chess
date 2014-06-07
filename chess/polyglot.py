@@ -25,8 +25,6 @@ ENTRY_STRUCT = struct.Struct(">QHHI")
 
 class Entry(object):
 
-    __slots__ = [ "key", "raw_move", "weight", "learn" ]
-
     def __init__(self, key, raw_move, weight, learn):
         self.key = key
         self.raw_move = raw_move

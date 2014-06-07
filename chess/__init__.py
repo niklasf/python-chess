@@ -673,8 +673,6 @@ POLYGLOT_RANDOM_ARRAY = [
 class Piece(object):
     """A piece with type and color."""
 
-    __slots__ = [ "piece_type", "color" ]
-
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
         """The piece type."""
@@ -730,8 +728,6 @@ class Move(object):
     >>> bool(chess.Move.null())
     False
     """
-
-    __slots__ = [ "from_square", "to_square", "promotion" ]
 
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
