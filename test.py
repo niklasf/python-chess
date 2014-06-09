@@ -515,21 +515,25 @@ class PolyglotTestCase(unittest.TestCase):
 class PgnTestCase(unittest.TestCase):
 
     def test_gamenode(self):
-        node = chess.pgn.Game()
+        game = chess.pgn.Game()
+        game.starting_comment = "Test game:"
+        game.result = "*"
 
-        node = node.add_variation(node.board().parse_san("d4"))
-        node = node.add_variation(node.board().parse_san("d5"))
-        node = node.add_variation(node.board().parse_san("c4"))
-        node = node.add_variation(node.board().parse_san("dxc4"))
-        node = node.add_variation(node.board().parse_san("e3"))
-        node = node.add_variation(node.board().parse_san("b5"))
-        node = node.add_variation(node.board().parse_san("a4"))
-        node = node.add_variation(node.board().parse_san("c6"))
-        node = node.add_variation(node.board().parse_san("axb5"))
-        node = node.add_variation(node.board().parse_san("cxb5"))
-        node = node.add_variation(node.board().parse_san("Qf3"))
+        e4 = game.add_variation(game.board().parse_san("e4"))
 
-        self.assertEqual(node.board().fen(), "rnbqkbnr/p3pppp/8/1p6/2pP4/4PQ2/1P3PPP/RNB1KBNR b KQkq - 1 6")
+        e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
+        e4_d5.starting_comment = "Scandinavian defense:"
+
+        e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
+        e4_h5.nags.append(2) # Mistake (?)
+        e4_h5.comment = "is nonesense"
+
+        e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
+        e4_e5_Qf3 = e4_e5.add_variation(e4_e5.board().parse_san("Qf3"))
+        e4_e5_Qf3.nags.append(2)
+
+        e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
+        e4_c5.comment = "Sicilian"
 
 if __name__ == "__main__":
     unittest.main()

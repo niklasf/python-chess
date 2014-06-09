@@ -56,6 +56,9 @@ class GameNode(object):
         self.move = None
         """The move that leads to the node."""
 
+        self.nags = [ ]
+        """Numeric annotation glyphs."""
+
         self.san = None
         """The SAN representation of the move that leads to the node."""
 
@@ -168,6 +171,47 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
+    def __str__(self):
+        text = ""
+
+        board = self.board()
+
+        for index, move in enumerate(self.variations):
+            # Open varation.
+            if index != 0:
+                text += "( "
+
+            # Append starting comment.
+            if self.variations[move].starting_comment:
+                text += "{ " + self.variations[move].starting_comment + " } "
+
+            # Append ply.
+            if board.turn == chess.WHITE:
+                text += str(board.ply) + ". "
+            elif index != 0:
+                text += str(board.ply) + "... "
+
+            # Append SAN.
+            text += board.san(move) + " "
+
+            # Append NAGs.
+            for nag in self.nags:
+                text += "$" + str(nag) + " "
+
+            # Append the comment.
+            # TODO: Do some sort of escaping.
+            if self.variations[move].comment:
+                text += "{ " + self.variations[move].comment + " } "
+
+            # Recursively append the next moves.
+            text += self.variations[move].__str__()
+
+            # End variation.
+            if index != 0:
+                text = text.rstrip() + " ) "
+
+        return text.rstrip()
+
 
 class Game(GameNode):
 
@@ -185,3 +229,18 @@ class Game(GameNode):
 
     def board(self):
         return chess.Bitboard()
+
+    def __str__(self):
+        text = ""
+
+        for tagname, tagvalue in self.headers.items():
+            text += "[{0} \"{1}\"]\n".format(tagname, tagvalue)
+
+        text += "\n"
+
+        if self.starting_comment:
+            text += "{ " + self.starting_comment + " } "
+
+        text += super(Game, self).__str__()
+
+        return text
