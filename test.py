@@ -525,12 +525,12 @@ class PgnTestCase(unittest.TestCase):
         e4_d5.starting_comment = "Scandinavian defense:"
 
         e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
-        e4_h5.nags.append(2) # Mistake (?)
+        e4_h5.nags.append(chess.pgn.NAG_MISTAKE)
         e4_h5.comment = "is nonesense"
 
         e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
         e4_e5_Qf3 = e4_e5.add_variation(e4_e5.board().parse_san("Qf3"))
-        e4_e5_Qf3.nags.append(2)
+        e4_e5_Qf3.nags.append(chess.pgn.NAG_MISTAKE)
 
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
         e4_c5.comment = "Sicilian"

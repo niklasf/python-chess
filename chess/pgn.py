@@ -22,6 +22,36 @@ import sys
 import collections
 
 
+NAG_NULL = 0
+NAG_GOOD_MOVE = 1
+NAG_MISTAKE = 2
+NAG_BRILLIANT_MOVE = 3
+NAG_BLUNDER = 4
+NAG_SPECULATIVE_MOVE = 5
+NAG_DUBIOUS_MOVE = 6
+NAG_FORCED_MOVE = 7
+NAG_SINGULAR_MOVE = 8
+NAG_WORST_MOVE = 9
+NAG_DRAWISH_POSITION = 10
+NAG_QUIET_POSITION = 11
+NAG_ACTIVE_POSITION = 12
+NAG_UNCLEAR_POSITION = 13
+NAG_WHITE_SLIGHT_ADVANTAGE = 14
+NAG_BLACK_SLIGHT_ADVANTAGE = 15
+
+# TODO: Add more constants for example from
+# https://en.wikipedia.org/wiki/Numeric_Annotation_Glyphs
+
+NAG_WHITE_MODERATE_COUNTERPLAY = 132
+NAG_BLACK_MODERATE_COUNTERPLAY = 133
+NAG_WHITE_DECISIVE_COUNTERPLAY = 134
+NAG_BLACK_DECISIVE_COUNTERPLAY = 135
+NAG_WHITE_MODERATE_TIME_PRESSURE = 136
+NAG_BLACK_MODERATE_TIME_PRESSURE = 137
+NAG_WHITE_SEVERE_TIME_PRESSURE = 138
+NAG_BLACK_SEVERE_TIME_PRESSURE = 139
+
+
 def scan_offsets(handle):
     """
     Scan a PGN file opened in text mode.
@@ -195,7 +225,7 @@ class GameNode(object):
             text += board.san(move) + " "
 
             # Append NAGs.
-            for nag in self.nags:
+            for nag in self.variations[move].nags:
                 text += "$" + str(nag) + " "
 
             # Append the comment.
@@ -234,6 +264,7 @@ class Game(GameNode):
         text = ""
 
         for tagname, tagvalue in self.headers.items():
+            # TODO: Do some sort of escaping.
             text += "[{0} \"{1}\"]\n".format(tagname, tagvalue)
 
         text += "\n"
