@@ -2213,7 +2213,7 @@ class Bitboard(object):
 
     def status(self):
         """
-        Gets a bitmask of possible problems problems with the position.
+        Gets a bitmask of possible problems with the position.
         Move making, generation and validation are only guaranteed to work on
         a completely valid board.
         """
