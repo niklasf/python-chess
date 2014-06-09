@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import chess
 import distutils
 import os
 import setuptools
@@ -27,9 +28,9 @@ def read(filename):
 
 setuptools.setup(
     name="python-chess",
-    version="0.1.0",
-    author="Niklas Fiekas",
-    author_email="niklas.fiekas@tu-clausthal.de",
+    version=chess.__version__,
+    author=chess.__author__,
+    author_email=chess.__email__,
     description="A chess library.",
     long_description=read("README.rst"),
     license="GPL3",
