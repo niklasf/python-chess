@@ -262,6 +262,13 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.san(chess.Move.from_uci("f5e3")), "Ne3+")
         self.assertEqual(bitboard.fen(), fen)
 
+        # Promotion.
+        fen = "7k/1p2Npbp/8/2P5/1P1r4/3b2QP/3q1pPK/2RB4 b - - 1 29"
+        bitboard = chess.Bitboard(fen)
+        self.assertEqual(bitboard.san(chess.Move.from_uci("f2f1q")), "f1=Q")
+        self.assertEqual(bitboard.san(chess.Move.from_uci("f2f1n")), "f1=N+")
+        self.assertEqual(bitboard.fen(), fen)
+
     def test_is_legal_move(self):
         fen = "3k4/6P1/7P/8/K7/8/8/4R3 w - - 0 1"
         bitboard = chess.Bitboard(fen)
