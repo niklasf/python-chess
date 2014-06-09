@@ -261,7 +261,23 @@ class Game(GameNode):
         self.headers["Result"] = "*"
 
     def board(self):
-        return chess.Bitboard()
+        if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
+            return chess.Bitboard(self.headers["FEN"])
+        else:
+            return chess.Bitboard()
+
+    def setup(self, board):
+        try:
+            fen = board.fen()
+        except AttributeError:
+            fen = chess.Bitboard(board).fen()
+
+        if fen == chess.STARTING_FEN:
+            del self.headers["SetUp"]
+            del self.headers["FEN"]
+        else:
+            self.headers["SetUp"] = "1"
+            self.headers["FEN"] = fen
 
     def export(self, exporter, headers=True, comments=True, variations=True):
         exporter.start_game()
@@ -326,7 +342,7 @@ class StringExporter(object):
         self.put_comment(comment)
 
     def put_comment(self, comment):
-        self.write_token("{ " + comment.strip() + " } ")
+        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
 
     def put_nags(self, nags):
         for nag in nags:
