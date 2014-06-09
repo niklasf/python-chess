@@ -90,17 +90,14 @@ class GameNode(object):
         self.nags = [ ]
         """Numeric annotation glyphs."""
 
-        self.san = None
-        """The SAN representation of the move that leads to the node."""
-
         self.starting_comment = ""
         """Comment before the variation started by this node."""
 
         self.comment = ""
         """Commend after this node."""
 
-        self.variations = collections.OrderedDict()
-        """Ordered dictionary mapping moves to child nodes."""
+        self.variations = [ ]
+        """A list of child nodes representing variations."""
 
     def board(self):
         """Gets the position of the node."""
@@ -122,16 +119,10 @@ class GameNode(object):
         Checks if this node starts a variation (and can thus have a starting
         comment).
         """
-        if not self.parent:
+        if not self.parent or not self.parent.variations:
             return True
 
-        # Checks that this is not the first variation.
-        for variation in self.parent.variations.values():
-            if variation == self:
-                return False
-            break
-
-        return True
+        return self.parent.variations[0] != self
 
     def is_main_line(self):
         """Checks if the node is in the main line of the game."""
@@ -140,10 +131,8 @@ class GameNode(object):
         while node.parent:
             parent = node.parent
 
-            for variation in parent.variations.values():
-                if variation != self:
-                    return False
-                break
+            if not parent.variations or parent.variations[0] != node:
+                return False
 
             node = parent
 
@@ -157,52 +146,40 @@ class GameNode(object):
         if not self.parent:
             return True
 
-        for variation in self.parent.variation.values():
-            if variation == self:
-                return True
-            break
-
-        return False
+        return not self.parent.variations or self.parent.variations[0] == self
 
     def variation(self, move):
         """
         Gets a child node by move or index.
         """
-        try:
-            return self.variations[move]
-        except KeyError:
-            # Try using move as an integer index.
-            # TODO: Avoid creating a list.
-            return list(self.variations.values())[move]
+        for index, variation in enumerate(self.variations):
+            if move == variation.move or move == index:
+                return variation
+
+        raise KeyError("Variation not found.")
 
     def has_variation(self, move):
         """Checks if the given move appears as a variation."""
-        return move in self.variations
+        return move in ( variation.move for variation in self.variations )
 
     def promote_to_main(self, move):
         """Promotes the given move to the main variation."""
-        try:
-            self.variations.move_to_end(move, False)
-        except AttributeError:
-            # OrderedDict.move_to_end() is only available from Python 3.2
-            # upwards.
-            for key, value in list(self.variations.items()):
-                if key != move:
-                    del self.variations[key]
-                    self.variations[key] = value
+        variation = self.variation(move)
+        self.variations.remove(variation)
+        self.variations.insert(0, variation)
 
     def remove_variation(self, move):
         """Removes a variation by move."""
-        del self.variations[move]
+        self.variations.remove(self.variation(move))
 
-    def add_variation(self, move, comment="", starting_comment=""):
+    def add_variation(self, move, comment="", starting_comment="", nags=[]):
         node = GameNode()
         node.move = move
-        node.san = self.board().san(move)
+        node.nags = list(nags)
         node.parent = self
         node.comment = comment
         node.starting_comment = starting_comment
-        self.variations[move] = node
+        self.variations.append(node)
         return node
 
     def add_main_variation(self, move, comment=""):
@@ -213,32 +190,31 @@ class GameNode(object):
     def export(self, exporter, comments=True, variations=True):
         board = self.board()
 
-        for index, move in enumerate(self.variations):
+        for index, variation in enumerate(self.variations):
             # Open varation.
             if index != 0:
                 exporter.start_variation()
 
             # Append starting comment.
-            if comments and self.variations[move].starting_comment:
-                exporter.put_starting_comment(self.variations[move].starting_comment)
+            if comments and variation.starting_comment:
+                exporter.put_starting_comment(variation.starting_comment)
 
             # Append ply.
             exporter.put_ply(board.turn, board.ply, index != 0)
 
             # Append SAN.
-            exporter.put_move(board, move)
+            exporter.put_move(board, variation.move)
 
             # Append NAGs.
             if comments:
-                exporter.put_nags(self.variations[move].nags)
+                exporter.put_nags(variation.nags)
 
             # Append the comment.
-            # TODO: Do some sort of escaping.
-            if comments and self.variations[move].comment:
-                exporter.put_comment(self.variations[move].comment)
+            if comments and variation.comment:
+                exporter.put_comment(variation.comment)
 
             # Recursively append the next moves.
-            self.variations[move].export(exporter, comments, variations)
+            variation.export(exporter, comments, variations)
 
             # End variation.
             if index != 0:
