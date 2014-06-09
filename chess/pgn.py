@@ -20,6 +20,7 @@ import chess
 import io
 import sys
 import collections
+import itertools
 
 
 NAG_NULL = 0
@@ -201,51 +202,48 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
-    def __str__(self, comments=True, variations=True):
-        text = ""
-
+    def export(self, exporter, comments=True, variations=True):
         board = self.board()
 
         for index, move in enumerate(self.variations):
             # Open varation.
             if index != 0:
-                text += "( "
+                exporter.start_variation()
 
             # Append starting comment.
             if comments and self.variations[move].starting_comment:
-                text += "{ " + self.variations[move].starting_comment + " } "
+                exporter.put_starting_comment(self.variations[move].starting_comment)
 
             # Append ply.
-            if board.turn == chess.WHITE:
-                text += str(board.ply) + ". "
-            elif index != 0:
-                text += str(board.ply) + "... "
+            exporter.put_ply(board.turn, board.ply, index != 0)
 
             # Append SAN.
-            text += board.san(move) + " "
+            exporter.put_move(board, move)
 
             # Append NAGs.
             if comments:
-                for nag in self.variations[move].nags:
-                    text += "$" + str(nag) + " "
+                exporter.put_nags(board, self.variations[move].nags)
 
             # Append the comment.
             # TODO: Do some sort of escaping.
             if comments and self.variations[move].comment:
-                text += "{ " + self.variations[move].comment + " } "
+                exporter.put_comment(self.variations[move].comment)
 
             # Recursively append the next moves.
-            text += self.variations[move].__str__(comments=comments, variations=variations)
+            self.variations[move].export(exporter, comments, variations)
 
             # End variation.
             if index != 0:
-                text = text.rstrip() + " ) "
+                exporter.end_variation()
 
             # All variations or just the main line.
             if not variations:
                 break
 
-        return text.rstrip()
+    def __str__(comment=True, variations=True):
+        exporter = StringExporter(columns=None)
+        self.export(exporter)
+        return exporter.__str__()
 
 
 class Game(GameNode):
@@ -265,19 +263,86 @@ class Game(GameNode):
     def board(self):
         return chess.Bitboard()
 
-    def __str__(self, headers=True, comments=True, variations=True):
-        text = ""
+    def export(self, exporter, headers=True, comments=True, variations=True):
+        exporter.start_game()
 
         if headers:
+            exporter.start_headers()
             for tagname, tagvalue in self.headers.items():
-                # TODO: Do some sort of escaping.
-                text += "[{0} \"{1}\"]\n".format(tagname, tagvalue)
-
-            text += "\n"
+                exporter.put_header(tagname, tagvalue)
+            exporter.end_headers()
 
         if comments and self.starting_comment:
-            text += "{ " + self.starting_comment + " } "
+            exporter.put_starting_comment(self.starting_comment)
 
-        text += super(Game, self).__str__(comments=comments, variations=variations)
+        super(Game, self).export(exporter, comments=comments, variations=variations)
 
-        return text
+
+class StringExporter(object):
+    def __init__(self, columns=80):
+        self.lines = [ ]
+        self.columns = columns
+        self.current_line = ""
+
+    def flush_current_line(self):
+        if self.current_line:
+            self.lines.append(self.current_line.rstrip())
+        self.current_line = ""
+
+    def write_token(self, token):
+        if not self.columns is None and self.columns - len(self.current_line) < len(token):
+            self.flush_current_line()
+        self.current_line += token
+
+    def write_line(self, line=""):
+        self.flush_current_line()
+        self.lines.append(line)
+
+    def start_game(self):
+        pass
+
+    def end_game(self):
+        self.write_line()
+
+    def start_headers(self):
+        pass
+
+    def put_header(self, tagname, tagvalue):
+        self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
+
+    def end_headers(self):
+        self.write_line()
+
+    def start_variation(self):
+        self.write_token("( ")
+
+    def end_variation(self):
+        self.write_token(") ")
+
+    def put_starting_comment(self, comment):
+        self.put_comment(comment)
+
+    def put_comment(self, comment):
+        self.write_token("{ " + comment.strip + " } ")
+
+    def put_nags(self, nags):
+        for nag in nags:
+            self.put_nag(nag)
+
+    def put_nag(self, nag):
+        self.write_token("$" + str(nag) + " ")
+
+    def put_ply(self, turn, ply, variation_start):
+        if turn == chess.WHITE:
+            self.write_token(str(ply) + ". ")
+        elif variation_start:
+            self.write_token(str(ply) + "... ")
+
+    def put_move(self, board, move):
+        self.write_token(board.san(move) + " ")
+
+    def __str__(self):
+        if self.current_line:
+            return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] ))
+        else:
+            return "\n".join(self.lines)

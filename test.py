@@ -535,11 +535,13 @@ class PgnTestCase(unittest.TestCase):
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
         e4_c5.comment = "Sicilian"
 
-        export_mainline = game.__str__(headers=False, comments=False, variations=False)
-        self.assertEqual(export_mainline, "1. e4 d5")
+        exporter = chess.pgn.StringExporter()
+        game.export(exporter, headers=False, comments=False, variations=False)
+        self.assertEqual(str(exporter), "1. e4 d5")
 
-        export_movetext = game.__str__(headers=False, comments=False)
-        self.assertEqual(export_movetext, "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 )")
+        exporter = chess.pgn.StringExporter()
+        export_movetext = game.export(exporter, headers=False, comments=False)
+        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 )")
 
 
 if __name__ == "__main__":
