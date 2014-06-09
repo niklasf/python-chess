@@ -538,11 +538,11 @@ class PgnTestCase(unittest.TestCase):
 
         exporter = chess.pgn.StringExporter()
         game.export(exporter, headers=False, comments=False, variations=False)
-        self.assertEqual(str(exporter), "1. e4 d5")
+        self.assertEqual(str(exporter), "1. e4 d5 *")
 
         exporter = chess.pgn.StringExporter()
         game.export(exporter, headers=False, comments=False)
-        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 )")
+        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 ) *")
 
         exporter = chess.pgn.StringExporter()
         game.export(exporter)
@@ -556,7 +556,7 @@ class PgnTestCase(unittest.TestCase):
             [Result "*"]
 
             { Test game: } 1. e4 { Scandinavian defense: } d5 ( 1... h5 $2 { is nonesense }
-            ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } )""")
+            ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) *""")
         self.assertEqual(str(exporter), pgn)
 
 
