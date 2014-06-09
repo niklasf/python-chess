@@ -201,7 +201,7 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
-    def __str__(self):
+    def __str__(self, comments=True, variations=True):
         text = ""
 
         board = self.board()
@@ -212,7 +212,7 @@ class GameNode(object):
                 text += "( "
 
             # Append starting comment.
-            if self.variations[move].starting_comment:
+            if comments and self.variations[move].starting_comment:
                 text += "{ " + self.variations[move].starting_comment + " } "
 
             # Append ply.
@@ -225,20 +225,25 @@ class GameNode(object):
             text += board.san(move) + " "
 
             # Append NAGs.
-            for nag in self.variations[move].nags:
-                text += "$" + str(nag) + " "
+            if comments:
+                for nag in self.variations[move].nags:
+                    text += "$" + str(nag) + " "
 
             # Append the comment.
             # TODO: Do some sort of escaping.
-            if self.variations[move].comment:
+            if comments and self.variations[move].comment:
                 text += "{ " + self.variations[move].comment + " } "
 
             # Recursively append the next moves.
-            text += self.variations[move].__str__()
+            text += self.variations[move].__str__(comments=comments, variations=variations)
 
             # End variation.
             if index != 0:
                 text = text.rstrip() + " ) "
+
+            # All variations or just the main line.
+            if not variations:
+                break
 
         return text.rstrip()
 
@@ -260,18 +265,19 @@ class Game(GameNode):
     def board(self):
         return chess.Bitboard()
 
-    def __str__(self):
+    def __str__(self, headers=True, comments=True, variations=True):
         text = ""
 
-        for tagname, tagvalue in self.headers.items():
-            # TODO: Do some sort of escaping.
-            text += "[{0} \"{1}\"]\n".format(tagname, tagvalue)
+        if headers:
+            for tagname, tagvalue in self.headers.items():
+                # TODO: Do some sort of escaping.
+                text += "[{0} \"{1}\"]\n".format(tagname, tagvalue)
 
-        text += "\n"
+            text += "\n"
 
-        if self.starting_comment:
+        if comments and self.starting_comment:
             text += "{ " + self.starting_comment + " } "
 
-        text += super(Game, self).__str__()
+        text += super(Game, self).__str__(comments=comments, variations=variations)
 
         return text
