@@ -559,6 +559,25 @@ class PgnTestCase(unittest.TestCase):
             ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) *""")
         self.assertEqual(str(exporter), pgn)
 
+    def test_setup(self):
+        game = chess.pgn.Game()
+        self.assertEqual(game.board(), chess.Bitboard())
+        self.assertFalse("FEN" in game.headers)
+        self.assertFalse("SetUp" in game.headers)
+
+        fen = "rnbqkbnr/pp1ppp1p/6p1/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"
+        game.setup(fen)
+        self.assertEqual(game.headers["FEN"], fen)
+        self.assertEqual(game.headers["SetUp"], "1")
+
+        game.setup(chess.STARTING_FEN)
+        self.assertFalse("FEN" in game.headers)
+        self.assertFalse("SetUp" in game.headers)
+
+        game.setup(chess.Bitboard(fen))
+        self.assertEqual(game.headers["FEN"], fen)
+        self.assertEqual(game.headers["SetUp"], "1")
+
 
 if __name__ == "__main__":
     unittest.main()
