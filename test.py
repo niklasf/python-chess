@@ -21,6 +21,7 @@ import chess
 import chess.polyglot
 import chess.pgn
 import unittest
+import textwrap
 
 
 class MoveTestCase(unittest.TestCase):
@@ -514,10 +515,10 @@ class PolyglotTestCase(unittest.TestCase):
 
 class PgnTestCase(unittest.TestCase):
 
-    def test_gamenode(self):
+    def test_string_exporter(self):
         game = chess.pgn.Game()
         game.starting_comment = "Test game:"
-        game.result = "*"
+        game.headers["Result"] = "*"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
 
@@ -540,8 +541,23 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(str(exporter), "1. e4 d5")
 
         exporter = chess.pgn.StringExporter()
-        export_movetext = game.export(exporter, headers=False, comments=False)
+        game.export(exporter, headers=False, comments=False)
         self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 )")
+
+        exporter = chess.pgn.StringExporter()
+        game.export(exporter)
+        pgn = textwrap.dedent("""\
+            [Event "?"]
+            [Site "?"]
+            [Date "????.??.??"]
+            [Round "?"]
+            [White "?"]
+            [Black "?"]
+            [Result "*"]
+
+            { Test game: } 1. e4 { Scandinavian defense: } d5 ( 1... h5 $2 { is nonesense }
+            ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } )""")
+        self.assertEqual(str(exporter), pgn)
 
 
 if __name__ == "__main__":

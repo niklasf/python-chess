@@ -222,7 +222,7 @@ class GameNode(object):
 
             # Append NAGs.
             if comments:
-                exporter.put_nags(board, self.variations[move].nags)
+                exporter.put_nags(self.variations[move].nags)
 
             # Append the comment.
             # TODO: Do some sort of escaping.
@@ -258,7 +258,7 @@ class Game(GameNode):
         self.headers["Round"] = "?"
         self.headers["White"] = "?"
         self.headers["Black"] = "?"
-        self.headers["Result"] = "1/2-1/2"
+        self.headers["Result"] = "*"
 
     def board(self):
         return chess.Bitboard()
@@ -323,7 +323,7 @@ class StringExporter(object):
         self.put_comment(comment)
 
     def put_comment(self, comment):
-        self.write_token("{ " + comment.strip + " } ")
+        self.write_token("{ " + comment.strip() + " } ")
 
     def put_nags(self, nags):
         for nag in nags:
