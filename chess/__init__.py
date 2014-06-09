@@ -2196,6 +2196,10 @@ class Bitboard(object):
         # Destination square.
         san += SQUARE_NAMES[move.to_square]
 
+        # Promotion.
+        if move.promotion:
+            san += "=" + PIECE_SYMBOLS[move.promotion].upper()
+
         # Look ahead for check or checkmate.
         self.push(move)
         if self.is_check():
