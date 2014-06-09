@@ -700,7 +700,10 @@ class Piece(object):
         return self.symbol()
 
     def __eq__(self, other):
-        return self.piece_type == other.piece_type and self.color == other.color
+        try:
+            return self.piece_type == other.piece_type and self.color == other.color
+        except AttributeError:
+            return False
 
     def __neq__(self, other):
         return self.__eq__(other)
@@ -758,7 +761,10 @@ class Move(object):
         return self.from_square or self.to_square or self.promotion
 
     def __eq__(self, other):
-        return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
+        try:
+            return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
+        except AttributeError:
+            return False
 
     def __neq__(self, other):
         return not self.__eq__(other)
