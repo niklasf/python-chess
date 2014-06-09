@@ -168,6 +168,18 @@ class GameNode(object):
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
+    def promote(self, move):
+        variation = self.variation(move)
+        i = self.variations.index(variation)
+        if i > 0:
+            self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
+
+    def demote(self, move):
+        variation = self.variation(move)
+        i = self.variations.index(variation)
+        if i < len(self.variations) - 1:
+            self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
+
     def remove_variation(self, move):
         """Removes a variation by move."""
         self.variations.remove(self.variation(move))
