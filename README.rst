@@ -117,6 +117,21 @@ Features
 
       >>> book.close()
 
+* Read and write PGNs.
+
+  ::
+
+      >>> import chess.pgn
+
+      >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+      >>> first_game = chess.pgn.read_game(pgn)
+      >>> pgn.close()
+
+      >>> first_game.headers["White"]
+      'Garry Kasparov'
+      >>> first_game.headers["Result"]
+      '1-0'
+
 Peformance
 ----------
 python-chess is not intended to be used by serious chess engines where
