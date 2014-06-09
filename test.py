@@ -590,6 +590,18 @@ class PgnTestCase(unittest.TestCase):
         node.promote_to_main(d4)
         self.assertEqual(list(variation.move for variation in node.variations), [ d4, e4 ])
 
+    def test_read_game(self):
+        pgn = open("data/games/immortal-games.pgn")
+        first_game = chess.pgn.read_game(pgn)
+        pgn.close()
+
+        self.assertEqual(first_game.headers["Event"], "?")
+        self.assertEqual(first_game.headers["Site"], "Hastings")
+        self.assertEqual(first_game.headers["Date"], "1895")
+        self.assertEqual(first_game.headers["White"], "Pillsbury")
+        self.assertEqual(first_game.headers["Black"], "Tarasch")
+        self.assertEqual(first_game.headers["Result"], "1-0")
+
 
 if __name__ == "__main__":
     unittest.main()
