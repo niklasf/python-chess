@@ -181,7 +181,15 @@ class GameNode(object):
 
     def promote_to_main(self, move):
         """Promotes the given move to the main variation."""
-        self.variations.move_to_end(move, False)
+        try:
+            self.variations.move_to_end(move, False)
+        except AttributeError:
+            # OrderedDict.move_to_end() is only available from Python 3.2
+            # upwards.
+            for key, value in list(self.variations.items):
+                if key != move:
+                    del self.variations[key]
+                    self.variations[key] = value
 
     def remove_variation(self, move):
         """Removes a variation by move."""
