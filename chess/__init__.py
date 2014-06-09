@@ -2029,18 +2029,18 @@ class Bitboard(object):
             if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
                 return move
             else:
-                raise ValueError("Invalid SAN: Can not castle short.")
+                raise ValueError("illegal san: {0}".format(repr(san)))
         elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
             move = Move(E1, C1) if self.turn == WHITE else Move(E8, C8)
             if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
                 return move
             else:
-                raise ValueError("Invalid SAN: Can not castle long.")
+                raise ValueError("illegal san: {0}".format(repr(san)))
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
         if not match:
-            raise ValueError("Invalid SAN.")
+            raise ValueError("invalid san: {0}".format(repr(san)))
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -2090,12 +2090,12 @@ class Bitboard(object):
                 continue
 
             if matched_move:
-                raise ValueError("Invalid SAN: Move is ambigous.")
+                raise ValueError("ambiguous san: {0}".format(repr(san)))
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError("Invalid SAN: No matching legal move found.")
+            raise ValueError("illegal san: {0}".format(repr(san)))
 
         return matched_move
 
