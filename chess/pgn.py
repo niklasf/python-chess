@@ -277,6 +277,9 @@ class Game(GameNode):
 
         super(Game, self).export(exporter, comments=comments, variations=variations)
 
+        exporter.put_result(self.headers["Result"])
+        exporter.end_game()
+
 
 class StringExporter(object):
     def __init__(self, columns=80):
@@ -341,11 +344,14 @@ class StringExporter(object):
     def put_move(self, board, move):
         self.write_token(board.san(move) + " ")
 
+    def put_result(self, result):
+        self.write_token(result + " ")
+
     def __str__(self):
         if self.current_line:
-            return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] ))
+            return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] )).rstrip()
         else:
-            return "\n".join(self.lines)
+            return "\n".join(self.lines).rstrip()
 
 
 class FileExporter(StringExporter):
