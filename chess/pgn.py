@@ -346,3 +346,20 @@ class StringExporter(object):
             return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] ))
         else:
             return "\n".join(self.lines)
+
+
+class FileExporter(StringExporter):
+
+    def __init__(self, handle, columns=80):
+        super(StringExporter, self).__init__(columns=columns)
+        self.handle = handle
+
+    def flush_current_line(self):
+        if self.current_line:
+            self.handle.write(self.current_line)
+            self.handle.write("\n")
+        self.current_line = ""
+
+    def write_line(self, line=""):
+        self.handle.write(line)
+        self.handle.write("\n")
