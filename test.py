@@ -578,6 +578,18 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["FEN"], fen)
         self.assertEqual(game.headers["SetUp"], "1")
 
+    def test_promote_to_main(self):
+        e4 = chess.Move.from_uci("e2e4")
+        d4 = chess.Move.from_uci("d2d4")
+
+        node = chess.pgn.Game()
+        node.add_variation(e4)
+        node.add_variation(d4)
+        self.assertEqual(list(node.variations), [ e4, d4 ])
+
+        node.promote_to_main(d4)
+        self.assertEqual(list(node.variations), [ d4, e4 ])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -186,7 +186,7 @@ class GameNode(object):
         except AttributeError:
             # OrderedDict.move_to_end() is only available from Python 3.2
             # upwards.
-            for key, value in list(self.variations.items):
+            for key, value in list(self.variations.items()):
                 if key != move:
                     del self.variations[key]
                     self.variations[key] = value
