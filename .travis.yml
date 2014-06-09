@@ -2,4 +2,7 @@ language: python
 python:
  - "2.7"
  - "3.4"
-script: nosetests test.py perft.py
+script:
+ - nosetests test.py
+ - python -m doctest README.rst
+ - nosetests perft.py
