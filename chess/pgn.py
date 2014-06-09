@@ -21,6 +21,7 @@ import io
 import sys
 import collections
 import itertools
+import re
 
 
 NAG_NULL = 0
@@ -51,6 +52,23 @@ NAG_WHITE_MODERATE_TIME_PRESSURE = 136
 NAG_BLACK_MODERATE_TIME_PRESSURE = 137
 NAG_WHITE_SEVERE_TIME_PRESSURE = 138
 NAG_BLACK_SEVERE_TIME_PRESSURE = 139
+
+
+TAG_REGEX = re.compile(r"\[([A-Za-z0-9]+)\s+\"(.*)\"\]")
+
+MOVETEXT_REGEX = re.compile(r"""
+    (\;.*?[\n\r])
+    |(\{.*?[^\\]\})
+    |(\$[0-9]+)
+    |(\()
+    |(\))
+    |(\*|1-0|0-1|1/2-1/2)
+    |(
+        ([a-hKQRBN][a-hxKQRBN1-8+#=\-]{1,6}
+        |O-O(?:\-O)?)
+        ([\?!]{1,2})*
+    )
+    """, re.DOTALL | re.VERBOSE)
 
 
 def scan_offsets(handle):
@@ -381,3 +399,38 @@ class FileExporter(StringExporter):
     def write_line(self, line=""):
         self.handle.write(line)
         self.handle.write("\n")
+
+
+def read_game(handle):
+    game = Game()
+
+    line = handle.readline()
+    while line:
+        # Skip empty lines and comments.
+        line = line.strip()
+        if not line or line.startswith("%"):
+            line = handle.readline()
+            continue
+
+        # Read header tags.
+        tag_match = TAG_REGEX.match(line)
+        if tag_match:
+            game.headers[tag_match.group(1)] = tag_match.group(2)
+        else:
+            break
+
+
+        line = handle.readline()
+
+    # Get the next non-empty line.
+    if not line:
+        line = handle.readline()
+
+    # Parse movetext.
+    while line:
+        # Skip empty lines and comments.
+        # TODO: Parse
+
+        line = handle.readline()
+
+    return game
