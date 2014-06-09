@@ -57,8 +57,8 @@ NAG_BLACK_SEVERE_TIME_PRESSURE = 139
 TAG_REGEX = re.compile(r"\[([A-Za-z0-9]+)\s+\"(.*)\"\]")
 
 MOVETEXT_REGEX = re.compile(r"""
-    (\;.*?[\n\r])
-    |(\{.*?[^\\]\})
+    (%.*?[\n\r])
+    |(\{.*)
     |(\$[0-9]+)
     |(\()
     |(\))
@@ -254,7 +254,7 @@ class GameNode(object):
             if not variations:
                 break
 
-    def __str__(comment=True, variations=True):
+    def __str__(self, comment=True, variations=True):
         exporter = StringExporter(columns=None)
         self.export(exporter)
         return exporter.__str__()
@@ -426,11 +426,70 @@ def read_game(handle):
     if not line:
         line = handle.readline()
 
+    # Movetext parser state.
+    start_comment = ""
+    variation_stack = [ game ]
+    in_variation = False
+
     # Parse movetext.
     while line:
-        # Skip empty lines and comments.
-        # TODO: Parse
+        read_next_line = True
 
-        line = handle.readline()
+        for match in MOVETEXT_REGEX.finditer(line):
+            token = match.group(0)
+
+            if token.startswith("%"):
+                # Ignore the rest of the line.
+                line = handle.readline()
+                continue
+            elif token.startswith("{"):
+                # Consume until the end of the comment.
+                line = token[1:]
+                comment_lines = [ ]
+                while line and not "}" in line:
+                    comment_lines.append(line.rstrip())
+                    line = handle.readline()
+                end_index = line.find("}")
+                comment_lines.append(line[:end_index])
+                if "}" in line:
+                    line = line[end_index:]
+                else:
+                    line = ""
+
+                # Add the comment.
+                if in_variation:
+                    variation_stack[-1].comment = "\n".join(comment_lines).strip()
+                elif len(variation_stack) == 1:
+                    variation_stack[0].start_comment = "\n".join(comment_lines).strip()
+                else:
+                    start_comment += "\n".join(comment_lines)
+
+                # Continue with the current or the next line.
+                if line:
+                    read_next_line = False
+                break
+            elif token.startswith("$"):
+                # Found a NAG.
+                variation_stack[-1].nags.append(int(token[1:]))
+            elif token == "(":
+                # Found a start variation token.
+                variation_stack.append(variation_stack[-1].parent)
+                in_variation = False
+            elif token == ")":
+                # Found a close variation token.
+                variation_stack.pop()
+            elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
+                # Found a result token.
+                return game
+            else:
+                # Found a SAN token.
+                in_variation = True
+                board = variation_stack[-1].board()
+                variation_stack[-1] = variation_stack[-1].add_variation(board.parse_san(token))
+                variation_stack[-1].start_comment = start_comment.strip()
+                start_comment = ""
+
+        if read_next_line:
+            line = handle.readline()
 
     return game
