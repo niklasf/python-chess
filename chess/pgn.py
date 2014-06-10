@@ -17,8 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import io
-import sys
 import collections
 import itertools
 import re
@@ -130,6 +128,15 @@ class GameNode(object):
 
         while node.parent:
             node = node.parent
+
+        return node
+
+    def end(self):
+        """Follows the main variation to the end and returns the last node."""
+        node = self
+
+        while node.variations:
+            node = node.variations[0]
 
         return node
 
