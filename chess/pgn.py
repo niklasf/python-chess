@@ -65,6 +65,7 @@ MOVETEXT_REGEX = re.compile(r"""
     |(\*|1-0|0-1|1/2-1/2)
     |(
         ([a-hKQRBN][a-hxKQRBN1-8+#=\-]{1,6}
+        |--
         |O-O(?:\-O)?)
         ([\?!]{1,2})*
     )
