@@ -105,7 +105,7 @@ class GameNode(object):
         self.move = None
         """The move that leads to the node."""
 
-        self.nags = [ ]
+        self.nags = set()
         """Numeric annotation glyphs."""
 
         self.starting_comment = ""
@@ -205,7 +205,7 @@ class GameNode(object):
     def add_variation(self, move, comment="", starting_comment="", nags=[]):
         node = GameNode()
         node.move = move
-        node.nags = list(nags)
+        node.nags = set(nags)
         node.parent = self
         node.comment = comment
         node.starting_comment = starting_comment
@@ -359,7 +359,7 @@ class StringExporter(object):
         self.write_token("{ " + comment.replace("}", "").strip() + " } ")
 
     def put_nags(self, nags):
-        for nag in nags:
+        for nag in sorted(nags):
             self.put_nag(nag)
 
     def put_nag(self, nag):
@@ -470,7 +470,7 @@ def read_game(handle):
                 break
             elif token.startswith("$"):
                 # Found a NAG.
-                variation_stack[-1].nags.append(int(token[1:]))
+                variation_stack[-1].nags.add(int(token[1:]))
             elif token == "(":
                 # Found a start variation token.
                 variation_stack.append(variation_stack[-1].parent)
