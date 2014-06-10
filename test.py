@@ -611,6 +611,22 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(second_game.headers["Event"], "IBM Man-Machine, New York USA")
         self.assertEqual(second_game.headers["Site"], "02")
 
+    def test_comment_at_eol(self):
+        pgn = StringIO.StringIO(textwrap.dedent("""\
+            1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
+            /\ Ne7, c6}) *"""))
+
+        game = chess.pgn.read_game(pgn)
+
+        # Seek the node after 6.Nbd2 and before 6...a6.
+        node = game
+        while node.variations and not node.has_variation(chess.Move.from_uci("a7a6")):
+            node = node.variation(0)
+
+        # Make sure the comment for the second variation is there.
+        self.assertTrue(5 in node.variation(1).nags)
+        self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
+
 
 if __name__ == "__main__":
     unittest.main()
