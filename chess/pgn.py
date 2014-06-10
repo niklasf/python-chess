@@ -412,8 +412,7 @@ def read_game(handle):
     # Parse game headers.
     while line:
         # Skip empty lines and comments.
-        line = line.strip()
-        if not line or line.startswith("%"):
+        if not line.strip() or line.strip().startswith("%"):
             line = handle.readline()
             continue
 
@@ -425,7 +424,6 @@ def read_game(handle):
             game.headers[tag_match.group(1)] = tag_match.group(2)
         else:
             break
-
 
         line = handle.readline()
 
