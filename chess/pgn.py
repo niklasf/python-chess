@@ -225,8 +225,9 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
-    def export(self, exporter, comments=True, variations=True):
-        board = self.board()
+    def export(self, exporter, comments=True, variations=True, _board=None):
+        if _board is None:
+            _board = self.board()
 
         for index, variation in enumerate(self.variations):
             # Open varation.
@@ -238,10 +239,10 @@ class GameNode(object):
                 exporter.put_starting_comment(variation.starting_comment)
 
             # Append ply.
-            exporter.put_ply(board.turn, board.ply, index != 0)
+            exporter.put_ply(_board.turn, _board.ply, index != 0)
 
             # Append SAN.
-            exporter.put_move(board, variation.move)
+            exporter.put_move(_board, variation.move)
 
             # Append NAGs.
             if comments:
@@ -252,7 +253,9 @@ class GameNode(object):
                 exporter.put_comment(variation.comment)
 
             # Recursively append the next moves.
-            variation.export(exporter, comments, variations)
+            _board.push(variation.move)
+            variation.export(exporter, comments, variations, _board)
+            _board.pop()
 
             # End variation.
             if index != 0:
