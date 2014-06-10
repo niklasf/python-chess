@@ -49,6 +49,16 @@ Features
       >>> chess.Move.from_uci("a8a1") in board.legal_moves
       False
 
+* Make and unmake moves.
+
+  ::
+
+      >>> Qf7 = board.pop() # Unmake last move (Qf7#)
+      >>> Qf7
+      Move.from_uci('h5f7')
+
+      >>> board.push(Qf7) # Restore
+
 * Detects checkmates, stalemates and draws by insufficient material.
   Has a half-move clock.
 
@@ -60,6 +70,8 @@ Features
       False
       >>> board.is_game_over()
       True
+      >>> board.half_moves
+      0
 
 * Detects checks and attacks.
 
@@ -69,6 +81,13 @@ Features
       True
       >>> board.is_attacked_by(chess.WHITE, chess.E8)
       True
+
+      >>> attackers = board.attackers(chess.WHITE, chess.F3)
+      >>> attackers
+      SquareSet(0b100000001000000)
+      >>> chess.G2 in attackers
+      True
+
 
 * Parses and creates SAN representation of moves.
 
