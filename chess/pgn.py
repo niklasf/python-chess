@@ -329,7 +329,7 @@ class StringExporter(object):
 
     def write_line(self, line=""):
         self.flush_current_line()
-        self.lines.append(line)
+        self.lines.append(line.rstrip())
 
     def start_game(self):
         pass
@@ -387,17 +387,18 @@ class StringExporter(object):
 class FileExporter(StringExporter):
 
     def __init__(self, handle, columns=80):
-        super(StringExporter, self).__init__(columns=columns)
+        super(FileExporter, self).__init__(columns=columns)
         self.handle = handle
 
     def flush_current_line(self):
         if self.current_line:
-            self.handle.write(self.current_line)
+            self.handle.write(self.current_line.rstrip())
             self.handle.write("\n")
         self.current_line = ""
 
     def write_line(self, line=""):
-        self.handle.write(line)
+        self.flush_current_line()
+        self.handle.write(line.rstrip())
         self.handle.write("\n")
 
 
