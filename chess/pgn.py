@@ -404,14 +404,19 @@ class FileExporter(StringExporter):
 
 def read_game(handle):
     game = Game()
+    found_game = False
 
     line = handle.readline()
+
+    # Parse game headers.
     while line:
         # Skip empty lines and comments.
         line = line.strip()
         if not line or line.startswith("%"):
             line = handle.readline()
             continue
+
+        found_game = True
 
         # Read header tags.
         tag_match = TAG_REGEX.match(line)
@@ -424,7 +429,7 @@ def read_game(handle):
         line = handle.readline()
 
     # Get the next non-empty line.
-    if not line:
+    while not line.strip():
         line = handle.readline()
 
     # Movetext parser state.
@@ -436,6 +441,10 @@ def read_game(handle):
     while line:
         read_next_line = True
 
+        # An empty line is the end of a game.
+        if not line.strip() and found_game:
+            return game
+
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
 
@@ -443,7 +452,11 @@ def read_game(handle):
                 # Ignore the rest of the line.
                 line = handle.readline()
                 continue
-            elif token.startswith("{"):
+
+            found_game = True
+
+            if token.startswith("{"):
+
                 # Consume until the end of the comment.
                 line = token[1:]
                 comment_lines = [ ]
@@ -481,7 +494,8 @@ def read_game(handle):
                 variation_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 # Found a result token.
-                return game
+                if not "Result" in game.headers:
+                    game.headers["Result"] = token
             else:
                 # Found a SAN token.
                 in_variation = True
@@ -493,4 +507,5 @@ def read_game(handle):
         if read_next_line:
             line = handle.readline()
 
-    return game
+    if found_game:
+        return game
