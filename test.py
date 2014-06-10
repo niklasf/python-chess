@@ -22,7 +22,11 @@ import chess.polyglot
 import chess.pgn
 import unittest
 import textwrap
-import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 class MoveTestCase(unittest.TestCase):
@@ -562,7 +566,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
-        virtual_file = StringIO.StringIO()
+        virtual_file = StringIO()
         exporter = chess.pgn.FileExporter(virtual_file)
         game.export(exporter)
         self.assertEqual(virtual_file.getvalue(), pgn + "\n\n")
@@ -612,7 +616,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(second_game.headers["Site"], "02")
 
     def test_comment_at_eol(self):
-        pgn = StringIO.StringIO(textwrap.dedent("""\
+        pgn = StringIO(textwrap.dedent("""\
             1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
             /\ Ne7, c6}) *"""))
 
