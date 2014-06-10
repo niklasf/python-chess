@@ -606,6 +606,11 @@ class PgnTestCase(unittest.TestCase):
         pgn = open("data/games/kasparov-deep-blue-1997.pgn")
         first_game = chess.pgn.read_game(pgn)
         second_game = chess.pgn.read_game(pgn)
+        third_game = chess.pgn.read_game(pgn)
+        fourth_game = chess.pgn.read_game(pgn)
+        fifth_game = chess.pgn.read_game(pgn)
+        sixth_game = chess.pgn.read_game(pgn)
+        self.assertFalse(chess.pgn.read_game(pgn))
         pgn.close()
 
         self.assertEqual(first_game.headers["Event"], "IBM Man-Machine, New York USA")
