@@ -1709,7 +1709,7 @@ class Bitboard(object):
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
         if len(parts) < 4:
-            raise ValueError("EPD should consist of at least 4 parts.")
+            raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
 
         operations = { }
 
@@ -1885,12 +1885,12 @@ class Bitboard(object):
         # Ensure there are six parts.
         parts = fen.split()
         if len(parts) != 6:
-            raise ValueError("A FEN string should consist of 6 parts.")
+            raise ValueError("fen string should consist of 6 parts: {0}".format(repr(fen)))
 
         # Ensure the board part is valid.
         rows = parts[0].split("/")
         if len(rows) != 8:
-            raise ValueError("Expected 8 rows in position part of FEN.")
+            raise ValueError("expected 8 rows in position part of fen: {0}".format(repr(fen)))
 
         # Validate each row.
         for row in rows:
@@ -1900,42 +1900,43 @@ class Bitboard(object):
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                     if previous_was_digit:
-                        raise ValueError("Two subsequent digits in position part of FEN.")
+                        raise ValueError("two subsequent digits in position part of fen: {0}".format(repr(fen)))
                     field_sum += int(c)
                     previous_was_digit = True
                 elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
                     field_sum += 1
                     previous_was_digit = False
                 else:
-                    raise ValueError("Invalid character in position part of FEN.")
+                    raise ValueError("invalid character in position part of fen: {0}".format(repr(fen)))
 
             if field_sum != 8:
-                raise ValueError("Expected 8 columns per row in position part of FEN.")
+                raise ValueError("expected 8 columns per row in position part of fen: {0}".format(repr(fen)))
 
         # Check that the turn part is valid.
         if not parts[1] in ["w", "b"]:
-            raise ValueError("Expected w or b for turn part of FEN.")
+            raise ValueError("expected 'w' or 'b' for turn part of fen: {0}".format(repr(fen)))
 
         # Check that the castling part is valid.
         if not FEN_CASTLING_REGEX.match(parts[2]):
-            raise ValueError("Invalid castling part in FEN.")
+            raise ValueError("invalid castling part in fen: {0}".format(repr(fen)))
 
         # Check that the en-passant part is valid.
         if parts[3] != "-":
             if parts[1] == "w":
                 if rank_index(SQUARE_NAMES.index(parts[3])) != 5:
-                    raise ValueError("Expected en-passant square to be on sixth rank.")
+                    raise ValueError("expected en-passant square to be on sixth rank: {0}".format(repr(fen)))
             else:
                 if rank_index(SQUARE_NAMES.index(parts[3])) != 2:
-                    raise ValueError("Expected en-passant square to be on third rank.")
+                    raise ValueError("expected en-passant square to be on third rank: {0}".format(repr(fen)))
 
         # Check that the half move part is valid.
         if int(parts[4]) < 0:
-            raise ValueError("Half moves can not be negative.")
+            raise ValueError("half moves can not be negative: {0}".format(repr(fen)))
 
         # Check that the ply part is valid.
-        if int(parts[5]) <= 0:
-            raise ValueError("Ply must be positive.")
+        # 0 is allowed for compability but later replaced with 1.
+        if int(parts[5]) < 0:
+            raise ValueError("ply must be positive: {0}".format(repr(fen)))
 
         # Clear board.
         self.pawns = BB_VOID
@@ -1991,7 +1992,7 @@ class Bitboard(object):
 
         # Set the mover counters.
         self.half_moves = int(parts[4])
-        self.ply = int(parts[5])
+        self.ply = int(parts[5]) or 1
 
     def fen(self):
         """Gets the FEN representation of the position."""
