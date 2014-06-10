@@ -439,7 +439,7 @@ def read_game(handle):
         line = handle.readline()
 
     # Get the next non-empty line.
-    while not line.strip():
+    while not line.strip() and line:
         line = handle.readline()
 
     # Movetext parser state.
