@@ -18,6 +18,7 @@
 
 import chess
 import collections
+import copy
 import itertools
 import re
 
@@ -443,7 +444,8 @@ def read_game(handle):
 
     # Movetext parser state.
     start_comment = ""
-    variation_stack = [ game ]
+    variation_stack = collections.deque([ game ])
+    board_stack = collections.deque([ game.board() ])
     in_variation = False
 
     # Parse movetext.
@@ -497,10 +499,16 @@ def read_game(handle):
             elif token == "(":
                 # Found a start variation token.
                 variation_stack.append(variation_stack[-1].parent)
+
+                board = copy.deepcopy(board_stack[-1])
+                board.pop()
+                board_stack.append(board)
+
                 in_variation = False
             elif token == ")":
                 # Found a close variation token.
                 variation_stack.pop()
+                board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 # Found a result token.
                 if not "Result" in game.headers:
@@ -508,9 +516,10 @@ def read_game(handle):
             else:
                 # Found a SAN token.
                 in_variation = True
-                board = variation_stack[-1].board()
+                board = board_stack[-1]
                 variation_stack[-1] = variation_stack[-1].add_variation(board.parse_san(token))
                 variation_stack[-1].start_comment = start_comment.strip()
+                board_stack[-1].push(variation_stack[-1].move)
                 start_comment = ""
 
         if read_next_line:
