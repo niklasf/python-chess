@@ -2327,12 +2327,17 @@ class Bitboard(object):
 
         return False
 
-    def __hash__(self):
+    def zobrist_hash(self, array=POLYGLOT_RANDOM_ARRAY):
         """
-        Gets a Polyglot compatible Zobrist hash of the current position.
+        Returns a Zobrist hash of the current position.
 
-        Careful: Since positions are mutable objects you need to make sure
-        not to change them when using them as keys in a dictionary.
+        A zobrist hash is an exclusive or of pseudo random values picked from
+        an array. Which values are picked is decided by features of the
+        position, such as piece positions, castling rights and en-passant
+        squares. For this implementation an array of 781 values is required.
+
+        The default behaviour is to use values from POLYGLOT_RANDOM_ARRAY,
+        which makes for hashes compatible with polyglot opening books.
         """
         zobrist_hash = 0
 
@@ -2341,23 +2346,23 @@ class Bitboard(object):
         while squares:
             square, squares = next_bit(squares)
             piece_index = (self.piece_type_at(square) - 1) * 2
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
         squares = self.occupied_co[WHITE]
         while squares:
             square, squares = next_bit(squares)
             piece_index = (self.piece_type_at(square) - 1) * 2 + 1
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
         # Hash in the castling flags.
         if self.castling_rights & CASTLING_WHITE_KINGSIDE:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768]
+            zobrist_hash ^= array[768]
         if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 1]
+            zobrist_hash ^= array[768 + 1]
         if self.castling_rights & CASTLING_BLACK_KINGSIDE:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 2]
+            zobrist_hash ^= array[768 + 2]
         if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 3]
+            zobrist_hash ^= array[768 + 3]
 
         # Hash in the en-passant file.
         if self.ep_square:
@@ -2370,11 +2375,11 @@ class Bitboard(object):
             ep_mask = shift_left(ep_mask) | shift_right(ep_mask)
 
             if ep_mask & self.pawns & self.occupied_co[self.turn]:
-                zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[772 + file_index(self.ep_square)]
+                zobrist_hash ^= array[772 + file_index(self.ep_square)]
 
         # Hash in the turn.
         if self.turn == WHITE:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[780]
+            zobrist_hash ^= array[780]
 
         return zobrist_hash
 

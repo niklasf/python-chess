@@ -93,7 +93,7 @@ class Reader(object):
 
     def seek_position(self, position):
         # Calculate the position hash.
-        key = position.__hash__()
+        key = position.zobrist_hash()
 
         # Do a binary search.
         start = 0
@@ -134,7 +134,7 @@ class Reader(object):
         return Entry(key, raw_move, weight, learn)
 
     def get_entries_for_position(self, position):
-        zobrist_hash = position.__hash__()
+        zobrist_hash = position.zobrist_hash()
 
         # Seek the position. Stop iteration if not entry exists.
         try:

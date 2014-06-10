@@ -78,7 +78,7 @@ def read_eco(source):
                         result[eco] = {
                             "eco": eco,
                             "fen": position.fen(),
-                            "hash": position.__hash__(),
+                            "hash": position.zobrist_hash(),
                             "name": name,
                         }
                         state = 0
