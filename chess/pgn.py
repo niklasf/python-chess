@@ -76,7 +76,18 @@ def scan_offsets(handle):
     Scan a PGN file opened in text mode.
 
     Yields the starting offsets of all the games, so that they can be seeked
-    later.
+    later. Since actually parsing many games from a big file is relatively
+    expensive, this is a better way to read only a specific game.
+
+    >>> pgn = open("mega.pgn")
+    >>> offsets = chess.pgn.scan_offsets(pgn)
+    >>> first_game_offset = next(offsets)
+    >>> second_game_offset = next(offsets)
+    >>> pgn.seek(second_game_offset)
+    >>> second_game = chess.pgn.read_game(pgn)
+
+    The PGN standard requires each game to start with an Event-tag. So does this
+    scanner.
     """
     in_comment = False
 
@@ -415,6 +426,44 @@ class FileExporter(StringExporter):
 
 
 def read_game(handle):
+    """
+    Reads a game from a file opened in text mode.
+
+    By using text mode the parser does not need to handle encodings. It is the
+    callers responsibility to open the file with the correct encoding.
+    According to the specification PGN files should be ASCII. Also UTF-8 is
+    common. So this is usually not a problem.
+
+    >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+    >>> first_game = chess.pgn.read_game(pgn)
+    >>> second_game = chess.pgn.read_game(pgn)
+    >>>
+    >>> first_game.headers["Event"]
+    'IBM Man-Machine, New York USA'
+
+    Use `StringIO` to parse games from a string.
+
+    >>> pgn_string = "1. e4 e5 2. Nf3 *"
+    >>>
+    >>> try:
+    >>>     from StringIO import StringIO # Python 2
+    >>> except ImportError:
+    >>>     from io import StringIO # Python 3
+    >>>
+    >>> pgn = StringIO(pgn_string)
+    >>> game = chess.pgn.read_game(pgn)
+
+    The end of a game is determined by a completely blank line or the end of
+    the file. (Of course blank lines in comments are possible.)
+
+    According to the standard at least the usual 7 header tags are required
+    for a valid game. This parser also handles games without any headers just
+    fine.
+
+    Raises `ValueError` if invalid moves are encountered in the movetext.
+
+    Returns the parsed game or `None` if the EOF is reached.
+    """
     game = Game()
     found_game = False
 
