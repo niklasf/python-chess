@@ -75,31 +75,24 @@ class GameNode(object):
 
     def __init__(self):
         self.parent = None
-        """The parent node in the game."""
-
         self.move = None
-        """The move that leads to the node."""
-
         self.nags = set()
-        """Numeric annotation glyphs."""
-
         self.starting_comment = ""
-        """Comment before the variation started by this node."""
-
         self.comment = ""
-        """Commend after this node."""
-
         self.variations = [ ]
-        """A list of child nodes representing variations."""
 
     def board(self):
-        """Gets the position of the node."""
+        """
+        Gets a bitboard with the position of the node.
+
+        Its a copy, so modifying the board will not alter the game.
+        """
         board = self.parent.board()
         board.push(self.move)
         return board
 
     def root(self):
-        """Gets the root node."""
+        """Gets the root node, i.e. the game."""
         node = self
 
         while node.parent:
@@ -119,7 +112,7 @@ class GameNode(object):
     def starts_variation(self):
         """
         Checks if this node starts a variation (and can thus have a starting
-        comment).
+        comment). The beginning of the game is also the start of a variation.
         """
         if not self.parent or not self.parent.variations:
             return True
@@ -171,12 +164,14 @@ class GameNode(object):
         self.variations.insert(0, variation)
 
     def promote(self, move):
+        """Moves the given variation one up in the list of variations."""
         variation = self.variation(move)
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
     def demote(self, move):
+        """Moves the given variation one down in the list of variations."""
         variation = self.variation(move)
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
@@ -186,7 +181,8 @@ class GameNode(object):
         """Removes a variation by move."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move, comment="", starting_comment="", nags=[]):
+    def add_variation(self, move, comment="", starting_comment="", nags=set()):
+        """Creates a child node with the given attributes."""
         node = GameNode()
         node.move = move
         node.nags = set(nags)
@@ -197,6 +193,10 @@ class GameNode(object):
         return node
 
     def add_main_variation(self, move, comment=""):
+        """
+        Creates a child node with the given attributes and promotes it to the
+        main variation.
+        """
         node = self.add_variation(move, comment=comment)
         self.promote_to_main(move)
         return node
@@ -248,6 +248,30 @@ class GameNode(object):
 
 
 class Game(GameNode):
+    """
+    The root node of a game with extra information such as headers and the
+    starting position.
+
+    By default the following 7 headers are provided in an ordered dictionary:
+
+    >>> game = chess.pgn.Game()
+    >>> game.headers["Event"]
+    '?'
+    >>> game.headers["Site"]
+    '?'
+    >>> game.headers["Date"]
+    '????.??.??'
+    >>> game.headers["Round"]
+    '?'
+    >>> game.headers["White"]
+    '?'
+    >>> game.headers["Black"]
+    '?'
+    >>> game.headers["Result"]
+    '*'
+
+    Also has all the other properties and methods of `GameNode`.
+    """
 
     def __init__(self):
         super(Game, self).__init__()
@@ -262,12 +286,22 @@ class Game(GameNode):
         self.headers["Result"] = "*"
 
     def board(self):
+        """
+        Gets the starting position of the game as a bitboard.
+
+        Unless the `SetUp` and `FEN` header tags are set this is the default
+        starting position.
+        """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
             return chess.Bitboard(self.headers["FEN"])
         else:
             return chess.Bitboard()
 
     def setup(self, board):
+        """
+        Setup a specific starting position. This sets (or resets) the `SetUp`
+        and `FEN` header tags.
+        """
         try:
             fen = board.fen()
         except AttributeError:

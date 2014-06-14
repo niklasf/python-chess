@@ -4,11 +4,52 @@ PGN parsing and writing
 Game model
 ----------
 
+Games are represented as a tree of moves. Each `GameNode` can have extra
+information such as comments. The root node of a game
+(`Game` extends `GameNode`) also holds general information, such as game
+headers.
+
 .. autoclass:: chess.pgn.Game
     :members:
 
+    .. py:attribute:: headers
+
+        A `collections.OrderedDict()` of game headers.
+
 .. autoclass:: chess.pgn.GameNode
     :members:
+
+    .. py:attribute:: parent
+
+        The parent node or `None` if this is the root node of the game.
+
+    .. py:attribute:: move
+
+        The move leading to this node or `None` if this is the root node of the
+        game.
+
+    .. py:attribute:: nags
+        :annotation: = set()
+
+        A set of NAGs as integers. NAGs always go behind a move, so the root
+        node of the game can have none.
+
+    .. py:attribute:: comment
+        :annotation: = ''
+
+        A comment that goes behind the move leading to this node. The root
+        node of the game can have no comment.
+
+    .. py:attribute:: starting_comment
+        :annotation: = ''
+
+        A comment for the start of a variation or the game. Only nodes that
+        actually start a variation (`starts_variation()`) and the game itself
+        can have a starting comment.
+
+    .. py:attribute:: variations
+
+        A list of child nodes.
 
 Parsing
 -------
