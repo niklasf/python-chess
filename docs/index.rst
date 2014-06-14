@@ -8,6 +8,7 @@ Contents
 
     core
     pgn
+    polyglot
 
 Indices and tables
 ------------------

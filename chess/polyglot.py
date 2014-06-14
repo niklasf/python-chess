@@ -24,6 +24,7 @@ ENTRY_STRUCT = struct.Struct(">QHHI")
 
 
 class Entry(object):
+    """An entry from a polyglot opening book."""
 
     def __init__(self, key, raw_move, weight, learn):
         self.key = key
@@ -32,6 +33,7 @@ class Entry(object):
         self.learn = learn
 
     def move(self):
+        """Gets the move (as a `Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
         from_square = (self.raw_move >> 6) & 0x3f
@@ -63,6 +65,28 @@ class Entry(object):
 
 
 class Reader(object):
+    """
+    A reader for a polyglot opening book opened in binary mode. The file has to
+    be seekable.
+
+    Provides methods to seek entries for specific positions but also ways to
+    efficiently use the opening book like a list.
+
+    >>> # Get the number of entries
+    >>> len(reader)
+    92954
+
+    >>> # Get the nth entry
+    >>> entry = reader[n]
+
+    >>> # Iteration
+    >>> for entry in reader:
+    >>>     pass
+
+    >>> # Backwards iteration
+    >>> for entry in reversed(reader):
+    >>>     pass
+    """
 
     def __init__(self, handle):
         self.handle = handle
@@ -89,9 +113,19 @@ class Reader(object):
             yield self.next()
 
     def seek_entry(self, offset, whence=0):
+        """
+        Seek an entry by its index.
+
+        Translated directly to a low level seek on the binary file. `whence` is
+        equivalent."""
         self.handle.seek(offset * ENTRY_STRUCT.size, whence)
 
     def seek_position(self, position):
+        """
+        Seek the first entry for the given position.
+
+        Raises `KeyError` if there are no entries for the position.
+        """
         # Calculate the position hash.
         key = position.zobrist_hash()
 
@@ -124,16 +158,27 @@ class Reader(object):
         raise KeyError()
 
     def next_raw(self):
+        """
+        Reads the next raw entry as a tuple.
+
+        Raises `StopIteration` at the EOF.
+        """
         try:
             return ENTRY_STRUCT.unpack(self.handle.read(ENTRY_STRUCT.size))
         except struct.error:
             raise StopIteration()
 
     def next(self):
+        """
+        Reads the next `Entry`.
+
+        Raises `StopIteration` at the EOF.
+        """
         key, raw_move, weight, learn = self.next_raw()
         return Entry(key, raw_move, weight, learn)
 
     def get_entries_for_position(self, position):
+        """Seeks a specific position and yields all entries."""
         zobrist_hash = position.zobrist_hash()
 
         # Seek the position. Stop iteration if not entry exists.
@@ -165,4 +210,10 @@ class ClosableReader(Reader):
 
 
 def open_reader(path):
+    """
+    Creates a reader for the file at the given path.
+
+    >>> with open_reader("data/opening-books/performance.bin") as reader:
+    >>>    entries = reader.get_entries_for_position(board)
+    """
     return ClosableReader(open(path, "rb"))
