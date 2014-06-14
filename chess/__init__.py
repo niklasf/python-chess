@@ -713,7 +713,7 @@ class Piece(object):
         """
         Creates a piece instance from a piece symbol.
 
-        :raises ValueError: If the symbol is invalid.
+        Raises `ValueError` if the symbol is invalid.
         """
         if symbol.lower() == symbol:
             return cls(PIECE_SYMBOLS.index(symbol), BLACK)
@@ -727,9 +727,6 @@ class Move(object):
     type.
 
     Null moves are supported.
-
-    >>> bool(chess.Move.null())
-    False
     """
 
     def __init__(self, from_square, to_square, promotion=NONE):
@@ -783,7 +780,7 @@ class Move(object):
         """
         Parses an UCI string.
 
-        :raises ValueError: If the UCI string is invalid.
+        Raises `ValueError` if the UCI string is invalid.
         """
         if uci == "0000":
             return cls.null()
@@ -793,11 +790,20 @@ class Move(object):
             promotion = PIECE_SYMBOLS.index(uci[4])
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
         else:
-            raise ValueError("Expected UCI string to be of length 4 or 5.")
+            raise ValueError("expected uci string to be of length 4 or 5")
 
     @classmethod
     def null(cls):
-        """Gets a null move."""
+        """
+        Gets a null move.
+
+        A null move just passes the turn to the other side (and possibly
+        forfeits en-passant capturing). Null moves evaluate to `False` in
+        boolean contexts.
+
+        >>> bool(chess.Move.null())
+        False
+        """
         return cls(0, 0, NONE)
 
 
@@ -1340,7 +1346,7 @@ class Bitboard(object):
         """
         Gets a set of attackers of the given color for the given square.
 
-        :return: A set of squares.
+        Returns a set of squares.
         """
         return SquareSet(self.attacker_mask(color, square))
 
@@ -1631,9 +1637,7 @@ class Bitboard(object):
 
     def pop(self):
         """
-        Restores the previous position and removes the last move from the stack.
-
-        :return: The move removed from the stack.
+        Restores the previous position and returns the last move from the stack.
         """
         move = self.move_stack.pop()
 
@@ -1701,10 +1705,10 @@ class Bitboard(object):
         If present the `hmvc` and the `fmvn` are used to set the half move
         clock and the ply. Otherwise `0` and `1` are used.
 
-        :return: A dictionary of parsed operations. Values can be strings,
-                 integers, floats or move objects.
+        Returns a dictionary of parsed operations. Values can be strings,
+        integers, floats or move objects.
 
-        :raises ValueError: If the EPD string is invalid.
+        Raises `ValueError` if the EPD string is invalid.
         """
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
@@ -1789,15 +1793,14 @@ class Bitboard(object):
         """
         Gets an EPD representation of the current position.
 
+        EPD operations can be given as keyword arguments. Supported operands
+        are strings, integers, floats and moves. All other operands are
+        converted to strings.
+
         `hmvc` and `fmvc` are *not* included by default. You can use:
 
         >>> board.epd(hmvc=board.half_moves, fmvc=board.ply)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
-
-        :param **operations: EPD operations to append. The keys are used as
-                             opcodes. Supported operands are strings, integers,
-                             floats and moves. All other operands are converted
-                             to strings.
         """
         epd = []
         empty = 0
@@ -1880,7 +1883,7 @@ class Bitboard(object):
         """
         Parses a FEN and sets the position from it.
 
-        :raises ValueError: If the FEN string is invalid.
+        Rasies `ValueError` if the FEN string is invalid.
         """
         # Ensure there are six parts.
         parts = fen.split()
@@ -2018,7 +2021,7 @@ class Bitboard(object):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        :raises ValueError: If the SAN is invalid or ambigous.
+        Raises `ValueError` if the SAN is invalid or ambigous.
         """
         # Null moves.
         if san == "--":
@@ -2105,9 +2108,9 @@ class Bitboard(object):
         Parses a move in standard algebraic notation, makes the move and puts
         it on the the move stack.
 
-        :raises ValueError: If neither legal nor a null move.
+        Raises `ValueError` if neither legal nor a null move.
 
-        :return: The move.
+        Returns the move.
         """
         move = self.parse_san(san)
         self.push(move)
@@ -2327,7 +2330,7 @@ class Bitboard(object):
 
         return False
 
-    def zobrist_hash(self, array=POLYGLOT_RANDOM_ARRAY):
+    def zobrist_hash(self, array=None):
         """
         Returns a Zobrist hash of the current position.
 
@@ -2336,10 +2339,14 @@ class Bitboard(object):
         position, such as piece positions, castling rights and en-passant
         squares. For this implementation an array of 781 values is required.
 
-        The default behaviour is to use values from POLYGLOT_RANDOM_ARRAY,
+        The default behaviour is to use values from `POLYGLOT_RANDOM_ARRAY`,
         which makes for hashes compatible with polyglot opening books.
         """
         zobrist_hash = 0
+
+        # Default random array is polyglot compatible.
+        if array is None:
+            array=POLYGLOT_RANDOM_ARRAY
 
         # Hash in the board setup.
         squares = self.occupied_co[BLACK]
