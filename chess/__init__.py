@@ -2246,7 +2246,23 @@ class Bitboard(object):
         return "Bitboard('{0}')".format(self.fen())
 
     def __str__(self):
-        return self.fen()
+        builder = []
+
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if piece:
+                builder.append(piece.symbol())
+            else:
+                builder.append(".")
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if square != H1:
+                    builder.append("\n")
+            else:
+                builder.append(" ")
+
+        return "".join(builder)
 
     def __eq__(self, bitboard):
         return not self.__neq__(bitboard)
