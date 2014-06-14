@@ -71,42 +71,6 @@ MOVETEXT_REGEX = re.compile(r"""
     """, re.DOTALL | re.VERBOSE)
 
 
-def scan_offsets(handle):
-    """
-    Scan a PGN file opened in text mode.
-
-    Yields the starting offsets of all the games, so that they can be seeked
-    later. Since actually parsing many games from a big file is relatively
-    expensive, this is a better way to read only a specific game.
-
-    >>> pgn = open("mega.pgn")
-    >>> offsets = chess.pgn.scan_offsets(pgn)
-    >>> first_game_offset = next(offsets)
-    >>> second_game_offset = next(offsets)
-    >>> pgn.seek(second_game_offset)
-    >>> second_game = chess.pgn.read_game(pgn)
-
-    The PGN standard requires each game to start with an Event-tag. So does this
-    scanner.
-    """
-    in_comment = False
-
-    last_pos = handle.tell()
-    line = handle.readline()
-
-    while line:
-        if not in_comment and line.startswith("[Event \""):
-            yield last_pos
-        elif (not in_comment and "{" in line) or (in_comment and "}" in line):
-            if line.rfind("{") < line.rfind("}"):
-                in_comment = False
-            else:
-                in_comment = True
-
-        last_pos = handle.tell()
-        line = handle.readline()
-
-
 class GameNode(object):
 
     def __init__(self):
@@ -603,3 +567,39 @@ def read_game(handle):
 
     if found_game:
         return game
+
+
+def scan_offsets(handle):
+    """
+    Scan a PGN file opened in text mode.
+
+    Yields the starting offsets of all the games, so that they can be seeked
+    later. Since actually parsing many games from a big file is relatively
+    expensive, this is a better way to read only a specific game.
+
+    >>> pgn = open("mega.pgn")
+    >>> offsets = chess.pgn.scan_offsets(pgn)
+    >>> first_game_offset = next(offsets)
+    >>> second_game_offset = next(offsets)
+    >>> pgn.seek(second_game_offset)
+    >>> second_game = chess.pgn.read_game(pgn)
+
+    The PGN standard requires each game to start with an Event-tag. So does this
+    scanner.
+    """
+    in_comment = False
+
+    last_pos = handle.tell()
+    line = handle.readline()
+
+    while line:
+        if not in_comment and line.startswith("[Event \""):
+            yield last_pos
+        elif (not in_comment and "{" in line) or (in_comment and "}" in line):
+            if line.rfind("{") < line.rfind("}"):
+                in_comment = False
+            else:
+                in_comment = True
+
+        last_pos = handle.tell()
+        line = handle.readline()
