@@ -194,7 +194,7 @@ class GameNode(object):
             if move == variation.move or move == index:
                 return variation
 
-        raise KeyError("Variation not found.")
+        raise KeyError("variation not found")
 
     def has_variation(self, move):
         """Checks if the given move appears as a variation."""
