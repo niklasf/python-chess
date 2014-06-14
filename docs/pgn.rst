@@ -20,7 +20,13 @@ Parsing
 Writing
 -------
 
+Exporter objects are used to allow extensible formatting of PGN like data.
 
+.. autoclass:: chess.pgn.StringExporter
+    :members:
+
+.. autoclass:: chess.pgn.FileExporter
+    :members:
 
 NAGs
 ----
