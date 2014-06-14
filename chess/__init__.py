@@ -675,10 +675,7 @@ class Piece(object):
 
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
-        """The piece type."""
-
         self.color = color
-        """The color of the piece."""
 
     def symbol(self):
         """
@@ -726,18 +723,15 @@ class Move(object):
     Represents a move from a square to a square and possibly the promotion piece
     type.
 
+    Castling moves are identified only by the movement of the king.
+
     Null moves are supported.
     """
 
     def __init__(self, from_square, to_square, promotion=NONE):
         self.from_square = from_square
-        """The source square."""
-
         self.to_square = to_square
-        """The target square."""
-
         self.promotion = promotion
-        """The promotion piece type."""
 
     def uci(self):
         """
@@ -820,51 +814,8 @@ class Bitboard(object):
     """
 
     def __init__(self, fen=None):
-        self.ep_square = 0
-        """The potential en-passant square on the third or sixth rank."""
-
-        self.castling_rights = CASTLING
-        """Bitmask of castling rights."""
-
-        self.turn = WHITE
-        """The side to move."""
-
-        self.ply = 1
-        """
-        Counts full moves. Starts at `1` and is incremented after every move
-        of the black side.
-        """
-
-        self.half_moves = 0
-        """
-        The number of half moves since the last capture or pawn move.
-        """
-
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
-        """
-        A dynamic list of pseudo legal moves.
-
-        Pseudo legal moves might leave or put the king in check, but are
-        otherwise valid. Null moves are not pseudo legal. Castling moves are
-        only included if they are completely legal.
-
-        For performance moves are generated on the fly and only when nescessary.
-        The following operations are way more efficient than just generating
-        everything.
-
-        >>> len(board.pseudo_legal_moves)
-        20
-        >>> bool(board.pseudo_legal_moves)
-        True
-        >>> move in board.pseudo_legal_moves
-        True
-        """
-
         self.legal_moves = LegalMoveGenerator(self)
-        """
-        A dynamic list of completely legal moves, much like the pseudo legal
-        move list.
-        """
 
         if fen is None:
             self.reset()
