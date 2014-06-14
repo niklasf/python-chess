@@ -477,6 +477,19 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(chess.D4 in attackers)
         self.assertFalse(chess.E1 in attackers)
 
+    def test_clear(self):
+        board = chess.Bitboard()
+        board.clear()
+
+        self.assertEqual(board.turn, chess.WHITE)
+        self.assertEqual(board.ply, 1)
+        self.assertEqual(board.half_moves, 0)
+        self.assertEqual(board.castling_rights, chess.CASTLING_NONE)
+        self.assertFalse(board.ep_square)
+
+        self.assertFalse(board.piece_at(chess.E1))
+        self.assertEqual(chess.pop_count(board.occupied), 0)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
