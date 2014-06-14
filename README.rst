@@ -41,6 +41,8 @@ http://pythonhosted.org/python-chess/core.html
 Features
 --------
 
+* Supports Python 2.7 and Python 3.
+
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
