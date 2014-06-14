@@ -139,7 +139,8 @@ Features
 
       >>> book.close()
 
-* Read and write PGNs.
+* Read and write PGNs. Supports headers, comments, NAGs and a tree of
+  variations.
 
   ::
 
