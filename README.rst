@@ -36,7 +36,7 @@ This is the scholars mate in python-chess:
 Documentation
 -------------
 
-http://pythonhosted.org/python-chess/core.html
+http://python-chess.readthedocs.org/en/latest/
 
 Features
 --------
