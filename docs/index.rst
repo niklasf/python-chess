@@ -7,6 +7,7 @@ Contents
     :maxdepth: 2
 
     core
+    pgn
 
 Indices and tables
 ------------------
