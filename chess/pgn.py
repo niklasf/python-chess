@@ -335,6 +335,23 @@ class Game(GameNode):
 
 
 class StringExporter(object):
+    """
+    Allows exporting a game as a string.
+
+    The export method of `Game` also provides options to include or exclude
+    headers, variations or comments. By default everything is included.
+
+    >>> exporter = chess.pgn.StringExporter()
+    >>> game.export(exporter, headers=True, variations=True, comments=True)
+    >>> pgn_string = str(exporter)
+
+    Only `columns` characters are written per line. If `columns` is `None` then
+    the entire movetext will be on a single line. This does not affect header
+    tags and comments.
+
+    There will be no newlines at the end of the string.
+    """
+
     def __init__(self, columns=80):
         self.lines = [ ]
         self.columns = columns
@@ -408,6 +425,16 @@ class StringExporter(object):
 
 
 class FileExporter(StringExporter):
+    """
+    Like a StringExporter, but games are written directly to a text file.
+
+    There will always be a blank line after each game. Handling encodings is up
+    to the caller.
+
+    >>> new_pgn = open("new.pgn", "w")
+    >>> exporter = chess.pgn.FileExporter(new_pgn)
+    >>> game.export(exporter)
+    """
 
     def __init__(self, handle, columns=80):
         super(FileExporter, self).__init__(columns=columns)
