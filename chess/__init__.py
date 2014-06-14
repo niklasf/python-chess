@@ -874,6 +874,46 @@ class Bitboard(object):
         self.ep_square_stack = collections.deque()
         self.move_stack = collections.deque()
 
+    def clear(self):
+        """
+        Clears the board.
+
+        Resets move stacks and move counters. The side to move is white. There
+        are no rooks or kings, so castling is not allowed.
+
+        In order to be in a valid `status()` at least kings need to be put on
+        the board. This is required for move generation and validation to work
+        properly.
+        """
+        self.pawns = BB_VOID
+        self.knights = BB_VOID
+        self.bishops = BB_VOID
+        self.rooks = BB_VOID
+        self.queens = BB_VOID
+        self.kings = BB_VOID
+
+        self.occupied_co = [ BB_VOID, BB_VOID ]
+        self.occupied = BB_VOID
+
+        self.occupied_l90 = BB_VOID
+        self.occupied_r45 = BB_VOID
+        self.occupied_l45 = BB_VOID
+
+        self.king_squares = [ E1, E8 ]
+        self.pieces = [ NONE for i in range(64) ]
+
+        self.half_move_stack = collections.deque()
+        self.captured_piece_stack = collections.deque()
+        self.castling_right_stack = collections.deque()
+        self.ep_square_stack = collections.deque()
+        self.move_stack = collections.deque()
+
+        self.ep_square = 0
+        self.castling_rights = CASTLING_NONE
+        self.turn = WHITE
+        self.ply = 1
+        self.half_moves = 0
+
     def piece_at(self, square):
         """Gets the piece at the given square."""
         mask = BB_SQUARES[square]
@@ -1893,24 +1933,7 @@ class Bitboard(object):
             raise ValueError("ply must be positive: {0}".format(repr(fen)))
 
         # Clear board.
-        self.pawns = BB_VOID
-        self.knights = BB_VOID
-        self.bishops = BB_VOID
-        self.rooks = BB_VOID
-        self.queens = BB_VOID
-        self.kings = BB_VOID
-        self.occupied_co = [ BB_VOID, BB_VOID ]
-        self.occupied = BB_VOID
-        self.occupied_l90 = BB_VOID
-        self.occupied_r45 = BB_VOID
-        self.occupied_l45 = BB_VOID
-        self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for i in range(64) ]
-        self.half_move_stack = collections.deque()
-        self.captured_piece_stack = collections.deque()
-        self.castling_right_stack = collections.deque()
-        self.ep_square_stack = collections.deque()
-        self.move_stack = collections.deque()
+        self.clear()
 
         # Put pieces on the board.
         square_index = 0
