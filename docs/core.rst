@@ -92,7 +92,7 @@ Moves
 
         The target square.
 
-    .. py:attribute: promotion
+    .. py:attribute:: promotion
 
         The promotion piece type.
 
