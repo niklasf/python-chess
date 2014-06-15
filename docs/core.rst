@@ -61,6 +61,12 @@ and so on to
 .. py:data:: chess.H8
     :annotation: = 63
 
+.. py:data:: chess.SQUARES
+    :annotation: = [A1, B1, ..., G8, H8]
+
+.. py:data:: chess.SQUARE_NAMES
+    :annotation: = ['a1', 'b1', ..., 'g8', 'h8']
+
 .. autofunction:: chess.file_index
 .. autofunction:: chess.rank_index
 
