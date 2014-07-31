@@ -241,7 +241,7 @@ class GameNode(object):
             if not variations:
                 break
 
-    def __str__(self, comment=True, variations=True):
+    def __str__(self):
         exporter = StringExporter(columns=None)
         self.export(exporter)
         return exporter.__str__()
