@@ -9,7 +9,7 @@ Introduction
 
 This is the scholars mate in python-chess:
 
-::
+.. code:: python
 
     >>> import chess
 
@@ -43,7 +43,7 @@ Features
 
 * Supports Python 2.7 and Python 3.
 
-  ::
+  .. code:: python
 
       >>> # For compability of the following examples.
       >>> from __future__ import print_function
@@ -51,14 +51,14 @@ Features
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
-  ::
+  .. code:: python
 
       >>> chess.Move.from_uci("a8a1") in board.legal_moves
       False
 
 * Make and unmake moves.
 
-  ::
+  .. code:: python
 
       >>> Qf7 = board.pop() # Unmake last move (Qf7#)
       >>> Qf7
@@ -69,7 +69,7 @@ Features
 * Detects checkmates, stalemates and draws by insufficient material.
   Has a half-move clock.
 
-  ::
+  .. code:: python
 
       >>> board.is_stalemate()
       False
@@ -82,7 +82,7 @@ Features
 
 * Detects checks and attacks.
 
-  ::
+  .. code:: python
 
       >>> board.is_check()
       True
@@ -98,7 +98,7 @@ Features
 
 * Parses and creates SAN representation of moves.
 
-  ::
+  .. code:: python
 
       >>> board = chess.Bitboard()
       >>> board.san(chess.Move(chess.E2, chess.E4))
@@ -106,7 +106,7 @@ Features
 
 * Parses and creates FENs.
 
-  ::
+  .. code:: python
 
       >>> board.fen()
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
@@ -116,7 +116,7 @@ Features
 
 * Parses and creates EPDs.
 
-  ::
+  .. code:: python
 
       >>> board = chess.Bitboard()
       >>> board.epd(bm=chess.Move.from_uci("d2d4"))
@@ -128,7 +128,7 @@ Features
 
 * Read Polyglot opening books.
 
-  ::
+  .. code:: python
 
       >>> import chess.polyglot
 
@@ -147,7 +147,7 @@ Features
 * Read and write PGNs. Supports headers, comments, NAGs and a tree of
   variations.
 
-  ::
+  .. code:: python
 
       >>> import chess.pgn
 
