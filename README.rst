@@ -43,6 +43,11 @@ Features
 
 * Supports Python 2.7 and Python 3.
 
+  ::
+
+      >>> # For compability of the following examples.
+      >>> from __future__ import print_function
+
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
@@ -146,14 +151,34 @@ Features
 
       >>> import chess.pgn
 
-      >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+      >>> pgn = open("data/games/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
       >>> pgn.close()
 
       >>> first_game.headers["White"]
-      'Garry Kasparov'
+      'Molinari'
+      >>> first_game.headers["Black"]
+      'Bordais'
+
+      >>> # Iterate through the mainline of this embarrasingly short game.
+      >>> node = first_game
+      >>> while node.variations:
+      ...     next_node = node.variation(0)
+      ...     print(node.board().san(next_node.move))
+      ...     node = next_node
+      e4
+      c5
+      c4
+      Nc6
+      Ne2
+      Nf6
+      Nbc3
+      Nb4
+      g3
+      Nd3#
+
       >>> first_game.headers["Result"]
-      '1-0'
+      '0-1'
 
 Peformance
 ----------
