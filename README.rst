@@ -43,11 +43,6 @@ Features
 
 * Supports Python 2.7 and Python 3.
 
-  .. code:: python
-
-      >>> # For compability of the following examples.
-      >>> from __future__ import print_function
-
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
@@ -150,6 +145,7 @@ Features
   .. code:: python
 
       >>> import chess.pgn
+      >>> import sys
 
       >>> pgn = open("data/games/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
@@ -164,18 +160,18 @@ Features
       >>> node = first_game
       >>> while node.variations:
       ...     next_node = node.variation(0)
-      ...     print(node.board().san(next_node.move))
+      ...
+      ...     if node.board().turn == chess.WHITE:
+      ...         sys.stdout.write("{0}. {1} ".format(node.board().ply, node.board().san(next_node.move)))
+      ...     else:
+      ...         sys.stdout.write("{0}\n".format(node.board().san(next_node.move)))
+      ...
       ...     node = next_node
-      e4
-      c5
-      c4
-      Nc6
-      Ne2
-      Nf6
-      Nbc3
-      Nb4
-      g3
-      Nd3#
+      1. e4 c5
+      2. c4 Nc6
+      3. Ne2 Nf6
+      4. Nbc3 Nb4
+      5. g3 Nd3#
 
       >>> first_game.headers["Result"]
       '0-1'
