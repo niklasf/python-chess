@@ -541,7 +541,6 @@ def read_game(handle):
             found_game = True
 
             if token.startswith("{"):
-
                 # Consume until the end of the comment.
                 line = token[1:]
                 comment_lines = [ ]
