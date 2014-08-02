@@ -860,7 +860,7 @@ class Bitboard(object):
         self.castling_rights = CASTLING
         self.turn = WHITE
         self.ply = 1
-        self.half_moves = 0
+        self.halfmove_clock = 0
 
         for i in range(64):
             if BB_SQUARES[i] & self.occupied:
@@ -868,7 +868,7 @@ class Bitboard(object):
                 self.occupied_r45 |= BB_SQUARES_R45[i]
                 self.occupied_l45 |= BB_SQUARES_L45[i]
 
-        self.half_move_stack = collections.deque()
+        self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
@@ -902,7 +902,7 @@ class Bitboard(object):
         self.king_squares = [ E1, E8 ]
         self.pieces = [ NONE for i in range(64) ]
 
-        self.half_move_stack = collections.deque()
+        self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
@@ -912,7 +912,7 @@ class Bitboard(object):
         self.castling_rights = CASTLING_NONE
         self.turn = WHITE
         self.ply = 1
-        self.half_moves = 0
+        self.halfmove_clock = 0
 
     def piece_at(self, square):
         """Gets the piece at the given square."""
@@ -1545,7 +1545,7 @@ class Bitboard(object):
 
         # Remember game state.
         captured_piece = self.piece_type_at(move.to_square) if move else NONE
-        self.half_move_stack.append(self.half_moves)
+        self.halfmove_clock_stack.append(self.halfmove_clock)
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
         self.ep_square_stack.append(self.ep_square)
@@ -1555,15 +1555,15 @@ class Bitboard(object):
         if not move:
             self.turn ^= 1
             self.ep_square = 0
-            self.half_moves += 1
+            self.halfmove_clock += 1
             return
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
         if piece_type == PAWN or captured_piece:
-            self.half_moves = 0
+            self.halfmove_clock = 0
         else:
-            self.half_moves += 1
+            self.halfmove_clock += 1
 
         # Promotion.
         if move.promotion:
@@ -1637,7 +1637,7 @@ class Bitboard(object):
             self.ply -= 1
 
         # Restore state.
-        self.half_moves = self.half_move_stack.pop()
+        self.halfmove_clock = self.halfmove_clock_stack.pop()
         self.castling_rights = self.castling_right_stack.pop()
         self.ep_square = self.ep_square_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
@@ -1790,7 +1790,7 @@ class Bitboard(object):
 
         `hmvc` and `fmvc` are *not* included by default. You can use:
 
-        >>> board.epd(hmvc=board.half_moves, fmvc=board.ply)
+        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.ply)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
         epd = []
@@ -1925,7 +1925,7 @@ class Bitboard(object):
 
         # Check that the half move part is valid.
         if int(parts[4]) < 0:
-            raise ValueError("half moves can not be negative: {0}".format(repr(fen)))
+            raise ValueError("halfmove clock can not be negative: {0}".format(repr(fen)))
 
         # Check that the ply part is valid.
         # 0 is allowed for compability but later replaced with 1.
@@ -1968,7 +1968,7 @@ class Bitboard(object):
             self.ep_square = SQUARE_NAMES.index(parts[3])
 
         # Set the mover counters.
-        self.half_moves = int(parts[4])
+        self.halfmove_clock = int(parts[4])
         self.ply = int(parts[5]) or 1
 
     def fen(self):
@@ -1980,7 +1980,7 @@ class Bitboard(object):
 
         # Half moves.
         fen.append(" ")
-        fen.append(str(self.half_moves))
+        fen.append(str(self.halfmove_clock))
 
         # Ply.
         fen.append(" ")
@@ -2315,7 +2315,7 @@ class Bitboard(object):
             return True
         if self.ply != bitboard.ply:
             return True
-        if self.half_moves != bitboard.half_moves:
+        if self.halfmove_clock != bitboard.halfmove_clock:
             return True
 
         return False

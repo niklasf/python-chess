@@ -77,7 +77,7 @@ Features
       False
       >>> board.is_game_over()
       True
-      >>> board.half_moves
+      >>> board.halfmove_clock
       0
 
 * Detects checks and attacks.

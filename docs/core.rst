@@ -134,7 +134,7 @@ Bitboard
         Counts move pairs. Starts at `1` and is incremented after every move
         of the black side.
 
-    .. py:attribute:: half_moves
+    .. py:attribute:: halfmove_clock
 
         The number of half moves since the last capture or pawn move.
 
