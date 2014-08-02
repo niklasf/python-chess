@@ -66,8 +66,8 @@ MOVETEXT_REGEX = re.compile(r"""
         ([a-hKQRBN][a-hxKQRBN1-8+#=\-]{1,6}
         |--
         |O-O(?:\-O)?)
-        ([\?!]{1,2})*
     )
+    |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
 
 
@@ -569,6 +569,18 @@ def read_game(handle):
             elif token.startswith("$"):
                 # Found a NAG.
                 variation_stack[-1].nags.add(int(token[1:]))
+            elif token == "?":
+                variation_stack[-1].nags.add(NAG_MISTAKE)
+            elif token == "??":
+                variation_stack[-1].nags.add(NAG_BLUNDER)
+            elif token == "!":
+                variation_stack[-1].nags.add(NAG_GOOD_MOVE)
+            elif token == "!!":
+                variation_stack[-1].nags.add(NAG_BRILLIANT_MOVE)
+            elif token == "!?":
+                variation_stack[-1].nags.add(NAG_SPECULATIVE_MOVE)
+            elif token == "?!":
+                variation_stack[-1].nags.add(NAG_DUBIOUS_MOVE)
             elif token == "(":
                 # Found a start variation token.
                 variation_stack.append(variation_stack[-1].parent)

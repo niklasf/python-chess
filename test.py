@@ -649,6 +649,28 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(5 in node.variation(1).nags)
         self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
 
+    def test_annotation_symbols(self):
+        pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
+        game = chess.pgn.read_game(pgn)
+
+        node = game.variation(0)
+        self.assertTrue(chess.pgn.NAG_DUBIOUS_MOVE in node.nags)
+        self.assertEqual(len(node.nags), 1)
+
+        node = node.variation(0)
+        self.assertEqual(len(node.nags), 0)
+
+        node = node.variation(0)
+        self.assertEqual(len(node.nags), 0)
+
+        node = node.variation(0)
+        self.assertTrue(chess.pgn.NAG_MISTAKE in node.nags)
+        self.assertEqual(len(node.nags), 1)
+
+        node = node.variation(0)
+        self.assertTrue(chess.pgn.NAG_BRILLIANT_MOVE in node.nags)
+        self.assertEqual(len(node.nags), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
