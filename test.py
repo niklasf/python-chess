@@ -483,7 +483,7 @@ class BitboardTestCase(unittest.TestCase):
 
         self.assertEqual(board.turn, chess.WHITE)
         self.assertEqual(board.ply, 1)
-        self.assertEqual(board.half_moves, 0)
+        self.assertEqual(board.halfmove_clock, 0)
         self.assertEqual(board.castling_rights, chess.CASTLING_NONE)
         self.assertFalse(board.ep_square)
 

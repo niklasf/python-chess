@@ -68,7 +68,7 @@ def print_bitboard(bitboard):
 
 
 def minimax_value(bitboard, depth, eval_fn):
-    if bitboard.half_moves >= 50:
+    if bitboard.halfmove_clock >= 50:
         return 0
 
     if depth == 0:
@@ -116,7 +116,7 @@ def minimax(bitboard, depth, eval_fn):
     return best
 
 def alphabeta_value(bitboard, depth, alpha, beta, eval_fn):
-    if bitboard.half_moves >= 50:
+    if bitboard.halfmove_clock >= 50:
         return 0
 
     if depth == 0:
