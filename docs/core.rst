@@ -129,7 +129,7 @@ Bitboard
         does not matter if en-passant would actually be possible on the next
         move.
 
-    .. py:attribute:: ply
+    .. py:attribute:: fullmove_number
 
         Counts move pairs. Starts at `1` and is incremented after every move
         of the black side.

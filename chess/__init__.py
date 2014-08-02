@@ -859,7 +859,7 @@ class Bitboard(object):
         self.ep_square = 0
         self.castling_rights = CASTLING
         self.turn = WHITE
-        self.ply = 1
+        self.fullmove_number = 1
         self.halfmove_clock = 0
 
         for i in range(64):
@@ -911,7 +911,7 @@ class Bitboard(object):
         self.ep_square = 0
         self.castling_rights = CASTLING_NONE
         self.turn = WHITE
-        self.ply = 1
+        self.fullmove_number = 1
         self.halfmove_clock = 0
 
     def piece_at(self, square):
@@ -1539,9 +1539,9 @@ class Bitboard(object):
         >>> move in board.pseudo_legal_moves
         True
         """
-        # Increment ply.
+        # Increment fullmove number.
         if self.turn == BLACK:
-            self.ply += 1
+            self.fullmove_number += 1
 
         # Remember game state.
         captured_piece = self.piece_type_at(move.to_square) if move else NONE
@@ -1632,9 +1632,9 @@ class Bitboard(object):
         """
         move = self.move_stack.pop()
 
-        # Decrement ply.
+        # Decrement fullmove number.
         if self.turn == WHITE:
-            self.ply -= 1
+            self.fullmove_number -= 1
 
         # Restore state.
         self.halfmove_clock = self.halfmove_clock_stack.pop()
@@ -1694,7 +1694,7 @@ class Bitboard(object):
         Parses the given EPD string and uses it to set the position.
 
         If present the `hmvc` and the `fmvn` are used to set the half move
-        clock and the ply. Otherwise `0` and `1` are used.
+        clock and the fullmove number. Otherwise `0` and `1` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
         integers, floats or move objects.
@@ -1790,7 +1790,7 @@ class Bitboard(object):
 
         `hmvc` and `fmvc` are *not* included by default. You can use:
 
-        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.ply)
+        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
         epd = []
@@ -1927,10 +1927,10 @@ class Bitboard(object):
         if int(parts[4]) < 0:
             raise ValueError("halfmove clock can not be negative: {0}".format(repr(fen)))
 
-        # Check that the ply part is valid.
+        # Check that the fullmove number part is valid.
         # 0 is allowed for compability but later replaced with 1.
         if int(parts[5]) < 0:
-            raise ValueError("ply must be positive: {0}".format(repr(fen)))
+            raise ValueError("fullmove number must be positive: {0}".format(repr(fen)))
 
         # Clear board.
         self.clear()
@@ -1969,7 +1969,7 @@ class Bitboard(object):
 
         # Set the mover counters.
         self.halfmove_clock = int(parts[4])
-        self.ply = int(parts[5]) or 1
+        self.fullmove_number = int(parts[5]) or 1
 
     def fen(self):
         """Gets the FEN representation of the position."""
@@ -1984,7 +1984,7 @@ class Bitboard(object):
 
         # Ply.
         fen.append(" ")
-        fen.append(str(self.ply))
+        fen.append(str(self.fullmove_number))
 
         return "".join(fen)
 
@@ -2313,7 +2313,7 @@ class Bitboard(object):
             return True
         if self.turn != bitboard.turn:
             return True
-        if self.ply != bitboard.ply:
+        if self.fullmove_number != bitboard.fullmove_number:
             return True
         if self.halfmove_clock != bitboard.halfmove_clock:
             return True
