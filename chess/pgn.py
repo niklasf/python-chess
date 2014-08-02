@@ -214,8 +214,8 @@ class GameNode(object):
             if comments and variation.starting_comment:
                 exporter.put_starting_comment(variation.starting_comment)
 
-            # Append ply.
-            exporter.put_ply(_board.turn, _board.ply, index != 0)
+            # Append fullmove number.
+            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, index != 0)
 
             # Append SAN.
             exporter.put_move(_board, variation.move)
@@ -403,11 +403,11 @@ class StringExporter(object):
     def put_nag(self, nag):
         self.write_token("$" + str(nag) + " ")
 
-    def put_ply(self, turn, ply, variation_start):
+    def put_fullmove_number(self, turn, fullmove_number, variation_start):
         if turn == chess.WHITE:
-            self.write_token(str(ply) + ". ")
+            self.write_token(str(fullmove_number) + ". ")
         elif variation_start:
-            self.write_token(str(ply) + "... ")
+            self.write_token(str(fullmove_number) + "... ")
 
     def put_move(self, board, move):
         self.write_token(board.san(move) + " ")
