@@ -61,7 +61,26 @@ Parsing
 Writing
 -------
 
-Exporter objects are used to allow extensible formatting of PGN like data.
+If you want to export your game game with all headers, comments and variations
+you can use:
+
+>>> print(game)
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+<BLANKLINE>
+1. e4 e5 { Comment } *
+
+Remember that games in files should be separated with extra blank lines.
+
+>>> print(game, file=handle, end="\n\n")
+
+Use exporter objects if you need more control. Exporter objects are used to
+allow extensible formatting of PGN like data.
 
 .. autoclass:: chess.pgn.StringExporter
     :members:
