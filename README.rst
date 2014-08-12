@@ -39,17 +39,12 @@ This is the scholars mate in python-chess:
 Documentation
 -------------
 
-http://python-chess.readthedocs.org/en/latest/
+https://python-chess.readthedocs.org/en/latest/
 
 Features
 --------
 
 * Supports Python 2.7 and Python 3.
-
-  .. code:: python
-
-      >>> # For compability of the following examples.
-      >>> from __future__ import print_function
 
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
@@ -153,6 +148,9 @@ Features
   .. code:: python
 
       >>> import chess.pgn
+
+      >>> from __future__ import print_function # Python 2 compability of
+      >>>                                       # this example
 
       >>> pgn = open("data/games/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
