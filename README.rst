@@ -149,8 +149,8 @@ Features
 
       >>> import chess.pgn
 
-      >>> from __future__ import print_function # Python 2 compability of
-      >>>                                       # this example
+      >>> from __future__ import print_function # Python 2 compability for
+      >>>                                       # this example.
 
       >>> pgn = open("data/games/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
