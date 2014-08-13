@@ -6,8 +6,8 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Up for the next release
------------------------
+New in v0.3.0
+-------------
 
 * Rename property `half_moves` of `Bitboard` to `halfmove_clock`.
 
