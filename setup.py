@@ -55,7 +55,7 @@ setuptools.setup(
     long_description=read_description(),
     license="GPL3",
     keywords="chess fen pgn polyglot",
-    url="http://github.com/niklasf/python-chess",
+    url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     scripts=["scripts/ecotool", "scripts/python-chess"],
     classifiers=[
