@@ -22,17 +22,37 @@ import distutils
 import os
 import setuptools
 
-def read(filename):
-    """Utility function that returns a files contents."""
-    return open(os.path.join(os.path.dirname(__file__), filename)).read()
+def read_description():
+    """
+    Reads the description from README.rst and substitutes mentions of the
+    latest version with a concrete version number.
+    """
+    description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
+
+    # Link to the documentation of the specific version.
+    description = description.replace(
+        "//python-chess.readthedocs.org/en/latest/",
+        "//python-chess.readthedocs.org/en/v{0}/".format(chess.__version__))
+
+    # Use documentation badge for the specific version.
+    description = description.replace(
+        "//readthedocs.org/projects/python-chess/badge/?version=latest",
+        "//readthedocs.org/projects/python-chess/badge/?version=v{0}".format(chess.__version__))
+
+    # Show Travis CI build status of the concrete version.
+    description = description.replace(
+        "//travis-ci.org/niklasf/python-chess.svg?branch=master",
+        "//travis-ci.org/niklasf/python-chess.svg?branch=v{0}".format(chess.__version__))
+
+    return description
 
 setuptools.setup(
     name="python-chess",
     version=chess.__version__,
     author=chess.__author__,
     author_email=chess.__email__,
-    description="A chess library.",
-    long_description=read("README.rst"),
+    description="A pure Python chess library with move generation and validation and handling of common formats.",
+    long_description=read_description(),
     license="GPL3",
     keywords="chess fen pgn polyglot",
     url="http://github.com/niklasf/python-chess",
