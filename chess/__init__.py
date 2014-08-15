@@ -251,7 +251,7 @@ def r45(b):
 
     while b:
         square, b = next_bit(b)
-        mask |= SQUARES_R45[square]
+        mask |= BB_SQUARES_R45[square]
 
     return mask
 
@@ -260,7 +260,9 @@ def l45(b):
 
     while b:
         square, b = next_bit(b)
-        mask |= SQUARES_L45[square]
+        mask |= BB_SQUARES_L45[square]
+
+    return mask
 
 BB_KNIGHT_ATTACKS = []
 
