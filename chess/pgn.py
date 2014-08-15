@@ -148,7 +148,7 @@ class GameNode(object):
         Gets a child node by move or index.
         """
         for index, variation in enumerate(self.variations):
-            if move == variation.move or move == index:
+            if move == variation.move or index == move or move == variation:
                 return variation
 
         raise KeyError("variation not found")

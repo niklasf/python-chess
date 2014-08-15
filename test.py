@@ -759,6 +759,33 @@ class PgnTestCase(unittest.TestCase):
         self.assertFalse(end_node.starts_variation())
         self.assertTrue(alternative_node.starts_variation())
 
+    def test_promote_demote(self):
+        game = chess.pgn.Game()
+        a = game.add_variation(chess.Move(chess.A2, chess.A3))
+        b = game.add_variation(chess.Move(chess.B2, chess.B3))
+
+        self.assertTrue(a.is_main_variation())
+        self.assertFalse(b.is_main_variation())
+        self.assertEqual(game.variation(0), a)
+        self.assertEqual(game.variation(1), b)
+
+        game.promote(b)
+        self.assertTrue(b.is_main_variation())
+        self.assertFalse(a.is_main_variation())
+        self.assertEqual(game.variation(0), b)
+        self.assertEqual(game.variation(1), a)
+
+        game.demote(b)
+        self.assertTrue(a.is_main_variation())
+
+        c = game.add_main_variation(chess.Move(chess.C2, chess.C3))
+        self.assertTrue(c.is_main_variation())
+        self.assertFalse(a.is_main_variation())
+        self.assertFalse(b.is_main_variation())
+        self.assertEqual(game.variation(0), c)
+        self.assertEqual(game.variation(1), a)
+        self.assertEqual(game.variation(2), b)
+
 
 if __name__ == "__main__":
     unittest.main()
