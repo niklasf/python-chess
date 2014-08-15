@@ -32,6 +32,24 @@ class Entry(object):
         self.weight = weight
         self.learn = learn
 
+    def __eq__(self, other):
+        return not self.__ne__(other)
+
+    def __ne__(self, other):
+        try:
+            if self.key != other.key:
+                return True
+            if self.raw_move != other.raw_move:
+                return True
+            if self.weight != other.weight:
+                return True
+            if self.learn != other.learn:
+                return True
+        except AttributeError:
+            return True
+
+        return False
+
     def move(self):
         """Gets the move (as a `Move` object)."""
         # Extract source and target square.
