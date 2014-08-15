@@ -2,7 +2,11 @@ language: python
 python:
  - "2.7"
  - "3.4"
+install:
+ - pip install coveralls --use-mirrors
 script:
- - nosetests test.py
- - python -m doctest README.rst
- - nosetests perft.py
+ - coverage run test.py
+ - coverage run --append -m doctest README.rst
+ - coverage run --append perft.py
+after_success:
+ - coveralls
