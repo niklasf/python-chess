@@ -17,38 +17,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import collections
 import struct
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
 
-class Entry(object):
+class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
     """An entry from a polyglot opening book."""
-
-    def __init__(self, key, raw_move, weight, learn):
-        self.key = key
-        self.raw_move = raw_move
-        self.weight = weight
-        self.learn = learn
-
-    def __eq__(self, other):
-        return not self.__ne__(other)
-
-    def __ne__(self, other):
-        try:
-            if self.key != other.key:
-                return True
-            if self.raw_move != other.raw_move:
-                return True
-            if self.weight != other.weight:
-                return True
-            if self.learn != other.learn:
-                return True
-        except AttributeError:
-            return True
-
-        return False
 
     def move(self):
         """Gets the move (as a `Move` object)."""
