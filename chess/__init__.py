@@ -23,8 +23,6 @@ __email__ = "niklas.fiekas@tu-clausthal.de"
 __version__ = "0.3.0"
 
 import collections
-import random
-import time
 import re
 
 
