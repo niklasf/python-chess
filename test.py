@@ -52,20 +52,28 @@ class MoveTestCase(unittest.TestCase):
 class PieceTestCase(unittest.TestCase):
 
     def test_equality(self):
-        a = chess.Piece(chess.WHITE, chess.BISHOP)
-        b = chess.Piece(chess.BLACK, chess.KING)
-        c = chess.Piece(chess.WHITE, chess.KING)
-        d = chess.Piece(chess.WHITE, chess.BISHOP)
+        a = chess.Piece(chess.BISHOP, chess.WHITE)
+        b = chess.Piece(chess.KING, chess.BLACK)
+        c = chess.Piece(chess.KING, chess.WHITE)
+        d1 = chess.Piece(chess.BISHOP, chess.WHITE)
+        d2 = chess.Piece(chess.BISHOP, chess.WHITE)
 
-        self.assertEqual(a, d)
-        self.assertEqual(d, a)
+        self.assertEqual(a, d1)
+        self.assertEqual(d1, a)
+        self.assertEqual(d1, d2)
 
-        self.assertEqual(repr(a), repr(d))
+        self.assertEqual(repr(a), repr(d1))
 
         self.assertNotEqual(a, b)
         self.assertNotEqual(b, c)
-        self.assertNotEqual(b, d)
+        self.assertNotEqual(b, d1)
         self.assertNotEqual(a, c)
+        self.assertFalse(d1 != d2)
+
+        self.assertNotEqual(repr(a), repr(b))
+        self.assertNotEqual(repr(b), repr(c))
+        self.assertNotEqual(repr(b), repr(d1))
+        self.assertNotEqual(repr(a), repr(c))
 
     def test_from_symbol(self):
         white_knight = chess.Piece.from_symbol("N")

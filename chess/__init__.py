@@ -700,8 +700,8 @@ class Piece(object):
         except AttributeError:
             return False
 
-    def __neq__(self, other):
-        return self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @classmethod
     def from_symbol(cls, symbol):
