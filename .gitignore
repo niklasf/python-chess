@@ -1,6 +1,7 @@
 *.swp
 *.py[cod]
 *~
+.coverage
 dist/
 build/
 python_chess.egg-info/
