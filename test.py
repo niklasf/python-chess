@@ -541,6 +541,21 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         caro_kann_mate = chess.Bitboard("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
         self.assertFalse(caro_kann_mate.legal_moves)
 
+    def test_string_conversion(self):
+        expected = textwrap.dedent("""\
+            r n b q k b n r
+            p p p p p p p p
+            . . . . . . . .
+            . . . . . . . .
+            . . . . P . . .
+            . . . . . . . .
+            P P P P . P P P
+            R N B Q K B N R""")
+
+        bb = chess.Bitboard()
+        bb.push_san("e4")
+        self.assertEqual(str(bb), expected)
+
 
 class SquareSetTestCase(unittest.TestCase):
 
@@ -562,6 +577,20 @@ class SquareSetTestCase(unittest.TestCase):
 
         self.assertEqual(chess.SquareSet(chess.BB_ALL), chess.BB_ALL)
         self.assertEqual(chess.BB_ALL, chess.SquareSet(chess.BB_ALL))
+
+    def test_string_conversion(self):
+        expected = textwrap.dedent("""\
+            . . . . . . . 1
+            . 1 . . . . . .
+            . . . . . . . .
+            . . . . . . . .
+            . . . . . . . .
+            . . . . . . . .
+            . . . . . . . .
+            1 1 1 1 1 1 1 1""")
+
+        bb = chess.SquareSet(chess.BB_H8 | chess.BB_B7 | chess.BB_RANK_1)
+        self.assertEqual(str(bb), expected)
 
 
 class PolyglotTestCase(unittest.TestCase):
