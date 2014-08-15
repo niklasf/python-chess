@@ -676,7 +676,7 @@ class PgnTestCase(unittest.TestCase):
         fourth_game = chess.pgn.read_game(pgn)
         fifth_game = chess.pgn.read_game(pgn)
         sixth_game = chess.pgn.read_game(pgn)
-        self.assertFalse(chess.pgn.read_game(pgn))
+        self.assertTrue(chess.pgn.read_game(pgn) is None)
         pgn.close()
 
         self.assertEqual(first_game.headers["Event"], "IBM Man-Machine, New York USA")
@@ -685,6 +685,15 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertEqual(second_game.headers["Event"], "IBM Man-Machine, New York USA")
         self.assertEqual(second_game.headers["Site"], "02")
+
+        self.assertEqual(third_game.headers["ECO"], "A00")
+
+        self.assertEqual(fourth_game.headers["PlyCount"], "111")
+
+        self.assertEqual(fifth_game.headers["Result"], "1/2-1/2")
+
+        self.assertEqual(sixth_game.headers["White"], "Deep Blue (Computer)")
+        self.assertEqual(sixth_game.headers["Result"], "1-0")
 
     def test_comment_at_eol(self):
         pgn = StringIO(textwrap.dedent("""\
