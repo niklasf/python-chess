@@ -47,7 +47,7 @@ STATUS_PAWNS_ON_BACKRANK = 32
 STATUS_TOO_MANY_WHITE_PIECES = 64
 STATUS_TOO_MANY_BLACK_PIECES = 128
 STATUS_BAD_CASTLING_RIGHTS = 256
-STATUS_INVALID_EP_RANK = 512
+STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 
 SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
@@ -2246,14 +2246,17 @@ class Bitboard(object):
         if self.ep_square:
             if self.turn == WHITE:
                 ep_rank = 5
-                pawn_mask = shift_up(BB_SQUARES[self.ep_square])
+                pawn_mask = shift_down(BB_SQUARES[self.ep_square])
             else:
                 ep_rank = 2
-                pawn_mask = shift_down(BB_SQUARES[self.ep_square])
+                pawn_mask = shift_up(BB_SQUARES[self.ep_square])
 
+            # The en-passant square must be on the third or sixth rank.
             if rank_index(self.ep_square) != ep_rank:
                 errors |= STATUS_INVALID_EP_SQUARE
 
+            # The last move must have been a double pawn push, so there must
+            # be a pawn of the correct color on the fourth or fifth rank.
             if not self.pawns & self.occupied_co[self.turn ^ 1] & pawn_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
