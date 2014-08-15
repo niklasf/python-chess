@@ -303,6 +303,10 @@ class BitboardTestCase(unittest.TestCase):
 
         self.assertEqual(bitboard.fen(), fen)
 
+    def test_move_count(self):
+        board = chess.Bitboard("1N2k3/P7/8/8/3n4/8/2PP4/R3K2R w KQ - 0 1")
+        self.assertEqual(board.pseudo_legal_move_count(), 8 + 4 + 3 + 2 + 1 + 6 + 9)
+
     def test_polyglot(self):
         # Test polyglot compability using test data from
         # http://hardy.uhasselt.be/Toga/book_format.html. Forfeiting castling
