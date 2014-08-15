@@ -6,6 +6,16 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.3.1
+-------------
+
+* `Bitboard.status()` now correctly detects `STATUS_INVALID_EP_SQUARE`,
+  instead of errors or false reports.
+
+* Polyglot opening book reader now correctly handles knight underpromotions.
+
+* Minor coding style fixes, including removal of unused imports.
+
 New in v0.3.0
 -------------
 
