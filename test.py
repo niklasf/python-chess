@@ -663,10 +663,10 @@ class PgnTestCase(unittest.TestCase):
         node = chess.pgn.Game()
         node.add_variation(e4)
         node.add_variation(d4)
-        self.assertEqual(list(variation.move for variation in node.variations), [ e4, d4 ])
+        self.assertEqual(list(variation.move for variation in node.variations), [e4, d4])
 
         node.promote_to_main(d4)
-        self.assertEqual(list(variation.move for variation in node.variations), [ d4, e4 ])
+        self.assertEqual(list(variation.move for variation in node.variations), [d4, e4])
 
     def test_read_game(self):
         pgn = open("data/games/kasparov-deep-blue-1997.pgn")
