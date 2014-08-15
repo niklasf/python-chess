@@ -417,12 +417,14 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_equality(self):
         self.assertEqual(chess.Bitboard(), chess.Bitboard())
+        self.assertFalse(chess.Bitboard() != chess.Bitboard())
 
         a = chess.Bitboard()
         a.push_san("d4")
         b = chess.Bitboard()
         b.push_san("d3")
         self.assertNotEqual(a, b)
+        self.assertFalse(a == b)
 
     def test_status(self):
         board = chess.Bitboard()
