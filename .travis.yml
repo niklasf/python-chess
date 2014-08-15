@@ -5,8 +5,8 @@ python:
 install:
  - pip install coveralls --use-mirrors
 script:
- - coverage run test.py
- - coverage run --append -m doctest README.rst
- - coverage run --append perft.py
+ - coverage run --source chess test.py
+ - coverage run --source chess --append -m doctest README.rst
+ - coverage run --source chess --append perft.py
 after_success:
  - coveralls
