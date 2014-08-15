@@ -545,6 +545,9 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertFalse(a1 == b1)
         self.assertFalse(a2 == b2)
 
+        self.assertEqual(chess.SquareSet(chess.BB_ALL), chess.BB_ALL)
+        self.assertEqual(chess.BB_ALL, chess.SquareSet(chess.BB_ALL))
+
 
 class PolyglotTestCase(unittest.TestCase):
 
