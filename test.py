@@ -530,6 +530,13 @@ class PolyglotTestCase(unittest.TestCase):
 
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
 
+    def test_lasker_trap(self):
+        with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
+            board = chess.Bitboard("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
+            entry = next(book.get_entries_for_position(board))
+            cute_underpromotion = entry.move()
+            self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
+
 
 class PgnTestCase(unittest.TestCase):
 

@@ -59,7 +59,7 @@ class Entry(object):
         elif promotion_part == 2:
             return chess.Move(from_square, to_square, chess.BISHOP)
         elif promotion_part == 1:
-            return chess.Move(from_square, to_sqaure, chess.KNIGHT)
+            return chess.Move(from_square, to_square, chess.KNIGHT)
         else:
             return chess.Move(from_square, to_square)
 
