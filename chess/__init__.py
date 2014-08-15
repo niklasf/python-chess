@@ -1391,7 +1391,7 @@ class Bitboard(object):
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        return ( move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move) )
+        return (move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move))
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -1704,7 +1704,7 @@ class Bitboard(object):
         if len(parts) < 4:
             raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
 
-        operations = { }
+        operations = {}
 
         # Parse the operations.
         if len(parts) > 4:
@@ -1858,11 +1858,11 @@ class Bitboard(object):
                 # Append integer or float.
                 epd.append(" ")
                 epd.append(str(operand))
-            elif not operand is None:
+            elif operand is not None:
                 # Append as escaped string.
                 epd.append(" \"")
                 epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
-                epd.append("\"");
+                epd.append("\"")
 
             epd.append(";")
 
@@ -2334,7 +2334,7 @@ class Bitboard(object):
 
         # Default random array is polyglot compatible.
         if array is None:
-            array=POLYGLOT_RANDOM_ARRAY
+            array = POLYGLOT_RANDOM_ARRAY
 
         # Hash in the board setup.
         squares = self.occupied_co[BLACK]
