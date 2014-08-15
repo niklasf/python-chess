@@ -2289,9 +2289,9 @@ class Bitboard(object):
         return "".join(builder)
 
     def __eq__(self, bitboard):
-        return not self.__neq__(bitboard)
+        return not self.__ne__(bitboard)
 
-    def __neq__(self, bitboard):
+    def __ne__(self, bitboard):
         try:
             if self.occupied != bitboard.occupied:
                 return True
