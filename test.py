@@ -35,14 +35,17 @@ class MoveTestCase(unittest.TestCase):
         a = chess.Move(chess.A1, chess.A2)
         b = chess.Move(chess.A1, chess.A2)
         c = chess.Move(chess.H7, chess.H8, chess.BISHOP)
-        d = chess.Move(chess.H7, chess.H8)
+        d1 = chess.Move(chess.H7, chess.H8)
+        d2 = chess.Move(chess.H7, chess.H8)
 
         self.assertEqual(a, b)
         self.assertEqual(b, a)
+        self.assertEqual(d1, d2)
 
         self.assertNotEqual(a, c)
-        self.assertNotEqual(c, d)
-        self.assertNotEqual(b, d)
+        self.assertNotEqual(c, d1)
+        self.assertNotEqual(b, d1)
+        self.assertFalse(d1 != d2)
 
     def test_uci_parsing(self):
         self.assertEqual(chess.Move.from_uci("b5c7").uci(), "b5c7")
