@@ -2,6 +2,7 @@
 *.py[cod]
 *~
 .coverage
+.coveralls.yml
 dist/
 build/
 python_chess.egg-info/
