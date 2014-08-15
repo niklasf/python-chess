@@ -423,6 +423,17 @@ class BitboardTestCase(unittest.TestCase):
         board.remove_piece_at(chess.E8)
         self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
 
+        # The en-passant square should be set even if no capture is actually
+        # possible.
+        board = chess.Bitboard()
+        board.push_san("e4")
+        self.assertEqual(board.ep_square, chess.E3)
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # But there must indeed be a pawn there.
+        board.remove_piece_at(chess.E4)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_EP_SQUARE)
+
     def test_epd(self):
         # Create an EPD with a move and a string.
         board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
