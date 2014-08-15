@@ -2292,31 +2292,34 @@ class Bitboard(object):
         return not self.__neq__(bitboard)
 
     def __neq__(self, bitboard):
-        if self.occupied != bitboard.occupied:
-            return True
-        if self.occupied_co[WHITE] != bitboard.occupied_co[WHITE]:
-            return True
-        if self.pawns != bitboard.pawns:
-            return True
-        if self.knights != bitboard.knights:
-            return True
-        if self.bishops != bitboard.bishops:
-            return True
-        if self.rooks != bitboard.rooks:
-            return True
-        if self.queens != bitboard.queens:
-            return True
-        if self.kings != bitboard.kings:
-            return True
-        if self.ep_square != bitboard.ep_square:
-            return True
-        if self.castling_rights != bitboard.castling_rights:
-            return True
-        if self.turn != bitboard.turn:
-            return True
-        if self.fullmove_number != bitboard.fullmove_number:
-            return True
-        if self.halfmove_clock != bitboard.halfmove_clock:
+        try:
+            if self.occupied != bitboard.occupied:
+                return True
+            if self.occupied_co[WHITE] != bitboard.occupied_co[WHITE]:
+                return True
+            if self.pawns != bitboard.pawns:
+                return True
+            if self.knights != bitboard.knights:
+                return True
+            if self.bishops != bitboard.bishops:
+                return True
+            if self.rooks != bitboard.rooks:
+                return True
+            if self.queens != bitboard.queens:
+                return True
+            if self.kings != bitboard.kings:
+                return True
+            if self.ep_square != bitboard.ep_square:
+                return True
+            if self.castling_rights != bitboard.castling_rights:
+                return True
+            if self.turn != bitboard.turn:
+                return True
+            if self.fullmove_number != bitboard.fullmove_number:
+                return True
+            if self.halfmove_clock != bitboard.halfmove_clock:
+                return True
+        except AttributeError:
             return True
 
         return False
