@@ -2449,10 +2449,16 @@ class SquareSet(object):
     __nonzero__ = __bool__
 
     def __eq__(self, other):
-        return int(self) == int(other)
+        try:
+            return int(self) == int(other)
+        except ValueError:
+            return False
 
     def __ne__(self, other):
-        return int(self) != int(other)
+        try:
+            return int(self) != int(other)
+        except ValueError:
+            return False
 
     def __len__(self):
         return pop_count(self.mask)
