@@ -527,6 +527,25 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertFalse(caro_kann_mate.legal_moves)
 
 
+class SquareSetTestCase(unittest.TestCase):
+
+    def test_equality(self):
+        a1 = chess.SquareSet(chess.BB_RANK_4)
+        a2 = chess.SquareSet(chess.BB_RANK_4)
+        b1 = chess.SquareSet(chess.BB_RANK_5 | chess.BB_RANK_6)
+        b2 = chess.SquareSet(chess.BB_RANK_5 | chess.BB_RANK_6)
+
+        self.assertEqual(a1, a2)
+        self.assertEqual(b1, b2)
+        self.assertFalse(a1 != a2)
+        self.assertFalse(b1 != b2)
+
+        self.assertNotEqual(a1, b1)
+        self.assertNotEqual(a2, b2)
+        self.assertFalse(a1 == b1)
+        self.assertFalse(a2 == b2)
+
+
 class PolyglotTestCase(unittest.TestCase):
 
     def test_performance_bin(self):
