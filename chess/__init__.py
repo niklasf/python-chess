@@ -242,9 +242,9 @@ def l90(b):
 
     while b:
         square, b = next_bit(b)
-        mask |= SQUARES_L90[square]
+        mask |= BB_SQUARES_L90[square]
 
-    mask
+    return mask
 
 def r45(b):
     mask = BB_VOID

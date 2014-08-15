@@ -514,6 +514,21 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(board.piece_at(chess.E1))
         self.assertEqual(chess.pop_count(board.occupied), 0)
 
+    def test_rotation(self):
+        bb = chess.BB_G1
+
+        bb = chess.l90(bb)
+        self.assertEqual(bb, chess.BB_H7)
+
+        bb = chess.l90(bb)
+        self.assertEqual(bb, chess.BB_B8)
+
+        bb = chess.l90(bb)
+        self.assertEqual(bb, chess.BB_A2)
+
+        bb = chess.l90(bb)
+        self.assertEqual(bb, chess.BB_G1)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

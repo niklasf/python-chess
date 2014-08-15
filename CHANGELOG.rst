@@ -9,6 +9,9 @@ might include API breaking changes.
 Up for the next release
 -----------------------
 
+* Fix low level rotation operation `l90()`. There was no problem in core
+  because a correct version of the function was inlined.
+
 * Fix equality and inequality operators for `Bitboard`, `Move` and `Piece`.
   Also make them robust against comparisons with incompatible types.
 
