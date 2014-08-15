@@ -18,6 +18,8 @@ Up for the next release
 * Provide equality and inequality operators for `SquareSet` and
   `polyglot.Entry`.
 
+* Fix return values of incremental arithmetical operations for `SquareSet`.
+
 * Make `polyglot.Entry` a `collections.namedtuple`.
 
 * Determine and improve test coverage.
