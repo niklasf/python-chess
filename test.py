@@ -592,6 +592,32 @@ class SquareSetTestCase(unittest.TestCase):
         bb = chess.SquareSet(chess.BB_H8 | chess.BB_B7 | chess.BB_RANK_1)
         self.assertEqual(str(bb), expected)
 
+    def test_iter(self):
+        bb = chess.SquareSet(chess.BB_G7 | chess.BB_G8)
+        self.assertEqual(set(bb), {chess.G7, chess.G8})
+
+    def test_arithmetic(self):
+        self.assertEqual(chess.SquareSet(chess.BB_RANK_2) & chess.BB_FILE_D, chess.BB_D2)
+        self.assertEqual(chess.SquareSet(chess.BB_ALL) ^ chess.BB_VOID, chess.BB_ALL)
+        self.assertEqual(chess.SquareSet(chess.BB_C1) | chess.BB_FILE_C, chess.BB_FILE_C)
+
+        bb = chess.SquareSet(chess.BB_VOID)
+        bb ^= chess.BB_ALL
+        self.assertEqual(bb, chess.BB_ALL)
+        bb &= chess.BB_E4
+        self.assertEqual(bb, chess.BB_E4)
+        bb |= chess.BB_RANK_4
+        self.assertEqual(bb, chess.BB_RANK_4)
+
+        self.assertEqual(chess.SquareSet(chess.BB_F3) << 1, chess.BB_G3)
+        self.assertEqual(chess.SquareSet(chess.BB_C8) >> 2, chess.BB_A8)
+
+        bb = chess.SquareSet(chess.BB_D1)
+        bb <<= 1
+        self.assertEqual(bb, chess.BB_E1)
+        bb >>= 2
+        self.assertEqual(bb, chess.BB_C1)
+
 
 class PolyglotTestCase(unittest.TestCase):
 

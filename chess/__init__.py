@@ -2500,27 +2500,32 @@ class SquareSet(object):
 
     def __ilshift__(self, shift):
         self.mask = (self.mask << shift & BB_ALL)
+        return self
 
     def __irshift__(self, shift):
         self.mask >>= shift
+        return self
 
     def __iand__(self, other):
         try:
             self.mask &= other.mask
         except AttributeError:
             self.mask &= other
+        return self
 
     def __ixor__(self, other):
         try:
             self.mask = (self.mask ^ other.mask) & BB_ALL
         except AttributeError:
             self.mask = (self.mask ^ other) & BB_ALL
+        return self
 
     def __ior__(self, other):
         try:
             self.mask = (self.mask | other.mask) & BB_ALL
         except AttributeError:
             self.mask = (self.mask | other) & BB_ALL
+        return self
 
     def __invert__(self):
         return self.__class__(~self.mask & BB_ALL)
