@@ -6,6 +6,17 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Up for the next release
+-----------------------
+
+* Fix equality and inequality operators for `Bitboard`, `Move` and `Piece`.
+  Also make them robust against comparisons with incompatible types.
+
+* Provide equality and inequality operators for `SquareSet` and
+  `polyglot.Entry`.
+
+* Minor coding style fixes.
+
 New in v0.3.1
 -------------
 
