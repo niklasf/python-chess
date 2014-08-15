@@ -15,6 +15,10 @@ Up for the next release
 * Provide equality and inequality operators for `SquareSet` and
   `polyglot.Entry`.
 
+* Make `polyglot.Entry` a `collections.namedtuple`.
+
+* Determine and improve test coverage.
+
 * Minor coding style fixes.
 
 New in v0.3.1

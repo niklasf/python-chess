@@ -733,6 +733,32 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(chess.pgn.NAG_BRILLIANT_MOVE in node.nags)
         self.assertEqual(len(node.nags), 1)
 
+    def test_tree_traversal(self):
+        game = chess.pgn.Game()
+        node = game.add_variation(chess.Move(chess.E2, chess.E4))
+        alternative_node = game.add_variation(chess.D2, chess.D4)
+        end_node = node.add_variation(chess.Move(chess.E7, chess.E5))
+
+        self.assertEqual(game.root(), game)
+        self.assertEqual(node.root(), game)
+        self.assertEqual(alternative_node.root(), game)
+        self.assertEqual(end_node.root(), game)
+
+        self.assertEqual(game.end(), end_node)
+        self.assertEqual(node.end(), end_node)
+        self.assertEqual(end_node.end(), end_node)
+        self.assertEqual(alternative_node.end(), alternative_node)
+
+        self.assertTrue(game.is_main_line())
+        self.assertTrue(node.is_main_line())
+        self.assertTrue(end_node.is_main_line())
+        self.assertFalse(alternative_node.is_main_line())
+
+        self.assertTrue(game.starts_variation())
+        self.assertFalse(node.starts_variation())
+        self.assertFalse(end_node.starts_variation())
+        self.assertTrue(alternative_node.starts_variation())
+
 
 if __name__ == "__main__":
     unittest.main()
