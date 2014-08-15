@@ -79,7 +79,7 @@ class GameNode(object):
         self.nags = set()
         self.starting_comment = ""
         self.comment = ""
-        self.variations = [ ]
+        self.variations = []
 
     def board(self):
         """
@@ -155,7 +155,7 @@ class GameNode(object):
 
     def has_variation(self, move):
         """Checks if the given move appears as a variation."""
-        return move in ( variation.move for variation in self.variations )
+        return move in (variation.move for variation in self.variations)
 
     def promote_to_main(self, move):
         """Promotes the given move to the main variation."""
@@ -351,7 +351,7 @@ class StringExporter(object):
     """
 
     def __init__(self, columns=80):
-        self.lines = [ ]
+        self.lines = []
         self.columns = columns
         self.current_line = ""
 
@@ -361,7 +361,7 @@ class StringExporter(object):
         self.current_line = ""
 
     def write_token(self, token):
-        if not self.columns is None and self.columns - len(self.current_line) < len(token):
+        if self.columns is not None and self.columns - len(self.current_line) < len(token):
             self.flush_current_line()
         self.current_line += token
 
@@ -544,7 +544,7 @@ def read_game(handle):
                 # Consume until the end of the comment.
                 line = token[1:]
                 comment_lines = [ ]
-                while line and not "}" in line:
+                while line and "}" not in line:
                     comment_lines.append(line.rstrip())
                     line = handle.readline()
                 end_index = line.find("}")
@@ -596,7 +596,7 @@ def read_game(handle):
                 board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 # Found a result token.
-                if not "Result" in game.headers:
+                if "Result" not in game.headers:
                     game.headers["Result"] = token
             else:
                 # Found a SAN token.
