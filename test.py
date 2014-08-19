@@ -576,6 +576,63 @@ class BitboardTestCase(unittest.TestCase):
             board.pop()
             self.assertFalse(board.can_claim_threefold_repitition())
 
+    def test_fivefold_repitition(self):
+        fen = "rnbq1rk1/ppp3pp/3bpn2/3p1p2/2PP4/2NBPN2/PP3PPP/R1BQK2R w KQ - 3 7"
+        board = chess.Bitboard(fen)
+
+        # Repeat the position up to the fourth time.
+        for i in range(3):
+            board.push_san("Be2")
+            self.assertFalse(board.is_fivefold_repitition())
+            board.push_san("Ne4")
+            self.assertFalse(board.is_fivefold_repitition())
+            board.push_san("Bd3")
+            self.assertFalse(board.is_fivefold_repitition())
+            board.push_san("Nf6")
+            self.assertEqual(board.fen().split()[0], fen.split()[0])
+            self.assertFalse(board.is_fivefold_repitition())
+            self.assertFalse(board.is_game_over())
+
+        # Repeat it once more. Now it is a five-fold repitition.
+        board.push_san("Be2")
+        self.assertFalse(board.is_fivefold_repitition())
+        board.push_san("Ne4")
+        self.assertFalse(board.is_fivefold_repitition())
+        board.push_san("Bd3")
+        self.assertFalse(board.is_fivefold_repitition())
+        board.push_san("Nf6")
+        self.assertEqual(board.fen().split()[0], fen.split()[0])
+        self.assertTrue(board.is_fivefold_repitition())
+        self.assertTrue(board.is_game_over())
+
+        # It is also a threefold repitition.
+        self.assertTrue(board.can_claim_threefold_repitition())
+
+        # Now no longer.
+        board.push_san("Qc2")
+        board.push_san("Qd7")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        self.assertFalse(board.is_fivefold_repitition())
+        board.push_san("Qd2")
+        board.push_san("Qe7")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        self.assertFalse(board.is_fivefold_repitition())
+
+        # Give the possibility to repeat.
+        board.push_san("Qd1")
+        self.assertFalse(board.is_fivefold_repitition())
+        self.assertTrue(board.can_claim_threefold_repitition())
+
+        # Do in fact repeat.
+        self.assertFalse(board.is_fivefold_repitition())
+        board.push_san("Qd8")
+
+        # This is a threefold repitition but not a fivefold repitition, because
+        # consecutive moves are required for that.
+        self.assertTrue(board.can_claim_threefold_repitition())
+        self.assertFalse(board.is_fivefold_repitition())
+        self.assertEqual(board.fen().split()[0], fen.split()[0])
+
     def test_fifty_moves(self):
         # Test positions from Timman - Lutz (1995).
         board = chess.Bitboard()
