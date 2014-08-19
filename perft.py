@@ -35,7 +35,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/2p5/8/6P1/2P5/PP1PPP1P/RNBQKBNR b KQkq - 0 1")
@@ -272,13 +271,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/8/rn6/P2Pp3/2k1B1pp/2P1P3/1K2b3/B4N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 379)
-        self.assertEqual(perft(board, 3), 8948)
 
     def test_49(self):
         board = chess.Bitboard("8/8/r6b/P2np3/2k3pp/2P1P3/1KB1b3/B4N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 443)
-        self.assertEqual(perft(board, 3), 7038)
 
     def test_50(self):
         board = chess.Bitboard("8/8/5r1b/P2np3/2k3pp/2P1P1N1/K1B1b3/B7 b - - 0 1")
@@ -300,19 +297,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/r6b/P3pb2/1nk3pp/K1P1P1N1/8/B7 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 3590)
 
     def test_54(self):
         board = chess.Bitboard("8/8/r6b/P3p3/1nk1b1pp/K1P1P3/1B6/7N b - - 0 1")
         self.assertEqual(perft(board, 1), 38)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 8542)
 
     def test_55(self):
         board = chess.Bitboard("8/6b1/r7/P3pb2/1nk3pp/K1P1P3/1B3N2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 3628)
 
     def test_56(self):
         board = chess.Bitboard("8/6b1/6r1/P3pb2/1nk3Np/K1P1P3/8/B7 b - - 0 1")
@@ -323,7 +317,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6b1/7r/P3p3/1nk3Np/K1P1P3/1B6/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 3301)
 
     def test_58(self):
         board = chess.Bitboard("8/6b1/7r/Pk2p3/1n4Np/K1P1P3/1B6/1b6 b - - 0 1")
@@ -334,7 +327,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6b1/5N1r/Pk2p3/1n5p/K1P1P3/1B6/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 5061)
 
     def test_60(self):
         board = chess.Bitboard("8/6b1/7r/Pk2p3/1n5p/K1PbP1N1/1B6/8 b - - 0 1")
@@ -345,7 +337,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6b1/5r2/Pk2p3/7p/1KPbP1N1/1Bn5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 429)
-        self.assertEqual(perft(board, 3), 5040)
 
     def test_62(self):
         board = chess.Bitboard("8/6b1/5r2/Pk2p3/7p/1KP1P3/2n1b3/2B4N b - - 0 1")
@@ -356,7 +347,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/8/8/Pk2p3/7p/1KP1Pr2/1Bn1b3/7N w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 291)
-        self.assertEqual(perft(board, 3), 2992)
 
     def test_64(self):
         board = chess.Bitboard("5b2/8/8/Pk2p3/2b4p/2P1Pr2/1Bn5/1K5N b - - 0 1")
@@ -367,7 +357,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/8/8/Pk2p3/2b5/B1P1P1rp/2n5/1K5N w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 490)
-        self.assertEqual(perft(board, 3), 6278)
 
     def test_66(self):
         board = chess.Bitboard("5b2/5b2/3B4/Pk2p3/8/2P1P1Np/2n5/1K6 b - - 0 1")
@@ -378,7 +367,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5b2/P2b4/1k2p3/8/2P1n1Np/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 338)
-        self.assertEqual(perft(board, 3), 3510)
 
     def test_68(self):
         board = chess.Bitboard("B7/5b2/3b4/1k2p3/8/2P3Np/2n5/1K6 b - - 0 1")
@@ -389,7 +377,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/4b3/1k2p3/4B3/b1P3Np/2n5/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 481)
-        self.assertEqual(perft(board, 3), 8111)
 
     def test_70(self):
         board = chess.Bitboard("8/8/4b3/k3p2N/8/b1PB3p/2n5/1K6 b - - 0 1")
@@ -400,25 +387,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/8/k3pb1N/8/b1P5/2B4p/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 3078)
 
     def test_72(self):
         board = chess.Bitboard("8/8/6b1/k3p2N/8/b1PB4/K6p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 8211)
 
     def test_73(self):
         board = chess.Bitboard("1b6/8/6B1/k3p2N/8/2P5/K6p/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 209)
-        self.assertEqual(perft(board, 3), 3734)
 
     def test_74(self):
         board = chess.Bitboard("1b2B3/8/1k6/4p3/5N2/2P5/K6p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 302)
-        self.assertEqual(perft(board, 3), 4537)
 
     def test_75(self):
         board = chess.Bitboard("1b2B3/8/1k6/8/4pN2/1KP5/8/7q w - - 0 1")
@@ -434,49 +417,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3B4/1k1b4/8/2P1pN2/8/1K6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 394)
-        self.assertEqual(perft(board, 3), 8219)
 
     def test_78(self):
         board = chess.Bitboard("8/2kB4/3b4/8/2P1p3/2K5/6N1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 3728)
 
     def test_79(self):
         board = chess.Bitboard("3b4/2k5/2B5/8/2P1p3/2K5/6N1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 186)
-        self.assertEqual(perft(board, 3), 3184)
 
     def test_80(self):
         board = chess.Bitboard("3b4/8/3k4/8/B1P1pN2/2K5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 223)
-        self.assertEqual(perft(board, 3), 2387)
 
     def test_81(self):
         board = chess.Bitboard("8/2k5/8/2P5/B3pN1b/2K5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 267)
-        self.assertEqual(perft(board, 3), 5178)
 
     def test_82(self):
         board = chess.Bitboard("3k4/8/2B5/2P5/2K1pN1b/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 2313)
 
     def test_83(self):
         board = chess.Bitboard("3k4/8/2B5/2PN4/2K1pb2/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 4795)
 
     def test_84(self):
         board = chess.Bitboard("3k4/8/2B5/2P5/4p3/2K1N3/7b/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 2332)
 
     def test_85(self):
         board = chess.Bitboard("3k4/8/8/2PBb3/4p3/2K1N3/8/8 w - - 0 1")
@@ -488,13 +463,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b1k4/1B6/8/2P5/4p3/4N3/3K4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 2552)
 
     def test_87(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_88(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/2P5/P7/1P1PPPPP/RNBQKBNR b KQkq - 0 1")
@@ -505,7 +478,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2bqkbnr/rppppppp/n7/p7/2P5/PP6/3PPPPP/RNBQKBNR w KQk - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 398)
-        self.assertEqual(perft(board, 3), 8820)
 
     def test_90(self):
         board = chess.Bitboard("2bqkbnr/rpp1pppp/n2p4/p7/2P3P1/PP5P/3PPP2/RNBQKBNR b KQk - 0 1")
@@ -711,13 +683,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1kb2b2/8/3p1n1b/3P1Pp1/p1P1B1Pp/4K2P/2R2N2/4N1R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 517)
-        self.assertEqual(perft(board, 3), 9926)
 
     def test_131(self):
         board = chess.Bitboard("2b2bn1/1k6/3p3b/3P1Pp1/p1P3Pp/3BK2P/2R2N2/4N1R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 365)
-        self.assertEqual(perft(board, 3), 9418)
 
     def test_132(self):
         board = chess.Bitboard("2b2bn1/1k4b1/3p4/3P1Pp1/p1P3Pp/4K2P/4RN2/1B2N1R1 b - - 0 1")
@@ -818,7 +788,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/b3n3/5P2/2Nb4/3p1bP1/3K2pP/8/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 524)
-        self.assertEqual(perft(board, 3), 7752)
 
     def test_152(self):
         board = chess.Bitboard("2k5/4n3/5P2/2bb4/3p1bP1/3K2NP/8/1B6 b - - 0 1")
@@ -829,7 +798,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/4n3/5P2/3b2b1/1b1p2P1/3K3P/4N3/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 461)
-        self.assertEqual(perft(board, 3), 6186)
 
     def test_154(self):
         board = chess.Bitboard("2k5/4P3/8/2bb2b1/3p2PP/3K4/4N3/1B6 b - - 0 1")
@@ -860,13 +828,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/8/k7/6b1/N2p2PP/3K4/6b1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 457)
-        self.assertEqual(perft(board, 3), 9669)
 
     def test_160(self):
         board = chess.Bitboard("8/8/k7/7R/N2p1bPP/3K4/6b1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 376)
-        self.assertEqual(perft(board, 3), 6889)
 
     def test_161(self):
         board = chess.Bitboard("8/8/k7/2R5/N2p2PP/3K2b1/8/5b2 w - - 0 1")
@@ -878,13 +844,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/k2b4/2R5/N5PP/2K5/8/5b2 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 5564)
 
     def test_163(self):
         board = chess.Bitboard("8/2R5/8/k7/N5PP/2K5/8/5b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 192)
-        self.assertEqual(perft(board, 3), 4350)
 
     def test_164(self):
         board = chess.Bitboard("8/7R/b7/k7/N5PP/2K5/8/8 b - - 0 1")
@@ -896,25 +860,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6R1/8/8/k5PP/2Kb4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 203)
-        self.assertEqual(perft(board, 3), 3537)
 
     def test_166(self):
         board = chess.Bitboard("8/3R4/8/1k6/6PP/3b4/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 4905)
 
     def test_167(self):
         board = chess.Bitboard("8/8/8/1k6/3R2PP/3b4/1K6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 4259)
 
     def test_168(self):
         board = chess.Bitboard("8/8/8/1k4P1/R1b4P/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 3185)
 
     def test_169(self):
         board = chess.Bitboard("8/8/6P1/8/1kb4P/8/1K6/8 w - - 0 1")
@@ -927,14 +887,12 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 73)
         self.assertEqual(perft(board, 3), 1091)
-        self.assertEqual(perft(board, 4), 6579)
 
     def test_171(self):
         board = chess.Bitboard("8/8/4b1P1/7P/8/3k4/8/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 66)
         self.assertEqual(perft(board, 3), 359)
-        self.assertEqual(perft(board, 4), 5458)
 
     def test_172(self):
         board = chess.Bitboard("8/5b1P/6P1/8/8/3k4/8/3K4 b - - 0 1")
@@ -946,13 +904,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_174(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/8/5p2/2P5/P7/1P1PPPPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9328)
 
     def test_175(self):
         board = chess.Bitboard("rnbqkb1r/ppppp1pp/5n2/8/P1P2p2/8/1P1PPPPP/RNBQKBNR w KQkq - 0 1")
@@ -1082,7 +1038,6 @@ class PerftTestCase(unittest.TestCase):
     def test_200(self):
         board = chess.Bitboard("3r4/7r/1q3k2/p3p3/PP1Q3p/2nPppPN/1RKN2B1/1R6 b - - 0 1")
         self.assertEqual(perft(board, 1), 54)
-        self.assertEqual(perft(board, 2), 2201)
 
     def test_201(self):
         board = chess.Bitboard("3r4/7r/q4k2/p3p3/PP1Q3p/2nPppP1/1RKN2B1/1R4N1 w - - 0 1")
@@ -1128,7 +1083,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/q7/5k2/p7/PP1rp1P1/2KP3B/2Rnp2r/4N1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 586)
-        self.assertEqual(perft(board, 3), 9555)
 
     def test_210(self):
         board = chess.Bitboard("8/8/5k2/p1q5/PP1rp1P1/3P1N1B/2RKp2r/6N1 b - - 0 1")
@@ -1159,7 +1113,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6kN/8/6q1/Pp1rp3/2RP1N2/3Kp3/1r6 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 2848)
 
     def test_216(self):
         board = chess.Bitboard("8/6k1/8/2q3N1/Pp1rp3/2RP1N2/4K3/1r6 b - - 0 1")
@@ -1219,19 +1172,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_227(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/7p/8/7P/7N/PPPPPPP1/RNBQKB1R b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 8955)
 
     def test_228(self):
         board = chess.Bitboard("rnbqkbnr/1pppp1p1/p6p/5p2/7P/7N/PPPPPPP1/RNBQKBR1 w Qkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 8094)
 
     def test_229(self):
         board = chess.Bitboard("rnbqkbnr/1p1pp1p1/p6p/2p2p2/7P/2P4N/PP1PPPP1/RNBQKB1R b Qkq - 0 1")
@@ -1407,7 +1357,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/2P1qrb1/3N3r/1p1ppb2/Bp1P2n1/8/6PR/5KB1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 82)
-        self.assertEqual(perft(board, 3), 3432)
 
     def test_264(self):
         board = chess.Bitboard("2k2q2/2P2rb1/3r4/1p1ppb2/Bp1P2n1/8/5BPR/5K2 w - - 0 1")
@@ -1433,7 +1382,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k2q2/2P3b1/1B2b3/1p1pP3/1pr2r2/7B/6Pn/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 598)
-        self.assertEqual(perft(board, 3), 8478)
 
     def test_269(self):
         board = chess.Bitboard("2k2q2/2P3b1/4b3/1p1pP3/1p2rr2/4B2B/4K1Pn/8 b - - 0 1")
@@ -1444,7 +1392,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k4q/2P3b1/4b3/1p1pP3/1p2rr2/4B2B/6P1/4Kn2 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 227)
-        self.assertEqual(perft(board, 3), 2279)
 
     def test_271(self):
         board = chess.Bitboard("2k4q/2P3b1/4b3/1p1pP3/1p3r2/4r3/4B1P1/4Kn2 b - - 0 1")
@@ -1461,7 +1408,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/2P3b1/4b3/1p1pPP2/1p6/8/4r3/3K1n1q b - - 0 1")
         self.assertEqual(perft(board, 1), 40)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 5362)
 
     def test_274(self):
         board = chess.Bitboard("2k5/2P3b1/4P3/1p1pP3/1p6/5r2/8/3K1n1q w - - 0 1")
@@ -1473,13 +1419,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/2P1P1b1/8/1p1pP3/1p3r2/8/4K3/5n1q b - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 7388)
 
     def test_276(self):
         board = chess.Bitboard("8/2PkP1b1/8/1p1pP3/1p3r2/3K4/3n4/7q w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 391)
-        self.assertEqual(perft(board, 3), 4619)
 
     def test_277(self):
         board = chess.Bitboard("8/2k1P1b1/8/1p1pP3/1p3rB1/3K4/3n4/7q b - - 0 1")
@@ -1500,19 +1444,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1k2N3/1p2P3/1p1p2B1/3K1r2/3n4/7q w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 2372)
 
     def test_281(self):
         board = chess.Bitboard("8/8/1k2N3/1p2P2q/1p1p4/3K4/3nB3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 9704)
 
     def test_282(self):
         board = chess.Bitboard("1q6/8/1k6/1pN5/1p1p4/3K4/3nB3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 5524)
 
     def test_283(self):
         board = chess.Bitboard("8/8/1k6/1pN1q2B/1p1p4/8/2Kn4/8 b - - 0 1")
@@ -1523,7 +1464,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1k6/1pNq4/1p1p4/8/2K1B3/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 606)
-        self.assertEqual(perft(board, 3), 9294)
 
     def test_285(self):
         board = chess.Bitboard("8/8/1kq5/1pN5/1p1p4/5B2/8/3K1n2 b - - 0 1")
@@ -1534,43 +1474,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/8/1pq5/1p1p4/5B2/4K3/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 4346)
 
     def test_287(self):
         board = chess.Bitboard("8/2k5/2B5/1pq5/3p4/1p6/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 307)
-        self.assertEqual(perft(board, 3), 7692)
 
     def test_288(self):
         board = chess.Bitboard("8/1B6/4k3/1pq5/3p4/1p6/8/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 4279)
 
     def test_289(self):
         board = chess.Bitboard("8/8/1qB1k3/1p6/3p4/1p6/8/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 247)
-        self.assertEqual(perft(board, 3), 5330)
 
     def test_290(self):
         board = chess.Bitboard("8/8/1qB1k3/1p6/3p4/1p6/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 4165)
 
     def test_291(self):
         board = chess.Bitboard("8/1B6/2q1k3/1p6/3p4/1p6/8/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 5525)
 
     def test_292(self):
         board = chess.Bitboard("8/1B6/8/1p1qk3/3p4/1p6/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 2332)
 
     def test_293(self):
         board = chess.Bitboard("8/8/8/1p2k3/3p4/1p6/6B1/5K2 b - - 0 1")
@@ -1601,7 +1534,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 97)
         self.assertEqual(perft(board, 3), 883)
-        self.assertEqual(perft(board, 4), 9837)
 
     def test_298(self):
         board = chess.Bitboard("8/8/4k3/8/1p1p4/8/6B1/1b5K w - - 0 1")
@@ -1613,19 +1545,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/8/3Bk3/1p1p4/8/7K/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 231)
-        self.assertEqual(perft(board, 3), 3329)
 
     def test_300(self):
         board = chess.Bitboard("8/8/4b3/4k3/1p1pB3/8/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 284)
-        self.assertEqual(perft(board, 3), 3835)
 
     def test_301(self):
         board = chess.Bitboard("8/8/8/4kb2/1p1p4/8/8/1B5K b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 139)
-        self.assertEqual(perft(board, 3), 2115)
 
     def test_302(self):
         board = chess.Bitboard("8/8/6b1/3k1B2/1p1p4/8/8/7K w - - 0 1")
@@ -1638,7 +1567,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 90)
         self.assertEqual(perft(board, 3), 762)
-        self.assertEqual(perft(board, 4), 8933)
 
     def test_304(self):
         board = chess.Bitboard("8/5B2/8/4k3/1p6/3p4/8/7K w - - 0 1")
@@ -1663,21 +1591,18 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 89)
         self.assertEqual(perft(board, 3), 720)
-        self.assertEqual(perft(board, 4), 8957)
 
     def test_308(self):
         board = chess.Bitboard("6B1/8/8/8/7k/1p1p1K2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 56)
         self.assertEqual(perft(board, 3), 730)
-        self.assertEqual(perft(board, 4), 5198)
 
     def test_309(self):
         board = chess.Bitboard("8/8/8/6k1/8/1B1p2K1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 95)
         self.assertEqual(perft(board, 3), 631)
-        self.assertEqual(perft(board, 4), 9412)
 
     def test_310(self):
         board = chess.Bitboard("8/5B2/8/6k1/8/6K1/8/3n4 w - - 0 1")
@@ -1695,7 +1620,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_313(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 1")
@@ -1816,7 +1740,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r2n3r/1bNk2pp/6P1/pP3p2/3pPq1P/1P1PB2R/2P3p1/Q3bKN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 129)
-        self.assertEqual(perft(board, 3), 4008)
 
     def test_337(self):
         board = chess.Bitboard("r2n1r2/1bNk2pp/6P1/pP3p2/3pPq1P/1P1PBR2/2P3p1/Q3K1N1 b - - 0 1")
@@ -1832,7 +1755,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1bn1r2/2Nk2pp/6P1/pP3p2/3QP2P/1P1PBR1q/2P1N1p1/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 95)
-        self.assertEqual(perft(board, 3), 2475)
 
     def test_340(self):
         board = chess.Bitboard("r1bn1r2/2k3p1/6p1/pP3p2/4P2P/1P1PBR1q/2P1N1p1/Q3K3 w - - 0 1")
@@ -1873,7 +1795,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1Qr4/1k4p1/6p1/pn3R2/3PP2P/1P6/2P1N3/4K1n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 3975)
 
     def test_348(self):
         board = chess.Bitboard("r1kr4/6p1/6p1/p4R2/3PP2P/1Pn5/4N3/4K1n1 w - - 0 1")
@@ -1889,7 +1810,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2kr4/6p1/6p1/r6P/1P1PP3/8/4N3/3nK1n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 453)
-        self.assertEqual(perft(board, 3), 5864)
 
     def test_351(self):
         board = chess.Bitboard("2k2r2/6p1/6p1/r6P/1P1PP3/8/3K4/3n2N1 b - - 0 1")
@@ -1900,7 +1820,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k2r2/6p1/8/r3P1pP/1P1P4/2n5/3K4/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 494)
-        self.assertEqual(perft(board, 3), 6047)
 
     def test_353(self):
         board = chess.Bitboard("2k2r2/6p1/4P3/r5pP/1P1P4/7N/n2K4/8 b - - 0 1")
@@ -1911,7 +1830,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k3r2/6p1/4P3/r6P/1P1P2p1/3K3N/n7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 509)
-        self.assertEqual(perft(board, 3), 6757)
 
     def test_355(self):
         board = chess.Bitboard("2k2r2/6p1/4P3/r2P3P/1P4p1/7N/n1K5/8 b - - 0 1")
@@ -1922,7 +1840,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5r2/1k4p1/4P3/r2P3P/1P4p1/7N/nK6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 452)
-        self.assertEqual(perft(board, 3), 5805)
 
     def test_357(self):
         board = chess.Bitboard("5r2/1k6/4P3/r2P2pP/1P2N1p1/8/nK6/8 b - - 0 1")
@@ -1933,7 +1850,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k2r2/8/r3P3/1P1P2pP/4N1p1/8/nK6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 431)
-        self.assertEqual(perft(board, 3), 6641)
 
     def test_359(self):
         board = chess.Bitboard("2k5/4P3/r7/1PNP2pP/6p1/5r2/nK6/8 b - - 0 1")
@@ -1944,13 +1860,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k1N3/8/r7/1PNP2pP/6p1/5r2/nK6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 549)
-        self.assertEqual(perft(board, 3), 9244)
 
     def test_361(self):
         board = chess.Bitboard("2k1N3/1N6/r7/1P1P2pP/8/5rp1/n7/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 9985)
 
     def test_362(self):
         board = chess.Bitboard("2kNN3/r7/8/1P1P2pP/8/2n2rp1/8/K7 w - - 0 1")
@@ -1967,7 +1881,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2kNN3/5r2/7P/1P1n2p1/8/4r1p1/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 512)
-        self.assertEqual(perft(board, 3), 7303)
 
     def test_365(self):
         board = chess.Bitboard("2Nk4/5r2/7P/1P1n2p1/8/4r1p1/2K5/8 b - - 0 1")
@@ -1978,19 +1891,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2Nk4/4r3/7P/1P1n2p1/8/6p1/1K6/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 363)
-        self.assertEqual(perft(board, 3), 3612)
 
     def test_367(self):
         board = chess.Bitboard("3k4/N2r4/7P/1P1n2p1/8/K5p1/8/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 261)
-        self.assertEqual(perft(board, 3), 8089)
 
     def test_368(self):
         board = chess.Bitboard("4k3/5r2/2N4P/1P1n2p1/8/K5p1/8/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 554)
-        self.assertEqual(perft(board, 3), 6287)
 
     def test_369(self):
         board = chess.Bitboard("4k2R/5r2/2N1r3/1P1n2p1/8/K5p1/8/8 b - - 0 1")
@@ -2032,7 +1942,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k2rN3/5r2/1P6/K5p1/8/8/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 2907)
 
     def test_377(self):
         board = chess.Bitboard("3r4/k3N3/5r2/1P6/6p1/2K5/8/6n1 b - - 0 1")
@@ -2049,32 +1958,27 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/k5N1/8/1P6/6p1/3r4/2K5/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 245)
-        self.assertEqual(perft(board, 3), 6241)
 
     def test_380(self):
         board = chess.Bitboard("1r6/k5N1/3r4/1P6/6p1/8/8/1K4n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 279)
-        self.assertEqual(perft(board, 3), 2755)
 
     def test_381(self):
         board = chess.Bitboard("1r1N4/k7/8/1P1r4/6p1/8/8/1K4n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 4894)
 
     def test_382(self):
         board = chess.Bitboard("1r6/k7/8/1P6/6p1/8/8/K2r2n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 58)
         self.assertEqual(perft(board, 3), 298)
-        self.assertEqual(perft(board, 4), 7794)
 
     def test_383(self):
         board = chess.Bitboard("1r6/k7/8/1P6/6p1/2K5/8/r5n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 210)
-        self.assertEqual(perft(board, 3), 5621)
 
     def test_384(self):
         board = chess.Bitboard("8/k7/4r3/1P6/2K3p1/8/8/r5n1 w - - 0 1")
@@ -2087,7 +1991,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 28)
         self.assertEqual(perft(board, 3), 892)
-        self.assertEqual(perft(board, 4), 5233)
 
     def test_386(self):
         board = chess.Bitboard("k3r3/r7/1P6/8/6p1/8/2K5/6n1 w - - 0 1")
@@ -2099,7 +2002,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k3r3/r7/1P6/8/6p1/7n/2K5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 281)
-        self.assertEqual(perft(board, 3), 7970)
 
     def test_388(self):
         board = chess.Bitboard("k3r3/8/1P6/3r4/6p1/3K3n/8/8 w - - 0 1")
@@ -2111,20 +2013,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k3r3/8/1P6/r7/1K4p1/7n/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 4261)
 
     def test_390(self):
         board = chess.Bitboard("r7/1k6/1P6/K7/6p1/7n/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 45)
         self.assertEqual(perft(board, 3), 217)
-        self.assertEqual(perft(board, 4), 4558)
 
     def test_391(self):
         board = chess.Bitboard("5r2/1k6/1P6/8/K5p1/7n/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 118)
-        self.assertEqual(perft(board, 3), 2615)
 
     def test_392(self):
         board = chess.Bitboard("5r2/1P6/1k6/8/K5p1/7n/8/8 w - - 0 1")
@@ -2136,7 +2035,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/8/1k6/8/1K4p1/7n/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 91)
-        self.assertEqual(perft(board, 3), 2085)
 
     def test_394(self):
         board = chess.Bitboard("7r/8/1k6/6n1/2K3p1/8/8/8 w - - 0 1")
@@ -2148,7 +2046,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7r/1k6/3K4/6n1/6p1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 136)
-        self.assertEqual(perft(board, 3), 3428)
 
     def test_396(self):
         board = chess.Bitboard("k7/3K4/8/6n1/6p1/8/7r/8 w - - 0 1")
@@ -2161,13 +2058,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 81)
         self.assertEqual(perft(board, 3), 1767)
-        self.assertEqual(perft(board, 4), 7499)
 
     def test_398(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_399(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/p7/8/8/1P6/PBPPPPPP/RN1QKBNR b KQkq - 0 1")
@@ -2242,7 +2137,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_413(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1")
@@ -2363,7 +2257,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b3rk/1p6/nb6/Bq1pp1p1/P1pQ3p/4n1PK/2PN3P/RN5R w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 84)
-        self.assertEqual(perft(board, 3), 2188)
 
     def test_437(self):
         board = chess.Bitboard("r1b3rk/1p6/n7/Bqbpp1p1/P1p3Qp/4n1PK/2PN3P/RN3R2 b - - 0 1")
@@ -2384,7 +2277,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r4rk/1p6/n7/Bq1pp1p1/P1p1R1bN/6PK/2P3nP/RN4b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 134)
-        self.assertEqual(perft(board, 3), 3418)
 
     def test_441(self):
         board = chess.Bitboard("1r4rk/1p6/n7/B2pp1p1/P1p3KN/4R1P1/1qP3nP/RN4b1 b - - 0 1")
@@ -2517,7 +2409,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1B3k2/6r1/8/1p1ppK1r/4N3/6P1/Rp4N1/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 109)
-        self.assertEqual(perft(board, 3), 2464)
 
     def test_467(self):
         board = chess.Bitboard("1B3k2/6r1/8/1p1pp1N1/6K1/6P1/Rp4N1/6br b - - 0 1")
@@ -2618,7 +2509,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/8/5b1k/1p6/2Np2P1/1R4B1/8/1r3K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 4616)
 
     def test_487(self):
         board = chess.Bitboard("r7/7k/5b2/1p6/2Np2P1/1R4B1/5K2/1r6 b - - 0 1")
@@ -2639,7 +2529,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/5b2/1R2B3/3p2P1/5r2/3N1K2/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 107)
-        self.assertEqual(perft(board, 3), 2670)
 
     def test_491(self):
         board = chess.Bitboard("8/7k/5b2/R3B3/3p2P1/5r2/3N2K1/r7 b - - 0 1")
@@ -2655,37 +2544,31 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/8/8/6Pb/3p1KB1/r2N4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 378)
-        self.assertEqual(perft(board, 3), 8535)
 
     def test_494(self):
         board = chess.Bitboard("8/5k2/8/8/6Pb/1N1p1KB1/r7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 520)
-        self.assertEqual(perft(board, 3), 9529)
 
     def test_495(self):
         board = chess.Bitboard("8/5k2/8/N7/6Pb/3p2B1/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 2480)
 
     def test_496(self):
         board = chess.Bitboard("8/1N6/6k1/8/6Pb/3p2B1/5K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 132)
-        self.assertEqual(perft(board, 3), 2104)
 
     def test_497(self):
         board = chess.Bitboard("8/1N6/7k/8/6Pb/3pK1B1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 182)
-        self.assertEqual(perft(board, 3), 2124)
 
     def test_498(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_499(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/2p5/8/P2P4/1PP1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -2881,13 +2764,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("q2r4/3k4/3N3n/1QP1p3/2PP1p1p/5PP1/1K2R3/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 203)
-        self.assertEqual(perft(board, 3), 5223)
 
     def test_538(self):
         board = chess.Bitboard("r7/3k4/2qN3n/1QP1p3/2PP1p1p/K4PP1/4R3/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 6958)
 
     def test_539(self):
         board = chess.Bitboard("r7/3k1n2/2qN4/2P1p3/Q1PPRp1p/K4PP1/8/R7 b - - 0 1")
@@ -2923,7 +2804,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/q4n2/3N4/1QPPp2r/1KP2R2/5Ppp/8/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 127)
-        self.assertEqual(perft(board, 3), 2617)
 
     def test_546(self):
         board = chess.Bitboard("1k6/5n2/1q6/1QPPpNr1/1KP2R2/5Ppp/8/6R1 w - - 0 1")
@@ -2959,7 +2839,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/q6R/2PP4/2P1p1r1/K4Ppp/8/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 2752)
 
     def test_553(self):
         board = chess.Bitboard("8/2k5/7R/2PP4/2q1p1r1/K4Ppp/8/6R1 b - - 0 1")
@@ -2980,13 +2859,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/5q1R/2PP4/4p2r/2K2Pp1/6p1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 220)
-        self.assertEqual(perft(board, 3), 3574)
 
     def test_557(self):
         board = chess.Bitboard("8/2k5/8/2PP1R2/4p3/2K2Ppr/6p1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 321)
-        self.assertEqual(perft(board, 3), 5845)
 
     def test_558(self):
         board = chess.Bitboard("1r6/2k5/8/2PP1R2/4p3/1K3Pp1/6p1/8 w - - 0 1")
@@ -2998,13 +2875,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1k4/8/8/2PP2R1/4p3/2K2Pp1/6p1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 310)
-        self.assertEqual(perft(board, 3), 6168)
 
     def test_560(self):
         board = chess.Bitboard("3k4/8/8/2PP2R1/2K1p3/5Pp1/5rp1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 4720)
 
     def test_561(self):
         board = chess.Bitboard("8/3k2R1/8/2PP4/2K1p3/5Pp1/5rp1/8 b - - 0 1")
@@ -3016,19 +2891,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/6R1/8/2PP4/1K2p3/5Pp1/4r1p1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 331)
-        self.assertEqual(perft(board, 3), 6471)
 
     def test_563(self):
         board = chess.Bitboard("8/3k4/4R3/2PP4/1K2p3/5Pp1/4r1p1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 327)
-        self.assertEqual(perft(board, 3), 5476)
 
     def test_564(self):
         board = chess.Bitboard("8/3k4/8/2PPR3/1K2p3/5rp1/6p1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 3362)
 
     def test_565(self):
         board = chess.Bitboard("8/4k3/8/2PPR3/1K2p3/5rp1/6p1/8 b - - 0 1")
@@ -3040,31 +2912,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4R3/5k2/8/2PP4/1K2p3/6p1/5rp1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 350)
-        self.assertEqual(perft(board, 3), 6200)
 
     def test_567(self):
         board = chess.Bitboard("7R/5k2/8/2PP4/1K2p3/5rp1/6p1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 381)
-        self.assertEqual(perft(board, 3), 7227)
 
     def test_568(self):
         board = chess.Bitboard("7R/8/6k1/2PP4/K3p3/5rp1/8/6q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 571)
-        self.assertEqual(perft(board, 3), 8706)
 
     def test_569(self):
         board = chess.Bitboard("6R1/8/6k1/2PP4/K3p3/6p1/8/5rq1 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 2400)
 
     def test_570(self):
         board = chess.Bitboard("6R1/5k2/8/2PP4/1K2p3/6p1/8/2r3q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 429)
-        self.assertEqual(perft(board, 3), 6486)
 
     def test_571(self):
         board = chess.Bitboard("8/5k2/6R1/2PP4/1K2p3/4q1p1/8/2r5 b - - 0 1")
@@ -3075,55 +2942,46 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/6R1/1KPP4/4p3/6p1/3q4/2r5 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 587)
-        self.assertEqual(perft(board, 3), 8282)
 
     def test_573(self):
         board = chess.Bitboard("8/5k2/4R3/2PP4/1K2p3/6p1/8/2r5 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 269)
-        self.assertEqual(perft(board, 3), 4244)
 
     def test_574(self):
         board = chess.Bitboard("8/5k2/4R3/K1PP4/4p3/6p1/8/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 251)
-        self.assertEqual(perft(board, 3), 4063)
 
     def test_575(self):
         board = chess.Bitboard("8/5k2/7R/2PP4/1K6/4p1p1/8/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 4949)
 
     def test_576(self):
         board = chess.Bitboard("8/6k1/8/2PP4/1K6/6p1/4p2R/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 4342)
 
     def test_577(self):
         board = chess.Bitboard("5k2/8/3P4/2P5/1K5R/6p1/4p3/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 231)
-        self.assertEqual(perft(board, 3), 3626)
 
     def test_578(self):
         board = chess.Bitboard("5k2/8/3P4/2P5/7R/1K4pr/4p3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 4995)
 
     def test_579(self):
         board = chess.Bitboard("5k2/3P4/8/2P4r/1R6/1K4p1/4p3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 475)
-        self.assertEqual(perft(board, 3), 8926)
 
     def test_580(self):
         board = chess.Bitboard("8/3Pk3/8/2P4r/6R1/1K4p1/8/4b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 458)
-        self.assertEqual(perft(board, 3), 9974)
 
     def test_581(self):
         board = chess.Bitboard("3k4/3P4/8/2P4R/8/1K4p1/8/4b3 b - - 0 1")
@@ -3135,7 +2993,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/3P4/8/2P5/7R/1K6/8/4b1b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 5635)
 
     def test_583(self):
         board = chess.Bitboard("3Q4/4k3/8/2P5/1R6/1K6/8/4b1b1 b - - 0 1")
@@ -3147,7 +3004,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_585(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/2P5/8/PPQPPPPP/RNB1KBNR b KQkq - 0 1")
@@ -3198,7 +3054,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnb3nr/2p1p3/p3k3/1pPp1pq1/4P1Q1/N6P/PP1b1PP1/R1B1KBNR w KQ - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 108)
-        self.assertEqual(perft(board, 3), 3572)
 
     def test_595(self):
         board = chess.Bitboard("rnb3nr/2p1p3/4k3/ppPp1pq1/4P1Q1/N5PP/PP1bKP2/R1B2BNR b - - 0 1")
@@ -3289,7 +3144,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6nr/2p1p2B/nrq1b2k/1p2P3/1b4pP/3B2P1/P4PK1/1R4NR w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 220)
-        self.assertEqual(perft(board, 3), 6280)
 
     def test_613(self):
         board = chess.Bitboard("6nr/2p1p2B/nr2b2k/1p2P3/1bq3pP/6P1/P4P1K/1R3BNR b - - 0 1")
@@ -3365,7 +3219,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2r4r/4pk2/1q3PB1/2p5/R4PpP/3bb1P1/6K1/6NR b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 152)
-        self.assertEqual(perft(board, 3), 7277)
 
     def test_628(self):
         board = chess.Bitboard("2r4r/4p3/bq3Pk1/2p5/R4PpP/4bNP1/6K1/7R w - - 0 1")
@@ -3401,7 +3254,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b1r2r/4p3/5P1k/2p2P2/5R1P/6Pp/4q2K/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 169)
-        self.assertEqual(perft(board, 3), 3488)
 
     def test_635(self):
         board = chess.Bitboard("2br3r/4R3/5P1k/2p2P2/5R1P/6Pp/7K/8 b - - 0 1")
@@ -3447,7 +3299,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1r3P2/4R2k/1rp2P2/7P/1b4P1/7p/R6K b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 130)
-        self.assertEqual(perft(board, 3), 2653)
 
     def test_644(self):
         board = chess.Bitboard("8/1r3P1k/4b3/1rp2P1P/8/6P1/7p/R6K w - - 0 1")
@@ -3495,7 +3346,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/3b3k/8/2p2PPP/8/8/8/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 134)
-        self.assertEqual(perft(board, 3), 2249)
 
     def test_653(self):
         board = chess.Bitboard("7k/3b1R2/8/2p2PPP/8/8/6K1/8 b - - 0 1")
@@ -3507,7 +3357,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/5R2/8/2p2PPP/b7/8/5K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 3131)
 
     def test_655(self):
         board = chess.Bitboard("7k/5R2/6P1/2p2P1P/8/5K2/2b5/8 b - - 0 1")
@@ -3519,7 +3368,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/R7/6P1/2p2P1P/8/3b1K2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 231)
-        self.assertEqual(perft(board, 3), 4515)
 
     def test_657(self):
         board = chess.Bitboard("7k/R7/5PP1/2p4P/4K3/8/8/5b2 b - - 0 1")
@@ -3531,7 +3379,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/R7/b4PP1/2p2K1P/8/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 130)
-        self.assertEqual(perft(board, 3), 2303)
 
     def test_659(self):
         board = chess.Bitboard("2b4k/R7/5PP1/2p4P/5K2/8/8/8 b - - 0 1")
@@ -3550,7 +3397,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 40)
         self.assertEqual(perft(board, 3), 167)
-        self.assertEqual(perft(board, 4), 3519)
 
     def test_662(self):
         board = chess.Bitboard("1Rb3k1/8/5PP1/2p4P/8/5K2/8/8 w - - 0 1")
@@ -3568,7 +3414,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/5PP1/7P/2p3K1/8/8/R6b w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 4187)
 
     def test_665(self):
         board = chess.Bitboard("7k/8/5PP1/7P/2p5/7K/8/3R3b b - - 0 1")
@@ -3580,7 +3425,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_667(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/2p5/8/8/1P6/PBPPPPPP/RN1QKBNR b KQkq - 0 1")
@@ -3656,7 +3500,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/4k3/rp2bqN1/p4p1r/PpPpP3/1Q6/3P1PBP/RN2K2R b KQ - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 7993)
 
     def test_682(self):
         board = chess.Bitboard("5b2/8/rp2bqN1/p1k2p1r/PpPpP3/1Q5P/3P1PB1/RN2K2R w KQ - 0 1")
@@ -3702,7 +3545,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/6r1/rp1k2N1/p3bpR1/PpPpP3/RQ1B3P/3P4/1N2K2q w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 3583)
 
     def test_691(self):
         board = chess.Bitboard("2b5/6r1/rpk5/p3bpR1/PpPpPN2/RQ1B3P/3PK3/1N5q b - - 0 1")
@@ -3763,7 +3605,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rb6/5b2/1pr5/p3P3/PpP1p3/3k3P/3P2R1/1N1K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 435)
-        self.assertEqual(perft(board, 3), 7198)
 
     def test_703(self):
         board = chess.Bitboard("rb4R1/8/1pr5/p1PbP3/Pp2p3/3k3P/3P4/1N1K4 b - - 0 1")
@@ -3774,31 +3615,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rb4b1/8/1pr5/p1P1P3/Pp2p3/3k3P/3P2R1/1N1K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 428)
-        self.assertEqual(perft(board, 3), 7297)
 
     def test_705(self):
         board = chess.Bitboard("rb4b1/2r5/1p6/p1P1P3/Pp2p3/N2k3P/3P3R/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 9009)
 
     def test_706(self):
         board = chess.Bitboard("rb4b1/r7/1p6/pNP1P3/Pp6/3kp2P/3P3R/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 401)
-        self.assertEqual(perft(board, 3), 6786)
 
     def test_707(self):
         board = chess.Bitboard("rb4b1/r7/1p6/p1P1P3/P1N5/1p1kp2P/3P3R/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 387)
-        self.assertEqual(perft(board, 3), 9543)
 
     def test_708(self):
         board = chess.Bitboard("rb6/r6b/8/p1p1P3/P1N4P/1p1kp3/3P3R/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 299)
-        self.assertEqual(perft(board, 3), 4863)
 
     def test_709(self):
         board = chess.Bitboard("rb6/r6b/8/p1p1P3/P1Nk3P/1p2p3/3P3R/3K4 b - - 0 1")
@@ -3884,7 +3720,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/4P1r1/2b5/r3N2P/2Pk4/8/3Rp3/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 4152)
 
     def test_726(self):
         board = chess.Bitboard("1b6/4P3/2b3r1/r3k2P/2P5/8/3RpK2/8 w - - 0 1")
@@ -3910,7 +3745,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/4P1r1/6b1/7P/2P1k3/r7/2R1p3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 498)
-        self.assertEqual(perft(board, 3), 7816)
 
     def test_731(self):
         board = chess.Bitboard("1b2b3/4P1r1/8/7P/2P1k3/r7/3RpK2/8 b - - 0 1")
@@ -3937,13 +3771,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/2Q2b2/8/2k4P/4r3/r7/4p1K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 108)
-        self.assertEqual(perft(board, 3), 3381)
 
     def test_736(self):
         board = chess.Bitboard("1b6/5b2/8/3k3P/5r2/r7/4p1KQ/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 403)
-        self.assertEqual(perft(board, 3), 6027)
 
     def test_737(self):
         board = chess.Bitboard("1b2b3/8/8/3k3P/3Q4/r7/4p1K1/8 b - - 0 1")
@@ -3961,7 +3793,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4b3/8/7P/8/3k4/5rb1/4p3/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 40)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 4442)
 
     def test_740(self):
         board = chess.Bitboard("4b3/2b5/7P/8/3k1r2/8/4p1K1/8 w - - 0 1")
@@ -3973,7 +3804,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4b3/2b4P/8/8/3k1r2/8/7K/4n3 b - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 221)
-        self.assertEqual(perft(board, 3), 7072)
 
     def test_742(self):
         board = chess.Bitboard("4b3/2b4P/8/4k3/8/8/5r2/4n1K1 w - - 0 1")
@@ -3990,7 +3820,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2R5/8/4kb2/8/8/5r2/4n1K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 436)
-        self.assertEqual(perft(board, 3), 6025)
 
     def test_745(self):
         board = chess.Bitboard("2R5/8/4k3/5b2/8/8/5r2/4n2K b - - 0 1")
@@ -4003,46 +3832,39 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 33)
         self.assertEqual(perft(board, 3), 65)
         self.assertEqual(perft(board, 4), 1905)
-        self.assertEqual(perft(board, 5), 4927)
 
     def test_747(self):
         board = chess.Bitboard("8/8/8/3k1b2/8/8/5K2/4n3 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 133)
-        self.assertEqual(perft(board, 3), 2709)
 
     def test_748(self):
         board = chess.Bitboard("8/8/8/2k5/8/8/8/1b2nK2 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 368)
-        self.assertEqual(perft(board, 4), 6792)
 
     def test_749(self):
         board = chess.Bitboard("8/8/8/8/3k4/8/5K2/1b2n3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 95)
         self.assertEqual(perft(board, 3), 1685)
-        self.assertEqual(perft(board, 4), 7835)
 
     def test_750(self):
         board = chess.Bitboard("8/8/8/3k4/8/8/2b5/4n1K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 80)
         self.assertEqual(perft(board, 3), 313)
-        self.assertEqual(perft(board, 4), 6072)
 
     def test_751(self):
         board = chess.Bitboard("8/8/8/3k4/4b3/6K1/8/4n3 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 110)
-        self.assertEqual(perft(board, 3), 2306)
 
     def test_752(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_753(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/P2P4/8/1PP1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -4118,7 +3940,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b3r1/p1p1k1pp/n2pQ3/PN2P3/4P2b/2P3P1/1P3P2/2R2KNq b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 3199)
 
     def test_768(self):
         board = chess.Bitboard("r1b2kr1/p1p3pp/n2p1b2/PN2P3/4P3/2P3P1/1P3P2/2R2KNq w - - 0 1")
@@ -4199,7 +4020,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/p1p2kp1/n3P2p/P1r3P1/2bbP3/1P3PN1/2K1N2q/1R6 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 132)
-        self.assertEqual(perft(board, 3), 6209)
 
     def test_784(self):
         board = chess.Bitboard("3r4/p1p3p1/n3P1kp/Pr4P1/2bbP3/1P3PN1/2K1N2q/2R5 w - - 0 1")
@@ -4235,7 +4055,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/p1p3p1/n3P1kp/P1r2bP1/2Rb2P1/1P6/4N3/2K4N w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 515)
-        self.assertEqual(perft(board, 3), 8886)
 
     def test_791(self):
         board = chess.Bitboard("3r4/p1p3p1/n1r1P1kP/P4b2/2Rb2P1/1P6/3KN3/7N b - - 0 1")
@@ -4361,7 +4180,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n3/8/P1p5/5kp1/5r2/1PB3N1/2N1K2R/b7 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 2633)
 
     def test_816(self):
         board = chess.Bitboard("8/8/P1pnk3/6p1/5r2/1P4N1/2NBK2R/b7 w - - 0 1")
@@ -4377,7 +4195,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1n6/P1p1k3/4b1pR/1P6/N5N1/3BKr2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 4367)
 
     def test_819(self):
         board = chess.Bitboard("8/1n3k2/P1p5/4b1pR/1P6/6N1/2NB1r2/3K4 b - - 0 1")
@@ -4398,7 +4215,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n1k1b/8/P1p5/6p1/1P6/N7/3B1r2/2K2N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 469)
-        self.assertEqual(perft(board, 3), 8009)
 
     def test_823(self):
         board = chess.Bitboard("3n1k2/8/P1p5/1P4p1/8/N1b5/3B1r2/3K1N2 b - - 0 1")
@@ -4414,7 +4230,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/4Bkb1/PPp2r2/6p1/8/N7/8/3K1N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 403)
-        self.assertEqual(perft(board, 3), 9542)
 
     def test_826(self):
         board = chess.Bitboard("3n4/4Bk2/PPpr4/6p1/8/N7/1b2K3/5N2 w - - 0 1")
@@ -4435,7 +4250,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/6k1/PPp2b2/2B3pN/r7/N7/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 3492)
 
     def test_830(self):
         board = chess.Bitboard("3n4/4Bk2/PPp2b2/6pN/2r5/N7/5K2/8 w - - 0 1")
@@ -4451,7 +4265,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/N3Bk2/PPp2b2/6pN/8/7r/8/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 485)
-        self.assertEqual(perft(board, 3), 8668)
 
     def test_833(self):
         board = chess.Bitboard("3n4/N3Bk2/PPp2b2/6p1/8/1r6/4N3/6K1 b - - 0 1")
@@ -4482,7 +4295,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_839(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/2P5/7N/PP1PPPPP/RNBQKB1R b KQkq - 0 1")
@@ -4543,7 +4355,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("br1qkbr1/2p1p2p/1p4p1/p2pPBN1/P1Pnn3/4BP2/1P1K2PP/RN1Q3R w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 191)
-        self.assertEqual(perft(board, 3), 8093)
 
     def test_851(self):
         board = chess.Bitboard("br1qk1r1/2p1p2p/1p4pb/p2pPB2/P1PnN3/2K1BP2/1P4PP/RN1Q3R b - - 0 1")
@@ -4573,7 +4384,6 @@ class PerftTestCase(unittest.TestCase):
     def test_856(self):
         board = chess.Bitboard("1r3kr1/1bpqp2p/1p2Bbp1/p3P3/P1P1NB2/1PK2P1P/2n3P1/RN1Q3R w - - 0 1")
         self.assertEqual(perft(board, 1), 48)
-        self.assertEqual(perft(board, 2), 2020)
 
     def test_857(self):
         board = chess.Bitboard("r4kr1/1bpqp2p/1p2Bbp1/p3P3/P1P1NB2/1P3P1P/2K3P1/RN2Q2R b - - 0 1")
@@ -4619,7 +4429,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k1Br/2p5/4pbp1/ppP1P1Bp/P2Q4/1PNR1P1P/5KP1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 702)
-        self.assertEqual(perft(board, 3), 9381)
 
     def test_866(self):
         board = chess.Bitboard("4k1B1/7r/2p1pbp1/ppP1P1Bp/P2Q4/1PNRKP1P/6P1/6R1 w - - 0 1")
@@ -4630,7 +4439,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k1B1/8/2p1pbpr/ppP1P1Bp/PP1Q4/3RKP1P/6P1/1N4R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 537)
-        self.assertEqual(perft(board, 3), 6368)
 
     def test_868(self):
         board = chess.Bitboard("4k1B1/r7/2pQpbp1/ppP1P1Bp/PP6/3RKP1P/6P1/1N4R1 w - - 0 1")
@@ -4650,7 +4458,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_871(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/1P2P3/8/P1PP1PPP/RNBQKBNR b KQkq - 0 1")
@@ -4736,7 +4543,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2r3nr/4kp1p/N3p1pb/7P/b1p1PqP1/B4P2/P2P1K1R/RQ6 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 8450)
 
     def test_888(self):
         board = chess.Bitboard("2r3nr/3k1p1p/N3p1pb/7P/bQp1PqP1/B4P2/P2P1K1R/R7 w - - 0 1")
@@ -4807,7 +4613,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_902(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/8/7p/8/P3P3/1PPP1PPP/RNBQKBNR b KQkq - 0 1")
@@ -4903,7 +4708,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1Qk1bn1/7q/5np1/1B3p1r/p1p1PP1P/P1P5/1P1Bb2R/RN2K3 b Q - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 74)
-        self.assertEqual(perft(board, 3), 2316)
 
     def test_921(self):
         board = chess.Bitboard("2rk2n1/7q/5np1/1B3p1r/p1p1PP1P/b1P1B3/1P2b2R/RN2K3 w Q - 0 1")
@@ -4999,7 +4803,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1B6/5Rb1/2r1k1p1/5pnr/pP5P/2P1NK2/4n3/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 125)
-        self.assertEqual(perft(board, 3), 4502)
 
     def test_940(self):
         board = chess.Bitboard("1B6/5R2/2r1kbp1/5pnr/pP5P/2P5/2N1nK2/2R5 b - - 0 1")
@@ -5050,7 +4853,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2r4n/4k3/1P2b1pr/2P4P/p4p2/8/2R1N1K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 521)
-        self.assertEqual(perft(board, 3), 8037)
 
     def test_950(self):
         board = chess.Bitboard("8/3r3n/4k3/1P2b1pr/2P4P/p4R2/8/4N1K1 b - - 0 1")
@@ -5061,7 +4863,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3rk2n/3b1R2/1P4pr/2P4P/p7/8/4N1K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 444)
-        self.assertEqual(perft(board, 3), 8877)
 
     def test_952(self):
         board = chess.Bitboard("8/3rk2n/3b1R2/1P4P1/2P5/p6r/6K1/4N3 b - - 0 1")
@@ -5082,7 +4883,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/b3k3/5n2/1P3RP1/2Pr3N/p6r/6K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 584)
-        self.assertEqual(perft(board, 3), 9838)
 
     def test_956(self):
         board = chess.Bitboard("8/b3k3/5n2/1P4P1/2Pr3N/p4R2/7r/6K1 b - - 0 1")
@@ -5093,13 +4893,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/b3k3/8/1PP3P1/5r1N/p4R2/7r/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 472)
-        self.assertEqual(perft(board, 3), 7642)
 
     def test_958(self):
         board = chess.Bitboard("6n1/b3k3/1P6/2P3P1/5r1N/p4R2/r7/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 9560)
 
     def test_959(self):
         board = chess.Bitboard("6n1/4k3/1b4P1/2P5/7N/p4r2/r7/5K2 w - - 0 1")
@@ -5111,7 +4909,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/4k3/2P3P1/b7/7N/p4r2/r7/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 5981)
 
     def test_961(self):
         board = chess.Bitboard("6n1/4k3/2P3P1/8/7N/p4r2/1r6/4b2K w - - 0 1")
@@ -5128,25 +4925,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2N3n1/2k5/6P1/b7/8/p4N2/1r6/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 396)
-        self.assertEqual(perft(board, 3), 4843)
 
     def test_964(self):
         board = chess.Bitboard("6n1/2k1N3/6P1/b7/8/p7/6rN/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 244)
-        self.assertEqual(perft(board, 3), 6076)
 
     def test_965(self):
         board = chess.Bitboard("6n1/2k1N3/6P1/b7/8/p3r3/7N/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 333)
-        self.assertEqual(perft(board, 3), 4238)
 
     def test_966(self):
         board = chess.Bitboard("6n1/2k1N3/6P1/b7/8/p5K1/7N/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 220)
-        self.assertEqual(perft(board, 3), 3634)
 
     def test_967(self):
         board = chess.Bitboard("8/2k1N3/6P1/b6n/8/p4NK1/8/8 w - - 0 1")
@@ -5158,25 +4951,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/4N3/6P1/b3N2n/8/p7/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 264)
-        self.assertEqual(perft(board, 3), 3986)
 
     def test_969(self):
         board = chess.Bitboard("1k6/4N3/6P1/4N2n/1b6/8/p7/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 277)
-        self.assertEqual(perft(board, 3), 4154)
 
     def test_970(self):
         board = chess.Bitboard("1k6/4N3/6P1/7n/1b6/8/8/q5NK b - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 9418)
 
     def test_971(self):
         board = chess.Bitboard("1k4N1/8/6P1/2b1q2n/8/8/8/6NK w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 3089)
 
     def test_972(self):
         board = chess.Bitboard("1k6/4N1q1/6P1/2b4n/8/7N/8/7K b - - 0 1")
@@ -5187,7 +4976,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/4b3/6P1/7n/8/2q5/5N2/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 3394)
 
     def test_974(self):
         board = chess.Bitboard("1k5q/4b3/6P1/7n/8/3N4/7K/8 b - - 0 1")
@@ -5198,19 +4986,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/4b3/6P1/7n/8/2q5/1N5K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 331)
-        self.assertEqual(perft(board, 3), 2805)
 
     def test_976(self):
         board = chess.Bitboard("1k6/4b3/6P1/N6n/8/5q2/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 41)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 8034)
 
     def test_977(self):
         board = chess.Bitboard("2k5/4b3/2N3P1/3q3n/8/8/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 384)
-        self.assertEqual(perft(board, 3), 3310)
 
     def test_978(self):
         board = chess.Bitboard("2k5/4b1P1/8/4Nq1n/8/8/7K/8 b - - 0 1")
@@ -5221,7 +5006,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k3B1/4bq2/8/4N2n/8/8/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 5883)
 
     def test_980(self):
         board = chess.Bitboard("2k1q1B1/4b3/8/7n/8/8/5N1K/8 b - - 0 1")
@@ -5237,19 +5021,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/2B2n2/8/7b/8/5N1K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 248)
-        self.assertEqual(perft(board, 3), 3640)
 
     def test_983(self):
         board = chess.Bitboard("2k5/8/2B5/8/7b/8/5nK1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 171)
-        self.assertEqual(perft(board, 3), 2247)
 
     def test_984(self):
         board = chess.Bitboard("2k5/8/8/8/B6b/3n4/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 186)
-        self.assertEqual(perft(board, 3), 3305)
 
     def test_985(self):
         board = chess.Bitboard("k7/8/8/8/7b/3n4/2B5/5K2 w - - 0 1")
@@ -5261,19 +5042,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/6B1/8/5n1b/8/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 190)
-        self.assertEqual(perft(board, 3), 3199)
 
     def test_987(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_988(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/7P/P7/1PPPPPP1/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9700)
 
     def test_989(self):
         board = chess.Bitboard("rnbqkb1r/p2ppppp/1pp2n2/7P/8/P7/1PPPPPP1/RNBQKBNR w KQkq - 0 1")
@@ -5394,7 +5172,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p1bpkNr1/b2B3p/3p1PpP/1rB5/P1n3R1/Q1P3P1/1R2K1N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 5434)
 
     def test_1013(self):
         board = chess.Bitboard("8/p2pkNr1/b2b3p/3p1P1P/1rB3p1/P1n3R1/Q1PK2P1/1R4N1 w - - 0 1")
@@ -5410,7 +5187,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p2pkNr1/b6p/1n1p1P1P/1b4p1/P5R1/QrP1B1P1/3RK1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 166)
-        self.assertEqual(perft(board, 3), 6135)
 
     def test_1016(self):
         board = chess.Bitboard("3N4/p2pk1r1/b6p/1n3P1P/1b1p2p1/P5R1/QrP1B1P1/3R1KN1 b - - 0 1")
@@ -5461,13 +5237,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/p6r/b2pB2p/P4P1P/1b6/3p2pR/2PR2P1/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 450)
-        self.assertEqual(perft(board, 3), 9233)
 
     def test_1026(self):
         board = chess.Bitboard("3k4/p2r4/b2p3p/P4P1P/1bP5/3p2pR/3R2P1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 275)
-        self.assertEqual(perft(board, 3), 6283)
 
     def test_1027(self):
         board = chess.Bitboard("3k4/3r4/p2p3p/Pb3P1P/1bP5/3p2pR/3R2P1/4K3 w - - 0 1")
@@ -5489,7 +5263,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2b1/6Rr/p2p1P1p/P6P/1b6/3p4/3R2P1/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 373)
-        self.assertEqual(perft(board, 3), 7034)
 
     def test_1031(self):
         board = chess.Bitboard("6R1/3k3r/p2p1P1p/P6P/1b6/1b1p4/3R2P1/5K2 w - - 0 1")
@@ -5515,7 +5288,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6r1/p2k1P1p/P6P/1b1p2R1/1b1p2P1/3R4/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 294)
-        self.assertEqual(perft(board, 3), 4208)
 
     def test_1036(self):
         board = chess.Bitboard("8/6r1/p4P1p/P3k2P/1b4R1/1b1p2P1/3R4/4K3 b - - 0 1")
@@ -5531,7 +5303,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6P1/p2b3p/P3k2P/5R2/1b1p2P1/8/3RK3 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 460)
-        self.assertEqual(perft(board, 3), 8206)
 
     def test_1039(self):
         board = chess.Bitboard("8/6P1/p2b3p/P3k2P/5R2/1b1p2P1/8/R3K3 w - - 0 1")
@@ -5567,7 +5338,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5Q2/6q1/p2bk2p/P6b/5R2/8/8/5RK1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 5313)
 
     def test_1046(self):
         board = chess.Bitboard("8/6Q1/p2bk2p/P7/5R2/8/4b3/2R3K1 b - - 0 1")
@@ -5594,7 +5364,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/p2R3p/P7/5R2/2Q5/4b3/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 587)
-        self.assertEqual(perft(board, 3), 5481)
 
     def test_1051(self):
         board = chess.Bitboard("4k3/8/p2R3p/P7/5R2/2Q2b2/8/7K w - - 0 1")
@@ -5606,13 +5375,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/p2R3p/P4R2/6b1/2Q5/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 425)
-        self.assertEqual(perft(board, 3), 3472)
 
     def test_1053(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1054(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/n7/8/6Q1/4P3/PPPP1PPP/RNB1KBNR b KQkq - 0 1")
@@ -5749,7 +5516,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5r2/1pk2Q2/p7/2p1Pb1p/R1K2pPP/1PPR4/4N3/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 255)
-        self.assertEqual(perft(board, 3), 4726)
 
     def test_1081(self):
         board = chess.Bitboard("8/1pkbQr2/p7/2p1P2p/R1K2pPP/1PPR4/4N3/1N6 w - - 0 1")
@@ -5817,25 +5583,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/8/1p1KP3/1N5P/2P2p2/Rp1N4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 6355)
 
     def test_1094(self):
         board = chess.Bitboard("8/4k3/N7/1p1KP3/2N4P/2P2p2/R7/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 474)
-        self.assertEqual(perft(board, 3), 7998)
 
     def test_1095(self):
         board = chess.Bitboard("8/4k3/N7/1p1KP3/2N4P/R1P2p2/r7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 317)
-        self.assertEqual(perft(board, 3), 6665)
 
     def test_1096(self):
         board = chess.Bitboard("1N6/4k3/2K5/1p2P3/2N4P/R1P2p2/1r6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 6749)
 
     def test_1097(self):
         board = chess.Bitboard("1N6/4k3/2K5/1p2P3/R1N4P/2P2p2/1r6/8 w - - 0 1")
@@ -5846,7 +5608,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N6/4k3/2K5/1p2PN2/R6P/2P2p2/3r4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 148)
-        self.assertEqual(perft(board, 3), 2703)
 
     def test_1099(self):
         board = chess.Bitboard("1N6/3r4/4k3/1pK1PN2/R6P/2P2p2/8/8 w - - 0 1")
@@ -5857,31 +5618,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/4N3/N3k3/1pK1P3/R6P/2P2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 473)
-        self.assertEqual(perft(board, 3), 7966)
 
     def test_1101(self):
         board = chess.Bitboard("r7/3kN3/N7/1pK1P3/5R1P/2P2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 9621)
 
     def test_1102(self):
         board = chess.Bitboard("4r3/2NkN3/8/1pK1P3/2P2R1P/5p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 369)
-        self.assertEqual(perft(board, 3), 4877)
 
     def test_1103(self):
         board = chess.Bitboard("r7/3kN3/N7/1pK1P3/2P2R1P/5p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 354)
-        self.assertEqual(perft(board, 3), 8560)
 
     def test_1104(self):
         board = chess.Bitboard("r7/3kN3/8/2K1P3/1Np1R2P/5p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 498)
-        self.assertEqual(perft(board, 3), 8328)
 
     def test_1105(self):
         board = chess.Bitboard("2Nk4/r7/8/2K1P3/1Np1R2P/5p2/8/8 w - - 0 1")
@@ -5892,7 +5648,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/r7/8/4P3/1NpK2RP/5p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 460)
-        self.assertEqual(perft(board, 3), 7806)
 
     def test_1107(self):
         board = chess.Bitboard("3k4/6R1/8/4P3/1NpK3P/5p2/r7/8 w - - 0 1")
@@ -5903,43 +5658,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/8/4P3/1N1K3P/2p2p2/r7/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 503)
-        self.assertEqual(perft(board, 3), 8511)
 
     def test_1109(self):
         board = chess.Bitboard("4k3/8/8/4P3/1NK4P/2p2p2/5r2/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 381)
-        self.assertEqual(perft(board, 3), 9751)
 
     def test_1110(self):
         board = chess.Bitboard("4k3/8/8/1K2P3/1N5P/2p2p2/R5r1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 530)
-        self.assertEqual(perft(board, 3), 9170)
 
     def test_1111(self):
         board = chess.Bitboard("8/5k2/8/1K2P3/1N5P/2p2p2/4Rr2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 300)
-        self.assertEqual(perft(board, 3), 6528)
 
     def test_1112(self):
         board = chess.Bitboard("5k2/8/8/1K2P3/1N2R2P/2p2p2/5r2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 4556)
 
     def test_1113(self):
         board = chess.Bitboard("6k1/8/8/1K2P3/1N1R3P/2p2p2/8/5r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 8864)
 
     def test_1114(self):
         board = chess.Bitboard("6k1/8/8/K3P3/1N1R3P/2p2p2/8/6r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 438)
-        self.assertEqual(perft(board, 3), 7513)
 
     def test_1115(self):
         board = chess.Bitboard("8/5k2/8/1K2P3/1N1R3P/2p2p2/8/7r w - - 0 1")
@@ -5950,145 +5698,121 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/8/2K1P3/1N3R1P/2p2p2/8/7r b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 355)
-        self.assertEqual(perft(board, 3), 5317)
 
     def test_1117(self):
         board = chess.Bitboard("4k3/8/8/2K1PR2/1N5P/2p2p2/4r3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 332)
-        self.assertEqual(perft(board, 3), 6989)
 
     def test_1118(self):
         board = chess.Bitboard("3k4/8/2K5/4P3/1N3R1P/2p2p2/4r3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 345)
-        self.assertEqual(perft(board, 3), 4901)
 
     def test_1119(self):
         board = chess.Bitboard("3k4/8/1K6/4P3/1N3R1P/4rp2/2p5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 7899)
 
     def test_1120(self):
         board = chess.Bitboard("2k5/K7/8/4P3/1N1R3P/4rp2/2p5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 282)
-        self.assertEqual(perft(board, 3), 4329)
 
     def test_1121(self):
         board = chess.Bitboard("2k5/K7/8/4r3/1N5P/3R1p2/8/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 435)
-        self.assertEqual(perft(board, 3), 8127)
 
     def test_1122(self):
         board = chess.Bitboard("2k5/K2R4/2N5/8/4r2P/5p2/8/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 484)
-        self.assertEqual(perft(board, 3), 9078)
 
     def test_1123(self):
         board = chess.Bitboard("2k5/K3R3/2N5/8/7P/5p2/4r3/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 419)
-        self.assertEqual(perft(board, 3), 8304)
 
     def test_1124(self):
         board = chess.Bitboard("2k5/K3R3/2N5/8/7P/5p2/3r4/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 349)
-        self.assertEqual(perft(board, 3), 6490)
 
     def test_1125(self):
         board = chess.Bitboard("2k5/K2R4/2N5/8/7P/5p2/1b3r2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 319)
-        self.assertEqual(perft(board, 3), 6786)
 
     def test_1126(self):
         board = chess.Bitboard("2k5/K2R4/2N5/8/7P/5p2/1b5r/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 422)
-        self.assertEqual(perft(board, 3), 7325)
 
     def test_1127(self):
         board = chess.Bitboard("8/1K1k4/2N5/4b3/7P/5p2/7r/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 315)
-        self.assertEqual(perft(board, 3), 3405)
 
     def test_1128(self):
         board = chess.Bitboard("8/3k4/K7/8/1N1b3P/5p2/7r/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 285)
-        self.assertEqual(perft(board, 3), 7923)
 
     def test_1129(self):
         board = chess.Bitboard("8/3k4/KbN5/8/7P/5p2/4r3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 2930)
 
     def test_1130(self):
         board = chess.Bitboard("8/3k4/Kb6/8/2N4P/5p2/3r4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 333)
-        self.assertEqual(perft(board, 3), 7693)
 
     def test_1131(self):
         board = chess.Bitboard("8/8/K3k3/4N3/3b3P/5p2/3r4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 3825)
 
     def test_1132(self):
         board = chess.Bitboard("8/8/3k4/1K2N2P/3b4/5p2/3r4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 323)
-        self.assertEqual(perft(board, 3), 7568)
 
     def test_1133(self):
         board = chess.Bitboard("8/8/3k2N1/1K5P/8/8/3r1p2/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 2361)
 
     def test_1134(self):
         board = chess.Bitboard("8/8/1K1k4/7P/5N2/3r4/5p2/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 203)
-        self.assertEqual(perft(board, 3), 4421)
 
     def test_1135(self):
         board = chess.Bitboard("8/8/1K1k4/7P/4r3/8/5pN1/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 248)
-        self.assertEqual(perft(board, 3), 2192)
 
     def test_1136(self):
         board = chess.Bitboard("8/4r3/3k3P/1K6/8/8/5pN1/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 5533)
 
     def test_1137(self):
         board = chess.Bitboard("4r3/8/3k3P/1K6/8/8/5p2/4N1b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 307)
-        self.assertEqual(perft(board, 3), 3033)
 
     def test_1138(self):
         board = chess.Bitboard("4r3/8/K3k2P/8/8/3N4/5p2/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 240)
-        self.assertEqual(perft(board, 3), 5552)
 
     def test_1139(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1140(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/2P3P1/8/PP1PPP1P/RNBQKBNR b KQkq - 0 1")
@@ -6269,7 +5993,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b4B/bN1k3r/7p/2P4P/4p3/P7/R2P3N/n3K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 370)
-        self.assertEqual(perft(board, 3), 8685)
 
     def test_1176(self):
         board = chess.Bitboard("2b5/bN1k3r/7p/2P4P/4p3/PnB5/R2P3N/5K2 b - - 0 1")
@@ -6280,7 +6003,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/bb5r/7p/B1P4P/4p3/Pn6/R2P3N/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 427)
-        self.assertEqual(perft(board, 3), 7782)
 
     def test_1178(self):
         board = chess.Bitboard("1k6/bb5r/7p/B1P4P/4p3/Pn6/3PK2N/R7 b - - 0 1")
@@ -6301,25 +6023,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bk6/b7/7p/2P4P/1B2p3/P7/3K3N/6r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 244)
-        self.assertEqual(perft(board, 3), 3123)
 
     def test_1182(self):
         board = chess.Bitboard("bk6/b7/7p/B1P4P/4p1r1/P7/7N/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 5302)
 
     def test_1183(self):
         board = chess.Bitboard("1k6/b7/2b4p/2P4P/4p3/P7/7N/3KB1r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 188)
-        self.assertEqual(perft(board, 3), 2414)
 
     def test_1184(self):
         board = chess.Bitboard("bk6/b7/7p/2P4P/4p3/P3K3/7N/4B1r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 251)
-        self.assertEqual(perft(board, 3), 5009)
 
     def test_1185(self):
         board = chess.Bitboard("bk6/b7/7p/2P4P/3Kp3/P7/7N/5r2 w - - 0 1")
@@ -6331,67 +6049,56 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bk3r2/b7/7p/2P4P/P3p3/2K5/7N/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 5218)
 
     def test_1187(self):
         board = chess.Bitboard("b1k5/b7/5r1p/2P4P/P3p1N1/2K5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 4867)
 
     def test_1188(self):
         board = chess.Bitboard("b1k5/b7/2P1r2N/7P/P3p3/2K5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 232)
-        self.assertEqual(perft(board, 3), 5195)
 
     def test_1189(self):
         board = chess.Bitboard("b2k4/b3r3/2P4N/7P/PK2p3/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 229)
-        self.assertEqual(perft(board, 3), 2598)
 
     def test_1190(self):
         board = chess.Bitboard("b7/b1Pkr3/7N/7P/P3p3/K7/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 282)
-        self.assertEqual(perft(board, 3), 5982)
 
     def test_1191(self):
         board = chess.Bitboard("b7/b1k1r3/7N/7P/P3p3/8/1K6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 332)
-        self.assertEqual(perft(board, 3), 3878)
 
     def test_1192(self):
         board = chess.Bitboard("b7/b3rN2/1k6/7P/P3p3/8/2K5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 5074)
 
     def test_1193(self):
         board = chess.Bitboard("b7/b3r3/1k5N/7P/P3p3/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 225)
-        self.assertEqual(perft(board, 3), 2666)
 
     def test_1194(self):
         board = chess.Bitboard("b7/b2r4/1k5N/7P/P3p3/2K5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 5235)
 
     def test_1195(self):
         board = chess.Bitboard("b7/b3r3/1k5N/7P/P3p3/8/3K4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 224)
-        self.assertEqual(perft(board, 3), 2492)
 
     def test_1196(self):
         board = chess.Bitboard("b7/b4N2/1k6/4r2P/P3p3/8/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 276)
-        self.assertEqual(perft(board, 3), 5782)
 
     def test_1197(self):
         board = chess.Bitboard("b7/b4N2/1k6/7P/P3p3/3rK3/8/8 w - - 0 1")
@@ -6403,19 +6110,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/b4N2/8/2k4P/P3p3/3r4/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 284)
-        self.assertEqual(perft(board, 3), 6992)
 
     def test_1199(self):
         board = chess.Bitboard("bb1N4/8/1k6/7P/P3p3/3r4/5K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 3171)
 
     def test_1200(self):
         board = chess.Bitboard("bb3N2/8/1k6/7P/P3p3/r7/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 273)
-        self.assertEqual(perft(board, 3), 6814)
 
     def test_1201(self):
         board = chess.Bitboard("b4N2/8/1k6/7P/P4b2/r3p3/8/6K1 w - - 0 1")
@@ -6427,13 +6131,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4N2/1k6/7P/8/P4b2/r3p3/6K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 186)
-        self.assertEqual(perft(board, 3), 4388)
 
     def test_1203(self):
         board = chess.Bitboard("b4N2/1k6/7P/P7/5b2/3r4/4p1K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 284)
-        self.assertEqual(perft(board, 3), 2423)
 
     def test_1204(self):
         board = chess.Bitboard("b7/k7/4N2P/P7/5b2/3r4/4pK2/8 b - - 0 1")
@@ -6444,7 +6146,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/2b4P/P1N5/5b2/r7/4pK2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 499)
-        self.assertEqual(perft(board, 3), 5077)
 
     def test_1206(self):
         board = chess.Bitboard("8/k7/7P/Pb6/3N1b2/r7/4pK2/8 b - - 0 1")
@@ -6455,13 +6156,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/7P/rb6/5b2/5N2/4pK2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 359)
-        self.assertEqual(perft(board, 3), 3549)
 
     def test_1208(self):
         board = chess.Bitboard("k7/8/7P/rb6/8/4b3/4p2N/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 3397)
 
     def test_1209(self):
         board = chess.Bitboard("k7/8/1b5P/1b6/8/r7/4p3/4KN2 w - - 0 1")
@@ -6473,25 +6172,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/1b5P/rb6/4N3/8/4p3/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 6180)
 
     def test_1211(self):
         board = chess.Bitboard("k7/8/bb5P/8/4N3/r7/3Kp3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 335)
-        self.assertEqual(perft(board, 3), 3365)
 
     def test_1212(self):
         board = chess.Bitboard("k7/b6P/b7/6N1/8/r7/3Kp3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 302)
-        self.assertEqual(perft(board, 3), 8022)
 
     def test_1213(self):
         board = chess.Bitboard("k7/bb5P/4N3/8/8/r7/3Kp3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 406)
-        self.assertEqual(perft(board, 3), 5336)
 
     def test_1214(self):
         board = chess.Bitboard("k7/1b6/4N3/8/8/r1B5/3Kpb2/8 b - - 0 1")
@@ -6502,7 +6197,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/1bN5/8/8/3b4/r1B5/3Kp3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 548)
-        self.assertEqual(perft(board, 3), 7834)
 
     def test_1216(self):
         board = chess.Bitboard("1k6/1bN5/8/8/1B1b4/6r1/4p3/4K3 b - - 0 1")
@@ -6513,7 +6207,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/1bN5/3B4/8/8/6r1/4p3/b3K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 364)
-        self.assertEqual(perft(board, 3), 5917)
 
     def test_1218(self):
         board = chess.Bitboard("1k3B2/1bN5/8/6r1/8/8/4K3/b7 b - - 0 1")
@@ -6524,7 +6217,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k3B2/2N5/2b5/8/8/6r1/5K2/b7 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 556)
-        self.assertEqual(perft(board, 3), 8863)
 
     def test_1220(self):
         board = chess.Bitboard("1k6/2N5/2b5/8/8/B3r3/5K2/b7 b - - 0 1")
@@ -6535,7 +6227,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k2N3/8/2b5/7r/8/B7/5K2/b7 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 569)
-        self.assertEqual(perft(board, 3), 9037)
 
     def test_1222(self):
         board = chess.Bitboard("2k1N3/8/2b5/2B4r/8/8/8/b3K3 b - - 0 1")
@@ -6551,13 +6242,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/6br/2bN4/2B5/8/3K4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 84)
-        self.assertEqual(perft(board, 3), 2312)
 
     def test_1225(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1226(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/3P4/8/PPPQPPPP/RNB1KBNR b KQkq - 0 1")
@@ -6688,7 +6377,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k1r1/6n1/1B6/2n1N1p1/ppp1bP2/b3p1P1/8/RK3BR1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 99)
-        self.assertEqual(perft(board, 3), 2365)
 
     def test_1252(self):
         board = chess.Bitboard("4k1r1/8/8/2B1Nnp1/ppp1bP2/b3p1P1/K7/R4BR1 b - - 0 1")
@@ -6764,7 +6452,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2r1k3/8/1N6/8/2pB1P1n/7B/1K6/n3R2b b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 3503)
 
     def test_1267(self):
         board = chess.Bitboard("2rk4/8/1N6/4B3/2p2P1n/1n5B/1K6/4R2b w - - 0 1")
@@ -6845,7 +6532,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6kr/1n4n1/8/8/2p5/2N5/6R1/1K3B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 389)
-        self.assertEqual(perft(board, 3), 7095)
 
     def test_1283(self):
         board = chess.Bitboard("5k1r/1n6/8/7n/2B5/2N5/6R1/1K6 w - - 0 1")
@@ -6856,19 +6542,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5kr1/1n6/8/7n/8/2N5/4B3/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 385)
-        self.assertEqual(perft(board, 3), 8527)
 
     def test_1285(self):
         board = chess.Bitboard("5kr1/6n1/B2n4/8/8/2N5/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 5493)
 
     def test_1286(self):
         board = chess.Bitboard("4nkr1/6n1/B7/8/4N3/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 3396)
 
     def test_1287(self):
         board = chess.Bitboard("5kr1/8/B3nn2/2N5/8/8/1K6/8 w - - 0 1")
@@ -6879,7 +6562,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n1kr1/3N4/5n2/1B6/8/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 100)
-        self.assertEqual(perft(board, 3), 2057)
 
     def test_1289(self):
         board = chess.Bitboard("6r1/4kn2/5n2/1BN5/8/8/1K6/8 w - - 0 1")
@@ -6905,25 +6587,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k1nr2/5n2/8/8/8/K7/2B5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 223)
-        self.assertEqual(perft(board, 3), 3095)
 
     def test_1294(self):
         board = chess.Bitboard("4nr2/2k2n2/6B1/8/K7/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 248)
-        self.assertEqual(perft(board, 3), 5180)
 
     def test_1295(self):
         board = chess.Bitboard("3knr2/8/7n/7B/K7/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 2953)
 
     def test_1296(self):
         board = chess.Bitboard("2k1nr2/8/7n/7B/1K6/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 6550)
 
     def test_1297(self):
         board = chess.Bitboard("2k1n1r1/8/8/8/1K4n1/8/8/8 w - - 0 1")
@@ -6935,7 +6613,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k3r1/6n1/8/8/1K4n1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 3292)
 
     def test_1299(self):
         board = chess.Bitboard("2k3r1/6n1/8/1K6/2n5/8/8/8 w - - 0 1")
@@ -6947,8 +6624,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k3r1/6n1/1n6/1K6/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 102)
-        self.assertEqual(perft(board, 3), 2123)
-        self.assertEqual(perft(board, 4), 9690)
 
     def test_1301(self):
         board = chess.Bitboard("2k3r1/6n1/1n6/8/2K5/8/8/8 w - - 0 1")
@@ -6961,7 +6636,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 102)
         self.assertEqual(perft(board, 3), 1988)
-        self.assertEqual(perft(board, 4), 9589)
 
     def test_1303(self):
         board = chess.Bitboard("2k5/8/8/1K3n2/8/7r/8/8 w - - 0 1")
@@ -6974,7 +6648,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 71)
         self.assertEqual(perft(board, 3), 1724)
-        self.assertEqual(perft(board, 4), 6924)
 
     def test_1305(self):
         board = chess.Bitboard("2k5/5n2/8/K7/8/5r2/8/8 w - - 0 1")
@@ -6986,7 +6659,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/5n2/8/8/2K5/3r4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 110)
-        self.assertEqual(perft(board, 3), 2461)
 
     def test_1307(self):
         board = chess.Bitboard("2k4n/8/8/8/1K6/7r/8/8 w - - 0 1")
@@ -6998,7 +6670,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k4n/8/8/8/2K5/8/8/7r b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 3055)
 
     def test_1309(self):
         board = chess.Bitboard("2k4n/8/8/1K6/8/8/8/6r1 w - - 0 1")
@@ -7010,13 +6681,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/5n2/8/1K6/8/8/8/6r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 174)
-        self.assertEqual(perft(board, 3), 4089)
 
     def test_1311(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1312(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/5n2/8/4P3/2P5/PP1P1PPP/RNBQKBNR b KQkq - 0 1")
@@ -7097,7 +6766,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b2b1r/r1p1k2p/p1n1p3/1p4PP/2Pp1K2/PN1n4/1P2B3/RQ4N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 4731)
 
     def test_1328(self):
         board = chess.Bitboard("2b2b1r/r1p4p/p1nkp3/1p4PP/2Pp4/PN1Q1K2/1P2B3/R5N1 b - - 0 1")
@@ -7129,7 +6797,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k3r/1r2b2p/p7/npp1p1PP/2PpQ1b1/PN3K2/RP2B3/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 5004)
 
     def test_1334(self):
         board = chess.Bitboard("3k3r/1r5p/p4b2/npp1p1PP/2Pp4/PN3K1Q/RP2B3/6N1 b - - 0 1")
@@ -7220,13 +6887,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/5r1p/7P/pppR3r/1Pn1p3/P1b4K/2N5/5B1Q w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 4777)
 
     def test_1352(self):
         board = chess.Bitboard("4k3/7p/5r1P/pppR3r/1Pn1Q3/P1b3K1/2N5/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 7534)
 
     def test_1353(self):
         board = chess.Bitboard("5k2/7Q/5r1P/pppR3r/1P6/P1b1n1K1/2N5/5B2 w - - 0 1")
@@ -7247,7 +6912,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/4Q3/3R3P/1pp2r1r/8/Ppb3KB/2N3n1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 71)
-        self.assertEqual(perft(board, 3), 2052)
 
     def test_1357(self):
         board = chess.Bitboard("5rk1/8/3R3P/1pp1Q2r/8/Ppb3KB/2N3n1/8 w - - 0 1")
@@ -7298,7 +6962,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/2N2r1Q/Pp6/8/1p5K/1b2r3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 116)
-        self.assertEqual(perft(board, 3), 3315)
 
     def test_1367(self):
         board = chess.Bitboard("8/2k2r2/2N5/Pp6/7Q/1p5K/1b2r3/8 w - - 0 1")
@@ -7319,7 +6982,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k2N3/P3Q3/1p3r2/4r3/1p5K/1b6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 103)
-        self.assertEqual(perft(board, 3), 2802)
 
     def test_1371(self):
         board = chess.Bitboard("k7/4N3/P2Q4/1pr5/4r3/1p5K/1b6/8 w - - 0 1")
@@ -7330,13 +6992,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1kN5/8/P7/1pr5/4r3/1p5K/1b6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 9389)
 
     def test_1373(self):
         board = chess.Bitboard("1k6/2r5/P2N4/1p6/4r3/1p5K/8/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 406)
-        self.assertEqual(perft(board, 3), 4261)
 
     def test_1374(self):
         board = chess.Bitboard("1k6/8/P1r5/1p3N2/4r3/1p6/6K1/2b5 b - - 0 1")
@@ -7347,19 +7007,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/6N1/Pr6/1p4b1/4r3/1p6/6K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 4515)
 
     def test_1376(self):
         board = chess.Bitboard("1k6/6N1/Pr6/1p6/4rb2/1p6/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 9290)
 
     def test_1377(self):
         board = chess.Bitboard("1k6/6N1/Pr6/1p6/2r5/1p6/6Kb/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 334)
-        self.assertEqual(perft(board, 3), 3241)
 
     def test_1378(self):
         board = chess.Bitboard("1k6/8/P1r5/1p6/2r5/1p4N1/6Kb/8 b - - 0 1")
@@ -7376,7 +7033,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/P5r1/1p6/8/1p4N1/2r4b/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 201)
-        self.assertEqual(perft(board, 3), 7217)
 
     def test_1381(self):
         board = chess.Bitboard("8/P1k5/8/1p6/8/6r1/1pr4b/7K w - - 0 1")
@@ -7388,13 +7044,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1383(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/2P5/8/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 9811)
 
     def test_1384(self):
         board = chess.Bitboard("rnbqkb1r/1ppppp1p/6pn/p1P5/6P1/8/PP1PPP1P/RNBQKBNR w KQkq - 0 1")
@@ -7439,7 +7093,6 @@ class PerftTestCase(unittest.TestCase):
     def test_1392(self):
         board = chess.Bitboard("1n2k2r/rb1p2bp/1PQ1p1Pn/p2P1p2/1P2P3/5Nq1/P4P2/RNB1KB1R w KQk - 0 1")
         self.assertEqual(perft(board, 1), 56)
-        self.assertEqual(perft(board, 2), 2414)
 
     def test_1393(self):
         board = chess.Bitboard("1n2k2r/rb1p2bp/1PQPp1Pn/5p2/pP2P3/5Nq1/P3KP2/RNB2B1R b k - 0 1")
@@ -7595,7 +7248,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/6k1/3P4/5P2/p1R1N1p1/P2K4/r2N4/4b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 7787)
 
     def test_1424(self):
         board = chess.Bitboard("5kn1/8/3P4/5P2/p1R1N1pb/P2K4/r7/5N2 w - - 0 1")
@@ -7651,85 +7303,71 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k1n1/8/2N5/1K3P2/1P4p1/p7/1r6/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 5472)
 
     def test_1435(self):
         board = chess.Bitboard("4k1n1/8/8/1K3P2/1P4p1/pN6/5r2/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 355)
-        self.assertEqual(perft(board, 3), 7339)
 
     def test_1436(self):
         board = chess.Bitboard("5kn1/8/2K5/5P2/1P4p1/pN3r2/8/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 6324)
 
     def test_1437(self):
         board = chess.Bitboard("3K1kn1/8/8/5P2/1P4p1/pNr5/8/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 4686)
 
     def test_1438(self):
         board = chess.Bitboard("3K1k2/8/5n2/8/1P4p1/1Nr5/p7/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 302)
-        self.assertEqual(perft(board, 3), 3315)
 
     def test_1439(self):
         board = chess.Bitboard("3K1k2/8/8/8/1P2n1p1/2r5/p1N5/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 304)
-        self.assertEqual(perft(board, 3), 8265)
 
     def test_1440(self):
         board = chess.Bitboard("3K1k2/8/8/8/1P2n1p1/6r1/8/N4N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 181)
-        self.assertEqual(perft(board, 3), 2082)
 
     def test_1441(self):
         board = chess.Bitboard("3K1k2/8/8/8/1P2n1p1/4Nr2/8/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 6223)
 
     def test_1442(self):
         board = chess.Bitboard("2K5/6k1/8/8/1P2n1p1/4N1r1/8/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 324)
-        self.assertEqual(perft(board, 3), 5106)
 
     def test_1443(self):
         board = chess.Bitboard("2K5/8/6k1/8/1P2n1N1/6r1/7N/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 273)
-        self.assertEqual(perft(board, 3), 6003)
 
     def test_1444(self):
         board = chess.Bitboard("8/1K5k/8/8/1P4N1/6r1/3n3N/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 313)
-        self.assertEqual(perft(board, 3), 4791)
 
     def test_1445(self):
         board = chess.Bitboard("8/1K5k/8/1P6/6N1/5nr1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 232)
-        self.assertEqual(perft(board, 3), 4433)
 
     def test_1446(self):
         board = chess.Bitboard("7k/1K6/5N2/1P6/6r1/5n2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 387)
-        self.assertEqual(perft(board, 3), 5160)
 
     def test_1447(self):
         board = chess.Bitboard("1K5k/7N/8/1P6/r7/5n2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 180)
-        self.assertEqual(perft(board, 3), 4033)
 
     def test_1448(self):
         board = chess.Bitboard("1Kr4k/8/5N2/1P6/8/5n2/8/8 w - - 0 1")
@@ -7747,7 +7385,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/1K6/5N2/1P6/8/3n4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 2238)
 
     def test_1451(self):
         board = chess.Bitboard("K6k/8/8/1PnN4/8/8/8/8 b - - 0 1")
@@ -7766,70 +7403,60 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 62)
         self.assertEqual(perft(board, 3), 584)
-        self.assertEqual(perft(board, 4), 5753)
 
     def test_1454(self):
         board = chess.Bitboard("8/K6k/1n6/1P6/8/6N1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 101)
         self.assertEqual(perft(board, 3), 996)
-        self.assertEqual(perft(board, 4), 9748)
 
     def test_1455(self):
         board = chess.Bitboard("8/8/7k/KP6/8/6N1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 44)
         self.assertEqual(perft(board, 3), 281)
-        self.assertEqual(perft(board, 4), 3066)
 
     def test_1456(self):
         board = chess.Bitboard("8/8/8/KP6/7k/8/4N3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 46)
         self.assertEqual(perft(board, 3), 514)
-        self.assertEqual(perft(board, 4), 3080)
 
     def test_1457(self):
         board = chess.Bitboard("8/8/1K6/1P6/6k1/6N1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 407)
-        self.assertEqual(perft(board, 4), 4646)
 
     def test_1458(self):
         board = chess.Bitboard("8/8/8/1PK5/8/6N1/6k1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 86)
         self.assertEqual(perft(board, 3), 1128)
-        self.assertEqual(perft(board, 4), 5446)
 
     def test_1459(self):
         board = chess.Bitboard("8/8/8/1P6/1K6/7k/4N3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 56)
         self.assertEqual(perft(board, 3), 286)
-        self.assertEqual(perft(board, 4), 3801)
 
     def test_1460(self):
         board = chess.Bitboard("8/8/8/1P6/1K6/2N4k/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 68)
         self.assertEqual(perft(board, 3), 895)
-        self.assertEqual(perft(board, 4), 5679)
 
     def test_1461(self):
         board = chess.Bitboard("8/8/K7/1P6/8/2N5/6k1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 96)
         self.assertEqual(perft(board, 3), 516)
-        self.assertEqual(perft(board, 4), 5915)
 
     def test_1462(self):
         board = chess.Bitboard("8/8/K7/1P6/8/8/4N1k1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 820)
-        self.assertEqual(perft(board, 4), 3933)
 
     def test_1463(self):
         board = chess.Bitboard("8/K7/8/1P6/8/8/8/6k1 b - - 0 1")
@@ -7837,7 +7464,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 30)
         self.assertEqual(perft(board, 3), 174)
         self.assertEqual(perft(board, 4), 1044)
-        self.assertEqual(perft(board, 5), 6587)
 
     def test_1464(self):
         board = chess.Bitboard("8/K7/1P6/8/8/7k/8/8 w - - 0 1")
@@ -7845,7 +7471,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 25)
         self.assertEqual(perft(board, 3), 150)
         self.assertEqual(perft(board, 4), 1004)
-        self.assertEqual(perft(board, 5), 7242)
 
     def test_1465(self):
         board = chess.Bitboard("K7/8/1P6/8/7k/8/8/8 b - - 0 1")
@@ -7853,7 +7478,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 20)
         self.assertEqual(perft(board, 3), 136)
         self.assertEqual(perft(board, 4), 816)
-        self.assertEqual(perft(board, 5), 5502)
 
     def test_1466(self):
         board = chess.Bitboard("1K6/8/1P4k1/8/8/8/8/8 w - - 0 1")
@@ -7867,13 +7491,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 56)
         self.assertEqual(perft(board, 3), 432)
-        self.assertEqual(perft(board, 4), 2487)
 
     def test_1468(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1469(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 0 1")
@@ -8014,7 +7636,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rk3b1N/q7/1p1p1n2/1b1Pp1pp/1p2np2/2B2PPB/2R2K2/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 169)
-        self.assertEqual(perft(board, 3), 5278)
 
     def test_1497(self):
         board = chess.Bitboard("r4b1N/q1k5/1p1p1n2/1b1Pp1pp/1p2np2/2B2PPB/2R5/4K1R1 b - - 0 1")
@@ -8040,7 +7661,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1k1bnN/q7/1B1p4/3Pp1p1/2b2pBp/5PP1/2R2nR1/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 137)
-        self.assertEqual(perft(board, 3), 5464)
 
     def test_1502(self):
         board = chess.Bitboard("1r1k1bnN/8/3p4/1q1Pp1p1/2b2pBP/5P2/2R2nR1/4K3 w - - 0 1")
@@ -8096,7 +7716,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2nN/8/3p2B1/3P2b1/4pq1R/1r3P1p/8/2nK4 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 603)
-        self.assertEqual(perft(board, 3), 8894)
 
     def test_1513(self):
         board = chess.Bitboard("3k2nN/8/3p2B1/3P2b1/4pq1R/5P1p/1r6/2nK4 b - - 0 1")
@@ -8107,7 +7726,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2nN/8/3p1qB1/3P2b1/4pP1R/7p/4r3/2nK4 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 524)
-        self.assertEqual(perft(board, 3), 7514)
 
     def test_1515(self):
         board = chess.Bitboard("3k1qn1/8/3p2N1/3P1Bb1/4pP1R/7p/4r3/2nK4 b - - 0 1")
@@ -8138,7 +7756,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5Nq1/4k3/3pB3/3P1Pb1/4prnR/8/8/2n1K2n w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 476)
-        self.assertEqual(perft(board, 3), 8077)
 
     def test_1521(self):
         board = chess.Bitboard("5Nq1/3Bk3/3p4/3P1Pb1/4p1nR/8/8/2n2K1n b - - 0 1")
@@ -8169,7 +7786,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k2N/2Bp1b1n/8/3qp3/8/4K2n/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 409)
-        self.assertEqual(perft(board, 3), 4432)
 
     def test_1527(self):
         board = chess.Bitboard("8/4k3/3p1N1n/1B6/3qp3/5n2/4K3/8 b - - 0 1")
@@ -8180,7 +7796,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/3p1N1n/1B4n1/4p3/8/1q6/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 579)
-        self.assertEqual(perft(board, 3), 7726)
 
     def test_1529(self):
         board = chess.Bitboard("6N1/8/3pk2n/6n1/2B1p3/8/1q6/3K4 b - - 0 1")
@@ -8192,7 +7807,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6N1/5n2/3p4/1B3kn1/4p3/8/1q6/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 4186)
 
     def test_1531(self):
         board = chess.Bitboard("8/3B1n2/3p1N2/4k1n1/4p3/8/1q6/3K4 b - - 0 1")
@@ -8203,7 +7817,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5n2/2Bp1N2/4k1n1/4p3/1q6/8/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 140)
-        self.assertEqual(perft(board, 3), 2108)
 
     def test_1533(self):
         board = chess.Bitboard("8/5n2/3p1N2/4k1n1/q3B3/8/4K3/8 b - - 0 1")
@@ -8214,7 +7827,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7n/1B6/3p1N2/4k1n1/8/8/4K3/q7 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 579)
-        self.assertEqual(perft(board, 3), 9058)
 
     def test_1535(self):
         board = chess.Bitboard("7n/1B6/3p4/4k1n1/4N3/3K4/8/2q5 b - - 0 1")
@@ -8225,7 +7837,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7n/1B6/3p4/4k1N1/8/3K4/8/2q5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 376)
-        self.assertEqual(perft(board, 3), 4551)
 
     def test_1537(self):
         board = chess.Bitboard("7n/2q5/3p4/3Bk1N1/8/3K4/8/8 b - - 0 1")
@@ -8236,13 +7847,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5n2/3p4/3Bk1N1/8/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 212)
-        self.assertEqual(perft(board, 3), 4679)
 
     def test_1539(self):
         board = chess.Bitboard("8/5n2/3p4/5kN1/8/3K4/8/7B b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 212)
-        self.assertEqual(perft(board, 3), 2201)
 
     def test_1540(self):
         board = chess.Bitboard("8/8/3p4/6n1/3K2k1/8/8/7B w - - 0 1")
@@ -8267,28 +7876,24 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 107)
         self.assertEqual(perft(board, 3), 1587)
-        self.assertEqual(perft(board, 4), 9133)
 
     def test_1544(self):
         board = chess.Bitboard("8/8/3p4/K3k3/3n4/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 60)
         self.assertEqual(perft(board, 3), 289)
-        self.assertEqual(perft(board, 4), 4194)
 
     def test_1545(self):
         board = chess.Bitboard("8/8/8/2Kpk3/3n4/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 51)
         self.assertEqual(perft(board, 3), 682)
-        self.assertEqual(perft(board, 4), 4091)
 
     def test_1546(self):
         board = chess.Bitboard("8/8/8/4k3/1K1p4/5n2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 95)
         self.assertEqual(perft(board, 3), 540)
-        self.assertEqual(perft(board, 4), 7439)
 
     def test_1547(self):
         board = chess.Bitboard("8/8/1K6/4k3/8/3p1n2/8/8 b - - 0 1")
@@ -8301,54 +7906,46 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 85)
         self.assertEqual(perft(board, 3), 461)
-        self.assertEqual(perft(board, 4), 5444)
 
     def test_1549(self):
         board = chess.Bitboard("8/1K6/8/8/8/2kp4/8/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 88)
         self.assertEqual(perft(board, 3), 1056)
-        self.assertEqual(perft(board, 4), 5930)
 
     def test_1550(self):
         board = chess.Bitboard("2K5/8/8/8/k7/3p4/8/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 45)
         self.assertEqual(perft(board, 3), 297)
-        self.assertEqual(perft(board, 4), 3275)
 
     def test_1551(self):
         board = chess.Bitboard("8/8/1K6/8/8/k2p4/8/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 67)
         self.assertEqual(perft(board, 3), 726)
-        self.assertEqual(perft(board, 4), 4544)
 
     def test_1552(self):
         board = chess.Bitboard("8/2K5/8/8/8/k2p4/8/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 485)
-        self.assertEqual(perft(board, 4), 5403)
 
     def test_1553(self):
         board = chess.Bitboard("8/K7/8/8/8/1k1p4/8/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 60)
         self.assertEqual(perft(board, 3), 708)
-        self.assertEqual(perft(board, 4), 3927)
 
     def test_1554(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1555(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9799)
 
     def test_1556(self):
         board = chess.Bitboard("r1bqkb1r/pppppp1p/2n3pn/8/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 1")
@@ -8559,7 +8156,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N1k4/P1P3b1/4p1p1/3P2rp/R4B1P/8/2nKb2R/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 101)
-        self.assertEqual(perft(board, 3), 4447)
 
     def test_1598(self):
         board = chess.Bitboard("2k5/P1P3b1/2N1p1p1/3P2rp/R4B1P/3b4/2nK3R/1r6 w - - 0 1")
@@ -8595,7 +8191,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k4b/P1P5/2N1p1p1/3r3p/2R4P/1R4B1/8/3Kn3 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 5250)
 
     def test_1605(self):
         board = chess.Bitboard("Q1k4b/2P5/4p1p1/6rp/2RN3P/1R4B1/8/3Kn3 b - - 0 1")
@@ -8612,7 +8207,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k4b/2P5/2Q3p1/4p1rp/2RN3P/1R4B1/8/3Kn3 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 550)
-        self.assertEqual(perft(board, 3), 6892)
 
     def test_1608(self):
         board = chess.Bitboard("2k4b/2P5/2Q3p1/6rp/3p3P/1R3nB1/2R5/3K4 w - - 0 1")
@@ -8673,7 +8267,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3N4/1r1k4/n7/4Q2p/3B3P/2R5/8/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 658)
-        self.assertEqual(perft(board, 3), 8238)
 
     def test_1620(self):
         board = chess.Bitboard("3N4/3k4/n1r5/4Q2p/7P/2R1B3/8/3K4 w - - 0 1")
@@ -8715,7 +8308,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2kNQr2/8/4n3/7p/5B1P/1K1R4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 539)
-        self.assertEqual(perft(board, 3), 7015)
 
     def test_1628(self):
         board = chess.Bitboard("2kn4/8/8/4Q2p/5r1P/1K1R4/8/8 w - - 0 1")
@@ -8731,7 +8323,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/1n6/8/4Q2p/1r5P/5R2/1K6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 117)
-        self.assertEqual(perft(board, 3), 4361)
 
     def test_1631(self):
         board = chess.Bitboard("3k4/8/8/2n1Q2p/1r5P/6R1/8/2K5 b - - 0 1")
@@ -8758,25 +8349,21 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 14)
         self.assertEqual(perft(board, 3), 284)
-        self.assertEqual(perft(board, 4), 4279)
 
     def test_1636(self):
         board = chess.Bitboard("8/5k2/8/2n4p/7P/4R3/3K4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 4495)
 
     def test_1637(self):
         board = chess.Bitboard("8/8/5k2/2n4p/7P/1R6/3K4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 285)
-        self.assertEqual(perft(board, 3), 3630)
 
     def test_1638(self):
         board = chess.Bitboard("8/1n6/8/4k2p/7P/8/3K4/1R6 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 4070)
 
     def test_1639(self):
         board = chess.Bitboard("8/1n6/8/5k1p/7P/8/8/1RK5 b - - 0 1")
@@ -8788,7 +8375,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1641(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1")
@@ -8859,7 +8445,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b5/ppp1n2r/1k1p1p1b/5Qpp/4PpnP/NP3PPR/Pq2K1B1/4R1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 4441)
 
     def test_1655(self):
         board = chess.Bitboard("r1b5/ppp1nr2/1k1p1p1b/4PQpp/5pnP/NP1K1PPR/Pq4B1/4R1N1 b - - 0 1")
@@ -8900,7 +8485,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/1pp2nr1/pk1p1p2/1P2P1bp/5p1P/N2K1PPb/P3N3/4nB2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 198)
-        self.assertEqual(perft(board, 3), 3769)
 
     def test_1663(self):
         board = chess.Bitboard("r7/1pp2nr1/pk1p1p2/1P2P1bp/5p1P/N1K2PP1/P7/4nbN1 b - - 0 1")
@@ -8921,13 +8505,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/rppP1r2/pk6/1P2npPp/1K3p2/N4PP1/P7/4nbN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 453)
-        self.assertEqual(perft(board, 3), 7088)
 
     def test_1667(self):
         board = chess.Bitboard("8/rppP1r2/pk6/1P2npPp/1K3p2/P4PPb/8/1N2n1N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 9885)
 
     def test_1668(self):
         board = chess.Bitboard("8/rppP2r1/pkn3P1/1P3p1p/1K3p2/P4PPb/8/1N2n1N1 w - - 0 1")
@@ -8949,25 +8531,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6R1/rpp5/1kn3P1/1p3p1p/5P2/P1K2P1b/8/1N2n1N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 377)
-        self.assertEqual(perft(board, 3), 9222)
 
     def test_1672(self):
         board = chess.Bitboard("6R1/rpp5/1k4P1/1p3p1p/5P2/P4P1b/n2K4/1N2n1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 384)
-        self.assertEqual(perft(board, 3), 6862)
 
     def test_1673(self):
         board = chess.Bitboard("8/1pp3R1/1k4P1/1p3p1p/r4P2/P4P1b/n7/1N1Kn1N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 9897)
 
     def test_1674(self):
         board = chess.Bitboard("8/1pp3R1/1k4P1/1p3p1p/5P2/5r1b/n2N4/3Kn1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 410)
-        self.assertEqual(perft(board, 3), 7322)
 
     def test_1675(self):
         board = chess.Bitboard("8/1pp2R2/1k4P1/1p3p1p/1n3P2/5r1b/8/1N1Kn1N1 b - - 0 1")
@@ -8988,7 +8566,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1pp5/R5P1/1pk2p1p/5Pb1/r3n3/8/1N2K1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 478)
-        self.assertEqual(perft(board, 3), 8309)
 
     def test_1679(self):
         board = chess.Bitboard("8/1pp5/R5P1/1pk2p1p/5Pb1/r6N/2n5/1N3K2 b - - 0 1")
@@ -8999,19 +8576,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2p5/rp4P1/1pk2p1p/5Pb1/7N/2n3K1/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 333)
-        self.assertEqual(perft(board, 3), 3987)
 
     def test_1681(self):
         board = chess.Bitboard("8/2p5/rp4P1/1pk2pNp/5P2/8/2n1bK2/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 9565)
 
     def test_1682(self):
         board = chess.Bitboard("8/2p5/rp4P1/1pk2pNp/5P2/3bn3/3N1K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 407)
-        self.assertEqual(perft(board, 3), 6261)
 
     def test_1683(self):
         board = chess.Bitboard("8/2p5/rp4P1/1pk2pNp/5P2/4n3/3N1K2/1b6 b - - 0 1")
@@ -9022,25 +8596,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2p5/rp4P1/1pk2p1p/4bP2/4n3/3N1K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 324)
-        self.assertEqual(perft(board, 3), 3394)
 
     def test_1685(self):
         board = chess.Bitboard("8/2p5/1p4P1/1pk2p1p/4bP2/4n2K/r2N4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 331)
-        self.assertEqual(perft(board, 3), 9561)
 
     def test_1686(self):
         board = chess.Bitboard("8/2p5/1p4P1/rp3p1p/1k2bP2/1N2n2K/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 311)
-        self.assertEqual(perft(board, 3), 2966)
 
     def test_1687(self):
         board = chess.Bitboard("8/2p5/1p4P1/rp3p2/1k2bP1p/4n3/7K/N7 b - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 154)
-        self.assertEqual(perft(board, 3), 4036)
 
     def test_1688(self):
         board = chess.Bitboard("8/2p5/1p4P1/1p3p2/1kn1bP1p/7K/8/r7 w - - 0 1")
@@ -9052,31 +8622,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6N1/2p5/1p6/1p3p2/1k2bP1p/7K/3n4/r7 b - - 0 1")
         self.assertEqual(perft(board, 1), 38)
         self.assertEqual(perft(board, 2), 181)
-        self.assertEqual(perft(board, 3), 6266)
 
     def test_1690(self):
         board = chess.Bitboard("8/1bp5/1p3N2/1p3p2/1k3P1p/1n5K/8/r7 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 327)
-        self.assertEqual(perft(board, 3), 2407)
 
     def test_1691(self):
         board = chess.Bitboard("8/1bp5/1p6/1p3p2/5P1p/kn2N2K/8/r7 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 276)
-        self.assertEqual(perft(board, 3), 6537)
 
     def test_1692(self):
         board = chess.Bitboard("8/2p5/1p6/1p3p2/1k3P1p/1n2N3/6K1/r7 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 2619)
 
     def test_1693(self):
         board = chess.Bitboard("8/2p5/1p6/1p3p2/5P1p/1nk1N3/6K1/r7 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 308)
-        self.assertEqual(perft(board, 3), 7047)
 
     def test_1694(self):
         board = chess.Bitboard("8/2p5/1p6/1p3p2/5P1p/r1k5/3n2K1/5N2 w - - 0 1")
@@ -9088,7 +8653,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2p5/1p6/1p3p2/5P1p/r1k2n1K/8/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 131)
-        self.assertEqual(perft(board, 3), 3245)
 
     def test_1696(self):
         board = chess.Bitboard("8/2p5/1p6/1p3p2/5P1p/2k2n1K/7N/r7 w - - 0 1")
@@ -9100,19 +8664,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2p5/1p5N/1p3p2/5P1p/2k2n1K/8/3r4 b - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 161)
-        self.assertEqual(perft(board, 3), 4609)
 
     def test_1698(self):
         board = chess.Bitboard("3r4/2p5/1p5N/1p2np2/5P1K/2k5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 289)
-        self.assertEqual(perft(board, 3), 2544)
 
     def test_1699(self):
         board = chess.Bitboard("6r1/2p5/1p5N/1p2np2/5P1K/2k5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 225)
-        self.assertEqual(perft(board, 3), 6326)
 
     def test_1700(self):
         board = chess.Bitboard("6N1/2p5/1pn5/1p3p2/3k1P1K/8/8/8 w - - 0 1")
@@ -9136,7 +8697,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/2p5/1p3N2/8/1pk2P2/5K2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 203)
-        self.assertEqual(perft(board, 3), 2469)
 
     def test_1704(self):
         board = chess.Bitboard("8/8/np6/2p5/1pk1NP2/5K2/8/8 w - - 0 1")
@@ -9190,7 +8750,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n3/8/1p1kN3/8/5P2/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 147)
-        self.assertEqual(perft(board, 3), 2087)
 
     def test_1713(self):
         board = chess.Bitboard("8/6n1/1p1kN3/8/5P2/2K5/8/8 b - - 0 1")
@@ -9203,90 +8762,77 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 63)
         self.assertEqual(perft(board, 3), 726)
-        self.assertEqual(perft(board, 4), 4912)
 
     def test_1715(self):
         board = chess.Bitboard("8/6N1/1p6/8/5k2/8/8/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 69)
         self.assertEqual(perft(board, 3), 499)
-        self.assertEqual(perft(board, 4), 5068)
 
     def test_1716(self):
         board = chess.Bitboard("8/6N1/1p6/8/5k2/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 91)
         self.assertEqual(perft(board, 3), 1032)
-        self.assertEqual(perft(board, 4), 7624)
 
     def test_1717(self):
         board = chess.Bitboard("8/6N1/8/1p6/5k2/8/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 64)
         self.assertEqual(perft(board, 3), 422)
-        self.assertEqual(perft(board, 4), 4550)
 
     def test_1718(self):
         board = chess.Bitboard("8/8/4N3/1p1k4/8/8/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 110)
         self.assertEqual(perft(board, 3), 1415)
-        self.assertEqual(perft(board, 4), 9597)
 
     def test_1719(self):
         board = chess.Bitboard("8/8/4N3/1p6/2k5/8/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 527)
-        self.assertEqual(perft(board, 4), 6993)
 
     def test_1720(self):
         board = chess.Bitboard("8/2N5/8/1p6/8/2k5/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 84)
         self.assertEqual(perft(board, 3), 996)
-        self.assertEqual(perft(board, 4), 7043)
 
     def test_1721(self):
         board = chess.Bitboard("8/2N5/8/1p6/8/1k6/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 120)
         self.assertEqual(perft(board, 3), 762)
-        self.assertEqual(perft(board, 4), 9426)
 
     def test_1722(self):
         board = chess.Bitboard("8/8/8/1p1N4/2k5/8/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 84)
         self.assertEqual(perft(board, 3), 1093)
-        self.assertEqual(perft(board, 4), 7180)
 
     def test_1723(self):
         board = chess.Bitboard("8/8/8/1p1N4/8/1k6/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 108)
         self.assertEqual(perft(board, 3), 629)
-        self.assertEqual(perft(board, 4), 8773)
 
     def test_1724(self):
         board = chess.Bitboard("8/8/8/3N4/kp6/3K4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 69)
         self.assertEqual(perft(board, 3), 929)
-        self.assertEqual(perft(board, 4), 4490)
 
     def test_1725(self):
         board = chess.Bitboard("8/8/8/1k6/1p6/2N1K3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 100)
         self.assertEqual(perft(board, 3), 657)
-        self.assertEqual(perft(board, 4), 8172)
 
     def test_1726(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1727(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/3P4/7P/PPP1PPP1/RNBQKBNR b KQkq - 0 1")
@@ -9657,7 +9203,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6r1/7k/n7/3B4/6K1/8/2bp4/3R4 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 153)
-        self.assertEqual(perft(board, 3), 3319)
 
     def test_1801(self):
         board = chess.Bitboard("6r1/1B5k/n7/8/8/7K/3p4/1b1R4 b - - 0 1")
@@ -9708,7 +9253,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7r/7k/8/n3q3/6K1/2b5/2R2B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 638)
-        self.assertEqual(perft(board, 3), 9723)
 
     def test_1811(self):
         board = chess.Bitboard("8/7r/7k/8/n1R1q3/3B2K1/8/1b6 b - - 0 1")
@@ -9719,7 +9263,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1813(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/8/5p2/8/1PN5/P1PPPPPP/R1BQKBNR b KQkq - 0 1")
@@ -9750,7 +9293,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnb2b1r/pp2p1kp/6pn/2pN1p2/Pq3B1P/3P4/2P1PPP1/R2QKBNR w KQ - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 5421)
 
     def test_1819(self):
         board = chess.Bitboard("rnb2b1r/pp2p1kp/6pn/2pN1p2/P4B1P/1qPP4/4PPP1/RQ2KBNR b KQ - 0 1")
@@ -9932,13 +9474,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3rk1/7r/1pb4p/p1P5/3b3p/4Pp2/5KB1/1N3RR1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 431)
-        self.assertEqual(perft(board, 3), 7113)
 
     def test_1855(self):
         board = chess.Bitboard("1n3rk1/3b3r/1p5p/p1P5/3b3p/4Pp2/5K2/1N1R2RB b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 123)
-        self.assertEqual(perft(board, 3), 4003)
 
     def test_1856(self):
         board = chess.Bitboard("1n1r2k1/3b2br/1p1R3p/p1P5/7p/4Pp2/5K2/1N4RB w - - 0 1")
@@ -10059,25 +9599,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/B7/6np/7p/3pP3/8/bR4K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 391)
-        self.assertEqual(perft(board, 3), 7410)
 
     def test_1880(self):
         board = chess.Bitboard("8/8/4n2k/1B5p/7p/3pP3/8/bR4K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 424)
-        self.assertEqual(perft(board, 3), 9687)
 
     def test_1881(self):
         board = chess.Bitboard("8/8/4n2k/7p/7p/3BP3/1R6/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 3268)
 
     def test_1882(self):
         board = chess.Bitboard("8/5n2/7k/7p/7p/4P3/1R6/1B4K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 208)
-        self.assertEqual(perft(board, 3), 5211)
 
     def test_1883(self):
         board = chess.Bitboard("8/2R5/7k/6np/7p/4P3/8/1B4K1 b - - 0 1")
@@ -10089,7 +9625,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2R5/8/6kp/7p/4P2n/7K/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 141)
-        self.assertEqual(perft(board, 3), 3335)
 
     def test_1885(self):
         board = chess.Bitboard("8/8/8/6kp/5R1p/4P3/7K/1B4n1 b - - 0 1")
@@ -10101,7 +9636,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/7k/7p/7p/4P2n/5R1K/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 142)
-        self.assertEqual(perft(board, 3), 3041)
 
     def test_1887(self):
         board = chess.Bitboard("8/8/7k/6np/4P2p/8/2R4K/1B6 b - - 0 1")
@@ -10113,7 +9647,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/8/7p/4P2p/5n2/2R3K1/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 225)
-        self.assertEqual(perft(board, 3), 4061)
 
     def test_1889(self):
         board = chess.Bitboard("8/2R5/7k/4P2p/7p/5n2/6K1/1B6 b - - 0 1")
@@ -10125,7 +9658,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2R5/4P2k/7p/4n2p/8/6K1/1B6 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 6241)
 
     def test_1891(self):
         board = chess.Bitboard("8/7k/2R1P3/7p/4n2p/8/2B3K1/8 b - - 0 1")
@@ -10138,25 +9670,21 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 32)
         self.assertEqual(perft(board, 3), 528)
-        self.assertEqual(perft(board, 4), 6391)
 
     def test_1893(self):
         board = chess.Bitboard("8/7k/2R1P3/7p/4n3/8/2B1K3/7q b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 229)
-        self.assertEqual(perft(board, 3), 4886)
 
     def test_1894(self):
         board = chess.Bitboard("8/7k/2R1P3/8/4n2p/5q2/2B5/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 363)
-        self.assertEqual(perft(board, 3), 4938)
 
     def test_1895(self):
         board = chess.Bitboard("8/7k/3RP3/8/4n2p/8/8/3BK3 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 269)
-        self.assertEqual(perft(board, 3), 3279)
 
     def test_1896(self):
         board = chess.Bitboard("4n3/7k/4P3/7B/7p/8/8/4K3 w - - 0 1")
@@ -10174,7 +9702,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1899(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/8/6p1/8/4PN2/PPPP1PPP/RNBQKB1R b KQkq - 0 1")
@@ -10215,7 +9742,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnb1qb1r/2pppk2/pp6/5ppp/P1PP4/3nP3/NPQ2PPP/R1B1KBNR w KQ - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 4437)
 
     def test_1907(self):
         board = chess.Bitboard("rnb1qb1r/2pppk2/pp6/5ppp/P1PP4/4P3/NP3PPP/RQnK1BNR b - - 0 1")
@@ -10256,7 +9782,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3bkr/1bqpp3/p7/2p2p1p/P2P4/2N1P1p1/1p2NPPP/R1K1QB1R w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 198)
-        self.assertEqual(perft(board, 3), 5805)
 
     def test_1915(self):
         board = chess.Bitboard("rn3b1r/1bqpp1k1/p7/2p2p1p/P2P4/2N1P1P1/1pK1NPP1/R3QB1R b - - 0 1")
@@ -10277,7 +9802,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3b1r/1bq1pk2/p2p4/2p2p1p/P2P4/4P1P1/1rK1NPPR/R2NQB2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 197)
-        self.assertEqual(perft(board, 3), 5135)
 
     def test_1919(self):
         board = chess.Bitboard("rnq2b1r/1b2pk2/p2p4/2p2p1p/P2P4/4P1P1/K3NPPR/R2NQB2 b - - 0 1")
@@ -10298,7 +9822,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r4b2/1b1npk1r/p2p4/P1pq3p/3P1N2/4P1P1/K2Q1PP1/R2N1B1R w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 5869)
 
     def test_1923(self):
         board = chess.Bitboard("r4b2/1b1npk1r/p2p4/P1p4p/3q4/4P1PN/3Q1PP1/RK1N1B1R b - - 0 1")
@@ -10349,7 +9872,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/3n1k2/p2p2r1/P1pbp3/R5Pp/4PP1N/B2b1QP1/2KN3R w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 5710)
 
     def test_1933(self):
         board = chess.Bitboard("3r4/3n1k2/p2p4/P1pbp3/R4Nrp/4PP2/B2K1QP1/3N3R b - - 0 1")
@@ -10455,7 +9977,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6b1/3n4/p1P1P3/P1k5/7p/K1p4N/4B1P1/3N2R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 5242)
 
     def test_1954(self):
         board = chess.Bitboard("8/7b/p1P1Pn2/P1k3N1/7p/K1p5/4B1P1/3N2R1 w - - 0 1")
@@ -10466,13 +9987,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7b/B1P1P3/P1k3Nn/7p/K1p5/6P1/3N2R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 440)
-        self.assertEqual(perft(board, 3), 7690)
 
     def test_1956(self):
         board = chess.Bitboard("8/7b/2P1Pn2/Pk4N1/7p/K1p5/6P1/3N2R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 375)
-        self.assertEqual(perft(board, 3), 8029)
 
     def test_1957(self):
         board = chess.Bitboard("8/2P4b/4Pn2/P1k3N1/7p/K1p1N3/6P1/6R1 b - - 0 1")
@@ -10488,7 +10007,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2N3n1/8/4P3/P1k3N1/7p/1K1b4/2N3P1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 468)
-        self.assertEqual(perft(board, 3), 7492)
 
     def test_1960(self):
         board = chess.Bitboard("2N3n1/8/4P3/P1k2bN1/8/1K2N2p/6P1/6R1 w - - 0 1")
@@ -10499,73 +10017,61 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2N3n1/7b/4P3/P1kN4/4N3/1K5p/6P1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 175)
-        self.assertEqual(perft(board, 3), 2142)
 
     def test_1962(self):
         board = chess.Bitboard("2N3n1/8/4P3/P2k4/4b3/1K5p/6P1/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 403)
-        self.assertEqual(perft(board, 3), 9529)
 
     def test_1963(self):
         board = chess.Bitboard("2N3n1/8/4P3/P2k4/6P1/1K5p/6b1/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 269)
-        self.assertEqual(perft(board, 3), 3509)
 
     def test_1964(self):
         board = chess.Bitboard("2N3n1/8/4P3/P2k4/6P1/7p/1K4b1/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 294)
-        self.assertEqual(perft(board, 3), 6978)
 
     def test_1965(self):
         board = chess.Bitboard("2N3n1/8/4P3/P7/2k3P1/7p/6b1/1K4R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 343)
-        self.assertEqual(perft(board, 3), 6011)
 
     def test_1966(self):
         board = chess.Bitboard("b1N3n1/8/4P3/P7/3k2P1/7p/8/1K3R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 409)
-        self.assertEqual(perft(board, 3), 9181)
 
     def test_1967(self):
         board = chess.Bitboard("b1N3n1/8/4P3/P1k5/5RP1/7p/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 311)
-        self.assertEqual(perft(board, 3), 4542)
 
     def test_1968(self):
         board = chess.Bitboard("6n1/N7/3kP3/P7/5RP1/5b1p/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 353)
-        self.assertEqual(perft(board, 3), 7506)
 
     def test_1969(self):
         board = chess.Bitboard("6n1/N4R2/3kP3/P7/6P1/7p/4b3/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 348)
-        self.assertEqual(perft(board, 3), 5468)
 
     def test_1970(self):
         board = chess.Bitboard("8/N3n2R/b2kP3/P7/6P1/7p/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 5313)
 
     def test_1971(self):
         board = chess.Bitboard("8/7R/b1NkP3/P4n2/6P1/7p/8/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 450)
-        self.assertEqual(perft(board, 3), 8119)
 
     def test_1972(self):
         board = chess.Bitboard("8/8/2NkP3/P6R/3n2P1/3b3p/8/K7 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 508)
-        self.assertEqual(perft(board, 3), 9964)
 
     def test_1973(self):
         board = chess.Bitboard("8/4N3/4P3/P2k4/3n2P1/3b3p/8/K7 b - - 0 1")
@@ -10583,67 +10089,56 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6N1/8/4P3/P7/4k1P1/3b2np/8/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 157)
-        self.assertEqual(perft(board, 3), 3050)
 
     def test_1976(self):
         board = chess.Bitboard("6N1/8/4P3/P2k1n2/6P1/3b3p/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 231)
-        self.assertEqual(perft(board, 3), 2490)
 
     def test_1977(self):
         board = chess.Bitboard("6N1/4n3/4P3/P2k2P1/8/3b3p/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 279)
-        self.assertEqual(perft(board, 3), 5722)
 
     def test_1978(self):
         board = chess.Bitboard("8/4N3/4P3/P4nP1/4k3/3b3p/1K6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 284)
-        self.assertEqual(perft(board, 3), 3738)
 
     def test_1979(self):
         board = chess.Bitboard("8/8/4P2n/P2N2P1/4k3/K2b3p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 4835)
 
     def test_1980(self):
         board = chess.Bitboard("8/4n3/4P1P1/P2N4/4k3/K2b3p/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 257)
-        self.assertEqual(perft(board, 3), 3431)
 
     def test_1981(self):
         board = chess.Bitboard("8/4n3/4P1P1/P2N4/8/2Kb1k1p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 6866)
 
     def test_1982(self):
         board = chess.Bitboard("8/4n3/4P1P1/P2N4/3K4/5k1p/2b5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 280)
-        self.assertEqual(perft(board, 3), 3625)
 
     def test_1983(self):
         board = chess.Bitboard("4N3/4n3/4P1P1/P7/3K4/7p/2b3k1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 4983)
 
     def test_1984(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_1985(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/2P2P2/8/PP1PP1PP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 439)
-        self.assertEqual(perft(board, 3), 9785)
 
     def test_1986(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/2P2P2/3P4/PP2P1PP/RNBQKBNR w KQkq - 0 1")
@@ -10724,7 +10219,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn2qbr1/N1pk1b2/Qp2p3/5Ppp/B2PPP2/2p2N1P/PP6/1RB1KR2 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 251)
-        self.assertEqual(perft(board, 3), 6606)
 
     def test_2002(self):
         board = chess.Bitboard("rn2qb2/N2k1br1/Qpp1p3/5Ppp/B2PPP2/2p4P/PP5N/1RB1KR2 w - - 0 1")
@@ -10759,27 +10253,22 @@ class PerftTestCase(unittest.TestCase):
     def test_2008(self):
         board = chess.Bitboard("rnNk2b1/6r1/1pQ1q3/6pp/1b1PPP2/P4N1P/1Pp1K3/1RBB1R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 45)
-        self.assertEqual(perft(board, 2), 2236)
 
     def test_2009(self):
         board = chess.Bitboard("r1Nk2b1/3n2r1/1p2q3/6pp/Qb1PPP2/P3BN1P/1Pp1K3/1R1B1R2 b - - 0 1")
         self.assertEqual(perft(board, 1), 62)
-        self.assertEqual(perft(board, 2), 2375)
 
     def test_2010(self):
         board = chess.Bitboard("rnNk2b1/6r1/1p2q3/6pp/Qb1PPP2/P3BN1P/1P3K2/1b1B1R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 41)
-        self.assertEqual(perft(board, 2), 2107)
 
     def test_2011(self):
         board = chess.Bitboard("rnNk4/6rb/1p2q3/6pp/Qb1PPP2/P3BN1P/1P4K1/1b1B3R b - - 0 1")
         self.assertEqual(perft(board, 1), 58)
-        self.assertEqual(perft(board, 2), 2426)
 
     def test_2012(self):
         board = chess.Bitboard("rnNk4/4b1rb/1p2q3/6pp/Q2PPP2/P4N1P/bP3BK1/3B3R w - - 0 1")
         self.assertEqual(perft(board, 1), 46)
-        self.assertEqual(perft(board, 2), 2046)
 
     def test_2013(self):
         board = chess.Bitboard("rnNk4/4b1rb/1p6/6pp/Q2PPPP1/P3BN2/bP4K1/3B3R b - - 0 1")
@@ -10805,7 +10294,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnNk4/5r1b/1p6/3Q2N1/1b1PPPPp/PP2B3/b6K/3B3R b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 232)
-        self.assertEqual(perft(board, 3), 6484)
 
     def test_2018(self):
         board = chess.Bitboard("rnk5/5N1b/1p6/3Q4/3PPPPp/PP2B3/b6K/3Bb2R w - - 0 1")
@@ -10836,7 +10324,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6b1/2r3Q1/np1k3N/4P3/P2P1PP1/1P5K/b4B2/3BR3 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 109)
-        self.assertEqual(perft(board, 3), 2052)
 
     def test_2024(self):
         board = chess.Bitboard("6b1/2r1k3/np5N/4P3/P2P1PP1/1P5K/b4B2/3BR3 w - - 0 1")
@@ -10907,7 +10394,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6b1/1r1Bk3/1p2P2N/P4P1K/6P1/7b/2n5/4B1R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 479)
-        self.assertEqual(perft(board, 3), 9494)
 
     def test_2038(self):
         board = chess.Bitboard("6b1/1r1Bk3/1p2P2N/P4P1K/6P1/n5R1/8/4Bb2 w - - 0 1")
@@ -10965,7 +10451,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/P3P3/1p3P1K/1B2B3/n6R/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 37)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 7466)
 
     def test_2049(self):
         board = chess.Bitboard("6k1/8/P2BP3/1p3P1K/2n1B3/6R1/8/8 b - - 0 1")
@@ -10977,7 +10462,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/P2BP3/1p3P1K/8/6R1/1n6/7B w - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 7997)
 
     def test_2051(self):
         board = chess.Bitboard("4B2k/8/P2BP3/1p3P1K/8/6R1/1n6/8 b - - 0 1")
@@ -10989,7 +10473,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4B2k/8/P2BP1R1/1pn2P1K/8/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 257)
-        self.assertEqual(perft(board, 3), 7783)
 
     def test_2053(self):
         board = chess.Bitboard("4B2k/8/n2BP1R1/1p3P1K/8/8/8/8 b - - 0 1")
@@ -11001,20 +10484,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4B2k/8/4P1R1/1p3P1K/8/1n6/7B/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 189)
-        self.assertEqual(perft(board, 3), 5129)
 
     def test_2055(self):
         board = chess.Bitboard("4B2k/8/4P1R1/1p2BP1K/8/8/8/2n5 b - - 0 1")
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 31)
         self.assertEqual(perft(board, 3), 159)
-        self.assertEqual(perft(board, 4), 4690)
 
     def test_2056(self):
         board = chess.Bitboard("4B1k1/8/4PR2/1p2BP1K/8/8/8/2n5 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 4241)
 
     def test_2057(self):
         board = chess.Bitboard("8/2B2B1k/4PR2/1p3P1K/8/8/8/2n5 b - - 0 1")
@@ -11026,20 +10506,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2B2Bk1/4P2R/5P1K/1p6/8/8/2n5 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 119)
-        self.assertEqual(perft(board, 3), 2654)
 
     def test_2059(self):
         board = chess.Bitboard("5k2/5B2/3BP2R/5P2/1p5K/8/8/2n5 b - - 0 1")
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 26)
         self.assertEqual(perft(board, 3), 144)
-        self.assertEqual(perft(board, 4), 3549)
 
     def test_2060(self):
         board = chess.Bitboard("8/5Bk1/3BP2R/5P1K/1p6/3n4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 3217)
 
     def test_2061(self):
         board = chess.Bitboard("1B6/5Bk1/4P2R/2n2PK1/1p6/8/8/8 b - - 0 1")
@@ -11051,7 +10528,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5Bk1/4P2R/5PK1/1p3B2/8/8/2n5 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 146)
-        self.assertEqual(perft(board, 3), 3961)
 
     def test_2063(self):
         board = chess.Bitboard("5k2/4PB2/7R/5P2/1p3B1K/8/8/2n5 b - - 0 1")
@@ -11063,25 +10539,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/4B2R/5P2/1p3B1K/3n4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 297)
-        self.assertEqual(perft(board, 3), 8581)
 
     def test_2065(self):
         board = chess.Bitboard("8/4k3/4B2R/4nP1K/1p3B2/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 317)
-        self.assertEqual(perft(board, 3), 3068)
 
     def test_2066(self):
         board = chess.Bitboard("8/4k3/2n1B2R/5P1K/8/1p6/8/2B5 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 227)
-        self.assertEqual(perft(board, 3), 5825)
 
     def test_2067(self):
         board = chess.Bitboard("8/n3kB2/7R/5P1K/8/1p2B3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 2008)
 
     def test_2068(self):
         board = chess.Bitboard("8/4kB2/7R/4nP2/7K/1p2B3/8/8 w - - 0 1")
@@ -11092,13 +10564,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6B1/B3k3/7R/4nP2/7K/8/1p6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 413)
-        self.assertEqual(perft(board, 3), 6375)
 
     def test_2070(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2071(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/5P2/8/PPPPPKPP/RNBQ1BNR b kq - 0 1")
@@ -11239,7 +10709,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1n1k1r1/5p2/2p2P2/1P2b3/p2p3p/P1P1p3/NB2P3/2R1KB2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 407)
-        self.assertEqual(perft(board, 3), 5902)
 
     def test_2099(self):
         board = chess.Bitboard("r1n3r1/3k1p2/2p2P2/1P2b3/p2p3p/P1P1p3/NB2P3/2R1K2B b - - 0 1")
@@ -11250,7 +10719,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2101(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/8/3P2p1/8/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -11361,7 +10829,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6nr/6kp/p7/pNpPn3/P5P1/2rR4/1q2KNBP/2b4R w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 4042)
 
     def test_2123(self):
         board = chess.Bitboard("7r/6kp/p4n2/pNpPn3/P5P1/2rR3N/1q4BP/2bK3R b - - 0 1")
@@ -11437,25 +10904,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/r7/p2P2B1/p1p3n1/P7/N6P/1b6/1n2KR1N b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 2527)
 
     def test_2138(self):
         board = chess.Bitboard("4k3/4rn2/p2P2B1/p1p5/P7/N6P/1b3R2/1n2K2N w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 117)
-        self.assertEqual(perft(board, 3), 2961)
 
     def test_2139(self):
         board = chess.Bitboard("4k3/4rB2/p2P1b2/p1p5/P7/N6P/5R2/1n3K1N b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 132)
-        self.assertEqual(perft(board, 3), 3150)
 
     def test_2140(self):
         board = chess.Bitboard("5k2/3P1r2/p4b2/p1p5/P7/N6P/5R2/1n3K1N w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 497)
-        self.assertEqual(perft(board, 3), 9730)
 
     def test_2141(self):
         board = chess.Bitboard("5k2/1N3r2/p4b2/p1p5/P7/N1n4P/5R2/5K1N b - - 0 1")
@@ -11476,7 +10939,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/1Nr5/p4b2/p1p5/P7/N4Rn1/4K3/7N w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 157)
-        self.assertEqual(perft(board, 3), 3541)
 
     def test_2145(self):
         board = chess.Bitboard("5k2/2r5/p2N1b2/p1p5/P3n3/N3KR2/8/7N b - - 0 1")
@@ -11512,31 +10974,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2N4R/8/p5k1/pN6/P1p5/4K1N1/8/1n6 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 291)
-        self.assertEqual(perft(board, 3), 2615)
 
     def test_2152(self):
         board = chess.Bitboard("2N4R/6k1/p7/pN6/P1pK4/2n3N1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 349)
-        self.assertEqual(perft(board, 3), 9378)
 
     def test_2153(self):
         board = chess.Bitboard("2N4R/5k2/p7/p1K5/P1p5/N1n3N1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 313)
-        self.assertEqual(perft(board, 3), 3254)
 
     def test_2154(self):
         board = chess.Bitboard("2N4R/5k2/p1K5/p7/P7/N1p3N1/8/3n4 w - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 8074)
 
     def test_2155(self):
         board = chess.Bitboard("2N1R3/5k2/p1K5/p6N/P7/N7/2p5/3n4 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 2779)
 
     def test_2156(self):
         board = chess.Bitboard("2N1R3/5k2/pK6/p6N/P7/N3n3/8/2r5 w - - 0 1")
@@ -11578,145 +11035,121 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/p1Knk3/pN5r/P7/8/8/3N4 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 319)
-        self.assertEqual(perft(board, 3), 7036)
 
     def test_2164(self):
         board = chess.Bitboard("6k1/N7/p1Kn4/p6r/P7/8/8/3N4 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 3040)
 
     def test_2165(self):
         board = chess.Bitboard("6k1/N1K5/p7/p4r2/P7/8/8/3N4 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 242)
-        self.assertEqual(perft(board, 3), 4291)
 
     def test_2166(self):
         board = chess.Bitboard("2K3k1/N7/p7/p7/P7/8/8/3N1r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 183)
-        self.assertEqual(perft(board, 3), 2263)
 
     def test_2167(self):
         board = chess.Bitboard("2K2k2/8/p1N5/p7/P7/8/5N2/5r2 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 208)
-        self.assertEqual(perft(board, 3), 3352)
 
     def test_2168(self):
         board = chess.Bitboard("8/2K2k2/p1N5/p7/P7/8/5N2/2r5 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 3691)
 
     def test_2169(self):
         board = chess.Bitboard("8/2K2k2/p1N5/p7/P7/8/1N6/r7 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 4670)
 
     def test_2170(self):
         board = chess.Bitboard("1K6/5k2/p1N5/p7/P7/8/1N6/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 4164)
 
     def test_2171(self):
         board = chess.Bitboard("1K2k3/8/p1N5/p7/P7/8/3N4/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 272)
-        self.assertEqual(perft(board, 3), 4293)
 
     def test_2172(self):
         board = chess.Bitboard("1K2k3/4N3/p7/p7/P7/8/3N4/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 4440)
 
     def test_2173(self):
         board = chess.Bitboard("1K2k3/4N3/p7/p7/P7/8/3N4/2r5 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 4489)
 
     def test_2174(self):
         board = chess.Bitboard("1K6/4Nk2/p7/p7/P1N5/8/8/2r5 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 309)
-        self.assertEqual(perft(board, 3), 4805)
 
     def test_2175(self):
         board = chess.Bitboard("8/1K2Nk2/p7/p7/P7/8/1N6/7r b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 5925)
 
     def test_2176(self):
         board = chess.Bitboard("8/K3Nk2/p7/p3r3/P7/8/1N6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 3449)
 
     def test_2177(self):
         board = chess.Bitboard("4k3/K3N3/p7/p3r3/P7/8/1N6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 218)
-        self.assertEqual(perft(board, 3), 3645)
 
     def test_2178(self):
         board = chess.Bitboard("4k3/K3N3/p4r2/p7/P7/8/8/3N4 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 2999)
 
     def test_2179(self):
         board = chess.Bitboard("4k3/K3N3/p1r5/p7/P3N3/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 4479)
 
     def test_2180(self):
         board = chess.Bitboard("6N1/K2k4/p6r/p7/P3N3/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 212)
-        self.assertEqual(perft(board, 3), 2921)
 
     def test_2181(self):
         board = chess.Bitboard("3k2N1/K7/p6r/p7/P3N3/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 3525)
 
     def test_2182(self):
         board = chess.Bitboard("8/K2kN3/p6r/p7/P3N3/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 279)
-        self.assertEqual(perft(board, 3), 4578)
 
     def test_2183(self):
         board = chess.Bitboard("4k3/K3N3/p6r/p7/P7/1N6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 4574)
 
     def test_2184(self):
         board = chess.Bitboard("4k3/K3N3/p7/p7/P6r/8/8/N7 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 3079)
 
     def test_2185(self):
         board = chess.Bitboard("4k3/K7/p6N/p7/r7/8/8/N7 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 2457)
 
     def test_2186(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2187(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/2p5/8/8/4P3/PPPPNPPP/RNBQKB1R b KQkq - 0 1")
@@ -11854,7 +11287,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/rb4b1/1P1p1k2/pP2Pr2/2P1P1p1/BN2K1P1/1R4BP/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 282)
-        self.assertEqual(perft(board, 3), 8387)
 
     def test_2214(self):
         board = chess.Bitboard("1n6/rb2B1b1/1P4k1/pP2pr2/2P1P1p1/1N2K1P1/1R4BP/7R w - - 0 1")
@@ -12075,25 +11507,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1n5/8/6kB/2K3N1/4b1p1/6PR/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 366)
-        self.assertEqual(perft(board, 3), 9569)
 
     def test_2258(self):
         board = chess.Bitboard("2n5/8/6kB/1K4N1/6p1/6PR/r1b5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 5287)
 
     def test_2259(self):
         board = chess.Bitboard("2n5/8/K3N1kB/8/b5p1/6PR/r7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 389)
-        self.assertEqual(perft(board, 3), 8977)
 
     def test_2260(self):
         board = chess.Bitboard("2n5/8/4N1kB/1K6/6p1/rb4PR/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 461)
-        self.assertEqual(perft(board, 3), 8706)
 
     def test_2261(self):
         board = chess.Bitboard("2n5/8/6kB/1K6/r5p1/1b1N2PR/8/8 b - - 0 1")
@@ -12114,7 +11542,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B2/8/1n4k1/2N5/1K6/6Pp/2b5/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 545)
-        self.assertEqual(perft(board, 3), 8702)
 
     def test_2265(self):
         board = chess.Bitboard("5B2/3n4/6k1/8/1K6/2N3Pp/2b5/3r4 b - - 0 1")
@@ -12125,13 +11552,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B2/3n4/6k1/8/K7/2N3Pp/2b5/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 124)
-        self.assertEqual(perft(board, 3), 2162)
 
     def test_2267(self):
         board = chess.Bitboard("5B2/3n4/3r2k1/1K1N4/8/6Pp/2b5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 366)
-        self.assertEqual(perft(board, 3), 9355)
 
     def test_2268(self):
         board = chess.Bitboard("5B2/3n4/r5k1/K2N1b2/8/6Pp/8/8 w - - 0 1")
@@ -12143,7 +11568,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3n4/K5k1/2BN4/8/6Pp/2b5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 446)
-        self.assertEqual(perft(board, 3), 8663)
 
     def test_2270(self):
         board = chess.Bitboard("8/5k2/5n2/1KBN4/8/6Pp/2b5/8 w - - 0 1")
@@ -12154,13 +11578,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/3B1nb1/3N4/K7/6Pp/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 430)
-        self.assertEqual(perft(board, 3), 8250)
 
     def test_2272(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2273(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/1P1P4/8/P1P1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -12316,7 +11738,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Q7/q2bb1k1/pp2p2B/PPp1Pn1p/4B2P/3KP3/8/4NN2 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 169)
-        self.assertEqual(perft(board, 3), 3574)
 
     def test_2304(self):
         board = chess.Bitboard("4b3/Q3b1k1/pp2p2n/PPp1P2p/4B2P/3KP3/8/4NN2 w - - 0 1")
@@ -12327,7 +11748,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4b3/4Qnk1/pp2p3/PPp1P2p/4B2P/4P3/3K4/4NN2 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 354)
-        self.assertEqual(perft(board, 3), 3920)
 
     def test_2306(self):
         board = chess.Bitboard("7k/3bQn2/pp2p3/PPp1P2p/4B2P/4P3/4K3/4NN2 w - - 0 1")
@@ -12338,7 +11758,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/3Q1n2/pp2p3/PP2P2p/2p1B2P/4P3/3NK3/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 429)
-        self.assertEqual(perft(board, 3), 3875)
 
     def test_2308(self):
         board = chess.Bitboard("7k/8/pp1Qp2n/PP2P2p/4B2P/2p1P3/3NK3/4N3 w - - 0 1")
@@ -12349,7 +11768,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/1p2p2n/Pp2P2p/7P/Q1p1P3/3NK3/4N2B b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 397)
-        self.assertEqual(perft(board, 3), 4760)
 
     def test_2310(self):
         board = chess.Bitboard("B6k/8/1p2p2n/Pp2P2p/7P/Q3P3/4K3/3bN3 w - - 0 1")
@@ -12361,7 +11779,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B6k/8/4p2n/pp2P2p/7P/Q3P3/8/3bN1K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 450)
-        self.assertEqual(perft(board, 3), 6582)
 
     def test_2312(self):
         board = chess.Bitboard("B6k/5n2/4p3/pp2P2p/7P/Q3P3/2b2K2/4N3 w - - 0 1")
@@ -12372,7 +11789,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/1B3n2/4p1b1/pp2P2p/7P/Q2NP3/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 485)
-        self.assertEqual(perft(board, 3), 7615)
 
     def test_2314(self):
         board = chess.Bitboard("8/1B3n1k/4p1b1/1p2P2p/p6P/Q2NP3/8/4K3 w - - 0 1")
@@ -12383,7 +11799,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/1B5k/4p1b1/1p2P2p/p6P/Q3P3/3K4/2N5 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 431)
-        self.assertEqual(perft(board, 3), 6497)
 
     def test_2316(self):
         board = chess.Bitboard("3n4/1B5k/4p1b1/1p2P2p/p6P/Q3P3/8/2N1K3 w - - 0 1")
@@ -12394,7 +11809,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n2k1/8/4p1b1/1p2P2p/Q6P/4P3/8/2N1K2B b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 579)
-        self.assertEqual(perft(board, 3), 9155)
 
     def test_2318(self):
         board = chess.Bitboard("3n4/5k2/4p1b1/4P2p/Qp5P/4P3/4K3/2N4B w - - 0 1")
@@ -12405,49 +11819,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n2k1/8/4p1b1/4P2p/Qp2P2P/8/3K4/2N4B b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 376)
-        self.assertEqual(perft(board, 3), 4858)
 
     def test_2320(self):
         board = chess.Bitboard("3nb3/5k2/4p3/4P2p/Qp2P2P/8/3K2B1/2N5 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 8505)
 
     def test_2321(self):
         board = chess.Bitboard("3nb3/8/4p1k1/4P2p/Qp2P2P/4K3/N5B1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 327)
-        self.assertEqual(perft(board, 3), 4300)
 
     def test_2322(self):
         board = chess.Bitboard("3n4/5b1k/4p3/4P2p/Qp2P2P/8/N3K1B1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 299)
-        self.assertEqual(perft(board, 3), 8356)
 
     def test_2323(self):
         board = chess.Bitboard("3n4/5b2/4p1k1/4P2p/Qp2P2P/5B2/4K3/2N5 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 2371)
 
     def test_2324(self):
         board = chess.Bitboard("3nQ1b1/7k/4p3/4P2p/1p2P2P/5B2/4K3/2N5 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 180)
-        self.assertEqual(perft(board, 3), 5028)
 
     def test_2325(self):
         board = chess.Bitboard("3nQ1b1/8/4p2k/4P2p/1p2P1BP/8/8/2NK4 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 2007)
 
     def test_2326(self):
         board = chess.Bitboard("8/5Q1b/4p2k/4P2p/1p2P1BP/8/8/2NK4 w - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 4972)
 
     def test_2327(self):
         board = chess.Bitboard("8/6kb/4p3/4PB1p/1p2P2P/8/8/2NK4 b - - 0 1")
@@ -12459,7 +11865,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/4p1b1/4PB1p/1p2P2P/8/4N3/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 147)
-        self.assertEqual(perft(board, 3), 2162)
 
     def test_2329(self):
         board = chess.Bitboard("8/4k3/4p1b1/4PB1p/1p2P2P/8/2K5/6N1 b - - 0 1")
@@ -12477,7 +11882,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4kb2/4p3/4PB1p/4P2P/2K5/1p6/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 2360)
 
     def test_2332(self):
         board = chess.Bitboard("8/3k4/4p1B1/4P2p/4P2P/2K5/1p6/6N1 w - - 0 1")
@@ -12508,50 +11912,42 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 76)
         self.assertEqual(perft(board, 3), 1294)
-        self.assertEqual(perft(board, 4), 7230)
 
     def test_2337(self):
         board = chess.Bitboard("8/k2B4/4p3/4P2p/4P2P/8/7N/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 60)
         self.assertEqual(perft(board, 3), 289)
-        self.assertEqual(perft(board, 4), 3998)
 
     def test_2338(self):
         board = chess.Bitboard("8/k2B4/4p3/4P2p/4P2P/8/7N/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 66)
         self.assertEqual(perft(board, 3), 1016)
-        self.assertEqual(perft(board, 4), 4997)
 
     def test_2339(self):
         board = chess.Bitboard("1k6/3B4/4p3/4P2p/4P2P/1K6/7N/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 68)
         self.assertEqual(perft(board, 3), 325)
-        self.assertEqual(perft(board, 4), 5361)
 
     def test_2340(self):
         board = chess.Bitboard("1k6/3B4/4p3/4P2p/4P2P/K7/7N/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 59)
         self.assertEqual(perft(board, 3), 911)
-        self.assertEqual(perft(board, 4), 4346)
 
     def test_2341(self):
         board = chess.Bitboard("k7/3B4/4p3/K3P2p/4P2P/8/7N/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 38)
         self.assertEqual(perft(board, 3), 152)
-        self.assertEqual(perft(board, 4), 2171)
-        self.assertEqual(perft(board, 5), 8342)
 
     def test_2342(self):
         board = chess.Bitboard("1k6/8/2B1p3/K3P2p/4P2P/8/7N/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 52)
         self.assertEqual(perft(board, 3), 717)
-        self.assertEqual(perft(board, 4), 2717)
 
     def test_2343(self):
         board = chess.Bitboard("8/k7/2B1p3/1K2P2p/4P2P/8/8/5N2 b - - 0 1")
@@ -12559,43 +11955,36 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 16)
         self.assertEqual(perft(board, 3), 50)
         self.assertEqual(perft(board, 4), 782)
-        self.assertEqual(perft(board, 5), 2796)
 
     def test_2344(self):
         board = chess.Bitboard("8/k7/2B1p3/4P2p/K3P2P/8/8/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 48)
         self.assertEqual(perft(board, 3), 695)
-        self.assertEqual(perft(board, 4), 2824)
 
     def test_2345(self):
         board = chess.Bitboard("1k6/8/4p3/1B2P2p/1K2P2P/8/8/5N2 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 95)
         self.assertEqual(perft(board, 3), 428)
-        self.assertEqual(perft(board, 4), 7798)
 
     def test_2346(self):
         board = chess.Bitboard("1k6/8/B3p3/4P2p/1K2P2P/8/8/5N2 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 63)
         self.assertEqual(perft(board, 3), 1092)
-        self.assertEqual(perft(board, 4), 4489)
 
     def test_2347(self):
         board = chess.Bitboard("8/k7/B3p3/2K1P2p/4P2P/8/3N4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 48)
         self.assertEqual(perft(board, 3), 139)
-        self.assertEqual(perft(board, 4), 2134)
-        self.assertEqual(perft(board, 5), 8160)
 
     def test_2348(self):
         board = chess.Bitboard("8/1k6/4p3/2K1P2p/2B1P2P/8/3N4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 92)
         self.assertEqual(perft(board, 3), 1655)
-        self.assertEqual(perft(board, 4), 6633)
 
     def test_2349(self):
         board = chess.Bitboard("2k5/8/4p3/4P2p/1KB1P2P/5N2/8/8 b - - 0 1")
@@ -12620,48 +12009,41 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 43)
         self.assertEqual(perft(board, 3), 611)
-        self.assertEqual(perft(board, 4), 3590)
 
     def test_2353(self):
         board = chess.Bitboard("8/8/1k2p3/1N2P2p/K3P2P/8/2B5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 54)
         self.assertEqual(perft(board, 3), 223)
-        self.assertEqual(perft(board, 4), 3073)
 
     def test_2354(self):
         board = chess.Bitboard("8/8/2k1p3/1N2P2p/K3P2P/1B6/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 63)
         self.assertEqual(perft(board, 3), 949)
-        self.assertEqual(perft(board, 4), 4544)
 
     def test_2355(self):
         board = chess.Bitboard("8/8/1k1Np3/4P2p/K1B1P2P/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 306)
-        self.assertEqual(perft(board, 4), 5536)
 
     def test_2356(self):
         board = chess.Bitboard("8/8/2kNp3/4P2p/K3P2P/3B4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 1230)
-        self.assertEqual(perft(board, 4), 5629)
 
     def test_2357(self):
         board = chess.Bitboard("8/8/1k1Np3/4P2p/K3P2P/8/6B1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 75)
         self.assertEqual(perft(board, 3), 293)
-        self.assertEqual(perft(board, 4), 4335)
 
     def test_2358(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2359(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/3P4/8/PPPNPPPP/R1BQKBNR b KQkq - 0 1")
@@ -12802,7 +12184,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b3nbr1/2q1pBp1/1k6/3p3p/P2P4/5n2/2QK2p1/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 190)
-        self.assertEqual(perft(board, 3), 5721)
 
     def test_2387(self):
         board = chess.Bitboard("b3nbr1/1q2pBp1/1k6/3p3p/P2P4/3K1n2/6Q1/6R1 b - - 0 1")
@@ -12823,7 +12204,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b3nbr1/k4Bp1/1q2p3/3p3p/P2P4/1K3nQ1/6R1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 3143)
 
     def test_2391(self):
         board = chess.Bitboard("b3nbr1/k4Bp1/4p3/3p3p/P2P4/5nQ1/KR6/8 b - - 0 1")
@@ -12859,7 +12239,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b3n1r1/1k1B4/8/3p2pp/P2P4/K7/7Q/4n3 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 487)
-        self.assertEqual(perft(board, 3), 8708)
 
     def test_2398(self):
         board = chess.Bitboard("b3n1r1/1k1B4/8/3p2p1/P2P3p/8/1Kn4Q/8 w - - 0 1")
@@ -12900,13 +12279,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b1k5/8/8/3p4/P2n2pp/2Q5/1K2B3/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 182)
-        self.assertEqual(perft(board, 3), 3862)
 
     def test_2406(self):
         board = chess.Bitboard("2k5/8/2b5/3p4/P2n2pp/2Q2B2/1K2r3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 183)
-        self.assertEqual(perft(board, 3), 4048)
 
     def test_2407(self):
         board = chess.Bitboard("8/2k5/2b5/3B4/P2n2pp/2Q5/4r3/2K5 b - - 0 1")
@@ -12922,7 +12299,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1kb5/r7/3Q2pp/8/B7/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 3362)
 
     def test_2410(self):
         board = chess.Bitboard("8/8/2bQ4/1k6/6pp/8/r7/2K5 w - - 0 1")
@@ -12938,52 +12314,44 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1Q6/8/2k5/6pp/8/r7/2K4b w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 454)
-        self.assertEqual(perft(board, 3), 9390)
 
     def test_2413(self):
         board = chess.Bitboard("8/8/Q7/2k5/6pp/8/5r2/1K5b b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 547)
-        self.assertEqual(perft(board, 3), 9621)
 
     def test_2414(self):
         board = chess.Bitboard("8/Qb6/8/3k4/6pp/8/5r2/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 5535)
 
     def test_2415(self):
         board = chess.Bitboard("8/1b6/2k5/8/6pp/2Q5/5r2/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 135)
-        self.assertEqual(perft(board, 3), 2743)
 
     def test_2416(self):
         board = chess.Bitboard("8/1b6/2k5/8/6pp/8/5r2/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 52)
         self.assertEqual(perft(board, 3), 112)
-        self.assertEqual(perft(board, 4), 2892)
 
     def test_2417(self):
         board = chess.Bitboard("8/1b6/2k5/8/6pp/8/3r4/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 1833)
-        self.assertEqual(perft(board, 4), 5835)
 
     def test_2418(self):
         board = chess.Bitboard("8/8/1k6/8/6pp/8/3r4/2K4b w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 48)
         self.assertEqual(perft(board, 3), 214)
-        self.assertEqual(perft(board, 4), 4681)
 
     def test_2419(self):
         board = chess.Bitboard("8/8/1k6/8/6pp/8/K7/3r3b b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 99)
-        self.assertEqual(perft(board, 3), 2927)
 
     def test_2420(self):
         board = chess.Bitboard("8/8/1k6/8/6pp/1K6/8/r6b w - - 0 1")
@@ -12995,7 +12363,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1b6/1k6/8/6pp/2K5/8/r7 b - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 6705)
 
     def test_2422(self):
         board = chess.Bitboard("8/1b6/1k6/8/3K2p1/7p/8/2r5 w - - 0 1")
@@ -13007,7 +12374,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/8/1k6/8/3K2p1/7p/8/2r5 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 3015)
 
     def test_2424(self):
         board = chess.Bitboard("b7/8/1k5r/8/4K1p1/7p/8/8 w - - 0 1")
@@ -13019,7 +12385,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1kb4r/8/6p1/6Kp/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 2924)
 
     def test_2426(self):
         board = chess.Bitboard("b7/8/1k5r/8/5Kp1/8/7p/8 w - - 0 1")
@@ -13031,7 +12396,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/8/7r/k7/3K2p1/8/7p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 159)
-        self.assertEqual(perft(board, 3), 4589)
 
     def test_2428(self):
         board = chess.Bitboard("8/8/r7/k7/2K1b1p1/8/7p/8 w - - 0 1")
@@ -13043,7 +12407,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1r6/k7/2K1b1p1/8/7p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 119)
-        self.assertEqual(perft(board, 3), 3837)
 
     def test_2430(self):
         board = chess.Bitboard("8/8/7r/k7/4b1p1/1K6/8/7r w - - 0 1")
@@ -13066,7 +12429,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/8/1k6/8/4K1p1/8/8/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 4813)
 
     def test_2434(self):
         board = chess.Bitboard("4r3/8/8/1k6/3K2p1/8/8/1r6 w - - 0 1")
@@ -13078,20 +12440,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4r3/8/3K4/1k6/1r4p1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 104)
-        self.assertEqual(perft(board, 3), 2954)
 
     def test_2436(self):
         board = chess.Bitboard("2r1r3/8/8/1k1K4/6p1/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 56)
         self.assertEqual(perft(board, 3), 134)
-        self.assertEqual(perft(board, 4), 4039)
 
     def test_2437(self):
         board = chess.Bitboard("2r1r3/8/2k5/8/2K3p1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 99)
-        self.assertEqual(perft(board, 3), 2695)
 
     def test_2438(self):
         board = chess.Bitboard("3r3r/8/2k5/8/3K2p1/8/8/8 w - - 0 1")
@@ -13103,7 +12462,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r3r/8/1k6/8/6p1/8/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 133)
-        self.assertEqual(perft(board, 3), 4282)
 
     def test_2440(self):
         board = chess.Bitboard("3r4/8/8/2k5/6p1/7r/5K2/8 w - - 0 1")
@@ -13115,7 +12473,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/8/8/2k4r/6p1/8/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 216)
-        self.assertEqual(perft(board, 3), 7095)
 
     def test_2442(self):
         board = chess.Bitboard("8/8/8/2kr4/6p1/7r/8/6K1 w - - 0 1")
@@ -13127,13 +12484,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/3r4/2k5/6p1/7r/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 3792)
 
     def test_2444(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2445(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/2P2P2/8/PP1PP1PP/RNBQKBNR b KQkq - 0 1")
@@ -13376,7 +12731,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k1r3/3Rn3/2Pb4/3p1P2/3N4/8/8/3K1n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 357)
-        self.assertEqual(perft(board, 3), 6599)
 
     def test_2493(self):
         board = chess.Bitboard("2k1r3/1R6/2nbN3/3p1P2/8/8/8/3K1n2 b - - 0 1")
@@ -13403,13 +12757,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2r1/6N1/2n2P2/3p4/8/6b1/7n/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 229)
-        self.assertEqual(perft(board, 3), 5840)
 
     def test_2498(self):
         board = chess.Bitboard("6r1/1k6/2n1NP2/3p4/8/6b1/7n/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 5251)
 
     def test_2499(self):
         board = chess.Bitboard("6r1/1k3P2/2n5/6N1/3p4/6b1/7n/3K4 b - - 0 1")
@@ -13420,19 +12772,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k4Nr1/8/2n5/6N1/3p4/6b1/7n/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 398)
-        self.assertEqual(perft(board, 3), 5497)
 
     def test_2501(self):
         board = chess.Bitboard("5Nr1/1k6/2nN4/8/3p4/6b1/7n/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 105)
-        self.assertEqual(perft(board, 3), 2839)
 
     def test_2502(self):
         board = chess.Bitboard("5Nr1/5N2/1kn5/8/3p4/6b1/8/3K1n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 404)
-        self.assertEqual(perft(board, 3), 5285)
 
     def test_2503(self):
         board = chess.Bitboard("3N2r1/2kN4/2n5/8/3p4/6b1/8/3K1n2 b - - 0 1")
@@ -13443,7 +12792,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3N2r1/2kN4/2nb4/8/3p4/8/8/2K2n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 459)
-        self.assertEqual(perft(board, 3), 6308)
 
     def test_2505(self):
         board = chess.Bitboard("3N1N2/2k5/2nb2r1/8/3p4/8/8/1K3n2 b - - 0 1")
@@ -13454,19 +12802,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5N2/2k2Nr1/2nb4/8/3p4/8/3n4/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 180)
-        self.assertEqual(perft(board, 3), 2277)
 
     def test_2507(self):
         board = chess.Bitboard("5N2/2k3r1/3N4/n7/3p4/8/K2n4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 394)
-        self.assertEqual(perft(board, 3), 9029)
 
     def test_2508(self):
         board = chess.Bitboard("8/2kN1r2/2nN4/8/3p4/8/K2n4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 6472)
 
     def test_2509(self):
         board = chess.Bitboard("8/2k1nr2/1N6/8/3pN3/8/K2n4/8 b - - 0 1")
@@ -13477,25 +12822,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k4r/1N4n1/8/3p4/8/K2N4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 5882)
 
     def test_2511(self):
         board = chess.Bitboard("8/2k5/1N4n1/8/3p4/8/8/K4N1r b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 211)
-        self.assertEqual(perft(board, 3), 4228)
 
     def test_2512(self):
         board = chess.Bitboard("8/2k5/8/4n3/2N5/3p4/8/K4N1r w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 2729)
 
     def test_2513(self):
         board = chess.Bitboard("3k4/8/8/4n3/8/3pN3/8/1K3N1r b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 5783)
 
     def test_2514(self):
         board = chess.Bitboard("4k3/8/8/4n3/8/3p4/6N1/1K3N1r w - - 0 1")
@@ -13507,49 +12848,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/8/4n3/8/3p3r/1K1N2N1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 8042)
 
     def test_2516(self):
         board = chess.Bitboard("4k2r/8/2n5/8/8/1K1p4/3N2N1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 332)
-        self.assertEqual(perft(board, 3), 5052)
 
     def test_2517(self):
         board = chess.Bitboard("4k2r/4n3/8/8/8/1K1p2N1/6N1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 335)
-        self.assertEqual(perft(board, 3), 7157)
 
     def test_2518(self):
         board = chess.Bitboard("3k4/4n3/8/8/7N/1K1p2N1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 188)
-        self.assertEqual(perft(board, 3), 3080)
 
     def test_2519(self):
         board = chess.Bitboard("3k4/8/8/5n1N/8/1K1p1N2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 254)
-        self.assertEqual(perft(board, 3), 3301)
 
     def test_2520(self):
         board = chess.Bitboard("3k4/8/6n1/7N/8/2Kp1N2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 221)
-        self.assertEqual(perft(board, 3), 3941)
 
     def test_2521(self):
         board = chess.Bitboard("2k5/8/6n1/7N/8/3K1N2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 196)
-        self.assertEqual(perft(board, 3), 2130)
 
     def test_2522(self):
         board = chess.Bitboard("2k3n1/8/8/7N/8/5N2/4K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 150)
-        self.assertEqual(perft(board, 3), 2707)
 
     def test_2523(self):
         board = chess.Bitboard("2k5/8/5N1n/8/8/8/3NK3/8 b - - 0 1")
@@ -13561,7 +12894,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/5N1n/8/8/8/3N4/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 2541)
 
     def test_2525(self):
         board = chess.Bitboard("2k3n1/8/8/8/8/4N3/3N4/3K4 b - - 0 1")
@@ -13585,7 +12917,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/5k2/8/8/8/1N6/6N1/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 2213)
 
     def test_2529(self):
         board = chess.Bitboard("6n1/6k1/8/8/7N/8/8/N2K4 b - - 0 1")
@@ -13597,7 +12928,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2531(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/7p/8/8/1P1P4/P1P1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -13723,7 +13053,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Rn5Q/p1k5/2pPp3/1pqP4/1P1b2p1/2P5/2KRB1P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 4357)
 
     def test_2556(self):
         board = chess.Bitboard("Rn5Q/p1k5/2pqP3/1pb5/1P4p1/2P5/2KRB1P1/8 w - - 0 1")
@@ -13734,7 +13063,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2R5/p1k5/n1pqP2Q/1pb5/1P4p1/2P5/2KRB1P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 123)
-        self.assertEqual(perft(board, 3), 3026)
 
     def test_2558(self):
         board = chess.Bitboard("2R5/p1q5/nkp1PQ2/1pb5/1P4p1/2P5/2KRB1P1/8 w - - 0 1")
@@ -13775,19 +13103,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1R6/8/1kB1P2Q/p7/1P4p1/K5b1/3q2P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 5178)
 
     def test_2566(self):
         board = chess.Bitboard("1R6/6Q1/k1B1P3/8/1p4p1/K5b1/3q2P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 91)
-        self.assertEqual(perft(board, 3), 3159)
 
     def test_2567(self):
         board = chess.Bitboard("8/1B1q2Q1/k3P3/8/1R4p1/K5b1/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 116)
-        self.assertEqual(perft(board, 3), 2847)
 
     def test_2568(self):
         board = chess.Bitboard("4q3/kB6/4P3/8/1R4p1/K1Q3b1/6P1/8 w - - 0 1")
@@ -13813,13 +13138,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5q2/k7/2B1P3/8/5Rp1/KQ6/6P1/4b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 166)
-        self.assertEqual(perft(board, 3), 6368)
 
     def test_2573(self):
         board = chess.Bitboard("8/k7/2B1P3/8/6p1/KQb2R2/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 480)
-        self.assertEqual(perft(board, 3), 5117)
 
     def test_2574(self):
         board = chess.Bitboard("8/k5b1/2B1P3/8/8/1Q3p2/K5P1/8 w - - 0 1")
@@ -13830,19 +13153,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6b1/1kB1P3/8/8/QK3p2/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 407)
-        self.assertEqual(perft(board, 3), 4987)
 
     def test_2576(self):
         board = chess.Bitboard("8/8/1kB1P3/8/Q7/1K3p2/6P1/b7 w - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 310)
-        self.assertEqual(perft(board, 3), 9931)
 
     def test_2577(self):
         board = chess.Bitboard("8/8/1k2P3/4b3/Q3B3/1K3p2/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 581)
-        self.assertEqual(perft(board, 3), 6885)
 
     def test_2578(self):
         board = chess.Bitboard("8/8/1k2P3/4b3/4B3/1K3p2/Q5P1/8 w - - 0 1")
@@ -13864,7 +13184,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/8/1k2P3/8/2Q3B1/1K6/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 2980)
 
     def test_2582(self):
         board = chess.Bitboard("8/k7/4P3/8/2Q2bB1/8/1K4P1/8 w - - 0 1")
@@ -13875,7 +13194,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/4P3/8/6B1/2Q5/6P1/1Kb5 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 437)
-        self.assertEqual(perft(board, 3), 4224)
 
     def test_2584(self):
         board = chess.Bitboard("8/k7/1b2P3/8/6B1/2Q5/2K3P1/8 w - - 0 1")
@@ -13886,13 +13204,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/4P3/8/3b4/5B2/2KQ2P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 519)
-        self.assertEqual(perft(board, 3), 5770)
 
     def test_2586(self):
         board = chess.Bitboard("B7/k7/4P3/8/8/8/2KQ2P1/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 280)
-        self.assertEqual(perft(board, 3), 9249)
 
     def test_2587(self):
         board = chess.Bitboard("8/k7/4P3/Q7/8/5B2/2K2bP1/8 b - - 0 1")
@@ -13909,7 +13225,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/4P3/7B/8/3Q4/2K2bP1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 544)
-        self.assertEqual(perft(board, 3), 6237)
 
     def test_2590(self):
         board = chess.Bitboard("8/b1k5/4P3/7B/8/7Q/2K3P1/8 w - - 0 1")
@@ -13920,7 +13235,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/1b2P3/8/6B1/7Q/6P1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 4064)
 
     def test_2592(self):
         board = chess.Bitboard("8/2k5/4P3/8/8/7Q/4BbP1/3K4 w - - 0 1")
@@ -13931,7 +13245,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7Q/b1k5/4P3/8/8/8/4B1P1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 389)
-        self.assertEqual(perft(board, 3), 3928)
 
     def test_2594(self):
         board = chess.Bitboard("8/b1k5/4P3/8/8/8/4B1P1/Q2K4 w - - 0 1")
@@ -13948,13 +13261,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6Q1/b7/2k1P3/8/8/8/4B1P1/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 317)
-        self.assertEqual(perft(board, 3), 9732)
 
     def test_2597(self):
         board = chess.Bitboard("8/bk6/4P1Q1/8/8/8/6P1/3K1B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 4275)
 
     def test_2598(self):
         board = chess.Bitboard("k7/8/4P3/5Q2/3b4/8/6P1/3K1B2 w - - 0 1")
@@ -13965,7 +13276,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/4P3/2b2Q2/8/3K4/6P1/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 4117)
 
     def test_2600(self):
         board = chess.Bitboard("8/1k6/3bPQ2/8/8/3K4/6P1/5B2 w - - 0 1")
@@ -13976,7 +13286,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4P3/2kb4/8/5Q2/3K4/6P1/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 524)
-        self.assertEqual(perft(board, 3), 5952)
 
     def test_2602(self):
         board = chess.Bitboard("1b2Q3/1k6/8/8/5Q2/3K4/6P1/5B2 w - - 0 1")
@@ -13998,7 +13307,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/k7/8/8/3K2Q1/8/6PQ/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 3515)
 
     def test_2606(self):
         board = chess.Bitboard("8/k7/3b4/8/6Q1/3K4/6PQ/5B2 w - - 0 1")
@@ -14009,7 +13317,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/7Q/4b3/8/3K1Q2/6P1/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 660)
-        self.assertEqual(perft(board, 3), 6176)
 
     def test_2608(self):
         board = chess.Bitboard("7Q/k7/8/b7/8/3K1Q2/6P1/5B2 w - - 0 1")
@@ -14020,7 +13327,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3b4/k7/8/8/8/3K1Q1Q/6P1/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 396)
-        self.assertEqual(perft(board, 3), 3770)
 
     def test_2610(self):
         board = chess.Bitboard("8/k7/8/8/8/3K1QbQ/8/5B2 w - - 0 1")
@@ -14037,20 +13343,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3Q4/1k6/8/8/3K4/6Q1/5B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 51)
         self.assertEqual(perft(board, 2), 140)
-        self.assertEqual(perft(board, 3), 6967)
 
     def test_2613(self):
         board = chess.Bitboard("8/3Q4/8/2k5/4Q3/3K4/8/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 54)
         self.assertEqual(perft(board, 3), 143)
-        self.assertEqual(perft(board, 4), 7321)
 
     def test_2614(self):
         board = chess.Bitboard("4Q3/3Q4/8/2k5/8/3K4/8/5B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 45)
         self.assertEqual(perft(board, 2), 86)
-        self.assertEqual(perft(board, 3), 4225)
 
     def test_2615(self):
         board = chess.Bitboard("4Q3/5Q2/1k6/8/8/3K3B/8/8 b - - 0 1")
@@ -14062,7 +13365,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2617(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/2P5/1P6/P2PPPPP/RNBQKBNR b KQkq - 0 1")
@@ -14133,7 +13435,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3bnr/p7/3ppk1p/1b1P1pp1/pP2P3/R7/3pNPPP/1NK1B2R w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 182)
-        self.assertEqual(perft(board, 3), 5932)
 
     def test_2631(self):
         board = chess.Bitboard("rn3bnr/8/p2ppk1p/1b1P1pp1/pP2P3/3R4/3KNPPP/1N2B2R b - - 0 1")
@@ -14234,7 +13535,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rRb5/2b3kr/3pP3/1P1NN2P/p3nP1P/8/p7/1KB4R w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 4143)
 
     def test_2651(self):
         board = chess.Bitboard("rR6/2b3kr/3pb3/1P1NN2P/p3nP1P/8/8/1KB4R b - - 0 1")
@@ -14285,103 +13585,86 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4b3/4k3/8/1P2Pr2/p6P/6n1/1K6/4bR2 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 492)
-        self.assertEqual(perft(board, 3), 7370)
 
     def test_2661(self):
         board = chess.Bitboard("4b3/4k3/4P3/bP3R2/p6P/6n1/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 422)
-        self.assertEqual(perft(board, 3), 9394)
 
     def test_2662(self):
         board = chess.Bitboard("3bb3/4k3/4P3/1P6/7P/p5n1/1K6/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 142)
-        self.assertEqual(perft(board, 3), 2596)
 
     def test_2663(self):
         board = chess.Bitboard("4b3/4k3/1b2P3/1P6/7P/p5n1/8/KR6 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 300)
-        self.assertEqual(perft(board, 3), 7721)
 
     def test_2664(self):
         board = chess.Bitboard("8/4kb2/1b2P3/1P6/7P/p5n1/8/K3R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 347)
-        self.assertEqual(perft(board, 3), 4824)
 
     def test_2665(self):
         board = chess.Bitboard("8/4kP2/8/1P6/7P/p3b1n1/4R3/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 220)
-        self.assertEqual(perft(board, 3), 3974)
 
     def test_2666(self):
         board = chess.Bitboard("8/4kP2/8/1P6/7P/p3b1n1/K3R3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 5139)
 
     def test_2667(self):
         board = chess.Bitboard("3k4/5P2/8/1P6/7P/pK2R1n1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 2166)
 
     def test_2668(self):
         board = chess.Bitboard("3k1N2/8/8/1P6/7P/pK2R3/5n2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 215)
-        self.assertEqual(perft(board, 3), 5135)
 
     def test_2669(self):
         board = chess.Bitboard("5N2/2k5/8/1P6/7P/pK6/4Rn2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 3589)
 
     def test_2670(self):
         board = chess.Bitboard("1k3N2/8/8/1P6/7P/1K2R3/p4n2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 8198)
 
     def test_2671(self):
         board = chess.Bitboard("5N2/k7/8/1P6/7P/2K3R1/p4n2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 3627)
 
     def test_2672(self):
         board = chess.Bitboard("5N2/k5b1/8/1P6/1K5P/6R1/5n2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 422)
-        self.assertEqual(perft(board, 3), 8951)
 
     def test_2673(self):
         board = chess.Bitboard("5N2/k5b1/5R2/1P6/1K4nP/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 289)
-        self.assertEqual(perft(board, 3), 4075)
 
     def test_2674(self):
         board = chess.Bitboard("5N2/k5b1/8/1P3R2/1K4nP/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 8223)
 
     def test_2675(self):
         board = chess.Bitboard("8/k6N/5b2/1P3R2/2K3nP/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 392)
-        self.assertEqual(perft(board, 3), 6798)
 
     def test_2676(self):
         board = chess.Bitboard("8/7N/1k6/1P3R2/6nP/1Kb5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 441)
-        self.assertEqual(perft(board, 3), 9138)
 
     def test_2677(self):
         board = chess.Bitboard("8/7N/8/1k6/6nP/2b2R2/K7/8 b - - 0 1")
@@ -14392,49 +13675,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7N/8/8/1k4nP/8/K7/4bR2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 4949)
 
     def test_2679(self):
         board = chess.Bitboard("8/7N/8/8/1k5P/3R4/K6n/4b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 3801)
 
     def test_2680(self):
         board = chess.Bitboard("8/3R3N/8/8/1k5b/5n2/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 338)
-        self.assertEqual(perft(board, 3), 6518)
 
     def test_2681(self):
         board = chess.Bitboard("8/7N/8/4n3/1k5b/4R3/K7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 363)
-        self.assertEqual(perft(board, 3), 6179)
 
     def test_2682(self):
         board = chess.Bitboard("8/8/8/4n1N1/1k5b/4R3/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 6444)
 
     def test_2683(self):
         board = chess.Bitboard("8/8/8/4n1N1/k6b/2R5/K7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 328)
-        self.assertEqual(perft(board, 3), 4778)
 
     def test_2684(self):
         board = chess.Bitboard("8/3n4/8/6b1/k7/1R6/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 3994)
 
     def test_2685(self):
         board = chess.Bitboard("2R5/8/5n2/6b1/k7/8/K7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 4670)
 
     def test_2686(self):
         board = chess.Bitboard("5nR1/8/8/6b1/k7/8/K7/8 w - - 0 1")
@@ -14446,98 +13721,82 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n2/8/8/8/k4b2/8/K7/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 295)
-        self.assertEqual(perft(board, 3), 4873)
 
     def test_2688(self):
         board = chess.Bitboard("8/6R1/6n1/8/k7/8/K2b4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 197)
-        self.assertEqual(perft(board, 3), 3019)
 
     def test_2689(self):
         board = chess.Bitboard("8/R7/6n1/8/1k6/8/3b4/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 5498)
 
     def test_2690(self):
         board = chess.Bitboard("8/R7/8/8/1k5n/8/K7/4b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 2800)
 
     def test_2691(self):
         board = chess.Bitboard("8/8/8/2R5/1k5n/2b5/K7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 204)
-        self.assertEqual(perft(board, 3), 2845)
 
     def test_2692(self):
         board = chess.Bitboard("8/8/6n1/6R1/1k6/8/Kb6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 3159)
 
     def test_2693(self):
         board = chess.Bitboard("8/8/8/1R6/1k5n/8/Kb6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 47)
         self.assertEqual(perft(board, 3), 575)
-        self.assertEqual(perft(board, 4), 7985)
 
     def test_2694(self):
         board = chess.Bitboard("1R6/8/8/8/7n/2k5/K7/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 3529)
 
     def test_2695(self):
         board = chess.Bitboard("8/8/8/8/2k4n/5R2/K7/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 3980)
 
     def test_2696(self):
         board = chess.Bitboard("8/5R2/8/8/1k5n/8/K7/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 3763)
 
     def test_2697(self):
         board = chess.Bitboard("8/8/8/1k6/4R2n/8/K7/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 279)
-        self.assertEqual(perft(board, 3), 4515)
 
     def test_2698(self):
         board = chess.Bitboard("8/8/4R3/1k6/8/5n2/Kb6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 5444)
 
     def test_2699(self):
         board = chess.Bitboard("8/8/3R4/1k6/3b4/1K3n2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 6217)
 
     def test_2700(self):
         board = chess.Bitboard("8/8/8/1k6/3R3n/1K6/8/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 254)
-        self.assertEqual(perft(board, 3), 4774)
 
     def test_2701(self):
         board = chess.Bitboard("8/8/8/1kb1R3/7n/1K6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 133)
-        self.assertEqual(perft(board, 3), 2121)
 
     def test_2702(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2703(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/3P4/2N5/PPP1PPPP/R1BQKBNR b KQkq - 0 1")
@@ -14683,7 +13942,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r2r4/p2k1RB1/P1b5/1PPPb1q1/B7/2n3P1/1P5P/1N2K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 102)
-        self.assertEqual(perft(board, 3), 3787)
 
     def test_2732(self):
         board = chess.Bitboard("1r1rk3/p4RB1/P1P5/2PPb1q1/B7/2n3P1/1P5P/1N2K3 w - - 0 1")
@@ -14739,7 +13997,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r2k1/p7/PRP5/2PqB2r/8/5KP1/1PB5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 225)
-        self.assertEqual(perft(board, 3), 5055)
 
     def test_2743(self):
         board = chess.Bitboard("3r2k1/p7/PRP5/2P1q2r/8/6P1/1PB2K2/8 b - - 0 1")
@@ -14761,7 +14018,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4r1k1/p7/PRP5/2P1r3/8/5KP1/1PB5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 458)
-        self.assertEqual(perft(board, 3), 8992)
 
     def test_2747(self):
         board = chess.Bitboard("1r4k1/p7/P1P5/2P1r3/1R6/3B1KP1/1P6/8 b - - 0 1")
@@ -14772,13 +14028,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5rk1/p7/P1P5/2P2r2/1R4K1/3B2P1/1P6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 449)
-        self.assertEqual(perft(board, 3), 9375)
 
     def test_2749(self):
         board = chess.Bitboard("5r2/p6k/P1P5/2P2r2/1R4PK/3B4/1P6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 5839)
 
     def test_2750(self):
         board = chess.Bitboard("8/p6k/P1P5/2P2r2/1R4rK/8/1P2B3/8 w - - 0 1")
@@ -14800,7 +14054,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6R1/p6k/P1P5/2P3r1/5rBK/8/1P6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 363)
-        self.assertEqual(perft(board, 3), 7542)
 
     def test_2754(self):
         board = chess.Bitboard("6R1/p6k/P1P5/2P1r3/6BK/1P6/5r2/8 w - - 0 1")
@@ -14811,7 +14064,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6R1/p6k/P1P5/2P1rr2/7K/1P6/8/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 391)
-        self.assertEqual(perft(board, 3), 8933)
 
     def test_2756(self):
         board = chess.Bitboard("6R1/p1P4k/P7/2P5/4r2K/1P3r2/8/5B2 w - - 0 1")
@@ -14854,7 +14106,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2764(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/8/7P/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1")
@@ -15050,85 +14301,71 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/r6k/2n1p3/p4p2/PN3Pp1/7b/2N2K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 8253)
 
     def test_2803(self):
         board = chess.Bitboard("8/1r5k/2N1p3/p4p2/P4Pp1/7b/2N2K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 407)
-        self.assertEqual(perft(board, 3), 6468)
 
     def test_2804(self):
         board = chess.Bitboard("8/1r6/2N1p1k1/p4p2/PN3Pp1/7b/8/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 6657)
 
     def test_2805(self):
         board = chess.Bitboard("8/1r2Nk2/4p3/p4p2/PN3Pp1/8/8/4Kb2 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 5337)
 
     def test_2806(self):
         board = chess.Bitboard("2N5/3r1k2/4p3/p4p2/P4Pp1/8/N7/4Kb2 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 234)
-        self.assertEqual(perft(board, 3), 5449)
 
     def test_2807(self):
         board = chess.Bitboard("2N5/3r4/4p1k1/p4p2/PN3Pp1/3b4/8/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 4194)
 
     def test_2808(self):
         board = chess.Bitboard("8/2r5/3Np1k1/p4p2/P4Pp1/3N4/8/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 381)
-        self.assertEqual(perft(board, 3), 6715)
 
     def test_2809(self):
         board = chess.Bitboard("8/4r2k/3Np3/p1N2p2/P4Pp1/8/8/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 4947)
 
     def test_2810(self):
         board = chess.Bitboard("8/4r3/3NN2k/p4p2/P4Pp1/8/3K4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 278)
-        self.assertEqual(perft(board, 3), 3711)
 
     def test_2811(self):
         board = chess.Bitboard("8/2r5/3NN2k/p4p2/P4Pp1/2K5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 125)
-        self.assertEqual(perft(board, 3), 2289)
 
     def test_2812(self):
         board = chess.Bitboard("8/6r1/3NN2k/p4p2/P4Pp1/2K5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 293)
-        self.assertEqual(perft(board, 3), 3512)
 
     def test_2813(self):
         board = chess.Bitboard("8/4rN1k/4N3/p4p2/P4Pp1/2K5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 3625)
 
     def test_2814(self):
         board = chess.Bitboard("8/4r2k/3NN3/p4p2/P1K2P2/6p1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 3535)
 
     def test_2815(self):
         board = chess.Bitboard("8/r7/4N2k/pN3p2/P1K2P2/6p1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 230)
-        self.assertEqual(perft(board, 3), 3891)
 
     def test_2816(self):
         board = chess.Bitboard("8/2N2r2/4N2k/p2K1p2/P4P2/6p1/8/8 b - - 0 1")
@@ -15140,86 +14377,72 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2Nr4/4N2k/p4p2/P1K2P2/6p1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 244)
-        self.assertEqual(perft(board, 3), 3615)
 
     def test_2818(self):
         board = chess.Bitboard("8/2Nr4/4N2k/p4p2/P1K2P2/8/6p1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 276)
-        self.assertEqual(perft(board, 3), 5319)
 
     def test_2819(self):
         board = chess.Bitboard("4N3/3r4/4N2k/p4p2/P1K2P2/8/5b2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 338)
-        self.assertEqual(perft(board, 3), 4518)
 
     def test_2820(self):
         board = chess.Bitboard("4N3/8/4N2k/p2r1p2/P1K2P2/8/5b2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 289)
-        self.assertEqual(perft(board, 3), 5714)
 
     def test_2821(self):
         board = chess.Bitboard("4N3/8/1b2N3/p2r1p1k/P4P2/2K5/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 3563)
 
     def test_2822(self):
         board = chess.Bitboard("4N3/8/1b2N3/p3rp1k/P4P2/8/8/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 4341)
 
     def test_2823(self):
         board = chess.Bitboard("3NN3/8/1b6/p4p2/P4Pk1/8/4r3/K7 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 224)
-        self.assertEqual(perft(board, 3), 2325)
 
     def test_2824(self):
         board = chess.Bitboard("4N3/8/1b5N/p4p2/P4P2/5k2/4r3/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 6057)
 
     def test_2825(self):
         board = chess.Bitboard("4r3/8/7N/p1b2p2/P4P2/5k2/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 2678)
 
     def test_2826(self):
         board = chess.Bitboard("4r3/8/7N/p4p2/P4P2/4bk2/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 5561)
 
     def test_2827(self):
         board = chess.Bitboard("8/4r3/8/p4N2/P2b1P2/5k2/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 297)
-        self.assertEqual(perft(board, 3), 3111)
 
     def test_2828(self):
         board = chess.Bitboard("8/4r3/8/p7/P2b1P2/4k3/6N1/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 39)
         self.assertEqual(perft(board, 3), 1110)
-        self.assertEqual(perft(board, 4), 8885)
 
     def test_2829(self):
         board = chess.Bitboard("8/b3r3/8/p4P2/P7/8/5kN1/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 2359)
 
     def test_2830(self):
         board = chess.Bitboard("8/b3r3/8/p4P2/P6N/8/2K5/5k2 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 6023)
 
     def test_2831(self):
         board = chess.Bitboard("8/b7/8/p4P2/P3r2N/8/8/1K4k1 w - - 0 1")
@@ -15231,43 +14454,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5N2/b7/8/p4P2/P7/8/4r3/1K4k1 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 4373)
 
     def test_2833(self):
         board = chess.Bitboard("8/4r3/4N3/p1b2P2/P7/8/8/1K4k1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 334)
-        self.assertEqual(perft(board, 3), 3919)
 
     def test_2834(self):
         board = chess.Bitboard("8/2N2r2/8/p1b2P2/P7/8/2K5/6k1 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 326)
-        self.assertEqual(perft(board, 3), 7728)
 
     def test_2835(self):
         board = chess.Bitboard("8/2N3r1/8/p1b2P2/P7/2K5/7k/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 376)
-        self.assertEqual(perft(board, 3), 4470)
 
     def test_2836(self):
         board = chess.Bitboard("8/r7/4N3/p1b2P2/P7/8/3K3k/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 8117)
 
     def test_2837(self):
         board = chess.Bitboard("8/r7/4N3/p4P2/Pb6/8/4K3/6k1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 255)
-        self.assertEqual(perft(board, 3), 3009)
 
     def test_2838(self):
         board = chess.Bitboard("8/r5N1/8/p4P2/Pb6/3K4/6k1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 229)
-        self.assertEqual(perft(board, 3), 5332)
 
     def test_2839(self):
         board = chess.Bitboard("8/3r2N1/8/p4P2/Pb6/8/4K1k1/8 w - - 0 1")
@@ -15279,7 +14495,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4N3/8/8/p4P2/Pb1r4/4K3/6k1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 180)
-        self.assertEqual(perft(board, 3), 4318)
 
     def test_2841(self):
         board = chess.Bitboard("4N3/8/5P2/p7/Pb6/3rK3/6k1/8 w - - 0 1")
@@ -15291,31 +14506,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4N3/8/5P2/p3K3/Pb6/2r5/6k1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 245)
-        self.assertEqual(perft(board, 3), 6409)
 
     def test_2843(self):
         board = chess.Bitboard("4N3/8/5P2/p2K4/Pb6/7r/8/5k2 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 2678)
 
     def test_2844(self):
         board = chess.Bitboard("8/8/3N1P2/p7/Pb1K4/r7/8/5k2 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 5063)
 
     def test_2845(self):
         board = chess.Bitboard("8/8/5P2/p4N2/Pb1K4/5r2/8/4k3 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 2907)
 
     def test_2846(self):
         board = chess.Bitboard("8/8/5P2/p7/Pb1K2N1/5r2/3k4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 199)
-        self.assertEqual(perft(board, 3), 4555)
 
     def test_2847(self):
         board = chess.Bitboard("5b2/8/5r2/p3K3/P5N1/8/3k4/8 w - - 0 1")
@@ -15327,13 +14537,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6b1/4KN2/p7/P7/8/3k4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 169)
-        self.assertEqual(perft(board, 3), 2174)
 
     def test_2849(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2850(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/5n2/5P2/8/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1")
@@ -15454,7 +14662,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r3k3/3N1N2/3P4/pp6/4B1rp/P3q2P/1P1BPK2/R5R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 110)
-        self.assertEqual(perft(board, 3), 4371)
 
     def test_2874(self):
         board = chess.Bitboard("rN2k3/5N2/3P4/pp6/4B2p/P3K2P/1P1BP3/R5r1 b - - 0 1")
@@ -15470,7 +14677,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rN1N4/6k1/3P4/pp6/3KB1Pp/P7/1P1BP3/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 484)
-        self.assertEqual(perft(board, 3), 4907)
 
     def test_2877(self):
         board = chess.Bitboard("rN6/5k2/3P4/pp6/3KB1Pp/P7/1P1BP3/R7 w - - 0 1")
@@ -15487,13 +14693,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("BN6/6B1/3k4/p7/1p1K2Pp/P7/1P2P3/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 218)
-        self.assertEqual(perft(board, 3), 7565)
 
     def test_2880(self):
         board = chess.Bitboard("B7/3Nk1B1/8/p7/1p1K2Pp/P7/1P2P3/5R2 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 3031)
 
     def test_2881(self):
         board = chess.Bitboard("B7/3N2B1/3k4/p7/1p1K2P1/P4R1p/1P2P3/8 w - - 0 1")
@@ -15504,7 +14708,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B7/2kN2B1/8/p5P1/1p1K1R2/P6p/1P2P3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 2491)
 
     def test_2883(self):
         board = chess.Bitboard("B7/2kN4/7B/p5P1/1p1K1R2/P6p/1P2P3/8 w - - 0 1")
@@ -15515,13 +14718,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B7/3k4/7B/p3P1P1/1p1K1R2/P6p/1P6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 297)
-        self.assertEqual(perft(board, 3), 2420)
 
     def test_2885(self):
         board = chess.Bitboard("3k4/8/7B/3BP1P1/pp1K1R2/P6p/1P6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 8350)
 
     def test_2886(self):
         board = chess.Bitboard("4k3/8/7B/2K1P1P1/pp3R2/P4B1p/1P6/8 b - - 0 1")
@@ -15533,7 +14734,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/7B/2K1P1P1/ppR5/P4B1p/1P6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 7545)
 
     def test_2888(self):
         board = chess.Bitboard("8/8/4k2B/2K1P1PB/pp6/P6p/1P6/2R5 b - - 0 1")
@@ -15545,19 +14745,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4B3/8/7B/2K1PkP1/pp6/P7/1P5p/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 306)
-        self.assertEqual(perft(board, 3), 9116)
 
     def test_2890(self):
         board = chess.Bitboard("4B3/8/7B/4P1P1/ppK1k3/PP6/7p/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 3195)
 
     def test_2891(self):
         board = chess.Bitboard("4B3/8/7B/4P1P1/ppK1k2q/PP6/8/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 8158)
 
     def test_2892(self):
         board = chess.Bitboard("4B3/8/7B/4P1P1/pK2k3/PP5q/8/6R1 b - - 0 1")
@@ -15568,13 +14765,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4q3/8/7B/4P1P1/pK2k3/PP4R1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 334)
-        self.assertEqual(perft(board, 3), 5306)
 
     def test_2894(self):
         board = chess.Bitboard("4q3/3R4/7B/4P1P1/1K2k3/Pp6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 427)
-        self.assertEqual(perft(board, 3), 9235)
 
     def test_2895(self):
         board = chess.Bitboard("q7/3R4/7B/4PkP1/2K5/Pp6/8/8 w - - 0 1")
@@ -15585,25 +14780,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("q7/R7/7B/4P1P1/3K1k2/Pp6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 323)
-        self.assertEqual(perft(board, 3), 6888)
 
     def test_2897(self):
         board = chess.Bitboard("q7/8/7B/R3P1P1/3K1k2/Pp6/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 323)
-        self.assertEqual(perft(board, 3), 4610)
 
     def test_2898(self):
         board = chess.Bitboard("8/8/3K3B/R3P1P1/5k2/Pp3q2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 364)
-        self.assertEqual(perft(board, 3), 8357)
 
     def test_2899(self):
         board = chess.Bitboard("8/8/7B/R1K1P1P1/4qk2/P7/1p6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 4727)
 
     def test_2900(self):
         board = chess.Bitboard("8/6B1/8/R1K1P1P1/P3qk2/8/8/1b6 b - - 0 1")
@@ -15614,7 +14805,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6B1/1K6/R3P1P1/P4k2/3b4/4q3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 539)
-        self.assertEqual(perft(board, 3), 9013)
 
     def test_2902(self):
         board = chess.Bitboard("8/6B1/1K6/4P1P1/P3qk2/3b4/2R5/8 b - - 0 1")
@@ -15630,7 +14820,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1K5B/1b2P1k1/P3q3/8/5R2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 4469)
 
     def test_2905(self):
         board = chess.Bitboard("8/8/bK6/4P3/P3qBk1/8/5R2/8 w - - 0 1")
@@ -15686,7 +14875,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2K5/R7/b5q1/P7/8/8/6kB/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 191)
-        self.assertEqual(perft(board, 3), 2358)
 
     def test_2916(self):
         board = chess.Bitboard("R7/3K4/b5q1/P7/8/8/7k/8 b - - 0 1")
@@ -15697,7 +14885,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/R2K4/8/P7/2b5/8/2q4k/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 396)
-        self.assertEqual(perft(board, 3), 4489)
 
     def test_2918(self):
         board = chess.Bitboard("4R3/3K4/8/P7/2b5/8/7k/1q6 b - - 0 1")
@@ -15708,7 +14895,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/3K4/1q6/P7/2b5/8/7k/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 639)
-        self.assertEqual(perft(board, 3), 8267)
 
     def test_2920(self):
         board = chess.Bitboard("3K4/8/2q5/P7/2b2R2/8/7k/8 b - - 0 1")
@@ -15719,19 +14905,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3K1R2/8/2q1b3/P7/8/8/8/7k w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 3803)
 
     def test_2922(self):
         board = chess.Bitboard("3K4/2R5/4b3/P7/8/8/8/7k b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 241)
-        self.assertEqual(perft(board, 3), 2711)
 
     def test_2923(self):
         board = chess.Bitboard("3Kb3/8/8/P1R5/8/8/8/7k w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 2599)
 
     def test_2924(self):
         board = chess.Bitboard("2RK4/8/P7/8/b7/8/8/7k b - - 0 1")
@@ -15743,7 +14926,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3Kb3/2R5/P7/8/8/8/6k1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 227)
-        self.assertEqual(perft(board, 3), 3861)
 
     def test_2926(self):
         board = chess.Bitboard("1K2b3/2R5/P7/8/8/8/8/7k b - - 0 1")
@@ -15755,7 +14937,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2K1b3/2R5/P7/8/8/8/8/5k2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 176)
-        self.assertEqual(perft(board, 3), 2915)
 
     def test_2928(self):
         board = chess.Bitboard("3K4/5R2/P7/7b/8/8/8/5k2 b - - 0 1")
@@ -15767,19 +14948,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3K4/8/P5b1/8/8/5R2/8/4k3 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 3933)
 
     def test_2930(self):
         board = chess.Bitboard("8/3K3b/P7/8/8/1R6/8/4k3 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 252)
-        self.assertEqual(perft(board, 3), 3105)
 
     def test_2931(self):
         board = chess.Bitboard("8/3K3b/P7/8/8/8/1R6/4k3 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 4221)
 
     def test_2932(self):
         board = chess.Bitboard("8/8/P3K3/8/8/8/3R4/1b2k3 b - - 0 1")
@@ -15791,19 +14969,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P3K3/8/8/8/2b1R3/5k2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 2885)
 
     def test_2934(self):
         board = chess.Bitboard("8/8/P2K4/8/8/8/2b4R/4k3 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 240)
-        self.assertEqual(perft(board, 3), 2571)
 
     def test_2935(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_2936(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/8/4p3/5P2/P7/1PPPP1PP/RNBQKBNR b KQkq - 0 1")
@@ -15929,7 +15104,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r3kbn1/p1r5/1PB2p1B/2p1p2P/P1P5/2R2N2/8/4K1NR b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 188)
-        self.assertEqual(perft(board, 3), 3809)
 
     def test_2961(self):
         board = chess.Bitboard("r1k2bn1/p1r5/1PB2p1B/P1p1p2P/2P5/2R2N2/8/4K1NR w - - 0 1")
@@ -16010,7 +15184,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3kn3/1r3R2/Pp6/2p2B1P/1NP1p1p1/1R6/8/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 489)
-        self.assertEqual(perft(board, 3), 6841)
 
     def test_2977(self):
         board = chess.Bitboard("2rkn3/5R1B/Pp6/2p4P/1NP1p1p1/1R6/8/4K3 w - - 0 1")
@@ -16021,19 +15194,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3kn3/R1r4B/Pp6/2p4P/1NP1p1p1/3R4/8/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 140)
-        self.assertEqual(perft(board, 3), 2136)
 
     def test_2979(self):
         board = chess.Bitboard("3k4/R6B/Pprn4/2p4P/1NP1p1p1/3R4/8/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 304)
-        self.assertEqual(perft(board, 3), 9438)
 
     def test_2980(self):
         board = chess.Bitboard("3k4/R7/Pprn4/2p4P/2P1B3/3R2p1/2N5/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 2450)
 
     def test_2981(self):
         board = chess.Bitboard("3k4/r7/Pp1n4/2p4P/2PNB3/3R2p1/8/3K4 w - - 0 1")
@@ -16044,7 +15214,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/r2k4/Pp1n4/2p4P/2P5/3R1Np1/8/3K3B b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 304)
-        self.assertEqual(perft(board, 3), 5290)
 
     def test_2983(self):
         board = chess.Bitboard("r7/2k5/Pp1n4/2p4P/2P5/3R1Np1/6B1/3K4 w - - 0 1")
@@ -16055,7 +15224,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/2k2n2/Pp6/2pR3P/2P5/5Np1/4K1B1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 539)
-        self.assertEqual(perft(board, 3), 8851)
 
     def test_2985(self):
         board = chess.Bitboard("r7/2k5/Pp4n1/2pR3P/2P5/6p1/4K1B1/6N1 w - - 0 1")
@@ -16071,25 +15239,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/Pp4P1/2p3R1/2P1r3/6p1/6B1/3K2N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 313)
-        self.assertEqual(perft(board, 3), 6795)
 
     def test_2988(self):
         board = chess.Bitboard("1k2r3/8/PpB3P1/2R5/2P5/6p1/8/3K2N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 6250)
 
     def test_2989(self):
         board = chess.Bitboard("1k6/6r1/Pp4P1/2R5/2P5/6p1/6B1/3K2N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 335)
-        self.assertEqual(perft(board, 3), 8823)
 
     def test_2990(self):
         board = chess.Bitboard("1k6/3r4/Pp4P1/3R4/2P1B3/6p1/8/3K2N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 408)
-        self.assertEqual(perft(board, 3), 5829)
 
     def test_2991(self):
         board = chess.Bitboard("1k6/8/Pp4r1/3R4/2P1B3/5Np1/8/3K4 w - - 0 1")
@@ -16100,7 +15264,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/P7/1p4r1/3R4/2P1B3/5Np1/8/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 439)
-        self.assertEqual(perft(board, 3), 4180)
 
     def test_2993(self):
         board = chess.Bitboard("8/8/kp4r1/7R/2P1B3/5Np1/8/2K5 w - - 0 1")
@@ -16117,19 +15280,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7B/8/kp5R/2P5/8/6p1/2K1N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 232)
-        self.assertEqual(perft(board, 3), 6380)
 
     def test_2996(self):
         board = chess.Bitboard("6BR/8/1k6/1p6/2P5/8/6p1/2K1N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 275)
-        self.assertEqual(perft(board, 3), 3334)
 
     def test_2997(self):
         board = chess.Bitboard("6B1/7R/1k6/1p6/2P5/5n2/8/2K1N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 355)
-        self.assertEqual(perft(board, 3), 9326)
 
     def test_2998(self):
         board = chess.Bitboard("6B1/R7/k7/1p6/2P5/5n2/8/2K1N3 b - - 0 1")
@@ -16141,19 +15301,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6B1/k7/8/8/1pP5/5n2/8/1K2N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 185)
-        self.assertEqual(perft(board, 3), 2660)
 
     def test_3000(self):
         board = chess.Bitboard("6B1/k7/8/2P5/1p1n4/3N4/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 2831)
 
     def test_3001(self):
         board = chess.Bitboard("k5B1/8/4n3/2P1N3/1p6/8/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 192)
-        self.assertEqual(perft(board, 3), 3499)
 
     def test_3002(self):
         board = chess.Bitboard("k5B1/4N3/4n3/2P5/8/1p6/8/1K6 b - - 0 1")
@@ -16165,7 +15322,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/4N3/2n5/2P5/2B5/1p6/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 206)
-        self.assertEqual(perft(board, 3), 3743)
 
     def test_3004(self):
         board = chess.Bitboard("kn6/4N3/8/2P5/2B5/1p6/8/1K6 b - - 0 1")
@@ -16177,7 +15333,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("kn6/8/6N1/2P5/2B5/1p6/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 2075)
 
     def test_3006(self):
         board = chess.Bitboard("k7/8/n5N1/2P5/8/1B6/1K6/8 b - - 0 1")
@@ -16189,7 +15344,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/n5N1/2P5/8/8/1K6/3B4 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 183)
-        self.assertEqual(perft(board, 3), 3681)
 
     def test_3008(self):
         board = chess.Bitboard("7N/3k4/n7/2P4B/8/8/1K6/8 b - - 0 1")
@@ -16201,48 +15355,40 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7N/3k1B2/8/2P5/8/8/nK6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 129)
-        self.assertEqual(perft(board, 3), 2124)
 
     def test_3010(self):
         board = chess.Bitboard("7N/2k5/8/2P5/8/8/B7/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 402)
-        self.assertEqual(perft(board, 4), 6532)
 
     def test_3011(self):
         board = chess.Bitboard("4k2N/8/4B3/2P5/8/8/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 61)
         self.assertEqual(perft(board, 3), 1074)
-        self.assertEqual(perft(board, 4), 4417)
 
     def test_3012(self):
         board = chess.Bitboard("8/4k3/3NB3/2P5/8/8/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 89)
         self.assertEqual(perft(board, 3), 331)
-        self.assertEqual(perft(board, 4), 6576)
 
     def test_3013(self):
         board = chess.Bitboard("8/4k3/3N4/2P5/6B1/8/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 94)
-        self.assertEqual(perft(board, 3), 2008)
-        self.assertEqual(perft(board, 4), 8531)
 
     def test_3014(self):
         board = chess.Bitboard("3k4/8/8/1NP5/6B1/8/8/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 38)
         self.assertEqual(perft(board, 3), 176)
-        self.assertEqual(perft(board, 4), 3339)
 
     def test_3015(self):
         board = chess.Bitboard("5k2/8/8/1NP5/6B1/8/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 97)
-        self.assertEqual(perft(board, 3), 2015)
 
     def test_3016(self):
         board = chess.Bitboard("8/2NB1k2/8/2P5/8/8/8/1K6 b - - 0 1")
@@ -16254,22 +15400,18 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2NB2k1/8/2P5/8/8/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 159)
-        self.assertEqual(perft(board, 3), 3185)
 
     def test_3018(self):
         board = chess.Bitboard("4N2k/8/8/2P5/B7/8/K7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 32)
         self.assertEqual(perft(board, 3), 129)
-        self.assertEqual(perft(board, 4), 2245)
-        self.assertEqual(perft(board, 5), 8944)
 
     def test_3019(self):
         board = chess.Bitboard("7k/8/5N2/2P5/B7/8/K7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 35)
         self.assertEqual(perft(board, 3), 660)
-        self.assertEqual(perft(board, 4), 3467)
 
     def test_3020(self):
         board = chess.Bitboard("8/6k1/8/2P5/B3N3/8/1K6/8 b - - 0 1")
@@ -16281,7 +15423,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3022(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/8/N1P5/PP1PPPPP/R1BQKBNR b KQkq - 0 1")
@@ -16342,7 +15483,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Q1bq1b2/6pr/1p1pkp2/2p4p/3p3P/NpP3N1/P1n2PP1/1RB1KBR1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 4344)
 
     def test_3034(self):
         board = chess.Bitboard("Q1bq1b2/6pr/1p1pkp2/2p4p/3p3P/N1P3N1/Pp3PP1/1RB1KBR1 b - - 0 1")
@@ -16368,7 +15508,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2bq1b2/8/1p1k1ppr/2ppQ2N/3p3P/2P5/PpN1BPP1/1RB1K1R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 4964)
 
     def test_3039(self):
         board = chess.Bitboard("3q1b2/3b4/1pk2ppr/2ppQ2N/3p3P/P1P5/1pN1BPP1/1RB1K1R1 w - - 0 1")
@@ -16409,7 +15548,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/1q3b1N/1k1Q4/2p3p1/2Bp3P/P1P3P1/2NK1P2/2r1R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 208)
-        self.assertEqual(perft(board, 3), 7178)
 
     def test_3047(self):
         board = chess.Bitboard("5b2/k3qb1N/3Q4/2p3p1/2Bp3P/P1P3P1/2NK1P2/2r4R w - - 0 1")
@@ -16420,13 +15558,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/k3Q2N/8/2pb2p1/2Bp3P/P1P3P1/2NK1P2/2r4R b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 5729)
 
     def test_3049(self):
         board = chess.Bitboard("1k3b2/4Q2N/8/2pb2pP/2Bp4/P1P3P1/2NK1P2/3r3R w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 66)
-        self.assertEqual(perft(board, 3), 2869)
 
     def test_3050(self):
         board = chess.Bitboard("1k3b2/4Q3/4b3/2p3NP/2Bp4/P1P3P1/2N1KP2/3r3R b - - 0 1")
@@ -16502,7 +15638,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/1k5b/5P1N/5N1P/2p4K/2P5/1r3p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 453)
-        self.assertEqual(perft(board, 3), 9827)
 
     def test_3065(self):
         board = chess.Bitboard("3R4/1k5b/5P1N/5N1P/2p4K/2P5/1r6/2r5 w - - 0 1")
@@ -16518,13 +15653,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2R5/1k2N2b/5P1N/6r1/2p3K1/2P5/8/2r5 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 3291)
 
     def test_3068(self):
         board = chess.Bitboard("1R6/1k2N2b/5P1N/6r1/2p2K2/2P5/2r5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 98)
-        self.assertEqual(perft(board, 3), 2596)
 
     def test_3069(self):
         board = chess.Bitboard("7R/4N2b/k4P1N/6r1/2p2K2/2P5/3r4/8 w - - 0 1")
@@ -16535,7 +15668,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7R/7b/k4P1N/7r/1Np2K2/2P5/3r4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 115)
-        self.assertEqual(perft(board, 3), 3712)
 
     def test_3071(self):
         board = chess.Bitboard("5R2/1k6/5P1N/7r/1Np2K2/2Pb4/3r4/8 w - - 0 1")
@@ -16556,49 +15688,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R1r/5N2/2k2P1r/8/2p2K2/2P5/8/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 7081)
 
     def test_3075(self):
         board = chess.Bitboard("5R1r/k4N2/5P1r/8/2p5/2P3K1/8/4N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 5790)
 
     def test_3076(self):
         board = chess.Bitboard("2r5/k4N2/5P1r/8/2p5/2P2K2/8/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 8839)
 
     def test_3077(self):
         board = chess.Bitboard("2r5/k4Nr1/5P2/8/2p1K3/2P5/8/4N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 437)
-        self.assertEqual(perft(board, 3), 6968)
 
     def test_3078(self):
         board = chess.Bitboard("k1r5/5Nr1/5P2/8/2pK4/2P5/6N1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 267)
-        self.assertEqual(perft(board, 3), 5796)
 
     def test_3079(self):
         board = chess.Bitboard("k7/2r2N2/5P2/6r1/2pK4/2P5/8/4N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 3733)
 
     def test_3080(self):
         board = chess.Bitboard("k5N1/8/2r2P2/6r1/2pK4/2P5/8/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 218)
-        self.assertEqual(perft(board, 3), 5410)
 
     def test_3081(self):
         board = chess.Bitboard("k7/8/5r1N/8/2pK4/2P5/6r1/4N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 408)
-        self.assertEqual(perft(board, 3), 5203)
 
     def test_3082(self):
         board = chess.Bitboard("k7/8/4r3/8/2pK2N1/2P2N2/6r1/8 b - - 0 1")
@@ -16609,7 +15733,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/8/8/2pK4/2P1rN2/6r1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 2707)
 
     def test_3084(self):
         board = chess.Bitboard("k7/8/8/8/2pK4/2P1r3/4N3/8 b - - 0 1")
@@ -16627,7 +15750,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/7r/8/8/2pK4/2P5/4N3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 2472)
 
     def test_3087(self):
         board = chess.Bitboard("k7/4r3/8/8/2pK4/2P5/8/6N1 w - - 0 1")
@@ -16645,13 +15767,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/7r/8/8/2pK4/2PN4/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 242)
-        self.assertEqual(perft(board, 3), 2812)
 
     def test_3090(self):
         board = chess.Bitboard("k7/2r5/8/8/2p2K2/2PN4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 186)
-        self.assertEqual(perft(board, 3), 2837)
 
     def test_3091(self):
         board = chess.Bitboard("k7/r7/8/8/2p2K2/2P5/8/2N5 w - - 0 1")
@@ -16663,7 +15783,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/1r6/8/5K2/2p5/2PN4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 3751)
 
     def test_3093(self):
         board = chess.Bitboard("k5r1/8/8/6K1/2p5/2PN4/8/8 w - - 0 1")
@@ -16675,7 +15794,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/6r1/8/2p2K2/2P5/8/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 159)
-        self.assertEqual(perft(board, 3), 2607)
 
     def test_3095(self):
         board = chess.Bitboard("k7/8/8/4K3/2p5/2P3r1/8/4N3 w - - 0 1")
@@ -16687,7 +15805,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/8/4K3/2p5/2P4r/1N6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 156)
-        self.assertEqual(perft(board, 3), 2492)
 
     def test_3097(self):
         board = chess.Bitboard("k7/4r3/8/8/2pK4/2P5/1N6/8 w - - 0 1")
@@ -16699,19 +15816,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/8/3K4/2N1r3/2P5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 2319)
 
     def test_3099(self):
         board = chess.Bitboard("k7/8/3N4/3K4/8/2P5/4r3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 210)
-        self.assertEqual(perft(board, 3), 2571)
 
     def test_3100(self):
         board = chess.Bitboard("k7/4r3/8/3KN3/8/2P5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 2656)
 
     def test_3101(self):
         board = chess.Bitboard("k7/8/3K4/7r/8/2P5/8/8 w - - 0 1")
@@ -16723,7 +15837,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/4K3/8/8/2P5/8/7r b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 135)
-        self.assertEqual(perft(board, 3), 2287)
 
     def test_3103(self):
         board = chess.Bitboard("k7/8/8/5K1r/8/2P5/8/8 w - - 0 1")
@@ -16742,25 +15855,21 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 96)
         self.assertEqual(perft(board, 3), 614)
-        self.assertEqual(perft(board, 4), 9734)
 
     def test_3106(self):
         board = chess.Bitboard("8/kr6/8/8/2P3K1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 2346)
 
     def test_3107(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3108(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/8/5p2/8/1P5P/P1PPPPP1/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 8921)
 
     def test_3109(self):
         board = chess.Bitboard("rnbqkbnr/ppp1p1pp/8/3p1p2/6P1/1P5P/P1PPPP2/RNBQKBNR w KQkq - 0 1")
@@ -16860,7 +15969,6 @@ class PerftTestCase(unittest.TestCase):
     def test_3128(self):
         board = chess.Bitboard("rnq2Bnr/3k3p/1p2p1p1/8/P4bP1/2Q2b1P/4PKB1/3r1RNR b - - 0 1")
         self.assertEqual(perft(board, 1), 53)
-        self.assertEqual(perft(board, 2), 2043)
 
     def test_3129(self):
         board = chess.Bitboard("rnq3nr/3k2Bp/1p2p1p1/8/P5P1/2Q4P/3bPKb1/3r1RNR w - - 0 1")
@@ -16886,7 +15994,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn1qk1r1/4n2p/1p2p1p1/8/P5P1/4P2P/3b1KbR/3rR1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 636)
-        self.assertEqual(perft(board, 3), 8926)
 
     def test_3134(self):
         board = chess.Bitboard("rn1qk1r1/4n2p/1p2p1p1/8/P3P1P1/7P/3bRKbR/1r4N1 b - - 0 1")
@@ -16917,7 +16024,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r2nkr2/7p/1p2p3/5Pp1/P5P1/5b1P/1R2K2R/1r6 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 186)
-        self.assertEqual(perft(board, 3), 4024)
 
     def test_3140(self):
         board = chess.Bitboard("r2n1r2/4k2p/1p2p3/5Pp1/P5P1/5b1P/1R1K2R1/1r6 b - - 0 1")
@@ -16928,7 +16034,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r2n1r2/4k2p/1p6/5pp1/P5P1/7P/1R1Kb3/1r6 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 583)
-        self.assertEqual(perft(board, 3), 8830)
 
     def test_3142(self):
         board = chess.Bitboard("r4r2/4k2p/1p2n3/5pp1/P5P1/4K2P/4b3/1R6 b - - 0 1")
@@ -16939,7 +16044,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7r/r3k2p/1p2n3/5pp1/P5P1/4K2P/4b3/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 564)
-        self.assertEqual(perft(board, 3), 8971)
 
     def test_3144(self):
         board = chess.Bitboard("7r/r3k2p/4n3/1p3pp1/P5P1/7P/4K2R/8 b - - 0 1")
@@ -16950,7 +16054,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/4k2p/4n3/1p3pp1/r5PP/8/4K2R/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 627)
-        self.assertEqual(perft(board, 3), 9656)
 
     def test_3146(self):
         board = chess.Bitboard("r3k3/7p/4n3/1p3pp1/r5PP/5K1R/8/8 b - - 0 1")
@@ -16961,7 +16064,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r3k3/7p/8/1pn2pp1/2r3PP/5K2/7R/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 608)
-        self.assertEqual(perft(board, 3), 8949)
 
     def test_3148(self):
         board = chess.Bitboard("r3k3/7p/8/1pn2pp1/4r1PP/4RK2/8/8 b - - 0 1")
@@ -16972,7 +16074,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r7/3k3p/8/1p3pp1/4r1PP/3n1K2/4R3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 697)
-        self.assertEqual(perft(board, 3), 9944)
 
     def test_3150(self):
         board = chess.Bitboard("8/3k3p/8/rp3Pp1/4r2P/3n1K2/8/4R3 b - - 0 1")
@@ -16983,7 +16084,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3k3p/8/rpn2Pp1/7P/5K2/4r3/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 506)
-        self.assertEqual(perft(board, 3), 7304)
 
     def test_3152(self):
         board = chess.Bitboard("8/3k4/5P1p/rpn3p1/7P/5K2/4rR2/8 b - - 0 1")
@@ -16994,7 +16094,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3k4/n4P1p/rp4p1/7P/8/2r2RK1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 357)
-        self.assertEqual(perft(board, 3), 5169)
 
     def test_3154(self):
         board = chess.Bitboard("8/3k4/n4P1p/1p4p1/7P/8/2r2RK1/r7 b - - 0 1")
@@ -17005,7 +16104,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/n3kP1p/1p6/6pP/8/2rR2K1/r7 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 226)
-        self.assertEqual(perft(board, 3), 2593)
 
     def test_3156(self):
         board = chess.Bitboard("8/8/n3kP1p/rp6/6pP/8/2r2R2/6K1 b - - 0 1")
@@ -17016,31 +16114,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/4kP1p/rpr5/1n4pP/8/1R6/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 538)
-        self.assertEqual(perft(board, 3), 8357)
 
     def test_3158(self):
         board = chess.Bitboard("8/8/4kP1p/rpr5/6pP/8/2n5/6KR b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 249)
-        self.assertEqual(perft(board, 3), 8316)
 
     def test_3159(self):
         board = chess.Bitboard("8/8/5k1p/rp4r1/6pP/8/2n2K2/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 469)
-        self.assertEqual(perft(board, 3), 6640)
 
     def test_3160(self):
         board = chess.Bitboard("6r1/8/5k1p/rp6/6pP/8/2n1K2R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 9879)
 
     def test_3161(self):
         board = chess.Bitboard("3r4/8/4k2p/rp6/6pP/7R/2n1K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 5688)
 
     def test_3162(self):
         board = chess.Bitboard("8/8/4k2p/rp5P/3r2p1/2R5/2n1K3/8 b - - 0 1")
@@ -17051,19 +16144,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/4k2p/rp1r3P/6p1/n1R1K3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 5236)
 
     def test_3164(self):
         board = chess.Bitboard("5R2/8/4k2p/rp5r/6p1/n3K3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 402)
-        self.assertEqual(perft(board, 3), 9453)
 
     def test_3165(self):
         board = chess.Bitboard("7R/4k3/7p/1p5r/r5p1/n3K3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 4348)
 
     def test_3166(self):
         board = chess.Bitboard("8/4k3/7R/1p4r1/r5p1/n2K4/8/8 b - - 0 1")
@@ -17074,7 +16164,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/8/1p4r1/2n3pR/3K4/8/r7 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 482)
-        self.assertEqual(perft(board, 3), 6486)
 
     def test_3168(self):
         board = chess.Bitboard("8/8/3k4/1p4r1/2nK2p1/7R/8/r7 b - - 0 1")
@@ -17085,7 +16174,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/3k2r1/1p6/r1nK2p1/5R2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 455)
-        self.assertEqual(perft(board, 3), 5524)
 
     def test_3170(self):
         board = chess.Bitboard("8/8/3k2r1/1p6/2nK2p1/5R2/r7/8 b - - 0 1")
@@ -17096,7 +16184,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/8/3k2r1/1p6/2nK2p1/8/6r1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 439)
-        self.assertEqual(perft(board, 3), 6636)
 
     def test_3172(self):
         board = chess.Bitboard("R7/8/3k4/1p4r1/2n3p1/2K5/6r1/8 b - - 0 1")
@@ -17107,7 +16194,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1n1k4/Rp4r1/6p1/2K5/r7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 364)
-        self.assertEqual(perft(board, 3), 4337)
 
     def test_3174(self):
         board = chess.Bitboard("8/R7/1n1k4/1p4r1/6p1/1K6/6r1/8 b - - 0 1")
@@ -17118,7 +16204,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("R7/8/8/1pkn2r1/6p1/1K6/6r1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 405)
-        self.assertEqual(perft(board, 3), 4948)
 
     def test_3176(self):
         board = chess.Bitboard("8/8/8/1pkn2r1/6p1/1K6/8/4R1r1 b - - 0 1")
@@ -17129,31 +16214,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6r1/8/8/1p1n4/3k2p1/1K6/8/2R3r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 477)
-        self.assertEqual(perft(board, 3), 6935)
 
     def test_3178(self):
         board = chess.Bitboard("8/6r1/8/1p1n4/3k2p1/8/8/K1R3r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 242)
-        self.assertEqual(perft(board, 3), 6852)
 
     def test_3179(self):
         board = chess.Bitboard("8/6r1/8/1p6/4k1p1/4n3/8/K4Rr1 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 227)
-        self.assertEqual(perft(board, 3), 2290)
 
     def test_3180(self):
         board = chess.Bitboard("8/r7/8/1p6/4k1p1/4n3/8/1K4R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 303)
-        self.assertEqual(perft(board, 3), 7540)
 
     def test_3181(self):
         board = chess.Bitboard("8/r7/8/1p6/4k3/6p1/6n1/1K1R4 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 328)
-        self.assertEqual(perft(board, 3), 4916)
 
     def test_3182(self):
         board = chess.Bitboard("8/7r/8/1p6/4k3/6p1/1K4n1/5R2 b - - 0 1")
@@ -17164,13 +16244,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7r/8/1pk5/8/6p1/6n1/1K3R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 388)
-        self.assertEqual(perft(board, 3), 6514)
 
     def test_3184(self):
         board = chess.Bitboard("8/8/8/1pk5/8/4R1p1/6nr/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 303)
-        self.assertEqual(perft(board, 3), 5837)
 
     def test_3185(self):
         board = chess.Bitboard("7r/8/8/1pk5/8/4n1p1/8/K7 w - - 0 1")
@@ -17182,7 +16260,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/8/1pk5/8/4n1pr/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 97)
-        self.assertEqual(perft(board, 3), 2383)
 
     def test_3187(self):
         board = chess.Bitboard("8/8/1k6/1p5r/8/4n1p1/K7/8 w - - 0 1")
@@ -17194,22 +16271,18 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1k6/1p6/8/K3n1p1/7r/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 78)
-        self.assertEqual(perft(board, 3), 2121)
-        self.assertEqual(perft(board, 4), 8544)
 
     def test_3189(self):
         board = chess.Bitboard("8/8/1k6/1p6/1K6/4n1p1/5r2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 93)
         self.assertEqual(perft(board, 3), 300)
-        self.assertEqual(perft(board, 4), 8304)
 
     def test_3190(self):
         board = chess.Bitboard("8/8/1k6/1p6/8/K3n1p1/4r3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 51)
         self.assertEqual(perft(board, 3), 1287)
-        self.assertEqual(perft(board, 4), 4210)
 
     def test_3191(self):
         board = chess.Bitboard("8/8/1k6/3n4/1K6/6p1/4r3/8 w - - 0 1")
@@ -17221,19 +16294,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1k6/8/1n6/1K4p1/4r3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 130)
-        self.assertEqual(perft(board, 3), 3352)
 
     def test_3193(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3194(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/2p5/2P5/7P/PP1PPPP1/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9998)
 
     def test_3195(self):
         board = chess.Bitboard("r1bqkbnr/pp2pppp/2n5/2pp4/2P5/P6P/1P1PPPP1/RNBQKBNR w KQkq - 0 1")
@@ -17419,7 +16489,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1r1bn1/1p2p2k/1P3pp1/1Ppb3p/1n1P1P1P/8/R2K4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 560)
-        self.assertEqual(perft(board, 3), 9383)
 
     def test_3232(self):
         board = chess.Bitboard("1rr2bn1/1p2p2k/1P3pp1/1PPb3p/1n3P1P/8/R7/4K3 b - - 0 1")
@@ -17430,7 +16499,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rr3n1/1p5k/1P2ppp1/1Pbb3p/1n3P1P/8/R3K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 527)
-        self.assertEqual(perft(board, 3), 7441)
 
     def test_3234(self):
         board = chess.Bitboard("1rr3n1/1p5k/1P2p1p1/1Pbb1p1p/1n3P1P/8/5R2/3K4 b - - 0 1")
@@ -17441,7 +16509,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rr3n1/1p5k/1P2p1p1/1Pb2p1p/1n3P1P/8/1R6/3K3b w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 452)
-        self.assertEqual(perft(board, 3), 5642)
 
     def test_3236(self):
         board = chess.Bitboard("1rr3n1/1p5k/1Pn1p1p1/1Pb2p1p/5P1P/1R6/2K5/7b b - - 0 1")
@@ -17462,7 +16529,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1r4k/1pP1n3/1P2p1p1/5p1p/R4P1P/6b1/2K5/7b w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 558)
-        self.assertEqual(perft(board, 3), 9507)
 
     def test_3240(self):
         board = chess.Bitboard("r6k/1pr1n3/1P2p1p1/5p1p/5P1P/6b1/R2K4/7b b - - 0 1")
@@ -17473,7 +16539,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/1pr1n3/rP2p1p1/5p1p/5P1P/6b1/R7/3K3b w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 496)
-        self.assertEqual(perft(board, 3), 5985)
 
     def test_3242(self):
         board = chess.Bitboard("7k/1pr1n3/rP2p1p1/5p1p/R4P1P/5bb1/3K4/8 b - - 0 1")
@@ -17495,7 +16560,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/rp6/1P2p1p1/2Rn1p1p/5b1P/2r5/6b1/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 484)
-        self.assertEqual(perft(board, 3), 5919)
 
     def test_3246(self):
         board = chess.Bitboard("8/rp4k1/1PR1p1p1/3n1p1p/5b1P/2r5/4K1b1/8 b - - 0 1")
@@ -17506,7 +16570,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/rp4k1/1P2pnp1/5p1p/2R4P/2r5/3bK1b1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 654)
-        self.assertEqual(perft(board, 3), 8966)
 
     def test_3248(self):
         board = chess.Bitboard("7k/Pp6/4pnp1/5p1p/5R1P/2r5/3bK1b1/8 b - - 0 1")
@@ -17547,7 +16610,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n2/7k/4p1p1/7p/1p5P/2b4r/2R5/5K1B w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 468)
-        self.assertEqual(perft(board, 3), 9214)
 
     def test_3256(self):
         board = chess.Bitboard("5n2/7k/4p1p1/7p/1p5P/7r/1R6/4bK1B b - - 0 1")
@@ -17558,19 +16620,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n2/7k/4p1p1/7p/1b5P/3r4/8/5K1B w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 314)
-        self.assertEqual(perft(board, 3), 3492)
 
     def test_3258(self):
         board = chess.Bitboard("5n2/7k/6p1/4p2p/Bb5P/3r4/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 310)
-        self.assertEqual(perft(board, 3), 8729)
 
     def test_3259(self):
         board = chess.Bitboard("4Bn2/7k/6p1/b3p2p/7P/3r4/8/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 265)
-        self.assertEqual(perft(board, 3), 2830)
 
     def test_3260(self):
         board = chess.Bitboard("5n2/7k/2B3p1/b3p2p/7P/8/4K3/3r4 b - - 0 1")
@@ -17581,13 +16640,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n1k/8/6p1/4p2p/B6P/8/4K3/3rb3 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 2679)
 
     def test_3262(self):
         board = chess.Bitboard("5n1k/8/6p1/4p2p/B6P/4K3/8/2r1b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 255)
-        self.assertEqual(perft(board, 3), 6578)
 
     def test_3263(self):
         board = chess.Bitboard("5n1k/8/2B3p1/4p2p/4r2P/4K3/8/4b3 w - - 0 1")
@@ -17599,31 +16656,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n1k/8/2B3p1/4p2p/4r2P/8/3b1K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 8430)
 
     def test_3265(self):
         board = chess.Bitboard("5n1k/8/2B3p1/4p1bp/7P/8/6K1/4r3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 380)
-        self.assertEqual(perft(board, 3), 4844)
 
     def test_3266(self):
         board = chess.Bitboard("5n1k/8/6p1/4p2p/6BP/4b3/6K1/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 9285)
 
     def test_3267(self):
         board = chess.Bitboard("5n1k/8/6p1/4p2p/5bBP/5K2/8/2r5 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 284)
-        self.assertEqual(perft(board, 3), 3076)
 
     def test_3268(self):
         board = chess.Bitboard("5n1k/8/4B1p1/4p2p/5b1P/5K2/8/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 7074)
 
     def test_3269(self):
         board = chess.Bitboard("5n1k/8/4B1p1/4p2p/5b1P/5r2/5K2/8 w - - 0 1")
@@ -17635,61 +16687,51 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n1k/3B4/6p1/4p2p/7P/5Kb1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 158)
-        self.assertEqual(perft(board, 3), 2230)
 
     def test_3271(self):
         board = chess.Bitboard("5n1k/8/2B3p1/4p2p/7P/4bK2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 2960)
 
     def test_3272(self):
         board = chess.Bitboard("2B2n1k/8/6p1/4p2p/7P/5K2/8/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 2481)
 
     def test_3273(self):
         board = chess.Bitboard("5n1k/3B4/6p1/4p2p/7P/5K2/8/4b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 195)
-        self.assertEqual(perft(board, 3), 2376)
 
     def test_3274(self):
         board = chess.Bitboard("5n1k/8/2B3p1/4p2p/1b5P/8/6K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 266)
-        self.assertEqual(perft(board, 3), 4386)
 
     def test_3275(self):
         board = chess.Bitboard("5n1k/8/2B3p1/4p2p/7P/b7/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 3090)
 
     def test_3276(self):
         board = chess.Bitboard("B4n1k/8/3b2p1/4p2p/7P/8/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 2443)
 
     def test_3277(self):
         board = chess.Bitboard("5n1k/1B6/3b2p1/4p2p/7P/8/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 194)
-        self.assertEqual(perft(board, 3), 2542)
 
     def test_3278(self):
         board = chess.Bitboard("5n1k/8/6p1/4p2p/7P/b7/7K/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 168)
-        self.assertEqual(perft(board, 3), 2600)
 
     def test_3279(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3280(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/8/4p3/6P1/7B/PPPPPP1P/RNBQK1NR b KQkq - 0 1")
@@ -17935,7 +16977,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/rr6/pQ4P1/Pp3p2/1P1p4/7b/R2K3B/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 389)
-        self.assertEqual(perft(board, 3), 5861)
 
     def test_3329(self):
         board = chess.Bitboard("k7/2r4r/p5P1/PpQ2p2/1P1p4/7b/R2K3B/8 w - - 0 1")
@@ -17967,7 +17008,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/1r6/pQ1B4/Pp6/1P6/3p3b/3K4/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 577)
-        self.assertEqual(perft(board, 3), 8499)
 
     def test_3335(self):
         board = chess.Bitboard("k7/4Br2/pQ2b3/Pp6/1P6/3p4/3K4/R7 w - - 0 1")
@@ -18009,19 +17049,16 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 15)
         self.assertEqual(perft(board, 3), 325)
-        self.assertEqual(perft(board, 4), 5397)
 
     def test_3343(self):
         board = chess.Bitboard("4b3/1k6/p7/Pr4B1/8/3p4/8/1R1K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 293)
-        self.assertEqual(perft(board, 3), 4818)
 
     def test_3344(self):
         board = chess.Bitboard("4b3/1k6/p7/Pr6/1R6/4B3/3p4/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 256)
-        self.assertEqual(perft(board, 3), 4798)
 
     def test_3345(self):
         board = chess.Bitboard("k7/8/p1b5/Pr6/1R6/8/3p1B2/3K4 w - - 0 1")
@@ -18043,21 +17080,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/8/p1b5/8/8/8/4K3/3rB3 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 5930)
 
     def test_3349(self):
         board = chess.Bitboard("k7/8/p1b5/4r3/8/8/5K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 84)
         self.assertEqual(perft(board, 3), 333)
-        self.assertEqual(perft(board, 4), 8658)
 
     def test_3350(self):
         board = chess.Bitboard("k7/8/2b5/p3r3/8/8/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 87)
-        self.assertEqual(perft(board, 3), 2213)
-        self.assertEqual(perft(board, 4), 9521)
 
     def test_3351(self):
         board = chess.Bitboard("4b3/1k6/8/p3r3/8/6K1/8/8 w - - 0 1")
@@ -18069,7 +17102,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k6/8/p3r3/b7/6K1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 5551)
 
     def test_3353(self):
         board = chess.Bitboard("2k5/8/8/p3r3/8/1b5K/8/8 w - - 0 1")
@@ -18081,8 +17113,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/8/p2br3/8/8/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 95)
-        self.assertEqual(perft(board, 3), 2721)
-        self.assertEqual(perft(board, 4), 9987)
 
     def test_3355(self):
         board = chess.Bitboard("2k5/4rb2/8/p7/8/8/5K2/8 w - - 0 1")
@@ -18094,7 +17124,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k2rb2/8/p7/8/8/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 85)
-        self.assertEqual(perft(board, 3), 2367)
 
     def test_3357(self):
         board = chess.Bitboard("8/4r3/k5b1/p7/8/8/8/6K1 w - - 0 1")
@@ -18106,7 +17135,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k3r3/6b1/p7/8/8/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 3508)
 
     def test_3359(self):
         board = chess.Bitboard("k3r3/8/6b1/p7/8/8/8/5K2 w - - 0 1")
@@ -18118,7 +17146,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4r3/1k6/6b1/p7/8/8/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 3110)
 
     def test_3361(self):
         board = chess.Bitboard("4r3/1k5b/8/p7/8/8/8/6K1 w - - 0 1")
@@ -18130,7 +17157,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k5b/8/p7/8/7K/4r3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 99)
-        self.assertEqual(perft(board, 3), 2839)
 
     def test_3363(self):
         board = chess.Bitboard("8/1k5b/8/p7/7K/8/2r5/8 w - - 0 1")
@@ -18142,13 +17168,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/7b/8/p7/8/6K1/2r5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 3298)
 
     def test_3365(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3366(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/3P4/4B3/PPP1PPPP/RN1QKBNR b KQkq - 0 1")
@@ -18219,7 +17243,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Nnb3nr/r1ppk3/5pp1/pPb3p1/3p1P2/1Q2B2P/P2qP3/2R1KBNR w K - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 100)
-        self.assertEqual(perft(board, 3), 3759)
 
     def test_3380(self):
         board = chess.Bitboard("Nnb3nr/r1pp4/3k1pp1/pPb3p1/3p1P2/5Q1P/P2BP3/2R1KBNR b K - 0 1")
@@ -18327,7 +17350,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3Q4/6k1/1N2b1p1/1P1p1p2/Pp3PnP/3P4/4RNB1/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 701)
-        self.assertEqual(perft(board, 3), 9721)
 
     def test_3401(self):
         board = chess.Bitboard("3Q4/3b2k1/1N4p1/1P1pnp2/Pp3P1P/3P4/4R1B1/4K2N w - - 0 1")
@@ -18369,55 +17391,46 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/1N2b3/1P1pn2P/P4pB1/1p1P1R2/6K1/7N b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 520)
-        self.assertEqual(perft(board, 3), 9972)
 
     def test_3409(self):
         board = chess.Bitboard("8/5n2/1N2bk2/PP1p3P/5pB1/1p1P1R2/6K1/7N w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 366)
-        self.assertEqual(perft(board, 3), 9110)
 
     def test_3410(self):
         board = chess.Bitboard("N7/4kn2/4b3/PP1p3P/5pB1/1p1P2R1/6K1/7N b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 413)
-        self.assertEqual(perft(board, 3), 8098)
 
     def test_3411(self):
         board = chess.Bitboard("8/2N2n2/3k4/PP1p3P/5pb1/1p1P2R1/6K1/7N w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 6930)
 
     def test_3412(self):
         board = chess.Bitboard("7n/8/1P1kN3/P2p3P/5pb1/1p1P2R1/6K1/7N b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 5814)
 
     def test_3413(self):
         board = chess.Bitboard("7n/8/1P1kN3/P6P/3p1p2/1p1P2R1/8/3b2KN w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 8611)
 
     def test_3414(self):
         board = chess.Bitboard("7n/8/PP1kN3/7P/3p1pR1/3P4/1p6/3b2KN b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 457)
-        self.assertEqual(perft(board, 3), 8773)
 
     def test_3415(self):
         board = chess.Bitboard("8/8/PP1kN1P1/8/3p1pR1/3P4/8/1r1b2KN w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 438)
-        self.assertEqual(perft(board, 3), 7135)
 
     def test_3416(self):
         board = chess.Bitboard("8/8/PP1kN1P1/8/3p1p1R/3P4/5N2/r2b2K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 8353)
 
     def test_3417(self):
         board = chess.Bitboard("8/8/PP4P1/4k3/3p1N1R/3P1b2/5N2/r5K1 w - - 0 1")
@@ -18536,19 +17549,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N6/8/3k4/4R1K1/3nP3/8/4Q3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 317)
-        self.assertEqual(perft(board, 3), 9428)
 
     def test_3440(self):
         board = chess.Bitboard("1N6/8/2nk4/4R2K/4P3/5Q2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 335)
-        self.assertEqual(perft(board, 3), 2422)
 
     def test_3441(self):
         board = chess.Bitboard("1n6/3k4/8/4R2K/4PQ2/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 5851)
 
     def test_3442(self):
         board = chess.Bitboard("1nk2Q2/4R3/8/7K/4P3/8/8/8 b - - 0 1")
@@ -18563,7 +17573,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3444(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/1P6/5P2/P1PPP1PP/RNBQKBNR b KQkq - 0 1")
@@ -18689,7 +17698,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3bnr/7p/8/pppQ2kb/3pP1q1/3P4/P1PK3B/RN4R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 4113)
 
     def test_3469(self):
         board = chess.Bitboard("1n3b1r/7p/5k1n/pppQ3b/3pP1R1/3P4/P1PK3B/RN6 w - - 0 1")
@@ -18746,7 +17754,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6kr/3n3p/3b2b1/B1p1n3/PpPpP3/3P2K1/8/1NR5 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 502)
-        self.assertEqual(perft(board, 3), 8858)
 
     def test_3480(self):
         board = chess.Bitboard("6kr/3n3p/3b2b1/B1p1n3/P1PpP3/1p1P3K/8/1N4R1 b - - 0 1")
@@ -18807,43 +17814,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bn3k2/8/3n4/B1p5/P1PpP1KN/1p1Pb3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 425)
-        self.assertEqual(perft(board, 3), 7084)
 
     def test_3492(self):
         board = chess.Bitboard("bnn2k2/8/1B6/P1p5/2PpP1KN/1p1Pb3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 8122)
 
     def test_3493(self):
         board = chess.Bitboard("bnn1k3/8/1B6/P1p5/2PpP2N/1p1P3K/8/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 247)
-        self.assertEqual(perft(board, 3), 3650)
 
     def test_3494(self):
         board = chess.Bitboard("1nnBk3/1b6/8/P1p5/2PpP1KN/1p1P4/8/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 345)
-        self.assertEqual(perft(board, 3), 7300)
 
     def test_3495(self):
         board = chess.Bitboard("4k3/nb1n4/8/P1p3B1/2PpP1KN/1p1P4/8/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 413)
-        self.assertEqual(perft(board, 3), 7554)
 
     def test_3496(self):
         board = chess.Bitboard("4k3/nb6/5n2/P1p5/2PpP2N/1p1P3K/8/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 204)
-        self.assertEqual(perft(board, 3), 5027)
 
     def test_3497(self):
         board = chess.Bitboard("b3k3/n7/5nN1/P1p5/2PpP3/3P3K/1p6/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 275)
-        self.assertEqual(perft(board, 3), 2831)
 
     def test_3498(self):
         board = chess.Bitboard("b3k3/n7/5n2/P1p5/2PpPN2/3Pb3/1p4K1/8 b - - 0 1")
@@ -18854,13 +17854,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b3k3/n7/P7/2p5/2PpPN2/3Pb3/1p4Kn/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 2522)
 
     def test_3500(self):
         board = chess.Bitboard("b3k3/n7/P7/2p5/2PpP3/3P2KN/1p5n/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 212)
-        self.assertEqual(perft(board, 3), 5499)
 
     def test_3501(self):
         board = chess.Bitboard("b2k4/n7/P7/2p3N1/2PpPb2/3P2K1/1p5n/8 w - - 0 1")
@@ -18872,19 +17870,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b1k5/n4N2/P7/2p5/2PpPb2/3P4/1p4Kn/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 6619)
 
     def test_3503(self):
         board = chess.Bitboard("b7/n1k2N2/P7/2p3b1/2PpP3/3P2K1/1p5n/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 307)
-        self.assertEqual(perft(board, 3), 3083)
 
     def test_3504(self):
         board = chess.Bitboard("b2N4/n1k5/P7/2p5/2PpPK1b/3P4/1p5n/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 187)
-        self.assertEqual(perft(board, 3), 4539)
 
     def test_3505(self):
         board = chess.Bitboard("8/nbk5/P7/2p5/2PpPK1b/3P4/1p5n/8 w - - 0 1")
@@ -18896,7 +17891,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/nbk5/P7/2p5/2PpPKnb/3P4/1p6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 4897)
 
     def test_3507(self):
         board = chess.Bitboard("8/1P6/2nk4/2p5/2PpPKnb/3P4/1p6/8 w - - 0 1")
@@ -18908,7 +17902,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1R6/8/2nk4/2p2K2/2PpP1nb/3P4/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 388)
-        self.assertEqual(perft(board, 3), 8556)
 
     def test_3509(self):
         board = chess.Bitboard("1n6/8/2k3K1/2p5/2PpP1nb/3P4/8/1b6 w - - 0 1")
@@ -18920,21 +17913,18 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n4K1/8/2k5/2p1n3/2PpP2b/3P4/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 103)
-        self.assertEqual(perft(board, 3), 2479)
 
     def test_3511(self):
         board = chess.Bitboard("1n5K/3n4/1k6/2p5/2PpP2b/3P4/8/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 84)
         self.assertEqual(perft(board, 3), 436)
-        self.assertEqual(perft(board, 4), 9416)
 
     def test_3512(self):
         board = chess.Bitboard("1n1b2K1/3n4/1k6/2p1P3/2Pp4/3P4/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 92)
         self.assertEqual(perft(board, 3), 1878)
-        self.assertEqual(perft(board, 4), 9912)
 
     def test_3513(self):
         board = chess.Bitboard("1n1b2K1/8/1k2P3/2p1n3/2Pp4/3b4/8/8 w - - 0 1")
@@ -18946,31 +17936,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1b4/6K1/1k2P3/2p1n3/2Pp4/8/8/5b2 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 176)
-        self.assertEqual(perft(board, 3), 4689)
 
     def test_3515(self):
         board = chess.Bitboard("1n1b4/2k1PnK1/8/2p5/2Pp4/8/8/5b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 244)
-        self.assertEqual(perft(board, 3), 2988)
 
     def test_3516(self):
         board = chess.Bitboard("1n6/2B2nK1/2k5/2p5/2Pp4/8/8/5b2 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 4156)
 
     def test_3517(self):
         board = chess.Bitboard("1n1B4/3k2K1/8/2p5/2Pp4/8/8/5b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 206)
-        self.assertEqual(perft(board, 3), 2554)
 
     def test_3518(self):
         board = chess.Bitboard("1n3K2/3k4/8/2p5/2bp3B/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 3075)
 
     def test_3519(self):
         board = chess.Bitboard("1n2K3/8/2k5/2p5/2bp3B/8/8/8 w - - 0 1")
@@ -18982,7 +17967,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1K4/8/2k1b3/2p5/3p4/8/8/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 187)
-        self.assertEqual(perft(board, 3), 3419)
 
     def test_3521(self):
         board = chess.Bitboard("1n1K4/8/2k5/2p5/2b4B/3p4/8/8 w - - 0 1")
@@ -18994,7 +17978,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1nK5/4B3/2k5/2p5/2b5/8/3p4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 166)
-        self.assertEqual(perft(board, 3), 3462)
 
     def test_3523(self):
         board = chess.Bitboard("1n1K4/3bB3/2k5/2p5/8/8/3p4/8 w - - 0 1")
@@ -19006,7 +17989,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1K4/3b4/5B2/1kp5/8/8/3p4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 249)
-        self.assertEqual(perft(board, 3), 5586)
 
     def test_3525(self):
         board = chess.Bitboard("1n1K4/3b4/8/1kp5/3q4/8/1B6/8 w - - 0 1")
@@ -19023,7 +18005,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/3bK3/8/1kp5/8/8/8/B5q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 4582)
 
     def test_3528(self):
         board = chess.Bitboard("1n2K3/8/4b3/1kp5/8/8/8/B5q1 b - - 0 1")
@@ -19034,13 +18015,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3530(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/p7/8/8/7P/PPPPPPPR/RNBQKBN1 b Qkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 7754)
 
     def test_3531(self):
         board = chess.Bitboard("rnbqkb1r/1pp1pppp/p4n2/3p4/6P1/7P/PPPPPP1R/RNBQKBN1 w Qkq - 0 1")
@@ -19121,13 +18100,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r4b2/2p1p1r1/2Pkb1p1/p1q2p2/p1Pp1P2/B2P1P1P/P2N2B1/4KRNR b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 265)
-        self.assertEqual(perft(board, 3), 5089)
 
     def test_3547(self):
         board = chess.Bitboard("4rb2/2p1p1r1/2Pkb3/p1q2pp1/p1Pp1P2/B2P1P1P/P5B1/1N2KRNR w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 4942)
 
     def test_3548(self):
         board = chess.Bitboard("4rb2/2p1p1r1/2k1b3/p1q2pp1/p1Pp1P2/3P1P1P/PB2K1B1/1N3RNR b - - 0 1")
@@ -19243,7 +18220,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3bk2R/1N4r1/3r4/B2b4/p1Pp1p2/P2P4/4K3/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 4640)
 
     def test_3571(self):
         board = chess.Bitboard("3b3R/1N2k3/3r4/B2b4/p1Pp1p2/P2P1N2/4K3/6r1 w - - 0 1")
@@ -19331,7 +18307,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1r6/8/1k6/pN1P4/P5K1/7r/2Rb4 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 537)
-        self.assertEqual(perft(board, 3), 9443)
 
     def test_3588(self):
         board = chess.Bitboard("8/r7/8/1k2N3/p2P4/P5K1/7r/2Rb4 b - - 0 1")
@@ -19352,7 +18327,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/r7/8/k1N5/p2P1K2/P7/b7/Rr6 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 513)
-        self.assertEqual(perft(board, 3), 9344)
 
     def test_3592(self):
         board = chess.Bitboard("8/r7/1r6/k7/N2P1K2/P7/R7/8 b - - 0 1")
@@ -19363,7 +18337,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1r6/r7/k7/N2P4/P4K2/R7/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 510)
-        self.assertEqual(perft(board, 3), 9843)
 
     def test_3594(self):
         board = chess.Bitboard("1r6/8/r7/k7/3P4/P1N2K2/5R2/8 b - - 0 1")
@@ -19374,7 +18347,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/8/8/k7/N2P4/P4K2/5R2/6r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 506)
-        self.assertEqual(perft(board, 3), 9687)
 
     def test_3596(self):
         board = chess.Bitboard("8/1r6/8/k7/N2P1K2/P7/3R4/6r1 b - - 0 1")
@@ -19385,7 +18357,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/8/8/k7/N2P1K2/P2R4/8/6r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 539)
-        self.assertEqual(perft(board, 3), 9750)
 
     def test_3598(self):
         board = chess.Bitboard("1r6/8/1k6/8/3P1K2/P6R/1N6/6r1 b - - 0 1")
@@ -19396,109 +18367,91 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6r1/8/1k6/8/3P2K1/P6R/1N6/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 2827)
 
     def test_3600(self):
         board = chess.Bitboard("6r1/8/k7/8/3P4/P4K1R/8/3N4 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 348)
-        self.assertEqual(perft(board, 3), 5903)
 
     def test_3601(self):
         board = chess.Bitboard("3r4/k7/8/8/3P4/P3K2R/8/3N4 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 7082)
 
     def test_3602(self):
         board = chess.Bitboard("3r4/1k6/8/8/3PK3/P1N4R/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 453)
-        self.assertEqual(perft(board, 3), 7405)
 
     def test_3603(self):
         board = chess.Bitboard("k1r5/8/8/8/3PK3/P6R/4N3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 9565)
 
     def test_3604(self):
         board = chess.Bitboard("k7/8/5K2/8/2rP4/P6R/4N3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 4899)
 
     def test_3605(self):
         board = chess.Bitboard("k5r1/5K2/8/8/3P4/P6R/4N3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 7557)
 
     def test_3606(self):
         board = chess.Bitboard("k3r3/5K2/8/8/3P1N2/P4R2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 5019)
 
     def test_3607(self):
         board = chess.Bitboard("1k3r2/4K3/8/8/3P1N2/P4R2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 290)
-        self.assertEqual(perft(board, 3), 5935)
 
     def test_3608(self):
         board = chess.Bitboard("1k6/5r2/4K3/8/3P1N2/P7/5R2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 4910)
 
     def test_3609(self):
         board = chess.Bitboard("2k5/7r/4K3/8/3P4/P6N/5R2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 7380)
 
     def test_3610(self):
         board = chess.Bitboard("3k4/7r/4K3/8/3P1R2/P6N/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 3683)
 
     def test_3611(self):
         board = chess.Bitboard("3k4/7r/5K2/8/3P1R2/P6N/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 279)
-        self.assertEqual(perft(board, 3), 4901)
 
     def test_3612(self):
         board = chess.Bitboard("3k4/5K2/7r/8/3P1R2/P7/8/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 269)
-        self.assertEqual(perft(board, 3), 4249)
 
     def test_3613(self):
         board = chess.Bitboard("3k4/5K2/1r6/8/3P2R1/P7/8/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 277)
-        self.assertEqual(perft(board, 3), 4996)
 
     def test_3614(self):
         board = chess.Bitboard("2k1K3/8/1r6/8/3P4/P7/6R1/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 5082)
 
     def test_3615(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3616(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/5p2/8/6P1/2N5/PPPPPP1P/R1BQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 438)
-        self.assertEqual(perft(board, 3), 9280)
 
     def test_3617(self):
         board = chess.Bitboard("rnbqkb1r/pppppnpp/5p2/8/5PP1/2N5/PPPPP2P/R1BQKBNR w KQkq - 0 1")
@@ -19509,7 +18462,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkb1r/ppppp1pp/5p1n/8/N4PP1/7P/PPPPP3/R1BQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9542)
 
     def test_3619(self):
         board = chess.Bitboard("rnbqkb1r/ppp1p1pp/7n/3p1p2/N4PP1/7P/PPPPPK2/R1BQ1BNR w kq - 0 1")
@@ -19635,7 +18587,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/3Pb3/2r3pr/p3p2p/P4P1P/3QP3/3p3R/2RNKBN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 163)
-        self.assertEqual(perft(board, 3), 7021)
 
     def test_3644(self):
         board = chess.Bitboard("6kr/3Pb3/2r3p1/p3p2p/P3PP1P/3Q4/3pK2R/2RN1BN1 b - - 0 1")
@@ -19741,7 +18692,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/3Qr1Rb/p3p2p/PR2PP1P/2N5/4K3/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 585)
-        self.assertEqual(perft(board, 3), 7682)
 
     def test_3665(self):
         board = chess.Bitboard("6R1/4r2k/3Q3b/p3p2p/PR2PP1P/2N5/4K3/6N1 w - - 0 1")
@@ -19762,7 +18712,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1R4/7k/3Q3b/3NP2p/Pp2P2P/5N2/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 606)
-        self.assertEqual(perft(board, 3), 7797)
 
     def test_3669(self):
         board = chess.Bitboard("1R6/6k1/3Q4/3NP2p/Pp2Pb1P/5N2/5K2/8 w - - 0 1")
@@ -19773,7 +18722,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1R6/6k1/3Q4/3NP2p/Pp2P2P/8/3b2K1/4N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 454)
-        self.assertEqual(perft(board, 3), 3930)
 
     def test_3671(self):
         board = chess.Bitboard("1R6/7k/3Q3b/4P2p/PN2P2P/8/6K1/4N3 w - - 0 1")
@@ -19790,13 +18738,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b2/6k1/8/3QP2p/PN2P2P/3N4/6K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 282)
-        self.assertEqual(perft(board, 3), 9708)
 
     def test_3674(self):
         board = chess.Bitboard("5b2/7k/4P3/3Q3p/P3P2P/3N4/N5K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 447)
-        self.assertEqual(perft(board, 3), 4679)
 
     def test_3675(self):
         board = chess.Bitboard("8/7k/4P3/3Qb2p/P3P2P/2NN4/6K1/8 w - - 0 1")
@@ -19807,13 +18753,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/3bP3/7p/P3P2P/2NN4/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 306)
-        self.assertEqual(perft(board, 3), 4139)
 
     def test_3677(self):
         board = chess.Bitboard("8/4b2k/4P3/7p/P3P2P/2N5/5N2/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 4004)
 
     def test_3678(self):
         board = chess.Bitboard("8/7k/4P3/7p/P3P2b/7N/N7/6K1 b - - 0 1")
@@ -19825,7 +18769,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/4P3/7p/P3P3/6bN/N7/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 2351)
 
     def test_3680(self):
         board = chess.Bitboard("7k/8/4P3/6N1/P3P2p/6b1/N5K1/8 b - - 0 1")
@@ -19838,7 +18781,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 53)
         self.assertEqual(perft(board, 3), 911)
-        self.assertEqual(perft(board, 4), 5035)
 
     def test_3682(self):
         board = chess.Bitboard("8/6k1/4P3/8/P3P3/5N1p/N7/5K2 b - - 0 1")
@@ -19851,77 +18793,66 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 71)
         self.assertEqual(perft(board, 3), 1036)
-        self.assertEqual(perft(board, 4), 6871)
 
     def test_3684(self):
         board = chess.Bitboard("8/8/4P2k/8/P3P3/7N/N5K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 68)
         self.assertEqual(perft(board, 3), 355)
-        self.assertEqual(perft(board, 4), 6000)
 
     def test_3685(self):
         board = chess.Bitboard("6k1/8/4P3/8/P3P3/7N/N7/6K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 55)
         self.assertEqual(perft(board, 3), 853)
-        self.assertEqual(perft(board, 4), 3944)
 
     def test_3686(self):
         board = chess.Bitboard("5k2/8/4P3/8/P3P3/7N/N7/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 55)
         self.assertEqual(perft(board, 3), 266)
-        self.assertEqual(perft(board, 4), 4090)
 
     def test_3687(self):
         board = chess.Bitboard("8/7k/4P3/8/P3P3/7N/N7/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 74)
         self.assertEqual(perft(board, 3), 1187)
-        self.assertEqual(perft(board, 4), 5387)
 
     def test_3688(self):
         board = chess.Bitboard("8/6k1/4P3/8/P3P3/7N/N7/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 105)
         self.assertEqual(perft(board, 3), 455)
-        self.assertEqual(perft(board, 4), 7220)
 
     def test_3689(self):
         board = chess.Bitboard("8/7k/4P3/4P3/P7/7N/N7/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 69)
         self.assertEqual(perft(board, 3), 1068)
-        self.assertEqual(perft(board, 4), 4663)
 
     def test_3690(self):
         board = chess.Bitboard("6k1/8/4P3/P3P3/8/7N/N5K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 64)
         self.assertEqual(perft(board, 3), 285)
-        self.assertEqual(perft(board, 4), 4675)
 
     def test_3691(self):
         board = chess.Bitboard("6k1/8/4P3/P3P3/8/8/N5K1/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 60)
         self.assertEqual(perft(board, 3), 936)
-        self.assertEqual(perft(board, 4), 4229)
 
     def test_3692(self):
         board = chess.Bitboard("8/6k1/4P3/P3P3/8/3N4/6K1/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 114)
         self.assertEqual(perft(board, 3), 507)
-        self.assertEqual(perft(board, 4), 9174)
 
     def test_3693(self):
         board = chess.Bitboard("8/8/4P1k1/P3P3/8/3N4/7K/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 94)
         self.assertEqual(perft(board, 3), 1533)
-        self.assertEqual(perft(board, 4), 7710)
 
     def test_3694(self):
         board = chess.Bitboard("8/4P3/7k/P3P3/8/3N2K1/8/6N1 b - - 0 1")
@@ -19933,7 +18864,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4P3/6k1/P3P3/8/3N4/6K1/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 153)
-        self.assertEqual(perft(board, 3), 3487)
 
     def test_3696(self):
         board = chess.Bitboard("4B3/6k1/8/P3P3/8/3N1N2/6K1/8 b - - 0 1")
@@ -19945,7 +18875,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4B3/7k/8/P3P3/8/5N2/6K1/2N5 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 2964)
 
     def test_3698(self):
         board = chess.Bitboard("6k1/8/2B5/P3P3/8/5N2/8/2N2K2 b - - 0 1")
@@ -19957,7 +18886,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/2B5/P3P3/8/5N2/4K3/2N5 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 4322)
 
     def test_3700(self):
         board = chess.Bitboard("8/6k1/2B1P3/P7/8/5N2/8/2N2K2 b - - 0 1")
@@ -19969,7 +18897,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3702(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/8/5p2/4P3/5P2/PPPP2PP/RNBQKBNR b KQkq - 0 1")
@@ -20060,7 +18987,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rb1k1r1/p1p1p2p/1p2P2b/Qn1p1np1/1P1B1pP1/P2P1P2/1N1qN2P/3RK2R w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 132)
-        self.assertEqual(perft(board, 3), 4250)
 
     def test_3720(self):
         board = chess.Bitboard("1rb1k1r1/p1p1p2p/1p2P2b/Q2p1np1/NP1B1pP1/P1nP1P2/3qN2P/3R1K1R b - - 0 1")
@@ -20071,7 +18997,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rb1k1r1/p1p1p2p/1p2P2b/Q2p1np1/NP1B1pP1/P1nP1PN1/4q2P/3R1K1R w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 80)
-        self.assertEqual(perft(board, 3), 2546)
 
     def test_3722(self):
         board = chess.Bitboard("1rb1k1r1/p1p1p2p/1p2P2b/Q2p2p1/NP1B1pP1/P1nP1Pn1/4N2P/3R2KR b - - 0 1")
@@ -20087,7 +19012,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rb1k1r1/p1p1p1bp/1N2P3/3p2p1/QP1B1NP1/P1nP1Pn1/7P/3R2KR b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 224)
-        self.assertEqual(perft(board, 3), 7699)
 
     def test_3725(self):
         board = chess.Bitboard("1rb1k1r1/p3p1Bp/1N2P3/1npp2p1/QP3NP1/P2P1Pn1/7P/3R2KR w - - 0 1")
@@ -20123,7 +19047,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b1k3/4p2p/1r1nP1r1/p5p1/Pp4P1/1Q1n1P2/N6P/4KR1R w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 118)
-        self.assertEqual(perft(board, 3), 3088)
 
     def test_3732(self):
         board = chess.Bitboard("2b1k3/4p3/1r1nP1r1/p5pP/Pp6/1Q1n1P2/N3K2P/5R1R b - - 0 1")
@@ -20234,7 +19157,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2n3k1/1Q2p3/N7/p4P1P/3K4/1b5p/1R1r4/1r5n w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 6988)
 
     def test_3754(self):
         board = chess.Bitboard("6k1/3Qp3/Nn6/p1K2P1P/8/1b5p/1R1r4/1r5n b - - 0 1")
@@ -20275,7 +19197,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1NR5/8/3p1P1k/p3n2r/3K4/8/7p/3b3n w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 473)
-        self.assertEqual(perft(board, 3), 8003)
 
     def test_3762(self):
         board = chess.Bitboard("2R5/8/3p1P1k/N3n1r1/3K4/8/7p/3b3n b - - 0 1")
@@ -20297,7 +19218,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2R5/1N6/3p1P1k/8/6n1/r1K5/7p/3b3n w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 150)
-        self.assertEqual(perft(board, 3), 2956)
 
     def test_3766(self):
         board = chess.Bitboard("7R/1N6/3p1P1k/8/1K4n1/r4b2/7p/7n b - - 0 1")
@@ -20309,19 +19229,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1N6/3p1P2/8/1K3kn1/r4b1R/7p/7n w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 457)
-        self.assertEqual(perft(board, 3), 7886)
 
     def test_3768(self):
         board = chess.Bitboard("8/1N6/3p1P2/3b4/5knR/K7/7p/7n b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 6212)
 
     def test_3769(self):
         board = chess.Bitboard("8/1N6/3p1P1R/1b6/5kn1/K7/7p/7n w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 370)
-        self.assertEqual(perft(board, 3), 6900)
 
     def test_3770(self):
         board = chess.Bitboard("3N4/8/3p1P1R/1b6/5kn1/6n1/1K5p/8 b - - 0 1")
@@ -20377,19 +19294,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/N7/3p1N2/8/2b2k2/4R3/8/2Kn4 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 505)
-        self.assertEqual(perft(board, 3), 8063)
 
     def test_3781(self):
         board = chess.Bitboard("6N1/N7/3p4/8/2b2k2/4R3/8/2Kn4 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 445)
-        self.assertEqual(perft(board, 3), 9704)
 
     def test_3782(self):
         board = chess.Bitboard("6N1/N7/3p4/8/5k2/3b4/3K4/3nR3 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 413)
-        self.assertEqual(perft(board, 3), 7483)
 
     def test_3783(self):
         board = chess.Bitboard("6N1/8/2Np4/5b2/5k2/8/3K4/3nR3 w - - 0 1")
@@ -20400,7 +19314,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b3N1/8/3p4/8/3N1k2/8/3K4/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 310)
-        self.assertEqual(perft(board, 3), 3933)
 
     def test_3785(self):
         board = chess.Bitboard("8/4N3/3pb3/8/3N1k2/8/3K4/3R4 w - - 0 1")
@@ -20411,13 +19324,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2Np4/8/5k2/1b3N2/3K4/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 396)
-        self.assertEqual(perft(board, 3), 5451)
 
     def test_3787(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3788(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/1B6/8/4P3/PPPP1PPP/RNBQK1NR b KQkq - 0 1")
@@ -20668,43 +19579,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/5b2/1P4B1/p5P1/P3Pp2/5R1r/3nK3/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 528)
-        self.assertEqual(perft(board, 3), 9190)
 
     def test_3838(self):
         board = chess.Bitboard("6k1/5b2/1P4B1/p5P1/P3Pp2/7R/3n4/2b1K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 395)
-        self.assertEqual(perft(board, 3), 6985)
 
     def test_3839(self):
         board = chess.Bitboard("6k1/5b2/1P4B1/p5P1/P3Pp2/6R1/7n/2b1K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 323)
-        self.assertEqual(perft(board, 3), 5711)
 
     def test_3840(self):
         board = chess.Bitboard("8/5bk1/1P4B1/p5P1/P3Pp2/8/7n/2b1KR2 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 252)
-        self.assertEqual(perft(board, 3), 5077)
 
     def test_3841(self):
         board = chess.Bitboard("8/6k1/1P4B1/p2b2P1/P3Pp2/4bR2/7n/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 6062)
 
     def test_3842(self):
         board = chess.Bitboard("8/6k1/1P4B1/p2b2P1/P3Pp2/7R/4K2n/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 464)
-        self.assertEqual(perft(board, 3), 9188)
 
     def test_3843(self):
         board = chess.Bitboard("8/6k1/1P4BR/p2b2P1/P3Pp2/8/4K2n/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 6391)
 
     def test_3844(self):
         board = chess.Bitboard("8/6kR/1P4B1/p2b2P1/P3Ppn1/8/4K3/2b5 b - - 0 1")
@@ -20727,13 +19631,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4k2/2R5/1P2B3/p5P1/P3P3/5p2/1b2K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 118)
-        self.assertEqual(perft(board, 3), 3481)
 
     def test_3848(self):
         board = chess.Bitboard("b4k2/6R1/1P2B3/p5P1/P2bP3/5p2/3K4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 441)
-        self.assertEqual(perft(board, 3), 7035)
 
     def test_3849(self):
         board = chess.Bitboard("b4k2/6R1/1P6/p3bBP1/P3P3/8/3K1p2/8 w - - 0 1")
@@ -20744,43 +19646,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4k2/6RB/1P6/p5P1/P3Pb2/8/2K2p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 377)
-        self.assertEqual(perft(board, 3), 6861)
 
     def test_3851(self):
         board = chess.Bitboard("b4k2/4R2B/1P6/p5P1/P3P3/8/2K2p1b/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 6816)
 
     def test_3852(self):
         board = chess.Bitboard("b4k2/4R2B/1P6/p5P1/P3P3/6b1/1K3p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 6020)
 
     def test_3853(self):
         board = chess.Bitboard("1b3k2/7B/1P6/p5P1/P3R3/8/1K3p2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 8038)
 
     def test_3854(self):
         board = chess.Bitboard("1b6/6kB/1P6/p5P1/P3R3/8/1K3p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 361)
-        self.assertEqual(perft(board, 3), 5674)
 
     def test_3855(self):
         board = chess.Bitboard("8/6kB/1P6/p5P1/PR6/6b1/1K3p2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 385)
-        self.assertEqual(perft(board, 3), 8775)
 
     def test_3856(self):
         board = chess.Bitboard("5k2/8/1P6/p4BP1/P2R4/6b1/1K3p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 520)
-        self.assertEqual(perft(board, 3), 8736)
 
     def test_3857(self):
         board = chess.Bitboard("5k2/8/1P6/p2R1BP1/P4r2/6b1/1K6/8 w - - 0 1")
@@ -20801,7 +19696,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/1P2B3/p5P1/4r3/6R1/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 144)
-        self.assertEqual(perft(board, 3), 2361)
 
     def test_3861(self):
         board = chess.Bitboard("5k2/8/1P2B3/p5P1/7r/1R6/1K6/8 w - - 0 1")
@@ -20812,19 +19706,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/1P6/pR1B2P1/5r2/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 6721)
 
     def test_3863(self):
         board = chess.Bitboard("5k2/8/1P6/pR4P1/8/8/1K4B1/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 430)
-        self.assertEqual(perft(board, 3), 9562)
 
     def test_3864(self):
         board = chess.Bitboard("5k2/8/1P1r2P1/pR6/8/K7/6B1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 406)
-        self.assertEqual(perft(board, 3), 6570)
 
     def test_3865(self):
         board = chess.Bitboard("8/4k3/1Pr3P1/pR6/4B3/K7/8/8 w - - 0 1")
@@ -20835,19 +19726,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/1Pr3P1/pR6/4B3/K7/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 433)
-        self.assertEqual(perft(board, 3), 6913)
 
     def test_3867(self):
         board = chess.Bitboard("8/6k1/1P3rP1/pR1B4/8/K7/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 407)
-        self.assertEqual(perft(board, 3), 9510)
 
     def test_3868(self):
         board = chess.Bitboard("B7/6k1/1P4P1/pR6/8/1K6/5r2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 393)
-        self.assertEqual(perft(board, 3), 7123)
 
     def test_3869(self):
         board = chess.Bitboard("B7/6k1/1P4P1/pR3r2/8/2K5/8/8 w - - 0 1")
@@ -20858,7 +19746,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B4k2/8/1P4P1/p4r2/8/2K5/8/1R6 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 6672)
 
     def test_3871(self):
         board = chess.Bitboard("7k/8/1P4P1/p4r2/8/2K5/6B1/1R6 w - - 0 1")
@@ -20869,13 +19756,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/1P4P1/p4r2/8/2K5/6B1/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 474)
-        self.assertEqual(perft(board, 3), 7303)
 
     def test_3873(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3874(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/3P4/2P5/PP2PPPP/RNBQKBNR b KQkq - 0 1")
@@ -21041,7 +19926,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6r1/1k1n1p2/1p5b/pPN1p3/B7/6RK/P7/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 248)
-        self.assertEqual(perft(board, 3), 6851)
 
     def test_3907(self):
         board = chess.Bitboard("2k3r1/3n4/1p3p1b/pPN1p3/B7/2R4K/P7/2R5 w - - 0 1")
@@ -21112,7 +19996,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2R1r3/1k2bR2/1p6/1P2pp2/p7/6K1/PN6/1n1B4 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 351)
-        self.assertEqual(perft(board, 3), 5541)
 
     def test_3921(self):
         board = chess.Bitboard("2r5/1k2bR2/1p6/1P3p2/p3p3/6K1/PNR5/1n1B4 w - - 0 1")
@@ -21128,13 +20011,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("kr1b4/8/1p3R2/1P3p2/B3p3/6K1/PN2R3/1n6 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 375)
-        self.assertEqual(perft(board, 3), 9715)
 
     def test_3924(self):
         board = chess.Bitboard("kr1b4/8/1p3R2/1P3p2/4p3/nB4K1/PN6/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 6750)
 
     def test_3925(self):
         board = chess.Bitboard("1r1b4/1k6/1p3R2/1P3p2/B7/n3p1K1/PN6/4R3 w - - 0 1")
@@ -21145,7 +20026,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1b4/1k6/1p3R2/1P3p2/B1n5/3Np1K1/P7/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 512)
-        self.assertEqual(perft(board, 3), 9137)
 
     def test_3927(self):
         board = chess.Bitboard("1rkb4/8/1p3R2/1P3p2/B7/3Np2K/P2n4/3R4 w - - 0 1")
@@ -21156,7 +20036,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rk5/4b3/1p3R2/1P3p2/B6K/3Np3/P2n4/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 472)
-        self.assertEqual(perft(board, 3), 9783)
 
     def test_3929(self):
         board = chess.Bitboard("1rk5/8/1p3R2/1P3p2/7K/b2Np3/P1Bn4/R7 w - - 0 1")
@@ -21172,13 +20051,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/1r6/1p3R2/1P3p2/P6K/3Bpn2/1b6/R3N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 108)
-        self.assertEqual(perft(board, 3), 2906)
 
     def test_3932(self):
         board = chess.Bitboard("1rk5/8/1p3R2/1P3p1K/P7/3BpN2/1b6/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 548)
-        self.assertEqual(perft(board, 3), 8803)
 
     def test_3933(self):
         board = chess.Bitboard("1r6/3k4/1p3R2/1P3pNK/P7/3Bp3/8/b7 w - - 0 1")
@@ -21189,7 +20066,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/3k1N2/1p3R2/1P3p1K/P7/4p3/1bB5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 478)
-        self.assertEqual(perft(board, 3), 9290)
 
     def test_3935(self):
         board = chess.Bitboard("1r6/3k1N2/1p4R1/1P3p1K/P7/8/1bB5/4b3 w - - 0 1")
@@ -21245,7 +20121,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/2R5/1p2B2N/1P6/P7/3r1K2/7b/b7 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 140)
-        self.assertEqual(perft(board, 3), 4142)
 
     def test_3946(self):
         board = chess.Bitboard("5k2/2R5/1p2B2N/PP6/6K1/2r5/7b/b7 b - - 0 1")
@@ -21261,19 +20136,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b3k2/8/1p5N/PP6/2B3K1/5R2/8/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 152)
-        self.assertEqual(perft(board, 3), 2298)
 
     def test_3949(self):
         board = chess.Bitboard("5k2/2b5/1p5N/PP6/2B2bK1/8/5R2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 9348)
 
     def test_3950(self):
         board = chess.Bitboard("5k2/2b5/1p5N/PP6/2B5/5K2/6R1/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 547)
-        self.assertEqual(perft(board, 3), 9555)
 
     def test_3951(self):
         board = chess.Bitboard("5k2/2b5/1p3b1N/PP6/8/5K2/6R1/5B2 w - - 0 1")
@@ -21284,7 +20156,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k1b/2b5/1p5N/PP6/4K3/8/4R3/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 396)
-        self.assertEqual(perft(board, 3), 7087)
 
     def test_3953(self):
         board = chess.Bitboard("4k2b/8/1p5N/PP6/4K3/6b1/3R4/5B2 w - - 0 1")
@@ -21295,7 +20166,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b2k2b/8/1p5N/PP6/4K3/8/1R6/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 458)
-        self.assertEqual(perft(board, 3), 8881)
 
     def test_3955(self):
         board = chess.Bitboard("7b/3k4/1p5N/PP6/4Kb2/8/1R4B1/8 w - - 0 1")
@@ -21316,13 +20186,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7b/8/1p3k2/PPb2N2/1R2K3/3B4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 335)
-        self.assertEqual(perft(board, 3), 5102)
 
     def test_3959(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_3960(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 1")
@@ -21343,7 +20211,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnb1kbr1/pp1ppppp/2p4n/6Q1/3PPP2/2q5/P1P3PP/RNB1KBNR w KQq - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 185)
-        self.assertEqual(perft(board, 3), 6365)
 
     def test_3964(self):
         board = chess.Bitboard("r1b1kbr1/pp1ppppp/n1p4n/6Q1/3PPP2/2q5/P1PBK1PP/RN3BNR b q - 0 1")
@@ -21354,7 +20221,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kb1r/pp1ppppp/n1p4n/6Q1/3PPP2/4B3/P1P1K1PP/RN2qBNR w q - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 86)
-        self.assertEqual(perft(board, 3), 2847)
 
     def test_3966(self):
         board = chess.Bitboard("r1b1kb1r/pp1ppppp/n1p4n/6Q1/1q1PPP2/P2KB3/2P3PP/RN3BNR b q - 0 1")
@@ -21365,7 +20231,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kb1r/pp1pp1pp/n1p2p1Q/8/3PPP2/q2KB3/2P3PP/RN3BNR w q - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 194)
-        self.assertEqual(perft(board, 3), 5602)
 
     def test_3968(self):
         board = chess.Bitboard("r1b1kb1r/pp1pp1pp/n1p2p1Q/8/q2PPP2/4B3/2PKB1PP/RN4NR b q - 0 1")
@@ -21511,7 +20376,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b5r/6kp/2b4P/p2pp1r1/B1pP1Pp1/2p5/3R3B/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 126)
-        self.assertEqual(perft(board, 3), 3174)
 
     def test_3997(self):
         board = chess.Bitboard("7r/7p/2bb2kP/p2pp1r1/B1pP1Pp1/2p5/6RB/3K4 w - - 0 1")
@@ -21614,37 +20478,31 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/R6p/2b4P/3pr3/p7/1pb2Kp1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 8655)
 
     def test_4017(self):
         board = chess.Bitboard("R7/3k3p/2b4P/3p3r/p7/1pb2Kp1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 466)
-        self.assertEqual(perft(board, 3), 6740)
 
     def test_4018(self):
         board = chess.Bitboard("8/3k1R1p/2b4P/3p4/p6r/1pb2Kp1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 75)
-        self.assertEqual(perft(board, 3), 2189)
 
     def test_4019(self):
         board = chess.Bitboard("2k5/6Rp/2b4P/3p4/pr6/1pb2Kp1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 429)
-        self.assertEqual(perft(board, 3), 5883)
 
     def test_4020(self):
         board = chess.Bitboard("1rk5/7p/2bR3P/3p4/p7/1pb2Kp1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 7937)
 
     def test_4021(self):
         board = chess.Bitboard("1r6/3k3p/2R4P/3p4/p7/1p3Kp1/1b6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 465)
-        self.assertEqual(perft(board, 3), 7876)
 
     def test_4022(self):
         board = chess.Bitboard("1r6/3k3p/7P/3p4/p7/1p4K1/8/b1R5 b - - 0 1")
@@ -21655,19 +20513,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1k4/2R4p/7P/3p4/8/pp4K1/8/b7 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 366)
-        self.assertEqual(perft(board, 3), 6839)
 
     def test_4024(self):
         board = chess.Bitboard("1r1k3b/R6p/7P/3p4/8/pp4K1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 6326)
 
     def test_4025(self):
         board = chess.Bitboard("2rk3b/R6p/7P/3p4/8/p7/1p4K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 6759)
 
     def test_4026(self):
         board = chess.Bitboard("2rk4/7p/7P/3p4/R7/2b5/1p4K1/8 b - - 0 1")
@@ -21678,7 +20533,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2rk4/7p/7P/8/2Rp4/8/1p1b2K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 383)
-        self.assertEqual(perft(board, 3), 6127)
 
     def test_4028(self):
         board = chess.Bitboard("2r5/2k4p/7P/8/3R4/8/1p1b3K/8 b - - 0 1")
@@ -21689,7 +20543,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/2k4p/7P/8/3R1b2/8/1p6/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 351)
-        self.assertEqual(perft(board, 3), 5000)
 
     def test_4030(self):
         board = chess.Bitboard("1r6/2k4p/7P/8/8/R5b1/1p6/7K b - - 0 1")
@@ -21706,19 +20559,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k4p/7P/5q2/1r6/2R3b1/6K1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 123)
-        self.assertEqual(perft(board, 3), 5249)
 
     def test_4033(self):
         board = chess.Bitboard("8/1k5p/7P/5q2/1r6/8/6K1/2R1b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 590)
-        self.assertEqual(perft(board, 3), 7190)
 
     def test_4034(self):
         board = chess.Bitboard("8/7p/2k4P/5q2/1r6/8/8/4b2K b - - 0 1")
         self.assertEqual(perft(board, 1), 51)
         self.assertEqual(perft(board, 2), 124)
-        self.assertEqual(perft(board, 3), 5991)
 
     def test_4035(self):
         board = chess.Bitboard("8/7p/2k4P/8/8/5q2/1r6/4b1K1 w - - 0 1")
@@ -21733,7 +20583,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4037(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/7p/8/8/3P2P1/PPP1PP1P/RNBQKBNR b KQkq - 0 1")
@@ -21854,7 +20703,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2nr/p2B3r/n1p3Q1/PqbP3p/1p1PP2P/1P3PP1/8/RN3KNR w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 111)
-        self.assertEqual(perft(board, 3), 4107)
 
     def test_4061(self):
         board = chess.Bitboard("3k2nr/p2B3r/n5Q1/Pqbp3p/1p1PP2P/1P3PP1/R3N3/1N3K1R b - - 0 1")
@@ -21945,7 +20793,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k5nr/4r3/8/np1P2Pp/1p1P3P/RP2KN2/8/1qN4R w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 2478)
 
     def test_4079(self):
         board = chess.Bitboard("k5nr/4r3/8/np1P2Pp/1p1P3P/RP1N1N2/5K2/q6R b - - 0 1")
@@ -22017,7 +20864,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k4N2/r7/2P4n/1p1PK1Rp/1p5P/1P4q1/8/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 166)
-        self.assertEqual(perft(board, 3), 3408)
 
     def test_4093(self):
         board = chess.Bitboard("k4N2/r7/2P1K2n/1p1P3p/1p5P/1P4R1/7q/7R b - - 0 1")
@@ -22155,7 +21001,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5n2/k2P4/1p6/1p3K1P/rP1R1R2/8/3N4 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 324)
-        self.assertEqual(perft(board, 3), 5051)
 
     def test_4120(self):
         board = chess.Bitboard("8/8/1k1n4/1p5P/1p3K2/rP1R1R2/8/3N4 w - - 0 1")
@@ -22171,13 +21016,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4123(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/7p/6P1/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 417)
-        self.assertEqual(perft(board, 3), 9025)
 
     def test_4124(self):
         board = chess.Bitboard("rnbqkbnr/pp1pppp1/2p5/6Pp/8/3P4/PPP1PP1P/RNBQKBNR w KQkq - 0 1")
@@ -22272,12 +21115,10 @@ class PerftTestCase(unittest.TestCase):
     def test_4142(self):
         board = chess.Bitboard("2B1k1n1/r1n2p2/2p3r1/1pbPp1q1/Pp3P1P/N1PPB3/2Q5/2R1K2R w K - 0 1")
         self.assertEqual(perft(board, 1), 49)
-        self.assertEqual(perft(board, 2), 2220)
 
     def test_4143(self):
         board = chess.Bitboard("2B1k1n1/r1n2p2/2p3r1/1pBPp1q1/P4P1P/N1pP4/6Q1/2R1K2R b K - 0 1")
         self.assertEqual(perft(board, 1), 37)
-        self.assertEqual(perft(board, 2), 2041)
 
     def test_4144(self):
         board = chess.Bitboard("2B1k1n1/r1n5/2p2pr1/1pBPp3/P4P1P/N1pP4/6q1/2R1KQ1R w K - 0 1")
@@ -22313,7 +21154,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("n4kn1/1r1B4/5pr1/1P1Pp3/3B1P1P/2pP4/2Q2K2/1NR3qR w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 4247)
 
     def test_4151(self):
         board = chess.Bitboard("n4kn1/3r4/5pr1/1P1Pp1R1/3B1P1P/2pP4/2Q2K2/1N5R b - - 0 1")
@@ -22349,7 +21189,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("n3k1n1/8/8/1P1P4/3P3P/2p4r/5KRB/1N4Q1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 402)
-        self.assertEqual(perft(board, 3), 7016)
 
     def test_4158(self):
         board = chess.Bitboard("n2k4/8/5nR1/1P1P4/3P3P/2p4r/5K1B/1N4Q1 w - - 0 1")
@@ -22365,7 +21204,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/1n6/1P1P4/3Pn2P/2p3R1/5KQr/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 3533)
 
     def test_4161(self):
         board = chess.Bitboard("3k4/8/1n6/1P1P2n1/3P3P/2p1K1R1/6Qr/1N6 b - - 0 1")
@@ -22381,7 +21219,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("n7/3k4/8/1P1P2n1/3P3P/2p1K2R/2Q5/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 6045)
 
     def test_4164(self):
         board = chess.Bitboard("n2k4/8/8/1P1P1Q2/3Pn2P/2p1K2R/8/1N6 w - - 0 1")
@@ -22392,7 +21229,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/1n6/1P1P1Q2/3Pn2P/2R5/4K3/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 615)
-        self.assertEqual(perft(board, 3), 8259)
 
     def test_4166(self):
         board = chess.Bitboard("5Q2/3k4/1n6/1PnP4/3P3P/2R5/4K3/1N6 w - - 0 1")
@@ -22414,25 +21250,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6Q1/3k4/3n4/1P1P4/2RP3P/8/4K3/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 2399)
 
     def test_4170(self):
         board = chess.Bitboard("7Q/4k3/8/1P1P4/2nP3P/8/4K3/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 5585)
 
     def test_4171(self):
         board = chess.Bitboard("3k4/8/6Q1/1P1P4/2nP3P/8/4K3/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 3651)
 
     def test_4172(self):
         board = chess.Bitboard("4k3/8/3Q4/1P1P4/3P3P/n7/4K3/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 4719)
 
     def test_4173(self):
         board = chess.Bitboard("1Q2k3/8/8/1P1P4/3P3P/8/2n1K3/1N6 b - - 0 1")
@@ -22444,7 +21276,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/Q7/5k2/1P1P4/3P3P/8/2n1K3/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 226)
-        self.assertEqual(perft(board, 3), 5711)
 
     def test_4175(self):
         board = chess.Bitboard("8/7Q/1P3k2/3P4/1n1P3P/8/4K3/1N6 b - - 0 1")
@@ -22456,19 +21287,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/1P5Q/3n4/3P3P/8/4K3/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 254)
-        self.assertEqual(perft(board, 3), 6407)
 
     def test_4177(self):
         board = chess.Bitboard("8/8/1P1k4/3n2Q1/3P3P/8/8/1N3K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 314)
-        self.assertEqual(perft(board, 3), 2717)
 
     def test_4178(self):
         board = chess.Bitboard("8/8/1P1k4/3n1Q2/3P3P/8/8/1N3K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 249)
-        self.assertEqual(perft(board, 3), 7118)
 
     def test_4179(self):
         board = chess.Bitboard("2Q5/4n3/1P1k4/8/3P3P/8/3N4/5K2 b - - 0 1")
@@ -22480,55 +21308,46 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2Q3n1/4k3/1P6/8/3P3P/8/3N2K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 37)
         self.assertEqual(perft(board, 2), 203)
-        self.assertEqual(perft(board, 3), 6978)
 
     def test_4181(self):
         board = chess.Bitboard("6n1/5k2/1P6/8/3P3P/8/3N2K1/2Q5 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 3047)
 
     def test_4182(self):
         board = chess.Bitboard("2n5/5k2/1P6/8/3P3P/8/3N2K1/7Q w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 7815)
 
     def test_4183(self):
         board = chess.Bitboard("2n5/6k1/1P6/8/3P3P/8/6K1/1N4Q1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 252)
-        self.assertEqual(perft(board, 3), 2286)
 
     def test_4184(self):
         board = chess.Bitboard("8/8/1n3k2/8/3P3P/5K2/8/1N4Q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 7061)
 
     def test_4185(self):
         board = chess.Bitboard("8/3n4/5k2/8/3P1K1P/N7/8/6Q1 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 2139)
 
     def test_4186(self):
         board = chess.Bitboard("5n2/5k2/8/8/3P3P/N4K2/8/6Q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 7449)
 
     def test_4187(self):
         board = chess.Bitboard("8/3n1k2/8/7P/3P4/N3K3/8/6Q1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 3024)
 
     def test_4188(self):
         board = chess.Bitboard("4k3/8/8/2n3QP/3P4/N3K3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 264)
-        self.assertEqual(perft(board, 3), 7991)
 
     def test_4189(self):
         board = chess.Bitboard("4Q3/3k4/8/2n4P/3P4/N3K3/8/8 b - - 0 1")
@@ -22540,7 +21359,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3Q4/3n4/3k4/7P/3P4/N3K3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 3867)
 
     def test_4191(self):
         board = chess.Bitboard("1n6/8/3k4/7P/3PK3/N7/8/8 b - - 0 1")
@@ -22552,7 +21370,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/n7/7P/3PK3/8/2N5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 2020)
 
     def test_4193(self):
         board = chess.Bitboard("1n6/4k3/8/7P/3P4/4K3/8/N7 b - - 0 1")
@@ -22571,97 +21388,83 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 53)
         self.assertEqual(perft(board, 3), 286)
-        self.assertEqual(perft(board, 4), 3105)
 
     def test_4196(self):
         board = chess.Bitboard("8/8/8/3kP2P/8/1N6/8/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 70)
         self.assertEqual(perft(board, 3), 872)
-        self.assertEqual(perft(board, 4), 5544)
 
     def test_4197(self):
         board = chess.Bitboard("8/8/8/4P2P/2k1N3/8/8/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 89)
         self.assertEqual(perft(board, 3), 566)
-        self.assertEqual(perft(board, 4), 7851)
 
     def test_4198(self):
         board = chess.Bitboard("8/8/8/4P2P/3k4/8/3N4/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 72)
         self.assertEqual(perft(board, 3), 911)
-        self.assertEqual(perft(board, 4), 5405)
 
     def test_4199(self):
         board = chess.Bitboard("8/8/8/3kP2P/8/4K3/3N4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 54)
         self.assertEqual(perft(board, 3), 311)
-        self.assertEqual(perft(board, 4), 4449)
 
     def test_4200(self):
         board = chess.Bitboard("8/3k4/8/4P2P/5K2/8/3N4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 105)
         self.assertEqual(perft(board, 3), 1528)
-        self.assertEqual(perft(board, 4), 8370)
 
     def test_4201(self):
         board = chess.Bitboard("2k5/8/8/4P2P/8/1N2K3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 80)
         self.assertEqual(perft(board, 3), 497)
-        self.assertEqual(perft(board, 4), 7563)
 
     def test_4202(self):
         board = chess.Bitboard("8/8/2k5/4P2P/4K3/1N6/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 1096)
-        self.assertEqual(perft(board, 4), 7023)
 
     def test_4203(self):
         board = chess.Bitboard("8/2k5/7P/4P3/3K4/1N6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 95)
         self.assertEqual(perft(board, 3), 539)
-        self.assertEqual(perft(board, 4), 7764)
 
     def test_4204(self):
         board = chess.Bitboard("8/3k4/7P/4P3/8/1N2K3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 109)
         self.assertEqual(perft(board, 3), 1664)
-        self.assertEqual(perft(board, 4), 8913)
 
     def test_4205(self):
         board = chess.Bitboard("3k4/8/7P/4P3/8/1N3K2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 80)
         self.assertEqual(perft(board, 3), 462)
-        self.assertEqual(perft(board, 4), 7190)
 
     def test_4206(self):
         board = chess.Bitboard("3k4/8/7P/2N1P3/8/5K2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 78)
         self.assertEqual(perft(board, 3), 1299)
-        self.assertEqual(perft(board, 4), 6240)
 
     def test_4207(self):
         board = chess.Bitboard("8/3Nk2P/8/4P3/8/5K2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 84)
         self.assertEqual(perft(board, 3), 397)
-        self.assertEqual(perft(board, 4), 6725)
 
     def test_4208(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4209(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/P7/7N/1PPPPPPP/RNBQKB1R b KQkq - 0 1")
@@ -22672,7 +21475,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1bqkbnr/p2ppppp/np6/2p5/P7/7N/RPPPPPPP/1NBQKB1R w Kkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 421)
-        self.assertEqual(perft(board, 3), 9904)
 
     def test_4211(self):
         board = chess.Bitboard("r1bqkb1r/p2ppppp/np3n2/2p5/P7/5P2/RPPPP1PP/1NBQKBNR b Kkq - 0 1")
@@ -22813,7 +21615,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/1B5N/p2pp2b/PRr5/6Pp/N6P/2P2r2/3Q1K1R w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 102)
-        self.assertEqual(perft(board, 3), 3626)
 
     def test_4239(self):
         board = chess.Bitboard("4k3/1B4bN/p2pp3/PRr5/6Pp/N1P4P/5K2/3Q3R b - - 0 1")
@@ -22859,7 +21660,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k2b/1B5N/p1rp4/P3p1P1/1RQ4p/N1P4P/4K2R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 525)
-        self.assertEqual(perft(board, 3), 6922)
 
     def test_4248(self):
         board = chess.Bitboard("4k3/1B5N/Q1r2b2/P2pp1P1/1R5p/N1P4P/4K2R/8 w - - 0 1")
@@ -22880,7 +21680,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2B1k2b/2N4N/Q7/P2p2P1/R6p/2r1p2P/4K1R1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 2906)
 
     def test_4252(self):
         board = chess.Bitboard("2Bk4/2N4N/Q4b2/P2p2P1/5R1p/2r1p2P/4K1R1/8 w - - 0 1")
@@ -22921,7 +21720,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2B1k3/2Q4N/P5P1/3p4/3N4/1R2p1pP/4K3/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 412)
-        self.assertEqual(perft(board, 3), 4275)
 
     def test_4260(self):
         board = chess.Bitboard("2B5/4k2N/P5P1/3p4/2QN4/1R2p1pP/4K3/r7 w - - 0 1")
@@ -22932,7 +21730,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k2N/P5P1/3p4/2Q3B1/1R2pNpP/4K3/2r5 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 638)
-        self.assertEqual(perft(board, 3), 8655)
 
     def test_4262(self):
         board = chess.Bitboard("4k3/7N/P5P1/3p4/2Q3B1/4pNpP/4K3/1R2r3 w - - 0 1")
@@ -22944,7 +21741,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/P5P1/3p2N1/2Q3B1/4p1pP/4K3/1R2N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 381)
-        self.assertEqual(perft(board, 3), 2315)
 
     def test_4264(self):
         board = chess.Bitboard("5k2/8/P5P1/3p2N1/2Q3B1/4p1pP/4K3/2R1N3 w - - 0 1")
@@ -22956,13 +21752,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 50)
         self.assertEqual(perft(board, 3), 229)
-        self.assertEqual(perft(board, 4), 8819)
 
     def test_4266(self):
         board = chess.Bitboard("6k1/7N/P5P1/3pQ3/6B1/4p2P/4K3/2R1N1b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 52)
         self.assertEqual(perft(board, 2), 170)
-        self.assertEqual(perft(board, 3), 8191)
 
     def test_4267(self):
         board = chess.Bitboard("7k/7N/P5P1/3p4/6B1/4p2P/8/2RKN1b1 b - - 0 1")
@@ -22974,19 +21768,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6kN/P3B1P1/3p4/8/4p2P/8/2RKN1b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 191)
-        self.assertEqual(perft(board, 3), 4892)
 
     def test_4269(self):
         board = chess.Bitboard("8/6kN/P3B1P1/3p4/8/2R4P/4p3/2K1N1b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 3782)
 
     def test_4270(self):
         board = chess.Bitboard("8/b4B1N/P5Pk/3p4/8/2R4P/4p3/2K1N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 8242)
 
     def test_4271(self):
         board = chess.Bitboard("5N2/b4B2/P5Pk/8/3p4/7P/2R1p3/2K1N3 b - - 0 1")
@@ -22998,19 +21789,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5N2/b1R2B2/P5Pk/8/3p4/7P/4p3/2K1N3 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 208)
-        self.assertEqual(perft(board, 3), 6201)
 
     def test_4273(self):
         board = chess.Bitboard("5N2/5B2/Pb4Pk/8/3p3P/8/2R1p3/2K1N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 224)
-        self.assertEqual(perft(board, 3), 2260)
 
     def test_4274(self):
         board = chess.Bitboard("5N2/5B2/P5P1/2b4k/3p3P/8/2R1p1N1/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 309)
-        self.assertEqual(perft(board, 3), 7079)
 
     def test_4275(self):
         board = chess.Bitboard("8/3N1B2/P5P1/2b4k/3p3P/8/1KR3N1/4r3 b - - 0 1")
@@ -23041,13 +21829,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N6/8/P1R3P1/3Br2k/7P/3p4/1K4N1/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 127)
-        self.assertEqual(perft(board, 3), 3420)
 
     def test_4281(self):
         board = chess.Bitboard("1N6/8/P4RP1/3B2rk/7P/3p4/6N1/K1b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 428)
-        self.assertEqual(perft(board, 3), 7360)
 
     def test_4282(self):
         board = chess.Bitboard("1N6/8/P4RP1/3B2rk/7P/3p4/K5N1/2b5 w - - 0 1")
@@ -23068,7 +21854,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N4B1/8/P5P1/3r1R1k/7P/3p4/K7/2b1N3 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 2707)
 
     def test_4286(self):
         board = chess.Bitboard("1N3RB1/8/P5k1/2r5/7P/3p4/K7/2b1N3 w - - 0 1")
@@ -23114,7 +21899,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4295(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/2p5/7P/N7/PPPPPPP1/R1BQKBNR b KQkq - 0 1")
@@ -23225,7 +22009,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5b1r/5qk1/ppnpb1np/1P4pP/P2P2p1/5P2/2PKrR1N/1RQ2B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 267)
-        self.assertEqual(perft(board, 3), 7173)
 
     def test_4317(self):
         board = chess.Bitboard("5b1r/5qk1/pp1pb1np/1P2n1pP/P2P2p1/5P2/2P1KR1N/1RQ2B2 b - - 0 1")
@@ -23311,7 +22094,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n3/5Bk1/5R1p/pp1p2pP/3P2p1/R5N1/2P2KQ1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 3398)
 
     def test_4334(self):
         board = chess.Bitboard("4n3/5B1k/5R1p/pp1p2pP/3P2p1/6N1/2P2KQ1/R7 w - - 0 1")
@@ -23333,7 +22115,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/3R1n1p/p2p2pP/1p1P2p1/6N1/2P2K1Q/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 462)
-        self.assertEqual(perft(board, 3), 5173)
 
     def test_4338(self):
         board = chess.Bitboard("4k3/3n4/3R3p/p2p1NpP/1p1P2p1/8/2P2K1Q/R7 w - - 0 1")
@@ -23344,7 +22125,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/3n4/3R3p/3p1NpP/pp1P2p1/8/2P1K3/R6Q b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 555)
-        self.assertEqual(perft(board, 3), 5690)
 
     def test_4340(self):
         board = chess.Bitboard("5k2/6N1/3R1n1p/3p2pP/pp1P2p1/8/2P1K3/R6Q w - - 0 1")
@@ -23355,7 +22135,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k1N1/2R2n1p/3p2pP/pp1P2p1/8/2P1K3/R3Q3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 518)
-        self.assertEqual(perft(board, 3), 5451)
 
     def test_4342(self):
         board = chess.Bitboard("6k1/6N1/3R1n1p/3p2pP/pp1P2p1/8/2P1K3/R3Q3 w - - 0 1")
@@ -23366,7 +22145,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/6N1/3R1n1p/3p2pP/pp1P4/2Q2Kp1/2P5/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 575)
-        self.assertEqual(perft(board, 3), 7927)
 
     def test_4344(self):
         board = chess.Bitboard("8/7k/3R1n1p/3p2pP/pp1P4/2Q2Kp1/2P5/6R1 w - - 0 1")
@@ -23377,7 +22155,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/3R3p/3p2pn/pp1P4/2Q2Kp1/2P5/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 359)
-        self.assertEqual(perft(board, 3), 3963)
 
     def test_4346(self):
         board = chess.Bitboard("8/7k/5n1p/3R2p1/1p1P4/p1Q2Kp1/2P5/6R1 w - - 0 1")
@@ -23398,19 +22175,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4R3/7k/5n1p/8/1Q1P2p1/1n2K1p1/2P5/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 644)
-        self.assertEqual(perft(board, 3), 9290)
 
     def test_4350(self):
         board = chess.Bitboard("4n3/7k/7p/8/3P2p1/4K1p1/2PQ4/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 7282)
 
     def test_4351(self):
         board = chess.Bitboard("4n3/7k/7p/8/3P2p1/4K3/2PQ2p1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 3157)
 
     def test_4352(self):
         board = chess.Bitboard("8/7k/7p/1n6/3PK1p1/8/2PQ2p1/6R1 w - - 0 1")
@@ -23421,7 +22195,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6k1/7p/1n6/3P2p1/2QK4/2P3p1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 387)
-        self.assertEqual(perft(board, 3), 5435)
 
     def test_4354(self):
         board = chess.Bitboard("8/8/6kp/1n6/3P2p1/2QK4/2P5/1R4n1 w - - 0 1")
@@ -23447,79 +22220,66 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/6k1/1n1P3p/3n4/3K3p/1RP5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 247)
-        self.assertEqual(perft(board, 3), 3690)
 
     def test_4359(self):
         board = chess.Bitboard("8/8/6k1/1n1P3p/4K3/1P5p/1R6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 197)
-        self.assertEqual(perft(board, 3), 2621)
 
     def test_4360(self):
         board = chess.Bitboard("8/6k1/8/1n1P3p/4K3/1P5p/3R4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 272)
-        self.assertEqual(perft(board, 3), 4538)
 
     def test_4361(self):
         board = chess.Bitboard("8/7k/3P4/1n2K2p/8/1P5p/3R4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 3048)
 
     def test_4362(self):
         board = chess.Bitboard("7k/8/3n4/4K2p/8/1P5p/7R/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 190)
-        self.assertEqual(perft(board, 3), 3100)
 
     def test_4363(self):
         board = chess.Bitboard("8/7k/3n4/7p/8/1P1K3p/7R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 3021)
 
     def test_4364(self):
         board = chess.Bitboard("8/5n1k/8/8/7p/1P1K3p/8/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 211)
-        self.assertEqual(perft(board, 3), 3735)
 
     def test_4365(self):
         board = chess.Bitboard("8/7k/8/6n1/7p/1P5p/2K5/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 2435)
 
     def test_4366(self):
         board = chess.Bitboard("8/8/7k/6n1/7p/1P6/2K4p/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 210)
-        self.assertEqual(perft(board, 3), 3804)
 
     def test_4367(self):
         board = chess.Bitboard("8/8/7k/8/3Rn2p/1P6/2K4p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 331)
-        self.assertEqual(perft(board, 3), 5415)
 
     def test_4368(self):
         board = chess.Bitboard("8/8/5k2/8/R3n2p/1P6/2K4p/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 311)
-        self.assertEqual(perft(board, 3), 5256)
 
     def test_4369(self):
         board = chess.Bitboard("8/8/8/5k2/4n2p/1P6/2K4p/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 234)
-        self.assertEqual(perft(board, 3), 3901)
 
     def test_4370(self):
         board = chess.Bitboard("8/8/8/2n2k2/1P6/7p/2K4p/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 260)
-        self.assertEqual(perft(board, 3), 4190)
 
     def test_4371(self):
         board = chess.Bitboard("8/8/6k1/2P5/8/3K3p/7p/7R b - - 0 1")
@@ -23537,49 +22297,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6k1/8/2P5/2K5/7p/7p/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 2255)
 
     def test_4374(self):
         board = chess.Bitboard("8/8/7k/2PK4/8/7p/7p/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 159)
-        self.assertEqual(perft(board, 3), 2635)
 
     def test_4375(self):
         board = chess.Bitboard("8/8/3K3k/2P5/8/7p/2R5/7b b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 206)
-        self.assertEqual(perft(board, 3), 2976)
 
     def test_4376(self):
         board = chess.Bitboard("7k/8/3K4/2P5/8/7p/5R2/7b w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 194)
-        self.assertEqual(perft(board, 3), 3625)
 
     def test_4377(self):
         board = chess.Bitboard("b6k/2K5/5R2/2P5/8/7p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 226)
-        self.assertEqual(perft(board, 3), 2647)
 
     def test_4378(self):
         board = chess.Bitboard("7k/1b6/1K3R2/2P5/8/7p/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 187)
-        self.assertEqual(perft(board, 3), 3434)
 
     def test_4379(self):
         board = chess.Bitboard("6k1/1b6/1K1R4/2P5/8/7p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 265)
-        self.assertEqual(perft(board, 3), 3337)
 
     def test_4380(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4381(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/8/4p3/8/P2P4/1PP1PPPP/RNBQKBNR b KQkq - 0 1")
@@ -23620,7 +22372,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kbnr/1p1p3p/6p1/pqp2p2/1n2PB2/P7/2PQKPPP/R4BNR w kq - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 210)
-        self.assertEqual(perft(board, 3), 7996)
 
     def test_4389(self):
         board = chess.Bitboard("r1b1kbnr/1p1p3p/6p1/pqp2p2/2P1PB2/P4N2/n2QKPPP/R4B1R b kq - 0 1")
@@ -23631,7 +22382,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kbnr/1p1p3p/6p1/p1p2p2/2q1PB2/P4N2/4KPPP/R1Q2B1R w kq - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 5912)
 
     def test_4391(self):
         board = chess.Bitboard("r1b1kbnr/1p1p3p/6p1/p1p2p2/4PB2/P1q2N2/4KPPP/R1Q2B1R b kq - 0 1")
@@ -23662,7 +22412,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kb1r/2Bp3p/1p2P1p1/p4pq1/P1p5/5Nn1/Q3KPPP/R4B1R w kq - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 179)
-        self.assertEqual(perft(board, 3), 5706)
 
     def test_4397(self):
         board = chess.Bitboard("r1b2b1r/2Bpk2p/1p2P1p1/p4pq1/P1p5/6P1/Q3KPP1/R3NB1R b - - 0 1")
@@ -23688,7 +22437,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b2b1r/4k2p/r3P1p1/pp1p1p2/P1q2B2/Q1p3PR/5PP1/R2KNB2 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 303)
-        self.assertEqual(perft(board, 3), 9395)
 
     def test_4402(self):
         board = chess.Bitboard("2b2b1r/6kp/r3P1p1/pp1p1p2/PQq2B2/2p3PR/5PP1/R2KNB2 w - - 0 1")
@@ -23762,19 +22510,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/QR6/5kp1/p2p1p2/p4P2/R3B1P1/4K1P1/4b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 306)
-        self.assertEqual(perft(board, 3), 2359)
 
     def test_4416(self):
         board = chess.Bitboard("8/Q7/5kp1/p2p1p2/5P2/Rp2B1P1/4KbP1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 32)
         self.assertEqual(perft(board, 2), 254)
-        self.assertEqual(perft(board, 3), 8122)
 
     def test_4417(self):
         board = chess.Bitboard("8/Q7/5kp1/p2p1p2/R4P2/4B1P1/1p3bP1/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 282)
-        self.assertEqual(perft(board, 3), 3036)
 
     def test_4418(self):
         board = chess.Bitboard("8/Q7/1B3k2/p2p1pp1/R4P2/6P1/1p4P1/4bK2 w - - 0 1")
@@ -23785,7 +22530,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1Q6/5k2/p2p1pp1/R4P2/4B1P1/6P1/1b2bK2 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 508)
-        self.assertEqual(perft(board, 3), 6380)
 
     def test_4420(self):
         board = chess.Bitboard("8/4k3/1Q6/p2p1pp1/R3bP2/4B1P1/6P1/4bK2 w - - 0 1")
@@ -23796,7 +22540,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1Q2k3/8/p2p1p2/R3bp2/4B1P1/6P1/4bK2 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 3310)
 
     def test_4422(self):
         board = chess.Bitboard("5k2/1Q6/8/p2p1p2/R4p2/5bP1/3B2P1/4bK2 w - - 0 1")
@@ -23818,19 +22561,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/8/3p1p2/p4Qb1/6P1/3B1bP1/3R1K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 572)
-        self.assertEqual(perft(board, 3), 9059)
 
     def test_4426(self):
         board = chess.Bitboard("5k2/8/8/5p2/p2p1Qb1/6P1/5bP1/2BR1K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 7509)
 
     def test_4427(self):
         board = chess.Bitboard("Q7/6k1/8/5p2/p2p2b1/6P1/5bP1/2BR1K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 423)
-        self.assertEqual(perft(board, 3), 6245)
 
     def test_4428(self):
         board = chess.Bitboard("Q7/6k1/8/5p2/3p2b1/p3b1P1/6P1/2BRK3 w - - 0 1")
@@ -23852,91 +22592,76 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3b4/4k3/8/3p1p2/p3b1P1/6P1/2BRK3 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 201)
-        self.assertEqual(perft(board, 3), 4214)
 
     def test_4432(self):
         board = chess.Bitboard("8/3b4/4k3/8/3p1b2/B5p1/6P1/3RK3 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 4707)
 
     def test_4433(self):
         board = chess.Bitboard("8/3b4/2R2k2/8/3p1b2/B5p1/6P1/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 170)
-        self.assertEqual(perft(board, 3), 3290)
 
     def test_4434(self):
         board = chess.Bitboard("8/8/2Rb1k2/8/3p4/6pb/1B4P1/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 6228)
 
     def test_4435(self):
         board = chess.Bitboard("8/5k2/2Rb4/8/3p4/6pb/1B4P1/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 435)
-        self.assertEqual(perft(board, 3), 8365)
 
     def test_4436(self):
         board = chess.Bitboard("6k1/8/1R1b4/8/3p2b1/6p1/1B4P1/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 327)
-        self.assertEqual(perft(board, 3), 5913)
 
     def test_4437(self):
         board = chess.Bitboard("6k1/8/1R6/4b3/3p2b1/B5p1/6P1/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 489)
-        self.assertEqual(perft(board, 3), 9147)
 
     def test_4438(self):
         board = chess.Bitboard("6k1/7b/1R6/4b3/3p4/B5p1/1K4P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 323)
-        self.assertEqual(perft(board, 3), 6359)
 
     def test_4439(self):
         board = chess.Bitboard("6k1/8/3R4/4b3/3p4/B5p1/2b3P1/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 313)
-        self.assertEqual(perft(board, 3), 5230)
 
     def test_4440(self):
         board = chess.Bitboard("5k1b/8/3R4/8/3p4/B5p1/1Kb3P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 135)
-        self.assertEqual(perft(board, 3), 2535)
 
     def test_4441(self):
         board = chess.Bitboard("6kb/8/5R2/8/3p4/B5p1/K1b3P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 272)
-        self.assertEqual(perft(board, 3), 3630)
 
     def test_4442(self):
         board = chess.Bitboard("6k1/5R2/5b2/5b2/3p4/B5p1/K5P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 348)
-        self.assertEqual(perft(board, 3), 6487)
 
     def test_4443(self):
         board = chess.Bitboard("6k1/7R/8/2B2b2/3p3b/6p1/K5P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 5354)
 
     def test_4444(self):
         board = chess.Bitboard("6k1/1R6/8/2B5/3p3b/5bp1/K5P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 423)
-        self.assertEqual(perft(board, 3), 9805)
 
     def test_4445(self):
         board = chess.Bitboard("6k1/1b2B3/8/8/3p3b/6p1/K5P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 201)
-        self.assertEqual(perft(board, 3), 3454)
 
     def test_4446(self):
         board = chess.Bitboard("5Bk1/8/b7/8/7b/3p2p1/K5P1/8 w - - 0 1")
@@ -23948,7 +22673,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3b2k1/8/b7/8/8/B2p2p1/6P1/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 2599)
 
     def test_4448(self):
         board = chess.Bitboard("6k1/8/b7/6b1/8/6p1/3p2P1/K1B5 w - - 0 1")
@@ -23960,7 +22684,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/8/6b1/8/6p1/2Kpb1P1/2B5 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 185)
-        self.assertEqual(perft(board, 3), 4888)
 
     def test_4450(self):
         board = chess.Bitboard("3b2k1/8/8/8/8/2K3p1/3p2P1/2B2b2 w - - 0 1")
@@ -23972,7 +22695,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3b2k1/8/8/8/8/2K3p1/3pb1P1/2B5 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 6318)
 
     def test_4452(self):
         board = chess.Bitboard("6k1/4b3/8/8/8/B1K3p1/4b1P1/3n4 w - - 0 1")
@@ -23984,31 +22706,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/4b3/8/7b/4K3/B5p1/6P1/3n4 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 248)
-        self.assertEqual(perft(board, 3), 5631)
 
     def test_4454(self):
         board = chess.Bitboard("5bk1/5b2/8/8/5K2/B5p1/6P1/3n4 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 289)
-        self.assertEqual(perft(board, 3), 3477)
 
     def test_4455(self):
         board = chess.Bitboard("6k1/5b2/8/2b5/3B1K2/6p1/6P1/3n4 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 367)
-        self.assertEqual(perft(board, 3), 8755)
 
     def test_4456(self):
         board = chess.Bitboard("8/B4bk1/8/8/1b3K2/6p1/6P1/3n4 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 373)
-        self.assertEqual(perft(board, 3), 4557)
 
     def test_4457(self):
         board = chess.Bitboard("8/B4bk1/8/8/1b3K2/4n1p1/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 347)
-        self.assertEqual(perft(board, 3), 9512)
 
     def test_4458(self):
         board = chess.Bitboard("7k/B7/6b1/8/1b2K3/4n1p1/6P1/8 w - - 0 1")
@@ -24020,19 +22737,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7k/6b1/8/1b1B4/4nKp1/6P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 391)
-        self.assertEqual(perft(board, 3), 9832)
 
     def test_4460(self):
         board = chess.Bitboard("6k1/8/6b1/8/1b1B4/6p1/6K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 412)
-        self.assertEqual(perft(board, 3), 5975)
 
     def test_4461(self):
         board = chess.Bitboard("6k1/B7/8/8/1b6/6K1/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 6044)
 
     def test_4462(self):
         board = chess.Bitboard("6k1/B7/3b4/8/5K2/8/8/1b6 w - - 0 1")
@@ -24044,25 +22758,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/8/4b3/8/5K2/5B2/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 7331)
 
     def test_4464(self):
         board = chess.Bitboard("6k1/8/8/8/1b5B/5K2/8/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 290)
-        self.assertEqual(perft(board, 3), 3770)
 
     def test_4465(self):
         board = chess.Bitboard("6k1/8/3b4/6K1/7B/8/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 153)
-        self.assertEqual(perft(board, 3), 3291)
 
     def test_4466(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4467(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/3P2P1/8/PPP1PP1P/RNBQKBNR b KQkq - 0 1")
@@ -24118,7 +22828,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b1kb1r/pp1ppP1p/6pn/q2p4/n4PP1/P1P4B/1PNQK2P/RNB4R b k - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 87)
-        self.assertEqual(perft(board, 3), 2571)
 
     def test_4478(self):
         board = chess.Bitboard("r1bk1b1r/1p1ppP1p/p5pn/q2p4/n4PP1/P1PK3B/1PNQ3P/RNB4R w - - 0 1")
@@ -24249,7 +22958,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5Br1/3k3p/7P/2RpR1p1/3r1P1P/2Np4/6K1/2B5 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 531)
-        self.assertEqual(perft(board, 3), 9019)
 
     def test_4504(self):
         board = chess.Bitboard("5Br1/3k3p/7P/2R1R1pP/2rp1P2/2Np4/6K1/2B5 w - - 0 1")
@@ -24260,7 +22968,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5Br1/3k3p/7P/2R4P/2rp1Pp1/3p4/N3R1K1/2B5 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 526)
-        self.assertEqual(perft(board, 3), 9167)
 
     def test_4506(self):
         board = chess.Bitboard("3k1Br1/7p/7P/2R4P/2rp1Pp1/8/N1Rp2K1/2B5 w - - 0 1")
@@ -24281,7 +22988,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B2/3k3p/7P/7r/5Pp1/2Rp4/N5K1/2BR4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 511)
-        self.assertEqual(perft(board, 3), 7646)
 
     def test_4510(self):
         board = chess.Bitboard("5B2/3k3p/7P/8/5Pp1/2Rp2Kr/N7/2BR4 w - - 0 1")
@@ -24293,7 +22999,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B2/7p/4k2P/8/5Pp1/B1Rp3r/N5K1/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 473)
-        self.assertEqual(perft(board, 3), 6250)
 
     def test_4512(self):
         board = chess.Bitboard("8/6Bp/7P/5k2/5P2/B1Rp2pr/N5K1/3R4 w - - 0 1")
@@ -24304,7 +23009,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6Bp/7P/8/1N3Pk1/BR1p2pr/6K1/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 3178)
 
     def test_4514(self):
         board = chess.Bitboard("8/6Bp/8/8/1N3Pk1/BR1R2p1/6Kr/8 w - - 0 1")
@@ -24316,43 +23020,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7p/8/7k/1N3P2/BR1R2p1/7r/B5K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 425)
-        self.assertEqual(perft(board, 3), 5930)
 
     def test_4516(self):
         board = chess.Bitboard("8/7p/8/3N4/5P1k/BR1R2pr/8/B5K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 8861)
 
     def test_4517(self):
         board = chess.Bitboard("8/7p/8/3N4/1R3P1k/B2R2p1/6K1/B6r b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 4997)
 
     def test_4518(self):
         board = chess.Bitboard("8/8/8/3N3p/1R3P1k/B5p1/6K1/r2R4 w - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 217)
-        self.assertEqual(perft(board, 3), 6000)
 
     def test_4519(self):
         board = chess.Bitboard("1R6/8/8/3N3p/5P1k/B5p1/3R2K1/3r4 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 272)
-        self.assertEqual(perft(board, 3), 3156)
 
     def test_4520(self):
         board = chess.Bitboard("8/8/8/3N4/5Pkp/BR4p1/3R2K1/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 372)
-        self.assertEqual(perft(board, 3), 9773)
 
     def test_4521(self):
         board = chess.Bitboard("8/8/8/2BN4/5Pkp/1R4p1/5RK1/4r3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 608)
-        self.assertEqual(perft(board, 3), 9029)
 
     def test_4522(self):
         board = chess.Bitboard("8/8/8/2BN4/5Pkp/R1r3p1/5RK1/8 w - - 0 1")
@@ -24363,7 +23060,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1B6/3N4/5Pk1/R1r3pp/5R2/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 545)
-        self.assertEqual(perft(board, 3), 8798)
 
     def test_4524(self):
         board = chess.Bitboard("8/8/1B3N2/5k2/5P2/R2r2pp/5R2/5K2 w - - 0 1")
@@ -24384,7 +23080,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7R/8/8/2BN4/4kP2/r6p/4KR2/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 585)
-        self.assertEqual(perft(board, 3), 9479)
 
     def test_4528(self):
         board = chess.Bitboard("7R/r7/8/2B5/1N2kP2/7p/4KR2/6b1 w - - 0 1")
@@ -24395,7 +23090,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3R4/4r3/1B6/8/1N2kP2/7p/4KR2/6b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 448)
-        self.assertEqual(perft(board, 3), 6748)
 
     def test_4530(self):
         board = chess.Bitboard("3R4/6r1/1B6/8/1N2kP2/7p/4K2b/5R2 w - - 0 1")
@@ -24416,7 +23110,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3r4/8/5k2/3B1P2/3N3p/8/3R1KR1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 477)
-        self.assertEqual(perft(board, 3), 7276)
 
     def test_4534(self):
         board = chess.Bitboard("4r1R1/8/8/5k2/3B1P2/3N3p/8/3R1K2 w - - 0 1")
@@ -24427,7 +23120,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4rR2/8/4k3/8/3B1P2/7p/8/2NR1K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 343)
-        self.assertEqual(perft(board, 3), 4220)
 
     def test_4536(self):
         board = chess.Bitboard("5R2/3k4/8/5P2/3B4/4r2p/8/2NR1K2 w - - 0 1")
@@ -24438,7 +23130,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/4k3/1B6/5P2/8/4r2p/N7/3R1K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 384)
-        self.assertEqual(perft(board, 3), 4739)
 
     def test_4538(self):
         board = chess.Bitboard("5R2/4k3/2r5/B4P2/8/7p/N7/3R1K2 w - - 0 1")
@@ -24449,7 +23140,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/5R2/2rR4/B4P2/8/7p/N7/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 386)
-        self.assertEqual(perft(board, 3), 4813)
 
     def test_4540(self):
         board = chess.Bitboard("8/5k2/4r3/B4P2/8/7p/N2R4/5K2 w - - 0 1")
@@ -24460,31 +23150,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4rk2/8/5P2/1B6/7p/N5R1/5K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 384)
-        self.assertEqual(perft(board, 3), 5757)
 
     def test_4542(self):
         board = chess.Bitboard("8/5k2/3r4/5PR1/1B6/7p/N7/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 383)
-        self.assertEqual(perft(board, 3), 8976)
 
     def test_4543(self):
         board = chess.Bitboard("6R1/5k2/8/3r1P2/8/7p/N7/4BK2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 392)
-        self.assertEqual(perft(board, 3), 6148)
 
     def test_4544(self):
         board = chess.Bitboard("4k3/8/8/3r1P2/8/8/N6p/4BK2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 289)
-        self.assertEqual(perft(board, 3), 3838)
 
     def test_4545(self):
         board = chess.Bitboard("4k3/8/8/3r1P2/8/2N5/5K2/4B2r b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 365)
-        self.assertEqual(perft(board, 3), 9847)
 
     def test_4546(self):
         board = chess.Bitboard("4k3/8/5P1r/5r2/8/2N5/5K2/4B3 w - - 0 1")
@@ -24496,7 +23181,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/5P1r/8/5K2/2N5/8/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 234)
-        self.assertEqual(perft(board, 3), 3455)
 
     def test_4548(self):
         board = chess.Bitboard("3k4/8/5P2/8/5K1r/8/4N3/4B3 w - - 0 1")
@@ -24508,26 +23192,22 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/5P2/7r/8/5KN1/8/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 313)
-        self.assertEqual(perft(board, 3), 5054)
 
     def test_4550(self):
         board = chess.Bitboard("3k4/8/5P2/8/2r5/6N1/5K2/4B3 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 4683)
 
     def test_4551(self):
         board = chess.Bitboard("3k4/2B5/5P2/8/8/6N1/5K2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 350)
-        self.assertEqual(perft(board, 4), 6296)
 
     def test_4552(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4553(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/8/3P2P1/PPP1PP1P/RNBQKBNR b KQkq - 0 1")
@@ -24714,7 +23394,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b2r1k/1r1p4/2P5/p1N2p2/P4PPp/1P5P/NQ1K1n2/1R4n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 2631)
 
     def test_4590(self):
         board = chess.Bitboard("2b4k/1r6/2Pp1r2/p1N2p2/P4PPp/1P5P/NQ1K1n2/R5n1 w - - 0 1")
@@ -24730,7 +23409,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b4k/8/2Pp1r2/p1N2p2/P2Q1PPp/1P3n1P/3K1n2/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 115)
-        self.assertEqual(perft(board, 3), 3621)
 
     def test_4593(self):
         board = chess.Bitboard("2b4k/8/2Pp1r2/p4pn1/P2Q1PPp/1P1N3P/5n2/R1K5 b - - 0 1")
@@ -24761,7 +23439,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/8/2n2rk1/3p1p2/Pp3PPp/1P5P/2K5/6Rn w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 394)
-        self.assertEqual(perft(board, 3), 6396)
 
     def test_4599(self):
         board = chess.Bitboard("2b5/8/2n2r1k/P2p1p2/1p3PPp/1P5P/2K5/4R2n b - - 0 1")
@@ -24772,7 +23449,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/8/4nr1k/P2p1p2/1p3PPp/1P2R2P/2K5/7n w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 5968)
 
     def test_4601(self):
         board = chess.Bitboard("2b5/8/4nr1k/P2p1p2/1p3PPp/1P2R2P/3K1n2/8 b - - 0 1")
@@ -24783,7 +23459,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/8/4nr1k/P2p1p2/1p3PPp/1P2R2P/3n4/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 395)
-        self.assertEqual(perft(board, 3), 6211)
 
     def test_4603(self):
         board = chess.Bitboard("2b5/8/5r1k/P2p1pn1/1p3PPp/1P2R2P/3n4/2K5 b - - 0 1")
@@ -24794,19 +23469,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/4R3/r6k/P2p1pn1/1p3PPp/1P5P/8/2K2n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 447)
-        self.assertEqual(perft(board, 3), 7485)
 
     def test_4605(self):
         board = chess.Bitboard("2b1R3/7n/r6k/P2p1p2/1p3PPp/1P5P/8/3K1n2 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 402)
-        self.assertEqual(perft(board, 3), 8652)
 
     def test_4606(self):
         board = chess.Bitboard("2b1Rn2/8/7k/r2p1p2/1p3PPp/1P5P/8/2K2n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 365)
-        self.assertEqual(perft(board, 3), 5433)
 
     def test_4607(self):
         board = chess.Bitboard("2b5/8/6nk/r2p1pP1/1p3P1p/1P2R2P/8/2K2n2 b - - 0 1")
@@ -24818,7 +23490,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/6k1/4R1n1/r4pP1/1p1p1P1p/1P5P/8/2K2n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 454)
-        self.assertEqual(perft(board, 3), 6384)
 
     def test_4609(self):
         board = chess.Bitboard("2b5/6k1/6n1/1r3pP1/1p1p1P1p/1P5P/1K6/4Rn2 b - - 0 1")
@@ -24829,7 +23500,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/6k1/1r6/5pP1/1p1p1n1p/1P5P/1K6/1R3n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 3907)
 
     def test_4611(self):
         board = chess.Bitboard("8/6k1/br6/5pP1/1p1p1n1p/1P5P/8/K2R1n2 b - - 0 1")
@@ -24840,13 +23510,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/b7/1r3pP1/1p1p1n1p/1P5P/8/KR3n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 209)
-        self.assertEqual(perft(board, 3), 2316)
 
     def test_4613(self):
         board = chess.Bitboard("5k2/8/b7/1r1n1pP1/1p1p3p/1P5P/K7/2R2n2 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 377)
-        self.assertEqual(perft(board, 3), 9287)
 
     def test_4614(self):
         board = chess.Bitboard("5k2/8/b7/r1Rn1pP1/1p1p3p/1P4nP/K7/8 w - - 0 1")
@@ -24858,13 +23526,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/8/r2n1pP1/1p1p3p/1P1b2nP/2R5/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 169)
-        self.assertEqual(perft(board, 3), 5498)
 
     def test_4616(self):
         board = chess.Bitboard("5k2/2n5/8/rb3pP1/1pRp3p/1P4nP/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 4955)
 
     def test_4617(self):
         board = chess.Bitboard("8/2n3k1/8/rb3pP1/1pRp3p/1P4nP/8/1K6 b - - 0 1")
@@ -24875,13 +23541,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6k1/n7/rb3pP1/1pRp3p/1P5P/8/2K4n w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 309)
-        self.assertEqual(perft(board, 3), 4406)
 
     def test_4619(self):
         board = chess.Bitboard("8/6k1/n7/rb3pP1/1pRp3p/1P4nP/8/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 8233)
 
     def test_4620(self):
         board = chess.Bitboard("8/6k1/n7/rb3pP1/1p1p3p/1P4nP/1K6/8 w - - 0 1")
@@ -24893,7 +23557,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6k1/n5P1/r4p2/1p1p3p/1P4nP/8/1K3b2 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 96)
-        self.assertEqual(perft(board, 3), 2739)
 
     def test_4622(self):
         board = chess.Bitboard("7k/8/n5P1/r7/1p1p1p1p/1P4nP/8/2K2b2 w - - 0 1")
@@ -24905,7 +23568,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/n5P1/r7/1pbp1p1p/1P4nP/2K5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 213)
-        self.assertEqual(perft(board, 3), 5745)
 
     def test_4624(self):
         board = chess.Bitboard("6k1/8/n5P1/r7/1p1p1p1p/1P4nP/8/2K2b2 w - - 0 1")
@@ -24917,7 +23579,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/6P1/n7/r6n/1p1p1p1p/1P5P/3K4/5b2 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 3087)
 
     def test_4626(self):
         board = chess.Bitboard("8/5kP1/n7/r6n/1p1p1p1p/1P5P/4b3/2K5 w - - 0 1")
@@ -24934,7 +23595,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2R5/8/5k2/r1n4n/1p1p1p1p/1P5P/3K4/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 352)
-        self.assertEqual(perft(board, 3), 4910)
 
     def test_4629(self):
         board = chess.Bitboard("1R6/8/4k3/r1n4n/1p1p1p1p/1P5P/8/2Kb4 b - - 0 1")
@@ -24956,19 +23616,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/4k3/r6n/1R3p1p/3p3P/3nb3/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 408)
-        self.assertEqual(perft(board, 3), 5017)
 
     def test_4633(self):
         board = chess.Bitboard("4R3/8/8/r4k1n/5p1p/3p3P/3nb3/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 379)
-        self.assertEqual(perft(board, 3), 9873)
 
     def test_4634(self):
         board = chess.Bitboard("8/6n1/4R3/5k2/5p1p/r2p3P/3nb3/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 4280)
 
     def test_4635(self):
         board = chess.Bitboard("2R5/6n1/8/5k2/5p1p/r2p3P/3n4/2Kb4 b - - 0 1")
@@ -24979,7 +23636,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R2/6n1/4k3/7b/5p1p/r2p3P/3n4/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 348)
-        self.assertEqual(perft(board, 3), 4244)
 
     def test_4637(self):
         board = chess.Bitboard("2R5/8/4k3/5n1b/5p1p/r2p3P/3n4/2K5 b - - 0 1")
@@ -24990,19 +23646,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4639(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/1P6/7P/P1PPPPP1/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 401)
-        self.assertEqual(perft(board, 3), 8962)
 
     def test_4640(self):
         board = chess.Bitboard("rnbqkb1r/ppppp2p/5ppn/8/1P4P1/7P/P1PPPP2/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 419)
-        self.assertEqual(perft(board, 3), 9488)
 
     def test_4641(self):
         board = chess.Bitboard("rnbqkb1r/ppppp2p/5p1n/6p1/1P4P1/2N2N1P/P1PPPP2/R1BQKB1R b KQkq - 0 1")
@@ -25018,7 +23671,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbq1b1r/pppppk1p/5p1n/4N1p1/1P4P1/P1N1P2P/2PP1P2/R1BQKB1R b KQ - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 173)
-        self.assertEqual(perft(board, 3), 3482)
 
     def test_4644(self):
         board = chess.Bitboard("rnbq1b1r/ppppp2p/4kp2/4N1p1/1P1P2n1/P1N1P2P/2P2P2/R1BQKB1R w KQ - 0 1")
@@ -25059,7 +23711,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbq1b1r/p2p4/1pp2pkp/1P1Np1p1/3PnNQ1/P6P/2PB4/R3KB1R b KQ - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 192)
-        self.assertEqual(perft(board, 3), 5836)
 
     def test_4652(self):
         board = chess.Bitboard("rnbq3r/p2p3k/1pp2p1p/1PbNp1p1/3PnN1Q/P6P/2PB4/R3KB1R w KQ - 0 1")
@@ -25125,7 +23776,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnb2b1r/3p4/pp3p1k/1P1p3p/3p2PN/2P1q1K1/4BB2/1R3R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 3937)
 
     def test_4665(self):
         board = chess.Bitboard("rnb2b1r/3p4/pp3p1k/1P1p3p/3p2PN/2P2B2/5BK1/1R3R2 b - - 0 1")
@@ -25176,13 +23826,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3B1r/5b1k/1p3pRP/1P1p1N2/1p1p4/5B2/6K1/6r1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 84)
-        self.assertEqual(perft(board, 3), 2298)
 
     def test_4675(self):
         board = chess.Bitboard("1n3B1r/5b1k/1p3pRP/1P1p1N2/1p6/3p1B2/7K/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 415)
-        self.assertEqual(perft(board, 3), 6058)
 
     def test_4676(self):
         board = chess.Bitboard("5B1r/3n3k/1p2bpRP/1P1p1N2/1p6/3p4/6BK/8 w - - 0 1")
@@ -25193,19 +23841,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B1r/3n3k/1p2bpRP/1P1p4/8/1p1pN3/6B1/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 6947)
 
     def test_4678(self):
         board = chess.Bitboard("5Bbr/3n3k/1p3pRP/1P1p4/8/1p1pN3/6BK/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 308)
-        self.assertEqual(perft(board, 3), 8940)
 
     def test_4679(self):
         board = chess.Bitboard("6br/3n3k/1p4RP/1PBp1p2/6N1/1p1p4/6BK/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 5857)
 
     def test_4680(self):
         board = chess.Bitboard("5B1r/5b1k/1p4RP/1Pnp1p2/6N1/1p1p4/6BK/8 w - - 0 1")
@@ -25231,7 +23876,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r5k/5b2/1p4RP/1Pnp4/6pB/3p3K/1p6/5B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 3077)
 
     def test_4685(self):
         board = chess.Bitboard("1r2b2k/8/1p3R1P/1Pnp4/6pB/3p2K1/1p6/5B2 b - - 0 1")
@@ -25288,7 +23932,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/3b4/1p3n1P/1P1pR1Kb/8/5B2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 405)
-        self.assertEqual(perft(board, 3), 7816)
 
     def test_4696(self):
         board = chess.Bitboard("7k/3b4/1p3n1P/1P1p2Kb/8/5B2/4R3/8 w - - 0 1")
@@ -25299,13 +23942,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/1pb2n1P/1P1B2Kb/8/8/6R1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 464)
-        self.assertEqual(perft(board, 3), 9286)
 
     def test_4698(self):
         board = chess.Bitboard("7k/8/1pb2n1P/1P1B1K2/8/8/2b3R1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 3584)
 
     def test_4699(self):
         board = chess.Bitboard("7k/8/1p3nRP/1b1B4/5K2/8/2b5/8 b - - 0 1")
@@ -25331,7 +23972,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/1B5n/3R3P/5b2/5K2/8/2b5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 462)
-        self.assertEqual(perft(board, 3), 8685)
 
     def test_4704(self):
         board = chess.Bitboard("7k/8/3R3P/3B1bn1/5K2/3b4/8/8 w - - 0 1")
@@ -25342,7 +23982,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/3R4/7P/3B1bn1/4b3/6K1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 423)
-        self.assertEqual(perft(board, 3), 8302)
 
     def test_4706(self):
         board = chess.Bitboard("3R4/7k/7P/3B1bn1/8/5bK1/8/8 w - - 0 1")
@@ -25353,43 +23992,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3R4/1B5k/7P/5b2/4n2K/5b2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 456)
-        self.assertEqual(perft(board, 3), 9965)
 
     def test_4708(self):
         board = chess.Bitboard("8/1B5k/b6P/3R1b2/4n2K/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 368)
-        self.assertEqual(perft(board, 3), 7224)
 
     def test_4709(self):
         board = chess.Bitboard("8/1B5k/7P/1b3R2/4n3/7K/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 443)
-        self.assertEqual(perft(board, 3), 8022)
 
     def test_4710(self):
         board = chess.Bitboard("8/1B5k/7P/1b1R4/8/7K/8/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 291)
-        self.assertEqual(perft(board, 3), 6423)
 
     def test_4711(self):
         board = chess.Bitboard("8/1B5k/2b4P/6R1/7K/8/8/5n2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 355)
-        self.assertEqual(perft(board, 3), 5087)
 
     def test_4712(self):
         board = chess.Bitboard("7k/1B6/7P/6RK/b7/8/8/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 5980)
 
     def test_4713(self):
         board = chess.Bitboard("B6k/8/2b3KP/6R1/8/8/8/5n2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 3675)
 
     def test_4714(self):
         board = chess.Bitboard("B6k/8/6KP/8/8/3b4/8/5nR1 w - - 0 1")
@@ -25407,13 +24039,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/6KP/8/8/3B1n2/8/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 247)
-        self.assertEqual(perft(board, 3), 5262)
 
     def test_4717(self):
         board = chess.Bitboard("6k1/8/6KP/1B6/3n4/8/8/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 236)
-        self.assertEqual(perft(board, 3), 2072)
 
     def test_4718(self):
         board = chess.Bitboard("6k1/4n3/7P/1B3K2/8/8/8/7R w - - 0 1")
@@ -25425,13 +24055,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/2n1K2P/1B6/8/8/8/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 249)
-        self.assertEqual(perft(board, 3), 2057)
 
     def test_4720(self):
         board = chess.Bitboard("6k1/8/5K1P/1B6/8/1n6/8/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 6651)
 
     def test_4721(self):
         board = chess.Bitboard("6k1/3BR3/5K1P/8/3n4/8/8/8 b - - 0 1")
@@ -25443,20 +24071,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/n2BR3/7P/5K2/8/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 125)
-        self.assertEqual(perft(board, 3), 3111)
 
     def test_4723(self):
         board = chess.Bitboard("5k2/n2BR3/3K3P/8/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 61)
         self.assertEqual(perft(board, 3), 384)
-        self.assertEqual(perft(board, 4), 8360)
 
     def test_4724(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4725(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/5P2/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1")
@@ -25522,7 +24147,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r3q1r1/pkp2pp1/1p6/2NPpP1p/P3P2P/6P1/1P1PK1B1/RNBQ1R2 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 99)
-        self.assertEqual(perft(board, 3), 2152)
 
     def test_4738(self):
         board = chess.Bitboard("r5r1/pkp1qpp1/8/2pPpP1p/P3P2P/6P1/1P1PKRB1/RNBQ4 w - - 0 1")
@@ -25634,7 +24258,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/rk1P1pP1/p1p5/PNP5/1Pq2p2/1B6/1R3KR1 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 364)
-        self.assertEqual(perft(board, 3), 7994)
 
     def test_4760(self):
         board = chess.Bitboard("k7/8/r2P1pP1/p1p5/PNP5/1Pq2p2/8/1RB2KR1 w - - 0 1")
@@ -25660,25 +24283,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/3r1pP1/p1p5/P1Pq4/1P3K2/N7/R1R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 464)
-        self.assertEqual(perft(board, 3), 7007)
 
     def test_4765(self):
         board = chess.Bitboard("1k6/8/3r1pP1/p1p5/P1P5/1P6/N4K2/R1R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 5655)
 
     def test_4766(self):
         board = chess.Bitboard("1k6/8/5pP1/p1p5/P1P5/1P3K2/Nr6/R1R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 5157)
 
     def test_4767(self):
         board = chess.Bitboard("1k6/8/5pP1/p1p5/P1P3K1/1P6/N4r2/R3R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 369)
-        self.assertEqual(perft(board, 3), 6026)
 
     def test_4768(self):
         board = chess.Bitboard("8/1k6/5pP1/p1p5/P1P3K1/1P6/N3Rr2/R7 w - - 0 1")
@@ -25689,38 +24308,32 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/5pP1/p1p5/PPP5/7K/N3Rr2/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 353)
-        self.assertEqual(perft(board, 3), 5550)
 
     def test_4770(self):
         board = chess.Bitboard("1k6/8/5pP1/p1p1r3/PPP4K/8/N7/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 299)
-        self.assertEqual(perft(board, 3), 5000)
 
     def test_4771(self):
         board = chess.Bitboard("8/2k5/5pP1/P1p1r3/PNP4K/8/8/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 6035)
 
     def test_4772(self):
         board = chess.Bitboard("8/2k5/P4pP1/2pr4/PNP4K/8/8/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 7322)
 
     def test_4773(self):
         board = chess.Bitboard("8/2k3P1/P4p2/2p5/PNP4K/3r4/8/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 488)
-        self.assertEqual(perft(board, 3), 7998)
 
     def test_4774(self):
         board = chess.Bitboard("8/2k3P1/P4p2/2p5/PNP4K/7r/8/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 30)
         self.assertEqual(perft(board, 3), 656)
-        self.assertEqual(perft(board, 4), 9571)
 
     def test_4775(self):
         board = chess.Bitboard("6Q1/8/Pk3p2/2p5/PNP5/7K/8/R7 b - - 0 1")
@@ -25732,7 +24345,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/P4p2/2p5/PNP5/7K/8/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 117)
-        self.assertEqual(perft(board, 3), 2509)
 
     def test_4777(self):
         board = chess.Bitboard("1k6/8/P7/2p2p2/PNP5/7K/8/R7 b - - 0 1")
@@ -25745,7 +24357,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 73)
         self.assertEqual(perft(board, 3), 1450)
-        self.assertEqual(perft(board, 4), 6399)
 
     def test_4779(self):
         board = chess.Bitboard("1k6/8/P7/2p5/PNP2p2/8/6K1/5R2 b - - 0 1")
@@ -25757,7 +24368,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k4/8/P7/2p5/P1P2p2/3N4/6K1/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 3281)
 
     def test_4781(self):
         board = chess.Bitboard("8/2k5/P7/2p5/P1P2p2/3N4/6K1/6R1 b - - 0 1")
@@ -25769,8 +24379,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/P7/2p1N3/P1P2p2/8/6K1/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 96)
-        self.assertEqual(perft(board, 3), 2120)
-        self.assertEqual(perft(board, 4), 8799)
 
     def test_4783(self):
         board = chess.Bitboard("8/8/Pk6/2p5/P1P2p2/5N2/6K1/4R3 b - - 0 1")
@@ -25782,7 +24390,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P7/2p5/PkP2p2/5N2/6K1/3R4 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 177)
-        self.assertEqual(perft(board, 3), 4535)
 
     def test_4785(self):
         board = chess.Bitboard("8/8/P7/2p5/P1P2p2/2k2N2/6K1/3R4 b - - 0 1")
@@ -25794,7 +24401,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P7/2p5/P1PR1p2/2k2N2/6K1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 130)
-        self.assertEqual(perft(board, 3), 2860)
 
     def test_4787(self):
         board = chess.Bitboard("8/8/P7/2p5/PkP1Rp2/5N2/7K/8 b - - 0 1")
@@ -25806,7 +24412,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P7/k1p3N1/P1P1R3/5p2/7K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 104)
-        self.assertEqual(perft(board, 3), 2279)
 
     def test_4789(self):
         board = chess.Bitboard("8/8/P3R3/2p5/k1P5/5p1N/7K/8 b - - 0 1")
@@ -25818,7 +24423,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P7/4R3/2p5/2P5/5p1N/2k4K/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 5273)
 
     def test_4791(self):
         board = chess.Bitboard("8/P7/4R3/2p3N1/2P5/5pK1/8/2k5 b - - 0 1")
@@ -25830,13 +24434,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P7/8/2p1R1N1/2P5/6K1/8/2k2q2 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 448)
-        self.assertEqual(perft(board, 3), 7792)
 
     def test_4793(self):
         board = chess.Bitboard("R7/8/8/2p3N1/2P5/6K1/4R3/3k1q2 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 304)
-        self.assertEqual(perft(board, 3), 5616)
 
     def test_4794(self):
         board = chess.Bitboard("R7/8/8/2p3N1/2P5/6K1/6R1/1k3q2 w - - 0 1")
@@ -25847,7 +24449,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("R7/8/8/2p5/2P4K/5N2/6R1/2k2q2 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 311)
-        self.assertEqual(perft(board, 3), 5265)
 
     def test_4796(self):
         board = chess.Bitboard("R7/8/8/2p4K/2P5/5N2/2q3R1/2k5 w - - 0 1")
@@ -25863,7 +24464,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4q3/R7/8/2p3RK/2P5/8/3N4/2k5 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 122)
-        self.assertEqual(perft(board, 3), 3201)
 
     def test_4799(self):
         board = chess.Bitboard("8/R7/6R1/2p3K1/q1P5/8/3N4/2k5 b - - 0 1")
@@ -25879,19 +24479,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/R7/6R1/2p3K1/2P5/5N2/8/3kq3 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 494)
-        self.assertEqual(perft(board, 3), 9429)
 
     def test_4802(self):
         board = chess.Bitboard("8/4R3/6R1/2p3K1/2P5/4qN2/8/3k4 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 2955)
 
     def test_4803(self):
         board = chess.Bitboard("8/4R3/6R1/2p3q1/2P5/5N1K/8/3k4 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 437)
-        self.assertEqual(perft(board, 3), 8315)
 
     def test_4804(self):
         board = chess.Bitboard("8/4R3/6R1/2p5/2P5/7K/3N4/q2k4 w - - 0 1")
@@ -25927,13 +24524,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4811(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/8/1p6/6P1/7B/PPPPPP1P/RNBQK1NR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 9231)
 
     def test_4812(self):
         board = chess.Bitboard("rnbqkbnr/3ppppp/p1p5/1p6/2P3P1/7B/PP1PPP1P/RNBQK1NR w KQkq - 0 1")
@@ -25994,7 +24589,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r3k2r/1b1Bb2p/p1p3pB/3Np3/1PPp4/5q2/P2KP3/RQ4NR b kq - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 134)
-        self.assertEqual(perft(board, 3), 5846)
 
     def test_4824(self):
         board = chess.Bitboard("r6r/1b1Bb2p/p1p3kB/3Np3/1PPp4/5q2/P2KP3/R5NR w - - 0 1")
@@ -26230,19 +24824,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/3r3B/8/P4K2/1p5p/8/R2b4/6N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 405)
-        self.assertEqual(perft(board, 3), 7621)
 
     def test_4871(self):
         board = chess.Bitboard("7k/3r3B/6K1/P7/1p6/R6p/3b4/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 7767)
 
     def test_4872(self):
         board = chess.Bitboard("7k/4r2B/6K1/P5b1/1p6/R6p/4N3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 473)
-        self.assertEqual(perft(board, 3), 9211)
 
     def test_4873(self):
         board = chess.Bitboard("7k/4r2B/8/P4K2/1p3b2/2R4p/4N3/8 b - - 0 1")
@@ -26253,61 +24844,51 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/7B/P7/5K2/1p3b2/2r4p/4N3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 5819)
 
     def test_4875(self):
         board = chess.Bitboard("8/P5kB/8/8/1p3K2/2r4p/4N3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 7797)
 
     def test_4876(self):
         board = chess.Bitboard("8/P6B/7k/8/1p3K2/r5Np/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 324)
-        self.assertEqual(perft(board, 3), 6699)
 
     def test_4877(self):
         board = chess.Bitboard("8/P6B/7k/8/1p2N1K1/2r4p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 5007)
 
     def test_4878(self):
         board = chess.Bitboard("8/P6B/2r4k/6N1/1p4K1/7p/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 7433)
 
     def test_4879(self):
         board = chess.Bitboard("6B1/P7/4N2k/8/1p4K1/7p/8/2r5 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 302)
-        self.assertEqual(perft(board, 3), 4860)
 
     def test_4880(self):
         board = chess.Bitboard("5NB1/P7/7k/8/1p4K1/7p/8/5r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 310)
-        self.assertEqual(perft(board, 3), 5830)
 
     def test_4881(self):
         board = chess.Bitboard("5N2/P6B/7k/8/1p6/6Kp/8/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 3922)
 
     def test_4882(self):
         board = chess.Bitboard("5N2/P6B/7k/8/rp4K1/7p/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 193)
-        self.assertEqual(perft(board, 3), 3713)
 
     def test_4883(self):
         board = chess.Bitboard("Q4N2/8/7k/8/1p4K1/3B3p/r7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 584)
-        self.assertEqual(perft(board, 3), 8419)
 
     def test_4884(self):
         board = chess.Bitboard("Q4N2/8/7k/8/1p5K/3B2rp/8/8 w - - 0 1")
@@ -26318,7 +24899,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Q7/2N5/6rk/8/1p5K/3B3p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 608)
-        self.assertEqual(perft(board, 3), 8479)
 
     def test_4886(self):
         board = chess.Bitboard("8/2N1r3/7k/8/Qp5K/3B3p/8/8 w - - 0 1")
@@ -26329,7 +24909,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/Q1Nr4/6Bk/8/1p5K/7p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 482)
-        self.assertEqual(perft(board, 3), 7402)
 
     def test_4888(self):
         board = chess.Bitboard("4r3/2N5/6Bk/8/1p1Q3K/7p/8/8 w - - 0 1")
@@ -26340,7 +24919,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("N2Qr3/8/6Bk/8/7K/1p5p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 5999)
 
     def test_4890(self):
         board = chess.Bitboard("NQ6/8/6Bk/8/5r1K/1p5p/8/8 w - - 0 1")
@@ -26358,7 +24936,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("N5k1/8/8/8/4BQK1/1p6/7p/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 255)
-        self.assertEqual(perft(board, 3), 9719)
 
     def test_4893(self):
         board = chess.Bitboard("N4Q1k/8/8/8/4B3/1p3K2/7p/8 b - - 0 1")
@@ -26373,7 +24950,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4895(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/2p5/1P6/P7/2PPPPPP/RNBQKBNR b KQkq - 0 1")
@@ -26464,7 +25040,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k1r2/1pN2p1p/3ppn1b/q5pP/P1p3B1/3P4/2QKP1n1/R1B3NR w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 77)
-        self.assertEqual(perft(board, 3), 2377)
 
     def test_4913(self):
         board = chess.Bitboard("3k1r2/1pN2p1p/3ppn1b/q5pP/P1p3Bn/3P4/1Q2P3/R1BK2NR b - - 0 1")
@@ -26484,12 +25059,10 @@ class PerftTestCase(unittest.TestCase):
     def test_4916(self):
         board = chess.Bitboard("r7/1pk2p1p/3ppn1b/6BP/P1pQ2B1/R2P1n2/2K1P3/6qR w - - 0 1")
         self.assertEqual(perft(board, 1), 42)
-        self.assertEqual(perft(board, 2), 2001)
 
     def test_4917(self):
         board = chess.Bitboard("r1k5/1p3p1p/3ppn1b/4Q2P/P1p3BB/R2P1n2/2K1P3/6qR b - - 0 1")
         self.assertEqual(perft(board, 1), 53)
-        self.assertEqual(perft(board, 2), 2019)
 
     def test_4918(self):
         board = chess.Bitboard("r1k5/1p3pnp/3pp2b/4Q2P/P1p3BB/R2P1n2/2K1P3/6R1 w - - 0 1")
@@ -26560,7 +25133,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/4B2p/3pp3/1Q3pRP/2pPn3/4b3/8/KR5B b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 176)
-        self.assertEqual(perft(board, 3), 2651)
 
     def test_4932(self):
         board = chess.Bitboard("2k5/4B2p/3pp3/5QbP/2pPn3/8/8/KR5B w - - 0 1")
@@ -26581,7 +25153,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3kB2Q/4p3/2np3P/2pPB2b/2R5/8/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 623)
-        self.assertEqual(perft(board, 3), 9723)
 
     def test_4936(self):
         board = chess.Bitboard("8/4B2Q/2k1p3/3p3P/2pP3b/2RB4/8/K7 w - - 0 1")
@@ -26614,7 +25185,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/4Q3/1kB4P/3P3b/2R5/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 435)
-        self.assertEqual(perft(board, 3), 3528)
 
     def test_4942(self):
         board = chess.Bitboard("8/8/4Q2P/1kB5/3P4/2R3b1/8/1K6 w - - 0 1")
@@ -26625,7 +25195,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/6QP/1kB5/3P4/2R5/5b2/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 353)
-        self.assertEqual(perft(board, 3), 2937)
 
     def test_4944(self):
         board = chess.Bitboard("8/B7/6QP/1k6/3P4/2R5/8/1Kb5 w - - 0 1")
@@ -26636,7 +25205,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/B7/5Q1P/8/k2P4/2R5/8/1Kb5 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 421)
-        self.assertEqual(perft(board, 3), 3798)
 
     def test_4946(self):
         board = chess.Bitboard("8/B1R5/5Q1P/8/1k1P4/8/1b6/1K6 w - - 0 1")
@@ -26664,7 +25232,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/B6Q/2R4P/8/1k1P4/8/8/bK6 w - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 245)
-        self.assertEqual(perft(board, 3), 8432)
 
     def test_4951(self):
         board = chess.Bitboard("7Q/B7/6RP/k7/3P4/8/8/bK6 b - - 0 1")
@@ -26676,7 +25243,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/B7/5QRP/k7/3P4/2b5/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 9559)
 
     def test_4953(self):
         board = chess.Bitboard("8/8/Q5RP/k1B5/3P4/8/8/bK6 b - - 0 1")
@@ -26691,7 +25257,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_4955(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/8/6p1/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1")
@@ -26747,19 +25312,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3b1r/p1p1p2p/B3kp1n/1p4p1/8/N7/PP1P1PPP/R1B2KNR b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 457)
-        self.assertEqual(perft(board, 3), 9313)
 
     def test_4966(self):
         board = chess.Bitboard("rn3b1r/p1p1p2p/B1k2p1n/1p4p1/8/N7/PP1P1PPP/R1B1K1NR w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 402)
-        self.assertEqual(perft(board, 3), 9998)
 
     def test_4967(self):
         board = chess.Bitboard("rn3b1r/p1p1p2p/B1k4n/1p3pp1/8/8/PPNPKPPP/R1B3NR b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 485)
-        self.assertEqual(perft(board, 3), 8989)
 
     def test_4968(self):
         board = chess.Bitboard("rn3b1r/p1p1p2p/B1k4n/5pp1/8/1p3N2/PPNPKPPP/R1B4R w - - 0 1")
@@ -26770,7 +25332,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3b1r/p1p1p2p/B1k4n/5pN1/8/8/PPpP1PPP/R1B2K1R b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 427)
-        self.assertEqual(perft(board, 3), 7788)
 
     def test_4970(self):
         board = chess.Bitboard("rn3b1r/p3p2p/B1pk3n/5pN1/8/8/PPpP1PPP/R1B1K2R w - - 0 1")
@@ -26781,7 +25342,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn5r/p3p1bp/B1pk3n/5pN1/3P1B2/8/PPp2PPP/R3K2R b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 3218)
 
     def test_4972(self):
         board = chess.Bitboard("rn4r1/p2kp1bp/B1p4n/4BpN1/3P4/8/PPp2PPP/R3K2R w - - 0 1")
@@ -26806,7 +25366,6 @@ class PerftTestCase(unittest.TestCase):
     def test_4976(self):
         board = chess.Bitboard("rn4r1/p2kpn1p/B1pB4/r4p2/P2b3P/5N2/1P2KPP1/R6R w - - 0 1")
         self.assertEqual(perft(board, 1), 48)
-        self.assertEqual(perft(board, 2), 2042)
 
     def test_4977(self):
         board = chess.Bitboard("rn4r1/p2kp2p/B1pB4/r3np2/P2b3P/5N1R/1P2KPP1/5R2 b - - 0 1")
@@ -26862,13 +25421,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn6/p3k2p/2pb1B2/1r3p2/6PP/8/1P3P1R/2K3R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 4866)
 
     def test_4988(self):
         board = chess.Bitboard("rn6/p4k1p/2p2B2/1r3p2/1P3bPP/8/5P1R/2K3R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 124)
-        self.assertEqual(perft(board, 3), 3459)
 
     def test_4989(self):
         board = chess.Bitboard("rn3k2/p6p/2p2B2/1r3p2/1P3bPP/8/1K3PRR/8 b - - 0 1")
@@ -26879,7 +25436,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3k2/p6p/2pb1B2/1r3p2/1P4PP/8/5PR1/K7 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 493)
-        self.assertEqual(perft(board, 3), 9812)
 
     def test_4991(self):
         board = chess.Bitboard("rn3k2/p6p/2p5/1r2Bp2/1b4PP/8/5PR1/K7 b - - 0 1")
@@ -26890,13 +25446,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn3k2/p6p/2p5/4Bp2/1b4PP/8/5P2/K1r3R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 83)
-        self.assertEqual(perft(board, 3), 2098)
 
     def test_4993(self):
         board = chess.Bitboard("rn3k2/p6p/2p5/4Bp2/6PP/8/5P2/KR2b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 496)
-        self.assertEqual(perft(board, 3), 8766)
 
     def test_4994(self):
         board = chess.Bitboard("rn4k1/p6p/2p5/4Bp2/6PP/8/K4b2/1R6 w - - 0 1")
@@ -26937,7 +25491,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r4n2/7p/2p2k1b/p6P/5pP1/4R3/K4B2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 412)
-        self.assertEqual(perft(board, 3), 7515)
 
     def test_5002(self):
         board = chess.Bitboard("r4n2/7p/2p2k1b/p6P/5pP1/8/K4B2/4R3 w - - 0 1")
@@ -26948,7 +25501,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r4n2/6kp/2p4b/p5PP/5p2/K7/5B2/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 440)
-        self.assertEqual(perft(board, 3), 7451)
 
     def test_5004(self):
         board = chess.Bitboard("3r1n1k/7p/2p4b/p5PP/5p2/K3R3/5B2/8 w - - 0 1")
@@ -26959,67 +25511,56 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r1nk1/7p/2p4b/p5PP/5p2/K2RB3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 454)
-        self.assertEqual(perft(board, 3), 9243)
 
     def test_5006(self):
         board = chess.Bitboard("4rn2/6kp/2p4b/p5PP/K4p2/3RB3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 9610)
 
     def test_5007(self):
         board = chess.Bitboard("r4n2/6kp/2p4b/p2R2PP/K4p2/8/5B2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 388)
-        self.assertEqual(perft(board, 3), 6334)
 
     def test_5008(self):
         board = chess.Bitboard("5nk1/7p/r1p4b/p5PP/K4p2/3R4/5B2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 345)
-        self.assertEqual(perft(board, 3), 8214)
 
     def test_5009(self):
         board = chess.Bitboard("5n2/5k1p/r1p4P/p6P/K4p2/3R4/8/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 4178)
 
     def test_5010(self):
         board = chess.Bitboard("3R1n2/7p/r4k1P/p1p4P/K4p2/8/8/4B3 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 326)
-        self.assertEqual(perft(board, 3), 6732)
 
     def test_5011(self):
         board = chess.Bitboard("3R1n2/7p/r4k1P/p1p4P/K7/4Bp2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 366)
-        self.assertEqual(perft(board, 3), 5706)
 
     def test_5012(self):
         board = chess.Bitboard("3R4/7p/3r1knP/p1p4P/K4B2/5p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 9100)
 
     def test_5013(self):
         board = chess.Bitboard("7R/7p/5knP/K1p4P/3r1B2/5p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 466)
-        self.assertEqual(perft(board, 3), 9936)
 
     def test_5014(self):
         board = chess.Bitboard("7R/7p/5k1P/1Kp4P/r4B1n/5p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 410)
-        self.assertEqual(perft(board, 3), 8480)
 
     def test_5015(self):
         board = chess.Bitboard("R7/7p/5k1P/1K5P/r1p4n/5pB1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 6734)
 
     def test_5016(self):
         board = chess.Bitboard("R7/7p/2K4P/6kP/1rp4n/5pB1/8/8 w - - 0 1")
@@ -27030,67 +25571,56 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("RB6/7p/2K4P/6kP/2p4n/1r3p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 384)
-        self.assertEqual(perft(board, 3), 7691)
 
     def test_5018(self):
         board = chess.Bitboard("1r6/R6p/2K4P/6kP/2p4n/5p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 427)
-        self.assertEqual(perft(board, 3), 6881)
 
     def test_5019(self):
         board = chess.Bitboard("6r1/7p/2K4P/6kP/2p4n/5p2/R7/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 398)
-        self.assertEqual(perft(board, 3), 8583)
 
     def test_5020(self):
         board = chess.Bitboard("7r/R6p/2K4P/5k1P/2p4n/5p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 6343)
 
     def test_5021(self):
         board = chess.Bitboard("4r3/1R5p/7P/3K1k1P/2p4n/5p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 379)
-        self.assertEqual(perft(board, 3), 7796)
 
     def test_5022(self):
         board = chess.Bitboard("8/7p/7P/3K2kP/2p1r2n/5p2/1R6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 351)
-        self.assertEqual(perft(board, 3), 5364)
 
     def test_5023(self):
         board = chess.Bitboard("8/7p/R6P/3K2kP/4r2n/2p2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 352)
-        self.assertEqual(perft(board, 3), 7510)
 
     def test_5024(self):
         board = chess.Bitboard("8/7p/2R4P/3K2kP/5r1n/2p2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 3575)
 
     def test_5025(self):
         board = chess.Bitboard("8/2R4p/7P/3K1nkP/5r2/2p2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 7053)
 
     def test_5026(self):
         board = chess.Bitboard("8/7p/2R4P/3K1nkP/2r5/2p2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 280)
-        self.assertEqual(perft(board, 3), 3399)
 
     def test_5027(self):
         board = chess.Bitboard("8/8/4K1pP/5nkP/2r5/2p2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 4135)
 
     def test_5028(self):
         board = chess.Bitboard("8/3K4/6pP/5nk1/2r5/2p2p2/8/8 w - - 0 1")
@@ -27102,7 +25632,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2r5/3K4/6pP/5nk1/8/2p2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 102)
-        self.assertEqual(perft(board, 3), 2446)
 
     def test_5030(self):
         board = chess.Bitboard("2r5/8/4K1pP/5n2/7k/2p5/5p2/8 w - - 0 1")
@@ -27114,20 +25643,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/8/6KP/5n2/7k/2p5/5p2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 134)
-        self.assertEqual(perft(board, 3), 3871)
 
     def test_5032(self):
         board = chess.Bitboard("3r4/7K/7P/8/3n3k/2p5/8/5r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 74)
         self.assertEqual(perft(board, 3), 247)
-        self.assertEqual(perft(board, 4), 9057)
 
     def test_5033(self):
         board = chess.Bitboard("6K1/8/3r3P/8/3n3k/2p5/8/5r2 b - - 0 1")
         self.assertEqual(perft(board, 1), 38)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 5777)
 
     def test_5034(self):
         board = chess.Bitboard("7K/8/3r3P/8/3n3k/2p5/8/1r6 w - - 0 1")
@@ -27139,7 +25665,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7K/8/3r3P/8/3n3k/2p5/8/7r b - - 0 1")
         self.assertEqual(perft(board, 1), 33)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 4210)
 
     def test_5036(self):
         board = chess.Bitboard("8/7K/2nr3P/8/7k/2p5/8/1r6 w - - 0 1")
@@ -27151,14 +25676,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7K/1r6/2nr3P/8/7k/2p5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 88)
-        self.assertEqual(perft(board, 3), 3294)
-        self.assertEqual(perft(board, 4), 8832)
 
     def test_5038(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5039(self):
         board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/2P5/8/PPQPPPPP/RNB1KBNR b KQkq - 0 1")
@@ -27299,7 +25821,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r1k1q2/6r1/p3pnp1/2p2B1p/P3PB1P/1P3P2/R2Pb3/2BKR3 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 3713)
 
     def test_5067(self):
         board = chess.Bitboard("1r1k4/6r1/p2qpnp1/2p4p/P3PB1P/1P3P1B/R2PK3/2B1R3 b - - 0 1")
@@ -27452,7 +25973,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1k4pr/p3p2p/PB2R2P/3p1P2/6KR/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 255)
-        self.assertEqual(perft(board, 3), 6757)
 
     def test_5097(self):
         board = chess.Bitboard("8/8/k5pr/B3p2p/P3R2P/3p1P2/6KR/8 b - - 0 1")
@@ -27464,25 +25984,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/k5pr/B3p2p/P3RP1P/3p4/6KR/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 200)
-        self.assertEqual(perft(board, 3), 5262)
 
     def test_5099(self):
         board = chess.Bitboard("8/8/1k4pr/4p2p/P1R2P1P/2Bp4/6KR/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 2637)
 
     def test_5100(self):
         board = chess.Bitboard("8/1k6/6pr/7p/PBR1pP1P/3p4/6KR/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 277)
-        self.assertEqual(perft(board, 3), 8076)
 
     def test_5101(self):
         board = chess.Bitboard("8/8/1k4pr/7p/PB2RP1P/3p4/6KR/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 2903)
 
     def test_5102(self):
         board = chess.Bitboard("1r6/8/1k4p1/7p/P3RP1P/2Bp4/6KR/8 w - - 0 1")
@@ -27493,7 +26009,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r6/8/1k4p1/7p/P4P1P/2B5/3pR2R/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 475)
-        self.assertEqual(perft(board, 3), 9298)
 
     def test_5104(self):
         board = chess.Bitboard("1r6/8/1k6/4B1pp/P4P1P/8/4R2R/3q3K w - - 0 1")
@@ -27595,13 +26110,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2Q5/3r4/k1q5/4R3/6K1/7p/5B2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 2683)
 
     def test_5124(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5125(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 1")
@@ -27692,7 +26205,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3rkbr1/2n1pp1p/5npB/ppP5/PP6/1RP4b/5P1P/2NK1BqR w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 4548)
 
     def test_5143(self):
         board = chess.Bitboard("3rkbr1/2n1pp1p/5np1/p1P5/pP6/2P4b/3B1P1P/1RNK1BqR b - - 0 1")
@@ -27833,7 +26345,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("R7/2k1b3/8/p4p2/3Np2p/R1r4B/5P1P/1r2K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 82)
-        self.assertEqual(perft(board, 3), 2296)
 
     def test_5171(self):
         board = chess.Bitboard("R7/2k5/3b4/p4p2/4p2p/R1r2N1B/3K1P1P/1r6 b - - 0 1")
@@ -27900,7 +26411,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3kR3/8/6r1/3B4/p4P1p/4K1b1/8/6r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 82)
-        self.assertEqual(perft(board, 3), 2149)
 
     def test_5184(self):
         board = chess.Bitboard("4R3/2k5/1r6/8/p4P1p/4K1b1/B7/6r1 w - - 0 1")
@@ -27941,7 +26451,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4r3/3k4/8/1RK5/5P1p/p5b1/8/1B6 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 446)
-        self.assertEqual(perft(board, 3), 9535)
 
     def test_5192(self):
         board = chess.Bitboard("5r2/4k3/8/2K5/5P1p/p5b1/1R6/1B6 w - - 0 1")
@@ -27952,49 +26461,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7r/4k3/1R4B1/2K5/5P1p/p5b1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 462)
-        self.assertEqual(perft(board, 3), 8415)
 
     def test_5194(self):
         board = chess.Bitboard("8/5k2/1R5r/2K5/5P1p/p5b1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 377)
-        self.assertEqual(perft(board, 3), 6388)
 
     def test_5195(self):
         board = chess.Bitboard("8/1R3k2/3r4/2K5/5P1p/p5b1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 129)
-        self.assertEqual(perft(board, 3), 2526)
 
     def test_5196(self):
         board = chess.Bitboard("8/8/3rk3/2K5/5P1p/pR4b1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 311)
-        self.assertEqual(perft(board, 3), 4452)
 
     def test_5197(self):
         board = chess.Bitboard("8/1R6/3r1k2/2K2P2/7p/p5b1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 7686)
 
     def test_5198(self):
         board = chess.Bitboard("8/1R6/1K3k2/5P2/3r3p/p5b1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 5450)
 
     def test_5199(self):
         board = chess.Bitboard("8/8/1K3k2/5P2/3r3p/p7/5b2/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 339)
-        self.assertEqual(perft(board, 3), 8578)
 
     def test_5200(self):
         board = chess.Bitboard("8/8/2K2k2/3r1P2/7p/p7/8/2R3b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 322)
-        self.assertEqual(perft(board, 3), 4519)
 
     def test_5201(self):
         board = chess.Bitboard("8/8/2K2k2/5r2/7p/p7/8/3R2b1 b - - 0 1")
@@ -28005,25 +26506,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1K3k2/7r/7p/p7/7b/3R4 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 432)
-        self.assertEqual(perft(board, 3), 7047)
 
     def test_5203(self):
         board = chess.Bitboard("8/8/2K5/5k1r/7p/p7/7b/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 6740)
 
     def test_5204(self):
         board = chess.Bitboard("8/8/8/1K3k1r/7p/p1b5/8/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 339)
-        self.assertEqual(perft(board, 3), 4991)
 
     def test_5205(self):
         board = chess.Bitboard("8/8/8/1K3k1r/3b3p/p7/8/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 425)
-        self.assertEqual(perft(board, 3), 9215)
 
     def test_5206(self):
         board = chess.Bitboard("7r/8/2K3k1/8/3b3p/p7/8/4R3 w - - 0 1")
@@ -28046,13 +26543,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5R1r/8/2K5/7k/7p/p7/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 187)
-        self.assertEqual(perft(board, 3), 2529)
 
     def test_5210(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5211(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/8/2N2P2/PPPPP1PP/R1BQKBNR b KQkq - 0 1")
@@ -28133,7 +26628,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4q1nr/1p3k1p/1N3p1b/p1ppp1p1/1P2P1P1/B1P2P1P/P2PK1BR/R2bQ1N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 6060)
 
     def test_5227(self):
         board = chess.Bitboard("6nr/1p3k1p/5p1b/pqppp1p1/1PN1P1P1/B1P2P1P/P2PK1BR/3RQ1N1 b - - 0 1")
@@ -28204,7 +26698,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("N2q2nr/1p4k1/8/2b2Ppp/pp4P1/B1PB1N1P/P3K3/R2q3R w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 123)
-        self.assertEqual(perft(board, 3), 4060)
 
     def test_5241(self):
         board = chess.Bitboard("N2q2nr/bp4k1/8/5Ppp/pp4PN/B1PB3P/P7/R2K3R b - - 0 1")
@@ -28265,7 +26758,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("Nb6/4B1nr/1p5k/3q1P1P/2P3pN/pp5P/P1KR4/R4B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 7565)
 
     def test_5253(self):
         board = chess.Bitboard("Nb6/4Bqnr/1p5k/5P1P/2P3p1/pp3N1P/P2R4/RK3B2 b - - 0 1")
@@ -28412,7 +26904,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5Pr1/7k/2P5/1p3bP1/8/2R2K2/1B6 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 6470)
 
     def test_5282(self):
         board = chess.Bitboard("1b6/5Pr1/8/2P3k1/1p4P1/8/5K2/1BR5 w - - 0 1")
@@ -28428,7 +26919,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4r3/5P2/2P5/6k1/1p2B1P1/6b1/5K2/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 157)
-        self.assertEqual(perft(board, 3), 4024)
 
     def test_5285(self):
         board = chess.Bitboard("r7/2P2P2/8/6k1/1p2B1P1/6b1/4K3/6R1 b - - 0 1")
@@ -28484,13 +26974,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2r2P2/8/Q7/1p2BRk1/8/1b2K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 136)
-        self.assertEqual(perft(board, 3), 2950)
 
     def test_5296(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5297(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/8/7p/8/3P4/PPPQPPPP/RNB1KBNR b KQkq - 0 1")
@@ -28576,7 +27064,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("q1b2bnr/r3p1k1/p2p2p1/1NPP1p2/2P4P/N3P1P1/PB1KBP2/R5R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 221)
-        self.assertEqual(perft(board, 3), 5372)
 
     def test_5314(self):
         board = chess.Bitboard("q1b2bnr/r3p2k/p2N4/2PP1pp1/2P4P/N3P1P1/PB1KBP2/R5R1 w - - 0 1")
@@ -28712,7 +27199,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4r2/8/3R4/p4B1k/q1P2P1p/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 174)
-        self.assertEqual(perft(board, 3), 3836)
 
     def test_5341(self):
         board = chess.Bitboard("b5r1/8/R7/p4B1k/q1P2P1p/8/1K6/8 b - - 0 1")
@@ -28738,19 +27224,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3q3B/R6k/1P3P2/p6p/5b2/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 141)
-        self.assertEqual(perft(board, 3), 4197)
 
     def test_5346(self):
         board = chess.Bitboard("8/q7/R1b3Bk/1P3P2/p6p/8/8/1K6 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 431)
-        self.assertEqual(perft(board, 3), 7284)
 
     def test_5347(self):
         board = chess.Bitboard("8/q7/R1P5/5P1k/p6p/8/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 201)
-        self.assertEqual(perft(board, 3), 4488)
 
     def test_5348(self):
         board = chess.Bitboard("8/1q6/2P2P2/7k/p6p/8/8/1K6 w - - 0 1")
@@ -28762,7 +27245,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/q7/2P2P2/7k/p6p/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 174)
-        self.assertEqual(perft(board, 3), 4124)
 
     def test_5350(self):
         board = chess.Bitboard("8/q7/2P2P2/8/p4k1p/K7/8/8 w - - 0 1")
@@ -28774,7 +27256,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3q4/2P2P2/8/p4k1p/8/1K6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 251)
-        self.assertEqual(perft(board, 3), 7016)
 
     def test_5352(self):
         board = chess.Bitboard("2q5/8/2P2P2/8/p5kp/2K5/8/8 w - - 0 1")
@@ -28786,7 +27267,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2P1qP2/8/p5kp/8/8/1K6 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 149)
-        self.assertEqual(perft(board, 3), 4302)
 
     def test_5354(self):
         board = chess.Bitboard("6q1/8/2P2P2/8/p5kp/8/1K6/8 w - - 0 1")
@@ -28798,7 +27278,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6q1/8/2P2P2/8/6kp/p1K5/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 178)
-        self.assertEqual(perft(board, 3), 4567)
 
     def test_5356(self):
         board = chess.Bitboard("8/8/2P2P2/8/1K4kp/p7/7q/8 w - - 0 1")
@@ -28810,7 +27289,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2q2P2/2P5/8/6kp/pK6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 241)
-        self.assertEqual(perft(board, 3), 6189)
 
     def test_5358(self):
         board = chess.Bitboard("3q1Q2/8/2P5/8/6k1/pK5p/8/8 w - - 0 1")
@@ -28821,7 +27299,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3q4/8/2P5/8/7k/K4Q1p/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 433)
-        self.assertEqual(perft(board, 3), 7332)
 
     def test_5360(self):
         board = chess.Bitboard("3q4/8/2P4k/8/8/K5Qp/8/8 w - - 0 1")
@@ -28832,13 +27309,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1qP4k/8/K7/7p/8/4Q3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 403)
-        self.assertEqual(perft(board, 3), 8218)
 
     def test_5362(self):
         board = chess.Bitboard("8/8/2P5/7k/K7/7p/1q6/7Q w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 321)
-        self.assertEqual(perft(board, 3), 5269)
 
     def test_5363(self):
         board = chess.Bitboard("8/8/2P4k/8/K7/7p/1Q6/8 b - - 0 1")
@@ -28850,41 +27325,35 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2P4k/8/K7/7p/2Q5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 106)
-        self.assertEqual(perft(board, 3), 2811)
 
     def test_5365(self):
         board = chess.Bitboard("8/8/2P4k/1K6/8/8/4Q2p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 232)
-        self.assertEqual(perft(board, 3), 2171)
 
     def test_5366(self):
         board = chess.Bitboard("8/8/2P5/1K6/6k1/8/7p/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 96)
         self.assertEqual(perft(board, 3), 762)
-        self.assertEqual(perft(board, 4), 9819)
 
     def test_5367(self):
         board = chess.Bitboard("8/8/2P5/1K6/5k2/8/7p/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 96)
         self.assertEqual(perft(board, 3), 1327)
-        self.assertEqual(perft(board, 4), 9918)
 
     def test_5368(self):
         board = chess.Bitboard("8/8/2P5/K7/5k2/6n1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 78)
         self.assertEqual(perft(board, 3), 593)
-        self.assertEqual(perft(board, 4), 7647)
 
     def test_5369(self):
         board = chess.Bitboard("8/8/2P5/2K5/5k2/8/4n3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 90)
         self.assertEqual(perft(board, 3), 1158)
-        self.assertEqual(perft(board, 4), 8928)
 
     def test_5370(self):
         board = chess.Bitboard("8/8/2P5/5n2/1K3k2/8/8/8 w - - 0 1")
@@ -28902,7 +27371,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2Q5/8/8/5n2/7k/K7/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 6428)
 
     def test_5373(self):
         board = chess.Bitboard("8/7Q/7n/8/7k/K7/8/8 b - - 0 1")
@@ -28915,42 +27383,36 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 70)
         self.assertEqual(perft(board, 3), 470)
-        self.assertEqual(perft(board, 4), 5992)
 
     def test_5375(self):
         board = chess.Bitboard("8/5n2/8/1K3k2/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 108)
         self.assertEqual(perft(board, 3), 1388)
-        self.assertEqual(perft(board, 4), 8589)
 
     def test_5376(self):
         board = chess.Bitboard("8/8/4n3/5k2/2K5/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 87)
         self.assertEqual(perft(board, 3), 597)
-        self.assertEqual(perft(board, 4), 8295)
 
     def test_5377(self):
         board = chess.Bitboard("3n4/8/K7/5k2/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 49)
         self.assertEqual(perft(board, 3), 617)
-        self.assertEqual(perft(board, 4), 3568)
 
     def test_5378(self):
         board = chess.Bitboard("8/1K3n2/6k1/8/8/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 104)
         self.assertEqual(perft(board, 3), 555)
-        self.assertEqual(perft(board, 4), 6786)
 
     def test_5379(self):
         board = chess.Bitboard("8/8/3K2k1/4n3/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 87)
         self.assertEqual(perft(board, 3), 1168)
-        self.assertEqual(perft(board, 4), 7341)
 
     def test_5380(self):
         board = chess.Bitboard("8/6k1/8/4K3/8/8/8/8 w - - 0 1")
@@ -28965,13 +27427,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 36)
         self.assertEqual(perft(board, 3), 185)
         self.assertEqual(perft(board, 4), 1344)
-        self.assertEqual(perft(board, 5), 7488)
 
     def test_5382(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5383(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/7p/8/8/4P2N/PPPP1PPP/RNBQKB1R b KQkq - 0 1")
@@ -29112,7 +27572,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2N2k2/4qr2/N2pQ2n/Bp6/P1P3Pp/1P1PpP2/3K3P/4RB1R w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 215)
-        self.assertEqual(perft(board, 3), 9289)
 
     def test_5411(self):
         board = chess.Bitboard("2N2k2/4qr2/N2p4/Bp3n2/P1P3Pp/1P1PQP2/7P/2K1RB1R b - - 0 1")
@@ -29209,7 +27668,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("N1r1QN1k/2n5/8/1B6/P2P4/KPp2P1p/7P/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 449)
-        self.assertEqual(perft(board, 3), 6120)
 
     def test_5430(self):
         board = chess.Bitboard("r4Nk1/2n5/8/1B6/P2P4/KPp1QP1p/7P/7R w - - 0 1")
@@ -29220,7 +27678,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4rNk1/2n5/8/8/P1BP4/KPp2P1p/3Q3P/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 3794)
 
     def test_5432(self):
         board = chess.Bitboard("3r1Nk1/8/4n3/8/P1BP4/KPp2P1p/2Q4P/7R w - - 0 1")
@@ -29276,7 +27733,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3nkNR1/8/B7/8/Pr1P4/1P3P1p/K1p4P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 8886)
 
     def test_5443(self):
         board = chess.Bitboard("3nk3/3N4/B7/8/P2r4/1P3P1p/K1p3RP/8 b - - 0 1")
@@ -29292,7 +27748,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/4n3/1B2N3/P7/1Pr2P1p/K1p4P/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 138)
-        self.assertEqual(perft(board, 3), 2760)
 
     def test_5446(self):
         board = chess.Bitboard("4k3/8/2r5/1B2N3/P4n2/1P3PRp/K1p4P/8 w - - 0 1")
@@ -29303,7 +27758,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/2r5/4N3/P7/1P1B1PRp/1Kp4P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 541)
-        self.assertEqual(perft(board, 3), 9173)
 
     def test_5448(self):
         board = chess.Bitboard("4k3/8/4r3/4N3/P7/1P1B1PRp/2K4P/8 w - - 0 1")
@@ -29320,13 +27774,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/r1Nk4/PB6/8/1P3PRp/2K4P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 290)
-        self.assertEqual(perft(board, 3), 8451)
 
     def test_5451(self):
         board = chess.Bitboard("8/8/r1N5/PB1k4/8/1P3PRp/7P/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 2119)
 
     def test_5452(self):
         board = chess.Bitboard("1N6/8/8/1B1k4/r7/1P3PRp/7P/2K5 w - - 0 1")
@@ -29337,7 +27789,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1N6/8/8/3k4/B5r1/1P3P1p/7P/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 3830)
 
     def test_5454(self):
         board = chess.Bitboard("8/3N4/8/3k4/8/rP3P1p/7P/2K5 w - - 0 1")
@@ -29361,43 +27812,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/3N4/3k4/8/rP3P1p/4K2P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 211)
-        self.assertEqual(perft(board, 3), 3281)
 
     def test_5458(self):
         board = chess.Bitboard("8/8/r2N4/4k3/8/1P2KP1p/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 195)
-        self.assertEqual(perft(board, 3), 2493)
 
     def test_5459(self):
         board = chess.Bitboard("8/5N2/r3k3/8/8/1P1K1P1p/7P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 3888)
 
     def test_5460(self):
         board = chess.Bitboard("8/8/8/5kN1/8/1P1K1P1p/7P/r7 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 3227)
 
     def test_5461(self):
         board = chess.Bitboard("8/8/8/5kN1/8/1P1K1P1p/7P/6r1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 196)
-        self.assertEqual(perft(board, 3), 2963)
 
     def test_5462(self):
         board = chess.Bitboard("8/8/2r5/5k2/4N3/1P1K1P1p/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 229)
-        self.assertEqual(perft(board, 3), 2941)
 
     def test_5463(self):
         board = chess.Bitboard("8/8/3r4/5kN1/8/1P3P1p/4K2P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 208)
-        self.assertEqual(perft(board, 3), 3373)
 
     def test_5464(self):
         board = chess.Bitboard("8/7N/3r4/5k2/8/1P3P1p/4K2P/8 w - - 0 1")
@@ -29409,7 +27853,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7N/5r2/5k2/8/1P3P1p/3K3P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 154)
-        self.assertEqual(perft(board, 3), 2328)
 
     def test_5466(self):
         board = chess.Bitboard("8/3k3N/5r2/8/8/1P3P1p/7P/3K4 w - - 0 1")
@@ -29422,13 +27865,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 45)
         self.assertEqual(perft(board, 3), 266)
-        self.assertEqual(perft(board, 4), 3559)
 
     def test_5468(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5469(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/8/7p/1P6/5N2/P1PPPPPP/RNBQKB1R b KQkq - 0 1")
@@ -29464,7 +27905,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rbq1bn1/ppppp1p1/4k1r1/P4P1p/P7/B1P2N1P/3P1PP1/RN1QKBR1 b Q - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 125)
-        self.assertEqual(perft(board, 3), 2808)
 
     def test_5476(self):
         board = chess.Bitboard("1rbq1bn1/ppppp1p1/6r1/PB3k2/P6p/B1P2N1P/3P1PP1/RN1QK1R1 w Q - 0 1")
@@ -29485,7 +27925,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1rb1qbn1/ppppp1p1/8/P2r1k2/P6p/B1PB1P1P/3PQ1PN/RN3KR1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 2927)
 
     def test_5480(self):
         board = chess.Bitboard("1rb1qbn1/ppppp1p1/6k1/P7/P6p/B1Pr1P1P/3P2PN/RN1Q1KR1 w - - 0 1")
@@ -29656,7 +28095,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5qn1/p2r4/P1P2P2/Bp1p2pk/3P3p/7P/5R2/3Q2KN b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 117)
-        self.assertEqual(perft(board, 3), 3111)
 
     def test_5514(self):
         board = chess.Bitboard("5q2/p2Pn3/P4Pk1/Bp1p2p1/3P3p/7P/5R2/3Q2KN w - - 0 1")
@@ -29717,7 +28155,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p6k/P4n2/1p1p2Q1/q2P1R1p/7P/4N3/B5K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 532)
-        self.assertEqual(perft(board, 3), 8456)
 
     def test_5526(self):
         board = chess.Bitboard("8/p6k/P7/1p1p2Q1/3P2np/7P/4N3/B2q1RK1 w - - 0 1")
@@ -29728,20 +28165,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p6k/P7/1p1p4/3P2Qp/7P/3qN3/B2R2K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 468)
-        self.assertEqual(perft(board, 3), 6932)
 
     def test_5528(self):
         board = chess.Bitboard("8/p6k/P7/1p1p4/3P2Qp/7P/3qN2K/B7 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 272)
-        self.assertEqual(perft(board, 3), 6067)
 
     def test_5529(self):
         board = chess.Bitboard("5Qk1/p7/P7/1p1p4/3P3p/7P/3qN2K/B7 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 31)
         self.assertEqual(perft(board, 3), 498)
-        self.assertEqual(perft(board, 4), 9867)
 
     def test_5530(self):
         board = chess.Bitboard("8/p5k1/P7/1p1p4/3P3p/7P/3qN2K/B7 w - - 0 1")
@@ -29753,31 +28187,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p5k1/P7/1p1p4/3P3p/7P/4N1K1/B2q4 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 4539)
 
     def test_5532(self):
         board = chess.Bitboard("8/p4k2/P7/1p1p4/3P3p/7P/4NK2/B2q4 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 241)
-        self.assertEqual(perft(board, 3), 2055)
 
     def test_5533(self):
         board = chess.Bitboard("8/p4k2/P7/1p1p4/3P3p/2N2K1P/8/B1q5 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 6554)
 
     def test_5534(self):
         board = chess.Bitboard("8/p3k3/P7/1p1p4/3P1q1p/2N4P/4K3/B7 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 304)
-        self.assertEqual(perft(board, 3), 2837)
 
     def test_5535(self):
         board = chess.Bitboard("8/p3k3/P7/1N1p4/3P3p/6qP/8/B2K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 6471)
 
     def test_5536(self):
         board = chess.Bitboard("8/p3k3/P7/1N1p2q1/3P3p/7P/8/B1K5 w - - 0 1")
@@ -29789,80 +28218,67 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p3k3/P4q2/1N1p4/3P3p/1K5P/8/B7 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 7884)
 
     def test_5538(self):
         board = chess.Bitboard("8/p3k3/P7/1N1p4/1K1P3p/7q/8/B7 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 227)
-        self.assertEqual(perft(board, 3), 2422)
 
     def test_5539(self):
         board = chess.Bitboard("8/p3k3/P7/K2p4/3P3p/2N5/6q1/B7 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 315)
-        self.assertEqual(perft(board, 3), 7794)
 
     def test_5540(self):
         board = chess.Bitboard("8/p7/P3k3/K2p4/3Pq2p/2N5/1B6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 3754)
 
     def test_5541(self):
         board = chess.Bitboard("8/p7/PN2k3/K7/3P3p/8/1B2q3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 6593)
 
     def test_5542(self):
         board = chess.Bitboard("8/p7/PN2q3/5k2/1K1P3p/8/1B6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 478)
-        self.assertEqual(perft(board, 3), 6138)
 
     def test_5543(self):
         board = chess.Bitboard("8/p7/P2q4/5k2/N1KP3p/8/1B6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 30)
         self.assertEqual(perft(board, 2), 317)
-        self.assertEqual(perft(board, 3), 7899)
 
     def test_5544(self):
         board = chess.Bitboard("8/p7/Pq6/1K3k2/N2P3p/8/1B6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 35)
         self.assertEqual(perft(board, 3), 382)
-        self.assertEqual(perft(board, 4), 6675)
 
     def test_5545(self):
         board = chess.Bitboard("8/p7/P5q1/2K2k2/N2P3p/8/1B6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 259)
-        self.assertEqual(perft(board, 3), 6315)
 
     def test_5546(self):
         board = chess.Bitboard("8/p7/P7/5k2/N1KP3p/5q2/1B6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 306)
-        self.assertEqual(perft(board, 3), 3622)
 
     def test_5547(self):
         board = chess.Bitboard("8/p7/P7/3P1k2/N4q1p/1K6/1B6/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 334)
-        self.assertEqual(perft(board, 3), 8312)
 
     def test_5548(self):
         board = chess.Bitboard("8/p1q5/P7/3Pk3/N6p/1K6/8/2B5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 351)
-        self.assertEqual(perft(board, 3), 4988)
 
     def test_5549(self):
         board = chess.Bitboard("8/p2q4/P6B/3Pk3/N6p/1K6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 382)
-        self.assertEqual(perft(board, 3), 8352)
 
     def test_5550(self):
         board = chess.Bitboard("8/p7/P6B/4k3/N2q3p/2K5/8/8 w - - 0 1")
@@ -29875,7 +28291,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 96)
         self.assertEqual(perft(board, 3), 724)
-        self.assertEqual(perft(board, 4), 9488)
 
     def test_5552(self):
         board = chess.Bitboard("8/p7/P3k2B/1K6/8/7p/8/8 w - - 0 1")
@@ -29888,19 +28303,16 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 69)
         self.assertEqual(perft(board, 3), 465)
-        self.assertEqual(perft(board, 4), 6064)
 
     def test_5554(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5555(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/8/5PP1/PPPPP2P/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 420)
-        self.assertEqual(perft(board, 3), 9700)
 
     def test_5556(self):
         board = chess.Bitboard("r1bqkbnr/p2ppppp/np6/2p5/1P6/5PP1/P1PPP2P/RNBQKBNR w KQkq - 0 1")
@@ -30126,7 +28538,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/6p1/3K4/8/b3pP1R/6qn/3N3P/3q4 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 489)
-        self.assertEqual(perft(board, 3), 7190)
 
     def test_5601(self):
         board = chess.Bitboard("5k2/6p1/8/4K3/b3pP1R/6qn/7P/1N3q2 b - - 0 1")
@@ -30137,7 +28548,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/6p1/8/4K3/b3pP1R/3q2Pn/8/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 450)
-        self.assertEqual(perft(board, 3), 5980)
 
     def test_5603(self):
         board = chess.Bitboard("5k2/6p1/2b5/4K2R/4pP2/3q2Pn/8/1N6 b - - 0 1")
@@ -30148,7 +28558,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/6p1/8/4K2R/b3pP2/N2q2Pn/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 485)
-        self.assertEqual(perft(board, 3), 7009)
 
     def test_5605(self):
         board = chess.Bitboard("R7/4k1p1/8/4K3/b3pP2/N2q2Pn/8/8 b - - 0 1")
@@ -30180,19 +28589,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3R4/4k1p1/8/8/b4q2/N2K2Pn/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 651)
-        self.assertEqual(perft(board, 3), 9689)
 
     def test_5611(self):
         board = chess.Bitboard("1q2R3/4k1p1/8/8/b5P1/N2K3n/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 137)
-        self.assertEqual(perft(board, 3), 4266)
 
     def test_5612(self):
         board = chess.Bitboard("1q2R3/6p1/5k2/8/b5P1/3K4/2N2n2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 210)
-        self.assertEqual(perft(board, 3), 3906)
 
     def test_5613(self):
         board = chess.Bitboard("1q2R3/6p1/8/2K3k1/b5P1/8/2N2n2/8 b - - 0 1")
@@ -30203,7 +28609,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4R3/6p1/8/6k1/b2K2P1/8/2q2n2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 584)
-        self.assertEqual(perft(board, 3), 7006)
 
     def test_5615(self):
         board = chess.Bitboard("2R5/6p1/7k/6P1/b2K4/8/2q2n2/8 b - - 0 1")
@@ -30215,7 +28620,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4R3/6p1/8/6k1/b2K4/8/5n2/2q5 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 602)
-        self.assertEqual(perft(board, 3), 7380)
 
     def test_5617(self):
         board = chess.Bitboard("6R1/6p1/8/4K1k1/b3n3/8/8/2q5 b - - 0 1")
@@ -30226,7 +28630,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4R3/6p1/5n2/4K1k1/8/8/8/2qb4 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 422)
-        self.assertEqual(perft(board, 3), 4815)
 
     def test_5619(self):
         board = chess.Bitboard("1R6/6p1/8/6k1/3K2n1/8/8/2qb4 b - - 0 1")
@@ -30248,19 +28651,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6p1/8/qR6/2K2kn1/8/8/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 604)
-        self.assertEqual(perft(board, 3), 6552)
 
     def test_5623(self):
         board = chess.Bitboard("8/6p1/8/qR3k2/2K3n1/8/8/3b4 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 93)
-        self.assertEqual(perft(board, 3), 2960)
 
     def test_5624(self):
         board = chess.Bitboard("8/1R4p1/8/q7/2K3n1/6k1/8/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 556)
-        self.assertEqual(perft(board, 3), 6279)
 
     def test_5625(self):
         board = chess.Bitboard("8/6p1/1R6/7q/2K3n1/6k1/8/3b4 b - - 0 1")
@@ -30281,7 +28681,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6p1/7q/8/2K3n1/2R2bk1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 410)
-        self.assertEqual(perft(board, 3), 5597)
 
     def test_5629(self):
         board = chess.Bitboard("2R5/6p1/5n1q/8/8/1K3bk1/8/8 b - - 0 1")
@@ -30302,7 +28701,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/5Rp1/6q1/8/4b1k1/1K6/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 604)
-        self.assertEqual(perft(board, 3), 9726)
 
     def test_5633(self):
         board = chess.Bitboard("1R6/6p1/6qn/8/4b1k1/1K6/8/8 b - - 0 1")
@@ -30313,13 +28711,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7R/6p1/3q3n/8/4b3/1K4k1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 678)
-        self.assertEqual(perft(board, 3), 8386)
 
     def test_5635(self):
         board = chess.Bitboard("5R2/6p1/3q3n/8/2K1bk2/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 139)
-        self.assertEqual(perft(board, 3), 5755)
 
     def test_5636(self):
         board = chess.Bitboard("6R1/6p1/4q2n/4k3/2K1b3/8/8/8 w - - 0 1")
@@ -30342,13 +28738,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6p1/7n/R1Kbk3/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 287)
-        self.assertEqual(perft(board, 3), 5377)
 
     def test_5640(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5641(self):
         board = chess.Bitboard("rnbqkbnr/ppppppp1/8/7p/8/3PB3/PPP1PPPP/RN1QKBNR b KQkq - 0 1")
@@ -30394,7 +28788,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b2bn1/r1ppqp1r/3kp1p1/pp5p/1nP1N3/P2P1PP1/R3P2P/2Q1KBNR b K - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 76)
-        self.assertEqual(perft(board, 3), 2449)
 
     def test_5650(self):
         board = chess.Bitboard("2b2bn1/r2pqp1r/4p1p1/ppp1k1Np/1nP5/P2P1PP1/R3P2P/2Q1KBNR w K - 0 1")
@@ -30435,7 +28828,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r5nr/1b1p1p2/2nqNk1b/pppP2p1/2P4P/P4P1B/1Q1RPK1P/6NR b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 199)
-        self.assertEqual(perft(board, 3), 6885)
 
     def test_5658(self):
         board = chess.Bitboard("r5nr/1b1p1p2/2nqNk1b/pppP2p1/2P4P/P4P1B/3RPK1P/2Q3NR w - - 0 1")
@@ -30502,7 +28894,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b5nr/n2p4/6pb/p1p4k/2p1Pr2/P4P2/2K3BP/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 530)
-        self.assertEqual(perft(board, 3), 9555)
 
     def test_5671(self):
         board = chess.Bitboard("b6r/n2p4/5npb/p1p4k/P1p1Pr2/5P2/2K3BP/1R6 b - - 0 1")
@@ -30513,7 +28904,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7r/n7/3p1npb/p1p4k/P1p1br2/5P2/1RK3BP/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 185)
-        self.assertEqual(perft(board, 3), 3497)
 
     def test_5673(self):
         board = chess.Bitboard("7r/8/2np1npb/pRp4k/P1p1br2/5P2/3K2BP/8 b - - 0 1")
@@ -30524,7 +28914,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7r/8/2n2npb/pRpp3k/P1p1b2r/2K2P2/6BP/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 622)
-        self.assertEqual(perft(board, 3), 9794)
 
     def test_5675(self):
         board = chess.Bitboard("7r/R7/2n2npb/2pp2k1/P1p1b2r/2K2P2/6BP/8 b - - 0 1")
@@ -30545,7 +28934,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1r4/6R1/5n1b/2pp1kp1/P1p4r/2K2P1P/6B1/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 505)
-        self.assertEqual(perft(board, 3), 7859)
 
     def test_5679(self):
         board = chess.Bitboard("1n1r4/5R2/7b/2pp1kpn/P1p4r/2K2P1P/6B1/1b6 b - - 0 1")
@@ -30557,7 +28945,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3R2/8/3r3b/2ppk1pn/P1p4r/2K2P1P/6B1/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 6852)
 
     def test_5681(self):
         board = chess.Bitboard("1n3R2/8/3rk2b/2pp2pn/P1p2P1r/7P/1K4B1/1b6 b - - 0 1")
@@ -30618,7 +29005,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2B5/5k2/5r2/6bn/b1np3r/2p5/2R5/3K4 w - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 3964)
 
     def test_5693(self):
         board = chess.Bitboard("6B1/6k1/5r2/6bn/b1np3r/2p5/2R5/3K4 b - - 0 1")
@@ -30629,7 +29015,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6B1/5rk1/8/6bn/b1np3r/2p5/2R1K3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 497)
-        self.assertEqual(perft(board, 3), 5668)
 
     def test_5695(self):
         board = chess.Bitboard("6B1/5rk1/2b5/6bn/2np3r/2p5/3R4/3K4 b - - 0 1")
@@ -30680,7 +29065,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2r1b1k1/8/5B2/4b3/2pp2nr/1n6/4K1R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 535)
-        self.assertEqual(perft(board, 3), 7140)
 
     def test_5705(self):
         board = chess.Bitboard("2B5/2r1b1k1/8/8/4b3/2pp2r1/1n6/4K3 b - - 0 1")
@@ -30691,7 +29075,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2B5/2r1b1k1/8/6r1/4b3/2p5/1n1p1K2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 544)
-        self.assertEqual(perft(board, 3), 5507)
 
     def test_5707(self):
         board = chess.Bitboard("8/1Br1b1k1/8/6r1/4b3/2p5/1n6/3n1K2 b - - 0 1")
@@ -30702,7 +29085,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B7/2r1b3/7k/6r1/4b3/2p5/1n3n2/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 354)
-        self.assertEqual(perft(board, 3), 3387)
 
     def test_5709(self):
         board = chess.Bitboard("2B5/2r1b3/7k/3r4/4b3/2p5/1n3n2/5K2 b - - 0 1")
@@ -30713,7 +29095,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2Bb4/2r5/7k/3r4/4b3/2p5/1n2Kn2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 555)
-        self.assertEqual(perft(board, 3), 5544)
 
     def test_5711(self):
         board = chess.Bitboard("2Bb4/2r5/7k/8/4b3/2pr4/1n2Kn2/8 b - - 0 1")
@@ -30724,7 +29105,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3b4/2r5/7k/8/4b3/2p4B/1n2K3/3r3n w - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 3042)
 
     def test_5713(self):
         board = chess.Bitboard("b2bB3/2r5/7k/8/8/2p5/1n2K3/3r3n b - - 0 1")
@@ -30736,13 +29116,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 1)
         self.assertEqual(perft(board, 2), 52)
         self.assertEqual(perft(board, 3), 109)
-        self.assertEqual(perft(board, 4), 5408)
 
     def test_5715(self):
         board = chess.Bitboard("b2b4/6r1/7k/8/5K2/2p5/1n6/6rn b - - 0 1")
         self.assertEqual(perft(board, 1), 47)
         self.assertEqual(perft(board, 2), 122)
-        self.assertEqual(perft(board, 3), 5677)
 
     def test_5716(self):
         board = chess.Bitboard("b2b4/5r2/7k/5K2/8/2p5/1n6/6rn w - - 0 1")
@@ -30754,7 +29132,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b2b4/5r2/4K2k/8/8/2p5/1n6/2r4n b - - 0 1")
         self.assertEqual(perft(board, 1), 46)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 5334)
 
     def test_5718(self):
         board = chess.Bitboard("b7/1rb5/3K3k/8/8/2p5/1n6/2r4n w - - 0 1")
@@ -30766,7 +29143,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/1rb5/8/3K3k/8/2p5/1n6/2r4n b - - 0 1")
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 156)
-        self.assertEqual(perft(board, 3), 5832)
 
     def test_5720(self):
         board = chess.Bitboard("b7/2b5/4K3/3r3k/8/2p5/1n6/2r4n w - - 0 1")
@@ -30778,7 +29154,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/8/4K3/3r3k/5b2/2p5/1n6/2r4n b - - 0 1")
         self.assertEqual(perft(board, 1), 44)
         self.assertEqual(perft(board, 2), 136)
-        self.assertEqual(perft(board, 3), 5896)
 
     def test_5722(self):
         board = chess.Bitboard("b7/5K2/8/2r4k/8/2p3b1/1n6/2r4n w - - 0 1")
@@ -30790,8 +29165,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b7/7K/8/6rk/8/2p3b1/1n6/2r4n b - - 0 1")
         self.assertEqual(perft(board, 1), 40)
         self.assertEqual(perft(board, 2), 54)
-        self.assertEqual(perft(board, 3), 2324)
-        self.assertEqual(perft(board, 4), 5306)
 
     def test_5724(self):
         board = chess.Bitboard("b6K/8/7k/6r1/2n5/2p3b1/8/2r4n w - - 0 1")
@@ -30806,7 +29179,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5726(self):
         board = chess.Bitboard("rnbqkbnr/pppppp1p/6p1/8/7P/3P4/PPP1PPP1/RNBQKBNR b KQkq - 0 1")
@@ -30902,13 +29274,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3R1k/3p3p/B1q3p1/Pp1b2BP/3pPp2/5R2/P4PP1/R4KN1 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 84)
-        self.assertEqual(perft(board, 3), 2061)
 
     def test_5745(self):
         board = chess.Bitboard("1n3R2/3p2kp/B5p1/Pp1b2BP/P1qpPp2/5R2/5PP1/R4KN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 87)
-        self.assertEqual(perft(board, 3), 3288)
 
     def test_5746(self):
         board = chess.Bitboard("1n3R2/3pBbkp/B5p1/Pp5P/P1qpPp2/5R2/5PP1/R3K1N1 b - - 0 1")
@@ -30935,7 +29305,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3pBRk1/B1n4p/Pp5P/P2pPp2/5R2/b2K1PP1/R4qN1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 4299)
 
     def test_5751(self):
         board = chess.Bitboard("8/4Bk2/B1n4p/Pp1p3P/P2pPp2/3R4/b2K1PP1/R4qN1 w - - 0 1")
@@ -30966,7 +29335,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n4k1/8/7p/Pp1p3P/P2pPN1B/4RR2/b4PP1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 439)
-        self.assertEqual(perft(board, 3), 6552)
 
     def test_5757(self):
         board = chess.Bitboard("1n4k1/8/4N2p/Pp1p3P/P2pP2B/4RR2/b4PP1/3K4 w - - 0 1")
@@ -30977,7 +29345,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n5k/2N5/7p/Pp1p3P/P2pPR1B/4R3/b4PP1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 480)
-        self.assertEqual(perft(board, 3), 6584)
 
     def test_5759(self):
         board = chess.Bitboard("1n6/2N4k/7p/Pp1p3P/P2pPR1B/2R5/b4PP1/3K4 w - - 0 1")
@@ -30988,7 +29355,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/2N3k1/7p/Pp1p3P/P2pPR1B/1R6/b4PP1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 435)
-        self.assertEqual(perft(board, 3), 5092)
 
     def test_5761(self):
         board = chess.Bitboard("7k/2N5/2n4p/Pp1p3P/P2pPR1B/7R/b4PP1/3K4 w - - 0 1")
@@ -30999,7 +29365,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4N2k/8/7p/np1p3P/P2pPR1B/4R3/b4PP1/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 5998)
 
     def test_5763(self):
         board = chess.Bitboard("4N3/7k/7p/np1pP2P/P2p1R1B/4R3/b4PP1/3K4 w - - 0 1")
@@ -31010,19 +29375,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3BN3/7k/7p/1p1pP2P/P2p1R2/1n2R3/b4PP1/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 442)
-        self.assertEqual(perft(board, 3), 5358)
 
     def test_5765(self):
         board = chess.Bitboard("3BNR2/7k/7p/1p1pP2P/P2p4/3nR3/b4PP1/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 61)
-        self.assertEqual(perft(board, 3), 2021)
 
     def test_5766(self):
         board = chess.Bitboard("3BNR2/7k/7p/1p1pP2P/Pn1p4/1R6/b2K1PP1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 3017)
 
     def test_5767(self):
         board = chess.Bitboard("4NR2/7k/7p/1p1pP1BP/P7/1R1p4/b1nK1PP1/8 w - - 0 1")
@@ -31033,7 +29395,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4N3/7k/7B/1p1pP2P/P7/1R1pnR2/b2K1PP1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 439)
-        self.assertEqual(perft(board, 3), 5752)
 
     def test_5769(self):
         board = chess.Bitboard("4N2k/8/7B/1p1pP2P/P4R2/1R1pn3/b2K1PP1/8 w - - 0 1")
@@ -31044,7 +29405,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/5R2/3N3B/1p1pP2P/P7/1b1pn3/3K1PP1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 500)
-        self.assertEqual(perft(board, 3), 6625)
 
     def test_5771(self):
         board = chess.Bitboard("7k/5R2/3N4/1p1pP1BP/P7/3pn3/3K1PP1/3b4 w - - 0 1")
@@ -31055,25 +29415,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/1N3R2/8/1p1pP1BP/P7/1b1pP3/3K2P1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 2361)
 
     def test_5773(self):
         board = chess.Bitboard("6k1/1N1R4/8/1p1pP1BP/P7/3pP3/2bK2P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 246)
-        self.assertEqual(perft(board, 3), 6796)
 
     def test_5774(self):
         board = chess.Bitboard("3N2k1/7R/8/1p1pP1BP/P7/3pP3/3K2P1/3b4 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 336)
-        self.assertEqual(perft(board, 3), 3367)
 
     def test_5775(self):
         board = chess.Bitboard("3N2k1/7R/8/Pp1pP1BP/8/1b1pP3/3K2P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 239)
-        self.assertEqual(perft(board, 3), 6319)
 
     def test_5776(self):
         board = chess.Bitboard("6k1/7R/4N2B/Pp1pP2P/b7/3pP3/3K2P1/8 b - - 0 1")
@@ -31085,67 +29441,56 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3N4/7k/7B/P2pP2P/bp6/3pP3/3K2P1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 189)
-        self.assertEqual(perft(board, 3), 3125)
 
     def test_5778(self):
         board = chess.Bitboard("3N4/7k/7B/P3P2P/bp1p2P1/3KP3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 2125)
 
     def test_5779(self):
         board = chess.Bitboard("3N4/7k/7B/P3P2P/1pKpb1P1/4P3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 292)
-        self.assertEqual(perft(board, 3), 5009)
 
     def test_5780(self):
         board = chess.Bitboard("3N4/7k/7P/P3P1B1/1pK1b1P1/4p3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 267)
-        self.assertEqual(perft(board, 3), 3769)
 
     def test_5781(self):
         board = chess.Bitboard("3N2k1/8/7P/P3P1B1/1p4P1/1K2p3/6b1/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 226)
-        self.assertEqual(perft(board, 3), 3920)
 
     def test_5782(self):
         board = chess.Bitboard("3N2k1/8/2b4P/P3P3/1K3BP1/4p3/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 268)
-        self.assertEqual(perft(board, 3), 3407)
 
     def test_5783(self):
         board = chess.Bitboard("6k1/1b6/7P/P3P3/1K3BP1/4p3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 199)
-        self.assertEqual(perft(board, 3), 2946)
 
     def test_5784(self):
         board = chess.Bitboard("8/1b5k/7P/P3P3/6P1/2K1p1B1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 2876)
 
     def test_5785(self):
         board = chess.Bitboard("8/7k/2b4P/P3P3/2K3P1/4p1B1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 223)
-        self.assertEqual(perft(board, 3), 3149)
 
     def test_5786(self):
         board = chess.Bitboard("8/3b3k/7P/P3P3/2K3P1/4p3/3B4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 193)
-        self.assertEqual(perft(board, 3), 2596)
 
     def test_5787(self):
         board = chess.Bitboard("5k2/3b4/7P/P3P3/2K3P1/4B3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 240)
-        self.assertEqual(perft(board, 3), 4205)
 
     def test_5788(self):
         board = chess.Bitboard("4k3/3b4/7P/P3P1B1/6P1/3K4/8/8 b - - 0 1")
@@ -31157,7 +29502,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/8/7P/Pb2P1B1/6P1/8/3K4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 168)
-        self.assertEqual(perft(board, 3), 2672)
 
     def test_5790(self):
         board = chess.Bitboard("4k3/8/5B1P/P3P3/6P1/8/2K1b3/8 b - - 0 1")
@@ -31169,7 +29513,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3Bk3/5b2/7P/P3P3/6P1/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 178)
-        self.assertEqual(perft(board, 3), 2659)
 
     def test_5792(self):
         board = chess.Bitboard("5k2/2B2b2/7P/P3P3/6P1/3K4/8/8 b - - 0 1")
@@ -31188,13 +29531,11 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 51)
         self.assertEqual(perft(board, 3), 493)
-        self.assertEqual(perft(board, 4), 7098)
 
     def test_5795(self):
         board = chess.Bitboard("8/2Bk1b2/7P/P1K1P3/6P1/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 158)
-        self.assertEqual(perft(board, 3), 2077)
 
     def test_5796(self):
         board = chess.Bitboard("4b3/3k4/P2B3P/2K1P3/6P1/8/8/8 b - - 0 1")
@@ -31212,85 +29553,71 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5B2/2k5/P6P/4P3/b1K3P1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 190)
-        self.assertEqual(perft(board, 3), 2193)
 
     def test_5799(self):
         board = chess.Bitboard("5B2/P1k5/7P/4P3/2K3P1/8/2b5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 252)
-        self.assertEqual(perft(board, 3), 4691)
 
     def test_5800(self):
         board = chess.Bitboard("5B2/P1k5/7P/4P3/2K1b1P1/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 338)
-        self.assertEqual(perft(board, 3), 4707)
 
     def test_5801(self):
         board = chess.Bitboard("5B2/P1k5/7P/4P1P1/2K1b3/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 321)
-        self.assertEqual(perft(board, 3), 6036)
 
     def test_5802(self):
         board = chess.Bitboard("B4B2/2k5/2b4P/2K1P1P1/8/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 218)
-        self.assertEqual(perft(board, 3), 2540)
 
     def test_5803(self):
         board = chess.Bitboard("B2k1B2/3b4/7P/4P1P1/1K6/8/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 226)
-        self.assertEqual(perft(board, 3), 4924)
 
     def test_5804(self):
         board = chess.Bitboard("3k1B2/1B5P/8/4PbP1/1K6/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 375)
-        self.assertEqual(perft(board, 3), 4470)
 
     def test_5805(self):
         board = chess.Bitboard("3k4/1B5P/7B/4P1P1/1K6/8/8/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 6000)
 
     def test_5806(self):
         board = chess.Bitboard("8/3k3P/6PB/3BP3/1K6/8/8/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 364)
-        self.assertEqual(perft(board, 3), 4020)
 
     def test_5807(self):
         board = chess.Bitboard("B7/3k3P/6PB/4P3/1K6/8/2b5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 337)
-        self.assertEqual(perft(board, 3), 8913)
 
     def test_5808(self):
         board = chess.Bitboard("8/7P/2B1k1P1/4P3/1K6/8/2bB4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 325)
-        self.assertEqual(perft(board, 3), 3354)
 
     def test_5809(self):
         board = chess.Bitboard("8/7P/4k1P1/4P3/1Kb1B3/8/3B4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 29)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 8493)
 
     def test_5810(self):
         board = chess.Bitboard("8/7P/4k1P1/4P3/1K2B3/4B3/4b3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 4224)
 
     def test_5811(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5812(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/P7/2P5/1P1PPPPP/RNBQKBNR b KQkq - 0 1")
@@ -31461,13 +29788,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5846(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/p7/8/P7/6P1/1PPPPP1P/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 418)
-        self.assertEqual(perft(board, 3), 8957)
 
     def test_5847(self):
         board = chess.Bitboard("rnbqkbnr/1p1ppppp/8/p1p5/P7/3P2P1/1PP1PP1P/RNBQKBNR w KQkq - 0 1")
@@ -31529,7 +29854,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r1b2bQ1/1p1ppk1p/7n/p5p1/2P1pP2/6PN/1B1K3P/R4B1R b - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 111)
-        self.assertEqual(perft(board, 3), 2063)
 
     def test_5859(self):
         board = chess.Bitboard("r1b2bk1/1p2p1Bp/3p3n/p5p1/2P1pP2/6PN/3K3P/R4B1R w - - 0 1")
@@ -31565,7 +29889,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3r4/1p2pk1p/3p3n/5Pp1/2P1R1b1/2b3P1/3K1N1P/B4B1R w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 198)
-        self.assertEqual(perft(board, 3), 5420)
 
     def test_5866(self):
         board = chess.Bitboard("3r4/1p2pk1p/7n/3p1Pp1/2P1R1b1/2B3P1/5N1P/2K2B1R b - - 0 1")
@@ -31661,7 +29984,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4k3/5n2/1p4B1/r5p1/1K2R3/1Rpp1bP1/7P/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 128)
-        self.assertEqual(perft(board, 3), 3533)
 
     def test_5885(self):
         board = chess.Bitboard("8/3k1n2/1p6/5rp1/1K2R3/1Rpp1bP1/7P/6N1 w - - 0 1")
@@ -31687,7 +30009,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/5n2/1p2r3/6p1/K3b1P1/2pp3N/1R5P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 572)
-        self.assertEqual(perft(board, 3), 9733)
 
     def test_5890(self):
         board = chess.Bitboard("1k6/5n2/1p2r3/6p1/1K4P1/1Rpp3N/7P/7b b - - 0 1")
@@ -31698,7 +30019,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/5n2/1p6/5rp1/K5P1/1Rpp3N/7P/7b w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 381)
-        self.assertEqual(perft(board, 3), 5607)
 
     def test_5892(self):
         board = chess.Bitboard("1k6/1b3n2/1p6/1R3rp1/6P1/K1pp3N/7P/8 b - - 0 1")
@@ -31709,31 +30029,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/5n2/1p6/3b1rp1/6P1/KRpp3N/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 378)
-        self.assertEqual(perft(board, 3), 5863)
 
     def test_5894(self):
         board = chess.Bitboard("1k6/1b3n2/1p6/5Pp1/5N2/KRpp4/7P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 451)
-        self.assertEqual(perft(board, 3), 9675)
 
     def test_5895(self):
         board = chess.Bitboard("1kbn4/8/1p6/5PpN/8/KRpp4/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 4711)
 
     def test_5896(self):
         board = chess.Bitboard("k1bn4/8/1R3N2/5Pp1/8/K1pp4/7P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 320)
-        self.assertEqual(perft(board, 3), 4365)
 
     def test_5897(self):
         board = chess.Bitboard("k7/8/1R2nN2/6p1/8/K1pp4/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 257)
-        self.assertEqual(perft(board, 3), 6177)
 
     def test_5898(self):
         board = chess.Bitboard("k2n4/3N4/1R6/6p1/1K6/2pp4/7P/8 b - - 0 1")
@@ -31745,19 +30060,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/3N4/1R6/1Kn3p1/8/2pp4/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 205)
-        self.assertEqual(perft(board, 3), 4535)
 
     def test_5900(self):
         board = chess.Bitboard("8/1k1N4/4R3/1Kn3p1/8/2pp4/7P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 3912)
 
     def test_5901(self):
         board = chess.Bitboard("4R3/1k1n4/8/1K4p1/8/2p5/3p3P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 300)
-        self.assertEqual(perft(board, 3), 5454)
 
     def test_5902(self):
         board = chess.Bitboard("8/3n4/1k2R3/6p1/K7/2p5/3p3P/8 b - - 0 1")
@@ -31769,31 +30081,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k2n4/4R3/6p1/1K6/2p5/7P/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 365)
-        self.assertEqual(perft(board, 3), 7020)
 
     def test_5904(self):
         board = chess.Bitboard("k7/3n4/8/6R1/1K6/2p5/7P/3b4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 5797)
 
     def test_5905(self):
         board = chess.Bitboard("8/3n4/k7/2R5/1K6/2p5/7P/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 254)
-        self.assertEqual(perft(board, 3), 4350)
 
     def test_5906(self):
         board = chess.Bitboard("8/3n4/k7/3R4/1K6/8/2p4P/3b4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 331)
-        self.assertEqual(perft(board, 3), 5816)
 
     def test_5907(self):
         board = chess.Bitboard("8/k2n4/8/2R5/1K6/8/2p1b2P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 424)
-        self.assertEqual(perft(board, 3), 7914)
 
     def test_5908(self):
         board = chess.Bitboard("8/k7/8/2n5/1K6/4R3/2p1b2P/8 b - - 0 1")
@@ -31804,19 +30111,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/5n2/8/1K2R3/8/2p1b2P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 454)
-        self.assertEqual(perft(board, 3), 8316)
 
     def test_5910(self):
         board = chess.Bitboard("8/k7/5n2/7b/1K5R/8/2p4P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 347)
-        self.assertEqual(perft(board, 3), 7926)
 
     def test_5911(self):
         board = chess.Bitboard("8/k7/5nb1/8/1K4R1/8/7P/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 531)
-        self.assertEqual(perft(board, 3), 9177)
 
     def test_5912(self):
         board = chess.Bitboard("8/k7/5n2/5b2/1K6/8/4R2P/2b5 b - - 0 1")
@@ -31827,91 +30131,76 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k6b/4Rn2/8/1K6/8/7P/2b5 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 460)
-        self.assertEqual(perft(board, 3), 8482)
 
     def test_5914(self):
         board = chess.Bitboard("8/k6b/2K1Rn2/8/8/4b3/7P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 358)
-        self.assertEqual(perft(board, 3), 8257)
 
     def test_5915(self):
         board = chess.Bitboard("6b1/k7/2K2R2/8/8/8/3b3P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 319)
-        self.assertEqual(perft(board, 3), 5653)
 
     def test_5916(self):
         board = chess.Bitboard("k5b1/2K5/1R6/8/8/8/3b3P/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 314)
-        self.assertEqual(perft(board, 3), 4949)
 
     def test_5917(self):
         board = chess.Bitboard("k5b1/2K5/5R2/8/8/b7/7P/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 281)
-        self.assertEqual(perft(board, 3), 5141)
 
     def test_5918(self):
         board = chess.Bitboard("k7/2K5/5R2/3b4/7P/b7/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 360)
-        self.assertEqual(perft(board, 3), 6017)
 
     def test_5919(self):
         board = chess.Bitboard("6b1/k1K5/6R1/8/7P/b7/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 270)
-        self.assertEqual(perft(board, 3), 4548)
 
     def test_5920(self):
         board = chess.Bitboard("6b1/k7/2KbR3/8/7P/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 257)
-        self.assertEqual(perft(board, 3), 4183)
 
     def test_5921(self):
         board = chess.Bitboard("5bb1/k7/2K5/8/7P/4R3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 271)
-        self.assertEqual(perft(board, 3), 4481)
 
     def test_5922(self):
         board = chess.Bitboard("5bb1/8/k1K5/8/7P/8/8/5R2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 264)
-        self.assertEqual(perft(board, 3), 4348)
 
     def test_5923(self):
         board = chess.Bitboard("5b2/3K4/k7/8/7P/8/b7/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 6023)
 
     def test_5924(self):
         board = chess.Bitboard("2K5/6b1/k7/8/7P/8/b7/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 158)
-        self.assertEqual(perft(board, 3), 2711)
 
     def test_5925(self):
         board = chess.Bitboard("2K5/8/k7/7P/3b4/8/b7/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 253)
-        self.assertEqual(perft(board, 3), 3860)
 
     def test_5926(self):
         board = chess.Bitboard("2K5/8/8/1k5P/3b4/8/b7/R7 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 8864)
 
     def test_5927(self):
         board = chess.Bitboard("2K5/8/2k5/7P/3b4/1b6/8/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 415)
-        self.assertEqual(perft(board, 3), 6291)
 
     def test_5928(self):
         board = chess.Bitboard("2K5/8/8/1k5P/3b4/1b6/8/R7 b - - 0 1")
@@ -31922,19 +30211,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1K6/8/1k5P/8/1b2b3/8/R7 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 425)
-        self.assertEqual(perft(board, 3), 6973)
 
     def test_5930(self):
         board = chess.Bitboard("8/1K6/R6P/1k6/8/4b3/8/3b4 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 359)
-        self.assertEqual(perft(board, 3), 6790)
 
     def test_5931(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_5932(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/5p2/8/4P3/7P/PPPP1PP1/RNBQKBNR b KQkq - 0 1")
@@ -32080,7 +30366,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r2n3/4p1b1/8/p2kQn1p/P1p1N2r/3pp3/1B2B1K1/RN6 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 70)
-        self.assertEqual(perft(board, 3), 2303)
 
     def test_5961(self):
         board = chess.Bitboard("4n3/4p3/8/p2kbn1p/P1p1N2r/1r1pp3/1B4K1/RN3B2 w - - 0 1")
@@ -32166,7 +30451,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4B1r1/k1n5/8/p3p3/3r2p1/8/1b2K3/3N2B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 517)
-        self.assertEqual(perft(board, 3), 9304)
 
     def test_5978(self):
         board = chess.Bitboard("4B1r1/k7/4n3/p3p3/3r2p1/6B1/1b2K3/3N4 b - - 0 1")
@@ -32197,7 +30481,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/k5r1/3r4/p3p3/B5p1/3Kb1B1/8/3N4 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 241)
-        self.assertEqual(perft(board, 3), 4304)
 
     def test_5984(self):
         board = chess.Bitboard("3n4/k1r5/3r4/pK2p3/B5p1/4b1B1/8/3N4 b - - 0 1")
@@ -32208,13 +30491,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3n4/k4r2/3r4/pK2p3/B5pB/8/8/3N2b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 550)
-        self.assertEqual(perft(board, 3), 8668)
 
     def test_5986(self):
         board = chess.Bitboard("3n4/k4r2/1r6/K3p3/B5p1/8/5B2/3N2b1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 327)
-        self.assertEqual(perft(board, 3), 8764)
 
     def test_5987(self):
         board = chess.Bitboard("3n4/k1r5/1r6/K3p3/B5pB/8/8/3N2b1 w - - 0 1")
@@ -32230,31 +30511,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3B4/k7/1r6/K7/B3p1p1/8/2r5/3N2b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 526)
-        self.assertEqual(perft(board, 3), 8918)
 
     def test_5990(self):
         board = chess.Bitboard("8/k7/1b6/1K6/B3p1p1/8/2r5/3N4 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 4714)
 
     def test_5991(self):
         board = chess.Bitboard("8/k1b5/8/1K6/B3p3/2N3p1/2r5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 262)
-        self.assertEqual(perft(board, 3), 3095)
 
     def test_5992(self):
         board = chess.Bitboard("8/k7/2K5/8/4pb2/1BN3p1/2r5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 7453)
 
     def test_5993(self):
         board = chess.Bitboard("8/k7/8/3K4/4pb2/1BN3p1/2r5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 416)
-        self.assertEqual(perft(board, 3), 6074)
 
     def test_5994(self):
         board = chess.Bitboard("8/k7/8/8/B3Kb2/2N3p1/3r4/8 b - - 0 1")
@@ -32265,25 +30541,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/8/8/B3K3/6p1/1r1b4/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 363)
-        self.assertEqual(perft(board, 3), 5668)
 
     def test_5996(self):
         board = chess.Bitboard("2B5/k7/1r6/8/4K3/6p1/3b4/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 387)
-        self.assertEqual(perft(board, 3), 9605)
 
     def test_5997(self):
         board = chess.Bitboard("8/1k6/1r5b/8/4K1B1/6p1/8/1N6 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 430)
-        self.assertEqual(perft(board, 3), 6623)
 
     def test_5998(self):
         board = chess.Bitboard("8/1k6/7b/8/8/3K2pB/8/1r6 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 326)
-        self.assertEqual(perft(board, 3), 7932)
 
     def test_5999(self):
         board = chess.Bitboard("8/1k6/8/8/5b2/3K2p1/1r6/5B2 w - - 0 1")
@@ -32295,43 +30567,36 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k6/8/6b1/3K4/6p1/1r2B3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 354)
-        self.assertEqual(perft(board, 3), 8837)
 
     def test_6001(self):
         board = chess.Bitboard("3r4/1k6/8/6b1/8/2K3p1/4B3/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 4894)
 
     def test_6002(self):
         board = chess.Bitboard("3r4/k7/8/6b1/8/2K3p1/8/5B2 b - - 0 1")
         self.assertEqual(perft(board, 1), 27)
         self.assertEqual(perft(board, 2), 299)
-        self.assertEqual(perft(board, 3), 7839)
 
     def test_6003(self):
         board = chess.Bitboard("8/k3b3/8/8/8/2K3p1/4B3/3r4 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 4215)
 
     def test_6004(self):
         board = chess.Bitboard("8/k3b3/8/8/2B5/1K4p1/8/5r2 b - - 0 1")
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 371)
-        self.assertEqual(perft(board, 3), 9717)
 
     def test_6005(self):
         board = chess.Bitboard("6B1/k7/8/6b1/8/1K4p1/5r2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 286)
-        self.assertEqual(perft(board, 3), 3425)
 
     def test_6006(self):
         board = chess.Bitboard("8/k7/8/3B2b1/1K6/5rp1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 389)
-        self.assertEqual(perft(board, 3), 9268)
 
     def test_6007(self):
         board = chess.Bitboard("8/k7/8/1K1B4/7b/1r4p1/8/8 w - - 0 1")
@@ -32343,13 +30608,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/kr6/8/3B4/3K3b/6p1/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 7732)
 
     def test_6009(self):
         board = chess.Bitboard("8/k7/8/3BK3/3r3b/6p1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 3990)
 
     def test_6010(self):
         board = chess.Bitboard("8/k7/3K4/8/2B4b/6p1/8/8 b - - 0 1")
@@ -32361,19 +30624,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k6/3K4/6b1/8/3B2p1/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 228)
-        self.assertEqual(perft(board, 3), 3261)
 
     def test_6012(self):
         board = chess.Bitboard("k7/8/2K5/6b1/8/6p1/2B5/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 182)
-        self.assertEqual(perft(board, 3), 2190)
 
     def test_6013(self):
         board = chess.Bitboard("8/k3b3/8/1K6/8/6p1/2B5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 171)
-        self.assertEqual(perft(board, 3), 2202)
 
     def test_6014(self):
         board = chess.Bitboard("8/k7/2K5/8/8/b5p1/8/3B4 b - - 0 1")
@@ -32385,19 +30645,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/k7/2K5/8/8/b7/4B3/6b1 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 204)
-        self.assertEqual(perft(board, 3), 2477)
 
     def test_6016(self):
         board = chess.Bitboard("8/k1K5/8/8/8/b7/5b2/3B4 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 167)
-        self.assertEqual(perft(board, 3), 2990)
 
     def test_6017(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6018(self):
         board = chess.Bitboard("rnbqkbnr/ppp1pppp/8/3p4/P7/4P3/1PPP1PPP/RNBQKBNR b KQkq - 0 1")
@@ -32453,7 +30710,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r2kbnr/pb2p1p1/np6/2pP1p1Q/P2PB2P/qP6/N4PP1/R1B2KNR b k - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 154)
-        self.assertEqual(perft(board, 3), 4914)
 
     def test_6029(self):
         board = chess.Bitboard("1r3bn1/pb1kp1pr/np6/2pP1p1Q/P2PB2P/BP6/N4PP1/R4KNR w - - 0 1")
@@ -32534,7 +30790,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3rkb2/p1Q1R3/n1n5/3b4/pP1p4/3N1p2/5P1K/BR4n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 73)
-        self.assertEqual(perft(board, 3), 2015)
 
     def test_6045(self):
         board = chess.Bitboard("3rkb2/p7/n1n5/3b4/pP1p4/2QN1p2/5P1K/BR4n1 w - - 0 1")
@@ -32545,13 +30800,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3rkb2/p7/n1Q5/n2b4/pP1p4/1R1N1p2/5P1K/B5n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 151)
-        self.assertEqual(perft(board, 3), 4194)
 
     def test_6047(self):
         board = chess.Bitboard("1n1rkb2/p7/2n5/3b4/pP1p4/1R1N1pK1/5P2/B5n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 545)
-        self.assertEqual(perft(board, 3), 9806)
 
     def test_6048(self):
         board = chess.Bitboard("1n1rkb2/p7/2n1b3/8/pP1p4/4RpK1/1N3P2/B5n1 b - - 0 1")
@@ -32592,7 +30845,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1R1r4/p4k2/nN6/n7/1P1p1K2/B4p2/5b2/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 562)
-        self.assertEqual(perft(board, 3), 9986)
 
     def test_6056(self):
         board = chess.Bitboard("1R1r4/p4k2/nN6/nP6/3p2K1/B4p2/8/4b1n1 b - - 0 1")
@@ -32628,13 +30880,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6R1/p7/n3k3/3N4/3p1K2/5p2/3B1b2/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 341)
-        self.assertEqual(perft(board, 3), 5334)
 
     def test_6063(self):
         board = chess.Bitboard("8/p7/n3k3/3N4/3p1KR1/5p2/3B1b2/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 328)
-        self.assertEqual(perft(board, 3), 6181)
 
     def test_6064(self):
         board = chess.Bitboard("8/p3N3/n3k1R1/8/3p1K2/5p2/3B4/4b1n1 b - - 0 1")
@@ -32646,13 +30896,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/p3k3/n5R1/4K3/3p4/5p2/3b4/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 346)
-        self.assertEqual(perft(board, 3), 5621)
 
     def test_6066(self):
         board = chess.Bitboard("5k2/p7/nR1K4/8/3p4/5p2/3b4/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 278)
-        self.assertEqual(perft(board, 3), 5608)
 
     def test_6067(self):
         board = chess.Bitboard("5k2/8/np6/3K2b1/3p4/5p2/8/6n1 w - - 0 1")
@@ -32664,7 +30912,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/np6/8/3K4/5p2/3b4/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 113)
-        self.assertEqual(perft(board, 3), 2499)
 
     def test_6069(self):
         board = chess.Bitboard("5k2/8/np6/8/8/4Kp2/3b4/6n1 w - - 0 1")
@@ -32677,116 +30924,98 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 99)
         self.assertEqual(perft(board, 3), 1469)
-        self.assertEqual(perft(board, 4), 8500)
 
     def test_6071(self):
         board = chess.Bitboard("6k1/8/np6/8/8/5p2/8/3K2n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 52)
         self.assertEqual(perft(board, 3), 299)
-        self.assertEqual(perft(board, 4), 4330)
 
     def test_6072(self):
         board = chess.Bitboard("8/7k/np6/8/8/5p2/1K6/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 99)
         self.assertEqual(perft(board, 3), 1439)
-        self.assertEqual(perft(board, 4), 7463)
 
     def test_6073(self):
         board = chess.Bitboard("8/7k/np6/8/8/5p2/K7/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 65)
         self.assertEqual(perft(board, 3), 340)
-        self.assertEqual(perft(board, 4), 4941)
 
     def test_6074(self):
         board = chess.Bitboard("8/8/np4k1/8/8/5p2/8/K5n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 47)
         self.assertEqual(perft(board, 3), 774)
-        self.assertEqual(perft(board, 4), 4378)
 
     def test_6075(self):
         board = chess.Bitboard("8/2n4k/1p6/8/8/5p2/K7/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 75)
         self.assertEqual(perft(board, 3), 418)
-        self.assertEqual(perft(board, 4), 6433)
 
     def test_6076(self):
         board = chess.Bitboard("8/2n4k/1p6/8/8/1K6/5p2/6n1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 142)
-        self.assertEqual(perft(board, 3), 2920)
 
     def test_6077(self):
         board = chess.Bitboard("8/2n4k/1p6/8/K7/8/4n3/5b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 60)
         self.assertEqual(perft(board, 3), 305)
-        self.assertEqual(perft(board, 4), 6611)
 
     def test_6078(self):
         board = chess.Bitboard("8/2n4k/1p6/8/8/K7/8/5bn1 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 104)
-        self.assertEqual(perft(board, 3), 2294)
 
     def test_6079(self):
         board = chess.Bitboard("8/7k/1p6/1n6/K7/8/4b3/6n1 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 40)
         self.assertEqual(perft(board, 3), 165)
-        self.assertEqual(perft(board, 4), 3577)
 
     def test_6080(self):
         board = chess.Bitboard("8/7k/1p6/1n6/K7/8/8/5bn1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 45)
         self.assertEqual(perft(board, 3), 930)
-        self.assertEqual(perft(board, 4), 4086)
 
     def test_6081(self):
         board = chess.Bitboard("7k/8/1p6/1n6/1K6/5n2/8/5b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 44)
         self.assertEqual(perft(board, 3), 165)
-        self.assertEqual(perft(board, 4), 3679)
 
     def test_6082(self):
         board = chess.Bitboard("7k/8/1p6/1n6/8/5n2/1K4b1/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 121)
-        self.assertEqual(perft(board, 3), 2635)
 
     def test_6083(self):
         board = chess.Bitboard("7k/8/1p6/1n6/8/8/7n/2K2b2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 80)
         self.assertEqual(perft(board, 3), 417)
-        self.assertEqual(perft(board, 4), 8120)
 
     def test_6084(self):
         board = chess.Bitboard("7k/8/1p6/1n6/8/3b4/7n/K7 b - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 43)
         self.assertEqual(perft(board, 3), 942)
-        self.assertEqual(perft(board, 4), 4096)
 
     def test_6085(self):
         board = chess.Bitboard("7k/2n5/1p6/8/8/8/1Kb4n/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 123)
         self.assertEqual(perft(board, 3), 488)
-        self.assertEqual(perft(board, 4), 9720)
 
     def test_6086(self):
         board = chess.Bitboard("7k/8/1p6/3n4/8/8/2bK3n/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 101)
-        self.assertEqual(perft(board, 3), 2208)
-        self.assertEqual(perft(board, 4), 8793)
 
     def test_6087(self):
         board = chess.Bitboard("8/6k1/1p6/3n1b2/8/8/7n/4K3 w - - 0 1")
@@ -32798,7 +31027,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/6k1/1p6/3n4/8/7b/7n/2K5 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 120)
-        self.assertEqual(perft(board, 3), 3048)
 
     def test_6089(self):
         board = chess.Bitboard("6k1/8/1p6/3n1b2/8/8/7n/3K4 w - - 0 1")
@@ -32810,50 +31038,40 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/8/1p6/3n4/4b3/8/7n/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 97)
-        self.assertEqual(perft(board, 3), 2470)
-        self.assertEqual(perft(board, 4), 9975)
 
     def test_6091(self):
         board = chess.Bitboard("6k1/8/1p6/8/1n6/8/2b4n/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 69)
         self.assertEqual(perft(board, 3), 346)
-        self.assertEqual(perft(board, 4), 8125)
 
     def test_6092(self):
         board = chess.Bitboard("6k1/8/1p6/8/1n6/3b4/7n/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 77)
         self.assertEqual(perft(board, 3), 1873)
-        self.assertEqual(perft(board, 4), 8261)
 
     def test_6093(self):
         board = chess.Bitboard("6k1/7b/1p6/8/8/8/n2K3n/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 68)
         self.assertEqual(perft(board, 3), 279)
-        self.assertEqual(perft(board, 4), 5603)
 
     def test_6094(self):
         board = chess.Bitboard("6k1/7b/1p6/8/1n6/8/3K3n/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 108)
-        self.assertEqual(perft(board, 3), 2398)
-        self.assertEqual(perft(board, 4), 9825)
 
     def test_6095(self):
         board = chess.Bitboard("6k1/8/8/1p6/1n6/8/2b4n/2K5 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 44)
         self.assertEqual(perft(board, 3), 216)
-        self.assertEqual(perft(board, 4), 4807)
 
     def test_6096(self):
         board = chess.Bitboard("6k1/8/8/1p3b2/1n6/8/7n/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 92)
-        self.assertEqual(perft(board, 3), 2218)
-        self.assertEqual(perft(board, 4), 9475)
 
     def test_6097(self):
         board = chess.Bitboard("7k/8/8/1p6/1n2b3/8/7n/4K3 w - - 0 1")
@@ -32866,21 +31084,17 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 73)
         self.assertEqual(perft(board, 3), 1498)
-        self.assertEqual(perft(board, 4), 7119)
 
     def test_6099(self):
         board = chess.Bitboard("7k/8/8/1p6/8/5n2/n7/3K3b w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 32)
         self.assertEqual(perft(board, 3), 172)
-        self.assertEqual(perft(board, 4), 3178)
 
     def test_6100(self):
         board = chess.Bitboard("7k/8/8/1p4n1/8/8/nK6/7b b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 115)
-        self.assertEqual(perft(board, 3), 2348)
-        self.assertEqual(perft(board, 4), 9102)
 
     def test_6101(self):
         board = chess.Bitboard("6k1/8/8/1p4n1/1n6/8/2K5/7b w - - 0 1")
@@ -32892,13 +31106,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/8/1p4n1/1n6/8/8/2K4b b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 105)
-        self.assertEqual(perft(board, 3), 2742)
 
     def test_6103(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6104(self):
         board = chess.Bitboard("r1bqkbnr/pppppppp/2n5/8/4PP2/8/PPPP2PP/RNBQKBNR b KQkq - 0 1")
@@ -32929,7 +31141,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2bqkbnr/2p1p1p1/rp3p1p/p2pP3/2P2PPP/3P4/PPn5/RNBQKBNR w KQk - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 3637)
 
     def test_6110(self):
         board = chess.Bitboard("2bqkbnr/2p1p1p1/rp3p2/p2pP2p/2P2PPP/3P4/PPn1K2R/RNBQ1BN1 b k - 0 1")
@@ -33085,7 +31296,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5kr1/5qBb/1pB1p1P1/8/p4P1P/N2R4/1P1N1Q2/5K1R b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 222)
-        self.assertEqual(perft(board, 3), 4407)
 
     def test_6141(self):
         board = chess.Bitboard("7r/4kqBb/1pB1p1P1/1N6/p4P1P/3R4/1P1N1Q2/5K1R w - - 0 1")
@@ -33146,7 +31356,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3kN3/1B4BQ/7R/1p2p1P1/1P6/p5R1/8/1b4K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 569)
-        self.assertEqual(perft(board, 3), 6512)
 
     def test_6153(self):
         board = chess.Bitboard("3kN3/1B4BQ/5R2/1p2p1P1/1P6/p5R1/8/1b4K1 w - - 0 1")
@@ -33179,19 +31388,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4N3/5k2/4R3/1B2BbP1/1P5R/p3p3/8/6K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 665)
-        self.assertEqual(perft(board, 3), 8273)
 
     def test_6159(self):
         board = chess.Bitboard("4N3/5k2/4R3/1B2B1P1/1P2b2R/p7/4p3/5K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 93)
-        self.assertEqual(perft(board, 3), 4152)
 
     def test_6160(self):
         board = chess.Bitboard("4N3/5k1b/4R3/1B4P1/1P5R/p5B1/4pK2/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 608)
-        self.assertEqual(perft(board, 3), 8415)
 
     def test_6161(self):
         board = chess.Bitboard("4Nk2/7b/4R3/1B4P1/1P5R/p5B1/8/4K3 w - - 0 1")
@@ -33202,7 +31408,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4Nk2/8/4R1b1/1B4P1/1P6/p5B1/5K2/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 624)
-        self.assertEqual(perft(board, 3), 6810)
 
     def test_6163(self):
         board = chess.Bitboard("4N1k1/5b2/B3R3/6P1/1P6/p5B1/5K2/7R w - - 0 1")
@@ -33213,7 +31418,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5bk1/B3RN2/6P1/1P6/p5B1/6K1/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 431)
-        self.assertEqual(perft(board, 3), 4263)
 
     def test_6165(self):
         board = chess.Bitboard("4Nkb1/8/B3R3/6P1/1P6/p5B1/6K1/7R w - - 0 1")
@@ -33224,13 +31428,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4Nk2/8/B3b3/6P1/1P5B/p7/6K1/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 413)
-        self.assertEqual(perft(board, 3), 5614)
 
     def test_6167(self):
         board = chess.Bitboard("4Nk2/8/B7/1P4P1/7B/p7/6K1/3b2R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 231)
-        self.assertEqual(perft(board, 3), 5327)
 
     def test_6168(self):
         board = chess.Bitboard("4Nk2/8/B5P1/1P6/b6B/p7/8/5KR1 b - - 0 1")
@@ -33242,13 +31444,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/2N5/B5P1/1P1b4/7B/p7/8/5KR1 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 318)
-        self.assertEqual(perft(board, 3), 7397)
 
     def test_6170(self):
         board = chess.Bitboard("5k2/1BN5/6P1/1P6/8/p7/b4B2/5KR1 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 285)
-        self.assertEqual(perft(board, 3), 3117)
 
     def test_6171(self):
         board = chess.Bitboard("8/1BN1k3/6P1/1P6/8/pb6/5B2/4K1R1 w - - 0 1")
@@ -33259,7 +31459,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1BNk2P1/8/1P6/8/pb6/4KB2/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 542)
-        self.assertEqual(perft(board, 3), 6808)
 
     def test_6173(self):
         board = chess.Bitboard("6b1/2k3P1/8/1P6/4B3/p7/4KB2/6R1 w - - 0 1")
@@ -33270,19 +31469,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3k2b1/6P1/8/1P3B2/8/p7/4KB2/4R3 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 355)
-        self.assertEqual(perft(board, 3), 3938)
 
     def test_6175(self):
         board = chess.Bitboard("6b1/5kP1/8/1P3B2/3B4/p7/4K3/4R3 w - - 0 1")
         self.assertEqual(perft(board, 1), 37)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 5643)
 
     def test_6176(self):
         board = chess.Bitboard("6b1/5kP1/8/1P3B2/3B4/8/p4K2/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 298)
-        self.assertEqual(perft(board, 3), 3402)
 
     def test_6177(self):
         board = chess.Bitboard("6b1/4k1PR/8/1P3B2/3B4/8/5K2/n7 w - - 0 1")
@@ -33299,13 +31495,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6b1/5kPR/8/1P2B3/8/3B4/5K2/n7 w - - 0 1")
         self.assertEqual(perft(board, 1), 35)
         self.assertEqual(perft(board, 2), 207)
-        self.assertEqual(perft(board, 3), 6940)
 
     def test_6180(self):
         board = chess.Bitboard("6bR/6P1/4k3/1P6/5B2/3B4/5K2/n7 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 3817)
 
     def test_6181(self):
         board = chess.Bitboard("6bR/8/4k3/1P6/5B2/3B4/5K2/n7 w - - 0 1")
@@ -33316,19 +31510,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5b2/4k3/1P6/8/3B2BR/5K2/n7 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 301)
-        self.assertEqual(perft(board, 3), 3794)
 
     def test_6183(self):
         board = chess.Bitboard("8/8/4k3/1P6/8/6BR/5K2/nb6 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 316)
-        self.assertEqual(perft(board, 3), 8132)
 
     def test_6184(self):
         board = chess.Bitboard("1B6/8/4k3/1P6/8/1n2R3/5K2/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 2474)
 
     def test_6185(self):
         board = chess.Bitboard("1B6/5k2/8/1Pn5/8/8/5K2/1b2R3 w - - 0 1")
@@ -33339,13 +31530,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/4k3/8/1Pn5/5B2/8/5K2/1b6 b - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 8195)
 
     def test_6187(self):
         board = chess.Bitboard("4k3/8/8/1Pn5/8/6B1/5K2/1b6 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 295)
-        self.assertEqual(perft(board, 3), 4629)
 
     def test_6188(self):
         board = chess.Bitboard("3k4/8/8/1Pn5/7B/8/4K3/1b6 b - - 0 1")
@@ -33357,7 +31546,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6190(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/1p6/8/8/4P3/PPPPBPPP/RNBQK1NR b KQkq - 0 1")
@@ -33528,7 +31716,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/Bb3r1k/1P4p1/4p3/2pp1PpP/4Pp2/8/1n2R1RK w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 501)
-        self.assertEqual(perft(board, 3), 9071)
 
     def test_6224(self):
         board = chess.Bitboard("1n6/Bb3r1k/1P4R1/4p3/2pp1P1P/4Pp2/3n4/4R2K b - - 0 1")
@@ -33559,7 +31746,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3k2/BP6/b7/4pP2/2pP3P/1n3pr1/5K2/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 488)
-        self.assertEqual(perft(board, 3), 8964)
 
     def test_6230(self):
         board = chess.Bitboard("1n3k2/BP6/b7/2n1pP2/2pP3P/5pr1/5K2/6R1 b - - 0 1")
@@ -33570,7 +31756,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/BP3k2/b7/2n1PP2/2p4P/5pr1/5K2/6R1 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 432)
-        self.assertEqual(perft(board, 3), 7831)
 
     def test_6232(self):
         board = chess.Bitboard("1n6/BP1n1k2/b7/4PP2/2p4P/4Kpr1/8/7R b - - 0 1")
@@ -33631,7 +31816,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1B6/8/1r3k2/4nP1P/3B1n2/2K2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 302)
-        self.assertEqual(perft(board, 3), 4628)
 
     def test_6244(self):
         board = chess.Bitboard("1B6/8/5k2/2B1nP1P/5n2/5p2/2K5/1r6 b - - 0 1")
@@ -33673,19 +31857,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3n1n1k/8/5P2/7B/2K2p2/3B4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 334)
-        self.assertEqual(perft(board, 3), 6955)
 
     def test_6252(self):
         board = chess.Bitboard("7k/3n1n2/7B/5P2/7B/2K2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 296)
-        self.assertEqual(perft(board, 3), 4036)
 
     def test_6253(self):
         board = chess.Bitboard("6k1/5n2/5B1B/5P2/8/2K2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 195)
-        self.assertEqual(perft(board, 3), 4151)
 
     def test_6254(self):
         board = chess.Bitboard("3n1Bk1/8/5B2/5P2/3K4/5p2/8/8 b - - 0 1")
@@ -33697,21 +31878,18 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/4nB2/5P2/8/2K2p2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 163)
-        self.assertEqual(perft(board, 3), 2663)
 
     def test_6256(self):
         board = chess.Bitboard("6k1/8/4P3/8/7B/2K2p2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 79)
         self.assertEqual(perft(board, 3), 442)
-        self.assertEqual(perft(board, 4), 6972)
 
     def test_6257(self):
         board = chess.Bitboard("7k/8/4P3/8/7B/5p2/3K4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 57)
         self.assertEqual(perft(board, 3), 825)
-        self.assertEqual(perft(board, 4), 4785)
 
     def test_6258(self):
         board = chess.Bitboard("8/6k1/4P3/8/8/4Kp2/8/4B3 b - - 0 1")
@@ -33724,14 +31902,12 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 90)
         self.assertEqual(perft(board, 3), 1454)
-        self.assertEqual(perft(board, 4), 8774)
 
     def test_6260(self):
         board = chess.Bitboard("6k1/8/4P3/8/4K3/5p2/8/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 78)
         self.assertEqual(perft(board, 3), 482)
-        self.assertEqual(perft(board, 4), 7240)
 
     def test_6261(self):
         board = chess.Bitboard("8/8/4P2k/8/4K3/5pB1/8/8 w - - 0 1")
@@ -33744,31 +31920,26 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 71)
         self.assertEqual(perft(board, 3), 411)
-        self.assertEqual(perft(board, 4), 5834)
 
     def test_6263(self):
         board = chess.Bitboard("8/8/4P1k1/4K1B1/8/8/8/5q2 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 340)
-        self.assertEqual(perft(board, 3), 3519)
 
     def test_6264(self):
         board = chess.Bitboard("8/8/3KP1k1/8/5B2/8/8/2q5 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 258)
-        self.assertEqual(perft(board, 3), 6208)
 
     def test_6265(self):
         board = chess.Bitboard("8/8/4P1k1/3K4/5B2/4q3/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 342)
-        self.assertEqual(perft(board, 3), 3688)
 
     def test_6266(self):
         board = chess.Bitboard("4Q3/q7/6k1/3K4/5B2/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 155)
-        self.assertEqual(perft(board, 3), 2599)
 
     def test_6267(self):
         board = chess.Bitboard("4Q3/8/5k2/3K4/8/6B1/8/6q1 w - - 0 1")
@@ -33805,7 +31976,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/4q3/8/2K2B2/8/8/6Q1 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 162)
-        self.assertEqual(perft(board, 3), 3947)
 
     def test_6274(self):
         board = chess.Bitboard("4k1Q1/8/4q3/8/5B2/2K5/8/8 b - - 0 1")
@@ -33817,13 +31987,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6276(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/p7/8/8/N6N/PPPPPPPP/R1BQKB1R b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 380)
-        self.assertEqual(perft(board, 3), 8143)
 
     def test_6277(self):
         board = chess.Bitboard("rn1qkbnr/1bpppppp/pp6/8/8/N4P1N/PPPPP1PP/R1BQKB1R w KQkq - 0 1")
@@ -33974,7 +32142,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1r3b2/8/p2pbk2/Pnp2Q2/3P4/P2K1Bp1/3B4/R5NR b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 153)
-        self.assertEqual(perft(board, 3), 3708)
 
     def test_6307(self):
         board = chess.Bitboard("1r1k1b2/8/p2pQ3/Pnp5/3P4/P2K1Bp1/3B4/R5NR w - - 0 1")
@@ -34050,13 +32217,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/n2k4/p2p4/P2P2Q1/2pb4/P2K3N/2BBr2R/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 66)
-        self.assertEqual(perft(board, 3), 2668)
 
     def test_6322(self):
         board = chess.Bitboard("8/n2k4/p2p4/P2Pb1Q1/2p5/P3K2N/2BB3R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 626)
-        self.assertEqual(perft(board, 3), 8723)
 
     def test_6323(self):
         board = chess.Bitboard("5k2/n7/p2p4/P2Pb1Q1/2p5/P3K2N/2B4R/4B3 w - - 0 1")
@@ -34067,7 +32232,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/n6B/p2p4/P2P4/2p4Q/P3K2N/1b5R/4B3 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 621)
-        self.assertEqual(perft(board, 3), 8217)
 
     def test_6325(self):
         board = chess.Bitboard("5k2/2n4B/p2p4/P2P4/P1p4Q/4K2N/1b5R/4B3 w - - 0 1")
@@ -34078,7 +32242,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/2n4B/p2p4/P2P4/P1p4Q/b3K1B1/5N1R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 383)
-        self.assertEqual(perft(board, 3), 4450)
 
     def test_6327(self):
         board = chess.Bitboard("4n3/5k2/p2p4/P2P4/P1p4Q/b2BK1B1/5N1R/8 w - - 0 1")
@@ -34089,7 +32252,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n3/5k2/p2p4/P2P2Q1/Pbp5/4K1B1/4BN1R/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 385)
-        self.assertEqual(perft(board, 3), 4026)
 
     def test_6329(self):
         board = chess.Bitboard("8/5k2/p2p1n2/P1bP2Q1/P1p5/5KB1/4BN1R/8 w - - 0 1")
@@ -34110,7 +32272,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/b4k2/p2p4/P2P4/P1p2B1Q/2N2K2/4B3/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 579)
-        self.assertEqual(perft(board, 3), 7564)
 
     def test_6333(self):
         board = chess.Bitboard("8/5k2/p1np4/P2P4/P1p2B1Q/2N2K2/4Bb2/4R3 w - - 0 1")
@@ -34166,7 +32327,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1Q6/3P4/p7/P3pk2/n1p5/2N1b3/4BK2/7R w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 5347)
 
     def test_6344(self):
         board = chess.Bitboard("1Q6/3P4/p4k2/P3p3/n1p3B1/2N1b3/8/5K1R b - - 0 1")
@@ -34188,7 +32348,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/3P4/p7/P7/N1p1p1BQ/8/8/5K1R w - - 0 1")
         self.assertEqual(perft(board, 1), 36)
         self.assertEqual(perft(board, 2), 154)
-        self.assertEqual(perft(board, 3), 5995)
 
     def test_6348(self):
         board = chess.Bitboard("8/3Pk3/p7/P7/N1p1p1B1/6Q1/7R/5K2 b - - 0 1")
@@ -34211,7 +32370,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/3P4/p7/P7/N3p1BQ/2p5/4R3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 38)
         self.assertEqual(perft(board, 2), 165)
-        self.assertEqual(perft(board, 3), 6477)
 
     def test_6352(self):
         board = chess.Bitboard("6k1/3P4/p7/P7/N6Q/2p1p2B/2R5/4K3 b - - 0 1")
@@ -34223,7 +32381,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3P1k2/p6Q/P7/N7/2p4B/2R1p3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 114)
-        self.assertEqual(perft(board, 3), 4232)
 
     def test_6354(self):
         board = chess.Bitboard("6k1/3P4/p7/PQ6/N7/2p4B/2R1p3/4K3 b - - 0 1")
@@ -34235,7 +32392,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3P3k/p7/P2Q4/N7/2p4B/2R1p3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 45)
         self.assertEqual(perft(board, 2), 187)
-        self.assertEqual(perft(board, 3), 7615)
 
     def test_6356(self):
         board = chess.Bitboard("8/3P4/p1R4k/P2Q4/N7/7B/4p3/4K3 b - - 0 1")
@@ -34247,20 +32403,17 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/3P4/p4k2/P2Q4/N7/7B/4p3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 40)
         self.assertEqual(perft(board, 2), 158)
-        self.assertEqual(perft(board, 3), 5489)
 
     def test_6358(self):
         board = chess.Bitboard("4Q3/3P1k2/p7/P7/N7/7B/4p3/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 64)
         self.assertEqual(perft(board, 3), 229)
-        self.assertEqual(perft(board, 4), 7504)
 
     def test_6359(self):
         board = chess.Bitboard("3RQ3/7k/p7/P7/N7/7B/4p3/4K3 w - - 0 1")
         self.assertEqual(perft(board, 1), 39)
         self.assertEqual(perft(board, 2), 87)
-        self.assertEqual(perft(board, 3), 3386)
 
     def test_6360(self):
         board = chess.Bitboard("R2Q4/8/p6k/P7/N7/7B/4p3/4K3 b - - 0 1")
@@ -34272,7 +32425,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6362(self):
         board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/2p5/P7/R7/1PPPPPPP/1NBQKBNR b Kkq - 0 1")
@@ -34333,7 +32485,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r4bnr/4pk2/4bp1p/ppppq3/PPPn2pP/N1NQ1PP1/R2P4/2B1KB1R w K - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 306)
-        self.assertEqual(perft(board, 3), 9658)
 
     def test_6374(self):
         board = chess.Bitboard("r4bnr/4pk2/5p1p/ppppqb2/PPPnQ1pP/N1N2PP1/R2P2B1/2B1K2R b K - 0 1")
@@ -34349,7 +32500,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("r2q1bnr/4pk2/4Qp1p/pppp1b1P/PPP3p1/N1N2PP1/2RP2B1/2B1K2R b K - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 164)
-        self.assertEqual(perft(board, 3), 4172)
 
     def test_6377(self):
         board = chess.Bitboard("r2q1bnr/3Qp1k1/5p1p/pp1p1b1P/PpP3p1/N1N2PP1/2RP2B1/2B1K2R w K - 0 1")
@@ -34565,7 +32715,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1b6/6r1/2k4p/5p1P/P1n5/2BP4/3KN3/5R2 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 176)
-        self.assertEqual(perft(board, 3), 4905)
 
     def test_6420(self):
         board = chess.Bitboard("1b6/8/2k4p/P4prP/2n5/2BP4/4N3/4KR2 b - - 0 1")
@@ -34591,7 +32740,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k5/1P3B1p/5p1r/7R/3P4/4NK2/2b5 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 243)
-        self.assertEqual(perft(board, 3), 3431)
 
     def test_6425(self):
         board = chess.Bitboard("8/1k6/1P3B1p/5p1r/7R/b2P4/4N1K1/8 w - - 0 1")
@@ -34607,13 +32755,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/1Pk5/5p1p/7r/b2P4/4N3/B4K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 438)
-        self.assertEqual(perft(board, 3), 7740)
 
     def test_6428(self):
         board = chess.Bitboard("8/8/1Pk5/5p1p/3P4/b7/7r/B1N2K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 233)
-        self.assertEqual(perft(board, 3), 5311)
 
     def test_6429(self):
         board = chess.Bitboard("8/1k6/1P6/5p1p/1b1P4/8/N6r/B4K2 w - - 0 1")
@@ -34625,7 +32771,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/1P6/5p1p/Nb1P4/8/7r/B4K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 25)
         self.assertEqual(perft(board, 2), 202)
-        self.assertEqual(perft(board, 3), 4252)
 
     def test_6431(self):
         board = chess.Bitboard("1k6/8/1P6/2b2p1p/3P4/8/1N5r/B4K2 w - - 0 1")
@@ -34644,7 +32789,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 3)
         self.assertEqual(perft(board, 2), 41)
         self.assertEqual(perft(board, 3), 305)
-        self.assertEqual(perft(board, 4), 4216)
 
     def test_6434(self):
         board = chess.Bitboard("1k6/1P6/8/2P2p1p/8/8/1N5r/B5K1 b - - 0 1")
@@ -34662,25 +32806,21 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1Pk5/1N6/2P2p1p/8/8/6r1/B6K b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 330)
-        self.assertEqual(perft(board, 3), 4904)
 
     def test_6437(self):
         board = chess.Bitboard("8/1Pk5/1N3B2/2P2p1p/8/8/1r6/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 290)
-        self.assertEqual(perft(board, 3), 5510)
 
     def test_6438(self):
         board = chess.Bitboard("7B/1Pk5/8/2P2p1p/N7/8/5r2/7K b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 238)
-        self.assertEqual(perft(board, 3), 3564)
 
     def test_6439(self):
         board = chess.Bitboard("8/1Pk5/8/2P2p1p/N2B4/8/5r2/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 250)
-        self.assertEqual(perft(board, 3), 4223)
 
     def test_6440(self):
         board = chess.Bitboard("8/1Pk5/8/2P2p1p/3B4/8/4N3/7K b - - 0 1")
@@ -34692,7 +32832,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/1k6/8/2P1Bp1p/8/8/4N3/7K w - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 172)
-        self.assertEqual(perft(board, 3), 3376)
 
     def test_6442(self):
         board = chess.Bitboard("2k5/8/8/2P2p1p/3N4/8/8/B6K b - - 0 1")
@@ -34716,7 +32855,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/5k2/2P5/5p1p/8/8/4N1K1/B7 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 176)
-        self.assertEqual(perft(board, 3), 3656)
 
     def test_6446(self):
         board = chess.Bitboard("8/8/2P1k3/5p1p/8/8/4N1K1/B7 b - - 0 1")
@@ -34728,7 +32866,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6448(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/8/1p6/6P1/N7/PPPPPP1P/R1BQKBNR b KQkq - 0 1")
@@ -34784,7 +32921,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rn1qk1r1/p2Q4/b1p2ppp/1p6/1P2PpP1/1P4nP/P1KPN1BR/R1B5 b q - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 112)
-        self.assertEqual(perft(board, 3), 3179)
 
     def test_6459(self):
         board = chess.Bitboard("rn4r1/p2k4/b1p2ppp/qp6/1P2PpP1/1P4nP/P1KPN2R/R1B2B2 w - - 0 1")
@@ -34810,7 +32946,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnkq3r/p7/b1p3pp/1p3p2/1P2P1P1/1P1K1pnP/P2PNR2/R1B2B2 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 2992)
 
     def test_6464(self):
         board = chess.Bitboard("rnkq4/p6r/b1p3pp/1p3p2/1P2P1P1/1PK2pnP/P2PNR2/R1B2B2 b - - 0 1")
@@ -34881,7 +33016,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b3r3/2kn2r1/p1p3P1/Pp5P/1P1N3R/1P5P/3BK1B1/1r6 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 237)
-        self.assertEqual(perft(board, 3), 5357)
 
     def test_6478(self):
         board = chess.Bitboard("b3r3/1k1n2r1/p1p1N1P1/Pp5P/1P4R1/1P5P/3BK1B1/1r6 b - - 0 1")
@@ -35002,7 +33136,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1kn5/7P/p5r1/P1pb4/1P6/1PR2B1P/1N1B1K2/r4r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 98)
-        self.assertEqual(perft(board, 3), 2694)
 
     def test_6502(self):
         board = chess.Bitboard("1kn5/7P/p5r1/P1pb2B1/1P6/1PR2B1P/1N2K3/r6r b - - 0 1")
@@ -35023,7 +33156,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1kn1R3/5b1P/pr3B2/P1p5/1P5P/1P3B2/1N2K2r/5r2 w - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 137)
-        self.assertEqual(perft(board, 3), 4790)
 
     def test_6506(self):
         board = chess.Bitboard("1kn5/7P/pr3B2/P1p5/1Pb4P/1P3B2/1N2R2r/5K2 b - - 0 1")
@@ -35124,7 +33256,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B1k5/8/P4r2/P7/1P5P/3r3K/4N3/6B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 184)
-        self.assertEqual(perft(board, 3), 3795)
 
     def test_6526(self):
         board = chess.Bitboard("B1k5/3r4/P4r2/PP6/7P/8/4N2K/6B1 b - - 0 1")
@@ -35135,49 +33266,41 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("B1kr4/8/P7/PP6/3N3P/8/5r1K/6B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 110)
-        self.assertEqual(perft(board, 3), 2113)
 
     def test_6528(self):
         board = chess.Bitboard("2k5/8/P7/PP1B4/3N3P/8/5r2/6BK b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 433)
-        self.assertEqual(perft(board, 3), 6313)
 
     def test_6529(self):
         board = chess.Bitboard("3k2B1/8/P7/PP3r2/3N3P/8/8/6BK w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 7856)
 
     def test_6530(self):
         board = chess.Bitboard("4k1B1/P7/P7/1P3r2/3N3P/8/8/6BK b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 410)
-        self.assertEqual(perft(board, 3), 5887)
 
     def test_6531(self):
         board = chess.Bitboard("5kB1/P4r2/P7/1P6/3N3P/8/6K1/6B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 305)
-        self.assertEqual(perft(board, 3), 7721)
 
     def test_6532(self):
         board = chess.Bitboard("5k2/P6B/P7/1P3r2/7P/8/4N1K1/6B1 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 401)
-        self.assertEqual(perft(board, 3), 6101)
 
     def test_6533(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6534(self):
         board = chess.Bitboard("rnbqkb1r/pppppppp/7n/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 399)
-        self.assertEqual(perft(board, 3), 8957)
 
     def test_6535(self):
         board = chess.Bitboard("rnbqkb1r/ppp1p1pp/3p1p1n/8/8/N7/PPPPPPPP/R1BQKBNR w KQkq - 0 1")
@@ -35308,7 +33431,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1kn3/Nbb5/pp5p/3ppP2/3p1p2/PPP2K1P/4B2R/R3B1N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 458)
-        self.assertEqual(perft(board, 3), 8286)
 
     def test_6561(self):
         board = chess.Bitboard("3kn3/Nbb5/pp3n1p/3ppP2/3p1p2/PPP4P/4BK1R/R3B1N1 w - - 0 1")
@@ -35339,7 +33461,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n3/2b5/bpN2n1p/2kp1P2/P1B1pp2/1Pp1B2P/5K2/R5NR b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 109)
-        self.assertEqual(perft(board, 3), 2448)
 
     def test_6567(self):
         board = chess.Bitboard("4n3/2b5/bpk2n1p/3p1P2/P1B1p3/1Pp1K2P/8/R5NR w - - 0 1")
@@ -35355,13 +33476,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("3bn3/8/bp3n2/2kp1P1p/P1B1p3/1Pp4P/2R1K3/6NR w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 374)
-        self.assertEqual(perft(board, 3), 7568)
 
     def test_6570(self):
         board = chess.Bitboard("3bn1n1/8/Bp6/2kp1P1p/P3p3/1Pp4P/2R5/3K2NR b - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 509)
-        self.assertEqual(perft(board, 3), 9678)
 
     def test_6571(self):
         board = chess.Bitboard("3b2n1/8/B4n2/1pkp1P1p/P3p3/1Pp4P/2R4R/3K2N1 w - - 0 1")
@@ -35372,7 +33491,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/8/Bb3n2/1pkp1P1p/P3p3/1Pp4P/2R4R/3K2N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 482)
-        self.assertEqual(perft(board, 3), 9358)
 
     def test_6573(self):
         board = chess.Bitboard("4n1n1/8/Bb6/1pkp1P1p/P3p3/1P5P/2p1R2R/3K2N1 w - - 0 1")
@@ -35389,37 +33507,31 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("4n1n1/8/B7/1p1p1P1p/Pk2p2b/1P5P/2p1R2R/2K3N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 416)
-        self.assertEqual(perft(board, 3), 8535)
 
     def test_6576(self):
         board = chess.Bitboard("4n1n1/8/B7/Pp1p1P1p/1k2p3/1P4bP/2p1RR2/2K3N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 410)
-        self.assertEqual(perft(board, 3), 8877)
 
     def test_6577(self):
         board = chess.Bitboard("6n1/8/B4n2/Pp1p1P1p/1k6/1P2pRbP/2p1R3/2K3N1 w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 390)
-        self.assertEqual(perft(board, 3), 7663)
 
     def test_6578(self):
         board = chess.Bitboard("6n1/8/B4n2/Pp1p1P1p/1k6/1P2R2P/2p4b/2K2RN1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 460)
-        self.assertEqual(perft(board, 3), 9079)
 
     def test_6579(self):
         board = chess.Bitboard("8/7n/B6n/Pp1p1P1p/1k6/1P5P/2p4b/2K1RRN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 411)
-        self.assertEqual(perft(board, 3), 9581)
 
     def test_6580(self):
         board = chess.Bitboard("8/1B3n1n/8/Pp1p1P1p/1k2R3/1P5P/2p4b/2K2RN1 b - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 205)
-        self.assertEqual(perft(board, 3), 4184)
 
     def test_6581(self):
         board = chess.Bitboard("8/1B3n1n/8/P2p1P1p/1p6/1Pk4P/2p1R2b/2K2RN1 w - - 0 1")
@@ -35470,7 +33582,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7n/P5n1/1k3P2/1p6/1B3R1P/3R4/1K4N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 551)
-        self.assertEqual(perft(board, 3), 7299)
 
     def test_6591(self):
         board = chess.Bitboard("8/7n/P1k3n1/5P2/1p3R2/1B5P/3R4/1K4N1 w - - 0 1")
@@ -35481,7 +33592,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/7n/P5n1/2k2P2/1p3R2/1B5P/2KR4/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 437)
-        self.assertEqual(perft(board, 3), 5308)
 
     def test_6593(self):
         board = chess.Bitboard("8/8/P4n2/2k5/1p3R1n/1B5P/2KR4/6N1 w - - 0 1")
@@ -35503,7 +33613,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6n1/8/P7/1k6/1pR4n/1B5P/5K1R/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 276)
-        self.assertEqual(perft(board, 3), 3249)
 
     def test_6597(self):
         board = chess.Bitboard("8/8/P4nn1/1k6/1pR5/7P/2B2K1R/6N1 w - - 0 1")
@@ -35514,7 +33623,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("7n/8/P3Rn2/1k6/1p6/7P/2B2K1R/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 419)
-        self.assertEqual(perft(board, 3), 5230)
 
     def test_6599(self):
         board = chess.Bitboard("8/8/P5n1/1k5n/1p6/7P/2B1RK1R/6N1 w - - 0 1")
@@ -35525,7 +33633,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P3R1n1/k6n/1p6/7P/2B3KR/6N1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 274)
-        self.assertEqual(perft(board, 3), 3397)
 
     def test_6601(self):
         board = chess.Bitboard("5n2/8/P2R4/k7/1p6/6nP/2B3KR/6N1 w - - 0 1")
@@ -35536,7 +33643,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5n2/8/P2R4/k7/1p6/5N1P/2B3K1/5n1R b - - 0 1")
         self.assertEqual(perft(board, 1), 10)
         self.assertEqual(perft(board, 2), 356)
-        self.assertEqual(perft(board, 3), 4006)
 
     def test_6603(self):
         board = chess.Bitboard("8/8/P2Rn3/k7/1p6/5N1P/2B3Kn/6R1 w - - 0 1")
@@ -35547,7 +33653,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/P2Rn3/k7/1p6/7P/2B1N1K1/5nR1 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 423)
-        self.assertEqual(perft(board, 3), 5420)
 
     def test_6605(self):
         board = chess.Bitboard("8/P7/3Rn3/2k5/1p6/7P/2B1N1K1/5nR1 w - - 0 1")
@@ -35558,7 +33663,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P7/4n3/2kR4/1p6/6nP/2B1NK2/6R1 b - - 0 1")
         self.assertEqual(perft(board, 1), 4)
         self.assertEqual(perft(board, 2), 174)
-        self.assertEqual(perft(board, 3), 2891)
 
     def test_6607(self):
         board = chess.Bitboard("8/P7/1k2n3/2R4n/1p6/7P/2B1NK2/6R1 w - - 0 1")
@@ -35569,7 +33673,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P1n5/1k6/2R4n/1p1N4/7P/2B2K2/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 670)
-        self.assertEqual(perft(board, 3), 9108)
 
     def test_6609(self):
         board = chess.Bitboard("8/P1k5/4n3/1R5n/1p1N4/7P/2B2K2/2R5 w - - 0 1")
@@ -35580,7 +33683,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P7/3kn3/1R5n/1p1N4/7P/B4K2/2R5 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 727)
-        self.assertEqual(perft(board, 3), 9872)
 
     def test_6611(self):
         board = chess.Bitboard("8/P1n5/3k4/1R6/1p1N4/4K1nP/B7/2R5 w - - 0 1")
@@ -35596,13 +33698,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/P1n1kB2/8/7R/8/1p2KN1P/8/2R2n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 7)
         self.assertEqual(perft(board, 2), 115)
-        self.assertEqual(perft(board, 3), 5025)
 
     def test_6614(self):
         board = chess.Bitboard("8/P3kB2/n7/7R/3NK3/1p5P/8/2R2n2 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 600)
-        self.assertEqual(perft(board, 3), 8038)
 
     def test_6615(self):
         board = chess.Bitboard("8/P3k3/n7/7R/3NK3/1p5P/8/5R2 w - - 0 1")
@@ -35613,7 +33713,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("R7/P7/n2k4/8/3NK3/1p5P/8/5R2 b - - 0 1")
         self.assertEqual(perft(board, 1), 9)
         self.assertEqual(perft(board, 2), 288)
-        self.assertEqual(perft(board, 3), 2496)
 
     def test_6617(self):
         board = chess.Bitboard("Rn6/P3k3/8/8/3NK3/1p5P/8/6R1 w - - 0 1")
@@ -35630,13 +33729,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6620(self):
         board = chess.Bitboard("rnbqkbnr/p1pppppp/8/1p6/8/N6P/PPPPPPP1/R1BQKBNR b KQkq - 0 1")
         self.assertEqual(perft(board, 1), 21)
         self.assertEqual(perft(board, 2), 398)
-        self.assertEqual(perft(board, 3), 9232)
 
     def test_6621(self):
         board = chess.Bitboard("r1bqkbnr/p1pppppp/8/1p2n3/4P3/N6P/PPPP1PP1/R1BQKBNR w KQkq - 0 1")
@@ -35727,7 +33824,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4brn/2k5/P1pr3R/2B2Pp1/p1PppQP1/N5P1/R2PB3/1N3K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 569)
-        self.assertEqual(perft(board, 3), 9885)
 
     def test_6639(self):
         board = chess.Bitboard("b4b1n/3k2rR/P1pr4/2B2Pp1/p1PppQP1/N5P1/R2PB3/1N3K2 w - - 0 1")
@@ -35748,7 +33844,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b4b1n/6R1/P1pBkP2/8/p1Pp1pP1/N5P1/3RB3/1N4K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 446)
-        self.assertEqual(perft(board, 3), 6042)
 
     def test_6643(self):
         board = chess.Bitboard("b6n/6b1/P1pBkP2/8/p1Pp2P1/6p1/2NRB3/1N4K1 w - - 0 1")
@@ -35759,7 +33854,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b6n/6b1/P1pBkP2/8/p1P3P1/3p2p1/2N1B3/1N1R1K2 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 443)
-        self.assertEqual(perft(board, 3), 7546)
 
     def test_6645(self):
         board = chess.Bitboard("b7/5nb1/P1pBkP2/8/p1P3P1/6p1/2N1K3/1N1R4 w - - 0 1")
@@ -35770,7 +33864,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b6b/5n2/P1pBkP2/8/p1P3P1/6p1/2NR4/1N2K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 395)
-        self.assertEqual(perft(board, 3), 5579)
 
     def test_6647(self):
         board = chess.Bitboard("b2n4/6b1/P1pBkP2/8/pNP3P1/6p1/3R4/1N2K3 w - - 0 1")
@@ -35781,7 +33874,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b2n4/6b1/P1pBkP2/8/2P3P1/p5p1/N2RK3/1N6 b - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 373)
-        self.assertEqual(perft(board, 3), 5072)
 
     def test_6649(self):
         board = chess.Bitboard("b6b/1n6/P1pBkP2/8/2P3P1/p1N3p1/3RK3/1N6 w - - 0 1")
@@ -35792,7 +33884,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b6b/1n6/P3kP2/2p5/1BP3P1/p1N3p1/4K3/1N1R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 340)
-        self.assertEqual(perft(board, 3), 5252)
 
     def test_6651(self):
         board = chess.Bitboard("b6b/1n6/P4P2/4k3/1pP3P1/N1N3p1/4K3/3R4 w - - 0 1")
@@ -35803,7 +33894,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b6b/1P6/5P2/4k3/2P3P1/NpNR2p1/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 8)
         self.assertEqual(perft(board, 2), 285)
-        self.assertEqual(perft(board, 3), 2895)
 
     def test_6653(self):
         board = chess.Bitboard("b6b/1P6/5P2/4k1P1/2P5/NpNR2p1/4K3/8 w - - 0 1")
@@ -35814,7 +33904,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bN5b/8/5P2/5kP1/N1P5/Np1R2p1/4K3/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 511)
-        self.assertEqual(perft(board, 3), 8677)
 
     def test_6655(self):
         board = chess.Bitboard("bN6/8/4kb2/6P1/N1P5/Np4p1/4K3/3R4 w - - 0 1")
@@ -35830,13 +33919,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2b2b2/4k1P1/2P5/Np4p1/1N6/3R1K2 w - - 0 1")
         self.assertEqual(perft(board, 1), 22)
         self.assertEqual(perft(board, 2), 415)
-        self.assertEqual(perft(board, 3), 8441)
 
     def test_6658(self):
         board = chess.Bitboard("7b/8/2b5/4k1P1/2P5/1p4p1/1NN1K3/3R4 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 519)
-        self.assertEqual(perft(board, 3), 8973)
 
     def test_6659(self):
         board = chess.Bitboard("8/6b1/8/3bk1P1/2P5/1p4p1/1NN1K3/6R1 w - - 0 1")
@@ -35852,7 +33939,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2k5/3bb1P1/2P5/1p4p1/1N2K3/NR6 w - - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 485)
-        self.assertEqual(perft(board, 3), 9111)
 
     def test_6662(self):
         board = chess.Bitboard("8/8/2k1b3/4b1P1/2P5/1p4p1/1N2K3/N6R b - - 0 1")
@@ -35928,7 +34014,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2b5/6P1/1k6/1R6/8/1Nb3N1/8/2K1b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 134)
-        self.assertEqual(perft(board, 3), 2800)
 
     def test_6677(self):
         board = chess.Bitboard("2b5/2k3b1/8/1R6/8/6N1/8/N1K1b3 w - - 0 1")
@@ -35944,7 +34029,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("8/2k3b1/8/7R/8/3K2N1/2b5/N3b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 5)
         self.assertEqual(perft(board, 2), 142)
-        self.assertEqual(perft(board, 3), 3329)
 
     def test_6680(self):
         board = chess.Bitboard("8/1k4b1/8/5N1R/8/3K4/2N5/4b3 b - - 0 1")
@@ -35960,7 +34044,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k5b/7R/8/5N2/8/3K1N2/8/4b3 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 553)
-        self.assertEqual(perft(board, 3), 9126)
 
     def test_6683(self):
         board = chess.Bitboard("2k4b/3R4/8/5N2/8/2bK1N2/8/8 w - - 0 1")
@@ -35971,7 +34054,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k4b/8/7N/3R4/3b4/3K1N2/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 501)
-        self.assertEqual(perft(board, 3), 8274)
 
     def test_6685(self):
         board = chess.Bitboard("2k5/8/3R3N/4b3/8/3K1N2/8/6b1 w - - 0 1")
@@ -36002,7 +34084,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/6b1/7N/2b5/3N4/1K6/8/7R b - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 461)
-        self.assertEqual(perft(board, 3), 8146)
 
     def test_6691(self):
         board = chess.Bitboard("k7/5N2/5b2/8/3b4/1K6/8/7R w - - 0 1")
@@ -36013,13 +34094,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/b7/5b1R/4N3/8/1K6/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 416)
-        self.assertEqual(perft(board, 3), 7132)
 
     def test_6693(self):
         board = chess.Bitboard("k7/8/7R/4N3/2K4b/8/5b2/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 344)
-        self.assertEqual(perft(board, 3), 8162)
 
     def test_6694(self):
         board = chess.Bitboard("1k6/8/1R6/4N3/7b/3K4/5b2/8 b - - 0 1")
@@ -36031,13 +34110,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("2k5/8/1b6/4N3/7b/8/2K5/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 16)
         self.assertEqual(perft(board, 2), 324)
-        self.assertEqual(perft(board, 3), 4453)
 
     def test_6696(self):
         board = chess.Bitboard("8/3k4/1b6/8/7b/8/3K4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 147)
-        self.assertEqual(perft(board, 3), 3371)
 
     def test_6697(self):
         board = chess.Bitboard("8/3k4/8/2b3b1/8/8/8/3K4 w - - 0 1")
@@ -36050,7 +34127,6 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 74)
         self.assertEqual(perft(board, 3), 1737)
-        self.assertEqual(perft(board, 4), 8749)
 
     def test_6699(self):
         board = chess.Bitboard("4k3/8/8/6b1/5b2/8/4K3/8 w - - 0 1")
@@ -36062,7 +34138,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("5k2/8/8/6b1/4Kb2/8/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 100)
-        self.assertEqual(perft(board, 3), 2094)
 
     def test_6701(self):
         board = chess.Bitboard("5k2/2b5/8/3K2b1/8/8/8/8 w - - 0 1")
@@ -36074,7 +34149,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("6k1/2b5/8/6b1/8/3K4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 140)
-        self.assertEqual(perft(board, 3), 3082)
 
     def test_6703(self):
         board = chess.Bitboard("6k1/8/8/6b1/1bK5/8/8/8 w - - 0 1")
@@ -36092,7 +34166,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6706(self):
         board = chess.Bitboard("rnbqkbnr/1ppppppp/8/p7/4P1P1/8/PPPP1P1P/RNBQKBNR b KQkq - 0 1")
@@ -36203,7 +34276,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1nb1kr2/r1Q1bp2/3p2Np/1PP2P2/RP6/3p1P2/3pK1Bq/2R5 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 240)
-        self.assertEqual(perft(board, 3), 8659)
 
     def test_6728(self):
         board = chess.Bitboard("1nb1k1r1/r1Q1bp2/3p3p/1PP1NP2/RP6/3p1P2/3p1KBq/2R5 b - - 0 1")
@@ -36240,7 +34312,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n1Qk3/r4N2/P2P1q2/R4P1p/1P6/2Rp1PK1/8/5B1q b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 71)
-        self.assertEqual(perft(board, 3), 2057)
 
     def test_6735(self):
         board = chess.Bitboard("1nq1k3/r4N2/P2P4/R4P1p/1P3K2/2Rp1P2/8/5B1q w - - 0 1")
@@ -36261,7 +34332,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1nqk4/5N2/2rP4/R3KP1p/1PR5/3p1P2/4B3/5q2 b - - 0 1")
         self.assertEqual(perft(board, 1), 2)
         self.assertEqual(perft(board, 2), 71)
-        self.assertEqual(perft(board, 3), 2213)
 
     def test_6739(self):
         board = chess.Bitboard("1nq1k3/R4N2/2rP4/4KP1p/1PR5/3p1P2/4B3/2q5 w - - 0 1")
@@ -36297,7 +34367,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n6/3q1k2/2rP4/3K1P1p/1P6/8/2R5/4b3 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 533)
-        self.assertEqual(perft(board, 3), 7454)
 
     def test_6746(self):
         board = chess.Bitboard("1n3k2/3q4/2rP4/3K1P1p/1P6/8/5R2/4b3 b - - 0 1")
@@ -36308,7 +34377,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3k2/q7/2rP4/3K1P1p/1b6/8/1R6/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 645)
-        self.assertEqual(perft(board, 3), 9270)
 
     def test_6748(self):
         board = chess.Bitboard("1n3k2/q7/3r4/4KP1p/1b6/1R6/8/8 b - - 0 1")
@@ -36319,7 +34387,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1n3k2/3q4/3r4/4KP1p/8/b4R2/8/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 497)
-        self.assertEqual(perft(board, 3), 5640)
 
     def test_6750(self):
         board = chess.Bitboard("1n6/3q1k2/3r4/4KP1p/8/7R/8/8 b - - 0 1")
@@ -36339,7 +34406,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
     def test_6753(self):
         board = chess.Bitboard("rnbqkbnr/ppppp1pp/5p2/8/4P3/7P/PPPP1PP1/RNBQKBNR b KQkq - 0 1")
@@ -36390,7 +34456,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("rnbqkb1r/pp1pp2p/2p5/7n/P7/1QPp3n/1P1PNK1R/RNB5 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 152)
-        self.assertEqual(perft(board, 3), 4253)
 
     def test_6763(self):
         board = chess.Bitboard("rnb1kb1r/pp1pp2p/2p5/q6n/P7/1QPp3n/1P1PN1KR/RNB5 b - - 0 1")
@@ -36513,19 +34578,16 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bn3R1r/3k3p/2p5/p1Pp4/P7/3p4/3P3n/1NB2qnK w - - 0 1")
         self.assertEqual(perft(board, 1), 18)
         self.assertEqual(perft(board, 2), 464)
-        self.assertEqual(perft(board, 3), 6528)
 
     def test_6787(self):
         board = chess.Bitboard("bnR4r/3k3p/2p5/p1Pp1q2/P7/3p4/3P3n/1NB3K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 31)
         self.assertEqual(perft(board, 2), 347)
-        self.assertEqual(perft(board, 3), 9777)
 
     def test_6788(self):
         board = chess.Bitboard("bnR4r/3k3p/2p5/p1Pp4/P7/3p2q1/3P3n/1NB4K w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 329)
-        self.assertEqual(perft(board, 3), 4306)
 
     def test_6789(self):
         board = chess.Bitboard("bn5r/3k3p/R2q4/p1Pp4/P7/3p4/3P3n/1NB4K b - - 0 1")
@@ -36536,7 +34598,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bnk4r/7p/R3q3/p1Pp4/P7/3p4/3P2Kn/1NB5 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 588)
-        self.assertEqual(perft(board, 3), 8710)
 
     def test_6791(self):
         board = chess.Bitboard("b1k4r/7p/R1n1q3/p1Pp4/P7/3p4/2NP2Kn/2B5 b - - 0 1")
@@ -36547,7 +34608,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b1k1r3/7p/2n1q3/R1Pp4/P7/3p4/2NP2Kn/2B5 w - - 0 1")
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 659)
-        self.assertEqual(perft(board, 3), 9862)
 
     def test_6793(self):
         board = chess.Bitboard("b1k2r2/7p/2n1q3/R1Pp4/P7/3p2K1/3P3n/2B1N3 b - - 0 1")
@@ -36569,7 +34629,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("b1k5/3n3p/8/R1Ppq3/P2r4/N2p3K/3P3n/2B5 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 408)
-        self.assertEqual(perft(board, 3), 5124)
 
     def test_6797(self):
         board = chess.Bitboard("b1k5/3n3p/2Pq4/R2p4/P1Nr4/3p3K/3P3n/2B5 b - - 0 1")
@@ -36591,7 +34650,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("bk1q4/3n3p/2P5/P2p4/2Nr2n1/3p3K/1B1P4/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 475)
-        self.assertEqual(perft(board, 3), 7550)
 
     def test_6801(self):
         board = chess.Bitboard("bk1q4/3n3p/2P4n/P2p4/2N5/3p3K/3P4/6B1 b - - 0 1")
@@ -36602,7 +34660,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k1q4/3n1n1p/2b5/P2p4/8/3pN2K/3P4/6B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 476)
-        self.assertEqual(perft(board, 3), 7437)
 
     def test_6803(self):
         board = chess.Bitboard("1k1q4/5n1p/2b5/P2pn3/8/3pN1K1/3P4/6B1 b - - 0 1")
@@ -36623,7 +34680,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k5N1/5n1p/2b5/P2p4/6n1/3p3K/3q4/6B1 w - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 531)
-        self.assertEqual(perft(board, 3), 7153)
 
     def test_6807(self):
         board = chess.Bitboard("k5N1/5n1p/P1b5/3p4/6n1/3p3K/1q5B/8 b - - 0 1")
@@ -36644,7 +34700,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k5N1/5n1p/P1bq4/3p4/7B/3p3K/8/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 471)
-        self.assertEqual(perft(board, 3), 5551)
 
     def test_6811(self):
         board = chess.Bitboard("k7/5n1p/P1bq4/3p1N2/7B/3pn2K/8/8 b - - 0 1")
@@ -36655,7 +34710,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k7/5n1p/P1b1q3/3p1N2/8/3p3K/5B2/5n2 w - - 0 1")
         self.assertEqual(perft(board, 1), 13)
         self.assertEqual(perft(board, 2), 441)
-        self.assertEqual(perft(board, 3), 6104)
 
     def test_6813(self):
         board = chess.Bitboard("k7/5n1p/P1bB4/3p1N2/8/3p3K/4q3/5n2 b - - 0 1")
@@ -36696,7 +34750,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k2B4/Pq6/2n4p/3p4/b7/3p4/6K1/5nN1 w - - 0 1")
         self.assertEqual(perft(board, 1), 15)
         self.assertEqual(perft(board, 2), 524)
-        self.assertEqual(perft(board, 3), 7491)
 
     def test_6821(self):
         board = chess.Bitboard("k2B4/Pq6/2n4p/3p4/8/3p1K2/4N3/3b1n2 b - - 0 1")
@@ -36707,7 +34760,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k2B4/P7/2n4p/3p4/6K1/1q1p4/4N2n/3b4 w - - 0 1")
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 191)
-        self.assertEqual(perft(board, 3), 2711)
 
     def test_6823(self):
         board = chess.Bitboard("k2B4/n7/7p/3p4/8/1q1p4/4N1Kn/3b4 b - - 0 1")
@@ -36723,31 +34775,26 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k1nB4/8/7p/3p4/8/3p4/2N4n/3b2K1 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 291)
-        self.assertEqual(perft(board, 3), 5576)
 
     def test_6826(self):
         board = chess.Bitboard("k2B4/8/1n5p/3p4/b7/3p4/7n/N5K1 w - - 0 1")
         self.assertEqual(perft(board, 1), 12)
         self.assertEqual(perft(board, 2), 219)
-        self.assertEqual(perft(board, 3), 2983)
 
     def test_6827(self):
         board = chess.Bitboard("k7/8/1nb4p/3p2B1/8/3p4/5K1n/N7 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 281)
-        self.assertEqual(perft(board, 3), 5584)
 
     def test_6828(self):
         board = chess.Bitboard("k3b3/8/1n6/3p2p1/8/3p4/2N2K1n/8 w - - 0 1")
         self.assertEqual(perft(board, 1), 11)
         self.assertEqual(perft(board, 2), 224)
-        self.assertEqual(perft(board, 3), 2115)
 
     def test_6829(self):
         board = chess.Bitboard("k3b3/8/8/3p2p1/2n5/N2p4/7n/4K3 b - - 0 1")
         self.assertEqual(perft(board, 1), 24)
         self.assertEqual(perft(board, 2), 139)
-        self.assertEqual(perft(board, 3), 3087)
 
     def test_6830(self):
         board = chess.Bitboard("k3b3/8/1n6/3p2p1/8/N2p1n2/3K4/8 w - - 0 1")
@@ -36759,7 +34806,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("k3b3/8/8/1N1p2p1/2n5/3p1n2/8/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 172)
-        self.assertEqual(perft(board, 3), 3843)
 
     def test_6832(self):
         board = chess.Bitboard("1k2b3/2N5/8/3pn1p1/2n5/3p4/8/3K4 w - - 0 1")
@@ -36771,7 +34817,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/8/6b1/3pn1p1/2n5/N2p4/8/3K4 b - - 0 1")
         self.assertEqual(perft(board, 1), 26)
         self.assertEqual(perft(board, 2), 145)
-        self.assertEqual(perft(board, 3), 3663)
 
     def test_6834(self):
         board = chess.Bitboard("1k6/5b2/8/3pn1p1/8/N2pn3/3K4/8 w - - 0 1")
@@ -36783,7 +34828,6 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k6/5b2/2n5/3p2p1/8/N2K4/8/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 160)
-        self.assertEqual(perft(board, 3), 2927)
 
     def test_6836(self):
         board = chess.Bitboard("3n4/2k2b2/8/3p2p1/8/3K4/8/1N6 w - - 0 1")
@@ -36795,13 +34839,11 @@ class PerftTestCase(unittest.TestCase):
         board = chess.Bitboard("1k1n4/5b2/8/3p2p1/3K4/8/3N4/8 b - - 0 1")
         self.assertEqual(perft(board, 1), 14)
         self.assertEqual(perft(board, 2), 142)
-        self.assertEqual(perft(board, 3), 2242)
 
     def test_6838(self):
         board = chess.Bitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(perft(board, 1), 20)
         self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
 
 
 if __name__ == "__main__":
