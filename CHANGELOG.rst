@@ -12,6 +12,12 @@ Up for the next release
 * Introduce `can_claim_draw()`, `can_claim_fifty_moves()` and
   `can_claim_threefold_repitition()`.
 
+* Since the first of July 2014 a game is also over (even without claim by one
+  of the players) if there were 75 moves without a pawn move or capture or
+  a fivefold repitition. Let `is_game_over()` respect that. Introduce
+  `is_seventyfive_moves()` and `is_fivefold_repitition()`. Other means of
+  ending a game take precedence.
+
 * Threefold repitition checking requires efficient hashing of positions
   to build the table. So performance improvements were needed there. The
   default polyglot compatible zobrist hashes are now built incrementally.
