@@ -12,6 +12,10 @@ Up for the next release
 * Introduce `can_claim_draw()`, `can_claim_fifty_moves()` and
   `can_claim_threefold_repitition()`.
 
+* Threefold repitition checking requires efficient hashing of positions
+  to build the table. So performance improvements were needed there. The
+  default polyglot compatible zobrist hashes are now built incrementally.
+
 * Fix low level rotation operations `l90()`, `l45()` and `r45()`. There was
   no problem in core because correct versions of the functions were inlined.
 
