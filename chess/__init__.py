@@ -873,6 +873,7 @@ class Bitboard(object):
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
         self.move_stack = collections.deque()
+        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
         self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
     def clear(self):
@@ -914,6 +915,7 @@ class Bitboard(object):
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
+        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
         self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
     def piece_at(self, square):
@@ -960,6 +962,14 @@ class Bitboard(object):
         self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
         self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
+        # Update incremental zobrist hash.
+        if color == BLACK:
+            piece_index = (piece_type - 1) * 2
+        else:
+            piece_index = (piece_type - 1) * 2 + 1
+        self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+
+
     def set_piece_at(self, square, piece):
         """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
@@ -987,6 +997,14 @@ class Bitboard(object):
         self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
         self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
         self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
+
+        # Update incremental zorbist hash.
+        if piece.color == BLACK:
+            piece_index = (piece.piece_type - 1) * 2
+        else:
+            piece_index = (piece.piece_type - 1) * 2 + 1
+        self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.turn == WHITE:
@@ -2394,24 +2412,12 @@ class Bitboard(object):
         The default behaviour is to use values from `POLYGLOT_RANDOM_ARRAY`,
         which makes for hashes compatible with polyglot opening books.
         """
-        zobrist_hash = 0
+        # Hash in the board setup.
+        zobrist_hash = self.board_zobrist_hash(array)
 
         # Default random array is polyglot compatible.
         if array is None:
             array = POLYGLOT_RANDOM_ARRAY
-
-        # Hash in the board setup.
-        squares = self.occupied_co[BLACK]
-        while squares:
-            square, squares = next_bit(squares)
-            piece_index = (self.piece_type_at(square) - 1) * 2
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-
-        squares = self.occupied_co[WHITE]
-        while squares:
-            square, squares = next_bit(squares)
-            piece_index = (self.piece_type_at(square) - 1) * 2 + 1
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
         # Hash in the castling flags.
         if self.castling_rights & CASTLING_WHITE_KINGSIDE:
@@ -2439,6 +2445,26 @@ class Bitboard(object):
         # Hash in the turn.
         if self.turn == WHITE:
             zobrist_hash ^= array[780]
+
+        return zobrist_hash
+
+    def board_zobrist_hash(self, array=None):
+        if array is None:
+            return self.incremental_zobrist_hash
+
+        zobrist_hash = 0
+
+        squares = self.occupied_co[BLACK]
+        while squares:
+            square, squares = next_bit(squares)
+            piece_index = (self.piece_type_at(square) - 1) * 2
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+
+        squares = self.occupied_co[WHITE]
+        while squares:
+            square, squares = next_bit(squares)
+            piece_index = (self.piece_type_at(square) - 1) * 2 + 1
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
         return zobrist_hash
 
