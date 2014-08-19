@@ -931,19 +931,19 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.variation(2), b)
 
     def test_scan_offsets(self):
-        pgn = open("data/games/kasparov-deep-blue-1997.pgn")
-        offsets = list(chess.pgn.scan_offsets(pgn))
-        self.assertEqual(len(offsets), 6)
+        with open("data/games/kasparov-deep-blue-1997.pgn") as pgn:
+            offsets = list(chess.pgn.scan_offsets(pgn))
+            self.assertEqual(len(offsets), 6)
 
-        pgn.seek(offsets[0])
-        first_game = chess.pgn.read_game(pgn)
-        self.assertEqual(first_game.headers["Event"], "IBM Man-Machine, New York USA")
-        self.assertEqual(first_game.headers["Site"], "01")
+            pgn.seek(offsets[0])
+            first_game = chess.pgn.read_game(pgn)
+            self.assertEqual(first_game.headers["Event"], "IBM Man-Machine, New York USA")
+            self.assertEqual(first_game.headers["Site"], "01")
 
-        pgn.seek(offsets[5])
-        sixth_game = chess.pgn.read_game(pgn)
-        self.assertEqual(sixth_game.headers["Event"], "IBM Man-Machine, New York USA")
-        self.assertEqual(sixth_game.headers["Site"], "06")
+            pgn.seek(offsets[5])
+            sixth_game = chess.pgn.read_game(pgn)
+            self.assertEqual(sixth_game.headers["Event"], "IBM Man-Machine, New York USA")
+            self.assertEqual(sixth_game.headers["Site"], "06")
 
 
 if __name__ == "__main__":
