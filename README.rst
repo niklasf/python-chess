@@ -71,7 +71,6 @@ Features
       >>> board.push(Qf7) # Restore
 
 * Detects checkmates, stalemates and draws by insufficient material.
-  Has a half-move clock.
 
   .. code:: python
 
@@ -83,6 +82,28 @@ Features
       True
       >>> board.halfmove_clock
       0
+
+* Detects repititions. Has a half move clock.
+
+  .. code:: python
+
+      >>> board.can_claim_threefold_repitition()
+      False
+      >>> board.halfmove_clock
+      0
+      >>> board.can_claim_fifty_moves()
+      False
+      >>> board.can_claim_draw()
+      False
+
+  With the new rules from July 2014 a game ends drawn (even without a claim)
+  once a fivefold repitition occurs or if there are 75 moves without a pawn
+  push or capture. Other ways of ending a game take precedence.
+
+      >>> board.is_fivefold_repitition()
+      False
+      >>> board.is_seventyfive_moves()
+      False
 
 * Detects checks and attacks.
 
