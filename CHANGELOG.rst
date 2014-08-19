@@ -15,6 +15,8 @@ Up for the next release
 * Minor testing related improvements: Close PGN files, allow running via
   setuptools.
 
+* Add recently introduced features to README.
+
 New in v0.4.0
 -------------
 
