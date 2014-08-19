@@ -100,6 +100,8 @@ Features
   once a fivefold repitition occurs or if there are 75 moves without a pawn
   push or capture. Other ways of ending a game take precedence.
 
+  .. code:: python
+
       >>> board.is_fivefold_repitition()
       False
       >>> board.is_seventyfive_moves()
