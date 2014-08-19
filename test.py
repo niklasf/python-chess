@@ -533,6 +533,76 @@ class BitboardTestCase(unittest.TestCase):
 
         self.assertEqual(chess.r45(chess.BB_F8), chess.BB_F3)
 
+    def test_threefold_repitition(self):
+        board = chess.Bitboard()
+
+        # Go back and forth with the nights to reach the starting position
+        # for a second time.
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Nf3")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Nf6")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Ng1")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Ng8")
+
+        # Once more.
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Nf3")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Nf6")
+        self.assertFalse(board.can_claim_threefold_repitition())
+        board.push_san("Ng1")
+
+        # Now black can go back to the starting position (thus reaching it a
+        # third time.)
+        self.assertTrue(board.can_claim_threefold_repitition())
+        board.push_san("Ng8")
+
+        # They indee do it. Also white can now claim.
+        self.assertTrue(board.can_claim_threefold_repitition())
+
+        # But not after a different move.
+        board.push_san("e4")
+        self.assertFalse(board.can_claim_threefold_repitition())
+
+        # Undo moves and check if everything works backwards.
+        board.pop() # e4
+        self.assertTrue(board.can_claim_threefold_repitition())
+        board.pop() # Ng8
+        self.assertTrue(board.can_claim_threefold_repitition())
+        while board.move_stack:
+            board.pop()
+            self.assertFalse(board.can_claim_threefold_repitition())
+
+    def test_fifty_moves(self):
+        # Test positions from Timman - Lutz (1995).
+        board = chess.Bitboard()
+        self.assertFalse(board.can_claim_fifty_moves())
+        board = chess.Bitboard("8/5R2/8/r2KB3/6k1/8/8/8 w - - 19 79")
+        self.assertFalse(board.can_claim_fifty_moves())
+        board = chess.Bitboard("8/8/6r1/4B3/8/4K2k/5R2/8 b - - 68 103")
+        self.assertFalse(board.can_claim_fifty_moves())
+        board = chess.Bitboard("6R1/7k/8/8/1r3B2/5K2/8/8 w - - 99 119")
+        self.assertFalse(board.can_claim_fifty_moves())
+        board = chess.Bitboard("8/7k/8/6R1/1r3B2/5K2/8/8 b - - 100 119")
+        self.assertTrue(board.can_claim_fifty_moves())
+        board = chess.Bitboard("8/7k/8/1r3KR1/5B2/8/8/8 w - - 105 122")
+        self.assertTrue(board.can_claim_fifty_moves())
+
+        # Once checkmated it is too late to claim.
+        board = chess.Bitboard("k7/8/NKB5/8/8/8/8/8 b - - 105 176")
+        self.assertFalse(board.can_claim_fifty_moves())
+
+        # A stalemate is a draw, but you can not and do not need to claim it by
+        # the fifty move rule.
+        board = chess.Bitboard("k7/3N4/1K6/1B6/8/8/8/8 b - - 99 1")
+        self.assertTrue(board.is_stalemate())
+        self.assertTrue(board.is_game_over())
+        self.assertFalse(board.can_claim_fifty_moves())
+        self.assertFalse(board.can_claim_draw())
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

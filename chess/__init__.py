@@ -873,6 +873,7 @@ class Bitboard(object):
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
         self.move_stack = collections.deque()
+        self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
     def clear(self):
         """
@@ -913,6 +914,7 @@ class Bitboard(object):
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
+        self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
     def piece_at(self, square):
         """Gets the piece at the given square."""
@@ -1525,6 +1527,51 @@ class Bitboard(object):
         else:
             return False
 
+    def can_claim_draw(self):
+        """
+        Checks if the side to move can claim a draw by the fifty-move rule or
+        by threefold repitition.
+        """
+        return self.can_claim_fifty_moves() or self.can_claim_threefold_repitition()
+
+    def can_claim_fifty_moves(self):
+        """
+        Draw by the fifty-move rule can be claimed once the clock of halfmoves
+        since the last capture or pawn move becomes equal or greater to 100
+        and the side to move still has a legal move they can make.
+        """
+        # Fifty-move rule.
+        if self.halfmove_clock >= 100:
+            try:
+                next(self.generate_legal_moves().__iter__())
+                return True
+            except StopIteration:
+                return False
+        else:
+            return False
+
+    def can_claim_threefold_repitition(self):
+        """
+        Draw by threefold repitition can be claimed if the position on the
+        board occured for the third time or if such a repitition is reached
+        with one of the possible legal moves.
+        """
+        # Threefold repitition occured.
+        if self.transpositions[self.zobrist_hash()] >= 3:
+            return True
+
+        # The next legal move is a threefold repitition.
+        for move in self.generate_pseudo_legal_moves():
+            self.push(move)
+
+            if not self.was_into_check() and self.transpositions[self.zobrist_hash()] >= 3:
+                self.pop()
+                return True
+
+            self.pop()
+
+        return False
+
     def push(self, move):
         """
         Updates the position with the given move and puts it onto a stack.
@@ -1626,11 +1673,17 @@ class Bitboard(object):
         # Swap turn.
         self.turn ^= 1
 
+        # Update transposition table.
+        self.transpositions.update((self.zobrist_hash(), ))
+
     def pop(self):
         """
         Restores the previous position and returns the last move from the stack.
         """
         move = self.move_stack.pop()
+
+        # Update transposition table.
+        self.transpositions.subtract((self.zobrist_hash(), ))
 
         # Decrement fullmove number.
         if self.turn == WHITE:
@@ -1970,6 +2023,9 @@ class Bitboard(object):
         # Set the mover counters.
         self.halfmove_clock = int(parts[4])
         self.fullmove_number = int(parts[5]) or 1
+
+        # Reset the transposition table.
+        self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
     def fen(self):
         """Gets the FEN representation of the position."""
