@@ -58,6 +58,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     scripts=["scripts/ecotool", "scripts/python-chess"],
+    test_suite="test",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
