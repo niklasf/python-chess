@@ -1489,17 +1489,28 @@ class Bitboard(object):
 
     def is_game_over(self):
         """
-        Checks if the game is over due to checkmate, stalemate or insufficient
-        mating material.
+        Checks if the game is over due to checkmate, stalemate, insufficient
+        mating material, the seventyfive-move rule or fivefold repitition.
         """
+        # Seventyfive-move rule.
+        if self.halfmove_clock >= 150:
+            return True
+
+        # Insufficient material.
         if self.is_insufficient_material():
             return True
 
+        # Stalemate or checkmate.
         try:
             next(self.generate_legal_moves().__iter__())
-            return False
         except StopIteration:
             return True
+
+        # Fivefold repitition.
+        if self.transpositions[self.zobrist_hash()] >= 5:
+            return True
+
+        return False
 
     def is_checkmate(self):
         """Checks if the current position is a checkmate."""
@@ -1545,6 +1556,29 @@ class Bitboard(object):
         else:
             return False
 
+    def is_seventyfive_moves(self):
+        """
+        Since the first of July 2014 a game is automatically drawn (without
+        a claim by one of the players) if the half move clock since a capture
+        or pawn move is equal to or grather than 150. Other means to end a game
+        take precedence.
+        """
+        if self.halfmove_clock >= 150:
+            try:
+                next(self.generate_legal_moves().__iter__())
+                return True
+            except StopIteration:
+                pass
+
+        return False
+
+    def is_fivefold_repitition(self):
+        """
+        Since the first of July 2014 a game is automatically drawn (without
+        a claim by one of the players) if a position occurs for the fifth time.
+        """
+        return self.transpositions[self.zobrist_hash()] >= 5
+
     def can_claim_draw(self):
         """
         Checks if the side to move can claim a draw by the fifty-move rule or
@@ -1564,9 +1598,9 @@ class Bitboard(object):
                 next(self.generate_legal_moves().__iter__())
                 return True
             except StopIteration:
-                return False
-        else:
-            return False
+                pass
+
+        return False
 
     def can_claim_threefold_repitition(self):
         """
