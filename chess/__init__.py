@@ -1507,7 +1507,7 @@ class Bitboard(object):
             return True
 
         # Fivefold repitition.
-        if self.transpositions[self.zobrist_hash()] >= 5:
+        if self.is_fivefold_repitition():
             return True
 
         return False
