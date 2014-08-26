@@ -6,8 +6,8 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Up for the next release
------------------------
+New in v0.4.1
+-------------
 
 * Fix `is_fivefold_repitition()`: The new fivefold repitition rule requires
   the repititions to occur on *alternating consecutive* moves.
