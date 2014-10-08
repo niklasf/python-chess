@@ -641,10 +641,7 @@ def scan_offsets(handle):
         if not in_comment and line.startswith("[Event \""):
             yield last_pos
         elif (not in_comment and "{" in line) or (in_comment and "}" in line):
-            if line.rfind("{") < line.rfind("}"):
-                in_comment = False
-            else:
-                in_comment = True
+            in_comment = line.rfind("{") > line.rfind("}")
 
         last_pos = handle.tell()
         line = handle.readline()
