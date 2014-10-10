@@ -20,7 +20,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 import collections
 import re
@@ -1374,7 +1374,7 @@ class Bitboard(object):
         if not self.ep_square:
             targets |= BB_PAWN_ATTACKS[self.turn][square] & self.occupied_co[self.turn ^ 1]
         else:
-            targets |= BB_PAWN_ATTACKS[self.turn][square] & (self.occupied_co[self.turn ^ 1] | BB_SQUARES[square])
+            targets |= BB_PAWN_ATTACKS[self.turn][square] & (self.occupied_co[self.turn ^ 1] | BB_SQUARES[self.ep_square])
 
         return targets
 

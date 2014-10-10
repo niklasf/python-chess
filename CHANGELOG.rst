@@ -6,6 +6,12 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.4.2
+-------------
+
+* Fix bug where `pawn_moves_from()` and consequently `is_legal()` weren't
+  handling en-passant correctly. Thanks to Norbert Naskov for reporting.
+
 New in v0.4.1
 -------------
 
