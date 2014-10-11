@@ -661,11 +661,21 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(board.can_claim_draw())
 
     def test_ep_legality(self):
+        move = chess.Move.from_uci("h5g6")
         board = chess.Bitboard("rnbqkbnr/pppppp2/7p/6pP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 3")
-        self.assertTrue(board.is_legal(chess.Move.from_uci("h5g6")))
+        self.assertTrue(board.is_legal(move))
         board.push_san("Nf3")
+        self.assertFalse(board.is_legal(move))
         board.push_san("Nf6")
-        self.assertFalse(board.is_legal(chess.Move.from_uci("h5g6")))
+        self.assertFalse(board.is_legal(move))
+
+        move = chess.Move.from_uci("c4d3")
+        board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/8/2pP4/2P2N2/PP2PPPP/RNBQKB1R b KQkq d3 0 3")
+        self.assertTrue(board.is_legal(move))
+        board.push_san("Qc7")
+        self.assertFalse(board.is_legal(move))
+        board.push_san("Bd2")
+        self.assertFalse(board.is_legal(move))
 
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
