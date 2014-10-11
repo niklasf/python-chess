@@ -183,13 +183,12 @@ class Reader(object):
             raise StopIteration()
 
         # Iterate.
-        while True:
+        entry = self.next()
+        while entry.key == zobrist_hash:
+            if entry.move() in position.legal_moves:
+                yield entry
+
             entry = self.next()
-            if entry.key == zobrist_hash:
-                if entry.move() in position.legal_moves:
-                    yield entry
-            else:
-                break
 
 
 class ClosableReader(Reader):
