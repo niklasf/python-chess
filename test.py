@@ -840,6 +840,24 @@ class PolyglotTestCase(unittest.TestCase):
             cute_underpromotion = entry.move()
             self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
 
+    def test_castling(self):
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            # White decides between short castling and long castling at this
+            # turning point in the Queens Gambit Exchange.
+            pos = chess.Bitboard("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
+            moves = set(entry.move() for entry in book.get_entries_for_position(pos))
+            self.assertTrue(pos.parse_san("O-O") in moves)
+            self.assertTrue(pos.parse_san("O-O-O") in moves)
+            self.assertTrue(pos.parse_san("h3") in moves)
+            self.assertEqual(len(moves), 3)
+
+            # Black usually castles long at this point in the Ruy Lopez
+            # Exchange.
+            pos = chess.Bitboard("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
+            moves = set(entry.move() for entry in book.get_entries_for_position(pos))
+            self.assertTrue(pos.parse_san("O-O-O") in moves)
+            self.assertEqual(len(moves), 1)
+
 
 class PgnTestCase(unittest.TestCase):
 
