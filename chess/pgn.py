@@ -645,3 +645,69 @@ def scan_offsets(handle):
 
         last_pos = handle.tell()
         line = handle.readline()
+
+
+def scan_headers(handle):
+    """
+    Scan a PGN file opened in text mode.
+
+    Yields a tuple for each game. The first element is the offset. The second
+    element is an ordered dictionary of game headers.
+
+    See `scan_offsets()` for more information about handling offsets.
+    """
+    in_comment = False
+
+    game_headers = None
+    game_pos = None
+
+    last_pos = handle.tell()
+    line = handle.readline()
+
+
+    while line:
+        # Skip single line comments.
+        if line.startswith("%"):
+            last_pos = handle.tell()
+            line = handle.readline()
+            continue
+
+        # Reading a header tag. Parse it and add it to the current headers.
+        if not in_comment and line.startswith("["):
+            tag_match = TAG_REGEX.match(line)
+            if tag_match:
+                if game_pos is None:
+                    game_headers = collections.OrderedDict()
+                    game_headers["Event"] = "?"
+                    game_headers["Site"] = "?"
+                    game_headers["Date"] = "????.??.??"
+                    game_headers["Round"] = "?"
+                    game_headers["White"] = "?"
+                    game_headers["Black"] = "?"
+                    game_headers["Result"] = "*"
+
+                    game_pos = last_pos
+
+                game_headers[tag_match.group(1)] = tag_match.group(2)
+
+                last_pos = handle.tell()
+                line = handle.readline()
+                continue
+
+        # Reading movetext. Update parser state in_comment in order to skip
+        # comments that look like header tags.
+        if (not in_comment and "{" in line) or (in_comment and "}" in line):
+            in_comment = line.rfind("{") > line.rfind("}")
+
+        # Reading movetext. If there were headers, previously, those are now
+        # complete and can be yielded.
+        if game_pos is not None:
+            yield game_pos, game_headers
+            game_pos = None
+
+        last_pos = handle.tell()
+        line = handle.readline()
+
+    # Yield the headers of the last game.
+    if game_pos is not None:
+        yield game_pos, game_headers
