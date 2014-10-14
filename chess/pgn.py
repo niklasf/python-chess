@@ -593,9 +593,11 @@ def read_game(handle):
 
                 in_variation = False
             elif token == ")":
-                # Found a close variation token.
-                variation_stack.pop()
-                board_stack.pop()
+                # Found a close variation token. Always leave at least the
+                # root node on the stack.
+                if len(variation_stack) > 1:
+                    variation_stack.pop()
+                    board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 # Found a result token.
                 found_content = True

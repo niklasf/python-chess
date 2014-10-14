@@ -986,6 +986,12 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(5 in node.variation(1).nags)
         self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
 
+    def test_variation_stack(self):
+        pgn = StringIO("1. e4 (1. d4))) !? *")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.variation(0).move, chess.Move.from_uci("e2e4"))
+        self.assertEqual(game.variation(1).move, chess.Move.from_uci("d2d4"))
+
     def test_annotation_symbols(self):
         pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
