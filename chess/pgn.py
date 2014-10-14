@@ -202,7 +202,7 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
-    def export(self, exporter, comments=True, variations=True, _board=None):
+    def export(self, exporter, comments=True, variations=True, _board=None, _after_variation=False):
         if _board is None:
             _board = self.board()
 
@@ -211,7 +211,7 @@ class GameNode(object):
             main_variation = self.variations[0]
 
             # Append fullmove number.
-            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, False)
+            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
 
             # Append SAN.
             exporter.put_move(_board, main_variation.move)
@@ -250,7 +250,7 @@ class GameNode(object):
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
-                variation.export(exporter, comments, variations, _board)
+                variation.export(exporter, comments, variations, _board, False)
                 _board.pop()
 
                 # End variation.
@@ -262,7 +262,7 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
-            main_variation.export(exporter, comments, variations, _board)
+            main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
             _board.pop()
 
     def __str__(self):
