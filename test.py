@@ -1082,6 +1082,17 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(sixth_game.headers["Event"], "IBM Man-Machine, New York USA")
             self.assertEqual(sixth_game.headers["Site"], "06")
 
+    def test_scan_headers(self):
+        with open("data/games/kasparov-deep-blue-1997.pgn") as pgn:
+            offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
+                              if headers["Result"] == "1/2-1/2")
+
+            first_drawn_game_offset = next(offsets)
+            pgn.seek(first_drawn_game_offset)
+            first_drawn_game = chess.pgn.read_game(pgn)
+            self.assertEqual(first_drawn_game.headers["Site"], "03")
+            self.assertEqual(first_drawn_game.variation(0).move, chess.Move.from_uci("d2d3"))
+
 
 if __name__ == "__main__":
     unittest.main()
