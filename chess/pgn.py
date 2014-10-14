@@ -622,13 +622,14 @@ def read_game(handle, error_handler=_raise):
                 variation_stack[-1].nags.add(NAG_DUBIOUS_MOVE)
             elif token == "(":
                 # Found a start variation token.
-                variation_stack.append(variation_stack[-1].parent)
+                if variation_stack[-1].parent:
+                    variation_stack.append(variation_stack[-1].parent)
 
-                board = copy.deepcopy(board_stack[-1])
-                board.pop()
-                board_stack.append(board)
+                    board = copy.deepcopy(board_stack[-1])
+                    board.pop()
+                    board_stack.append(board)
 
-                in_variation = False
+                    in_variation = False
             elif token == ")":
                 # Found a close variation token. Always leave at least the
                 # root node on the stack.
