@@ -6,6 +6,35 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Up for the next release
+-----------------------
+
+* PGN parsing is now more robust: `read_game()` ignores invalid tokens.
+  Still exceptions are going to be thrown on illegal or ambiguous moves, but
+  this behaviour can be changed by passing an `error_handler` argument.
+
+  .. code:: python
+      >>> # Raises ValueError:
+      >>> game = chess.pgn.read_game(file_with_illegal_moves)
+
+  .. code:: python
+      >>> # Silently ignores errors and continues parsing:
+      >>> game = chess.pgn.read_game(file_with_illegal_moves, None)
+
+  .. code:: python
+      >>> # Logs the error, continues parsing:
+      >>> game = chess.pgn.read_game(file_with_illegal_moves, logger.exception)
+
+  If there are too many closing brackets this is now ignored.
+
+  Castling moves like 0-0 (with zeros) are now accepted in PGNs.
+  The `Bitboard.parse_san()` method remains strict as always, though.
+
+* Introduce a new function `scan_headers()` to quickly scan a PGN file for
+  headers without having to parse the full games.
+
+* Minor testcoverage improvements.
+
 New in v0.4.2
 -------------
 

@@ -56,6 +56,8 @@ Parsing
 
 .. autofunction:: chess.pgn.read_game
 
+.. autofunction:: chess.pgn.scan_headers
+
 .. autofunction:: chess.pgn.scan_offsets
 
 Writing

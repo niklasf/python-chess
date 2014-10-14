@@ -490,7 +490,12 @@ def read_game(handle, error_handler=_raise):
     for a valid game. This parser also handles games without any headers just
     fine.
 
-    Raises `ValueError` if invalid moves are encountered in the movetext.
+    The parser is relatively forgiving when it comes to errors. It skips over
+    tokens it can not parse. However it is difficult to handle illegal or
+    ambiguous moves. If such a move is encountered the default behaviour is to
+    stop right in the middle of the game and raise `ValueError`. If you pass
+    `None` for `error_handler` all errors are silently ignored, instead. If you
+    pass a function this function will be called with the error as an argument.
 
     Returns the parsed game or `None` if the EOF is reached.
     """
@@ -628,7 +633,8 @@ def read_game(handle, error_handler=_raise):
                     board_stack[-1].push(move)
                     start_comment = ""
                 except ValueError as error:
-                    error_handler(error)
+                    if error_handler:
+                        error_handler(error)
 
         if read_next_line:
             line = handle.readline()
@@ -637,47 +643,40 @@ def read_game(handle, error_handler=_raise):
         return game
 
 
-def scan_offsets(handle):
-    """
-    Scan a PGN file opened in text mode.
-
-    Yields the starting offsets of all the games, so that they can be seeked
-    later. Since actually parsing many games from a big file is relatively
-    expensive, this is a better way to read only a specific game.
-
-    >>> pgn = open("mega.pgn")
-    >>> offsets = chess.pgn.scan_offsets(pgn)
-    >>> first_game_offset = next(offsets)
-    >>> second_game_offset = next(offsets)
-    >>> pgn.seek(second_game_offset)
-    >>> second_game = chess.pgn.read_game(pgn)
-
-    The PGN standard requires each game to start with an Event-tag. So does this
-    scanner.
-    """
-    in_comment = False
-
-    last_pos = handle.tell()
-    line = handle.readline()
-
-    while line:
-        if not in_comment and line.startswith("[Event \""):
-            yield last_pos
-        elif (not in_comment and "{" in line) or (in_comment and "}" in line):
-            in_comment = line.rfind("{") > line.rfind("}")
-
-        last_pos = handle.tell()
-        line = handle.readline()
-
-
 def scan_headers(handle):
     """
-    Scan a PGN file opened in text mode.
+    Scan a PGN file opened in text mode for game offsets and headers.
 
     Yields a tuple for each game. The first element is the offset. The second
     element is an ordered dictionary of game headers.
 
-    See `scan_offsets()` for more information about handling offsets.
+    Since actually parsing many games from a big file is relatively expensive,
+    this is a better way to look only for specific games and seek and parse
+    them later.
+
+    This example scans for the first game with Kasparov as the white player.
+
+    >>> pgn = open("mega.pgn")
+    >>> for offset, headers in chess.pgn.scan_headers(pgn):
+    ...     if "Kasparov" in headers["White"]:
+    ...         kasparov_offset = offset
+    ...         break
+
+    Then it can later be seeked an parsed.
+
+    >>> pgn.seek(kasparov_offset)
+    >>> game = chess.pgn.read_game(pgn)
+
+    This also works nicely with generators, scanning lazily only when the next
+    offset is required.
+
+    >>> white_win_offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
+    ...                             if headers["Result"] == "1-0")
+    >>> first_white_win = next(white_win_offsets)
+    >>> second_white_win = next(white_win_offsets)
+
+    Be careful when seeking a game in the file while more offsets are being
+    generated.
     """
     in_comment = False
 
@@ -734,3 +733,29 @@ def scan_headers(handle):
     # Yield the headers of the last game.
     if game_pos is not None:
         yield game_pos, game_headers
+
+
+def scan_offsets(handle):
+    """
+    Scan a PGN file opened in text mode for game offsets.
+
+    Yields the starting offsets of all the games, so that they can be seeked
+    later. This is just like `scan_headers()` but more efficient if you do
+    not actually need the header information.
+
+    The PGN standard requires each game to start with an Event-tag. So does
+    this scanner.
+    """
+    in_comment = False
+
+    last_pos = handle.tell()
+    line = handle.readline()
+
+    while line:
+        if not in_comment and line.startswith("[Event \""):
+            yield last_pos
+        elif (not in_comment and "{" in line) or (in_comment and "}" in line):
+            in_comment = line.rfind("{") > line.rfind("}")
+
+        last_pos = handle.tell()
+        line = handle.readline()
