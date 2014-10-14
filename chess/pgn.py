@@ -66,6 +66,7 @@ MOVETEXT_REGEX = re.compile(r"""
         [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=[nbrqNBRQ])?
         |--
         |O-O(?:-O)?
+        |0-0(?:-0)?
     )
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
@@ -599,6 +600,12 @@ def read_game(handle):
                 if "Result" not in game.headers:
                     game.headers["Result"] = token
             else:
+                # Replace zeros castling notation.
+                if token == "0-0":
+                    token = "O-O"
+                elif token == "0-0-0":
+                    token = "O-O-O"
+
                 # Found a SAN token.
                 in_variation = True
                 board = board_stack[-1]
