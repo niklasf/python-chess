@@ -990,10 +990,16 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
 
     def test_variation_stack(self):
+        # Ignore superfluous closing brackets.
         pgn = StringIO("1. e4 (1. d4))) !? *")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.variation(0).move, chess.Move.from_uci("e2e4"))
         self.assertEqual(game.variation(1).move, chess.Move.from_uci("d2d4"))
+
+        # Ignore superfluous opening brackets.
+        pgn = StringIO("((( 1. c4 *")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.variation(0).move, chess.Move.from_uci("c2c4"))
 
     def test_game_starting_comment(self):
         pgn = StringIO("{ Game starting comment } 1. d3")
