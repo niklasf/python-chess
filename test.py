@@ -867,12 +867,13 @@ class PgnTestCase(unittest.TestCase):
         game.headers["Result"] = "*"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
+        e4.comment = "Scandinavian defense:"
 
         e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
-        e4_d5.starting_comment = "Scandinavian defense:"
 
         e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
         e4_h5.nags.add(chess.pgn.NAG_MISTAKE)
+        e4_h5.starting_comment = "This"
         e4_h5.comment = "is nonesense"
 
         e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
@@ -882,14 +883,16 @@ class PgnTestCase(unittest.TestCase):
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
         e4_c5.comment = "Sicilian"
 
+        e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
+
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter()
         game.export(exporter, headers=False, comments=False, variations=False)
-        self.assertEqual(str(exporter), "1. e4 d5 *")
+        self.assertEqual(str(exporter), "1. e4 d5 2. exd5 *")
 
         exporter = chess.pgn.StringExporter()
         game.export(exporter, headers=False, comments=False)
-        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 ) *")
+        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 ) 2. exd5 *")
 
         exporter = chess.pgn.StringExporter()
         game.export(exporter)
@@ -902,8 +905,8 @@ class PgnTestCase(unittest.TestCase):
             [Black "?"]
             [Result "*"]
 
-            { Test game: } 1. e4 { Scandinavian defense: } d5 ( 1... h5 $2 { is nonesense }
-            ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) *""")
+            { Test game: } 1. e4 { Scandinavian defense: } d5 ( { This } 1... h5 $2
+            { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5 *""")
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
