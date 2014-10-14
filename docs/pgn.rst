@@ -37,15 +37,15 @@ headers.
     .. py:attribute:: comment
         :annotation: = ''
 
-        A comment that goes behind the move leading to this node. The root
-        node of the game can have no comment.
+        A comment that goes behind the move leading to this node. Comments
+        that occur before any move are assigned to the root node.
 
     .. py:attribute:: starting_comment
         :annotation: = ''
 
-        A comment for the start of a variation or the game. Only nodes that
-        actually start a variation (`starts_variation()`) and the game itself
-        can have a starting comment.
+        A comment for the start of a variation. Only nodes that
+        actually start a variation (`starts_variation()`) can have a starting
+        comment. The root node can not have a starting comment.
 
     .. py:attribute:: variations
 

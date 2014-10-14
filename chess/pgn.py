@@ -113,10 +113,11 @@ class GameNode(object):
     def starts_variation(self):
         """
         Checks if this node starts a variation (and can thus have a starting
-        comment). The beginning of the game is also the start of a variation.
+        comment). The root node does not start a variation and can have no
+        starting comment.
         """
         if not self.parent or not self.parent.variations:
-            return True
+            return False
 
         return self.parent.variations[0] != self
 
