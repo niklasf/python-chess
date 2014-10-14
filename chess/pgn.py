@@ -347,8 +347,8 @@ class Game(GameNode):
                 exporter.put_header(tagname, tagvalue)
             exporter.end_headers()
 
-        if comments and self.starting_comment:
-            exporter.put_starting_comment(self.starting_comment)
+        if comments and self.variations and self.variations[0].starting_comment:
+            exporter.put_starting_comment(self.variations[0].starting_comment)
 
         super(Game, self).export(exporter, comments=comments, variations=variations)
 
@@ -551,7 +551,7 @@ def read_game(handle, error_handler=_raise):
         line = handle.readline()
 
     # Movetext parser state.
-    start_comment = ""
+    starting_comment = ""
     variation_stack = collections.deque([ game ])
     board_stack = collections.deque([ game.board() ])
     in_variation = False
@@ -591,10 +591,8 @@ def read_game(handle, error_handler=_raise):
                 # Add the comment.
                 if in_variation:
                     variation_stack[-1].comment = "\n".join(comment_lines).strip()
-                elif len(variation_stack) == 1:
-                    variation_stack[0].start_comment = "\n".join(comment_lines).strip()
                 else:
-                    start_comment += "\n".join(comment_lines)
+                    starting_comment += "\n".join(comment_lines).strip()
 
                 # Continue with the current or the next line.
                 if line:
@@ -652,9 +650,9 @@ def read_game(handle, error_handler=_raise):
                     move = board_stack[-1].parse_san(token)
                     in_variation = True
                     variation_stack[-1] = variation_stack[-1].add_variation(move)
-                    variation_stack[-1].start_comment = start_comment.strip()
+                    variation_stack[-1].starting_comment = starting_comment.strip()
                     board_stack[-1].push(move)
-                    start_comment = ""
+                    starting_comment = ""
                 except ValueError as error:
                     if error_handler:
                         error_handler(error)
