@@ -1048,7 +1048,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(end_node.is_main_line())
         self.assertFalse(alternative_node.is_main_line())
 
-        self.assertTrue(game.starts_variation())
+        self.assertFalse(game.starts_variation())
         self.assertFalse(node.starts_variation())
         self.assertFalse(end_node.starts_variation())
         self.assertTrue(alternative_node.starts_variation())
