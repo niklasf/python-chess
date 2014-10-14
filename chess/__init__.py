@@ -20,7 +20,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
-__version__ = "0.4.2"
+__version__ = "0.5.0"
 
 import collections
 import re
