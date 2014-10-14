@@ -451,7 +451,11 @@ class FileExporter(StringExporter):
         self.handle.write("\n")
 
 
-def read_game(handle):
+def _raise(error):
+    raise error
+
+
+def read_game(handle, error_handler=_raise):
     """
     Reads a game from a file opened in text mode.
 
@@ -615,13 +619,16 @@ def read_game(handle):
                 elif token == "0-0-0":
                     token = "O-O-O"
 
-                # Add the move.
-                in_variation = True
-                board = board_stack[-1]
-                variation_stack[-1] = variation_stack[-1].add_variation(board.parse_san(token))
-                variation_stack[-1].start_comment = start_comment.strip()
-                board_stack[-1].push(variation_stack[-1].move)
-                start_comment = ""
+                # Parse the SAN.
+                try:
+                    move = board_stack[-1].parse_san(token)
+                    in_variation = True
+                    variation_stack[-1] = variation_stack[-1].add_variation(move)
+                    variation_stack[-1].start_comment = start_comment.strip()
+                    board_stack[-1].push(move)
+                    start_comment = ""
+                except ValueError as error:
+                    error_handler(error)
 
         if read_next_line:
             line = handle.readline()
