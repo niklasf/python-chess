@@ -206,41 +206,64 @@ class GameNode(object):
         if _board is None:
             _board = self.board()
 
-        for index, variation in enumerate(self.variations):
-            # Open varation.
-            if index != 0:
-                exporter.start_variation()
-
-            # Append starting comment.
-            if comments and variation.starting_comment:
-                exporter.put_starting_comment(variation.starting_comment)
+        # The mainline move goes first.
+        if self.variations:
+            main_variation = self.variations[0]
 
             # Append fullmove number.
-            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, index != 0)
+            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, False)
 
             # Append SAN.
-            exporter.put_move(_board, variation.move)
+            exporter.put_move(_board, main_variation.move)
 
-            # Append NAGs.
             if comments:
-                exporter.put_nags(variation.nags)
+                # Append NAGs.
+                exporter.put_nags(main_variation.nags)
 
-            # Append the comment.
-            if comments and variation.comment:
-                exporter.put_comment(variation.comment)
+                # Append the comment.
+                if main_variation.comment:
+                    exporter.put_comment(main_variation.comment)
 
-            # Recursively append the next moves.
-            _board.push(variation.move)
-            variation.export(exporter, comments, variations, _board)
-            _board.pop()
+        # Then export sidelines.
+        if variations:
+            for variation in itertools.islice(self.variations, 1, None):
+                # Start variation.
+                exporter.start_variation()
 
-            # End variation.
-            if index != 0:
+                # Append starting comment.
+                if comments and variation.starting_comment:
+                    exporter.put_starting_comment(variation.starting_comment)
+
+                # Append fullmove number.
+                exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
+
+                # Append SAN.
+                exporter.put_move(_board, variation.move)
+
+                if comments:
+                    # Append NAGs.
+                    exporter.put_nags(variation.nags)
+
+                    # Append the comment.
+                    if variation.comment:
+                        exporter.put_comment(variation.comment)
+
+                # Recursively append the next moves.
+                _board.push(variation.move)
+                variation.export(exporter, comments, variations, _board)
+                _board.pop()
+
+                # End variation.
                 exporter.end_variation()
 
-            # All variations or just the main line.
-            if not variations:
-                break
+        # The mainline is continued last.
+        if self.variations:
+            main_variation = self.variations[0]
+
+            # Recursively append the next moves.
+            _board.push(main_variation.move)
+            main_variation.export(exporter, comments, variations, _board)
+            _board.pop()
 
     def __str__(self):
         exporter = StringExporter(columns=None)
