@@ -6,6 +6,21 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Up for the next release
+-----------------------
+
+* If there are comments in a game before the first move, these are now assigned
+  to `Game.comment` instead of `Game.starting_comment`. `Game.starting_comment`
+  is ignored from now on. `Game.starts_variation()` is no longer true.
+  The first child node of a game can no longer have a starting comment.
+  It is possible to have a game with `Game.comment` set, that is otherwise
+  completely empty.
+
+* Fix export of games with variations. Previously the moves were exported in
+  an unusual (i.e. wrong) order.
+
+* Ignore superfluous variation opening brackets in PGN files.
+
 New in v0.5.0
 -------------
 
