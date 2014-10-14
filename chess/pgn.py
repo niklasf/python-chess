@@ -492,6 +492,7 @@ def read_game(handle):
     """
     game = Game()
     found_game = False
+    found_content = False
 
     line = handle.readline()
 
@@ -528,7 +529,7 @@ def read_game(handle):
         read_next_line = True
 
         # An empty line is the end of a game.
-        if not line.strip() and found_game:
+        if not line.strip() and found_game and found_content:
             return game
 
         for match in MOVETEXT_REGEX.finditer(line):
@@ -597,16 +598,22 @@ def read_game(handle):
                 board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
                 # Found a result token.
+                found_content = True
+
+                # Set result header if not present, yet.
                 if "Result" not in game.headers:
                     game.headers["Result"] = token
             else:
+                # Found a SAN token.
+                found_content = True
+
                 # Replace zeros castling notation.
                 if token == "0-0":
                     token = "O-O"
                 elif token == "0-0-0":
                     token = "O-O-O"
 
-                # Found a SAN token.
+                # Add the move.
                 in_variation = True
                 board = board_stack[-1]
                 variation_stack[-1] = variation_stack[-1].add_variation(board.parse_san(token))
