@@ -863,10 +863,10 @@ class PgnTestCase(unittest.TestCase):
 
     def test_exporter(self):
         game = chess.pgn.Game()
+        game.comment = "Test game:"
         game.headers["Result"] = "*"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
-        e4.starting_comment = "Test game:"
         e4.comment = "Scandinavian defense:"
 
         e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
@@ -998,8 +998,12 @@ class PgnTestCase(unittest.TestCase):
     def test_game_starting_comment(self):
         pgn = StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.variation(0).starting_comment, "Game starting comment")
+        self.assertEqual(game.comment, "Game starting comment")
         self.assertEqual(game.variation(0).move, chess.Move.from_uci("d2d3"))
+
+        pgn = StringIO("{ Empty game, but has a comment }")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.comment, "Empty game, but has a comment")
 
     def test_annotation_symbols(self):
         pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
