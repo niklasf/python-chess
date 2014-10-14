@@ -36,6 +36,8 @@ New in v0.5.0
   Previously the parser was strictly following the PGN spefification in that
   empty lines terminate a game. So a game like
 
+  ::
+
       [Event "?"]
 
       { Starting comment block }
