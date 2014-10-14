@@ -347,8 +347,8 @@ class Game(GameNode):
                 exporter.put_header(tagname, tagvalue)
             exporter.end_headers()
 
-        if comments and self.variations and self.variations[0].starting_comment:
-            exporter.put_starting_comment(self.variations[0].starting_comment)
+        if comments and self.comment:
+            exporter.put_starting_comment(self.comment)
 
         super(Game, self).export(exporter, comments=comments, variations=variations)
 
@@ -588,11 +588,17 @@ def read_game(handle, error_handler=_raise):
                 else:
                     line = ""
 
-                # Add the comment.
-                if in_variation:
+                if in_variation or not variation_stack[-1].parent:
+                    # Add the comment if in the middle of a variation or
+                    # directly to the game.
+                    if variation_stack[-1].comment:
+                        comment_lines.insert(0, variation_stack[-1].comment)
                     variation_stack[-1].comment = "\n".join(comment_lines).strip()
                 else:
-                    starting_comment += "\n".join(comment_lines).strip()
+                    # Otherwise it is a starting comment.
+                    if starting_comment:
+                        comment_lines.insert(0, starting_comment)
+                    starting_comment = "\n".join(comment_lines).strip()
 
                 # Continue with the current or the next line.
                 if line:
@@ -650,7 +656,7 @@ def read_game(handle, error_handler=_raise):
                     move = board_stack[-1].parse_san(token)
                     in_variation = True
                     variation_stack[-1] = variation_stack[-1].add_variation(move)
-                    variation_stack[-1].starting_comment = starting_comment.strip()
+                    variation_stack[-1].starting_comment = starting_comment
                     board_stack[-1].push(move)
                     starting_comment = ""
                 except ValueError as error:
