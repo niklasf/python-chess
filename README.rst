@@ -7,6 +7,9 @@ python-chess: a pure Python chess library
 .. image:: https://coveralls.io/repos/niklasf/python-chess/badge.png
     :target: https://coveralls.io/r/niklasf/python-chess
 
+.. image:: https://landscape.io/github/niklasf/python-chess/master/landscape.png
+    :target: https://landscape.io/github/niklasf/python-chess/master
+
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.org/en/latest/
 
