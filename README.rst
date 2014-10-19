@@ -10,9 +10,6 @@ python-chess: a pure Python chess library
 .. image:: https://landscape.io/github/niklasf/python-chess/master/landscape.png
     :target: https://landscape.io/github/niklasf/python-chess/master
 
-.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
-    :target: https://python-chess.readthedocs.org/en/latest/
-
 .. image:: https://pypip.in/version/python-chess/badge.svg
     :target: https://pypi.python.org/pypi/python-chess
 
@@ -47,6 +44,9 @@ This is the scholars mate in python-chess:
 
 Documentation
 -------------
+
+.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
+    :target: https://python-chess.readthedocs.org/en/latest/
 
 https://python-chess.readthedocs.org/en/latest/
 
