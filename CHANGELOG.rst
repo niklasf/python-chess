@@ -21,6 +21,8 @@ Up for the next release
 
 * Ignore superfluous variation opening brackets in PGN files.
 
+* Add `GameNode.san()`.
+
 New in v0.5.0
 -------------
 
