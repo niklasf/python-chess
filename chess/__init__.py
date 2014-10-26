@@ -240,27 +240,30 @@ def shift_down_right(b):
 def l90(b):
     mask = BB_VOID
 
-    while b:
-        square, b = next_bit(b)
+    square = bit_scan(b)
+    while square != - 1 and square is not None:
         mask |= BB_SQUARES_L90[square]
+        square = bit_scan(b, square + 1)
 
     return mask
 
 def r45(b):
     mask = BB_VOID
 
-    while b:
-        square, b = next_bit(b)
+    square = bit_scan(b)
+    while square != - 1 and square is not None:
         mask |= BB_SQUARES_R45[square]
+        square = bit_scan(b, square + 1)
 
     return mask
 
 def l45(b):
     mask = BB_VOID
 
-    while b:
-        square, b = next_bit(b)
+    square = bit_scan(b)
+    while square != - 1 and square is not None:
         mask |= BB_SQUARES_L45[square]
+        square = bit_scan(b, square + 1)
 
     return mask
 
@@ -416,45 +419,25 @@ BB_PAWN_ALL = [
     [ BB_PAWN_ATTACKS[1][i] | BB_PAWN_F1[1][i] | BB_PAWN_F2[1][i] for i in SQUARES ]
 ]
 
-def next_bit(b):
-    x = b & -b
-    b ^= x
-
-    r = 0
-
-    if not x & 0xffffffff:
-        x >>= 32
-        r |= 32
-
-    if not x & 0xffff:
-        x >>= 16
-        r |= 16
-
-    if not x & 0xff:
-        x >>= 8
-        r |= 8
-
-    if not x & 0xf:
-        x >>= 4
-        r |= 4
-
-    if not x & 0x3:
-        x >>= 2
-        r |= 2
-
-    if not x & 0x1:
-        r |= 1
-
-    return r, b
-
 try:
     from gmpy2 import popcount as pop_count
+    from gmpy2 import bit_scan1 as bit_scan
 except ImportError:
     try:
         from gmpy import popcount as pop_count
+        from gmpy import scan1 as bit_scan
     except ImportError:
         def pop_count(b):
             return bin(b).count("1")
+
+        def bit_scan(b, n=0):
+            string = bin(b)
+            l = len(string)
+            r = string.rfind("1", 0, l - n)
+            if r == -1:
+                return -1
+            else:
+                return l - r- 1
 
 POLYGLOT_RANDOM_ARRAY = [
     0x9D39247E33776D41, 0x2AF7398005AAA5C7, 0x44DB015024623547, 0x9C15F73E62A76AE2,
@@ -1010,14 +993,16 @@ class Bitboard(object):
                 movers = self.pawns & self.occupied_co[WHITE]
                 if self.ep_square:
                     moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-                    while moves:
-                        from_square, moves = next_bit(moves)
+
+                    from_square = bit_scan(moves)
+                    while from_square != -1 and from_square is not None:
                         yield Move(from_square, self.ep_square)
+                        from_square = bit_scan(moves, from_square + 1)
 
                 # Pawn captures.
                 moves = shift_up_right(movers) & self.occupied_co[BLACK]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square - 9
                     if rank_index(to_square) != 7:
                         yield Move(from_square, to_square)
@@ -1026,10 +1011,11 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 moves = shift_up_left(movers) & self.occupied_co[BLACK]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square - 7
                     if rank_index(to_square) != 7:
                         yield Move(from_square, to_square)
@@ -1038,12 +1024,13 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 # Pawns one forward.
                 moves = shift_up(movers) & ~self.occupied
                 movers = moves
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square - 8
                     if rank_index(to_square) != 7:
                         yield Move(from_square, to_square)
@@ -1052,13 +1039,15 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 # Pawns two forward.
                 moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square - 16
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
         else:
             if castling:
                 # Castling short.
@@ -1076,14 +1065,15 @@ class Bitboard(object):
                 movers = self.pawns & self.occupied_co[BLACK]
                 if self.ep_square:
                     moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-                    while moves:
-                        from_square, moves = next_bit(moves)
+                    from_square = bit_scan(moves)
+                    while from_square != -1 and from_square is not None:
                         yield Move(from_square, self.ep_square)
+                        from_square = bit_scan(moves, from_square + 1)
 
                 # Pawn captures.
                 moves = shift_down_left(movers) & self.occupied_co[WHITE]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != - 1 and to_square is not None:
                     from_square = to_square + 9
                     if rank_index(to_square) != 0:
                         yield Move(from_square, to_square)
@@ -1092,10 +1082,11 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 moves = shift_down_right(movers) & self.occupied_co[WHITE]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square + 7
                     if rank_index(to_square) != 0:
                         yield Move(from_square, to_square)
@@ -1104,12 +1095,13 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 # Pawns one forward.
                 moves = shift_down(movers) & ~self.occupied
                 movers = moves
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square + 8
                     if rank_index(to_square) != 0:
                         yield Move(from_square, to_square)
@@ -1118,61 +1110,73 @@ class Bitboard(object):
                         yield Move(from_square, to_square, KNIGHT)
                         yield Move(from_square, to_square, ROOK)
                         yield Move(from_square, to_square, BISHOP)
+                    to_square = bit_scan(moves, to_square + 1)
 
                 # Pawns two forward.
                 moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     from_square = to_square + 16
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
 
         if knights:
             # Knight moves.
             movers = self.knights & self.occupied_co[self.turn]
-            while movers:
-                from_square, movers = next_bit(movers)
+            from_square = bit_scan(movers)
+            while from_square != -1 and from_square is not None:
                 moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != -1 and to_square is not None:
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
+                from_square = bit_scan(movers, from_square + 1)
+
 
         if bishops:
             # Bishop moves.
             movers = self.bishops & self.occupied_co[self.turn]
-            while movers:
-                from_square, movers = next_bit(movers)
+            from_square = bit_scan(movers)
+            while from_square != -1 and from_square is not None:
                 moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != - 1 and to_square is not None:
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
+                from_square = bit_scan(movers, from_square + 1)
 
         if rooks:
             # Rook moves.
             movers = self.rooks & self.occupied_co[self.turn]
-            while movers:
-                from_square, movers = next_bit(movers)
+            from_square = bit_scan(movers)
+            while from_square != -1 and from_square is not None:
                 moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != - 1 and to_square is not None:
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
+                from_square = bit_scan(movers, from_square + 1)
 
         if queens:
             # Queen moves.
             movers = self.queens & self.occupied_co[self.turn]
-            while movers:
-                from_square, movers = next_bit(movers)
+            from_square = bit_scan(movers)
+            while from_square != -1 and from_square is not None:
                 moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                while moves:
-                    to_square, moves = next_bit(moves)
+                to_square = bit_scan(moves)
+                while to_square != - 1 and to_square is not None:
                     yield Move(from_square, to_square)
+                    to_square = bit_scan(moves, to_square + 1)
+                from_square = bit_scan(movers, from_square + 1)
 
         if king:
             # King moves.
             from_square = self.king_squares[self.turn]
             moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            while moves:
-                to_square, moves = next_bit(moves)
+            to_square = bit_scan(moves)
+            while to_square != - 1 and to_square is not None:
                 yield Move(from_square, to_square)
+                to_square = bit_scan(moves, to_square + 1)
 
     def pseudo_legal_move_count(self):
         # In a way duplicates generate_pseudo_legal_moves() in order to use
@@ -1198,30 +1202,18 @@ class Bitboard(object):
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 7:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_8) * 3
+            count += pop_count(moves)
 
             moves = shift_up_left(movers) & self.occupied_co[BLACK]
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 7:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_8) * 3
+            count += pop_count(moves)
 
             # Pawns one forward.
             moves = shift_up(movers) & ~self.occupied
             movers = moves
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 7:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_8) * 3
+            count += pop_count(moves)
 
             # Pawns two forward.
             moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
@@ -1245,30 +1237,18 @@ class Bitboard(object):
 
             # Pawn captures.
             moves = shift_down_left(movers) & self.occupied_co[WHITE]
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 0:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_1) * 3
+            count += pop_count(moves)
 
             moves = shift_down_right(movers) & self.occupied_co[WHITE]
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 0:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_1) * 3
+            count += pop_count(moves)
 
             # Pawns one forward.
             moves = shift_down(movers) & ~self.occupied
             movers = moves
-            while moves:
-                to_square, moves = next_bit(moves)
-                if rank_index(to_square) != 0:
-                    count += 1
-                else:
-                    count += 4
+            count += pop_count(moves & BB_RANK_1) * 3
+            count += pop_count(moves)
 
             # Pawns two forward.
             moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
@@ -1276,31 +1256,35 @@ class Bitboard(object):
 
         # Knight moves.
         movers = self.knights & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
+        from_square = bit_scan(movers)
+        while from_square != -1 and from_square is not None:
             moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
             count += pop_count(moves)
+            from_square = bit_scan(movers, from_square + 1)
 
         # Bishop moves.
         movers = self.bishops & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
+        from_square = bit_scan(movers)
+        while from_square != -1 and from_square is not None:
             moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
             count += pop_count(moves)
+            from_square = bit_scan(movers, from_square + 1)
 
         # Rook moves.
         movers = self.rooks & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
+        from_square = bit_scan(movers)
+        while from_square != -1 and from_square is not None:
             moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
             count += pop_count(moves)
+            from_square = bit_scan(movers, from_square + 1)
 
         # Queen moves.
         movers = self.queens & self.occupied_co[self.turn]
-        while movers:
-            from_square, movers = next_bit(movers)
+        from_square = bit_scan(movers)
+        while from_square != -1 and from_square is not None:
             moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
             count += pop_count(moves)
+            from_square = bit_scan(movers, from_square + 1)
 
         # King moves.
         from_square = self.king_squares[self.turn]
@@ -2267,11 +2251,12 @@ class Bitboard(object):
 
             # Remove illegal candidates.
             squares = others
-            while squares:
-                square, squares = next_bit(squares)
-
+            square = bit_scan(squares)
+            while square != - 1 and square is not None:
                 if self.is_into_check(Move(square, move.to_square)):
                     others &= ~BB_SQUARES[square]
+
+                square = bit_scan(squares, square + 1)
 
             # Disambiguate.
             if others:
@@ -2500,16 +2485,18 @@ class Bitboard(object):
         zobrist_hash = 0
 
         squares = self.occupied_co[BLACK]
-        while squares:
-            square, squares = next_bit(squares)
+        square = bit_scan(squares)
+        while square != -1 and square is not None:
             piece_index = (self.piece_type_at(square) - 1) * 2
             zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            square = bit_scan(squares, square + 1)
 
         squares = self.occupied_co[WHITE]
-        while squares:
-            square, squares = next_bit(squares)
+        square = bit_scan(squares)
+        while square != -1 and square is not None:
             piece_index = (self.piece_type_at(square) - 1) * 2 + 1
             zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            square = bit_scan(squares, square + 1)
 
         return zobrist_hash
 
@@ -2593,10 +2580,10 @@ class SquareSet(object):
         return pop_count(self.mask)
 
     def __iter__(self):
-        squares = self.mask
-        while squares:
-            square, squares = next_bit(squares)
+        square = bit_scan(self.mask)
+        while square != -1 and square is not None:
             yield square
+            square = bit_scan(self.mask, square + 1)
 
     def __contains__(self, square):
         return bool(BB_SQUARES[square] & self.mask)
