@@ -92,6 +92,14 @@ class GameNode(object):
         board.push(self.move)
         return board
 
+    def san(self):
+        """
+        Gets the standard algebraic notation of the move leading to this node.
+
+        Do not call this on the root node.
+        """
+        return self.parent.board().san(self.move)
+
     def root(self):
         """Gets the root node, i.e. the game."""
         node = self
