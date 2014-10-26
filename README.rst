@@ -219,13 +219,13 @@ python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
 highlevel library.
 
-However, even though bit fiddling in Python is not as fast as in C or C++,
-the current version is still much faster than previous attempts including
-the naive x88 move generation from libchess.
-
 You can install the `gmpy2` or `gmpy` (https://code.google.com/p/gmpy/) modules
-in order to get a slight performance boost by using native `pop_count` and
-`bit_scan` operations.
+in order to get a slight performance boost on basic operations like bit scans
+and population counts.
+
+python-chess will only ever import very basic general (non-chess-related)
+operations from native libraries. All logic is pure Python. There will always
+be pure Python fallbacks.
 
 Installing
 ----------
