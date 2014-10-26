@@ -23,6 +23,8 @@ Up for the next release
 
 * Add `GameNode.san()`.
 
+* Remove `sparse_pop_count()`. Just use `pop_count()`.
+
 New in v0.5.0
 -------------
 

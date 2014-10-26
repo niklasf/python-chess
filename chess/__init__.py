@@ -447,28 +447,14 @@ def next_bit(b):
 
     return r, b
 
+try:
+    import gmpy
 
-def sparse_pop_count(b):
-    count = 0
-
-    while b:
-        count += 1
-        b &= b - 1
-
-    return count
-
-BYTE_POP_COUNT = [ sparse_pop_count(i) for i in range(256) ]
-
-def pop_count(b):
-    return (BYTE_POP_COUNT[  b        & 0xff ] +
-            BYTE_POP_COUNT[ (b >>  8) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 16) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 24) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 32) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 40) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 48) & 0xff ] +
-            BYTE_POP_COUNT[ (b >> 56) & 0xff ])
-
+    def pop_count(b):
+        return gmpy.popcount(b)
+except ImportError:
+    def pop_count(b):
+        return bin(b).count("1")
 
 POLYGLOT_RANDOM_ARRAY = [
     0x9D39247E33776D41, 0x2AF7398005AAA5C7, 0x44DB015024623547, 0x9C15F73E62A76AE2,
@@ -1208,7 +1194,7 @@ class Bitboard(object):
             movers = self.pawns & self.occupied_co[WHITE]
             if self.ep_square:
                 moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-                count += sparse_pop_count(moves)
+                count += pop_count(moves)
 
             # Pawn captures.
             moves = shift_up_right(movers) & self.occupied_co[BLACK]
@@ -1255,7 +1241,7 @@ class Bitboard(object):
             movers = self.pawns & self.occupied_co[BLACK]
             if self.ep_square:
                 moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-                count += sparse_pop_count(moves)
+                count += pop_count(moves)
 
             # Pawn captures.
             moves = shift_down_left(movers) & self.occupied_co[WHITE]
@@ -1541,7 +1527,7 @@ class Bitboard(object):
             return False
 
         # A single knight or a single bishop.
-        if sparse_pop_count(self.occupied) <= 3:
+        if pop_count(self.occupied) <= 3:
             return True
 
         # More than a single knight.
@@ -2340,7 +2326,7 @@ class Bitboard(object):
             errors |= STATUS_NO_WHITE_KING
         if not self.occupied_co[BLACK] & self.kings:
             errors |= STATUS_NO_BLACK_KING
-        if sparse_pop_count(self.occupied & self.kings) > 2:
+        if pop_count(self.occupied & self.kings) > 2:
             errors |= STATUS_TOO_MANY_KINGS
 
         if pop_count(self.occupied_co[WHITE] & self.pawns) > 8:
