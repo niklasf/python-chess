@@ -448,13 +448,13 @@ def next_bit(b):
     return r, b
 
 try:
-    import gmpy
-
-    def pop_count(b):
-        return gmpy.popcount(b)
+    from gmpy2 import popcount as pop_count
 except ImportError:
-    def pop_count(b):
-        return bin(b).count("1")
+    try:
+        from gmpy import popcount as pop_count
+    except ImportError:
+        def pop_count(b):
+            return bin(b).count("1")
 
 POLYGLOT_RANDOM_ARRAY = [
     0x9D39247E33776D41, 0x2AF7398005AAA5C7, 0x44DB015024623547, 0x9C15F73E62A76AE2,
