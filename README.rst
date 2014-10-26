@@ -223,6 +223,10 @@ However, even though bit fiddling in Python is not as fast as in C or C++,
 the current version is still much faster than previous attempts including
 the naive x88 move generation from libchess.
 
+You can install the `gmpy2` or `gmpy` (https://code.google.com/p/gmpy/) modules
+in order to get a slight performance boost by using native `pop_count` and
+`bit_scan` operations.
+
 Installing
 ----------
 
