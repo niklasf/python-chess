@@ -19,11 +19,16 @@ Up for the next release
 * Fix export of games with variations. Previously the moves were exported in
   an unusual (i.e. wrong) order.
 
+* Install `gmpy2` or `gmpy` if you want to use slightly faster binary
+  operations.
+
 * Ignore superfluous variation opening brackets in PGN files.
 
 * Add `GameNode.san()`.
 
 * Remove `sparse_pop_count()`. Just use `pop_count()`.
+
+* Remove `next_bit()`. Now use `bit_scan()`.
 
 New in v0.5.0
 -------------
