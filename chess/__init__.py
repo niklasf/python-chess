@@ -938,7 +938,6 @@ class Bitboard(object):
             piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
-
     def set_piece_at(self, square, piece):
         """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
