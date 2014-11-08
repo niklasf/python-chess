@@ -20,7 +20,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 import collections
 import re
@@ -419,6 +419,7 @@ BB_PAWN_ALL = [
     [ BB_PAWN_ATTACKS[1][i] | BB_PAWN_F1[1][i] | BB_PAWN_F2[1][i] for i in SQUARES ]
 ]
 
+
 try:
     from gmpy2 import popcount as pop_count
     from gmpy2 import bit_scan1 as bit_scan
@@ -438,6 +439,7 @@ except ImportError:
                 return -1
             else:
                 return l - r - 1
+
 
 POLYGLOT_RANDOM_ARRAY = [
     0x9D39247E33776D41, 0x2AF7398005AAA5C7, 0x44DB015024623547, 0x9C15F73E62A76AE2,

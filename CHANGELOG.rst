@@ -6,8 +6,8 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Up for the next release
------------------------
+New in v0.6.0
+-------------
 
 * If there are comments in a game before the first move, these are now assigned
   to `Game.comment` instead of `Game.starting_comment`. `Game.starting_comment`
