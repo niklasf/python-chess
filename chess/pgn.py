@@ -81,6 +81,7 @@ class GameNode(object):
         self.starting_comment = ""
         self.comment = ""
         self.variations = []
+
         self.board_cached = None
 
     def board(self):
@@ -89,12 +90,11 @@ class GameNode(object):
 
         It's a copy, so modifying the board will not alter the game.
         """
-		
         if not self.board_cached:
             self.board_cached = self.parent.board()
             self.board_cached.push(self.move)
-        
-        return copy.copy(self.board_cached)
+
+        return copy.deepcopy(self.board_cached)
 
     def san(self):
         """
