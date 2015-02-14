@@ -69,30 +69,6 @@ class Command(object):
         return self._event.is_set()
 
 
-class QuitCommand(Command):
-    def __init__(self, engine, callback=None):
-        self.engine = engine
-        self._callback = callback
-
-    def _execute(self, engine):
-        assert self.engine == engine
-        engine._send("quit\n")
-        engine.terminated.wait()
-        self._notify(self.result)
-
-    @property
-    def result(self):
-        return self.engine.process.returncode
-
-    def wait(self, timeout=None):
-        if not self.engine.terminated.wait(timeout):
-            raise TimeoutError("waiting for engine termination timed out")
-        return self.result
-
-    def is_done(self):
-        return self.engine.process.terminated.is_set()
-
-
 class UciCommand(Command):
     def __init__(self, callback=None):
         super(UciCommand, self).__init__(callback)
@@ -101,6 +77,19 @@ class UciCommand(Command):
         engine.uciok.clear()
         engine._send("uci\n")
         engine.uciok.wait()
+        self._notify(())
+
+
+class DebugCommand(Command):
+    def __init__(self, debug, callback=None):
+        super(DebugCommand, self).__init__(callback)
+        self.debug = debug
+
+    def _execute(self, engine):
+        if self.debug:
+            engine._send("debug true\n")
+        else:
+            engine._send("debug false\n")
         self._notify(())
 
 
@@ -122,28 +111,6 @@ class UciNewGameCommand(IsReadyCommand):
     def _execute(self, engine):
         engine._send("ucinewgame\n")
         super(UciNewGameCommand, self)._execute(engine)
-
-
-class DebugCommand(Command):
-    def __init__(self, debug, callback=None):
-        super(DebugCommand, self).__init__(callback)
-        self.debug = debug
-
-    def _execute(self, engine):
-        if self.debug:
-            engine._send("debug true\n")
-        else:
-            engine._send("debug false\n")
-        self._notify(())
-
-
-class PonderhitCommand(IsReadyCommand):
-    def __init__(self, debug, callback=None):
-        super(PonderhitCommand, self).__init__(callback)
-
-    def _execute(self, engine):
-        engine._send("ponderhit\n")
-        super(PonderhitCommand, self)._execute(engine)
 
 
 class GoCommand(Command):
@@ -227,6 +194,39 @@ class StopCommand(Command):
         engine.readyok.wait()
         engine.bestmove_received.wait(STOP_TIMEOUT)
         self._notify((engine.bestmove, engine.ponder))
+
+
+class PonderhitCommand(IsReadyCommand):
+    def __init__(self, debug, callback=None):
+        super(PonderhitCommand, self).__init__(callback)
+
+    def _execute(self, engine):
+        engine._send("ponderhit\n")
+        super(PonderhitCommand, self)._execute(engine)
+
+
+class QuitCommand(Command):
+    def __init__(self, engine, callback=None):
+        self.engine = engine
+        self._callback = callback
+
+    def _execute(self, engine):
+        assert self.engine == engine
+        engine._send("quit\n")
+        engine.terminated.wait()
+        self._notify(self.result)
+
+    @property
+    def result(self):
+        return self.engine.process.returncode
+
+    def wait(self, timeout=None):
+        if not self.engine.terminated.wait(timeout):
+            raise TimeoutError("waiting for engine termination timed out")
+        return self.result
+
+    def is_done(self):
+        return self.engine.process.terminated.is_set()
 
 
 class Engine(object):
@@ -364,20 +364,24 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def debug(self, debug, async_callback=None):
+        command = DebugCommand(debug, async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def isready(self, async_callback=None):
         command = IsReadyCommand(async_callback)
         self.queue.put(command)
         return command._wait_or_callback()
+
+    # TODO: Implement register command
 
     def ucinewgame(self, async_callback=None):
         command = UciNewGameCommand(async_callback)
         self.queue.put(command)
         return command._wait_or_callback()
 
-    def debug(self, debug, async_callback=None):
-        command = DebugCommand(debug, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+    # TODO: Implement position command
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
         command = GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback)
