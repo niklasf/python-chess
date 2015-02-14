@@ -120,17 +120,17 @@ class UciNewGameCommand(IsReadyCommand):
         super(UciNewGameCommand, self)._execute(engine)
 
 
-class DebugCommand(IsReadyCommand):
+class DebugCommand(Command):
     def __init__(self, debug, callback=None):
-        self.debug = debug
         super(DebugCommand, self).__init__(callback)
+        self.debug = debug
 
     def _execute(self, engine):
         if self.debug:
             engine._send("debug true\n")
         else:
             engine._send("debug false\n")
-        super(DebugCommand, self)._execute(engine)
+        self._notify(())
 
 
 class PonderhitCommand(IsReadyCommand):
