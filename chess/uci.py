@@ -23,6 +23,8 @@ import subprocess
 import threading
 import time
 
+import chess
+
 try:
     import queue
 except ImportError:
@@ -30,6 +32,7 @@ except ImportError:
 
 
 POLL_TIMEOUT = 5
+STOP_TIMEOUT = 2
 
 
 class Command(object):
@@ -218,9 +221,11 @@ class StopCommand(Command):
         super(StopCommand, self).__init__(callback)
 
     def _execute(self, engine):
+        engine.readyok.clear()
         engine._send("stop\n")
         engine._send("isready\n")
         engine.readyok.wait()
+        engine.bestmove_received.wait(STOP_TIMEOUT)
         self._notify((engine.bestmove, engine.ponder))
 
 
@@ -266,14 +271,24 @@ class Engine(object):
             return
 
         if len(command_and_args) >= 1:
-            if command_and_args[0] == "readyok":
-                return self._readyok()
-            elif command_and_args[0] == "uciok":
+            if command_and_args[0] == "uciok":
                 return self._uciok()
+            elif command_and_args[0] == "readyok":
+                return self._readyok()
 
         if len(command_and_args) >= 2:
             if command_and_args[0] == "id":
                 return self._id(command_and_args[1])
+            elif command_and_args[0] == "bestmove":
+                return self._bestmove(command_and_args[1])
+            elif command_and_args[0] == "copyprotection":
+                return self._copyprotection(command_and_args[1])
+            elif command_and_args[0] == "registration":
+                return self._registration(command_and_args[1])
+            elif command_and_args[0] == "info":
+                return self._info(command_and_args[1])
+            elif command_and_args[0] == "option":
+                return self._option(command_and_args[1])
 
     def _stdin_thread_target(self):
         while self.is_alive():
@@ -298,15 +313,8 @@ class Engine(object):
 
         self.terminated.set()
 
-    def _readyok(self):
-        self.readyok.set()
-
-    def _uciok(self):
-        self.uciok.set()
-
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
-        #print "||||", arg
         if property_and_arg[0] == "name":
             if len(property_and_arg) >= 2:
                 self.name = property_and_arg[1]
@@ -320,7 +328,36 @@ class Engine(object):
                 self.author = ""
             return
 
-        #print "Property not found!"
+    def _uciok(self):
+        self.uciok.set()
+
+    def _readyok(self):
+        self.readyok.set()
+
+    def _bestmove(self, arg):
+        tokens = arg.split(None, 2)
+        self.bestmove = chess.Move.from_uci(tokens[0])
+        if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+            self.ponder = chess.Move.from_uci(tokens[2])
+        else:
+            self.ponder = None
+        self.bestmove_received.set()
+
+    def _copyprotection(self, arg):
+        # TODO: Implement
+        pass
+
+    def _registration(self, arg):
+        # TODO: Implement
+        pass
+
+    def _info(self, arg):
+        # TODO: Implement
+        pass
+
+    def _option(self, arg):
+        # TODO: Implement
+        pass
 
     def uci(self, async_callback=None):
         command = UciCommand(async_callback)
