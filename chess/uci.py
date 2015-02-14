@@ -116,16 +116,16 @@ class Engine(object):
         self.bestmove_received = threading.Event()
 
         self.queue = queue.Queue()
-        self.stdin_thread = threading.Thread(target=self._write_stdin)
+        self.stdin_thread = threading.Thread(target=self._stdin_thread_target)
         self.stdin_thread.daemon = True
         self.stdin_thread.start()
 
-        self.stdout_thread = threading.Thread(target=self._read_stdout)
+        self.stdout_thread = threading.Thread(target=self._stdout_thread_target)
         self.stdout_thread.daemon = True
         self.stdout_thread.start()
 
-    def _write_stdin(self):
-        while self.process.poll() is None:
+    def _stdin_thread_target(self):
+        while self.is_alive():
             try:
                 command = self.queue.get(True, 5)
             except queue.Empty:
@@ -134,8 +134,8 @@ class Engine(object):
             command._execute(self)
             self.queue.task_done()
 
-    def _read_stdout(self):
-        while True:
+    def _stdout_thread_target(self):
+        while self.is_alive():
             line = self.process.stdout.readline()
             if not line:
                 return
@@ -202,9 +202,19 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def terminate(self):
+        return self.process.terminate()
+
+    def kill(self):
+        return self.process.kill()
+
+    def is_alive(self):
+        return self.process.poll() is None
+
 
 def popen_engine(path):
     return Engine(subprocess.Popen(path, stdout=subprocess.PIPE, stdin=subprocess.PIPE))
+
 
 if __name__ == "__main__":
     engine = popen_engine("stockfish")
@@ -216,4 +226,4 @@ if __name__ == "__main__":
     print(engine.name)
     print(engine.author)
 
-    engine.process.terminate()
+    engine.terminate()
