@@ -209,8 +209,19 @@ class GoCommand(Command):
         if self.infinite:
             self._notify(())
         else:
-            self.engine.bestmove_received.wait()
+            engine.bestmove_received.wait()
             self._notify((engine.bestmove, engine.ponder))
+
+
+class StopCommand(Command):
+    def __init__(self, callback=None):
+        super(StopCommand, self).__init__(callback)
+
+    def _execute(self, engine):
+        engine._send("stop\n")
+        engine._send("isready\n")
+        engine.readyok.wait()
+        self._notify((engine.bestmove, engine.ponder))
 
 
 class Engine(object):
@@ -336,6 +347,11 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def stop(self, async_callback=None):
+        command = StopCommand(async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def ponderhit(self, async_callback=None):
         command = PonderhitCommand(async_callback)
         self.queue.put(command)
@@ -382,5 +398,7 @@ if __name__ == "__main__":
     print(engine.go(infinite=True))
 
     time.sleep(1)
+
+    print(engine.stop())
 
     print(engine.quit())
