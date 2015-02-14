@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import subprocess
 import threading
@@ -71,7 +72,7 @@ class QuitCommand(Command):
 
     def _execute(self, engine):
         assert self.engine == engine
-        engine.process.stdin.write("quit\n")
+        engine._send("quit\n")
         engine.terminated.wait()
         self._notify(self.result)
 
@@ -94,7 +95,7 @@ class UciCommand(Command):
 
     def _execute(self, engine):
         engine.uciok.clear()
-        engine.process.stdin.write("uci\n")
+        engine._send("uci\n")
         engine.uciok.wait()
         self._notify(())
 
@@ -105,7 +106,7 @@ class IsReadyCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine.process.stdin.write("isready\n")
+        engine._send("isready\n")
         engine.readyok.wait()
         self._notify(())
 
@@ -115,7 +116,7 @@ class UciNewGameCommand(IsReadyCommand):
         super(UciNewGameCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine.process.stdin.write("ucinewgame\n")
+        engine._send("ucinewgame\n")
         super(UciNewGameCommand, self)._execute(engine)
 
 
@@ -126,9 +127,9 @@ class DebugCommand(IsReadyCommand):
 
     def _execute(self, engine):
         if self.debug:
-            engine.process.stdin.write("debug true\n")
+            engine._send("debug true\n")
         else:
-            engine.process.stdin.write("debug false\n")
+            engine._send("debug false\n")
         super(DebugCommand, self)._execute(engine)
 
 
@@ -137,7 +138,7 @@ class PonderhitCommand(IsReadyCommand):
         super(PonderhitCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine.process.stdin.write("ponderhit\n")
+        engine._send("ponderhit\n")
         super(PonderhitCommand, self)._execute(engine)
 
 
@@ -171,6 +172,27 @@ class Engine(object):
 
         self.terminated = threading.Event()
 
+    def _send(self, buf):
+        print(">>>", buf.rstrip())
+        self.process.stdin.write(buf)
+
+    def _received(self, buf):
+        print("<<<", buf)
+
+        command_and_args = buf.split(None, 1)
+        if not command_and_args:
+            return
+
+        if len(command_and_args) >= 1:
+            if command_and_args[0] == "readyok":
+                return self._readyok()
+            elif command_and_args[0] == "uciok":
+                return self._uciok()
+
+        if len(command_and_args) >= 2:
+            if command_and_args[0] == "id":
+                return self._id(command_and_args[1])
+
     def _stdin_thread_target(self):
         while self.is_alive():
             try:
@@ -190,27 +212,7 @@ class Engine(object):
                 continue
 
             line = line.rstrip()
-
-            #print "<<<", line
-
-            command_and_args = line.split(None, 1)
-            if not command_and_args:
-                continue
-
-            if len(command_and_args) >= 1:
-                if command_and_args[0] == "readyok":
-                    self._readyok()
-                    continue
-                elif command_and_args[0] == "uciok":
-                    self._uciok()
-                    continue
-
-            if len(command_and_args) >= 2:
-                if command_and_args[0] == "id":
-                    self._id(command_and_args[1])
-                    continue
-
-            #print "Command not found!"
+            self._received(line)
 
         self.terminated.set()
 
@@ -289,15 +291,15 @@ class Engine(object):
 
 
 def popen_engine(path):
-    return Engine(subprocess.Popen(path, stdout=subprocess.PIPE, stdin=subprocess.PIPE))
+    return Engine(subprocess.Popen(path, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
 
 
 if __name__ == "__main__":
     engine = popen_engine("stockfish")
+    engine.uci()
 
     engine.debug(True)
 
-    engine.uci()
 
     print(engine.name)
     print(engine.author)
