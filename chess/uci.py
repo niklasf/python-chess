@@ -30,23 +30,6 @@ except ImportError:
 POLL_TIMEOUT = 5
 
 
-class TerminationPromise(object):
-    def __init__(self, engine):
-        self.engine = engine
-
-    @property
-    def result(self):
-        return self.engine.process.returncode
-
-    def wait(self, timeout=None):
-        if not self.engine.terminated.wait(timeout):
-            raise TimeoutError("waiting for engine termination timed out")
-        return self.engine.process.returncode
-
-    def is_done(self):
-        return self.engine.terminated.is_set()
-
-
 class Command(object):
     def __init__(self, callback=None):
         self.result = None
@@ -79,6 +62,30 @@ class Command(object):
 
     def is_done(self):
         return self._event.is_set()
+
+
+class QuitCommand(Command):
+    def __init__(self, engine, callback=None):
+        self.engine = engine
+        self._callback = callback
+
+    def _execute(self, engine):
+        assert self.engine == engine
+        engine.process.stdin.write("quit\n")
+        engine.terminated.wait()
+        self._notify(self.result)
+
+    @property
+    def result(self):
+        return self.engine.process.returncode
+
+    def wait(self, timeout=None):
+        if not self.engine.terminated.wait(timeout):
+            raise TimeoutError("waiting for engine termination timed out")
+        return self.result
+
+    def is_done(self):
+        return self.engine.process.terminated.is_set()
 
 
 class UciCommand(Command):
@@ -242,9 +249,14 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def quit(self, async_callback=None):
+        command = QuitCommand(self, async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def terminate(self, async=None):
         self.process.terminate()
-        promise = TerminationPromise(self)
+        promise = QuitCommand(self)
         if async:
             return promise
         else:
@@ -252,7 +264,7 @@ class Engine(object):
 
     def kill(self, async=False):
         self.process.kill()
-        promise = TerminationPromise(self)
+        promise = QuitCommand(self)
         if async:
             return promise
         else:
@@ -278,4 +290,4 @@ if __name__ == "__main__":
 
     print(engine.ucinewgame())
 
-    print(engine.terminate())
+    print(engine.quit())
