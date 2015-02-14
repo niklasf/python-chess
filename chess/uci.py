@@ -103,6 +103,15 @@ class IsReadyCommand(Command):
         self._notify(())
 
 
+class UciNewGameCommand(IsReadyCommand):
+    def __init__(self, callback=None):
+        super(UciNewGameCommand, self).__init__(callback)
+
+    def _execute(self, engine):
+        engine.process.stdin.write("ucinewgame\n")
+        super(UciNewGameCommand, self)._execute(engine)
+
+
 class DebugCommand(IsReadyCommand):
     def __init__(self, debug, callback=None):
         self.debug = debug
@@ -223,6 +232,11 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def ucinewgame(self, async_callback=None):
+        command = UciNewGameCommand(async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def debug(self, debug, async_callback=None):
         command = DebugCommand(debug, async_callback)
         self.queue.put(command)
@@ -261,5 +275,7 @@ if __name__ == "__main__":
 
     print(engine.name)
     print(engine.author)
+
+    print(engine.ucinewgame())
 
     print(engine.terminate())
