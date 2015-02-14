@@ -132,6 +132,15 @@ class DebugCommand(IsReadyCommand):
         super(DebugCommand, self)._execute(engine)
 
 
+class PonderhitCommand(IsReadyCommand):
+    def __init__(self, debug, callback=None):
+        super(PonderhitCommand, self).__init__(callback)
+
+    def _execute(self, engine):
+        engine.process.stdin.write("ponderhit\n")
+        super(PonderhitCommand, self)._execute(engine)
+
+
 class Engine(object):
     def __init__(self, process):
         super(Engine, self).__init__()
@@ -249,6 +258,11 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def ponderhit(self, async_callback=None):
+        command = PonderhitCommand(async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def quit(self, async_callback=None):
         command = QuitCommand(self, async_callback)
         self.queue.put(command)
@@ -289,5 +303,6 @@ if __name__ == "__main__":
     print(engine.author)
 
     print(engine.ucinewgame())
+    print(engine.ponderhit())
 
     print(engine.quit())
