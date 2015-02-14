@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 import subprocess
 import threading
+import time
 
 try:
     import queue
@@ -142,6 +143,76 @@ class PonderhitCommand(IsReadyCommand):
         super(PonderhitCommand, self)._execute(engine)
 
 
+class GoCommand(Command):
+    def __init__(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, callback=None):
+        super(GoCommand, self).__init__(callback)
+
+        builder = []
+        builder.append("go")
+
+        if searchmoves:
+            builder.append("searchmoves")
+            for move in searchmoves:
+                builder.append(move.uci())
+
+        if ponder:
+            builder.append("ponder")
+
+        if wtime is not None:
+            builder.append("wtime")
+            builder.append(str(int(wtime)))
+
+        if btime is not None:
+            builder.append("btime")
+            builder.append(str(int(btime)))
+
+        if winc is not None:
+            builder.append("winc")
+            builder.append(str(int(winc)))
+
+        if binc is not None:
+            builder.append("binc")
+            builder.append(str(int(binc)))
+
+        if movestogo is not None and movestogo > 0:
+            builder.append("movestogo")
+            builder.append(str(int(movestogo)))
+
+        if depth is not None:
+            builder.append("depth")
+            builder.append(str(int(depth)))
+
+        if nodes is not None:
+            builder.append("nodes")
+            builder.append(str(int(nodes)))
+
+        if mate is not None:
+            builder.append("mate")
+            builder.append(str(int(mate)))
+
+
+        if movetime is not None:
+            builder.append("movetime")
+            builder.append(str(int(movetime)))
+
+        self.infinite = infinite
+        if infinite:
+            builder.append("infinite")
+
+        self.buf = " ".join(builder) + "\n"
+
+    def _execute(self, engine):
+        engine.bestmove = None
+        engine.ponder = None
+        engine.bestmove_received.clear()
+        engine._send(self.buf)
+        if self.infinite:
+            self._notify(())
+        else:
+            self.engine.bestmove_received.wait()
+            self._notify((engine.bestmove, engine.ponder))
+
+
 class Engine(object):
     def __init__(self, process):
         super(Engine, self).__init__()
@@ -260,6 +331,11 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
+        command = GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
+
     def ponderhit(self, async_callback=None):
         command = PonderhitCommand(async_callback)
         self.queue.put(command)
@@ -297,14 +373,14 @@ def popen_engine(path):
 if __name__ == "__main__":
     engine = popen_engine("stockfish")
     engine.uci()
-
-    engine.debug(True)
-
-
     print(engine.name)
     print(engine.author)
 
+    engine.debug(True)
+
     print(engine.ucinewgame())
-    print(engine.ponderhit())
+    print(engine.go(infinite=True))
+
+    time.sleep(1)
 
     print(engine.quit())
