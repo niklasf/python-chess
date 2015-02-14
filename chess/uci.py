@@ -27,6 +27,26 @@ except ImportError:
     import Queue as queue
 
 
+POLL_TIMEOUT = 5
+
+
+class TerminationPromise(object):
+    def __init__(self, engine):
+        self.engine = engine
+
+    @property
+    def result(self):
+        return self.engine.process.returncode
+
+    def wait(self, timeout=None):
+        if not self.engine.terminated.wait(timeout):
+            raise TimeoutError("waiting for engine termination timed out")
+        return self.engine.process.returncode
+
+    def is_done(self):
+        return self.engine.terminated.is_set()
+
+
 class Command(object):
     def __init__(self, callback=None):
         self.result = None
@@ -54,7 +74,7 @@ class Command(object):
 
     def wait(self, timeout=None):
         if not self._event.wait(timeout):
-            raise TimeoutError('waiting for uci command timed out')
+            raise TimeoutError("waiting for uci command timed out")
         return self.result
 
     def is_done(self):
@@ -124,21 +144,25 @@ class Engine(object):
         self.stdout_thread.daemon = True
         self.stdout_thread.start()
 
+        self.terminated = threading.Event()
+
     def _stdin_thread_target(self):
         while self.is_alive():
             try:
-                command = self.queue.get(True, 5)
+                command = self.queue.get(True, POLL_TIMEOUT)
             except queue.Empty:
                 continue
 
             command._execute(self)
             self.queue.task_done()
 
+        self.terminated.set()
+
     def _stdout_thread_target(self):
         while self.is_alive():
             line = self.process.stdout.readline()
             if not line:
-                return
+                continue
 
             line = line.rstrip()
 
@@ -162,6 +186,8 @@ class Engine(object):
                     continue
 
             #print "Command not found!"
+
+        self.terminated.set()
 
     def _readyok(self):
         self.readyok.set()
@@ -202,11 +228,21 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
-    def terminate(self):
-        return self.process.terminate()
+    def terminate(self, async=None):
+        self.process.terminate()
+        promise = TerminationPromise(self)
+        if async:
+            return promise
+        else:
+            return promise.wait()
 
-    def kill(self):
-        return self.process.kill()
+    def kill(self, async=False):
+        self.process.kill()
+        promise = TerminationPromise(self)
+        if async:
+            return promise
+        else:
+            return promise.wait()
 
     def is_alive(self):
         return self.process.poll() is None
@@ -226,4 +262,4 @@ if __name__ == "__main__":
     print(engine.name)
     print(engine.author)
 
-    engine.terminate()
+    print(engine.terminate())
