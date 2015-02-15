@@ -6,6 +6,13 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Up for the next release
+-----------------------
+
+* **Support chess engine communication via UCI.**
+
+* Patch by Matthew Lai: `Add caching for gameNode.board()`.
+
 New in v0.6.0
 -------------
 
