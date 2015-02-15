@@ -58,7 +58,7 @@ class InfoHandler(object):
         self.info["seldepth"] = x
 
     def time(self, x):
-        self.info["times"] = x
+        self.info["time"] = x
 
     def nodes(self, x):
         self.info["nodes"] = x
