@@ -749,8 +749,19 @@ class Engine(object):
         """
         return self.queue_command(UciCommand(async_callback))
 
-    def debug(self, debug, async_callback=None):
-        return self.queue_command(DebugCommand(debug, async_callback))
+    def debug(self, on, async_callback=None):
+        """
+        Switch the debug mode on or off.
+
+        In debug mode the engine should send additional infos to the GUI to
+        help debugging. This mode should be switched off by default.
+
+        Args:
+            on: bool
+
+        Returns: ()
+        """
+        return self.queue_command(DebugCommand(on, async_callback))
 
     def isready(self, async_callback=None):
         return self.queue_command(IsReadyCommand(async_callback))
