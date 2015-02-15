@@ -166,15 +166,15 @@ class UciCommand(Command):
 
 
 class DebugCommand(Command):
-    def __init__(self, debug, callback=None):
+    def __init__(self, on, callback=None):
         super(DebugCommand, self).__init__(callback)
-        self.debug = debug
+        self.on = on
 
     def _execute(self, engine):
-        if self.debug:
-            engine._send("debug true\n")
+        if self.on:
+            engine._send("debug on\n")
         else:
-            engine._send("debug false\n")
+            engine._send("debug off\n")
         self._notify(())
 
 
@@ -741,6 +741,12 @@ class Engine(object):
         return command._wait_or_callback()
 
     def uci(self, async_callback=None):
+        """
+        Tells the engine to use the UCI interface.
+
+        This is mandatory before any other command. A conforming engine will
+        send its name, authors and available options.
+        """
         return self.queue_command(UciCommand(async_callback))
 
     def debug(self, debug, async_callback=None):

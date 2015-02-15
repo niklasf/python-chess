@@ -11,6 +11,7 @@ UCI Commands
 ------------
 
 .. autoclass:: chess.uci.Engine
+    :members:
 
 Asynchronous communication
 --------------------------
