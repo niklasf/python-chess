@@ -23,6 +23,7 @@ import chess.pgn
 import chess.uci
 import unittest
 import textwrap
+import time
 
 try:
     from StringIO import StringIO
@@ -1161,6 +1162,28 @@ class StockfishTestCase(unittest.TestCase):
         self.assertEqual(self.engine.options["UCI_Chess960"].name, "UCI_Chess960")
         self.assertEqual(self.engine.options["UCI_Chess960"].type, "check")
         self.assertEqual(self.engine.options["UCI_Chess960"].default, False)
+
+    def test_info(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.setoption({
+            "MultiPV": 2
+        })
+
+        self.engine.ucinewgame()
+
+        board = chess.Bitboard("r3r3/pp3qk1/2p3Pp/3pP3/3P2b1/2NB4/PPQ1N1P1/4b2K w - - 0 24")
+        self.engine.position(board)
+
+        self.engine.go(infinite=True)
+        time.sleep(2)
+
+        with handler as info:
+            self.assertEqual(info["pv"][1][0], chess.Move.from_uci("g6f7"))
+            self.assertEqual(info["pv"][2][0], chess.Move.from_uci("c3e4"))
+
+        self.engine.stop()
 
 
 if __name__ == "__main__":
