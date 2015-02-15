@@ -1138,5 +1138,30 @@ class StockfishTestCase(unittest.TestCase):
             result = self.engine.go(movetime=2000)
             self.assertEqual(result[0], operations["bm"], operations["id"])
 
+    def test_async(self):
+        self.engine.ucinewgame()
+        command = self.engine.go(movetime=1000, async_callback=True)
+        self.assertFalse(command.is_done())
+        command.wait()
+        self.assertTrue(command.is_done())
+
+    def test_async_callback(self):
+        self.async_callback_called = False
+        def async_callback():
+            self.async_callback_called = True
+
+        command = self.engine.isready(async_callback=async_callback)
+
+        self.engine.isready() # Synchronize
+        self.assertTrue(self.async_callback_called)
+        self.assertTrue(command.is_done())
+
+    def test_initialization(self):
+        self.assertTrue("Stockfish" in self.engine.name)
+        self.assertEqual(self.engine.options["UCI_Chess960"].name, "UCI_Chess960")
+        self.assertEqual(self.engine.options["UCI_Chess960"].type, "check")
+        self.assertEqual(self.engine.options["UCI_Chess960"].default, False)
+
+
 if __name__ == "__main__":
     unittest.main()
