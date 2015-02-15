@@ -50,8 +50,52 @@ UCI Commands
     :members: uci, debug, isready, setoption, ucinewgame, position, go, stop,
         ponderhit, quit
 
-.. _options:
+Asynchronous communication
+--------------------------
 
+By default all operations are executed synchronously and their result is
+returned. For example
+
+>>> engine.go(movetime=2000)
+(Move.from_uci('e2e4'), None)
+
+will take about 2000 milliseconds. All UCI commands have an optional
+*async_callback* argument. They will then immediately return information about
+the command and continue.
+
+>>> command = engine.go(movetime=2000, async_callback=True)
+>>> command.is_done()
+False
+>>> command.result
+None
+>>> command.wait() # Synchronously wait for the command to finish
+>>> command.is_done()
+True
+>>> command.result
+(Move.from_uci('e2e4'), None)
+
+Instead of just passing *async_callback=True* a callback function may be
+passed. It will be invoked **on a different thread** as soon as the command
+is completed. Make sure the number of arguments exactly matches the expected
+result.
+
+>>> def on_go_finished(bestmove, pondermove):
+...     # Will be executed on a different thread.
+...     pass
+...
+>>> command = engine.go(movetime=2000, async_callback=on_go_finished)
+
+All commands are queued and executed in FIFO order (regardless if asynchronous
+or not).
+
+.. autoclass:: chess.uci.Command
+    :members:
+
+    .. py:attribute:: result
+
+        The result if the command has been completed or *None*.
+
+.. _options:
 Options
 -------
 
@@ -88,9 +132,6 @@ Options
     .. py:attribute:: var
 
         A list of allows string values for a *combo* option.
-
-Asynchronous communication
---------------------------
 
 Info handler
 ------------
