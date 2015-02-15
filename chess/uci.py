@@ -452,6 +452,7 @@ class QuitCommand(Command):
         assert self.engine == engine
         engine._send("quit\n")
         engine.terminated.wait()
+        engine._close_fds()
         self._notify_callback()
 
     @property
@@ -538,6 +539,7 @@ class Engine(object):
             command._execute(self)
             self.queue.task_done()
 
+        self._close_fds()
         self._terminated()
 
     def _stdout_thread_target(self):
@@ -549,7 +551,12 @@ class Engine(object):
             line = line.rstrip()
             self._received(line)
 
+        self._close_fds()
         self._terminated()
+
+    def _close_fds(self):
+        self.process.stdin.close()
+        self.process.stdout.close()
 
     def _terminated(self):
         self.returncode = self.process.returncode
@@ -972,6 +979,7 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
+        self._close_fds()
         self.process.terminate()
         promise = QuitCommand(self)
         if async:
@@ -987,6 +995,7 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
+        self._close_fds()
         self.process.kill()
         promise = QuitCommand(self)
         if async:
@@ -1022,6 +1031,10 @@ class SpurEngine(Engine):
 
     def _send(self, buf):
         self.process.stdin_write(buf.encode("utf-8"))
+
+    def _close_fds(self):
+        # TODO: Check if this is required.
+        pass
 
     def _terminated(self):
         self.returncode = self.process.wait_for_result().return_code
