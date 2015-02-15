@@ -6,7 +6,7 @@ before_install:
  - sudo apt-get update
  - sudo apt-get install -y stockfish
 install:
- - pip install coveralls --use-mirrors
+ - pip install coveralls
 script:
  - coverage run --source chess test.py
  - coverage run --source chess --append -m doctest README.rst
