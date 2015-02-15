@@ -359,7 +359,6 @@ class Engine(object):
             self.queue.task_done()
 
         self.terminated.set()
-        print("Terminated (stdin)!")
 
     def _stdout_thread_target(self):
         while self.is_alive():
@@ -371,7 +370,6 @@ class Engine(object):
             self._received(line)
 
         self.terminated.set()
-        print("Terminated (stdout)!")
 
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
@@ -421,7 +419,7 @@ class Engine(object):
 
     def queue_command(self, command):
         if self.terminated.is_set():
-            raise ChildProcessError('can not queue command for terminated uci engine')
+            raise RuntimeError('can not queue command for terminated uci engine')
         self.queue.put(command)
         return command._wait_or_callback()
 
@@ -504,5 +502,3 @@ if __name__ == "__main__":
     print(engine.go(mate=5))
 
     print(engine.quit())
-
-    print(engine.ucinewgame())
