@@ -45,10 +45,12 @@ class Command(object):
     def _notify(self, result):
         self.result = result
         self._event.set()
+        self._notify_callback()
 
+    def _notify_callback(self):
         if self._callback and not self._callback is True:
             try:
-                iter(self.result)
+                iter(result)
             except TypeError:
                 self._callback(self.result)
                 return
@@ -267,7 +269,7 @@ class QuitCommand(Command):
         assert self.engine == engine
         engine._send("quit\n")
         engine.terminated.wait()
-        self._notify(self.result)
+        self._notify_callback()
 
     @property
     def result(self):
@@ -303,11 +305,11 @@ class Engine(object):
 
         self.queue = queue.Queue()
         self.stdin_thread = threading.Thread(target=self._stdin_thread_target)
-        self.stdin_thread.daemon = True
+        #self.stdin_thread.daemon = True
         self.stdin_thread.start()
 
         self.stdout_thread = threading.Thread(target=self._stdout_thread_target)
-        self.stdout_thread.daemon = True
+        #self.stdout_thread.daemon = True
         self.stdout_thread.start()
 
         self.terminated = threading.Event()
@@ -349,6 +351,9 @@ class Engine(object):
                 command = self.queue.get(True, POLL_TIMEOUT)
             except queue.Empty:
                 continue
+
+            if not self.is_alive():
+                break
 
             command._execute(self)
             self.queue.task_done()
@@ -510,3 +515,5 @@ if __name__ == "__main__":
     print(engine.go(mate=5))
 
     print(engine.quit())
+
+    print(engine.ucinewgame())
