@@ -120,7 +120,14 @@ class SetOptionCommand(IsReadyCommand):
             builder.append("setoption name ")
             builder.append(name)
             builder.append(" value ")
-            builder.append(value)
+            if value is True:
+                builder.append("true")
+            elif value is False:
+                builder.append("false")
+            elif value is None:
+                builder.append("none")
+            else:
+                builder.append(str(value))
             builder.append("\n")
 
         self.buf = "".join(builder)
