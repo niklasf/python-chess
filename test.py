@@ -20,6 +20,7 @@
 import chess
 import chess.polyglot
 import chess.pgn
+import chess.uci
 import unittest
 import textwrap
 
@@ -1112,6 +1113,30 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(first_drawn_game.headers["Site"], "03")
             self.assertEqual(first_drawn_game.variation(0).move, chess.Move.from_uci("d2d3"))
 
+
+class StockfishTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.engine = chess.uci.popen_engine("stockfish")
+        self.engine.uci()
+
+    def tearDown(self):
+        self.engine.quit()
+
+    def test_bratko_kopec(self):
+        epds = [
+            "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
+            "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - - bm d5; id \"BK.02\";",
+        ]
+
+        board = chess.Bitboard()
+
+        for epd in epds:
+            operations = board.set_epd(epd)
+            self.engine.ucinewgame()
+            self.engine.position(board)
+            result = self.engine.go(movetime=2000)
+            self.assertEqual(result[0], operations["bm"], operations["id"])
 
 if __name__ == "__main__":
     unittest.main()
