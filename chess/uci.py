@@ -380,13 +380,8 @@ class Engine(object):
         self.process = process
 
         self.name = None
-        self.name_received = threading.Event()
-
         self.author = None
-        self.author_received = threading.Event()
-
         self.options = {}
-
         self.uciok = threading.Event()
 
         self.readyok = threading.Event()
@@ -756,40 +751,134 @@ class Engine(object):
         In debug mode the engine should send additional infos to the GUI to
         help debugging. This mode should be switched off by default.
 
-        Args:
-            on: bool
+        :param on: bool
 
-        Returns: ()
+        :return: ()
         """
         return self.queue_command(DebugCommand(on, async_callback))
 
     def isready(self, async_callback=None):
+        """
+        Command used to synchronize with the engine.
+
+        The engine will respond as soon as ithas handled all other queued
+        commands.
+
+        :return: ()
+        """
         return self.queue_command(IsReadyCommand(async_callback))
 
     def setoption(self, options, async_callback=None):
+        """
+        Set a values for the engines available options.
+
+        :param options: A dictionary with option names as keys.
+
+        :return: ()
+        """
         return self.queue_command(SetOptionCommand(options, async_callback))
 
     # TODO: Implement register command
 
     def ucinewgame(self, async_callback=None):
+        """
+        Tell the engine that the next search will be from a different game.
+
+        This can be a new game the engine should play or if the engine should
+        analyse a position from a different game. Using this command is
+        recommended but not required.
+
+        :return: ()
+        """
         return self.queue_command(UciNewGameCommand(async_callback))
 
     def position(self, board, async_callback=None):
+        """
+        Set up a given position.
+
+        Instead of just the final FEN, the initial FEN and all moves leading
+        up to the position will be sent, so that the engine can detect
+        repititions.
+
+        If the position is from a new game it is recommended to use the
+        *ucinewgame* command before the *position* command.
+
+        :param board: A *chess.Bitboard*.
+
+        :return: ()
+        """
         return self.queue_command(PositionCommand(board, async_callback))
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
+        """
+        Start calculating on the current position.
+
+        All parameters are optional, but there should be at least one of
+        *depth*, *nodes*, *mate*, *infinite* or some time control settings,
+        so that the engine knows how long to calculate.
+
+        :param searchmoves: Restrict search to moves in this list.
+        :param ponder: Bool to enable pondering mode.
+        :param wtime: Integer of milliseconds white has left on the clock.
+        :param btime: Integer of milliseconds black has left on the clock.
+        :param winc: Integer of white Fisher increment.
+        :param binc: Integer of black Fisher increment.
+        :param movestogo: Number of moves to the next time control. If this is
+            not set, but wtime or btime are, then it is sudden death.
+        :param depth: Search *depth* ply only.
+        :param nodes: Search *nodes* only.
+        :param mate: Search for a mate in *mate* moves.
+        :param movetime: Integer. Search exactly *movetime* milliseconds.
+        :param infinite: Search in the backgorund until a *stop* command is
+            received.
+
+        :return: **In normal search mode** a tuple of two elements. The first
+            is the best move according to the engine. The second is the ponder
+            move. This is the reply expected by the engine. Either of the
+            elements may be *None*. **In infinite search mode** the result is
+            () instead.
+        """
         return self.queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback))
 
     def stop(self, async_callback=None):
+        """
+        Stop calculating as soon as possible.
+
+        :return: A tuple of the latest best move and the ponder move. See the
+            *go* command. Results of infinite searches will also be available
+            here.
+        """
         return self.queue_command(StopCommand(async_callback))
 
     def ponderhit(self, async_callback=None):
+        """
+        May be sent if the expected ponder move has been played.
+
+        The engine should continue searching but should switch from pondering
+        to normal search.
+
+        :return: ()
+        """
         return self.queue_command(PonderhitCommand(async_callback))
 
     def quit(self, async_callback=None):
+        """
+        Quit the engine as soon as possible.
+
+        :return: The return code of the engine process.
+        """
         return self.queue_command(QuitCommand(self, async_callback))
 
     def terminate(self, async=None):
+        """
+        Terminate the engine.
+
+        This is not an UCI command. It instead tries to terminate the engine
+        on operating system level, for example by sending SIGTERM on Unix
+        systems. If possible, first try the *quit* command.
+
+        :return: The return code of the engine process.
+        """
         self.process.terminate()
         promise = QuitCommand(self)
         if async:
@@ -798,6 +887,13 @@ class Engine(object):
             return promise.wait()
 
     def kill(self, async=False):
+        """
+        Kill the engine.
+
+        Forcefully kill the engine process, for example by sending SIGKILL.
+
+        :return: The return code of the engine process.
+        """
         self.process.kill()
         promise = QuitCommand(self)
         if async:
@@ -806,6 +902,7 @@ class Engine(object):
             return promise.wait()
 
     def is_alive(self):
+        """Poll the engine process to check if it is alive."""
         return self.process.poll() is None
 
 
