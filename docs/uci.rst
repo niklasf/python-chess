@@ -1,4 +1,4 @@
-UCI Engine communication
+UCI engine communication
 ========================
 
 The `Universal Chess Interface`_ is a protocol for communicating with engines.
