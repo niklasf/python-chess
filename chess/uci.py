@@ -1097,11 +1097,15 @@ def spur_spawn_engine(shell, command, cls=SpurEngine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
+    return cls(shell, command)
+
 
 if __name__ == "__main__":
     import time
+    import spur
 
-    engine = popen_engine("/usr/games/stockfish")
+    #engine = popen_engine("/usr/games/stockfish")
+    engine = spur_spawn_engine(spur.LocalShell(), ["/usr/games/stockfish"])
 
     engine.uci()
     print("Name:", engine.name)
