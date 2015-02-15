@@ -133,7 +133,7 @@ class Command(object):
     def _notify_callback(self):
         if self._callback and not self._callback is True:
             try:
-                iter(result)
+                iter(self.result)
             except TypeError:
                 self._callback(self.result)
                 return
@@ -410,12 +410,9 @@ class Engine(object):
         self.info_handlers = []
 
     def _send(self, buf):
-        print(">>>", buf.rstrip())
         self.process.stdin.write(buf)
 
     def _received(self, buf):
-        print("<<<", buf)
-
         command_and_args = buf.split(None, 1)
         if not command_and_args:
             return
@@ -817,7 +814,6 @@ class SpurEngine(Engine):
         super(SpurEngine, self).__init__(process)
 
     def _send(self, buf):
-        print(">>>", buf.rstrip())
         self.process.stdin_write(buf.encode("utf-8"))
 
     def _terminated(self):
