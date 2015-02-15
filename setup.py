@@ -54,7 +54,7 @@ setuptools.setup(
     description="A pure Python chess library with move generation and validation and handling of common formats.",
     long_description=read_description(),
     license="GPL3",
-    keywords="chess fen pgn polyglot",
+    keywords="chess fen pgn polyglot uci",
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     scripts=["scripts/ecotool", "scripts/python-chess"],

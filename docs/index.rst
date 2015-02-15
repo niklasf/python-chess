@@ -10,6 +10,7 @@ Contents
     core
     pgn
     polyglot
+    uci
 
 Indices and tables
 ------------------
