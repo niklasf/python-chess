@@ -8,8 +8,8 @@ before_install:
 install:
  - pip install coveralls
 script:
- - coverage run --source chess test.py
- - coverage run --source chess --append -m doctest README.rst
+ - coverage run --source chess test.py --verbose
+ - coverage run --source chess --append -m doctest README.rst --verbose
  - coverage run --source chess --append perft.py
 after_success:
  - coveralls
