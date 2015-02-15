@@ -21,9 +21,9 @@ from __future__ import unicode_literals
 
 import chess
 import collections
+import signal
 import subprocess
 import threading
-import signal
 
 try:
     import queue
@@ -37,6 +37,85 @@ STOP_TIMEOUT = 2
 
 class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
     """Information about an available option for an UCI engine."""
+
+
+class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperbound"])):
+    """A centipawns or mate score sent by an UCI engine."""
+
+
+class InfoHandler(object):
+    def __init__(self):
+        self.lock = threading.Lock()
+
+        self.info = {}
+        self.info["refutation"] = {}
+        self.info["currline"] = {}
+
+    def depth(self, x):
+        self.info["depth"] = x
+
+    def seldepth(self, x):
+        self.info["seldepth"] = x
+
+    def time(self, x):
+        self.info["times"] = x
+
+    def nodes(self, x):
+        self.info["nodes"] = x
+
+    def pv(self, moves):
+        self.info["pv"] = moves
+
+    def multipv(self, num):
+        self.info["multipv"] = num
+
+    def score(self, kind, x, lowerbound, upperbound):
+        self.info["score"] = Score(kind, x, lowerbound, upperbound)
+
+    def currmove(self, move):
+        self.info["currmove"] = move
+
+    def currmovenumber(self, x):
+        self.info["currmovenumber"] = x
+
+    def hashfull(self, x):
+        self.info["hashfull"] = x
+
+    def nps(self, x):
+        self.info["nps"] = x
+
+    def tbhits(self, x):
+        self.info["tbhits"] = x
+
+    def cpuload(self, x):
+        self.info["cpuload"] = x
+
+    def string(self, string):
+        self.info["string"] = string
+
+    def refutation(self, move, refuted_by):
+        self.info["refutation"][move] = refuted_by
+
+    def currline(self, cpunr, moves):
+        self.info["currline"][cpunr] = moves
+
+    def pre_info(self, line):
+        self.lock.acquire()
+
+    def post_info(self):
+        self.lock.release()
+
+    def pre_bestmove(self, line):
+        pass
+
+    def on_bestmove(self, bestmove, ponder):
+        pass
+
+    def post_bestmove(self):
+        with self.lock:
+            self.info.clear()
+            self.info["refutation"] = {}
+            self.info["currline"] = {}
 
 
 class Command(object):
@@ -328,6 +407,8 @@ class Engine(object):
         self.returncode = None
         self.terminated = threading.Event()
 
+        self.info_handlers = []
+
     def _send(self, buf):
         print(">>>", buf.rstrip())
         self.process.stdin.write(buf)
@@ -411,6 +492,9 @@ class Engine(object):
         self.readyok.set()
 
     def _bestmove(self, arg):
+        for info_handler in self.info_handlers:
+            info_handler.pre_bestmove(arg)
+
         tokens = arg.split(None, 2)
         self.bestmove = chess.Move.from_uci(tokens[0])
         if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
@@ -418,6 +502,13 @@ class Engine(object):
         else:
             self.ponder = None
         self.bestmove_received.set()
+
+        for info_handler in self.info_handlers:
+            info_handler.on_bestmove(self.bestmove, self.ponder)
+
+        for info_handler in self.info_handlers:
+            info_handler.post_bestmove()
+
 
     def _copyprotection(self, arg):
         # TODO: Implement copyprotection
@@ -428,8 +519,155 @@ class Engine(object):
         pass
 
     def _info(self, arg):
-        # TODO: Implement info
-        pass
+        if not self.info_handlers:
+            return
+
+        for info_handler in self.info_handlers:
+            info_handler.pre_info(arg)
+
+        current_parameter = None
+
+        pv = None
+        score_kind = None
+        score_mate = None
+        score_cp = None
+        score_lowerbound = False
+        score_upperbound = False
+        refutation_move = None
+        refuted_by = []
+        currline_cpunr = None
+        currline_moves = []
+        string = []
+
+        def end_of_parameter():
+            # Parameters with variable length can only be handled when the
+            # next parameter starts or at the end of the line.
+
+            if pv is not None:
+                for info_handler in self.info_handlers:
+                    info_handler.pv(pv)
+
+            if score_cp is not None or score_mate is not None:
+                for info_handler in self.info_handlers:
+                    info_handler.score(score_cp, score_mate, score_lowerbound, score_upperbound)
+
+            if refutation_move is not None:
+                if not refuted_by:
+                    refuted_by = None
+                for info_handler in self.info_handlers:
+                    info_handler.refutation(refutation_move, refuted_by)
+
+            if currline_cpunr is not None:
+                for info_handler in self.info_handlers:
+                    info_handler.currline(currline_cpunr, currline_moves)
+
+        def handle_integer_token(token, fn):
+            try:
+                intval = int(token)
+            except ValueError:
+                return
+
+            for info_handler in self.info_handlers:
+                fn(info_handler, intval)
+
+        def handle_move_token(token, fn):
+            try:
+                move = chess.Move.from_uci(token)
+            except ValueError:
+                return
+
+            for info_handler in self.info_handlers:
+                fn(info_handler, move)
+
+        for token in arg.split(" "):
+            if current_parameter == "string":
+                string.append(token)
+            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline"):
+                end_of_parameter()
+                current_parameter = token
+
+                pv = None
+                score_kind = None
+                score_mate = None
+                score_cp = None
+                score_lowerbound = False
+                score_upperbound = False
+                refutation_move = None
+                refuted_by = []
+                currline_cpunr = None
+                currline_moves = []
+
+                if current_parameter == "pv":
+                    pv = []
+            elif current_parameter == "depth":
+                handle_integer_token(token, lambda handler, val: handler.depth(val))
+            elif current_parameter == "seldepth":
+                handle_integer_token(token, lambda handler, val: handler.seldepth(val))
+            elif current_parameter == "time":
+                handle_integer_token(token, lambda handler, val: handler.time(val))
+            elif current_parameter == "nodes":
+                handle_integer_token(token, lambda handler, val: handler.nodes(val))
+            elif current_parameter == "pv":
+                try:
+                    pv.append(chess.Move.from_uci(token))
+                except ValueError:
+                    pass
+            elif current_parameter == "multipv":
+                handle_integer_token(token, lambda handler, val: handler.multipv(val))
+            elif current_parameter == "score":
+                if token in ("cp", "mate"):
+                    score_kind = "cp"
+                elif token == "lowerbound":
+                    score_lowerbound = True
+                elif token == "upperbound":
+                    score_upperbound = True
+                elif score_kind == "cp":
+                    try:
+                        score_cp = int(token)
+                    except ValueError:
+                        pass
+                elif score_kind == "mate":
+                    try:
+                        score_mate = int(token)
+                    except ValueError:
+                        pass
+            elif current_parameter == "currmove":
+                handler_move_token(token, lambda handler, val: handler.currmove(val))
+            elif current_parameter == "currmovenumber":
+                handle_integer_token(token, lambda handler, val: handler.currmovenumber(val))
+            elif current_parameter == "hashfull":
+                handle_integer_token(token, lambda handler, val: handler.hashfull(val))
+            elif current_parameter == "nps":
+                handle_integer_token(token, lambda handler, val: handler.nps(val))
+            elif current_parameter == "tbhits":
+                handle_integer_token(token, lambda handler, val: handler.tbhits(val))
+            elif current_parameter == "cpuload":
+                handle_integer_token(token, lambda handler, val: handler.cpuload(val))
+            elif current_parameter == "refutation":
+                try:
+                    if refutation_move is None:
+                        refutation_move = chess.Move.from_uci(token)
+                    else:
+                        refuted_by.append(chess.Move.from_uci(token))
+                except ValueError:
+                    pass
+            elif current_parameter == "currline":
+                try:
+                    if cpunr is None:
+                        cpunr = int(token)
+                    else:
+                        currline.append(chess.Move.from_uci(token))
+                except ValueError:
+                    pass
+
+        end_of_parameter()
+
+        if string:
+            for info_handler in self.info_handlers:
+                info_handler.string(" ".join(string))
+
+        for info_handler in self.info_handlers:
+            info_handler.post_info()
 
     def _option(self, arg):
         current_parameter = None
@@ -504,7 +742,6 @@ class Engine(object):
             raise RuntimeError('can not queue command for terminated uci engine')
         self.queue.put(command)
         return command._wait_or_callback()
-
 
     def uci(self, async_callback=None):
         return self.queue_command(UciCommand(async_callback))
@@ -641,6 +878,13 @@ if __name__ == "__main__":
     engine.debug(True)
 
     print(engine.ucinewgame())
+
+    class MyInfoHandler(InfoHandler):
+        def post_info(self):
+            print(self.info)
+            super(MyInfoHandler, self).post_info()
+
+    engine.info_handlers.append(MyInfoHandler())
 
     board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/5PP1/8/PPPPP2P/RNBQKBNR b KQkq g3 0 2")
     print(engine.position(board))
