@@ -305,11 +305,11 @@ class Engine(object):
 
         self.queue = queue.Queue()
         self.stdin_thread = threading.Thread(target=self._stdin_thread_target)
-        #self.stdin_thread.daemon = True
+        self.stdin_thread.daemon = True
         self.stdin_thread.start()
 
         self.stdout_thread = threading.Thread(target=self._stdout_thread_target)
-        #self.stdout_thread.daemon = True
+        self.stdout_thread.daemon = True
         self.stdout_thread.start()
 
         self.terminated = threading.Event()
@@ -359,6 +359,7 @@ class Engine(object):
             self.queue.task_done()
 
         self.terminated.set()
+        print("Terminated (stdin)!")
 
     def _stdout_thread_target(self):
         while self.is_alive():
@@ -370,6 +371,7 @@ class Engine(object):
             self._received(line)
 
         self.terminated.set()
+        print("Terminated (stdout)!")
 
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
@@ -417,57 +419,44 @@ class Engine(object):
         # TODO: Implement
         pass
 
-    def uci(self, async_callback=None):
-        command = UciCommand(async_callback)
+    def queue_command(self, command):
+        if self.terminated.is_set():
+            raise ChildProcessError('can not queue command for terminated uci engine')
         self.queue.put(command)
         return command._wait_or_callback()
+
+
+    def uci(self, async_callback=None):
+        return self.queue_command(UciCommand(async_callback))
 
     def debug(self, debug, async_callback=None):
-        command = DebugCommand(debug, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(DebugCommand(debug, async_callback))
 
     def isready(self, async_callback=None):
-        command = IsReadyCommand(async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(IsReadyCommand(async_callback))
 
     def setoption(self, options, async_callback=None):
-        command = SetOptionCommand(options, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(SetOptionCommand(options, async_callback))
 
     # TODO: Implement register command
 
     def ucinewgame(self, async_callback=None):
-        command = UciNewGameCommand(async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(UciNewGameCommand(async_callback))
 
     def position(self, board, async_callback=None):
-        command = PositionCommand(board, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(PositionCommand(board, async_callback))
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
-        command = GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback))
 
     def stop(self, async_callback=None):
-        command = StopCommand(async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(StopCommand(async_callback))
 
     def ponderhit(self, async_callback=None):
-        command = PonderhitCommand(async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(PonderhitCommand(async_callback))
 
     def quit(self, async_callback=None):
-        command = QuitCommand(self, async_callback)
-        self.queue.put(command)
-        return command._wait_or_callback()
+        return self.queue_command(QuitCommand(self, async_callback))
 
     def terminate(self, async=None):
         self.process.terminate()
