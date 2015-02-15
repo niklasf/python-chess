@@ -19,12 +19,11 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import chess
+import collections
 import subprocess
 import threading
 import time
-import collections
-
-import chess
 
 try:
     import queue
@@ -464,6 +463,9 @@ class Engine(object):
 
 def popen_engine(path):
     return Engine(subprocess.Popen(path, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
+
+
+# TODO: Support remote engines via SSH
 
 
 if __name__ == "__main__":
