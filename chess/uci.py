@@ -861,7 +861,7 @@ class Engine(object):
         """
         Command used to synchronize with the engine.
 
-        The engine will respond as soon as ithas handled all other queued
+        The engine will respond as soon as it has handled all other queued
         commands.
 
         :return: ()
