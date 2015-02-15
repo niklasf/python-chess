@@ -104,6 +104,26 @@ class IsReadyCommand(Command):
         self._notify(())
 
 
+class SetOptionCommand(IsReadyCommand):
+    def __init__(self, options, callback=None):
+        super(SetOptionCommand, self).__init__(callback)
+
+        builder = []
+
+        for name, value in options.items():
+            builder.append("setoption name ")
+            builder.append(name)
+            builder.append(" value ")
+            builder.append(value)
+            builder.append("\n")
+
+        self.buf = "".join(builder)
+
+    def _execute(self, engine):
+        engine._send(self.buf)
+        super(SetOptionCommand, self)._execute(engine)
+
+
 class UciNewGameCommand(IsReadyCommand):
     def __init__(self, callback=None):
         super(UciNewGameCommand, self).__init__(callback)
@@ -407,7 +427,10 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
-    # TODO: Implement setoption command
+    def setoption(self, options, async_callback=None):
+        command = SetOptionCommand(options, async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
 
     # TODO: Implement register command
 
@@ -473,6 +496,10 @@ if __name__ == "__main__":
     engine.uci()
     print(engine.name)
     print(engine.author)
+
+    print(engine.setoption({
+        "foo": "bar"
+    }))
 
     engine.debug(True)
 
