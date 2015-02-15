@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 import subprocess
 import threading
 import time
+import collections
 
 import chess
 
@@ -111,6 +112,39 @@ class UciNewGameCommand(IsReadyCommand):
     def _execute(self, engine):
         engine._send("ucinewgame\n")
         super(UciNewGameCommand, self)._execute(engine)
+
+
+class PositionCommand(IsReadyCommand):
+    def __init__(self, board, callback=None):
+        super(PositionCommand, self).__init__(callback)
+
+        builder = []
+        builder.append("position")
+
+        switchyard = collections.deque()
+        while board.move_stack:
+            switchyard.append(board.pop())
+
+        fen = board.fen()
+        if fen == chess.STARTING_FEN:
+            builder.append("startpos")
+        else:
+            builder.append("fen")
+            builder.append(fen)
+
+        if switchyard:
+            builder.append("moves")
+
+            while switchyard:
+                move = switchyard.pop()
+                builder.append(move.uci())
+                board.push(move)
+
+        self.buf = " ".join(builder) + "\n"
+
+    def _execute(self, engine):
+        engine._send(self.buf)
+        super(PositionCommand, self)._execute(engine)
 
 
 class GoCommand(Command):
@@ -374,6 +408,8 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
+    # TODO: Implement setoption command
+
     # TODO: Implement register command
 
     def ucinewgame(self, async_callback=None):
@@ -381,7 +417,10 @@ class Engine(object):
         self.queue.put(command)
         return command._wait_or_callback()
 
-    # TODO: Implement position command
+    def position(self, board, async_callback=None):
+        command = PositionCommand(board, async_callback)
+        self.queue.put(command)
+        return command._wait_or_callback()
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
         command = GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback)
@@ -436,10 +475,9 @@ if __name__ == "__main__":
     engine.debug(True)
 
     print(engine.ucinewgame())
-    print(engine.go(infinite=True))
 
-    time.sleep(1)
-
-    print(engine.stop())
+    board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/5PP1/8/PPPPP2P/RNBQKBNR b KQkq g3 0 2")
+    print(engine.position(board))
+    print(engine.go(mate=5))
 
     print(engine.quit())
