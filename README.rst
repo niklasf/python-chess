@@ -213,6 +213,45 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
+* Communicate with an UCI engine.
+
+  .. code:: python
+
+      >>> import chess.uci
+      >>> import time
+
+      >>> engine = chess.uci.popen_engine("stockfish")
+      >>> engine.uci()
+      ()
+      >>> engine.author
+      'Tord Romstad, Marco Costalba and Joona Kiiski'
+
+      >>> # Synchronous mode.
+      >>> board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+      >>> engine.position(board)
+      ()
+      >>> engine.go(movetime=2000) # Gets tuple of bestmove and pondermove.
+      (Move.from_uci('d6d1'), Move.from_uci('c1d1'))
+
+      >>> # Synchronous communication, but search in background.
+      >>> engine.go(infinite=True)
+      ()
+      >>> time.sleep(2)
+      >>> engine.stop()
+      (Move.from_uci('d6d1'), Move.from_uci('c1d1'))
+
+      >>> # Asynchronous mode.
+      >>> def callback(bestmove, pondermove):
+      ...    assert bestmove == chess.Move.from_uci('d6d1')
+      ...
+      >>> command = engine.go(movetime=2000, async_callback=callback)
+      >>> command.is_done()
+      False
+      >>> command.wait()
+      (Move.from_uci('d6d1'), Move.from_uci('c1d1'))
+      >>> command.is_done()
+      True
+
 Peformance
 ----------
 python-chess is not intended to be used by serious chess engines where
