@@ -645,10 +645,12 @@ class Engine(object):
                     info_handler.score(score_cp, score_mate, score_lowerbound, score_upperbound)
 
             if refutation_move is not None:
-                if not refuted_by:
-                    refuted_by = None
-                for info_handler in self.info_handlers:
-                    info_handler.refutation(refutation_move, refuted_by)
+                if refuted_by:
+                    for info_handler in self.info_handlers:
+                        info_handler.refutation(refutation_move, refuted_by)
+                else:
+                    for info_handler in self.info_handlers:
+                        info_handler.refutation(refutation_move, None)
 
             if currline_cpunr is not None:
                 for info_handler in self.info_handlers:
