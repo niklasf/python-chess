@@ -501,6 +501,7 @@ class Engine(object):
     def _send(self, buf):
         print(">>>", buf.rstrip()) # XXX
         self.process.stdin.write(buf)
+        self.process.stdin.flush()
 
     def _received(self, buf):
         print("<<<", buf) # XXX
