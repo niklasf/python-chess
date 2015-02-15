@@ -25,7 +25,7 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
 
     .. py:attribute:: options
 
-        A dictionary of options. The engine should send available options
+        A dictionary of :ref:`options`. The engine should send available options
         when it receives the initial *uci* command.
 
     .. py:attribute:: uciok
@@ -49,6 +49,45 @@ UCI Commands
 .. autoclass:: chess.uci.Engine
     :members: uci, debug, isready, setoption, ucinewgame, position, go, stop,
         ponderhit, quit
+
+.. _options:
+
+Options
+-------
+
+
+.. autoclass:: chess.uci.Option
+
+    .. py:attribute:: name
+
+        The name of the option.
+
+    .. py:attribute:: type
+
+        The type of the option.
+
+        Officially documented types are *check* for a boolean value, *spin*
+        for an integer value between a minimum and a maximum, *combo* for an
+        enumeration of predefined string values (one of which can be selected),
+        *button* for an action and *string* for a textfield.
+
+    .. py:attribute:: default
+
+        The default value of the option.
+
+        There is no need to send a *setoption* command with the defaut value.
+
+    .. py:attribute:: min
+
+        The minimum integer value of a *spin* option.
+
+    .. py:attribute:: max
+
+        The maximum integer value of a *spin* option.
+
+    .. py:attribute:: var
+
+        A list of allows string values for a *combo* option.
 
 Asynchronous communication
 --------------------------
