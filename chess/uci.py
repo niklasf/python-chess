@@ -69,8 +69,8 @@ class InfoHandler(object):
     def multipv(self, num):
         self.info["multipv"] = num
 
-    def score(self, kind, x, lowerbound, upperbound):
-        self.info["score"] = Score(kind, x, lowerbound, upperbound)
+    def score(self, cp, mate, lowerbound, upperbound):
+        self.info["score"] = Score(cp, mate, lowerbound, upperbound)
 
     def currmove(self, move):
         self.info["currmove"] = move
@@ -529,8 +529,8 @@ class Engine(object):
 
         pv = None
         score_kind = None
-        score_mate = None
         score_cp = None
+        score_mate = None
         score_lowerbound = False
         score_upperbound = False
         refutation_move = None
@@ -616,7 +616,7 @@ class Engine(object):
                 handle_integer_token(token, lambda handler, val: handler.multipv(val))
             elif current_parameter == "score":
                 if token in ("cp", "mate"):
-                    score_kind = "cp"
+                    score_kind = token
                 elif token == "lowerbound":
                     score_lowerbound = True
                 elif token == "upperbound":
