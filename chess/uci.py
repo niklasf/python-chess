@@ -745,10 +745,10 @@ class Engine(object):
                     pass
             elif current_parameter == "currline":
                 try:
-                    if cpunr is None:
-                        cpunr = int(token)
+                    if currline_cpunr is None:
+                        currline_cpunr = int(token)
                     else:
-                        currline.append(chess.Move.from_uci(token))
+                        currline_moves.append(chess.Move.from_uci(token))
                 except ValueError:
                     pass
 
@@ -800,8 +800,8 @@ class Engine(object):
             elif current_parameter == "max":
                 try:
                     max = int(token)
-                except:
-                    ValueError
+                except ValueError:
+                    pass
             elif current_parameter == "default":
                 default.append(token)
             elif current_parameter == "var":
