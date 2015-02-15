@@ -35,6 +35,10 @@ POLL_TIMEOUT = 5
 STOP_TIMEOUT = 2
 
 
+class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
+    """Information about an available option for an UCI engine."""
+
+
 class Command(object):
     def __init__(self, callback=None):
         self.result = None
@@ -295,6 +299,8 @@ class Engine(object):
         self.author = None
         self.author_received = threading.Event()
 
+        self.options = {}
+
         self.uciok = threading.Event()
 
         self.readyok = threading.Event()
@@ -407,20 +413,84 @@ class Engine(object):
         self.bestmove_received.set()
 
     def _copyprotection(self, arg):
-        # TODO: Implement
+        # TODO: Implement copyprotection
         pass
 
     def _registration(self, arg):
-        # TODO: Implement
+        # TODO: Implement registration
         pass
 
     def _info(self, arg):
-        # TODO: Implement
+        # TODO: Implement info
         pass
 
     def _option(self, arg):
-        # TODO: Implement
-        pass
+        current_parameter = None
+
+        name = []
+        type = []
+        default = []
+        min = None
+        max = None
+        current_var = None
+        var = []
+
+        for token in arg.split(" "):
+            if token == "name" and not name:
+                current_parameter = "name"
+            elif token == "type" and not type:
+                current_parameter = "type"
+            elif token == "default" and not default:
+                current_parameter = "default"
+            elif token == "min" and min is None:
+                current_parameter = "min"
+            elif token == "max" and max is None:
+                current_parameter = "max"
+            elif token == "var":
+                current_parameter = "var"
+                if current_var is not None:
+                    var.append(" ".join(current_var))
+                current_var = []
+            elif current_parameter == "name":
+                name.append(token)
+            elif current_parameter == "type":
+                type.append(token)
+            elif current_parameter == "min":
+                try:
+                    min = int(token)
+                except ValueError:
+                    pass
+            elif current_parameter == "max":
+                try:
+                    max = int(token)
+                except:
+                    ValueError
+            elif current_parameter == "default":
+                default.append(token)
+            elif current_parameter == "var":
+                current_var.append(token)
+
+        if current_var is not None:
+            var.append(" ".join(current_var))
+
+        type = " ".join(type)
+
+        default = " ".join(default)
+        if type == "check":
+            if default == "true":
+                default = True
+            elif default == "false":
+                default = False
+            else:
+                default = None
+        elif type == "spin":
+            try:
+                default = int(default)
+            except ValueError:
+                default = None
+
+        option = Option(" ".join(name), type, default, min, max, var)
+        self.options[option.name] = option
 
     def queue_command(self, command):
         if self.terminated.is_set():
@@ -503,7 +573,7 @@ class SpurEngine(Engine):
         super(SpurEngine, self).__init__(process)
 
     def _send(self, buf):
-        print(">>>", buf)
+        print(">>>", buf.rstrip())
         self.process.stdin_write(buf.encode("utf-8"))
 
     def _terminated(self):
@@ -559,6 +629,8 @@ if __name__ == "__main__":
         "foo": "bar"
     }))
 
+    print(engine.options)
+
     engine.debug(True)
 
     print(engine.ucinewgame())
@@ -567,4 +639,4 @@ if __name__ == "__main__":
     print(engine.position(board))
     print(engine.go(mate=5))
 
-    print(engine.terminate())
+    print(engine.quit())
