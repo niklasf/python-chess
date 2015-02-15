@@ -52,70 +52,146 @@ class InfoHandler(object):
         self.info["currline"] = {}
 
     def depth(self, x):
+        """Received search depth in plies."""
         self.info["depth"] = x
 
     def seldepth(self, x):
+        """Received selective search depth in plies."""
         self.info["seldepth"] = x
 
     def time(self, x):
+        """Received new time searched in milliseconds."""
         self.info["time"] = x
 
     def nodes(self, x):
+        """Received number of nodes searched."""
         self.info["nodes"] = x
 
     def pv(self, moves):
+        """Received the principal variation as a list of moves."""
         self.info["pv"] = moves
 
     def multipv(self, num):
+        """Received a new multipv number, starting at 1."""
         self.info["multipv"] = num
 
     def score(self, cp, mate, lowerbound, upperbound):
+        """
+        Received a new evaluation in centipawns or a mate score.
+
+        *cp* may be *None* if no score in centipawns is available.
+
+        *mate* may be *None* if no forced mate has been found. A negative
+        numbers means the engine thinks it will get mated.
+
+        lowerbound and upperbound are usually *False*. If *True*, the sent
+        score are just a lowerbound or upperbound.
+        """
         self.info["score"] = Score(cp, mate, lowerbound, upperbound)
 
     def currmove(self, move):
+        """Received a move the engine is currently thinking about."""
         self.info["currmove"] = move
 
     def currmovenumber(self, x):
+        """Received a new currmovenumber."""
         self.info["currmovenumber"] = x
 
     def hashfull(self, x):
+        """
+        Received new information about the hashtable.
+
+        The hashtable is x permill full.
+        """
         self.info["hashfull"] = x
 
     def nps(self, x):
+        """Received new nodes per second statistic."""
         self.info["nps"] = x
 
     def tbhits(self, x):
+        """Received new information about the number of table base hits."""
         self.info["tbhits"] = x
 
     def cpuload(self, x):
+        """Received new cpuload information in permill."""
         self.info["cpuload"] = x
 
     def string(self, string):
+        """Received a string the engine wants to display."""
         self.info["string"] = string
 
     def refutation(self, move, refuted_by):
+        """
+        Received a new refutation of a move.
+
+        *refuted_by* may be a list of moves representing the mainline of the
+        refutation or *None* if no refutation has been found.
+
+        Engines should only send refutations if the *UCI_ShowRefutations*
+        option has been enabled.
+        """
         self.info["refutation"][move] = refuted_by
 
     def currline(self, cpunr, moves):
+        """
+        Received a new snapshot of a line a specific CPU is calculating.
+
+        *cpunr* is an integer representing a specific CPU. *moves* is a list
+        of moves.
+        """
         self.info["currline"][cpunr] = moves
 
     def pre_info(self, line):
+        """
+        Received a new info line about to be processed.
+
+        When subclassing remember to call this method of the parent class in
+        order to keep the locking in tact.
+        """
         self.lock.acquire()
 
     def post_info(self):
+        """
+        Processing of a new info line has been finished.
+
+        When subclassing remember to call this method of the parent class in
+        order to keep the locking in tact.
+        """
         self.lock.release()
 
     def pre_bestmove(self, line):
+        """A new bestmove command is about to be processed."""
         pass
 
     def on_bestmove(self, bestmove, ponder):
+        """A new bestmove and pondermove have been received."""
         pass
 
     def post_bestmove(self):
+        """
+        A new bestmove command was processed.
+
+        Since this indicates that the current search has been finished the
+        dictionary with the current information will be cleared.
+        """
         with self.lock:
             self.info.clear()
             self.info["refutation"] = {}
             self.info["currline"] = {}
+
+    def acquire(self, blocking=True):
+        return self.lock.acquire(blocking)
+
+    def release(self):
+        return self.lock.release()
+
+    def __enter__(self):
+        self.lock.acquire()
+        return self.info
+
+    def __exit__(self, type, value, traceback):
+        self.lock.release()
 
 
 class Command(object):
@@ -1003,37 +1079,26 @@ def spur_spawn_engine(shell, command, cls=SpurEngine):
     """
 
 if __name__ == "__main__":
-    import sys
-    import spur
+    import time
 
-    shell = spur.SshShell(hostname="localhost",missing_host_key=spur.ssh.MissingHostKey.warn)
-    engine = spur_spawn_engine(shell, ["stockfish"])
-
-    #engine = popen_engine("stockfish")
+    engine = popen_engine("stockfish")
 
     engine.uci()
-    print(engine.name)
-    print(engine.author)
+    print("Name:", engine.name)
+    print("Author:", engine.author)
 
-    print(engine.setoption({
-        "foo": "bar"
-    }))
+    print("Options:", engine.options)
 
-    print(engine.options)
+    handler = InfoHandler()
+    engine.info_handlers.append(handler)
 
-    engine.debug(True)
-
-    print(engine.ucinewgame())
-
-    class MyInfoHandler(InfoHandler):
-        def post_info(self):
-            print(self.info)
-            super(MyInfoHandler, self).post_info()
-
-    engine.info_handlers.append(MyInfoHandler())
-
-    board = chess.Bitboard("rnbqkbnr/pppp1ppp/4p3/8/5PP1/8/PPPPP2P/RNBQKBNR b KQkq g3 0 2")
+    board = chess.Bitboard()
     print(engine.position(board))
-    print(engine.go(mate=5))
+    print(engine.go(infinite=True))
 
-    print(engine.quit())
+    time.sleep(2)
+
+    with handler:
+        print("Info:", handler.info)
+
+    print("Return code:", engine.quit())
