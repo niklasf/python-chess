@@ -95,7 +95,62 @@ or not).
 
         The result if the command has been completed or *None*.
 
+Info handler
+------------
+
+Chess engines may send information about their calculations with the *info*
+command. You can register info handlers to be asynchronously notified whenever
+the engine sends more information. You would usually subclass the *InfoHandler*
+class.
+
+.. autoclass:: chess.uci.Score
+    :members:
+
+    .. py:attribute:: cp
+
+        Evaluation is centipawns or *None*.
+
+    .. py:attribute:: mate
+
+        Mate in x or *None*. Negative if the engine thinks it is going to be
+        mated.
+
+    .. py:attribute:: lowerbound
+
+        If the score is not exact but only a lowerbound.
+
+    .. py:attribute:: upperbound
+
+        If the score is only an upperbound.
+
+.. autoclass:: chess.uci.InfoHandler
+    :members:
+
+    .. py:attribute:: info
+
+        The default implementation stores all received information in this
+        dictionary. To get a consistent snapshot use the object as if it were
+        a *threading.Lock()*.
+
+        >>> # Register the handler.
+        >>> handler = InfoHandler()
+        >>> engine.info_handlers.append(handler)
+
+        >>> # Start thinking.
+        >>> engine.go(infinite=True)
+        ()
+
+        >>> # Wait a moment, then access a consistent snapshot.
+        >>> time.sleep(3)
+        >>> with handler:
+        ...     if "score" in handler.info:
+        ...         print("Score: ", handler.info["score"].cp)
+        ...         print("Mate: ", handler.info["score"].mate)
+        Score: 34
+        Mate: None
+
 .. _options:
+
 Options
 -------
 
@@ -133,7 +188,5 @@ Options
 
         A list of allows string values for a *combo* option.
 
-Info handler
-------------
 
 .. _Universal Chess Interface: https://chessprogramming.wikispaces.com/UCI
