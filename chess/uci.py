@@ -23,7 +23,7 @@ import chess
 import collections
 import subprocess
 import threading
-import time
+import signal
 
 try:
     import queue
@@ -273,7 +273,7 @@ class QuitCommand(Command):
 
     @property
     def result(self):
-        return self.engine.process.returncode
+        return self.engine.returncode
 
     def wait(self, timeout=None):
         if not self.engine.terminated.wait(timeout):
@@ -281,7 +281,7 @@ class QuitCommand(Command):
         return self.result
 
     def is_done(self):
-        return self.engine.process.terminated.is_set()
+        return self.engine.terminated.is_set()
 
 
 class Engine(object):
@@ -312,6 +312,7 @@ class Engine(object):
         self.stdout_thread.daemon = True
         self.stdout_thread.start()
 
+        self.returncode = None
         self.terminated = threading.Event()
 
     def _send(self, buf):
@@ -358,7 +359,7 @@ class Engine(object):
             command._execute(self)
             self.queue.task_done()
 
-        self.terminated.set()
+        self._terminated()
 
     def _stdout_thread_target(self):
         while self.is_alive():
@@ -369,6 +370,10 @@ class Engine(object):
             line = line.rstrip()
             self._received(line)
 
+        self._terminated()
+
+    def _terminated(self):
+        self.returncode = self.process.returncode
         self.terminated.set()
 
     def _id(self, arg):
@@ -476,15 +481,76 @@ class Engine(object):
         return self.process.poll() is None
 
 
-def popen_engine(path):
-    return Engine(subprocess.Popen(path, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
+class SpurEngine(Engine):
+    class StdoutHandler(object):
+        def __init__(self, engine):
+            self.engine = engine
+            self.buf = []
+
+        def write(self, byte):
+            byte = byte.decode("utf-8")
+
+            if byte == "\r":
+                pass
+            elif byte == "\n":
+                self.engine._received("".join(self.buf))
+                del self.buf[:]
+            else:
+                self.buf.append(byte)
+
+    def __init__(self, shell, command):
+        process = shell.spawn(command, store_pid=True, allow_error=True, stdout=self.StdoutHandler(self))
+        super(SpurEngine, self).__init__(process)
+
+    def _send(self, buf):
+        print(">>>", buf)
+        self.process.stdin_write(buf.encode("utf-8"))
+
+    def _terminated(self):
+        self.returncode = self.process.wait_for_result().return_code
+        self.terminated.set()
+
+    def _stdout_thread_target(self):
+        self.process.wait_for_result()
+        self._terminated()
+
+    def terminate(self, async=False):
+        self.process.send_signal(signal.SIGTERM)
+        promise = QuitCommand(self)
+        if async:
+            return promise
+        else:
+            return promise.wait()
+
+    def kill(self, async=False):
+        self.process.send_signal(signal.SIGKILL)
+        promise = QuitCommand(self)
+        if async:
+            return promise
+        else:
+            return promise.wait()
+
+    def is_alive(self):
+        return self.process.is_running()
 
 
-# TODO: Support remote engines via SSH
+def popen_engine(command, cls=Engine):
+    return cls(subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
+
+
+def spur_spawn_engine(shell, command, cls=SpurEngine):
+    return cls(shell, command)
 
 
 if __name__ == "__main__":
-    engine = popen_engine("stockfish")
+    import sys
+    import spur
+
+    shell = spur.SshShell(hostname="localhost",missing_host_key=spur.ssh.MissingHostKey.warn)
+    engine = spur_spawn_engine(shell, ["stockfish"])
+
+    #engine = popen_engine("stockfish")
+
     engine.uci()
     print(engine.name)
     print(engine.author)
@@ -501,4 +567,4 @@ if __name__ == "__main__":
     print(engine.position(board))
     print(engine.go(mate=5))
 
-    print(engine.quit())
+    print(engine.terminate())
