@@ -50,6 +50,7 @@ class InfoHandler(object):
         self.info = {}
         self.info["refutation"] = {}
         self.info["currline"] = {}
+        self.info["pv"] = {}
 
     def depth(self, x):
         """Received search depth in plies."""
@@ -68,8 +69,13 @@ class InfoHandler(object):
         self.info["nodes"] = x
 
     def pv(self, moves):
-        """Received the principal variation as a list of moves."""
-        self.info["pv"] = moves
+        """
+        Received the principal variation as a list of moves.
+
+        In MultiPV mode this is related to the most recent *multipv* number
+        sent by the engine.
+        """
+        self.info["pv"][self.info.get("multipv", 1)] = moves
 
     def multipv(self, num):
         """Received a new multipv number, starting at 1."""
@@ -179,6 +185,7 @@ class InfoHandler(object):
             self.info.clear()
             self.info["refutation"] = {}
             self.info["currline"] = {}
+            self.info["pv"] = {}
 
     def acquire(self, blocking=True):
         return self.lock.acquire(blocking)
@@ -1088,6 +1095,10 @@ if __name__ == "__main__":
     print("Author:", engine.author)
 
     print("Options:", engine.options)
+
+    engine.setoption({
+        "MultiPV": 5
+    })
 
     handler = InfoHandler()
     engine.info_handlers.append(handler)
