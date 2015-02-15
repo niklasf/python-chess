@@ -845,12 +845,38 @@ class SpurEngine(Engine):
 
 
 def popen_engine(command, cls=Engine):
+    """
+    Opens a local chess engine process.
+
+    No initialization commands are sent, so do not forget to send the
+    mandatory *uci* command.
+
+    >>> engine = chess.uci.popen_engine("/usr/games/stockfish")
+    >>> engine.uci()
+    ()
+    >>> engine.name
+    'Stockfish 230814 64'
+    >>> engine.author
+    'Tord Romstad, Marco Costalba and Joona Kiiski'
+
+    The input and input streams will be linebuffered and able both Windows
+    and Unix newlines.
+    """
     return cls(subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
 
 
 def spur_spawn_engine(shell, command, cls=SpurEngine):
-    return cls(shell, command)
+    """
+    Spwans a remote engine using a `Spur`_ shell.
 
+    >>> import spur
+    >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
+    >>> engine = chess.uci.spur_spwan_engine(shell, ["/usr/games/stockfish"])
+    >>> engine.uci()
+    ()
+
+    .. _Spur: https://pypi.python.org/pypi/spur
+    """
 
 if __name__ == "__main__":
     import sys
