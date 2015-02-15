@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
-
 import chess
 import chess.polyglot
 import chess.pgn
@@ -1119,16 +1117,11 @@ class PgnTestCase(unittest.TestCase):
 class StockfishTestCase(unittest.TestCase):
 
     def setUp(self):
-        print("StockfishTestCase::setUp")
         self.engine = chess.uci.popen_engine("/usr/games/stockfish")
-        print("StockfishTestCase::setUp | after popen")
         self.engine.uci()
-        print("StockfishTestCase::setUp | after uci")
 
     def tearDown(self):
-        print("StockfishTestCase::tearDown")
         self.engine.quit()
-        print("StockfishTestCase::tearDown | after teardown")
 
     def test_bratko_kopec(self):
         epds = [
@@ -1146,13 +1139,10 @@ class StockfishTestCase(unittest.TestCase):
             self.assertEqual(result[0], operations["bm"], operations["id"])
 
     def test_async(self):
-        print("StockfishTestCase::test_async")
         self.engine.ucinewgame()
-        print("StockfishTestCase::test_async | after ucinewgame")
         command = self.engine.go(movetime=1000, async_callback=True)
         self.assertFalse(command.is_done())
         command.wait()
-        print("StockfishTestCase::test_async | after wait")
         self.assertTrue(command.is_done())
 
     def test_async_callback(self):
