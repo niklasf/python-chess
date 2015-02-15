@@ -724,7 +724,7 @@ class Engine(object):
                     except ValueError:
                         pass
             elif current_parameter == "currmove":
-                handler_move_token(token, lambda handler, val: handler.currmove(val))
+                handle_move_token(token, lambda handler, val: handler.currmove(val))
             elif current_parameter == "currmovenumber":
                 handle_integer_token(token, lambda handler, val: handler.currmovenumber(val))
             elif current_parameter == "hashfull":
