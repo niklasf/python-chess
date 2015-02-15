@@ -1088,7 +1088,7 @@ def spur_spawn_engine(shell, command, cls=SpurEngine):
 if __name__ == "__main__":
     import time
 
-    engine = popen_engine("stockfish")
+    engine = popen_engine("/usr/games/stockfish")
 
     engine.uci()
     print("Name:", engine.name)

@@ -1117,7 +1117,7 @@ class PgnTestCase(unittest.TestCase):
 class StockfishTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.engine = chess.uci.popen_engine("stockfish")
+        self.engine = chess.uci.popen_engine("/usr/games/stockfish")
         self.engine.uci()
 
     def tearDown(self):
