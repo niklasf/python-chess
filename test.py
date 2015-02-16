@@ -1230,5 +1230,24 @@ class SpurEngineTestCase(unittest.TestCase):
         self.assertFalse(engine.is_alive())
 
 
+class UciEngineTestCase(object):
+
+    def test_debug(self):
+        engine = chess.uci.Engine(chess.uci.MockProcess, ())
+        mock = engine.process
+
+        mock.expect("uci")
+        engine.uci()
+        mock.assert_done()
+        engine.on_line_received("uciok")
+
+        mock.expect("debug on")
+        engine.debug(True)
+        mock.assert_done()
+
+        engine.terminate()
+        mock.assert_terminated()
+
+
 if __name__ == "__main__":
     unittest.main()

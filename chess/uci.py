@@ -467,6 +467,47 @@ class QuitCommand(Command):
         return self.engine.terminated.is_set()
 
 
+class MockProcess(object):
+    def __init__(self, engine):
+        self.engine = engine
+
+        self._expectations = collections.deque()
+        self._is_dead = threading.Event()
+        self._std_streams_closed = False
+
+    def expect(self, expectation):
+        self._expectations.append(expectation)
+
+    def assert_done(self):
+        assert not self._expectations
+
+    def assert_terminated(self):
+        self.assert_done()
+        assert self._std_streams_closed
+        assert self._is_dead.is_set()
+
+    def is_alive(self):
+        return not self._is_dead.is_set()
+
+    def terminate(self):
+        self._is_dead.set()
+        self.on_terminated()
+
+    def kill(self):
+        self._is_dead.set()
+        self.on_terminated()
+
+    def close_std_streams(self):
+        self._std_streams_closed = True
+
+    def send_line(string):
+        assert self._expectations.popleft() == string
+
+    def wait_for_return_code(self):
+        self._is_dead.wait()
+        return 0
+
+
 class PopenProcess(object):
     def __init__(self, engine, command):
         self.engine = engine
