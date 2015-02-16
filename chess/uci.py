@@ -523,12 +523,10 @@ class SpurProcess(object):
 
     def write(self, byte):
         # Interally called whenever a byte is received.
-        byte = byte.decode("utf-8")
-
-        if byte == "\r":
+        if byte == b"\r":
             pass
-        elif byte == "\n":
-            self.engine.on_line_received("".join(self._stdout_buffer))
+        elif byte == b"\n":
+            self.engine.on_line_received(b"".join(self._stdout_buffer).decode("utf-8"))
             del self._stdout_buffer[:]
         else:
             self._stdout_buffer.append(byte)
@@ -551,8 +549,8 @@ class SpurProcess(object):
         pass
 
     def send_line(self, string):
-        self.process.stdin_write(string)
-        self.process.stdin_write("\n")
+        self.process.stdin_write(string.encode("utf-8"))
+        self.process.stdin_write(b"\n")
 
     def get_return_code(self):
         return self._result.return_code if self._result else None
