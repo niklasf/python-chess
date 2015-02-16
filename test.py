@@ -1186,6 +1186,9 @@ class StockfishTestCase(unittest.TestCase):
 
         self.engine.stop()
 
+    def test_terminate(self):
+        self.engine.go(infinite=True)
+
 
 class SpurEngineTestCase(unittest.TestCase):
 
@@ -1202,6 +1205,26 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.position(board)
         bestmove, pondermove = engine.go(mate=1)
         self.assertEqual(board.san(bestmove), "Qh4#")
+
+    def test_terminate(self):
+        shell = spur.LocalShell()
+        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+
+        engine.uci()
+        engine.go(infinite=True)
+
+        engine.terminate()
+        self.assertFalse(engine.is_alive())
+
+    def test_kill(self):
+        shell = spur.LocalShell()
+        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+
+        engine.uci()
+        engine.go(infinite=True)
+
+        engine.kill()
+        self.assertFalse(engine.is_alive())
 
 
 if __name__ == "__main__":
