@@ -217,6 +217,10 @@ class Command(object):
 
     def _notify_callback(self):
         if self._callback and not self._callback is True:
+            if self.result is None:
+                self._callback()
+                return
+
             try:
                 iter(self.result)
             except TypeError:
@@ -255,7 +259,7 @@ class UciCommand(Command):
         engine.uciok.clear()
         engine.process.send_line("uci")
         engine.uciok.wait()
-        self._notify(())
+        self._notify(None)
 
 
 class DebugCommand(Command):
@@ -268,7 +272,7 @@ class DebugCommand(Command):
             engine.process.send_line("debug on")
         else:
             engine.process.send_line("debug off")
-        self._notify(())
+        self._notify(None)
 
 
 class IsReadyCommand(Command):
@@ -279,7 +283,7 @@ class IsReadyCommand(Command):
         engine.readyok.clear()
         engine.process.send_line("isready")
         engine.readyok.wait()
-        self._notify(())
+        self._notify(None)
 
 
 class SetOptionCommand(IsReadyCommand):
@@ -417,7 +421,7 @@ class GoCommand(Command):
         engine.bestmove_received.clear()
         engine.process.send_line(self.buf)
         if self.infinite:
-            self._notify(())
+            self._notify(None)
         else:
             engine.bestmove_received.wait()
             self._notify((engine.bestmove, engine.ponder))
@@ -971,7 +975,7 @@ class Engine(object):
 
         :param on: bool
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(DebugCommand(on, async_callback))
 
@@ -982,7 +986,7 @@ class Engine(object):
         The engine will respond as soon as it has handled all other queued
         commands.
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(IsReadyCommand(async_callback))
 
@@ -992,7 +996,7 @@ class Engine(object):
 
         :param options: A dictionary with option names as keys.
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(SetOptionCommand(options, async_callback))
 
@@ -1006,7 +1010,7 @@ class Engine(object):
         analyse a position from a different game. Using this command is
         recommended but not required.
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(UciNewGameCommand(async_callback))
 
@@ -1023,7 +1027,7 @@ class Engine(object):
 
         :param board: A *chess.Bitboard*.
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(PositionCommand(board, async_callback))
 
@@ -1075,7 +1079,7 @@ class Engine(object):
         The engine should continue searching but should switch from pondering
         to normal search.
 
-        :return: ()
+        :return: Nothing
         """
         return self.queue_command(PonderhitCommand(async_callback))
 
