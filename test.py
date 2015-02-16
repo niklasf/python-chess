@@ -1310,6 +1310,11 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
             self.assertFalse("score" in info)
 
+    def test_combo_option(self):
+        self.engine.on_line_received("option name MyEnum type combo var Abc def var g h")
+        self.assertEqual(self.engine.options["MyEnum"].type, "combo")
+        self.assertEqual(self.engine.options["MyEnum"].var, ["Abc def", "g h"])
+
 
 if __name__ == "__main__":
     unittest.main()
