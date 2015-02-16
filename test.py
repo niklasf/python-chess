@@ -22,6 +22,7 @@ import chess.polyglot
 import chess.pgn
 import chess.uci
 import unittest
+import spur
 import textwrap
 import time
 
@@ -1184,6 +1185,23 @@ class StockfishTestCase(unittest.TestCase):
             self.assertEqual(info["pv"][2][0], chess.Move.from_uci("c3e4"))
 
         self.engine.stop()
+
+
+class SpurEngineTestCase(unittest.TestCase):
+
+    def test_local_shell(self):
+        shell = spur.LocalShell()
+        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+
+        engine.uci()
+
+        engine.ucinewgame()
+
+        # Find fools mate.
+        board = chess.Bitboard("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2")
+        engine.position(board)
+        bestmove, pondermove = engine.go(mate=1)
+        self.assertEqual(board.san(bestmove), "Qh4#")
 
 
 if __name__ == "__main__":
