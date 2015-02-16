@@ -1230,6 +1230,14 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.kill()
         self.assertFalse(engine.is_alive())
 
+    def test_async_terminate(self):
+        shell = spur.LocalShell()
+        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+
+        command = engine.terminate(async=True)
+        command.wait()
+        self.assertTrue(command.is_done())
+
 
 class UciEngineTestCase(unittest.TestCase):
 
