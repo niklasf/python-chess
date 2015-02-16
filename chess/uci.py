@@ -257,7 +257,7 @@ class UciCommand(Command):
 
     def _execute(self, engine):
         engine.uciok.clear()
-        engine.process.send_line("uci")
+        engine.send_line("uci")
         engine.uciok.wait()
         self._notify(None)
 
@@ -269,9 +269,9 @@ class DebugCommand(Command):
 
     def _execute(self, engine):
         if self.on:
-            engine.process.send_line("debug on")
+            engine.send_line("debug on")
         else:
-            engine.process.send_line("debug off")
+            engine.send_line("debug off")
         self._notify(None)
 
 
@@ -281,7 +281,7 @@ class IsReadyCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine.process.send_line("isready")
+        engine.send_line("isready")
         engine.readyok.wait()
         self._notify(None)
 
@@ -310,7 +310,7 @@ class SetOptionCommand(IsReadyCommand):
 
     def _execute(self, engine):
         for option_line in self.option_lines:
-            engine.process.send_line(option_line)
+            engine.send_line(option_line)
 
         super(SetOptionCommand, self)._execute(engine)
 
@@ -320,7 +320,7 @@ class UciNewGameCommand(IsReadyCommand):
         super(UciNewGameCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine.process.send_line("ucinewgame")
+        engine.send_line("ucinewgame")
         super(UciNewGameCommand, self)._execute(engine)
 
 
@@ -353,7 +353,7 @@ class PositionCommand(IsReadyCommand):
         self.buf = " ".join(builder)
 
     def _execute(self, engine):
-        engine.process.send_line(self.buf)
+        engine.send_line(self.buf)
         super(PositionCommand, self)._execute(engine)
 
 
@@ -419,7 +419,7 @@ class GoCommand(Command):
         engine.bestmove = None
         engine.ponder = None
         engine.bestmove_received.clear()
-        engine.process.send_line(self.buf)
+        engine.send_line(self.buf)
         if self.infinite:
             self._notify(None)
         else:
@@ -433,8 +433,8 @@ class StopCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine.process.send_line("stop")
-        engine.process.send_line("isready")
+        engine.send_line("stop")
+        engine.send_line("isready")
         engine.readyok.wait()
         engine.bestmove_received.wait(STOP_TIMEOUT)
         self._notify((engine.bestmove, engine.ponder))
@@ -445,7 +445,7 @@ class PonderhitCommand(IsReadyCommand):
         super(PonderhitCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine.process.send_line("ponderhit")
+        engine.send_line("ponderhit")
         super(PonderhitCommand, self)._execute(engine)
 
 
@@ -456,7 +456,7 @@ class QuitCommand(Command):
 
     def _execute(self, engine):
         assert self.engine == engine
-        engine.process.send_line("quit")
+        engine.send_line("quit")
         engine.terminated.wait()
         engine.process.close_std_streams()
         self._notify_callback()
@@ -1130,6 +1130,9 @@ class Engine(object):
     def is_alive(self):
         """Poll the engine process to check if it is alive."""
         return self.process.is_alive()
+
+    def send_line(self, line):
+        return self.process.send_line(line)
 
 
 def popen_engine(command, engine_cls=Engine):
