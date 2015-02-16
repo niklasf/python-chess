@@ -1132,7 +1132,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command):
+def popen_engine(command, engine_cls=Engine):
     """
     Opens a local chess engine process.
 
@@ -1150,10 +1150,10 @@ def popen_engine(command):
     The input and input streams will be linebuffered and able both Windows
     and Unix newlines.
     """
-    return Engine(PopenProcess, (command, ))
+    return engine_cls(PopenProcess, (command, ))
 
 
-def spur_spawn_engine(shell, command):
+def spur_spawn_engine(shell, command, engine_cls=Engine):
     """
     Spwans a remote engine using a `Spur`_ shell.
 
@@ -1165,4 +1165,4 @@ def spur_spawn_engine(shell, command):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    return Engine(SpurProcess, (shell, command))
+    return engine_cls(SpurProcess, (shell, command))
