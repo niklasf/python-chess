@@ -1278,10 +1278,10 @@ class UciEngineTestCase(unittest.TestCase):
         self.assertEqual(bestmove, chess.Move.from_uci("e2e4"))
         self.assertTrue(pondermove is None)
 
-        self.mock.expect("go winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", (
+        self.mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", (
             "bestmove d2d4 ponder d7d5",
         ))
-        self.engine.go(winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
+        self.engine.go(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
         self.mock.assert_done()
 
     def test_refutations(self):
