@@ -33,14 +33,14 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
         *threading.Event()* that will be set as soon as *uciok* was received.
         By then name, author and options should be available.
 
-    .. py:attribute:: returncode
+    .. py:attribute:: return_code
 
         The return code of the operating system process.
 
     .. py:attribute:: terminated
 
         *threading.Event()* that will be set as soon as the underyling
-        operating system process is terminated and the *returncode* is
+        operating system process is terminated and the *return_code* is
         available.
 
 UCI Commands
