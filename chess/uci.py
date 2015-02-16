@@ -286,9 +286,10 @@ class SetOptionCommand(IsReadyCommand):
     def __init__(self, options, callback=None):
         super(SetOptionCommand, self).__init__(callback)
 
-        builder = []
+        self.option_lines = []
 
         for name, value in options.items():
+            builder = []
             builder.append("setoption name ")
             builder.append(name)
             builder.append(" value ")
@@ -301,10 +302,12 @@ class SetOptionCommand(IsReadyCommand):
             else:
                 builder.append(str(value))
 
-        self.buf = "".join(builder)
+            self.option_lines.append("".join(builder))
 
     def _execute(self, engine):
-        engine.process.send_line(self.buf)
+        for option_line in self.option_lines:
+            engine.process.send_line(option_line)
+
         super(SetOptionCommand, self)._execute(engine)
 
 

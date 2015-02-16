@@ -21,6 +21,7 @@ import chess
 import chess.polyglot
 import chess.pgn
 import chess.uci
+import collections
 import unittest
 import spur
 import textwrap
@@ -1339,6 +1340,20 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.on_line_received("option name MyEnum type combo var Abc def var g h")
         self.assertEqual(self.engine.options["MyEnum"].type, "combo")
         self.assertEqual(self.engine.options["MyEnum"].var, ["Abc def", "g h"])
+
+    def test_set_option(self):
+        self.mock.expect("setoption name Yes value true")
+        self.mock.expect("setoption name No value false")
+        self.mock.expect("setoption name Null option value none")
+        self.mock.expect("setoption name String option value value value")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.setoption(collections.OrderedDict([
+            ("Yes", True),
+            ("No", False),
+            ("Null option", None),
+            ("String option", "value value"),
+        ]))
+        self.mock.assert_done()
 
 
 if __name__ == "__main__":
