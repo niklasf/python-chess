@@ -253,7 +253,7 @@ class UciCommand(Command):
 
     def _execute(self, engine):
         engine.uciok.clear()
-        engine._send("uci\n")
+        engine.process.send_line("uci")
         engine.uciok.wait()
         self._notify(())
 
@@ -265,9 +265,9 @@ class DebugCommand(Command):
 
     def _execute(self, engine):
         if self.on:
-            engine._send("debug on\n")
+            engine.process.send_line("debug on")
         else:
-            engine._send("debug off\n")
+            engine.process.send_line("debug off")
         self._notify(())
 
 
@@ -277,7 +277,7 @@ class IsReadyCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine._send("isready\n")
+        engine.process.send_line("isready")
         engine.readyok.wait()
         self._notify(())
 
@@ -300,12 +300,11 @@ class SetOptionCommand(IsReadyCommand):
                 builder.append("none")
             else:
                 builder.append(str(value))
-            builder.append("\n")
 
         self.buf = "".join(builder)
 
     def _execute(self, engine):
-        engine._send(self.buf)
+        engine.process.send_line(self.buf)
         super(SetOptionCommand, self)._execute(engine)
 
 
@@ -314,7 +313,7 @@ class UciNewGameCommand(IsReadyCommand):
         super(UciNewGameCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine._send("ucinewgame\n")
+        engine.process.send_line("ucinewgame")
         super(UciNewGameCommand, self)._execute(engine)
 
 
@@ -344,10 +343,10 @@ class PositionCommand(IsReadyCommand):
                 builder.append(move.uci())
                 board.push(move)
 
-        self.buf = " ".join(builder) + "\n"
+        self.buf = " ".join(builder)
 
     def _execute(self, engine):
-        engine._send(self.buf)
+        engine.process.send_line(self.buf)
         super(PositionCommand, self)._execute(engine)
 
 
@@ -407,13 +406,13 @@ class GoCommand(Command):
         if infinite:
             builder.append("infinite")
 
-        self.buf = " ".join(builder) + "\n"
+        self.buf = " ".join(builder)
 
     def _execute(self, engine):
         engine.bestmove = None
         engine.ponder = None
         engine.bestmove_received.clear()
-        engine._send(self.buf)
+        engine.process.send_line(self.buf)
         if self.infinite:
             self._notify(())
         else:
@@ -427,8 +426,8 @@ class StopCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine._send("stop\n")
-        engine._send("isready\n")
+        engine.process.send_line("stop")
+        engine.process.send_line("isready")
         engine.readyok.wait()
         engine.bestmove_received.wait(STOP_TIMEOUT)
         self._notify((engine.bestmove, engine.ponder))
@@ -439,7 +438,7 @@ class PonderhitCommand(IsReadyCommand):
         super(PonderhitCommand, self).__init__(callback)
 
     def _execute(self, engine):
-        engine._send("ponderhit\n")
+        engine.process.send_line("ponderhit")
         super(PonderhitCommand, self)._execute(engine)
 
 
@@ -450,14 +449,14 @@ class QuitCommand(Command):
 
     def _execute(self, engine):
         assert self.engine == engine
-        engine._send("quit\n")
+        engine.process.send_line("quit")
         engine.terminated.wait()
-        engine._close_fds()
+        engine.process.close_std_streams()
         self._notify_callback()
 
     @property
     def result(self):
-        return self.engine.returncode
+        return self.engine.return_code
 
     def wait(self, timeout=None):
         if not self.engine.terminated.wait(timeout):
@@ -468,10 +467,100 @@ class QuitCommand(Command):
         return self.engine.terminated.is_set()
 
 
+class PopenProcess(object):
+    def __init__(self, engine, command):
+        self.engine = engine
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
+
+        self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
+        self._receiving_thread.daemon = True
+        self._receiving_thread.start()
+
+    def _receiving_thread_target(self):
+        while self.is_alive():
+            line = self.process.stdout.readline()
+            if not line:
+                continue
+
+            self.engine.on_line_received(line.rstrip())
+
+        self.engine.on_terminated()
+
+    def is_alive(self):
+        return self.process.poll() is None
+
+    def terminate(self):
+        self.process.terminate()
+
+    def kill(self):
+        self.process.kill()
+
+    def close_std_streams(self):
+        self.process.stdout.close()
+        self.process.stdin.close()
+
+    def send_line(self, string):
+        self.process.stdin.write(string)
+        self.process.stdin.write("\n")
+        self.process.stdin.flush()
+
+    def get_return_code(self):
+        return self.process.returncode
+
+
+class SpurProcess(object):
+    def __init__(self, engine, shell, command):
+        self._stdout_buffer = []
+
+        self.engine = engine
+        self.process = shell.spawn(command, store_pid=True, allow_error=True, stdout=self)
+
+        self._result = None
+
+        self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
+        self._waiting_thread.daemon = True
+        self._waiting_thread.start()
+
+    def write(self, byte):
+        # Interally called whenever a byte is received.
+        byte = byte.decode("utf-8")
+
+        if byte == "\r":
+            pass
+        elif byte == "\n":
+            self.engine.on_line_received("".join(self._stdout_buffer))
+            del self._stdout_buffer[:]
+        else:
+            self._stdout_buffer.append(byte)
+
+    def _waiting_thread_target(self):
+        self._result = self.process.wait_for_result()
+        self.engine.on_terminated()
+
+    def is_alive(self):
+        return self.process.is_running()
+
+    def terminate(self):
+        self.process.send_signal(signal.SIGTERM)
+
+    def kill(self):
+        self.process.send_signal(signal.SIGKILL)
+
+    def close_std_streams(self):
+        # Spur already handles cleanup.
+        pass
+
+    def send_line(self, string):
+        self.process.stdin_write(string)
+        self.process.stdin_write("\n")
+
+    def get_return_code(self):
+        return self._result.return_code if self._result else None
+
+
 class Engine(object):
-    def __init__(self, process):
-        super(Engine, self).__init__()
-        self.process = process
+    def __init__(self, process_cls, args):
+        self.process = process_cls(self, *args)
 
         self.name = None
         self.author = None
@@ -489,20 +578,12 @@ class Engine(object):
         self.stdin_thread.daemon = True
         self.stdin_thread.start()
 
-        self.stdout_thread = threading.Thread(target=self._stdout_thread_target)
-        self.stdout_thread.daemon = True
-        self.stdout_thread.start()
-
-        self.returncode = None
+        self.return_code = None
         self.terminated = threading.Event()
 
         self.info_handlers = []
 
-    def _send(self, buf):
-        self.process.stdin.write(buf)
-        self.process.stdin.flush()
-
-    def _received(self, buf):
+    def on_line_received(self, buf):
         command_and_args = buf.split(None, 1)
         if not command_and_args:
             return
@@ -540,27 +621,10 @@ class Engine(object):
             command._execute(self)
             self.queue.task_done()
 
-        self._close_fds()
-        self._terminated()
+        self.on_terminated()
 
-    def _stdout_thread_target(self):
-        while self.is_alive():
-            line = self.process.stdout.readline()
-            if not line:
-                continue
-
-            line = line.rstrip()
-            self._received(line)
-
-        self._close_fds()
-        self._terminated()
-
-    def _close_fds(self):
-        self.process.stdin.close()
-        self.process.stdout.close()
-
-    def _terminated(self):
-        self.returncode = self.process.returncode
+    def on_terminated(self):
+        self.return_code = self.process.get_return_code()
         self.terminated.set()
 
     def _id(self, arg):
@@ -982,8 +1046,9 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        self._close_fds()
+        self.process.close_std_streams()
         self.process.terminate()
+
         promise = QuitCommand(self)
         if async:
             return promise
@@ -998,8 +1063,9 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        self._close_fds()
+        self.process.close_std_streams()
         self.process.kill()
+
         promise = QuitCommand(self)
         if async:
             return promise
@@ -1008,66 +1074,10 @@ class Engine(object):
 
     def is_alive(self):
         """Poll the engine process to check if it is alive."""
-        return self.process.poll() is None
+        return self.process.is_alive()
 
 
-class SpurEngine(Engine):
-    class StdoutHandler(object):
-        def __init__(self, engine):
-            self.engine = engine
-            self.buf = []
-
-        def write(self, byte):
-            byte = byte.decode("utf-8")
-
-            if byte == "\r":
-                pass
-            elif byte == "\n":
-                self.engine._received("".join(self.buf))
-                del self.buf[:]
-            else:
-                self.buf.append(byte)
-
-    def __init__(self, shell, command):
-        process = shell.spawn(command, store_pid=True, allow_error=True, stdout=self.StdoutHandler(self))
-        super(SpurEngine, self).__init__(process)
-
-    def _send(self, buf):
-        self.process.stdin_write(buf.encode("utf-8"))
-
-    def _close_fds(self):
-        # Spur already handles cleanup.
-        pass
-
-    def _terminated(self):
-        self.returncode = self.process.wait_for_result().return_code
-        self.terminated.set()
-
-    def _stdout_thread_target(self):
-        self.process.wait_for_result()
-        self._terminated()
-
-    def terminate(self, async=False):
-        self.process.send_signal(signal.SIGTERM)
-        promise = QuitCommand(self)
-        if async:
-            return promise
-        else:
-            return promise.wait()
-
-    def kill(self, async=False):
-        self.process.send_signal(signal.SIGKILL)
-        promise = QuitCommand(self)
-        if async:
-            return promise
-        else:
-            return promise.wait()
-
-    def is_alive(self):
-        return self.process.is_running()
-
-
-def popen_engine(command, cls=Engine):
+def popen_engine(command):
     """
     Opens a local chess engine process.
 
@@ -1085,10 +1095,10 @@ def popen_engine(command, cls=Engine):
     The input and input streams will be linebuffered and able both Windows
     and Unix newlines.
     """
-    return cls(subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True))
+    return Engine(PopenProcess, (command, ))
 
 
-def spur_spawn_engine(shell, command, cls=SpurEngine):
+def spur_spawn_engine(shell, command):
     """
     Spwans a remote engine using a `Spur`_ shell.
 
@@ -1100,4 +1110,4 @@ def spur_spawn_engine(shell, command, cls=SpurEngine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    return cls(shell, command)
+    return Engine(SpurProcess, (shell, command))
