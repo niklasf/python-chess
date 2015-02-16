@@ -504,7 +504,8 @@ class PopenProcess(object):
         self.process.stdin.write("\n")
         self.process.stdin.flush()
 
-    def get_return_code(self):
+    def wait_for_return_code(self):
+        self.process.wait()
         return self.process.returncode
 
 
@@ -552,8 +553,8 @@ class SpurProcess(object):
         self.process.stdin_write(string.encode("utf-8"))
         self.process.stdin_write(b"\n")
 
-    def get_return_code(self):
-        return self._result.return_code if self._result else None
+    def wait_for_return_code(self):
+        return self.process.wait_for_result().return_code
 
 
 class Engine(object):
@@ -622,7 +623,8 @@ class Engine(object):
         self.on_terminated()
 
     def on_terminated(self):
-        self.return_code = self.process.get_return_code()
+        self.process.close_std_streams()
+        self.return_code = self.process.wait_for_return_code()
         self.terminated.set()
 
     def _id(self, arg):
