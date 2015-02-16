@@ -475,11 +475,11 @@ class MockProcess(object):
         self._is_dead = threading.Event()
         self._std_streams_closed = False
 
-    def expect(self, expectation):
-        self._expectations.append(expectation)
+    def expect(self, expectation, responses=()):
+        self._expectations.append((expectation, responses))
 
     def assert_done(self):
-        assert not self._expectations
+        assert not self._expectations, "pending expectations: {0}".format(self._expectations)
 
     def assert_terminated(self):
         self.assert_done()
@@ -491,17 +491,24 @@ class MockProcess(object):
 
     def terminate(self):
         self._is_dead.set()
-        self.on_terminated()
+        self.engine.on_terminated()
 
     def kill(self):
         self._is_dead.set()
-        self.on_terminated()
+        self.engine.on_terminated()
 
     def close_std_streams(self):
         self._std_streams_closed = True
 
-    def send_line(string):
-        assert self._expectations.popleft() == string
+    def send_line(self, string):
+        assert self.is_alive()
+
+        assert self._expectations, "unexpected: {0}".format(string)
+        expectation, responses = self._expectations.popleft()
+        assert expectation == string, "expected: {0}, got {1}".format(expectation, string)
+
+        for response in responses:
+            self.engine.on_line_received(response)
 
     def wait_for_return_code(self):
         self._is_dead.wait()
@@ -782,7 +789,7 @@ class Engine(object):
         for token in arg.split(" "):
             if current_parameter == "string":
                 string.append(token)
-            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline"):
+            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"):
                 end_of_parameter()
                 current_parameter = token
 

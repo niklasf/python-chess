@@ -1230,23 +1230,85 @@ class SpurEngineTestCase(unittest.TestCase):
         self.assertFalse(engine.is_alive())
 
 
-class UciEngineTestCase(object):
+class UciEngineTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.engine = chess.uci.Engine(chess.uci.MockProcess, ())
+        self.mock = self.engine.process
+
+        self.mock.expect("uci", ("uciok", ))
+        self.engine.uci()
+        self.mock.assert_done()
+
+    def tearDown(self):
+        self.engine.terminate()
+        self.mock.assert_terminated()
 
     def test_debug(self):
-        engine = chess.uci.Engine(chess.uci.MockProcess, ())
-        mock = engine.process
+        self.mock.expect("debug on")
+        self.engine.debug(True)
+        self.mock.assert_done()
 
-        mock.expect("uci")
-        engine.uci()
-        mock.assert_done()
-        engine.on_line_received("uciok")
+        self.mock.expect("debug off")
+        self.engine.debug(False)
+        self.mock.assert_done()
 
-        mock.expect("debug on")
-        engine.debug(True)
-        mock.assert_done()
+    def test_ponderhit(self):
+        self.mock.expect("ponderhit")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.ponderhit()
+        self.mock.assert_done()
 
-        engine.terminate()
-        mock.assert_terminated()
+    def test_kill(self):
+        self.engine.kill()
+        self.mock.assert_terminated()
+
+    def test_go(self):
+        self.mock.expect("go searchmoves e2e4 d2d4 ponder infinite")
+        self.engine.go(
+            searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")],
+            ponder=True,
+            infinite=True)
+        self.mock.assert_done()
+
+        self.mock.expect("stop", ("bestmove e2e4", ))
+        self.mock.expect("isready", ("readyok", ))
+        bestmove, pondermove = self.engine.stop()
+        self.mock.assert_done()
+        self.assertEqual(bestmove, chess.Move.from_uci("e2e4"))
+        self.assertTrue(pondermove is None)
+
+        self.mock.expect("go winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", (
+            "bestmove d2d4 ponder d7d5",
+        ))
+        self.engine.go(winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
+        self.mock.assert_done()
+
+    def test_refutations(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info refutation d1h5 g6h5")
+
+        d1h5 = chess.Move.from_uci("d1h5")
+        g6h5 = chess.Move.from_uci("g6h5")
+
+        with handler as info:
+            self.assertEqual(len(info["refutation"][d1h5]), 1)
+            self.assertEqual(info["refutation"][d1h5][0], g6h5)
+
+        self.engine.on_line_received("info refutation d1h5")
+        with handler as info:
+            self.assertTrue(info["refutation"][d1h5] is None)
+
+    def test_string(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info string goes to end no matter score cp 4 what")
+        with handler as info:
+            self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
+            self.assertFalse("score" in info)
 
 
 if __name__ == "__main__":
