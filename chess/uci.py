@@ -194,11 +194,11 @@ class InfoHandler(object):
         return self.lock.release()
 
     def __enter__(self):
-        self.lock.acquire()
+        self.acquire()
         return self.info
 
     def __exit__(self, type, value, traceback):
-        self.lock.release()
+        self.release()
 
 
 class Command(object):
