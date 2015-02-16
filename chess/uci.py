@@ -1036,7 +1036,7 @@ class SpurEngine(Engine):
         self.process.stdin_write(buf.encode("utf-8"))
 
     def _close_fds(self):
-        # TODO: Check if this is required.
+        # Spur already handles cleanup.
         pass
 
     def _terminated(self):
