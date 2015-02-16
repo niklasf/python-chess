@@ -1201,9 +1201,12 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.ucinewgame()
 
         # Find fools mate.
-        board = chess.Bitboard("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2")
+        board = chess.Bitboard()
+        board.push_san("g4")
+        board.push_san("e5")
+        board.push_san("f4")
         engine.position(board)
-        bestmove, pondermove = engine.go(mate=1)
+        bestmove, pondermove = engine.go(mate=1, movetime=2000)
         self.assertEqual(board.san(bestmove), "Qh4#")
 
     def test_terminate(self):
