@@ -1101,35 +1101,3 @@ def spur_spawn_engine(shell, command, cls=SpurEngine):
     .. _Spur: https://pypi.python.org/pypi/spur
     """
     return cls(shell, command)
-
-
-if __name__ == "__main__":
-    import time
-    import spur
-
-    #engine = popen_engine("/usr/games/stockfish")
-    engine = spur_spawn_engine(spur.LocalShell(), ["/usr/games/stockfish"])
-
-    engine.uci()
-    print("Name:", engine.name)
-    print("Author:", engine.author)
-
-    print("Options:", engine.options)
-
-    engine.setoption({
-        "MultiPV": 5
-    })
-
-    handler = InfoHandler()
-    engine.info_handlers.append(handler)
-
-    board = chess.Bitboard()
-    print(engine.position(board))
-    print(engine.go(infinite=True))
-
-    time.sleep(2)
-
-    with handler:
-        print("Info:", handler.info)
-
-    print("Return code:", engine.quit())
