@@ -1178,7 +1178,7 @@ class StockfishTestCase(unittest.TestCase):
         self.engine.position(board)
 
         self.engine.go(infinite=True)
-        time.sleep(2)
+        time.sleep(4)
 
         with handler as info:
             self.assertEqual(info["pv"][1][0], chess.Move.from_uci("g6f7"))
