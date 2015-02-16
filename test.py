@@ -1284,7 +1284,7 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.go(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
         self.mock.assert_done()
 
-    def test_refutations(self):
+    def test_info_refutation(self):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
@@ -1301,7 +1301,7 @@ class UciEngineTestCase(unittest.TestCase):
         with handler as info:
             self.assertTrue(info["refutation"][d1h5] is None)
 
-    def test_string(self):
+    def test_info_string(self):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
@@ -1309,6 +1309,21 @@ class UciEngineTestCase(unittest.TestCase):
         with handler as info:
             self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
             self.assertFalse("score" in info)
+
+    def test_info_currline(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info currline 0 e2e4 e7e5")
+        with handler as info:
+            self.assertEqual(info["currline"][0], [
+                chess.Move.from_uci("e2e4"),
+                chess.Move.from_uci("e7e5"),
+            ])
+
+        self.engine.on_line_received("info currline 1 string eol")
+        with handler as info:
+            self.assertEqual(info["currline"][1], [])
 
     def test_info(self):
         handler = chess.uci.InfoHandler()
