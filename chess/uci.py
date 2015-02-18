@@ -1066,8 +1066,8 @@ class Engine(object):
         :return: **In normal search mode** a tuple of two elements. The first
             is the best move according to the engine. The second is the ponder
             move. This is the reply expected by the engine. Either of the
-            elements may be *None*. **In infinite search mode** the result is
-            () instead.
+            elements may be *None*. **In infinite search mode** there is no
+            result. See *stop* instead.
         """
         return self.queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback))
 
