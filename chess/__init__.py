@@ -295,9 +295,9 @@ for bb_square in BB_SQUARES:
     mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask & BB_ALL)
 
-BB_RANK_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
+BB_RANK_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
 
-BB_FILE_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
+BB_FILE_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
 
 for square in SQUARES:
     for bitrow in range(0, 64):
@@ -357,9 +357,9 @@ BB_SHIFT_L45 = [
     57, 1, 10, 19, 28, 37, 46, 55,
     1, 10, 19, 28, 37, 46, 55, 64 ]
 
-BB_L45_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
+BB_L45_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
 
-BB_R45_ATTACKS = [ [ BB_VOID for i in range(64) ] for k in range(64) ]
+BB_R45_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
 
 for s in SQUARES:
     for b in range(0, 64):
@@ -873,7 +873,7 @@ class Bitboard(object):
         self.occupied_l45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for i in range(64) ]
+        self.pieces = [ NONE for _ in range(64) ]
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -1558,9 +1558,9 @@ class Bitboard(object):
 
         switchyard = collections.deque()
 
-        for i in range(4):
+        for _ in range(4):
             # Go back two full moves, each.
-            for j in range(4):
+            for _ in range(4):
                 switchyard.append(self.pop())
 
             # Check the position was the same before.
@@ -2543,7 +2543,7 @@ class LegalMoveGenerator(object):
     def __len__(self):
         count = 0
 
-        for move in self.bitboard.generate_legal_moves():
+        for _ in self.bitboard.generate_legal_moves():
             count += 1
 
         return count
