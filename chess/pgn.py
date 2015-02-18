@@ -195,7 +195,7 @@ class GameNode(object):
         """Removes a variation by move."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move, comment="", starting_comment="", nags=set()):
+    def add_variation(self, move, comment="", starting_comment="", nags=()):
         """Creates a child node with the given attributes."""
         node = GameNode()
         node.move = move
