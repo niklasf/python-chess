@@ -220,7 +220,7 @@ class Command(object):
         self._notify_callback()
 
     def _notify_callback(self):
-        if self._callback and not self._callback is True:
+        if self._callback and self._callback is not True:
             if self.result is None:
                 self._callback()
                 return
