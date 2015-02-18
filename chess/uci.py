@@ -1151,7 +1151,6 @@ def popen_engine(command, engine_cls=Engine):
 
     >>> engine = chess.uci.popen_engine("/usr/games/stockfish")
     >>> engine.uci()
-    ()
     >>> engine.name
     'Stockfish 230814 64'
     >>> engine.author
@@ -1171,7 +1170,6 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
     >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
     >>> engine = chess.uci.spur_spwan_engine(shell, ["/usr/games/stockfish"])
     >>> engine.uci()
-    ()
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
