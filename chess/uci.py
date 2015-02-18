@@ -201,6 +201,10 @@ class InfoHandler(object):
         self.release()
 
 
+class CommandTimeoutException(Exception):
+    pass
+
+
 class Command(object):
     """Information about the state of a command."""
 
@@ -239,11 +243,11 @@ class Command(object):
         Wait for the command to be completed.
 
         This may wait forever unless a floating point number of seconds is
-        specified as the timeout. Raises *TimeoutError* if a timeout is indeed
-        encountered.
+        specified as the timeout. Raises *CommandTimeoutException* if a timeout
+        is indeed encountered.
         """
         if not self._event.wait(timeout):
-            raise TimeoutError("waiting for uci command timed out")
+            raise CommandTimeoutException("waiting for an uci command timed out")
         return self.result
 
     def is_done(self):
@@ -474,7 +478,7 @@ class QuitCommand(Command):
 
     def wait(self, timeout=None):
         if not self.engine.terminated.wait(timeout):
-            raise TimeoutError("waiting for engine termination timed out")
+            raise CommandTimeoutException("waiting for engine termination timed out")
         return self.result
 
     def is_done(self):
