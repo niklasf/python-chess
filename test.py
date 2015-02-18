@@ -1165,7 +1165,7 @@ class StockfishTestCase(unittest.TestCase):
         self.assertEqual(self.engine.options["UCI_Chess960"].type, "check")
         self.assertEqual(self.engine.options["UCI_Chess960"].default, False)
 
-    def test_info(self):
+    def test_multi_pv(self):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
@@ -1333,6 +1333,15 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.on_line_received("info currline 1 string eol")
         with handler as info:
             self.assertEqual(info["currline"][1], [])
+
+    def test_mate_score(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info depth 7 seldepth 8 score mate 3")
+        with handler as info:
+            self.assertEqual(info["score"].mate, 3)
+            self.assertEqual(info["score"].cp, None)
 
     def test_info(self):
         handler = chess.uci.InfoHandler()
