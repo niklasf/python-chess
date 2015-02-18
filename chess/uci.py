@@ -970,6 +970,8 @@ class Engine(object):
 
         This is mandatory before any other command. A conforming engine will
         send its name, authors and available options.
+
+        :return: Nothing
         """
         return self.queue_command(UciCommand(async_callback))
 
