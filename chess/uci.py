@@ -452,7 +452,7 @@ class StopCommand(Command):
 
 
 class PonderhitCommand(IsReadyCommand):
-    def __init__(self, debug, callback=None):
+    def __init__(self, callback=None):
         super(PonderhitCommand, self).__init__(callback)
 
     def _execute(self, engine):
