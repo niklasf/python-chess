@@ -1057,7 +1057,7 @@ class Engine(object):
         :param movestogo: Number of moves to the next time control. If this is
             not set, but wtime or btime are, then it is sudden death.
         :param depth: Search *depth* ply only.
-        :param nodes: Search *nodes* only.
+        :param nodes: Search so many *nodes* only.
         :param mate: Search for a mate in *mate* moves.
         :param movetime: Integer. Search exactly *movetime* milliseconds.
         :param infinite: Search in the backgorund until a *stop* command is
