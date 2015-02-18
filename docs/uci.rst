@@ -108,7 +108,7 @@ class.
 
     .. py:attribute:: cp
 
-        Evaluation is centipawns or *None*.
+        Evaluation in centipawns or *None*.
 
     .. py:attribute:: mate
 
