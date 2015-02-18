@@ -43,7 +43,7 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
         operating system process is terminated and the *return_code* is
         available.
 
-UCI Commands
+UCI commands
 ------------
 
 .. autoclass:: chess.uci.Engine
