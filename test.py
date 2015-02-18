@@ -1268,6 +1268,14 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.ponderhit()
         self.mock.assert_done()
 
+    def test_async_ponderhit(self):
+        self.mock.expect("ponderhit")
+        self.mock.expect("isready", ("readyok", ))
+        command = self.engine.ponderhit(async_callback=True)
+        command.wait()
+        self.assertTrue(command.is_done())
+        self.mock.assert_done()
+
     def test_kill(self):
         self.engine.kill()
         self.mock.assert_terminated()
