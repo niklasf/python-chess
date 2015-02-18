@@ -138,7 +138,6 @@ class.
 
         >>> # Start thinking.
         >>> engine.go(infinite=True)
-        ()
 
         >>> # Wait a moment, then access a consistent snapshot.
         >>> time.sleep(3)
