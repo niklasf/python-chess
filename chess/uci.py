@@ -433,7 +433,13 @@ class StopCommand(Command):
 
     def _execute(self, engine):
         engine.readyok.clear()
-        engine.process.send_line("stop")
+
+        # First check if the engine already sent a best move and stopped
+        # searching. For example Maverick will stop when a mate is found, even
+        # in infinite mode.
+        if not engine.bestmove_received.is_set():
+            engine.process.send_line("stop")
+
         engine.process.send_line("isready")
         engine.readyok.wait()
         engine.bestmove_received.wait(STOP_TIMEOUT)
