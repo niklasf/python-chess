@@ -22,10 +22,10 @@ import chess.polyglot
 import chess.pgn
 import chess.uci
 import collections
-import unittest
-import spur
+import os.path
 import textwrap
 import time
+import unittest
 
 try:
     from StringIO import StringIO
@@ -1119,6 +1119,7 @@ class PgnTestCase(unittest.TestCase):
 
 class StockfishTestCase(unittest.TestCase):
 
+    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def setUp(self):
         self.engine = chess.uci.popen_engine("/usr/games/stockfish")
         self.engine.uci()
@@ -1193,9 +1194,16 @@ class StockfishTestCase(unittest.TestCase):
 
 class SpurEngineTestCase(unittest.TestCase):
 
+    def setUp(self):
+        try:
+            import spur
+            self.shell = spur.LocalShell()
+        except ImportError:
+            self.skipTest("need spur library")
+
+    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_local_shell(self):
-        shell = spur.LocalShell()
-        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
 
         engine.uci()
 
@@ -1210,9 +1218,9 @@ class SpurEngineTestCase(unittest.TestCase):
         bestmove, pondermove = engine.go(mate=1, movetime=2000)
         self.assertEqual(board.san(bestmove), "Qh4#")
 
+    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_terminate(self):
-        shell = spur.LocalShell()
-        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
 
         engine.uci()
         engine.go(infinite=True)
@@ -1220,9 +1228,9 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.terminate()
         self.assertFalse(engine.is_alive())
 
+    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_kill(self):
-        shell = spur.LocalShell()
-        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
 
         engine.uci()
         engine.go(infinite=True)
@@ -1230,9 +1238,9 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.kill()
         self.assertFalse(engine.is_alive())
 
+    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_async_terminate(self):
-        shell = spur.LocalShell()
-        engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
 
         command = engine.terminate(async=True)
         command.wait()
