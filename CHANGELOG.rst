@@ -6,10 +6,10 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Up for the next release
------------------------
+New in v0.7.0
+-------------
 
-* **Support chess engine communication via UCI.**
+* **Implement UCI engine communication.**
 
 * Patch by Matthew Lai: `Add caching for gameNode.board()`.
 
@@ -173,7 +173,7 @@ New in v0.3.0
 New in v0.2.0
 -------------
 
-* Implement PGN parsing and writing.
+* **Implement PGN parsing and writing.**
 * Hugely improve test coverage and use Travis CI for continuous integration and
   testing.
 * Create an API documentation.
