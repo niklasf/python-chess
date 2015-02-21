@@ -1127,10 +1127,10 @@ class StockfishTestCase(unittest.TestCase):
     def tearDown(self):
         self.engine.quit()
 
-    def test_bratko_kopec(self):
+    def test_forced_mates(self):
         epds = [
             "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
-            "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - - bm d5; id \"BK.02\";",
+            "4R3/p1p2p2/P4P2/P7/1r1pN1p1/1p1PpkP1/1P2r2p/3B3K w - - bm Rh8; id \"Tamminen 1944\";",
         ]
 
         board = chess.Bitboard()
@@ -1139,7 +1139,7 @@ class StockfishTestCase(unittest.TestCase):
             operations = board.set_epd(epd)
             self.engine.ucinewgame()
             self.engine.position(board)
-            result = self.engine.go(movetime=2000)
+            result = self.engine.go(mate=5)
             self.assertEqual(result[0], operations["bm"], operations["id"])
 
     def test_async(self):
