@@ -1162,8 +1162,8 @@ class StockfishTestCase(unittest.TestCase):
     def test_initialization(self):
         self.assertTrue("Stockfish" in self.engine.name)
         self.assertEqual(self.engine.options["UCI_Chess960"].name, "UCI_Chess960")
-        self.assertEqual(self.engine.options["UCI_Chess960"].type, "check")
-        self.assertEqual(self.engine.options["UCI_Chess960"].default, False)
+        self.assertEqual(self.engine.options["uci_Chess960"].type, "check")
+        self.assertEqual(self.engine.options["UCI_CHESS960"].default, False)
 
     def test_multi_pv(self):
         handler = chess.uci.InfoHandler()

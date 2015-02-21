@@ -25,8 +25,8 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
 
     .. py:attribute:: options
 
-        A dictionary of :ref:`options`. The engine should send available options
-        when it receives the initial *uci* command.
+        A case insensitive dictionary of :ref:`options`. The engine should send
+        available options when it receives the initial *uci* command.
 
     .. py:attribute:: uciok
 
