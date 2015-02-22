@@ -1139,7 +1139,7 @@ class StockfishTestCase(unittest.TestCase):
             operations = board.set_epd(epd)
             self.engine.ucinewgame()
             self.engine.position(board)
-            result = self.engine.go(mate=5)
+            result = self.engine.go(movetime=4000)
             self.assertEqual(result[0], operations["bm"], operations["id"])
 
     def test_async(self):
