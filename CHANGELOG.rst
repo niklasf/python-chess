@@ -6,6 +6,15 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Up for the next release
+-----------------------
+
+* The interface for aynchronous UCI command has changed to mimic
+  `concurrent.futures`. `is_done()` is now just `done()`. Callbacks will
+  receive the command object as a single argument instead of the result.
+  The `result` property and `wait()` have been removed in favor of a
+  synchronously waiting `result()` method.
+
 New in v0.7.0
 -------------
 
