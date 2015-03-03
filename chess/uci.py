@@ -49,8 +49,8 @@ class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperb
     pass
 
 
-class Bestmove(collections.namedtuple("Bestmove", ["bestmove", "pondermove"])):
-    """A bestmove and pondermove sent by an UCI engine."""
+class BestMove(collections.namedtuple("BestMove", ["bestmove", "ponder"])):
+    """A bestmove and ponder move sent by an UCI engine."""
     pass
 
 
@@ -499,7 +499,7 @@ class GoCommand(Command):
             self.set_result(None)
         else:
             engine.bestmove_received.wait()
-            self.set_result(Bestmove(engine.bestmove, engine.ponder))
+            self.set_result(BestMove(engine.bestmove, engine.ponder))
 
 
 class StopCommand(Command):
@@ -516,7 +516,7 @@ class StopCommand(Command):
         engine.readyok.wait()
 
         engine.bestmove_received.wait(STOP_TIMEOUT)
-        self.set_result(Bestmove(engine.bestmove, engine.ponder))
+        self.set_result(BestMove(engine.bestmove, engine.ponder))
 
 
 class PonderhitCommand(IsReadyCommand):
