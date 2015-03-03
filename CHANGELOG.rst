@@ -15,6 +15,9 @@ Up for the next release
   The `result` property and `wait()` have been removed in favor of a
   synchronously waiting `result()` method.
 
+* The result of the `stop` and `go` UCI commands are now named tuples (instead
+  of just normal tuples).
+
 New in v0.7.0
 -------------
 

@@ -49,6 +49,11 @@ class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperb
     pass
 
 
+class Bestmove(collections.namedtuple("Bestmove", ["bestmove", "pondermove"])):
+    """A bestmove and pondermove sent by an UCI engine."""
+    pass
+
+
 class OptionMap(collections.MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._store = dict()
@@ -494,7 +499,7 @@ class GoCommand(Command):
             self.set_result(None)
         else:
             engine.bestmove_received.wait()
-            self.set_result((engine.bestmove, engine.ponder))
+            self.set_result(Bestmove(engine.bestmove, engine.ponder))
 
 
 class StopCommand(Command):
@@ -511,7 +516,7 @@ class StopCommand(Command):
         engine.readyok.wait()
 
         engine.bestmove_received.wait(STOP_TIMEOUT)
-        self.set_result((engine.bestmove, engine.ponder))
+        self.set_result(Bestmove(engine.bestmove, engine.ponder))
 
 
 class PonderhitCommand(IsReadyCommand):
