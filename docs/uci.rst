@@ -57,7 +57,7 @@ By default all operations are executed synchronously and their result is
 returned. For example
 
 >>> engine.go(movetime=2000)
-(Move.from_uci('e2e4'), None)
+Bestmove(bestmove=Move.from_uci('e2e4'), pondermove=None)
 
 will take about 2000 milliseconds. All UCI commands have an optional
 *async_callback* argument. They will then immediately return information about
@@ -67,7 +67,7 @@ the command and continue.
 >>> command.done()
 False
 >>> command.result() # Synchronously wait for the command to finish
-(Move.from_uci('e2e4'), None)
+Bestmove(bestmove=Move.from_uci('e2e4'), pondermove=None)
 >>> command.done()
 True
 
