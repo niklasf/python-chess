@@ -247,98 +247,106 @@ class InfoHandler(object):
         self.release()
 
 
-class CommandTimeoutException(Exception):
+class TimeoutError(Exception):
+    """The UCI command timed out."""
     pass
 
 
 class Command(object):
     """Information about the state of a command."""
+    def __init__(self):
+        self._condition = threading.Condition()
+        self._result = None
+        self._done = False
+        self._done_callbacks = []
 
-    def __init__(self, callback=None):
-        self.result = None
-
-        self._callback = callback
-        self._event = threading.Event()
-
-    def _notify(self, result):
-        self.result = result
-        self._event.set()
-        self._notify_callback()
-
-    def _notify_callback(self):
-        if self._callback and self._callback is not True:
-            if self.result is None:
-                self._callback()
-                return
-
+    def _invoke_callbacks(self):
+        for callback in self._done_callbacks:
             try:
-                iter(self.result)
-            except TypeError:
-                self._callback(self.result)
-                return
-            self._callback(*self.result)
+                callback(self)
+            except Exception:
+                LOGGER.exception("exception calling callback for %r", self)
 
-    def _wait_or_callback(self):
-        if not self._callback:
-            return self.wait()
-        else:
-            return self
+    def __repr__(self):
+        with self._condition:
+            if self._done:
+                if self._result is None:
+                    return "<Command at {0} (finished)>".format(hex(id(self)))
+                else:
+                    return "<Command at {0} (result {1})>".format(hex(id(self)), self._result)
+            else:
+                return "<Command at {0} (pending)>".format(hex(id(self)))
 
-    def wait(self, timeout=None):
-        """
-        Wait for the command to be completed.
+    def done(self):
+        with self._condition:
+            return self._done
 
-        This may wait forever unless a floating point number of seconds is
-        specified as the timeout. Raises *CommandTimeoutException* if a timeout
-        is indeed encountered.
-        """
-        if not self._event.wait(timeout):
-            raise CommandTimeoutException("waiting for an uci command timed out")
-        return self.result
+    def add_done_callback(self, fn):
+        with self._condition:
+            if self._done:
+                fn(self)
+            else:
+                self._done_callbacks.append(fn)
 
-    def is_done(self):
-        """Checks if the command has been completed yet."""
-        return self._event.is_set()
+    def result(self, timeout=None):
+        with self._condition:
+            if self._done:
+                return self._result
+
+            self._condition.wait(timeout)
+
+            if self._done:
+                return self._result
+            else:
+                raise TimeoutError()
+
+    def set_result(self, result):
+        with self._condition:
+            self._result = result
+            self._done = True
+            self._condition.notify_all()
+
+        self._invoke_callbacks()
+
+    def execute(self, engine):
+        pass
 
 
 class UciCommand(Command):
-    def __init__(self, callback=None):
-        super(UciCommand, self).__init__(callback)
-
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.uciok.clear()
         engine.send_line("uci")
         engine.uciok.wait()
-        self._notify(None)
+        self.set_result(None)
 
 
 class DebugCommand(Command):
-    def __init__(self, on, callback=None):
-        super(DebugCommand, self).__init__(callback)
-        self.on = on
+    def __init__(self, on):
+        super(DebugCommand, self).__init__()
+        self.on = bool(on)
 
-    def _execute(self, engine):
+    def execute(self, engine):
         if self.on:
             engine.send_line("debug on")
         else:
             engine.send_line("debug off")
-        self._notify(None)
+        self.set_result(None)
 
 
 class IsReadyCommand(Command):
-    def __init__(self, callback=None):
-        super(IsReadyCommand, self).__init__(callback)
+    def __init__(self):
+        super(IsReadyCommand, self).__init__()
 
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.readyok.clear()
         engine.send_line("isready")
         engine.readyok.wait()
-        self._notify(None)
+        self.set_result(None)
 
 
 class SetOptionCommand(IsReadyCommand):
-    def __init__(self, options, callback=None):
-        super(SetOptionCommand, self).__init__(callback)
+    def __init__(self, options):
+        super(SetOptionCommand, self).__init__()
 
         self.option_lines = []
 
@@ -358,25 +366,22 @@ class SetOptionCommand(IsReadyCommand):
 
             self.option_lines.append("".join(builder))
 
-    def _execute(self, engine):
+    def execute(self, engine):
         for option_line in self.option_lines:
             engine.send_line(option_line)
 
-        super(SetOptionCommand, self)._execute(engine)
+        super(SetOptionCommand, self).execute(engine)
 
 
 class UciNewGameCommand(IsReadyCommand):
-    def __init__(self, callback=None):
-        super(UciNewGameCommand, self).__init__(callback)
-
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.send_line("ucinewgame")
-        super(UciNewGameCommand, self)._execute(engine)
+        super(UciNewGameCommand, self).execute(engine)
 
 
 class PositionCommand(IsReadyCommand):
-    def __init__(self, board, callback=None):
-        super(PositionCommand, self).__init__(callback)
+    def __init__(self, board):
+        super(PositionCommand, self).__init__()
 
         builder = []
         builder.append("position")
@@ -402,14 +407,14 @@ class PositionCommand(IsReadyCommand):
 
         self.buf = " ".join(builder)
 
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.send_line(self.buf)
-        super(PositionCommand, self)._execute(engine)
+        super(PositionCommand, self).execute(engine)
 
 
 class GoCommand(Command):
-    def __init__(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, callback=None):
-        super(GoCommand, self).__init__(callback)
+    def __init__(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False):
+        super(GoCommand, self).__init__()
 
         builder = []
         builder.append("go")
@@ -454,7 +459,6 @@ class GoCommand(Command):
             builder.append("mate")
             builder.append(str(int(mate)))
 
-
         if movetime is not None:
             builder.append("movetime")
             builder.append(str(int(movetime)))
@@ -465,23 +469,20 @@ class GoCommand(Command):
 
         self.buf = " ".join(builder)
 
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.bestmove = None
         engine.ponder = None
         engine.bestmove_received.clear()
         engine.send_line(self.buf)
         if self.infinite:
-            self._notify(None)
+            self.set_result(None)
         else:
             engine.bestmove_received.wait()
-            self._notify((engine.bestmove, engine.ponder))
+            self.set_result((engine.bestmove, engine.ponder))
 
 
 class StopCommand(Command):
-    def __init__(self, callback=None):
-        super(StopCommand, self).__init__(callback)
-
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.readyok.clear()
 
         # First check if the engine already sent a best move and stopped
@@ -494,41 +495,36 @@ class StopCommand(Command):
         engine.readyok.wait()
 
         engine.bestmove_received.wait(STOP_TIMEOUT)
-        self._notify((engine.bestmove, engine.ponder))
+        self.set_result((engine.bestmove, engine.ponder))
 
 
 class PonderhitCommand(IsReadyCommand):
-    def __init__(self, callback=None):
-        super(PonderhitCommand, self).__init__(callback)
-
-    def _execute(self, engine):
+    def execute(self, engine):
         engine.send_line("ponderhit")
-        super(PonderhitCommand, self)._execute(engine)
+        super(PonderhitCommand, self).execute(engine)
 
 
 class QuitCommand(Command):
-    def __init__(self, engine, callback=None):
-        self.engine = engine
-        self._callback = callback
-
-    def _execute(self, engine):
-        assert self.engine == engine
+    def execute(self, engine):
         engine.send_line("quit")
         engine.terminated.wait()
-        engine.process.close_std_streams()
-        self._notify_callback()
+        self.set_result(engine.process.wait_for_return_code())
 
-    @property
-    def result(self):
-        return self.engine.return_code
 
-    def wait(self, timeout=None):
-        if not self.engine.terminated.wait(timeout):
-            raise CommandTimeoutException("waiting for engine termination timed out")
-        return self.result
+class TerminationPromise(object):
+    def __init__(self, engine):
+        self.engine = engine
 
-    def is_done(self):
+    def done(self):
         return self.engine.terminated.is_set()
+
+    def result(self, timeout=None):
+        self.engine.terminated.wait(timeout)
+
+        if not self.done():
+            raise TimeoutError()
+        else:
+            return self.engine.return_code
 
 
 class MockProcess(object):
@@ -735,7 +731,7 @@ class Engine(object):
             if not self.is_alive():
                 break
 
-            command._execute(self)
+            command.execute(self)
             self.queue.task_done()
 
         self.on_terminated()
@@ -1014,11 +1010,19 @@ class Engine(object):
         option = Option(" ".join(name), type, default, min, max, var)
         self.options[option.name] = option
 
-    def queue_command(self, command):
+    def _queue_command(self, command, async_callback=None):
         if self.terminated.is_set():
             raise RuntimeError('can not queue command for terminated uci engine')
+
         self.queue.put(command)
-        return command._wait_or_callback()
+
+        if async_callback is True:
+            return command
+        elif async_callback:
+            command.add_done_callback(async_callback)
+            return command
+        else:
+            return command.result()
 
     def uci(self, async_callback=None):
         """
@@ -1029,7 +1033,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(UciCommand(async_callback))
+        return self._queue_command(UciCommand(), async_callback)
 
     def debug(self, on, async_callback=None):
         """
@@ -1042,7 +1046,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(DebugCommand(on, async_callback))
+        return self._queue_command(DebugCommand(on), async_callback)
 
     def isready(self, async_callback=None):
         """
@@ -1053,7 +1057,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(IsReadyCommand(async_callback))
+        return self._queue_command(IsReadyCommand(), async_callback)
 
     def setoption(self, options, async_callback=None):
         """
@@ -1063,7 +1067,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(SetOptionCommand(options, async_callback))
+        return self._queue_command(SetOptionCommand(options), async_callback)
 
     # TODO: Implement register command
 
@@ -1077,7 +1081,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(UciNewGameCommand(async_callback))
+        return self._queue_command(UciNewGameCommand(), async_callback)
 
     def position(self, board, async_callback=None):
         """
@@ -1094,7 +1098,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(PositionCommand(board, async_callback))
+        return self._queue_command(PositionCommand(board), async_callback)
 
     def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
         """
@@ -1125,7 +1129,7 @@ class Engine(object):
             elements may be *None*. **In infinite search mode** there is no
             result. See *stop* instead.
         """
-        return self.queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite, async_callback))
+        return self._queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite), async_callback)
 
     def stop(self, async_callback=None):
         """
@@ -1135,7 +1139,7 @@ class Engine(object):
             *go* command. Results of infinite searches will also be available
             here.
         """
-        return self.queue_command(StopCommand(async_callback))
+        return self._queue_command(StopCommand(), async_callback)
 
     def ponderhit(self, async_callback=None):
         """
@@ -1146,7 +1150,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.queue_command(PonderhitCommand(async_callback))
+        return self._queue_command(PonderhitCommand(), async_callback)
 
     def quit(self, async_callback=None):
         """
@@ -1154,9 +1158,9 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        return self.queue_command(QuitCommand(self, async_callback))
+        return self._queue_command(QuitCommand(), async_callback)
 
-    def terminate(self, async=None):
+    def terminate(self, async=False):
         """
         Terminate the engine.
 
@@ -1169,11 +1173,11 @@ class Engine(object):
         self.process.close_std_streams()
         self.process.terminate()
 
-        promise = QuitCommand(self)
+        promise = TerminationPromise(self)
         if async:
             return promise
         else:
-            return promise.wait()
+            return promise.result()
 
     def kill(self, async=False):
         """
@@ -1186,11 +1190,11 @@ class Engine(object):
         self.process.close_std_streams()
         self.process.kill()
 
-        promise = QuitCommand(self)
+        promise = TerminationPromise(self)
         if async:
             return promise
         else:
-            return promise.wait()
+            return promise.result()
 
     def is_alive(self):
         """Poll the engine process to check if it is alive."""
