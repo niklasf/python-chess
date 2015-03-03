@@ -228,25 +228,25 @@ Features
       >>> # Synchronous mode.
       >>> board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
       >>> engine.position(board)
-      >>> engine.go(movetime=2000) # Gets tuple of bestmove and pondermove.
-      Bestmove(bestmove=Move.from_uci('d6d1'), pondermove=Move.from_uci('c1d1'))
+      >>> engine.go(movetime=2000) # Gets tuple of bestmove and ponder move.
+      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
 
       >>> # Synchronous communication, but search in background.
       >>> engine.go(infinite=True)
       >>> time.sleep(2)
       >>> engine.stop()
-      Bestmove(bestmove=Move.from_uci('d6d1'), pondermove=Move.from_uci('c1d1'))
+      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
 
       >>> # Asynchronous mode.
       >>> def callback(command):
-      ...    bestmove, pondermove = command.result()
+      ...    bestmove, ponder = command.result()
       ...    assert bestmove == chess.Move.from_uci('d6d1')
       ...
       >>> command = engine.go(movetime=2000, async_callback=callback)
       >>> command.done()
       False
       >>> command.result()
-      Bestmove(bestmove=Move.from_uci('d6d1'), pondermove=Move.from_uci('c1d1'))
+      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
       >>> command.done()
       True
 
