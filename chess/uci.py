@@ -23,6 +23,7 @@ import chess
 import collections
 import signal
 import subprocess
+import logging
 import threading
 
 try:
@@ -31,16 +32,21 @@ except ImportError:
     import Queue as queue
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 POLL_TIMEOUT = 5
 STOP_TIMEOUT = 2
 
 
 class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
     """Information about an available option for an UCI engine."""
+    pass
 
 
 class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperbound"])):
     """A centipawns or mate score sent by an UCI engine."""
+    pass
 
 
 class OptionMap(collections.MutableMapping):
@@ -688,7 +694,13 @@ class Engine(object):
 
         self.info_handlers = []
 
+    def send_line(self, line):
+        LOGGER.debug("%s << %s", self.process, line)
+        return self.process.send_line(line)
+
     def on_line_received(self, buf):
+        LOGGER.debug("%s >> %s", self.process, buf)
+
         command_and_args = buf.split(None, 1)
         if not command_and_args:
             return
@@ -1183,9 +1195,6 @@ class Engine(object):
     def is_alive(self):
         """Poll the engine process to check if it is alive."""
         return self.process.is_alive()
-
-    def send_line(self, line):
-        return self.process.send_line(line)
 
 
 def popen_engine(command, engine_cls=Engine):
