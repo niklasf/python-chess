@@ -64,24 +64,20 @@ will take about 2000 milliseconds. All UCI commands have an optional
 the command and continue.
 
 >>> command = engine.go(movetime=2000, async_callback=True)
->>> command.is_done()
+>>> command.done()
 False
->>> command.result
-None
->>> command.wait() # Synchronously wait for the command to finish
->>> command.is_done()
-True
->>> command.result
+>>> command.result() # Synchronously wait for the command to finish
 (Move.from_uci('e2e4'), None)
+>>> command.done()
+True
 
 Instead of just passing *async_callback=True* a callback function may be
-passed. It will be invoked **on a different thread** as soon as the command
-is completed. Make sure the number of arguments exactly matches the expected
-result.
+passed. It will be invoked **possibly on a different thread** as soon as the
+command is completed. It takes a *Command* object as a single argument.
 
->>> def on_go_finished(bestmove, pondermove):
-...     # Will be executed on a different thread.
-...     pass
+>>> def on_go_finished(command):
+...     # Will likely be executed on a different thread.
+...     bestmove, pondermove = command.result()
 ...
 >>> command = engine.go(movetime=2000, async_callback=on_go_finished)
 
@@ -89,11 +85,7 @@ All commands are queued and executed in FIFO order (regardless if asynchronous
 or not).
 
 .. autoclass:: chess.uci.Command
-    :members:
-
-    .. py:attribute:: result
-
-        The result if the command has been completed or *None*.
+    :members: done, add_done_callback, result
 
 Info handler
 ------------

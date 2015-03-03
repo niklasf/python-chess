@@ -278,10 +278,20 @@ class Command(object):
                 return "<Command at {0} (pending)>".format(hex(id(self)))
 
     def done(self):
+        """Returns whether the command has already been completed."""
         with self._condition:
             return self._done
 
     def add_done_callback(self, fn):
+        """
+        Add a callback function to be notified once the command completes.
+
+        The callback function will receive the *Command* object as a single
+        argument.
+
+        The callback might be executed on a different thread. If the command
+        has already been completed it will be invoked immidiately, instead.
+        """
         with self._condition:
             if self._done:
                 fn(self)
@@ -289,6 +299,12 @@ class Command(object):
                 self._done_callbacks.append(fn)
 
     def result(self, timeout=None):
+        """
+        Wait for the command to finish and return the result.
+
+        A *timeout* in seconds may be given as a floating point number and
+        *TimeoutError* is raised if the command does not complete in time.
+        """
         with self._condition:
             if self._done:
                 return self._result
