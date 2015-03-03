@@ -1145,20 +1145,20 @@ class StockfishTestCase(unittest.TestCase):
     def test_async(self):
         self.engine.ucinewgame()
         command = self.engine.go(movetime=1000, async_callback=True)
-        self.assertFalse(command.is_done())
-        command.wait()
-        self.assertTrue(command.is_done())
+        self.assertFalse(command.done())
+        command.result()
+        self.assertTrue(command.done())
 
     def test_async_callback(self):
         self.async_callback_called = False
-        def async_callback():
+        def async_callback(command):
             self.async_callback_called = True
 
         command = self.engine.isready(async_callback=async_callback)
 
         self.engine.isready() # Synchronize
         self.assertTrue(self.async_callback_called)
-        self.assertTrue(command.is_done())
+        self.assertTrue(command.done())
 
     def test_initialization(self):
         self.assertTrue("Stockfish" in self.engine.name)
@@ -1243,8 +1243,8 @@ class SpurEngineTestCase(unittest.TestCase):
         engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
 
         command = engine.terminate(async=True)
-        command.wait()
-        self.assertTrue(command.is_done())
+        command.result()
+        self.assertTrue(command.done())
 
 
 class UciEngineTestCase(unittest.TestCase):
@@ -1280,8 +1280,8 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("ponderhit")
         self.mock.expect("isready", ("readyok", ))
         command = self.engine.ponderhit(async_callback=True)
-        command.wait()
-        self.assertTrue(command.is_done())
+        command.result()
+        self.assertTrue(command.done())
         self.mock.assert_done()
 
     def test_kill(self):

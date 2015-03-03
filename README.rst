@@ -238,15 +238,16 @@ Features
       (Move.from_uci('d6d1'), Move.from_uci('c1d1'))
 
       >>> # Asynchronous mode.
-      >>> def callback(bestmove, pondermove):
+      >>> def callback(command):
+      ...    bestmove, pondermove = command.result()
       ...    assert bestmove == chess.Move.from_uci('d6d1')
       ...
       >>> command = engine.go(movetime=2000, async_callback=callback)
-      >>> command.is_done()
+      >>> command.done()
       False
-      >>> command.wait()
+      >>> command.result()
       (Move.from_uci('d6d1'), Move.from_uci('c1d1'))
-      >>> command.is_done()
+      >>> command.done()
       True
 
 Peformance
