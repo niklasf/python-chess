@@ -278,7 +278,7 @@ class Command(object):
                 if self._result is None:
                     return "<Command at {0} (finished)>".format(hex(id(self)))
                 else:
-                    return "<Command at {0} (result {1})>".format(hex(id(self)), self._result)
+                    return "<Command at {0} (result={1})>".format(hex(id(self)), self._result)
             else:
                 return "<Command at {0} (pending)>".format(hex(id(self)))
 
@@ -595,6 +595,12 @@ class MockProcess(object):
         self._is_dead.wait()
         return 0
 
+    def pid(self):
+        return None
+
+    def __repr__(self):
+        return "<MockProcess at {0}>".format(hex(id(self)))
+
 
 class PopenProcess(object):
     def __init__(self, engine, command):
@@ -636,6 +642,12 @@ class PopenProcess(object):
     def wait_for_return_code(self):
         self.process.wait()
         return self.process.returncode
+
+    def pid(self):
+        return self.process.pid
+
+    def __repr__(self):
+        return "<PopenProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
 
 
 class SpurProcess(object):
@@ -684,6 +696,12 @@ class SpurProcess(object):
 
     def wait_for_return_code(self):
         return self.process.wait_for_result().return_code
+
+    def pid(self):
+        return self.process.pid
+
+    def __repr__(self):
+        return "<SpurProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
 
 
 class Engine(object):
