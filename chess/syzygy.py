@@ -88,7 +88,6 @@ for i in range(5):
             f *= j - k
             l *= k + 1
         BINOMIAL[i].append(f // l)
-print BINOMIAL
 
 
 def subfactor(k, n):
@@ -143,10 +142,6 @@ class WdlTable(object):
         order = ord(self.data[data_ptr]) >> 4
         self.set_norm_piece(chess.BLACK)
         self.calc_factors_piece(chess.BLACK, order)
-
-        print "Pieces: ", self.pieces
-        print "Norm: ", self.norm
-        print "Factor: ", self.factor
 
         # back to init_table_wdl
         data_ptr += self.num + 1
@@ -209,6 +204,7 @@ class WdlTable(object):
         p = self.p(board, bside, cmirror)
         idx = self.encode_piece(bside, p)
         print "idx: ", idx
+
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
 
@@ -276,8 +272,6 @@ class WdlTable(object):
         else:
             # TODO: other enc types
             assert False
-
-        print "preliminary idx: ", idx
 
         idx *= self.factor[color][0]
 
