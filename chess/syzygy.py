@@ -26,18 +26,62 @@ WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
 
 class WdlTable(object):
     def __init__(self, filename):
+        # init_tb
+        # TODO: Set properties dynamically
+        self.symmetric = False # tbcore.cpp l. 224
+        self.has_pawns = False
+        self.num = 4
+        self.has_pawns = False
+        self.enc_type = 0
+        self.pieces = {}
+        self.norm = {}
+
+        # init_table_wdl
         self.f = open(filename, "r+b")
         self.data = mmap.mmap(self.f.fileno(), 0)
 
-        assert self.check_magic_number()
+        assert "\x71" == self.data[0]
+        assert "\xe8" == self.data[1]
+        assert "\x23" == self.data[2]
+        assert "\x5d" == self.data[3]
 
         split = ord(self.data[4]) & 0x01
+        assert split == 1 # TODO: Might have different values for other tables
         files = 4 if ord(self.data[4]) & 0x02 else 1
+        assert files == 1 # TODO: Might have different values for other tables
 
-        print split, files
+        data_ptr = 5
 
-    def check_magic_number(self):
-        return "\x71\xe8\x23\x5d" == self.data.read(4)
+        # setup_pieces_piece
+        self.pieces[chess.WHITE] = [ord(self.data[data_ptr + i + 1]) & 0x0f for i in range(self.num)]
+        order = ord(self.data[data_ptr]) & 0x0f
+        self.set_norm_piece(chess.WHITE)
+
+        self.pieces[chess.BLACK] = [ord(self.data[data_ptr + i + 1]) >> 4 for i in range(self.num)]
+        order = ord(self.data[data_ptr]) >> 4
+        self.set_norm_piece(chess.BLACK)
+
+        print self.pieces
+        print self.norm
+
+    def set_norm_piece(self, color):
+        self.norm[color] = [0, 0, 0, 0, 0, 0]
+
+        if self.enc_type == 0:
+            self.norm[color][0] = 3
+        elif self.enc_type == 2:
+            self.norm[color][0] = 2
+        else:
+            self.norm[color][0] = self.enc_type - 1
+
+        i = self.norm[color][0]
+        while i < self.num:
+            j = i
+            while j < self.num and self.pieces[color][j] == self.pieces[color][i]:
+                self.norm[color][i] += 1
+                j += 1
+            i += self.norm[color][i]
+
 
     def close(self):
         self.data.close()
