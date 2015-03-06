@@ -23,6 +23,17 @@ import os
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
 
+OFFDIAG = [
+    0, -1, -1, -1, -1, -1, -1, -1,
+    1,  0, -1, -1, -1, -1, -1, -1,
+    1,  1,  0, -1, -1, -1, -1, -1,
+    1,  1,  1,  0, -1, -1, -1, -1,
+    1,  1,  1,  1,  0, -1, -1, -1,
+    1,  1,  1,  1,  1,  0, -1, -1,
+    1,  1,  1,  1,  1,  1,  0, -1,
+    1,  1,  1,  1,  1,  1,  1,  0
+]
+
 
 def subfactor(k, n):
     f = n
@@ -139,7 +150,8 @@ class WdlTable(object):
             cmirror = mirror = 0
             bside = board.turn
 
-        print "p: ", self.p(board, bside, cmirror)
+        p = self.p(board, bside, cmirror)
+        print "idx: ", self.encode_piece(bside, p)
 
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
@@ -172,6 +184,75 @@ class WdlTable(object):
                 square = chess.bit_scan(bb, square + 1)
 
         return p
+
+    def encode_piece(self, color, pos):
+        n = self.num
+
+        if pos[0] & 0x04:
+            for i in range(n):
+                pos[i] ^= 0x07
+
+        if pos[0] & 0x20:
+            for i in range(n):
+                pos[i] ^= 0x38
+
+        for i in range(n):
+            if OFFDIAG[pos[i]]:
+                break
+
+        if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
+            for i in range(n):
+                pos[i] = FLIPDIAG[pos[i]]
+
+        if self.enc_type == 0: # 111
+            i = int(pos[1] > pos[0])
+            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
+
+            if OFFDIAG[pos[0]]:
+                idx = TRIANGLE[pos[0]] * 63 * 62 + (pos[1] - i) * 62 + (pos[2] - j)
+            elif OFFDIAG[pos[1]]:
+                idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] + 62 + pos[2] - j
+            elif OFFDIAG[pos[2]]:
+                idx = 6 * 63 * 62 + 4 * 28 * 62 + (DIAG[pos[0]]) * 7 * 28 + (DIAG[pos[1]] - i) * 28 + LOWER[pos[2]]
+            else:
+                idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
+            i = 3
+        else:
+            # TODO: other enc types
+            assert False
+
+        idx *= self.factor[color][0]
+
+        while i < n:
+            t = self.norm[color][i]
+
+            j = i
+            while j < i + t:
+                k = j + 1
+                while k < i + t:
+                    if pos[k] > pos[k]:
+                        # Swap
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+
+                s = 0
+
+                m = i
+                while m < i + t:
+                    p = pos[m]
+                    l = 0
+                    j = 0
+                    while l < i:
+                        j += int(p > pos[l])
+                        l += 1
+                    s += BINOMIAL[m - i][p - j]
+                    m += 1
+
+                idx += s * self.factor[color][i]
+                i += t
+
+        return idx
 
     def close(self):
         self.data.close()
