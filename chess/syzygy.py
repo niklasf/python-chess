@@ -81,6 +81,11 @@ class WdlTable(object):
         print "Norm: ", self.norm
         print "Factor: ", self.factor
 
+        # back to init_table_wdl
+        data_ptr += self.num + 1
+        data_ptr += (data_ptr & 0x01)
+        print data_ptr
+
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
 
@@ -122,6 +127,51 @@ class WdlTable(object):
 
         self.tb_size[color] = f
 
+    def probe(self, board):
+        # TODO: Test for KvK
+
+        if self.symmetric:
+            cmirror = 0 if board.turn == WHITE else 8
+            mirror = 0 if board.turn == WHITE else 0x38
+            bside = 0
+        else:
+            # TODO: Or maybe the inverse
+            cmirror = mirror = 0
+            bside = board.turn
+
+        print "p: ", self.p(board, bside, cmirror)
+
+    def p(self, board, bside, cmirror):
+        p = [0, 0, 0, 0, 0, 0]
+
+        i = 0
+        while i < self.num:
+            piece_type = self.pieces[bside][i] & 0x07
+            color = (self.pieces[bside][i] ^ cmirror) >> 3
+
+            if piece_type == chess.PAWN:
+                bb = board.pawns
+            elif piece_type == chess.KNIGHT:
+                bb = board.knights
+            elif piece_type == chess.BISHOP:
+                bb = board.bishops
+            elif piece_type == chess.ROOK:
+                bb = board.rooks
+            elif piece_type == chess.QUEEN:
+                bb = board.queens
+            elif piece_type == chess.KING:
+                bb = board.kings
+
+            bb = bb & board.occupied_co[color]
+
+            square = chess.bit_scan(bb)
+            while square != -1 and square is not None:
+                p[i] = square
+                i += 1
+
+                square = chess.bit_scan(bb, square + 1)
+
+        return p
 
     def close(self):
         self.data.close()
