@@ -207,8 +207,8 @@ class WdlTable(object):
             bside = board.turn
 
         p = self.p(board, bside, cmirror)
-        print "idx: ", self.encode_piece(bside, p)
-
+        idx = self.encode_piece(bside, p)
+        print "idx: ", idx
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
 
@@ -267,7 +267,7 @@ class WdlTable(object):
             if OFFDIAG[pos[0]]:
                 idx = TRIANGLE[pos[0]] * 63 * 62 + (pos[1] - i) * 62 + (pos[2] - j)
             elif OFFDIAG[pos[1]]:
-                idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] + 62 + pos[2] - j
+                idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] * 62 + pos[2] - j
             elif OFFDIAG[pos[2]]:
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + (DIAG[pos[0]]) * 7 * 28 + (DIAG[pos[1]] - i) * 28 + LOWER[pos[2]]
             else:
@@ -276,6 +276,8 @@ class WdlTable(object):
         else:
             # TODO: other enc types
             assert False
+
+        print "preliminary idx: ", idx
 
         idx *= self.factor[color][0]
 
