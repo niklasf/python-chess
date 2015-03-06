@@ -1412,6 +1412,8 @@ class SyzygyTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         wdl.probe(board)
 
+        wdl.close()
+
 
 if __name__ == "__main__":
     unittest.main()
