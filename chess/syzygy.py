@@ -24,6 +24,18 @@ import os
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
 
 
+def subfactor(k, n):
+    f = n
+    l = 1
+    i = 1
+    while i < k:
+        f += n - i
+        l *= i + 1
+        i += 1
+
+    return int(f / l)
+
+
 class WdlTable(object):
     def __init__(self, filename):
         # init_tb
@@ -35,6 +47,8 @@ class WdlTable(object):
         self.enc_type = 0
         self.pieces = {}
         self.norm = {}
+        self.factor = {}
+        self.tb_size = {}
 
         # init_table_wdl
         self.f = open(filename, "r+b")
@@ -56,13 +70,16 @@ class WdlTable(object):
         self.pieces[chess.WHITE] = [ord(self.data[data_ptr + i + 1]) & 0x0f for i in range(self.num)]
         order = ord(self.data[data_ptr]) & 0x0f
         self.set_norm_piece(chess.WHITE)
+        self.calc_factors_piece(chess.WHITE, order)
 
         self.pieces[chess.BLACK] = [ord(self.data[data_ptr + i + 1]) >> 4 for i in range(self.num)]
         order = ord(self.data[data_ptr]) >> 4
         self.set_norm_piece(chess.BLACK)
+        self.calc_factors_piece(chess.BLACK, order)
 
-        print self.pieces
-        print self.norm
+        print "Pieces: ", self.pieces
+        print "Norm: ", self.norm
+        print "Factor: ", self.factor
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -81,6 +98,29 @@ class WdlTable(object):
                 self.norm[color][i] += 1
                 j += 1
             i += self.norm[color][i]
+
+    def calc_factors_piece(self, color, order):
+        self.factor[color] = [0, 0, 0, 0, 0, 0]
+
+        PIVFAC = [31332, 28056, 462]
+
+        n = 64 - self.norm[color][0]
+
+        f = 1
+        i = self.norm[color][0]
+        k = 0
+        while i < self.num or k == order:
+            if k == order:
+                self.factor[color][0] = f
+                f *= PIVFAC[self.enc_type]
+            else:
+                self.factor[color][i] = f
+                f *= subfactor(self.norm[color][i], n)
+                n -= self.norm[color][i]
+                i += self.norm[color][i]
+            k += 1
+
+        self.tb_size[color] = f
 
 
     def close(self):
