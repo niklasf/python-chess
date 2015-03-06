@@ -21,6 +21,7 @@ import chess
 import chess.polyglot
 import chess.pgn
 import chess.uci
+import chess.syzygy
 import collections
 import os.path
 import textwrap
@@ -1394,11 +1395,16 @@ class SyzygyTestCase(unittest.TestCase):
     def test_calc_key(self):
         # Only pawns and kings.
         board = chess.Bitboard("4k3/8/3p4/1P2p3/2P2p2/3P4/8/4K3 w - - 0 1")
-        self.assertEqual(hex(chess.syzygy.calc_key(board)), hex(12659189409839370109))
+        self.assertEqual(chess.syzygy.calc_key(board), 12659189409839370109)
 
         # Table base position with 5 pieces.
         board = chess.Bitboard("8/8/8/5N2/4BK2/2k5/3p4/8 w - - 0 1")
         self.assertEqual(chess.syzygy.calc_key(board), 13105269394936216443)
+
+        # Table base position with 4 pieces, where black can immediately
+        # capture a piece and draw.
+        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        self.assertEqual(chess.syzygy.calc_key(board), 1611752040564062886)
 
 if __name__ == "__main__":
     unittest.main()
