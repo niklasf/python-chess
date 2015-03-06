@@ -1,6 +1,47 @@
 # -*- coding: utf-8 -*-
+#
+# This file is part of the python-chess library.
+# Copyright (C) 2012-2014 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import mmap
+import os
+
+
+WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
+
+
+class WdlTable(object):
+    def __init__(self, filename):
+        self.f = open(filename, "r+b")
+        self.data = mmap.mmap(self.f.fileno(), 0)
+
+        assert self.check_magic_number()
+
+        split = ord(self.data[4]) & 0x01
+        files = 4 if ord(self.data[4]) & 0x02 else 1
+
+        print split, files
+
+    def check_magic_number(self):
+        return "\x71\xe8\x23\x5d" == self.data.read(4)
+
+    def close(self):
+        self.data.close()
+        self.f.close()
 
 
 ZOBRIST = {
