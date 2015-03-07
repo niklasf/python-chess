@@ -133,6 +133,7 @@ class WdlTable(object):
         self.norm = {}
         self.factor = {}
         self.tb_size = {}
+        self.precomp = {}
 
         # init_table_wdl
         self.f = open(filename, "r+b")
@@ -165,8 +166,13 @@ class WdlTable(object):
         data_ptr += self.num + 1
         data_ptr += (data_ptr & 0x01)
 
-        self.setup_pairs(data_ptr)
-        print data_ptr
+        self.precomp[chess.WHITE] = self.setup_pairs(data_ptr)
+        if split:
+            self.precomp[chess.BLACK] = self.setup_pairs(data_ptr)
+        else:
+            # TODO
+            assert False
+
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -223,7 +229,7 @@ class WdlTable(object):
 
         p = self.p(board, bside, cmirror)
         idx = self.encode_piece(bside, p)
-        print "idx: ", idx
+        return self.decompress_pairs(bside, idx)
 
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
@@ -326,6 +332,18 @@ class WdlTable(object):
 
         return idx
 
+    def decompress_pairs(self, bside, idx):
+        d = self.precomp[bside]
+
+        if not d.idxbits:
+            return d.min_len
+
+        mainidx = idx >> d.idxbits
+        litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
+        print "litidx: ", litidx
+
+        return
+
     def setup_pairs(self, data_ptr):
         d = PairsData()
 
@@ -333,8 +351,8 @@ class WdlTable(object):
             # TODO
             assert False
 
-        d.blocksize = self.data[data_ptr + 1]
-        d.idxbits = self.data[data_ptr + 2]
+        d.blocksize = ord(self.data[data_ptr + 1])
+        d.idxbits = ord(self.data[data_ptr + 2])
 
         real_num_blocks = self.read_uint32(data_ptr + 4)
         num_blocks = real_num_blocks + ord(self.data[data_ptr + 3])
