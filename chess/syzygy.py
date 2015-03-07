@@ -19,6 +19,7 @@
 import chess
 import mmap
 import os
+import struct
 
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
@@ -102,8 +103,25 @@ def subfactor(k, n):
     return f // l
 
 
+class PairsData(object):
+    def __init__(self):
+        self.indextable = None
+        self.sizetable = None
+        self.data = None
+        self.offset = None
+        self.symlen = None
+        self.sympat = None
+        self.blocksize = None
+        self.idxbits = None
+        self.min_len = None
+        self.base = None
+
+
 class WdlTable(object):
     def __init__(self, filename):
+        self.uint32 = struct.Struct("<I")
+        self.ushort = struct.Struct("<H")
+
         # init_tb
         # TODO: Set properties dynamically
         self.symmetric = False # tbcore.cpp l. 224
@@ -146,6 +164,8 @@ class WdlTable(object):
         # back to init_table_wdl
         data_ptr += self.num + 1
         data_ptr += (data_ptr & 0x01)
+
+        self.setup_pairs(data_ptr)
         print data_ptr
 
     def set_norm_piece(self, color):
@@ -305,6 +325,38 @@ class WdlTable(object):
             i += t
 
         return idx
+
+    def setup_pairs(self, data_ptr):
+        d = PairsData()
+
+        if ord(self.data[data_ptr]) & 0x80:
+            # TODO
+            assert False
+
+        d.blocksize = self.data[data_ptr + 1]
+        d.idxbits = self.data[data_ptr + 2]
+
+        real_num_blocks = self.read_uint32(data_ptr + 4)
+        num_blocks = real_num_blocks + ord(self.data[data_ptr + 3])
+        max_len = ord(self.data[data_ptr + 8])
+        min_len = ord(self.data[data_ptr + 9])
+        h = max_len - min_len + 1
+        num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
+
+        d.offset = ord(self.data[data_ptr + 10])
+        d.symlen = None # TODO
+        d.sympat = ord(self.data[data_ptr + 12 + 2 * h])
+        d.min_len = min_len
+
+        d.offset -= d.min_len
+
+        return d
+
+    def read_uint32(self, data_ptr):
+        return self.uint32.unpack_from(self.data, data_ptr)[0]
+
+    def read_ushort(self, data_ptr):
+        return self.ushort.unpack_from(self.data, data_ptr)[0]
 
     def close(self):
         self.data.close()
