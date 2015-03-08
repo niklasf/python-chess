@@ -119,6 +119,7 @@ class PairsData(object):
 
 class WdlTable(object):
     def __init__(self, filename):
+        self.uint64 = struct.Struct("<Q")
         self.uint32 = struct.Struct("<I")
         self.ushort = struct.Struct("<H")
 
@@ -196,9 +197,11 @@ class WdlTable(object):
         data_ptr = (data_ptr + 0x3f) & ~0x3f
         self.precomp[chess.WHITE].data = data_ptr
         data_ptr += self.size[2]
+        print "size[2] = ", self.size[2]
         if split:
             data_ptr = (data_ptr + 0x3f) & ~0x3f
             self.precomp[chess.BLACK].data = data_ptr
+            print "BLACK(data_ptr + &): ", data_ptr
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -368,9 +371,35 @@ class WdlTable(object):
         mainidx = idx >> d.idxbits
         litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
         block = self.read_uint32(d.indextable + 6 * mainidx)
+
         print "indextable: ", d.indextable
         print "mainidx: ", mainidx
         print "block: ", block
+
+        idx_offset = self.read_ushort(d.indextable + 6 * mainidx + 4)
+        litidx += idx_offset
+
+        if litidx < 0:
+            while litidx < 0:
+                block -= 1
+                litidx += self.read_ushort(d.sizetable + 2 * block) + 1
+        else:
+            while litidx > self.read_ushort(d.sizetable + 2 * block):
+                litidx -= self.read_ushort(d.sizetable + 2 * block)
+                block += 1
+
+        print "!litidx: ", litidx
+        print "blocksize: ", d.blocksize
+        print "block: ", block
+
+        ptr = d.data + (block << d.blocksize)
+        print "ptr: ", ptr
+        code = self.read_uint64(ptr)
+        print "code: ", code
+
+        m = d.min_len
+        offset = d.offset
+        #base = d.base - 
 
         return
 
@@ -436,6 +465,9 @@ class WdlTable(object):
                 self.calc_symlen(d, s2, tmp)
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
+
+    def read_uint64(self, data_ptr):
+        return self.uint64.unpack_from(self.data, data_ptr)[0]
 
     def read_uint32(self, data_ptr):
         return self.uint32.unpack_from(self.data, data_ptr)[0]
