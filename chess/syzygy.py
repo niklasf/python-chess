@@ -159,26 +159,26 @@ class WdlTable(object):
         self.f = open(filename, "r+b")
         self.data = mmap.mmap(self.f.fileno(), 0)
 
-        assert "\x71" == self.data[0]
-        assert "\xe8" == self.data[1]
-        assert "\x23" == self.data[2]
-        assert "\x5d" == self.data[3]
+        assert WDL_MAGIC[0] == self.read_ubyte(0)
+        assert WDL_MAGIC[1] == self.read_ubyte(1)
+        assert WDL_MAGIC[2] == self.read_ubyte(2)
+        assert WDL_MAGIC[3] == self.read_ubyte(3)
 
-        split = ord(self.data[4]) & 0x01
+        split = self.read_ubyte(4) & 0x01
         assert split == 1 # TODO: Might have different values for other tables
-        files = 4 if ord(self.data[4]) & 0x02 else 1
+        files = 4 if self.read_ubyte(4) & 0x02 else 1
         assert files == 1 # TODO: Might have different values for other tables
 
         data_ptr = 5
 
         # setup_pieces_piece
-        self.pieces[chess.WHITE] = [ord(self.data[data_ptr + i + 1]) & 0x0f for i in range(self.num)]
-        order = ord(self.data[data_ptr]) & 0x0f
+        self.pieces[chess.WHITE] = [self.read_ubyte(data_ptr + i + 1) & 0x0f for i in range(self.num)]
+        order = self.read_ubyte(data_ptr) & 0x0f
         self.set_norm_piece(chess.WHITE)
         self.calc_factors_piece(chess.WHITE, order)
 
-        self.pieces[chess.BLACK] = [ord(self.data[data_ptr + i + 1]) >> 4 for i in range(self.num)]
-        order = ord(self.data[data_ptr]) >> 4
+        self.pieces[chess.BLACK] = [self.read_ubyte(data_ptr + i + 1) >> 4 for i in range(self.num)]
+        order = self.read_ubyte(data_ptr) >> 4
         self.set_norm_piece(chess.BLACK)
         self.calc_factors_piece(chess.BLACK, order)
 
@@ -430,29 +430,29 @@ class WdlTable(object):
         sympat = d.sympat
         while d.symlen[symlen_idx + sym]:
             w = sympat + 3 * sym
-            s1 = ((ord(self.data[w + 1]) & 0xf) << 8) | ord(self.data[w])
+            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
             if litidx < d.symlen[symlen_idx + s1] + 1:
                 sym = s1
             else:
                 litidx -= d.symlen[symlen_idx + s1] + 1
-                sym = (ord(self.data[w + 2]) << 4) | (ord(self.data[w + 1]) >> 4)
+                sym = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
 
-        return ord(self.data[sympat + 3 * sym])
+        return self.read_ubyte(sympat + 3 * sym)
 
     def setup_pairs(self, data_ptr, tb_size, size_idx):
         d = PairsData()
 
-        if ord(self.data[data_ptr]) & 0x80:
+        if self.read_ubyte(data_ptr) & 0x80:
             # TODO
             assert False
 
-        d.blocksize = ord(self.data[data_ptr + 1])
-        d.idxbits = ord(self.data[data_ptr + 2])
+        d.blocksize = self.read_ubyte(data_ptr + 1)
+        d.idxbits = self.read_ubyte(data_ptr + 2)
 
         real_num_blocks = self.read_uint32(data_ptr + 4)
-        num_blocks = real_num_blocks + ord(self.data[data_ptr + 3])
-        max_len = ord(self.data[data_ptr + 8])
-        min_len = ord(self.data[data_ptr + 9])
+        num_blocks = real_num_blocks + self.read_ubyte(data_ptr + 3)
+        max_len = self.read_ubyte(data_ptr + 8)
+        min_len = self.read_ubyte(data_ptr + 9)
         h = max_len - min_len + 1
         num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
 
@@ -490,11 +490,11 @@ class WdlTable(object):
 
     def calc_symlen(self, d, s, tmp):
         w = d.sympat + 3 * s
-        s2 = (ord(self.data[w + 2]) << 4) | (ord(self.data[w + 1]) >> 4)
+        s2 = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
         if s2 == 0x0fff:
             d.symlen[s] = 0
         else:
-            s1 = ((ord(self.data[w + 1]) & 0xf) << 8) | ord(self.data[w])
+            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
             if not tmp[s1]:
                 self.calc_symlen(d, s1, tmp)
             if not tmp[s2]:
@@ -510,6 +510,9 @@ class WdlTable(object):
 
     def read_ushort(self, data_ptr):
         return self.ushort.unpack_from(self.data, data_ptr)[0]
+
+    def read_ubyte(self, data_ptr):
+        return ord(self.data[data_ptr:data_ptr + 1])
 
     def close(self):
         self.data.close()
