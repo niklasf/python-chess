@@ -1392,20 +1392,26 @@ class UciEngineTestCase(unittest.TestCase):
 
 class SyzygyTestCase(unittest.TestCase):
 
+    def test_calc_key(self):
+        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        key_from_board = chess.syzygy.calc_key(board)
+        key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
+        self.assertEqual(key_from_board, key_from_filename)
+
     def test_probe_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
 
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
-        self.assertEqual(wdl.probe(board), -2)
+        self.assertEqual(wdl.probe_wdl_table(board), -2)
 
         board = chess.Bitboard("7B/5kNK/8/8/8/8/8/8 w - - 0 1")
-        self.assertEqual(wdl.probe(board), 2)
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
 
         board = chess.Bitboard("N7/8/2k5/8/7K/8/8/B7 w - - 0 1")
-        self.assertEqual(wdl.probe(board), 2)
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
 
         board = chess.Bitboard("8/8/1NkB4/8/7K/8/8/8 w - - 1 1")
-        self.assertEqual(wdl.probe(board), 0)
+        self.assertEqual(wdl.probe_wdl_table(board), 0)
 
         wdl.close()
 
