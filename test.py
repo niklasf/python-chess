@@ -1396,7 +1396,8 @@ class SyzygyTestCase(unittest.TestCase):
         wdl = chess.syzygy.WdlTable("data/syzygy/KBNvK.rtbw")
 
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
-        wdl.probe(board)
+        result = wdl.probe(board)
+        print "RESULT: ", result
 
         wdl.close()
 
