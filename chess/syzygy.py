@@ -22,6 +22,10 @@ import os
 import struct
 
 
+UINT64 = struct.Struct("<Q")
+UINT32 = struct.Struct("<I")
+USHORT = struct.Struct("<H")
+
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
 
 OFFDIAG = [
@@ -221,12 +225,27 @@ class PairsData(object):
         self.base = None
 
 
-class WdlTable(object):
-    def __init__(self, directory, filename):
-        self.uint64 = struct.Struct("<Q")
-        self.uint32 = struct.Struct("<I")
-        self.ushort = struct.Struct("<H")
+class Table(object):
 
+    def read_uint64(self, data_ptr):
+        return UINT64.unpack_from(self.data, data_ptr)[0]
+
+    def read_uint32(self, data_ptr):
+        return UINT32.unpack_from(self.data, data_ptr)[0]
+
+    def read_ushort(self, data_ptr):
+        return USHORT.unpack_from(self.data, data_ptr)[0]
+
+    def read_ubyte(self, data_ptr):
+        return ord(self.data[data_ptr:data_ptr + 1])
+
+    def close(self):
+        self.data.close()
+        self.f.close()
+
+
+class WdlTable(Table):
+    def __init__(self, directory, filename):
         # init_tb
         # TODO: Set properties dynamically
         self.key = calc_key_from_filename(filename)
@@ -590,22 +609,6 @@ class WdlTable(object):
                 self.calc_symlen(d, s2, tmp)
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
-
-    def read_uint64(self, data_ptr):
-        return self.uint64.unpack_from(self.data, data_ptr)[0]
-
-    def read_uint32(self, data_ptr):
-        return self.uint32.unpack_from(self.data, data_ptr)[0]
-
-    def read_ushort(self, data_ptr):
-        return self.ushort.unpack_from(self.data, data_ptr)[0]
-
-    def read_ubyte(self, data_ptr):
-        return ord(self.data[data_ptr:data_ptr + 1])
-
-    def close(self):
-        self.data.close()
-        self.f.close()
 
 
 class Tablebases(object):
