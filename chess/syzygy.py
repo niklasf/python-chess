@@ -91,6 +91,22 @@ for i in range(5):
         BINOMIAL[i].append(f // l)
 
 
+def bswap8(x):
+    return x & 0xff
+
+
+def bswap16(x):
+    return (bswap8(x) << 8) | bswap8(x >> 8)
+
+
+def bswap32(x):
+    return (bswap16(x) << 16) | bswap16(x >> 16)
+
+
+def bswap64(x):
+    return (bswap32(x) << 32) | bswap32(x >> 32)
+
+
 def subfactor(k, n):
     f = n
     l = 1
@@ -386,6 +402,9 @@ class WdlTable(object):
         symlen_idx = 0
 
         code = self.read_uint64(ptr)
+        code = bswap64(code) # if little endian
+
+        print "code: ", code
 
         ptr += 2 * 4 # TODO: Check * 4
         bitcnt = 0
