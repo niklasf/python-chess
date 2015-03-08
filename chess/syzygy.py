@@ -185,13 +185,13 @@ def calc_key_from_filename(filename, mirror=False):
 
     for piece_index, piece in enumerate(PCHR):
         for i in range(white.count(piece)):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index + i]
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
 
     color ^= 1
 
     for piece_index, piece in enumerate(PCHR):
         for i in range(black.count(piece)):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index + i]
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
 
     return key
 
@@ -354,9 +354,7 @@ class WdlTable(Table):
         assert WDL_MAGIC[3] == self.read_ubyte(3)
 
         split = self.read_ubyte(4) & 0x01
-        assert split == 1 # TODO: Might have different values for other tables
         files = 4 if self.read_ubyte(4) & 0x02 else 1
-        assert files == 1 # TODO: Might have different values for other tables
 
         data_ptr = 5
 
@@ -446,21 +444,30 @@ class WdlTable(Table):
 
         self.tb_size[color] = f
 
-    def probe(self, board):
-        # TODO: Test for KvK
+    def probe_wdl_table(self, board):
+        key = calc_key(board)
 
         if self.symmetric:
             cmirror = 0 if board.turn == WHITE else 8
             mirror = 0 if board.turn == WHITE else 0x38
             bside = 0
         else:
-            # TODO: Or maybe the inverse
-            cmirror = mirror = 0
-            bside = board.turn
+            if key != self.key:
+                cmirror = 8
+                mirror = 0x38
+                bside = int(board.turn == chess.WHITE)
+            else:
+                cmirror = mirror = 0
+                bside = int(board.turn != chess.WHITE)
 
-        p = self.p(board, bside, cmirror)
-        idx = self.encode_piece(bside, p)
-        return self.decompress_pairs(bside, idx) - 2
+        if not self.has_pawns:
+            p = self.p(board, bside, cmirror)
+            idx = self.encode_piece(bside, p)
+            res = self.decompress_pairs(bside, idx)
+        else:
+            assert False, "TODO: Implement"
+
+        return res - 2
 
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
@@ -668,7 +675,16 @@ class Tablebases(object):
 
             # TODO: Load DTZ tables.
 
-        print(self.wdl)
+    def probe_wdl_table(board):
+        # Test for KvK.
+        if board.kings == board.occupied:
+            return 0
+
+        key = calc_key(board)
+        if not key in self.wdl:
+            return None
+
+        return self.wdl[key].probe_wdl_table(board)
 
 
 if __name__ == "__main__":
