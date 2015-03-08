@@ -1398,6 +1398,15 @@ class SyzygyTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         self.assertEqual(wdl.probe(board), -2)
 
+        board = chess.Bitboard("7B/5kNK/8/8/8/8/8/8 w - - 0 1")
+        self.assertEqual(wdl.probe(board), 2)
+
+        board = chess.Bitboard("N7/8/2k5/8/7K/8/8/B7 w - - 0 1")
+        self.assertEqual(wdl.probe(board), 2)
+
+        board = chess.Bitboard("8/8/1NkB4/8/7K/8/8/8 w - - 1 1")
+        self.assertEqual(wdl.probe(board), 0)
+
         wdl.close()
 
 
