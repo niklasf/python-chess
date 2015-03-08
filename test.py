@@ -1430,6 +1430,10 @@ class SyzygyTestCase(unittest.TestCase):
         board = chess.Bitboard("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
         self.assertEqual(tablebases.probe_wdl_table(board), 0)
 
+        # Winning KBBvK.
+        board = chess.Bitboard("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), 2)
+
         tablebases.close()
 
 
