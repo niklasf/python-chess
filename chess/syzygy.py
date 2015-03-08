@@ -238,7 +238,8 @@ class Table(object):
         self.has_pawns = "P" in filename
 
         if self.has_pawns:
-            assert False, "TODO: Implement"
+            #assert False, "TODO: Implement"
+            pass
         else:
             black_part, white_part = filename.split("v")
             j = 0
@@ -390,7 +391,8 @@ class WdlTable(Table):
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
                 self.precomp[chess.BLACK].data = data_ptr
         else:
-            assert False, "TODO: Implement"
+            #assert False, "TODO: Implement"
+            pass
 
     def setup_pieces_piece(self, p_data):
         self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
@@ -658,9 +660,9 @@ class Tablebases(object):
         self.wdl = {}
 
         if directory:
-            self.add_directory(directory)
+            self.open_directory(directory)
 
-    def add_directory(self, directory):
+    def open_directory(self, directory):
         num = 0
 
         for filename in filenames():
@@ -675,7 +677,9 @@ class Tablebases(object):
 
             # TODO: Load DTZ tables.
 
-    def probe_wdl_table(board):
+        return num
+
+    def probe_wdl_table(self, board):
         # Test for KvK.
         if board.kings == board.occupied:
             return 0
@@ -686,7 +690,7 @@ class Tablebases(object):
 
         return self.wdl[key].probe_wdl_table(board)
 
-
-if __name__ == "__main__":
-    tablebases = Tablebases()
-    tablebases.add_directory("/home/niklas/Projekte/python-chess/data/syzygy/")
+    def close(self):
+        while self.wdl:
+            key, wdl = self.wdl.popitem()
+            wdl.close()

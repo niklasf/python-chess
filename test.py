@@ -1418,6 +1418,15 @@ class SyzygyTestCase(unittest.TestCase):
 
         wdl.close()
 
+    def test_probe_wdl_tablebase(self):
+        tablebases = chess.syzygy.Tablebases()
+        self.assertEqual(tablebases.open_directory("data/syzygy"), 35)
+
+        board = chess.Bitboard("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), -2)
+
+        tablebases.close()
+
 
 if __name__ == "__main__":
     unittest.main()
