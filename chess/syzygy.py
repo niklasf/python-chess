@@ -109,6 +109,48 @@ def bswap32(x):
 def bswap64(x):
     return (bswap32(x) << 32) | bswap32(x >> 32)
 
+
+def filenames():
+    for i in range(1, 6):
+        yield "K%cvK" % (PCHR[i], )
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            yield "K%cvK%c" % (PCHR[i], PCHR[j])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            yield "K%c%cvK" % (PCHR[i], PCHR[j])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            for k in range(j, 6):
+                yield "K%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            for k in range(j, 6):
+                yield "K%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            for k in range(j, 6):
+                for l in range(j if i == k else k, 6):
+                    yield "K%c%cvK%c%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            for k in range(j, 6):
+                for l in range(1, 6):
+                    yield "K%c%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
+
+    for i in range(1, 6):
+        for j in range(i, 6):
+            for k in range(j, 6):
+                for l in range(k, 6):
+                    yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
+
+
 def calc_key(board, mirror=False):
     key = 0
 
@@ -116,17 +158,39 @@ def calc_key(board, mirror=False):
         mirrored_color = color ^ 1 if mirror else color
 
         for i in range(chess.pop_count(board.pawns & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 0 * 16 + i]
-        for i in range(chess.pop_count(board.knights & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 1 * 16 + i]
-        for i in range(chess.pop_count(board.bishops & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 2 * 16 + i]
-        for i in range(chess.pop_count(board.rooks & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 3 * 16 + i]
-        for i in range(chess.pop_count(board.queens & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 4 * 16 + i]
-        for i in range(chess.pop_count(board.kings & board.occupied_co[color])):
             key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 5 * 16 + i]
+        for i in range(chess.pop_count(board.knights & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 4 * 16 + i]
+        for i in range(chess.pop_count(board.bishops & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 3 * 16 + i]
+        for i in range(chess.pop_count(board.rooks & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 2 * 16 + i]
+        for i in range(chess.pop_count(board.queens & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 1 * 16 + i]
+        for i in range(chess.pop_count(board.kings & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 0 * 16 + i]
+
+    return key
+
+
+def calc_key_from_filename(filename, mirror=False):
+    white, black = filename.split("v")
+
+    color = chess.WHITE
+    if mirror:
+        color ^= 1
+
+    key = 0
+
+    for piece_index, piece in enumerate(PCHR):
+        for i in range(white.count(piece)):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index + i]
+
+    color ^= 1
+
+    for piece_index, piece in enumerate(PCHR):
+        for i in range(black.count(piece)):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index + i]
 
     return key
 
@@ -158,13 +222,14 @@ class PairsData(object):
 
 
 class WdlTable(object):
-    def __init__(self, filename):
+    def __init__(self, directory, filename):
         self.uint64 = struct.Struct("<Q")
         self.uint32 = struct.Struct("<I")
         self.ushort = struct.Struct("<H")
 
         # init_tb
         # TODO: Set properties dynamically
+        self.key = calc_key_from_filename(filename)
         self.symmetric = False # tbcore.cpp l. 224
         self.has_pawns = False
         self.num = 4
@@ -180,7 +245,7 @@ class WdlTable(object):
         self._flags = None
 
         # init_table_wdl
-        self.f = open(filename, "r+b")
+        self.f = open(os.path.join(directory, filename) + ".rtbw", "r+b")
         self.data = mmap.mmap(self.f.fileno(), 0)
 
         assert WDL_MAGIC[0] == self.read_ubyte(0)
@@ -546,58 +611,27 @@ class WdlTable(object):
 class Tablebases(object):
 
     def __init__(self, directory=None):
+        self.wdl = {}
+
         if directory:
             self.add_directory(directory)
-
-    def _init_tb(self, prefix):
-        print(prefix)
-        return 1
 
     def add_directory(self, directory):
         num = 0
 
-        for i in range(1, 6):
-            num += self._init_tb(os.path.join(directory, "K%cvK" % (PCHR[i], )))
+        for filename in filenames():
+            try:
+                wdl_table = WdlTable(directory, filename)
+                self.wdl[wdl_table.key] = wdl_table
+                num += 1
+            except IOError:
+                pass
 
-        for i in range(1, 6):
-            for j in range(i, 6):
-                num += self._init_tb(os.path.join(directory, "K%cvK%c" % (PCHR[i], PCHR[j])))
+            # TODO: Load DTZ tables.
 
-        for i in range(1, 6):
-            for j in range(i, 6):
-                num += self._init_tb(os.path.join(directory, "K%c%cvK" % (PCHR[i], PCHR[j])))
-
-        for i in range(1, 6):
-            for j in range(i, 6):
-                for k in range(j, 6):
-                    num += self._init_tb(os.path.join(directory, "K%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k])))
-
-        for i in range(1, 6):
-            for j in range(i, 6):
-                for k in range(j, 6):
-                    num += self._init_tb(os.path.join(directory, "K%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k])))
-
-        for i in range(1, 6):
-            for j in range(i, 6):
-                for k in range(j, 6):
-                    for l in range(j if i == k else k, 6):
-                        num += self._init_tb(os.path.join(directory, "K%c%cvK%c%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
-
-        for i in range(1, 6):
-            for j in range(i, 6):
-                for k in range(j, 6):
-                    for l in range(1, 6):
-                        num += self._init_tb(os.path.join(directory, "K%c%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
-
-        for i in range(1, 6):
-            for j in range(i, 6):
-                for k in range(j, 6):
-                    for l in range(k, 6):
-                        num += self._init_tb(os.path.join(directory, "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
-
-        return num
+        print(self.wdl)
 
 
 if __name__ == "__main__":
     tablebases = Tablebases()
-    tablebases.add_directory("/home/niklas/python-chess/data/syzygy/")
+    tablebases.add_directory("/home/niklas/Projekte/python-chess/data/syzygy/")
