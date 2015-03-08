@@ -91,6 +91,9 @@ for i in range(5):
         BINOMIAL[i].append(f // l)
 
 
+PCHR = ["K", "Q", "R", "B", "N", "P"]
+
+
 def bswap8(x):
     return x & 0xff
 
@@ -105,7 +108,6 @@ def bswap32(x):
 
 def bswap64(x):
     return (bswap32(x) << 32) | bswap32(x >> 32)
-
 
 def calc_key(board, mirror=False):
     key = 0
@@ -539,3 +541,63 @@ class WdlTable(object):
     def close(self):
         self.data.close()
         self.f.close()
+
+
+class Tablebases(object):
+
+    def __init__(self, directory=None):
+        if directory:
+            self.add_directory(directory)
+
+    def _init_tb(self, prefix):
+        print(prefix)
+        return 1
+
+    def add_directory(self, directory):
+        num = 0
+
+        for i in range(1, 6):
+            num += self._init_tb(os.path.join(directory, "K%cvK" % (PCHR[i], )))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                num += self._init_tb(os.path.join(directory, "K%cvK%c" % (PCHR[i], PCHR[j])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                num += self._init_tb(os.path.join(directory, "K%c%cvK" % (PCHR[i], PCHR[j])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                for k in range(j, 6):
+                    num += self._init_tb(os.path.join(directory, "K%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                for k in range(j, 6):
+                    num += self._init_tb(os.path.join(directory, "K%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                for k in range(j, 6):
+                    for l in range(j if i == k else k, 6):
+                        num += self._init_tb(os.path.join(directory, "K%c%cvK%c%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                for k in range(j, 6):
+                    for l in range(1, 6):
+                        num += self._init_tb(os.path.join(directory, "K%c%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
+
+        for i in range(1, 6):
+            for j in range(i, 6):
+                for k in range(j, 6):
+                    for l in range(k, 6):
+                        num += self._init_tb(os.path.join(directory, "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])))
+
+        return num
+
+
+if __name__ == "__main__":
+    tablebases = Tablebases()
+    tablebases.add_directory("/home/niklas/python-chess/data/syzygy/")
