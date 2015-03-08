@@ -549,12 +549,13 @@ class TerminationPromise(object):
 
 
 class MockProcess(object):
-    def __init__(self, engine):
-        self.engine = engine
-
+    def __init__(self):
         self._expectations = collections.deque()
         self._is_dead = threading.Event()
         self._std_streams_closed = False
+
+    def spawn(self, engine):
+        self.engine = engine
 
     def expect(self, expectation, responses=()):
         self._expectations.append((expectation, responses))
@@ -603,12 +604,15 @@ class MockProcess(object):
 
 
 class PopenProcess(object):
-    def __init__(self, engine, command):
-        self.engine = engine
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    def __init__(self, command):
+        self.command = command
 
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
+
+    def spawn(self, engine):
+        self.engine = engine
+        self.process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
@@ -651,16 +655,21 @@ class PopenProcess(object):
 
 
 class SpurProcess(object):
-    def __init__(self, engine, shell, command):
-        self._stdout_buffer = []
+    def __init__(self, shell, command):
+        self.shell = shell
+        self.command = command
 
-        self.engine = engine
-        self.process = shell.spawn(command, store_pid=True, allow_error=True, stdout=self)
+        self._stdout_buffer = []
 
         self._result = None
 
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
+
+    def spawn(self, engine):
+        self.engine = engine
+
+        self.process = self.shell.spawn(self.command, store_pid=True, allow_error=True, stdout=self)
         self._waiting_thread.start()
 
     def write(self, byte):
@@ -705,8 +714,8 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process_cls, args):
-        self.process = process_cls(self, *args)
+    def __init__(self, process):
+        self.process = process
 
         self.name = None
         self.author = None
@@ -722,12 +731,14 @@ class Engine(object):
         self.queue = queue.Queue()
         self.stdin_thread = threading.Thread(target=self._stdin_thread_target)
         self.stdin_thread.daemon = True
-        self.stdin_thread.start()
 
         self.return_code = None
         self.terminated = threading.Event()
 
         self.info_handlers = []
+
+        self.process.spawn(self)
+        self.stdin_thread.start()
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -1257,7 +1268,8 @@ def popen_engine(command, engine_cls=Engine):
     The input and input streams will be linebuffered and able both Windows
     and Unix newlines.
     """
-    return engine_cls(PopenProcess, (command, ))
+    process = PopenProcess(command)
+    return engine_cls(process)
 
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
@@ -1271,4 +1283,5 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    return engine_cls(SpurProcess, (shell, command))
+    process = SpurProcess(shell, command)
+    return engine_cls(process)
