@@ -407,7 +407,6 @@ class WdlTable(object):
         ptr += 2 * 4
         bitcnt = 0 # Number of empty bits in code
         while True:
-            print "code: ", code
             l = m
             while code < d.base[base_idx + l]:
                 l += 1
@@ -419,7 +418,6 @@ class WdlTable(object):
             code <<= l
             bitcnt += l
             if bitcnt >= 32:
-                print "bitcnt >= 32"
                 bitcnt -= 32
                 tmp = self.read_uint32(ptr)
                 ptr += 4
@@ -432,14 +430,14 @@ class WdlTable(object):
         sympat = d.sympat
         while d.symlen[symlen_idx + sym]:
             w = sympat + 3 * sym
-            s1 = (ord(self.data[w + 1]) & 0xf << 8) | ord(self.data[w])
+            s1 = ((ord(self.data[w + 1]) & 0xf) << 8) | ord(self.data[w])
             if litidx < d.symlen[symlen_idx + s1] + 1:
                 sym = s1
             else:
                 litidx -= d.symlen[symlen_idx + s1] + 1
-                sym = (ord(self.data[d.data + w + 2]) << 4) | (ord(self.data[d.data + w + 1]) >> 4)
+                sym = (ord(self.data[w + 2]) << 4) | (ord(self.data[w + 1]) >> 4)
 
-        return ord(self.data[d.data + sympat + 3 * sym])
+        return ord(self.data[sympat + 3 * sym])
 
     def setup_pairs(self, data_ptr, tb_size, size_idx):
         d = PairsData()
