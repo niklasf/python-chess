@@ -361,14 +361,45 @@ class WdlTable(object):
         h = max_len - min_len + 1
         num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
 
-        d.offset = ord(self.data[data_ptr + 10])
-        d.symlen = None # TODO
-        d.sympat = ord(self.data[data_ptr + 12 + 2 * h])
+        d.offset = data_ptr + 10
+        d.symlen = [0 for _ in range(h * 8)]
+        d.sympat = data_ptr + 12 + 2 * h
         d.min_len = min_len
+
+        tmp = [0 for _ in range(num_syms)]
+        for i in range(num_syms):
+            if not tmp[i]:
+                self.calc_symlen(d, i, tmp)
+
+        d.base = [0 for _ in range(h)]
+        d.base[h - 1] = 0
+        i = h - 2
+        while i >= 0:
+            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i) - self.read_ushort(d.offset +i + 1)) // 2
+            i -= 1
+        i = 0
+        while i < h:
+            d.base[i] <<= 64 - (min_len + i)
+            i += 1
 
         d.offset -= d.min_len
 
         return d
+
+    def calc_symlen(self, d, s, tmp):
+        w = d.sympat + 3 * s
+        s2 = (ord(self.data[w + 2]) << 4) | (ord(self.data[w + 1]) >> 4)
+        print "s2: ", s2
+        if s2 == 0x0fff:
+            d.symlen[s] = 0
+        else:
+            s1 = ((ord(self.data[w + 1]) & 0xf) << 8) | ord(self.data[w])
+            if not tmp[s1]:
+                self.calc_symlen(d, s1, tmp)
+            if not tmp[s2]:
+                self.calc_symlen(d, s2, tmp)
+            d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
+        tmp[s] = 1
 
     def read_uint32(self, data_ptr):
         return self.uint32.unpack_from(self.data, data_ptr)[0]
