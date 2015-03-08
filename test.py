@@ -1393,7 +1393,7 @@ class UciEngineTestCase(unittest.TestCase):
 class SyzygyTestCase(unittest.TestCase):
 
     def test_probe_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy/KBNvK.rtbw")
+        wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
 
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         self.assertEqual(wdl.probe(board), -2)
