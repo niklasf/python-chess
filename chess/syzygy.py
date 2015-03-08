@@ -170,11 +170,15 @@ class WdlTable(object):
         data_ptr += (data_ptr & 0x01)
 
         self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0)
+        data_ptr = self._next
+        print "data_ptr: ", data_ptr
         if split:
             self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3)
             data_ptr = self._next
         else:
             self.precomp[chess.BLACK] = None
+
+        print "data_ptr after setup_pairs: ", data_ptr
 
         self.precomp[chess.WHITE].indextable = data_ptr
         data_ptr += self.size[0]
@@ -188,8 +192,8 @@ class WdlTable(object):
             self.precomp[chess.BLACK].sizetable = data_ptr
             data_ptr += self.size[4]
 
+        # TODO: Does not appear to have the correct result.
         data_ptr = (data_ptr + 0x3f) & ~0x3f
-
         self.precomp[chess.WHITE].data = data_ptr
         data_ptr += self.size[2]
         if split:
@@ -355,6 +359,7 @@ class WdlTable(object):
         return idx
 
     def decompress_pairs(self, bside, idx):
+        print "bside: ", bside
         d = self.precomp[bside]
 
         if not d.idxbits:
@@ -362,6 +367,10 @@ class WdlTable(object):
 
         mainidx = idx >> d.idxbits
         litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
+        block = self.read_uint32(d.indextable + 6 * mainidx)
+        print "indextable: ", d.indextable
+        print "mainidx: ", mainidx
+        print "block: ", block
 
         return
 
@@ -383,7 +392,7 @@ class WdlTable(object):
         num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
 
         d.offset = data_ptr + 10
-        d.symlen = [0 for _ in range(h * 8)]
+        d.symlen = [0 for _ in range(h * 8 + num_syms)]
         d.sympat = data_ptr + 12 + 2 * h
         d.min_len = min_len
 
