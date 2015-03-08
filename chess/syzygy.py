@@ -404,20 +404,42 @@ class WdlTable(object):
         code = self.read_uint64(ptr)
         code = bswap64(code) # if little endian
 
-        print "code: ", code
-
-        ptr += 2 * 4 # TODO: Check * 4
-        bitcnt = 0
+        ptr += 2 * 4
+        bitcnt = 0 # Number of empty bits in code
         while True:
+            print "code: ", code
             l = m
             while code < d.base[base_idx + l]:
                 l += 1
-            print "l: ", l
-            sym = self.read_ushort(d.offset + l * 2) # TODO: Check * 2
-            print "SYYYYM: ", sym
-            break
+            sym = self.read_ushort(d.offset + l * 2)
+            sym += (code - d.base[base_idx + l]) >> (64 - l)
+            if litidx < d.symlen[symlen_idx + sym] + 1:
+                break
+            litidx -= d.symlen[symlen_idx + sym] + 1
+            code <<= l
+            bitcnt += l
+            if bitcnt >= 32:
+                print "bitcnt >= 32"
+                bitcnt -= 32
+                tmp = self.read_uint32(ptr)
+                ptr += 4
+                tmp = bswap32(tmp) # if little endian
+                code |= tmp << bitcnt
 
-        return
+            # Cut off at 64bit.
+            code &= 0xffffffffffffffff
+
+        sympat = d.sympat
+        while d.symlen[symlen_idx + sym]:
+            w = sympat + 3 * sym
+            s1 = (ord(self.data[w + 1]) & 0xf << 8) | ord(self.data[w])
+            if litidx < d.symlen[symlen_idx + s1] + 1:
+                sym = s1
+            else:
+                litidx -= d.symlen[symlen_idx + s1] + 1
+                sym = (ord(self.data[d.data + w + 2]) << 4) | (ord(self.data[d.data + w + 1]) >> 4)
+
+        return ord(self.data[d.data + sympat + 3 * sym])
 
     def setup_pairs(self, data_ptr, tb_size, size_idx):
         d = PairsData()
@@ -464,7 +486,7 @@ class WdlTable(object):
             d.base[i] <<= 64 - (min_len + i)
             i += 1
 
-        d.offset -= d.min_len
+        d.offset -= 2 * d.min_len
 
         return d
 
