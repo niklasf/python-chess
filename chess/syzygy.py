@@ -172,14 +172,11 @@ class WdlTable(object):
 
         self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0)
         data_ptr = self._next
-        print "data_ptr: ", data_ptr
         if split:
             self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3)
             data_ptr = self._next
         else:
             self.precomp[chess.BLACK] = None
-
-        print "data_ptr after setup_pairs: ", data_ptr
 
         self.precomp[chess.WHITE].indextable = data_ptr
         data_ptr += self.size[0]
@@ -197,11 +194,9 @@ class WdlTable(object):
         data_ptr = (data_ptr + 0x3f) & ~0x3f
         self.precomp[chess.WHITE].data = data_ptr
         data_ptr += self.size[2]
-        print "size[2] = ", self.size[2]
         if split:
             data_ptr = (data_ptr + 0x3f) & ~0x3f
             self.precomp[chess.BLACK].data = data_ptr
-            print "BLACK(data_ptr + &): ", data_ptr
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -362,7 +357,6 @@ class WdlTable(object):
         return idx
 
     def decompress_pairs(self, bside, idx):
-        print "bside: ", bside
         d = self.precomp[bside]
 
         if not d.idxbits:
@@ -371,10 +365,6 @@ class WdlTable(object):
         mainidx = idx >> d.idxbits
         litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
         block = self.read_uint32(d.indextable + 6 * mainidx)
-
-        print "indextable: ", d.indextable
-        print "mainidx: ", mainidx
-        print "block: ", block
 
         idx_offset = self.read_ushort(d.indextable + 6 * mainidx + 4)
         litidx += idx_offset
@@ -388,18 +378,25 @@ class WdlTable(object):
                 litidx -= self.read_ushort(d.sizetable + 2 * block)
                 block += 1
 
-        print "!litidx: ", litidx
-        print "blocksize: ", d.blocksize
-        print "block: ", block
-
         ptr = d.data + (block << d.blocksize)
-        print "ptr: ", ptr
-        code = self.read_uint64(ptr)
-        print "code: ", code
 
         m = d.min_len
         offset = d.offset
-        #base = d.base - 
+        base_idx = -m
+        symlen_idx = 0
+
+        code = self.read_uint64(ptr)
+
+        ptr += 2 * 4 # TODO: Check * 4
+        bitcnt = 0
+        while True:
+            l = m
+            while code < d.base[base_idx + l]:
+                l += 1
+            print "l: ", l
+            sym = self.read_ushort(d.offset + l * 2) # TODO: Check * 2
+            print "SYYYYM: ", sym
+            break
 
         return
 
@@ -441,7 +438,7 @@ class WdlTable(object):
         d.base[h - 1] = 0
         i = h - 2
         while i >= 0:
-            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i) - self.read_ushort(d.offset +i + 1)) // 2
+            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i * 2) - self.read_ushort(d.offset + i * 2 + 2)) // 2
             i -= 1
         i = 0
         while i < h:
