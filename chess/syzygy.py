@@ -107,6 +107,28 @@ def bswap64(x):
     return (bswap32(x) << 32) | bswap32(x >> 32)
 
 
+def calc_key(board, mirror=False):
+    key = 0
+
+    for color in chess.COLORS:
+        mirrored_color = color ^ 1 if mirror else color
+
+        for i in range(chess.pop_count(board.pawns & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 0 * 16 + i]
+        for i in range(chess.pop_count(board.knights & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 1 * 16 + i]
+        for i in range(chess.pop_count(board.bishops & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 2 * 16 + i]
+        for i in range(chess.pop_count(board.rooks & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 3 * 16 + i]
+        for i in range(chess.pop_count(board.queens & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 4 * 16 + i]
+        for i in range(chess.pop_count(board.kings & board.occupied_co[color])):
+            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 5 * 16 + i]
+
+    return key
+
+
 def subfactor(k, n):
     f = n
     l = 1
