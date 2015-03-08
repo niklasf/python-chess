@@ -629,8 +629,16 @@ class WdlTable(Table):
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
             i = 3
         elif self.enc_type == 1: # K3
-            # TODO: Implement
-            assert False, "implement"
+            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
+
+            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            if idx < 441:
+                idx = idx + 441 * (pos[2] - j)
+            else:
+                idx = 441 * 62 + (idx - 441) + 21 * LOWER[pos[2]]
+                if not OFFDIAG[pos[2]]:
+                    idx -= j * 21
+            i = 3
         else: # K2
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
             i = 2
