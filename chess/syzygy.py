@@ -269,7 +269,7 @@ class WdlTable(object):
 
         p = self.p(board, bside, cmirror)
         idx = self.encode_piece(bside, p)
-        return self.decompress_pairs(bside, idx)
+        return self.decompress_pairs(bside, idx) - 2
 
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
