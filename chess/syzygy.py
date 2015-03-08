@@ -132,8 +132,11 @@ class WdlTable(object):
         self.pieces = {}
         self.norm = {}
         self.factor = {}
-        self.tb_size = {}
+        self.tb_size = [0 for _ in range(8)]
+        self.size = [0 for _ in range(8 * 3)]
         self.precomp = {}
+        self._next = None
+        self._flags = None
 
         # init_table_wdl
         self.f = open(filename, "r+b")
@@ -166,13 +169,32 @@ class WdlTable(object):
         data_ptr += self.num + 1
         data_ptr += (data_ptr & 0x01)
 
-        self.precomp[chess.WHITE] = self.setup_pairs(data_ptr)
+        self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0)
         if split:
-            self.precomp[chess.BLACK] = self.setup_pairs(data_ptr)
+            self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3)
+            data_ptr = self._next
         else:
-            # TODO
-            assert False
+            self.precomp[chess.BLACK] = None
 
+        self.precomp[chess.WHITE].indextable = data_ptr
+        data_ptr += self.size[0]
+        if split:
+            self.precomp[chess.BLACK].indextable = data_ptr
+            data_ptr += self.size[3]
+
+        self.precomp[chess.WHITE].sizetable = data_ptr
+        data_ptr += self.size[1]
+        if split:
+            self.precomp[chess.BLACK].sizetable = data_ptr
+            data_ptr += self.size[4]
+
+        data_ptr = (data_ptr + 0x3f) & ~0x3f
+
+        self.precomp[chess.WHITE].data = data_ptr
+        data_ptr += self.size[2]
+        if split:
+            data_ptr = (data_ptr + 0x3f) & ~0x3f
+            self.precomp[chess.BLACK].data = data_ptr
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -340,11 +362,10 @@ class WdlTable(object):
 
         mainidx = idx >> d.idxbits
         litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
-        print "litidx: ", litidx
 
         return
 
-    def setup_pairs(self, data_ptr):
+    def setup_pairs(self, data_ptr, tb_size, size_idx):
         d = PairsData()
 
         if ord(self.data[data_ptr]) & 0x80:
@@ -365,6 +386,13 @@ class WdlTable(object):
         d.symlen = [0 for _ in range(h * 8)]
         d.sympat = data_ptr + 12 + 2 * h
         d.min_len = min_len
+
+        self._next = data_ptr + 12 + 2 * h + 3 * num_syms + (num_syms & 1)
+
+        num_indices = (tb_size + (1 << d.idxbits) - 1) >> d.idxbits
+        self.size[size_idx + 0] = 6 * num_indices
+        self.size[size_idx + 1] = 2 * num_blocks
+        self.size[size_idx + 2] = (1 << d.blocksize) * real_num_blocks
 
         tmp = [0 for _ in range(num_syms)]
         for i in range(num_syms):
@@ -389,7 +417,6 @@ class WdlTable(object):
     def calc_symlen(self, d, s, tmp):
         w = d.sympat + 3 * s
         s2 = (ord(self.data[w + 2]) << 4) | (ord(self.data[w + 1]) >> 4)
-        print "s2: ", s2
         if s2 == 0x0fff:
             d.symlen[s] = 0
         else:
