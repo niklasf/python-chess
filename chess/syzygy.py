@@ -101,14 +101,11 @@ PCHR = ["K", "Q", "R", "B", "N", "P"]
 def bswap8(x):
     return x & 0xff
 
-
 def bswap16(x):
     return (bswap8(x) << 8) | bswap8(x >> 8)
 
-
 def bswap32(x):
     return (bswap16(x) << 16) | bswap16(x >> 16)
-
 
 def bswap64(x):
     return (bswap32(x) << 32) | bswap32(x >> 32)
@@ -227,6 +224,97 @@ class PairsData(object):
 
 class Table(object):
 
+    def __init__(self, directory, filename, suffix):
+        self.f = open(os.path.join(directory, filename) + suffix, "r+b")
+        self.data = mmap.mmap(self.f.fileno(), 0)
+
+        self.key = calc_key_from_filename(filename)
+        self.mirrored_key = calc_key_from_filename(filename, True)
+        self.symmetric = self.key == self.mirrored_key
+
+        # Leave the v out of the filename to get the number of pieces.
+        self.num = len(filename) - 1
+
+        self.has_pawns = "P" in filename
+
+        if self.has_pawns:
+            assert False, "TODO: Implement"
+        else:
+            black_part, white_part = filename.split("v")
+            j = 0
+            for piece_type in PCHR:
+                if black_part.count(piece_type) == 1:
+                    j += 1
+                if white_part.count(piece_type) == 1:
+                    j += 1
+            if j >= 3:
+                self.enc_type = 0
+            elif j == 2:
+                self.enc_type = 2
+            else:
+                # Only for suicide chess.
+                assert False, "TODO: Implement"
+                j = 16
+
+    def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
+        d = PairsData()
+
+        self._flags = self.read_ubyte(data_ptr)
+        if self.read_ubyte(data_ptr) & 0x80:
+            d.idxbits = 0
+            if wdl:
+                d.min_len = self.read_ubyte(data_ptr + 1)
+            else:
+                d.min_len = 0
+            self._next = data_ptr + 2
+            self.size[size_idx + 0] = 0
+            self.size[size_idx + 1] = 0
+            self.size[size_idx + 2] = 0
+            return d
+
+        d.blocksize = self.read_ubyte(data_ptr + 1)
+        d.idxbits = self.read_ubyte(data_ptr + 2)
+
+        real_num_blocks = self.read_uint32(data_ptr + 4)
+        num_blocks = real_num_blocks + self.read_ubyte(data_ptr + 3)
+        max_len = self.read_ubyte(data_ptr + 8)
+        min_len = self.read_ubyte(data_ptr + 9)
+        h = max_len - min_len + 1
+        num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
+
+        d.offset = data_ptr + 10
+        d.symlen = [0 for _ in range(h * 8 + num_syms)]
+        d.sympat = data_ptr + 12 + 2 * h
+        d.min_len = min_len
+
+        self._next = data_ptr + 12 + 2 * h + 3 * num_syms + (num_syms & 1)
+
+        num_indices = (tb_size + (1 << d.idxbits) - 1) >> d.idxbits
+        self.size[size_idx + 0] = 6 * num_indices
+        self.size[size_idx + 1] = 2 * num_blocks
+        self.size[size_idx + 2] = (1 << d.blocksize) * real_num_blocks
+
+        tmp = [0 for _ in range(num_syms)]
+        for i in range(num_syms):
+            if not tmp[i]:
+                self.calc_symlen(d, i, tmp)
+
+        d.base = [0 for _ in range(h)]
+        d.base[h - 1] = 0
+        i = h - 2
+        while i >= 0:
+            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i * 2) - self.read_ushort(d.offset + i * 2 + 2)) // 2
+            i -= 1
+        i = 0
+        while i < h:
+            d.base[i] <<= 64 - (min_len + i)
+            i += 1
+
+        d.offset -= 2 * d.min_len
+
+        return d
+
+
     def read_uint64(self, data_ptr):
         return UINT64.unpack_from(self.data, data_ptr)[0]
 
@@ -246,26 +334,19 @@ class Table(object):
 
 class WdlTable(Table):
     def __init__(self, directory, filename):
-        # init_tb
-        # TODO: Set properties dynamically
-        self.key = calc_key_from_filename(filename)
-        self.symmetric = False # tbcore.cpp l. 224
-        self.has_pawns = False
-        self.num = 4
-        self.has_pawns = False
-        self.enc_type = 0
+        super(WdlTable, self).__init__(directory, filename, ".rtbw")
+        self.init_table_wdl()
+
+    def init_table_wdl(self):
         self.pieces = {}
         self.norm = {}
         self.factor = {}
         self.tb_size = [0 for _ in range(8)]
         self.size = [0 for _ in range(8 * 3)]
         self.precomp = {}
+
         self._next = None
         self._flags = None
-
-        # init_table_wdl
-        self.f = open(os.path.join(directory, filename) + ".rtbw", "r+b")
-        self.data = mmap.mmap(self.f.fileno(), 0)
 
         assert WDL_MAGIC[0] == self.read_ubyte(0)
         assert WDL_MAGIC[1] == self.read_ubyte(1)
@@ -279,48 +360,50 @@ class WdlTable(Table):
 
         data_ptr = 5
 
-        # setup_pieces_piece
-        self.pieces[chess.WHITE] = [self.read_ubyte(data_ptr + i + 1) & 0x0f for i in range(self.num)]
-        order = self.read_ubyte(data_ptr) & 0x0f
+        if not self.has_pawns:
+            self.setup_pieces_piece(data_ptr)
+            data_ptr += self.num + 1
+            data_ptr += data_ptr & 0x01
+
+            self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
+            data_ptr = self._next
+            if split:
+                self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
+                data_ptr = self._next
+            else:
+                self.precomp[chess.BLACK] = None
+
+            self.precomp[chess.WHITE].indextable = data_ptr
+            data_ptr += self.size[0]
+            if split:
+                self.precomp[chess.BLACK].indextable = data_ptr
+                data_ptr += self.size[3]
+
+            self.precomp[chess.WHITE].sizetable = data_ptr
+            data_ptr += self.size[1]
+            if split:
+                self.precomp[chess.BLACK].sizetable = data_ptr
+                data_ptr += self.size[4]
+
+            data_ptr = (data_ptr + 0x3f) & ~0x3f
+            self.precomp[chess.WHITE].data = data_ptr
+            data_ptr += self.size[2]
+            if split:
+                data_ptr = (data_ptr + 0x3f) & ~0x3f
+                self.precomp[chess.BLACK].data = data_ptr
+        else:
+            assert False, "TODO: Implement"
+
+    def setup_pieces_piece(self, p_data):
+        self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
+        order = self.read_ubyte(p_data) & 0x0f
         self.set_norm_piece(chess.WHITE)
         self.calc_factors_piece(chess.WHITE, order)
 
-        self.pieces[chess.BLACK] = [self.read_ubyte(data_ptr + i + 1) >> 4 for i in range(self.num)]
-        order = self.read_ubyte(data_ptr) >> 4
+        self.pieces[chess.BLACK] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
+        order = self.read_ubyte(p_data) >> 4
         self.set_norm_piece(chess.BLACK)
         self.calc_factors_piece(chess.BLACK, order)
-
-        # back to init_table_wdl
-        data_ptr += self.num + 1
-        data_ptr += (data_ptr & 0x01)
-
-        self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0)
-        data_ptr = self._next
-        if split:
-            self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3)
-            data_ptr = self._next
-        else:
-            self.precomp[chess.BLACK] = None
-
-        self.precomp[chess.WHITE].indextable = data_ptr
-        data_ptr += self.size[0]
-        if split:
-            self.precomp[chess.BLACK].indextable = data_ptr
-            data_ptr += self.size[3]
-
-        self.precomp[chess.WHITE].sizetable = data_ptr
-        data_ptr += self.size[1]
-        if split:
-            self.precomp[chess.BLACK].sizetable = data_ptr
-            data_ptr += self.size[4]
-
-        # TODO: Does not appear to have the correct result.
-        data_ptr = (data_ptr + 0x3f) & ~0x3f
-        self.precomp[chess.WHITE].data = data_ptr
-        data_ptr += self.size[2]
-        if split:
-            data_ptr = (data_ptr + 0x3f) & ~0x3f
-            self.precomp[chess.BLACK].data = data_ptr
 
     def set_norm_piece(self, color):
         self.norm[color] = [0, 0, 0, 0, 0, 0]
@@ -547,55 +630,6 @@ class WdlTable(Table):
 
         return self.read_ubyte(sympat + 3 * sym)
 
-    def setup_pairs(self, data_ptr, tb_size, size_idx):
-        d = PairsData()
-
-        if self.read_ubyte(data_ptr) & 0x80:
-            # TODO
-            assert False
-
-        d.blocksize = self.read_ubyte(data_ptr + 1)
-        d.idxbits = self.read_ubyte(data_ptr + 2)
-
-        real_num_blocks = self.read_uint32(data_ptr + 4)
-        num_blocks = real_num_blocks + self.read_ubyte(data_ptr + 3)
-        max_len = self.read_ubyte(data_ptr + 8)
-        min_len = self.read_ubyte(data_ptr + 9)
-        h = max_len - min_len + 1
-        num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
-
-        d.offset = data_ptr + 10
-        d.symlen = [0 for _ in range(h * 8 + num_syms)]
-        d.sympat = data_ptr + 12 + 2 * h
-        d.min_len = min_len
-
-        self._next = data_ptr + 12 + 2 * h + 3 * num_syms + (num_syms & 1)
-
-        num_indices = (tb_size + (1 << d.idxbits) - 1) >> d.idxbits
-        self.size[size_idx + 0] = 6 * num_indices
-        self.size[size_idx + 1] = 2 * num_blocks
-        self.size[size_idx + 2] = (1 << d.blocksize) * real_num_blocks
-
-        tmp = [0 for _ in range(num_syms)]
-        for i in range(num_syms):
-            if not tmp[i]:
-                self.calc_symlen(d, i, tmp)
-
-        d.base = [0 for _ in range(h)]
-        d.base[h - 1] = 0
-        i = h - 2
-        while i >= 0:
-            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i * 2) - self.read_ushort(d.offset + i * 2 + 2)) // 2
-            i -= 1
-        i = 0
-        while i < h:
-            d.base[i] <<= 64 - (min_len + i)
-            i += 1
-
-        d.offset -= 2 * d.min_len
-
-        return d
-
     def calc_symlen(self, d, s, tmp):
         w = d.sympat + 3 * s
         s2 = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
@@ -626,6 +660,8 @@ class Tablebases(object):
             try:
                 wdl_table = WdlTable(directory, filename)
                 self.wdl[wdl_table.key] = wdl_table
+                self.wdl[wdl_table.mirrored_key] = wdl_table
+
                 num += 1
             except IOError:
                 pass
