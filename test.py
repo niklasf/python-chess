@@ -1422,8 +1422,13 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases = chess.syzygy.Tablebases()
         self.assertEqual(tablebases.open_directory("data/syzygy"), 35)
 
+        # Winning KRvKB.
         board = chess.Bitboard("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
         self.assertEqual(tablebases.probe_wdl_table(board), -2)
+
+        # Drawn KBBvK.
+        board = chess.Bitboard("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), 0)
 
         tablebases.close()
 
