@@ -83,6 +83,24 @@ DIAG = [
     15,  0,  0,  0,  0,  0,  0,  7,
 ]
 
+PTWIST = [
+     0, 0,   0,  0,  0,  0,  0,  0,
+    47, 35, 23, 11, 10, 22, 34, 46,
+    45, 33, 21,  9,  8, 20, 32, 44,
+    43, 31, 19,  7,  6, 18, 30, 42,
+    41, 29, 17,  5,  4, 16, 28, 40,
+    39, 27, 15,  3,  2, 14, 26, 38,
+    37, 25, 13,  1,  0, 12, 24, 36,
+     0,  0,  0,  0,  0,  0,  0,  0,
+]
+
+INVFLAP = [
+     8, 16, 24, 32, 40, 48,
+     9, 17, 25, 33, 41, 49,
+    10, 18, 26, 34, 42, 50,
+    11, 19, 27, 35, 43, 51,
+]
+
 KK_IDX = [ [
      -1,  -1,  -1,   0,   1,   2,   3,   4,
      -1,  -1,  -1,   5,   6,   7,   8,   9,
@@ -314,6 +332,14 @@ class PairsData(object):
         self.base = None
 
 
+class PawnFileData(object):
+    def __init__(self):
+        self.precomp = {}
+        self.factor = {}
+        self.pieces = {}
+        self.norm = {}
+
+
 class Table(object):
 
     def __init__(self, directory, filename, suffix):
@@ -329,11 +355,14 @@ class Table(object):
 
         self.has_pawns = "P" in filename
 
+        black_part, white_part = filename.split("v")
         if self.has_pawns:
-            #assert False, "TODO: Implement"
-            pass
+            self.pawns = {}
+            self.pawns[0] = white_part.count("P")
+            self.pawns[1] = black_part.count("P")
+            if self.pawns[1] > 0 and (self.pawns[0] == 0 or self.pawns[1] < self.pawns[0]):
+                self.pawns[0], self.pawns[1] = self.pawns[1], self.pawns[0]
         else:
-            black_part, white_part = filename.split("v")
             j = 0
             for piece_type in PCHR:
                 if black_part.count(piece_type) == 1:
@@ -408,7 +437,6 @@ class Table(object):
 
         return d
 
-
     def read_uint64(self, data_ptr):
         return UINT64.unpack_from(self.data, data_ptr)[0]
 
@@ -432,12 +460,17 @@ class WdlTable(Table):
         self.init_table_wdl()
 
     def init_table_wdl(self):
-        self.pieces = {}
-        self.norm = {}
-        self.factor = {}
         self.tb_size = [0 for _ in range(8)]
         self.size = [0 for _ in range(8 * 3)]
+
+        # Used if there are only pieces.
         self.precomp = {}
+        self.factor = {}
+        self.pieces = {}
+        self.norm = {}
+
+        # Used if there are pawns.
+        self.files = [PawnFileData() for f in range(4)]
 
         self._next = None
         self._flags = None
@@ -484,8 +517,64 @@ class WdlTable(Table):
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
                 self.precomp[chess.BLACK].data = data_ptr
         else:
+            s = 1 + int(self.pawns[chess.BLACK] > 0)
+            for f in range(4):
+                self.setup_pieces_pawn(data_ptr, 2 * f, f)
+                print self.files[f]
             #assert False, "TODO: Implement"
             pass
+
+    def setup_pieces_pawn(self, p_data, p_tb_size, f):
+        j = 1 + int(self.pawns[chess.BLACK] > 0)
+        order = self.read_ubyte(p_data) & 0x0f
+        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[chess.BLACK] else 0x0f
+        self.files[f].pieces[chess.WHITE] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
+        self.set_norm_pawn(f, chess.WHITE)
+        self.calc_factors_pawn(f, chess.WHITE, order, order2)
+        # XXX
+
+
+    def calc_factors_pawn(self, f, color, order, order2):
+        self.files[f].factor[color] = [0, 0, 0, 0, 0, 0]
+
+        i = self.files[f].norm[color][0]
+        if order2 < 0x0f:
+            i += self.files[f].norm[color][i]
+        n = 64 - i
+
+        fac = 1
+        k = 0
+        while i < self.num or k == order or k == order2:
+            if k == order:
+                self.files[f].factor[color][0] = fac
+                fac *= PFACTOR[self.files[f].norm[color][0] - 1][f]
+            elif k == order2:
+                self.files[f].factor[color][self.files[f].norm[color][0]] = fac
+                fac *= subfactor(self.files[f].norm[color][self.files[f].norm[color][0]], 48 - self.files[f].norm[color][0])
+            else:
+                self.files[f].factor[color][i] = fac
+                fac += subfactor(self.files[f].norm[color][i], n)
+                n -= self.files[f].norm[color][i]
+                i += self.files[f].norm[color][i]
+            k += 1
+
+        self.tb_size[color] = fac
+
+    def set_norm_pawn(self, f, color):
+        self.files[f].norm[color] = [0 for _ in range(self.num)]
+
+        self.files[f].norm[color][0] = self.pawns[0]
+        if self.pawns[1]:
+            self.files[f].norm[color][self.pawns[0]] = self.pawns[1]
+
+        i = self.pawns[0] + self.pawns[1]
+        while i < self.num:
+            j = i
+            while j < self.num and self.files[f].pieces[color][j] == self.files[f].pieces[color][i]:
+                self.files[f].norm[color][i] += 1
+                j += 1
+            i += self.files[f].norm[color][i]
+
 
     def setup_pieces_piece(self, p_data):
         self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
@@ -499,7 +588,7 @@ class WdlTable(Table):
         self.calc_factors_piece(chess.BLACK, order)
 
     def set_norm_piece(self, color):
-        self.norm[color] = [0, 0, 0, 0, 0, 0]
+        self.norm[color] = [0 for _ in range(self.num)]
 
         if self.enc_type == 0:
             self.norm[color][0] = 3
