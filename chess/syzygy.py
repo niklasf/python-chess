@@ -204,6 +204,40 @@ for i in range(5):
             l *= k + 1
         BINOMIAL[i].append(f // l)
 
+PAWNIDX = [ [ 0 for _ in range(24) ] for _ in range(5) ]
+
+PFACTOR = [ [ 0 for _ in range(4) ] for _ in range(5) ]
+
+for i in range(5):
+    j = 0
+
+    s = 0
+    while j < 6:
+        PAWNIDX[i][j] = s
+        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        j += 1
+    PFACTOR[i][0] = s
+
+    s = 0
+    while j < 12:
+        PAWNIDX[i][j] = s
+        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        j += 1
+    PFACTOR[i][1] = s
+
+    s = 0
+    while j < 18:
+        PAWNIDX[i][j] = s
+        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        j += 1
+    PFACTOR[i][2] = s
+
+    s = 0
+    while j < 24:
+        PAWNIDX[i][j] = s
+        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        j += 1
+    PFACTOR[i][3] = s
 
 PCHR = ["K", "Q", "R", "B", "N", "P"]
 
