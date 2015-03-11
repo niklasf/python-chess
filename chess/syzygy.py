@@ -714,8 +714,8 @@ class WdlTable(Table):
         key = calc_key(board)
 
         if self.symmetric:
-            cmirror = 0 if board.turn == WHITE else 8
-            mirror = 0 if board.turn == WHITE else 0x38
+            cmirror = 0 if board.turn == chess.WHITE else 8
+            mirror = 0 if board.turn == chess.WHITE else 0x38
             bside = 0
         else:
             if key != self.key:
