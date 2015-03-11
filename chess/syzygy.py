@@ -556,9 +556,38 @@ class WdlTable(Table):
                 self.setup_pieces_pawn(data_ptr, 2 * f, f)
                 data_ptr += self.num + s
             data_ptr += data_ptr & 0x01
-            print self.files[f].factor
 
-            # XXX
+            for f in range(files):
+                self.files[f].precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
+                data_ptr = self._next
+                if split:
+                    self.files[f].precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
+                    data_ptr = self._next
+                else:
+                    self.files[f].precomp[chess.BLACK] = None
+
+            for f in range(files):
+                self.files[f].precomp[chess.WHITE].indextable = data_ptr
+                data_ptr += self.size[6 * f]
+                if split:
+                    self.files[f].precomp[chess.BLACK].indextable = data_ptr
+                    data_ptr += self.size[6 * f + 3]
+
+            for f in range(files):
+                self.files[f].precomp[chess.WHITE].sizetable = data_ptr
+                data_ptr += self.size[6 * f + 1]
+                if split:
+                    self.files[f].precomp[chess.BLACK].sizetable = data_ptr
+                    data_ptr += self.size[6 * f + 4]
+
+            for f in range(files):
+                data_ptr = (data_ptr + 0x3f) & ~0x3f
+                self.files[f].precomp[chess.WHITE].data = data_ptr
+                data_ptr += self.size[6 * f + 2]
+                if split:
+                    data_ptr = (data_ptr + 0x3f) & ~0x3f
+                    self.files[f].precomp[chess.BLACK].data = data_ptr
+                    data_ptr += self.size[6 * f + 5]
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[chess.BLACK] > 0)
