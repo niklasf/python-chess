@@ -101,6 +101,8 @@ INVFLAP = [
     11, 19, 27, 35, 43, 51,
 ]
 
+FILE_TO_FILE = [ 0, 1, 2, 3, 3, 2, 1, 0 ]
+
 KK_IDX = [ [
      -1,  -1,  -1,   0,   1,   2,   3,   4,
      -1,  -1,  -1,   5,   6,   7,   8,   9,
@@ -718,9 +720,19 @@ class WdlTable(Table):
             idx = self.encode_piece(bside, p)
             res = self.decompress_pairs(bside, idx)
         else:
+            # XXX
             assert False, "TODO: Implement"
 
         return res - 2
+
+    def pawn_file(self, pos):
+        i = 1
+        while i < self.pawns[0]:
+            if FLAP[pos[0]] > FLAP[pos[i]]:
+                pos[0], pos[i] = pos[i], pos[0]
+            i += 1
+
+        return FILE_TO_FILE[pos[0] & 0x07]
 
     def p(self, board, bside, cmirror):
         p = [0, 0, 0, 0, 0, 0]
