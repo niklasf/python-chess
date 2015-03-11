@@ -1398,7 +1398,7 @@ class SyzygyTestCase(unittest.TestCase):
         key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
         self.assertEqual(key_from_board, key_from_filename)
 
-    def test_probe_wdl_table(self):
+    def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
 
         board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
@@ -1417,6 +1417,12 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertEqual(wdl.probe_wdl_table(board), -2)
 
         wdl.close()
+
+    def test_probe_wdl_table(self):
+        wdl = chess.syzygy.WdlTable("data/syzygy", "KRvKP")
+
+        board = chess.Bitboard("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 0)
 
     def test_probe_wdl_tablebase(self):
         tablebases = chess.syzygy.Tablebases()
