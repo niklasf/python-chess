@@ -1445,6 +1445,25 @@ class SyzygyTestCase(unittest.TestCase):
 
         tablebases.close()
 
+    def test_testsuite(self):
+        tablebases = chess.syzygy.Tablebases()
+        tablebases.open_directory("data/syzygy")
+
+        board = chess.Bitboard()
+
+        exceptions = ["8/2K5/8/8/8/8/3p4/1k2N3 b - - 0 1"]
+
+        with open("data/endgame.epd") as epds:
+            for epd in epds:
+                if epd.startswith("#"):
+                    continue
+
+                extra = board.set_epd(epd)
+                wdl = tablebases.probe_wdl_table(board)
+                self.assertEqual(wdl, extra["wdl_table"], "Expecting WDL %d for %s, got %d" % (extra["wdl_table"], board.fen(), wdl))
+
+        tablebases.close()
+
 
 if __name__ == "__main__":
     unittest.main()
