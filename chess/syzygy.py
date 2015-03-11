@@ -554,9 +554,11 @@ class WdlTable(Table):
             s = 1 + int(self.pawns[chess.BLACK] > 0)
             for f in range(4):
                 self.setup_pieces_pawn(data_ptr, 2 * f, f)
-                print self.files[f]
-            #assert False, "TODO: Implement"
-            pass
+                data_ptr += self.num + s
+            data_ptr += data_ptr & 0x01
+            print self.files[f].factor
+
+            # XXX
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[chess.BLACK] > 0)
@@ -564,11 +566,15 @@ class WdlTable(Table):
         order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[chess.BLACK] else 0x0f
         self.files[f].pieces[chess.WHITE] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
         self.set_norm_pawn(f, chess.WHITE)
-        self.calc_factors_pawn(f, chess.WHITE, order, order2)
-        # XXX
+        self.calc_factors_pawn(p_tb_size, f, chess.WHITE, order, order2)
 
+        order = self.read_ubyte(p_data) >> 4
+        order2 = self.read_ubyte(p_data + 1) >> 4 if self.pawns[1] else 0x0f
+        self.files[f].pieces[chess.BLACK] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
+        self.set_norm_pawn(f, chess.BLACK)
+        self.calc_factors_pawn(p_tb_size, f, chess.BLACK, order, order2)
 
-    def calc_factors_pawn(self, f, color, order, order2):
+    def calc_factors_pawn(self, p_tb_size, f, color, order, order2):
         self.files[f].factor[color] = [0, 0, 0, 0, 0, 0]
 
         i = self.files[f].norm[color][0]
@@ -592,7 +598,7 @@ class WdlTable(Table):
                 i += self.files[f].norm[color][i]
             k += 1
 
-        self.tb_size[color] = fac
+        self.tb_size[p_tb_size + color] = fac
 
     def set_norm_pawn(self, f, color):
         self.files[f].norm[color] = [0 for _ in range(self.num)]
