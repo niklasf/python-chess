@@ -1424,6 +1424,9 @@ class SyzygyTestCase(unittest.TestCase):
         board = chess.Bitboard("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
         self.assertEqual(wdl.probe_wdl_table(board), 0)
 
+        board = chess.Bitboard("8/8/2K5/8/4P3/8/8/3r3k b - - 1 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
+
     def test_probe_wdl_tablebase(self):
         tablebases = chess.syzygy.Tablebases()
         self.assertEqual(tablebases.open_directory("data/syzygy"), 35)
