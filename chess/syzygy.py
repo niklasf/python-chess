@@ -716,12 +716,50 @@ class WdlTable(Table):
                 bside = int(board.turn != chess.WHITE)
 
         if not self.has_pawns:
-            p = self.p(board, bside, cmirror)
+            p = [0, 0, 0, 0, 0, 0]
+            i = 0
+            while i < self.num:
+                piece_type = self.pieces[bside][i] & 0x07
+                color = (self.pieces[bside][i] ^ cmirror) >> 3
+                bb = self._bb(board, piece_type, color)
+
+                square = chess.bit_scan(bb)
+                while square != -1 and square is not None:
+                    p[i] = square
+                    i += 1
+                    square = chess.bit_scan(bb, square + 1)
+
             idx = self.encode_piece(bside, p)
-            res = self.decompress_pairs(bside, idx)
+            res = self.decompress_pairs(self.precomp[bside], idx)
         else:
-            # XXX
-            assert False, "TODO: Implement"
+            p = [0, 0, 0, 0, 0, 0]
+            i = 0
+            k = self.files[0].pieces[0][0] ^ cmirror
+            color = k >> 3
+            piece_type = k & 0x07
+            bb = self._bb(board, piece_type, color)
+
+            square = chess.bit_scan(bb)
+            while square != -1 and square is not None:
+                p[i] = square ^ mirror
+                i += 1
+                square = chess.bit_scan(bb, square + 1)
+
+            f = self.pawn_file(p)
+            pc = self.files[f].pieces[bside]
+            while i < self.num:
+                color = (pc[i] ^ cmirror) >> 3
+                piece_type = pc[i] & 0x07
+                bb = self._bb(board, piece_type, color)
+
+                square = chess.bit_scan(bb)
+                while square != -1 and square is not None:
+                    p[i] = square ^ mirror
+                    i += 1
+                    square = chess.bit_scan(bb, square + 1)
+
+            idx = self.encode_pawn(self.files[f].norm[bside], p, self.files[f].factor[bside])
+            res = self.decompress_pairs(self.files[f].precomp[bside], idx)
 
         return res - 2
 
@@ -734,37 +772,21 @@ class WdlTable(Table):
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def p(self, board, bside, cmirror):
-        p = [0, 0, 0, 0, 0, 0]
+    def _bb(self, board, piece_type, color):
+        if piece_type == chess.PAWN:
+            bb = board.pawns
+        elif piece_type == chess.KNIGHT:
+            bb = board.knights
+        elif piece_type == chess.BISHOP:
+            bb = board.bishops
+        elif piece_type == chess.ROOK:
+            bb = board.rooks
+        elif piece_type == chess.QUEEN:
+            bb = board.queens
+        elif piece_type == chess.KING:
+            bb = board.kings
 
-        i = 0
-        while i < self.num:
-            piece_type = self.pieces[bside][i] & 0x07
-            color = (self.pieces[bside][i] ^ cmirror) >> 3
-
-            if piece_type == chess.PAWN:
-                bb = board.pawns
-            elif piece_type == chess.KNIGHT:
-                bb = board.knights
-            elif piece_type == chess.BISHOP:
-                bb = board.bishops
-            elif piece_type == chess.ROOK:
-                bb = board.rooks
-            elif piece_type == chess.QUEEN:
-                bb = board.queens
-            elif piece_type == chess.KING:
-                bb = board.kings
-
-            bb = bb & board.occupied_co[color]
-
-            square = chess.bit_scan(bb)
-            while square != -1 and square is not None:
-                p[i] = square
-                i += 1
-
-                square = chess.bit_scan(bb, square + 1)
-
-        return p
+        return bb & board.occupied_co[color]
 
     def encode_piece(self, color, pos):
         n = self.num
@@ -846,9 +868,85 @@ class WdlTable(Table):
 
         return idx
 
-    def decompress_pairs(self, bside, idx):
-        d = self.precomp[bside]
+    def encode_pawn(self, norm, pos, factor):
+        n = self.num
 
+        if pos[0] & 0x04:
+            for i in range(n):
+                pos[i] ^= 0x07
+
+        i = 1
+        while i < self.pawns[0]:
+            j = i + 1
+            while j < self.pawns[0]:
+                if PTWIST[pos[i]] < PTWIST[pos[j]]:
+                    pos[i], pos[j] = pos[j], pos[i]
+                j += 1
+            i += 1
+
+        t = self.pawns[0] - 1
+        idx = PAWNIDX[t][FLAP[pos[0]]]
+        i = t
+        while i > 0:
+            idx += BINOMIAL[t - i][PTWIST[pos[i]]]
+            i -= 1
+        idx *= factor[0]
+
+        # Remaining pawns.
+        i = self.pawns[0]
+        t = i + self.pawns[1]
+        if t > i:
+            j = i
+            while j < t:
+                k = j + 1
+                while k < t:
+                    if pos[j] > pos[k]:
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+            s = 0
+            m = i
+            while m < t:
+                p = pos[m]
+                k = 0
+                j = 0
+                while k < i:
+                    j += int(p > pos[k])
+                    k += 1
+                s += BINOMIAL[m - i][p - j - 8]
+                m += 1
+            idx += s * factor[i]
+            i = t
+
+        while i < n:
+            t = norm[i]
+            j = i
+            while j < i + t:
+                k = j + 1
+                while k < i + t:
+                    if pos[j] > pos[k]:
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+            s = 0
+
+            m = i
+            while m < i + t:
+                p = pos[m]
+                k = 0
+                j = 0
+                while k < i:
+                    j += int(p > pos[k])
+                    k += 1
+                s += BINOMIAL[m - i][p - j]
+                m += 1
+
+            idx += s * factor[i]
+            i += t
+
+        return idx
+
+    def decompress_pairs(self, d, idx):
         if not d.idxbits:
             return d.min_len
 
