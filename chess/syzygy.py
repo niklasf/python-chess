@@ -635,7 +635,7 @@ class WdlTable(Table):
                 fac *= subfactor(self.files[f].norm[color][self.files[f].norm[color][0]], 48 - self.files[f].norm[color][0])
             else:
                 self.files[f].factor[color][i] = fac
-                fac += subfactor(self.files[f].norm[color][i], n)
+                fac *= subfactor(self.files[f].norm[color][i], n)
                 n -= self.files[f].norm[color][i]
                 i += self.files[f].norm[color][i]
             k += 1
