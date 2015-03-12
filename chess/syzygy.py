@@ -1108,6 +1108,11 @@ class Tablebases(object):
             return v
 
     def probe_wdl(self, board):
+        # Positions with castling rights are not in the tablebase.
+        if board.castling_rights != chess.CASTLING_NONE:
+            return None
+
+        # Probe.
         v = self.probe_ab(board, -2, 2)
         if v is None:
             return None
