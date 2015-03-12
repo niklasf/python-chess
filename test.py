@@ -1447,9 +1447,22 @@ class SyzygyTestCase(unittest.TestCase):
 
         tablebases.close()
 
+    def test_wdl_ep(self):
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+        # Winning KPvKP because of en-passant.
+        board = chess.Bitboard("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
+
+        # If there was no en-passant this would be a draw.
+        self.assertEqual(tablebases.probe_wdl_table(board), 0)
+
+        # But it is a win.
+        self.assertEqual(tablebases.probe_wdl(board), 2)
+
+        tablebases.close()
+
     def test_testsuite(self):
-        tablebases = chess.syzygy.Tablebases()
-        tablebases.open_directory("data/syzygy")
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
 
         board = chess.Bitboard()
 
