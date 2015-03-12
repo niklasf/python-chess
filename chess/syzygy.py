@@ -1108,7 +1108,62 @@ class Tablebases(object):
             return v
 
     def probe_wdl(self, board):
-        return self.probe_ab(board, -2, 2)
+        v = self.probe_ab(board, -2, 2)
+        if v is None:
+            return None
+
+        # If en-passant is not possible, we are done.
+        if not board.ep_square:
+            return v
+
+        # Now handle en-passant.
+        v1 = -3
+
+        # Look at least at all legal en-passant captures.
+        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+            # Filter out non-en-passant moves.
+            diff = abs(move.to_square - move.from_square)
+            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+                continue
+
+            # Do the move.
+            board.push(move)
+
+            # Filter out illegal moves.
+            if board.was_into_check():
+                board.pop()
+                continue
+
+            v0 = -self.probe_ab(board, -2, 2)
+            board.pop()
+
+            if v0 is None:
+                return None
+
+            if v0 > v1:
+                v1 = v0
+
+        if v1 > -3:
+            if v1 >= v:
+                v = v1
+            elif v == 0:
+                # Check whether there is at least one legal non-ep move.
+                found_move = False
+                for move in board.generate_legal_moves():
+                    if board.piece_type_at(move.from_square) != chess.PAWN:
+                        found_move = True
+                        break
+
+                    diff = abs(move.to_square - move.from_square)
+                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+                        found_move = True
+                        break
+
+                    # If not, then we are forced to play the losing ep capture.
+                    if not found_move:
+                        v = v1
+
+        return v
 
     def close(self):
         while self.wdl:
