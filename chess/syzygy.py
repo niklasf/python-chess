@@ -974,7 +974,7 @@ class WdlTable(Table):
                 litidx += self.read_ushort(d.sizetable + 2 * block) + 1
         else:
             while litidx > self.read_ushort(d.sizetable + 2 * block):
-                litidx -= self.read_ushort(d.sizetable + 2 * block)
+                litidx -= self.read_ushort(d.sizetable + 2 * block) + 1
                 block += 1
 
         ptr = d.data + (block << d.blocksize)
