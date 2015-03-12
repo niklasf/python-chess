@@ -553,6 +553,151 @@ class Table(object):
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
+    def encode_piece(self, norm, pos, factor):
+        n = self.num
+
+        if pos[0] & 0x04:
+            for i in range(n):
+                pos[i] ^= 0x07
+
+        if pos[0] & 0x20:
+            for i in range(n):
+                pos[i] ^= 0x38
+
+        for i in range(n):
+            if OFFDIAG[pos[i]]:
+                break
+
+        if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
+            for i in range(n):
+                pos[i] = FLIPDIAG[pos[i]]
+
+        if self.enc_type == 0: # 111
+            i = int(pos[1] > pos[0])
+            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
+
+            if OFFDIAG[pos[0]]:
+                idx = TRIANGLE[pos[0]] * 63 * 62 + (pos[1] - i) * 62 + (pos[2] - j)
+            elif OFFDIAG[pos[1]]:
+                idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] * 62 + pos[2] - j
+            elif OFFDIAG[pos[2]]:
+                idx = 6 * 63 * 62 + 4 * 28 * 62 + (DIAG[pos[0]]) * 7 * 28 + (DIAG[pos[1]] - i) * 28 + LOWER[pos[2]]
+            else:
+                idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
+            i = 3
+        elif self.enc_type == 1: # K3
+            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
+
+            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            if idx < 441:
+                idx = idx + 441 * (pos[2] - j)
+            else:
+                idx = 441 * 62 + (idx - 441) + 21 * LOWER[pos[2]]
+                if not OFFDIAG[pos[2]]:
+                    idx -= j * 21
+            i = 3
+        else: # K2
+            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            i = 2
+
+        idx *= factor[0]
+
+        while i < n:
+            t = norm[i]
+
+            j = i
+            while j < i + t:
+                k = j + 1
+                while k < i + t:
+                    # Swap.
+                    if pos[j] > pos[k]:
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+
+            s = 0
+
+            m = i
+            while m < i + t:
+                p = pos[m]
+                l = 0
+                j = 0
+                while l < i:
+                    j += int(p > pos[l])
+                    l += 1
+                s += BINOMIAL[m - i][p - j]
+                m += 1
+
+            idx += s * factor[i]
+            i += t
+
+        return idx
+
+    def decompress_pairs(self, d, idx):
+        if not d.idxbits:
+            return d.min_len
+
+        mainidx = idx >> d.idxbits
+        litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
+        block = self.read_uint32(d.indextable + 6 * mainidx)
+
+        idx_offset = self.read_ushort(d.indextable + 6 * mainidx + 4)
+        litidx += idx_offset
+
+        if litidx < 0:
+            while litidx < 0:
+                block -= 1
+                litidx += self.read_ushort(d.sizetable + 2 * block) + 1
+        else:
+            while litidx > self.read_ushort(d.sizetable + 2 * block):
+                litidx -= self.read_ushort(d.sizetable + 2 * block) + 1
+                block += 1
+
+        ptr = d.data + (block << d.blocksize)
+
+        m = d.min_len
+        offset = d.offset
+        base_idx = -m
+        symlen_idx = 0
+
+        code = self.read_uint64(ptr)
+        code = bswap64(code) # if little endian
+
+        ptr += 2 * 4
+        bitcnt = 0 # Number of empty bits in code
+        while True:
+            l = m
+            while code < d.base[base_idx + l]:
+                l += 1
+            sym = self.read_ushort(d.offset + l * 2)
+            sym += (code - d.base[base_idx + l]) >> (64 - l)
+            if litidx < d.symlen[symlen_idx + sym] + 1:
+                break
+            litidx -= d.symlen[symlen_idx + sym] + 1
+            code <<= l
+            bitcnt += l
+            if bitcnt >= 32:
+                bitcnt -= 32
+                tmp = self.read_uint32(ptr)
+                ptr += 4
+                tmp = bswap32(tmp) # if little endian
+                code |= tmp << bitcnt
+
+            # Cut off at 64bit.
+            code &= 0xffffffffffffffff
+
+        sympat = d.sympat
+        while d.symlen[symlen_idx + sym]:
+            w = sympat + 3 * sym
+            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
+            if litidx < d.symlen[symlen_idx + s1] + 1:
+                sym = s1
+            else:
+                litidx -= d.symlen[symlen_idx + s1] + 1
+                sym = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
+
+        return self.read_ubyte(sympat + 3 * sym)
+
     def read_uint64(self, data_ptr):
         return UINT64.unpack_from(self.data, data_ptr)[0]
 
@@ -817,86 +962,6 @@ class WdlTable(Table):
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm, pos, factor):
-        n = self.num
-
-        if pos[0] & 0x04:
-            for i in range(n):
-                pos[i] ^= 0x07
-
-        if pos[0] & 0x20:
-            for i in range(n):
-                pos[i] ^= 0x38
-
-        for i in range(n):
-            if OFFDIAG[pos[i]]:
-                break
-
-        if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
-            for i in range(n):
-                pos[i] = FLIPDIAG[pos[i]]
-
-        if self.enc_type == 0: # 111
-            i = int(pos[1] > pos[0])
-            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
-
-            if OFFDIAG[pos[0]]:
-                idx = TRIANGLE[pos[0]] * 63 * 62 + (pos[1] - i) * 62 + (pos[2] - j)
-            elif OFFDIAG[pos[1]]:
-                idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] * 62 + pos[2] - j
-            elif OFFDIAG[pos[2]]:
-                idx = 6 * 63 * 62 + 4 * 28 * 62 + (DIAG[pos[0]]) * 7 * 28 + (DIAG[pos[1]] - i) * 28 + LOWER[pos[2]]
-            else:
-                idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
-            i = 3
-        elif self.enc_type == 1: # K3
-            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
-
-            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
-            if idx < 441:
-                idx = idx + 441 * (pos[2] - j)
-            else:
-                idx = 441 * 62 + (idx - 441) + 21 * LOWER[pos[2]]
-                if not OFFDIAG[pos[2]]:
-                    idx -= j * 21
-            i = 3
-        else: # K2
-            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
-            i = 2
-
-        idx *= factor[0]
-
-        while i < n:
-            t = norm[i]
-
-            j = i
-            while j < i + t:
-                k = j + 1
-                while k < i + t:
-                    # Swap.
-                    if pos[j] > pos[k]:
-                        pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
-
-            s = 0
-
-            m = i
-            while m < i + t:
-                p = pos[m]
-                l = 0
-                j = 0
-                while l < i:
-                    j += int(p > pos[l])
-                    l += 1
-                s += BINOMIAL[m - i][p - j]
-                m += 1
-
-            idx += s * factor[i]
-            i += t
-
-        return idx
-
     def encode_pawn(self, norm, pos, factor):
         n = self.num
 
@@ -974,71 +1039,6 @@ class WdlTable(Table):
             i += t
 
         return idx
-
-    def decompress_pairs(self, d, idx):
-        if not d.idxbits:
-            return d.min_len
-
-        mainidx = idx >> d.idxbits
-        litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
-        block = self.read_uint32(d.indextable + 6 * mainidx)
-
-        idx_offset = self.read_ushort(d.indextable + 6 * mainidx + 4)
-        litidx += idx_offset
-
-        if litidx < 0:
-            while litidx < 0:
-                block -= 1
-                litidx += self.read_ushort(d.sizetable + 2 * block) + 1
-        else:
-            while litidx > self.read_ushort(d.sizetable + 2 * block):
-                litidx -= self.read_ushort(d.sizetable + 2 * block) + 1
-                block += 1
-
-        ptr = d.data + (block << d.blocksize)
-
-        m = d.min_len
-        offset = d.offset
-        base_idx = -m
-        symlen_idx = 0
-
-        code = self.read_uint64(ptr)
-        code = bswap64(code) # if little endian
-
-        ptr += 2 * 4
-        bitcnt = 0 # Number of empty bits in code
-        while True:
-            l = m
-            while code < d.base[base_idx + l]:
-                l += 1
-            sym = self.read_ushort(d.offset + l * 2)
-            sym += (code - d.base[base_idx + l]) >> (64 - l)
-            if litidx < d.symlen[symlen_idx + sym] + 1:
-                break
-            litidx -= d.symlen[symlen_idx + sym] + 1
-            code <<= l
-            bitcnt += l
-            if bitcnt >= 32:
-                bitcnt -= 32
-                tmp = self.read_uint32(ptr)
-                ptr += 4
-                tmp = bswap32(tmp) # if little endian
-                code |= tmp << bitcnt
-
-            # Cut off at 64bit.
-            code &= 0xffffffffffffffff
-
-        sympat = d.sympat
-        while d.symlen[symlen_idx + sym]:
-            w = sympat + 3 * sym
-            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
-            if litidx < d.symlen[symlen_idx + s1] + 1:
-                sym = s1
-            else:
-                litidx -= d.symlen[symlen_idx + s1] + 1
-                sym = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
-
-        return self.read_ubyte(sympat + 3 * sym)
 
 
 class DtzTable(Table):
