@@ -757,7 +757,7 @@ class WdlTable(Table):
                     i += 1
                     square = chess.bit_scan(bb, square + 1)
 
-            idx = self.encode_piece(bside, p)
+            idx = self.encode_piece(self.norm[bside], p, self.factor[bside])
             res = self.decompress_pairs(self.precomp[bside], idx)
         else:
             p = [0, 0, 0, 0, 0, 0]
@@ -816,7 +816,7 @@ class WdlTable(Table):
 
         return bb & board.occupied_co[color]
 
-    def encode_piece(self, color, pos):
+    def encode_piece(self, norm, pos, factor):
         n = self.num
 
         if pos[0] & 0x04:
@@ -863,10 +863,10 @@ class WdlTable(Table):
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
             i = 2
 
-        idx *= self.factor[color][0]
+        idx *= factor[0]
 
         while i < n:
-            t = self.norm[color][i]
+            t = norm[i]
 
             j = i
             while j < i + t:
@@ -891,7 +891,7 @@ class WdlTable(Table):
                 s += BINOMIAL[m - i][p - j]
                 m += 1
 
-            idx += s * self.factor[color][i]
+            idx += s * factor[i]
             i += t
 
         return idx
@@ -1089,6 +1089,52 @@ class DtzTable(Table):
         else:
             # TODO: Implement
             pass
+
+    def probe_dtz_table(self, board, wdl):
+        key = calc_key(board)
+
+        if not self.symmetric:
+            if key != self.key:
+                cmirror = 8
+                mirror = 0x38
+                bside = int(board.turn == chess.WHITE)
+            else:
+                cmirror = mirror = 0
+                bside = int(board.turn != chess.BLACK)
+        else:
+            cmirror = 0 if board.turn == chess.WHITE else 8
+            mirror = 0 if  board.turn == chess.WHITE else 0x38
+            bside = 0
+
+        if not self.has_pawns:
+            # TODO: Investigate.
+            if (self.flags & 1) != bside and not self.symmetric:
+                return None
+
+            pc = self.pieces
+            p = [0, 0, 0, 0, 0, 0]
+            i = 0
+            while i < self.num:
+                piece_type = pc[i] & 0x07
+                color = (pc[i] ^ cmirror) >> 3
+                bb = self._bb(board, piece_type, color)
+
+                square = chess.bit_scan(bb)
+                while square != -1 and square is not None:
+                    p[i] = square
+                    i += 1
+                    square = chess.bit_scan(bb, square + 1)
+
+            idx = self.encode_piece(self.norm, p, self.factor)
+            res = self.decompress_pairs(self.precomp, idx)
+
+            if self.flags & 2:
+                res = self.read_ubyte(self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res)
+
+            if (not (self.flags & PA_FLAGS[wdl + 2])) or (wdl & 1):
+                res *= 2
+        else:
+            assert False, "TODO: Implement"
 
     def setup_pieces_piece_dtz(self, p_data, p_tb_size):
         self.pieces = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
