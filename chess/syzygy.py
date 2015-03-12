@@ -1073,6 +1073,9 @@ class Tablebases(object):
 
         return self.wdl[key].probe_wdl_table(board)
 
+    def probe_wdl(self, board):
+        return self.probe_wdl_table(board)
+
     def close(self):
         while self.wdl:
             key, wdl = self.wdl.popitem()
