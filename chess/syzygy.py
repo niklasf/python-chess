@@ -27,6 +27,7 @@ UINT32 = struct.Struct("<I")
 USHORT = struct.Struct("<H")
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
+DTZ_MAGIC = [0xd7, 0x66, 0x0c, 0xa5]
 
 OFFDIAG = [
     0, -1, -1, -1, -1, -1, -1, -1,
@@ -484,6 +485,43 @@ class Table(object):
 
         return d
 
+    def set_norm_piece(self, norm, pieces):
+        if self.enc_type == 0:
+            norm[0] = 3
+        elif self.enc_type == 2:
+            norm[0] = 2
+        else:
+            norm[0] = self.enc_type - 1
+
+        i = norm[0]
+        while i < self.num:
+            j = i
+            while j < self.num and pieces[j] == pieces[i]:
+                norm[i] += 1
+                j += 1
+            i += norm[i]
+
+    def calc_factors_piece(self, factor, order, norm):
+        PIVFAC = [31332, 28056, 462]
+
+        n = 64 - norm[0]
+
+        f = 1
+        i = norm[0]
+        k = 0
+        while i < self.num or k == order:
+            if k == order:
+                factor[0] = f
+                f *= PIVFAC[self.enc_type]
+            else:
+                factor[i] = f
+                f *= subfactor(norm[i], n)
+                n -= norm[i]
+                i += norm[i]
+            k += 1
+
+        return f
+
     def read_uint64(self, data_ptr):
         return UINT64.unpack_from(self.data, data_ptr)[0]
 
@@ -512,9 +550,15 @@ class WdlTable(Table):
 
         # Used if there are only pieces.
         self.precomp = {}
-        self.factor = {}
         self.pieces = {}
+
+        self.factor = {}
+        self.factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
+        self.factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
+
         self.norm = {}
+        self.norm[chess.WHITE] = [0 for _ in range(self.num)]
+        self.norm[chess.BLACK] = [0 for _ in range(self.num)]
 
         # Used if there are pawns.
         self.files = [PawnFileData() for f in range(4)]
@@ -661,54 +705,13 @@ class WdlTable(Table):
     def setup_pieces_piece(self, p_data):
         self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
         order = self.read_ubyte(p_data) & 0x0f
-        self.set_norm_piece(chess.WHITE)
-        self.calc_factors_piece(chess.WHITE, order)
+        self.set_norm_piece(self.norm[chess.WHITE], self.pieces[chess.WHITE])
+        self.tb_size[chess.WHITE] = self.calc_factors_piece(self.factor[chess.WHITE], order, self.norm[chess.WHITE])
 
         self.pieces[chess.BLACK] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
         order = self.read_ubyte(p_data) >> 4
-        self.set_norm_piece(chess.BLACK)
-        self.calc_factors_piece(chess.BLACK, order)
-
-    def set_norm_piece(self, color):
-        self.norm[color] = [0 for _ in range(self.num)]
-
-        if self.enc_type == 0:
-            self.norm[color][0] = 3
-        elif self.enc_type == 2:
-            self.norm[color][0] = 2
-        else:
-            self.norm[color][0] = self.enc_type - 1
-
-        i = self.norm[color][0]
-        while i < self.num:
-            j = i
-            while j < self.num and self.pieces[color][j] == self.pieces[color][i]:
-                self.norm[color][i] += 1
-                j += 1
-            i += self.norm[color][i]
-
-    def calc_factors_piece(self, color, order):
-        self.factor[color] = [0, 0, 0, 0, 0, 0]
-
-        PIVFAC = [31332, 28056, 462]
-
-        n = 64 - self.norm[color][0]
-
-        f = 1
-        i = self.norm[color][0]
-        k = 0
-        while i < self.num or k == order:
-            if k == order:
-                self.factor[color][0] = f
-                f *= PIVFAC[self.enc_type]
-            else:
-                self.factor[color][i] = f
-                f *= subfactor(self.norm[color][i], n)
-                n -= self.norm[color][i]
-                i += self.norm[color][i]
-            k += 1
-
-        self.tb_size[color] = f
+        self.set_norm_piece(self.norm[chess.BLACK], self.pieces[chess.BLACK])
+        self.tb_size[chess.BLACK] = self.calc_factors_piece(self.factor[chess.BLACK], order, self.norm[chess.BLACK])
 
     def probe_wdl_table(self, board):
         key = calc_key(board)
@@ -1037,10 +1040,42 @@ class WdlTable(Table):
         tmp[s] = 1
 
 
+class DtzTable(Table):
+
+    def __init__(self, directory, filename):
+        super(DtzTable, self).__init__(directory, filename, ".rtbz")
+        self.init_table_dtz()
+
+    def init_table_dtz(self):
+        self.factor = [0, 0, 0, 0, 0, 0]
+        self.norm = [0 for _ in range(self.num)]
+        self.tb_size = [0]
+
+        assert DTZ_MAGIC[0] == self.read_ubyte(0)
+        assert DTZ_MAGIC[1] == self.read_ubyte(1)
+        assert DTZ_MAGIC[2] == self.read_ubyte(2)
+        assert DTZ_MAGIC[3] == self.read_ubyte(3)
+
+        files = 4 if self.read_ubyte(4) & 0x02 else 1
+
+        p_data = 5
+
+        if not self.has_pawns:
+            self.setup_pieces_piece_dtz(p_data, 0)
+        # XXX
+
+    def setup_pieces_piece_dtz(self, p_data, p_tb_size):
+        self.pieces = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
+        order = self.read_ubyte(p_data) & 0x0f
+        self.set_norm_piece(self.norm, self.pieces)
+        self.tb_size[p_tb_size] = self.calc_factors_piece(self.factor, order, self.norm)
+
+
 class Tablebases(object):
 
     def __init__(self, directory=None):
         self.wdl = {}
+        self.dtz = {}
 
         if directory:
             self.open_directory(directory)
@@ -1055,10 +1090,14 @@ class Tablebases(object):
                 self.wdl[wdl_table.mirrored_key] = wdl_table
 
                 num += 1
+
+                dtz_table = DtzTable(directory, filename)
+                self.dtz[dtz_table.key] = dtz_table
+                self.dtz[dtz_table.mirrored_key] = dtz_table
+
+                num += 1
             except IOError:
                 pass
-
-            # TODO: Load DTZ tables.
 
         return num
 
