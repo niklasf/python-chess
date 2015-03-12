@@ -366,6 +366,23 @@ def subfactor(k, n):
     return f // l
 
 
+def _bb(board, piece_type, color):
+    if piece_type == chess.PAWN:
+        bb = board.pawns
+    elif piece_type == chess.KNIGHT:
+        bb = board.knights
+    elif piece_type == chess.BISHOP:
+        bb = board.bishops
+    elif piece_type == chess.ROOK:
+        bb = board.rooks
+    elif piece_type == chess.QUEEN:
+        bb = board.queens
+    elif piece_type == chess.KING:
+        bb = board.kings
+
+    return bb & board.occupied_co[color]
+
+
 class PairsData(object):
     def __init__(self):
         self.indextable = None
@@ -749,7 +766,7 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = self._bb(board, piece_type, color)
+                bb = _bb(board, piece_type, color)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -765,7 +782,7 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = self._bb(board, piece_type, color)
+            bb = _bb(board, piece_type, color)
 
             square = chess.bit_scan(bb)
             while square != -1 and square is not None:
@@ -778,7 +795,7 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = self._bb(board, piece_type, color)
+                bb = _bb(board, piece_type, color)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -799,22 +816,6 @@ class WdlTable(Table):
             i += 1
 
         return FILE_TO_FILE[pos[0] & 0x07]
-
-    def _bb(self, board, piece_type, color):
-        if piece_type == chess.PAWN:
-            bb = board.pawns
-        elif piece_type == chess.KNIGHT:
-            bb = board.knights
-        elif piece_type == chess.BISHOP:
-            bb = board.bishops
-        elif piece_type == chess.ROOK:
-            bb = board.rooks
-        elif piece_type == chess.QUEEN:
-            bb = board.queens
-        elif piece_type == chess.KING:
-            bb = board.kings
-
-        return bb & board.occupied_co[color]
 
     def encode_piece(self, norm, pos, factor):
         n = self.num
@@ -1117,7 +1118,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = self._bb(board, piece_type, color)
+                bb = _bb(board, piece_type, color)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
