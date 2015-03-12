@@ -1456,10 +1456,16 @@ class SyzygyTestCase(unittest.TestCase):
         with open("data/endgame.epd") as epds:
             for line, epd in enumerate(epds):
                 extra = board.set_epd(epd)
-                wdl = tablebases.probe_wdl_table(board)
+
+                wdl_table = tablebases.probe_wdl_table(board)
                 self.assertEqual(
-                    wdl, extra["wdl_table"],
-                    "Expecting WDL %d for %s, got %d (at line %d)" % (extra["wdl_table"], board.fen(), wdl, line + 1))
+                    wdl_table, extra["wdl_table"],
+                    "Expecting wdl_table %d for %s, got %d (at line %d)" % (extra["wdl_table"], board.fen(), wdl_table, line + 1))
+
+                wdl = tablebases.probe_wdl(board)
+                self.assertEqual(
+                    wdl, extra["wdl"],
+                    "Expecting wdl %d for %s, got %d (at line %d)" % (extra["wdl"], board.fen(), wdl, line + 1))
 
         tablebases.close()
 
