@@ -1073,8 +1073,42 @@ class Tablebases(object):
 
         return self.wdl[key].probe_wdl_table(board)
 
+    def probe_ab(self, board, alpha, beta):
+        for move in board.generate_pseudo_legal_moves():
+            # Only look at non-ep captures.
+            if not board.piece_type_at(move.to_square):
+                continue
+
+            # Do the move.
+            board.push(move)
+
+            # Only look at legal moves.
+            if board.was_into_check():
+                board.pop()
+                continue
+
+            v = -self.probe_ab(board, -beta, -alpha)
+            board.pop()
+
+            if v is None:
+                return None
+
+            if v > alpha:
+                if v >= beta:
+                    return v
+                alpha = v
+
+        v = self.probe_wdl_table(board)
+        if v is None:
+            return None
+
+        if alpha >= v:
+            return alpha
+        else:
+            return v
+
     def probe_wdl(self, board):
-        return self.probe_wdl_table(board)
+        return self.probe_ab(board, -2, 2)
 
     def close(self):
         while self.wdl:
