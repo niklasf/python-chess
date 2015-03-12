@@ -430,7 +430,7 @@ class Table(object):
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
 
-        self._flags = self.read_ubyte(data_ptr)
+        self.flags = self.read_ubyte(data_ptr)
         if self.read_ubyte(data_ptr) & 0x80:
             d.idxbits = 0
             if wdl:
@@ -522,6 +522,20 @@ class Table(object):
 
         return f
 
+    def calc_symlen(self, d, s, tmp):
+        w = d.sympat + 3 * s
+        s2 = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
+        if s2 == 0x0fff:
+            d.symlen[s] = 0
+        else:
+            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
+            if not tmp[s1]:
+                self.calc_symlen(d, s1, tmp)
+            if not tmp[s2]:
+                self.calc_symlen(d, s2, tmp)
+            d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
+        tmp[s] = 1
+
     def read_uint64(self, data_ptr):
         return UINT64.unpack_from(self.data, data_ptr)[0]
 
@@ -564,7 +578,7 @@ class WdlTable(Table):
         self.files = [PawnFileData() for f in range(4)]
 
         self._next = None
-        self._flags = None
+        self.flags = None
 
         assert WDL_MAGIC[0] == self.read_ubyte(0)
         assert WDL_MAGIC[1] == self.read_ubyte(1)
@@ -1025,20 +1039,6 @@ class WdlTable(Table):
 
         return self.read_ubyte(sympat + 3 * sym)
 
-    def calc_symlen(self, d, s, tmp):
-        w = d.sympat + 3 * s
-        s2 = (self.read_ubyte(w + 2) << 4) | (self.read_ubyte(w + 1) >> 4)
-        if s2 == 0x0fff:
-            d.symlen[s] = 0
-        else:
-            s1 = ((self.read_ubyte(w + 1) & 0xf) << 8) | self.read_ubyte(w)
-            if not tmp[s1]:
-                self.calc_symlen(d, s1, tmp)
-            if not tmp[s2]:
-                self.calc_symlen(d, s2, tmp)
-            d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
-        tmp[s] = 1
-
 
 class DtzTable(Table):
 
@@ -1049,7 +1049,8 @@ class DtzTable(Table):
     def init_table_dtz(self):
         self.factor = [0, 0, 0, 0, 0, 0]
         self.norm = [0 for _ in range(self.num)]
-        self.tb_size = [0]
+        self.tb_size = [0, 0, 0, 0]
+        self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         assert DTZ_MAGIC[0] == self.read_ubyte(0)
         assert DTZ_MAGIC[1] == self.read_ubyte(1)
@@ -1061,8 +1062,33 @@ class DtzTable(Table):
         p_data = 5
 
         if not self.has_pawns:
+            self.map_idx = [0, 0, 0, 0]
+
             self.setup_pieces_piece_dtz(p_data, 0)
-        # XXX
+            p_data += self.num + 1
+            p_data += p_data & 0x01
+
+            self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
+            p_data = self._next
+            self.p_map = p_data
+            if self.flags & 2:
+                for i in range(4):
+                    self.map_idx[i] = p_data + 1 - self.p_map
+                    p_data += 1 + self.read_ubyte(p_data)
+                p_data += p_data & 0x01
+
+            self.precomp.indextable = p_data
+            p_data += self.size[0]
+
+            self.precomp.sizetable = p_data
+            p_data += self.size[1]
+
+            p_data = (p_data + 0x3f) & ~0x3f
+            self.precomp.data = p_data
+            p_data += self.size[2]
+        else:
+            # TODO: Implement
+            pass
 
     def setup_pieces_piece_dtz(self, p_data, p_tb_size):
         self.pieces = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
