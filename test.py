@@ -1453,13 +1453,8 @@ class SyzygyTestCase(unittest.TestCase):
 
         board = chess.Bitboard()
 
-        exceptions = ["8/2K5/8/8/8/8/3p4/1k2N3 b - - 0 1"]
-
         with open("data/endgame.epd") as epds:
             for line, epd in enumerate(epds):
-                if epd.startswith("#"):
-                    continue
-
                 extra = board.set_epd(epd)
                 wdl = tablebases.probe_wdl_table(board)
                 self.assertEqual(
