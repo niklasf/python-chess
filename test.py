@@ -1429,6 +1429,15 @@ class SyzygyTestCase(unittest.TestCase):
 
         wdl.close()
 
+    def test_probe_dtz_table(self):
+        dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
+
+        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
+        self.assertEqual(dtz.probe_dtz_table(board, 2), 0)
+        self.assertEqual(dtz.probe_dtz_table(board, -2), 8)
+
+        dtz.close()
+
     def test_probe_wdl_tablebase(self):
         tablebases = chess.syzygy.Tablebases()
         self.assertEqual(tablebases.open_directory("data/syzygy"), 70)
