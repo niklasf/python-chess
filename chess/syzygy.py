@@ -358,7 +358,7 @@ def subfactor(k, n):
     l = 1
     i = 1
     while i < k:
-        f += n - i
+        f *= n - i
         l *= i + 1
         i += 1
 
