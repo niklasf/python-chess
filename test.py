@@ -1434,7 +1434,7 @@ class SyzygyTestCase(unittest.TestCase):
 
         # Pawnless position with white to move.
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
-        self.assertEqual(dtz.probe_dtz_table(board, 2), None)
+        self.assertEqual(dtz.probe_dtz_table(board, 2), (0, -1))
 
         # Same position with black to move.
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")

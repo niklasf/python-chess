@@ -1155,8 +1155,7 @@ class DtzTable(Table):
 
         if not self.has_pawns:
             if (self.flags & 1) != bside and not self.symmetric:
-                # success = -1
-                return None
+                return 0, -1
 
             pc = self.pieces
             p = [0, 0, 0, 0, 0, 0]
@@ -1195,8 +1194,7 @@ class DtzTable(Table):
                 square = chess.bit_scan(bb, square + 1)
             f = self.pawn_file(p)
             if self.flags[f] & 1 != bside:
-                # success = -1
-                return None
+                return 0, -1
 
             pc = self.files[f].pieces
             while i < self.num:
@@ -1295,25 +1293,27 @@ class Tablebases(object):
                 board.pop()
                 continue
 
-            v = -self.probe_ab(board, -beta, -alpha)
+            v_plus, success = self.probe_ab(board, -beta, -alpha)
             board.pop()
 
-            if v is None:
-                return None
+            if v_plus is None or not success:
+                return None, 0
+
+            v = -v_plus
 
             if v > alpha:
                 if v >= beta:
-                    return v
+                    return v, 2
                 alpha = v
 
         v = self.probe_wdl_table(board)
         if v is None:
-            return None
+            return None, 0
 
         if alpha >= v:
-            return alpha
+            return alpha, 1 + int(alpha > 0)
         else:
-            return v
+            return v, 1
 
     def probe_wdl(self, board):
         # Positions with castling rights are not in the tablebase.
@@ -1321,8 +1321,8 @@ class Tablebases(object):
             return None
 
         # Probe.
-        v = self.probe_ab(board, -2, 2)
-        if v is None:
+        v, success = self.probe_ab(board, -2, 2)
+        if v is None or not success:
             return None
 
         # If en-passant is not possible, we are done.
@@ -1347,11 +1347,13 @@ class Tablebases(object):
                 board.pop()
                 continue
 
-            v0 = -self.probe_ab(board, -2, 2)
+            v0_plus, success = self.probe_ab(board, -2, 2)
             board.pop()
 
-            if v0 is None:
+            if v0_plus is None or not success:
                 return None
+
+            v0 = -v0_plus
 
             if v0 > v1:
                 v1 = v0
@@ -1377,6 +1379,110 @@ class Tablebases(object):
                         v = v1
 
         return v
+
+    def probe_dtz_table(self, board):
+        key = calc_key(board)
+
+        if not key in self.dtz:
+            return None, 0
+
+        return self.dtz[key].probe_dtz_table(board)
+
+    def probe_dtz_no_ep(self, board):
+        wdl, success = self.probe_ab(board, -2, 2)
+        if wdl is None or not success:
+            return None
+
+        if wdl == 0:
+            return 0
+
+        if success == 2:
+            return 1 if wdl == 2 else 101
+
+        if wdl > 0:
+            # Generate all legal non capturing pawn moves.
+            for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+                diff = abs(move.to_square - move.from_square)
+                if diff == 7 or diff == 9:
+                    continue
+
+                board.push(move)
+                if board.was_into_check():
+                    board.pop()
+                    continue
+
+                v_plus, success = self.probe_ab(board, -2, -wdl + 1)
+                board.pop()
+
+                if v_plus is None or not success:
+                    return None
+
+                v = -v_plus
+
+                if v == wdl:
+                    return 1 if v == 2 else 101
+
+        dtz, success = self.probe_dtz_table(board, wdl)
+        dtz += 1
+
+        if success >= 0:
+            if wdl & 1:
+                dtz += 100
+            return dtz if wdl >= 0 else -dtz
+
+        if wdl > 0:
+            best = 0xffff
+
+            for move in board.generate_pseudo_legal_moves(pawns=False):
+                if board.piece_type_at(move.to_square) != chess.NONE:
+                    continue
+
+                board.push(move)
+                if board.was_into_check():
+                    board.pop()
+                    continue
+
+                v_plus = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                board.pop()
+
+                if v_plus is None:
+                    return None
+
+                v = -v_plus
+
+                if v > 0 and v + 1 < best:
+                    best = v + 1
+
+            return best
+        else:
+            best = -1
+
+            for move in board.generate_pseudo_legal_moves():
+                board.push(move)
+                if board.was_into_check():
+                    board.pop()
+                    continue
+
+                if board.halfmove_clock == 0:
+                    if wdl == -2:
+                        v = -1
+                    else:
+                        v, success = self.probe_ab(board, 1, 2)
+                        if v is None or not success:
+                            return None
+
+                        v = 0 if v == 2 else -101
+                else:
+                    v_plus = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                    if v_plus is None:
+                        return NOne
+
+                    v = -v_plus
+
+                if v < best:
+                    best = v
+
+            return best
 
     def close(self):
         while self.wdl:
