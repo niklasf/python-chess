@@ -1442,7 +1442,7 @@ class Tablebases(object):
                     board.pop()
                     continue
 
-                v_plus = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                v_plus = self.probe_dtz(board)
                 board.pop()
 
                 if v_plus is None:
@@ -1474,7 +1474,7 @@ class Tablebases(object):
 
                         v = 0 if v == 2 else -101
                 else:
-                    v_plus_one = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                    v_plus_one = self.probe_dtz(board)
                     if v_plus_one is None:
                         board.pop()
                         return None
@@ -1487,6 +1487,71 @@ class Tablebases(object):
                     best = v
 
             return best
+
+    def probe_dtz(self, board):
+        v = self.probe_dtz_no_ep(board)
+        if v is None:
+            return None
+
+        if not board.ep_square:
+            return v
+
+        v1 = -3
+
+        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+            # Filter out non-en-passant moves.
+            diff = abs(move.to_square - move.from_square)
+            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+                continue
+
+            board.push(move)
+            if board.was_into_check():
+                board.pop()
+                continue
+
+            v0_plus, success = self.probe_ab(board, -2, 2)
+            board.pop()
+
+            if v0_plus is None or not success:
+                return None
+
+            v0 = -v0_plus
+
+            if v0 > v1:
+                v1 = v0
+
+        if v1 > -3:
+            v1 = WDL_TO_DTZ[v1 + 2]
+            if v < -100:
+                if v1 >= 0:
+                    v = v1
+            elif v < 0:
+                if v1 >= 0 or v1 < 100:
+                    v = v1
+            elif v > 100:
+                if v1 > 0:
+                    v = v1
+            elif v > 0:
+                if v1 == 1:
+                    v = v1
+            elif v1 >= 0:
+                v = v1
+            else:
+                found_move = False
+                for move in board.generate_legal_moves():
+                    if board.piece_type_at(move.from_square) != chess.PAWN:
+                        found_move = True
+                        break
+
+                    diff = abs(move.to_square - move.from_square)
+                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+                        found_move = True
+                        break
+
+                if not found_move:
+                    v = v1
+
+        return v
 
     def close(self):
         while self.wdl:
