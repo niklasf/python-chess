@@ -921,7 +921,7 @@ class WdlTable(Table):
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
                 self.precomp[chess.BLACK].data = data_ptr
         else:
-            s = 1 + int(self.pawns[chess.BLACK] > 0)
+            s = 1 + int(self.pawns[1] > 0)
             for f in range(4):
                 self.setup_pieces_pawn(data_ptr, 2 * f, f)
                 data_ptr += self.num + s
@@ -1111,7 +1111,7 @@ class DtzTable(Table):
             self.flags = []
             for f in range(files):
                 self.files[f].precomp = self.setup_pairs(p_data, self.tb_size[f], 3 * f, False)
-                data = self._next
+                p_data = self._next
                 self.flags.append(self._flags)
 
             self.map_idx = []
