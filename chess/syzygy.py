@@ -253,6 +253,10 @@ for i in range(5):
         j += 1
     PFACTOR[i][3] = s
 
+WDL_TO_MAP = [1, 3, 0, 2, 0]
+
+PA_FLAGS = [8, 0, 0, 0, 4]
+
 PCHR = ["K", "Q", "R", "B", "N", "P"]
 
 
@@ -1101,14 +1105,13 @@ class DtzTable(Table):
                 bside = int(board.turn == chess.WHITE)
             else:
                 cmirror = mirror = 0
-                bside = int(board.turn != chess.BLACK)
+                bside = int(board.turn != chess.WHITE)
         else:
             cmirror = 0 if board.turn == chess.WHITE else 8
             mirror = 0 if  board.turn == chess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
-            # TODO: Investigate.
             if (self.flags & 1) != bside and not self.symmetric:
                 return None
 
@@ -1136,6 +1139,8 @@ class DtzTable(Table):
                 res *= 2
         else:
             assert False, "TODO: Implement"
+
+        return res
 
     def setup_pieces_piece_dtz(self, p_data, p_tb_size):
         self.pieces = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
