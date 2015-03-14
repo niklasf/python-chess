@@ -1501,6 +1501,11 @@ class SyzygyTestCase(unittest.TestCase):
                     wdl, extra["wdl"],
                     "Expecting wdl %d for %s, got %d (at line %d)" % (extra["wdl"], board.fen(), wdl, line + 1))
 
+                dtz = tablebases.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                self.assertEqual(
+                    dtz, extra["dtz"],
+                    "Expecting dtz %d for %s, got %d (at line %d)" % (extra["dtz"], board.fen(), dtz, line + 1))
+
         tablebases.close()
 
 
