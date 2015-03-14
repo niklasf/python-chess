@@ -1242,29 +1242,34 @@ class DtzTable(Table):
 
 class Tablebases(object):
 
-    def __init__(self, directory=None):
+    def __init__(self, directory=None, load_dtz=True):
         self.wdl = {}
         self.dtz = {}
 
         if directory:
-            self.open_directory(directory)
+            self.open_directory(directory, load_dtz)
 
-    def open_directory(self, directory):
+    def open_directory(self, directory, load_dtz=True):
         num = 0
 
         for filename in filenames():
             try:
                 wdl_table = WdlTable(directory, filename)
+                if wdl_table.key in self.wdl:
+                    self.wdl[wdl_table.key].close()
                 self.wdl[wdl_table.key] = wdl_table
                 self.wdl[wdl_table.mirrored_key] = wdl_table
 
                 num += 1
 
-                dtz_table = DtzTable(directory, filename)
-                self.dtz[dtz_table.key] = dtz_table
-                self.dtz[dtz_table.mirrored_key] = dtz_table
+                if load_dtz:
+                    dtz_table = DtzTable(directory, filename)
+                    if dtz_table.key in self.dtz:
+                        self.dtz[dtz_table.key].close()
+                    self.dtz[dtz_table.key] = dtz_table
+                    self.dtz[dtz_table.mirrored_key] = dtz_table
 
-                num += 1
+                    num += 1
             except IOError:
                 pass
 
