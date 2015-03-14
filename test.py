@@ -1429,14 +1429,24 @@ class SyzygyTestCase(unittest.TestCase):
 
         wdl.close()
 
-    def test_probe_dtz_table(self):
+    def test_probe_dtz_table_piece(self):
         dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
 
+        # Pawnless position with white to move.
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
         self.assertEqual(dtz.probe_dtz_table(board, 2), None)
 
+        # Same position with black to move.
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
         self.assertEqual(dtz.probe_dtz_table(board, -2), 8)
+
+        dtz.close()
+
+    def test_probe_dtz_table_pawn(self):
+        dtz = chess.syzygy.DtzTable("data/syzygy", "KNvKP")
+
+        board = chess.Bitboard("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
+        self.assertEqual(dtz.probe_dtz_table(board, 2), 2)
 
         dtz.close()
 

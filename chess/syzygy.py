@@ -459,7 +459,7 @@ class Table(object):
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
 
-        self.flags = self.read_ubyte(data_ptr)
+        self._flags = self.read_ubyte(data_ptr)
         if self.read_ubyte(data_ptr) & 0x80:
             d.idxbits = 0
             if wdl:
@@ -602,6 +602,15 @@ class Table(object):
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
+    def pawn_file(self, pos):
+        i = 1
+        while i < self.pawns[0]:
+            if FLAP[pos[0]] > FLAP[pos[i]]:
+                pos[0], pos[i] = pos[i], pos[0]
+            i += 1
+
+        return FILE_TO_FILE[pos[0] & 0x07]
+
     def encode_piece(self, norm, pos, factor):
         n = self.num
 
@@ -674,6 +683,84 @@ class Table(object):
                 while l < i:
                     j += int(p > pos[l])
                     l += 1
+                s += BINOMIAL[m - i][p - j]
+                m += 1
+
+            idx += s * factor[i]
+            i += t
+
+        return idx
+
+    def encode_pawn(self, norm, pos, factor):
+        n = self.num
+
+        if pos[0] & 0x04:
+            for i in range(n):
+                pos[i] ^= 0x07
+
+        i = 1
+        while i < self.pawns[0]:
+            j = i + 1
+            while j < self.pawns[0]:
+                if PTWIST[pos[i]] < PTWIST[pos[j]]:
+                    pos[i], pos[j] = pos[j], pos[i]
+                j += 1
+            i += 1
+
+        t = self.pawns[0] - 1
+        idx = PAWNIDX[t][FLAP[pos[0]]]
+        i = t
+        while i > 0:
+            idx += BINOMIAL[t - i][PTWIST[pos[i]]]
+            i -= 1
+        idx *= factor[0]
+
+        # Remaining pawns.
+        i = self.pawns[0]
+        t = i + self.pawns[1]
+        if t > i:
+            j = i
+            while j < t:
+                k = j + 1
+                while k < t:
+                    if pos[j] > pos[k]:
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+            s = 0
+            m = i
+            while m < t:
+                p = pos[m]
+                k = 0
+                j = 0
+                while k < i:
+                    j += int(p > pos[k])
+                    k += 1
+                s += BINOMIAL[m - i][p - j - 8]
+                m += 1
+            idx += s * factor[i]
+            i = t
+
+        while i < n:
+            t = norm[i]
+            j = i
+            while j < i + t:
+                k = j + 1
+                while k < i + t:
+                    if pos[j] > pos[k]:
+                        pos[j], pos[k] = pos[k], pos[j]
+                    k += 1
+                j += 1
+            s = 0
+
+            m = i
+            while m < i + t:
+                p = pos[m]
+                k = 0
+                j = 0
+                while k < i:
+                    j += int(p > pos[k])
+                    k += 1
                 s += BINOMIAL[m - i][p - j]
                 m += 1
 
@@ -789,6 +876,7 @@ class WdlTable(Table):
         self.files = [PawnFileData() for f in range(4)]
 
         self._next = None
+        self._flags = None
         self.flags = None
 
         assert WDL_MAGIC[0] == self.read_ubyte(0)
@@ -964,93 +1052,6 @@ class WdlTable(Table):
 
         return res - 2
 
-    def pawn_file(self, pos):
-        i = 1
-        while i < self.pawns[0]:
-            if FLAP[pos[0]] > FLAP[pos[i]]:
-                pos[0], pos[i] = pos[i], pos[0]
-            i += 1
-
-        return FILE_TO_FILE[pos[0] & 0x07]
-
-    def encode_pawn(self, norm, pos, factor):
-        n = self.num
-
-        if pos[0] & 0x04:
-            for i in range(n):
-                pos[i] ^= 0x07
-
-        i = 1
-        while i < self.pawns[0]:
-            j = i + 1
-            while j < self.pawns[0]:
-                if PTWIST[pos[i]] < PTWIST[pos[j]]:
-                    pos[i], pos[j] = pos[j], pos[i]
-                j += 1
-            i += 1
-
-        t = self.pawns[0] - 1
-        idx = PAWNIDX[t][FLAP[pos[0]]]
-        i = t
-        while i > 0:
-            idx += BINOMIAL[t - i][PTWIST[pos[i]]]
-            i -= 1
-        idx *= factor[0]
-
-        # Remaining pawns.
-        i = self.pawns[0]
-        t = i + self.pawns[1]
-        if t > i:
-            j = i
-            while j < t:
-                k = j + 1
-                while k < t:
-                    if pos[j] > pos[k]:
-                        pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
-            s = 0
-            m = i
-            while m < t:
-                p = pos[m]
-                k = 0
-                j = 0
-                while k < i:
-                    j += int(p > pos[k])
-                    k += 1
-                s += BINOMIAL[m - i][p - j - 8]
-                m += 1
-            idx += s * factor[i]
-            i = t
-
-        while i < n:
-            t = norm[i]
-            j = i
-            while j < i + t:
-                k = j + 1
-                while k < i + t:
-                    if pos[j] > pos[k]:
-                        pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
-            s = 0
-
-            m = i
-            while m < i + t:
-                p = pos[m]
-                k = 0
-                j = 0
-                while k < i:
-                    j += int(p > pos[k])
-                    k += 1
-                s += BINOMIAL[m - i][p - j]
-                m += 1
-
-            idx += s * factor[i]
-            i += t
-
-        return idx
-
 
 class DtzTable(Table):
 
@@ -1082,6 +1083,7 @@ class DtzTable(Table):
             p_data += p_data & 0x01
 
             self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
+            self.flags = self._flags
             p_data = self._next
             self.p_map = p_data
             if self.flags & 2:
@@ -1104,8 +1106,36 @@ class DtzTable(Table):
             for f in range(4):
                 self.setup_pieces_pawn_dtz(p_data, f, f)
                 p_data += self.num + s
-            # TODO: Implement
-            pass
+            p_data += p_data & 0x01
+
+            self.flags = []
+            for f in range(files):
+                self.files[f].precomp = self.setup_pairs(p_data, self.tb_size[f], 3 * f, False)
+                data = self._next
+                self.flags.append(self._flags)
+
+            self.map_idx = []
+            self.p_map = p_data
+            for f in range(files):
+                self.map_idx.append([])
+                if self.flags[f] & 2:
+                    for i in range(4):
+                        self.map_idx[-1].append(p_data + 1 - self.p_map)
+                        p_data += 1 + self.read_ubyte(p_data)
+            p_data += p_data & 0x01
+
+            for f in range(files):
+                self.files[f].precomp.indextable = p_data
+                p_data += self.size[3 * f]
+
+            for f in range(files):
+                self.files[f].precomp.sizetable = p_data
+                p_data += self.size[3 * f + 1]
+
+            for f in range(files):
+                p_data = (p_data + 0x3f) & ~0x3f
+                self.files[f].precomp.data = p_data
+                p_data += self.size[3 * f + 2]
 
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
@@ -1125,6 +1155,7 @@ class DtzTable(Table):
 
         if not self.has_pawns:
             if (self.flags & 1) != bside and not self.symmetric:
+                # success = -1
                 return None
 
             pc = self.pieces
@@ -1150,7 +1181,43 @@ class DtzTable(Table):
             if (not (self.flags & PA_FLAGS[wdl + 2])) or (wdl & 1):
                 res *= 2
         else:
-            assert False, "TODO: Implement"
+            k = self.files[0].pieces[0] ^ cmirror
+            piece_type = k & 0x07
+            color = k >> 3
+            bb = _bb(board, piece_type, color)
+
+            i = 0
+            p = [0, 0, 0, 0, 0, 0]
+            square = chess.bit_scan(bb)
+            while square != -1 and square is not None:
+                p[i] = square ^ mirror
+                i += 1
+                square = chess.bit_scan(bb, square + 1)
+            f = self.pawn_file(p)
+            if self.flags[f] & 1 != bside:
+                # success = -1
+                return None
+
+            pc = self.files[f].pieces
+            while i < self.num:
+                piece_type = pc[i] & 0x07
+                color = (pc[i] ^ cmirror) >> 3
+                bb = _bb(board, piece_type, color)
+
+                square = chess.bit_scan(bb)
+                while square != -1 and square is not None:
+                    p[i] = square ^ mirror
+                    i += 1
+                    square = chess.bit_scan(bb, square + 1)
+
+            idx = self.encode_pawn(self.files[f].norm, p, self.files[f].factor)
+            res = self.decompress_pairs(self.files[f].precomp, idx)
+
+            if self.flags[f] & 2:
+                res = self.read_ubyte(self.p_map + self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res)
+
+            if (not (self.flags[f] & PA_FLAGS[wdl + 2])) or (wdl & 1):
+                res *= 2
 
         return res
 
