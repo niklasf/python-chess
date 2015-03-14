@@ -409,6 +409,14 @@ class PawnFileData(object):
         self.norm = {}
 
 
+class PawnFileDataDtz(object):
+    def __init__(self):
+        self.precomp = None
+        self.factor = None
+        self.pieces = None
+        self.norm = None
+
+
 class Table(object):
 
     def __init__(self, directory, filename, suffix):
@@ -542,6 +550,43 @@ class Table(object):
             k += 1
 
         return f
+
+    def calc_factors_pawn(self, factor, order, order2, norm, f):
+        i = norm[0]
+        if order2 < 0x0f:
+            i += norm[i]
+        n = 64 - i
+
+        fac = 1
+        k = 0
+        while i < self.num or k == order or k == order2:
+            if k == order:
+                factor[0] = fac
+                fac *= PFACTOR[norm[0] - 1][f]
+            elif k == order2:
+                factor[norm[0]] = fac
+                fac *= subfactor(norm[norm[0]], 48 - norm[0])
+            else:
+                factor[i] = fac
+                fac *= subfactor(norm[i], n)
+                n -= norm[i]
+                i += norm[i]
+            k += 1
+
+        return fac
+
+    def set_norm_pawn(self, norm, pieces):
+        norm[0] = self.pawns[0]
+        if self.pawns[1]:
+            norm[self.pawns[0]] = self.pawns[1]
+
+        i = self.pawns[0] + self.pawns[1]
+        while i < self.num:
+            j = i
+            while j < self.num and pieces[j] == pieces[i]:
+                norm[i] += 1
+                j += 1
+            i += norm[i]
 
     def calc_symlen(self, d, s, tmp):
         w = d.sympat + 3 * s
@@ -831,56 +876,18 @@ class WdlTable(Table):
         order = self.read_ubyte(p_data) & 0x0f
         order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[chess.BLACK] else 0x0f
         self.files[f].pieces[chess.WHITE] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
-        self.set_norm_pawn(f, chess.WHITE)
-        self.calc_factors_pawn(p_tb_size, f, chess.WHITE, order, order2)
+        self.files[f].norm[chess.WHITE] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[chess.WHITE], self.files[f].pieces[chess.WHITE])
+        self.files[f].factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[chess.WHITE], order, order2, self.files[f].norm[chess.WHITE], f)
 
         order = self.read_ubyte(p_data) >> 4
         order2 = self.read_ubyte(p_data + 1) >> 4 if self.pawns[1] else 0x0f
         self.files[f].pieces[chess.BLACK] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
-        self.set_norm_pawn(f, chess.BLACK)
-        self.calc_factors_pawn(p_tb_size, f, chess.BLACK, order, order2)
-
-    def calc_factors_pawn(self, p_tb_size, f, color, order, order2):
-        self.files[f].factor[color] = [0, 0, 0, 0, 0, 0]
-
-        i = self.files[f].norm[color][0]
-        if order2 < 0x0f:
-            i += self.files[f].norm[color][i]
-        n = 64 - i
-
-        fac = 1
-        k = 0
-        while i < self.num or k == order or k == order2:
-            if k == order:
-                self.files[f].factor[color][0] = fac
-                fac *= PFACTOR[self.files[f].norm[color][0] - 1][f]
-            elif k == order2:
-                self.files[f].factor[color][self.files[f].norm[color][0]] = fac
-                fac *= subfactor(self.files[f].norm[color][self.files[f].norm[color][0]], 48 - self.files[f].norm[color][0])
-            else:
-                self.files[f].factor[color][i] = fac
-                fac *= subfactor(self.files[f].norm[color][i], n)
-                n -= self.files[f].norm[color][i]
-                i += self.files[f].norm[color][i]
-            k += 1
-
-        self.tb_size[p_tb_size + color] = fac
-
-    def set_norm_pawn(self, f, color):
-        self.files[f].norm[color] = [0 for _ in range(self.num)]
-
-        self.files[f].norm[color][0] = self.pawns[0]
-        if self.pawns[1]:
-            self.files[f].norm[color][self.pawns[0]] = self.pawns[1]
-
-        i = self.pawns[0] + self.pawns[1]
-        while i < self.num:
-            j = i
-            while j < self.num and self.files[f].pieces[color][j] == self.files[f].pieces[color][i]:
-                self.files[f].norm[color][i] += 1
-                j += 1
-            i += self.files[f].norm[color][i]
-
+        self.files[f].norm[chess.BLACK] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[chess.BLACK], self.files[f].pieces[chess.BLACK])
+        self.files[f].factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[chess.BLACK], order, order2, self.files[f].norm[chess.BLACK], f)
 
     def setup_pieces_piece(self, p_data):
         self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
@@ -1056,6 +1063,7 @@ class DtzTable(Table):
         self.norm = [0 for _ in range(self.num)]
         self.tb_size = [0, 0, 0, 0]
         self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.files = [PawnFileDataDtz() for f in range(4)]
 
         assert DTZ_MAGIC[0] == self.read_ubyte(0)
         assert DTZ_MAGIC[1] == self.read_ubyte(1)
@@ -1092,6 +1100,10 @@ class DtzTable(Table):
             self.precomp.data = p_data
             p_data += self.size[2]
         else:
+            s = 1 + int(self.pawns[1] > 0)
+            for f in range(4):
+                self.setup_pieces_pawn_dtz(p_data, f, f)
+                p_data += self.num + s
             # TODO: Implement
             pass
 
@@ -1147,6 +1159,18 @@ class DtzTable(Table):
         order = self.read_ubyte(p_data) & 0x0f
         self.set_norm_piece(self.norm, self.pieces)
         self.tb_size[p_tb_size] = self.calc_factors_piece(self.factor, order, self.norm)
+
+    def setup_pieces_pawn_dtz(self, p_data, p_tb_size, f):
+        j = 1 + int(self.pawns[1] > 0)
+        order = self.read_ubyte(p_data) & 0x0f
+        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[1] else 0x0f
+        self.files[f].pieces = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
+
+        self.files[f].norm = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm, self.files[f].pieces)
+
+        self.files[f].factor = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor, order, order2, self.files[f].norm, f)
 
 
 class Tablebases(object):
