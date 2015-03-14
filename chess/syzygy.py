@@ -1217,7 +1217,7 @@ class DtzTable(Table):
             if (not (self.flags[f] & PA_FLAGS[wdl + 2])) or (wdl & 1):
                 res *= 2
 
-        return res
+        return res, 1
 
     def setup_pieces_piece_dtz(self, p_data, p_tb_size):
         self.pieces = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
@@ -1469,15 +1469,19 @@ class Tablebases(object):
                     else:
                         v, success = self.probe_ab(board, 1, 2)
                         if v is None or not success:
+                            board.pop()
                             return None
 
                         v = 0 if v == 2 else -101
                 else:
-                    v_plus = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
-                    if v_plus is None:
-                        return NOne
+                    v_plus_one = self.probe_dtz_no_ep(board) # TODO: Change to probe_dtz
+                    if v_plus_one is None:
+                        board.pop()
+                        return None
 
-                    v = -v_plus
+                    v = -v_plus_one - 1
+
+                board.pop()
 
                 if v < best:
                     best = v
