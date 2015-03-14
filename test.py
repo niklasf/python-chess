@@ -21,6 +21,7 @@ import chess
 import chess.polyglot
 import chess.pgn
 import chess.uci
+import chess.syzygy
 import collections
 import os.path
 import textwrap
@@ -1387,6 +1388,134 @@ class UciEngineTestCase(unittest.TestCase):
             ("String option", "value value"),
         ]))
         self.mock.assert_done()
+
+
+class SyzygyTestCase(unittest.TestCase):
+
+    def test_calc_key(self):
+        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        key_from_board = chess.syzygy.calc_key(board)
+        key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
+        self.assertEqual(key_from_board, key_from_filename)
+
+    def test_probe_pawnless_wdl_table(self):
+        wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
+
+        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        self.assertEqual(wdl.probe_wdl_table(board), -2)
+
+        board = chess.Bitboard("7B/5kNK/8/8/8/8/8/8 w - - 0 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
+
+        board = chess.Bitboard("N7/8/2k5/8/7K/8/8/B7 w - - 0 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
+
+        board = chess.Bitboard("8/8/1NkB4/8/7K/8/8/8 w - - 1 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 0)
+
+        board = chess.Bitboard("8/8/8/2n5/2b1K3/2k5/8/8 w - - 0 1")
+        self.assertEqual(wdl.probe_wdl_table(board), -2)
+
+        wdl.close()
+
+    def test_probe_wdl_table(self):
+        wdl = chess.syzygy.WdlTable("data/syzygy", "KRvKP")
+
+        board = chess.Bitboard("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 0)
+
+        board = chess.Bitboard("8/8/2K5/8/4P3/8/8/3r3k b - - 1 1")
+        self.assertEqual(wdl.probe_wdl_table(board), 2)
+
+        wdl.close()
+
+    def test_probe_dtz_table_piece(self):
+        dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
+
+        # Pawnless position with white to move.
+        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
+        self.assertEqual(dtz.probe_dtz_table(board, 2), (0, -1))
+
+        # Same position with black to move.
+        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
+        self.assertEqual(dtz.probe_dtz_table(board, -2), (8, 1))
+
+        dtz.close()
+
+    def test_probe_dtz_table_pawn(self):
+        dtz = chess.syzygy.DtzTable("data/syzygy", "KNvKP")
+
+        board = chess.Bitboard("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
+        self.assertEqual(dtz.probe_dtz_table(board, 2), (2, 1))
+
+        dtz.close()
+
+    def test_probe_wdl_tablebase(self):
+        tablebases = chess.syzygy.Tablebases()
+        self.assertEqual(tablebases.open_directory("data/syzygy"), 70)
+
+        # Winning KRvKB.
+        board = chess.Bitboard("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), -2)
+
+        # Drawn KBBvK.
+        board = chess.Bitboard("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), 0)
+
+        # Winning KBBvK.
+        board = chess.Bitboard("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
+        self.assertEqual(tablebases.probe_wdl_table(board), 2)
+
+        tablebases.close()
+
+    def test_wdl_ep(self):
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+        # Winning KPvKP because of en-passant.
+        board = chess.Bitboard("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
+
+        # If there was no en-passant this would be a draw.
+        self.assertEqual(tablebases.probe_wdl_table(board), 0)
+
+        # But it is a win.
+        self.assertEqual(tablebases.probe_wdl(board), 2)
+
+        tablebases.close()
+
+    def test_dtz_ep(self):
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+        board = chess.Bitboard("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
+        self.assertEqual(tablebases.probe_dtz_no_ep(board), -1)
+        self.assertEqual(tablebases.probe_dtz(board), 1)
+
+        tablebases.close()
+
+    def test_testsuite(self):
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+        board = chess.Bitboard()
+
+        with open("data/endgame.epd") as epds:
+            for line, epd in enumerate(epds):
+                extra = board.set_epd(epd)
+
+                wdl_table = tablebases.probe_wdl_table(board)
+                self.assertEqual(
+                    wdl_table, extra["wdl_table"],
+                    "Expecting wdl_table %d for %s, got %d (at line %d)" % (extra["wdl_table"], board.fen(), wdl_table, line + 1))
+
+                wdl = tablebases.probe_wdl(board)
+                self.assertEqual(
+                    wdl, extra["wdl"],
+                    "Expecting wdl %d for %s, got %d (at line %d)" % (extra["wdl"], board.fen(), wdl, line + 1))
+
+                dtz = tablebases.probe_dtz(board)
+                self.assertEqual(
+                    dtz, extra["dtz"],
+                    "Expecting dtz %d for %s, got %d (at line %d)" % (extra["dtz"], board.fen(), dtz, line + 1))
+
+        tablebases.close()
 
 
 if __name__ == "__main__":
