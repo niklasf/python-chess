@@ -1433,7 +1433,9 @@ class SyzygyTestCase(unittest.TestCase):
         dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
 
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
-        self.assertEqual(dtz.probe_dtz_table(board, 2), 0)
+        self.assertEqual(dtz.probe_dtz_table(board, 2), None)
+
+        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
         self.assertEqual(dtz.probe_dtz_table(board, -2), 8)
 
         dtz.close()
