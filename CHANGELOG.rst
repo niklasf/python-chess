@@ -9,6 +9,8 @@ might include API breaking changes.
 Up for the next release
 -----------------------
 
+* **Implement Syzygy endgame tablebase probing.**
+
 * The interface for aynchronous UCI command has changed to mimic
   `concurrent.futures`. `is_done()` is now just `done()`. Callbacks will
   receive the command object as a single argument instead of the result.
