@@ -794,7 +794,6 @@ class Table(object):
         ptr = d.data + (block << d.blocksize)
 
         m = d.min_len
-        offset = d.offset
         base_idx = -m
         symlen_idx = 0
 
@@ -1303,7 +1302,7 @@ class Tablebases(object):
             return 0
 
         key = calc_key(board)
-        if not key in self.wdl:
+        if key not in self.wdl:
             return None
 
         return self.wdl[key].probe_wdl_table(board)
@@ -1433,7 +1432,7 @@ class Tablebases(object):
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
 
-        if not key in self.dtz:
+        if key in not self.dtz:
             return None, 0
 
         return self.dtz[key].probe_dtz_table(board, wdl)
@@ -1631,7 +1630,7 @@ class Tablebases(object):
     def close(self):
         """Closes all loaded tables."""
         while self.wdl:
-            key, wdl = self.wdl.popitem()
+            _, wdl = self.wdl.popitem()
             wdl.close()
 
     def __enter__(self):
