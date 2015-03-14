@@ -1380,13 +1380,13 @@ class Tablebases(object):
 
         return v
 
-    def probe_dtz_table(self, board):
+    def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
 
         if not key in self.dtz:
             return None, 0
 
-        return self.dtz[key].probe_dtz_table(board)
+        return self.dtz[key].probe_dtz_table(board, wdl)
 
     def probe_dtz_no_ep(self, board):
         wdl, success = self.probe_ab(board, -2, 2)
