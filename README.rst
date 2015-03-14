@@ -221,7 +221,7 @@ Features
 
       >>> tablebases = chess.syzygy.Tablebases("data/syzygy")
 
-      >>> # Black to move is losing in 53 half moves (depth to zero) in this
+      >>> # Black to move is losing in 53 half moves (distance to zero) in this
       >>> # KNBvK endgame.
       >>> board = chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
       >>> tablebases.probe_dtz(board)
