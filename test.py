@@ -1438,7 +1438,7 @@ class SyzygyTestCase(unittest.TestCase):
 
         # Same position with black to move.
         board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
-        self.assertEqual(dtz.probe_dtz_table(board, -2), 8)
+        self.assertEqual(dtz.probe_dtz_table(board, -2), (8, 1))
 
         dtz.close()
 
@@ -1446,7 +1446,7 @@ class SyzygyTestCase(unittest.TestCase):
         dtz = chess.syzygy.DtzTable("data/syzygy", "KNvKP")
 
         board = chess.Bitboard("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
-        self.assertEqual(dtz.probe_dtz_table(board, 2), 2)
+        self.assertEqual(dtz.probe_dtz_table(board, 2), (2, 1))
 
         dtz.close()
 
