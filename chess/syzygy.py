@@ -1247,7 +1247,14 @@ class DtzTable(Table):
 
 
 class Tablebases(object):
+    """
+    Allows probing WDL and DTZ Syzygy tables.
 
+    Syzygy tables come in files like *KQvKN.rtbw* or *KRBvK.rtbz*, one WDL
+    (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
+
+    Directly loads tables from *directory*. See *open_directory*.
+    """
     def __init__(self, directory=None, load_dtz=True):
         self.wdl = {}
         self.dtz = {}
@@ -1256,6 +1263,15 @@ class Tablebases(object):
             self.open_directory(directory, load_dtz)
 
     def open_directory(self, directory, load_dtz=True):
+        """
+        Loads tables from a directory.
+
+        By default all available tables with the correct file names
+        (e.g. *KQvKN.rtbw* or *KRBvK.rtbz*) are loaded. If *load_dtz* is *False*
+        then only WDL tables will be loaded.
+
+        Returns the number of successfully openened and loaded tablebase files.
+        """
         num = 0
 
         for filename in filenames():
@@ -1329,6 +1345,27 @@ class Tablebases(object):
             return v, 1
 
     def probe_wdl(self, board):
+        """
+        Probes WDL tables for win/draw/loss-information.
+
+        Probing is thread-safe when done with different *board* objects and
+        if *board* objects are not modified during probing.
+
+        Returns *None* if the position was not found in any of the loaded
+        tables.
+
+        Returns *2* if the side to move is winning, *0* if the position is
+        a draw and *-2* if the side to move is losing.
+
+        Returns *1* in case of a cursed win and *-1* in case of a blessed
+        loss. Mate can be forced but the position is drawn according to the
+        fifty-move rule.
+
+        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        ...     tablebases.probe_wdl(chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
+        ...
+        -2
+        """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights != chess.CASTLING_NONE:
             return None
@@ -1502,6 +1539,31 @@ class Tablebases(object):
             return best
 
     def probe_dtz(self, board):
+        """
+        Probes DTZ tables for distance to zero information.
+
+        Probing is thread-safe when done with different *board* objects and
+        if *board* objects are not modified during probing.
+
+        Return *None* if the position was not found in any of the loaded tables.
+        Both DTZ and WDL tables are required in order to probe for DTZ values.
+
+        Returns a positive value if the side to move is winning, *0* if the
+        position is a draw and a negative value if the side to move is losing.
+
+        A non-zero distance to zero means the number of halfmoves until the
+        next pawn move or capture can be forced, keeping a won position.
+        Minmaxing the DTZ values guarantees winning a won position (and drawing
+        a drawn position), because it makes progress keeping the win in hand.
+        However the lines are not always the most straight forward ways to win.
+        Engines like Stockfish calculate themselves, checking with DTZ, but only
+        play according to DTZ if they can not manage on their own.
+
+        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        ...     tablebases.probe_dtz(chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
+        ...
+        -53
+        """
         v = self.probe_dtz_no_ep(board)
         if v is None:
             return None
@@ -1567,6 +1629,7 @@ class Tablebases(object):
         return v
 
     def close(self):
+        """Closes all loaded tables."""
         while self.wdl:
             key, wdl = self.wdl.popitem()
             wdl.close()
