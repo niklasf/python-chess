@@ -1559,3 +1559,9 @@ class Tablebases(object):
         while self.wdl:
             key, wdl = self.wdl.popitem()
             wdl.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
