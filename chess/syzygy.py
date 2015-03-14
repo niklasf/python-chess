@@ -1357,7 +1357,7 @@ class Tablebases(object):
         a draw and *-2* if the side to move is losing.
 
         Returns *1* in case of a cursed win and *-1* in case of a blessed
-        loss. Mate can be forced but the position is drawn according to the
+        loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
         >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
