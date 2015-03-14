@@ -1432,7 +1432,7 @@ class Tablebases(object):
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
 
-        if key in not self.dtz:
+        if key not in self.dtz:
             return None, 0
 
         return self.dtz[key].probe_dtz_table(board, wdl)
