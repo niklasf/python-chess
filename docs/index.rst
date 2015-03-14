@@ -10,6 +10,7 @@ Contents
     core
     pgn
     polyglot
+    syzygy
     uci
 
 Indices and tables
