@@ -1482,6 +1482,13 @@ class SyzygyTestCase(unittest.TestCase):
 
         tablebases.close()
 
+    def test_dtz_ep(self):
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+        board = chess.Bitboard("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
+        self.assertEqual(tablebases.probe_dtz_no_ep(board), -1)
+        self.assertEqual(tablebases.probe_dtz(board), 1)
+
     def test_testsuite(self):
         tablebases = chess.syzygy.Tablebases("data/syzygy")
 
