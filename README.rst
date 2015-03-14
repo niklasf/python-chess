@@ -213,6 +213,22 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
+* Probe Syzygy endgame tablebases.
+
+  .. code:: python
+
+      >>> import chess.syzygy
+
+      >>> tablebases = chess.syzygy.Tablebases("data/syzygy")
+
+      >>> # Black to move is losing in 53 half moves (depth to zero) in this
+      >>> # KNBvK endgame.
+      >>> board = chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+      >>> tablebases.probe_dtz(board)
+      -53
+
+      >>> tablebases.close()
+
 * Communicate with an UCI engine.
 
   .. code:: python
@@ -287,3 +303,7 @@ full copyright and license information.
 
 Thanks to the developers of http://chessx.sourceforge.net/. Some of the core
 bitboard move generation parts are ported from there.
+
+Thanks to Ronald de Man for his
+[Syzygy endgame tablebases](https://github.com/syzygy1/tb). The probing code in
+python-chess is very directly ported from his C probing code.
