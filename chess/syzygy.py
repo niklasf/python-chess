@@ -852,6 +852,12 @@ class Table(object):
         self.data.close()
         self.f.close()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
 
 class WdlTable(Table):
     def __init__(self, directory, filename):
