@@ -1400,7 +1400,11 @@ class SyzygyTestCase(unittest.TestCase):
 
     def test_filenames(self):
         self.assertTrue("KPPvKN" in chess.syzygy.filenames())
-        self.assertTrue("KPPPvKN" in chess.syzygy.filenames())
+        self.assertTrue("KNNPvKN" in chess.syzygy.filenames())
+        self.assertTrue("KQRNvKR" in chess.syzygy.filenames())
+        self.assertTrue("KRRRvKR" in chess.syzygy.filenames())
+        self.assertTrue("KRRvKRR" in chess.syzygy.filenames())
+        self.assertTrue("KRNvKRP" in chess.syzygy.filenames())
 
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
