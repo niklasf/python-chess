@@ -1398,6 +1398,10 @@ class SyzygyTestCase(unittest.TestCase):
         key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
         self.assertEqual(key_from_board, key_from_filename)
 
+    def test_filenames(self):
+        self.assertTrue("KPPvKN" in chess.syzygy.filenames())
+        self.assertTrue("KPPPvKN" in chess.syzygy.filenames())
+
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
 
