@@ -296,6 +296,16 @@ Installing
       python setup.py build
       sudo python setup.py install
 
+Featured projects
+-----------------
+
+If you like, let me know if you are creating something intresting with
+python-chess, for example:
+
+* a stand alone chess computer based on DGT board - http://www.picochess.org/
+* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
+* a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+
 License
 -------
 python-chess is licensed under the GPL3. See the LICENSE file for the
