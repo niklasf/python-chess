@@ -1633,6 +1633,10 @@ class Tablebases(object):
             _, wdl = self.wdl.popitem()
             wdl.close()
 
+        while self.dtz:
+            _, dtz = self.dtz.popitem()
+            dtz.close()
+
     def __enter__(self):
         return self
 
