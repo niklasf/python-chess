@@ -422,8 +422,8 @@ class PawnFileDataDtz(object):
 class Table(object):
 
     def __init__(self, directory, filename, suffix):
-        self.f = open(os.path.join(directory, filename) + suffix, "r+b")
-        self.data = mmap.mmap(self.f.fileno(), 0)
+        self.f = open(os.path.join(directory, filename) + suffix, "rb")
+        self.data = mmap.mmap(self.f.fileno(), 0, access=mmap.ACCESS_READ)
 
         self.key = calc_key_from_filename(filename)
         self.mirrored_key = calc_key_from_filename(filename, True)
