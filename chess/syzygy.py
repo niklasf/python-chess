@@ -1282,8 +1282,11 @@ class Tablebases(object):
                 self.wdl[wdl_table.mirrored_key] = wdl_table
 
                 num += 1
+            except IOError:
+                pass
 
-                if load_dtz:
+            if load_dtz:
+                try:
                     dtz_table = DtzTable(directory, filename)
                     if dtz_table.key in self.dtz:
                         self.dtz[dtz_table.key].close()
@@ -1291,8 +1294,8 @@ class Tablebases(object):
                     self.dtz[dtz_table.mirrored_key] = dtz_table
 
                     num += 1
-            except IOError:
-                pass
+                except IOError:
+                    pass
 
         return num
 
