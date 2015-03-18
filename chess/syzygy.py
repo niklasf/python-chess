@@ -289,7 +289,7 @@ def filenames():
 
     for i in range(1, 6):
         for j in range(i, 6):
-            for k in range(j, 6):
+            for k in range(1, 6):
                 yield "K%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k])
 
     for i in range(1, 6):
