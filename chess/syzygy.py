@@ -422,8 +422,8 @@ class PawnFileDataDtz(object):
 class Table(object):
 
     def __init__(self, directory, filename, suffix):
-        self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
-        self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+        self.f = open(os.path.join(directory, filename) + suffix, "rb")
+        self.data = mmap.mmap(self.f.fileno(), 0, access=mmap.ACCESS_READ)
 
         self.key = calc_key_from_filename(filename)
         self.mirrored_key = calc_key_from_filename(filename, True)
@@ -849,11 +849,7 @@ class Table(object):
 
     def close(self):
         self.data.close()
-
-        try:
-            os.close(self.fd)
-        except OSError:
-            pass
+        self.f.close()
 
     def __enter__(self):
         return self
@@ -884,7 +880,7 @@ class WdlTable(Table):
         self.norm[chess.BLACK] = [0 for _ in range(self.num)]
 
         # Used if there are pawns.
-        self.files = [PawnFileData() for f in range(4)]
+        self.files = [PawnFileData() for _ in range(4)]
 
         self._next = None
         self._flags = None
@@ -1277,29 +1273,23 @@ class Tablebases(object):
         num = 0
 
         for filename in filenames():
-            if load_wdl:
-                try:
-                    wdl_table = WdlTable(directory, filename)
-                    if wdl_table.key in self.wdl:
-                        self.wdl[wdl_table.key].close()
-                    self.wdl[wdl_table.key] = wdl_table
-                    self.wdl[wdl_table.mirrored_key] = wdl_table
+            if load_wdl and os.path.isfile(os.path.join(directory, filename) + ".rtbw"):
+                wdl_table = WdlTable(directory, filename)
+                if wdl_table.key in self.wdl:
+                    self.wdl[wdl_table.key].close()
+                self.wdl[wdl_table.key] = wdl_table
+                self.wdl[wdl_table.mirrored_key] = wdl_table
 
-                    num += 1
-                except OSError:
-                    pass
+                num += 1
 
-            if load_dtz:
-                try:
-                    dtz_table = DtzTable(directory, filename)
-                    if dtz_table.key in self.dtz:
-                        self.dtz[dtz_table.key].close()
-                    self.dtz[dtz_table.key] = dtz_table
-                    self.dtz[dtz_table.mirrored_key] = dtz_table
+            if load_dtz and os.path.isfile(os.path.join(directory, filename) + ".rtbz"):
+                dtz_table = DtzTable(directory, filename)
+                if dtz_table.key in self.dtz:
+                    self.dtz[dtz_table.key].close()
+                self.dtz[dtz_table.key] = dtz_table
+                self.dtz[dtz_table.mirrored_key] = dtz_table
 
-                    num += 1
-                except OSError:
-                    pass
+                num += 1
 
         return num
 
