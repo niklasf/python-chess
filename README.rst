@@ -266,6 +266,10 @@ Features
       >>> command.done()
       True
 
+      >>> # Quit.
+      >>> engine.quit()
+      0
+
 Peformance
 ----------
 python-chess is not intended to be used by serious chess engines where
