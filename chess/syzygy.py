@@ -1251,7 +1251,7 @@ class DtzTable(Table):
 
 class Tablebases(object):
     """
-    Allows probing WDL and DTZ Syzygy tables.
+    Manages a collection of tablebase files for probing.
 
     Syzygy tables come in files like *KQvKN.rtbw* or *KRBvK.rtbz*, one WDL
     (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
@@ -1270,8 +1270,7 @@ class Tablebases(object):
         Loads tables from a directory.
 
         By default all available tables with the correct file names
-        (e.g. *KQvKN.rtbw* or *KRBvK.rtbz*) are loaded. If *load_dtz* is *False*
-        then only WDL tables will be loaded.
+        (e.g. *KQvKN.rtbw* or *KRBvK.rtbz*) are loaded.
 
         Returns the number of successfully openened and loaded tablebase files.
         """
