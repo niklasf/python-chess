@@ -297,7 +297,7 @@ Installing
 
   ::
 
-      python setup.py build
+      python setup.py sdist
       sudo python setup.py install
 
 Featured projects
