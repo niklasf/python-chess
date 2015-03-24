@@ -1144,7 +1144,7 @@ class Engine(object):
         If the position is from a new game it is recommended to use the
         *ucinewgame* command before the *position* command.
 
-        :param board: A *chess.Bitboard*.
+        :param board: A *chess.Board*.
 
         :return: Nothing
         """

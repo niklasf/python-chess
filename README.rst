@@ -22,7 +22,7 @@ This is the scholars mate in python-chess:
 
     >>> import chess
 
-    >>> board = chess.Bitboard()
+    >>> board = chess.Board()
 
     >>> board.push_san("e4")
     Move.from_uci('e2e4')
@@ -130,7 +130,7 @@ Features
 
   .. code:: python
 
-      >>> board = chess.Bitboard()
+      >>> board = chess.Board()
       >>> board.san(chess.Move(chess.E2, chess.E4))
       'e4'
 
@@ -140,7 +140,7 @@ Features
 
       >>> board.fen()
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      >>> board = chess.Bitboard("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
+      >>> board = chess.Board("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
       >>> board.piece_at(chess.C5)
       Piece.from_symbol('k')
 
@@ -148,7 +148,7 @@ Features
 
   .. code:: python
 
-      >>> board = chess.Bitboard()
+      >>> board = chess.Board()
       >>> board.epd(bm=chess.Move.from_uci("d2d4"))
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - bm d4;'
 
@@ -163,7 +163,7 @@ Features
       >>> import chess.polyglot
 
       >>> book = chess.polyglot.open_reader("data/opening-books/performance.bin")
-      >>> board = chess.Bitboard()
+      >>> board = chess.Board()
       >>> first_entry = next(book.get_entries_for_position(board))
       >>> first_entry.move()
       Move.from_uci('e2e4')
@@ -223,7 +223,7 @@ Features
 
       >>> # Black to move is losing in 53 half moves (distance to zero) in this
       >>> # KNBvK endgame.
-      >>> board = chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+      >>> board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
       >>> tablebases.probe_dtz(board)
       -53
 
@@ -242,7 +242,7 @@ Features
       'Tord Romstad, Marco Costalba and Joona Kiiski'
 
       >>> # Synchronous mode.
-      >>> board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+      >>> board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
       >>> engine.position(board)
       >>> engine.go(movetime=2000) # Gets tuple of bestmove and ponder move.
       BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))

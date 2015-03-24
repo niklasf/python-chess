@@ -30,7 +30,7 @@ def read_eco(source):
 
     eco = None
     name = None
-    position = chess.Bitboard()
+    position = chess.Board()
     state = 0
 
     for lineno, unstripped_line in enumerate(source):
@@ -84,7 +84,7 @@ def read_eco(source):
                         state = 0
                         eco = None
                         name = None
-                        position = chess.Bitboard()
+                        position = chess.Board()
                     else:
                         san = token.split(".")[-1]
                         if san in ["0-0", "o-o"]:
