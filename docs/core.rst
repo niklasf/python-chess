@@ -107,12 +107,12 @@ Moves
         The promotion piece type.
 
 
-Bitboard
---------
+Board
+-----
 
 .. autodata:: chess.STARTING_FEN
 
-.. autoclass:: chess.Bitboard
+.. autoclass:: chess.Board
     :members:
 
     .. py:attribute:: turn

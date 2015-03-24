@@ -772,7 +772,7 @@ class Move(object):
         return cls(0, 0, NONE)
 
 
-class Bitboard(object):
+class Board(object):
     """
     A bitboard and additional information representing a position.
 
@@ -2374,7 +2374,7 @@ class Bitboard(object):
         return errors
 
     def __repr__(self):
-        return "Bitboard('{0}')".format(self.fen())
+        return "Board('{0}')".format(self.fen())
 
     def __str__(self):
         builder = []
@@ -2500,6 +2500,9 @@ class Bitboard(object):
             square = bit_scan(squares, square + 1)
 
         return zobrist_hash
+
+
+Bitboard = Board
 
 
 class PseudoLegalMoveGenerator(object):

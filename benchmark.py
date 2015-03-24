@@ -21,7 +21,7 @@ import chess
 import timeit
 
 def play_immortal_game():
-    bitboard = chess.Bitboard()
+    bitboard = chess.Board()
 
     # 1.e4 e5
     bitboard.push_san("e4")

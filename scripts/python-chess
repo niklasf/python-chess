@@ -280,7 +280,7 @@ if __name__ == "__main__":
     except IOError:
         pass
 
-    position = chess.Bitboard()
+    position = chess.Board()
 
     while True:
         line = sys.stdin.readline()

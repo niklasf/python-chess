@@ -330,9 +330,9 @@ class Game(GameNode):
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            return chess.Bitboard(self.headers["FEN"])
+            return chess.Board(self.headers["FEN"])
         else:
-            return chess.Bitboard()
+            return chess.Board()
 
     def setup(self, board):
         """
@@ -342,7 +342,7 @@ class Game(GameNode):
         try:
             fen = board.fen()
         except AttributeError:
-            fen = chess.Bitboard(board).fen()
+            fen = chess.Board(board).fen()
 
         if fen == chess.STARTING_FEN:
             del self.headers["SetUp"]

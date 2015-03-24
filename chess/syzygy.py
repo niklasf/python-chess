@@ -1368,7 +1368,7 @@ class Tablebases(object):
         fifty-move rule.
 
         >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
-        ...     tablebases.probe_wdl(chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
+        ...     tablebases.probe_wdl(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -2
         """
@@ -1566,7 +1566,7 @@ class Tablebases(object):
         play according to DTZ if they can not manage on their own.
 
         >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
-        ...     tablebases.probe_dtz(chess.Bitboard("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
+        ...     tablebases.probe_dtz(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -53
         """

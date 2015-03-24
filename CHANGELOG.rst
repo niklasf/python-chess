@@ -20,6 +20,8 @@ Up for the next release
 * The result of the `stop` and `go` UCI commands are now named tuples (instead
   of just normal tuples).
 
+* Add alias `Board` for `Bitboard`.
+
 * Fixed race condition during UCI engine startup. Lines received during engine
   startup sometimes needed to be processed before the Engine object was fully
   initialized.

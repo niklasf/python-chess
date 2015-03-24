@@ -97,20 +97,20 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(black_queen.symbol(), "q")
 
 
-class BitboardTestCase(unittest.TestCase):
+class BoardTestCase(unittest.TestCase):
 
     def test_default_position(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         self.assertEqual(bitboard.piece_at(chess.B1), chess.Piece.from_symbol("N"))
         self.assertEqual(bitboard.fen(), chess.STARTING_FEN)
         self.assertEqual(bitboard.turn, chess.WHITE)
 
     def test_move_making(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         bitboard.push(chess.Move(chess.E2, chess.E4))
 
     def test_fen(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         self.assertEqual(bitboard.fen(), chess.STARTING_FEN)
 
         fen = "6k1/pb3pp1/1p2p2p/1Bn1P3/8/5N2/PP1q1PPP/6K1 w - - 0 24"
@@ -121,7 +121,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), "6k1/pb3pp1/1p2p2p/1Bn1P3/8/8/PP1N1PPP/6K1 b - - 0 24")
 
     def test_get_set(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         self.assertEqual(bitboard.piece_at(chess.B1), chess.Piece.from_symbol("N"))
 
         bitboard.remove_piece_at(chess.E2)
@@ -131,7 +131,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.piece_type_at(chess.E4), chess.ROOK)
 
     def test_pawn_captures(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
 
         # Kings gambit.
         bitboard.push(chess.Move.from_uci("e2e4"))
@@ -146,11 +146,11 @@ class BitboardTestCase(unittest.TestCase):
         bitboard.pop()
 
     def test_pawn_move_generation(self):
-        bitboard = chess.Bitboard("8/2R1P3/8/2pp4/2k1r3/P7/8/1K6 w - - 1 55")
+        bitboard = chess.Board("8/2R1P3/8/2pp4/2k1r3/P7/8/1K6 w - - 1 55")
         self.assertEqual(len(list(bitboard.generate_pseudo_legal_moves())), 16)
 
     def test_single_step_pawn_move(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         a3 = chess.Move.from_uci("a2a3")
         self.assertTrue(a3 in bitboard.pseudo_legal_moves)
         self.assertTrue(a3 in bitboard.legal_moves)
@@ -159,7 +159,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), chess.STARTING_FEN)
 
     def test_castling(self):
-        bitboard = chess.Bitboard("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
+        bitboard = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
         # Let white castle short.
         move = bitboard.parse_san("O-O")
@@ -195,11 +195,11 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_insufficient_material(self):
         # Starting position.
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
         self.assertFalse(bitboard.is_insufficient_material())
 
         # King vs. King + 2 bishops of the same color.
-        bitboard = chess.Bitboard("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32")
+        bitboard = chess.Board("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32")
         self.assertTrue(bitboard.is_insufficient_material())
 
         # Add bishop of opposite color for the weaker side.
@@ -207,17 +207,17 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(bitboard.is_insufficient_material())
 
     def test_promotion_with_check(self):
-        bitboard = chess.Bitboard("8/6P1/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 w - - 0 1")
+        bitboard = chess.Board("8/6P1/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 w - - 0 1")
         bitboard.push(chess.Move.from_uci("g7g8q"))
         self.assertTrue(bitboard.is_check())
         self.assertEqual(bitboard.fen(), "6Q1/8/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 b - - 0 1")
 
-        bitboard = chess.Bitboard("8/8/8/3R1P2/8/2k2K2/3p4/r7 b - - 0 82")
+        bitboard = chess.Board("8/8/8/3R1P2/8/2k2K2/3p4/r7 b - - 0 82")
         bitboard.push_san("d1=Q+")
         self.assertEqual(bitboard.fen(), "8/8/8/3R1P2/8/2k2K2/8/r2q4 w - - 0 83")
 
     def test_scholars_mate(self):
-        bitboard = chess.Bitboard()
+        bitboard = chess.Board()
 
         e4 = chess.Move.from_uci("e2e4")
         self.assertTrue(e4 in bitboard.legal_moves)
@@ -262,14 +262,14 @@ class BitboardTestCase(unittest.TestCase):
     def test_san(self):
         # En passant mate.
         fen = "6bk/7b/8/3pP3/8/8/8/Q3K3 w - d6 0 2"
-        bitboard = chess.Bitboard(fen)
+        bitboard = chess.Board(fen)
         fxe6_mate_ep = chess.Move.from_uci("e5d6")
         self.assertEqual(bitboard.san(fxe6_mate_ep), "exd6#")
         self.assertEqual(bitboard.fen(), fen)
 
         # Test ambiguation.
         fen = "N3k2N/8/8/3N4/N4N1N/2R5/1R6/4K3 w - - 0 1"
-        bitboard = chess.Bitboard(fen)
+        bitboard = chess.Board(fen)
         self.assertEqual(bitboard.san(chess.Move.from_uci("e1f1")), "Kf1")
         self.assertEqual(bitboard.san(chess.Move.from_uci("c3c2")), "Rcc2")
         self.assertEqual(bitboard.san(chess.Move.from_uci("b2c2")), "Rbc2")
@@ -280,20 +280,20 @@ class BitboardTestCase(unittest.TestCase):
 
         # Do not disambiguate illegal alternatives.
         fen = "8/8/8/R2nkn2/8/8/2K5/8 b - - 0 1"
-        bitboard = chess.Bitboard(fen)
+        bitboard = chess.Board(fen)
         self.assertEqual(bitboard.san(chess.Move.from_uci("f5e3")), "Ne3+")
         self.assertEqual(bitboard.fen(), fen)
 
         # Promotion.
         fen = "7k/1p2Npbp/8/2P5/1P1r4/3b2QP/3q1pPK/2RB4 b - - 1 29"
-        bitboard = chess.Bitboard(fen)
+        bitboard = chess.Board(fen)
         self.assertEqual(bitboard.san(chess.Move.from_uci("f2f1q")), "f1=Q")
         self.assertEqual(bitboard.san(chess.Move.from_uci("f2f1n")), "f1=N+")
         self.assertEqual(bitboard.fen(), fen)
 
     def test_is_legal_move(self):
         fen = "3k4/6P1/7P/8/K7/8/8/4R3 w - - 0 1"
-        bitboard = chess.Bitboard(fen)
+        bitboard = chess.Board(fen)
 
         # Legal moves: Rg1, g8=R+.
         self.assertTrue(chess.Move.from_uci("e1g1") in bitboard.legal_moves)
@@ -309,7 +309,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), fen)
 
     def test_move_count(self):
-        board = chess.Bitboard("1N2k3/P7/8/8/3n4/8/2PP4/R3K2R w KQ - 0 1")
+        board = chess.Board("1N2k3/P7/8/8/3n4/8/2PP4/R3K2R w KQ - 0 1")
         self.assertEqual(board.pseudo_legal_move_count(), 8 + 4 + 3 + 2 + 1 + 6 + 9)
 
     def test_polyglot(self):
@@ -317,7 +317,7 @@ class BitboardTestCase(unittest.TestCase):
         # http://hardy.uhasselt.be/Toga/book_format.html. Forfeiting castling
         # rights should not reset the half move counter, though.
 
-        board = chess.Bitboard()
+        board = chess.Board()
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.assertEqual(board.zobrist_hash(), 0x463b96181691fc9c)
 
@@ -345,7 +345,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 2 4")
         self.assertEqual(board.zobrist_hash(), 0x00fdd303c946bdd9)
 
-        board = chess.Bitboard()
+        board = chess.Board()
         board.push_san("a4")
         board.push_san("b5")
         board.push_san("h4")
@@ -362,7 +362,7 @@ class BitboardTestCase(unittest.TestCase):
     def test_castling_move_generation_bug(self):
         # Specific test position right after castling.
         fen = "rnbqkbnr/2pp1ppp/8/4p3/2BPP3/P1N2N2/PB3PPP/2RQ1RK1 b kq - 1 10"
-        board = chess.Bitboard(fen)
+        board = chess.Board(fen)
         illegal_move = chess.Move.from_uci("g1g2")
         self.assertFalse(illegal_move in board.legal_moves)
         self.assertFalse(illegal_move in list(board.legal_moves))
@@ -401,7 +401,7 @@ class BitboardTestCase(unittest.TestCase):
     def test_move_generation_bug(self):
         # Specific problematic position.
         fen = "4kb1r/3b1ppp/8/1r2pNB1/6P1/pP2QP2/P6P/4R1K1 w k - 0 27"
-        board = chess.Bitboard(fen)
+        board = chess.Board(fen)
 
         # Make a move.
         board.push_san("Re2")
@@ -425,18 +425,18 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), fen)
 
     def test_equality(self):
-        self.assertEqual(chess.Bitboard(), chess.Bitboard())
-        self.assertFalse(chess.Bitboard() != chess.Bitboard())
+        self.assertEqual(chess.Board(), chess.Board())
+        self.assertFalse(chess.Board() != chess.Board())
 
-        a = chess.Bitboard()
+        a = chess.Board()
         a.push_san("d4")
-        b = chess.Bitboard()
+        b = chess.Board()
         b.push_san("d3")
         self.assertNotEqual(a, b)
         self.assertFalse(a == b)
 
     def test_status(self):
-        board = chess.Bitboard()
+        board = chess.Board()
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
         board.remove_piece_at(chess.H1)
@@ -447,7 +447,7 @@ class BitboardTestCase(unittest.TestCase):
 
         # The en-passant square should be set even if no capture is actually
         # possible.
-        board = chess.Bitboard()
+        board = chess.Board()
         board.push_san("e4")
         self.assertEqual(board.ep_square, chess.E3)
         self.assertEqual(board.status(), chess.STATUS_VALID)
@@ -458,32 +458,32 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_epd(self):
         # Create an EPD with a move and a string.
-        board = chess.Bitboard("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+        board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
         epd = board.epd(bm=chess.Move(chess.D6, chess.D1), id="BK.01")
         self.assertTrue(epd in (
             "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
             "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - id \"BK.01\"; bm Qd1+;" ))
 
         # Create an EPD with a noop.
-        board = chess.Bitboard("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
+        board = chess.Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
         self.assertEqual(board.epd(noop=None), "4k3/8/8/8/8/8/8/4K3 w - - noop;")
 
         # Test loading an EPD.
-        board = chess.Bitboard()
+        board = chess.Board()
         operations = board.set_epd("r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id \"BK.24\";")
         self.assertEqual(board.fen(), "r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - 0 1")
         self.assertEqual(operations["bm"], chess.Move(chess.F2, chess.F4))
         self.assertEqual(operations["id"], "BK.24")
 
         # Test loading an EPD with half counter operations.
-        board = chess.Bitboard()
+        board = chess.Board()
         operations = board.set_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13")
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/4K3 b - - 13 17")
         self.assertEqual(operations["fmvn"], 17)
         self.assertEqual(operations["hmvc"], 13)
 
         # Test context of parsed SANs.
-        board = chess.Bitboard()
+        board = chess.Board()
         operations = board.set_epd("4k3/8/8/2N5/8/8/8/4K3 w - - test Ne4")
         self.assertEqual(operations["test"], chess.Move(chess.C5, chess.E4))
 
@@ -491,7 +491,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(chess.Move.null())
 
         fen = "rnbqkbnr/ppp1pppp/8/2Pp4/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 2"
-        board = chess.Bitboard(fen)
+        board = chess.Board(fen)
 
         self.assertEqual(chess.Move.from_uci("0000"), board.push_san("--"))
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/2Pp4/8/8/PP1PPPPP/RNBQKBNR b KQkq - 1 2")
@@ -500,7 +500,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), fen)
 
     def test_attackers(self):
-        board = chess.Bitboard("r1b1k2r/pp1n1ppp/2p1p3/q5B1/1b1P4/P1n1PN2/1P1Q1PPP/2R1KB1R b Kkq - 3 10")
+        board = chess.Board("r1b1k2r/pp1n1ppp/2p1p3/q5B1/1b1P4/P1n1PN2/1P1Q1PPP/2R1KB1R b Kkq - 3 10")
 
         attackers = board.attackers(chess.WHITE, chess.C3)
         self.assertEqual(len(attackers), 3)
@@ -511,7 +511,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(chess.E1 in attackers)
 
     def test_clear(self):
-        board = chess.Bitboard()
+        board = chess.Board()
         board.clear()
 
         self.assertEqual(board.turn, chess.WHITE)
@@ -539,7 +539,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertEqual(chess.r45(chess.BB_F8), chess.BB_F3)
 
     def test_threefold_repitition(self):
-        board = chess.Bitboard()
+        board = chess.Board()
 
         # Go back and forth with the nights to reach the starting position
         # for a second time.
@@ -583,7 +583,7 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_fivefold_repitition(self):
         fen = "rnbq1rk1/ppp3pp/3bpn2/3p1p2/2PP4/2NBPN2/PP3PPP/R1BQK2R w KQ - 3 7"
-        board = chess.Bitboard(fen)
+        board = chess.Board(fen)
 
         # Repeat the position up to the fourth time.
         for i in range(3):
@@ -640,26 +640,26 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_fifty_moves(self):
         # Test positions from Timman - Lutz (1995).
-        board = chess.Bitboard()
+        board = chess.Board()
         self.assertFalse(board.can_claim_fifty_moves())
-        board = chess.Bitboard("8/5R2/8/r2KB3/6k1/8/8/8 w - - 19 79")
+        board = chess.Board("8/5R2/8/r2KB3/6k1/8/8/8 w - - 19 79")
         self.assertFalse(board.can_claim_fifty_moves())
-        board = chess.Bitboard("8/8/6r1/4B3/8/4K2k/5R2/8 b - - 68 103")
+        board = chess.Board("8/8/6r1/4B3/8/4K2k/5R2/8 b - - 68 103")
         self.assertFalse(board.can_claim_fifty_moves())
-        board = chess.Bitboard("6R1/7k/8/8/1r3B2/5K2/8/8 w - - 99 119")
+        board = chess.Board("6R1/7k/8/8/1r3B2/5K2/8/8 w - - 99 119")
         self.assertFalse(board.can_claim_fifty_moves())
-        board = chess.Bitboard("8/7k/8/6R1/1r3B2/5K2/8/8 b - - 100 119")
+        board = chess.Board("8/7k/8/6R1/1r3B2/5K2/8/8 b - - 100 119")
         self.assertTrue(board.can_claim_fifty_moves())
-        board = chess.Bitboard("8/7k/8/1r3KR1/5B2/8/8/8 w - - 105 122")
+        board = chess.Board("8/7k/8/1r3KR1/5B2/8/8/8 w - - 105 122")
         self.assertTrue(board.can_claim_fifty_moves())
 
         # Once checkmated it is too late to claim.
-        board = chess.Bitboard("k7/8/NKB5/8/8/8/8/8 b - - 105 176")
+        board = chess.Board("k7/8/NKB5/8/8/8/8/8 b - - 105 176")
         self.assertFalse(board.can_claim_fifty_moves())
 
         # A stalemate is a draw, but you can not and do not need to claim it by
         # the fifty move rule.
-        board = chess.Bitboard("k7/3N4/1K6/1B6/8/8/8/8 b - - 99 1")
+        board = chess.Board("k7/3N4/1K6/1B6/8/8/8/8 b - - 99 1")
         self.assertTrue(board.is_stalemate())
         self.assertTrue(board.is_game_over())
         self.assertFalse(board.can_claim_fifty_moves())
@@ -667,7 +667,7 @@ class BitboardTestCase(unittest.TestCase):
 
     def test_ep_legality(self):
         move = chess.Move.from_uci("h5g6")
-        board = chess.Bitboard("rnbqkbnr/pppppp2/7p/6pP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 3")
+        board = chess.Board("rnbqkbnr/pppppp2/7p/6pP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 3")
         self.assertTrue(board.is_legal(move))
         board.push_san("Nf3")
         self.assertFalse(board.is_legal(move))
@@ -675,7 +675,7 @@ class BitboardTestCase(unittest.TestCase):
         self.assertFalse(board.is_legal(move))
 
         move = chess.Move.from_uci("c4d3")
-        board = chess.Bitboard("rnbqkbnr/pp1ppppp/8/8/2pP4/2P2N2/PP2PPPP/RNBQKB1R b KQkq d3 0 3")
+        board = chess.Board("rnbqkbnr/pp1ppppp/8/8/2pP4/2P2N2/PP2PPPP/RNBQKB1R b KQkq d3 0 3")
         self.assertTrue(board.is_legal(move))
         board.push_san("Qc7")
         self.assertFalse(board.is_legal(move))
@@ -706,7 +706,7 @@ class BitboardTestCase(unittest.TestCase):
             "r2n3r/1bNk2pp/6P1/pP3p2/3pPqnP/1P1P1p1R/2P3B1/Q1B1bKN1 b - e3 0 1" ]
 
         for sample_fen in sample_fens:
-            board = chess.Bitboard(sample_fen)
+            board = chess.Board(sample_fen)
 
             pseudo_legal_moves = list(board.generate_pseudo_legal_moves())
 
@@ -725,12 +725,12 @@ class BitboardTestCase(unittest.TestCase):
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
     def test_list_conversion(self):
-        self.assertEqual(len(list(chess.Bitboard().legal_moves)), 20)
+        self.assertEqual(len(list(chess.Board().legal_moves)), 20)
 
     def test_nonzero(self):
-        self.assertTrue(chess.Bitboard().legal_moves)
+        self.assertTrue(chess.Board().legal_moves)
 
-        caro_kann_mate = chess.Bitboard("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
+        caro_kann_mate = chess.Board("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
         self.assertFalse(caro_kann_mate.legal_moves)
 
     def test_string_conversion(self):
@@ -744,7 +744,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
             P P P P . P P P
             R N B Q K B N R""")
 
-        bb = chess.Bitboard()
+        bb = chess.Board()
         bb.push_san("e4")
         self.assertEqual(str(bb), expected)
 
@@ -815,7 +815,7 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_performance_bin(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
-            pos = chess.Bitboard()
+            pos = chess.Board()
 
             e4 = next(book.get_entries_for_position(pos))
             self.assertEqual(e4.move(), pos.parse_san("e4"))
@@ -827,7 +827,7 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_mainline(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
-            board = chess.Bitboard()
+            board = chess.Board()
 
             while True:
                 try:
@@ -840,7 +840,7 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_lasker_trap(self):
         with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
-            board = chess.Bitboard("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
+            board = chess.Board("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
             entry = next(book.get_entries_for_position(board))
             cute_underpromotion = entry.move()
             self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
@@ -849,7 +849,7 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
             # White decides between short castling and long castling at this
             # turning point in the Queens Gambit Exchange.
-            pos = chess.Bitboard("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
+            pos = chess.Board("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
             moves = set(entry.move() for entry in book.get_entries_for_position(pos))
             self.assertTrue(pos.parse_san("O-O") in moves)
             self.assertTrue(pos.parse_san("O-O-O") in moves)
@@ -858,7 +858,7 @@ class PolyglotTestCase(unittest.TestCase):
 
             # Black usually castles long at this point in the Ruy Lopez
             # Exchange.
-            pos = chess.Bitboard("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
+            pos = chess.Board("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
             moves = set(entry.move() for entry in book.get_entries_for_position(pos))
             self.assertTrue(pos.parse_san("O-O-O") in moves)
             self.assertEqual(len(moves), 1)
@@ -922,7 +922,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_setup(self):
         game = chess.pgn.Game()
-        self.assertEqual(game.board(), chess.Bitboard())
+        self.assertEqual(game.board(), chess.Board())
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
 
@@ -935,7 +935,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
 
-        game.setup(chess.Bitboard(fen))
+        game.setup(chess.Board(fen))
         self.assertEqual(game.headers["FEN"], fen)
         self.assertEqual(game.headers["SetUp"], "1")
 
@@ -1134,7 +1134,7 @@ class StockfishTestCase(unittest.TestCase):
             "4R3/p1p2p2/P4P2/P7/1r1pN1p1/1p1PpkP1/1P2r2p/3B3K w - - bm Rh8; id \"Tamminen 1944\";",
         ]
 
-        board = chess.Bitboard()
+        board = chess.Board()
 
         for epd in epds:
             operations = board.set_epd(epd)
@@ -1177,7 +1177,7 @@ class StockfishTestCase(unittest.TestCase):
 
         self.engine.ucinewgame()
 
-        board = chess.Bitboard("r3r3/pp3qk1/2p3Pp/3pP3/3P2b1/2NB4/PPQ1N1P1/4b2K w - - 0 24")
+        board = chess.Board("r3r3/pp3qk1/2p3Pp/3pP3/3P2b1/2NB4/PPQ1N1P1/4b2K w - - 0 24")
         self.engine.position(board)
 
         self.engine.go(infinite=True)
@@ -1211,7 +1211,7 @@ class SpurEngineTestCase(unittest.TestCase):
         engine.ucinewgame()
 
         # Find fools mate.
-        board = chess.Bitboard()
+        board = chess.Board()
         board.push_san("g4")
         board.push_san("e5")
         board.push_san("f4")
@@ -1393,7 +1393,7 @@ class UciEngineTestCase(unittest.TestCase):
 class SyzygyTestCase(unittest.TestCase):
 
     def test_calc_key(self):
-        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         key_from_board = chess.syzygy.calc_key(board)
         key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
         self.assertEqual(key_from_board, key_from_filename)
@@ -1410,19 +1410,19 @@ class SyzygyTestCase(unittest.TestCase):
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
 
-        board = chess.Bitboard("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
+        board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         self.assertEqual(wdl.probe_wdl_table(board), -2)
 
-        board = chess.Bitboard("7B/5kNK/8/8/8/8/8/8 w - - 0 1")
+        board = chess.Board("7B/5kNK/8/8/8/8/8/8 w - - 0 1")
         self.assertEqual(wdl.probe_wdl_table(board), 2)
 
-        board = chess.Bitboard("N7/8/2k5/8/7K/8/8/B7 w - - 0 1")
+        board = chess.Board("N7/8/2k5/8/7K/8/8/B7 w - - 0 1")
         self.assertEqual(wdl.probe_wdl_table(board), 2)
 
-        board = chess.Bitboard("8/8/1NkB4/8/7K/8/8/8 w - - 1 1")
+        board = chess.Board("8/8/1NkB4/8/7K/8/8/8 w - - 1 1")
         self.assertEqual(wdl.probe_wdl_table(board), 0)
 
-        board = chess.Bitboard("8/8/8/2n5/2b1K3/2k5/8/8 w - - 0 1")
+        board = chess.Board("8/8/8/2n5/2b1K3/2k5/8/8 w - - 0 1")
         self.assertEqual(wdl.probe_wdl_table(board), -2)
 
         wdl.close()
@@ -1430,10 +1430,10 @@ class SyzygyTestCase(unittest.TestCase):
     def test_probe_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KRvKP")
 
-        board = chess.Bitboard("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
+        board = chess.Board("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
         self.assertEqual(wdl.probe_wdl_table(board), 0)
 
-        board = chess.Bitboard("8/8/2K5/8/4P3/8/8/3r3k b - - 1 1")
+        board = chess.Board("8/8/2K5/8/4P3/8/8/3r3k b - - 1 1")
         self.assertEqual(wdl.probe_wdl_table(board), 2)
 
         wdl.close()
@@ -1442,11 +1442,11 @@ class SyzygyTestCase(unittest.TestCase):
         dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
 
         # Pawnless position with white to move.
-        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
+        board = chess.Board("7n/6k1/4R3/4K3/8/8/8/8 w - - 0 1")
         self.assertEqual(dtz.probe_dtz_table(board, 2), (0, -1))
 
         # Same position with black to move.
-        board = chess.Bitboard("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
+        board = chess.Board("7n/6k1/4R3/4K3/8/8/8/8 b - - 1 1")
         self.assertEqual(dtz.probe_dtz_table(board, -2), (8, 1))
 
         dtz.close()
@@ -1454,7 +1454,7 @@ class SyzygyTestCase(unittest.TestCase):
     def test_probe_dtz_table_pawn(self):
         dtz = chess.syzygy.DtzTable("data/syzygy", "KNvKP")
 
-        board = chess.Bitboard("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
+        board = chess.Board("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
         self.assertEqual(dtz.probe_dtz_table(board, 2), (2, 1))
 
         dtz.close()
@@ -1464,15 +1464,15 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertEqual(tablebases.open_directory("data/syzygy"), 70)
 
         # Winning KRvKB.
-        board = chess.Bitboard("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
+        board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
         self.assertEqual(tablebases.probe_wdl_table(board), -2)
 
         # Drawn KBBvK.
-        board = chess.Bitboard("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
+        board = chess.Board("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
         self.assertEqual(tablebases.probe_wdl_table(board), 0)
 
         # Winning KBBvK.
-        board = chess.Bitboard("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
+        board = chess.Board("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
         self.assertEqual(tablebases.probe_wdl_table(board), 2)
 
         tablebases.close()
@@ -1481,7 +1481,7 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases = chess.syzygy.Tablebases("data/syzygy")
 
         # Winning KPvKP because of en-passant.
-        board = chess.Bitboard("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
+        board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
         # If there was no en-passant this would be a draw.
         self.assertEqual(tablebases.probe_wdl_table(board), 0)
@@ -1494,7 +1494,7 @@ class SyzygyTestCase(unittest.TestCase):
     def test_dtz_ep(self):
         tablebases = chess.syzygy.Tablebases("data/syzygy")
 
-        board = chess.Bitboard("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
+        board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
         self.assertEqual(tablebases.probe_dtz_no_ep(board), -1)
         self.assertEqual(tablebases.probe_dtz(board), 1)
 
@@ -1503,7 +1503,7 @@ class SyzygyTestCase(unittest.TestCase):
     def test_testsuite(self):
         tablebases = chess.syzygy.Tablebases("data/syzygy")
 
-        board = chess.Bitboard()
+        board = chess.Board()
 
         with open("data/endgame.epd") as epds:
             for line, epd in enumerate(epds):
