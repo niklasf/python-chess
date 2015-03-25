@@ -696,8 +696,13 @@ class SpurProcess(object):
         self.process.send_signal(signal.SIGKILL)
 
     def close_std_streams(self):
-        # Spur already handles cleanup.
-        pass
+        # Spur does not do real clean up.
+        try:
+            self.process._process_stdin.close()
+        except AttributeError:
+            self.process._stdin.close()
+        self.process._io._handlers[0]._file_in.close()
+        self.process._io._handlers[1]._file_in.close()
 
     def send_line(self, string):
         self.process.stdin_write(string.encode("utf-8"))
