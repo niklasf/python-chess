@@ -810,22 +810,6 @@ class Board(object):
         self.occupied_r45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for i in range(64) ]
-
-        for i in range(64):
-            mask = BB_SQUARES[i]
-            if mask & self.pawns:
-                self.pieces[i] = PAWN
-            elif mask & self.knights:
-                self.pieces[i] = KNIGHT
-            elif mask & self.bishops:
-                self.pieces[i] = BISHOP
-            elif mask & self.rooks:
-                self.pieces[i] = ROOK
-            elif mask & self.queens:
-                self.pieces[i] = QUEEN
-            elif mask & self.kings:
-                self.pieces[i] = KING
 
         self.ep_square = 0
         self.castling_rights = CASTLING
@@ -873,7 +857,6 @@ class Board(object):
         self.occupied_l45 = BB_VOID
 
         self.king_squares = [ E1, E8 ]
-        self.pieces = [ NONE for _ in range(64) ]
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -900,16 +883,30 @@ class Board(object):
 
     def piece_type_at(self, square):
         """Gets the piece type at the given square."""
-        return self.pieces[square]
+        mask = BB_SQUARES[square]
+
+        if self.pawns & mask:
+            return PAWN
+        elif self.knights & mask:
+            return KNIGHT
+        elif self.bishops & mask:
+            return BISHOP
+        elif self.rooks & mask:
+            return ROOK
+        elif self.queens & mask:
+            return QUEEN
+        elif self.kings & mask:
+            return KING
+        else:
+            return NONE
 
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
-        piece_type = self.pieces[square]
-
-        if piece_type == NONE:
+        mask = BB_SQUARES[square]
+        if not self.occupied & mask:
             return
 
-        mask = BB_SQUARES[square]
+        piece_type = self.piece_type_at(square)
 
         if piece_type == PAWN:
             self.pawns ^= mask
@@ -926,7 +923,6 @@ class Board(object):
 
         color = int(bool(self.occupied_co[BLACK] & mask))
 
-        self.pieces[square] = NONE
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
         self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
@@ -943,8 +939,6 @@ class Board(object):
     def set_piece_at(self, square, piece):
         """Sets a piece at the given square. An existing piece is replaced."""
         self.remove_piece_at(square)
-
-        self.pieces[square] = piece.piece_type
 
         mask = BB_SQUARES[square]
 
@@ -974,7 +968,6 @@ class Board(object):
         else:
             piece_index = (piece.piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.turn == WHITE:
