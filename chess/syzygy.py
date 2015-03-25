@@ -422,6 +422,10 @@ class PawnFileDataDtz(object):
 class Table(object):
 
     def __init__(self, directory, filename, suffix):
+        self.directory = directory
+        self.filename = filename
+        self.suffix = suffix
+
         self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
         self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
@@ -865,7 +869,11 @@ class Table(object):
 class WdlTable(Table):
     def __init__(self, directory, filename):
         super(WdlTable, self).__init__(directory, filename, ".rtbw")
-        self.init_table_wdl()
+
+        assert WDL_MAGIC[0] == self.read_ubyte(0)
+        assert WDL_MAGIC[1] == self.read_ubyte(1)
+        assert WDL_MAGIC[2] == self.read_ubyte(2)
+        assert WDL_MAGIC[3] == self.read_ubyte(3)
 
     def init_table_wdl(self):
         self.tb_size = [0 for _ in range(8)]
@@ -889,11 +897,6 @@ class WdlTable(Table):
         self._next = None
         self._flags = None
         self.flags = None
-
-        assert WDL_MAGIC[0] == self.read_ubyte(0)
-        assert WDL_MAGIC[1] == self.read_ubyte(1)
-        assert WDL_MAGIC[2] == self.read_ubyte(2)
-        assert WDL_MAGIC[3] == self.read_ubyte(3)
 
         split = self.read_ubyte(4) & 0x01
         files = 4 if self.read_ubyte(4) & 0x02 else 1
@@ -1068,7 +1071,11 @@ class DtzTable(Table):
 
     def __init__(self, directory, filename):
         super(DtzTable, self).__init__(directory, filename, ".rtbz")
-        self.init_table_dtz()
+
+        assert DTZ_MAGIC[0] == self.read_ubyte(0)
+        assert DTZ_MAGIC[1] == self.read_ubyte(1)
+        assert DTZ_MAGIC[2] == self.read_ubyte(2)
+        assert DTZ_MAGIC[3] == self.read_ubyte(3)
 
     def init_table_dtz(self):
         self.factor = [0, 0, 0, 0, 0, 0]
@@ -1076,11 +1083,6 @@ class DtzTable(Table):
         self.tb_size = [0, 0, 0, 0]
         self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.files = [PawnFileDataDtz() for f in range(4)]
-
-        assert DTZ_MAGIC[0] == self.read_ubyte(0)
-        assert DTZ_MAGIC[1] == self.read_ubyte(1)
-        assert DTZ_MAGIC[2] == self.read_ubyte(2)
-        assert DTZ_MAGIC[3] == self.read_ubyte(3)
 
         files = 4 if self.read_ubyte(4) & 0x02 else 1
 
@@ -1281,6 +1283,9 @@ class Tablebases(object):
                 wdl_table = WdlTable(directory, filename)
                 if wdl_table.key in self.wdl:
                     self.wdl[wdl_table.key].close()
+
+                wdl_table.init_table_wdl()
+
                 self.wdl[wdl_table.key] = wdl_table
                 self.wdl[wdl_table.mirrored_key] = wdl_table
 
@@ -1290,6 +1295,9 @@ class Tablebases(object):
                 dtz_table = DtzTable(directory, filename)
                 if dtz_table.key in self.dtz:
                     self.dtz[dtz_table.key].close()
+
+                dtz_table.init_table_dtz()
+
                 self.dtz[dtz_table.key] = dtz_table
                 self.dtz[dtz_table.mirrored_key] = dtz_table
 
