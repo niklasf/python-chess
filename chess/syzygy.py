@@ -865,10 +865,21 @@ class Table(object):
     def __exit__(self, type, value, traceback):
         self.close()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["fd"]
+        del state["data"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.__init__(self.directory, self.filename, self.suffix)
+
 
 class WdlTable(Table):
-    def __init__(self, directory, filename):
-        super(WdlTable, self).__init__(directory, filename, ".rtbw")
+
+    def __init__(self, directory, filename, suffix=".rtbw"):
+        super(WdlTable, self).__init__(directory, filename, suffix)
 
         assert WDL_MAGIC[0] == self.read_ubyte(0)
         assert WDL_MAGIC[1] == self.read_ubyte(1)
@@ -1069,8 +1080,8 @@ class WdlTable(Table):
 
 class DtzTable(Table):
 
-    def __init__(self, directory, filename):
-        super(DtzTable, self).__init__(directory, filename, ".rtbz")
+    def __init__(self, directory, filename, suffix=".rtbz"):
+        super(DtzTable, self).__init__(directory, filename, suffix)
 
         assert DTZ_MAGIC[0] == self.read_ubyte(0)
         assert DTZ_MAGIC[1] == self.read_ubyte(1)
