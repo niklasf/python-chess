@@ -10,7 +10,7 @@ New in v0.8.0
 -------------
 
 * **Implement Syzygy endgame tablebase probing.**
-  `https://syzygy-tables.info <https://syzygy-tables.info/apidoc?fen=6N1/5KR1/2n5/8/8/8/2n5/1k6%20w%20-%20-%200%201>`
+  `https://syzygy-tables.info <https://syzygy-tables.info/apidoc?fen=6N1/5KR1/2n5/8/8/8/2n5/1k6%20w%20-%20-%200%201>`_
   is an example project that provides a public API using the new features.
 
 * The interface for aynchronous UCI command has changed to mimic
