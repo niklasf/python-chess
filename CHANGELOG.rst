@@ -6,10 +6,12 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Up for the next release
------------------------
+New in v0.8.0
+-------------
 
 * **Implement Syzygy endgame tablebase probing.**
+  `https://syzygy-tables.info <https://syzygy-tables.info/apidoc?fen=6N1/5KR1/2n5/8/8/8/2n5/1k6%20w%20-%20-%200%201>`
+  is an example project that provides a public API using the new features.
 
 * The interface for aynchronous UCI command has changed to mimic
   `concurrent.futures`. `is_done()` is now just `done()`. Callbacks will
