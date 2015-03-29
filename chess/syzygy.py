@@ -27,7 +27,7 @@ UINT32 = struct.Struct("<I")
 USHORT = struct.Struct("<H")
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
-DTZ_MAGIC = [0xd7, 0x66, 0x0c, 0xa5]
+DTZ_MAGIC = [0xD7, 0x66, 0x0C, 0xA5]
 
 OFFDIAG = [
     0, -1, -1, -1, -1, -1, -1, -1,
