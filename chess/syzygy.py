@@ -20,6 +20,7 @@ import chess
 import mmap
 import os
 import struct
+import sys
 
 
 UINT64 = struct.Struct("<Q")
@@ -411,6 +412,14 @@ class Table(object):
 
         self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
         self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+
+        if sys.version_info >= (3, ):
+            self.read_ubyte = self.data.__getitem__
+        else:
+            def read_ubyte(data_ptr):
+                return ord(self.data[data_ptr])
+
+            self.read_ubyte = read_ubyte
 
         self.key = calc_key_from_filename(filename)
         self.mirrored_key = calc_key_from_filename(filename, True)
@@ -831,9 +840,6 @@ class Table(object):
     def read_ushort(self, data_ptr):
         return USHORT.unpack_from(self.data, data_ptr)[0]
 
-    def read_ubyte(self, data_ptr):
-        return ord(self.data[data_ptr:data_ptr + 1])
-
     def close(self):
         self.data.close()
 
@@ -852,6 +858,7 @@ class Table(object):
         state = self.__dict__.copy()
         del state["fd"]
         del state["data"]
+        del state["read_ubyte"]
         return state
 
     def __setstate__(self, state):
