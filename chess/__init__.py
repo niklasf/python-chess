@@ -872,6 +872,30 @@ class Board(object):
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
         self.transpositions = collections.Counter((self.zobrist_hash(), ))
 
+    def pieces_mask(self, piece_type, color):
+        if piece_type == PAWN:
+            bb = self.pawns
+        elif piece_type == KNIGHT:
+            bb = self.knights
+        elif piece_type == BISHOP:
+            bb = self.bishops
+        elif piece_type == ROOK:
+            bb = self.rooks
+        elif piece_type == QUEEN:
+            bb = self.queens
+        elif piece_type == KING:
+            bb = self.kings
+
+        return bb & self.occupied_co[color]
+
+    def pieces(self, piece_type, color):
+        """
+        Gets pieces of the given type and color.
+
+        Returns a set of squares.
+        """
+        return SquareSet(self.piece_mask(piece_type, color))
+
     def piece_at(self, square):
         """Gets the piece at the given square."""
         mask = BB_SQUARES[square]
@@ -1324,30 +1348,6 @@ class Board(object):
         Returns a set of squares.
         """
         return SquareSet(self.attacker_mask(color, square))
-
-    def pieces_mask(self, piece_type, color):
-        if piece_type == PAWN:
-            bb = self.pawns
-        elif piece_type == KNIGHT:
-            bb = self.knights
-        elif piece_type == BISHOP:
-            bb = self.bishops
-        elif piece_type == ROOK:
-            bb = self.rooks
-        elif piece_type == QUEEN:
-            bb = self.queens
-        elif piece_type == KING:
-            bb = self.kings
-
-        return bb & self.occupied_co[color]
-
-    def pieces(self, piece_type, color):
-        """
-        Gets pieces of the given type and color.
-
-        Returns a set of squares.
-        """
-        return SquareSet(self.piece_mask(piece_type, color))
 
     def is_check(self):
         """Checks if the current side to move is in check."""
