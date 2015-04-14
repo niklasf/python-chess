@@ -1145,7 +1145,7 @@ class Engine(object):
 
         Instead of just the final FEN, the initial FEN and all moves leading
         up to the position will be sent, so that the engine can detect
-        repititions.
+        repetitions.
 
         If the position is from a new game it is recommended to use the
         *ucinewgame* command before the *position* command.

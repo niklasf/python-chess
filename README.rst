@@ -86,11 +86,11 @@ Features
       >>> board.halfmove_clock
       0
 
-* Detects repititions. Has a half move clock.
+* Detects repetitions. Has a half move clock.
 
   .. code:: python
 
-      >>> board.can_claim_threefold_repitition()
+      >>> board.can_claim_threefold_repetition()
       False
       >>> board.halfmove_clock
       0
@@ -100,12 +100,12 @@ Features
       False
 
   With the new rules from July 2014 a game ends drawn (even without a claim)
-  once a fivefold repitition occurs or if there are 75 moves without a pawn
+  once a fivefold repetition occurs or if there are 75 moves without a pawn
   push or capture. Other ways of ending a game take precedence.
 
   .. code:: python
 
-      >>> board.is_fivefold_repitition()
+      >>> board.is_fivefold_repetition()
       False
       >>> board.is_seventyfive_moves()
       False
