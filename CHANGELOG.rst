@@ -6,6 +6,21 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+* The `Board.pieces` lookup list has been removed.
+
+* Fixed spelling of repetition (was repitition).
+  `can_claim_threefold_repetition` and `is_fivefold_repetition` are the
+  affected method names. Aliases are there for now, but will be removed in the
+  next release. Thanks to Jimmy Patrick for reporting this.
+
+* There is a new method `Board.pieces(piece_type, color)` to get a set of
+  squares with the specified pieces.
+
+* Scripts removed.
+
 New in v0.8.0
 -------------
 
@@ -115,8 +130,8 @@ New in v0.4.2
 New in v0.4.1
 -------------
 
-* Fix `is_fivefold_repitition()`: The new fivefold repitition rule requires
-  the repititions to occur on *alternating consecutive* moves.
+* Fix `is_fivefold_repitition()`: The new fivefold repetition rule requires
+  the repetitions to occur on *alternating consecutive* moves.
 
 * Minor testing related improvements: Close PGN files, allow running via
   setuptools.
@@ -131,11 +146,11 @@ New in v0.4.0
 
 * Since the first of July 2014 a game is also over (even without claim by one
   of the players) if there were 75 moves without a pawn move or capture or
-  a fivefold repitition. Let `is_game_over()` respect that. Introduce
+  a fivefold repetition. Let `is_game_over()` respect that. Introduce
   `is_seventyfive_moves()` and `is_fivefold_repitition()`. Other means of
   ending a game take precedence.
 
-* Threefold repitition checking requires efficient hashing of positions
+* Threefold repetition checking requires efficient hashing of positions
   to build the table. So performance improvements were needed there. The
   default polyglot compatible zobrist hashes are now built incrementally.
 
