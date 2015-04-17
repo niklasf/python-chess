@@ -226,10 +226,14 @@ class InfoHandler(object):
         pass
 
     def post_bestmove(self):
-        """
-        A new bestmove command was processed.
+        """A new bestmove command was processed."""
+        pass
 
-        Since this indicates that the current search has been finished the
+    def on_go(self):
+        """
+        A go command is being sent.
+
+        Since information about the previous search is invalidated the
         dictionary with the current information will be cleared.
         """
         with self.lock:
@@ -491,6 +495,9 @@ class GoCommand(Command):
         self.buf = " ".join(builder)
 
     def execute(self, engine):
+        for info_handler in engine.info_handlers:
+            info_handler.on_go()
+
         engine.bestmove = None
         engine.ponder = None
         engine.bestmove_received.clear()
