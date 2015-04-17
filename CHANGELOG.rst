@@ -16,6 +16,9 @@ Upcoming in the next release
   affected method names. Aliases are there for now, but will be removed in the
   next release. Thanks to Jimmy Patrick for reporting this.
 
+* Removed `uci.InfoHandler.pre_bestmove()` and
+  `uci.InfoHandler.post_bestmove()`.
+
 * Clear `uci.InfoHandler()` dictionary at the start of new searches
   (new `on_go()`), not at the end of searches.
 
