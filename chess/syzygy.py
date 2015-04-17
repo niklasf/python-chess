@@ -600,11 +600,9 @@ class Table(object):
         tmp[s] = 1
 
     def pawn_file(self, pos):
-        i = 1
-        while i < self.pawns[0]:
+        for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
-            i += 1
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
