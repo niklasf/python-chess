@@ -217,16 +217,8 @@ class InfoHandler(object):
         """
         self.lock.release()
 
-    def pre_bestmove(self, line):
-        """A new bestmove command is about to be processed."""
-        pass
-
     def on_bestmove(self, bestmove, ponder):
         """A new bestmove and pondermove have been received."""
-        pass
-
-    def post_bestmove(self):
-        """A new bestmove command was processed."""
         pass
 
     def on_go(self):
@@ -826,9 +818,6 @@ class Engine(object):
         self.readyok.set()
 
     def _bestmove(self, arg):
-        for info_handler in self.info_handlers:
-            info_handler.pre_bestmove(arg)
-
         tokens = arg.split(None, 2)
         self.bestmove = chess.Move.from_uci(tokens[0])
         if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
@@ -839,10 +828,6 @@ class Engine(object):
 
         for info_handler in self.info_handlers:
             info_handler.on_bestmove(self.bestmove, self.ponder)
-
-        for info_handler in self.info_handlers:
-            info_handler.post_bestmove()
-
 
     def _copyprotection(self, arg):
         # TODO: Implement copyprotection
