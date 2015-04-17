@@ -685,71 +685,49 @@ class Table(object):
             for i in range(n):
                 pos[i] ^= 0x07
 
-        i = 1
-        while i < self.pawns[0]:
-            j = i + 1
-            while j < self.pawns[0]:
+        for i in range(1, self.pawns[0]):
+            for j in range(i + 1, self.pawns[0]):
                 if PTWIST[pos[i]] < PTWIST[pos[j]]:
                     pos[i], pos[j] = pos[j], pos[i]
-                j += 1
-            i += 1
 
         t = self.pawns[0] - 1
         idx = PAWNIDX[t][FLAP[pos[0]]]
-        i = t
-        while i > 0:
+        for i in range(t, 0, -1):
             idx += BINOMIAL[t - i][PTWIST[pos[i]]]
-            i -= 1
         idx *= factor[0]
 
         # Remaining pawns.
         i = self.pawns[0]
         t = i + self.pawns[1]
         if t > i:
-            j = i
-            while j < t:
-                k = j + 1
-                while k < t:
+            for j in range(i, t):
+                for k in range(j + 1, t):
                     if pos[j] > pos[k]:
                         pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
             s = 0
-            m = i
-            while m < t:
+            for m in range(i, t):
                 p = pos[m]
-                k = 0
                 j = 0
-                while k < i:
+                for k in range(i):
                     j += int(p > pos[k])
-                    k += 1
                 s += BINOMIAL[m - i][p - j - 8]
-                m += 1
             idx += s * factor[i]
             i = t
 
         while i < n:
             t = norm[i]
-            j = i
-            while j < i + t:
-                k = j + 1
-                while k < i + t:
+            for j in range(i, i + t):
+                for k in range(j + 1, i + t):
                     if pos[j] > pos[k]:
                         pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
-            s = 0
 
-            m = i
-            while m < i + t:
+            s = 0
+            for m in range(i, i + t):
                 p = pos[m]
-                k = 0
                 j = 0
-                while k < i:
+                for k in range(i):
                     j += int(p > pos[k])
-                    k += 1
                 s += BINOMIAL[m - i][p - j]
-                m += 1
 
             idx += s * factor[i]
             i += t
