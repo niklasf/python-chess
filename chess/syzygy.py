@@ -846,8 +846,6 @@ class WdlTable(Table):
             if self.initialized:
                 return
 
-            self.initialized = True
-
             assert WDL_MAGIC[0] == self.read_ubyte(0)
             assert WDL_MAGIC[1] == self.read_ubyte(1)
             assert WDL_MAGIC[2] == self.read_ubyte(2)
@@ -949,6 +947,8 @@ class WdlTable(Table):
                         data_ptr = (data_ptr + 0x3f) & ~0x3f
                         self.files[f].precomp[chess.BLACK].data = data_ptr
                         data_ptr += self.size[6 * f + 5]
+
+            self.initialized = True
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[chess.BLACK] > 0)
@@ -1061,8 +1061,6 @@ class DtzTable(Table):
             if self.initialized:
                 return
 
-            self.initialized = True
-
             assert DTZ_MAGIC[0] == self.read_ubyte(0)
             assert DTZ_MAGIC[1] == self.read_ubyte(1)
             assert DTZ_MAGIC[2] == self.read_ubyte(2)
@@ -1139,6 +1137,8 @@ class DtzTable(Table):
                     p_data = (p_data + 0x3f) & ~0x3f
                     self.files[f].precomp.data = p_data
                     p_data += self.size[3 * f + 2]
+
+            self.initialized = True
 
     def probe_dtz_table(self, board, wdl):
         self.init_table_dtz()
