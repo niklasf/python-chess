@@ -16,6 +16,9 @@ Upcoming in the next release
   affected method names. Aliases are there for now, but will be removed in the
   next release. Thanks to Jimmy Patrick for reporting this.
 
+* Clear `uci.InfoHandler()` dictionary at the start of new searches
+  (new `on_go()`), not at the end of searches.
+
 * There is a new method `Board.pieces(piece_type, color)` to get a set of
   squares with the specified pieces.
 
