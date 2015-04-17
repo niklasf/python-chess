@@ -364,11 +364,10 @@ def calc_key_from_filename(filename, mirror=False):
 def subfactor(k, n):
     f = n
     l = 1
-    i = 1
-    while i < k:
+
+    for i in range(1, k):
         f *= n - i
         l *= i + 1
-        i += 1
 
     return f // l
 
