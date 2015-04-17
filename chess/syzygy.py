@@ -498,14 +498,10 @@ class Table(object):
 
         d.base = [0 for _ in range(h)]
         d.base[h - 1] = 0
-        i = h - 2
-        while i >= 0:
+        for i in range(h - 2, -1, -1):
             d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i * 2) - self.read_ushort(d.offset + i * 2 + 2)) // 2
-            i -= 1
-        i = 0
-        while i < h:
+        for i in range(h):
             d.base[i] <<= 64 - (min_len + i)
-            i += 1
 
         d.offset -= 2 * d.min_len
 
