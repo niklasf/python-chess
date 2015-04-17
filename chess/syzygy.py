@@ -21,6 +21,7 @@ import mmap
 import os
 import struct
 import sys
+import threading
 
 
 UINT64 = struct.Struct("<Q")
@@ -822,120 +823,132 @@ class Table(object):
         del state["fd"]
         del state["data"]
         del state["read_ubyte"]
+        del state["lock"]
         return state
 
     def __setstate__(self, state):
-        self.__dict__.update(state)
         self.__init__(self.directory, self.filename, self.suffix)
+        self.__dict__.update(state)
 
 
 class WdlTable(Table):
 
     def __init__(self, directory, filename, suffix=".rtbw"):
         super(WdlTable, self).__init__(directory, filename, suffix)
-
-        assert WDL_MAGIC[0] == self.read_ubyte(0)
-        assert WDL_MAGIC[1] == self.read_ubyte(1)
-        assert WDL_MAGIC[2] == self.read_ubyte(2)
-        assert WDL_MAGIC[3] == self.read_ubyte(3)
+        self.initialized = False
+        self.lock = threading.Lock()
 
     def init_table_wdl(self):
-        self.tb_size = [0 for _ in range(8)]
-        self.size = [0 for _ in range(8 * 3)]
+        if self.initialized:
+            return
 
-        # Used if there are only pieces.
-        self.precomp = {}
-        self.pieces = {}
+        with self.lock:
+            if self.initialized:
+                return
 
-        self.factor = {}
-        self.factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
-        self.factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
+            self.initialized = True
 
-        self.norm = {}
-        self.norm[chess.WHITE] = [0 for _ in range(self.num)]
-        self.norm[chess.BLACK] = [0 for _ in range(self.num)]
+            assert WDL_MAGIC[0] == self.read_ubyte(0)
+            assert WDL_MAGIC[1] == self.read_ubyte(1)
+            assert WDL_MAGIC[2] == self.read_ubyte(2)
+            assert WDL_MAGIC[3] == self.read_ubyte(3)
 
-        # Used if there are pawns.
-        self.files = [PawnFileData() for _ in range(4)]
+            self.tb_size = [0 for _ in range(8)]
+            self.size = [0 for _ in range(8 * 3)]
 
-        self._next = None
-        self._flags = None
-        self.flags = None
+            # Used if there are only pieces.
+            self.precomp = {}
+            self.pieces = {}
 
-        split = self.read_ubyte(4) & 0x01
-        files = 4 if self.read_ubyte(4) & 0x02 else 1
+            self.factor = {}
+            self.factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
+            self.factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
 
-        data_ptr = 5
+            self.norm = {}
+            self.norm[chess.WHITE] = [0 for _ in range(self.num)]
+            self.norm[chess.BLACK] = [0 for _ in range(self.num)]
 
-        if not self.has_pawns:
-            self.setup_pieces_piece(data_ptr)
-            data_ptr += self.num + 1
-            data_ptr += data_ptr & 0x01
+            # Used if there are pawns.
+            self.files = [PawnFileData() for _ in range(4)]
 
-            self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
-            data_ptr = self._next
-            if split:
-                self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
-                data_ptr = self._next
-            else:
-                self.precomp[chess.BLACK] = None
+            self._next = None
+            self._flags = None
+            self.flags = None
 
-            self.precomp[chess.WHITE].indextable = data_ptr
-            data_ptr += self.size[0]
-            if split:
-                self.precomp[chess.BLACK].indextable = data_ptr
-                data_ptr += self.size[3]
+            split = self.read_ubyte(4) & 0x01
+            files = 4 if self.read_ubyte(4) & 0x02 else 1
 
-            self.precomp[chess.WHITE].sizetable = data_ptr
-            data_ptr += self.size[1]
-            if split:
-                self.precomp[chess.BLACK].sizetable = data_ptr
-                data_ptr += self.size[4]
+            data_ptr = 5
 
-            data_ptr = (data_ptr + 0x3f) & ~0x3f
-            self.precomp[chess.WHITE].data = data_ptr
-            data_ptr += self.size[2]
-            if split:
-                data_ptr = (data_ptr + 0x3f) & ~0x3f
-                self.precomp[chess.BLACK].data = data_ptr
-        else:
-            s = 1 + int(self.pawns[1] > 0)
-            for f in range(4):
-                self.setup_pieces_pawn(data_ptr, 2 * f, f)
-                data_ptr += self.num + s
-            data_ptr += data_ptr & 0x01
+            if not self.has_pawns:
+                self.setup_pieces_piece(data_ptr)
+                data_ptr += self.num + 1
+                data_ptr += data_ptr & 0x01
 
-            for f in range(files):
-                self.files[f].precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
+                self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
                 data_ptr = self._next
                 if split:
-                    self.files[f].precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
+                    self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
                     data_ptr = self._next
                 else:
-                    self.files[f].precomp[chess.BLACK] = None
+                    self.precomp[chess.BLACK] = None
 
-            for f in range(files):
-                self.files[f].precomp[chess.WHITE].indextable = data_ptr
-                data_ptr += self.size[6 * f]
+                self.precomp[chess.WHITE].indextable = data_ptr
+                data_ptr += self.size[0]
                 if split:
-                    self.files[f].precomp[chess.BLACK].indextable = data_ptr
-                    data_ptr += self.size[6 * f + 3]
+                    self.precomp[chess.BLACK].indextable = data_ptr
+                    data_ptr += self.size[3]
 
-            for f in range(files):
-                self.files[f].precomp[chess.WHITE].sizetable = data_ptr
-                data_ptr += self.size[6 * f + 1]
+                self.precomp[chess.WHITE].sizetable = data_ptr
+                data_ptr += self.size[1]
                 if split:
-                    self.files[f].precomp[chess.BLACK].sizetable = data_ptr
-                    data_ptr += self.size[6 * f + 4]
+                    self.precomp[chess.BLACK].sizetable = data_ptr
+                    data_ptr += self.size[4]
 
-            for f in range(files):
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
-                self.files[f].precomp[chess.WHITE].data = data_ptr
-                data_ptr += self.size[6 * f + 2]
+                self.precomp[chess.WHITE].data = data_ptr
+                data_ptr += self.size[2]
                 if split:
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
-                    self.files[f].precomp[chess.BLACK].data = data_ptr
-                    data_ptr += self.size[6 * f + 5]
+                    self.precomp[chess.BLACK].data = data_ptr
+            else:
+                s = 1 + int(self.pawns[1] > 0)
+                for f in range(4):
+                    self.setup_pieces_pawn(data_ptr, 2 * f, f)
+                    data_ptr += self.num + s
+                data_ptr += data_ptr & 0x01
+
+                for f in range(files):
+                    self.files[f].precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
+                    data_ptr = self._next
+                    if split:
+                        self.files[f].precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
+                        data_ptr = self._next
+                    else:
+                        self.files[f].precomp[chess.BLACK] = None
+
+                for f in range(files):
+                    self.files[f].precomp[chess.WHITE].indextable = data_ptr
+                    data_ptr += self.size[6 * f]
+                    if split:
+                        self.files[f].precomp[chess.BLACK].indextable = data_ptr
+                        data_ptr += self.size[6 * f + 3]
+
+                for f in range(files):
+                    self.files[f].precomp[chess.WHITE].sizetable = data_ptr
+                    data_ptr += self.size[6 * f + 1]
+                    if split:
+                        self.files[f].precomp[chess.BLACK].sizetable = data_ptr
+                        data_ptr += self.size[6 * f + 4]
+
+                for f in range(files):
+                    data_ptr = (data_ptr + 0x3f) & ~0x3f
+                    self.files[f].precomp[chess.WHITE].data = data_ptr
+                    data_ptr += self.size[6 * f + 2]
+                    if split:
+                        data_ptr = (data_ptr + 0x3f) & ~0x3f
+                        self.files[f].precomp[chess.BLACK].data = data_ptr
+                        data_ptr += self.size[6 * f + 5]
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[chess.BLACK] > 0)
@@ -967,6 +980,8 @@ class WdlTable(Table):
         self.tb_size[chess.BLACK] = self.calc_factors_piece(self.factor[chess.BLACK], order, self.norm[chess.BLACK])
 
     def probe_wdl_table(self, board):
+        self.init_table_wdl()
+
         key = calc_key(board)
 
         if self.symmetric:
@@ -1035,86 +1050,99 @@ class DtzTable(Table):
 
     def __init__(self, directory, filename, suffix=".rtbz"):
         super(DtzTable, self).__init__(directory, filename, suffix)
-
-        assert DTZ_MAGIC[0] == self.read_ubyte(0)
-        assert DTZ_MAGIC[1] == self.read_ubyte(1)
-        assert DTZ_MAGIC[2] == self.read_ubyte(2)
-        assert DTZ_MAGIC[3] == self.read_ubyte(3)
+        self.initialized = False
+        self.lock = threading.Lock()
 
     def init_table_dtz(self):
-        self.factor = [0, 0, 0, 0, 0, 0]
-        self.norm = [0 for _ in range(self.num)]
-        self.tb_size = [0, 0, 0, 0]
-        self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.files = [PawnFileDataDtz() for f in range(4)]
+        if self.initialized:
+            return
 
-        files = 4 if self.read_ubyte(4) & 0x02 else 1
+        with self.lock:
+            if self.initialized:
+                return
 
-        p_data = 5
+            self.initialized = True
 
-        if not self.has_pawns:
-            self.map_idx = [0, 0, 0, 0]
+            assert DTZ_MAGIC[0] == self.read_ubyte(0)
+            assert DTZ_MAGIC[1] == self.read_ubyte(1)
+            assert DTZ_MAGIC[2] == self.read_ubyte(2)
+            assert DTZ_MAGIC[3] == self.read_ubyte(3)
 
-            self.setup_pieces_piece_dtz(p_data, 0)
-            p_data += self.num + 1
-            p_data += p_data & 0x01
+            self.factor = [0, 0, 0, 0, 0, 0]
+            self.norm = [0 for _ in range(self.num)]
+            self.tb_size = [0, 0, 0, 0]
+            self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.files = [PawnFileDataDtz() for f in range(4)]
 
-            self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
-            self.flags = self._flags
-            p_data = self._next
-            self.p_map = p_data
-            if self.flags & 2:
-                for i in range(4):
-                    self.map_idx[i] = p_data + 1 - self.p_map
-                    p_data += 1 + self.read_ubyte(p_data)
+            files = 4 if self.read_ubyte(4) & 0x02 else 1
+
+            p_data = 5
+
+            if not self.has_pawns:
+                self.map_idx = [0, 0, 0, 0]
+
+                self.setup_pieces_piece_dtz(p_data, 0)
+                p_data += self.num + 1
                 p_data += p_data & 0x01
 
-            self.precomp.indextable = p_data
-            p_data += self.size[0]
-
-            self.precomp.sizetable = p_data
-            p_data += self.size[1]
-
-            p_data = (p_data + 0x3f) & ~0x3f
-            self.precomp.data = p_data
-            p_data += self.size[2]
-        else:
-            s = 1 + int(self.pawns[1] > 0)
-            for f in range(4):
-                self.setup_pieces_pawn_dtz(p_data, f, f)
-                p_data += self.num + s
-            p_data += p_data & 0x01
-
-            self.flags = []
-            for f in range(files):
-                self.files[f].precomp = self.setup_pairs(p_data, self.tb_size[f], 3 * f, False)
+                self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
+                self.flags = self._flags
                 p_data = self._next
-                self.flags.append(self._flags)
-
-            self.map_idx = []
-            self.p_map = p_data
-            for f in range(files):
-                self.map_idx.append([])
-                if self.flags[f] & 2:
+                self.p_map = p_data
+                if self.flags & 2:
                     for i in range(4):
-                        self.map_idx[-1].append(p_data + 1 - self.p_map)
+                        self.map_idx[i] = p_data + 1 - self.p_map
                         p_data += 1 + self.read_ubyte(p_data)
-            p_data += p_data & 0x01
+                    p_data += p_data & 0x01
 
-            for f in range(files):
-                self.files[f].precomp.indextable = p_data
-                p_data += self.size[3 * f]
+                self.precomp.indextable = p_data
+                p_data += self.size[0]
 
-            for f in range(files):
-                self.files[f].precomp.sizetable = p_data
-                p_data += self.size[3 * f + 1]
+                self.precomp.sizetable = p_data
+                p_data += self.size[1]
 
-            for f in range(files):
                 p_data = (p_data + 0x3f) & ~0x3f
-                self.files[f].precomp.data = p_data
-                p_data += self.size[3 * f + 2]
+                self.precomp.data = p_data
+                p_data += self.size[2]
+            else:
+                s = 1 + int(self.pawns[1] > 0)
+                for f in range(4):
+                    self.setup_pieces_pawn_dtz(p_data, f, f)
+                    p_data += self.num + s
+                p_data += p_data & 0x01
+
+                self.flags = []
+                for f in range(files):
+                    self.files[f].precomp = self.setup_pairs(p_data, self.tb_size[f], 3 * f, False)
+                    p_data = self._next
+                    self.flags.append(self._flags)
+
+                self.map_idx = []
+                self.p_map = p_data
+                for f in range(files):
+                    self.map_idx.append([])
+                    if self.flags[f] & 2:
+                        for i in range(4):
+                            self.map_idx[-1].append(p_data + 1 - self.p_map)
+                            p_data += 1 + self.read_ubyte(p_data)
+                p_data += p_data & 0x01
+
+                for f in range(files):
+                    self.files[f].precomp.indextable = p_data
+                    p_data += self.size[3 * f]
+
+                for f in range(files):
+                    self.files[f].precomp.sizetable = p_data
+                    p_data += self.size[3 * f + 1]
+
+                for f in range(files):
+                    p_data = (p_data + 0x3f) & ~0x3f
+                    self.files[f].precomp.data = p_data
+                    p_data += self.size[3 * f + 2]
 
     def probe_dtz_table(self, board, wdl):
+        self.init_table_dtz()
+
         key = calc_key(board)
 
         if not self.symmetric:
@@ -1248,8 +1276,6 @@ class Tablebases(object):
                 if wdl_table.key in self.wdl:
                     self.wdl[wdl_table.key].close()
 
-                wdl_table.init_table_wdl()
-
                 self.wdl[wdl_table.key] = wdl_table
                 self.wdl[wdl_table.mirrored_key] = wdl_table
 
@@ -1259,8 +1285,6 @@ class Tablebases(object):
                 dtz_table = DtzTable(directory, filename)
                 if dtz_table.key in self.dtz:
                     self.dtz[dtz_table.key].close()
-
-                dtz_table.init_table_dtz()
 
                 self.dtz[dtz_table.key] = dtz_table
                 self.dtz[dtz_table.mirrored_key] = dtz_table

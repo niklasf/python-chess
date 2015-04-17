@@ -25,6 +25,8 @@ Upcoming in the next release
 * There is a new method `Board.pieces(piece_type, color)` to get a set of
   squares with the specified pieces.
 
+* Do expensive Syzygy table initialization on demand.
+
 * Scripts removed.
 
 New in v0.8.0
