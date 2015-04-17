@@ -658,28 +658,20 @@ class Table(object):
         while i < n:
             t = norm[i]
 
-            j = i
-            while j < i + t:
-                k = j + 1
-                while k < i + t:
+            for j in range(i, i + t):
+                for k in range(j + 1, i + t):
                     # Swap.
                     if pos[j] > pos[k]:
                         pos[j], pos[k] = pos[k], pos[j]
-                    k += 1
-                j += 1
 
             s = 0
 
-            m = i
-            while m < i + t:
+            for m in range(i, i + t):
                 p = pos[m]
-                l = 0
                 j = 0
-                while l < i:
+                for l in range(i):
                     j += int(p > pos[l])
-                    l += 1
                 s += BINOMIAL[m - i][p - j]
-                m += 1
 
             idx += s * factor[i]
             i += t
