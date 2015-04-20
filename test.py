@@ -863,6 +863,13 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertTrue(pos.parse_san("O-O-O") in moves)
             self.assertEqual(len(moves), 1)
 
+    def test_empty_book(self):
+        with chess.polyglot.open_reader("data/opening-books/empty.bin") as book:
+            self.assertEqual(len(book), 0)
+
+            entries = book.get_entries_for_position(chess.Board())
+            self.assertEqual(len(list(entries)), 0)
+
 
 class PgnTestCase(unittest.TestCase):
 
