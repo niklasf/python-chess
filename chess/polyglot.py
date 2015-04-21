@@ -128,7 +128,7 @@ class Reader(object):
 
         # Do a binary search.
         start = 0
-        end = len(self)
+        end = len(self) - 1
         while end >= start:
             middle = int((start + end) / 2)
 
