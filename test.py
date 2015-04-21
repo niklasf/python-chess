@@ -870,6 +870,16 @@ class PolyglotTestCase(unittest.TestCase):
             entries = book.get_entries_for_position(chess.Board())
             self.assertEqual(len(list(entries)), 0)
 
+    def test_reversed(self):
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            # Last is first of reversed.
+            self.assertEqual(book[len(book) - 1], next(reversed(book)))
+
+            # First is last of reversed.
+            for last in reversed(book):
+                pass
+            self.assertEqual(book[0], last)
+
 
 class PgnTestCase(unittest.TestCase):
 
