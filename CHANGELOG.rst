@@ -27,6 +27,8 @@ Upcoming in the next release
 
 * Do expensive Syzygy table initialization on demand.
 
+* Fixed off-by-one error and Python 3 compability for polyglot opening books.
+
 * Scripts removed.
 
 New in v0.8.0
