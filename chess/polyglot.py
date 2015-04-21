@@ -103,9 +103,11 @@ class Reader(object):
         return self
 
     def __reversed__(self):
-        for i in xrange(self.__entry_count - 1, -1, -1):
+        i = self.__entry_count - 1
+        while i >= 0:
             self.seek_entry(i)
             yield self.next()
+            i -= 1
 
     def seek_entry(self, offset, whence=0):
         """
