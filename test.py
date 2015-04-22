@@ -788,6 +788,10 @@ class SquareSetTestCase(unittest.TestCase):
         bb = chess.SquareSet(chess.BB_G7 | chess.BB_G8)
         self.assertEqual(set(bb), {chess.G7, chess.G8})
 
+    def test_reversed(self):
+        bb = chess.SquareSet(chess.BB_A1 | chess.BB_D7 | chess.BB_E1)
+        self.assertEqual(set(bb), {chess.A1, chess.D7, chess.E1})
+
     def test_arithmetic(self):
         self.assertEqual(chess.SquareSet(chess.BB_RANK_2) & chess.BB_FILE_D, chess.BB_D2)
         self.assertEqual(chess.SquareSet(chess.BB_ALL) ^ chess.BB_VOID, chess.BB_ALL)

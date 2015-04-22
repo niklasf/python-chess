@@ -2595,6 +2595,14 @@ class SquareSet(object):
             yield square
             square = bit_scan(self.mask, square + 1)
 
+    def __reversed__(self):
+        string = bin(self.mask)
+        l = len(string)
+        r = string.find("1", 0)
+        while r != -1:
+            yield l - r - 1
+            r = string.find("1", r)
+
     def __contains__(self, square):
         return bool(BB_SQUARES[square] & self.mask)
 
