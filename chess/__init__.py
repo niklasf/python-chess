@@ -894,7 +894,7 @@ class Board(object):
 
         Returns a set of squares.
         """
-        return SquareSet(self.piece_mask(piece_type, color))
+        return SquareSet(self.pieces_mask(piece_type, color))
 
     def piece_at(self, square):
         """Gets the piece at the given square."""
