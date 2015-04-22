@@ -102,13 +102,6 @@ class Reader(object):
         self.seek_entry(0)
         return self
 
-    def __reversed__(self):
-        i = self.__entry_count - 1
-        while i >= 0:
-            self.seek_entry(i)
-            yield self.next()
-            i -= 1
-
     def seek_entry(self, offset, whence=0):
         """
         Seek an entry by its index.
