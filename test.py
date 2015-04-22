@@ -721,6 +721,12 @@ class BoardTestCase(unittest.TestCase):
                 if not move in pseudo_legal_moves:
                     self.assertFalse(board.is_pseudo_legal(move))
 
+    def test_pieces(self):
+        board = chess.Board()
+        king = board.pieces(chess.KING, chess.WHITE)
+        self.assertTrue(chess.E1 in king)
+        self.assertEqual(len(king), 1)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
