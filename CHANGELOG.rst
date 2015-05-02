@@ -41,6 +41,8 @@ Upcoming in the next release
 * There is a new method `Board.pieces(piece_type, color)` to get a set of
   squares with the specified pieces.
 
+* Fixed pondering mode in `uci` module.
+
 * Do expensive Syzygy table initialization on demand.
 
 * Fixed off-by-one error and Python 3 compability for polyglot opening books.
