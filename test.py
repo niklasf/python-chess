@@ -1293,14 +1293,12 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_done()
 
     def test_ponderhit(self):
-        self.mock.expect("ponderhit")
-        self.mock.expect("isready", ("readyok", ))
+        self.mock.expect("ponderhit", ("bestmove e2e4", ))
         self.engine.ponderhit()
         self.mock.assert_done()
 
     def test_async_ponderhit(self):
-        self.mock.expect("ponderhit")
-        self.mock.expect("isready", ("readyok", ))
+        self.mock.expect("ponderhit", ("bestmove e2e4", ))
         command = self.engine.ponderhit(async_callback=True)
         command.result()
         self.assertTrue(command.done())

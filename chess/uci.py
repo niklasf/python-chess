@@ -520,7 +520,7 @@ class StopCommand(Command):
         self.set_result(BestMove(engine.bestmove, engine.ponder))
 
 
-class PonderhitCommand(IsReadyCommand):
+class PonderhitCommand(Command):
     def execute(self, engine):
         engine.bestmove = None
         engine.ponder = None
