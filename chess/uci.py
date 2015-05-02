@@ -102,6 +102,7 @@ class InfoHandler(object):
         self.info["refutation"] = {}
         self.info["currline"] = {}
         self.info["pv"] = {}
+        self.info["score"] = {}
 
     def depth(self, x):
         """Received search depth in plies."""
@@ -129,7 +130,12 @@ class InfoHandler(object):
         self.info["pv"][self.info.get("multipv", 1)] = moves
 
     def multipv(self, num):
-        """Received a new multipv number, starting at 1."""
+        """
+        Received a new multipv number, starting at 1.
+
+        If multipv occurs in an info line, this is guaranteed to be called
+        before *score* or *pv*.
+        """
         self.info["multipv"] = num
 
     def score(self, cp, mate, lowerbound, upperbound):
@@ -143,8 +149,11 @@ class InfoHandler(object):
 
         lowerbound and upperbound are usually *False*. If *True*, the sent
         score are just a lowerbound or upperbound.
+
+        In MultiPV mode this is related to the most recent *multipv* number
+        sent by the engine.
         """
-        self.info["score"] = Score(cp, mate, lowerbound, upperbound)
+        self.info["score"][self.info.get("multipv", 1)] = Score(cp, mate, lowerbound, upperbound)
 
     def currmove(self, move):
         """Received a move the engine is currently thinking about."""
@@ -207,6 +216,7 @@ class InfoHandler(object):
         order to keep the locking in tact.
         """
         self.lock.acquire()
+        self.info.pop("multipv", None)
 
     def post_info(self):
         """
@@ -233,6 +243,7 @@ class InfoHandler(object):
             self.info["refutation"] = {}
             self.info["currline"] = {}
             self.info["pv"] = {}
+            self.info["score"] = {}
 
     def acquire(self, blocking=True):
         return self.lock.acquire(blocking)
@@ -841,11 +852,11 @@ class Engine(object):
         if not self.info_handlers:
             return
 
+        # Notify info handlers of start.
         for info_handler in self.info_handlers:
             info_handler.pre_info(arg)
 
-        current_parameter = None
-
+        # Initialize parser state.
         pv = None
         score_kind = None
         score_cp = None
@@ -900,6 +911,20 @@ class Engine(object):
             for info_handler in self.info_handlers:
                 fn(info_handler, move)
 
+        # Find multipv parameter first.
+        if "multipv" in arg:
+            current_parameter = None
+            for token in arg.split(" "):
+                if token == "string":
+                    break
+
+                if current_parameter == "multipv":
+                    handle_integer_token(token, lambda handler, val: handler.multipv(val))
+
+                current_parameter = token
+
+        # Parse all other parameters.
+        current_parameter = None
         for token in arg.split(" "):
             if current_parameter == "string":
                 string.append(token)
@@ -934,7 +959,8 @@ class Engine(object):
                 except ValueError:
                     pass
             elif current_parameter == "multipv":
-                handle_integer_token(token, lambda handler, val: handler.multipv(val))
+                # Ignore multipv. It was already parsed before anything else.
+                pass
             elif current_parameter == "score":
                 if token in ("cp", "mate"):
                     score_kind = token
@@ -987,6 +1013,7 @@ class Engine(object):
             for info_handler in self.info_handlers:
                 info_handler.string(" ".join(string))
 
+        # Notify info handlers of end.
         for info_handler in self.info_handlers:
             info_handler.post_info()
 

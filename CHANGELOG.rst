@@ -19,6 +19,22 @@ Upcoming in the next release
 * Removed `uci.InfoHandler.pre_bestmove()` and
   `uci.InfoHandler.post_bestmove()`.
 
+* `uci.InfoHandler().info["score"]` is now relative to multipv. Use
+
+  .. code:: python
+
+      >>> with info_handler as info:
+      ...     if 1 in info["score"]:
+      ...         cp = info["score"][1].cp
+
+  where you were previously using
+
+  .. code:: python
+
+      >>> with info_handler as info:
+      ...     if "score" in info:
+      ...         cp = info["score"].cp
+
 * Clear `uci.InfoHandler()` dictionary at the start of new searches
   (new `on_go()`), not at the end of searches.
 
