@@ -134,9 +134,9 @@ class.
         >>> # Wait a moment, then access a consistent snapshot.
         >>> time.sleep(3)
         >>> with handler:
-        ...     if "score" in handler.info:
-        ...         print("Score: ", handler.info["score"].cp)
-        ...         print("Mate: ", handler.info["score"].mate)
+        ...     if 1 in handler.info["score"]:
+        ...         print("Score: ", handler.info["score"][1].cp)
+        ...         print("Mate: ", handler.info["score"][1].mate)
         Score: 34
         Mate: None
 

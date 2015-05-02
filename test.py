@@ -1361,7 +1361,7 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.on_line_received("info string goes to end no matter score cp 4 what")
         with handler as info:
             self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
-            self.assertFalse("score" in info)
+            self.assertFalse(1 in info["score"])
 
     def test_info_currline(self):
         handler = chess.uci.InfoHandler()
@@ -1384,8 +1384,8 @@ class UciEngineTestCase(unittest.TestCase):
 
         self.engine.on_line_received("info depth 7 seldepth 8 score mate 3")
         with handler as info:
-            self.assertEqual(info["score"].mate, 3)
-            self.assertEqual(info["score"].cp, None)
+            self.assertEqual(info["score"][1].mate, 3)
+            self.assertEqual(info["score"][1].cp, None)
 
     def test_info(self):
         handler = chess.uci.InfoHandler()
@@ -1415,6 +1415,21 @@ class UciEngineTestCase(unittest.TestCase):
             ("String option", "value value"),
         ]))
         self.mock.assert_done()
+
+    def test_multi_pv(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info score cp 777 multipv 13 pv e2e4")
+        self.engine.on_line_received("info score cp 888 pv d2d4")
+        with handler as info:
+            # Principal variations.
+            self.assertEqual(info["pv"][13][0], chess.Move.from_uci("e2e4"))
+            self.assertEqual(info["pv"][1][0], chess.Move.from_uci("d2d4"))
+
+            # Score is relative to multipv as well.
+            self.assertEqual(info["score"][13].cp, 777)
+            self.assertEqual(info["score"][1].cp, 888)
 
 
 class SyzygyTestCase(unittest.TestCase):
