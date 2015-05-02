@@ -1209,7 +1209,8 @@ class Engine(object):
             is the best move according to the engine. The second is the ponder
             move. This is the reply expected by the engine. Either of the
             elements may be *None*. **In infinite search mode** or
-            **ponder mode** there is no result. See *stop* instead.
+            **ponder mode** there is no result. See *stop* (or *ponderhit*)
+            instead.
         """
         return self._queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite), async_callback)
 
@@ -1230,7 +1231,9 @@ class Engine(object):
         The engine should continue searching but should switch from pondering
         to normal search.
 
-        :return: Nothing
+        :return: A tuple of two elements. The first element is the best move
+        according to the engine. The second is the new ponder move. Either
+        of the elements may be *None*.
         """
         return self._queue_command(PonderhitCommand(), async_callback)
 
