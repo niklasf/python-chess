@@ -445,6 +445,7 @@ class GoCommand(Command):
             for move in searchmoves:
                 builder.append(move.uci())
 
+        self.ponder = ponder
         if ponder:
             builder.append("ponder")
 
@@ -495,7 +496,7 @@ class GoCommand(Command):
         engine.ponder = None
         engine.bestmove_received.clear()
         engine.send_line(self.buf)
-        if self.infinite:
+        if self.infinite or self.ponder:
             self.set_result(None)
         else:
             engine.bestmove_received.wait()
@@ -521,8 +522,13 @@ class StopCommand(Command):
 
 class PonderhitCommand(IsReadyCommand):
     def execute(self, engine):
+        engine.bestmove = None
+        engine.ponder = None
+        engine.bestmove_received.clear()
         engine.send_line("ponderhit")
-        super(PonderhitCommand, self).execute(engine)
+
+        engine.bestmove_received.wait()
+        self.set_result(BestMove(engine.bestmove, engine.ponder))
 
 
 class QuitCommand(Command):
@@ -1165,7 +1171,8 @@ class Engine(object):
         so that the engine knows how long to calculate.
 
         :param searchmoves: Restrict search to moves in this list.
-        :param ponder: Bool to enable pondering mode.
+        :param ponder: Bool to enable pondering mode. The engine will not stop
+            pondering in the background until a *stop* command is received.
         :param wtime: Integer of milliseconds white has left on the clock.
         :param btime: Integer of milliseconds black has left on the clock.
         :param winc: Integer of white Fisher increment.
@@ -1182,8 +1189,8 @@ class Engine(object):
         :return: **In normal search mode** a tuple of two elements. The first
             is the best move according to the engine. The second is the ponder
             move. This is the reply expected by the engine. Either of the
-            elements may be *None*. **In infinite search mode** there is no
-            result. See *stop* instead.
+            elements may be *None*. **In infinite search mode** or
+            **ponder mode** there is no result. See *stop* instead.
         """
         return self._queue_command(GoCommand(searchmoves, ponder, wtime, btime, winc, binc, movestogo, depth, nodes, mate, movetime, infinite), async_callback)
 
