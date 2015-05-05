@@ -47,6 +47,9 @@ Upcoming in the next release
 
 * Fixed off-by-one error and Python 3 compability for polyglot opening books.
 
+* Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
+  PGN files.
+
 * Scripts removed.
 
 New in v0.8.0

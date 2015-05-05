@@ -1021,6 +1021,43 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(5 in node.variation(1).nags)
         self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
 
+    def test_promotion_without_equals(self):
+        # Example game from https://github.com/rozim/ChessData as originally
+        # reported.
+        pgn = StringIO(textwrap.dedent("""\
+            [Event "It (open)"]
+            [Site "Aschach (Austria)"]
+            [Date "2011.12.26"]
+            [Round "1"]
+            [White "Ennsberger Ulrich (AUT)"]
+            [Black "Koller Hans-Juergen (AUT)"]
+            [Result "0-1"]
+            [ECO "A45"]
+            [WhiteElo "2373"]
+            [BlackElo "2052"]
+            [ID ""]
+            [FileName ""]
+            [Annotator ""]
+            [Source ""]
+            [Remark ""]
+
+            1.d4 Nf6 2.Bg5 c5 3.d5 Ne4 4.Bf4 Qb6 5.Nd2 Nxd2 6.Bxd2 e6 7.Bc3
+            d6 8.e4 e5 9.a4 Be7 10.a5 Qc7 11.f4 f6 12.f5 g6 13.Bb5+ Bd7 14.Bc4
+            gxf5 15.Qh5+ Kd8 16.exf5 Qc8 17.g4 Na6 18.Ne2 b5 19.axb6 axb6
+            20.O-O Nc7 21.Qf7 h5 22.Qg7 Rf8 23.gxh5 Ne8 24.Rxa8 Nxg7 25.Rxc8+
+            Kxc8 26.Ng3 Rh8 27.Be2 Be8 28.Be1 Nxh5 29.Bxh5 Bxh5 30.Nxh5 Rxh5
+            31.h4 Bf8 32.c4 Bh6 33.Bg3 Be3+ 34.Kg2 Kb7 35.Kh3 b5 36.b3 b4
+            37.Kg4 Rh8 38.Kf3 Bh6 39.Bf2 Ra8 40.Kg4 Bf4 41.Kh5 Ra3 42.Kg6
+            Rxb3 43.h5 Rf3 44.h6 Bxh6 45.Kxh6 Rxf5 46.Kg6 Rf4 47.Kf7 e4 48.Re1
+            Rxf2 49.Ke6 Kc7 50.Rh1 b3 51.Rh7+ Kb6 52.Kxd6 b2 53.Rh1 Rd2 54.Rh8
+            e3 55.Rb8+ Ka5 56.Kxc5 Ka4 57.d6 e2 58.Re8 b1Q 0-1"""))
+
+        game = chess.pgn.read_game(pgn)
+
+        # Make sure the last move is a promotion.
+        last_node = game.end()
+        self.assertEqual(last_node.move.uci(), "b2b1q")
+
     def test_variation_stack(self):
         # Ignore superfluous closing brackets.
         pgn = StringIO("1. e4 (1. d4))) !? *")

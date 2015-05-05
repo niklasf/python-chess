@@ -50,7 +50,7 @@ STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 
-SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=[nbrqNBRQ])?(\\+|#)?$")
+SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
 
 FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
 
@@ -2154,7 +2154,7 @@ class Board(object):
         if not match.group(5):
             promotion = NONE
         else:
-            promotion = PIECE_SYMBOLS.index(match.group(5)[1].lower())
+            promotion = PIECE_SYMBOLS.index(match.group(5)[-1].lower())
 
         # Filter by piece type.
         if match.group(1) == "N":
