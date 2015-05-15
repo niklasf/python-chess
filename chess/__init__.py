@@ -25,10 +25,9 @@ __version__ = "0.8.0"
 import collections
 import re
 
+COLORS = [ WHITE, BLACK ] = range(2)
 
-COLORS = [ WHITE, BLACK ] = list(range(2))
-
-PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = list(range(7))
+PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
@@ -67,7 +66,7 @@ SQUARES = [
     A5, B5, C5, D5, E5, F5, G5, H5,
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8 ] = list(range(64))
+    A8, B8, C8, D8, E8, F8, G8, H8 ] = range(64)
 
 SQUARES_180 = [
     A8, B8, C8, D8, E8, F8, G8, H8,
@@ -726,6 +725,9 @@ class Move(object):
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
         else:
             return "0000"
+
+    def __nonzero__(self):
+        return self.__bool__()
 
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion)
@@ -1980,7 +1982,7 @@ class Board(object):
             epd.append("-")
 
         # Append operations.
-        for opcode, operand in list(operations.items()):
+        for opcode, operand in operations.items():
             epd.append(" ")
             epd.append(opcode)
 
@@ -2427,12 +2429,20 @@ class Board(object):
         return "".join(builder)
 
     def __unicode__(self):
-        string = '   a  b  c  d e  f  g  h  \r\n'
+        """
+        Returns a board with unicode pieces.
+        Lack of good fixed-with fonts with fixed widths that apply
+        to the piece characters and to e.g. white space prevents this
+        from looking better.
+        """
+        string = '   a  b  c  d e  f  g  h  \r\n' # Lack of consistent white
+                                                  # space due to mismatch 
+                                                  # between char widths.  
         for rank in range(8,0,-1):
             string += '  ' + '-'*22 + '\r\n'
             string += '%d ' % rank
-            for file_ in 'A B C D E F G H'.split():
-                square = eval('%s%d' % (file_,rank))
+            for file_ in 'a b c d e f g h'.split():
+                square = SQUARE_NAMES.index('%s%d' % (file_,rank))
                 piece = self.piece_at(square)
                 if piece:
                     string += '|%s' % piece.str()
@@ -2444,6 +2454,11 @@ class Board(object):
         return string
 
     def __html__(self):
+        """
+        Returns a html-version of the board.
+        Can be displayed in e.g. an IPython notebook using
+        IPython.display.HTML(board.__html__())
+        """
         tr = '<tr style="vertical-align:bottom;">'
         string = '<table style="text-align:center; \
                                 border-spacing:0pt; \

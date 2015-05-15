@@ -158,6 +158,9 @@ class Reader(object):
         except struct.error:
             raise StopIteration()
 
+    def next(self):
+        return self.__next__()
+        
     def __next__(self):
         """
         Reads the next `Entry`.
