@@ -26,9 +26,9 @@ import collections
 import re
 
 
-COLORS = [ WHITE, BLACK ] = range(2)
+COLORS = [ WHITE, BLACK ] = list(range(2))
 
-PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
+PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = list(range(7))
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
@@ -62,7 +62,7 @@ SQUARES = [
     A5, B5, C5, D5, E5, F5, G5, H5,
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8 ] = range(64)
+    A8, B8, C8, D8, E8, F8, G8, H8 ] = list(range(64))
 
 SQUARES_180 = [
     A8, B8, C8, D8, E8, F8, G8, H8,
@@ -719,7 +719,7 @@ class Move(object):
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.from_square or self.to_square or self.promotion
 
     def __eq__(self, other):
@@ -1972,7 +1972,7 @@ class Board(object):
             epd.append("-")
 
         # Append operations.
-        for opcode, operand in operations.items():
+        for opcode, operand in list(operations.items()):
             epd.append(" ")
             epd.append(opcode)
 
