@@ -309,6 +309,7 @@ python-chess, for example:
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
 * a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+* extracting reasoning from chess engines - https://github.com/pcattori/deep-blue-talks
 
 License
 -------
