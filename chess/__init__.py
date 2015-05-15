@@ -32,6 +32,11 @@ PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = list(range(7))
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
+PIECE_UNICODE = {'R':'\u2656','N':'\u2658','B':'\u2657',
+                 'Q':'\u2655','K':'\u2654','P':'\u2659',
+                 'r':'\u265c','n':'\u265e','b':'\u265d',
+                 'q':'\u265b','k':'\u265a','p':'\u265f','':'\u266f'}
+
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -657,6 +662,12 @@ class Piece(object):
             return PIECE_SYMBOLS[self.piece_type].upper()
         else:
             return PIECE_SYMBOLS[self.piece_type]
+
+    def str(self):
+        """
+        Gets the unicode character for the piece.
+        """
+        return PIECE_UNICODE[self.symbol()]
 
     def __hash__(self):
         return self.piece_type * (self.color + 1)
@@ -2414,6 +2425,60 @@ class Board(object):
                 builder.append(" ")
 
         return "".join(builder)
+
+    def __unicode__(self):
+        string = '   a  b  c  d e  f  g  h  \r\n'
+        for rank in range(8,0,-1):
+            string += '  ' + '-'*22 + '\r\n'
+            string += '%d ' % rank
+            for file_ in 'A B C D E F G H'.split():
+                square = eval('%s%d' % (file_,rank))
+                piece = self.piece_at(square)
+                if piece:
+                    string += '|%s' % piece.str()
+                else:
+                    string += '|%s' % PIECE_UNICODE['']
+            string += '| %d\n' % rank
+        string += '  ' + '-'*22 + '\n\r'
+        string += '   a  b  c  d e  f  g  h  \n\r'
+        return string
+
+    def __html__(self):
+        tr = '<tr style="vertical-align:bottom;">'
+        string = '<table style="text-align:center; \
+                                border-spacing:0pt; \
+                                font-family:\'Arial Unicode MS\'; \
+                                border-collapse:collapse; \
+                                border-color: black; \
+                                border-style: solid; \
+                                border-width: 0pt 0pt 0pt 0pt">'    
+        for rank in range(8,0,-1):
+            string += tr
+            string += '<td style="vertical-align:middle; \
+                                  width:12pt">%d</td>' % rank
+            for i,file_ in enumerate('A B C D E F G H'.split()):
+                square = eval('%s%d' % (file_,rank))
+                piece = self.piece_at(square)
+                char = piece.str() if piece else ''
+                if (i+rank) % 2 == 0:
+                    string += '<td style="width:28pt; \
+                                          height:28pt; \
+                                          border-collapse:collapse; \
+                                          border-color: black; \
+                                          border-style: solid; \
+                                          border-width: 0pt 0pt 0pt 0pt">\
+                                          <span style="font-size:250%%;">\
+                                          %s</span></td>' % char
+                else:
+                    string += '<td style="background:silver;">\
+                               <span style="font-size:250%%;">\
+                               %s</span></td>' % char
+            string += '</tr>'
+        string += '<tr><td></td>'
+        for file_ in 'a b c d e f g h'.split():
+            string += '<td style="text-align:center">%s</td>' % file_
+        string += '</tr></table>'
+        return string
 
     def __eq__(self, bitboard):
         return not self.__ne__(bitboard)
