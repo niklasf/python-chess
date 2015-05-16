@@ -440,11 +440,6 @@ class GoCommand(Command):
         builder = []
         builder.append("go")
 
-        if searchmoves:
-            builder.append("searchmoves")
-            for move in searchmoves:
-                builder.append(move.uci())
-
         self.ponder = ponder
         if ponder:
             builder.append("ponder")
@@ -488,6 +483,11 @@ class GoCommand(Command):
         self.infinite = infinite
         if infinite:
             builder.append("infinite")
+
+        if searchmoves:
+            builder.append("searchmoves")
+            for move in searchmoves:
+                builder.append(move.uci())
 
         self.buf = " ".join(builder)
 

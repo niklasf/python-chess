@@ -1309,7 +1309,7 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_terminated()
 
     def test_go(self):
-        self.mock.expect("go searchmoves e2e4 d2d4 ponder infinite")
+        self.mock.expect("go ponder infinite searchmoves e2e4 d2d4")
         self.engine.go(
             searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")],
             ponder=True,
