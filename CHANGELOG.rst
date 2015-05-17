@@ -10,6 +10,8 @@ Upcoming in the next release
 ----------------------------
 
 * The `Board.pieces` lookup list has been removed.
+* There is a new method `Board.pieces(piece_type, color)` to get a set of
+  squares with the specified pieces.
 
 * Fixed spelling of repetition (was repitition).
   `can_claim_threefold_repetition` and `is_fivefold_repetition` are the
@@ -38,10 +40,9 @@ Upcoming in the next release
 * Clear `uci.InfoHandler()` dictionary at the start of new searches
   (new `on_go()`), not at the end of searches.
 
-* There is a new method `Board.pieces(piece_type, color)` to get a set of
-  squares with the specified pieces.
-
 * Fixed pondering mode in `uci` module.
+* Patch by Richard C. Gerkin: Moved searchmoves to the end of the go command
+  where it will not cause other command parameters to be ignored.
 
 * Do expensive Syzygy table initialization on demand.
 
