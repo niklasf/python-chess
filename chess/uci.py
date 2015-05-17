@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
 
 import chess
 import collections
@@ -29,7 +29,7 @@ import threading
 try:
     import queue
 except ImportError:
-    import Queue as queue
+    import queue as queue
 
 
 LOGGER = logging.getLogger(__name__)
@@ -71,27 +71,27 @@ class OptionMap(collections.MutableMapping):
         del self._store[key.lower()]
 
     def __iter__(self):
-        return (casedkey for casedkey, mappedvalue in self._store.values())
+        return (casedkey for casedkey, mappedvalue in list(self._store.values()))
 
     def __len__(self):
         return len(self._store)
 
     def __eq__(self, other):
-        for key, value in self.items():
+        for key, value in list(self.items()):
             if not key in other or other[key] != value:
                 return False
 
-        for key, value in other.items():
+        for key, value in list(other.items()):
             if not key in self or self[key] != value:
                 return False
 
         return True
 
     def copy(self):
-        return OptionMap(self._store.values())
+        return OptionMap(list(self._store.values()))
 
     def __repr__(self):
-        return "{0}({1})".format(self.__class__.__name__, dict(self.items()))
+        return "{0}({1})".format(self.__class__.__name__, dict(list(self.items())))
 
 
 class InfoHandler(object):
@@ -378,7 +378,7 @@ class SetOptionCommand(IsReadyCommand):
 
         self.option_lines = []
 
-        for name, value in options.items():
+        for name, value in list(options.items()):
             builder = []
             builder.append("setoption name ")
             builder.append(name)
@@ -497,6 +497,7 @@ class GoCommand(Command):
                 builder.append(move.uci())
 
         self.buf = " ".join(builder)
+        print(self)
 
     def execute(self, engine):
         for info_handler in engine.info_handlers:

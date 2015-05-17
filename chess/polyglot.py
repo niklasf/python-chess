@@ -96,7 +96,7 @@ class Reader(object):
         if key >= self.__entry_count:
             raise IndexError()
         self.seek_entry(key)
-        return self.next()
+        return next(self)
 
     def __iter__(self):
         self.seek_entry(0)
@@ -159,6 +159,9 @@ class Reader(object):
             raise StopIteration()
 
     def next(self):
+        return self.__next__()
+        
+    def __next__(self):
         """
         Reads the next `Entry`.
 
@@ -178,12 +181,12 @@ class Reader(object):
             raise StopIteration()
 
         # Iterate.
-        entry = self.next()
+        entry = next(self)
         while entry.key == zobrist_hash:
             if entry.move() in position.legal_moves:
                 yield entry
 
-            entry = self.next()
+            entry = next(self)
 
 
 class ClosableReader(Reader):

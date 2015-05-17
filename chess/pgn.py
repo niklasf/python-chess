@@ -356,7 +356,7 @@ class Game(GameNode):
 
         if headers:
             exporter.start_headers()
-            for tagname, tagvalue in self.headers.items():
+            for tagname, tagvalue in list(self.headers.items()):
                 exporter.put_header(tagname, tagvalue)
             exporter.end_headers()
 
