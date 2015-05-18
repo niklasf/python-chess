@@ -22,6 +22,7 @@ __email__ = "niklas.fiekas@tu-clausthal.de"
 
 __version__ = "0.8.0"
 
+import os
 import collections
 import re
 
@@ -31,6 +32,12 @@ COLORS = [ WHITE, BLACK ] = range(2)
 PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
+
+# Use '':'\u266f' in a notebook environment.  
+PIECE_UNICODE_SYMBOLS = {'R':'\u2656','N':'\u2658','B':'\u2657',
+                         'Q':'\u2655','K':'\u2654','P':'\u2659',
+                         'r':'\u265c','n':'\u265e','b':'\u265d',
+                         'q':'\u265b','k':'\u265a','p':'\u265f','':'.'}
 
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
@@ -657,6 +664,14 @@ class Piece(object):
             return PIECE_SYMBOLS[self.piece_type].upper()
         else:
             return PIECE_SYMBOLS[self.piece_type]
+
+    def unicode_symbol(self, reverse_color=False):
+        """
+        Gets the unicode character for the piece.
+        """
+        symbol = self.symbol() if not reverse_color \
+                               else self.symbol().swapcase()
+        return PIECE_UNICODE_SYMBOLS[symbol]
 
     def __hash__(self):
         return self.piece_type * (self.color + 1)
@@ -2417,6 +2432,38 @@ class Board(object):
                 builder.append(" ")
 
         return "".join(builder)
+
+    def __unicode__(self, reverse_color=False, borders=False):
+        """
+        Returns a board with unicode pieces.
+        Lack of good fixed-with fonts with fixed widths that apply
+        to the piece characters and to e.g. white space prevents this
+        from looking better.
+        reverse_colors - Flip white and black symbols (for use with white text 
+                                                       on black backgrounds)
+        borders - Draw the board with borders and rank/file names.  
+        """
+        sep = os.linesep
+        string = ''
+        for rank in range(8,0,-1):
+            if borders:
+                string += '  ' + '-'*17 + sep
+                string += '%d ' % rank
+            for file_ in 'a b c d e f g h'.split():
+                square = SQUARE_NAMES.index('%s%d' % (file_,rank))
+                piece = self.piece_at(square)
+                border = ('|' if borders else ('' if file_=='a' else ' '))
+                if piece:
+                    string += '%s%s' % \
+                      (border,piece.unicode_symbol(reverse_color=reverse_color))
+                else:
+                    string += '%s%s' % (border,PIECE_UNICODE_SYMBOLS[''])
+            string += '%s%s' % ('|' if borders else '',
+                                '' if rank==1 and not borders else sep)
+        if borders:
+            string += '  ' + '-'*17 + sep
+            string += '   a b c d e f g h'
+        return string
 
     def __eq__(self, bitboard):
         return not self.__ne__(bitboard)
