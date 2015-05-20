@@ -672,13 +672,14 @@ class Piece(object):
         else:
             return PIECE_SYMBOLS[self.piece_type]
 
-    def unicode_symbol(self, reverse_color=False):
+    def unicode_symbol(self, invert_color=False):
         """
         Gets the unicode character for the piece.
         """
-        symbol = self.symbol() if not reverse_color \
-                               else self.symbol().swapcase()
-        return PIECE_UNICODE_SYMBOLS[symbol]
+        if not invert_color:
+            return UNICODE_PIECE_SYMBOLS[self.symbol()]
+        else:
+            return UNICODE_PIECE_SYMBOLS[self.symbol().swapcase()]
 
     def __hash__(self):
         return self.piece_type * (self.color + 1)
@@ -2440,14 +2441,14 @@ class Board(object):
 
         return "".join(builder)
 
-    def __unicode__(self, reverse_color=False, borders=False):
+    def __unicode__(self, invert_color=False, borders=False):
         """
         Returns a board with unicode pieces.
         Lack of good fixed-with fonts with fixed widths that apply
         to the piece characters and to e.g. white space prevents this
         from looking better.
-        reverse_colors - Flip white and black symbols (for use with white text
-                                                       on black backgrounds)
+        invert_color - Flip white and black symbols (for use with white text
+                                                     on black backgrounds)
         borders - Draw the board with borders and rank/file names.
         """
         sep = os.linesep
@@ -2462,7 +2463,7 @@ class Board(object):
                 border = ('|' if borders else ('' if file_=='a' else ' '))
                 if piece:
                     string += '%s%s' % \
-                      (border,piece.unicode_symbol(reverse_color=reverse_color))
+                      (border, piece.unicode_symbol(invert_color=invert_color))
                 else:
                     string += '%s%s' % (border, ".")
             string += '%s%s' % ('|' if borders else '',
