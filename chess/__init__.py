@@ -794,13 +794,13 @@ class Move(object):
 
 class Board(object):
     """
-    A bitboard and additional information representing a position.
+    A board and additional information representing a position.
 
     Provides move generation, validation, parsing, attack generation,
     game end detection, move counters and the capability to make and unmake
     moves.
 
-    The bitboard is initialized to the starting position, unless otherwise
+    The board is initialized to the starting position, unless otherwise
     specified in the optional `fen` argument.
     """
 
@@ -2470,36 +2470,36 @@ class Board(object):
             string += '   a b c d e f g h'
         return string
 
-    def __eq__(self, bitboard):
-        return not self.__ne__(bitboard)
+    def __eq__(self, board):
+        return not self.__ne__(board)
 
-    def __ne__(self, bitboard):
+    def __ne__(self, board):
         try:
-            if self.occupied != bitboard.occupied:
+            if self.occupied != board.occupied:
                 return True
-            if self.occupied_co[WHITE] != bitboard.occupied_co[WHITE]:
+            if self.occupied_co[WHITE] != board.occupied_co[WHITE]:
                 return True
-            if self.pawns != bitboard.pawns:
+            if self.pawns != board.pawns:
                 return True
-            if self.knights != bitboard.knights:
+            if self.knights != board.knights:
                 return True
-            if self.bishops != bitboard.bishops:
+            if self.bishops != board.bishops:
                 return True
-            if self.rooks != bitboard.rooks:
+            if self.rooks != board.rooks:
                 return True
-            if self.queens != bitboard.queens:
+            if self.queens != board.queens:
                 return True
-            if self.kings != bitboard.kings:
+            if self.kings != board.kings:
                 return True
-            if self.ep_square != bitboard.ep_square:
+            if self.ep_square != board.ep_square:
                 return True
-            if self.castling_rights != bitboard.castling_rights:
+            if self.castling_rights != board.castling_rights:
                 return True
-            if self.turn != bitboard.turn:
+            if self.turn != board.turn:
                 return True
-            if self.fullmove_number != bitboard.fullmove_number:
+            if self.fullmove_number != board.fullmove_number:
                 return True
-            if self.halfmove_clock != bitboard.halfmove_clock:
+            if self.halfmove_clock != board.halfmove_clock:
                 return True
         except AttributeError:
             return True
@@ -2582,12 +2582,12 @@ Bitboard = Board
 
 class PseudoLegalMoveGenerator(object):
 
-    def __init__(self, bitboard):
-        self.bitboard = bitboard
+    def __init__(self, board):
+        self.board = board
 
     def __bool__(self):
         try:
-            next(self.bitboard.generate_pseudo_legal_moves())
+            next(self.board.generate_pseudo_legal_moves())
             return True
         except StopIteration:
             return False
@@ -2595,23 +2595,23 @@ class PseudoLegalMoveGenerator(object):
     __nonzero__ = __bool__
 
     def __len__(self):
-        return self.bitboard.pseudo_legal_move_count()
+        return self.board.pseudo_legal_move_count()
 
     def __iter__(self):
-        return self.bitboard.generate_pseudo_legal_moves()
+        return self.board.generate_pseudo_legal_moves()
 
     def __contains__(self, move):
-        return self.bitboard.is_pseudo_legal(move)
+        return self.board.is_pseudo_legal(move)
 
 
 class LegalMoveGenerator(object):
 
-    def __init__(self, bitboard):
-        self.bitboard = bitboard
+    def __init__(self, board):
+        self.board = board
 
     def __bool__(self):
         try:
-            next(self.bitboard.generate_legal_moves())
+            next(self.board.generate_legal_moves())
             return True
         except StopIteration:
             return False
@@ -2621,16 +2621,16 @@ class LegalMoveGenerator(object):
     def __len__(self):
         count = 0
 
-        for _ in self.bitboard.generate_legal_moves():
+        for _ in self.board.generate_legal_moves():
             count += 1
 
         return count
 
     def __iter__(self):
-        return self.bitboard.generate_legal_moves()
+        return self.board.generate_legal_moves()
 
     def __contains__(self, move):
-        return self.bitboard.is_legal(move)
+        return self.board.is_legal(move)
 
 
 class SquareSet(object):

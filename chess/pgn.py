@@ -86,7 +86,7 @@ class GameNode(object):
 
     def board(self):
         """
-        Gets a bitboard with the position of the node.
+        Gets a board with the position of the node.
 
         It's a copy, so modifying the board will not alter the game.
         """
@@ -324,7 +324,7 @@ class Game(GameNode):
 
     def board(self):
         """
-        Gets the starting position of the game as a bitboard.
+        Gets the starting position of the game.
 
         Unless the `SetUp` and `FEN` header tags are set this is the default
         starting position.

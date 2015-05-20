@@ -40,6 +40,10 @@ Upcoming in the next release
 * Clear `uci.InfoHandler()` dictionary at the start of new searches
   (new `on_go()`), not at the end of searches.
 
+* Renamed `PseudoLegalMoveGenerator.bitboard` and `LegalMoveGenerator.bitboard`
+  to `PseudoLegalMoveGenerator.board` and `LegalMoveGenerator.board`,
+  respectively.
+
 * Fixed pondering mode in `uci` module.
 * Patch by Richard C. Gerkin: Moved searchmoves to the end of the go command
   where it will not cause other command parameters to be ignored.
