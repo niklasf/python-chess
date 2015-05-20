@@ -16,9 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
-
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
@@ -38,12 +35,12 @@ PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
 UNICODE_PIECE_SYMBOLS = {
-    "R": "\u2656", "r": "\u265c",
-    "N": "\u2658", "n": "\u265e",
-    "B": "\u2657", "b": "\u265d",
-    "Q": "\u2655", "q": "\u265b",
-    "K": "\u2654", "k": "\u265a",
-    "P": "\u2659", "p": "\u265f",
+    "R": u"\u2656", "r": u"\u265c",
+    "N": u"\u2658", "n": u"\u265e",
+    "B": u"\u2657", "b": u"\u265d",
+    "Q": u"\u2655", "q": u"\u265b",
+    "K": u"\u2654", "k": u"\u265a",
+    "P": u"\u2659", "p": u"\u265f",
 }
 
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
