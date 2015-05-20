@@ -53,6 +53,9 @@ Upcoming in the next release
 
 * Scripts removed.
 
+* Python 3.2 compability dropped. Use Python 3.3 or higher. Python 2.7 support
+  is not affected.
+
 New in v0.8.0
 -------------
 
