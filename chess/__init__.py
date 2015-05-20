@@ -16,11 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
+
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
 __version__ = "0.8.0"
+
 
 import os
 import collections
@@ -33,11 +37,14 @@ PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
 
 PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
 
-# Use '':'\u266f' in a notebook environment.
-PIECE_UNICODE_SYMBOLS = {'R':'\u2656','N':'\u2658','B':'\u2657',
-                         'Q':'\u2655','K':'\u2654','P':'\u2659',
-                         'r':'\u265c','n':'\u265e','b':'\u265d',
-                         'q':'\u265b','k':'\u265a','p':'\u265f','':'.'}
+UNICODE_PIECE_SYMBOLS = {
+    "R": "\u2656", "r": "\u265c",
+    "N": "\u2658", "n": "\u265e",
+    "B": "\u2657", "b": "\u265d",
+    "Q": "\u2655", "q": "\u265b",
+    "K": "\u2654", "k": "\u265a",
+    "P": "\u2659", "p": "\u265f",
+}
 
 FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
 
@@ -2457,7 +2464,7 @@ class Board(object):
                     string += '%s%s' % \
                       (border,piece.unicode_symbol(reverse_color=reverse_color))
                 else:
-                    string += '%s%s' % (border,PIECE_UNICODE_SYMBOLS[''])
+                    string += '%s%s' % (border, ".")
             string += '%s%s' % ('|' if borders else '',
                                 '' if rank==1 and not borders else sep)
         if borders:
