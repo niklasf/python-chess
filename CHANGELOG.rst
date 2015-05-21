@@ -60,6 +60,10 @@ Upcoming in the next release
 * Python 3.2 compability dropped. Use Python 3.3 or higher. Python 2.7 support
   is not affected.
 
+* Patch by Richard C. Gerkin: Added `Board.__unicode__()` just like
+  `Board.__str__()` but with unicode pieces.
+* Patch by Richard C. Gerkin: Added `Board.__html__()`.
+
 New in v0.8.0
 -------------
 
