@@ -27,6 +27,7 @@ import os.path
 import textwrap
 import time
 import unittest
+import logging
 
 try:
     from StringIO import StringIO
@@ -1619,4 +1620,5 @@ class SyzygyTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    logging.setLevel(logging.DEBUG)
     unittest.main()
