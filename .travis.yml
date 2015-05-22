@@ -3,9 +3,9 @@ python:
  - "2.7"
  - "3.4"
 before_install:
- - sudo add-apt-repository ppa:pmjdebruijn/stockfish-release
+ - sudo add-apt-repository ppa:pmjdebruijn/stockfish-release -y
  - sudo apt-get update
- - sudo apt-get install -y stockfish
+ - sudo apt-get install stockfish
 install:
  - pip install coveralls
  - pip install spur
