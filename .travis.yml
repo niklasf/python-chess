@@ -3,6 +3,7 @@ python:
  - "2.7"
  - "3.4"
 before_install:
+ - sudo add-apt-repository ppa:pmjdebruijn/stockfish-release
  - sudo apt-get update
  - sudo apt-get install -y stockfish
 install:
