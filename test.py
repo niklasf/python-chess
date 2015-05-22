@@ -1361,11 +1361,29 @@ class UciEngineTestCase(unittest.TestCase):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
+        self.mock.expect("go", ("bestmove d2d4", ))
+        self.engine.go()
+
         self.engine.on_line_received("info tbhits 123 cpuload 456 hashfull 789")
         with handler as info:
             self.assertEqual(info["tbhits"], 123)
             self.assertEqual(info["cpuload"], 456)
             self.assertEqual(info["hashfull"], 789)
+
+        self.mock.expect("go", ("bestmove e2e4", ))
+        self.engine.go()
+
+        self.assertFalse("tbhits" in handler.info)
+        self.assertFalse("cpuload" in handler.info)
+        self.assertFalse("hashfull" in handler.info)
+
+        self.engine.on_line_received("info time 987 nodes 654 nps 321")
+        with handler as info:
+            self.assertEqual(info["time"], 987)
+            self.assertEqual(info["nodes"], 654)
+            self.assertEqual(info["nps"], 321)
+
+        self.mock.assert_done()
 
     def test_combo_option(self):
         self.engine.on_line_received("option name MyEnum type combo var Abc def var g h")
