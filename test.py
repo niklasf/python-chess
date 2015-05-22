@@ -727,6 +727,35 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(chess.E1 in king)
         self.assertEqual(len(king), 1)
 
+    def test_string_conversion(self):
+        board = chess.Board("7k/1p1qn1b1/pB1p1n2/3Pp3/4Pp1p/2QN1B2/PP4PP/6K1 w - - 0 28")
+
+        self.assertEqual(str(board), textwrap.dedent(u"""\
+            . . . . . . . k
+            . p . q n . b .
+            p B . p . n . .
+            . . . P p . . .
+            . . . . P p . p
+            . . Q N . B . .
+            P P . . . . P P
+            . . . . . . K ."""))
+
+        self.assertEqual(board.__unicode__(), textwrap.dedent(u"""\
+            . . . . . . . ♚
+            . ♟ . ♛ ♞ . ♝ .
+            ♟ ♗ . ♟ . ♞ . .
+            . . . ♙ ♟ . . .
+            . . . . ♙ ♟ . ♟
+            . . ♕ ♘ . ♗ . .
+            ♙ ♙ . . . . ♙ ♙
+            . . . . . . ♔ ."""))
+
+        html = board.__html__()
+        self.assertTrue(u"♛" in html)
+        self.assertTrue(u"♙" in html)
+        self.assertFalse(u"♜" in html)
+        self.assertFalse(u"♖" in html)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -738,21 +767,6 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
         caro_kann_mate = chess.Board("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
         self.assertFalse(caro_kann_mate.legal_moves)
-
-    def test_string_conversion(self):
-        expected = textwrap.dedent("""\
-            r n b q k b n r
-            p p p p p p p p
-            . . . . . . . .
-            . . . . . . . .
-            . . . . P . . .
-            . . . . . . . .
-            P P P P . P P P
-            R N B Q K B N R""")
-
-        bb = chess.Board()
-        bb.push_san("e4")
-        self.assertEqual(str(bb), expected)
 
 
 class SquareSetTestCase(unittest.TestCase):
