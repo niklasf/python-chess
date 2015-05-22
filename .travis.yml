@@ -5,7 +5,7 @@ python:
 before_install:
  - sudo add-apt-repository ppa:pmjdebruijn/stockfish-release -y
  - sudo apt-get update
- - sudo apt-get install stockfish
+ - sudo apt-get install -t trusty stockfish
 install:
  - pip install coveralls
  - pip install spur
