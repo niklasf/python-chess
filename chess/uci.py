@@ -610,6 +610,7 @@ class PopenProcess(object):
     def __init__(self, command):
         self.command = command
 
+        self.process = None
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
 
@@ -666,6 +667,7 @@ class SpurProcess(object):
 
         self._result = None
 
+        self.process = None
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
