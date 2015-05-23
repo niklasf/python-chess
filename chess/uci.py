@@ -668,6 +668,8 @@ class SpurProcess(object):
         self._result = None
 
         self.process = None
+        self.spawned = threading.Event()
+
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
@@ -675,9 +677,15 @@ class SpurProcess(object):
         self.engine = engine
 
         self.process = self.shell.spawn(self.command, store_pid=True, allow_error=True, stdout=self)
+        self.spawned.set()
+
         self._waiting_thread.start()
 
     def write(self, byte):
+        # Wait for spawn to return. Otherwise we might already try processing
+        # data before self.process is set.
+        self.spawned.wait()
+
         # Interally called whenever a byte is received.
         if byte == b"\r":
             pass
