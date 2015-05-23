@@ -1,11 +1,12 @@
 language: python
+sudo: false
 python:
  - "2.7"
  - "3.4"
 before_install:
- - wget https://stockfish.s3.amazonaws.com/stockfish-6-win.zip
- - unzip stockfish-6-win.zip
- - cp stockfish-6-win/Linux/stockfish_6_x64 /usr/games/stockfish
+ - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
+ - unzip stockfish-6-linux.zip
+ - cp stockfish-6-linux/Linux/stockfish_6_x64 /usr/games/stockfish
 install:
  - pip install coveralls
  - pip install spur
