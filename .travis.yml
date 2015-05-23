@@ -9,7 +9,7 @@ before_install:
  - mkdir -p bin
  - cp stockfish-6-linux/Linux/stockfish_6_x64 bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
- - which stockfish || echo $PATH
+ - which stockfish || (echo $PATH && false)
 install:
  - pip install coveralls
  - pip install spur
