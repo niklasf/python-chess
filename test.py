@@ -1143,9 +1143,12 @@ class PgnTestCase(unittest.TestCase):
 
 class StockfishTestCase(unittest.TestCase):
 
-    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def setUp(self):
-        self.engine = chess.uci.popen_engine("/usr/games/stockfish")
+        try:
+            self.engine = chess.uci.popen_engine("stockfish")
+        except OSError:
+            self.skipTest("need stockfish")
+
         self.engine.uci()
 
     def tearDown(self):
@@ -1203,48 +1206,43 @@ class SpurEngineTestCase(unittest.TestCase):
         except ImportError:
             self.skipTest("need spur library")
 
-    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
+        try:
+            self.engine = chess.uci.spur_spawn_engine(self.shell, ["stockfish"])
+        except OSError:
+            self.skipTest("need stockfish")
+
     def test_local_shell(self):
-        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
+        self.engine.uci()
 
-        engine.uci()
-
-        engine.ucinewgame()
+        self.engine.ucinewgame()
 
         # Find fools mate.
         board = chess.Board()
         board.push_san("g4")
         board.push_san("e5")
         board.push_san("f4")
-        engine.position(board)
-        bestmove, pondermove = engine.go(mate=1, movetime=2000)
+        self.engine.position(board)
+        bestmove, pondermove = self.engine.go(mate=1, movetime=2000)
         self.assertEqual(board.san(bestmove), "Qh4#")
 
-    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
+        self.engine.quit()
+
     def test_terminate(self):
-        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
+        self.engine.uci()
+        self.engine.go(infinite=True)
 
-        engine.uci()
-        engine.go(infinite=True)
+        self.engine.terminate()
+        self.assertFalse(self.engine.is_alive())
 
-        engine.terminate()
-        self.assertFalse(engine.is_alive())
-
-    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_kill(self):
-        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
+        self.engine.uci()
+        self.engine.go(infinite=True)
 
-        engine.uci()
-        engine.go(infinite=True)
+        self.engine.kill()
+        self.assertFalse(self.engine.is_alive())
 
-        engine.kill()
-        self.assertFalse(engine.is_alive())
-
-    @unittest.skipUnless(os.path.isfile("/usr/games/stockfish"), "need /usr/games/stockfish")
     def test_async_terminate(self):
-        engine = chess.uci.spur_spawn_engine(self.shell, ["/usr/games/stockfish"])
-
-        command = engine.terminate(async=True)
+        command = self.engine.terminate(async=True)
         command.result()
         self.assertTrue(command.done())
 
