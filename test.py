@@ -25,6 +25,7 @@ import chess.syzygy
 import collections
 import os.path
 import textwrap
+import sys
 import time
 import unittest
 import logging
@@ -1548,5 +1549,7 @@ class SyzygyTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    if "-v" in sys.argv or "--verbose" in sys.argv:
+        logging.basicConfig(level=logging.DEBUG)
+
     unittest.main()
