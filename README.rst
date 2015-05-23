@@ -236,7 +236,7 @@ Features
       >>> import chess.uci
       >>> import time
 
-      >>> engine = chess.uci.popen_engine("/usr/games/stockfish")
+      >>> engine = chess.uci.popen_engine("stockfish")
       >>> engine.uci()
       >>> engine.author
       'Tord Romstad, Marco Costalba and Joona Kiiski'

@@ -6,9 +6,10 @@ python:
 before_install:
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
  - unzip stockfish-6-linux.zip
- - mkdir -p .bin
- - ln -s stockfish-6-linux/Linux/stockfish_6_x64 .bin/stockfish
- - export PATH="`pwd`/.bin:${PATH}"
+ - mkdir -p bin
+ - cp stockfish-6-linux/Linux/stockfish_6_x64 bin/stockfish
+ - export PATH="`pwd`/bin:${PATH}"
+ - which stockfish || echo $PATH
 install:
  - pip install coveralls
  - pip install spur
