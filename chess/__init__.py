@@ -1368,121 +1368,6 @@ class Board(object):
 
             double_moves = double_moves & (double_moves - 1)
 
-    def pseudo_legal_move_count(self):
-        # In a way duplicates generate_pseudo_legal_moves() in order to use
-        # population counts instead of counting actually yielded moves.
-        count = 0
-
-        if self.turn == WHITE:
-            # Castling short.
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
-                if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                    count += 1
-
-            # Castling long.
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                    count += 1
-
-            # En-passant moves.
-            movers = self.pawns & self.occupied_co[WHITE]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-                count += pop_count(moves)
-
-            # Pawn captures.
-            moves = shift_up_right(movers) & self.occupied_co[BLACK]
-            count += pop_count(moves & BB_RANK_8) * 3
-            count += pop_count(moves)
-
-            moves = shift_up_left(movers) & self.occupied_co[BLACK]
-            count += pop_count(moves & BB_RANK_8) * 3
-            count += pop_count(moves)
-
-            # Pawns one forward.
-            moves = shift_up(movers) & ~self.occupied
-            movers = moves
-            count += pop_count(moves & BB_RANK_8) * 3
-            count += pop_count(moves)
-
-            # Pawns two forward.
-            moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
-            count += pop_count(moves)
-        else:
-            # Castling short.
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
-                if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                    count += 1
-
-            # Castling long.
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                    count += 1
-
-            # En-passant moves.
-            movers = self.pawns & self.occupied_co[BLACK]
-            if self.ep_square:
-                moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-                count += pop_count(moves)
-
-            # Pawn captures.
-            moves = shift_down_left(movers) & self.occupied_co[WHITE]
-            count += pop_count(moves & BB_RANK_1) * 3
-            count += pop_count(moves)
-
-            moves = shift_down_right(movers) & self.occupied_co[WHITE]
-            count += pop_count(moves & BB_RANK_1) * 3
-            count += pop_count(moves)
-
-            # Pawns one forward.
-            moves = shift_down(movers) & ~self.occupied
-            movers = moves
-            count += pop_count(moves & BB_RANK_1) * 3
-            count += pop_count(moves)
-
-            # Pawns two forward.
-            moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
-            count += pop_count(moves)
-
-        # Knight moves.
-        movers = self.knights & self.occupied_co[self.turn]
-        from_square = bit_scan(movers)
-        while from_square != -1 and from_square is not None:
-            moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            count += pop_count(moves)
-            from_square = bit_scan(movers, from_square + 1)
-
-        # Bishop moves.
-        movers = self.bishops & self.occupied_co[self.turn]
-        from_square = bit_scan(movers)
-        while from_square != -1 and from_square is not None:
-            moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            count += pop_count(moves)
-            from_square = bit_scan(movers, from_square + 1)
-
-        # Rook moves.
-        movers = self.rooks & self.occupied_co[self.turn]
-        from_square = bit_scan(movers)
-        while from_square != -1 and from_square is not None:
-            moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            count += pop_count(moves)
-            from_square = bit_scan(movers, from_square + 1)
-
-        # Queen moves.
-        movers = self.queens & self.occupied_co[self.turn]
-        from_square = bit_scan(movers)
-        while from_square != -1 and from_square is not None:
-            moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            count += pop_count(moves)
-            from_square = bit_scan(movers, from_square + 1)
-
-        # King moves.
-        from_square = bit_scan(self.kings & self.occupied_co[self.turn])
-        moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
-        count += pop_count(moves)
-
-        return count
-
     def attacker_mask(self, color, square):
         if not self.attacks_valid:
             self._generate_attacks()
@@ -3271,7 +3156,12 @@ class PseudoLegalMoveGenerator(object):
     __nonzero__ = __bool__
 
     def __len__(self):
-        return self.board.pseudo_legal_move_count()
+        count = 0
+
+        for _ in self.board.generate_pseudo_legal_moves():
+            count += 1
+
+        return count
 
     def __iter__(self):
         return self.board.generate_pseudo_legal_moves()
