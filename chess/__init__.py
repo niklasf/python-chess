@@ -2932,6 +2932,71 @@ class Board(object):
 
             double_moves = double_moves & (double_moves - 1)
 
+    def _generate_evasions(self):
+        # Prepare basic information.
+        our_pieces = self.occupied_co[self.turn]
+        their_pieces = self.occupied_co[self.turn ^ 1]
+        king = self.kings & our_pieces
+        pawns = self.pawns & our_pieces
+        if self.turn == WHITE:
+            forward_pawns = pawns << 8 & BB_ALL
+            double_forward_pawns = (pawns & BB_RANK_2) << 16 & BB_ALL
+
+            en_passant_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
+            en_passant_capturers = BB_VOID
+
+            # Capture torward the right.
+            if en_passant_mask & ~BB_FILE_A:
+                en_passant_capturers |= pawns & BB_RANK_5 & FILE_MASK[en_passant_mask] >> 1
+
+            # Capture toward the left.
+            if en_passant_mask & ~BB_FILE_H:
+                en_passant_capturers |= pawns & BB_RANK_5 & FILE_MASK[en_passant_mask] << 1
+        else:
+            forward_pawns = pawns >> 8
+            double_forward_pawns = (pawns & BB_RANK_7) >> 16
+
+            en_passant_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
+            en_passant_capturers = BB_VOID
+
+            # Capture torward the right.
+            if en_passant_mask & ~BB_FILE_A:
+                en_passant_capturers |= pawns & BB_RANK_4 & FILE_MASK[en_passant_mask] >> 1
+
+            # Capture toward the left.
+            if en_passant_mask & ~BB_FILE_H:
+                en_passant_capturers |= pawns & BB_RANK_4 & FILE_MASK[en_passant_mask] << 1
+
+        # Lookup all pieces giving check.
+        king_attackers = self.attackers_to[king] & their_pieces
+        assert king_attackers
+        num_attackers = pop_count(king_attackers)
+
+        if num_attackers == 1:
+            # There is one attacker, so it can be captured. If there are more
+            # than one attackers we can not capture both at the same time,
+            # so the king would have to be moved.
+            attacker_attackers = attacks_to[king_attackers] & our_pieces & ~king
+            while attacker_attackers:
+                attacker = attacker_attackers & -attacker_attackers
+                mask = self._pinned(attacker, self.turn == WHITE)
+                if king_attackers & mask:
+                    if king_attackers & en_passant_mask and attacker & en_passant_capturers:
+                        # Capture the attacking pawn en-passant.
+                        yield Move(bit_scan(attacker), self.ep_square) # XXX
+                    elif attacker & pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
+                        # Capture the attacker with a pawn and promote.
+                        from_square_index = bit_scan(attacker)
+                        to_square_index = bit_scan(king_attackers)
+                        yield Move(from_square_index, to_square_index, QUEEN)
+                        yield Move(from_square_index, to_square_index, ROOK)
+                        yield Move(from_square_index, to_square_index, BISHOP)
+                        yield Move(from_square_index, to_square_index, KNIGHT)
+                    else:
+                        yield Move(bit_scan(attacker), bit_scan(king_attackers))
+
+                attacker_attackers = attacker_attackers & (attacker_attackers - 1)
+
     def __repr__(self):
         return "Board('{0}')".format(self.fen())
 
