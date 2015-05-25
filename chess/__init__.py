@@ -2642,7 +2642,7 @@ class Board(object):
                 self.attacks_from[from_square] |= to_square
                 self.attacks_to[to_square] |= from_square
 
-                left_captures = right_captures & (left_captures - 1)
+                left_captures = left_captures & (left_captures - 1)
 
         # Produce en-passant attacks.
         if self.ep_square:
