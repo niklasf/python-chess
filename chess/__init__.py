@@ -2670,9 +2670,9 @@ class Board(object):
         mask = BB_ALL
 
         for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
-                                             (RANK_MASK, RANK_ATTACKS),
-                                             (DIAG_MASK_NW, DIAG_ATTACKS_NW),
-                                             (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
+                                              (RANK_MASK, RANK_ATTACKS),
+                                              (DIAG_MASK_NW, DIAG_ATTACKS_NW),
+                                              (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
             if direction_masks[square_mask] & direction_masks[king] & self.attacks_to[square_mask] & other_pieces:
                 attackers = direction_masks[king] & self.attacks_to[square_mask] & sliders
                 while attackers:
@@ -2687,6 +2687,51 @@ class Board(object):
                 break
 
         return mask
+
+    def _generate_moves(self, white_to_move):
+        self._generate_attacks()
+
+        if white_to_move:
+            own_pieces = self.occupied_co[WHITE]
+            other_pieces = self.occupied_co[BLACK]
+            king = self.kings & self.occupied_co[WHITE]
+        else:
+            own_pieces = self.occupied_co[BLACK]
+            other_pieces = self.occupied_co[WHITE]
+            king = self.kings & self.occupied_co[BLACK]
+
+        # If we are in check, generate check evasions.
+        if self.attacks_to[king] & other_pieces:
+            yield from _generate_evasions(white_to_move)
+
+        if white_to_move:
+            non_pawns = self.occupied_co[WHITE] & ~self.pawns
+        else:
+            non_pawns = self.occupied_co[BLACK] & ~self.pawns
+
+        while non_pawns:
+            from_square = non_pawns & -non_pawns
+            mask = self._pinned(from_square, white_to_move)
+            moves = attacks_from[from_square] & own_pieces & mask
+            while moves:
+                to_square = moves & -moves
+
+                # Do not move the king into check.
+                if (from_square & self.kings) and self.attacks_to[to_square] & other_pieces:
+                    pass
+                else:
+                    yield Move(bit_scan(from_square), bit_scan(to_square)) # XXX
+
+                moves = moves & (moves - 1)
+
+            non_pawns = non_pawns & (non_pawns - 1)
+
+        # TODO: Generate castling moves.
+
+        # TODO: Generate pawn captures.
+        # TODO: Generate en-passant captures.
+        # TODO: Generate single pawn moves.
+        # TODO: Generate double pawn moves.
 
     def __repr__(self):
         return "Board('{0}')".format(self.fen())
