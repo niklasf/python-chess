@@ -2792,8 +2792,52 @@ class Board(object):
             left_captures = left_captures & (left_captures - 1)
 
         # TODO: Generate en-passant captures.
-        # TODO: Generate single pawn moves.
-        # TODO: Generate double pawn moves.
+
+        # Prepare pawn advance generation.
+        if white_to_move:
+            pawns = self.pawns & self.occupied_co[WHITE]
+            single_moves = pawns << 8 & ~self.occupied
+            double_moves = single_moves << 8 & ~self.occupied & BB_RANK_4
+        else:
+            pawns = self.pawns & self.occupied_co[BLACK]
+            single_moves = pawns >> 8 & ~self.occupied
+            double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+
+        # Generate single pawn moves.
+        while single_moves:
+            to_square = single_moves & -single_moves
+            if white_to_move:
+                from_square = to_square >> 8
+            else:
+                from_square = to_square << 8
+
+            mask = self._pinned(from_square, white_to_move)
+            if mask & to_square:
+                from_square_index = bit_scan(from_square)
+                to_square_index = bit_scan(to_square)
+                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                    yield Move(from_square_index, to_square_index, QUEEN)
+                    yield Move(from_square_index, to_square_index, ROOK)
+                    yield Move(from_square_index, to_square_index, BISHOP)
+                    yield Move(from_square_index, to_square_index, KNIGHT)
+                else:
+                    yield Move(from_square_index, to_square_index)
+
+            single_moves = single_moves & (single_moves - 1)
+
+        # Generate double pawn moves.
+        while double_moves:
+            to_square = double_moves & -double_moves
+            if white_to_move:
+                from_square = to_square >> 16
+            else:
+                from_square = to_square << 16
+
+            mask = self._pinned(from_square, white_to_move)
+            if mask & to_square:
+                yield Move(bit_scan(from_square), bit_scan(to_square))
+
+            double_moves = double_moves & (double_moves - 1)
 
     def __repr__(self):
         return "Board('{0}')".format(self.fen())
