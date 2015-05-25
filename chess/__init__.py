@@ -1576,7 +1576,10 @@ class Board(object):
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        return (move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move))
+        if self.is_check() or self.ep_square:
+            return (move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move))
+        else:
+            return self._generate_moves(self.turn == WHITE)
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -2760,7 +2763,7 @@ class Board(object):
             right_captures = pawns << 9 & other_pieces & ~BB_FILE_H & BB_VOID
             left_captures = pawns << 7 & other_pieces & ~BB_FILE_A & BB_VOID
         else:
-            piece = self.pawns & self.occupied_co[BLACK]
+            pawns = self.pawns & self.occupied_co[BLACK]
             right_captures = pawns >> 7 & other_pieces & ~BB_FILE_H
             left_captures = pawns >> 9 & other_pieces & ~BB_FILE_A
 
