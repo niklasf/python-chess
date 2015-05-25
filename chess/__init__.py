@@ -987,8 +987,6 @@ class Board(object):
         self.occupied_l45 = BB_VOID
         self.occupied_r45 = BB_VOID
 
-        self.king_squares = [ E1, E8 ]
-
         self.ep_square = 0
         self.castling_rights = CASTLING
         self.turn = WHITE
@@ -1038,8 +1036,6 @@ class Board(object):
         self.occupied_l90 = BB_VOID
         self.occupied_r45 = BB_VOID
         self.occupied_l45 = BB_VOID
-
-        self.king_squares = [ E1, E8 ]
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -1173,7 +1169,6 @@ class Board(object):
             self.queens |= mask
         elif piece.piece_type == KING:
             self.kings |= mask
-            self.king_squares[piece.color] = square
 
         self.occupied ^= mask
         self.occupied_co[piece.color] ^= mask
@@ -1391,7 +1386,7 @@ class Board(object):
 
         if king:
             # King moves.
-            from_square = self.king_squares[self.turn]
+            from_square = bit_scan(self.kings & self.occupied_co[self.turn])
             moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
             to_square = bit_scan(moves)
             while to_square != - 1 and to_square is not None:
@@ -1507,7 +1502,7 @@ class Board(object):
             from_square = bit_scan(movers, from_square + 1)
 
         # King moves.
-        from_square = self.king_squares[self.turn]
+        from_square = bit_scan(self.kings & self.occupied_co[self.turn])
         moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
         count += pop_count(moves)
 
@@ -1583,7 +1578,7 @@ class Board(object):
         Checks if the king of the other side is attacked. Such a position is not
         valid and could only be reached by an illegal move.
         """
-        return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
+        return self.is_attacked_by(self.turn, bit_scan(self.kings & self.occupied_co[self.turn ^ 1]))
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         return self._generate_moves(self.turn == WHITE)
@@ -2557,7 +2552,7 @@ class Board(object):
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
         if self.castling_rights & CASTLING_WHITE:
-            if not self.king_squares[WHITE] == E1:
+            if not self.kings & self.occupied_co[WHITE] & BB_E1:
                 errors |= STATUS_BAD_CASTLING_RIGHTS
 
             if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
@@ -2568,7 +2563,7 @@ class Board(object):
                     errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.castling_rights & CASTLING_BLACK:
-            if not self.king_squares[BLACK] == E8:
+            if not self.kings & self.occupied_co[BLACK] & BB_E8:
                 errors |= STATUS_BAD_CASTLING_RIGHTS
 
             if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
