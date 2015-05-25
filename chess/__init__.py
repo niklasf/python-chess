@@ -2689,7 +2689,8 @@ class Board(object):
 
                 left_captures = left_captures & (left_captures - 1)
 
-        # Produce en-passant attacks.
+        # Produce en-passant attacks. Here we are actually targeting the
+        # pawn, not the en-passant square.
         if self.ep_square:
             if self.turn == WHITE:
                 pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
@@ -2697,22 +2698,23 @@ class Board(object):
                 pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
 
             ep_square_mask = BB_SQUARES[self.ep_square]
+            double_pawn = ep_square_mask << 8 if self.turn == BLACK else ep_square_mask >> 8
 
             # Left side capture.
             if ep_square_mask & ~BB_FILE_A:
                 left_file = FILE_MASK[ep_square_mask] >> 1
                 capturing_pawn = pawns & left_file
                 if capturing_pawn:
-                    self.attacks_from[capturing_pawn] |= ep_square_mask
-                    self.attacks_to[ep_square_mask] |= capturing_pawn
+                    self.attacks_from[capturing_pawn] |= double_pawn
+                    self.attacks_to[double_pawn] |= capturing_pawn
 
             # Right side capture.
             if ep_square_mask & ~BB_FILE_H:
                 right_file = FILE_MASK[ep_square_mask] << 1
                 capturing_pawn = pawns & right_file
                 if capturing_pawn:
-                    self.attacks_from[capturing_pawn] |= ep_square_mask
-                    self.attacks_to[ep_square_mask] |= capturing_pawn
+                    self.attacks_from[capturing_pawn] |= double_pawn
+                    self.attacks_to[double_pawn] |= capturing_pawn
 
         # Attacks are now valid.
         self.attacks_valid = True
