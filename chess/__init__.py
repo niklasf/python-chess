@@ -2611,12 +2611,12 @@ class Board(object):
         for white_to_move in [False, True]:
             if white_to_move:
                 pawns = self.pawns & self.occupied_co[WHITE]
-                right_captures = pawns << 9 & ~BB_FILE_H & BB_ALL
-                left_captures = pawns << 7 & ~BB_FILE_A & BB_ALL
+                right_captures = pawns << 9 & ~BB_FILE_A & BB_ALL
+                left_captures = pawns << 7 & ~BB_FILE_H & BB_ALL
             else:
                 pawns = self.pawns & self.occupied_co[BLACK]
-                right_captures = pawns >> 7 & ~BB_FILE_H
-                left_captures = pawns >> 9 & ~BB_FILE_A
+                right_captures = pawns >> 7 & ~BB_FILE_A
+                left_captures = pawns >> 9 & ~BB_FILE_H
 
             while right_captures:
                 to_square = right_captures & -right_captures
@@ -2760,12 +2760,12 @@ class Board(object):
         # Generate pawn captures.
         if white_to_move:
             pawns = self.pawns & self.occupied_co[WHITE]
-            right_captures = pawns << 9 & other_pieces & ~BB_FILE_H & BB_ALL
-            left_captures = pawns << 7 & other_pieces & ~BB_FILE_A & BB_ALL
+            right_captures = pawns << 9 & other_pieces & ~BB_FILE_A & BB_ALL
+            left_captures = pawns << 7 & other_pieces & ~BB_FILE_H & BB_ALL
         else:
             pawns = self.pawns & self.occupied_co[BLACK]
-            right_captures = pawns >> 7 & other_pieces & ~BB_FILE_H
-            left_captures = pawns >> 9 & other_pieces & ~BB_FILE_A
+            right_captures = pawns >> 7 & other_pieces & ~BB_FILE_A
+            left_captures = pawns >> 9 & other_pieces & ~BB_FILE_H
 
         while right_captures:
             to_square = right_captures & -right_captures
