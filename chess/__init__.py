@@ -2746,7 +2746,7 @@ class Board(object):
                     yield Move(E1, G1)
         if white_to_move and self.castling_rights & CASTLING_WHITE_QUEENSIDE:
             if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                if not (self.attacks_to[BB_B1] | self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & self.occupied_co[BLACK]:
+                if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & self.occupied_co[BLACK]:
                     yield Move(E1, C1)
         if (not white_to_move) and self.castling_rights & CASTLING_BLACK_KINGSIDE:
             if not (BB_G8 | BB_F8) & self.occupied:
@@ -2754,7 +2754,7 @@ class Board(object):
                     yield Move(E8, G8)
         if (not white_to_move) and self.castling_rights & CASTLING_BLACK_QUEENSIDE:
             if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                if not (self.attacks_to[BB_B8] | self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & self.occupied_co[WHITE]:
+                if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & self.occupied_co[WHITE]:
                     yield Move(E8, C8)
 
         # Generate pawn captures.
