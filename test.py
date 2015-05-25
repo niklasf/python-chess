@@ -426,6 +426,17 @@ class BoardTestCase(unittest.TestCase):
         # Check that board is still consistent.
         self.assertEqual(board.fen(), fen)
 
+    def test_stateful_move_generation_bug(self):
+        board = chess.Board("r1b1k3/p2p1Nr1/n2b3p/3pp1pP/2BB1p2/P3P2R/Q1P3P1/R3K1N1 b Qq - 0 1")
+        count = 0
+        for move in board.legal_moves:
+            board.push(move)
+            list(board.generate_legal_moves())
+            count += 1
+            board.pop()
+
+        self.assertEqual(count, 26)
+
     def test_equality(self):
         self.assertEqual(chess.Board(), chess.Board())
         self.assertFalse(chess.Board() != chess.Board())
