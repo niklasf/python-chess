@@ -431,7 +431,7 @@ BB_PAWN_ALL = [
 ]
 
 
-def _get_attacks(square_list):
+def _attack_table(square_list):
     attack_table = {}
     attack_table[0] = {}
     attack_table[0][0] = 0
@@ -462,14 +462,14 @@ def _get_attacks(square_list):
                 temp_bb = 0
                 while occupation:
                     lowest = occupation & -occupation
-                    temp_bb |= square_list[i][BB_MASK.index(lowest)]
+                    temp_bb |= square_list[i][BB_SQUARES.index(lowest)]
                     occupation = occupation & (occupation - 1)
 
                 attack_table[current_bb][temp_bb] = moves
 
     return attack_table
 
-DIAG_ATTACKS_NE = _get_attacks([
+DIAG_ATTACKS_NE = _attack_table([
                                 [BB_H1],
                             [BB_H2, BB_G1],
                         [BB_H3, BB_G2, BB_F1],
@@ -487,7 +487,7 @@ DIAG_ATTACKS_NE = _get_attacks([
                                 [BB_A8],
 ])
 
-DIAG_ATTACKS_NW = _get_attacks([
+DIAG_ATTACKS_NW = _attack_table([
                                 [BB_A1],
                             [BB_B1, BB_A2],
                         [BB_C1, BB_B2, BB_A3],
@@ -505,7 +505,7 @@ DIAG_ATTACKS_NW = _get_attacks([
                                 [BB_H8],
 ])
 
-FILE_ATTACKS = _get_attacks([
+FILE_ATTACKS = _attack_table([
     [BB_A1, BB_A2, BB_A3, BB_A4, BB_A5, BB_A6, BB_A7, BB_A8],
     [BB_B1, BB_B2, BB_B3, BB_B4, BB_B5, BB_B6, BB_B7, BB_B8],
     [BB_C1, BB_C2, BB_C3, BB_C4, BB_C5, BB_C6, BB_C7, BB_C8],
@@ -516,7 +516,7 @@ FILE_ATTACKS = _get_attacks([
     [BB_H1, BB_H2, BB_H3, BB_H4, BB_H5, BB_H6, BB_H7, BB_H8],
 ])
 
-RANK_ATTACKS = _get_attacks([
+RANK_ATTACKS = _attack_table([
     [BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1],
     [BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2],
     [BB_A3, BB_B3, BB_C3, BB_D3, BB_E3, BB_F3, BB_G3, BB_H3],
@@ -530,10 +530,52 @@ RANK_ATTACKS = _get_attacks([
 # TODO: Clean up.
 KING_MOVES = {}
 for square, mask in enumerate(BB_KING_ATTACKS):
-    KING_MOVES[BB_MASK[square]] = mask
+    KING_MOVES[BB_SQUARES[square]] = mask
 KNIGHT_MOVES = {}
 for square, mask in enumerate(BB_KNIGHT_ATTACKS):
-    KNIGHT_MOVES[BB_MASK[square]] = mask
+    KNIGHT_MOVES[BB_SQUARES[square]] = mask
+
+RANK_MASK = {}
+FILE_MASK = {}
+for square, mask in enumerate(BB_SQUARES):
+    RANK_MASK[mask] = BB_RANKS[rank_index(square)]
+    FILE_MASK[mask] = BB_FILES[file_index(square)]
+
+# Bottom half of the board.
+DIAG_MASK_NE = {}
+DIAG_MASK_NE[0] = 0
+for i in range(8):
+    DIAG_MASK_NE[1 << i] = 0
+    for j in range(i + 1):
+        DIAG_MASK_NE[1 << i] |= 1 << (i + 7 * j)
+    for j in range(i + 1):
+        DIAG_MASK_NE[1 << (i + 7 * j)] = DIAG_MASK_NE[1 << i]
+
+# Top half of the board.
+for i in range(63, 55, -1):
+    DIAG_MASK_NE[1 << i] = 0
+    for j in range(64 - i):
+        DIAG_MASK_NE[1 << i] |= 1L << (i - 7 * j)
+    for j in range(64 - i):
+        DIAG_MASK_NE[1 << (i - 7 * j)] = DIAG_MASK_NE[1 << i]
+
+DIAG_MASK_NW = {}
+DIAG_MASK_NW[0] = 0
+# Bottom half of the board.
+for i in range(7, -1, -1):
+    DIAG_MASK_NW[1 << i] = 0
+    for j in range(8 - i):
+        DIAG_MASK_NW[1 << i] |= 1 << (i + 9 * j)
+    for j in range(8 - i):
+        DIAG_MASK_NW[1 << (i + 9 * j)] = DIAG_MASK_NW[1 << i]
+
+# Top half of the board.
+for i in range(56, 64):
+    DIAG_MASK_NW[1 << i] = 0
+    for j in range(i - 55):
+        DIAG_MASK_NW[1 << i] |= 1 << (i - 9 * j)
+    for j in range(i - 55):
+        DIAG_MASK_NW[1 << (i - 9 * j)] = DIAG_MASK_NW[1 << i]
 
 
 try:
@@ -2520,6 +2562,101 @@ class Board(object):
                 errors |= STATUS_OPPOSITE_CHECK
 
         return errors
+
+    def _generate_attacks(self):
+        # TODO: Do not generate twice.
+        # XXX
+        self.attacks_from = collections.defaultdict(0)
+        self.attacks_to = collections.defaultdict(0)
+
+        # Produce piece attacks.
+        non_pawns = self.occupied & ~self.pawns
+        queens_or_rooks = self.queens | self.rooks
+        queens_or_bishops = self.queens | self.bishops
+
+        while non_pawns:
+            from_square = non_pawns & -non_pawns
+            rank_pieces = RANK_MASK[from_square & queens_or_rooks] & self.occupied
+            file_pieces = FILE_MASK[from_square & queens_or_rooks] & self.occupied
+            ne_pieces = DIAG_MASK_NE[from_square & queens_or_bishops] & self.occupied
+            nw_pieces = DIAG_MASK_NW[from_square & queens_or_bishops] & self.occupied
+
+            moves = (KING_MOVES[from_square & self.kings] |
+                     KNIGHT_MOVES[from_square & self.knights] |
+                     RANK_ATTACKS[from_square & queens_or_rooks][rank_pieces] |
+                     FILE_ATTACKS[from_square & queens_or_rooks][file_pieces] |
+                     DIAG_ATTACKS_NE[from_square & queens_or_bishops][ne_pieces] |
+                     DIAG_ATTACKS_NW[from_square & queens_or_bishops][nw_pieces])
+
+            while moves:
+                to_square = moves & -moves
+                self.attacks_from[from_square] |= to_square
+                self.attacks_to[to_square] |= from_square
+                moves = moves & (moves - 1)
+
+            non_pawns = non_pawns & (non_pawns - 1)
+
+        # Produce pawn attacks.
+        for white_to_move in [False, True]:
+            if white_to_move:
+                pawns = self.pawns & self.occupied_co[WHITE]
+                left_captures = pawns << 9 & ~BB_FILE_H & BB_ALL
+                right_captures = pawns << 7 & ~BB_FILE_A & BB_ALL
+            else:
+                pawns = self.pawns & self.occupied_co[BLACK]
+                left_captures = pawns >> 7 & ~BB_FILE_H
+                right_captures = pawns >> 9 & ~BB_FILE_A
+
+            while left_captures:
+                to_square = left_captures & -left_captures
+
+                if white_to_move:
+                    from_square = to_square >> 9
+                else:
+                    from_square = to_square << 7
+
+                self.attacks_from[from_square] |= to_square
+                self.attacks_to[to_square] |= from_square
+
+                left_captures = left_captures & (left_captures - 1)
+
+            while right_captures:
+                to_square = right_captures & -right_captures
+
+                if white_to_move:
+                    from_square = to_square >> 7
+                else:
+                    from_square = to_square << 9
+
+                self.attacks_from[from_square] |= to_square
+                self.attacks_to[to_square] |= from_square
+
+                right_captures = right_captures & (right_captures - 1)
+
+        # Produce en-passant attacks.
+        if self.ep_square:
+            if self.turn == WHITE:
+                pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
+            else:
+                pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
+
+            ep_square_mask = BB_SQUARES[self.ep_square]
+
+            # Right side capture.
+            if ep_square_mask & ~BB_FILE_H:
+                right_file = FILE_MASK[ep_square_mask] >> 1
+                capturing_pawn = pawns & right_file
+                if capturing_pawn:
+                    self.attacks_from[capturing_pawn] |= ep_square_mask
+                    self.attacks_to[ep_square_mask] |= capturing_pawn
+
+            # Left side capture.
+            if ep_square_mask & ~BB_FILE_A:
+                left_file = FILE_MASK[ep_square_mask] << 1
+                capturing_pawn = pawns & left_file
+                if capturing_pawn:
+                    self.attacks_from[capturing_pawn] |= ep_square_mask
+                    self.attacks_to[ep_square_mask] |= capturing_pawn
 
     def __repr__(self):
         return "Board('{0}')".format(self.fen())
