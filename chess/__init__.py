@@ -2707,11 +2707,9 @@ class Board(object):
 
     def _generate_non_evasions(self, white_to_move):
         if white_to_move:
-            own_pieces = self.occupied_co[WHITE]
             other_pieces = self.occupied_co[BLACK]
             king = self.kings & self.occupied_co[WHITE]
         else:
-            own_pieces = self.occupied_co[BLACK]
             other_pieces = self.occupied_co[WHITE]
             king = self.kings & self.occupied_co[BLACK]
 
@@ -2723,7 +2721,7 @@ class Board(object):
         while non_pawns:
             from_square = non_pawns & -non_pawns
             mask = self._pinned(from_square, white_to_move)
-            moves = self.attacks_from[from_square] & own_pieces & mask
+            moves = self.attacks_from[from_square] & (other_pieces | ~self.occupied) & mask
             while moves:
                 to_square = moves & -moves
 
