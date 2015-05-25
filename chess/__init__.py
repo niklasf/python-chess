@@ -2718,6 +2718,7 @@ class Board(object):
         else:
             non_pawns = self.occupied_co[BLACK] & ~self.pawns
 
+        # Generate piece moves.
         while non_pawns:
             from_square = non_pawns & -non_pawns
             mask = self._pinned(from_square, white_to_move)
@@ -2737,10 +2738,59 @@ class Board(object):
 
         # TODO: Generate castling moves.
 
-        # TODO: Generate pawn captures.
+        # Generate pawn captures.
         if white_to_move:
             pawns = self.pawns & self.occupied_co[WHITE]
-            left_captures = pawns << 9
+            right_captures = pawns << 9 & other_pieces & ~BB_FILE_H & BB_VOID
+            left_captures = pawns << 7 & other_pieces & ~BB_FILE_A & BB_VOID
+        else:
+            piece = self.pawns & self.occupied_co[BLACK]
+            right_captures = pawns >> 7 & other_pieces & ~BB_FILE_H
+            left_captures = pawns >> 9 & other_pieces & ~BB_FILE_A
+
+        while right_captures:
+            to_square = right_captures & -right_captures
+
+            if white_to_move:
+                from_square = to_square >> 9
+            else:
+                from_square = to_square << 7
+
+            mask = self._pinned(from_square, white_to_move)
+            if mask & to_square:
+                from_square_index = bit_scan(from_square)
+                to_square_index = bit_scan(to_square)
+                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                    yield Move(from_square_index, to_square_index, QUEEN)
+                    yield Move(from_square_index, to_square_index, ROOK)
+                    yield Move(from_square_index, to_square_index, BISHOP)
+                    yield Move(from_square_index, to_square_index, KNIGHT)
+                else:
+                    yield Move(from_square_index, to_square_index)
+
+            right_captures = right_captures & (right_captures - 1)
+
+        while left_captures:
+            to_square = left_captures & -left_captures
+            if white_to_move:
+                from_square = to_square >> 7
+            else:
+                from_square = to_square << 9
+
+            mask = self._pinned(from_square, white_to_move)
+            if mask & to_square:
+                from_square_index = bit_scan(from_square)
+                to_square_index = bit_scan(to_square)
+                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                    yield Move(from_square_index, to_square_index, QUEEN)
+                    yield Move(from_square_index, to_square_index, ROOK)
+                    yield Move(from_square_index, to_square_index, BISHOP)
+                    yield Move(from_square_index, to_square_index, KNIGHT)
+                else:
+                    yield Move(from_square_index, to_square_index)
+
+            left_captures = left_captures & (left_captures - 1)
+
         # TODO: Generate en-passant captures.
         # TODO: Generate single pawn moves.
         # TODO: Generate double pawn moves.
