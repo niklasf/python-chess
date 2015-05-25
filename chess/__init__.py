@@ -2658,6 +2658,36 @@ class Board(object):
                     self.attacks_from[capturing_pawn] |= ep_square_mask
                     self.attacks_to[ep_square_mask] |= capturing_pawn
 
+    def _pinned(self, square_mask, white_to_move):
+        if white_to_move:
+            king = self.kings & self.occupied_co[WHITE]
+            other_pieces = self.occupied_co[BLACK]
+        else:
+            king = self.kings & self.occupied_co[BLACK]
+            other_pieces = self.occupied_co[WHITE]
+        sliders = (self.rooks | self.bishops | self.queens) & other_pieces
+
+        mask = BB_ALL
+
+        for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
+                                             (RANK_MASK, RANK_ATTACKS),
+                                             (DIAG_MASK_NW, DIAG_ATTACKS_NW),
+                                             (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
+            if direction_masks[square_mask] & direction_masks[king] & self.attacks_to[square_mask] & other_pieces:
+                attackers = direction_masks[king] & self.attacks_to[square_mask] & sliders
+                while attackers:
+                    attacker = attackers & -attackers
+
+                    pieces = direction_masks[king] & self.occupied & ~square_mask
+                    if attack_table[attacker][pieces] & king:
+                        mask = direction_masks[king]
+
+                    attackers = attackers & (attackers - 1)
+
+                break
+
+        return mask
+
     def __repr__(self):
         return "Board('{0}')".format(self.fen())
 
