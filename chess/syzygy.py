@@ -1305,18 +1305,13 @@ class Tablebases(object):
         return self.wdl[key].probe_wdl_table(board)
 
     def probe_ab(self, board, alpha, beta):
-        for move in board.generate_pseudo_legal_moves():
+        for move in board.generate_legal_moves():
             # Only look at non-ep captures.
             if not board.piece_type_at(move.to_square):
                 continue
 
             # Do the move.
             board.push(move)
-
-            # Only look at legal moves.
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v_plus, success = self.probe_ab(board, -beta, -alpha)
             board.pop()
@@ -1379,7 +1374,7 @@ class Tablebases(object):
         v1 = -3
 
         # Look at least at all legal en-passant captures.
-        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
             diff = abs(move.to_square - move.from_square)
             if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
@@ -1387,11 +1382,6 @@ class Tablebases(object):
 
             # Do the move.
             board.push(move)
-
-            # Filter out illegal moves.
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v0_plus, success = self.probe_ab(board, -2, 2)
             board.pop()
@@ -1447,15 +1437,12 @@ class Tablebases(object):
 
         if wdl > 0:
             # Generate all legal non capturing pawn moves.
-            for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+            for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
                 diff = abs(move.to_square - move.from_square)
                 if diff == 7 or diff == 9:
                     continue
 
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 v_plus, success = self.probe_ab(board, -2, -wdl + 1)
                 board.pop()
@@ -1479,14 +1466,11 @@ class Tablebases(object):
         if wdl > 0:
             best = 0xffff
 
-            for move in board.generate_pseudo_legal_moves(pawns=False):
+            for move in board.generate_legal_moves(pawns=False):
                 if board.piece_type_at(move.to_square) != chess.NONE:
                     continue
 
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 v_plus = self.probe_dtz(board)
                 board.pop()
@@ -1503,11 +1487,8 @@ class Tablebases(object):
         else:
             best = -1
 
-            for move in board.generate_pseudo_legal_moves():
+            for move in board.generate_legal_moves():
                 board.push(move)
-                if board.was_into_check():
-                    board.pop()
-                    continue
 
                 if board.halfmove_clock == 0:
                     if wdl == -2:
@@ -1569,16 +1550,13 @@ class Tablebases(object):
 
         v1 = -3
 
-        for move in board.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
             diff = abs(move.to_square - move.from_square)
             if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
                 continue
 
             board.push(move)
-            if board.was_into_check():
-                board.pop()
-                continue
 
             v0_plus, success = self.probe_ab(board, -2, 2)
             board.pop()
