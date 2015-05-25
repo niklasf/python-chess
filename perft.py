@@ -16,12 +16,9 @@ def perft(board, depth):
     if depth > 1:
         count = 0
 
-        for move in board.pseudo_legal_moves:
+        for move in board.legal_moves:
             board.push(move)
-
-            if not board.was_into_check():
-                count += perft(board, depth - 1)
-
+            count += perft(board, depth - 1)
             board.pop()
 
         return count
