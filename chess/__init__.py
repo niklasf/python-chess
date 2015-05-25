@@ -431,6 +431,111 @@ BB_PAWN_ALL = [
 ]
 
 
+def _get_attacks(square_list):
+    attack_table = {}
+    attack_table[0] = {}
+    attack_table[0][0] = 0
+
+    for i in range(len(square_list)):
+        list_size = len(square_list[i])
+
+        for current_position in range(list_size):
+            current_bb = square_list[i][current_position]
+            attack_table[current_bb] = {}
+
+            for occupation in range(1 << list_size):
+                moves = 0
+
+                # Loop over squares to the right of the mover.
+                for newsquare in range(current_position + 1, list_size):
+                    moves |= square_list[i][newsquare]
+                    if (1 << newsquare) & occupation:
+                        break
+
+                # Loop over squares to the left of the mover.
+                for newsquare in range(current_position - 1, -1, -1):
+                    moves |= square_list[i][newsquare]
+                    if (1 << newsquare) & occupation:
+                        break
+
+                # Convert occupation to a bitboard number.
+                temp_bb = 0
+                while occupation:
+                    lowest = occupation & -occupation
+                    temp_bb |= square_list[i][BB_MASK.index(lowest)]
+                    occupation = occupation & (occupation - 1)
+
+                attack_table[current_bb][temp_bb] = moves
+
+    return attack_table
+
+DIAG_ATTACKS_NE = _get_attacks([
+                                [BB_H1],
+                            [BB_H2, BB_G1],
+                        [BB_H3, BB_G2, BB_F1],
+                    [BB_H4, BB_G3, BB_F2, BB_E1],
+                [BB_H5, BB_G4, BB_F3, BB_E2, BB_D1],
+            [BB_H6, BB_G5, BB_F4, BB_E3, BB_D2, BB_C1],
+        [BB_H7, BB_G6, BB_F5, BB_E4, BB_D3, BB_C2, BB_B1],
+    [BB_H8, BB_G7, BB_F6, BB_E5, BB_D4, BB_C3, BB_B2, BB_A1],
+        [BB_G8, BB_F7, BB_E6, BB_D5, BB_C4, BB_B3, BB_A2],
+            [BB_F8, BB_E7, BB_D6, BB_C5, BB_B4, BB_A3],
+                [BB_E8, BB_D7, BB_C6, BB_B5, BB_A4],
+                    [BB_D8, BB_C7, BB_B6, BB_A5],
+                        [BB_C8, BB_B7, BB_A6],
+                            [BB_B8, BB_A7],
+                                [BB_A8],
+])
+
+DIAG_ATTACKS_NW = _get_attacks([
+                                [BB_A1],
+                            [BB_B1, BB_A2],
+                        [BB_C1, BB_B2, BB_A3],
+                    [BB_D1, BB_C2, BB_B3, BB_A4],
+                [BB_E1, BB_D2, BB_C3, BB_B4, BB_A5],
+            [BB_F1, BB_E2, BB_D3, BB_C4, BB_B5, BB_A6],
+        [BB_G1, BB_F2, BB_E3, BB_D4, BB_C5, BB_B6, BB_A7],
+    [BB_H1, BB_G2, BB_F3, BB_E4, BB_D5, BB_C6, BB_B7, BB_A8],
+        [BB_H2, BB_G3, BB_F4, BB_E5, BB_D6, BB_C7, BB_B8],
+            [BB_H3, BB_G4, BB_F5, BB_E6, BB_D7, BB_C8],
+                [BB_H4, BB_G5, BB_F6, BB_E7, BB_D8],
+                    [BB_H5, BB_G6, BB_F7, BB_E8],
+                        [BB_H6, BB_G7, BB_F8],
+                            [BB_H7, BB_G8],
+                                [BB_H8],
+])
+
+FILE_ATTACKS = _get_attacks([
+    [BB_A1, BB_A2, BB_A3, BB_A4, BB_A5, BB_A6, BB_A7, BB_A8],
+    [BB_B1, BB_B2, BB_B3, BB_B4, BB_B5, BB_B6, BB_B7, BB_B8],
+    [BB_C1, BB_C2, BB_C3, BB_C4, BB_C5, BB_C6, BB_C7, BB_C8],
+    [BB_D1, BB_D2, BB_D3, BB_D4, BB_D5, BB_D6, BB_D7, BB_D8],
+    [BB_E1, BB_E2, BB_E3, BB_E4, BB_E5, BB_E6, BB_E7, BB_E8],
+    [BB_F1, BB_F2, BB_F3, BB_F4, BB_F5, BB_F6, BB_F7, BB_F8],
+    [BB_G1, BB_G2, BB_G3, BB_G4, BB_G5, BB_G6, BB_G7, BB_G8],
+    [BB_H1, BB_H2, BB_H3, BB_H4, BB_H5, BB_H6, BB_H7, BB_H8],
+])
+
+RANK_ATTACKS = _get_attacks([
+    [BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1],
+    [BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2],
+    [BB_A3, BB_B3, BB_C3, BB_D3, BB_E3, BB_F3, BB_G3, BB_H3],
+    [BB_A4, BB_B4, BB_C4, BB_D4, BB_E4, BB_F4, BB_G4, BB_H4],
+    [BB_A5, BB_B5, BB_C5, BB_D5, BB_E5, BB_F5, BB_G5, BB_H5],
+    [BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6],
+    [BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7],
+    [BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8],
+])
+
+# TODO: Clean up.
+KING_MOVES = {}
+for square, mask in enumerate(BB_KING_ATTACKS):
+    KING_MOVES[BB_MASK[square]] = mask
+KNIGHT_MOVES = {}
+for square, mask in enumerate(BB_KNIGHT_ATTACKS):
+    KNIGHT_MOVES[BB_MASK[square]] = mask
+
+
 try:
     from gmpy2 import popcount as pop_count
     from gmpy2 import bit_scan1 as bit_scan
