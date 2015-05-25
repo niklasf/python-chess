@@ -2608,15 +2608,15 @@ class Board(object):
         for white_to_move in [False, True]:
             if white_to_move:
                 pawns = self.pawns & self.occupied_co[WHITE]
-                left_captures = pawns << 9 & ~BB_FILE_H & BB_ALL
-                right_captures = pawns << 7 & ~BB_FILE_A & BB_ALL
+                right_captures = pawns << 9 & ~BB_FILE_H & BB_ALL
+                left_captures = pawns << 7 & ~BB_FILE_A & BB_ALL
             else:
                 pawns = self.pawns & self.occupied_co[BLACK]
-                left_captures = pawns >> 7 & ~BB_FILE_H
-                right_captures = pawns >> 9 & ~BB_FILE_A
+                right_captures = pawns >> 7 & ~BB_FILE_H
+                left_captures = pawns >> 9 & ~BB_FILE_A
 
-            while left_captures:
-                to_square = left_captures & -left_captures
+            while right_captures:
+                to_square = right_captures & -right_captures
 
                 if white_to_move:
                     from_square = to_square >> 9
@@ -2626,10 +2626,10 @@ class Board(object):
                 self.attacks_from[from_square] |= to_square
                 self.attacks_to[to_square] |= from_square
 
-                left_captures = left_captures & (left_captures - 1)
+                right_captures = right_captures & (right_captures - 1)
 
-            while right_captures:
-                to_square = right_captures & -right_captures
+            while left_captures:
+                to_square = left_captures & -left_captures
 
                 if white_to_move:
                     from_square = to_square >> 7
@@ -2639,7 +2639,7 @@ class Board(object):
                 self.attacks_from[from_square] |= to_square
                 self.attacks_to[to_square] |= from_square
 
-                right_captures = right_captures & (right_captures - 1)
+                left_captures = right_captures & (left_captures - 1)
 
         # Produce en-passant attacks.
         if self.ep_square:
@@ -2650,18 +2650,18 @@ class Board(object):
 
             ep_square_mask = BB_SQUARES[self.ep_square]
 
-            # Right side capture.
+            # Left side capture.
             if ep_square_mask & ~BB_FILE_H:
-                right_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawn = pawns & right_file
+                left_file = FILE_MASK[ep_square_mask] >> 1
+                capturing_pawn = pawns & left_file
                 if capturing_pawn:
                     self.attacks_from[capturing_pawn] |= ep_square_mask
                     self.attacks_to[ep_square_mask] |= capturing_pawn
 
-            # Left side capture.
+            # Right side capture.
             if ep_square_mask & ~BB_FILE_A:
-                left_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawn = pawns & left_file
+                right_file = FILE_MASK[ep_square_mask] << 1
+                capturing_pawn = pawns & right_file
                 if capturing_pawn:
                     self.attacks_from[capturing_pawn] |= ep_square_mask
                     self.attacks_to[ep_square_mask] |= capturing_pawn
@@ -2738,6 +2738,9 @@ class Board(object):
         # TODO: Generate castling moves.
 
         # TODO: Generate pawn captures.
+        if white_to_move:
+            pawns = self.pawns & self.occupied_co[WHITE]
+            left_captures = pawns << 9
         # TODO: Generate en-passant captures.
         # TODO: Generate single pawn moves.
         # TODO: Generate double pawn moves.
