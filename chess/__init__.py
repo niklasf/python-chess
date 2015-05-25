@@ -1603,7 +1603,7 @@ class Board(object):
         return self.is_attacked_by(self.turn, self.king_squares[self.turn ^ 1])
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        if self.is_check() or self.ep_square:
+        if self.is_check():
             return (move for move in self.generate_pseudo_legal_moves(castling, pawns, knights, bishops, rooks, queens, king) if not self.is_into_check(move))
         else:
             return self._generate_moves(self.turn == WHITE)
@@ -2699,7 +2699,7 @@ class Board(object):
             ep_square_mask = BB_SQUARES[self.ep_square]
 
             # Left side capture.
-            if ep_square_mask & ~BB_FILE_H:
+            if ep_square_mask & ~BB_FILE_A:
                 left_file = FILE_MASK[ep_square_mask] >> 1
                 capturing_pawn = pawns & left_file
                 if capturing_pawn:
@@ -2707,7 +2707,7 @@ class Board(object):
                     self.attacks_to[ep_square_mask] |= capturing_pawn
 
             # Right side capture.
-            if ep_square_mask & ~BB_FILE_A:
+            if ep_square_mask & ~BB_FILE_H:
                 right_file = FILE_MASK[ep_square_mask] << 1
                 capturing_pawn = pawns & right_file
                 if capturing_pawn:
@@ -2859,7 +2859,32 @@ class Board(object):
 
             left_captures = left_captures & (left_captures - 1)
 
-        # TODO: Generate en-passant captures.
+        # Generate en-passant captures.
+        if self.ep_square:
+            if self.turn == WHITE:
+                pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
+            else:
+                pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
+
+            ep_square_mask = BB_SQUARES[self.ep_square]
+
+            # Left side capture.
+            if ep_square_mask & ~BB_FILE_A:
+                left_file = FILE_MASK[ep_square_mask] >> 1
+                capturing_pawn = pawns & left_file
+                if capturing_pawn:
+                    mask = self._pinned(capturing_pawn, white_to_move)
+                    if mask & ep_square_mask:
+                        yield Move(bit_scan(capturing_pawn), self.ep_square)
+
+            # Right side capture.
+            if ep_square_mask & ~BB_FILE_H:
+                right_file = FILE_MASK[ep_square_mask] << 1
+                capturing_pawn = pawns & right_file
+                if capturing_pawn:
+                    mask = self._pinned(capturing_pawn, white_to_move)
+                    if mask & ep_square_mask:
+                        yield Move(bit_scan(capturing_pawn), self.ep_square)
 
         # Prepare pawn advance generation.
         if white_to_move:
