@@ -1440,9 +1440,6 @@ class Board(object):
         """
         return self.is_attacked_by(self.turn, bit_scan(self.kings & self.occupied_co[self.turn ^ 1]))
 
-    def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        return self._generate_moves(self.turn == WHITE)
-
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
         if not move:
@@ -2528,9 +2525,9 @@ class Board(object):
         # pawn, not the en-passant square.
         if self.ep_square:
             if self.turn == WHITE:
-                pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
+                capturing_pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
             else:
-                pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
+                capturing_pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
 
             ep_square_mask = BB_SQUARES[self.ep_square]
             double_pawn = ep_square_mask << 8 if self.turn == BLACK else ep_square_mask >> 8
@@ -2538,7 +2535,7 @@ class Board(object):
             # Left side capture.
             if ep_square_mask & ~BB_FILE_A:
                 left_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawn = pawns & left_file
+                capturing_pawn = capturing_pawns & left_file
                 if capturing_pawn:
                     self.attacks_from[capturing_pawn] |= double_pawn
                     self.attacks_to[double_pawn] |= capturing_pawn
@@ -2546,7 +2543,7 @@ class Board(object):
             # Right side capture.
             if ep_square_mask & ~BB_FILE_H:
                 right_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawn = pawns & right_file
+                capturing_pawn = capturing_pawns & right_file
                 if capturing_pawn:
                     self.attacks_from[capturing_pawn] |= double_pawn
                     self.attacks_to[double_pawn] |= capturing_pawn
@@ -2554,7 +2551,8 @@ class Board(object):
         # Attacks are now valid.
         self.attacks_valid = True
 
-    def _pinned(self, square_mask, white_to_move):
+    def _pinned(self, square_mask):
+        white_to_move = self.turn == WHITE
         if white_to_move:
             king = self.kings & self.occupied_co[WHITE]
             other_pieces = self.occupied_co[BLACK]
@@ -2584,87 +2582,108 @@ class Board(object):
 
         return mask
 
-    def _generate_moves(self, white_to_move):
+    def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if not self.attacks_valid:
             self._generate_attacks()
 
-        king = self.kings & self.occupied_co[WHITE if white_to_move else BLACK]
-        if self.attacks_to[king] & self.occupied_co[BLACK if white_to_move else WHITE]:
-            return self._generate_evasions()
+        king_mask = self.kings & self.occupied_co[self.turn]
+        if self.attacks_to[king_mask] & self.occupied_co[self.turn ^ 1]:
+            return self._generate_evasions() # castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
         else:
-            return self._generate_non_evasions(white_to_move)
+            return self._generate_non_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
 
-    def _generate_non_evasions(self, white_to_move):
-        if white_to_move:
-            other_pieces = self.occupied_co[BLACK]
-            king = self.kings & self.occupied_co[WHITE]
-        else:
-            other_pieces = self.occupied_co[WHITE]
-            king = self.kings & self.occupied_co[BLACK]
+    def _generate_non_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+        our_pieces = self.occupied_co[self.turn]
+        their_pieces = self.occupied_co[self.turn ^ 1]
 
-        if white_to_move:
-            non_pawns = self.occupied_co[WHITE] & ~self.pawns
-        else:
-            non_pawns = self.occupied_co[BLACK] & ~self.pawns
+        # Selective move generation.
+        selected_pieces = BB_VOID
+        if knights:
+            selected_pieces |= self.knights
+        if bishops:
+            selected_pieces |= self.bishops
+        if rooks:
+            selected_pieces |= self.rooks
+        if queens:
+            selected_pieces |= self.queens
+        if king:
+            selected_pieces |= self.kings
 
         # Generate piece moves.
+        non_pawns = our_pieces & selected_pieces
         while non_pawns:
             from_square = non_pawns & -non_pawns
-            mask = self._pinned(from_square, white_to_move)
-            moves = self.attacks_from[from_square] & (other_pieces | ~self.occupied) & mask
+            from_square_index = bit_scan(from_square)
+
+            mask = self._pinned(from_square)
+            moves = self.attacks_from[from_square] & ~our_pieces & mask
             while moves:
                 to_square = moves & -moves
 
-                # Do not move the king into check.
-                if (from_square & self.kings) and self.attacks_to[to_square] & other_pieces:
+                if (from_square & self.kings) and self.attacks_to[to_square] & their_pieces:
+                    # Do not move the king into check.
                     pass
                 else:
-                    yield Move(bit_scan(from_square), bit_scan(to_square)) # XXX
+                    yield Move(from_square_index, bit_scan(to_square))
 
                 moves = moves & (moves - 1)
 
             non_pawns = non_pawns & (non_pawns - 1)
 
-        # Generate castling moves.
-        if white_to_move and self.castling_rights & CASTLING_WHITE_KINGSIDE:
-            if not (BB_G1 | BB_F1) & self.occupied:
-                if not (self.attacks_to[BB_G1] | self.attacks_to[BB_F1]) & self.occupied_co[BLACK]:
-                    yield Move(E1, G1)
-        if white_to_move and self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-            if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & self.occupied_co[BLACK]:
-                    yield Move(E1, C1)
-        if (not white_to_move) and self.castling_rights & CASTLING_BLACK_KINGSIDE:
-            if not (BB_G8 | BB_F8) & self.occupied:
-                if not (self.attacks_to[BB_G8] | self.attacks_to[BB_F8]) & self.occupied_co[WHITE]:
-                    yield Move(E8, G8)
-        if (not white_to_move) and self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-            if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & self.occupied_co[WHITE]:
-                    yield Move(E8, C8)
+        # Generate castling moves. Since we are generating non-evasions we
+        # already know that we are not in check.
+        if castling:
+            if self.turn == WHITE:
+                # Castling short.
+                if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+                    if not (BB_G1 | BB_F1) & self.occupied:
+                        if not (self.attacks_to[BB_G1] | self.attacks_to[BB_F1]) & their_pieces:
+                            yield Move(E1, G1)
+
+                # Castling long.
+                if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+                    if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                        if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & their_pieces:
+                            yield Move(E1, C1)
+            else:
+                # Castling short.
+                if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+                    if not (BB_G8 | BB_F8) & self.occupied:
+                        if not (self.attacks_to[BB_G8] | self.attacks_to[BB_F8]) & their_pieces:
+                            yield Move(E8, G8)
+
+                # Castling long.
+                if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+                    if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                        if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & their_pieces:
+                            yield Move(E8, C8)
+
+        # The remaining moves are all pawn moves.
+        if not pawns:
+            return
 
         # Generate pawn captures.
-        if white_to_move:
-            pawns = self.pawns & self.occupied_co[WHITE]
-            right_captures = pawns << 9 & other_pieces & ~BB_FILE_A & BB_ALL
-            left_captures = pawns << 7 & other_pieces & ~BB_FILE_H & BB_ALL
+        pawns = self.pawns & our_pieces
+        if self.turn == WHITE:
+            right_captures = pawns << 9 & their_pieces & ~BB_FILE_A & BB_ALL
+            left_captures = pawns << 7 & their_pieces & ~BB_FILE_H & BB_ALL
         else:
-            pawns = self.pawns & self.occupied_co[BLACK]
-            right_captures = pawns >> 7 & other_pieces & ~BB_FILE_A
-            left_captures = pawns >> 9 & other_pieces & ~BB_FILE_H
+            right_captures = pawns >> 7 & their_pieces & ~BB_FILE_A
+            left_captures = pawns >> 9 & their_pieces & ~BB_FILE_H
 
+        # Yield right captures.
         while right_captures:
             to_square = right_captures & -right_captures
+            to_square_index = bit_scan(to_square)
 
-            if white_to_move:
+            if self.turn == WHITE:
                 from_square = to_square >> 9
             else:
                 from_square = to_square << 7
+            from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square, white_to_move)
+            mask = self._pinned(from_square)
             if mask & to_square:
-                from_square_index = bit_scan(from_square)
-                to_square_index = bit_scan(to_square)
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
                     yield Move(from_square_index, to_square_index, ROOK)
@@ -2675,17 +2694,19 @@ class Board(object):
 
             right_captures = right_captures & (right_captures - 1)
 
+        # Yield left captures.
         while left_captures:
             to_square = left_captures & -left_captures
-            if white_to_move:
+            to_square_index = bit_scan(to_square)
+
+            if self.turn == WHITE:
                 from_square = to_square >> 7
             else:
                 from_square = to_square << 9
+            from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square, white_to_move)
+            mask = self._pinned(from_square)
             if mask & to_square:
-                from_square_index = bit_scan(from_square)
-                to_square_index = bit_scan(to_square)
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
                     yield Move(from_square_index, to_square_index, ROOK)
@@ -2697,54 +2718,52 @@ class Board(object):
             left_captures = left_captures & (left_captures - 1)
 
         # Generate en-passant captures.
-        if self.ep_square:
+        ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
+        if ep_square_mask:
             if self.turn == WHITE:
-                pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
+                capturing_pawns = pawns & BB_RANK_5
             else:
-                pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
-
-            ep_square_mask = BB_SQUARES[self.ep_square]
+                capturing_pawns = pawns & BB_RANK_4
 
             # Left side capture.
             if ep_square_mask & ~BB_FILE_A:
                 left_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawn = pawns & left_file
+                capturing_pawn = capturing_pawns & left_file
                 if capturing_pawn:
-                    mask = self._pinned(capturing_pawn, white_to_move)
+                    mask = self._pinned(capturing_pawn)
                     if mask & ep_square_mask:
                         yield Move(bit_scan(capturing_pawn), self.ep_square)
 
             # Right side capture.
             if ep_square_mask & ~BB_FILE_H:
                 right_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawn = pawns & right_file
+                capturing_pawn = capturing_pawns & right_file
                 if capturing_pawn:
-                    mask = self._pinned(capturing_pawn, white_to_move)
+                    mask = self._pinned(capturing_pawn)
                     if mask & ep_square_mask:
                         yield Move(bit_scan(capturing_pawn), self.ep_square)
 
         # Prepare pawn advance generation.
-        if white_to_move:
-            pawns = self.pawns & self.occupied_co[WHITE]
+        if self.turn == WHITE:
             single_moves = pawns << 8 & ~self.occupied
             double_moves = single_moves << 8 & ~self.occupied & BB_RANK_4
         else:
-            pawns = self.pawns & self.occupied_co[BLACK]
             single_moves = pawns >> 8 & ~self.occupied
             double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
 
         # Generate single pawn moves.
         while single_moves:
             to_square = single_moves & -single_moves
-            if white_to_move:
+            to_square_index = bit_scan(to_square)
+
+            if self.turn == WHITE:
                 from_square = to_square >> 8
             else:
                 from_square = to_square << 8
+            from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square, white_to_move)
+            mask = self._pinned(from_square)
             if mask & to_square:
-                from_square_index = bit_scan(from_square)
-                to_square_index = bit_scan(to_square)
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
                     yield Move(from_square_index, to_square_index, ROOK)
@@ -2758,14 +2777,17 @@ class Board(object):
         # Generate double pawn moves.
         while double_moves:
             to_square = double_moves & -double_moves
-            if white_to_move:
+            to_square_index = bit_scan(to_square)
+
+            if self.turn == WHITE:
                 from_square = to_square >> 16
             else:
                 from_square = to_square << 16
+            from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square, white_to_move)
+            mask = self._pinned(from_square)
             if mask & to_square:
-                yield Move(bit_scan(from_square), bit_scan(to_square))
+                yield Move(from_square_index, to_square_index)
 
             double_moves = double_moves & (double_moves - 1)
 
@@ -2816,7 +2838,7 @@ class Board(object):
             attacker_attackers = self.attacks_to[king_attackers] & our_pieces & ~king
             while attacker_attackers:
                 attacker = attacker_attackers & -attacker_attackers
-                mask = self._pinned(attacker, self.turn == WHITE)
+                mask = self._pinned(attacker)
                 if king_attackers & mask:
                     if king_attackers & en_passant_mask and attacker & en_passant_capturers:
                         # Capture the attacking pawn en-passant.
@@ -2902,7 +2924,7 @@ class Board(object):
                 while blockers:
                     blocker = blockers & -blockers
 
-                    mask = self._pinned(blocker, self.turn == WHITE)
+                    mask = self._pinned(blocker)
                     if mask & empty_square:
                         yield Move(bit_scan(blocker), bit_scan(empty_square))
 
@@ -2912,11 +2934,11 @@ class Board(object):
                 blocking_pawn = empty_square & forward_pawns
                 if blocking_pawn:
                     if self.turn == WHITE:
-                        mask = self._pinned(blocking_pawn >> 8, self.turn == WHITE)
+                        mask = self._pinned(blocking_pawn >> 8)
                         if mask & empty_square:
                             yield Move(bit_scan(blocking_pawn >> 8), bit_scan(empty_square))
                     else:
-                        mask = self._pinned(blocking_pawn << 8, self.turn == WHITE)
+                        mask = self._pinned(blocking_pawn << 8)
                         if mask & empty_square:
                             yield Move(bit_scan(blocking_pawn << 8), bit_scan(empty_square))
                 else:
@@ -2925,11 +2947,11 @@ class Board(object):
                     blocking_pawn = empty_square & double_forward_pawns
                     if blocking_pawn:
                         if self.turn == WHITE:
-                            mask = self._pinned(blocking_pawn >> 16, self.turn == WHITE)
+                            mask = self._pinned(blocking_pawn >> 16)
                             if mask & empty_square and (empty_square >> 8) & ~self.occupied:
                                 yield Move(bit_scan(blocking_pawn >> 16), bit_scan(empty_square))
                         else:
-                            mask = self._pinned(blocking_pawn << 16, self.turn == WHITE)
+                            mask = self._pinned(blocking_pawn << 16)
                             if mask & empty_square and (empty_square << 8) & ~self.occupied:
                                 yield Move(bit_scan(blocking_pawn << 16), bit_scan(empty_square))
 
