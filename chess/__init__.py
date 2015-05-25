@@ -1191,8 +1191,42 @@ class Board(object):
             self.attacks_to_stack.clear()
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        if self.turn == WHITE:
-            if castling:
+        if not self.attacks_valid:
+            self._generate_attacks()
+
+        our_pieces = self.occupied_co[self.turn]
+        their_pieces = self.occupied_co[self.turn ^ 1]
+
+        # Selective move generation.
+        selected_pieces = BB_VOID
+        if knights:
+            selected_pieces |= self.knights
+        if bishops:
+            selected_pieces |= self.bishops
+        if rooks:
+            selected_pieces |= self.rooks
+        if queens:
+            selected_pieces |= self.queens
+        if king:
+            selected_pieces |= self.kings
+
+        # Generate piece moves.
+        non_pawns = our_pieces & selected_pieces
+        while non_pawns:
+            from_square = non_pawns & -non_pawns
+            from_square_index = bit_scan(from_square)
+
+            moves = self.attacks_from[from_square] & ~our_pieces
+            while moves:
+                to_square = moves & -moves
+                yield Move(from_square_index, bit_scan(to_square))
+                moves = moves & (moves - 1)
+
+            non_pawns = non_pawns & (non_pawns - 1)
+
+        # Generate castling moves.
+        if castling:
+            if self.turn == WHITE:
                 # Castling short.
                 if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
@@ -1202,69 +1236,7 @@ class Board(object):
                 if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                     if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
                         yield Move(E1, C1)
-
-            if pawns:
-                # En-passant moves.
-                movers = self.pawns & self.occupied_co[WHITE]
-                if self.ep_square:
-                    moves = BB_PAWN_ATTACKS[BLACK][self.ep_square] & movers
-
-                    from_square = bit_scan(moves)
-                    while from_square != -1 and from_square is not None:
-                        yield Move(from_square, self.ep_square)
-                        from_square = bit_scan(moves, from_square + 1)
-
-                # Pawn captures.
-                moves = shift_up_right(movers) & self.occupied_co[BLACK]
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square - 9
-                    if rank_index(to_square) != 7:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
-
-                moves = shift_up_left(movers) & self.occupied_co[BLACK]
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square - 7
-                    if rank_index(to_square) != 7:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
-
-                # Pawns one forward.
-                moves = shift_up(movers) & ~self.occupied
-                movers = moves
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square - 8
-                    if rank_index(to_square) != 7:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
-
-                # Pawns two forward.
-                moves = shift_up(movers) & BB_RANK_4 & ~self.occupied
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square - 16
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
-        else:
-            if castling:
+            else:
                 # Castling short.
                 if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
@@ -1275,123 +1247,126 @@ class Board(object):
                     if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
                         yield Move(E8, C8)
 
-            if pawns:
-                # En-passant moves.
-                movers = self.pawns & self.occupied_co[BLACK]
-                if self.ep_square:
-                    moves = BB_PAWN_ATTACKS[WHITE][self.ep_square] & movers
-                    from_square = bit_scan(moves)
-                    while from_square != -1 and from_square is not None:
-                        yield Move(from_square, self.ep_square)
-                        from_square = bit_scan(moves, from_square + 1)
+        # The remaining moves are all pawn moves.
+        if not pawns:
+            return
 
-                # Pawn captures.
-                moves = shift_down_left(movers) & self.occupied_co[WHITE]
-                to_square = bit_scan(moves)
-                while to_square != - 1 and to_square is not None:
-                    from_square = to_square + 9
-                    if rank_index(to_square) != 0:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
+        # Generate pawn captures.
+        pawns = self.pawns & our_pieces
+        if self.turn == WHITE:
+            right_captures = pawns << 9 & their_pieces & ~BB_FILE_A & BB_ALL
+            left_captures = pawns << 7 & their_pieces & ~BB_FILE_H & BB_ALL
+        else:
+            right_captures = pawns >> 7 & their_pieces & ~BB_FILE_A
+            left_captures = pawns >> 9 & their_pieces & ~BB_FILE_H
 
-                moves = shift_down_right(movers) & self.occupied_co[WHITE]
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square + 7
-                    if rank_index(to_square) != 0:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
+        # Yield right captures.
+        while right_captures:
+            to_square = right_captures & -right_captures
+            to_square_index = bit_scan(to_square)
 
-                # Pawns one forward.
-                moves = shift_down(movers) & ~self.occupied
-                movers = moves
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square + 8
-                    if rank_index(to_square) != 0:
-                        yield Move(from_square, to_square)
-                    else:
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, KNIGHT)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                    to_square = bit_scan(moves, to_square + 1)
+            if self.turn == WHITE:
+                from_square = to_square >> 9
+            else:
+                from_square = to_square << 7
+            from_square_index = bit_scan(from_square)
 
-                # Pawns two forward.
-                moves = shift_down(movers) & BB_RANK_5 & ~self.occupied
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    from_square = to_square + 16
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
+            if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                yield Move(from_square_index, to_square_index, QUEEN)
+                yield Move(from_square_index, to_square_index, ROOK)
+                yield Move(from_square_index, to_square_index, BISHOP)
+                yield Move(from_square_index, to_square_index, KNIGHT)
+            else:
+                yield Move(from_square_index, to_square_index)
 
-        if knights:
-            # Knight moves.
-            movers = self.knights & self.occupied_co[self.turn]
-            from_square = bit_scan(movers)
-            while from_square != -1 and from_square is not None:
-                moves = self.knight_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                to_square = bit_scan(moves)
-                while to_square != -1 and to_square is not None:
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
-                from_square = bit_scan(movers, from_square + 1)
+            right_captures = right_captures & (right_captures - 1)
 
+        # Yield left captures.
+        while left_captures:
+            to_square = left_captures & -left_captures
+            to_square_index = bit_scan(to_square)
 
-        if bishops:
-            # Bishop moves.
-            movers = self.bishops & self.occupied_co[self.turn]
-            from_square = bit_scan(movers)
-            while from_square != -1 and from_square is not None:
-                moves = self.bishop_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                to_square = bit_scan(moves)
-                while to_square != - 1 and to_square is not None:
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
-                from_square = bit_scan(movers, from_square + 1)
+            if self.turn == WHITE:
+                from_square = to_square >> 7
+            else:
+                from_square = to_square << 9
+            from_square_index = bit_scan(from_square)
 
-        if rooks:
-            # Rook moves.
-            movers = self.rooks & self.occupied_co[self.turn]
-            from_square = bit_scan(movers)
-            while from_square != -1 and from_square is not None:
-                moves = self.rook_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                to_square = bit_scan(moves)
-                while to_square != - 1 and to_square is not None:
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
-                from_square = bit_scan(movers, from_square + 1)
+            if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                yield Move(from_square_index, to_square_index, QUEEN)
+                yield Move(from_square_index, to_square_index, ROOK)
+                yield Move(from_square_index, to_square_index, BISHOP)
+                yield Move(from_square_index, to_square_index, KNIGHT)
+            else:
+                yield Move(from_square_index, to_square_index)
 
-        if queens:
-            # Queen moves.
-            movers = self.queens & self.occupied_co[self.turn]
-            from_square = bit_scan(movers)
-            while from_square != -1 and from_square is not None:
-                moves = self.queen_attacks_from(from_square) & ~self.occupied_co[self.turn]
-                to_square = bit_scan(moves)
-                while to_square != - 1 and to_square is not None:
-                    yield Move(from_square, to_square)
-                    to_square = bit_scan(moves, to_square + 1)
-                from_square = bit_scan(movers, from_square + 1)
+            left_captures = left_captures & (left_captures - 1)
 
-        if king:
-            # King moves.
-            from_square = bit_scan(self.kings & self.occupied_co[self.turn])
-            moves = self.king_attacks_from(from_square) & ~self.occupied_co[self.turn]
-            to_square = bit_scan(moves)
-            while to_square != - 1 and to_square is not None:
-                yield Move(from_square, to_square)
-                to_square = bit_scan(moves, to_square + 1)
+        # Generate en-passant captures.
+        ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
+        if ep_square_mask:
+            if self.turn == WHITE:
+                capturing_pawns = pawns & BB_RANK_5
+            else:
+                capturing_pawns = pawns & BB_RANK_4
+
+            # Left side capture.
+            if ep_square_mask & ~BB_FILE_A:
+                left_file = FILE_MASK[ep_square_mask] >> 1
+                capturing_pawn = capturing_pawns & left_file
+                if capturing_pawn:
+                    yield Move(bit_scan(capturing_pawn), self.ep_square)
+
+            # Right side capture.
+            if ep_square_mask & ~BB_FILE_H:
+                right_file = FILE_MASK[ep_square_mask] << 1
+                capturing_pawn = capturing_pawns & right_file
+                if capturing_pawn:
+                    yield Move(bit_scan(capturing_pawn), self.ep_square)
+
+        # Prepare pawn advance generation.
+        if self.turn == WHITE:
+            single_moves = pawns << 8 & ~self.occupied
+            double_moves = single_moves << 8 & ~self.occupied & BB_RANK_4
+        else:
+            single_moves = pawns >> 8 & ~self.occupied
+            double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+
+        # Generate single pawn moves.
+        while single_moves:
+            to_square = single_moves & -single_moves
+            to_square_index = bit_scan(to_square)
+
+            if self.turn == WHITE:
+                from_square = to_square >> 8
+            else:
+                from_square = to_square << 8
+            from_square_index = bit_scan(from_square)
+
+            if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                yield Move(from_square_index, to_square_index, QUEEN)
+                yield Move(from_square_index, to_square_index, ROOK)
+                yield Move(from_square_index, to_square_index, BISHOP)
+                yield Move(from_square_index, to_square_index, KNIGHT)
+            else:
+                yield Move(from_square_index, to_square_index)
+
+            single_moves = single_moves & (single_moves - 1)
+
+        # Generate double pawn moves.
+        while double_moves:
+            to_square = double_moves & -double_moves
+            to_square_index = bit_scan(to_square)
+
+            if self.turn == WHITE:
+                from_square = to_square >> 16
+            else:
+                from_square = to_square << 16
+            from_square_index = bit_scan(from_square)
+
+            yield Move(from_square_index, to_square_index)
+
+            double_moves = double_moves & (double_moves - 1)
 
     def pseudo_legal_move_count(self):
         # In a way duplicates generate_pseudo_legal_moves() in order to use
