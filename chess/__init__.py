@@ -505,6 +505,7 @@ DIAG_ATTACKS_NW = _attack_table([
                                 [BB_H8],
 ])
 
+
 FILE_ATTACKS = _attack_table([
     [BB_A1, BB_A2, BB_A3, BB_A4, BB_A5, BB_A6, BB_A7, BB_A8],
     [BB_B1, BB_B2, BB_B3, BB_B4, BB_B5, BB_B6, BB_B7, BB_B8],
@@ -529,14 +530,18 @@ RANK_ATTACKS = _attack_table([
 
 # TODO: Clean up.
 KING_MOVES = {}
+KING_MOVES[0] = 0
 for square, mask in enumerate(BB_KING_ATTACKS):
     KING_MOVES[BB_SQUARES[square]] = mask
 KNIGHT_MOVES = {}
+KNIGHT_MOVES[0] = 0
 for square, mask in enumerate(BB_KNIGHT_ATTACKS):
     KNIGHT_MOVES[BB_SQUARES[square]] = mask
 
 RANK_MASK = {}
+RANK_MASK[0] = 0
 FILE_MASK = {}
+FILE_MASK[0] = 0
 for square, mask in enumerate(BB_SQUARES):
     RANK_MASK[mask] = BB_RANKS[rank_index(square)]
     FILE_MASK[mask] = BB_FILES[file_index(square)]
@@ -555,7 +560,7 @@ for i in range(8):
 for i in range(63, 55, -1):
     DIAG_MASK_NE[1 << i] = 0
     for j in range(64 - i):
-        DIAG_MASK_NE[1 << i] |= 1L << (i - 7 * j)
+        DIAG_MASK_NE[1 << i] |= 1 << (i - 7 * j)
     for j in range(64 - i):
         DIAG_MASK_NE[1 << (i - 7 * j)] = DIAG_MASK_NE[1 << i]
 
@@ -576,6 +581,9 @@ for i in range(56, 64):
         DIAG_MASK_NW[1 << i] |= 1 << (i - 9 * j)
     for j in range(i - 55):
         DIAG_MASK_NW[1 << (i - 9 * j)] = DIAG_MASK_NW[1 << i]
+
+# TODO: Actually replace
+DIAG_MASK_NE, DIAG_MASK_NW = DIAG_MASK_NW, DIAG_MASK_NE
 
 
 try:
@@ -2566,8 +2574,8 @@ class Board(object):
     def _generate_attacks(self):
         # TODO: Do not generate twice.
         # XXX
-        self.attacks_from = collections.defaultdict(0)
-        self.attacks_to = collections.defaultdict(0)
+        self.attacks_from = collections.defaultdict(int)
+        self.attacks_to = collections.defaultdict(int)
 
         # Produce piece attacks.
         non_pawns = self.occupied & ~self.pawns
@@ -2691,6 +2699,13 @@ class Board(object):
     def _generate_moves(self, white_to_move):
         self._generate_attacks()
 
+        king = self.kings & self.occupied_co[WHITE if white_to_move else BLACK]
+        if self.attacks_to[king] & self.occupied_co[BLACK if white_to_move else WHITE]:
+            return self._generate_evasions(white_to_move)
+        else:
+            return self._generate_non_evasions(white_to_move)
+
+    def _generate_non_evasions(self, white_to_move):
         if white_to_move:
             own_pieces = self.occupied_co[WHITE]
             other_pieces = self.occupied_co[BLACK]
@@ -2700,10 +2715,6 @@ class Board(object):
             other_pieces = self.occupied_co[WHITE]
             king = self.kings & self.occupied_co[BLACK]
 
-        # If we are in check, generate check evasions.
-        if self.attacks_to[king] & other_pieces:
-            yield from _generate_evasions(white_to_move)
-
         if white_to_move:
             non_pawns = self.occupied_co[WHITE] & ~self.pawns
         else:
@@ -2712,7 +2723,7 @@ class Board(object):
         while non_pawns:
             from_square = non_pawns & -non_pawns
             mask = self._pinned(from_square, white_to_move)
-            moves = attacks_from[from_square] & own_pieces & mask
+            moves = self.attacks_from[from_square] & own_pieces & mask
             while moves:
                 to_square = moves & -moves
 
