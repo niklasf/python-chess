@@ -1513,35 +1513,18 @@ class Board(object):
 
         return count
 
+    def attacker_mask(self, color, square):
+        if not self.attacks_valid:
+            self._generate_attacks()
+
+        return self.attacks_to[BB_SQUARES[square]] & self.occupied_co[color]
+
     def is_attacked_by(self, color, square):
         """
         Checks if the given side attacks the given square. Pinned pieces still
         count as attackers.
         """
-        if BB_PAWN_ATTACKS[color ^ 1][square] & (self.pawns | self.bishops) & self.occupied_co[color]:
-            return True
-
-        if self.knight_attacks_from(square) & self.knights & self.occupied_co[color]:
-            return True
-
-        if self.bishop_attacks_from(square) & (self.bishops | self.queens) & self.occupied_co[color]:
-            return True
-
-        if self.rook_attacks_from(square) & (self.rooks | self.queens) & self.occupied_co[color]:
-            return True
-
-        if self.king_attacks_from(square) & (self.kings | self.queens) & self.occupied_co[color]:
-            return True
-
-        return False
-
-    def attacker_mask(self, color, square):
-        attackers = BB_PAWN_ATTACKS[color ^ 1][square] & self.pawns
-        attackers |= self.knight_attacks_from(square) & self.knights
-        attackers |= self.bishop_attacks_from(square) & (self.bishops | self.queens)
-        attackers |= self.rook_attacks_from(square) & (self.rooks | self.queens)
-        attackers |= self.king_attacks_from(square) & self.kings
-        return attackers & self.occupied_co[color]
+        return bool(self.attacker_mask(color, square))
 
     def attackers(self, color, square):
         """
@@ -1553,7 +1536,7 @@ class Board(object):
 
     def is_check(self):
         """Checks if the current side to move is in check."""
-        return self.is_attacked_by(self.turn ^ 1, self.king_squares[self.turn])
+        return self.is_attacked_by(self.turn ^ 1, bit_scan(self.kings & self.occupied_co[self.turn]))
 
     def pawn_moves_from(self, square):
         targets = BB_PAWN_F1[self.turn][square] & ~self.occupied
