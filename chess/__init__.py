@@ -2729,13 +2729,20 @@ class Board(object):
                 blocking_pawn = empty_square & forward_pawns
                 if blocking_pawn:
                     if self.turn == WHITE:
-                        mask = self._pinned(blocking_pawn >> 8)
-                        if mask & empty_square:
-                            yield Move(bit_scan(blocking_pawn >> 8), empty_square_index)
+                        from_square = blocking_pawn >> 8
                     else:
-                        mask = self._pinned(blocking_pawn << 8)
-                        if mask & empty_square:
-                            yield Move(bit_scan(blocking_pawn << 8), empty_square_index)
+                        from_square = blocking_pawn << 8
+                    from_square_index = bit_scan(from_square)
+
+                    mask = self._pinned(from_square)
+                    if mask & empty_square:
+                        if empty_square & BB_RANK_1 or empty_square & BB_RANK_8:
+                            yield Move(from_square_index, empty_square_index, QUEEN)
+                            yield Move(from_square_index, empty_square_index, ROOK)
+                            yield Move(from_square_index, empty_square_index, BISHOP)
+                            yield Move(from_square_index, empty_square_index, KNIGHT)
+                        else:
+                            yield Move(from_square_index, empty_square_index)
                 else:
                     # Generate double pawn advances to the empty square.
                     # Make sure the square inbetween is not occupied.
