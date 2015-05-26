@@ -36,6 +36,15 @@ except ImportError:
     from io import StringIO
 
 
+class SquareTestCase(unittest.TestCase):
+
+    def test_square(self):
+        for square in chess.SQUARES:
+            file_index = chess.file_index(square)
+            rank_index = chess.rank_index(square)
+            self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
+
+
 class MoveTestCase(unittest.TestCase):
 
     def test_equality(self):
