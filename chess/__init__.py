@@ -1210,7 +1210,12 @@ class Board(object):
         if not self.attacks_valid:
             self._generate_attacks()
 
-        return not self._pinned(from_square_mask) & to_square_mask
+        # Detect uncovered check.
+        if not self._pinned(from_square_mask) & to_square_mask:
+            return True
+
+        # Detect king moves into check.
+        return from_square_mask & self.kings and self.attacks_to[to_square_mask] & self.occupied_co[self.turn ^ 1]
 
     def was_into_check(self):
         """
@@ -2375,7 +2380,7 @@ class Board(object):
             while moves:
                 to_square = moves & -moves
 
-                if (from_square & self.kings) and self.attacks_to[to_square] & their_pieces:
+                if from_square & self.kings and self.attacks_to[to_square] & their_pieces:
                     # Do not move the king into check.
                     pass
                 else:
