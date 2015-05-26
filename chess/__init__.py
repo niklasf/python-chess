@@ -1210,6 +1210,10 @@ class Board(object):
         if not self.attacks_valid:
             self._generate_attacks()
 
+        # If already in check, look if it as an evasion.
+        if self.is_check():
+            return move not in self._generate_evasions()
+
         # Detect uncovered check.
         if not self._pinned(from_square_mask) & to_square_mask:
             return True
