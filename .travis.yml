@@ -4,6 +4,9 @@ python:
  - "2.7"
  - "3.3"
  - "3.4"
+env:
+ - PERFT_SUITE="PerftTestCase.test_debug PerftTestCase.test_fast"
+ - PERFT_SUITE="PerftTestCase.test_speed"
 before_install:
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
  - unzip stockfish-6-linux.zip
@@ -17,6 +20,6 @@ install:
 script:
  - coverage run --source chess test.py --verbose
  - coverage run --source chess --append -m doctest README.rst --verbose
- - coverage run --source chess --append perft.py
+ - coverage run --source chess --append perft.py --verbose $PERFT_SUITE
 after_success:
  - coveralls
