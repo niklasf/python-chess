@@ -2961,10 +2961,6 @@ class Board(object):
         return zobrist_hash
 
 
-# TODO: Remove alias.
-Bitboard = Board
-
-
 class PseudoLegalMoveGenerator(object):
 
     def __init__(self, board):
