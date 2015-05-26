@@ -1024,8 +1024,8 @@ class Board(object):
             non_pawns = non_pawns & (non_pawns - 1)
 
         # Generate castling moves.
-        if castling and not self.is_check(): # XXX
-            for move in self.generate_non_evasions(castling=True, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=False):
+        if castling:
+            for move in self.generate_castling_moves():
                 yield move
 
         # The remaining moves are all pawn moves.
@@ -1270,22 +1270,10 @@ class Board(object):
             elif self.turn == BLACK and rank_index(move.to_square) != 0:
                 return False
 
-        # Handle castling. XXX
+        # Handle castling.
         if piece == KING:
-            if self.turn == WHITE and move.from_square == E1:
-                if move.to_square == H1 and self.castling_rights & BB_H1 and not (BB_F1 | BB_G1) & self.occupied:
-                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                        return True
-                elif move.to_square == A1 and self.castling_rights & BB_A1 and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
-                        return True
-            elif self.turn == BLACK and move.from_square == E8:
-                if move.to_square == H8 and self.castling_rights & BB_H8 and not (BB_F8 | BB_G8) & self.occupied:
-                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                        return True
-                elif move.to_square == A8 and self.castling_rights & BB_A8 and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
-                        return True
+            if move in self.generate_castling_moves():
+                return True
 
         # Destination square can not be occupied.
         if self.occupied_co[self.turn] & to_mask:
@@ -2544,31 +2532,9 @@ class Board(object):
 
         # Generate castling moves. Since we are generating non-evasions we
         # already know that we are not in check.
-        if castling: # XXX
-            if self.turn == WHITE:
-                # Castling short.
-                if self.castling_rights & BB_H1:
-                    if not (BB_G1 | BB_F1) & self.occupied:
-                        if not (self.attacks_to[BB_G1] | self.attacks_to[BB_F1]) & their_pieces:
-                            yield Move(E1, H1)
-
-                # Castling long.
-                if self.castling_rights & BB_A1:
-                    if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                        if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & their_pieces:
-                            yield Move(E1, A1)
-            else:
-                # Castling short.
-                if self.castling_rights & BB_H8:
-                    if not (BB_G8 | BB_F8) & self.occupied:
-                        if not (self.attacks_to[BB_G8] | self.attacks_to[BB_F8]) & their_pieces:
-                            yield Move(E8, H8)
-
-                # Castling long.
-                if self.castling_rights & BB_A8:
-                    if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                        if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & their_pieces:
-                            yield Move(E8, A8)
+        if castling:
+            for move in self.generate_castling_moves():
+                yield move
 
         # The remaining moves are all pawn moves.
         if not pawns:
@@ -2702,6 +2668,68 @@ class Board(object):
                 yield Move(from_square_index, to_square_index)
 
             double_moves = double_moves & (double_moves - 1)
+
+    def generate_castling_moves(self):
+        if self.is_check():
+            return
+
+        king = self.occupied_co[self.turn] & self.kings
+        king_file_index = file_index(bit_scan(king))
+        backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
+
+        bb_c = BB_FILE_C & backrank
+        bb_d = BB_FILE_D & backrank
+        bb_f = BB_FILE_F & backrank
+        bb_g = BB_FILE_G & backrank
+
+        candidates = self.castling_rights & backrank
+        while candidates:
+            rook = candidates & -candidates
+            rook_file_index = file_index(bit_scan(rook))
+
+            a_side = rook_file_index < king_file_index
+
+            if a_side:
+                empty_for_rook = (
+                    RANK_ATTACKS[rook][rook | bb_d] &
+                    RANK_ATTACKS[bb_d][bb_d | rook])
+                empty_for_rook |= bb_d
+
+                empty_for_king = (
+                    RANK_ATTACKS[king][king | bb_c] &
+                    RANK_ATTACKS[bb_c][bb_c | king])
+                empty_for_king |= bb_c
+            else:
+                empty_for_rook = (
+                    RANK_ATTACKS[rook][rook | bb_f] &
+                    RANK_ATTACKS[bb_f][bb_f | rook])
+                empty_for_rook |= bb_f
+
+                empty_for_king = (
+                    RANK_ATTACKS[king][king | bb_g] &
+                    RANK_ATTACKS[bb_g][bb_g | king])
+                empty_for_king |= bb_g
+
+            empty_for_rook &= ~king
+            empty_for_rook &= ~rook
+
+            empty_for_king &= ~king
+            not_attacked_for_king = empty_for_king
+            empty_for_king &= ~rook
+
+            if not self.occupied & (empty_for_king | empty_for_rook):
+                none_attacked = True
+                while not_attacked_for_king:
+                    test_attack = not_attacked_for_king & -not_attacked_for_king
+                    if self.attacks_to[test_attack] & self.occupied_co[self.turn ^ 1]:
+                        none_attacked = False
+                        break
+                    not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
+
+                if none_attacked:
+                    yield Move(bit_scan(king), bit_scan(rook))
+
+            candidates = candidates & (candidates - 1)
 
     def generate_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if not self.attacks_valid:
