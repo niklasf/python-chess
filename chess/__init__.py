@@ -1426,12 +1426,15 @@ class Board(object):
     def is_into_check(self, move):
         """
         Checks if the given move would move would leave the king in check or
-        put it into check.
+        put it into check. The move must be at least pseudo legal.
         """
-        self.push(move)
-        is_check = self.was_into_check()
-        self.pop()
-        return is_check
+        from_square_mask = BB_SQUARES[move.from_square]
+        to_square_mask = BB_SQUARES[move.to_square]
+
+        if not self.attacks_valid:
+            self._generate_attacks()
+
+        return not self._pinned(from_square_mask) & to_square_mask
 
     def was_into_check(self):
         """
