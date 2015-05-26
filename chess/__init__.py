@@ -1181,14 +1181,19 @@ class Board(object):
 
     def is_attacked_by(self, color, square):
         """
-        Checks if the given side attacks the given square. Pinned pieces still
-        count as attackers.
+        Checks if the given side attacks the given square.
+
+        Pinned pieces still count as attackers. Pawns that can be captured
+        en-passant are attacked.
         """
         return bool(self.attacker_mask(color, square))
 
     def attackers(self, color, square):
         """
         Gets a set of attackers of the given color for the given square.
+
+        Pinned pieces still count as attackers. Pawns that can be captured
+        en-passant are attacked.
 
         Returns a set of squares.
         """
