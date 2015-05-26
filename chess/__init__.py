@@ -1742,6 +1742,32 @@ class Board(object):
 
         return operations
 
+    def board_fen(self):
+        builder = []
+        empty = 0
+
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if not piece:
+                empty += 1
+            else:
+                if empty:
+                    builder.append(str(empty))
+                    empty = 0
+                builder.append(piece.symbol())
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if empty:
+                    builder.append(str(empty))
+                    empty = 0
+
+                if square != H1:
+                    builder.append("/")
+
+        return "".join(builder)
+
+
     def epd(self, **operations):
         """
         Gets an EPD representation of the current position.
@@ -1756,28 +1782,9 @@ class Board(object):
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
         epd = []
-        empty = 0
 
         # Position part.
-        for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if not piece:
-                empty += 1
-            else:
-                if empty:
-                    epd.append(str(empty))
-                    empty = 0
-                epd.append(piece.symbol())
-
-            if BB_SQUARES[square] & BB_FILE_H:
-                if empty:
-                    epd.append(str(empty))
-                    empty = 0
-
-                if square != H1:
-                    epd.append("/")
-
+        epd.append(self.board_fen())
         epd.append(" ")
 
         # Side to move.
