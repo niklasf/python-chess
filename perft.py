@@ -49,6 +49,8 @@ def into_check_perft(board, depth):
 
 
 def debug_perft(board, depth):
+    assert board.is_valid()
+
     if depth >= 1:
         count =  0
 
