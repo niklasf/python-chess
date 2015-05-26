@@ -575,7 +575,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.turn, chess.WHITE)
         self.assertEqual(board.fullmove_number, 1)
         self.assertEqual(board.halfmove_clock, 0)
-        self.assertEqual(board.castling_rights, chess.CASTLING_NONE)
+        self.assertEqual(board.castling_rights, chess.BB_VOID)
         self.assertFalse(board.ep_square)
 
         self.assertFalse(board.piece_at(chess.E1))

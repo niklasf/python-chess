@@ -1358,7 +1358,7 @@ class Tablebases(object):
         -2
         """
         # Positions with castling rights are not in the tablebase.
-        if board.castling_rights != chess.CASTLING_NONE:
+        if board.castling_rights:
             return None
 
         # Probe.
