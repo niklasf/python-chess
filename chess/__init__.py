@@ -1767,6 +1767,67 @@ class Board(object):
 
         return "".join(builder)
 
+    def castling_shredder_fen(self):
+        if not self.castling_rights:
+            return "-"
+
+        builder = []
+
+        white_castling_rights = self.castling_rights & BB_RANK_1
+        while white_castling_rights:
+            mask = white_castling_rights & -white_castling_rights
+            builder.append(FILE_NAMES[file_index(bit_scan(mask))].upper())
+            white_castling_rights = white_castling_rights & (white_castling_rights - 1)
+
+        black_castling_rights = self.castling_rights & BB_RANK_8
+        while black_castling_rights:
+            mask = black_castling_rights & -black_castling_rights
+            builder.append(FILE_NAMES[file_index(bit_scan(mask))])
+            black_castling_rights = black_castling_rights & (black_castling_rights - 1)
+
+        return "".join(builder)
+
+    def fen(self):
+        """Gets the FEN representation of the position."""
+        fen = []
+        fen.append(self.board_fen())
+        fen.append("w" if self.turn == WHITE else "b")
+
+        fen.append(self.castling_shredder_fen())
+
+        # TODO: Only append if relevant.
+        if self.ep_square:
+            fen.append(SQUARE_NAMES[self.ep_square])
+        else:
+            fen.append("-")
+
+        fen.append(str(self.halfmove_clock))
+        fen.append(str(self.fullmove_number))
+        return " ".join(fen)
+
+    def shredder_fen(self):
+        """
+        Gets the Shredder FEN representation of the position.
+
+        Castling rights are encoded by the file of the rook. The starting
+        castling rights in normal chess are AHah.
+        """
+        fen = []
+
+        fen.append(self.board_fen())
+        fen.append("w" if self.turn == WHITE else "b")
+
+        fen.append(self.castling_shredder_fen())
+
+        if self.ep_square:
+            fen.append(SQUARE_NAMES[self.ep_square])
+        else:
+            fen.append("-")
+
+        fen.append(str(self.halfmove_clock))
+        fen.append(str(self.fullmove_number))
+
+        return " ".join(fen)
 
     def epd(self, **operations):
         """
@@ -1788,26 +1849,11 @@ class Board(object):
         epd.append(" ")
 
         # Side to move.
-        if self.turn == WHITE:
-            epd.append("w")
-        else:
-            epd.append("b")
-
+        epd.append("w" if self.turn == WHITE else "b")
         epd.append(" ")
 
-        # Castling rights. XXX
-        if not self.castling_rights:
-            epd.append("-")
-        else:
-            if self.castling_rights & BB_H1:
-                epd.append("K")
-            if self.castling_rights & BB_A1:
-                epd.append("Q")
-            if self.castling_rights & BB_H8:
-                epd.append("k")
-            if self.castling_rights & BB_A8:
-                epd.append("q")
-
+        # Castling rights.
+        epd.append(self.castling_shredder_fen()) # TODO: Use XFEN
         epd.append(" ")
 
         # En-passant square.
@@ -1943,23 +1989,6 @@ class Board(object):
         # Reset the transposition table.
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
-
-    def fen(self):
-        """Gets the FEN representation of the position."""
-        fen = []
-
-        # Position, turn, castling and en passant.
-        fen.append(self.epd())
-
-        # Half moves.
-        fen.append(" ")
-        fen.append(str(self.halfmove_clock))
-
-        # Ply.
-        fen.append(" ")
-        fen.append(str(self.fullmove_number))
-
-        return "".join(fen)
 
     def parse_san(self, san):
         """
