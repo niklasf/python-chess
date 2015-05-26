@@ -2332,31 +2332,26 @@ class Board(object):
             # Get ambigous move candidates.
             if piece == KNIGHT:
                 san = "N"
-                others = self.knights & self.knight_attacks_from(move.to_square)
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
             elif piece == BISHOP:
                 san = "B"
-                others = self.bishops & self.bishop_attacks_from(move.to_square)
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
             elif piece == ROOK:
                 san = "R"
-                others = self.rooks & self.rook_attacks_from(move.to_square)
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
             elif piece == QUEEN:
                 san = "Q"
-                others = self.queens & self.queen_attacks_from(move.to_square)
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
             elif piece == KING:
                 san = "K"
-                others = self.kings & self.king_attacks_from(move.to_square)
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
 
-            others &= ~BB_SQUARES[move.from_square]
-            others &= self.occupied_co[self.turn]
-
-            # Remove illegal candidates.
-            squares = others
-            square = bit_scan(squares)
-            while square != - 1 and square is not None:
-                if self.is_into_check(Move(square, move.to_square)):
-                    others &= ~BB_SQUARES[square]
-
-                square = bit_scan(squares, square + 1)
+            # Filter relevant candidates: Not excatly the current move, but
+            # to the same square.
+            others = BB_VOID
+            for candidate in candidates:
+                if candidate.to_square == move.to_square and candidate.from_square != move.from_square:
+                    others |= BB_SQUARES[candidate.from_square]
 
             # Disambiguate.
             if others:
