@@ -1472,9 +1472,8 @@ class Board(object):
             elif self.turn == BLACK and rank_index(move.to_square) != 0:
                 return False
 
-        # Handle moves by piece type.
+        # Handle castling.
         if piece == KING:
-            # Castling.
             if self.turn == WHITE and move.from_square == E1:
                 if move.to_square == G1 and self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
@@ -1490,24 +1489,14 @@ class Board(object):
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
 
-            return bool(self.king_attacks_from(move.from_square) & to_mask)
-        elif piece == PAWN:
-            # Require promotion type if on promotion rank.
-            if not move.promotion:
-                if self.turn == WHITE and rank_index(move.to_square) == 7:
-                    return False
-                if self.turn == BLACK and rank_index(move.to_square) == 0:
-                    return False
+        # Handle pawn moves.
+        if piece == PAWN:
+            return move in self.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
 
-            return bool(self.pawn_moves_from(move.from_square) & to_mask)
-        elif piece == QUEEN:
-            return bool(self.queen_attacks_from(move.from_square) & to_mask)
-        elif piece == ROOK:
-            return bool(self.rook_attacks_from(move.from_square) & to_mask)
-        elif piece == BISHOP:
-            return bool(self.bishop_attacks_from(move.from_square) & to_mask)
-        elif piece == KNIGHT:
-            return bool(self.knight_attacks_from(move.from_square) & to_mask)
+        # Handle all other pieces.
+        if not self.attacks_valid:
+            self._generate_attacks()
+        return bool(self.attacks_from[from_mask] & to_mask)
 
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
