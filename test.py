@@ -539,6 +539,21 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(chess.D4 in attackers)
         self.assertFalse(chess.E1 in attackers)
 
+    def test_en_passant_attackers(self):
+        board = chess.Board("4k3/8/8/8/4pPp1/8/8/4K3 b - f3 0 1")
+
+        # Still attacking the en-passant square.
+        attackers = board.attackers(chess.BLACK, chess.F3)
+        self.assertEqual(len(attackers), 2)
+        self.assertTrue(chess.E4 in attackers)
+        self.assertTrue(chess.G4 in attackers)
+
+        # Also attacking the pawn.
+        attackers = board.attackers(chess.BLACK, chess.F4)
+        self.assertEqual(len(attackers), 2)
+        self.assertTrue(chess.E4 in attackers)
+        self.assertTrue(chess.G4 in attackers)
+
     def test_clear(self):
         board = chess.Board()
         board.clear()
