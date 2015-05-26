@@ -846,7 +846,7 @@ class Board(object):
         self.queens = BB_VOID
         self.kings = BB_VOID
 
-        self.occupied_co = [ BB_VOID, BB_VOID ]
+        self.occupied_co = [BB_VOID, BB_VOID]
         self.occupied = BB_VOID
 
         self.halfmove_clock_stack.clear()
@@ -1000,7 +1000,7 @@ class Board(object):
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if not self.attacks_valid:
-            self._generate_attacks()
+            self.generate_attacks()
 
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[self.turn ^ 1]
@@ -1178,7 +1178,7 @@ class Board(object):
 
     def attacker_mask(self, color, square):
         if not self.attacks_valid:
-            self._generate_attacks()
+            self.generate_attacks()
 
         return self.attacks_to[BB_SQUARES[square]] & self.occupied_co[color]
 
@@ -1204,7 +1204,7 @@ class Board(object):
 
     def attacks_mask(self, square):
         if not self.attacks_valid:
-            self._generate_attacks()
+            self.generate_attacks()
 
         return self.attacks_from[BB_SQUARES[square]]
 
@@ -1233,11 +1233,12 @@ class Board(object):
         to_square_mask = BB_SQUARES[move.to_square]
 
         if not self.attacks_valid:
-            self._generate_attacks()
+            self.generate_attacks()
 
         # If already in check, look if it as an evasion.
         if self.is_check():
-            return move not in self._generate_evasions()
+            # TODO: Selective move generation.
+            return move not in self.generate_evasions()
 
         # Detect uncovered check.
         if not self._pinned(from_square_mask) & to_square_mask:
@@ -1308,7 +1309,7 @@ class Board(object):
 
         # Handle all other pieces.
         if not self.attacks_valid:
-            self._generate_attacks()
+            self.generate_attacks()
         return bool(self.attacks_from[from_mask] & to_mask)
 
     def is_legal(self, move):
@@ -2172,8 +2173,18 @@ class Board(object):
     def status(self):
         """
         Gets a bitmask of possible problems with the position.
+
         Move making, generation and validation are only guaranteed to work on
         a completely valid board.
+
+        STATUS_VALID for a completely valid board.
+
+        Otherwise bitwise combinations of: STATUS_NO_WHITE_KING,
+        STATUS_NO_BLACK_KING, STATUS_TOO_MANY_KINGS,
+        STATUS_TOO_MANY_WHITE_PAWNS, STATUS_TOO_MANY_BLACK_PAWNS,
+        STATUS_PAWNS_ON_BACKRANK, STATUS_TOO_MANY_WHITE_PIECES,
+        STATUS_TOO_MANY_BLACK_PIECES, STATUS_BAD_CASTLING_RIGHTS,
+        STATUS_INVALID_EP_SQUARE, STATUS_OPPOSITE_CHECK.
         """
         errors = STATUS_VALID
 
@@ -2242,7 +2253,21 @@ class Board(object):
 
         return errors
 
-    def _generate_attacks(self):
+    def is_valid(self):
+        """
+        Checks if the board is valid.
+
+        Move making, generation and validation are only guaranteed to work on
+        a completely valid board.
+
+        See Board.status() for details.
+        """
+        return self.status() == STATUS_VALID
+
+    def generate_attacks(self):
+        if self.attacks_valid:
+            return
+
         self.attacks_from = collections.defaultdict(int)
         self.attacks_to = collections.defaultdict(int)
 
@@ -2372,16 +2397,15 @@ class Board(object):
         return mask
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
-        if not self.attacks_valid:
-            self._generate_attacks()
-
-        king_mask = self.kings & self.occupied_co[self.turn]
-        if self.attacks_to[king_mask] & self.occupied_co[self.turn ^ 1]:
-            return self._generate_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
+        if self.is_check():
+            return self.generate_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
         else:
-            return self._generate_non_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
+            return self.generate_non_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
 
-    def _generate_non_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_non_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+        if not self.attacks_valid:
+            self.generate_attacks()
+
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[self.turn ^ 1]
 
@@ -2580,7 +2604,10 @@ class Board(object):
 
             double_moves = double_moves & (double_moves - 1)
 
-    def _generate_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+        if not self.attacks_valid:
+            self.generate_attacks()
+
         # Selective move generation.
         selected_pieces = BB_VOID
         if pawns:
