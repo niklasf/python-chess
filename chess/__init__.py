@@ -651,6 +651,9 @@ class Piece(object):
     def __str__(self):
         return self.symbol()
 
+    def __unicode__(self, invert_color=False):
+        return self.unicode_symbol(invert_color)
+
     def __eq__(self, other):
         try:
             return self.piece_type == other.piece_type and self.color == other.color
