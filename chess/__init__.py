@@ -1658,10 +1658,10 @@ class Board(object):
             return True
 
         # The next legal move is a threefold repetition.
-        for move in self.generate_pseudo_legal_moves():
+        for move in self.generate_legal_moves():
             self.push(move)
 
-            if not self.was_into_check() and self.transpositions[self.zobrist_hash()] >= 3:
+            if self.transpositions[self.zobrist_hash()] >= 3:
                 self.pop()
                 return True
 
