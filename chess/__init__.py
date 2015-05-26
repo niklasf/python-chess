@@ -28,12 +28,13 @@ import collections
 import re
 
 
-COLORS = [ WHITE, BLACK ] = range(2)
+COLORS = [WHITE, BLACK] = range(2)
 
-PIECE_TYPES = [ NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING ] = range(7)
+PIECE_TYPES = [NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(7)
 
-PIECE_SYMBOLS = [ "", "p", "n", "b", "r", "q", "k" ]
+PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
 
+# TODO: Use real letters.
 UNICODE_PIECE_SYMBOLS = {
     "R": u"\u2656", "r": u"\u265c",
     "N": u"\u2658", "n": u"\u265e",
@@ -43,7 +44,7 @@ UNICODE_PIECE_SYMBOLS = {
     "P": u"\u2659", "p": u"\u265f",
 }
 
-FILE_NAMES = [ "a", "b", "c", "d", "e", "f", "g", "h" ]
+FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 """The FEN notation of the standard chess starting position."""
@@ -60,6 +61,15 @@ STATUS_TOO_MANY_BLACK_PIECES = 128
 STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
+
+CASTLING_NONE = 0
+CASTLING_WHITE_KINGSIDE = 1
+CASTLING_BLACK_KINGSIDE = 2
+CASTLING_WHITE_QUEENSIDE = 4
+CASTLING_BLACK_QUEENSIDE = 8
+CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
+CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
+CASTLING = CASTLING_WHITE | CASTLING_BLACK
 
 SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
 
@@ -107,15 +117,6 @@ def square(file_index, rank_index):
     """Gets the square number by its file and rank index."""
     return rank_index * 8 + file_index
 
-CASTLING_NONE = 0
-CASTLING_WHITE_KINGSIDE = 1
-CASTLING_BLACK_KINGSIDE = 2
-CASTLING_WHITE_QUEENSIDE = 4
-CASTLING_BLACK_QUEENSIDE = 8
-CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
-CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
-CASTLING = CASTLING_WHITE | CASTLING_BLACK
-
 
 BB_VOID = 0b0000000000000000000000000000000000000000000000000000000000000000
 
@@ -160,6 +161,12 @@ BB_FILES = [
     BB_H1 | BB_H2 | BB_H3 | BB_H4 | BB_H5 | BB_H6 | BB_H7 | BB_H8
 ]
 
+FILE_MASK = {}
+FILE_MASK[0] = 0
+
+for square_index, mask in enumerate(BB_SQUARES):
+    FILE_MASK[mask] = BB_FILES[file_index(square_index)]
+
 BB_RANKS = [
     BB_RANK_1,
     BB_RANK_2,
@@ -179,6 +186,67 @@ BB_RANKS = [
     BB_A7 | BB_B7 | BB_C7 | BB_D7 | BB_E7 | BB_F7 | BB_G7 | BB_H7,
     BB_A8 | BB_B8 | BB_C8 | BB_D8 | BB_E8 | BB_F8 | BB_G8 | BB_H8
 ]
+
+RANK_MASK = {}
+RANK_MASK[0] = 0
+
+for square_index, mask in enumerate(BB_SQUARES):
+    RANK_MASK[mask] = BB_RANKS[rank_index(square_index)]
+
+DIAG_MASK_NW = {}
+DIAG_MASK_NW[0] = 0
+
+for i in range(8):
+    DIAG_MASK_NW[1 << i] = 0
+    for j in range(i + 1):
+        DIAG_MASK_NW[1 << i] |= 1 << (i + 7 * j)
+    for j in range(i + 1):
+        DIAG_MASK_NW[1 << (i + 7 * j)] = DIAG_MASK_NW[1 << i]
+
+for i in range(63, 55, -1):
+    DIAG_MASK_NW[1 << i] = 0
+    for j in range(64 - i):
+        DIAG_MASK_NW[1 << i] |= 1 << (i - 7 * j)
+    for j in range(64 - i):
+        DIAG_MASK_NW[1 << (i - 7 * j)] = DIAG_MASK_NW[1 << i]
+
+DIAG_MASK_NE = {}
+DIAG_MASK_NE[0] = 0
+
+for i in range(7, -1, -1):
+    DIAG_MASK_NE[1 << i] = 0
+    for j in range(8 - i):
+        DIAG_MASK_NE[1 << i] |= 1 << (i + 9 * j)
+    for j in range(8 - i):
+        DIAG_MASK_NE[1 << (i + 9 * j)] = DIAG_MASK_NE[1 << i]
+
+for i in range(56, 64):
+    DIAG_MASK_NE[1 << i] = 0
+    for j in range(i - 55):
+        DIAG_MASK_NE[1 << i] |= 1 << (i - 9 * j)
+    for j in range(i - 55):
+        DIAG_MASK_NE[1 << (i - 9 * j)] = DIAG_MASK_NE[1 << i]
+
+
+try:
+    from gmpy2 import popcount as pop_count
+    from gmpy2 import bit_scan1 as bit_scan
+except ImportError:
+    try:
+        from gmpy import popcount as pop_count
+        from gmpy import scan1 as bit_scan
+    except ImportError:
+        def pop_count(b):
+            return bin(b).count("1")
+
+        def bit_scan(b, n=0):
+            string = bin(b)
+            l = len(string)
+            r = string.rfind("1", 0, l - n)
+            if r == -1:
+                return -1
+            else:
+                return l - r - 1
 
 
 def shift_down(b):
@@ -219,6 +287,8 @@ def shift_down_right(b):
 
 
 BB_KNIGHT_ATTACKS = []
+KNIGHT_MOVES = {}
+KNIGHT_MOVES[0] = 0
 
 for bb_square in BB_SQUARES:
     mask = BB_VOID
@@ -231,8 +301,11 @@ for bb_square in BB_SQUARES:
     mask |= shift_2_left(shift_down(bb_square))
     mask |= shift_2_right(shift_down(bb_square))
     BB_KNIGHT_ATTACKS.append(mask & BB_ALL)
+    KNIGHT_MOVES[bb_square] = mask & BB_ALL
 
 BB_KING_ATTACKS = []
+KING_MOVES = {}
+KING_MOVES[0] = 0
 
 for bb_square in BB_SQUARES:
     mask = BB_VOID
@@ -245,7 +318,7 @@ for bb_square in BB_SQUARES:
     mask |= shift_down_left(bb_square)
     mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask & BB_ALL)
-
+    KING_MOVES[bb_square] = mask & BB_ALL
 
 def _attack_table(square_list):
     attack_table = {}
@@ -321,7 +394,6 @@ DIAG_ATTACKS_NW = _attack_table([
                                 [BB_H8],
 ])
 
-
 FILE_ATTACKS = _attack_table([
     [BB_A1, BB_A2, BB_A3, BB_A4, BB_A5, BB_A6, BB_A7, BB_A8],
     [BB_B1, BB_B2, BB_B3, BB_B4, BB_B5, BB_B6, BB_B7, BB_B8],
@@ -343,84 +415,6 @@ RANK_ATTACKS = _attack_table([
     [BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7],
     [BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8],
 ])
-
-# TODO: Clean up.
-KING_MOVES = {}
-KING_MOVES[0] = 0
-for square_index, mask in enumerate(BB_KING_ATTACKS):
-    KING_MOVES[BB_SQUARES[square_index]] = mask
-KNIGHT_MOVES = {}
-KNIGHT_MOVES[0] = 0
-for square_index, mask in enumerate(BB_KNIGHT_ATTACKS):
-    KNIGHT_MOVES[BB_SQUARES[square_index]] = mask
-
-RANK_MASK = {}
-RANK_MASK[0] = 0
-FILE_MASK = {}
-FILE_MASK[0] = 0
-for square_index, mask in enumerate(BB_SQUARES):
-    RANK_MASK[mask] = BB_RANKS[rank_index(square_index)]
-    FILE_MASK[mask] = BB_FILES[file_index(square_index)]
-
-# Bottom half of the board.
-DIAG_MASK_NE = {}
-DIAG_MASK_NE[0] = 0
-for i in range(8):
-    DIAG_MASK_NE[1 << i] = 0
-    for j in range(i + 1):
-        DIAG_MASK_NE[1 << i] |= 1 << (i + 7 * j)
-    for j in range(i + 1):
-        DIAG_MASK_NE[1 << (i + 7 * j)] = DIAG_MASK_NE[1 << i]
-
-# Top half of the board.
-for i in range(63, 55, -1):
-    DIAG_MASK_NE[1 << i] = 0
-    for j in range(64 - i):
-        DIAG_MASK_NE[1 << i] |= 1 << (i - 7 * j)
-    for j in range(64 - i):
-        DIAG_MASK_NE[1 << (i - 7 * j)] = DIAG_MASK_NE[1 << i]
-
-DIAG_MASK_NW = {}
-DIAG_MASK_NW[0] = 0
-# Bottom half of the board.
-for i in range(7, -1, -1):
-    DIAG_MASK_NW[1 << i] = 0
-    for j in range(8 - i):
-        DIAG_MASK_NW[1 << i] |= 1 << (i + 9 * j)
-    for j in range(8 - i):
-        DIAG_MASK_NW[1 << (i + 9 * j)] = DIAG_MASK_NW[1 << i]
-
-# Top half of the board.
-for i in range(56, 64):
-    DIAG_MASK_NW[1 << i] = 0
-    for j in range(i - 55):
-        DIAG_MASK_NW[1 << i] |= 1 << (i - 9 * j)
-    for j in range(i - 55):
-        DIAG_MASK_NW[1 << (i - 9 * j)] = DIAG_MASK_NW[1 << i]
-
-# TODO: Actually replace
-DIAG_MASK_NE, DIAG_MASK_NW = DIAG_MASK_NW, DIAG_MASK_NE
-
-
-try:
-    from gmpy2 import popcount as pop_count
-    from gmpy2 import bit_scan1 as bit_scan
-except ImportError:
-    try:
-        from gmpy import popcount as pop_count
-        from gmpy import scan1 as bit_scan
-    except ImportError:
-        def pop_count(b):
-            return bin(b).count("1")
-
-        def bit_scan(b, n=0):
-            string = bin(b)
-            l = len(string)
-            r = string.rfind("1", 0, l - n)
-            if r == -1:
-                return -1
-            else:
-                return l - r - 1
 
 
 POLYGLOT_RANDOM_ARRAY = [
