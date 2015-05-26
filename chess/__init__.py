@@ -2216,18 +2216,37 @@ class Board(object):
         piece = self.piece_type_at(move.from_square)
         en_passant = False
 
+        # Look ahead for check or checkmate.
+        self.push(move)
+        is_check = self.is_check()
+        is_checkmate = is_check and self.is_checkmate()
+        self.pop()
+
         # Castling.
         if piece == KING:
+            castling = False
             if move.from_square == E1:
                 if move.to_square == G1:
-                    return "O-O"
+                    castling = True
+                    san = "O-O"
                 elif move.to_square == C1:
-                    return "O-O-O"
+                    castling = True
+                    san = "O-O-O"
             elif move.from_square == E8:
                 if move.to_square == G8:
-                    return "O-O"
+                    castling = True
+                    san = "O-O"
                 elif move.to_square == C8:
-                    return "O-O-O"
+                    castling = True
+                    san = "O-O-O"
+
+            if castling:
+                if is_checkmate:
+                    return san + "#"
+                elif is_check:
+                    return san + "+"
+                else:
+                    return san
 
         if piece == PAWN:
             san = ""
@@ -2295,14 +2314,11 @@ class Board(object):
         if move.promotion:
             san += "=" + PIECE_SYMBOLS[move.promotion].upper()
 
-        # Look ahead for check or checkmate.
-        self.push(move)
-        if self.is_check():
-            if self.is_checkmate():
-                san += "#"
-            else:
-                san += "+"
-        self.pop()
+        # Add check or checkmate suffix
+        if is_checkmate:
+            san += "#"
+        elif is_check:
+            san += "+"
 
         return san
 

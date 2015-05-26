@@ -262,6 +262,13 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(bitboard.fen(), "1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQk - 0 4")
 
     def test_san(self):
+        # Castling with check.
+        fen = "rnbk1b1r/ppp2pp1/5n1p/4p1B1/2P5/2N5/PP2PPPP/R3KBNR w KQ - 0 7"
+        board = chess.Board(fen)
+        long_castle_check = chess.Move.from_uci("e1c1")
+        self.assertEqual(board.san(long_castle_check), "O-O-O+")
+        self.assertEqual(board.fen(), fen)
+
         # En passant mate.
         fen = "6bk/7b/8/3pP3/8/8/8/Q3K3 w - d6 0 2"
         bitboard = chess.Board(fen)
