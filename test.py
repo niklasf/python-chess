@@ -274,7 +274,7 @@ class BoardTestCase(unittest.TestCase):
         # Castling with check.
         fen = "rnbk1b1r/ppp2pp1/5n1p/4p1B1/2P5/2N5/PP2PPPP/R3KBNR w KQ - 0 7"
         board = chess.Board(fen)
-        long_castle_check = chess.Move.from_uci("e1c1")
+        long_castle_check = chess.Move.from_uci("e1a1")
         self.assertEqual(board.san(long_castle_check), "O-O-O+")
         self.assertEqual(board.fen(), fen)
 

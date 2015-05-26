@@ -1038,22 +1038,22 @@ class Board(object):
                 # Castling short.
                 if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                        yield Move(E1, G1)
+                        yield Move(E1, H1)
 
                 # Castling long.
                 if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                     if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                        yield Move(E1, C1)
+                        yield Move(E1, A1)
             else:
                 # Castling short.
                 if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                        yield Move(E8, G8)
+                        yield Move(E8, H8)
 
                 # Castling long.
                 if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                     if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                        yield Move(E8, C8)
+                        yield Move(E8, A8)
 
         # The remaining moves are all pawn moves.
         if not pawns:
@@ -1251,7 +1251,16 @@ class Board(object):
             return True
 
         # Detect king moves into check.
-        return from_square_mask & self.kings and self.attacks_to[to_square_mask] & self.occupied_co[self.turn ^ 1]
+        if from_square_mask & self.kings:
+            # We are assuming a pseudo legal move, so a castling move would not
+            # be into check.
+            if from_square_mask & (BB_E1 | BB_E8) and to_square_mask & (BB_A1 | BB_A8 | BB_H1 | BB_H8):
+                return False
+
+            # A normal king move.
+            return self.attacks_to[to_square_mask] & self.occupied_co[self.turn ^ 1]
+
+        return False
 
     def was_into_check(self):
         """
@@ -1278,10 +1287,6 @@ class Board(object):
         if not self.occupied_co[self.turn] & from_mask:
             return False
 
-        # Destination square can not be occupied.
-        if self.occupied_co[self.turn] & to_mask:
-            return False
-
         # Only pawns can promote and only on the backrank.
         if move.promotion:
             if piece != PAWN:
@@ -1295,19 +1300,23 @@ class Board(object):
         # Handle castling.
         if piece == KING:
             if self.turn == WHITE and move.from_square == E1:
-                if move.to_square == G1 and self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
+                if move.to_square == H1 and self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
                         return True
-                elif move.to_square == C1 and self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                elif move.to_square == A1 and self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
                         return True
             elif self.turn == BLACK and move.from_square == E8:
-                if move.to_square == G8 and self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
+                if move.to_square == H8 and self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
                         return True
-                elif move.to_square == C8 and self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                elif move.to_square == A8 and self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
+
+        # Destination square can not be occupied.
+        if self.occupied_co[self.turn] & to_mask:
+            return False
 
         # Handle pawn moves.
         if piece == PAWN:
@@ -1486,7 +1495,7 @@ class Board(object):
             self.fullmove_number += 1
 
         # Remember game state.
-        captured_piece = self.piece_type_at(move.to_square) if move else NONE
+        captured_piece = self.piece_at(move.to_square) if move else None
         self.halfmove_clock_stack.append(self.halfmove_clock)
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
@@ -1511,7 +1520,7 @@ class Board(object):
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
-        if piece_type == PAWN or captured_piece:
+        if piece_type == PAWN or (captured_piece and captured_piece.color != self.turn):
             self.halfmove_clock = 0
         else:
             self.halfmove_clock += 1
@@ -1520,7 +1529,7 @@ class Board(object):
         if move.promotion:
             piece_type = move.promotion
 
-        # Remove piece from target square.
+        # Remove piece from original square.
         self.remove_piece_at(move.from_square, _invalidate_attacks=False)
 
         # Handle special pawn moves.
@@ -1557,22 +1566,32 @@ class Board(object):
             self.castling_rights &= ~CASTLING_BLACK_KINGSIDE
 
         # Castling.
+        castling = False
         if piece_type == KING:
-            if move.from_square == E1 and move.to_square == G1:
-                self.set_piece_at(F1, Piece(ROOK, WHITE), _invalidate_attacks=False)
+            if move.from_square == E1 and move.to_square == H1:
+                castling = True
                 self.remove_piece_at(H1, _invalidate_attacks=False)
-            elif move.from_square == E1 and move.to_square == C1:
-                self.set_piece_at(D1, Piece(ROOK, WHITE), _invalidate_attacks=False)
+                self.set_piece_at(F1, Piece(ROOK, WHITE), _invalidate_attacks=False)
+                self.set_piece_at(G1, Piece(KING, WHITE), _invalidate_attacks=False)
+            elif move.from_square == E1 and move.to_square == A1:
+                castling = True
                 self.remove_piece_at(A1, _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == G8:
-                self.set_piece_at(F8, Piece(ROOK, BLACK), _invalidate_attacks=False)
+                self.set_piece_at(D1, Piece(ROOK, WHITE), _invalidate_attacks=False)
+                self.set_piece_at(C1, Piece(KING, WHITE), _invalidate_attacks=False)
+            elif move.from_square == E8 and move.to_square == H8:
+                castling = True
                 self.remove_piece_at(H8, _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == C8:
-                self.set_piece_at(D8, Piece(ROOK, BLACK), _invalidate_attacks=False)
+                self.set_piece_at(F8, Piece(ROOK, BLACK), _invalidate_attacks=False)
+                self.set_piece_at(G8, Piece(KING, BLACK), _invalidate_attacks=False)
+            elif move.from_square == E8 and move.to_square == A8:
+                castling = True
                 self.remove_piece_at(A8, _invalidate_attacks=False)
+                self.set_piece_at(D8, Piece(ROOK, BLACK), _invalidate_attacks=False)
+                self.set_piece_at(C8, Piece(KING, BLACK), _invalidate_attacks=False)
 
         # Put piece on target square.
-        self.set_piece_at(move.to_square, Piece(piece_type, self.turn), _invalidate_attacks=False)
+        if not castling:
+            self.set_piece_at(move.to_square, Piece(piece_type, self.turn), _invalidate_attacks=False)
 
         # Swap turn.
         self.turn ^= 1
@@ -1601,7 +1620,6 @@ class Board(object):
         self.castling_rights = self.castling_right_stack.pop()
         self.ep_square = self.ep_square_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
-        captured_piece_color = self.turn
 
         # Restore attacks.
         try:
@@ -1616,13 +1634,32 @@ class Board(object):
             self.turn ^= 1
             return move
 
-        # Restore the source square.
+        # Remove the rook after castling and restore the king. Castling is
+        # encoded as capturing our own rook.
+        castling = captured_piece and captured_piece.color == self.turn ^ 1
+        if castling:
+            if move.from_square == E1 and move.to_square == H1:
+                self.remove_piece_at(F1, _invalidate_attacks=False)
+                self.remove_piece_at(G1, _invalidate_attacks=False)
+                self.set_piece_at(E1, Piece(KING, WHITE), _invalidate_attacks=False)
+            elif move.from_square == E1 and move.to_square == A1:
+                self.remove_piece_at(D1, _invalidate_attacks=False)
+                self.remove_piece_at(C1, _invalidate_attacks=False)
+                self.set_piece_at(E1, Piece(KING, WHITE), _invalidate_attacks=False)
+            elif move.from_square == E8 and move.to_square == H8:
+                self.remove_piece_at(F8, _invalidate_attacks=False)
+                self.remove_piece_at(G8, _invalidate_attacks=False)
+                self.set_piece_at(E8, Piece(KING, BLACK), _invalidate_attacks=False)
+            elif move.from_square == E8 and move.to_square == A8:
+                self.remove_piece_at(D8, _invalidate_attacks=False)
+                self.remove_piece_at(C8, _invalidate_attacks=False)
+                self.set_piece_at(E8, Piece(KING, BLACK), _invalidate_attacks=False)
+
         piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
-        self.set_piece_at(move.from_square, Piece(piece, self.turn ^ 1), _invalidate_attacks=False)
 
         # Restore target square.
         if captured_piece:
-            self.set_piece_at(move.to_square, Piece(captured_piece, captured_piece_color), _invalidate_attacks=False)
+            self.set_piece_at(move.to_square, captured_piece, _invalidate_attacks=False)
         else:
             self.remove_piece_at(move.to_square, _invalidate_attacks=False)
 
@@ -1633,20 +1670,9 @@ class Board(object):
                 else:
                     self.set_piece_at(move.to_square - 8, Piece(PAWN, BLACK), _invalidate_attacks=False)
 
-        # Restore rook position after castling.
-        if piece == KING:
-            if move.from_square == E1 and move.to_square == G1:
-                self.remove_piece_at(F1, _invalidate_attacks=False)
-                self.set_piece_at(H1, Piece(ROOK, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E1 and move.to_square == C1:
-                self.remove_piece_at(D1, _invalidate_attacks=False)
-                self.set_piece_at(A1, Piece(ROOK, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == G8:
-                self.remove_piece_at(F8, _invalidate_attacks=False)
-                self.set_piece_at(H8, Piece(ROOK, BLACK), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == C8:
-                self.remove_piece_at(D8, _invalidate_attacks=False)
-                self.set_piece_at(A8, Piece(ROOK, BLACK), _invalidate_attacks=False)
+        # Restore the source square.
+        if not castling:
+            self.set_piece_at(move.from_square, Piece(piece, self.turn ^ 1), _invalidate_attacks=False)
 
         # Swap turn.
         self.turn ^= 1
@@ -1975,13 +2001,13 @@ class Board(object):
 
         # Castling.
         if san in ("O-O", "O-O+", "O-O#"):
-            move = Move(E1, G1) if self.turn == WHITE else Move(E8, G8)
+            move = Move(E1, H1) if self.turn == WHITE else Move(E8, H8)
             if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
                 return move
             else:
                 raise ValueError("illegal san: {0}".format(repr(san)))
         elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
-            move = Move(E1, C1) if self.turn == WHITE else Move(E8, C8)
+            move = Move(E1, A1) if self.turn == WHITE else Move(E8, A8)
             if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
                 return move
             else:
@@ -2085,17 +2111,17 @@ class Board(object):
         if piece == KING:
             castling = False
             if move.from_square == E1:
-                if move.to_square == G1:
+                if move.to_square == H1:
                     castling = True
                     san = "O-O"
-                elif move.to_square == C1:
+                elif move.to_square == A1:
                     castling = True
                     san = "O-O-O"
             elif move.from_square == E8:
-                if move.to_square == G8:
+                if move.to_square == H8:
                     castling = True
                     san = "O-O"
-                elif move.to_square == C8:
+                elif move.to_square == A8:
                     castling = True
                     san = "O-O-O"
 
@@ -2457,25 +2483,25 @@ class Board(object):
                 if self.castling_rights & CASTLING_WHITE_KINGSIDE:
                     if not (BB_G1 | BB_F1) & self.occupied:
                         if not (self.attacks_to[BB_G1] | self.attacks_to[BB_F1]) & their_pieces:
-                            yield Move(E1, G1)
+                            yield Move(E1, H1)
 
                 # Castling long.
                 if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
                     if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                         if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & their_pieces:
-                            yield Move(E1, C1)
+                            yield Move(E1, A1)
             else:
                 # Castling short.
                 if self.castling_rights & CASTLING_BLACK_KINGSIDE:
                     if not (BB_G8 | BB_F8) & self.occupied:
                         if not (self.attacks_to[BB_G8] | self.attacks_to[BB_F8]) & their_pieces:
-                            yield Move(E8, G8)
+                            yield Move(E8, H8)
 
                 # Castling long.
                 if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
                     if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                         if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & their_pieces:
-                            yield Move(E8, C8)
+                            yield Move(E8, A8)
 
         # The remaining moves are all pawn moves.
         if not pawns:
