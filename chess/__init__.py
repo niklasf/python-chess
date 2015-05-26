@@ -1798,9 +1798,18 @@ class Board(object):
 
         fen.append(self.castling_shredder_fen())
 
-        # TODO: Only append if relevant.
+        # Insert en-passant square only if at least pseudo legal.
         if self.ep_square:
-            fen.append(SQUARE_NAMES[self.ep_square])
+            if self.turn == WHITE:
+                ep_mask = shift_down(BB_SQUARES[self.ep_square])
+            else:
+                ep_mask = shift_up(BB_SQUARES[self.ep_square])
+            ep_mask = shift_left(ep_mask) | shift_right(ep_mask)
+
+            if ep_mask & self.pawns & self.occupied_co[self.turn]:
+                fen.append(SQUARE_NAMES[self.ep_square])
+            else:
+                fen.append("-")
         else:
             fen.append("-")
 
