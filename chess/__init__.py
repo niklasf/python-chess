@@ -404,7 +404,7 @@ RANK_ATTACKS = _attack_table([
 
 SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
 
-FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
+FEN_CASTLING_REGEX = re.compile("^-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2}$")
 
 
 POLYGLOT_RANDOM_ARRAY = [
@@ -1807,10 +1807,10 @@ class Board(object):
                 a_side = rook_file < king_file
 
                 shredder = False
-                other_rooks = self.occupied_co[color] & self.rooks & backrank
+                other_rooks = self.occupied_co[color] & self.rooks & backrank & ~rook
                 while other_rooks:
                     other_rook = other_rooks & -other_rooks
-                    if file_index(bit_scan(other_rook)) < rook_file == a_side:
+                    if (file_index(bit_scan(other_rook)) < rook_file) == a_side:
                         shredder = True
                         break
                     other_rooks = other_rooks & (other_rooks - 1)
@@ -2015,16 +2015,29 @@ class Board(object):
         else:
             self.turn = BLACK
 
-        # Set castling flags. XXX
+        # Set castling flags.
         self.castling_rights = BB_VOID
-        if "K" in parts[2]:
-            self.castling_rights |= BB_H1
-        if "Q" in parts[2]:
-            self.castling_rights |= BB_A1
-        if "k" in parts[2]:
-            self.castling_rights |= BB_H8
-        if "q" in parts[2]:
-            self.castling_rights |= BB_A8
+        for flag in parts[2]:
+            if flag == "-":
+                break
+
+            color = WHITE if flag.isupper() else BLACK
+            flag = flag.lower()
+            backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+            rooks = self.occupied_co[color] & self.rooks & backrank
+
+            if flag == "q":
+                # Select the leftmost rook.
+                self.castling_rights |= (rooks & -rooks)
+            elif flag == "k":
+                # Select the rightmost rook.
+                mask = BB_VOID
+                while rooks:
+                    mask = (rooks & -rooks)
+                    rooks = rooks & (rooks - 1)
+                self.castling_rights |= mask
+            else:
+                self.castling_rights |= BB_FILES[FILE_NAMES.index(flag)] & backrank
 
         # Set the en-passant square.
         if parts[3] == "-":
@@ -3056,7 +3069,7 @@ class Board(object):
         if array is None:
             array = POLYGLOT_RANDOM_ARRAY
 
-        # Hash in the castling flags. XXX
+        # Hash in the castling flags.
         if self.castling_rights & BB_H1:
             zobrist_hash ^= array[768]
         if self.castling_rights & BB_A1:
