@@ -103,7 +103,9 @@ def rank_index(square):
     """Gets the rank index of the square where `0` is the first rank."""
     return square >> 3
 
-# TODO: def square(file_index, rank_index)
+def square(file_index, rank_index):
+    """Gets the square number by its file and rank index."""
+    return rank_index * 8 + file_index
 
 CASTLING_NONE = 0
 CASTLING_WHITE_KINGSIDE = 1
@@ -132,8 +134,8 @@ BB_SQUARES = [
 
 BB_LIGHT_SQUARES = BB_DARK_SQUARES = BB_VOID
 
-for square, mask in enumerate(BB_SQUARES):
-    if (file_index(square) + rank_index(square)) % 2:
+for square_index, mask in enumerate(BB_SQUARES):
+    if (file_index(square_index) + rank_index(square_index)) % 2:
         BB_LIGHT_SQUARES |= mask
     else:
         BB_DARK_SQUARES |= mask
@@ -345,20 +347,20 @@ RANK_ATTACKS = _attack_table([
 # TODO: Clean up.
 KING_MOVES = {}
 KING_MOVES[0] = 0
-for square, mask in enumerate(BB_KING_ATTACKS):
-    KING_MOVES[BB_SQUARES[square]] = mask
+for square_index, mask in enumerate(BB_KING_ATTACKS):
+    KING_MOVES[BB_SQUARES[square_index]] = mask
 KNIGHT_MOVES = {}
 KNIGHT_MOVES[0] = 0
-for square, mask in enumerate(BB_KNIGHT_ATTACKS):
-    KNIGHT_MOVES[BB_SQUARES[square]] = mask
+for square_index, mask in enumerate(BB_KNIGHT_ATTACKS):
+    KNIGHT_MOVES[BB_SQUARES[square_index]] = mask
 
 RANK_MASK = {}
 RANK_MASK[0] = 0
 FILE_MASK = {}
 FILE_MASK[0] = 0
-for square, mask in enumerate(BB_SQUARES):
-    RANK_MASK[mask] = BB_RANKS[rank_index(square)]
-    FILE_MASK[mask] = BB_FILES[file_index(square)]
+for square_index, mask in enumerate(BB_SQUARES):
+    RANK_MASK[mask] = BB_RANKS[rank_index(square_index)]
+    FILE_MASK[mask] = BB_FILES[file_index(square_index)]
 
 # Bottom half of the board.
 DIAG_MASK_NE = {}
