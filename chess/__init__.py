@@ -1199,6 +1199,24 @@ class Board(object):
         """
         return SquareSet(self.attacker_mask(color, square))
 
+    def attacks_mask(self, square):
+        if not self.attacks_valid:
+            self._generate_attacks()
+
+        return self.attacks_from[BB_SQUARES[square]]
+
+    def attacks(self, square):
+        """
+        Gets a set of attacked squares from a given square.
+
+        There will be no attacks if the square is empty. Pinned pieces are
+        still attacking other squares. Pawns will attack pawns they could
+        capture en-passant.
+
+        Returns a set of squares.
+        """
+        return SquareSet(self.attacks_mask(square))
+
     def is_check(self):
         """Checks if the current side to move is in check."""
         return self.is_attacked_by(self.turn ^ 1, bit_scan(self.kings & self.occupied_co[self.turn]))
