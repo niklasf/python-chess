@@ -2294,28 +2294,27 @@ class Board(object):
         if pop_count(self.occupied_co[BLACK]) > 16:
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
-        # TODO: Validate castling rights
-        #if self.castling_rights & CASTLING_WHITE:
-        #    if not self.kings & self.occupied_co[WHITE] & BB_E1:
-        #        errors |= STATUS_BAD_CASTLING_RIGHTS
-        #
-        #    if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-        #        if not BB_A1 & self.occupied_co[WHITE] & self.rooks:
-        #            errors |= STATUS_BAD_CASTLING_RIGHTS
-        #    if self.castling_rights & CASTLING_WHITE_KINGSIDE:
-        #        if not BB_H1 & self.occupied_co[WHITE] & self.rooks:
-        #            errors |= STATUS_BAD_CASTLING_RIGHTS
-        #
-        #if self.castling_rights & CASTLING_BLACK:
-        #    if not self.kings & self.occupied_co[BLACK] & BB_E8:
-        #        errors |= STATUS_BAD_CASTLING_RIGHTS
-        #
-        #    if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-        #        if not BB_A8 & self.occupied_co[BLACK] & self.rooks:
-        #            errors |= STATUS_BAD_CASTLING_RIGHTS
-        #    if self.castling_rights & CASTLING_BLACK_KINGSIDE:
-        #        if not BB_H8 & self.occupied_co[BLACK] & self.rooks:
-        #            errors |= STATUS_BAD_CASTLING_RIGHTS
+        if self.castling_rights:
+            if self.castling_rights & ~(BB_RANK_1 | BB_RANK_8):
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            white_castling_rights = self.castling_rights & BB_RANK_1
+            black_castling_rights = self.castling_rights & BB_RANK_2
+
+            if pop_count(white_castling_rights) > 2:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+            if pop_count(black_castling_rights) > 2:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            if white_castling_rights & ~(self.occupied_co[WHITE] & self.rooks):
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+            if black_castling_rights & ~(self.occupied_co[BLACK] & self.rooks):
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            if white_castling_rights and not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
+            if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
+                errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.ep_square:
             if self.turn == WHITE:
