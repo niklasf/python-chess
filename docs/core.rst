@@ -74,6 +74,8 @@ and so on to
 
 .. autofunction:: chess.rank_index
 
+.. autofunction:: chess.square
+
 Pieces
 ------
 
