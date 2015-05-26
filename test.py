@@ -218,6 +218,52 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
+    def test_ninesixty_castling(self):
+        fen = "3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1"
+        board = chess.Board("3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1")
+
+        # Let white do the king side swap.
+        move = board.parse_san("O-O")
+        self.assertEqual(move.from_square, chess.F1)
+        self.assertEqual(move.to_square, chess.G1)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "3rk2r/4p3/8/8/8/8/8/4RRK1 b hd - 2 1")
+
+        # Black can not castly kingside.
+        self.assertFalse(chess.Move.from_uci("e8h8") in board.legal_moves)
+
+        # Let black castle queenside.
+        move = board.parse_san("O-O-O")
+        self.assertEqual(move.from_square, chess.E8)
+        self.assertEqual(move.to_square, chess.D8)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "2kr3r/4p3/8/8/8/8/8/4RRK1 w - - 3 2")
+
+        # Restore initial position.
+        board.pop()
+        board.pop()
+        self.assertEqual(board.shredder_fen(), fen)
+
+        fen = "Qr4k1/4pppp/8/8/8/8/8/R5KR w Hb - 0 1"
+        board = chess.Board(fen)
+
+        # White can just hop the rook over.
+        move = board.parse_san("O-O")
+        self.assertEqual(move.from_square, chess.G1)
+        self.assertEqual(move.to_square, chess.H1)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "Qr4k1/4pppp/8/8/8/8/8/R4RK1 b b - 1 1")
+
+        # Black can not castle queenside nor kingside.
+        self.assertFalse(any(board.generate_castling_moves()))
+
+        # Restore initial position.
+        board.pop()
+        self.assertEqual(board.shredder_fen(), fen)
+
     def test_insufficient_material(self):
         # Starting position.
         board = chess.Board()

@@ -2689,26 +2689,33 @@ class Board(object):
 
             a_side = rook_file_index < king_file_index
 
+            empty_for_rook = BB_VOID
+            empty_for_king = BB_VOID
+
             if a_side:
-                empty_for_rook = (
-                    RANK_ATTACKS[rook][rook | bb_d] &
-                    RANK_ATTACKS[bb_d][bb_d | rook])
-                empty_for_rook |= bb_d
+                if not rook & bb_d:
+                    empty_for_rook = (
+                        RANK_ATTACKS[rook][rook | bb_d] &
+                        RANK_ATTACKS[bb_d][bb_d | rook])
+                    empty_for_rook |= bb_d
 
-                empty_for_king = (
-                    RANK_ATTACKS[king][king | bb_c] &
-                    RANK_ATTACKS[bb_c][bb_c | king])
-                empty_for_king |= bb_c
+                if not king & bb_c:
+                    empty_for_king = (
+                        RANK_ATTACKS[king][king | bb_c] &
+                        RANK_ATTACKS[bb_c][bb_c | king])
+                    empty_for_king |= bb_c
             else:
-                empty_for_rook = (
-                    RANK_ATTACKS[rook][rook | bb_f] &
-                    RANK_ATTACKS[bb_f][bb_f | rook])
-                empty_for_rook |= bb_f
+                if not rook & bb_f:
+                    empty_for_rook = (
+                        RANK_ATTACKS[rook][rook | bb_f] &
+                        RANK_ATTACKS[bb_f][bb_f | rook])
+                    empty_for_rook |= bb_f
 
-                empty_for_king = (
-                    RANK_ATTACKS[king][king | bb_g] &
-                    RANK_ATTACKS[bb_g][bb_g | king])
-                empty_for_king |= bb_g
+                if not king & bb_g:
+                    empty_for_king = (
+                        RANK_ATTACKS[king][king | bb_g] &
+                        RANK_ATTACKS[bb_g][bb_g | king])
+                    empty_for_king |= bb_g
 
             empty_for_rook &= ~king
             empty_for_rook &= ~rook
