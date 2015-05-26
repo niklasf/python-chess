@@ -340,11 +340,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.zobrist_hash(), 0x463b96181691fc9c)
 
         board.push_san("e4")
-        self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+        self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(board.zobrist_hash(), 0x823c9b50fd114196)
 
         board.push_san("d5")
-        self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
+        self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
         self.assertEqual(board.zobrist_hash(), 0x0756b94461c50fb0)
 
         board.push_san("e5")
@@ -903,7 +903,7 @@ class PolyglotTestCase(unittest.TestCase):
                 except StopIteration:
                     break
 
-            self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
+            self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
     def test_lasker_trap(self):
         with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
