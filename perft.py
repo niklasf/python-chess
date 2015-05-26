@@ -60,7 +60,6 @@ def debug_perft(board, depth):
                 continue
 
             assert move in board.legal_moves
-            assert move in list(board.legal_moves)
 
             board.push(move)
             count += debug_perft(board, depth - 1)
