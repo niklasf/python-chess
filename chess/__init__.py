@@ -34,14 +34,13 @@ PIECE_TYPES = [NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(7)
 
 PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
 
-# TODO: Use real letters.
 UNICODE_PIECE_SYMBOLS = {
-    "R": u"\u2656", "r": u"\u265c",
-    "N": u"\u2658", "n": u"\u265e",
-    "B": u"\u2657", "b": u"\u265d",
-    "Q": u"\u2655", "q": u"\u265b",
-    "K": u"\u2654", "k": u"\u265a",
-    "P": u"\u2659", "p": u"\u265f",
+    "R": u"♖", "r": u"♜",
+    "N": u"♘", "n": u"♞",
+    "B": u"♗", "b": u"♝",
+    "Q": u"♕", "q": u"♛",
+    "K": u"♔", "k": u"♚",
+    "P": u"♙", "p": u"♟",
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -71,9 +70,6 @@ CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
 CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
 CASTLING = CASTLING_WHITE | CASTLING_BLACK
 
-SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
-
-FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
 
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -227,7 +223,6 @@ for i in range(56, 64):
     for j in range(i - 55):
         DIAG_MASK_NE[1 << (i - 9 * j)] = DIAG_MASK_NE[1 << i]
 
-
 try:
     from gmpy2 import popcount as pop_count
     from gmpy2 import bit_scan1 as bit_scan
@@ -247,7 +242,6 @@ except ImportError:
                 return -1
             else:
                 return l - r - 1
-
 
 def shift_down(b):
     return b >> 8
@@ -415,6 +409,11 @@ RANK_ATTACKS = _attack_table([
     [BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7],
     [BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8],
 ])
+
+
+SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqNBRQ])?(\\+|#)?$")
+
+FEN_CASTLING_REGEX = re.compile("^(KQ?k?q?|Qk?q?|kq?|q|-)$")
 
 
 POLYGLOT_RANDOM_ARRAY = [
