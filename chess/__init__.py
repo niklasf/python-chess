@@ -2840,36 +2840,44 @@ class Board(object):
         return "".join(builder)
 
     def __unicode__(self, invert_color=False, borders=False):
-        """
-        Returns a board with unicode pieces.
-        Lack of good fixed-with fonts with fixed widths that apply
-        to the piece characters and to e.g. white space prevents this
-        from looking better.
-        invert_color - Flip white and black symbols (for use with white text
-                                                     on black backgrounds)
-        borders - Draw the board with borders and rank/file names.
-        """
-        sep = os.linesep
-        string = ''
-        for rank in range(8,0,-1):
+        builder = []
+        for rank_index in range(7, -1, -1):
             if borders:
-                string += '  ' + '-'*17 + sep
-                string += '%d ' % rank
-            for file_ in 'a b c d e f g h'.split():
-                square = SQUARE_NAMES.index('%s%d' % (file_,rank))
-                piece = self.piece_at(square)
-                border = ('|' if borders else ('' if file_=='a' else ' '))
+                builder.append("  ")
+                builder.append("-" * 17)
+                builder.append("\n")
+
+                builder.append(str(rank_index + 1))
+                builder.append(" ")
+
+            for file_index, file_name in enumerate(FILE_NAMES):
+                square_index = square(file_index, rank_index)
+
+                if borders:
+                    builder.append("|")
+                elif file_index > 0:
+                    builder.append(" ")
+
+                piece = self.piece_at(square_index)
+
                 if piece:
-                    string += '%s%s' % \
-                      (border, piece.unicode_symbol(invert_color=invert_color))
+                    builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
-                    string += '%s%s' % (border, ".")
-            string += '%s%s' % ('|' if borders else '',
-                                '' if rank==1 and not borders else sep)
+                    builder.append(".")
+
+            if borders:
+                builder.append("|")
+
+            if borders or rank_index > 0:
+                builder.append("\n")
+
         if borders:
-            string += '  ' + '-'*17 + sep
-            string += '   a b c d e f g h'
-        return string
+            builder.append("  ")
+            builder.append("-" * 17)
+            builder.append("\n")
+            builder.append("   a b c d e f g h")
+
+        return "".join(builder)
 
     def __html__(self):
         """
