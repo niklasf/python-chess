@@ -53,13 +53,13 @@ def debug_perft(board, depth):
         count =  0
 
         for move in board.pseudo_legal_moves:
-            assert move in board.pseudo_legal_moves
+            assert move in board.pseudo_legal_moves, (move, board)
 
             if board.is_into_check(move):
-                assert move not in board.legal_moves
+                assert move not in board.legal_moves, (move, board)
                 continue
 
-            assert move in board.legal_moves
+            assert move in board.legal_moves, (move, board)
 
             board.push(move)
             count += debug_perft(board, depth - 1)

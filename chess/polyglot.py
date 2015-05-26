@@ -33,18 +33,6 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
         to_square = self.raw_move & 0x3f
         from_square = (self.raw_move >> 6) & 0x3f
 
-        # Replace non standard castling moves.
-        if from_square == chess.E1:
-            if to_square == chess.H1:
-                return chess.Move(chess.E1, chess.G1)
-            elif to_square == chess.A1:
-                return chess.Move(chess.E1, chess.C1)
-        elif from_square == chess.E8:
-            if to_square == chess.H8:
-                return chess.Move(chess.E8, chess.G8)
-            elif to_square == chess.A8:
-                return chess.Move(chess.E8, chess.C8)
-
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
         if promotion_part == 4:
