@@ -85,36 +85,6 @@ SQUARES_180 = [
     A2, B2, C2, D2, E2, F2, G2, H2,
     A1, B1, C1, D1, E1, F1, G1, H1 ]
 
-SQUARES_L90 = [
-    H1, H2, H3, H4, H5, H6, H7, H8,
-    G1, G2, G3, G4, G5, G6, G7, G8,
-    F1, F2, F3, F4, F5, F6, F7, F8,
-    E1, E2, E3, E4, E5, E6, E7, E8,
-    D1, D2, D3, D4, D5, D6, D7, D8,
-    C1, C2, C3, C4, C5, C6, C7, C8,
-    B1, B2, B3, B4, B5, B6, B7, B8,
-    A1, A2, A3, A4, A5, A6, A7, A8 ]
-
-SQUARES_R45 = [
-    A1, B8, C7, D6, E5, F4, G3, H2,
-    A2, B1, C8, D7, E6, F5, G4, H3,
-    A3, B2, C1, D8, E7, F6, G5, H4,
-    A4, B3, C2, D1, E8, F7, G6, H5,
-    A5, B4, C3, D2, E1, F8, G7, H6,
-    A6, B5, C4, D3, E2, F1, G8, H7,
-    A7, B6, C5, D4, E3, F2, G1, H8,
-    A8, B7, C6, D5, E4, F3, G2, H1 ]
-
-SQUARES_L45 = [
-    A2, B3, C4, D5, E6, F7, G8, H1,
-    A3, B4, C5, D6, E7, F8, G1, H2,
-    A4, B5, C6, D7, E8, F1, G2, H3,
-    A5, B6, C7, D8, E1, F2, G3, H4,
-    A6, B7, C8, D1, E2, F3, G4, H5,
-    A7, B8, C1, D2, E3, F4, G5, H6,
-    A8, B1, C2, D3, E4, F5, G6, H7,
-    A1, B2, C3, D4, E5, F6, G7, H8 ]
-
 SQUARE_NAMES = [
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -166,12 +136,6 @@ for square, mask in enumerate(BB_SQUARES):
     else:
         BB_DARK_SQUARES |= mask
 
-BB_SQUARES_L90 = [ BB_SQUARES[SQUARES_L90[square]] for square in SQUARES ]
-
-BB_SQUARES_L45 = [ BB_SQUARES[SQUARES_L45[square]] for square in SQUARES ]
-
-BB_SQUARES_R45 = [ BB_SQUARES[SQUARES_R45[square]] for square in SQUARES ]
-
 BB_FILES = [
     BB_FILE_A,
     BB_FILE_B,
@@ -212,6 +176,7 @@ BB_RANKS = [
     BB_A8 | BB_B8 | BB_C8 | BB_D8 | BB_E8 | BB_F8 | BB_G8 | BB_H8
 ]
 
+
 def shift_down(b):
     return b >> 8
 
@@ -248,35 +213,6 @@ def shift_down_left(b):
 def shift_down_right(b):
     return (b >> 7) & ~BB_FILE_A
 
-def l90(b):
-    mask = BB_VOID
-
-    square = bit_scan(b)
-    while square != - 1 and square is not None:
-        mask |= BB_SQUARES_L90[square]
-        square = bit_scan(b, square + 1)
-
-    return mask
-
-def r45(b):
-    mask = BB_VOID
-
-    square = bit_scan(b)
-    while square != - 1 and square is not None:
-        mask |= BB_SQUARES_R45[square]
-        square = bit_scan(b, square + 1)
-
-    return mask
-
-def l45(b):
-    mask = BB_VOID
-
-    square = bit_scan(b)
-    while square != - 1 and square is not None:
-        mask |= BB_SQUARES_L45[square]
-        square = bit_scan(b, square + 1)
-
-    return mask
 
 BB_KNIGHT_ATTACKS = []
 
@@ -305,130 +241,6 @@ for bb_square in BB_SQUARES:
     mask |= shift_down_left(bb_square)
     mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask & BB_ALL)
-
-BB_RANK_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
-
-BB_FILE_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
-
-for square in SQUARES:
-    for bitrow in range(0, 64):
-        f = file_index(square) + 1
-        q = square + 1
-        while f < 8:
-            BB_RANK_ATTACKS[square][bitrow] |= BB_SQUARES[q]
-            if (1 << f) & (bitrow << 1):
-                break
-            q += 1
-            f += 1
-
-        f = file_index(square) - 1
-        q = square - 1
-        while f >= 0:
-            BB_RANK_ATTACKS[square][bitrow] |= BB_SQUARES[q]
-            if (1 << f) & (bitrow << 1):
-                break
-            q -= 1
-            f -= 1
-
-        r = rank_index(square) + 1
-        q = square + 8
-        while r < 8:
-            BB_FILE_ATTACKS[square][bitrow] |= BB_SQUARES[q]
-            if (1 << (7 - r)) & (bitrow << 1):
-                break
-            q += 8
-            r += 1
-
-        r = rank_index(square) - 1
-        q = square - 8
-        while r >= 0:
-            BB_FILE_ATTACKS[square][bitrow] |= BB_SQUARES[q]
-            if (1 << (7 - r)) & (bitrow << 1):
-                break
-            q -= 8
-            r -= 1
-
-BB_SHIFT_R45 = [
-    1, 58, 51, 44, 37, 30, 23, 16,
-    9, 1, 58, 51, 44, 37, 30, 23,
-    17, 9, 1, 58, 51, 44, 37, 30,
-    25, 17, 9, 1, 58, 51, 44, 37,
-    33, 25, 17, 9, 1, 58, 51, 44,
-    41, 33, 25, 17, 9, 1, 58, 51,
-    49, 41, 33, 25, 17, 9, 1, 58,
-    57, 49, 41, 33, 25, 17, 9, 1 ]
-
-BB_SHIFT_L45 = [
-    9, 17, 25, 33, 41, 49, 57, 1,
-    17, 25, 33, 41, 49, 57, 1, 10,
-    25, 33, 41, 49, 57, 1, 10, 19,
-    33, 41, 49, 57, 1, 10, 19, 28,
-    41, 49, 57, 1, 10, 19, 28, 37,
-    49, 57, 1, 10, 19, 28, 37, 46,
-    57, 1, 10, 19, 28, 37, 46, 55,
-    1, 10, 19, 28, 37, 46, 55, 64 ]
-
-BB_L45_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
-
-BB_R45_ATTACKS = [ [ BB_VOID for _ in range(64) ] for _ in range(64) ]
-
-for s in SQUARES:
-    for b in range(0, 64):
-        mask = BB_VOID
-
-        q = s
-        while file_index(q) > 0 and rank_index(q) < 7:
-            q += 7
-            mask |= BB_SQUARES[q]
-            if b & (BB_SQUARES_L45[q] >> BB_SHIFT_L45[s]):
-                break
-
-        q = s
-        while file_index(q) < 7 and rank_index(q) > 0:
-            q -= 7
-            mask |= BB_SQUARES[q]
-            if b & (BB_SQUARES_L45[q] >> BB_SHIFT_L45[s]):
-                break
-
-        BB_L45_ATTACKS[s][b] = mask
-
-        mask = BB_VOID
-
-        q = s
-        while file_index(q) < 7 and rank_index(q) < 7:
-            q += 9
-            mask |= BB_SQUARES[q]
-            if b & (BB_SQUARES_R45[q] >> BB_SHIFT_R45[s]):
-                break
-
-        q = s
-        while file_index(q) > 0 and rank_index(q) > 0:
-            q -= 9
-            mask |= BB_SQUARES[q]
-            if b & (BB_SQUARES_R45[q] >> BB_SHIFT_R45[s]):
-                break
-
-        BB_R45_ATTACKS[s][b] = mask
-
-BB_PAWN_ATTACKS = [
-    [ shift_up_left(s) | shift_up_right(s) for s in BB_SQUARES ],
-    [ shift_down_left(s) | shift_down_right(s) for s in BB_SQUARES ]
-]
-
-BB_PAWN_F1 = [
-    [ shift_up(s) for s in BB_SQUARES ],
-    [ shift_down(s) for s in BB_SQUARES ]
-]
-
-BB_PAWN_F2 = [
-    [ shift_2_up(s) for s in BB_SQUARES ],
-    [ shift_2_down(s) for s in BB_SQUARES ]
-]
-
-BB_PAWN_ALL = [
-    [ BB_PAWN_ATTACKS[0][i] | BB_PAWN_F1[0][i] | BB_PAWN_F2[0][i] for i in SQUARES ],
-    [ BB_PAWN_ATTACKS[1][i] | BB_PAWN_F1[1][i] | BB_PAWN_F2[1][i] for i in SQUARES ]
-]
 
 
 def _attack_table(square_list):
@@ -983,21 +795,11 @@ class Board(object):
         self.occupied_co = [ BB_RANK_1 | BB_RANK_2, BB_RANK_7 | BB_RANK_8 ]
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
-        self.occupied_l90 = BB_VOID
-        self.occupied_l45 = BB_VOID
-        self.occupied_r45 = BB_VOID
-
         self.ep_square = 0
         self.castling_rights = CASTLING
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
-
-        for i in range(64):
-            if BB_SQUARES[i] & self.occupied:
-                self.occupied_l90 |= BB_SQUARES_L90[i]
-                self.occupied_r45 |= BB_SQUARES_R45[i]
-                self.occupied_l45 |= BB_SQUARES_L45[i]
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -1032,10 +834,6 @@ class Board(object):
 
         self.occupied_co = [ BB_VOID, BB_VOID ]
         self.occupied = BB_VOID
-
-        self.occupied_l90 = BB_VOID
-        self.occupied_r45 = BB_VOID
-        self.occupied_l45 = BB_VOID
 
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
@@ -1133,9 +931,6 @@ class Board(object):
 
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
-        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
-        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
-        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
         # Update incremental zobrist hash.
         if color == BLACK:
@@ -1172,9 +967,6 @@ class Board(object):
 
         self.occupied ^= mask
         self.occupied_co[piece.color] ^= mask
-        self.occupied_l90 ^= BB_SQUARES[SQUARES_L90[square]]
-        self.occupied_r45 ^= BB_SQUARES[SQUARES_R45[square]]
-        self.occupied_l45 ^= BB_SQUARES[SQUARES_L45[square]]
 
         # Update incremental zorbist hash.
         if piece.color == BLACK:
@@ -1392,36 +1184,6 @@ class Board(object):
     def is_check(self):
         """Checks if the current side to move is in check."""
         return self.is_attacked_by(self.turn ^ 1, bit_scan(self.kings & self.occupied_co[self.turn]))
-
-    def pawn_moves_from(self, square):
-        targets = BB_PAWN_F1[self.turn][square] & ~self.occupied
-
-        if targets:
-            targets |= BB_PAWN_F2[self.turn][square] & ~self.occupied
-
-        if not self.ep_square:
-            targets |= BB_PAWN_ATTACKS[self.turn][square] & self.occupied_co[self.turn ^ 1]
-        else:
-            targets |= BB_PAWN_ATTACKS[self.turn][square] & (self.occupied_co[self.turn ^ 1] | BB_SQUARES[self.ep_square])
-
-        return targets
-
-    def knight_attacks_from(self, square):
-        return BB_KNIGHT_ATTACKS[square]
-
-    def king_attacks_from(self, square):
-        return BB_KING_ATTACKS[square]
-
-    def rook_attacks_from(self, square):
-        return (BB_RANK_ATTACKS[square][(self.occupied >> ((square & ~7) + 1)) & 63] |
-                BB_FILE_ATTACKS[square][(self.occupied_l90 >> (((square & 7) << 3) + 1)) & 63])
-
-    def bishop_attacks_from(self, square):
-        return (BB_R45_ATTACKS[square][(self.occupied_r45 >> BB_SHIFT_R45[square]) & 63] |
-                BB_L45_ATTACKS[square][(self.occupied_l45 >> BB_SHIFT_L45[square]) & 63])
-
-    def queen_attacks_from(self, square):
-        return self.rook_attacks_from(square) | self.bishop_attacks_from(square)
 
     def is_into_check(self, move):
         """

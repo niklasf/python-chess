@@ -543,21 +543,6 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.piece_at(chess.E1))
         self.assertEqual(chess.pop_count(board.occupied), 0)
 
-    def test_rotation(self):
-        bb = chess.BB_G1
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_H7)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_B8)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_A2)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_G1)
-
-        self.assertEqual(chess.l45(chess.BB_F2), chess.BB_F8)
-
-        self.assertEqual(chess.r45(chess.BB_F8), chess.BB_F3)
-
     def test_threefold_repetition(self):
         board = chess.Board()
 
