@@ -2734,7 +2734,16 @@ class Board(object):
                     not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
 
                 if none_attacked:
-                    yield Move(bit_scan(king), bit_scan(rook))
+                    move = Move(bit_scan(king), bit_scan(rook))
+                    if a_side:
+                        self.push(move)
+                        into_check = self.was_into_check()
+                        self.pop()
+
+                        if not into_check:
+                            yield move
+                    else:
+                        yield move
 
             candidates = candidates & (candidates - 1)
 
