@@ -2045,17 +2045,28 @@ class Board(object):
 
         # Castling.
         if san in ("O-O", "O-O+", "O-O#"):
-            move = Move(E1, H1) if self.turn == WHITE else Move(E8, H8)
-            if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
+            king = self.kings & self.occupied_co[self.turn]
+            rooks = self.castling_rights & (BB_RANK_1 if self.turn == WHITE else BB_RANK_8)
+            rook = -1
+            while rooks:
+                rook = bit_scan(rooks & -rooks)
+                rooks = rooks & (rooks - 1)
+
+            move = Move(bit_scan(king), rook)
+            if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
                 raise ValueError("illegal san: {0}".format(repr(san)))
         elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
-            move = Move(E1, A1) if self.turn == WHITE else Move(E8, A8)
-            if self.kings & self.occupied_co[self.turn] & BB_SQUARES[move.from_square] and self.is_legal(move):
+            king = self.kings & self.occupied_co[self.turn]
+            rooks = self.castling_rights & (BB_RANK_1 if self.turn == WHITE else BB_RANK_8)
+            rook = bit_scan(rooks & -rooks)
+
+            move = Move(bit_scan(king), rook)
+            if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
-                raise ValueError("illegal san: {0}".format(repr(san)))
+                raise ValueError("illegal san: {0}, {1}".format(repr(san), repr(self)))
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
