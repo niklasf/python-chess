@@ -27,27 +27,6 @@ Piece types
 .. py:data:: chess.QUEEN
 .. py:data:: chess.KING
 
-Castling rights
----------------
-
-The castling flags
-
-.. py:data:: chess.CASTLING_NONE
-    :annotation: = 0
-.. py:data:: chess.CASTLING_WHITE_KINGSIDE
-.. py:data:: chess.CASTLING_BLACK_KINGSIDE
-.. py:data:: chess.CASTLING_WHITE_QUEENSIDE
-.. py:data:: chess.CASTLING_BLACK_QUEENSIDE
-
-can be combined bitwise.
-
-.. py:data:: chess.CASTLING_WHITE
-    :annotation: = CASTLING_WHITE_QUEENSIDE | CASTLING_WHITE_KINGSIDE
-.. py:data:: chess.CASTLING_BLACK
-    :annotation: = CASTLING_BLACK_QUEENSIDE | CASTLING_BLACK_KINGSIDE
-.. py:data:: chess.CASTLING
-    :annotation: = CASTLING_WHITE | CASTLING_BLACK
-
 Squares
 -------
 
@@ -123,7 +102,9 @@ Board
 
     .. py:attribute:: castling_rights
 
-        Bitmask of castling rights.
+        Bitmask of the rooks with castling rights.
+
+        >>> white_castle_kingside = board.castling_rights & chess.BB_H1
 
     .. py:attribute:: ep_square
 
