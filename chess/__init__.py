@@ -1773,19 +1773,22 @@ class Board(object):
 
         builder = []
 
-        white_castling_rights = self.castling_rights & BB_RANK_1
-        while white_castling_rights:
-            mask = white_castling_rights & -white_castling_rights
-            builder.append(FILE_NAMES[file_index(bit_scan(mask))].upper())
-            white_castling_rights = white_castling_rights & (white_castling_rights - 1)
-
         black_castling_rights = self.castling_rights & BB_RANK_8
         while black_castling_rights:
             mask = black_castling_rights & -black_castling_rights
             builder.append(FILE_NAMES[file_index(bit_scan(mask))])
             black_castling_rights = black_castling_rights & (black_castling_rights - 1)
 
+        white_castling_rights = self.castling_rights & BB_RANK_1
+        while white_castling_rights:
+            mask = white_castling_rights & -white_castling_rights
+            builder.append(FILE_NAMES[file_index(bit_scan(mask))].upper())
+            white_castling_rights = white_castling_rights & (white_castling_rights - 1)
+
+        builder.reverse()
+
         return "".join(builder)
+
 
     def fen(self):
         """Gets the FEN representation of the position."""
@@ -1810,7 +1813,7 @@ class Board(object):
         Gets the Shredder FEN representation of the position.
 
         Castling rights are encoded by the file of the rook. The starting
-        castling rights in normal chess are AHah.
+        castling rights in normal chess are HAha.
         """
         fen = []
 
