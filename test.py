@@ -131,6 +131,20 @@ class BoardTestCase(unittest.TestCase):
         board.push(chess.Move.from_uci("f3d2"))
         self.assertEqual(board.fen(), "6k1/pb3pp1/1p2p2p/1Bn1P3/8/8/PP1N1PPP/6K1 b - - 0 24")
 
+    def test_xfen(self):
+        # https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#Beispiel
+        xfen = "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11"
+        board = chess.Board("rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11")
+        self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
+        self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
+        self.assertEqual(board.fen(), xfen)
+
+        # Chess960 position #284.
+        board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1")
+        board.castling_rights = board.rooks
+        self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
+        self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
+
     def test_get_set(self):
         board = chess.Board()
         self.assertEqual(board.piece_at(chess.B1), chess.Piece.from_symbol("N"))
