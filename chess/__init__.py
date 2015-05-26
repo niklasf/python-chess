@@ -1789,6 +1789,44 @@ class Board(object):
 
         return "".join(builder)
 
+    def castling_xfen(self):
+        if not self.castling_rights:
+            return "-"
+
+        builder = []
+
+        for color in [BLACK, WHITE]:
+            king_file = file_index(bit_scan(self.kings & self.occupied_co[color]))
+            backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+
+            castling_rights = self.castling_rights & backrank
+            while castling_rights:
+                rook = castling_rights & -castling_rights
+                rook_file = file_index(bit_scan(rook))
+
+                a_side = rook_file < king_file
+
+                shredder = False
+                other_rooks = self.occupied_co[color] & self.rooks & backrank
+                while other_rooks:
+                    other_rook = other_rooks & -other_rooks
+                    if file_index(bit_scan(other_rook)) < rook_file == a_side:
+                        shredder = True
+                        break
+                    other_rooks = other_rooks & (other_rooks - 1)
+
+                if shredder:
+                    ch = FILE_NAMES[rook_file]
+                else:
+                    ch = "q" if a_side else "k"
+
+                builder.append(ch.upper() if color == WHITE else ch)
+
+                castling_rights = castling_rights & (castling_rights - 1)
+
+        builder.reverse()
+
+        return "".join(builder)
 
     def fen(self):
         """Gets the FEN representation of the position."""
@@ -1796,7 +1834,7 @@ class Board(object):
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
 
-        fen.append(self.castling_shredder_fen())
+        fen.append(self.castling_xfen())
 
         # Insert en-passant square only if at least pseudo legal.
         if self.ep_square:
