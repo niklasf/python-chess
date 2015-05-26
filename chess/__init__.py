@@ -2578,11 +2578,15 @@ class Board(object):
 
         our_pawns = self.pawns & our_pieces
         en_passant_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
+        double_pawn_mask = BB_VOID
         en_passant_capturers = BB_VOID
 
         if self.turn == WHITE:
             forward_pawns = our_pawns << 8 & BB_ALL
             double_forward_pawns = (our_pawns & BB_RANK_2) << 16 & BB_ALL
+
+            if en_passant_mask:
+                double_pawn_mask = en_passant_mask >> 8
 
             # Capture torward the right.
             if en_passant_mask & ~BB_FILE_A:
@@ -2594,6 +2598,9 @@ class Board(object):
         else:
             forward_pawns = our_pawns >> 8
             double_forward_pawns = (our_pawns & BB_RANK_7) >> 16
+
+            if en_passant_mask:
+                double_pawn_mask = en_passant_mask << 8
 
             # Capture torward the right.
             if en_passant_mask & ~BB_FILE_A:
@@ -2620,11 +2627,9 @@ class Board(object):
 
                 mask = self._pinned(attacker)
                 if king_attackers & mask:
-                    if king_attackers & en_passant_mask and attacker & en_passant_capturers:
+                    if king_attackers & double_pawn_mask and attacker & en_passant_capturers:
                         # Capture the attacking pawn en-passant.
                         yield Move(attacker_index, self.ep_square)
-                        # TODO: If we get away with the wrong en-passant
-                        # capturing improve the tests and fix it.
                     elif attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
                         # Capture the attacker with a pawn and promote.
                         yield Move(attacker_index, king_attackers_index, QUEEN)
