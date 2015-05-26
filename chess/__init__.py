@@ -103,6 +103,8 @@ def rank_index(square):
     """Gets the rank index of the square where `0` is the first rank."""
     return square >> 3
 
+# TODO: def square(file_index, rank_index)
+
 CASTLING_NONE = 0
 CASTLING_WHITE_KINGSIDE = 1
 CASTLING_BLACK_KINGSIDE = 2
@@ -777,6 +779,18 @@ class Board(object):
 
         self.attacks_from = collections.defaultdict(int)
         self.attacks_to = collections.defaultdict(int)
+        self.attacks_valid = False
+        self.attacks_valid_stack = collections.deque()
+        self.attacks_from_stack = collections.deque()
+        self.attacks_to_stack = collections.deque()
+
+        self.halfmove_clock_stack = collections.deque()
+        self.captured_piece_stack = collections.deque()
+        self.castling_right_stack = collections.deque()
+        self.ep_square_stack = collections.deque()
+        self.move_stack = collections.deque()
+
+        self.transpositions = collections.Counter()
 
         if fen is None:
             self.reset()
@@ -801,18 +815,20 @@ class Board(object):
         self.fullmove_number = 1
         self.halfmove_clock = 0
 
-        self.halfmove_clock_stack = collections.deque()
-        self.captured_piece_stack = collections.deque()
-        self.castling_right_stack = collections.deque()
-        self.ep_square_stack = collections.deque()
-        self.move_stack = collections.deque()
+        self.halfmove_clock_stack.clear()
+        self.captured_piece_stack.clear()
+        self.castling_right_stack.clear()
+        self.ep_square_stack.clear()
+        self.move_stack.clear()
+
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
-        self.transpositions = collections.Counter((self.zobrist_hash(), ))
+        self.transpositions.clear()
+        self.transpositions.update((self.zobrist_hash(), ))
 
         self.attacks_valid = False
-        self.attacks_valid_stack = collections.deque()
-        self.attacks_from_stack = collections.deque()
-        self.attacks_to_stack = collections.deque()
+        self.attacks_valid_stack.clear()
+        self.attacks_from_stack.clear()
+        self.attacks_to_stack.clear()
 
     def clear(self):
         """
@@ -835,24 +851,26 @@ class Board(object):
         self.occupied_co = [ BB_VOID, BB_VOID ]
         self.occupied = BB_VOID
 
-        self.halfmove_clock_stack = collections.deque()
-        self.captured_piece_stack = collections.deque()
-        self.castling_right_stack = collections.deque()
-        self.ep_square_stack = collections.deque()
-        self.move_stack = collections.deque()
+        self.halfmove_clock_stack.clear()
+        self.captured_piece_stack.clear()
+        self.castling_right_stack.clear()
+        self.ep_square_stack.clear()
+        self.move_stack.clear()
 
         self.ep_square = 0
         self.castling_rights = CASTLING_NONE
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
+
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
-        self.transpositions = collections.Counter((self.zobrist_hash(), ))
+        self.transpositions.clear()
+        self.transpositions.update((self.zobrist_hash(), ))
 
         self.attacks_valid = False
-        self.attacks_valid_stack = collections.deque()
-        self.attacks_from_stack = collections.deque()
-        self.attacks_to_stack = collections.deque()
+        self.attacks_valid_stack.clear()
+        self.attacks_from_stack.clear()
+        self.attacks_to_stack.clear()
 
     def pieces_mask(self, piece_type, color):
         if piece_type == PAWN:
@@ -1907,7 +1925,8 @@ class Board(object):
         self.fullmove_number = int(parts[5]) or 1
 
         # Reset the transposition table.
-        self.transpositions = collections.Counter((self.zobrist_hash(), ))
+        self.transpositions.clear()
+        self.transpositions.update((self.zobrist_hash(), ))
 
     def fen(self):
         """Gets the FEN representation of the position."""
