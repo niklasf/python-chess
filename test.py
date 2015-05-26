@@ -554,6 +554,20 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(chess.E4 in attackers)
         self.assertTrue(chess.G4 in attackers)
 
+    def test_attacks(self):
+        board = chess.Board("5rk1/p5pp/2p3p1/1p1pR3/3P2P1/2N5/PP3n2/2KB4 w - - 1 26")
+
+        attacks = board.attacks(chess.E5)
+        self.assertEqual(len(attacks), 11)
+        self.assertTrue(chess.D5 in attacks)
+        self.assertTrue(chess.E1 in attacks)
+        self.assertTrue(chess.F5 in attacks)
+        self.assertFalse(chess.E5 in attacks)
+        self.assertFalse(chess.C5 in attacks)
+        self.assertFalse(chess.F4 in attacks)
+
+        self.assertFalse(board.attacks(chess.G1))
+
     def test_clear(self):
         board = chess.Board()
         board.clear()
