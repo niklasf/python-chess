@@ -777,9 +777,9 @@ class Board(object):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
+        self.attacks_valid = False
         self.attacks_from = collections.defaultdict(int)
         self.attacks_to = collections.defaultdict(int)
-        self.attacks_valid = False
         self.attacks_valid_stack = collections.deque()
         self.attacks_from_stack = collections.deque()
         self.attacks_to_stack = collections.deque()
@@ -1298,9 +1298,7 @@ class Board(object):
             return True
 
         # Stalemate or checkmate.
-        try:
-            next(self.generate_legal_moves().__iter__())
-        except StopIteration:
+        if not any(self.generate_legal_moves()):
             return True
 
         # Fivefold repetition.
@@ -1314,22 +1312,14 @@ class Board(object):
         if not self.is_check():
             return False
 
-        try:
-            next(self.generate_legal_moves().__iter__())
-            return False
-        except StopIteration:
-            return True
+        return not any(self.generate_legal_moves())
 
     def is_stalemate(self):
         """Checks if the current position is a stalemate."""
         if self.is_check():
             return False
 
-        try:
-            next(self.generate_legal_moves().__iter__())
-            return False
-        except StopIteration:
-            return True
+        return not any(self.generate_legal_moves())
 
     def is_insufficient_material(self):
         """Checks for a draw due to insufficient mating material."""
@@ -1361,11 +1351,8 @@ class Board(object):
         take precedence.
         """
         if self.halfmove_clock >= 150:
-            try:
-                next(self.generate_legal_moves().__iter__())
+            if any(self.generate_legal_moves()):
                 return True
-            except StopIteration:
-                pass
 
         return False
 
@@ -1401,9 +1388,6 @@ class Board(object):
 
         return True
 
-    # TODO: Remove alias.
-    is_fivefold_repitition = is_fivefold_repetition
-
     def can_claim_draw(self):
         """
         Checks if the side to move can claim a draw by the fifty-move rule or
@@ -1419,11 +1403,8 @@ class Board(object):
         """
         # Fifty-move rule.
         if self.halfmove_clock >= 100:
-            try:
-                next(self.generate_legal_moves().__iter__())
+            if any(self.generate_legal_moves()):
                 return True
-            except StopIteration:
-                pass
 
         return False
 
@@ -1448,9 +1429,6 @@ class Board(object):
             self.pop()
 
         return False
-
-    # TODO: Remove alias.
-    can_claim_threefold_repitition = can_claim_threefold_repetition
 
     def push(self, move):
         """
@@ -1478,7 +1456,7 @@ class Board(object):
         self.ep_square_stack.append(self.ep_square)
         self.move_stack.append(move)
 
-        # Remeber attacks.
+        # Remember attacks.
         self.attacks_valid_stack.append(self.attacks_valid)
         self.attacks_from_stack.append(self.attacks_from)
         self.attacks_to_stack.append(self.attacks_to)
@@ -2967,6 +2945,7 @@ class Board(object):
         return zobrist_hash
 
 
+# TODO: Remove alias.
 Bitboard = Board
 
 
@@ -2976,21 +2955,12 @@ class PseudoLegalMoveGenerator(object):
         self.board = board
 
     def __bool__(self):
-        try:
-            next(self.board.generate_pseudo_legal_moves())
-            return True
-        except StopIteration:
-            return False
+        return any(self.board.generate_pseudo_legal_moves())
 
     __nonzero__ = __bool__
 
     def __len__(self):
-        count = 0
-
-        for _ in self.board.generate_pseudo_legal_moves():
-            count += 1
-
-        return count
+        return sum(1 for _ in self.board.generate_pseudo_legal_moves())
 
     def __iter__(self):
         return self.board.generate_pseudo_legal_moves()
@@ -3005,21 +2975,12 @@ class LegalMoveGenerator(object):
         self.board = board
 
     def __bool__(self):
-        try:
-            next(self.board.generate_legal_moves())
-            return True
-        except StopIteration:
-            return False
+        return any(self.board.generate_legal_moves())
 
     __nonzero__ = __bool__
 
     def __len__(self):
-        count = 0
-
-        for _ in self.board.generate_legal_moves():
-            count += 1
-
-        return count
+        return sum(1 for _ in self.board.generate_legal_moves())
 
     def __iter__(self):
         return self.board.generate_legal_moves()
@@ -3048,7 +3009,7 @@ class SquareSet(object):
         try:
             return int(self) != int(other)
         except ValueError:
-            return False
+            return True
 
     def __len__(self):
         return pop_count(self.mask)
