@@ -1880,7 +1880,7 @@ class Board(object):
         epd.append(" ")
 
         # Castling rights.
-        epd.append(self.castling_shredder_fen()) # TODO: Use XFEN
+        epd.append(self.castling_xfen())
         epd.append(" ")
 
         # En-passant square.
