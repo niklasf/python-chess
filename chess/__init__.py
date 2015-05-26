@@ -1237,8 +1237,14 @@ class Board(object):
 
         # If already in check, look if it as an evasion.
         if self.is_check():
-            # TODO: Selective move generation.
-            return move not in self.generate_evasions()
+            return move not in self.generate_evasions(
+                castling=False,
+                pawns=from_square_mask & self.pawns,
+                knights=from_square_mask & self.knights,
+                bishops=from_square_mask & self.bishops,
+                rooks=from_square_mask & self.rooks,
+                queens=from_square_mask & self.queens,
+                king=from_square_mask & self.kings)
 
         # Detect uncovered check.
         if not self._pinned(from_square_mask) & to_square_mask:
