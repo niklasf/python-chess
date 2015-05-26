@@ -2689,6 +2689,15 @@ class Board(object):
 
             a_side = rook_file_index < king_file_index
 
+            # In the special case where we castle queenside and our rook
+            # shielded us from an attack from a1 or a8, castling would be
+            # into check.
+            if a_side and rook & BB_FILE_B and self.occupied_co[self.turn ^ 1] & (self.queens | self.rooks):
+
+                candidates = candidates & (candidates - 1)
+                continue
+
+
             empty_for_rook = BB_VOID
             empty_for_king = BB_VOID
 
@@ -2734,16 +2743,7 @@ class Board(object):
                     not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
 
                 if none_attacked:
-                    move = Move(bit_scan(king), bit_scan(rook))
-                    if a_side:
-                        self.push(move)
-                        into_check = self.was_into_check()
-                        self.pop()
-
-                        if not into_check:
-                            yield move
-                    else:
-                        yield move
+                    yield Move(bit_scan(king), bit_scan(rook))
 
             candidates = candidates & (candidates - 1)
 
