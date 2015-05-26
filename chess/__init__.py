@@ -61,15 +61,6 @@ STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 
-CASTLING_NONE = 0
-CASTLING_WHITE_KINGSIDE = 1
-CASTLING_BLACK_KINGSIDE = 2
-CASTLING_WHITE_QUEENSIDE = 4
-CASTLING_BLACK_QUEENSIDE = 8
-CASTLING_WHITE = CASTLING_WHITE_KINGSIDE | CASTLING_WHITE_QUEENSIDE
-CASTLING_BLACK = CASTLING_BLACK_KINGSIDE | CASTLING_BLACK_QUEENSIDE
-CASTLING = CASTLING_WHITE | CASTLING_BLACK
-
 
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -808,7 +799,7 @@ class Board(object):
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
         self.ep_square = 0
-        self.castling_rights = CASTLING
+        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
@@ -856,7 +847,7 @@ class Board(object):
         self.move_stack.clear()
 
         self.ep_square = 0
-        self.castling_rights = CASTLING_NONE
+        self.castling_rights = BB_VOID
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
@@ -1033,27 +1024,9 @@ class Board(object):
             non_pawns = non_pawns & (non_pawns - 1)
 
         # Generate castling moves.
-        if castling:
-            if self.turn == WHITE:
-                # Castling short.
-                if self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
-                    if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
-                        yield Move(E1, H1)
-
-                # Castling long.
-                if self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
-                    if not self.is_attacked_by(BLACK, C1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, E1):
-                        yield Move(E1, A1)
-            else:
-                # Castling short.
-                if self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
-                    if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
-                        yield Move(E8, H8)
-
-                # Castling long.
-                if self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
-                    if not self.is_attacked_by(WHITE, C8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, E8):
-                        yield Move(E8, A8)
+        if castling and not self.is_check(): # XXX
+            for move in self.generate_non_evasions(castling=True, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=False):
+                yield move
 
         # The remaining moves are all pawn moves.
         if not pawns:
@@ -1297,20 +1270,20 @@ class Board(object):
             elif self.turn == BLACK and rank_index(move.to_square) != 0:
                 return False
 
-        # Handle castling.
+        # Handle castling. XXX
         if piece == KING:
             if self.turn == WHITE and move.from_square == E1:
-                if move.to_square == H1 and self.castling_rights & CASTLING_WHITE_KINGSIDE and not (BB_F1 | BB_G1) & self.occupied:
+                if move.to_square == H1 and self.castling_rights & BB_H1 and not (BB_F1 | BB_G1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, F1) and not self.is_attacked_by(BLACK, G1):
                         return True
-                elif move.to_square == A1 and self.castling_rights & CASTLING_WHITE_QUEENSIDE and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
+                elif move.to_square == A1 and self.castling_rights & BB_A1 and not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                     if not self.is_attacked_by(BLACK, E1) and not self.is_attacked_by(BLACK, D1) and not self.is_attacked_by(BLACK, C1):
                         return True
             elif self.turn == BLACK and move.from_square == E8:
-                if move.to_square == H8 and self.castling_rights & CASTLING_BLACK_KINGSIDE and not (BB_F8 | BB_G8) & self.occupied:
+                if move.to_square == H8 and self.castling_rights & BB_H8 and not (BB_F8 | BB_G8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, F8) and not self.is_attacked_by(WHITE, G8):
                         return True
-                elif move.to_square == A8 and self.castling_rights & CASTLING_BLACK_QUEENSIDE and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
+                elif move.to_square == A8 and self.castling_rights & BB_A8 and not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                     if not self.is_attacked_by(WHITE, E8) and not self.is_attacked_by(WHITE, D8) and not self.is_attacked_by(WHITE, C8):
                         return True
 
@@ -1551,21 +1524,16 @@ class Board(object):
                 else:
                     self.ep_square = move.to_square + 8
 
-        # Castling rights.
-        if move.from_square == E1:
-            self.castling_rights &= ~CASTLING_WHITE
-        elif move.from_square == E8:
-            self.castling_rights &= ~CASTLING_BLACK
-        elif move.from_square == A1 or move.to_square == A1:
-            self.castling_rights &= ~CASTLING_WHITE_QUEENSIDE
-        elif move.from_square == A8 or move.to_square == A8:
-            self.castling_rights &= ~CASTLING_BLACK_QUEENSIDE
-        elif move.from_square == H1 or move.to_square == H1:
-            self.castling_rights &= ~CASTLING_WHITE_KINGSIDE
-        elif move.from_square == H8 or move.to_square == H8:
-            self.castling_rights &= ~CASTLING_BLACK_KINGSIDE
+        # Update castling rights.
+        self.castling_rights &= ~BB_SQUARES[move.to_square]
+        self.castling_rights &= ~BB_SQUARES[move.from_square]
+        if piece_type == KING:
+            if self.turn == WHITE:
+                self.castling_rights &= ~BB_RANK_1
+            else:
+                self.castling_rights &= ~BB_RANK_8
 
-        # Castling.
+        # Castling. XXX
         castling = False
         if piece_type == KING:
             if move.from_square == E1 and move.to_square == H1:
@@ -1820,17 +1788,17 @@ class Board(object):
 
         epd.append(" ")
 
-        # Castling rights.
+        # Castling rights. XXX
         if not self.castling_rights:
             epd.append("-")
         else:
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+            if self.castling_rights & BB_H1:
                 epd.append("K")
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+            if self.castling_rights & BB_A1:
                 epd.append("Q")
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+            if self.castling_rights & BB_H8:
                 epd.append("k")
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+            if self.castling_rights & BB_A8:
                 epd.append("q")
 
         epd.append(" ")
@@ -1944,16 +1912,16 @@ class Board(object):
         else:
             self.turn = BLACK
 
-        # Set castling flags.
-        self.castling_rights = CASTLING_NONE
+        # Set castling flags. XXX
+        self.castling_rights = BB_VOID
         if "K" in parts[2]:
-            self.castling_rights |= CASTLING_WHITE_KINGSIDE
+            self.castling_rights |= BB_H1
         if "Q" in parts[2]:
-            self.castling_rights |= CASTLING_WHITE_QUEENSIDE
+            self.castling_rights |= BB_A1
         if "k" in parts[2]:
-            self.castling_rights |= CASTLING_BLACK_KINGSIDE
+            self.castling_rights |= BB_H8
         if "q" in parts[2]:
-            self.castling_rights |= CASTLING_BLACK_QUEENSIDE
+            self.castling_rights |= BB_A8
 
         # Set the en-passant square.
         if parts[3] == "-":
@@ -2240,27 +2208,28 @@ class Board(object):
         if pop_count(self.occupied_co[BLACK]) > 16:
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
-        if self.castling_rights & CASTLING_WHITE:
-            if not self.kings & self.occupied_co[WHITE] & BB_E1:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-
-            if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
-                if not BB_A1 & self.occupied_co[WHITE] & self.rooks:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-            if self.castling_rights & CASTLING_WHITE_KINGSIDE:
-                if not BB_H1 & self.occupied_co[WHITE] & self.rooks:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-
-        if self.castling_rights & CASTLING_BLACK:
-            if not self.kings & self.occupied_co[BLACK] & BB_E8:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-
-            if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
-                if not BB_A8 & self.occupied_co[BLACK] & self.rooks:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-            if self.castling_rights & CASTLING_BLACK_KINGSIDE:
-                if not BB_H8 & self.occupied_co[BLACK] & self.rooks:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
+        # TODO: Validate castling rights
+        #if self.castling_rights & CASTLING_WHITE:
+        #    if not self.kings & self.occupied_co[WHITE] & BB_E1:
+        #        errors |= STATUS_BAD_CASTLING_RIGHTS
+        #
+        #    if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+        #        if not BB_A1 & self.occupied_co[WHITE] & self.rooks:
+        #            errors |= STATUS_BAD_CASTLING_RIGHTS
+        #    if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+        #        if not BB_H1 & self.occupied_co[WHITE] & self.rooks:
+        #            errors |= STATUS_BAD_CASTLING_RIGHTS
+        #
+        #if self.castling_rights & CASTLING_BLACK:
+        #    if not self.kings & self.occupied_co[BLACK] & BB_E8:
+        #        errors |= STATUS_BAD_CASTLING_RIGHTS
+        #
+        #    if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+        #        if not BB_A8 & self.occupied_co[BLACK] & self.rooks:
+        #            errors |= STATUS_BAD_CASTLING_RIGHTS
+        #    if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+        #        if not BB_H8 & self.occupied_co[BLACK] & self.rooks:
+        #            errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.ep_square:
             if self.turn == WHITE:
@@ -2477,28 +2446,28 @@ class Board(object):
 
         # Generate castling moves. Since we are generating non-evasions we
         # already know that we are not in check.
-        if castling:
+        if castling: # XXX
             if self.turn == WHITE:
                 # Castling short.
-                if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+                if self.castling_rights & BB_H1:
                     if not (BB_G1 | BB_F1) & self.occupied:
                         if not (self.attacks_to[BB_G1] | self.attacks_to[BB_F1]) & their_pieces:
                             yield Move(E1, H1)
 
                 # Castling long.
-                if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+                if self.castling_rights & BB_A1:
                     if not (BB_B1 | BB_C1 | BB_D1) & self.occupied:
                         if not (self.attacks_to[BB_C1] | self.attacks_to[BB_D1]) & their_pieces:
                             yield Move(E1, A1)
             else:
                 # Castling short.
-                if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+                if self.castling_rights & BB_H8:
                     if not (BB_G8 | BB_F8) & self.occupied:
                         if not (self.attacks_to[BB_G8] | self.attacks_to[BB_F8]) & their_pieces:
                             yield Move(E8, H8)
 
                 # Castling long.
-                if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+                if self.castling_rights & BB_A8:
                     if not (BB_B8 | BB_C8 | BB_D8) & self.occupied:
                         if not (self.attacks_to[BB_C8] | self.attacks_to[BB_D8]) & their_pieces:
                             yield Move(E8, A8)
@@ -3002,14 +2971,14 @@ class Board(object):
         if array is None:
             array = POLYGLOT_RANDOM_ARRAY
 
-        # Hash in the castling flags.
-        if self.castling_rights & CASTLING_WHITE_KINGSIDE:
+        # Hash in the castling flags. XXX
+        if self.castling_rights & BB_H1:
             zobrist_hash ^= array[768]
-        if self.castling_rights & CASTLING_WHITE_QUEENSIDE:
+        if self.castling_rights & BB_A1:
             zobrist_hash ^= array[768 + 1]
-        if self.castling_rights & CASTLING_BLACK_KINGSIDE:
+        if self.castling_rights & BB_H8:
             zobrist_hash ^= array[768 + 2]
-        if self.castling_rights & CASTLING_BLACK_QUEENSIDE:
+        if self.castling_rights & BB_A8:
             zobrist_hash ^= array[768 + 3]
 
         # Hash in the en-passant file.
