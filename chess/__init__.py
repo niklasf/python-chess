@@ -2215,17 +2215,17 @@ class Board(object):
 
         # Filter by piece type.
         if match.group(1) == "N":
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
+            moves = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
         elif match.group(1) == "B":
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
+            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
         elif match.group(1) == "K":
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
+            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
         elif match.group(1) == "R":
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
+            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
         elif match.group(1) == "Q":
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
+            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
         else:
-            moves = self.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
+            moves = self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
 
         # Filter by source file.
         from_mask = BB_ALL
@@ -2246,9 +2246,6 @@ class Board(object):
                 continue
 
             if not BB_SQUARES[move.from_square] & from_mask:
-                continue
-
-            if self.is_into_check(move):
                 continue
 
             if matched_move:
@@ -2964,6 +2961,7 @@ class Board(object):
 
                 # The following is all about handling pawns.
                 if not pawns:
+                    moves = moves & (moves - 1)
                     continue
 
                 # Generate pawn advances to the empty square.
