@@ -50,6 +50,8 @@ Upcoming in the next release
 
 * Do expensive Syzygy table initialization on demand.
 
+* Fixed missing check or checkmate suffix in castling SANs, e.g. `O-O-O#`.
+
 * Fixed off-by-one error and Python 3 compability for polyglot opening books.
 
 * Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
