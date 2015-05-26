@@ -1521,29 +1521,24 @@ class Board(object):
             else:
                 self.castling_rights &= ~BB_RANK_8
 
-        # Castling. XXX
-        castling = False
-        if piece_type == KING:
-            if move.from_square == E1 and move.to_square == H1:
-                castling = True
-                self.remove_piece_at(H1, _invalidate_attacks=False)
-                self.set_piece_at(F1, Piece(ROOK, WHITE), _invalidate_attacks=False)
-                self.set_piece_at(G1, Piece(KING, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E1 and move.to_square == A1:
-                castling = True
-                self.remove_piece_at(A1, _invalidate_attacks=False)
-                self.set_piece_at(D1, Piece(ROOK, WHITE), _invalidate_attacks=False)
-                self.set_piece_at(C1, Piece(KING, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == H8:
-                castling = True
-                self.remove_piece_at(H8, _invalidate_attacks=False)
-                self.set_piece_at(F8, Piece(ROOK, BLACK), _invalidate_attacks=False)
-                self.set_piece_at(G8, Piece(KING, BLACK), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == A8:
-                castling = True
-                self.remove_piece_at(A8, _invalidate_attacks=False)
-                self.set_piece_at(D8, Piece(ROOK, BLACK), _invalidate_attacks=False)
-                self.set_piece_at(C8, Piece(KING, BLACK), _invalidate_attacks=False)
+        # Castling.
+        castling = piece_type == KING and captured_piece and captured_piece.color == self.turn
+        if castling:
+            a_side = file_index(move.to_square) < file_index(move.from_square)
+
+            self.remove_piece_at(move.from_square, _invalidate_attacks=False)
+            self.remove_piece_at(move.to_square, _invalidate_attacks=False)
+
+            if a_side:
+                self.set_piece_at(C1 if self.turn == WHITE else C8, Piece(KING, self.turn),
+                    _invalidate_attacks=False)
+                self.set_piece_at(D1 if self.turn == WHITE else D8, Piece(ROOK, self.turn),
+                    _invalidate_attacks=False)
+            else:
+                self.set_piece_at(G1 if self.turn == WHITE else G8, Piece(KING, self.turn),
+                    _invalidate_attacks=False)
+                self.set_piece_at(F1 if self.turn == WHITE else F8, Piece(ROOK, self.turn),
+                    _invalidate_attacks=False)
 
         # Put piece on target square.
         if not castling:
@@ -1594,22 +1589,16 @@ class Board(object):
         # encoded as capturing our own rook.
         castling = captured_piece and captured_piece.color == self.turn ^ 1
         if castling:
-            if move.from_square == E1 and move.to_square == H1:
-                self.remove_piece_at(F1, _invalidate_attacks=False)
-                self.remove_piece_at(G1, _invalidate_attacks=False)
-                self.set_piece_at(E1, Piece(KING, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E1 and move.to_square == A1:
-                self.remove_piece_at(D1, _invalidate_attacks=False)
-                self.remove_piece_at(C1, _invalidate_attacks=False)
-                self.set_piece_at(E1, Piece(KING, WHITE), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == H8:
-                self.remove_piece_at(F8, _invalidate_attacks=False)
-                self.remove_piece_at(G8, _invalidate_attacks=False)
-                self.set_piece_at(E8, Piece(KING, BLACK), _invalidate_attacks=False)
-            elif move.from_square == E8 and move.to_square == A8:
-                self.remove_piece_at(D8, _invalidate_attacks=False)
-                self.remove_piece_at(C8, _invalidate_attacks=False)
-                self.set_piece_at(E8, Piece(KING, BLACK), _invalidate_attacks=False)
+            a_side = file_index(move.to_square) < file_index(move.from_square)
+
+            if a_side:
+                self.remove_piece_at(C1 if self.turn == BLACK else C8, _invalidate_attacks=False)
+                self.remove_piece_at(D1 if self.turn == BLACK else D8, _invalidate_attacks=False)
+            else:
+                self.remove_piece_at(G1 if self.turn == BLACK else G8, _invalidate_attacks=False)
+                self.remove_piece_at(F1 if self.turn == BLACK else F8, _invalidate_attacks=False)
+
+            self.set_piece_at(move.from_square, Piece(KING, self.turn ^ 1), _invalidate_attacks=False)
 
         piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
 
