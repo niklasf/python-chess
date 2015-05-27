@@ -1600,6 +1600,53 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["score"][13].cp, 777)
             self.assertEqual(info["score"][1].cp, 888)
 
+    def test_castling_move_conversion(self):
+        # Setup a position where white can castle on the next move.
+        fen = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w KQkq - 1 1"
+        board = chess.Board(fen)
+        self.mock.expect("position fen " + fen)
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
+        # Expect the standard castling move notation e1g1 and respond with it.
+        self.mock.expect("go movetime 70 searchmoves a2a3 e1g1", (
+            "bestmove e1g1",
+        ))
+        bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
+            board.parse_san("a3"),
+            board.parse_san("O-O"),
+        ])
+        self.assertTrue(bestmove.from_square, chess.E1)
+        self.assertTrue(bestmove.to_square, chess.H1)
+        self.mock.assert_done()
+
+        # Assert that we can change to UCI_Chess960 mode.
+        self.assertFalse(self.engine.uci_chess960)
+        self.mock.expect("setoption name uCi_CheSS960 value true")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.setoption({"uCi_CheSS960": True})
+        self.assertTrue(self.engine.uci_chess960)
+        self.mock.assert_done()
+
+        # Expect a Shredder FEN during for the position command.
+        self.mock.expect("position fen rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w HAha - 1 1")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
+        # Check that castling move conversion is now disabled.
+        self.mock.expect("go movetime 70 searchmoves a2a3 e1h1", (
+            "bestmove e1h1",
+        ))
+        bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
+            board.parse_san("a3"),
+            board.parse_san("O-O"),
+        ])
+        self.assertTrue(bestmove.from_square, chess.E1)
+        self.assertTrue(bestmove.to_square, chess.H1)
+        self.mock.assert_done()
+
 
 class SyzygyTestCase(unittest.TestCase):
 
