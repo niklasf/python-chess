@@ -872,6 +872,7 @@ class Engine(object):
         if self.uci_chess960:
             return move.uci()
 
+        # Convert 960 castling moves to their standard equivalent.
         if board.piece_type_at(move.from_square) == chess.KING:
             if move.from_square == chess.E1:
                 if move.to_square == chess.H1:
@@ -892,6 +893,7 @@ class Engine(object):
         if self.uci_chess960:
             return engine_move
 
+        # Convert standard castling moves to 960 representation.
         if board.piece_type_at(engine_move.from_square) == chess.KING:
             if engine_move.from_square == chess.E1:
                 if engine_move.to_square == chess.G1:
