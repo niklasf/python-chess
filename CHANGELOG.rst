@@ -54,6 +54,10 @@ Upcoming in the next release
 
 * Fixed off-by-one error and Python 3 compability for polyglot opening books.
 
+* Bestmoves may be literally `(none)` in UCI protocol, for example in
+  checkmate positions. Fix parser and return `None` as the bestmove in this
+  case.
+
 * Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
   PGN files.
 
