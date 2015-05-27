@@ -55,6 +55,8 @@ Features
 
 * Supports Python 2.7 and Python 3.3+.
 
+* Supports standard chess and Chess960.
+
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
