@@ -22,6 +22,7 @@ import signal
 import subprocess
 import logging
 import threading
+import copy
 
 try:
     import queue
@@ -153,7 +154,12 @@ class InfoHandler(object):
         self.info["score"][self.info.get("multipv", 1)] = Score(cp, mate, lowerbound, upperbound)
 
     def currmove(self, move):
-        """Received a move the engine is currently thinking about."""
+        """
+        Received a move the engine is currently thinking about.
+
+        These moves come directly from the engine. So the castling move
+        representation depends on the UCI_Chess960 option of the engine.
+        """
         self.info["currmove"] = move
 
     def currmovenumber(self, x):
@@ -373,9 +379,13 @@ class SetOptionCommand(IsReadyCommand):
     def __init__(self, options):
         super(SetOptionCommand, self).__init__()
 
+        self.uci_chess960 = None
         self.option_lines = []
 
         for name, value in options.items():
+            if name.lower() == "uci_chess960":
+                self.uci_chess960 = value
+
             builder = []
             builder.append("setoption name ")
             builder.append(name)
@@ -395,6 +405,9 @@ class SetOptionCommand(IsReadyCommand):
         for option_line in self.option_lines:
             engine.send_line(option_line)
 
+        if self.uci_chess960 is not None:
+            engine.uci_chess960 = self.uci_chess960
+
         super(SetOptionCommand, self).execute(engine)
 
 
@@ -408,32 +421,59 @@ class PositionCommand(IsReadyCommand):
     def __init__(self, board):
         super(PositionCommand, self).__init__()
 
+        self.board = copy.deepcopy(board)
+
+    def execute(self, engine):
         builder = []
         builder.append("position")
 
+        # Take back moves to obtain the first FEN we know. Later giving the
+        # moves explicitly allows for transposition detection.
         switchyard = collections.deque()
-        while board.move_stack:
-            switchyard.append(board.pop())
+        while self.board.move_stack:
+            switchyard.append(self.board.pop())
 
-        fen = board.fen()
-        if fen == chess.STARTING_FEN:
+        if not engine.uci_chess960:
+            error = False
+            if self.board.castling_rights & chess.BB_RANK_1 and not self.board.kings & self.board.occupied_co[chess.WHITE] & chess.BB_E1:
+                error = True
+                LOGGER.error("%s not in UCI_Chess960 mode but white can castle without king on E1", engine.process)
+            if self.board.castling_rights & chess.BB_RANK_8 and not self.board.kings & self.board.occupied_co[chess.BLACK] & chess.BB_E8:
+                error = True
+                LOGGER.error("%s not in UCI_Chess960 mode but black can castle without king on E8", engine.process)
+            if self.board.castling_rights & ~(chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8):
+                error = True
+                LOGGER.error("%s not in UCI_Chess960 mode but castling-rights with non-standard rook square", self.engine.process)
+
+            # Just send the final FEN without transpositions in hopes that this
+            # will work.
+            if error:
+                while switchyard:
+                    self.board.push(switchyard.pop())
+
+        # Send startposition.
+        if self.board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
         else:
             builder.append("fen")
-            builder.append(fen)
 
+            if engine.uci_chess960:
+                builder.append(self.board.shredder_fen())
+            else:
+                builder.append(self.board.fen())
+
+        # Send moves.
         if switchyard:
             builder.append("moves")
 
             while switchyard:
                 move = switchyard.pop()
-                builder.append(move.uci())
-                board.push(move)
+                builder.append(engine.move_to_engine(self.board, move))
+                self.board.push(move)
 
-        self.buf = " ".join(builder)
+        engine.board = self.board
+        engine.send_line(" ".join(builder))
 
-    def execute(self, engine):
-        engine.send_line(self.buf)
         super(PositionCommand, self).execute(engine)
 
 
@@ -488,10 +528,7 @@ class GoCommand(Command):
         if infinite:
             builder.append("infinite")
 
-        if searchmoves:
-            builder.append("searchmoves")
-            for move in searchmoves:
-                builder.append(move.uci())
+        self.searchmoves = searchmoves
 
         self.buf = " ".join(builder)
 
@@ -499,10 +536,18 @@ class GoCommand(Command):
         for info_handler in engine.info_handlers:
             info_handler.on_go()
 
+        # Append searchmoves last. They can not be built beforehand because
+        # they also depend on the UCI_Chess960 option.
+        builder = [self.buf]
+        if self.searchmoves:
+            builder.append("searchmoves")
+            for move in self.searchmoves:
+                builder.append(engine.move_to_engine(engine.board, move))
+
         engine.bestmove = None
         engine.ponder = None
         engine.bestmove_received.clear()
-        engine.send_line(self.buf)
+        engine.send_line(" ".join(builder))
         if self.infinite or self.ponder:
             self.set_result(None)
         else:
@@ -746,6 +791,9 @@ class Engine(object):
     def __init__(self, process):
         self.process = process
 
+        self.board = chess.Board()
+        self.uci_chess960 = None
+
         self.name = None
         self.author = None
         self.options = OptionMap()
@@ -820,6 +868,44 @@ class Engine(object):
         self.return_code = self.process.wait_for_return_code()
         self.terminated.set()
 
+    def move_to_engine(self, board, move):
+        if self.uci_chess960:
+            return move.uci()
+
+        if board.piece_type_at(move.from_square) == chess.KING:
+            if move.from_square == chess.E1:
+                if move.to_square == chess.H1:
+                    return "e1g1"
+                elif move.to_square == chess.A1:
+                    return "e1c1"
+            elif move.from_square == chess.E8:
+                if move.to_square == chess.H8:
+                    return "e8g8"
+                elif move.to_square == chess.A8:
+                    return "e8c8"
+
+        return move.uci()
+
+    def move_from_engine(self, board, engine_uci):
+        engine_move = chess.Move.from_uci(engine_uci)
+
+        if self.uci_chess960:
+            return engine_move
+
+        if board.piece_type_at(engine_move.from_square) == chess.KING:
+            if engine_move.from_square == chess.E1:
+                if engine_move.to_square == chess.G1:
+                    return chess.Move(chess.E1, chess.H1)
+                elif engine_move.to_square == chess.C1:
+                    return chess.Move(chess.E1, chess.A1)
+            elif engine_move.from_square == chess.E8:
+                if engine_move.to_square == chess.G8:
+                    return chess.Move(chess.E8, chess.H8)
+                elif engine_move.to_square == chess.C8:
+                    return chess.Move(chess.E8, chess.A8)
+
+        return engine_move
+
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
         if property_and_arg[0] == "name":
@@ -836,6 +922,10 @@ class Engine(object):
             return
 
     def _uciok(self):
+        # Set UCI_Chess960 default value.
+        if self.uci_chess960 is None and "UCI_Chess960" in self.options:
+            self.uci_chess960 = self.options["UCI_Chess960"].default
+
         self.uciok.set()
 
     def _readyok(self):
@@ -843,9 +933,11 @@ class Engine(object):
 
     def _bestmove(self, arg):
         tokens = arg.split(None, 2)
-        self.bestmove = chess.Move.from_uci(tokens[0])
+        self.bestmove = self.move_from_engine(self.board, tokens[0])
         if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-            self.ponder = chess.Move.from_uci(tokens[2])
+            # Small hack: Usually we would have to make the bestmove on the
+            # board first. But enough context is in the board anyway.
+            self.ponder = self.move_from_engine(self.board, tokens[2])
         else:
             self.ponder = None
         self.bestmove_received.set()
@@ -870,6 +962,7 @@ class Engine(object):
             info_handler.pre_info(arg)
 
         # Initialize parser state.
+        board = None
         pv = None
         score_kind = None
         score_cp = None
@@ -958,6 +1051,9 @@ class Engine(object):
 
                 if current_parameter == "pv":
                     pv = []
+
+                if current_parameter in ("refutation", "pv", "currline"):
+                    board = copy.deepcopy(self.board)
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
             elif current_parameter == "seldepth":
@@ -968,7 +1064,9 @@ class Engine(object):
                 handle_integer_token(token, lambda handler, val: handler.nodes(val))
             elif current_parameter == "pv":
                 try:
-                    pv.append(chess.Move.from_uci(token))
+                    move = self.move_from_engine(board, token)
+                    pv.append(move)
+                    board.push(move)
                 except ValueError:
                     pass
             elif current_parameter == "multipv":
@@ -1006,9 +1104,12 @@ class Engine(object):
             elif current_parameter == "refutation":
                 try:
                     if refutation_move is None:
-                        refutation_move = chess.Move.from_uci(token)
+                        refutation_move = self.move_from_engine(board, token)
+                        board.push(refutation_move)
                     else:
-                        refuted_by.append(chess.Move.from_uci(token))
+                        move = self.move_from_engine(board, token)
+                        refuted_by.append(move)
+                        board.push(move)
                 except ValueError:
                     pass
             elif current_parameter == "currline":
@@ -1016,7 +1117,9 @@ class Engine(object):
                     if currline_cpunr is None:
                         currline_cpunr = int(token)
                     else:
-                        currline_moves.append(chess.Move.from_uci(token))
+                        move = self.move_from_engine(board, token)
+                        currline_moves.append(move)
+                        board.push(move)
                 except ValueError:
                     pass
 
