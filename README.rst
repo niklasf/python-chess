@@ -55,6 +55,11 @@ Features
 
 * Supports Python 2.7 and Python 3.
 
+  .. code:: python
+
+      >>> # Python 2 compability for the following examples.
+      >>> from __future__ import print_function
+
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
@@ -72,6 +77,20 @@ Features
       Move.from_uci('h5f7')
 
       >>> board.push(Qf7) # Restore
+
+* Show a simple ASCII board.
+
+  .. code:: python
+
+      >>> print(board)
+      r . b q k b . r
+      p p p p . Q p p
+      . . n . . n . .
+      . . . . p . . .
+      . . B . P . . .
+      . . . . . . . .
+      P P P P . P P P
+      R N B . K . N R
 
 * Detects checkmates, stalemates and draws by insufficient material.
 
@@ -180,9 +199,6 @@ Features
   .. code:: python
 
       >>> import chess.pgn
-
-      >>> from __future__ import print_function # Python 2 compability for
-      >>>                                       # this example.
 
       >>> pgn = open("data/games/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
