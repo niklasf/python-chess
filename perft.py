@@ -62,6 +62,7 @@ def debug_perft(board, depth):
                 continue
 
             assert move in board.legal_moves, (move, board)
+            assert move == board.parse_san(board.san(move))
 
             board.push(move)
             count += debug_perft(board, depth - 1)
