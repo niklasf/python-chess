@@ -134,12 +134,14 @@ Features
       >>> board.san(chess.Move(chess.E2, chess.E4))
       'e4'
 
-* Parses and creates FENs.
+* Parses and creates FENs, extended FENs and Shredder FENs.
 
   .. code:: python
 
       >>> board.fen()
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      >>> board.shredder_fen()
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w HAha - 0 1'
       >>> board = chess.Board("8/8/8/2k5/4K3/8/8/8 w - - 4 45")
       >>> board.piece_at(chess.C5)
       Piece.from_symbol('k')
