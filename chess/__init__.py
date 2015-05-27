@@ -2164,23 +2164,13 @@ class Board(object):
 
         # Castling.
         if piece == KING:
-            castling = False
-            if move.from_square == E1:
-                if move.to_square == H1:
-                    castling = True
-                    san = "O-O"
-                elif move.to_square == A1:
-                    castling = True
-                    san = "O-O-O"
-            elif move.from_square == E8:
-                if move.to_square == H8:
-                    castling = True
-                    san = "O-O"
-                elif move.to_square == A8:
-                    castling = True
-                    san = "O-O-O"
-
+            castling = self.occupied_co[self.turn] & BB_SQUARES[move.to_square] & self.rooks
             if castling:
+                if file_index(move.to_square) < file_index(move.from_square):
+                    san = "O-O-O"
+                else:
+                    san = "O-O"
+
                 if is_checkmate:
                     return san + "#"
                 elif is_check:

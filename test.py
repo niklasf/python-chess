@@ -188,11 +188,13 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white castle short.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
 
         # Let black castle long.
         move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
@@ -204,11 +206,13 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white castle long.
         move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
 
         # Let black castle short.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "r4rk1/8/8/8/8/8/8/2KR3R w - - 3 2")
@@ -224,6 +228,7 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white do the king side swap.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertEqual(move.from_square, chess.F1)
         self.assertEqual(move.to_square, chess.G1)
         self.assertTrue(move in board.legal_moves)
@@ -235,6 +240,7 @@ class BoardTestCase(unittest.TestCase):
 
         # Let black castle queenside.
         move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
         self.assertEqual(move.from_square, chess.E8)
         self.assertEqual(move.to_square, chess.D8)
         self.assertTrue(move in board.legal_moves)
@@ -251,6 +257,7 @@ class BoardTestCase(unittest.TestCase):
 
         # White can just hop the rook over.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertEqual(move.from_square, chess.G1)
         self.assertEqual(move.to_square, chess.H1)
         self.assertTrue(move in board.legal_moves)
