@@ -836,11 +836,17 @@ class Engine(object):
             info_handler.pre_bestmove(arg)
 
         tokens = arg.split(None, 2)
-        self.bestmove = chess.Move.from_uci(tokens[0])
+
+        if tokens[0] != "(none)":
+            self.bestmove = chess.Move.from_uci(tokens[0])
+        else:
+            self.bestmove = None
+
         if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
             self.ponder = chess.Move.from_uci(tokens[2])
         else:
             self.ponder = None
+
         self.bestmove_received.set()
 
         for info_handler in self.info_handlers:

@@ -1325,6 +1325,22 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.go(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
         self.mock.assert_done()
 
+        self.mock.expect("go movetime 3333", (
+            "bestmove (none) ponder (none)",
+        ))
+        bestmove, pondermove = self.engine.go(movetime=3333)
+        self.assertTrue(bestmove is None)
+        self.assertTrue(pondermove is None)
+        self.mock.assert_done()
+
+        self.mock.expect("go mate 2", (
+            "bestmove (none)",
+        ))
+        bestmove, pondermove = self.engine.go(mate=2)
+        self.assertTrue(bestmove is None)
+        self.assertTrue(pondermove is None)
+        self.mock.assert_done()
+
     def test_info_refutation(self):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
