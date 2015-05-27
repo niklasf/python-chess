@@ -669,10 +669,10 @@ class Piece(object):
 
 class Move(object):
     """
-    Represents a move from a square to a square and possibly the promotion piece
-    type.
+    Represents a move from a square to a square and possibly the promotion
+    piece type.
 
-    Castling moves are identified only by the movement of the king.
+    Castling moves are king moves to the corresponding rook square.
 
     Null moves are supported.
     """
@@ -687,7 +687,9 @@ class Move(object):
         Gets an UCI string for the move.
 
         For example a move from A7 to A8 would be `a7a8` or `a7a8q` if it is
-        a promotion to a queen. The UCI representatin of null moves is `0000`.
+        a promotion to a queen.
+
+        The UCI representatin of null moves is `0000`.
         """
         if self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
