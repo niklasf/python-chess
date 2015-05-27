@@ -443,7 +443,7 @@ class PositionCommand(IsReadyCommand):
                 LOGGER.error("%s not in UCI_Chess960 mode but black can castle without king on E8", engine.process)
             if self.board.castling_rights & ~(chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8):
                 error = True
-                LOGGER.error("%s not in UCI_Chess960 mode but castling-rights with non-standard rook square", self.engine.process)
+                LOGGER.error("%s not in UCI_Chess960 mode but castling-rights with non-standard rook square", engine.process)
 
             # Just send the final FEN without transpositions in hopes that this
             # will work.
