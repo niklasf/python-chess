@@ -10,7 +10,7 @@ python-chess: a pure Python chess library
 .. image:: https://landscape.io/github/niklasf/python-chess/master/landscape.png
     :target: https://landscape.io/github/niklasf/python-chess/master
 
-.. image:: https://pypip.in/version/python-chess/badge.svg
+.. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
 
 Introduction
