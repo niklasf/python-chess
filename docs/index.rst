@@ -6,12 +6,12 @@ Contents
 .. toctree::
     :maxdepth: 2
 
-    changelog
     core
     pgn
     polyglot
     syzygy
     uci
+    changelog
 
 Indices and tables
 ------------------
