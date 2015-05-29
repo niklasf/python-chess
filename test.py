@@ -877,6 +877,29 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(u"♜" in html)
         self.assertFalse(u"♖" in html)
 
+    def test_move_info(self):
+        board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
+
+        self.assertTrue(board.is_capture(board.parse_san("Qxf7+")))
+        self.assertFalse(board.is_en_passant(board.parse_san("Qxf7+")))
+        self.assertFalse(board.is_castling(board.parse_san("Qxf7+")))
+
+        self.assertTrue(board.is_capture(board.parse_san("hxg6")))
+        self.assertTrue(board.is_en_passant(board.parse_san("hxg6")))
+        self.assertFalse(board.is_castling(board.parse_san("hxg6")))
+
+        self.assertFalse(board.is_capture(board.parse_san("b3")))
+        self.assertFalse(board.is_en_passant(board.parse_san("b3")))
+        self.assertFalse(board.is_castling(board.parse_san("b3")))
+
+        self.assertFalse(board.is_capture(board.parse_san("Ra6")))
+        self.assertFalse(board.is_en_passant(board.parse_san("Ra6")))
+        self.assertFalse(board.is_castling(board.parse_san("Ra6")))
+
+        self.assertFalse(board.is_capture(board.parse_san("O-O")))
+        self.assertFalse(board.is_en_passant(board.parse_san("O-O")))
+        self.assertTrue(board.is_castling(board.parse_san("O-O")))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

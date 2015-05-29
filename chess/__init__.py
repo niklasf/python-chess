@@ -2182,10 +2182,6 @@ class Board(object):
 
         if piece == PAWN:
             san = ""
-
-            # Detect en-passant.
-            if not BB_SQUARES[move.to_square] & self.occupied:
-                en_passant = abs(move.from_square - move.to_square) in (7, 9)
         else:
             # Get ambigous move candidates.
             if piece == KNIGHT:
@@ -2229,7 +2225,7 @@ class Board(object):
                     san += str(rank_index(move.from_square) + 1)
 
         # Captures.
-        if BB_SQUARES[move.to_square] & self.occupied or en_passant:
+        if self.is_capture(move):
             if piece == PAWN:
                 san += FILE_NAMES[file_index(move.from_square)]
             san += "x"
@@ -2248,6 +2244,29 @@ class Board(object):
             san += "+"
 
         return san
+
+    def is_en_passant(self, move):
+        """Checks if the given pseudo-legal move is an en-passant capture."""
+        diff = abs(move.to_square - move.from_square)
+
+        if not diff in (7, 9):
+            return False
+
+        if not self.pawns & BB_SQUARES[move.from_square]:
+            return False
+
+        if self.occupied & BB_SQUARES[move.to_square]:
+            return False
+
+        return True
+
+    def is_capture(self, move):
+        """Checks if the given pseudo-legal move is a capture."""
+        return BB_SQUARES[move.to_square] & self.occupied_co[self.turn ^ 1] or self.is_en_passant(move)
+
+    def is_castling(self, move):
+        """Checks if the given pseudo-legal move is a castling move."""
+        return bool(BB_SQUARES[move.to_square] & self.occupied_co[self.turn])
 
     def status(self, allow_chess960=True):
         """

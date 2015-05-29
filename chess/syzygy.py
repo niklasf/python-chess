@@ -1376,8 +1376,7 @@ class Tablebases(object):
         # Look at least at all legal en-passant captures.
         for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
-            diff = abs(move.to_square - move.from_square)
-            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+            if not board.is_en_passant(move):
                 continue
 
             # Do the move.
@@ -1398,21 +1397,10 @@ class Tablebases(object):
             if v1 >= v:
                 v = v1
             elif v == 0:
-                # Check whether there is at least one legal non-ep move.
-                found_move = False
-                for move in board.generate_legal_moves():
-                    if board.piece_type_at(move.from_square) != chess.PAWN:
-                        found_move = True
-                        break
-
-                    diff = abs(move.to_square - move.from_square)
-                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
-                        found_move = True
-                        break
-
-                    # If not, then we are forced to play the losing ep capture.
-                    if not found_move:
-                        v = v1
+                # If there is not at least one legal non-en-passant move we are
+                # forced to play the losing en-passant cature.
+                if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
+                    v = v1
 
         return v
 
@@ -1436,10 +1424,9 @@ class Tablebases(object):
             return 1 if wdl == 2 else 101
 
         if wdl > 0:
-            # Generate all legal non capturing pawn moves.
+            # Generate all legal non-capturing pawn moves.
             for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
-                diff = abs(move.to_square - move.from_square)
-                if diff == 7 or diff == 9:
+                if board.is_capture(move):
                     continue
 
                 board.push(move)
@@ -1552,8 +1539,7 @@ class Tablebases(object):
 
         for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
-            diff = abs(move.to_square - move.from_square)
-            if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
+            if not board.is_en_passant(move):
                 continue
 
             board.push(move)
@@ -1586,18 +1572,7 @@ class Tablebases(object):
             elif v1 >= 0:
                 v = v1
             else:
-                found_move = False
-                for move in board.generate_legal_moves():
-                    if board.piece_type_at(move.from_square) != chess.PAWN:
-                        found_move = True
-                        break
-
-                    diff = abs(move.to_square - move.from_square)
-                    if not ((diff == 7 or diff == 9) and not board.occupied & chess.BB_SQUARES[move.to_square]):
-                        found_move = True
-                        break
-
-                if not found_move:
+                if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
                     v = v1
 
         return v
