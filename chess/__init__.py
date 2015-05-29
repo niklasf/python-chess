@@ -2039,7 +2039,7 @@ class Board(object):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        Raises `ValueError` if the SAN is invalid or ambigous.
+        Raises `ValueError` if the SAN is invalid or ambiguous.
         """
         # Null moves.
         if san == "--":
