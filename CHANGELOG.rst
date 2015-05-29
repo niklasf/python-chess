@@ -33,7 +33,7 @@ New in v0.8.1
 
 * Added `SquareSet.__reversed__()`.
 
-* Use containarized tests on Travis CI, test against Stockfish 6, improved
+* Use containerized tests on Travis CI, test against Stockfish 6, improved
   test coverage amd various minor clean-ups.
 
 New in v0.8.0
