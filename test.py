@@ -534,6 +534,7 @@ class BoardTestCase(unittest.TestCase):
     def test_status(self):
         board = chess.Board()
         self.assertEqual(board.status(), chess.STATUS_VALID)
+        self.assertTrue(board.is_valid())
 
         board.remove_piece_at(chess.H1)
         self.assertTrue(board.status() & chess.STATUS_BAD_CASTLING_RIGHTS)
@@ -551,6 +552,16 @@ class BoardTestCase(unittest.TestCase):
         # But there must indeed be a pawn there.
         board.remove_piece_at(chess.E4)
         self.assertEqual(board.status(), chess.STATUS_INVALID_EP_SQUARE)
+
+        # King must be between the two rooks.
+        board = chess.Board("2rrk3/8/8/8/8/8/3PPPPP/2RK4 w cd - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+
+        # Generally valid position, but not valid standard chess position due
+        # to non-standard castling rights. Chess960 start position #0.
+        board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        self.assertEqual(board.status(allow_chess960=False), chess.STATUS_BAD_CASTLING_RIGHTS)
 
     def test_epd(self):
         # Create an EPD with a move and a string.

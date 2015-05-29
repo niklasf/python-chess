@@ -433,21 +433,15 @@ class PositionCommand(IsReadyCommand):
         while self.board.move_stack:
             switchyard.append(self.board.pop())
 
+        # Validate castling rights.
         if not engine.uci_chess960:
-            error = False
-            if self.board.castling_rights & chess.BB_RANK_1 and not self.board.kings & self.board.occupied_co[chess.WHITE] & chess.BB_E1:
-                error = True
-                LOGGER.error("%s not in UCI_Chess960 mode but white can castle without king on E1", engine.process)
-            if self.board.castling_rights & chess.BB_RANK_8 and not self.board.kings & self.board.occupied_co[chess.BLACK] & chess.BB_E8:
-                error = True
-                LOGGER.error("%s not in UCI_Chess960 mode but black can castle without king on E8", engine.process)
-            if self.board.castling_rights & ~(chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8):
-                error = True
-                LOGGER.error("%s not in UCI_Chess960 mode but castling-rights with non-standard rook square", engine.process)
+            standard_chess_status = self.board.status(allow_chess960=False)
+            chess960_status = self.board.status(allow_chess960=True)
+            if standard_chess_status & chess.STATUS_BAD_CASTLING_RIGHTS and not chess960_status & chess.STATUS_BAD_CASTLING_RIGHTS:
+                LOGGER.error("%s not in UCI_Chess960 mode but position has non-standard castling rights", engine.process)
 
-            # Just send the final FEN without transpositions in hopes that this
-            # will work.
-            if error:
+                # Just send the final FEN without transpositions in hopes that
+                # this will work.
                 while switchyard:
                     self.board.push(switchyard.pop())
 

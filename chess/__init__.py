@@ -2249,12 +2249,16 @@ class Board(object):
 
         return san
 
-    def status(self):
+    def status(self, allow_chess960=True):
         """
         Gets a bitmask of possible problems with the position.
 
         Move making, generation and validation are only guaranteed to work on
         a completely valid board.
+
+        By default positions with generalized Chess960 castling rights are
+        allowed. Pass *False* for *allow_chess960* in order to restrict
+        the validation to standard chess positions.
 
         STATUS_VALID for a completely valid board.
 
@@ -2267,6 +2271,7 @@ class Board(object):
         """
         errors = STATUS_VALID
 
+        # There must be exactly one king of each color.
         if not self.occupied_co[WHITE] & self.kings:
             errors |= STATUS_NO_WHITE_KING
         if not self.occupied_co[BLACK] & self.kings:
@@ -2274,40 +2279,72 @@ class Board(object):
         if pop_count(self.occupied & self.kings) > 2:
             errors |= STATUS_TOO_MANY_KINGS
 
-        if pop_count(self.occupied_co[WHITE] & self.pawns) > 8:
-            errors |= STATUS_TOO_MANY_WHITE_PAWNS
-        if pop_count(self.occupied_co[BLACK] & self.pawns) > 8:
-            errors |= STATUS_TOO_MANY_BLACK_PAWNS
-
-        if self.pawns & (BB_RANK_1 | BB_RANK_8):
-            errors |= STATUS_PAWNS_ON_BACKRANK
-
+        # There can not be more than 16 pieces of any color.
         if pop_count(self.occupied_co[WHITE]) > 16:
             errors |= STATUS_TOO_MANY_WHITE_PIECES
         if pop_count(self.occupied_co[BLACK]) > 16:
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
+        # There can not be more than eight pawns of any color.
+        if pop_count(self.occupied_co[WHITE] & self.pawns) > 8:
+            errors |= STATUS_TOO_MANY_WHITE_PAWNS
+        if pop_count(self.occupied_co[BLACK] & self.pawns) > 8:
+            errors |= STATUS_TOO_MANY_BLACK_PAWNS
+
+        # Pawns can not be on the backrank.
+        if self.pawns & (BB_RANK_1 | BB_RANK_8):
+            errors |= STATUS_PAWNS_ON_BACKRANK
+
         if self.castling_rights:
-            if self.castling_rights & ~(BB_RANK_1 | BB_RANK_8):
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-
             white_castling_rights = self.castling_rights & BB_RANK_1
-            black_castling_rights = self.castling_rights & BB_RANK_2
+            black_castling_rights = self.castling_rights & BB_RANK_8
 
-            if pop_count(white_castling_rights) > 2:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-            if pop_count(black_castling_rights) > 2:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
+            if allow_chess960:
+                # Can only castle on the backrank.
+                if self.castling_rights & ~(BB_RANK_1 | BB_RANK_8):
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
 
+                # The king must be on the backrank.
+                if white_castling_rights and not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+                if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+            else:
+                # Can only castle on the starting rook squares.
+                if self.castling_rights & ~(BB_A1 | BB_A8 | BB_H1 | BB_H8):
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+
+                # King must be on e1 or e8.
+                if white_castling_rights and not self.occupied_co[WHITE] & self.kings & BB_E1:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+                if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_E8:
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            # There must be rooks to castle with.
             if white_castling_rights & ~(self.occupied_co[WHITE] & self.rooks):
                 errors |= STATUS_BAD_CASTLING_RIGHTS
             if black_castling_rights & ~(self.occupied_co[BLACK] & self.rooks):
                 errors |= STATUS_BAD_CASTLING_RIGHTS
 
-            if white_castling_rights and not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
+            # There are only two ways of castling: a-side and h-side.
+            if pop_count(white_castling_rights) > 2:
                 errors |= STATUS_BAD_CASTLING_RIGHTS
-            if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
+            if pop_count(black_castling_rights) > 2:
                 errors |= STATUS_BAD_CASTLING_RIGHTS
+
+            # The king must be between rooks with castling rights.
+            if pop_count(white_castling_rights) == 2:
+                king = bit_scan(self.occupied_co[WHITE] & self.kings)
+                a_side = bit_scan(white_castling_rights)
+                h_side = bit_scan(white_castling_rights, a_side + 1)
+                if not (a_side < king < h_side):
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
+            if pop_count(black_castling_rights) == 2:
+                king = bit_scan(self.occupied_co[BLACK] & self.kings)
+                a_side = bit_scan(black_castling_rights)
+                h_side = bit_scan(black_castling_rights, a_side + 1)
+                if not (a_side < king < h_side):
+                    errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.ep_square:
             if self.turn == WHITE:
@@ -2332,7 +2369,7 @@ class Board(object):
 
         return errors
 
-    def is_valid(self):
+    def is_valid(self, allow_chess960=True):
         """
         Checks if the board is valid.
 
@@ -2341,7 +2378,7 @@ class Board(object):
 
         See Board.status() for details.
         """
-        return self.status() == STATUS_VALID
+        return self.status(allow_chess960) == STATUS_VALID
 
     def generate_attacks(self):
         if self.attacks_valid:
