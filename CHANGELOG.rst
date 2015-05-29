@@ -13,10 +13,9 @@ Upcoming in the next release
 * There is a new method `Board.pieces(piece_type, color)` to get a set of
   squares with the specified pieces.
 
-* Fixed spelling of repetition (was repitition).
-  `can_claim_threefold_repetition` and `is_fivefold_repetition` are the
-  affected method names. Aliases are there for now, but will be removed in the
-  next release. Thanks to Jimmy Patrick for reporting this.
+* In 0.8.1 the spelling of repetition (was repitition) was fixed.
+  `can_claim_threefold_repetition()` and `is_fivefold_repetition()` are the
+  affected method names. Aliases are now removed.
 
 * Removed `uci.InfoHandler.pre_bestmove()` and
   `uci.InfoHandler.post_bestmove()`.
@@ -44,19 +43,7 @@ Upcoming in the next release
   to `PseudoLegalMoveGenerator.board` and `LegalMoveGenerator.board`,
   respectively.
 
-* Fixed pondering mode in `uci` module.
-* Patch by Richard C. Gerkin: Moved searchmoves to the end of the go command
-  where it will not cause other command parameters to be ignored.
-
 * Do expensive Syzygy table initialization on demand.
-
-* Fixed missing check or checkmate suffix in castling SANs, e.g. `O-O-O#`.
-
-* Fixed off-by-one error and Python 3 compability for polyglot opening books.
-
-* Bestmoves may be literally `(none)` in UCI protocol, for example in
-  checkmate positions. Fix parser and return `None` as the bestmove in this
-  case.
 
 * Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
   PGN files.
@@ -69,6 +56,36 @@ Upcoming in the next release
 * Patch by Richard C. Gerkin: Added `Board.__unicode__()` just like
   `Board.__str__()` but with unicode pieces.
 * Patch by Richard C. Gerkin: Added `Board.__html__()`.
+
+New in v0.8.1
+-------------
+
+* Fixed pondering mode in uci module. For example `ponderhit()` was blocking
+  indefinitely. Thanks to Valeriy Huz for reporting this.
+
+* Patch by Richard C. Gerkin: Moved searchmoves to the end of the UCI go
+  command, where it will not cause other command parameters to be ignored.
+
+* Added missing check or checkmate suffix to castling SANs, e.g. `O-O-O#`.
+
+* Fixed off-by-one error in polyglot opening book binary search. This would
+  not have caused problems for real opening books.
+
+* Fixed Python 3 support for reverse polyglot opening book iteration.
+
+* Bestmoves may be literally `(none)` in UCI protocol, for example in
+  checkmate positions. Fix parser and return `None` as the bestmove in this
+  case.
+
+* Fixed spelling of repetition (was repitition).
+  `can_claim_threefold_repetition()` and `is_fivefold_repetition()` are the
+  affected method names. Aliases are there for now, but will be removed in the
+  next release. Thanks to Jimmy Patrick for reporting this.
+
+* Added `SquareSet.__reversed__()`.
+
+* Use containerized tests on Travis CI, test against Stockfish 6, improved
+  test coverage amd various minor clean-ups.
 
 New in v0.8.0
 -------------
