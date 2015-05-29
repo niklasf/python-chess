@@ -2,6 +2,8 @@ language: python
 sudo: false
 python:
  - "2.7"
+ - "3.2"
+ - "3.3"
  - "3.4"
 before_install:
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
