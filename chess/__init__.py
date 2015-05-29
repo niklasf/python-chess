@@ -1461,7 +1461,7 @@ class Board(object):
     def is_game_over(self):
         """
         Checks if the game is over due to checkmate, stalemate, insufficient
-        mating material, the seventyfive-move rule or fivefold repitition.
+        mating material, the seventyfive-move rule or fivefold repetition.
         """
         # Seventyfive-move rule.
         if self.halfmove_clock >= 150:
@@ -1477,8 +1477,8 @@ class Board(object):
         except StopIteration:
             return True
 
-        # Fivefold repitition.
-        if self.is_fivefold_repitition():
+        # Fivefold repetition.
+        if self.is_fivefold_repetition():
             return True
 
         return False
@@ -1543,7 +1543,7 @@ class Board(object):
 
         return False
 
-    def is_fivefold_repitition(self):
+    def is_fivefold_repetition(self):
         """
         Since the first of July 2014 a game is automatically drawn (without
         a claim by one of the players) if a position occurs for the fifth time
@@ -1575,12 +1575,15 @@ class Board(object):
 
         return True
 
+    # TODO: Remove alias.
+    is_fivefold_repitition = is_fivefold_repetition
+
     def can_claim_draw(self):
         """
         Checks if the side to move can claim a draw by the fifty-move rule or
-        by threefold repitition.
+        by threefold repetition.
         """
-        return self.can_claim_fifty_moves() or self.can_claim_threefold_repitition()
+        return self.can_claim_fifty_moves() or self.can_claim_threefold_repetition()
 
     def can_claim_fifty_moves(self):
         """
@@ -1598,17 +1601,17 @@ class Board(object):
 
         return False
 
-    def can_claim_threefold_repitition(self):
+    def can_claim_threefold_repetition(self):
         """
-        Draw by threefold repitition can be claimed if the position on the
-        board occured for the third time or if such a repitition is reached
+        Draw by threefold repetition can be claimed if the position on the
+        board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.
         """
-        # Threefold repitition occured.
+        # Threefold repetition occured.
         if self.transpositions[self.zobrist_hash()] >= 3:
             return True
 
-        # The next legal move is a threefold repitition.
+        # The next legal move is a threefold repetition.
         for move in self.generate_pseudo_legal_moves():
             self.push(move)
 
@@ -1619,6 +1622,9 @@ class Board(object):
             self.pop()
 
         return False
+
+    # TODO: Remove alias.
+    can_claim_threefold_repitition = can_claim_threefold_repetition
 
     def push(self, move):
         """
