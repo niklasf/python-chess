@@ -6,6 +6,36 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.8.1
+-------------
+
+* Fixed pondering mode in uci module. For example `ponderhit()` was blocking
+  indefinitely. Thanks to Valeriy Huz for reporting this.
+
+* Patch by Richard C. Gerkin: Moved searchmoves to the end of the UCI go
+  command, where it will not cause other command parameters to be ignored.
+
+* Added missing check or checkmate suffix to castling SANs, e.g. `O-O-O#`.
+
+* Fixed off-by-one error in polyglot opening book binary search. This would
+  not have caused problems for real opening books.
+
+* Fixed Python 3 support for reverse polyglot opening book iteration.
+
+* Bestmoves may be literally `(none)` in UCI protocol, for example in
+  checkmate positions. Fix parser and return `None` as the bestmove in this
+  case.
+
+* Fixed spelling of repetition (was repitition).
+  `can_claim_threefold_repetition()` and `is_fivefold_repetition()` are the
+  affected method names. Aliases are there for now, but will be removed in the
+  next release. Thanks to Jimmy Patrick for reporting this.
+
+* Added `SquareSet.__reversed__()`.
+
+* Use containarized tests on Travis CI, test against Stockfish 6, improved
+  test coverage amd various minor clean-ups.
+
 New in v0.8.0
 -------------
 
