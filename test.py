@@ -36,6 +36,15 @@ except ImportError:
     from io import StringIO
 
 
+class SquareTestCase(unittest.TestCase):
+
+    def test_square(self):
+        for square in chess.SQUARES:
+            file_index = chess.file_index(square)
+            rank_index = chess.rank_index(square)
+            self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
+
+
 class MoveTestCase(unittest.TestCase):
 
     def test_equality(self):
@@ -122,6 +131,20 @@ class BoardTestCase(unittest.TestCase):
         board.push(chess.Move.from_uci("f3d2"))
         self.assertEqual(board.fen(), "6k1/pb3pp1/1p2p2p/1Bn1P3/8/8/PP1N1PPP/6K1 b - - 0 24")
 
+    def test_xfen(self):
+        # https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#Beispiel
+        xfen = "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11"
+        board = chess.Board("rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11")
+        self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
+        self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
+        self.assertEqual(board.fen(), xfen)
+
+        # Chess960 position #284.
+        board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1")
+        board.castling_rights = board.rooks
+        self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
+        self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
+
     def test_get_set(self):
         board = chess.Board()
         self.assertEqual(board.piece_at(chess.B1), chess.Piece.from_symbol("N"))
@@ -165,11 +188,13 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white castle short.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
 
         # Let black castle long.
         move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
@@ -181,11 +206,13 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white castle long.
         move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
 
         # Let black castle short.
         move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "r4rk1/8/8/8/8/8/8/2KR3R w - - 3 2")
@@ -194,6 +221,55 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         board.pop()
         self.assertEqual(board.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
+
+    def test_ninesixty_castling(self):
+        fen = "3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1"
+        board = chess.Board("3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1")
+
+        # Let white do the king side swap.
+        move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(move.from_square, chess.F1)
+        self.assertEqual(move.to_square, chess.G1)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "3rk2r/4p3/8/8/8/8/8/4RRK1 b hd - 2 1")
+
+        # Black can not castly kingside.
+        self.assertFalse(chess.Move.from_uci("e8h8") in board.legal_moves)
+
+        # Let black castle queenside.
+        move = board.parse_san("O-O-O")
+        self.assertEqual(board.san(move), "O-O-O")
+        self.assertEqual(move.from_square, chess.E8)
+        self.assertEqual(move.to_square, chess.D8)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "2kr3r/4p3/8/8/8/8/8/4RRK1 w - - 3 2")
+
+        # Restore initial position.
+        board.pop()
+        board.pop()
+        self.assertEqual(board.shredder_fen(), fen)
+
+        fen = "Qr4k1/4pppp/8/8/8/8/8/R5KR w Hb - 0 1"
+        board = chess.Board(fen)
+
+        # White can just hop the rook over.
+        move = board.parse_san("O-O")
+        self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(move.from_square, chess.G1)
+        self.assertEqual(move.to_square, chess.H1)
+        self.assertTrue(move in board.legal_moves)
+        board.push(move)
+        self.assertEqual(board.shredder_fen(), "Qr4k1/4pppp/8/8/8/8/8/R4RK1 b b - 1 1")
+
+        # Black can not castle queenside nor kingside.
+        self.assertFalse(any(board.generate_castling_moves()))
+
+        # Restore initial position.
+        board.pop()
+        self.assertEqual(board.shredder_fen(), fen)
 
     def test_insufficient_material(self):
         # Starting position.
@@ -265,7 +341,7 @@ class BoardTestCase(unittest.TestCase):
         # Castling with check.
         fen = "rnbk1b1r/ppp2pp1/5n1p/4p1B1/2P5/2N5/PP2PPPP/R3KBNR w KQ - 0 7"
         board = chess.Board(fen)
-        long_castle_check = chess.Move.from_uci("e1c1")
+        long_castle_check = chess.Move.from_uci("e1a1")
         self.assertEqual(board.san(long_castle_check), "O-O-O+")
         self.assertEqual(board.fen(), fen)
 
@@ -319,7 +395,7 @@ class BoardTestCase(unittest.TestCase):
 
     def test_move_count(self):
         board = chess.Board("1N2k3/P7/8/8/3n4/8/2PP4/R3K2R w KQ - 0 1")
-        self.assertEqual(board.pseudo_legal_move_count(), 8 + 4 + 3 + 2 + 1 + 6 + 9)
+        self.assertEqual(len(board.pseudo_legal_moves), 8 + 4 + 3 + 2 + 1 + 6 + 9)
 
     def test_polyglot(self):
         # Test polyglot compability using test data from
@@ -331,11 +407,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.zobrist_hash(), 0x463b96181691fc9c)
 
         board.push_san("e4")
-        self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+        self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
         self.assertEqual(board.zobrist_hash(), 0x823c9b50fd114196)
 
         board.push_san("d5")
-        self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
+        self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
         self.assertEqual(board.zobrist_hash(), 0x0756b94461c50fb0)
 
         board.push_san("e5")
@@ -458,6 +534,7 @@ class BoardTestCase(unittest.TestCase):
     def test_status(self):
         board = chess.Board()
         self.assertEqual(board.status(), chess.STATUS_VALID)
+        self.assertTrue(board.is_valid())
 
         board.remove_piece_at(chess.H1)
         self.assertTrue(board.status() & chess.STATUS_BAD_CASTLING_RIGHTS)
@@ -475,6 +552,16 @@ class BoardTestCase(unittest.TestCase):
         # But there must indeed be a pawn there.
         board.remove_piece_at(chess.E4)
         self.assertEqual(board.status(), chess.STATUS_INVALID_EP_SQUARE)
+
+        # King must be between the two rooks.
+        board = chess.Board("2rrk3/8/8/8/8/8/3PPPPP/2RK4 w cd - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+
+        # Generally valid position, but not valid standard chess position due
+        # to non-standard castling rights. Chess960 start position #0.
+        board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        self.assertEqual(board.status(allow_chess960=False), chess.STATUS_BAD_CASTLING_RIGHTS)
 
     def test_epd(self):
         # Create an EPD with a move and a string.
@@ -530,6 +617,35 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(chess.D4 in attackers)
         self.assertFalse(chess.E1 in attackers)
 
+    def test_en_passant_attackers(self):
+        board = chess.Board("4k3/8/8/8/4pPp1/8/8/4K3 b - f3 0 1")
+
+        # Still attacking the en-passant square.
+        attackers = board.attackers(chess.BLACK, chess.F3)
+        self.assertEqual(len(attackers), 2)
+        self.assertTrue(chess.E4 in attackers)
+        self.assertTrue(chess.G4 in attackers)
+
+        # Also attacking the pawn.
+        attackers = board.attackers(chess.BLACK, chess.F4)
+        self.assertEqual(len(attackers), 2)
+        self.assertTrue(chess.E4 in attackers)
+        self.assertTrue(chess.G4 in attackers)
+
+    def test_attacks(self):
+        board = chess.Board("5rk1/p5pp/2p3p1/1p1pR3/3P2P1/2N5/PP3n2/2KB4 w - - 1 26")
+
+        attacks = board.attacks(chess.E5)
+        self.assertEqual(len(attacks), 11)
+        self.assertTrue(chess.D5 in attacks)
+        self.assertTrue(chess.E1 in attacks)
+        self.assertTrue(chess.F5 in attacks)
+        self.assertFalse(chess.E5 in attacks)
+        self.assertFalse(chess.C5 in attacks)
+        self.assertFalse(chess.F4 in attacks)
+
+        self.assertFalse(board.attacks(chess.G1))
+
     def test_clear(self):
         board = chess.Board()
         board.clear()
@@ -537,26 +653,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.turn, chess.WHITE)
         self.assertEqual(board.fullmove_number, 1)
         self.assertEqual(board.halfmove_clock, 0)
-        self.assertEqual(board.castling_rights, chess.CASTLING_NONE)
+        self.assertEqual(board.castling_rights, chess.BB_VOID)
         self.assertFalse(board.ep_square)
 
         self.assertFalse(board.piece_at(chess.E1))
         self.assertEqual(chess.pop_count(board.occupied), 0)
-
-    def test_rotation(self):
-        bb = chess.BB_G1
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_H7)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_B8)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_A2)
-        bb = chess.l90(bb)
-        self.assertEqual(bb, chess.BB_G1)
-
-        self.assertEqual(chess.l45(chess.BB_F2), chess.BB_F8)
-
-        self.assertEqual(chess.r45(chess.BB_F8), chess.BB_F3)
 
     def test_threefold_repetition(self):
         board = chess.Board()
@@ -776,6 +877,29 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(u"♜" in html)
         self.assertFalse(u"♖" in html)
 
+    def test_move_info(self):
+        board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
+
+        self.assertTrue(board.is_capture(board.parse_san("Qxf7+")))
+        self.assertFalse(board.is_en_passant(board.parse_san("Qxf7+")))
+        self.assertFalse(board.is_castling(board.parse_san("Qxf7+")))
+
+        self.assertTrue(board.is_capture(board.parse_san("hxg6")))
+        self.assertTrue(board.is_en_passant(board.parse_san("hxg6")))
+        self.assertFalse(board.is_castling(board.parse_san("hxg6")))
+
+        self.assertFalse(board.is_capture(board.parse_san("b3")))
+        self.assertFalse(board.is_en_passant(board.parse_san("b3")))
+        self.assertFalse(board.is_castling(board.parse_san("b3")))
+
+        self.assertFalse(board.is_capture(board.parse_san("Ra6")))
+        self.assertFalse(board.is_en_passant(board.parse_san("Ra6")))
+        self.assertFalse(board.is_castling(board.parse_san("Ra6")))
+
+        self.assertFalse(board.is_capture(board.parse_san("O-O")))
+        self.assertFalse(board.is_en_passant(board.parse_san("O-O")))
+        self.assertTrue(board.is_castling(board.parse_san("O-O")))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -880,7 +1004,7 @@ class PolyglotTestCase(unittest.TestCase):
                 except StopIteration:
                     break
 
-            self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - g3 0 15")
+            self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
     def test_lasker_trap(self):
         with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
@@ -1509,6 +1633,53 @@ class UciEngineTestCase(unittest.TestCase):
             # Score is relative to multipv as well.
             self.assertEqual(info["score"][13].cp, 777)
             self.assertEqual(info["score"][1].cp, 888)
+
+    def test_castling_move_conversion(self):
+        # Setup a position where white can castle on the next move.
+        fen = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w KQkq - 1 1"
+        board = chess.Board(fen)
+        self.mock.expect("position fen " + fen)
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
+        # Expect the standard castling move notation e1g1 and respond with it.
+        self.mock.expect("go movetime 70 searchmoves a2a3 e1g1", (
+            "bestmove e1g1",
+        ))
+        bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
+            board.parse_san("a3"),
+            board.parse_san("O-O"),
+        ])
+        self.assertTrue(bestmove.from_square, chess.E1)
+        self.assertTrue(bestmove.to_square, chess.H1)
+        self.mock.assert_done()
+
+        # Assert that we can change to UCI_Chess960 mode.
+        self.assertFalse(self.engine.uci_chess960)
+        self.mock.expect("setoption name uCi_CheSS960 value true")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.setoption({"uCi_CheSS960": True})
+        self.assertTrue(self.engine.uci_chess960)
+        self.mock.assert_done()
+
+        # Expect a Shredder FEN during for the position command.
+        self.mock.expect("position fen rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w HAha - 1 1")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
+        # Check that castling move conversion is now disabled.
+        self.mock.expect("go movetime 70 searchmoves a2a3 e1h1", (
+            "bestmove e1h1",
+        ))
+        bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
+            board.parse_san("a3"),
+            board.parse_san("O-O"),
+        ])
+        self.assertTrue(bestmove.from_square, chess.E1)
+        self.assertTrue(bestmove.to_square, chess.H1)
+        self.mock.assert_done()
 
 
 class SyzygyTestCase(unittest.TestCase):

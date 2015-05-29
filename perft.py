@@ -49,17 +49,20 @@ def into_check_perft(board, depth):
 
 
 def debug_perft(board, depth):
+    assert board.is_valid()
+
     if depth >= 1:
         count =  0
 
         for move in board.pseudo_legal_moves:
-            assert move in board.pseudo_legal_moves
+            assert move in board.pseudo_legal_moves, (move, board)
 
             if board.is_into_check(move):
-                assert move not in board.legal_moves
+                assert move not in board.legal_moves, (move, board)
                 continue
 
-            assert move in board.legal_moves
+            assert move in board.legal_moves, (move, board)
+            assert move == board.parse_san(board.san(move))
 
             board.push(move)
             count += debug_perft(board, depth - 1)
