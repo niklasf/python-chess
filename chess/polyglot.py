@@ -112,8 +112,14 @@ class MemoryMappedReader(object):
         except IndexError:
             return False
 
-    def get_entries_for_position(self, board):
-        """Seeks a specific position and yields all entries."""
+    def get_entries_for_position(self, board, minimum_weight=1):
+        """
+        Seeks a specific position and yields corresponding entries.
+
+        By default entries with weight *0* are excluded. This is a common way
+        to delete entries from an opening book without compacting it. Pass
+        *minimum_weight=0* to select all entries.
+        """
         zobrist_hash = board.zobrist_hash()
         entry = Entry(zobrist_hash, 0, 0, 0)
 
@@ -123,7 +129,8 @@ class MemoryMappedReader(object):
 
         entry = self[i]
         while entry.key == zobrist_hash:
-            yield entry
+            if entry.weight >= minimum_weight:
+                yield entry
 
             i += 1
             entry = self[i]
