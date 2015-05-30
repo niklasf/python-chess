@@ -23,7 +23,7 @@ Polyglot opening book reading
 
         Another integer value that can be used for extra information.
 
-.. autoclass:: chess.polyglot.Reader
+.. autoclass:: chess.polyglot.MemoryMappedReader
     :members:
 
 .. py:data:: chess.POLYGLOT_RANDOM_ARRAY
