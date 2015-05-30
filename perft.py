@@ -110,7 +110,44 @@ class PerftTestCase(unittest.TestCase):
     def test_speed(self):
         self.execute_test(perft, 10000)
 
+    def test_chess960(self):
+        # Source: http://www.talkchess.com/forum/viewtopic.php?t=55274
+
+        # XFEN 00
+        board = chess.Board("r1k1r2q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K1R2Q w KQkq - 0 1 ")
+        self.assertEqual(perft(board, 1), 23)
+        self.assertEqual(perft(board, 2), 522)
+        self.assertEqual(perft(board, 3), 12333)
+        self.assertEqual(perft(board, 4), 285754)
+
+        # XFEN 01
+        board = chess.Board("r1k2r1q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K2R1Q w KQkq - 0 1")
+        self.assertEqual(perft(board, 1), 28)
+        self.assertEqual(perft(board, 2), 738)
+        self.assertEqual(perft(board, 3), 20218)
+        self.assertEqual(perft(board, 4), 541480)
+
+        # XFEN 02
+        board = chess.Board("8/8/8/4B2b/6nN/8/5P2/2R1K2k w Q - 0 1")
+        self.assertEqual(perft(board, 1), 34)
+        self.assertEqual(perft(board, 2), 318)
+        self.assertEqual(perft(board, 3), 9002)
+        self.assertEqual(perft(board, 4), 118388)
+
+        # XFEN 03
+        board = chess.Board("2r5/8/8/8/8/8/6PP/k2KR3 w K - 0 1")
+        self.assertEqual(perft(board, 1), 17)
+        self.assertEqual(perft(board, 2), 242)
+        self.assertEqual(perft(board, 3), 3931)
+        self.assertEqual(perft(board, 4), 57700)
+
+        # XFEN 04
+        board = chess.Board("4r3/3k4/8/8/8/8/6PP/qR1K1R2 w KQ - 0 1")
+        self.assertEqual(perft(board, 1), 19)
+        self.assertEqual(perft(board, 2), 628)
+        self.assertEqual(perft(board, 3), 12858)
+        self.assertEqual(perft(board, 4), 405636)
+
 
 if __name__ == "__main__":
-    import cProfile
-    cProfile.run('unittest.main()')
+    unittest.main()
