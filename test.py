@@ -520,6 +520,17 @@ class BoardTestCase(unittest.TestCase):
 
         self.assertEqual(count, 26)
 
+    def test_ninesixty_castling_bug(self):
+        board = chess.Board("4r3/3k4/8/8/8/8/q5PP/1R1KR3 w Q - 2 2")
+        move = chess.Move.from_uci("d1b1")
+        self.assertTrue(board.is_castling(move))
+        self.assertTrue(move in board.generate_pseudo_legal_moves())
+        self.assertTrue(board.is_pseudo_legal(move))
+        self.assertTrue(move in board.generate_legal_moves())
+        self.assertTrue(board.is_legal(move))
+        self.assertEqual(board.parse_san("O-O-O+"), move)
+        self.assertEqual(board.san(move), "O-O-O+")
+
     def test_equality(self):
         self.assertEqual(chess.Board(), chess.Board())
         self.assertFalse(chess.Board() != chess.Board())
