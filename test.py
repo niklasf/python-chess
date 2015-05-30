@@ -1014,11 +1014,11 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
             pos = chess.Board()
 
-            e4 = next(book.get_entries_for_position(pos))
+            e4 = next(book.find_all(pos))
             self.assertEqual(e4.move(), pos.parse_san("e4"))
             pos.push(e4.move())
 
-            e5 = next(book.get_entries_for_position(pos))
+            e5 = next(book.find_all(pos))
             self.assertEqual(e5.move(), pos.parse_san("e5"))
             pos.push(e5.move())
 
@@ -1028,17 +1028,18 @@ class PolyglotTestCase(unittest.TestCase):
 
             while True:
                 try:
-                    entry = next(book.get_entries_for_position(board))
-                    board.push(entry.move())
-                except StopIteration:
+                    entry = book.find(board)
+                except IndexError:
                     break
+                else:
+                    board.push(entry.move())
 
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
     def test_lasker_trap(self):
         with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
             board = chess.Board("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
-            entry = next(book.get_entries_for_position(board))
+            entry = book.find(board)
             cute_underpromotion = entry.move()
             self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
 
@@ -1047,7 +1048,7 @@ class PolyglotTestCase(unittest.TestCase):
             # White decides between short castling and long castling at this
             # turning point in the Queens Gambit Exchange.
             pos = chess.Board("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
-            moves = set(entry.move() for entry in book.get_entries_for_position(pos))
+            moves = set(entry.move() for entry in book.find_all(pos))
             self.assertTrue(pos.parse_san("O-O") in moves)
             self.assertTrue(pos.parse_san("O-O-O") in moves)
             self.assertTrue(pos.parse_san("h3") in moves)
@@ -1056,7 +1057,7 @@ class PolyglotTestCase(unittest.TestCase):
             # Black usually castles long at this point in the Ruy Lopez
             # Exchange.
             pos = chess.Board("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
-            moves = set(entry.move() for entry in book.get_entries_for_position(pos))
+            moves = set(entry.move() for entry in book.find_all(pos))
             self.assertTrue(pos.parse_san("O-O-O") in moves)
             self.assertEqual(len(moves), 1)
 
@@ -1064,7 +1065,7 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/opening-books/empty.bin") as book:
             self.assertEqual(len(book), 0)
 
-            entries = book.get_entries_for_position(chess.Board())
+            entries = book.find_all(chess.Board())
             self.assertEqual(len(list(entries)), 0)
 
     def test_reversed(self):

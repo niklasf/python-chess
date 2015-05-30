@@ -113,14 +113,25 @@ class MemoryMappedReader(object):
         except IndexError:
             return False
 
-    def get_entries_for_position(self, board, minimum_weight=1):
+    def find(self, board, minimum_weight=1):
         """
-        Seeks a specific position and yields corresponding entries.
+        Finds the main entry for the given position.
+
+        The main entry is the first entry with the highest weight.
 
         By default entries with weight *0* are excluded. This is a common way
         to delete entries from an opening book without compacting it. Pass
         *minimum_weight=0* to select all entries.
+
+        Raises *IndexError* if no entries are found.
         """
+        try:
+            return max(self.find_all(board, minimum_weight), key=lambda entry: entry.weight)
+        except ValueError:
+            raise IndexError()
+
+    def find_all(self, board, minimum_weight=1):
+        """Seeks a specific position and yields corresponding entries."""
         zobrist_hash = board.zobrist_hash()
         marker = Entry(zobrist_hash, 0, 0, 0)
 
@@ -135,17 +146,6 @@ class MemoryMappedReader(object):
 
             i += 1
             entry = self[i]
-
-    def find(self, board, minimum_weight=1):
-        """
-        Finds the main entry for the given position.
-
-        Raises *IndexError* if no entries are found.
-        """
-        try:
-            return max(self.get_entries_for_position(board, minimum_weight), key=lambda entry: entry.weight)
-        except ValueError:
-            raise IndexError()
 
     def choice(self, board, minimum_weight=1, random=random):
         """
@@ -174,14 +174,14 @@ class MemoryMappedReader(object):
 
         Raises *IndexError* if no entries are found.
         """
-        total_weights = sum(entry.weight for entry in self.get_entries_for_position(board))
+        total_weights = sum(entry.weight for entry in self.find_all(board))
         if not total_weights:
             raise IndexError()
 
         choice = random.randint(0, total_weights - 1)
 
         current_sum = 0
-        for entry in self.get_entries_for_position(board):
+        for entry in self.find_all(board):
             current_sum += entry.weight
             if current_sum > choice:
                 return entry
@@ -194,7 +194,7 @@ def open_reader(path):
     Creates a reader for the file at the given path.
 
     >>> with open_reader("data/opening-books/performance.bin") as reader:
-    ...    for entry in reader.get_entries_for_position(board):
+    ...    for entry in reader.find_all(board):
     ...        print(entry.move(), entry.weight, entry.learn)
     e2e4 1 0
     d2d4 1 0

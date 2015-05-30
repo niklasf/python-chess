@@ -9,6 +9,10 @@ might include API breaking changes.
 Upcoming in the next release
 ----------------------------
 
+* The `get_entries_for_position(board)` method of polyglot opening book readers
+  has been changed to `find_all(board, minimum_weight=1)`. By default entries
+  with weight 0 are excluded.
+
 * The `Board.pieces` lookup list has been removed.
 * There is a new method `Board.pieces(piece_type, color)` to get a set of
   squares with the specified pieces.
