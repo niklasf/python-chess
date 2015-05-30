@@ -140,7 +140,7 @@ class MemoryMappedReader(object):
         """
         Finds the main entry for the given position.
 
-        Raises *IndexError* if not entries are found.
+        Raises *IndexError* if no entries are found.
         """
         try:
             return max(self.get_entries_for_position(board, minimum_weight), key=lambda entry: entry.weight)
