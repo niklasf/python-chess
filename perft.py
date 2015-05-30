@@ -98,9 +98,6 @@ class PerftTestCase(unittest.TestCase):
         sys.stdout.write("\n")
         sys.stdout.flush()
 
-    def test_fast(self):
-        self.execute_test(perft, 1000)
-
     def test_into_check(self):
         self.execute_test(into_check_perft, 1000)
 
