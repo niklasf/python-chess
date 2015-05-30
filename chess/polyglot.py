@@ -19,6 +19,9 @@
 import chess
 import collections
 import struct
+import os
+import bisect
+import mmap
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -47,143 +50,79 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
             return chess.Move(from_square, to_square)
 
 
-class Reader(object):
-    """
-    A reader for a polyglot opening book opened in binary mode. The file has to
-    be seekable.
+class MemoryMappedReader(object):
+    def __init__(self, filename):
+        self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
-    Provides methods to seek entries for specific positions but also ways to
-    efficiently use the opening book like a list.
-
-    >>> # Get the number of entries
-    >>> len(reader)
-    92954
-
-    >>> # Get the nth entry
-    >>> entry = reader[n]
-
-    >>> # Iteration
-    >>> for entry in reader:
-    >>>     pass
-
-    >>> # Backwards iteration
-    >>> for entry in reversed(reader):
-    >>>     pass
-    """
-
-    def __init__(self, handle):
-        self.handle = handle
-
-        self.seek_entry(0, 2)
-        self.__entry_count = int(self.handle.tell() / ENTRY_STRUCT.size)
-
-    def __len__(self):
-        return self.__entry_count
-
-    def __getitem__(self, key):
-        if key >= self.__entry_count:
-            raise IndexError()
-        self.seek_entry(key)
-        return self.next()
-
-    def __iter__(self):
-        self.seek_entry(0)
-        return self
-
-    def seek_entry(self, offset, whence=0):
-        """
-        Seek an entry by its index.
-
-        Translated directly to a low level seek on the binary file. `whence` is
-        equivalent."""
-        self.handle.seek(offset * ENTRY_STRUCT.size, whence)
-
-    def seek_position(self, position):
-        """
-        Seek the first entry for the given position.
-
-        Raises `KeyError` if there are no entries for the position.
-        """
-        # Calculate the position hash.
-        key = position.zobrist_hash()
-
-        # Do a binary search.
-        start = 0
-        end = len(self) - 1
-        while end >= start:
-            middle = int((start + end) / 2)
-
-            self.seek_entry(middle)
-            raw_entry = self.next_raw()
-
-            if raw_entry[0] < key:
-                start = middle + 1
-            elif raw_entry[0] > key:
-                end = middle - 1
-            else:
-                # Position found. Move back to the first occurence.
-                self.seek_entry(-1, 1)
-                while raw_entry[0] == key and middle > start:
-                    middle -= 1
-                    self.seek_entry(middle)
-                    raw_entry = self.next_raw()
-
-                    if middle == start and raw_entry[0] == key:
-                        self.seek_entry(-1, 1)
-
-                return
-
-        raise KeyError()
-
-    def next_raw(self):
-        """
-        Reads the next raw entry as a tuple.
-
-        Raises `StopIteration` at the EOF.
-        """
         try:
-            return ENTRY_STRUCT.unpack(self.handle.read(ENTRY_STRUCT.size))
-        except struct.error:
-            raise StopIteration()
-
-    def next(self):
-        """
-        Reads the next `Entry`.
-
-        Raises `StopIteration` at the EOF.
-        """
-        key, raw_move, weight, learn = self.next_raw()
-        return Entry(key, raw_move, weight, learn)
-
-    def get_entries_for_position(self, position):
-        """Seeks a specific position and yields all entries."""
-        zobrist_hash = position.zobrist_hash()
-
-        # Seek the position. Stop iteration if not entry exists.
-        try:
-            self.seek_position(position)
-        except KeyError:
-            raise StopIteration()
-
-        # Iterate.
-        entry = self.next()
-        while entry.key == zobrist_hash:
-            if entry.move() in position.legal_moves:
-                yield entry
-
-            entry = self.next()
-
-
-class ClosableReader(Reader):
-
-    def close(self):
-        self.handle.close()
+            self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+        except ValueError:
+            # Can not memory map empty opening books.
+            self.mmap = None
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
+        return self.close()
+
+    def close(self):
+        if self.mmap is not None:
+            self.mmap.close()
+
+        try:
+            os.close(self.fd)
+        except OSError:
+            pass
+
+    def __len__(self):
+        if self.mmap is None:
+            return 0
+        else:
+            return self.mmap.size() // ENTRY_STRUCT.size
+
+    def __getitem__(self, key):
+        if self.mmap is None:
+            raise IndexError()
+
+        if key < 0:
+            key = len(self) - key
+
+        try:
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)
+        except struct.error:
+            raise IndexError()
+
+        return Entry(key, raw_move, weight, learn)
+
+    def __iter__(self):
+        i = 0
+        size = len(self)
+        while i < size:
+            yield self[i]
+            i += 1
+
+    def __contains__(self, entry):
+        i = bisect.bisect_left(self, entry)
+        try:
+            return self[i] == entry
+        except IndexError:
+            return False
+
+    def get_entries_for_position(self, board):
+        zobrist_hash = board.zobrist_hash()
+        entry = Entry(zobrist_hash, 0, 0, 0)
+
+        i = bisect.bisect_left(self, entry)
+        if i == len(self):
+            return
+
+        entry = self[i]
+        while entry.key == zobrist_hash:
+            yield entry
+
+            i += 1
+            entry = self[i]
 
 
 def open_reader(path):
@@ -193,4 +132,4 @@ def open_reader(path):
     >>> with open_reader("data/opening-books/performance.bin") as reader:
     >>>    entries = reader.get_entries_for_position(board)
     """
-    return ClosableReader(open(path, "rb"))
+    return MemoryMappedReader(path)
