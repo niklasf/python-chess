@@ -1711,6 +1711,28 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_done()
 
 
+class UciOptionMapTestCase(unittest.TestCase):
+
+    def test_equality(self):
+        a = chess.uci.OptionMap()
+        b = chess.uci.OptionMap()
+        c = chess.uci.OptionMap()
+        self.assertEqual(a, b)
+
+        a["fOO"] = "bAr"
+        b["foo"] = "bAr"
+        c["fOo"] = "bar"
+        self.assertEqual(a, b)
+        self.assertEqual(b, a)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(c, a)
+        self.assertNotEqual(b, c)
+
+        b["hello"] = "world"
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(b, a)
+
+
 class SyzygyTestCase(unittest.TestCase):
 
     def test_calc_key(self):
