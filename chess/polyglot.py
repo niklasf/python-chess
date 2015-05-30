@@ -22,6 +22,7 @@ import struct
 import os
 import bisect
 import mmap
+import random
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -121,9 +122,9 @@ class MemoryMappedReader(object):
         *minimum_weight=0* to select all entries.
         """
         zobrist_hash = board.zobrist_hash()
-        entry = Entry(zobrist_hash, 0, 0, 0)
+        marker = Entry(zobrist_hash, 0, 0, 0)
 
-        i = bisect.bisect_left(self, entry)
+        i = bisect.bisect_left(self, marker)
         if i == len(self):
             return
 
@@ -134,6 +135,47 @@ class MemoryMappedReader(object):
 
             i += 1
             entry = self[i]
+
+    def choice(self, board, minimum_weight=1, random=random):
+        """
+        Uniformly selects a random entry for the given position.
+
+        Raises *IndexError* if no entries are found.
+        """
+        zobrist_hash = board.zobrist_hash()
+        left_marker = Entry(zobrist_hash, 0, 0, 0)
+        right_marker = Entry(zobrist_hash + 1, 0, 0, 0)
+
+        left_i = bisect.bisect_left(self, left_marker)
+        right_i = bisect.bisect_left(self, right_marker)
+
+        assert right_i >= left_i
+
+        if left_i == right_i:
+            raise IndexError()
+
+        return self[random.randint(left_i, right_i - 1)]
+
+    def weighted_choice(self, board, random=random):
+        """
+        Selects a random entry for the given position, distrubuted by the
+        weights of the entries.
+
+        Raises *IndexError* if no entries are found.
+        """
+        total_weights = sum(entry.weight for entry in self.get_entries_for_position(board))
+        if not total_weights:
+            raise IndexError()
+
+        choice = random.randint(0, total_weights - 1)
+
+        current_sum = 0
+        for entry in self.get_entries_for_position(board):
+            current_sum += entry.weight
+            if current_sum > choice:
+                return entry
+
+        assert False
 
 
 def open_reader(path):

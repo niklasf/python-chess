@@ -1077,6 +1077,32 @@ class PolyglotTestCase(unittest.TestCase):
                 pass
             self.assertEqual(book[0], last)
 
+    def test_random_choice(self):
+        class FirstMockRandom(object):
+            def randint(self, first, last):
+                assert first <= last
+                return first
+
+        class LastMockRandom(object):
+            def randint(self, first, last):
+                assert first <= last
+                return last
+
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            # Uniform choice.
+            entry = book.choice(chess.Board(), random=FirstMockRandom())
+            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+
+            entry = book.choice(chess.Board(), random=LastMockRandom())
+            self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
+
+            # Weighted choice.
+            entry = book.weighted_choice(chess.Board(), random=FirstMockRandom())
+            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+
+            entry = book.weighted_choice(chess.Board(), random=LastMockRandom())
+            self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
+
 
 class PgnTestCase(unittest.TestCase):
 
