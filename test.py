@@ -118,7 +118,9 @@ class BoardTestCase(unittest.TestCase):
 
     def test_move_making(self):
         board = chess.Board()
-        board.push(chess.Move(chess.E2, chess.E4))
+        move = chess.Move(chess.E2, chess.E4)
+        board.push(move)
+        self.assertEqual(board.peek(), move)
 
     def test_fen(self):
         board = chess.Board()
