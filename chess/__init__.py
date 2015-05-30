@@ -1225,7 +1225,7 @@ class Board(object):
             return False
 
         # Detect uncovered check.
-        if not self._pinned(from_square_mask) & to_square_mask:
+        if not self._pinned(self.turn, from_square_mask) & to_square_mask:
             return True
 
         # Detect king moves into check.
@@ -2497,9 +2497,8 @@ class Board(object):
         # Attacks are now valid.
         self.attacks_valid = True
 
-    def _pinned(self, square_mask):
-        white_to_move = self.turn == WHITE
-        if white_to_move:
+    def _pinned(self, color, square_mask):
+        if color == WHITE:
             king = self.kings & self.occupied_co[WHITE]
             other_pieces = self.occupied_co[BLACK]
         else:
@@ -2527,6 +2526,28 @@ class Board(object):
                 break
 
         return mask
+
+    def pin_mask(self, color, square):
+        if not self.attacks_valid:
+            self.generate_attacks()
+
+        return self._pinned(color, BB_SQUARES[square])
+
+    def pin(self, color, square):
+        """
+        Detects pins of the given square to the king of the given color.
+
+        Returns a set of squares that mask the rank, file or diagonal
+        of the pin. If there is no pin, then a mask of the entire board is
+        returned.
+        """
+        return SquareSet(self.pin_mask(color, square))
+
+    def is_pinned(self, color, square):
+        """
+        Detects if the given square is pinned to the king of the given color.
+        """
+        return self.pin_mask(color, square) != BB_ALL
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.is_check():
@@ -2560,7 +2581,7 @@ class Board(object):
             from_square = non_pawns & -non_pawns
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square)
+            mask = self._pinned(self.turn, from_square)
             moves = self.attacks_from[from_square] & ~our_pieces & mask
             while moves:
                 to_square = moves & -moves
@@ -2605,7 +2626,7 @@ class Board(object):
                 from_square = to_square << 7
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square)
+            mask = self._pinned(self.turn, from_square)
             if mask & to_square:
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
@@ -2628,7 +2649,7 @@ class Board(object):
                 from_square = to_square << 9
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square)
+            mask = self._pinned(self.turn, from_square)
             if mask & to_square:
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
@@ -2653,7 +2674,7 @@ class Board(object):
                 left_file = FILE_MASK[ep_square_mask] >> 1
                 capturing_pawn = capturing_pawns & left_file
                 if capturing_pawn:
-                    mask = self._pinned(capturing_pawn)
+                    mask = self._pinned(self.turn, capturing_pawn)
                     if mask & ep_square_mask:
                         yield Move(bit_scan(capturing_pawn), self.ep_square)
 
@@ -2662,7 +2683,7 @@ class Board(object):
                 right_file = FILE_MASK[ep_square_mask] << 1
                 capturing_pawn = capturing_pawns & right_file
                 if capturing_pawn:
-                    mask = self._pinned(capturing_pawn)
+                    mask = self._pinned(self.turn, capturing_pawn)
                     if mask & ep_square_mask:
                         yield Move(bit_scan(capturing_pawn), self.ep_square)
 
@@ -2685,7 +2706,7 @@ class Board(object):
                 from_square = to_square << 8
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square)
+            mask = self._pinned(self.turn, from_square)
             if mask & to_square:
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
@@ -2708,7 +2729,7 @@ class Board(object):
                 from_square = to_square << 16
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(from_square)
+            mask = self._pinned(self.turn, from_square)
             if mask & to_square:
                 yield Move(from_square_index, to_square_index)
 
@@ -2866,7 +2887,7 @@ class Board(object):
                 attacker = attacker_attackers & -attacker_attackers
                 attacker_index = bit_scan(attacker)
 
-                mask = self._pinned(attacker)
+                mask = self._pinned(self.turn, attacker)
                 if king_attackers & mask:
                     if king_attackers & double_pawn_mask and attacker & en_passant_capturers:
                         # Capture the attacking pawn en-passant.
@@ -2955,7 +2976,7 @@ class Board(object):
                 while blockers:
                     blocker = blockers & -blockers
 
-                    mask = self._pinned(blocker)
+                    mask = self._pinned(self.turn, blocker)
                     if mask & empty_square:
                         yield Move(bit_scan(blocker), empty_square_index)
 
@@ -2975,7 +2996,7 @@ class Board(object):
                         from_square = blocking_pawn << 8
                     from_square_index = bit_scan(from_square)
 
-                    mask = self._pinned(from_square)
+                    mask = self._pinned(self.turn, from_square)
                     if mask & empty_square:
                         if empty_square & BB_RANK_1 or empty_square & BB_RANK_8:
                             yield Move(from_square_index, empty_square_index, QUEEN)
@@ -2990,11 +3011,11 @@ class Board(object):
                     blocking_pawn = empty_square & double_forward_pawns
                     if blocking_pawn:
                         if self.turn == WHITE:
-                            mask = self._pinned(blocking_pawn >> 16)
+                            mask = self._pinned(self.turn, blocking_pawn >> 16)
                             if mask & empty_square and (empty_square >> 8) & ~self.occupied:
                                 yield Move(bit_scan(blocking_pawn >> 16), empty_square_index)
                         else:
-                            mask = self._pinned(blocking_pawn << 16)
+                            mask = self._pinned(self.turn, blocking_pawn << 16)
                             if mask & empty_square and (empty_square << 8) & ~self.occupied:
                                 yield Move(bit_scan(blocking_pawn << 16), empty_square_index)
 

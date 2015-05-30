@@ -145,7 +145,34 @@ Features
       SquareSet(0b100000001000000)
       >>> chess.G2 in attackers
       True
+      >>> print(attackers)
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . 1 .
+      . . . . . . 1 .
 
+* Detects pins.
+
+  .. code:: python
+
+      >>> board.is_pinned(chess.BLACK, chess.E8)
+      True
+      >>> pin = board.pin(chess.BLACK, chess.E8)
+      >>> pin
+      SquareSet(0b1000000100000010000001000000000000000000000000000000000000000)
+      >>> print(pin)
+      . . . . 1 . . .
+      . . . . . 1 . .
+      . . . . . . 1 .
+      . . . . . . . 1
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
+      . . . . . . . .
 
 * Parses and creates SAN representation of moves.
 
