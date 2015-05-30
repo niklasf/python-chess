@@ -911,6 +911,20 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.is_en_passant(board.parse_san("O-O")))
         self.assertTrue(board.is_castling(board.parse_san("O-O")))
 
+    def test_pin(self):
+        board = chess.Board("rnb1k1nr/2pppppp/3P4/8/1b5q/8/PPPNPBPP/RNBQKB1R w KQkq - 0 1")
+        self.assertTrue(board.is_pinned(chess.WHITE, chess.F2))
+        self.assertTrue(board.is_pinned(chess.WHITE, chess.D2))
+        self.assertFalse(board.is_pinned(chess.WHITE, chess.E1))
+        self.assertFalse(board.is_pinned(chess.BLACK, chess.H4))
+        self.assertFalse(board.is_pinned(chess.BLACK, chess.E8))
+
+        self.assertEqual(board.pin(chess.WHITE, chess.B1), chess.BB_ALL)
+
+        self.assertEqual(board.pin(chess.WHITE, chess.F2), chess.BB_E1 | chess.BB_F2 | chess.BB_G3 | chess.BB_H4)
+
+        self.assertEqual(board.pin(chess.WHITE, chess.D2), chess.BB_E1 | chess.BB_D2 | chess.BB_C3 | chess.BB_B4 | chess.BB_A5)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
