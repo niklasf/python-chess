@@ -136,6 +136,17 @@ class MemoryMappedReader(object):
             i += 1
             entry = self[i]
 
+    def find(self, board, minimum_weight=1):
+        """
+        Finds the main entry for the given position.
+
+        Raises *IndexError* if not entries are found.
+        """
+        try:
+            return max(self.get_entries_for_position(board, minimum_weight), key=lambda entry: entry.weight)
+        except ValueError:
+            raise IndexError()
+
     def choice(self, board, minimum_weight=1, random=random):
         """
         Uniformly selects a random entry for the given position.

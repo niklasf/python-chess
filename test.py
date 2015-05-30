@@ -1103,6 +1103,11 @@ class PolyglotTestCase(unittest.TestCase):
             entry = book.weighted_choice(chess.Board(), random=LastMockRandom())
             self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
 
+    def test_find(self):
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            entry = book.find(chess.Board())
+            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+
 
 class PgnTestCase(unittest.TestCase):
 
