@@ -1220,18 +1220,16 @@ class Board(object):
                 queens=from_square_mask & self.queens,
                 king=from_square_mask & self.kings)
 
+        # We are assuming pseudo legality, so castling moves are always legal.
+        if self.is_castling(move):
+            return False
+
         # Detect uncovered check.
         if not self._pinned(from_square_mask) & to_square_mask:
             return True
 
         # Detect king moves into check.
         if from_square_mask & self.kings:
-            # We are assuming a pseudo legal move, so a castling move would not
-            # be into check.
-            if from_square_mask & (BB_E1 | BB_E8) and to_square_mask & (BB_A1 | BB_A8 | BB_H1 | BB_H8):
-                return False
-
-            # A normal king move.
             return self.attacks_to[to_square_mask] & self.occupied_co[self.turn ^ 1]
 
         return False
@@ -2724,6 +2722,7 @@ class Board(object):
         king_file_index = file_index(bit_scan(king))
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
 
+        bb_a = BB_FILE_A & backrank
         bb_c = BB_FILE_C & backrank
         bb_d = BB_FILE_D & backrank
         bb_f = BB_FILE_F & backrank
@@ -2739,7 +2738,7 @@ class Board(object):
             # In the special case where we castle queenside and our rook
             # shielded us from an attack from a1 or a8, castling would be
             # into check.
-            if a_side and rook & BB_FILE_B and self.occupied_co[self.turn ^ 1] & (self.queens | self.rooks):
+            if a_side and rook & BB_FILE_B and self.occupied_co[self.turn ^ 1] & (self.queens | self.rooks) & bb_a:
 
                 candidates = candidates & (candidates - 1)
                 continue

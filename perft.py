@@ -147,6 +147,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 628)
         self.assertEqual(perft(board, 3), 12858)
         self.assertEqual(perft(board, 4), 405636)
+        self.assertEqual(perft(board, 5), 8992652)
 
 
 if __name__ == "__main__":
