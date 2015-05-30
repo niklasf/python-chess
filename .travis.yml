@@ -4,6 +4,8 @@ python:
  - "2.7"
  - "3.3"
  - "3.4"
+ - "nightly"
+ - "pypy"
 env:
  - PERFT_SUITE="PerftTestCase.test_debug PerftTestCase.test_fast"
  - PERFT_SUITE="PerftTestCase.test_speed"
