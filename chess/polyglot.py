@@ -51,6 +51,8 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
 
 
 class MemoryMappedReader(object):
+    """Maps a polylgot opening book to memory."""
+
     def __init__(self, filename):
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
