@@ -633,7 +633,7 @@ class Piece(object):
             return UNICODE_PIECE_SYMBOLS[self.symbol().swapcase()]
 
     def __hash__(self):
-        return self.piece_type * (self.color + 1)
+        return hash(self.piece_type * (self.color + 1))
 
     def __repr__(self):
         return "Piece.from_symbol('{0}')".format(self.symbol())
@@ -717,7 +717,7 @@ class Move(object):
         return self.uci()
 
     def __hash__(self):
-        return self.to_square | self.from_square << 6 | self.promotion << 12
+        return hash(self.to_square ^ self.from_square << 6 ^ self.promotion << 12)
 
     @classmethod
     def from_uci(cls, uci):
@@ -3384,4 +3384,4 @@ class SquareSet(object):
         return "".join(builder)
 
     def __hash__(self):
-        return self.mask
+        return hash(self.mask)
