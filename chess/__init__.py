@@ -23,7 +23,6 @@ __email__ = "niklas.fiekas@tu-clausthal.de"
 __version__ = "0.8.1"
 
 
-import os
 import collections
 import re
 
@@ -2249,7 +2248,7 @@ class Board(object):
         """Checks if the given pseudo-legal move is an en-passant capture."""
         diff = abs(move.to_square - move.from_square)
 
-        if not diff in (7, 9):
+        if diff not in (7, 9):
             return False
 
         if not self.pawns & BB_SQUARES[move.from_square]:
@@ -3035,7 +3034,7 @@ class Board(object):
                 builder.append(str(rank_index + 1))
                 builder.append(" ")
 
-            for file_index, file_name in enumerate(FILE_NAMES):
+            for file_index in range(8):
                 square_index = square(file_index, rank_index)
 
                 if borders:
