@@ -213,14 +213,15 @@ Features
       >>> import chess.polyglot
 
       >>> book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+
       >>> board = chess.Board()
-      >>> first_entry = next(book.get_entries_for_position(board))
-      >>> first_entry.move()
+      >>> main_entry = book.find(board)
+      >>> main_entry.move()
       Move.from_uci('e2e4')
-      >>> first_entry.learn
-      0
-      >>> first_entry.weight
+      >>> main_entry.weight
       1
+      >>> main_entry.learn
+      0
 
       >>> book.close()
 
