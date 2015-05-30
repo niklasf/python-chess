@@ -606,6 +606,8 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["test"], chess.Move(chess.C5, chess.E4))
 
     def test_null_moves(self):
+        self.assertEqual(str(chess.Move.null()), "0000")
+        self.assertEqual(chess.Move.null().uci(), "0000")
         self.assertFalse(chess.Move.null())
 
         fen = "rnbqkbnr/ppp1pppp/8/2Pp4/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 2"
