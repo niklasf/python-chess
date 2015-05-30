@@ -67,6 +67,7 @@ class MemoryMappedReader(object):
         return self.close()
 
     def close(self):
+        """Closes the reader."""
         if self.mmap is not None:
             self.mmap.close()
 
@@ -110,6 +111,7 @@ class MemoryMappedReader(object):
             return False
 
     def get_entries_for_position(self, board):
+        """Seeks a specific position and yields all entries."""
         zobrist_hash = board.zobrist_hash()
         entry = Entry(zobrist_hash, 0, 0, 0)
 
@@ -130,6 +132,10 @@ def open_reader(path):
     Creates a reader for the file at the given path.
 
     >>> with open_reader("data/opening-books/performance.bin") as reader:
-    >>>    entries = reader.get_entries_for_position(board)
+    ...    for entry in reader.get_entries_for_position(board):
+    ...        print(entry.move(), entry.weight, entry.learn)
+    e2e4 1 0
+    d2d4 1 0
+    c2c4 1 0
     """
     return MemoryMappedReader(path)
