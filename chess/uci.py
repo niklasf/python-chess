@@ -76,11 +76,11 @@ class OptionMap(collections.MutableMapping):
 
     def __eq__(self, other):
         for key, value in self.items():
-            if not key in other or other[key] != value:
+            if key not in other or other[key] != value:
                 return False
 
         for key, value in other.items():
-            if not key in self or self[key] != value:
+            if key not in self or self[key] != value:
                 return False
 
         return True
@@ -258,7 +258,7 @@ class InfoHandler(object):
         self.acquire()
         return self.info
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.release()
 
 
