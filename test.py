@@ -1732,6 +1732,16 @@ class UciOptionMapTestCase(unittest.TestCase):
         self.assertNotEqual(a, b)
         self.assertNotEqual(b, a)
 
+    def test_len(self):
+        a = chess.uci.OptionMap()
+        self.assertEqual(len(a), 0)
+
+        a["key"] = "value"
+        self.assertEqual(len(a), 1)
+
+        del a["key"]
+        self.assertEqual(len(a), 0)
+
 
 class SyzygyTestCase(unittest.TestCase):
 
