@@ -2196,6 +2196,9 @@ class Board(object):
             elif piece == KING:
                 san = "K"
                 candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
+            else:
+                # Not possible with a legal move.
+                assert self.is_legal(move)
 
             # Filter relevant candidates: Not excatly the current move, but
             # to the same square.
