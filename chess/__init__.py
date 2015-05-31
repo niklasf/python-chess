@@ -2271,6 +2271,9 @@ class Board(object):
             elif piece == KING:
                 san = "K"
                 others = self.kings & self.king_attacks_from(move.to_square)
+            else:
+                # Not possible.
+                assert self.is_legal(move)
 
             others &= ~BB_SQUARES[move.from_square]
             others &= self.occupied_co[self.turn]
