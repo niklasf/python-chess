@@ -345,8 +345,8 @@ class Game(GameNode):
             fen = chess.Board(board).fen()
 
         if fen == chess.STARTING_FEN:
-            del self.headers["SetUp"]
-            del self.headers["FEN"]
+            self.headers.pop("SetUp", None)
+            self.headers.pop("FEN", None)
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen

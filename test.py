@@ -976,6 +976,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
 
+        # Setup again, while starting FEN is already set.
+        game.setup(chess.STARTING_FEN)
+        self.assertFalse("FEN" in game.headers)
+        self.assertFalse("SetUp" in game.headers)
+
         game.setup(chess.Board(fen))
         self.assertEqual(game.headers["FEN"], fen)
         self.assertEqual(game.headers["SetUp"], "1")
