@@ -26,8 +26,8 @@ Incompatible changes:
       >>> can_white_castle_queenside = chess.BB_A1 & board.castling_rights
 
   Castling moves were previously encoded as the corresponding king movement in
-  UCI, e.g. `e1f1` for white kingside castling. Now castling moves are encoded
-  as a move to the corresponding rook square (`UCI_Chess960`-style),
+  UCI, e.g. `e1f1` for white kingside castling. **Now castling moves are
+  encoded as a move to the corresponding rook square** (`UCI_Chess960`-style),
   e.g. `e1a1`.
 
   The `uci` module takes care of converting moves when communicating with an
@@ -76,15 +76,15 @@ Incompatible changes:
 
 New features:
 
-* Introduced Chess960 support. `Board(fen)` and `Board.set_fen(fen)` now
+* **Introduced Chess960 support.** `Board(fen)` and `Board.set_fen(fen)` now
   support X-FENs. Added `Board.shredder_fen()`.
   `Board.status(allow_chess960=True)` has an optional argument allowing to
   insist on standard chess castling rules.
   Added `Board.is_valid(allow_chess960=True)`.
 
-* Improved move generation using `Shatranj-style direct lookup
+* **Improved move generation using `Shatranj-style direct lookup
   <http://arxiv.org/pdf/0704.3773.pdf>`_. Removed rotated bitboards. Perft
-  speed has been more than doubled.
+  speed has been more than doubled.**
 
 * Added `choice(board)` and `weighted_choice(board)` for polyglot opening book
   readers.
