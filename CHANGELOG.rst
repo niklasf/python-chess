@@ -9,6 +9,30 @@ might include API breaking changes.
 Upcoming in the next release
 ----------------------------
 
+Incompatible changes:
+
+* Removed castling right constants. Castling rights are now represented as a
+  bitmask of the rook square. For example:
+
+  .. code:: python
+
+      >>> board = chess.Board()
+
+      >>> # Standard castling rights.
+      >>> board.castling_rights == chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
+      True
+
+      >>> # Check for the presence of a specific castling right.
+      >>> can_white_castle_queenside = chess.BB_A1 & board.castling_rights
+
+  Castling moves were previously encoded as the corresponding king movement in
+  UCI, e.g. `e1f1` for white kingside castling. Now castling moves are encoded
+  as a move to the corresponding rook square (`UCI_Chess960`-style),
+  e.g. `e1a1`.
+
+  The `uci` module takes care of converting moves when communicating with an
+  engine that is not in `UCI_Chess960` mode.
+
 * The `get_entries_for_position(board)` method of polyglot opening book readers
   has been changed to `find_all(board, minimum_weight=1)`. By default entries
   with weight 0 are excluded.
@@ -47,19 +71,49 @@ Upcoming in the next release
   to `PseudoLegalMoveGenerator.board` and `LegalMoveGenerator.board`,
   respectively.
 
-* Do expensive Syzygy table initialization on demand.
-
-* Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
-  PGN files.
-
 * Scripts removed.
 
 * Python 3.2 compability dropped. Use Python 3.3 or higher. Python 2.7 support
   is not affected.
 
+New features:
+
+* Introduced Chess960 support. `Board(fen)` and `Board.set_fen(fen)` now
+  support X-FENs. Added `Board.shredder_fen()`.
+  `Board.status(allow_chess960=True)` has an optional argument allowing to
+  insist on standard chess castling rules.
+  Added `Board.is_valid(allow_chess960=True)`.
+
+* Improved move generation using `Shatranj-style direct lookup
+  <http://arxiv.org/pdf/0704.3773.pdf>`_. Removed rotated bitboards. Perft
+  speed has been more than doubled.
+
+* Added `choice(board)` and `weighted_choice(board)` for polyglot opening book
+  readers.
+
+* Added `Board.attacks(square)` to determine attacks *from* a given square.
+  There already was `Board.attackers(color, square)` returning attacks *to*
+  a square.
+
+* Added `Board.is_en_passant(move)`, `Board.is_capture(move)` and
+  `Board.is_castling(move)`.
+
+* Added `Board.pin(color, square)` and `Board.is_pinned(color, square)`.
+
+* Do expensive Syzygy table initialization on demand.
+
+* Allow promotions like `e8Q` (usually `e8=Q`) in `Board.parse_san()` and
+  PGN files.
+
 * Patch by Richard C. Gerkin: Added `Board.__unicode__()` just like
   `Board.__str__()` but with unicode pieces.
 * Patch by Richard C. Gerkin: Added `Board.__html__()`.
+
+Bugfixes:
+
+* `pgn.Game.setup()` with the standard starting position was failing when the
+  standard starting position was already set. Thanks to Jordan Bray for
+  reporting this.
 
 New in v0.8.1
 -------------
