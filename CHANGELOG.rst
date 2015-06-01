@@ -38,8 +38,6 @@ Incompatible changes:
   with weight 0 are excluded.
 
 * The `Board.pieces` lookup list has been removed.
-* There is a new method `Board.pieces(piece_type, color)` to get a set of
-  squares with the specified pieces.
 
 * In 0.8.1 the spelling of repetition (was repitition) was fixed.
   `can_claim_threefold_repetition()` and `is_fivefold_repetition()` are the
@@ -99,6 +97,9 @@ New features:
   `Board.is_castling(move)`.
 
 * Added `Board.pin(color, square)` and `Board.is_pinned(color, square)`.
+
+* There is a new method `Board.pieces(piece_type, color)` to get a set of
+  squares with the specified pieces.
 
 * Do expensive Syzygy table initialization on demand.
 
