@@ -82,8 +82,8 @@ New features:
   insist on standard chess castling rules.
   Added `Board.is_valid(allow_chess960=True)`.
 
-* **Improved move generation using `Shatranj-style direct lookup
-  <http://arxiv.org/pdf/0704.3773.pdf>`_. Removed rotated bitboards. Perft
+* **Improved move generation using** `Shatranj-style direct lookup
+  <http://arxiv.org/pdf/0704.3773.pdf>`_. **Removed rotated bitboards. Perft
   speed has been more than doubled.**
 
 * Added `choice(board)` and `weighted_choice(board)` for polyglot opening book
