@@ -155,7 +155,7 @@ Features
       . . . . . . 1 .
       . . . . . . 1 .
 
-* Detects pins and their directions.
+* Detects absolute pins and their directions.
 
   .. code:: python
 
