@@ -50,9 +50,6 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
         else:
             return chess.Move(from_square, to_square)
 
-    def zobrist_hash(self):
-        return self.key
-
 
 class MemoryMappedReader(object):
     """Maps a polylgot opening book to memory."""
@@ -124,11 +121,11 @@ class MemoryMappedReader(object):
         return lo
 
     def __contains__(self, entry):
-        return any(current == entry for current in self.find_all(entry, minimum_weight=entry.weight))
+        return any(current == entry for current in self.find_all(entry.key, entry.weight))
 
     def find(self, board, minimum_weight=1):
         """
-        Finds the main entry for the given position.
+        Finds the main entry for the given position or zobrist hash.
 
         The main entry is the first entry with the highest weight.
 

@@ -1117,7 +1117,8 @@ class PolyglotTestCase(unittest.TestCase):
     def test_last(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
             last_entry = book[len(book)-1]
-            self.assertTrue(all(book.find_all(last_entry)))
+            self.assertTrue(any(book.find_all(last_entry.key)))
+            self.assertTrue(all(book.find_all(last_entry.key)))
 
 
 class PgnTestCase(unittest.TestCase):
