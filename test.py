@@ -1114,6 +1114,18 @@ class PolyglotTestCase(unittest.TestCase):
             for entry in book:
                 self.assertTrue(entry in book)
 
+    def test_last(self):
+        class MockBoard(object):
+            def __init__(self, key):
+                self.key = key
+
+            def zobrist_hash(self):
+                return self.key
+
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            last_entry = book[len(book)-1]
+            self.assertTrue(all(book.find_all(MockBoard(last_entry.key))))
+
 
 class PgnTestCase(unittest.TestCase):
 
