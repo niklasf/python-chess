@@ -79,21 +79,22 @@ class PerftTestCase(unittest.TestCase):
         current_id = None
         board = chess.Board()
 
-        for line in open("data/perft-random.epd"):
-            s = line.split()
-            if not s:
-                pass
-            elif s[0] == "id":
-                current_id = s[1]
-                sys.stdout.write(".")
-                sys.stdout.flush()
-            elif s[0] == "epd":
-                board.set_epd(" ".join(s[1:]))
-            elif s[0] == "perft":
-                depth = int(s[1])
-                nodes = int(s[2])
-                if nodes < maxnodes:
-                    self.assertEqual(method(board, depth), nodes, current_id)
+        with open("data/perft-random.epd") as data:
+            for line in data:
+                s = line.split()
+                if not s:
+                    pass
+                elif s[0] == "id":
+                    current_id = s[1]
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                elif s[0] == "epd":
+                    board.set_epd(" ".join(s[1:]))
+                elif s[0] == "perft":
+                    depth = int(s[1])
+                    nodes = int(s[2])
+                    if nodes < maxnodes:
+                        self.assertEqual(method(board, depth), nodes, current_id)
 
         sys.stdout.write("\n")
         sys.stdout.flush()
