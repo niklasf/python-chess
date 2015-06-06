@@ -156,16 +156,17 @@ class MemoryMappedReader(object):
         zobrist_hash = board.zobrist_hash()
 
         i = self.bisect_key_left(zobrist_hash)
-        if i == len(self):
-            return
+        size = len(self)
 
-        entry = self[i]
-        while entry.key == zobrist_hash:
-            if entry.weight >= minimum_weight:
+        while i < size:
+            entry = self[i]
+
+            if entry.key != zobrist_hash:
+                break
+            else:
                 yield entry
 
             i += 1
-            entry = self[i]
 
     def choice(self, board, minimum_weight=1, random=random):
         """
