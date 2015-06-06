@@ -20,7 +20,6 @@ import chess
 import collections
 import struct
 import os
-import bisect
 import mmap
 import random
 
@@ -106,12 +105,34 @@ class MemoryMappedReader(object):
             yield self[i]
             i += 1
 
+    def bisect_key_left(self, key):
+        lo = 0
+        hi = len(self)
+
+        while lo < hi:
+            mid = (lo + hi) // 2
+            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)
+            if mid_key < key:
+                lo = mid + 1
+            else:
+                hi = mid
+
+        return lo
+
     def __contains__(self, entry):
-        i = bisect.bisect_left(self, entry)
-        try:
-            return self[i] == entry
-        except IndexError:
-            return False
+        i = self.bisect_key_left(entry.key)
+        size = len(self)
+        while i < size:
+            current_entry = self[i]
+
+            if current_entry == entry:
+                return True
+            elif current_entry.key != entry.key:
+                break
+
+            i += 1
+
+        return False
 
     def find(self, board, minimum_weight=1):
         """
@@ -133,9 +154,8 @@ class MemoryMappedReader(object):
     def find_all(self, board, minimum_weight=1):
         """Seeks a specific position and yields corresponding entries."""
         zobrist_hash = board.zobrist_hash()
-        marker = Entry(zobrist_hash, 0, 0, 0)
 
-        i = bisect.bisect_left(self, marker)
+        i = self.bisect_key_left(zobrist_hash)
         if i == len(self):
             return
 
@@ -154,11 +174,9 @@ class MemoryMappedReader(object):
         Raises *IndexError* if no entries are found.
         """
         zobrist_hash = board.zobrist_hash()
-        left_marker = Entry(zobrist_hash, 0, 0, 0)
-        right_marker = Entry(zobrist_hash + 1, 0, 0, 0)
 
-        left_i = bisect.bisect_left(self, left_marker)
-        right_i = bisect.bisect_left(self, right_marker)
+        left_i = self.bisect_key_left(zobrist_hash)
+        right_i = self.bisect_key_left(zobrist_hash + 1)
 
         assert right_i >= left_i
 
