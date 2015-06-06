@@ -22,6 +22,7 @@ import struct
 import os
 import mmap
 import random
+import itertools
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -168,17 +169,12 @@ class MemoryMappedReader(object):
 
         Raises *IndexError* if no entries are found.
         """
-        zobrist_hash = board.zobrist_hash()
-
-        left_i = self.bisect_key_left(zobrist_hash)
-        right_i = self.bisect_key_left(zobrist_hash + 1)
-
-        assert right_i >= left_i
-
-        if left_i == right_i:
+        total_entries = sum(1 for entry in self.find_all(board, minimum_weight))
+        if not total_entries:
             raise IndexError()
 
-        return self[random.randint(left_i, right_i - 1)]
+        choice = random.randint(0, total_entries - 1)
+        return next(itertools.islice(self.find_all(board, minimum_weight), choice, None))
 
     def weighted_choice(self, board, random=random):
         """
