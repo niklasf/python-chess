@@ -49,6 +49,9 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
         else:
             return chess.Move(from_square, to_square)
 
+    def zobrist_hash(self):
+        return self.key
+
 
 class MemoryMappedReader(object):
     """Maps a polylgot opening book to memory."""
@@ -120,19 +123,7 @@ class MemoryMappedReader(object):
         return lo
 
     def __contains__(self, entry):
-        i = self.bisect_key_left(entry.key)
-        size = len(self)
-        while i < size:
-            current_entry = self[i]
-
-            if current_entry == entry:
-                return True
-            elif current_entry.key != entry.key:
-                break
-
-            i += 1
-
-        return False
+        return any(current == entry for current in self.find_all(entry, minimum_weight=entry.weight))
 
     def find(self, board, minimum_weight=1):
         """
@@ -153,7 +144,10 @@ class MemoryMappedReader(object):
 
     def find_all(self, board, minimum_weight=1):
         """Seeks a specific position and yields corresponding entries."""
-        zobrist_hash = board.zobrist_hash()
+        try:
+            zobrist_hash = board.zobrist_hash()
+        except AttributeError:
+            zobrist_hash = int(board)
 
         i = self.bisect_key_left(zobrist_hash)
         size = len(self)
