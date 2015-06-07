@@ -1700,8 +1700,10 @@ class Board(object):
                                 except ValueError:
                                     if position is None:
                                         position = self.__class__(" ".join(parts + ["0", "1"]))
-
-                                    operations[opcode] = position.parse_san(operand)
+                                    moves = operand.split()
+                                    operations[opcode] = []
+                                    for move in moves:
+                                        operations[opcode].append(position.parse_san(move))
 
                         opcode = ""
                         operand = ""
