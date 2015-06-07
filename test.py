@@ -588,6 +588,23 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
         self.assertEqual(board.epd(noop=None), "4k3/8/8/8/8/8/8/4K3 w - - noop;")
 
+        # Create an EPD with a variation.
+        board = chess.Board("k7/8/8/8/8/8/4PPPP/4K1NR w K - 0 1")
+        epd = board.epd(pv=[
+            chess.Move.from_uci("g1f3"), # Nf3
+            chess.Move.from_uci("a8a7"), # Ka7
+            chess.Move.from_uci("e1h1"), # O-O
+        ])
+        self.assertEqual(epd, "k7/8/8/8/8/8/4PPPP/4K1NR w K - pv Nf3 Ka7 O-O;")
+
+        # Create an EPD with a set of moves.
+        board = chess.Board("8/8/8/4k3/8/1K6/8/8 b - - 0 1")
+        epd = board.epd(bm=[
+            chess.Move.from_uci("e5e6"), # Ke6
+            chess.Move.from_uci("e5e4"), # Ke4
+        ])
+        self.assertEqual(epd, "8/8/8/4k3/8/1K6/8/8 b - - bm Ke6 Ke4;")
+
         # Test loading an EPD.
         board = chess.Board()
         operations = board.set_epd("r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id \"BK.24\";")
