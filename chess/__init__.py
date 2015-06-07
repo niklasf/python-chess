@@ -1860,8 +1860,11 @@ class Board(object):
         Gets an EPD representation of the current position.
 
         EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats and moves. All other operands are
-        converted to strings.
+        are strings, integers, floats and moves and lists of moves and None.
+        All other operands are converted to strings.
+
+        A list of moves for `pv` will be interpreted as a variation. All other
+        move lists are interpreted as a set of moves in the current position.
 
         `hmvc` and `fmvc` are *not* included by default. You can use:
 
@@ -1893,21 +1896,51 @@ class Board(object):
             epd.append(" ")
             epd.append(opcode)
 
-            if hasattr(operand, "from_square") and hasattr(operand, "to_square"):
+            # Value is empty.
+            if operand is None:
+                epd.append(";")
+                continue
+
+            # Value is a move.
+            if hasattr(operand, "from_square") and hasattr(operand, "to_square") and hasattr(operand, "promotion"):
                 # Append SAN for moves.
                 epd.append(" ")
                 epd.append(self.san(operand))
-            elif isinstance(operand, (int, float)):
+                epd.append(";")
+                continue
+
+            # Value is numeric.
+            if isinstance(operand, (int, float)):
                 # Append integer or float.
                 epd.append(" ")
                 epd.append(str(operand))
-            elif operand is not None:
-                # Append as escaped string.
-                epd.append(" \"")
-                epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
-                epd.append("\"")
+                epd.append(";")
+                continue
 
-            epd.append(";")
+            # Value is a set of moves or a variation.
+            if hasattr(operand, "__iter__"):
+                position = Board(self.shredder_fen()) if opcode == "pv" else self
+                iterator = operand.__iter__()
+                first_move = next(iterator)
+                if hasattr(first_move, "from_square") and hasattr(first_move, "to_square") and hasattr(first_move, "promotion"):
+                    epd.append(" ")
+                    epd.append(position.san(first_move))
+                    if opcode == "pv":
+                        position.push(first_move)
+
+                    for move in iterator:
+                        epd.append(" ")
+                        epd.append(position.san(move))
+                        if opcode == "pv":
+                            position.push(move)
+
+                    epd.append(";")
+                    continue
+
+            # Append as escaped string.
+            epd.append(" \"")
+            epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
+            epd.append("\";")
 
         return "".join(epd)
 
