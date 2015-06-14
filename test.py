@@ -609,7 +609,7 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board()
         operations = board.set_epd("r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id \"BK.24\";")
         self.assertEqual(board.fen(), "r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - 0 1")
-        self.assertEqual(operations["bm"], chess.Move(chess.F2, chess.F4))
+        self.assertTrue(chess.Move(chess.F2, chess.F4) in operations["bm"])
         self.assertEqual(operations["id"], "BK.24")
 
         # Test loading an EPD with half counter operations.
@@ -623,6 +623,22 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board()
         operations = board.set_epd("4k3/8/8/2N5/8/8/8/4K3 w - - test Ne4")
         self.assertEqual(operations["test"], chess.Move(chess.C5, chess.E4))
+
+        # Test parsing EPD with a set of moves.
+        board = chess.Board()
+        operations = board.set_epd("4k3/8/3QK3/8/8/8/8/8 w - - bm Qe7# Qb8#;")
+        self.assertEqual(board.fen(), "4k3/8/3QK3/8/8/8/8/8 w - - 0 1")
+        self.assertEqual(len(operations["bm"]), 2)
+        self.assertTrue(chess.Move.from_uci("d6b8") in operations["bm"])
+        self.assertTrue(chess.Move.from_uci("d6e7") in operations["bm"])
+
+        # Test parsing EPD with a stack of moves.
+        board = chess.Board()
+        operations = board.set_epd("6k1/1p6/6K1/8/8/8/8/7Q w - - pv Qh7+ Kf8 Qf7#;")
+        self.assertEqual(len(operations["pv"]), 3)
+        self.assertEqual(operations["pv"][0], chess.Move.from_uci("h1h7"))
+        self.assertEqual(operations["pv"][1], chess.Move.from_uci("g8f8"))
+        self.assertEqual(operations["pv"][2], chess.Move.from_uci("h7f7"))
 
     def test_null_moves(self):
         self.assertEqual(str(chess.Move.null()), "0000")
@@ -1460,7 +1476,7 @@ class StockfishTestCase(unittest.TestCase):
             self.engine.ucinewgame()
             self.engine.position(board)
             result = self.engine.go(mate=5)
-            self.assertEqual(result[0], operations["bm"], operations["id"])
+            self.assertTrue(result[0] in operations["bm"], operations["id"])
 
     def test_async(self):
         self.engine.ucinewgame()
