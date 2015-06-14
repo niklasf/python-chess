@@ -1690,18 +1690,37 @@ class Board(object):
                             operand += "\\"
 
                         if in_quotes:
+                            # A string operand.
                             operations[opcode] = operand
                         else:
                             try:
+                                # An integer.
                                 operations[opcode] = int(operand)
                             except ValueError:
                                 try:
+                                    # A float.
                                     operations[opcode] = float(operand)
                                 except ValueError:
                                     if position is None:
                                         position = self.__class__(" ".join(parts + ["0", "1"]))
 
-                                    operations[opcode] = position.parse_san(operand)
+                                    if opcode == "pv":
+                                        # A variation.
+                                        operations[opcode] = []
+                                        for token in operand.split():
+                                            move = position.parse_san(token)
+                                            operations[opcode].append(move)
+                                            position.push(move)
+
+                                        # Reset the position.
+                                        while position.move_stack:
+                                            position.pop()
+                                    elif opcode in ("bm", "am"):
+                                        # A set of moves.
+                                        operations[opcode] = [position.parse_san(token) for token in operand.split()]
+                                    else:
+                                        # A single move.
+                                        operations[opcode] = position.parse_san(operand)
 
                         opcode = ""
                         operand = ""
