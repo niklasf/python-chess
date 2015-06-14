@@ -203,7 +203,7 @@ Features
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - bm d4;'
 
       >>> ops = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
-      >>> ops == {'bm': chess.Move.from_uci('d6d1'), 'id': 'BK.01'}
+      >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
       True
 
 * Read Polyglot opening books.
