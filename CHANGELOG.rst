@@ -43,6 +43,10 @@ Incompatible changes:
   `can_claim_threefold_repetition()` and `is_fivefold_repetition()` are the
   affected method names. Aliases are now removed.
 
+* `Board.set_epd()` will now interpret `bm`, `am` as a list of moves for the
+  current position and `pv` as a variation (represented by a list of moves).
+  Thanks to Jordan Bray for reporting this.
+
 * Removed `uci.InfoHandler.pre_bestmove()` and
   `uci.InfoHandler.post_bestmove()`.
 
