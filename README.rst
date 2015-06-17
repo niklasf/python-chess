@@ -16,7 +16,8 @@ python-chess: a pure Python chess library
 Introduction
 ------------
 
-This is the scholars mate in python-chess:
+python-chess is a pure Python chess library with move generation and validation
+and handling of common formats. This is the scholars mate in python-chess:
 
 .. code:: python
 
@@ -320,6 +321,7 @@ Features
 
 Peformance
 ----------
+
 python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
 highlevel library.
@@ -328,7 +330,7 @@ You can install the `gmpy2` or `gmpy` (https://code.google.com/p/gmpy/) modules
 in order to get a slight performance boost on basic operations like bit scans
 and population counts.
 
-python-chess will only ever import very basic general (non-chess-related)
+python-chess only imports very basic general (non-chess-related)
 operations from native libraries. All logic is pure Python. There will always
 be pure Python fallbacks.
 
@@ -361,6 +363,7 @@ python-chess, for example:
 
 License
 -------
+
 python-chess is licensed under the GPL3. See the LICENSE file for the
 full copyright and license information.
 
