@@ -24,8 +24,9 @@ import sys
 import threading
 
 
-UINT64 = struct.Struct("<Q")
+UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
+UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
 WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
@@ -262,19 +263,6 @@ PA_FLAGS = [8, 0, 0, 0, 4]
 WDL_TO_DTZ = [-1, -101, 0, 101, 1]
 
 PCHR = ["K", "Q", "R", "B", "N", "P"]
-
-
-def bswap8(x):
-    return x & 0xff
-
-def bswap16(x):
-    return (bswap8(x) << 8) | bswap8(x >> 8)
-
-def bswap32(x):
-    return (bswap16(x) << 16) | bswap16(x >> 16)
-
-def bswap64(x):
-    return (bswap32(x) << 32) | bswap32(x >> 32)
 
 
 def filenames():
@@ -757,8 +745,7 @@ class Table(object):
         base_idx = -m
         symlen_idx = 0
 
-        code = self.read_uint64(ptr)
-        code = bswap64(code) # if little endian
+        code = self.read_uint64_be(ptr)
 
         ptr += 2 * 4
         bitcnt = 0 # Number of empty bits in code
@@ -775,10 +762,8 @@ class Table(object):
             bitcnt += l
             if bitcnt >= 32:
                 bitcnt -= 32
-                tmp = self.read_uint32(ptr)
+                code |= self.read_uint32_be(ptr) << bitcnt
                 ptr += 4
-                tmp = bswap32(tmp) # if little endian
-                code |= tmp << bitcnt
 
             # Cut off at 64bit.
             code &= 0xffffffffffffffff
@@ -795,11 +780,14 @@ class Table(object):
 
         return self.read_ubyte(sympat + 3 * sym)
 
-    def read_uint64(self, data_ptr):
-        return UINT64.unpack_from(self.data, data_ptr)[0]
+    def read_uint64_be(self, data_ptr):
+        return UINT64_BE.unpack_from(self.data, data_ptr)[0]
 
     def read_uint32(self, data_ptr):
         return UINT32.unpack_from(self.data, data_ptr)[0]
+
+    def read_uint32_be(self, data_ptr):
+        return UINT32_BE.unpack_from(self.data, data_ptr)[0]
 
     def read_ushort(self, data_ptr):
         return USHORT.unpack_from(self.data, data_ptr)[0]
