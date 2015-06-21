@@ -6,6 +6,20 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.8.2
+-------------
+
+Bugfixes:
+
+* `pgn.Game.setup()` with the standard starting position was failing when the
+  standard starting position was already set. Thanks to Jordan Bray for
+  reporting this.
+
+Optimizations:
+
+* Remove `bswap()` from Syzygy decompression hot path. Directly read integers
+  with the correct endianness.
+
 New in v0.8.1
 -------------
 
