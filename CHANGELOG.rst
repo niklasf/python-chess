@@ -114,11 +114,19 @@ New features:
   `Board.__str__()` but with unicode pieces.
 * Patch by Richard C. Gerkin: Added `Board.__html__()`.
 
+New in v0.8.2
+-------------
+
 Bugfixes:
 
 * `pgn.Game.setup()` with the standard starting position was failing when the
   standard starting position was already set. Thanks to Jordan Bray for
   reporting this.
+
+Optimizations:
+
+* Remove `bswap()` from Syzygy decompression hot path. Directly read integers
+  with the correct endianness.
 
 New in v0.8.1
 -------------
