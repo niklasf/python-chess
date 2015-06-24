@@ -30,6 +30,10 @@ Incompatible changes:
   encoded as a move to the corresponding rook square** (`UCI_Chess960`-style),
   e.g. `e1a1`.
 
+  You may use the new methods `Board.uci(move, chess960=True)`,
+  `Board.parse_uci(uci)` and `Board.push_uci(uci)` to handle this
+  transparently.
+
   The `uci` module takes care of converting moves when communicating with an
   engine that is not in `UCI_Chess960` mode.
 
