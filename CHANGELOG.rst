@@ -6,8 +6,12 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.9.0
+-------------
+
+**This is a big update with quite a few breaking changes. Carefully review
+the changes before upgrading. It's no problem if you can not update right now.
+The 0.8.x branch still gets bugfixes.**
 
 Incompatible changes:
 
