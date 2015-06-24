@@ -1636,6 +1636,12 @@ class UciEngineTestCase(unittest.TestCase):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
+        # Set a position where d1h5 g6h5 would be a legal sequence of moves.
+        fen = "8/8/6k1/8/8/8/1K6/3B4 w - - 0 1"
+        self.mock.expect("position fen " + fen)
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(chess.Board(fen))
+
         self.engine.on_line_received("info refutation d1h5 g6h5")
 
         d1h5 = chess.Move.from_uci("d1h5")

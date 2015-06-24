@@ -2297,6 +2297,71 @@ class Board(object):
 
         return san
 
+    def uci(self, move, chess960=True):
+        """
+        Gets the UCI notation of the move.
+
+        Castling moves are returned in UCI_Chess960 notation. If you provide
+        *False* for `chess960` they will be converted to legacy UCI notation
+        in the context of the current position.
+        """
+        if not chess960 and (move.from_square == E1 or move.from_square == E8):
+            if self.piece_type_at(move.from_square) == KING:
+                if move.from_square == E1:
+                    if move.to_square == H1:
+                        return "e1g1"
+                    elif move.to_square == A1:
+                        return "e1c1"
+                elif move.from_square == E8:
+                    if move.to_square == H8:
+                        return "e8g8"
+                    elif move.to_square == A8:
+                        return "e8c8"
+
+        return move.uci()
+
+    def parse_uci(self, uci):
+        """
+        Parses the given move in UCI notation.
+
+        Supports both UCI_Chess960 and legacy UCI notation.
+
+        Raises `ValueError` if the move is invalid or illegal in the current
+        position.
+        """
+        move = Move.from_uci(uci)
+
+        if move.from_square == E1 or move.from_square == E8:
+            if self.piece_type_at(move.from_square) == KING:
+                if move.from_square == E1:
+                    if move.to_square == G1:
+                        move.to_square = H1
+                    elif move.to_square == C1:
+                        move.to_square = A1
+                elif move.from_square == E8:
+                    if move.to_square == G8:
+                        move.to_square = H8
+                    elif move.to_square == C8:
+                        move.to_square = A8
+
+        if not self.is_legal(move):
+            raise ValueError("illegal uci: {0}".format(repr(uci)))
+
+        return move
+
+    def push_uci(self, uci):
+        """
+        Parses a move in UCI notation and puts it on the move stack.
+
+        Raises `ValueError` if the move is invalid or illegal in the current
+        position.
+
+        Returns the move.
+        """
+        move = self.parse_uci(uci)
+        self.push(move)
+        return move
+
     def is_en_passant(self, move):
         """Checks if the given pseudo-legal move is an en-passant capture."""
         diff = abs(move.to_square - move.from_square)
