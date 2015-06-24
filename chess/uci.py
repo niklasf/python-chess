@@ -1005,6 +1005,7 @@ class Engine(object):
             try:
                 intval = int(token)
             except ValueError:
+                LOGGER.exception("exception parsing integer token")
                 return
 
             for info_handler in self.info_handlers:
@@ -1014,6 +1015,7 @@ class Engine(object):
             try:
                 move = chess.Move.from_uci(token)
             except ValueError:
+                LOGGER.exception("exception parsing move token")
                 return
 
             for info_handler in self.info_handlers:
@@ -1070,7 +1072,7 @@ class Engine(object):
                     pv.append(move)
                     board.push(move)
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing pv")
             elif current_parameter == "multipv":
                 # Ignore multipv. It was already parsed before anything else.
                 pass
@@ -1085,12 +1087,12 @@ class Engine(object):
                     try:
                         score_cp = int(token)
                     except ValueError:
-                        pass
+                        LOGGER.exception("exception parsing score cp value")
                 elif score_kind == "mate":
                     try:
                         score_mate = int(token)
                     except ValueError:
-                        pass
+                        LOGGER.exception("exception parsing score mate value")
             elif current_parameter == "currmove":
                 handle_move_token(token, lambda handler, val: handler.currmove(val))
             elif current_parameter == "currmovenumber":
@@ -1113,7 +1115,7 @@ class Engine(object):
                         refuted_by.append(move)
                         board.push(move)
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing refutation")
             elif current_parameter == "currline":
                 try:
                     if currline_cpunr is None:
@@ -1123,7 +1125,7 @@ class Engine(object):
                         currline_moves.append(move)
                         board.push(move)
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing currline")
 
         end_of_parameter()
 
@@ -1170,12 +1172,12 @@ class Engine(object):
                 try:
                     min = int(token)
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing option min")
             elif current_parameter == "max":
                 try:
                     max = int(token)
                 except ValueError:
-                    pass
+                    LOGGER.exception("exception parsing option max")
             elif current_parameter == "default":
                 default.append(token)
             elif current_parameter == "var":
@@ -1198,6 +1200,7 @@ class Engine(object):
             try:
                 default = int(default)
             except ValueError:
+                LOGGER.exception("exception parsing option spin default")
                 default = None
 
         option = Option(" ".join(name), type, default, min, max, var)
