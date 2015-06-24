@@ -462,7 +462,7 @@ class PositionCommand(IsReadyCommand):
 
             while switchyard:
                 move = switchyard.pop()
-                builder.append(engine.move_to_engine(self.board, move))
+                builder.append(self.board.uci(move, chess960=engine.uci_chess960))
                 self.board.push(move)
 
         engine.board = self.board
@@ -536,7 +536,7 @@ class GoCommand(Command):
         if self.searchmoves:
             builder.append("searchmoves")
             for move in self.searchmoves:
-                builder.append(engine.move_to_engine(engine.board, move))
+                builder.append(engine.board.uci(move, chess960=engine.uci_chess960))
 
         engine.bestmove = None
         engine.ponder = None
@@ -862,46 +862,6 @@ class Engine(object):
         self.return_code = self.process.wait_for_return_code()
         self.terminated.set()
 
-    def move_to_engine(self, board, move):
-        if self.uci_chess960:
-            return move.uci()
-
-        # Convert 960 castling moves to their standard equivalent.
-        if board.piece_type_at(move.from_square) == chess.KING:
-            if move.from_square == chess.E1:
-                if move.to_square == chess.H1:
-                    return "e1g1"
-                elif move.to_square == chess.A1:
-                    return "e1c1"
-            elif move.from_square == chess.E8:
-                if move.to_square == chess.H8:
-                    return "e8g8"
-                elif move.to_square == chess.A8:
-                    return "e8c8"
-
-        return move.uci()
-
-    def move_from_engine(self, board, engine_uci):
-        engine_move = chess.Move.from_uci(engine_uci)
-
-        if self.uci_chess960:
-            return engine_move
-
-        # Convert standard castling moves to 960 representation.
-        if board.piece_type_at(engine_move.from_square) == chess.KING:
-            if engine_move.from_square == chess.E1:
-                if engine_move.to_square == chess.G1:
-                    return chess.Move(chess.E1, chess.H1)
-                elif engine_move.to_square == chess.C1:
-                    return chess.Move(chess.E1, chess.A1)
-            elif engine_move.from_square == chess.E8:
-                if engine_move.to_square == chess.G8:
-                    return chess.Move(chess.E8, chess.H8)
-                elif engine_move.to_square == chess.C8:
-                    return chess.Move(chess.E8, chess.A8)
-
-        return engine_move
-
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
         if property_and_arg[0] == "name":
@@ -930,17 +890,29 @@ class Engine(object):
     def _bestmove(self, arg):
         tokens = arg.split(None, 2)
 
+        self.bestmove = None
         if tokens[0] != "(none)":
-            self.bestmove = self.move_from_engine(self.board, tokens[0])
-        else:
-            self.bestmove = None
+            try:
+                self.bestmove = self.board.parse_uci(tokens[0])
+            except ValueError:
+                LOGGER.exception("exception parsing bestmove")
 
-        if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-            # Small hack: Usually we would have to make the bestmove on the
-            # board first. But enough context is in the board anyway.
-            self.ponder = self.move_from_engine(self.board, tokens[2])
-        else:
-            self.ponder = None
+        self.ponder = None
+        if self.bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+            # The ponder move must be legal after the bestmove. Generally we
+            # trust the engine on this. But we still have to convert
+            # non-UCI_Chess960 castling moves.
+            try:
+                self.ponder = chess.Move.from_uci(tokens[2])
+                if self.ponder.from_square in (chess.E1, chess.E8) and self.ponder.to_square in (chess.C1, chess.C8, chess.G1, chess.G8):
+                    # Make a copy of the board to avoid race conditions.
+                    board = copy.deepcopy(self.board)
+                    board.push(self.bestmove)
+                    board.push(self.ponder)
+                    self.ponder = self.board.parse_uci(tokens[2])
+            except ValueError:
+                LOGGER.exception("exception parsing bestmove ponder")
+                self.ponder = None
 
         self.bestmove_received.set()
 
@@ -1068,9 +1040,7 @@ class Engine(object):
                 handle_integer_token(token, lambda handler, val: handler.nodes(val))
             elif current_parameter == "pv":
                 try:
-                    move = self.move_from_engine(board, token)
-                    pv.append(move)
-                    board.push(move)
+                    pv.append(board.push_uci(token))
                 except ValueError:
                     LOGGER.exception("exception parsing pv")
             elif current_parameter == "multipv":
@@ -1108,12 +1078,9 @@ class Engine(object):
             elif current_parameter == "refutation":
                 try:
                     if refutation_move is None:
-                        refutation_move = self.move_from_engine(board, token)
-                        board.push(refutation_move)
+                        refutation_move = board.push_uci(token)
                     else:
-                        move = self.move_from_engine(board, token)
-                        refuted_by.append(move)
-                        board.push(move)
+                        refuted_by.append(board.push_uci(token))
                 except ValueError:
                     LOGGER.exception("exception parsing refutation")
             elif current_parameter == "currline":
@@ -1121,9 +1088,7 @@ class Engine(object):
                     if currline_cpunr is None:
                         currline_cpunr = int(token)
                     else:
-                        move = self.move_from_engine(board, token)
-                        currline_moves.append(move)
-                        board.push(move)
+                        currline_moves.append(board.push_uci(token))
                 except ValueError:
                     LOGGER.exception("exception parsing currline")
 
