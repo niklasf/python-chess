@@ -1163,6 +1163,29 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(first_drawn_game.headers["Site"], "03")
             self.assertEqual(first_drawn_game.variation(0).move, chess.Move.from_uci("d2d3"))
 
+    def test_black_to_move(self):
+        game = chess.pgn.Game()
+        game.setup("8/8/4k3/8/4P3/4K3/8/8 b - - 0 17")
+        node = game
+        node = node.add_main_variation(chess.Move.from_uci("e6d6"))
+        node = node.add_main_variation(chess.Move.from_uci("e3d4"))
+        node = node.add_main_variation(chess.Move.from_uci("d6e6"))
+
+        expected = textwrap.dedent("""\
+            [Event "?"]
+            [Site "?"]
+            [Date "????.??.??"]
+            [Round "?"]
+            [White "?"]
+            [Black "?"]
+            [Result "*"]
+            [SetUp "1"]
+            [FEN "8/8/4k3/8/4P3/4K3/8/8 b - - 0 17"]
+
+            17... Kd6 18. Kd4 Ke6 *""")
+
+        self.assertEqual(str(game), expected)
+
 
 class StockfishTestCase(unittest.TestCase):
 

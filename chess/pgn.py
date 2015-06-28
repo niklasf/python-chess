@@ -263,7 +263,7 @@ class GameNode(object):
 
                 # Recursively append the next moves.
                 _board.push(variation.move)
-                variation.export(exporter, comments, variations, _board, False)
+                variation.export(exporter, comments, variations, _board, _after_variation=False)
                 _board.pop()
 
                 # End variation.
@@ -275,7 +275,7 @@ class GameNode(object):
 
             # Recursively append the next moves.
             _board.push(main_variation.move)
-            main_variation.export(exporter, comments, variations, _board, variations and len(self.variations) > 1)
+            main_variation.export(exporter, comments, variations, _board, _after_variation=variations and len(self.variations) > 1)
             _board.pop()
 
     def __str__(self):
@@ -363,7 +363,7 @@ class Game(GameNode):
         if comments and self.comment:
             exporter.put_starting_comment(self.comment)
 
-        super(Game, self).export(exporter, comments=comments, variations=variations)
+        super(Game, self).export(exporter, comments=comments, variations=variations, _after_variation=True)
 
         exporter.put_result(self.headers["Result"])
         exporter.end_game()

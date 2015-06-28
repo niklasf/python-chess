@@ -6,6 +6,14 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+Bugfixes:
+
+* The initial move number in PGNs was missing, if black was to move in the
+  starting position. Thanks to Jürgen Précour for reporting.
+
 New in v0.8.2
 -------------
 
