@@ -962,6 +962,19 @@ class BoardTestCase(unittest.TestCase):
 
         self.assertEqual(board.pin(chess.WHITE, chess.D2), chess.BB_E1 | chess.BB_D2 | chess.BB_C3 | chess.BB_B4 | chess.BB_A5)
 
+    def test_impossible_en_passant(self):
+        # Not a pawn there.
+        board = chess.Board("1b1b4/8/b1P5/2kP4/8/2b4K/8/8 w - c6 0 1")
+        self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
+
+        # Sixth rank square not empty.
+        board = chess.Board("5K2/8/2pp2Pp/2PP4/P5Pp/2pP1Ppp/P6p/7k b - g3 0 1")
+        self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
+
+        # Seventh rank square not empty.
+        board = chess.Board("8/7k/8/7p/8/8/8/K7 w - h6 0 1")
+        self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
