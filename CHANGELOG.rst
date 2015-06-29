@@ -13,6 +13,10 @@ Bugfixes:
 
 * The initial move number in PGNs was missing, if black was to move in the
   starting position. Thanks to Jürgen Précour for reporting.
+* Detect more impossible en-passant squares in `Board.status()`. There already
+  was a requirement for a pawn on the fifth rank. Now the sixth and seventh
+  rank must be empty, additionally. We do not do further retrograde analisys,
+  because these are the only cases affecting move generation.
 
 New in v0.8.2
 -------------

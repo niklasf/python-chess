@@ -2379,9 +2379,11 @@ class Board(object):
             if self.turn == WHITE:
                 ep_rank = 5
                 pawn_mask = shift_down(BB_SQUARES[self.ep_square])
+                seventh_rank_mask = shift_up(BB_SQUARES[self.ep_square])
             else:
                 ep_rank = 2
                 pawn_mask = shift_up(BB_SQUARES[self.ep_square])
+                seventh_rank_mask = shift_down(BB_SQUARES[self.ep_square])
 
             # The en-passant square must be on the third or sixth rank.
             if rank_index(self.ep_square) != ep_rank:
@@ -2390,6 +2392,14 @@ class Board(object):
             # The last move must have been a double pawn push, so there must
             # be a pawn of the correct color on the fourth or fifth rank.
             if not self.pawns & self.occupied_co[self.turn ^ 1] & pawn_mask:
+                errors |= STATUS_INVALID_EP_SQUARE
+
+            # And the en-passant square must be empty.
+            if self.occupied & BB_SQUARES[self.ep_square]:
+                errors |= STATUS_INVALID_EP_SQUARE
+
+            # And the second rank must be empty.
+            if self.occupied & seventh_rank_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
         if not errors & (STATUS_NO_WHITE_KING | STATUS_NO_BLACK_KING | STATUS_TOO_MANY_KINGS):
