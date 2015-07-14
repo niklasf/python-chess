@@ -908,8 +908,7 @@ class Engine(object):
                     # Make a copy of the board to avoid race conditions.
                     board = copy.deepcopy(self.board)
                     board.push(self.bestmove)
-                    board.push(self.ponder)
-                    self.ponder = self.board.parse_uci(tokens[2])
+                    self.ponder = board.parse_uci(tokens[2])
             except ValueError:
                 LOGGER.exception("exception parsing bestmove ponder")
                 self.ponder = None
