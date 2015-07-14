@@ -1833,6 +1833,20 @@ class UciEngineTestCase(unittest.TestCase):
         self.assertTrue(bestmove.to_square, chess.H1)
         self.mock.assert_done()
 
+    def test_castling_ponder(self):
+        # Setup position.
+        fen = "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/5N2/PPPPBPPP/RNBQK2R b KQkq - 3 3"
+        board = chess.Board(fen)
+        self.mock.expect("position fen " + fen)
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+
+        # Test castling moves as ponder moves.
+        self.mock.expect("go depth 15", ("bestmove f6e4 ponder e1g1", ))
+        bestmove, ponder = self.engine.go(depth=15)
+        self.assertEqual(bestmove, chess.Move.from_uci("f6e4"))
+        self.assertEqual(ponder, chess.Move.from_uci("e1h1"))
+
 
 class UciOptionMapTestCase(unittest.TestCase):
 

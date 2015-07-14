@@ -11,6 +11,8 @@ Upcoming in the next release
 
 Bugfixes:
 
+* UCI module could not handle castling ponder moves. Thanks to Marco Belli for
+  reporting.
 * The initial move number in PGNs was missing, if black was to move in the
   starting position. Thanks to Jürgen Précour for reporting.
 * Detect more impossible en-passant squares in `Board.status()`. There already
