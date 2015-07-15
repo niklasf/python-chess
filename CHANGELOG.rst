@@ -6,8 +6,8 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.8.3
+-------------
 
 Bugfixes:
 
@@ -15,7 +15,7 @@ Bugfixes:
   starting position. Thanks to Jürgen Précour for reporting.
 * Detect more impossible en-passant squares in `Board.status()`. There already
   was a requirement for a pawn on the fifth rank. Now the sixth and seventh
-  rank must be empty, additionally. We do not do further retrograde analisys,
+  rank must be empty, additionally. We do not do further retrograde analysis,
   because these are the only cases affecting move generation.
 
 New in v0.8.2
