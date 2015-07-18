@@ -60,8 +60,8 @@ returned. For example
 BestMove(bestmove=Move.from_uci('e2e4'), ponder=None)
 
 will take about 2000 milliseconds. All UCI commands have an optional
-*async_callback* argument. They will then immediately return information about
-the command and continue.
+*async_callback* argument. They will then immediately return a `Future`_
+and continue.
 
 >>> command = engine.go(movetime=2000, async_callback=True)
 >>> command.done()
@@ -80,8 +80,6 @@ command is completed. It takes a *Command* object as a single argument.
 ...     bestmove, ponder = command.result()
 ...
 >>> command = engine.go(movetime=2000, async_callback=on_go_finished)
-
-Warning: Order of asynchronous commands is not guaranteed.
 
 .. autoclass:: chess.uci.Command
     :members: done, add_done_callback, result
@@ -193,3 +191,4 @@ Options
 
 
 .. _Universal Chess Interface: https://chessprogramming.wikispaces.com/UCI
+.. _Future: https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Future

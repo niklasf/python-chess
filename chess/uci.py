@@ -489,7 +489,7 @@ class Engine(object):
 
         self.process.spawn(self)
 
-        self.pool = Executor(max_workers=10)
+        self.pool = Executor(max_workers=3)
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -925,7 +925,7 @@ class Engine(object):
 
     def setoption(self, options, async_callback=None):
         """
-        Set a values for the engines available options.
+        Set values for the engines available options.
 
         :param options: A dictionary with option names as keys.
 
@@ -1010,6 +1010,8 @@ class Engine(object):
         :param board: A *chess.Board*.
 
         :return: Nothing
+
+        :raises: *EngineStateException* is the engine is still calculating.
         """
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
@@ -1096,12 +1098,14 @@ class Engine(object):
         :param nodes: Search so many *nodes* only.
         :param mate: Search for a mate in *mate* moves.
         :param movetime: Integer. Search exactly *movetime* milliseconds.
-        :param infinite: Search in the backgorund until a *stop* command is
+        :param infinite: Search in the background until a *stop* command is
             received.
 
         :return: A tuple of two elements. The first is the best move according
             to the engine. The second is the ponder move. This is the reply
             as sent by the engine. Either of the elements may be *None*.
+
+        :raises: *EngineStateException* if the engine is already calculating.
         """
         with self.state_changed:
             if not self.idle:
@@ -1279,7 +1283,7 @@ class Engine(object):
         on operating system level, for example by sending SIGTERM on Unix
         systems. If possible, first try the *quit* command.
 
-        :return: The return code of the engine process.
+        :return: The return code of the engine process (or a Future).
         """
         self.process.terminate()
         return self._queue_termination(async_callback)
@@ -1290,7 +1294,7 @@ class Engine(object):
 
         Forcefully kill the engine process, for example by sending SIGKILL.
 
-        :return: The return code of the engine process.
+        :return: The return code of the engine process (or a Future).
         """
         self.process.kill()
         return self._queue_termination(async_callback)

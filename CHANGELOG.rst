@@ -6,6 +6,19 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+* There are big changes in the UCI module. Most notably in async mode multiple
+  commands can be executed at the same time (e.g. `go infinite`  and then
+  `stop` or `go ponder` and then `ponderhit`).
+
+  `go infinite` and `go ponder` will now wait for a result, i.e. you may have
+  to call `stop` or `ponderhit` from a different thread or run the commands
+  asynchronously.
+
+  `stop` and `ponderhit` no longer have a result.
+
 New in v0.9.1
 -------------
 
