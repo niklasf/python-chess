@@ -1528,7 +1528,9 @@ class StockfishTestCase(unittest.TestCase):
 
         command = self.engine.isready(async_callback=async_callback)
 
-        self.engine.isready() # Synchronize
+        # Wait for the command to be executed.
+        command.result()
+
         self.assertTrue(self.async_callback_called)
         self.assertTrue(command.done())
 
