@@ -1620,18 +1620,13 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.debug(False)
         self.mock.assert_done()
 
-    # XXX
-    #def test_ponderhit(self):
-    #    self.mock.expect("ponderhit", ("bestmove e2e4", ))
-    #    self.engine.ponderhit()
-    #    self.mock.assert_done()
-
-    #def test_async_ponderhit(self):
-    #    self.mock.expect("ponderhit", ("bestmove e2e4", ))
-    #    command = self.engine.ponderhit(async_callback=True)
-    #    command.result()
-    #    self.assertTrue(command.done())
-    #    self.mock.assert_done()
+    def test_ponderhit(self):
+        self.mock.expect("go ponder")
+        ponder_command = self.engine.go(ponder=True, async_callback=True)
+        self.mock.expect("ponderhit", ("bestmove e2e4", ))
+        self.engine.ponderhit()
+        self.assertEqual(ponder_command.result().bestmove, chess.Move.from_uci("e2e4"))
+        self.mock.assert_done()
 
     def test_kill(self):
         self.engine.kill()
