@@ -1199,12 +1199,17 @@ class Engine(object):
                 if not already_idle:
                     self.bestmove_received.wait()
 
-                    if self.terminated.is_set():
-                        raise EngineTerminatedException()
-
                     with self.state_changed:
                         self.idle = True
                         self.state_changed.notify_all()
+                else:
+                    with self.semaphore:
+                        with self.readyok_received:
+                            self.send_line("isready")
+                            self.readyok_received.wait()
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
