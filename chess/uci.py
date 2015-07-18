@@ -1197,9 +1197,11 @@ class Engine(object):
 
         def command():
             with self.semaphore:
+                backoff = 0.5
                 while not self.bestmove_received.is_set() and not self.terminated.is_set():
                     self.send_line("stop")
-                    self.bestmove_received.wait(0.5)
+                    self.bestmove_received.wait(backoff)
+                    backoff *= 2
 
                 with self.state_changed:
                     self.idle = True
