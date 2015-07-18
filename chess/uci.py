@@ -480,7 +480,7 @@ class Engine(object):
 
         self.bestmove = None
         self.ponder = None
-        self.bestmove_received = threading.Condition()
+        self.bestmove_received = threading.Event()
 
         self.return_code = None
         self.terminated = threading.Event()
@@ -529,10 +529,9 @@ class Engine(object):
         self.terminated.set()
 
         # Wake up waiting commands.
+        self.bestmove_received.set()
         with self.uciok_received:
             self.uciok_received.notify_all()
-        with self.bestmove_received:
-            self.bestmove_received.notify_all()
         with self.readyok_received:
             self.readyok_received.notify_all()
         with self.state_changed:
@@ -593,8 +592,7 @@ class Engine(object):
                 LOGGER.exception("exception parsing bestmove ponder")
                 self.ponder = None
 
-        with self.bestmove_received:
-            self.bestmove_received.notify_all()
+        self.bestmove_received.set()
 
         for info_handler in self.info_handlers:
             info_handler.on_bestmove(self.bestmove, self.ponder)
@@ -1112,6 +1110,7 @@ class Engine(object):
                 raise EngineStateException("go command while engine is already busy")
 
             self.idle = False
+            self.bestmove_received.clear()
             self.pondering = ponder
             self.state_changed.notify_all()
 
@@ -1169,20 +1168,19 @@ class Engine(object):
                 builder.append(self.board.uci(move, chess960=self.uci_chess960))
 
         def command():
-            with self.bestmove_received:
-                with self.semaphore:
-                    self.send_line(" ".join(builder))
+            with self.semaphore:
+                self.send_line(" ".join(builder))
 
-                self.bestmove_received.wait()
+            self.bestmove_received.wait()
 
-                with self.state_changed:
-                    self.idle = True
-                    self.state_changed.notify_all()
+            with self.state_changed:
+                self.idle = True
+                self.state_changed.notify_all()
 
-                if self.terminated.is_set():
-                    raise EngineTerminatedException()
+            if self.terminated.is_set():
+                raise EngineTerminatedException()
 
-                return BestMove(self.bestmove, self.ponder)
+            return BestMove(self.bestmove, self.ponder)
 
         return self._queue_command(command, async_callback)
 
@@ -1192,25 +1190,20 @@ class Engine(object):
 
         :return: Nothing.
         """
+        # Only send stop when the engine is actually searching.
         with self.state_changed:
-            already_idle = self.idle
+            if self.idle:
+                return self._queue_command(lambda: None, async_callback)
 
         def command():
-            with self.bestmove_received:
-                with self.semaphore:
+            with self.semaphore:
+                while not self.bestmove_received.is_set() and not self.terminated.is_set():
                     self.send_line("stop")
+                    self.bestmove_received.wait(0.5)
 
-                if not already_idle:
-                    self.bestmove_received.wait()
-
-                    with self.state_changed:
-                        self.idle = True
-                        self.state_changed.notify_all()
-                else:
-                    with self.semaphore:
-                        with self.readyok_received:
-                            self.send_line("isready")
-                            self.readyok_received.wait()
+                with self.state_changed:
+                    self.idle = True
+                    self.state_changed.notify_all()
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
