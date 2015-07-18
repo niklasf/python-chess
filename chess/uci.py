@@ -1226,6 +1226,9 @@ class Engine(object):
         to normal search.
 
         :return: Nothing.
+
+        :raises: *EngineStateException* if the engine is not currently
+            searching in ponder mode.
         """
         with self.state_changed:
             if self.idle:
