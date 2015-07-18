@@ -296,12 +296,6 @@ Features
       >>> engine.go(movetime=2000) # Gets tuple of bestmove and ponder move.
       BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
 
-      >>> # Synchronous communication, but search in background.
-      >>> engine.go(infinite=True)
-      >>> time.sleep(2)
-      >>> engine.stop()
-      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
-
       >>> # Asynchronous mode.
       >>> def callback(command):
       ...    bestmove, ponder = command.result()

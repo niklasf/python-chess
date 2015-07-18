@@ -81,8 +81,7 @@ command is completed. It takes a *Command* object as a single argument.
 ...
 >>> command = engine.go(movetime=2000, async_callback=on_go_finished)
 
-All commands are queued and executed in FIFO order (regardless if asynchronous
-or not).
+Warning: Order of asynchronous commands is not guaranteed.
 
 .. autoclass:: chess.uci.Command
     :members: done, add_done_callback, result
