@@ -50,6 +50,8 @@ UCI commands
     :members: uci, debug, isready, setoption, ucinewgame, position, go, stop,
         ponderhit, quit
 
+*EngineTerminatedException* is raised if the engine process is no longer alive.
+
 Asynchronous communication
 --------------------------
 

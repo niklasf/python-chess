@@ -853,7 +853,11 @@ class Engine(object):
         self.options[option.name] = option
 
     def _queue_command(self, command, async_callback):
-        future = self.pool.submit(command)
+        try:
+            future = self.pool.submit(command)
+        except RuntimeError:
+            raise EngineTerminatedException()
+
         if async_callback is True:
             return future
         elif async_callback:
@@ -1268,7 +1272,7 @@ class Engine(object):
 
         try:
             return self._queue_command(wait, async_callback)
-        except RuntimeError:
+        except EngineTerminatedException:
             assert self.terminated.is_set()
 
             future = concurrent.futures.Future()
