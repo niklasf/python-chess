@@ -335,6 +335,7 @@ Installing
 
   ::
 
+      sudo pip install futures # Backport for Python < 3.2
       sudo pip install python-chess
 
 * From current source code:
