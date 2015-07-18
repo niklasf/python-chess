@@ -13,6 +13,7 @@ before_install:
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
 install:
+ - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
  - pip install coveralls
  - pip install spur
 script:
