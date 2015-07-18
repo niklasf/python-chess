@@ -1638,13 +1638,12 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_terminated()
 
     def test_go(self):
-        self.mock.expect("go searchmoves e2e4 d2d4")
-        self.engine.go(searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")])
-        self.mock.assert_done()
+        self.mock.expect("go infinite searchmoves e2e4 d2d4")
+        go_command = self.engine.go(searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")], infinite=True, async_callback=True)
 
         self.mock.expect("stop", ("bestmove e2e4", ))
-        self.mock.expect("isready", ("readyok", ))
-        bestmove, pondermove = self.engine.stop()
+        self.engine.stop()
+        bestmove, pondermove = go_command.result()
         self.mock.assert_done()
         self.assertEqual(bestmove, chess.Move.from_uci("e2e4"))
         self.assertTrue(pondermove is None)
