@@ -435,7 +435,7 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process):
+    def __init__(self, process, Executor=concurrent.futures.ThreadPoolExecutor):
         self.process = process
 
         self.idle = True
@@ -465,7 +465,7 @@ class Engine(object):
 
         self.process.spawn(self)
 
-        self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+        self.pool = Executor(max_workers=10)
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -501,6 +501,7 @@ class Engine(object):
     def on_terminated(self):
         self.process.close_std_streams()
         self.return_code = self.process.wait_for_return_code()
+        self.pool.shutdown(wait=False)
         self.terminated.set()
 
     def _id(self, arg):
@@ -1186,7 +1187,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def _queue_termination(async_callback):
+    def _queue_termination(self, async_callback):
         def wait():
             self.terminated.wait()
             return self.return_code
@@ -1205,7 +1206,7 @@ class Engine(object):
             else:
                 return future.result()
 
-    def terminate(self, async_callback=False):
+    def terminate(self, async_callback=None):
         """
         Terminate the engine.
 
@@ -1215,11 +1216,10 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        self.process.close_std_streams()
         self.process.terminate()
         return self._queue_termination(async_callback)
 
-    def kill(self, async_callback=False):
+    def kill(self, async_callback=None):
         """
         Kill the engine.
 
@@ -1227,7 +1227,6 @@ class Engine(object):
 
         :return: The return code of the engine process.
         """
-        self.process.close_std_streams()
         self.process.kill()
         return self._queue_termination(async_callback)
 
