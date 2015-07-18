@@ -466,6 +466,7 @@ class Engine(object):
         self.pondering = False
         self.state_changed = threading.Condition()
         self.semaphore = threading.Semaphore()
+        self.search_started = threading.Event()
 
         self.board = chess.Board()
         self.uci_chess960 = None
@@ -1110,6 +1111,7 @@ class Engine(object):
                 raise EngineStateException("go command while engine is already busy")
 
             self.idle = False
+            self.search_started.clear()
             self.bestmove_received.clear()
             self.pondering = ponder
             self.state_changed.notify_all()
@@ -1171,6 +1173,11 @@ class Engine(object):
             with self.semaphore:
                 self.send_line(" ".join(builder))
 
+                with self.readyok_received:
+                    self.send_line("isready")
+                    self.readyok_received.wait()
+                    self.search_started.set()
+
             self.bestmove_received.wait()
 
             with self.state_changed:
@@ -1230,6 +1237,7 @@ class Engine(object):
             self.state_changed.notify_all()
 
         def command():
+            self.search_started.wait()
             with self.semaphore:
                 self.send_line("ponderhit")
 

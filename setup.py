@@ -21,6 +21,7 @@ import chess
 import distutils
 import os
 import setuptools
+import sys
 
 def read_description():
     """
@@ -46,6 +47,14 @@ def read_description():
 
     return description
 
+def dependencies():
+    deps = []
+
+    if sys.version_info < (3, 2):
+        deps.append("futures")
+
+    return deps
+
 setuptools.setup(
     name="python-chess",
     version=chess.__version__,
@@ -58,6 +67,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
+    install_requires=dependencies(),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
