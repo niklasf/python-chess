@@ -1191,19 +1191,18 @@ class Engine(object):
         :return: Nothing.
         """
         # Only send stop when the engine is actually searching.
-        with self.state_changed:
-            if self.idle:
-                return self._queue_command(lambda: None, async_callback)
-
         def command():
             with self.semaphore:
-                backoff = 0.5
-                while not self.bestmove_received.is_set() and not self.terminated.is_set():
-                    self.send_line("stop")
-                    self.bestmove_received.wait(backoff)
-                    backoff *= 2
-
                 with self.state_changed:
+                    backoff = 0.5
+                    while not self.bestmove_received.is_set() and not self.terminated.is_set():
+                        if self.idle:
+                            break
+                        else:
+                            self.send_line("stop")
+                        self.bestmove_received.wait(backoff)
+                        backoff *= 2
+
                     self.idle = True
                     self.state_changed.notify_all()
 
