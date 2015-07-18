@@ -823,6 +823,7 @@ class Engine(object):
             return future
         elif async_callback:
             future.add_done_callback(async_callback)
+            return future
         else:
             return future.result()
 
@@ -995,7 +996,7 @@ class Engine(object):
         else:
             builder.append("fen")
 
-            if engine.uci_chess960:
+            if self.uci_chess960:
                 builder.append(board.shredder_fen())
             else:
                 builder.append(board.fen())
