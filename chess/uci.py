@@ -25,6 +25,11 @@ import threading
 import copy
 import concurrent.futures
 
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -270,8 +275,20 @@ class MockProcess(object):
         self._is_dead = threading.Event()
         self._std_streams_closed = False
 
+        self._send_queue = queue.Queue()
+        self._send_thread = threading.Thread(target=self._send_thread_target)
+        self._send_thread.daemon = True
+
+    def _send_thread_target(self):
+        while not self._is_dead.is_set():
+            line = self._send_queue.get()
+            if line is not None:
+                self.engine.on_line_received(line)
+            self._send_queue.task_done()
+
     def spawn(self, engine):
         self.engine = engine
+        self._send_thread.start()
 
     def expect(self, expectation, responses=()):
         self._expectations.append((expectation, responses))
@@ -289,10 +306,12 @@ class MockProcess(object):
 
     def terminate(self):
         self._is_dead.set()
+        self._send_queue.put(None)
         self.engine.on_terminated()
 
     def kill(self):
         self._is_dead.set()
+        self._send_queue.put(None)
         self.engine.on_terminated()
 
     def close_std_streams(self):
@@ -306,7 +325,7 @@ class MockProcess(object):
         assert expectation == string, "expected: {0}, got {1}".format(expectation, string)
 
         for response in responses:
-            self.engine.on_line_received(response)
+            self._send_queue.put(response)
 
     def wait_for_return_code(self):
         self._is_dead.wait()
