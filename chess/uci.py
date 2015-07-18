@@ -34,6 +34,11 @@ class EngineStateException(Exception):
     pass
 
 
+class EngineTerminatedException(Exception):
+    """The engine has been terminated."""
+    pass
+
+
 class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
     """Information about an available option for an UCI engine."""
     pass
@@ -504,6 +509,16 @@ class Engine(object):
         self.pool.shutdown(wait=False)
         self.terminated.set()
 
+        # Wake up waiting commands.
+        with self.uciok_received:
+            self.uciok_received.notify_all()
+        with self.bestmove_received:
+            self.bestmove_received.notify_all()
+        with self.readyok_received:
+            self.readyok_received.notify_all()
+        with self.state_changed:
+            self.state_changed.notify_all()
+
     def _id(self, arg):
         property_and_arg = arg.split(None, 1)
         if property_and_arg[0] == "name":
@@ -523,6 +538,8 @@ class Engine(object):
         # Set UCI_Chess960 default value.
         if self.uci_chess960 is None and "UCI_Chess960" in self.options:
             self.uci_chess960 = self.options["UCI_Chess960"].default
+
+        self.uciok.set()
 
         with self.uciok_received:
             self.uciok_received.notify_all()
@@ -841,7 +858,9 @@ class Engine(object):
                 with self.uciok_received:
                     self.send_line("uci")
                     self.uciok_received.wait()
-                    self.uciok.set()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
@@ -879,6 +898,9 @@ class Engine(object):
                 with self.readyok_received:
                     self.send_line("isready")
                     self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
@@ -920,6 +942,9 @@ class Engine(object):
                     self.send_line("isready")
                     self.readyok_received.wait()
 
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
         return self._queue_command(command, async_callback)
 
     # TODO: Implement register command
@@ -946,6 +971,9 @@ class Engine(object):
 
                     self.send_line("isready")
                     self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
@@ -1019,6 +1047,9 @@ class Engine(object):
 
                     self.send_line("isready")
                     self.readyok_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
@@ -1122,6 +1153,9 @@ class Engine(object):
                     self.idle = True
                     self.state_changed.notify_all()
 
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
                 return BestMove(self.bestmove, self.ponder)
 
         return self._queue_command(command, async_callback)
@@ -1142,6 +1176,9 @@ class Engine(object):
 
                 if not already_idle:
                     self.bestmove_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
 
                     with self.state_changed:
                         self.idle = True
@@ -1198,7 +1235,7 @@ class Engine(object):
         except RuntimeError:
             assert self.terminated.is_set()
 
-            future = concurrent.future.Future()
+            future = concurrent.futures.Future()
             future.set_result(self.return_code)
             if async_callback is True:
                 return future
