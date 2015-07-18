@@ -1111,6 +1111,9 @@ class Engine(object):
             self.pondering = ponder
             self.state_changed.notify_all()
 
+        for info_handler in self.info_handlers:
+            info_handler.on_go()
+
         builder = []
         builder.append("go")
 
