@@ -298,7 +298,6 @@ class MockProcess(object):
 
     def assert_terminated(self):
         self.assert_done()
-        assert self._std_streams_closed
         assert self._is_dead.is_set()
 
     def is_alive(self):
@@ -313,9 +312,6 @@ class MockProcess(object):
         self._is_dead.set()
         self._send_queue.put(None)
         self.engine.on_terminated()
-
-    def close_std_streams(self):
-        self._std_streams_closed = True
 
     def send_line(self, string):
         assert self.is_alive()
@@ -369,10 +365,6 @@ class PopenProcess(object):
 
     def kill(self):
         self.process.kill()
-
-    def close_std_streams(self):
-        self.process.stdout.close()
-        self.process.stdin.close()
 
     def send_line(self, string):
         self.process.stdin.write(string)
@@ -439,10 +431,6 @@ class SpurProcess(object):
 
     def kill(self):
         self.process.send_signal(signal.SIGKILL)
-
-    def close_std_streams(self):
-        # TODO: Spur does not allow this clean up.
-        pass
 
     def send_line(self, string):
         self.process.stdin_write(string.encode("utf-8"))
@@ -524,7 +512,6 @@ class Engine(object):
                 return self._option(command_and_args[1])
 
     def on_terminated(self):
-        self.process.close_std_streams()
         self.return_code = self.process.wait_for_return_code()
         self.pool.shutdown(wait=False)
         self.terminated.set()
