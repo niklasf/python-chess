@@ -147,6 +147,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
         self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
 
+        # Valid en-passant square on illegal board.
+        fen = "8/8/8/pP6/8/8/8/8 w - a6 0 1"
+        board = chess.Board(fen)
+        self.assertEqual(board.fen(), fen)
+
+        # Illegal en-passant square in illegal board.
+        fen = "1r6/8/8/pP6/8/8/8/1K6 w - a6 0 1"
+        board = chess.Board(fen)
+        self.assertEqual(board.fen(), "1r6/8/8/pP6/8/8/8/1K6 w - - 0 1")
+
     def test_get_set(self):
         board = chess.Board()
         self.assertEqual(board.piece_at(chess.B1), chess.Piece.from_symbol("N"))
