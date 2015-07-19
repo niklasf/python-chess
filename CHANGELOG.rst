@@ -9,6 +9,8 @@ might include API breaking changes.
 Upcoming in the next release
 ----------------------------
 
+Changes:
+
 * There are big changes in the UCI module. Most notably in async mode multiple
   commands can be executed at the same time (e.g. `go infinite`  and then
   `stop` or `go ponder` and then `ponderhit`).
@@ -20,6 +22,12 @@ Upcoming in the next release
   `stop` and `ponderhit` no longer have a result.
 
 * `Board.fen()` will now only show completely legal en-passant squares.
+
+Bugfixes:
+
+* PGN: Prefer the game result from the game termination marker over `*` in the
+  header. These should be identical in standard compliant PGNs. Thanks to
+  Skyler Dawson for reporting this.
 
 New in v0.9.1
 -------------
