@@ -19,6 +19,8 @@ Upcoming in the next release
 
   `stop` and `ponderhit` no longer have a result.
 
+* `Board.fen()` will now only show completely legal en-passant squares.
+
 New in v0.9.1
 -------------
 

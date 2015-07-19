@@ -1831,16 +1831,24 @@ class Board(object):
 
         fen.append(self.castling_xfen())
 
-        # Insert en-passant square only if at least pseudo legal.
+        # Insert en-passant square only if legal.
         if self.ep_square:
+            # Get potential capturing pawns.
             if self.turn == WHITE:
-                ep_mask = shift_down(BB_SQUARES[self.ep_square])
+                ep_masks = shift_down(BB_SQUARES[self.ep_square])
             else:
-                ep_mask = shift_up(BB_SQUARES[self.ep_square])
-            ep_mask = shift_left(ep_mask) | shift_right(ep_mask)
+                ep_masks = shift_up(BB_SQUARES[self.ep_square])
+            ep_masks = shift_left(ep_masks) | shift_right(ep_masks)
+            ep_masks = ep_masks & self.pawns & self.occupied_co[self.turn]
 
-            if ep_mask & self.pawns & self.occupied_co[self.turn]:
-                fen.append(SQUARE_NAMES[self.ep_square])
+            # Check legality.
+            while ep_masks:
+                ep_mask = ep_masks & -ep_masks
+                move = Move(bit_scan(ep_mask), self.ep_square)
+                if self.is_legal(move):
+                    fen.append(SQUARE_NAMES[self.ep_square])
+                    break
+                ep_masks = ep_masks & (ep_masks - 1)
             else:
                 fen.append("-")
         else:
