@@ -1495,6 +1495,11 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertEqual(str(game), expected)
 
+    def test_result_termination_marker(self):
+        pgn = StringIO("1. d4 1-0")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.headers["Result"], "1-0")
+
 
 class StockfishTestCase(unittest.TestCase):
 

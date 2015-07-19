@@ -653,7 +653,7 @@ def read_game(handle, error_handler=_raise):
                 found_content = True
 
                 # Set result header if not present, yet.
-                if "Result" not in game.headers:
+                if game.headers.get("Result", "*") == "*":
                     game.headers["Result"] = token
             else:
                 # Found a SAN token.
