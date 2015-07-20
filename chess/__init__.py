@@ -1196,7 +1196,11 @@ class Board(object):
 
     def is_check(self):
         """Checks if the current side to move is in check."""
-        return self.is_attacked_by(self.turn ^ 1, bit_scan(self.kings & self.occupied_co[self.turn]))
+        king_square = bit_scan(self.kings & self.occupied_co[self.turn])
+        if king_square is None or king_square == -1:
+            return False
+
+        return self.is_attacked_by(self.turn ^ 1, king_square)
 
     def is_into_check(self, move):
         """
@@ -1239,7 +1243,11 @@ class Board(object):
         Checks if the king of the other side is attacked. Such a position is not
         valid and could only be reached by an illegal move.
         """
-        return self.is_attacked_by(self.turn, bit_scan(self.kings & self.occupied_co[self.turn ^ 1]))
+        king_square = bit_scan(self.kings & self.occupied_co[self.turn ^ 1])
+        if king_square is None or king_square == -1:
+            return False
+
+        return self.is_attacked_by(self.turn, king_square)
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -1785,12 +1793,13 @@ class Board(object):
         return "".join(builder)
 
     def castling_xfen(self):
-        if not self.castling_rights:
-            return "-"
-
         builder = []
 
         for color in [BLACK, WHITE]:
+            king_mask = self.kings & self.occupied_co[color]
+            if not king_mask:
+                continue
+
             king_file = file_index(bit_scan(self.kings & self.occupied_co[color]))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
@@ -1819,9 +1828,11 @@ class Board(object):
 
                 castling_rights = castling_rights & (castling_rights - 1)
 
-        builder.reverse()
-
-        return "".join(builder)
+        if builder:
+            builder.reverse()
+            return "".join(builder)
+        else:
+            return "-"
 
     def fen(self):
         """Gets the FEN representation of the position."""
