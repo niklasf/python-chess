@@ -734,7 +734,7 @@ class Move(object):
             promotion = PIECE_SYMBOLS.index(uci[4])
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
         else:
-            raise ValueError("expected uci string to be of length 4 or 5")
+            raise ValueError("expected uci string to be of length 4 or 5: {0}".format(repr(uci)))
 
     @classmethod
     def null(cls):
@@ -2115,7 +2115,7 @@ class Board(object):
             if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
-                raise ValueError("illegal san: {0}".format(repr(san)))
+                raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
         elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
             king = self.kings & self.occupied_co[self.turn]
             rooks = self.castling_rights & (BB_RANK_1 if self.turn == WHITE else BB_RANK_8)
@@ -2125,7 +2125,7 @@ class Board(object):
             if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
-                raise ValueError("illegal san: {0}, {1}".format(repr(san), repr(self)))
+                raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
@@ -2177,12 +2177,12 @@ class Board(object):
                 continue
 
             if matched_move:
-                raise ValueError("ambiguous san: {0}".format(repr(san)))
+                raise ValueError("ambiguous san: {0} in {1}".format(repr(san), self.fen()))
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError("illegal san: {0}".format(repr(san)))
+            raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
 
         return matched_move
 
@@ -2353,7 +2353,7 @@ class Board(object):
                         move.to_square = A8
 
         if not self.is_legal(move):
-            raise ValueError("illegal uci: {0}".format(repr(uci)))
+            raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
 
         return move
 
