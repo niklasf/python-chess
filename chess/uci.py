@@ -1049,11 +1049,11 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
+        self.board = copy.deepcopy(board)
 
         def command():
             with self.semaphore:
                 with self.readyok_received:
-                    self.board = board
                     self.send_line(" ".join(builder))
 
                     self.send_line("isready")
