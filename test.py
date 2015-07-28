@@ -1873,6 +1873,30 @@ class UciEngineTestCase(unittest.TestCase):
 
         self.mock.assert_done()
 
+    def test_invalid_castling_rights(self):
+        fen = "3qk3/4pp2/5r2/8/8/8/3PP1P1/4K1R1 b G - 0 1"
+        board = chess.Board(fen)
+        board.push_san("Rf5")
+
+        # White can castle with the G-side rook, which is not possible in
+        # standard chess. The UCI module should just send the final FEN,
+        # show a warning and hope for the best.
+        self.mock.expect("position fen 3qk3/4pp2/8/5r2/8/8/3PP1P1/4K1R1 w K - 1 2")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
+        # Activate Chess960 mode.
+        self.mock.expect("setoption name UCI_Chess960 value true")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.setoption({"UCI_Chess960": True})
+
+        # Then those castling rights should work fine.
+        self.mock.expect("position fen " + fen + " moves f6f5")
+        self.mock.expect("isready", ("readyok", ))
+        self.engine.position(board)
+        self.mock.assert_done()
+
 
 class UciOptionMapTestCase(unittest.TestCase):
 
