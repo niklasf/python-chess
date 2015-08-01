@@ -4,7 +4,7 @@ python:
  - "2.7"
  - "3.3"
  - "3.4"
- - "nightly"
+ - "3.5.0b3"
 before_install:
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
  - unzip stockfish-6-linux.zip
