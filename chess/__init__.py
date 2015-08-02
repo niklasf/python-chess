@@ -2218,13 +2218,11 @@ class Board(object):
         There is no validation. It is only guaranteed to work if the move is
         legal or a null move.
         """
-
         if not move:
             # Null move.
             return "--"
 
         piece = self.piece_type_at(move.from_square)
-        en_passant = False
 
         # Look ahead for check or checkmate.
         self.push(move)
