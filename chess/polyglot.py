@@ -155,7 +155,7 @@ class MemoryMappedReader(object):
 
             if entry.key != zobrist_hash:
                 break
-            else:
+            elif entry.weight >= minimum_weight:
                 yield entry
 
             i += 1

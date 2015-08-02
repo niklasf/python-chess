@@ -1176,6 +1176,11 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertTrue(any(book.find_all(last_entry.key)))
             self.assertTrue(all(book.find_all(last_entry.key)))
 
+    def test_minimum_weight(self):
+        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+            with self.assertRaises(IndexError):
+                book.find(chess.Board(), minimum_weight=2)
+
 
 class PgnTestCase(unittest.TestCase):
 
