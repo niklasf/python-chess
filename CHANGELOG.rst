@@ -29,6 +29,9 @@ Bugfixes:
   header. These should be identical in standard compliant PGNs. Thanks to
   Skyler Dawson for reporting this.
 
+* Polyglot: `minimum_weight` for `find()`, `find_all()` and `choice()` was
+  not respected.
+
 New in v0.9.1
 -------------
 
