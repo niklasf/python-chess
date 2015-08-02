@@ -588,12 +588,10 @@ class Engine(object):
     def _copyprotection(self, arg):
         # TODO: Implement copyprotection
         LOGGER.error("engine copyprotection not supported")
-        pass
 
     def _registration(self, arg):
         # TODO: Implement registration
         LOGGER.error("engine registration not supported")
-        pass
 
     def _info(self, arg):
         if not self.info_handlers:
