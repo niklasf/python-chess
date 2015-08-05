@@ -888,11 +888,10 @@ class Board(object):
 
     def piece_at(self, square):
         """Gets the piece at the given square."""
-        mask = BB_SQUARES[square]
-        color = int(bool(self.occupied_co[BLACK] & mask))
-
         piece_type = self.piece_type_at(square)
         if piece_type:
+            mask = BB_SQUARES[square]
+            color = int(bool(self.occupied_co[BLACK] & mask))
             return Piece(piece_type, color)
 
     def piece_type_at(self, square):
