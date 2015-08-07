@@ -137,7 +137,7 @@ class.
         a *threading.Lock()*.
 
         >>> # Register the handler.
-        >>> handler = InfoHandler()
+        >>> handler = chess.uci.InfoHandler()
         >>> engine.info_handlers.append(handler)
 
         >>> # Start thinking.
