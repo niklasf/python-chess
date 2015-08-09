@@ -24,6 +24,7 @@ __version__ = "0.9.1"
 
 
 import collections
+import copy
 import re
 
 
@@ -2313,6 +2314,34 @@ class Board(object):
             san += "+"
 
         return san
+
+    def variation_san(self, variation):
+        """
+        Given a sequence of moves, return a string representing the sequence
+        in standard algebraic notation (e.g. "1. e4 e5 2. Nf3 Nc6" or "37...Bg6
+        38. fxg6").
+
+        ValueError will be thrown if any moves in the sequence are illegal.
+
+        This board will not be modified as a result of calling this.
+        """
+        board = copy.deepcopy(self)
+        san = []
+        move_numbers = []
+        first_move = True
+        for move in variation:
+            if not board.is_legal(move):
+                raise ValueError("Illegal move {0} in position {1}".format(move, board.fen()))
+            san.append(board.san(move))
+            if board.turn == WHITE:
+                move_numbers.append('{0}. '.format(board.fullmove_number))
+            elif first_move:
+                move_numbers.append('{0}...'.format(board.fullmove_number))
+            else:
+                move_numbers.append('')
+            board.push(move)
+            first_move = False
+        return ' '.join(["{0}{1}".format(num, s) for (num, s) in zip(move_numbers, san)])
 
     def uci(self, move, chess960=True):
         """
