@@ -310,7 +310,7 @@ def calc_key(board, mirror=False):
     key = 0
 
     for color in chess.COLORS:
-        mirrored_color = color ^ 1 if mirror else color
+        mirrored_color = color ^ mirror
 
         for i in range(chess.pop_count(board.pawns & board.occupied_co[color])):
             key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 5 * 16 + i]
@@ -331,9 +331,7 @@ def calc_key(board, mirror=False):
 def calc_key_from_filename(filename, mirror=False):
     white, black = filename.split("v")
 
-    color = chess.WHITE
-    if mirror:
-        color ^= 1
+    color = chess.WHITE ^ mirror
 
     key = 0
 
@@ -341,7 +339,7 @@ def calc_key_from_filename(filename, mirror=False):
         for i in range(white.count(piece)):
             key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
 
-    color ^= 1
+    color = not color
 
     for piece_index, piece in enumerate(PCHR):
         for i in range(black.count(piece)):
