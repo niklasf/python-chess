@@ -359,6 +359,15 @@ def subfactor(k, n):
     return f // l
 
 
+def XXX_cfi(i):
+    if i is 1:
+        return chess.BLACK
+    elif i is 0:
+        return chess.WHITE
+    else:
+        raise KeyError("Color is not strictly int")
+
+
 class PairsData(object):
     def __init__(self):
         self.indextable = None
@@ -845,12 +854,12 @@ class WdlTable(Table):
             self.pieces = {}
 
             self.factor = {}
-            self.factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
-            self.factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
+            self.factor[0] = [0, 0, 0, 0, 0, 0] # White
+            self.factor[1] = [0, 0, 0, 0, 0, 0] # Black
 
             self.norm = {}
-            self.norm[chess.WHITE] = [0 for _ in range(self.num)]
-            self.norm[chess.BLACK] = [0 for _ in range(self.num)]
+            self.norm[0] = [0 for _ in range(self.num)] # White
+            self.norm[1] = [0 for _ in range(self.num)] # Black
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
@@ -869,32 +878,32 @@ class WdlTable(Table):
                 data_ptr += self.num + 1
                 data_ptr += data_ptr & 0x01
 
-                self.precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
+                self.precomp[0] = self.setup_pairs(data_ptr, self.tb_size[0], 0, True)
                 data_ptr = self._next
                 if split:
-                    self.precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
+                    self.precomp[1] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
                     data_ptr = self._next
                 else:
-                    self.precomp[chess.BLACK] = None
+                    self.precomp[1] = None
 
-                self.precomp[chess.WHITE].indextable = data_ptr
+                self.precomp[0].indextable = data_ptr
                 data_ptr += self.size[0]
                 if split:
-                    self.precomp[chess.BLACK].indextable = data_ptr
+                    self.precomp[1].indextable = data_ptr
                     data_ptr += self.size[3]
 
-                self.precomp[chess.WHITE].sizetable = data_ptr
+                self.precomp[0].sizetable = data_ptr
                 data_ptr += self.size[1]
                 if split:
-                    self.precomp[chess.BLACK].sizetable = data_ptr
+                    self.precomp[1].sizetable = data_ptr
                     data_ptr += self.size[4]
 
                 data_ptr = (data_ptr + 0x3f) & ~0x3f
-                self.precomp[chess.WHITE].data = data_ptr
+                self.precomp[0].data = data_ptr
                 data_ptr += self.size[2]
                 if split:
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
-                    self.precomp[chess.BLACK].data = data_ptr
+                    self.precomp[1].data = data_ptr
             else:
                 s = 1 + int(self.pawns[1] > 0)
                 for f in range(4):
@@ -903,67 +912,67 @@ class WdlTable(Table):
                 data_ptr += data_ptr & 0x01
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
+                    self.files[f].precomp[0] = self.setup_pairs(data_ptr, self.tb_size[2 * f], 6 * f, True)
                     data_ptr = self._next
                     if split:
-                        self.files[f].precomp[chess.BLACK] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
+                        self.files[f].precomp[1] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
                         data_ptr = self._next
                     else:
-                        self.files[f].precomp[chess.BLACK] = None
+                        self.files[f].precomp[1] = None
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE].indextable = data_ptr
+                    self.files[f].precomp[0].indextable = data_ptr
                     data_ptr += self.size[6 * f]
                     if split:
-                        self.files[f].precomp[chess.BLACK].indextable = data_ptr
+                        self.files[f].precomp[1].indextable = data_ptr
                         data_ptr += self.size[6 * f + 3]
 
                 for f in range(files):
-                    self.files[f].precomp[chess.WHITE].sizetable = data_ptr
+                    self.files[f].precomp[0].sizetable = data_ptr
                     data_ptr += self.size[6 * f + 1]
                     if split:
-                        self.files[f].precomp[chess.BLACK].sizetable = data_ptr
+                        self.files[f].precomp[1].sizetable = data_ptr
                         data_ptr += self.size[6 * f + 4]
 
                 for f in range(files):
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
-                    self.files[f].precomp[chess.WHITE].data = data_ptr
+                    self.files[f].precomp[0].data = data_ptr
                     data_ptr += self.size[6 * f + 2]
                     if split:
                         data_ptr = (data_ptr + 0x3f) & ~0x3f
-                        self.files[f].precomp[chess.BLACK].data = data_ptr
+                        self.files[f].precomp[1].data = data_ptr
                         data_ptr += self.size[6 * f + 5]
 
             self.initialized = True
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
-        j = 1 + int(self.pawns[chess.BLACK] > 0)
+        j = 1 + int(self.pawns[1] > 0)
         order = self.read_ubyte(p_data) & 0x0f
-        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[chess.BLACK] else 0x0f
-        self.files[f].pieces[chess.WHITE] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
-        self.files[f].norm[chess.WHITE] = [0 for _ in range(self.num)]
-        self.set_norm_pawn(self.files[f].norm[chess.WHITE], self.files[f].pieces[chess.WHITE])
-        self.files[f].factor[chess.WHITE] = [0, 0, 0, 0, 0, 0]
-        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[chess.WHITE], order, order2, self.files[f].norm[chess.WHITE], f)
+        order2 = self.read_ubyte(p_data + 1) & 0x0f if self.pawns[1] else 0x0f
+        self.files[f].pieces[0] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
+        self.files[f].norm[0] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[0], self.files[f].pieces[0])
+        self.files[f].factor[0] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[0], order, order2, self.files[f].norm[0], f)
 
         order = self.read_ubyte(p_data) >> 4
         order2 = self.read_ubyte(p_data + 1) >> 4 if self.pawns[1] else 0x0f
-        self.files[f].pieces[chess.BLACK] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
-        self.files[f].norm[chess.BLACK] = [0 for _ in range(self.num)]
-        self.set_norm_pawn(self.files[f].norm[chess.BLACK], self.files[f].pieces[chess.BLACK])
-        self.files[f].factor[chess.BLACK] = [0, 0, 0, 0, 0, 0]
-        self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[chess.BLACK], order, order2, self.files[f].norm[chess.BLACK], f)
+        self.files[f].pieces[1] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
+        self.files[f].norm[1] = [0 for _ in range(self.num)]
+        self.set_norm_pawn(self.files[f].norm[1], self.files[f].pieces[1])
+        self.files[f].factor[1] = [0, 0, 0, 0, 0, 0]
+        self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
     def setup_pieces_piece(self, p_data):
-        self.pieces[chess.WHITE] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
+        self.pieces[0] = [self.read_ubyte(p_data + i + 1) & 0x0f for i in range(self.num)]
         order = self.read_ubyte(p_data) & 0x0f
-        self.set_norm_piece(self.norm[chess.WHITE], self.pieces[chess.WHITE])
-        self.tb_size[chess.WHITE] = self.calc_factors_piece(self.factor[chess.WHITE], order, self.norm[chess.WHITE])
+        self.set_norm_piece(self.norm[0], self.pieces[0])
+        self.tb_size[0] = self.calc_factors_piece(self.factor[0], order, self.norm[0])
 
-        self.pieces[chess.BLACK] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
+        self.pieces[1] = [self.read_ubyte(p_data + i + 1) >> 4 for i in range(self.num)]
         order = self.read_ubyte(p_data) >> 4
-        self.set_norm_piece(self.norm[chess.BLACK], self.pieces[chess.BLACK])
-        self.tb_size[chess.BLACK] = self.calc_factors_piece(self.factor[chess.BLACK], order, self.norm[chess.BLACK])
+        self.set_norm_piece(self.norm[1], self.pieces[1])
+        self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
     def probe_wdl_table(self, board):
         self.init_table_wdl()
@@ -989,7 +998,7 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1005,7 +1014,7 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = board.pieces_mask(piece_type, color)
+            bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
             square = chess.bit_scan(bb)
             while square != -1 and square is not None:
@@ -1018,7 +1027,7 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1141,7 +1150,7 @@ class DtzTable(Table):
                 bside = int(board.turn != chess.WHITE)
         else:
             cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if  board.turn == chess.WHITE else 0x38
+            mirror = 0 if board.turn == chess.WHITE else 0x38
             bside = 0
 
         if not self.has_pawns:
@@ -1154,7 +1163,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1174,7 +1183,7 @@ class DtzTable(Table):
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
-            bb = board.pieces_mask(piece_type, color)
+            bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
             i = 0
             p = [0, 0, 0, 0, 0, 0]
@@ -1191,7 +1200,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, color)
+                bb = board.pieces_mask(piece_type, XXX_cfi(color))
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
