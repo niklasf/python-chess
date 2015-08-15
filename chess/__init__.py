@@ -976,7 +976,7 @@ class Board(object):
         self.occupied ^= mask
         self.occupied_co[piece.color] ^= mask
 
-        # Update incremental zorbist hash.
+        # Update incremental zobrist hash.
         if piece.color == BLACK:
             piece_index = (piece.piece_type - 1) * 2
         else:
