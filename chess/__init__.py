@@ -27,32 +27,6 @@ import collections
 import re
 
 
-class _Occupancy(object):
-    def __init__(self, white=0, black=0):
-        self.white = white
-        self.black = black
-
-    def __getitem__(self, key):
-        if key is True:
-            return self.white
-        elif key is False:
-            return self.black
-        else:
-            raise KeyError("colors are now boolean: {0}".format(repr(key)))
-
-    def __setitem__(self, key, value):
-        if key is True:
-            self.white = value
-        elif key is False:
-            self.black = value
-        else:
-            raise KeyError("colors are now boolean: {0}".format(repr(key)))
-
-    def XXX__iter__(self):
-        yield True
-        yield False
-
-
 COLORS = [WHITE, BLACK] = [True, False]
 
 PIECE_TYPES = [NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(7)
@@ -793,7 +767,7 @@ class Board(object):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
-        self.occupied_co = _Occupancy()
+        self.occupied_co = [BB_VOID, BB_VOID]
 
         self.attacks_valid = False
         self.attacks_from = collections.defaultdict(int)
