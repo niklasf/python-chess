@@ -7,12 +7,12 @@ Colors
 Constants for the side to move or the color of a piece.
 
 .. py:data:: chess.WHITE
-    :annotation: = 0
+    :annotation: = True
 
 .. py:data:: chess.BLACK
-    :annotation: = 1
+    :annotation: = False
 
-You can get the opposite color using `color ^ 1`.
+You can get the opposite color using `not color`.
 
 Piece types
 -----------
