@@ -359,15 +359,6 @@ def subfactor(k, n):
     return f // l
 
 
-def XXX_cfi(i):
-    if i is 1:
-        return chess.BLACK
-    elif i is 0:
-        return chess.WHITE
-    else:
-        raise KeyError("Color is not strictly int")
-
-
 class PairsData(object):
     def __init__(self):
         self.indextable = None
@@ -998,7 +989,7 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, XXX_cfi(color))
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1014,7 +1005,7 @@ class WdlTable(Table):
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
             piece_type = k & 0x07
-            bb = board.pieces_mask(piece_type, XXX_cfi(color))
+            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
             square = chess.bit_scan(bb)
             while square != -1 and square is not None:
@@ -1027,7 +1018,7 @@ class WdlTable(Table):
             while i < self.num:
                 color = (pc[i] ^ cmirror) >> 3
                 piece_type = pc[i] & 0x07
-                bb = board.pieces_mask(piece_type, XXX_cfi(color))
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1163,7 +1154,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, XXX_cfi(color))
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
@@ -1183,7 +1174,7 @@ class DtzTable(Table):
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
-            bb = board.pieces_mask(piece_type, XXX_cfi(color))
+            bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
             i = 0
             p = [0, 0, 0, 0, 0, 0]
@@ -1200,7 +1191,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, XXX_cfi(color))
+                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
                 square = chess.bit_scan(bb)
                 while square != -1 and square is not None:
