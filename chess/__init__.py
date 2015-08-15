@@ -1213,7 +1213,7 @@ class Board(object):
         if not self.attacks_valid:
             self.generate_attacks()
 
-        # If already in check, look if it as an evasion.
+        # If already in check, look if it is an evasion.
         if self.is_check():
             return move not in self.generate_evasions(
                 castling=False,
