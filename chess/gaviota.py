@@ -34,10 +34,17 @@ class Tablebases(object):
     def tbcache_init(self, cache_mem, wdl_fraction):
         return self.libgtb.tbcache_init(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
-    def tb_probe_hard(self, board):
+    def probe_dtm(self, board):
+        if chess.pop_count(board.occupied_co[chess.WHITE]) > 16:
+            return None
+        if chess.pop_count(board.occupied_co[chess.BLACK]) > 16:
+            return None
+
+        if board.castling_rights:
+            return None
+
         stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
-        epsquare = ctypes.c_uint(board.ep_square if board.ep_square else 64)
-        assert board.castling_rights == 0 # XXX
+        ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
         castling = ctypes.c_uint(0)
 
         c_ws = (ctypes.c_uint * 17)()
@@ -60,14 +67,28 @@ class Tablebases(object):
         c_bs[i + 1] = 64
         c_bp[i + 1] = chess.NONE
 
+        # Do a hard probe.
         info = ctypes.c_uint()
         pliestomate = ctypes.c_uint()
+        ret = self.libgtb.tb_probe_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
 
-        ret = self.libgtb.tb_probe_hard(stm, epsquare, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
+        # Probe failed, forbidding or unknown.
+        if not ret or info.value == 3 or info.value == 7:
+            return None
 
-        print("info:", info)
-        print("pliestomate:", pliestomate)
-        return ret
+        # Draw.
+        if info.value == 0:
+            return 0
+
+        dtm = pliestomate.value
+
+        # White mates.
+        if info.value == 1:
+            return dtm if board.turn == chess.WHITE else -dtm
+
+        # Black mates.
+        if info.value == 2:
+            return dtm if board.turn == chess.BLACK else -dtm
 
     def tb_done(self):
         return self.libgtb.tb_done()
@@ -79,6 +100,14 @@ if __name__ == "__main__":
 
     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
     print(board)
-    print("tb_probe_hard: ", libgtb.tb_probe_hard(board))
+    print("tb_probe_hard:", libgtb.probe_dtm(board))
+
+    board = chess.Board("8/8/8/8/8/8/8/K2kr3 b - - 0 1")
+    print(board)
+    print("tb_probe_hard:", libgtb.probe_dtm(board))
+
+    board = chess.Board("KBk5/8/8/8/8/8/8/8 w - - 0 1")
+    print(board)
+    print("tb_probe_hard:", libgtb.probe_dtm(board))
 
     print("tb_done:", libgtb.tb_done())
