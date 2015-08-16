@@ -3,6 +3,7 @@
 import ctypes
 import ctypes.util
 import chess
+import chess.syzygy
 
 class Tablebases(object):
     def __init__(self, libgtb=None, LibraryLoader=ctypes.cdll):
@@ -95,19 +96,24 @@ class Tablebases(object):
 
 if __name__ == "__main__":
     libgtb = Tablebases()
-    print("tb_init: ", libgtb.tb_init(1, 4, ["data/gaviota"]))
-    print("tbcache_init: ", libgtb.tbcache_init(32 * 1024 * 1024, 96))
+    syzygy = chess.syzygy.Tablebases("data/syzygy")
+    print("tb_init:", libgtb.tb_init(1, 4, ["data/gaviota"]))
+    print("tbcache_init:", libgtb.tbcache_init(32 * 1024 * 1024, 96))
+    print("---")
 
     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
-    print(board)
-    print("tb_probe_hard:", libgtb.probe_dtm(board))
+    while True:
+        print(board)
+        print("DTM:", libgtb.probe_dtm(board), "DTZ:", syzygy.probe_dtz(board))
 
-    board = chess.Board("8/8/8/8/8/8/8/K2kr3 b - - 0 1")
-    print(board)
-    print("tb_probe_hard:", libgtb.probe_dtm(board))
+        for move in board.legal_moves:
+            san = board.san(move)
+            board.push(move)
+            print(san, libgtb.probe_dtm(board), syzygy.probe_dtz(board))
+            board.pop()
 
-    board = chess.Board("KBk5/8/8/8/8/8/8/8 w - - 0 1")
-    print(board)
-    print("tb_probe_hard:", libgtb.probe_dtm(board))
+        print()
+        move = input("Move: ")
+        board.push_san(move)
 
     print("tb_done:", libgtb.tb_done())
