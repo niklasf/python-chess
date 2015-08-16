@@ -169,27 +169,3 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
         return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
     else:
         raise RuntimeError("need a library loader for libgtb")
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    syzygy = chess.syzygy.open_tablebases("data/syzygy")
-    gaviota = open_tablebases("data/gaviota")
-
-    board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
-
-    while True:
-        print(board)
-        print("DTM:", gaviota.probe_dtm(board), "\t|DTZ:", syzygy.probe_dtz(board), "\t|WDL:", gaviota.probe_wdl(board))
-
-        for move in board.legal_moves:
-            san = board.san(move)
-            board.push(move)
-            print(san, gaviota.probe_dtm(board), "\t|", syzygy.probe_dtz(board), "\t|", gaviota.probe_wdl(board))
-            board.pop()
-
-        print()
-        move = input("Move: ")
-        board.push_san(move)
-
-    print("tb_done:", gaviota.tb_done())
