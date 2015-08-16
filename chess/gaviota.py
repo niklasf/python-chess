@@ -36,6 +36,12 @@ class Tablebases(object):
         return self.libgtb.tbcache_init(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
     def probe_dtm(self, board):
+        return self._probe(board)
+
+    def probe_wdl(self, board):
+        return self._probe(board, wdl_only=True)
+
+    def _probe(self, board, wdl_only=False):
         if chess.pop_count(board.occupied_co[chess.WHITE]) > 16:
             return None
         if chess.pop_count(board.occupied_co[chess.BLACK]) > 16:
@@ -71,7 +77,12 @@ class Tablebases(object):
         # Do a hard probe.
         info = ctypes.c_uint()
         pliestomate = ctypes.c_uint()
-        ret = self.libgtb.tb_probe_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
+        if not wdl_only:
+            ret = self.libgtb.tb_probe_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
+            dtm = pliestomate.value
+        else:
+            ret = self.libgtb.tb_probe_WDL_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info))
+            dtm = 1
 
         # Probe failed, forbidding or unknown.
         if not ret or info.value == 3 or info.value == 7:
@@ -80,8 +91,6 @@ class Tablebases(object):
         # Draw.
         if info.value == 0:
             return 0
-
-        dtm = pliestomate.value
 
         # White mates.
         if info.value == 1:
@@ -104,12 +113,12 @@ if __name__ == "__main__":
     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
     while True:
         print(board)
-        print("DTM:", libgtb.probe_dtm(board), "DTZ:", syzygy.probe_dtz(board))
+        print("DTM:", libgtb.probe_dtm(board), "DTZ:", syzygy.probe_dtz(board), "WDL:", libgtb.probe_wdl(board))
 
         for move in board.legal_moves:
             san = board.san(move)
             board.push(move)
-            print(san, libgtb.probe_dtm(board), syzygy.probe_dtz(board))
+            print(san, libgtb.probe_dtm(board), syzygy.probe_dtz(board), libgtb.probe_wdl(board))
             board.pop()
 
         print()
