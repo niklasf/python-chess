@@ -2082,7 +2082,7 @@ class GaviotaTestCase(unittest.TestCase):
     def setUp(self):
         try:
             self.tablebases = chess.gaviota.open_tablebases("data/gaviota")
-        except OSError:
+        except (OSError, RuntimeError):
             self.skipTest("need libgtb")
 
     def tearDown(self):
