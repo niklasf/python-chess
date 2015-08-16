@@ -7,12 +7,11 @@ import chess
 import chess.syzygy
 
 
-class Tablebases(object):
-    def __init__(self, directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
-        if libgtb is None:
-            libgtb = ctypes.util.find_library("gtb")
+class NativeTablebases(object):
+    """Provides access to Gaviota tablebases via the shared library libgtb."""
 
-        self.libgtb = LibraryLoader.LoadLibrary(libgtb)
+    def __init__(self, directory, libgtb):
+        self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
         self.libgtb.tb_restart.restype = ctypes.c_char_p
 
@@ -26,6 +25,7 @@ class Tablebases(object):
         self._tbcache_restart(1024 * 1024, 50)
 
     def open_directory(self, directory):
+        """Loads *.gtb.cp4* tables from a directory."""
         self.paths.append(directory)
         self._tb_restart()
 
@@ -44,9 +44,26 @@ class Tablebases(object):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
     def probe_dtm(self, board):
+        """
+        Probes for depth to mate information.
+
+        Returns *None* if the position was not found in any of the tables.
+
+        Otherwise the absolute value is the number of half moves until
+        forced mate. The value is positive if the side to move is winning,
+        otherwise it is negative.
+        """
         return self._probe_hard(board)
 
     def probe_wdl(self, board):
+        """
+        Probes for win/draw/loss-information.
+
+        Returns *None* if the position was not found in any of the tables.
+
+        Returns *1* if the side to move is winning, *0* if it is a draw,
+        and *-1* if the side to move is losing.
+        """
         return self._probe_hard(board, wdl_only=True)
 
     def _probe_hard(self, board, wdl_only=False):
@@ -109,6 +126,7 @@ class Tablebases(object):
             return dtm if board.turn == chess.BLACK else -dtm
 
     def close(self):
+        """Closes all loaded tables and clears all caches."""
         if self.libgtb.tb_is_initialized():
             self.libgtb.tbcache_done()
             self.libgtb.tb_done()
@@ -119,10 +137,32 @@ class Tablebases(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
+
+def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
+    """
+    Opens a collection of tablebases for probing.
+
+    Currently the only access method is via the shared library libgtb.
+    You can optionally provide a specific library name or a library loader.
+    The shared library has global state and caches, so only one instance can
+    be open at a time.
+    """
+    if LibraryLoader:
+        if libgtb is None:
+            libgtb = ctypes.util.find_library("gtb")
+
+        if libgtb is None:
+            raise RuntimeError("libgtb not found")
+
+        return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
+    else:
+        raise RuntimeError("need a library loader for libgtb")
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    syzygy = chess.syzygy.Tablebases("data/syzygy")
-    gaviota = Tablebases("data/gaviota")
+    syzygy = chess.syzygy.open_tablebases("data/syzygy")
+    gaviota = open_tablebases("data/gaviota")
 
     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
 
