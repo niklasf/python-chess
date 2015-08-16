@@ -10,6 +10,7 @@ Contents
     pgn
     polyglot
     syzygy
+    gaviota
     uci
     changelog
 
