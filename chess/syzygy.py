@@ -1580,3 +1580,8 @@ class Tablebases(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
+
+
+def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
+    """Opens a collection of tablebases for probing. See *Tablebases*."""
+    return Tablebases(directory, load_wdl, load_dtz)
