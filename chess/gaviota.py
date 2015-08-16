@@ -73,14 +73,17 @@ class Libgtb(object):
 
 if __name__ == "__main__":
     libgtb = Libgtb()
-    print("tb_init: ", libgtb.tb_init(1, 4, ["gtb/gtb4"]))
+    print("tb_init: ", libgtb.tb_init(1, 4, ["data/gaviota"]))
     print("tbcache_init: ", libgtb.tbcache_init(32 * 1024 * 1024, 96))
 
     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
     print(board)
     print("tb_probe_hard: ", libgtb.tb_probe_hard(board))
 
-    print("tb_done: ", libgtb.tb_done())
+    #print("tb_done: ", libgtb.tb_done())
+
+    libgtb2 = Libgtb()
+    print("tb_probe_hard2: ", libgtb2.tb_probe_hard(board))
 
 # tb_init(int verbosity, int compression_scheme, const char **paths)
 
