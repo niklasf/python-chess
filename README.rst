@@ -363,7 +363,7 @@ python-chess is licensed under the GPL3. See the LICENSE file for the
 full copyright and license information.
 
 Thanks to Sam Tannous for publishing his approach to `avoid rotated bitboards
-with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_ alongside with
+with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_ alongside
 his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_. Some of
 the bitboard move generation parts are ported from there.
 
