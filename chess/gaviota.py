@@ -103,6 +103,9 @@ class NativeTablebases(object):
         if chess.pop_count(board.occupied_co[chess.BLACK]) > 16:
             return None
 
+        if board.is_insufficient_material():
+            return 0
+
         if board.castling_rights:
             return None
 
