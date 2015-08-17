@@ -18,6 +18,7 @@
 
 import ctypes
 import ctypes.util
+import os.path
 import logging
 import chess
 
@@ -41,6 +42,9 @@ class NativeTablebases(object):
 
     def open_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
+        if not os.path.isdir(directory):
+            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+
         self.paths.append(directory)
         self._tb_restart()
 
