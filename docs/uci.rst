@@ -83,9 +83,6 @@ command is completed. It takes a *Command* object as a single argument.
 ...
 >>> command = engine.go(movetime=2000, async_callback=on_go_finished)
 
-.. autoclass:: chess.uci.Command
-    :members: done, add_done_callback, result
-
 Note about castling moves
 -------------------------
 
@@ -156,7 +153,6 @@ class.
 
 Options
 -------
-
 
 .. autoclass:: chess.uci.Option
 

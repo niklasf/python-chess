@@ -22,6 +22,7 @@ import chess.polyglot
 import chess.pgn
 import chess.uci
 import chess.syzygy
+import chess.gaviota
 import collections
 import os.path
 import textwrap
@@ -2109,6 +2110,32 @@ class SyzygyTestCase(unittest.TestCase):
                     "Expecting dtz %d for %s, got %d (at line %d)" % (extra["dtz"], board.fen(), dtz, line + 1))
 
         tablebases.close()
+
+
+class GaviotaTestCase(unittest.TestCase):
+
+    def setUp(self):
+        try:
+            self.tablebases = chess.gaviota.open_tablebases("data/gaviota")
+        except (OSError, RuntimeError):
+            self.skipTest("need libgtb")
+
+    def tearDown(self):
+        self.tablebases.close()
+
+    def test_probe_dtm(self):
+        board = chess.Board("6K1/8/8/8/4Q3/8/6k1/8 b - - 0 1")
+        self.assertEqual(self.tablebases.probe_dtm(board), -14)
+
+        board = chess.Board("8/3K4/8/8/8/4r3/4k3/8 b - - 0 1")
+        self.assertEqual(self.tablebases.probe_dtm(board), 21)
+
+    def test_probe_wdl(self):
+        board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
+        self.assertEqual(self.tablebases.probe_wdl(board), 0)
+
+        board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
+        self.assertEqual(self.tablebases.probe_wdl(board), 1)
 
 
 if __name__ == "__main__":
