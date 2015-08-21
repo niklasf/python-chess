@@ -1340,7 +1340,7 @@ class Tablebases(object):
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
-        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        >>> with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
         ...     tablebases.probe_wdl(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -2
@@ -1511,7 +1511,7 @@ class Tablebases(object):
         Engines like Stockfish calculate themselves, checking with DTZ, but only
         play according to DTZ if they can not manage on their own.
 
-        >>> with chess.syzygy.Tablebases("data/syzygy") as tablebases:
+        >>> with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
         ...     tablebases.probe_dtz(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -53
@@ -1580,3 +1580,8 @@ class Tablebases(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
+
+
+def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
+    """Opens a collection of tablebases for probing. See *Tablebases*."""
+    return Tablebases(directory, load_wdl, load_dtz)

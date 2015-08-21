@@ -977,7 +977,7 @@ class Board(object):
         self.occupied ^= mask
         self.occupied_co[piece.color] ^= mask
 
-        # Update incremental zorbist hash.
+        # Update incremental zobrist hash.
         if piece.color == BLACK:
             piece_index = (piece.piece_type - 1) * 2
         else:
@@ -1214,7 +1214,7 @@ class Board(object):
         if not self.attacks_valid:
             self.generate_attacks()
 
-        # If already in check, look if it as an evasion.
+        # If already in check, look if it is an evasion.
         if self.is_check():
             return move not in self.generate_evasions(
                 castling=False,
