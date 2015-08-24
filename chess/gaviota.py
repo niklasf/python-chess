@@ -47,7 +47,7 @@ class NativeTablebases(object):
 
     def _tb_restart(self):
         c_paths = (ctypes.c_char_p * len(self.paths))()
-        c_paths[:] = [bytes(path, "utf-8") for path in self.paths]
+        c_paths[:] = [path.encode("utf-8") for path in self.paths]
 
         verbosity = ctypes.c_int(1)
         compression_scheme = ctypes.c_int(4)
