@@ -27,7 +27,7 @@ import collections
 import re
 
 
-COLORS = [WHITE, BLACK] = range(2)
+COLORS = [WHITE, BLACK] = [True, False]
 
 PIECE_TYPES = [NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(7)
 
@@ -767,6 +767,8 @@ class Board(object):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
+        self.occupied_co = [BB_VOID, BB_VOID]
+
         self.attacks_valid = False
         self.attacks_from = collections.defaultdict(int)
         self.attacks_to = collections.defaultdict(int)
@@ -796,7 +798,9 @@ class Board(object):
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
-        self.occupied_co = [ BB_RANK_1 | BB_RANK_2, BB_RANK_7 | BB_RANK_8 ]
+        self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
+        self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
+
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
         self.ep_square = 0
@@ -838,7 +842,8 @@ class Board(object):
         self.queens = BB_VOID
         self.kings = BB_VOID
 
-        self.occupied_co = [BB_VOID, BB_VOID]
+        self.occupied_co[WHITE] = BB_VOID
+        self.occupied_co[BLACK] = BB_VOID
         self.occupied = BB_VOID
 
         self.halfmove_clock_stack.clear()
@@ -891,7 +896,7 @@ class Board(object):
         piece_type = self.piece_type_at(square)
         if piece_type:
             mask = BB_SQUARES[square]
-            color = int(bool(self.occupied_co[BLACK] & mask))
+            color = bool(self.occupied_co[WHITE] & mask)
             return Piece(piece_type, color)
 
     def piece_type_at(self, square):
@@ -934,7 +939,7 @@ class Board(object):
         else:
             self.kings ^= mask
 
-        color = int(bool(self.occupied_co[BLACK] & mask))
+        color = bool(self.occupied_co[WHITE] & mask)
 
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
@@ -994,7 +999,7 @@ class Board(object):
             self.generate_attacks()
 
         our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[self.turn ^ 1]
+        their_pieces = self.occupied_co[not self.turn]
 
         # Selective move generation.
         selected_pieces = BB_VOID
@@ -1199,7 +1204,7 @@ class Board(object):
         if king_square is None or king_square == -1:
             return False
 
-        return self.is_attacked_by(self.turn ^ 1, king_square)
+        return self.is_attacked_by(not self.turn, king_square)
 
     def is_into_check(self, move):
         """
@@ -1233,7 +1238,7 @@ class Board(object):
 
         # Detect king moves into check.
         if from_square_mask & self.kings:
-            return self.attacks_to[to_square_mask] & self.occupied_co[self.turn ^ 1]
+            return self.attacks_to[to_square_mask] & self.occupied_co[not self.turn]
 
         return False
 
@@ -1242,7 +1247,7 @@ class Board(object):
         Checks if the king of the other side is attacked. Such a position is not
         valid and could only be reached by an illegal move.
         """
-        king_square = bit_scan(self.kings & self.occupied_co[self.turn ^ 1])
+        king_square = bit_scan(self.kings & self.occupied_co[not self.turn])
         if king_square is None or king_square == -1:
             return False
 
@@ -1476,7 +1481,7 @@ class Board(object):
 
         # On a null move simply swap turns and reset the en-passant square.
         if not move:
-            self.turn ^= 1
+            self.turn = not self.turn
             self.halfmove_clock += 1
 
             # Invalidate en-passant attacks.
@@ -1551,7 +1556,7 @@ class Board(object):
             self.set_piece_at(move.to_square, Piece(piece_type, self.turn), _invalidate_attacks=False)
 
         # Swap turn.
-        self.turn ^= 1
+        self.turn = not self.turn
 
         # Update transposition table.
         self.transpositions.update((self.zobrist_hash(), ))
@@ -1588,12 +1593,12 @@ class Board(object):
 
         # On a null move simply swap the turn.
         if not move:
-            self.turn ^= 1
+            self.turn = not self.turn
             return move
 
         # Remove the rook after castling and restore the king. Castling is
         # encoded as capturing our own rook.
-        castling = captured_piece and captured_piece.color == self.turn ^ 1
+        castling = captured_piece and captured_piece.color != self.turn
         if castling:
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
@@ -1604,7 +1609,7 @@ class Board(object):
                 self.remove_piece_at(G1 if self.turn == BLACK else G8, _invalidate_attacks=False)
                 self.remove_piece_at(F1 if self.turn == BLACK else F8, _invalidate_attacks=False)
 
-            self.set_piece_at(move.from_square, Piece(KING, self.turn ^ 1), _invalidate_attacks=False)
+            self.set_piece_at(move.from_square, Piece(KING, not self.turn), _invalidate_attacks=False)
 
         piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
 
@@ -1623,10 +1628,10 @@ class Board(object):
 
         # Restore the source square.
         if not castling:
-            self.set_piece_at(move.from_square, Piece(piece, self.turn ^ 1), _invalidate_attacks=False)
+            self.set_piece_at(move.from_square, Piece(piece, not self.turn), _invalidate_attacks=False)
 
         # Swap turn.
-        self.turn ^= 1
+        self.turn = not self.turn
 
         return move
 
@@ -2395,7 +2400,7 @@ class Board(object):
 
     def is_capture(self, move):
         """Checks if the given pseudo-legal move is a capture."""
-        return BB_SQUARES[move.to_square] & self.occupied_co[self.turn ^ 1] or self.is_en_passant(move)
+        return BB_SQUARES[move.to_square] & self.occupied_co[not self.turn] or self.is_en_passant(move)
 
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
@@ -2514,7 +2519,7 @@ class Board(object):
 
             # The last move must have been a double pawn push, so there must
             # be a pawn of the correct color on the fourth or fifth rank.
-            if not self.pawns & self.occupied_co[self.turn ^ 1] & pawn_mask:
+            if not self.pawns & self.occupied_co[not self.turn] & pawn_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
             # And the en-passant square must be empty.
@@ -2706,7 +2711,7 @@ class Board(object):
             self.generate_attacks()
 
         our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[self.turn ^ 1]
+        their_pieces = self.occupied_co[not self.turn]
 
         # Selective move generation.
         selected_pieces = BB_VOID
@@ -2905,7 +2910,7 @@ class Board(object):
             # In the special case where we castle queenside and our rook
             # shielded us from an attack from a1 or a8, castling would be
             # into check.
-            if a_side and rook & BB_FILE_B and self.occupied_co[self.turn ^ 1] & (self.queens | self.rooks) & bb_a:
+            if a_side and rook & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a:
 
                 candidates = candidates & (candidates - 1)
                 continue
@@ -2950,7 +2955,7 @@ class Board(object):
                 none_attacked = True
                 while not_attacked_for_king:
                     test_attack = not_attacked_for_king & -not_attacked_for_king
-                    if self.attacks_to[test_attack] & self.occupied_co[self.turn ^ 1]:
+                    if self.attacks_to[test_attack] & self.occupied_co[not self.turn]:
                         none_attacked = False
                         break
                     not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
@@ -2981,7 +2986,7 @@ class Board(object):
 
         # Prepare basic information.
         our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[self.turn ^ 1]
+        their_pieces = self.occupied_co[not self.turn]
         our_king = self.kings & our_pieces
 
         our_pawns = self.pawns & our_pieces
