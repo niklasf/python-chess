@@ -117,6 +117,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), chess.STARTING_FEN)
         self.assertEqual(board.turn, chess.WHITE)
 
+    def test_empty(self):
+        board = chess.Board.empty()
+        self.assertEqual(board.fen(), "8/8/8/8/8/8/8/8 w - - 0 1")
+        self.assertEqual(board, chess.Board(None))
+
     def test_move_making(self):
         board = chess.Board()
         move = chess.Move(chess.E2, chess.E4)
