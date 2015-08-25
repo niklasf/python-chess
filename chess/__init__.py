@@ -3492,6 +3492,21 @@ class SquareSet(object):
 
     >>> int(squares)
     66
+
+    Also supports common set operations like
+    :func:`~chess.SquareSet.issubset()`, :func:`~chess.SquareSet.issuperset()`,
+    :func:`~chess.SquareSet.union()`, :func:`~chess.SquareSet.intersection()`,
+    :func:`~chess.SquareSet.difference()`,
+    :func:`~chess.SquareSet.symmetric_difference()` and
+    :func:`~chess.SquareSet.copy()` as well as
+    :func:`~chess.SquareSet.update()`,
+    :func:`~chess.SquareSet.intersection_update()`,
+    :func:`~chess.SquareSet.difference_update()`,
+    :func:`~chess.SquareSet.symmetric_difference_update()` and
+    :func:`~chess.SquareSet.clear()`.
+
+    :warning: Square sets can be used as dictionary keys, but do not modify
+      them when doing this.
     """
 
     def __init__(self, mask=BB_VOID):
@@ -3531,9 +3546,15 @@ class SquareSet(object):
         self ^= other
 
     def add(self, square):
+        """Add a square to the set."""
         self |= BB_SQUARES[square]
 
     def remove(self, square):
+        """
+        Remove a square from the set.
+
+        Raises :exc:`KeyError` if the given square was not in the set.
+        """
         mask = BB_SQUARES[square]
         if self.mask & mask:
             self.mask ^= mask
@@ -3541,9 +3562,15 @@ class SquareSet(object):
             raise KeyError(square)
 
     def discard(self, square):
+        """Discards a square from the set."""
         self &= ~BB_SQUARES[square]
 
     def pop(self):
+        """
+        Removes a square from the set and returns it.
+
+        Raises :exc:`KeyError` on an empty set.
+        """
         if not self.mask:
             raise KeyError("pop from empty set")
 
