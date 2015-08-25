@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
@@ -22,6 +22,7 @@ import distutils
 import os
 import setuptools
 import sys
+
 
 def read_description():
     """
@@ -47,6 +48,7 @@ def read_description():
 
     return description
 
+
 def dependencies():
     deps = []
 
@@ -54,6 +56,7 @@ def dependencies():
         deps.append("futures")
 
     return deps
+
 
 setuptools.setup(
     name="python-chess",
