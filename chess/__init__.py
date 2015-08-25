@@ -29,7 +29,7 @@ import re
 
 COLORS = [WHITE, BLACK] = [True, False]
 
-PIECE_TYPES = [NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(7)
+PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 
 PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
 
@@ -676,7 +676,7 @@ class Move(object):
     Null moves are supported.
     """
 
-    def __init__(self, from_square, to_square, promotion=NONE):
+    def __init__(self, from_square, to_square, promotion=None):
         self.from_square = from_square
         self.to_square = to_square
         self.promotion = promotion
@@ -690,16 +690,17 @@ class Move(object):
 
         The UCI representatin of null moves is ``0000``.
         """
-        if self:
+        if self.promotion:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+        elif self:
+            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square]
         else:
             return "0000"
 
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion)
 
-    def __nonzero__(self):
-        return self.from_square or self.to_square or self.promotion
+    __nonzero__ = __bool__
 
     def __eq__(self, other):
         try:
@@ -717,7 +718,10 @@ class Move(object):
         return self.uci()
 
     def __hash__(self):
-        return hash(self.to_square ^ self.from_square << 6 ^ self.promotion << 12)
+        if self.promotion:
+            return hash(self.to_square ^ self.from_square << 6 ^ self.promotion << 12)
+        else:
+            return hash(self.to_square ^ self.from_square << 6)
 
     @classmethod
     def from_uci(cls, uci):
@@ -748,7 +752,7 @@ class Move(object):
         >>> bool(chess.Move.null())
         False
         """
-        return cls(0, 0, NONE)
+        return cls(0, 0, None)
 
 
 class Board(object):
@@ -918,7 +922,7 @@ class Board(object):
         elif self.kings & mask:
             return KING
         else:
-            return NONE
+            return None
 
     def remove_piece_at(self, square, _invalidate_attacks=True):
         """Removes a piece from the given square if present."""
@@ -2154,7 +2158,7 @@ class Board(object):
 
         # Get the promotion type.
         if not match.group(5):
-            promotion = NONE
+            promotion = None
         else:
             promotion = PIECE_SYMBOLS.index(match.group(5)[-1].lower())
 

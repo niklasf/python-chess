@@ -17,9 +17,6 @@ You can get the opposite color using `not color`.
 Piece types
 -----------
 
-.. py:data:: chess.NONE
-    :annotation: = 0
-
 .. py:data:: chess.PAWN
     :annotation: = 1
 .. py:data:: chess.KNIGHT

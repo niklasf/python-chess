@@ -115,7 +115,7 @@ class NativeTablebases(object):
             c_wp[i] = board.piece_type_at(square)
 
         c_ws[i + 1] = 64
-        c_wp[i + 1] = chess.NONE
+        c_wp[i + 1] = 0
 
         c_bs = (ctypes.c_uint * 17)()
         c_bp = (ctypes.c_ubyte * 17)()
@@ -125,7 +125,7 @@ class NativeTablebases(object):
             c_bp[i] = board.piece_type_at(square)
 
         c_bs[i + 1] = 64
-        c_bp[i + 1] = chess.NONE
+        c_bp[i + 1] = 0
 
         # Do a hard probe.
         info = ctypes.c_uint()
