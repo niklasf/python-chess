@@ -45,7 +45,7 @@ UNICODE_PIECE_SYMBOLS = {
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-"""The FEN notation of the standard chess starting position."""
+"""The FEN of the standard chess starting position."""
 
 STATUS_VALID = 0
 STATUS_NO_WHITE_KING = 1
@@ -92,15 +92,15 @@ SQUARE_NAMES = [
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" ]
 
 def file_index(square):
-    """Gets the file index of square where `0` is the a file."""
+    """Gets the file index of square where ``0`` is the a file."""
     return square & 7
 
 def rank_index(square):
-    """Gets the rank index of the square where `0` is the first rank."""
+    """Gets the rank index of the square where ``0`` is the first rank."""
     return square >> 3
 
 def square(file_index, rank_index):
-    """Gets the square number by its file and rank index."""
+    """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
 
 
@@ -615,8 +615,8 @@ class Piece(object):
 
     def symbol(self):
         """
-        Gets the symbol `P`, `N`, `B`, `R`, `Q` or `K` for white pieces or the
-        lower-case variants for the black pieces.
+        Gets the symbol ``P``, ``N``, ``B``, ``R``, ``Q`` or ``K`` for white
+        pieces or the lower-case variants for the black pieces.
         """
         if self.color == WHITE:
             return PIECE_SYMBOLS[self.piece_type].upper()
@@ -658,7 +658,7 @@ class Piece(object):
         """
         Creates a piece instance from a piece symbol.
 
-        Raises `ValueError` if the symbol is invalid.
+        Raises :exc:`ValueError` if the symbol is invalid.
         """
         if symbol.lower() == symbol:
             return cls(PIECE_SYMBOLS.index(symbol), BLACK)
@@ -685,10 +685,10 @@ class Move(object):
         """
         Gets an UCI string for the move.
 
-        For example a move from A7 to A8 would be `a7a8` or `a7a8q` if it is
-        a promotion to a queen.
+        For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
+        is a promotion to a queen.
 
-        The UCI representatin of null moves is `0000`.
+        The UCI representatin of null moves is ``0000``.
         """
         if self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
@@ -724,7 +724,7 @@ class Move(object):
         """
         Parses an UCI string.
 
-        Raises `ValueError` if the UCI string is invalid.
+        Raises ``ValueError`` if the UCI string is invalid.
         """
         if uci == "0000":
             return cls.null()
@@ -742,7 +742,7 @@ class Move(object):
         Gets a null move.
 
         A null move just passes the turn to the other side (and possibly
-        forfeits en-passant capturing). Null moves evaluate to `False` in
+        forfeits en-passant capturing). Null moves evaluate to ``False`` in
         boolean contexts.
 
         >>> bool(chess.Move.null())
@@ -760,8 +760,8 @@ class Board(object):
     moves.
 
     The board is initialized to the starting position, unless otherwise
-    specified in the optional `fen` argument. The board is empty if `fen`
-    is `None`.
+    specified in the optional *fen* argument. If *fen* is ``None`` an empty
+    board is created.
     """
 
     def __init__(self, fen=STARTING_FEN):
@@ -832,11 +832,10 @@ class Board(object):
         Clears the board.
 
         Resets move stacks and move counters. The side to move is white. There
-        are no rooks or kings, so castling is not allowed.
+        are no rooks or kings, so castling rights are removed.
 
-        In order to be in a valid `status()` at least kings need to be put on
-        the board. This is required for move generation and validation to work
-        properly.
+        In order to be in a valid :func:`~chess.Board.status()` at least kings
+        need to be put on the board.
         """
         self.pawns = BB_VOID
         self.knights = BB_VOID
@@ -890,12 +889,12 @@ class Board(object):
         """
         Gets pieces of the given type and color.
 
-        Returns a set of squares.
+        Returns a :class:`set of squares <chess.SquareSet>`.
         """
         return SquareSet(self.pieces_mask(piece_type, color))
 
     def piece_at(self, square):
-        """Gets the piece at the given square."""
+        """Gets the :class:`piece <chess.Piece>` at the given square."""
         piece_type = self.piece_type_at(square)
         if piece_type:
             mask = BB_SQUARES[square]
@@ -1179,7 +1178,7 @@ class Board(object):
         Pinned pieces still count as attackers. Pawns that can be captured
         en-passant are attacked.
 
-        Returns a set of squares.
+        Returns a :class:`set of squares <chess.SquareSet>`.
         """
         return SquareSet(self.attacker_mask(color, square))
 
@@ -1197,12 +1196,12 @@ class Board(object):
         still attacking other squares. Pawns will attack pawns they could
         capture en-passant.
 
-        Returns a set of squares.
+        Returns a :class:`set of squares <chess.SquareSet>`.
         """
         return SquareSet(self.attacks_mask(square))
 
     def is_check(self):
-        """Checks if the current side to move is in check."""
+        """Returns if the current side to move is in check."""
         king_square = bit_scan(self.kings & self.occupied_co[self.turn])
         if king_square is None or king_square == -1:
             return False
@@ -1456,7 +1455,7 @@ class Board(object):
         Updates the position with the given move and puts it onto a stack.
 
         Null moves just increment the move counters, switch turns and forfeit
-        en passant capturing.
+        en-passant capturing.
 
         No validation is performed. For performance moves are assumed to be at
         least pseudo legal. Otherwise there is no guarantee that the previous
@@ -1646,13 +1645,13 @@ class Board(object):
         """
         Parses the given EPD string and uses it to set the position.
 
-        If present the `hmvc` and the `fmvn` are used to set the half move
-        clock and the fullmove number. Otherwise `0` and `1` are used.
+        If present the ``hmvc`` and the ``fmvn`` are used to set the half move
+        clock and the fullmove number. Otherwise ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
         integers, floats or move objects.
 
-        Raises `ValueError` if the EPD string is invalid.
+        Raises :exc:`ValueError` if the EPD string is invalid.
         """
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
@@ -1908,10 +1907,10 @@ class Board(object):
         are strings, integers, floats and moves and lists of moves and None.
         All other operands are converted to strings.
 
-        A list of moves for `pv` will be interpreted as a variation. All other
+        A list of moves for *pv* will be interpreted as a variation. All other
         move lists are interpreted as a set of moves in the current position.
 
-        `hmvc` and `fmvc` are *not* included by default. You can use:
+        *hmvc* and *fmvc* are not included by default. You can use:
 
         >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
@@ -1993,7 +1992,7 @@ class Board(object):
         """
         Parses a FEN and sets the position from it.
 
-        Rasies `ValueError` if the FEN string is invalid.
+        Rasies :exc:`ValueError` if the FEN string is invalid.
         """
         # Ensure there are six parts.
         parts = fen.split()
@@ -2114,7 +2113,7 @@ class Board(object):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        Raises `ValueError` if the SAN is invalid or ambiguous.
+        Raises :exc:`ValueError` if the SAN is invalid or ambiguous.
         """
         # Null moves.
         if san == "--":
@@ -2209,7 +2208,7 @@ class Board(object):
         Parses a move in standard algebraic notation, makes the move and puts
         it on the the move stack.
 
-        Raises `ValueError` if neither legal nor a null move.
+        Raises :exc:`ValueError` if neither legal nor a null move.
 
         Returns the move.
         """
@@ -2326,7 +2325,7 @@ class Board(object):
         Gets the UCI notation of the move.
 
         Castling moves are returned in UCI_Chess960 notation. If you provide
-        *False* for `chess960` they will be converted to legacy UCI notation
+        ``False`` for *chess960* they will be converted to legacy UCI notation
         in the context of the current position.
         """
         if not chess960 and (move.from_square == E1 or move.from_square == E8):
@@ -2350,8 +2349,8 @@ class Board(object):
 
         Supports both UCI_Chess960 and legacy UCI notation.
 
-        Raises `ValueError` if the move is invalid or illegal in the current
-        position.
+        Raises :exc:`ValueError` if the move is invalid or illegal in the
+        current position.
         """
         move = Move.from_uci(uci)
 
@@ -2377,8 +2376,8 @@ class Board(object):
         """
         Parses a move in UCI notation and puts it on the move stack.
 
-        Raises `ValueError` if the move is invalid or illegal in the current
-        position.
+        Raises :exc:`ValueError` if the move is invalid or illegal in the
+        current position.
 
         Returns the move.
         """
@@ -2417,17 +2416,23 @@ class Board(object):
         a completely valid board.
 
         By default positions with generalized Chess960 castling rights are
-        allowed. Pass *False* for *allow_chess960* in order to restrict
+        allowed. Pass ``False`` for *allow_chess960* in order to restrict
         the validation to standard chess positions.
 
-        STATUS_VALID for a completely valid board.
+        ``STATUS_VALID`` for a completely valid board.
 
-        Otherwise bitwise combinations of: STATUS_NO_WHITE_KING,
-        STATUS_NO_BLACK_KING, STATUS_TOO_MANY_KINGS,
-        STATUS_TOO_MANY_WHITE_PAWNS, STATUS_TOO_MANY_BLACK_PAWNS,
-        STATUS_PAWNS_ON_BACKRANK, STATUS_TOO_MANY_WHITE_PIECES,
-        STATUS_TOO_MANY_BLACK_PIECES, STATUS_BAD_CASTLING_RIGHTS,
-        STATUS_INVALID_EP_SQUARE, STATUS_OPPOSITE_CHECK.
+        Otherwise bitwise combinations of:
+        :data:`~chess.STATUS_NO_WHITE_KING`,
+        :data:`~chess.STATUS_NO_BLACK_KING`,
+        :data:`~chess.STATUS_TOO_MANY_KINGS`,
+        :data:`~chess.STATUS_TOO_MANY_WHITE_PAWNS`,
+        :data:`~chess.STATUS_TOO_MANY_BLACK_PAWNS`,
+        :data:`~chess.STATUS_PAWNS_ON_BACKRANK`,
+        :data:`~chess.STATUS_TOO_MANY_WHITE_PIECES`,
+        :data:`~chess.STATUS_TOO_MANY_BLACK_PIECES`,
+        :data:`~chess.STATUS_BAD_CASTLING_RIGHTS`,
+        :data:`~chess.STATUS_INVALID_EP_SQUARE`,
+        :data:`~chess.STATUS_OPPOSITE_CHECK`.
         """
         errors = STATUS_VALID
 
@@ -2546,7 +2551,7 @@ class Board(object):
         Move making, generation and validation are only guaranteed to work on
         a completely valid board.
 
-        See Board.status() for details.
+        See :func:`~chess.Board.status()` for details.
         """
         return self.status(allow_chess960) == STATUS_VALID
 
@@ -2691,9 +2696,9 @@ class Board(object):
         """
         Detects pins of the given square to the king of the given color.
 
-        Returns a set of squares that mask the rank, file or diagonal
-        of the pin. If there is no pin, then a mask of the entire board is
-        returned.
+        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
+        file or diagonal of the pin. If there is no pin, then a mask of the
+        entire board is returned.
         """
         return SquareSet(self.pin_mask(color, square))
 
@@ -3324,8 +3329,9 @@ class Board(object):
         position, such as piece positions, castling rights and en-passant
         squares. For this implementation an array of 781 values is required.
 
-        The default behaviour is to use values from `POLYGLOT_RANDOM_ARRAY`,
-        which makes for hashes compatible with polyglot opening books.
+        The default behaviour is to use values from
+        :data:`~chess.POLYGLOT_RANDOM_ARRAY`, which makes for hashes compatible
+        with polyglot opening books.
         """
         # Hash in the board setup.
         zobrist_hash = self.board_zobrist_hash(array)
@@ -3387,13 +3393,14 @@ class Board(object):
 
     @classmethod
     def empty(cls):
-        """Creates a new empty board."""
+        """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None)
 
     @classmethod
     def from_epd(cls, epd):
         """
-        Creates a new board from an EPD string. See `set_epd()`.
+        Creates a new board from an EPD string. See
+        :func:`~chess.Board.set_epd()`.
 
         Returns the board and the dictionary of parsed operations as a tuple.
         """
