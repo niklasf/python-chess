@@ -3520,19 +3520,15 @@ class SquareSet(object):
 
     def update(self, other):
         self |= other
-        return self
 
     def intersection_update(self, other):
         self &= other
-        return self
 
     def difference_update(self, other):
-        self.mask = int(self & ~other)
-        return self
+        self &= ~other
 
     def symmetric_difference_update(self, other):
         self ^= other
-        return self
 
     def add(self, square):
         self |= BB_SQUARES[square]
