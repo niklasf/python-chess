@@ -16,6 +16,11 @@ headers.
 
         A `collections.OrderedDict()` of game headers.
 
+    .. py:attribute:: errors
+
+        A list of illegal or ambiguous move errors encountered while parsing
+        the game.
+
 .. autoclass:: chess.pgn.GameNode
     :members:
 

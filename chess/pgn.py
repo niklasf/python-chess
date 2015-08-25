@@ -322,6 +322,8 @@ class Game(GameNode):
         self.headers["Black"] = "?"
         self.headers["Result"] = "*"
 
+        self.errors = []
+
     def board(self):
         """
         Gets the starting position of the game.
@@ -674,6 +676,7 @@ def read_game(handle, error_handler=_raise):
                     board_stack[-1].push(move)
                     starting_comment = ""
                 except ValueError as error:
+                    game.errors.append(error)
                     if error_handler:
                         error_handler(error)
 
