@@ -3449,9 +3449,114 @@ class LegalMoveGenerator(object):
 
 
 class SquareSet(object):
+    """
+    A set of squares.
+
+    >>> squares = chess.SquareSet(chess.BB_B1 | chess.BB_G1)
+    >>> squares
+    SquareSet(0b1000010)
+
+    >>> print(squares)
+    . . . . . . . .
+    . . . . . . . .
+    . . . . . . . .
+    . . . . . . . .
+    . . . . . . . .
+    . . . . . . . .
+    . . . . . . . .
+    . 1 . . . . 1 .
+
+    >>> len(squares)
+    2
+
+    >>> bool(squares)
+    True
+
+    >>> chess.B1 in squares
+    True
+
+    >>> for square in squares:
+    ...     # 1 -- chess.B1
+    ...     # 6 -- chess.G1
+    ...     print(square)
+    ...
+    1
+    6
+
+    >>> list(squares)
+    [1, 6]
+
+    Square sets are internally represented by 64 bit integer masks of the
+    included squares. Bitwise operations can be used to compute unions,
+    intersections and shifts.
+
+    >>> int(squares)
+    66
+    """
 
     def __init__(self, mask):
         self.mask = mask
+
+    def issubset(self, other):
+        return not bool(self & ~other)
+
+    def issuperset(self, other):
+        return not bool(~self & other)
+
+    def union(self, other):
+        return self | other
+
+    def intersection(self, other):
+        return self & other
+
+    def difference(self, other):
+        return self & ~other
+
+    def symmetric_difference(self, other):
+        return self ^ other
+
+    def copy(self):
+        return __class__(self.mask)
+
+    def update(self, other):
+        self |= other
+        return self
+
+    def intersection_update(self, other):
+        self &= other
+        return self
+
+    def difference_update(self, other):
+        self.mask = int(self & ~other)
+        return self
+
+    def symmetric_difference_update(self, other):
+        self ^= other
+        return self
+
+    def add(self, square):
+        self |= BB_SQUARES[square]
+
+    def remove(self, square):
+        mask = BB_SQUARES[square]
+        if self.mask & mask:
+            self.mask ^= mask
+        else:
+            raise KeyError(square)
+
+    def discard(self, square):
+        self &= ~BB_SQUARES[square]
+
+    def pop(self):
+        if not self.mask:
+            raise KeyError("pop from empty set")
+
+        square_mask = self.mask & -self.mask
+        self.mask = self.mask & (self.mask - 1)
+        return bit_scan(square_mask)
+
+    def clear(self):
+        self.mask = BB_VOID
 
     def __bool__(self):
         return bool(self.mask)

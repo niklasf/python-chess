@@ -49,7 +49,7 @@ and so on to
     :annotation: = 63
 
 .. py:data:: chess.SQUARES
-    :annotation: = [A1, B1, ..., G8, H8]
+    :annotation: = [chess.A1, chess.B1, ..., chess.G8, chess.H8]
 
 .. py:data:: chess.SQUARE_NAMES
     :annotation: = ['a1', 'b1', ..., 'g8', 'h8']
@@ -156,3 +156,31 @@ Board
 
         A dynamic list of completely legal moves, much like the pseudo legal
         move list.
+
+Square sets
+-----------
+
+.. autoclass:: chess.SquareSet
+    :members:
+
+Common integer masks are:
+
+.. py:data:: chess.BB_VOID
+    :annotation: = 0
+.. py:data:: chess.BB_ALL
+
+.. py:data:: chess.BB_LIGHT_SQUARES
+.. py:data:: chess.BB_DARK_SQUARES
+
+Single squares:
+
+.. py:data:: chess.BB_SQUARES
+    :annotation: = [chess.BB_A1, chess.BB_B1, ..., chess.BB_G8, chess.BB_H8]
+
+Ranks and files:
+
+.. py:data:: chess.BB_RANKS
+    :annotation: = [chess.BB_RANK_1, ..., chess.BB_RANK_8]
+
+.. py:data:: chess.BB_FILES
+    :annotation: = [chess.BB_FILE_A, ..., chess.BB_FILE_H]
