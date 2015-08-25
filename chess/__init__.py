@@ -3494,7 +3494,7 @@ class SquareSet(object):
     66
     """
 
-    def __init__(self, mask):
+    def __init__(self, mask=BB_VOID):
         self.mask = mask
 
     def issubset(self, other):
