@@ -21,11 +21,17 @@ Piece types
     :annotation: = 0
 
 .. py:data:: chess.PAWN
+    :annotation: = 1
 .. py:data:: chess.KNIGHT
+    :annotation: = 2
 .. py:data:: chess.BISHOP
+    :annotation: = 3
 .. py:data:: chess.ROOK
+    :annotation: = 4
 .. py:data:: chess.QUEEN
+    :annotation: = 5
 .. py:data:: chess.KING
+    :annotation: = 6
 
 Squares
 -------
@@ -37,6 +43,8 @@ Squares
 
 and so on to
 
+.. py:data:: chess.H7
+    :annotation: = 62
 .. py:data:: chess.H8
     :annotation: = 63
 
@@ -46,10 +54,10 @@ and so on to
 .. py:data:: chess.SQUARE_NAMES
     :annotation: = ['a1', 'b1', ..., 'g8', 'h8']
 
-.. autofunction:: chess.file_index
-
 .. py:data:: chess.FILE_NAMES
     :annotation: = ['a', 'b', ..., 'g', 'h']
+
+.. autofunction:: chess.file_index
 
 .. autofunction:: chess.rank_index
 
