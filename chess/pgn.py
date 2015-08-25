@@ -24,12 +24,25 @@ import re
 
 
 NAG_NULL = 0
+
 NAG_GOOD_MOVE = 1
+"""A good move. Can also be indicated by ``!`` in PGN notation."""
+
 NAG_MISTAKE = 2
+"""A mistake. Can also be indicated by ``?`` in PGN notation."""
+
 NAG_BRILLIANT_MOVE = 3
+"""A brilliant move. Can also be indicated by ``!!`` in PGN notation."""
+
 NAG_BLUNDER = 4
+"""A blunder. Can also be indicated by ``??`` in PGN notation."""
+
 NAG_SPECULATIVE_MOVE = 5
+"""A speculative move. Can also be indicated by ``!?`` in PGN notation."""
+
 NAG_DUBIOUS_MOVE = 6
+"""A dubious move. Can also be indicated by ``?!`` in PGN notation."""
+
 NAG_FORCED_MOVE = 7
 NAG_SINGULAR_MOVE = 8
 NAG_WORST_MOVE = 9

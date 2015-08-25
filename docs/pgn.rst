@@ -100,37 +100,11 @@ NAGs
 
 Numeric anotation glyphs describe moves and positions using standardized codes
 that are understood by many chess programs. During PGN parsing, annotations
-like `!`, `?`, `!!`, etc. are also converted to NAGs.
+like ``!``, ``?``, ``!!``, etc. are also converted to NAGs.
 
-.. py:data:: NAG_NULL
-    :annotation: = 0
-
-.. py:data:: NAG_GOOD_MOVE
-    :annotation: = 1
-
-    A good move. Can also be indicated by `!` in PGN notation.
-
-.. py:data:: NAG_MISTAKE
-    :annotation: = 2
-
-    A mistake. Can also be indicated by `?` in PGN notation.
-
-.. py:data:: NAG_BRILLIANT_MOVE
-    :annotation: = 3
-
-    A brilliant move. Can also be indicated by `!!` in PGN notation.
-
-.. py:data:: NAG_BLUNDER
-    :annotation: = 4
-
-    A blunder. Can also be indicated by `??` in PGN notation.
-
-.. py:data:: NAG_SPECULATIVE_MOVE
-    :annotation: = 5
-
-    A speculative move. Can also be indicated by `!?` in PGN notation.
-
-.. py:data:: NAG_DUBIOUS_MOVE
-    :annotation: = 6
-
-    A dubious move. Can also be indicated by `?!` in PGN notation.
+.. autodata:: chess.pgn.NAG_GOOD_MOVE
+.. autodata:: chess.pgn.NAG_MISTAKE
+.. autodata:: chess.pgn.NAG_BRILLIANT_MOVE
+.. autodata:: chess.pgn.NAG_BLUNDER
+.. autodata:: chess.pgn.NAG_SPECULATIVE_MOVE
+.. autodata:: chess.pgn.NAG_DUBIOUS_MOVE
