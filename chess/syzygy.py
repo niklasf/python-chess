@@ -1236,7 +1236,8 @@ class Tablebases(object):
     Syzygy tables come in files like *KQvKN.rtbw* or *KRBvK.rtbz*, one WDL
     (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
 
-    Directly loads tables from *directory*. See *open_directory*.
+    Directly loads tables from *directory*. See
+    :func:`~chess.syzygy.Tablebases.open_directory`.
     """
     def __init__(self, directory=None, load_wdl=True, load_dtz=True):
         self.wdl = {}
@@ -1328,13 +1329,13 @@ class Tablebases(object):
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
 
-        Returns *None* if the position was not found in any of the loaded
+        Returns ``None`` if the position was not found in any of the loaded
         tables.
 
-        Returns *2* if the side to move is winning, *0* if the position is
-        a draw and *-2* if the side to move is losing.
+        Returns ``2`` if the side to move is winning, ``0`` if the position is
+        a draw and ``-2`` if the side to move is losing.
 
-        Returns *1* in case of a cursed win and *-1* in case of a blessed
+        Returns ``1`` in case of a cursed win and ``-1`` in case of a blessed
         loss. Mate can be forced but the position can be drawn due to the
         fifty-move rule.
 
@@ -1495,17 +1496,18 @@ class Tablebases(object):
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
 
-        Return *None* if the position was not found in any of the loaded tables.
-        Both DTZ and WDL tables are required in order to probe for DTZ values.
+        Return ``None`` if the position was not found in any of the loaded
+        tables. Both DTZ and WDL tables are required in order to probe for DTZ
+        values.
 
-        Returns a positive value if the side to move is winning, *0* if the
+        Returns a positive value if the side to move is winning, ``0`` if the
         position is a draw and a negative value if the side to move is losing.
 
         A non-zero distance to zero means the number of halfmoves until the
         next pawn move or capture can be forced, keeping a won position.
         Minmaxing the DTZ values guarantees winning a won position (and drawing
         a drawn position), because it makes progress keeping the win in hand.
-        However the lines are not always the most straight forward ways to win.
+        However the lines are not always the most straightforward ways to win.
         Engines like Stockfish calculate themselves, checking with DTZ, but only
         play according to DTZ if they can not manage on their own.
 
@@ -1581,5 +1583,7 @@ class Tablebases(object):
 
 
 def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
-    """Opens a collection of tablebases for probing. See *Tablebases*."""
+    """
+    Opens a collection of tablebases for probing. See
+    :class:`~chess.syzygy.Tablebases`."""
     return Tablebases(directory, load_wdl, load_dtz)

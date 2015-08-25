@@ -63,7 +63,7 @@ class NativeTablebases(object):
         """
         Probes for depth to mate information.
 
-        Returns *None* if the position was not found in any of the tables.
+        Returns ``None`` if the position was not found in any of the tables.
 
         Otherwise the absolute value is the number of half moves until
         forced mate. The value is positive if the side to move is winning,
@@ -82,10 +82,10 @@ class NativeTablebases(object):
         """
         Probes for win/draw/loss-information.
 
-        Returns *None* if the position was not found in any of the tables.
+        Returns ``None`` if the position was not found in any of the tables.
 
-        Returns *1* if the side to move is winning, *0* if it is a draw,
-        and *-1* if the side to move is losing.
+        Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
+        and ``-1`` if the side to move is losing.
 
         >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
         ...     tablebases.probe_wdl(chess.Board("4k3/8/B7/8/8/8/4K3 w - 0 1"))
