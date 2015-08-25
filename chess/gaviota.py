@@ -176,12 +176,7 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     be open at a time.
     """
     if LibraryLoader:
-        if libgtb is None:
-            libgtb = ctypes.util.find_library("gtb")
-
-        if libgtb is None:
-            raise RuntimeError("libgtb not found")
-
+        libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
         return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
     else:
         raise RuntimeError("need a library loader for libgtb")
