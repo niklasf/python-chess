@@ -24,6 +24,7 @@ __version__ = "0.9.1"
 
 
 import collections
+import copy
 import re
 
 
@@ -1720,7 +1721,7 @@ class Board(object):
                                     operations[opcode] = float(operand)
                                 except ValueError:
                                     if position is None:
-                                        position = self.__class__(" ".join(parts + ["0", "1"]))
+                                        position = type(self)(" ".join(parts + ["0", "1"]))
 
                                     if opcode == "pv":
                                         # A variation.
@@ -3448,6 +3449,48 @@ class Board(object):
 
         return zobrist_hash
 
+    def copy(self):
+        """Creates a copy of the board."""
+        board = type(self)(None)
+        board.pawns = self.pawns
+        board.knights= self.knights
+        board.bishops = self.bishops
+        board.rooks = self.rooks
+        board.queens= self.queens
+        board.kings = self.kings
+
+        board.occupied_co[WHITE] = self.occupied_co[WHITE]
+        board.occupied_co[BLACK] = self.occupied_co[BLACK]
+
+        board.occupied = self.occupied
+
+        board.ep_square = self.ep_square
+        board.castling_rights = self.castling_rights
+        board.turn = self.turn
+        board.fullmove_number = self.fullmove_number
+        board.halfmove_clock = self.halfmove_clock
+
+        board.halfmove_clock_stack = copy.copy(self.halfmove_clock_stack)
+        board.captured_piece_stack = copy.copy(self.captured_piece_stack)
+        board.castling_right_stack = copy.copy(self.castling_right_stack)
+        board.ep_square_stack = copy.copy(self.ep_square_stack)
+        board.move_stack = copy.copy(self.move_stack)
+
+        board.incremental_zobrist_hash = self.incremental_zobrist_hash
+        board.transpositions = copy.copy(self.transpositions)
+
+        board.attacks_valid = False
+
+        return board
+
+    def __copy__(self):
+        return self.copy()
+
+    def __deepcopy__(self, memo):
+        board = self.copy()
+        memo[id(self)] = board
+        return board
+
     @classmethod
     def empty(cls):
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
@@ -3588,7 +3631,7 @@ class SquareSet(object):
         return self ^ other
 
     def copy(self):
-        return self.__class__(self.mask)
+        return type(self)(self.mask)
 
     def update(self, other):
         self |= other
@@ -3676,28 +3719,28 @@ class SquareSet(object):
         return bool(BB_SQUARES[square] & self.mask)
 
     def __lshift__(self, shift):
-        return self.__class__((self.mask << shift) & BB_ALL)
+        return type(self)((self.mask << shift) & BB_ALL)
 
     def __rshift__(self, shift):
-        return self.__class__(self.mask >> shift)
+        return type(self)(self.mask >> shift)
 
     def __and__(self, other):
         try:
-            return self.__class__(self.mask & other.mask)
+            return type(self)(self.mask & other.mask)
         except AttributeError:
-            return self.__class__(self.mask & other)
+            return type(self)(self.mask & other)
 
     def __xor__(self, other):
         try:
-            return self.__class__((self.mask ^ other.mask) & BB_ALL)
+            return type(self)((self.mask ^ other.mask) & BB_ALL)
         except AttributeError:
-            return self.__class__((self.mask ^ other) & BB_ALL)
+            return type(self)((self.mask ^ other) & BB_ALL)
 
     def __or__(self, other):
         try:
-            return self.__class__((self.mask | other.mask) & BB_ALL)
+            return type(self)((self.mask | other.mask) & BB_ALL)
         except AttributeError:
-            return self.__class__((self.mask | other) & BB_ALL)
+            return type(self)((self.mask | other) & BB_ALL)
 
     def __ilshift__(self, shift):
         self.mask = (self.mask << shift & BB_ALL)
@@ -3729,7 +3772,7 @@ class SquareSet(object):
         return self
 
     def __invert__(self):
-        return self.__class__(~self.mask & BB_ALL)
+        return type(self)(~self.mask & BB_ALL)
 
     def __oct__(self):
         return oct(self.mask)

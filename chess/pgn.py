@@ -18,7 +18,6 @@
 
 import chess
 import collections
-import copy
 import itertools
 import re
 
@@ -107,7 +106,7 @@ class GameNode(object):
             self.board_cached = self.parent.board()
             self.board_cached.push(self.move)
 
-        return copy.deepcopy(self.board_cached)
+        return self.board_cached.copy()
 
     def san(self):
         """
@@ -655,7 +654,7 @@ def read_game(handle, error_handler=_raise):
                 if variation_stack[-1].parent:
                     variation_stack.append(variation_stack[-1].parent)
 
-                    board = copy.deepcopy(board_stack[-1])
+                    board = board_stack[-1].copy()
                     board.pop()
                     board_stack.append(board)
 
