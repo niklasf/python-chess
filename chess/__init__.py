@@ -760,10 +760,11 @@ class Board(object):
     moves.
 
     The board is initialized to the starting position, unless otherwise
-    specified in the optional `fen` argument.
+    specified in the optional `fen` argument. The board is empty if `fen`
+    is `None`.
     """
 
-    def __init__(self, fen=None):
+    def __init__(self, fen=STARTING_FEN):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
@@ -785,6 +786,8 @@ class Board(object):
         self.transpositions = collections.Counter()
 
         if fen is None:
+            self.clear()
+        elif fen == STARTING_FEN:
             self.reset()
         else:
             self.set_fen(fen)
@@ -3381,6 +3384,11 @@ class Board(object):
             square = bit_scan(squares, square + 1)
 
         return zobrist_hash
+
+    @classmethod
+    def empty(cls):
+        """Creates a new empty board."""
+        return cls(None)
 
 
 class PseudoLegalMoveGenerator(object):
