@@ -307,7 +307,8 @@ class Game(GameNode):
     >>> game.headers["Result"]
     '*'
 
-    Also has all the other properties and methods of `GameNode`.
+    Also has all the other properties and methods of
+    :class:`~chess.pgn.GameNode`.
     """
 
     def __init__(self):
@@ -375,16 +376,16 @@ class StringExporter(object):
     """
     Allows exporting a game as a string.
 
-    The export method of `Game` also provides options to include or exclude
+    :func:`chess.pgn.Game.export()` also provides options to include or exclude
     headers, variations or comments. By default everything is included.
 
     >>> exporter = chess.pgn.StringExporter()
     >>> game.export(exporter, headers=True, variations=True, comments=True)
     >>> pgn_string = str(exporter)
 
-    Only `columns` characters are written per line. If `columns` is `None` then
-    the entire movetext will be on a single line. This does not affect header
-    tags and comments.
+    Only `columns` characters are written per line. If `columns` is ``None``
+    then the entire movetext will be on a single line. This does not affect
+    header tags and comments.
 
     There will be no newlines at the end of the string.
     """
@@ -463,7 +464,8 @@ class StringExporter(object):
 
 class FileExporter(StringExporter):
     """
-    Like a StringExporter, but games are written directly to a text file.
+    Like a :class:`~chess.pgn.StringExporter`, but games are written directly
+    to a text file.
 
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
@@ -531,11 +533,12 @@ def read_game(handle, error_handler=_raise):
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. However it is difficult to handle illegal or
     ambiguous moves. If such a move is encountered the default behaviour is to
-    stop right in the middle of the game and raise `ValueError`. If you pass
-    `None` for `error_handler` all errors are silently ignored, instead. If you
-    pass a function this function will be called with the error as an argument.
+    stop right in the middle of the game and raise :exc:`ValueError`. If you
+    pass ``None`` for *error_handler* all errors are silently ignored, instead.
+    If you pass a function this function will be called with the error as an
+    argument.
 
-    Returns the parsed game or `None` if the EOF is reached.
+    Returns the parsed game or ``None`` if the EOF is reached.
     """
     game = Game()
     found_game = False
@@ -784,10 +787,10 @@ def scan_offsets(handle):
     Scan a PGN file opened in text mode for game offsets.
 
     Yields the starting offsets of all the games, so that they can be seeked
-    later. This is just like `scan_headers()` but more efficient if you do
-    not actually need the header information.
+    later. This is just like :func:`~chess.pgn.scan_headers()` but more
+    efficient if you do not actually need the header information.
 
-    The PGN standard requires each game to start with an Event-tag. So does
+    The PGN standard requires each game to start with an *Event*-tag. So does
     this scanner.
     """
     in_comment = False
