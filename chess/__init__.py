@@ -724,7 +724,7 @@ class Move(object):
         """
         Parses an UCI string.
 
-        Raises ``ValueError`` if the UCI string is invalid.
+        Raises :exc:`ValueError` if the UCI string is invalid.
         """
         if uci == "0000":
             return cls.null()
@@ -2419,7 +2419,7 @@ class Board(object):
         allowed. Pass ``False`` for *allow_chess960* in order to restrict
         the validation to standard chess positions.
 
-        ``STATUS_VALID`` for a completely valid board.
+        :data:`~chess.STATUS_VALID` for a completely valid board.
 
         Otherwise bitwise combinations of:
         :data:`~chess.STATUS_NO_WHITE_KING`,
