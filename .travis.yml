@@ -6,12 +6,19 @@ python:
  - "3.4"
  - "3.5.0b3"
 before_install:
+ - # Stockfish
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
  - unzip stockfish-6-linux.zip
  - mkdir -p bin
  - cp stockfish-6-linux/Linux/stockfish_6_x64 bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
+ - # Gaviota tablebases
+ - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
+ - cd Gaviota-Tablebases
+ - make
+ - export LD_LIBRARY_PATH="`pwd`:${LD_LIBRARY_PATH}"
+ - cd ..
 install:
  - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
  - pip install coveralls
