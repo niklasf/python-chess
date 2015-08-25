@@ -1075,6 +1075,61 @@ class SquareSetTestCase(unittest.TestCase):
         bb >>= 2
         self.assertEqual(bb, chess.BB_C1)
 
+    def test_immutable_set_operations(self):
+        self.assertFalse(chess.SquareSet(chess.BB_A1).issubset(chess.BB_RANK_1))
+        self.assertTrue(chess.SquareSet(chess.BB_RANK_1).issubset(chess.BB_A1))
+
+        self.assertTrue(chess.SquareSet(chess.BB_A1).issuperset(chess.BB_RANK_1))
+        self.assertFalse(chess.SquareSet(chess.BB_RANK_1).issuperset(chess.BB_A1))
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).union(chess.BB_FILE_A), chess.BB_FILE_A)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).intersection(chess.BB_A2), chess.BB_VOID)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).difference(chess.BB_A2), chess.BB_A1)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).symmetric_difference(chess.BB_A2), chess.BB_A1 | chess.BB_A2)
+
+        self.assertEqual(chess.SquareSet(chess.BB_C5).copy(), chess.BB_C5)
+
+    def test_mutable_set_operations(self):
+        squares = chess.SquareSet(chess.BB_A1)
+        squares.update(chess.BB_FILE_H)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_FILE_H)
+
+        squares.intersection_update(chess.BB_RANK_8)
+        self.assertEqual(squares, chess.BB_H8)
+
+        squares.difference_update(chess.BB_A1)
+        self.assertEqual(squares, chess.BB_H8)
+
+        squares.symmetric_difference_update(chess.BB_A1)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_H8)
+
+        squares.add(chess.A3)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_A3 | chess.BB_H8)
+
+        squares.remove(chess.H8)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_A3)
+
+        with self.assertRaises(KeyError):
+            squares.remove(chess.H8)
+
+        squares.discard(chess.H8)
+
+        squares.discard(chess.A1)
+        self.assertEqual(squares, chess.BB_A3)
+
+        squares.clear()
+        self.assertEqual(squares, chess.BB_VOID)
+
+        with self.assertRaises(KeyError):
+            squares.pop()
+
+        squares.add(chess.C7)
+        self.assertEqual(squares.pop(), chess.C7)
+        self.assertEqual(squares, chess.BB_VOID)
+
 
 class PolyglotTestCase(unittest.TestCase):
 

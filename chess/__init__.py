@@ -3498,10 +3498,10 @@ class SquareSet(object):
         self.mask = mask
 
     def issubset(self, other):
-        return not bool(self & ~other)
+        return not bool(~self & other)
 
     def issuperset(self, other):
-        return not bool(~self & other)
+        return not bool(self & ~other)
 
     def union(self, other):
         return self | other
@@ -3516,7 +3516,7 @@ class SquareSet(object):
         return self ^ other
 
     def copy(self):
-        return __class__(self.mask)
+        return self.__class__(self.mask)
 
     def update(self, other):
         self |= other
