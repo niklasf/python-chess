@@ -335,15 +335,15 @@ Installing
 
   ::
 
-      sudo pip install futures # Backport for Python < 3.2
-      sudo pip install python-chess
+      pip install futures # Backport for Python < 3.2
+      pip install python-chess
 
 * From current source code:
 
   ::
 
       python setup.py sdist
-      sudo python setup.py install
+      python setup.py install
 
 Featured projects
 -----------------
