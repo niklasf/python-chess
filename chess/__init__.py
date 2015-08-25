@@ -3506,7 +3506,7 @@ class SquareSet(object):
     :func:`~chess.SquareSet.clear()`.
 
     :warning: Square sets can be used as dictionary keys, but do not modify
-      them when doing this.
+        them when doing this.
     """
 
     def __init__(self, mask=BB_VOID):

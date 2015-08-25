@@ -999,7 +999,8 @@ class Engine(object):
 
         :return: Nothing
 
-        :raises: *EngineStateException* is the engine is still calculating.
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
+            calculating.
         """
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
@@ -1093,7 +1094,8 @@ class Engine(object):
             to the engine. The second is the ponder move. This is the reply
             as sent by the engine. Either of the elements may be *None*.
 
-        :raises: *EngineStateException* if the engine is already calculating.
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is
+            already calculating.
         """
         with self.state_changed:
             if not self.idle:
@@ -1216,8 +1218,8 @@ class Engine(object):
 
         :return: Nothing.
 
-        :raises: *EngineStateException* if the engine is not currently
-            searching in ponder mode.
+        :raises: `~chess.uci.EngineStateException` if the engine is not
+            currently searching in ponder mode.
         """
         with self.state_changed:
             if self.idle:

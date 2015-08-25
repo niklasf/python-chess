@@ -723,7 +723,7 @@ def scan_headers(handle):
     >>> second_white_win = next(white_win_offsets)
 
     :warning: Be careful when seeking a game in the file while more offsets are
-      being generated.
+        being generated.
     """
     in_comment = False
 
