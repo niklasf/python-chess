@@ -1810,7 +1810,7 @@ class Board(object):
             if not king_mask:
                 continue
 
-            king_file = file_index(bit_scan(self.kings & self.occupied_co[color]))
+            king_file = file_index(bit_scan(king_mask))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
             castling_rights = self.castling_rights & backrank
@@ -2411,6 +2411,59 @@ class Board(object):
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
         return bool(BB_SQUARES[move.to_square] & self.occupied_co[self.turn])
+
+    def has_castling_rights(self, color):
+        """Checks if the given side has castling rights."""
+        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+        return bool(self.castling_rights & backrank)
+
+    def has_kingside_castling_rights(self, color):
+        """
+        Checks if the given side has kingside (that is h-side in Chess960)
+        castling rights.
+        """
+        king_mask = self.kings & self.occupied_co[color]
+        if not king_mask:
+            return False
+
+        king_file = file_index(bit_scan(king_mask))
+        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+
+        castling_rights = self.castling_rights & backrank
+        while castling_rights:
+            rook = castling_rights & -castling_rights
+            rook_file = file_index(bit_scan(rook))
+
+            if rook_file > king_file:
+                return True
+
+            castling_rights = castling_rights & (castling_rights - 1)
+
+        return False
+
+    def has_queenside_castling_rights(self, color):
+        """
+        Checks if the given side has queenside (that is a-side in Chess960)
+        castling rights.
+        """
+        king_mask = self.kings & self.occupied_co[color]
+        if not king_mask:
+            return False
+
+        king_file = file_index(bit_scan(king_mask))
+        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+
+        castling_rights = self.castling_rights & backrank
+        while castling_rights:
+            rook = castling_rights & -castling_rights
+            rook_file = file_index(bit_scan(rook))
+
+            if rook_file < king_file:
+                return True
+
+            castling_rights = castling_rights & (castling_rights - 1)
+
+        return False
 
     def status(self, allow_chess960=True):
         """

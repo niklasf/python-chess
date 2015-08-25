@@ -152,6 +152,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
         self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
         self.assertEqual(board.fen(), xfen)
+        self.assertTrue(board.has_castling_rights(chess.WHITE))
+        self.assertTrue(board.has_castling_rights(chess.BLACK))
+        self.assertTrue(board.has_kingside_castling_rights(chess.BLACK))
+        self.assertTrue(board.has_kingside_castling_rights(chess.WHITE))
+        self.assertTrue(board.has_queenside_castling_rights(chess.BLACK))
+        self.assertFalse(board.has_queenside_castling_rights(chess.WHITE))
 
         # Chess960 position #284.
         board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1")

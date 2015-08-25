@@ -111,6 +111,10 @@ Board
 
         >>> white_castle_kingside = board.castling_rights & chess.BB_H1
 
+        Also see `~chess.Board.has_castling_rights()`,
+        `~chess.Board.has_kingside_castling_rights()` and
+        `~chess.Board.has_queenside_castling_rights()`.
+
     .. py:attribute:: ep_square
 
         The potential en-passant square on the third or sixth rank or `0`. It
