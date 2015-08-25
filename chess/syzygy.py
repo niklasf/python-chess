@@ -1441,7 +1441,7 @@ class Tablebases(object):
             best = 0xffff
 
             for move in board.generate_legal_moves(pawns=False):
-                if board.piece_type_at(move.to_square) != chess.NONE:
+                if board.piece_type_at(move.to_square):
                     continue
 
                 board.push(move)
