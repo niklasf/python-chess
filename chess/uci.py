@@ -22,7 +22,6 @@ import signal
 import subprocess
 import logging
 import threading
-import copy
 import concurrent.futures
 
 try:
@@ -95,8 +94,11 @@ class OptionMap(collections.MutableMapping):
     def copy(self):
         return OptionMap(self._store.values())
 
+    def __copy__(self):
+        return self.copy()
+
     def __repr__(self):
-        return "{0}({1})".format(self.__class__.__name__, dict(self.items()))
+        return "{0}({1})".format(type(self).__name__, dict(self.items()))
 
 
 class InfoHandler(object):
@@ -573,7 +575,7 @@ class Engine(object):
                 self.ponder = chess.Move.from_uci(tokens[2])
                 if self.ponder.from_square in (chess.E1, chess.E8) and self.ponder.to_square in (chess.C1, chess.C8, chess.G1, chess.G8):
                     # Make a copy of the board to avoid race conditions.
-                    board = copy.deepcopy(self.board)
+                    board = self.board.copy()
                     board.push(self.bestmove)
                     self.ponder = board.parse_uci(tokens[2])
             except ValueError:
@@ -695,7 +697,7 @@ class Engine(object):
                     pv = []
 
                 if current_parameter in ("refutation", "pv", "currline"):
-                    board = copy.deepcopy(self.board)
+                    board = self.board.copy()
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
             elif current_parameter == "seldepth":
@@ -1048,7 +1050,7 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
-        self.board = copy.deepcopy(board)
+        self.board = board.copy()
 
         def command():
             with self.semaphore:
