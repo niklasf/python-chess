@@ -3390,6 +3390,16 @@ class Board(object):
         """Creates a new empty board."""
         return cls(None)
 
+    @classmethod
+    def from_epd(cls, epd):
+        """
+        Creates a new board from an EPD string. See `set_epd()`.
+
+        Returns the board and the dictionary of parsed operations as a tuple.
+        """
+        board = cls.empty()
+        return board, board.set_epd(epd)
+
 
 class PseudoLegalMoveGenerator(object):
 

@@ -122,6 +122,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "8/8/8/8/8/8/8/8 w - - 0 1")
         self.assertEqual(board, chess.Board(None))
 
+    def test_from_epd(self):
+        base_epd = "rnbqkb1r/ppp1pppp/5n2/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq -"
+        board, ops = chess.Board.from_epd(base_epd + " ce 55;")
+        self.assertEqual(ops["ce"], 55)
+        self.assertEqual(board.fen(), base_epd + " 0 1")
+
     def test_move_making(self):
         board = chess.Board()
         move = chess.Move(chess.E2, chess.E4)
