@@ -157,6 +157,12 @@ Board
         A dynamic list of completely legal moves, much like the pseudo legal
         move list.
 
+    .. py:attribute:: move_stack
+
+        The move stack. Use :func:`~chess.Board.push()`,
+        :func:`~chess.Board.pop()` and :func:`~chess.Board.peek()` for
+        manipulation.
+
 Square sets
 -----------
 
