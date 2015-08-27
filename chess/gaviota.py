@@ -20,7 +20,6 @@ import ctypes
 import ctypes.util
 import logging
 import chess
-import chess.syzygy
 
 
 class NativeTablebases(object):
