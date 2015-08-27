@@ -83,7 +83,7 @@ class MemoryMappedReader(object):
             raise IndexError()
 
         if key < 0:
-            key = len(self) - key
+            key = len(self) + key
 
         try:
             key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)
