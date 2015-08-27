@@ -55,6 +55,8 @@ Bugfixes:
 * Polyglot: `minimum_weight` for `find()`, `find_all()` and `choice()` was
   not respected.
 
+* Polyglot: Negative indexing of opening books was raising `IndexError`.
+
 * Various documentation fixes and improvements.
 
 New features:
