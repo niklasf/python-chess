@@ -1200,7 +1200,7 @@ class PolyglotTestCase(unittest.TestCase):
     def test_reversed(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
             # Last is first of reversed.
-            self.assertEqual(book[len(book) - 1], next(reversed(book)))
+            self.assertEqual(book[-1], next(reversed(book)))
 
             # First is last of reversed.
             for last in reversed(book):
@@ -1209,12 +1209,14 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_random_choice(self):
         class FirstMockRandom(object):
-            def randint(self, first, last):
+            @staticmethod
+            def randint(first, last):
                 assert first <= last
                 return first
 
         class LastMockRandom(object):
-            def randint(self, first, last):
+            @staticmethod
+            def randint(first, last):
                 assert first <= last
                 return last
 
@@ -2134,17 +2136,17 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl_table = tablebases.probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
-                    "Expecting wdl_table %d for %s, got %d (at line %d)" % (extra["wdl_table"], board.fen(), wdl_table, line + 1))
+                    "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
 
                 wdl = tablebases.probe_wdl(board)
                 self.assertEqual(
                     wdl, extra["wdl"],
-                    "Expecting wdl %d for %s, got %d (at line %d)" % (extra["wdl"], board.fen(), wdl, line + 1))
+                    "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
 
                 dtz = tablebases.probe_dtz(board)
                 self.assertEqual(
                     dtz, extra["dtz"],
-                    "Expecting dtz %d for %s, got %d (at line %d)" % (extra["dtz"], board.fen(), dtz, line + 1))
+                    "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
 
         tablebases.close()
 
