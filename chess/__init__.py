@@ -1205,6 +1205,28 @@ class Board(object):
         """
         return SquareSet(self.attacks_mask(square))
 
+    def pin_mask(self, color, square):
+        if not self.attacks_valid:
+            self.generate_attacks()
+
+        return self._pinned(color, BB_SQUARES[square])
+
+    def pin(self, color, square):
+        """
+        Detects pins of the given square to the king of the given color.
+
+        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
+        file or diagonal of the pin. If there is no pin, then a mask of the
+        entire board is returned.
+        """
+        return SquareSet(self.pin_mask(color, square))
+
+    def is_pinned(self, color, square):
+        """
+        Detects if the given square is pinned to the king of the given color.
+        """
+        return self.pin_mask(color, square) != BB_ALL
+
     def is_check(self):
         """Returns if the current side to move is in check."""
         king_square = bit_scan(self.kings & self.occupied_co[self.turn])
@@ -1648,116 +1670,6 @@ class Board(object):
         """Gets the last move from the move stack."""
         return self.move_stack[-1]
 
-    def set_epd(self, epd):
-        """
-        Parses the given EPD string and uses it to set the position.
-
-        If present the ``hmvc`` and the ``fmvn`` are used to set the half move
-        clock and the fullmove number. Otherwise ``0`` and ``1`` are used.
-
-        Returns a dictionary of parsed operations. Values can be strings,
-        integers, floats or move objects.
-
-        Raises :exc:`ValueError` if the EPD string is invalid.
-        """
-        # Split into 4 or 5 parts.
-        parts = epd.strip().rstrip(";").split(None, 4)
-        if len(parts) < 4:
-            raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
-
-        operations = {}
-
-        # Parse the operations.
-        if len(parts) > 4:
-            operation_part = parts.pop()
-            operation_part += ";"
-
-            opcode = ""
-            operand = ""
-            in_operand = False
-            in_quotes = False
-            escape = False
-
-            position = None
-
-            for c in operation_part:
-                if not in_operand:
-                    if c == ";":
-                        operations[opcode] = None
-                        opcode = ""
-                    elif c == " ":
-                        if opcode:
-                            in_operand = True
-                    else:
-                        opcode += c
-                else:
-                    if c == "\"":
-                        if not operand and not in_quotes:
-                            in_quotes = True
-                        elif escape:
-                            operand += c
-                    elif c == "\\":
-                        if escape:
-                            operand += c
-                        else:
-                            escape = True
-                    elif c == "s":
-                        if escape:
-                            operand += ";"
-                        else:
-                            operand += c
-                    elif c == ";":
-                        if escape:
-                            operand += "\\"
-
-                        if in_quotes:
-                            # A string operand.
-                            operations[opcode] = operand
-                        else:
-                            try:
-                                # An integer.
-                                operations[opcode] = int(operand)
-                            except ValueError:
-                                try:
-                                    # A float.
-                                    operations[opcode] = float(operand)
-                                except ValueError:
-                                    if position is None:
-                                        position = type(self)(" ".join(parts + ["0", "1"]))
-
-                                    if opcode == "pv":
-                                        # A variation.
-                                        operations[opcode] = []
-                                        for token in operand.split():
-                                            move = position.parse_san(token)
-                                            operations[opcode].append(move)
-                                            position.push(move)
-
-                                        # Reset the position.
-                                        while position.move_stack:
-                                            position.pop()
-                                    elif opcode in ("bm", "am"):
-                                        # A set of moves.
-                                        operations[opcode] = [position.parse_san(token) for token in operand.split()]
-                                    else:
-                                        # A single move.
-                                        operations[opcode] = position.parse_san(operand)
-
-                        opcode = ""
-                        operand = ""
-                        in_operand = False
-                        in_quotes = False
-                        escape = False
-                    else:
-                        operand += c
-
-        # Create a full FEN and parse it.
-        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
-        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
-        self.set_fen(" ".join(parts))
-
-        return operations
-
     def board_fen(self):
         builder = []
         empty = 0
@@ -1906,95 +1818,6 @@ class Board(object):
 
         return " ".join(fen)
 
-    def epd(self, **operations):
-        """
-        Gets an EPD representation of the current position.
-
-        EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats and moves and lists of moves and None.
-        All other operands are converted to strings.
-
-        A list of moves for *pv* will be interpreted as a variation. All other
-        move lists are interpreted as a set of moves in the current position.
-
-        *hmvc* and *fmvc* are not included by default. You can use:
-
-        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
-        """
-        epd = []
-
-        # Position part.
-        epd.append(self.board_fen())
-        epd.append(" ")
-
-        # Side to move.
-        epd.append("w" if self.turn == WHITE else "b")
-        epd.append(" ")
-
-        # Castling rights.
-        epd.append(self.castling_xfen())
-        epd.append(" ")
-
-        # En-passant square.
-        if self.ep_square:
-            epd.append(SQUARE_NAMES[self.ep_square])
-        else:
-            epd.append("-")
-
-        # Append operations.
-        for opcode, operand in operations.items():
-            epd.append(" ")
-            epd.append(opcode)
-
-            # Value is empty.
-            if operand is None:
-                epd.append(";")
-                continue
-
-            # Value is a move.
-            if hasattr(operand, "from_square") and hasattr(operand, "to_square") and hasattr(operand, "promotion"):
-                # Append SAN for moves.
-                epd.append(" ")
-                epd.append(self.san(operand))
-                epd.append(";")
-                continue
-
-            # Value is numeric.
-            if isinstance(operand, (int, float)):
-                # Append integer or float.
-                epd.append(" ")
-                epd.append(str(operand))
-                epd.append(";")
-                continue
-
-            # Value is a set of moves or a variation.
-            if hasattr(operand, "__iter__"):
-                position = Board(self.shredder_fen()) if opcode == "pv" else self
-                iterator = operand.__iter__()
-                first_move = next(iterator)
-                if hasattr(first_move, "from_square") and hasattr(first_move, "to_square") and hasattr(first_move, "promotion"):
-                    epd.append(" ")
-                    epd.append(position.san(first_move))
-                    if opcode == "pv":
-                        position.push(first_move)
-
-                    for move in iterator:
-                        epd.append(" ")
-                        epd.append(position.san(move))
-                        if opcode == "pv":
-                            position.push(move)
-
-                    epd.append(";")
-                    continue
-
-            # Append as escaped string.
-            epd.append(" \"")
-            epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
-            epd.append("\";")
-
-        return "".join(epd)
-
     def set_fen(self, fen):
         """
         Parses a FEN and sets the position from it.
@@ -2114,6 +1937,309 @@ class Board(object):
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
 
+    def epd(self, **operations):
+        """
+        Gets an EPD representation of the current position.
+
+        EPD operations can be given as keyword arguments. Supported operands
+        are strings, integers, floats and moves and lists of moves and None.
+        All other operands are converted to strings.
+
+        A list of moves for *pv* will be interpreted as a variation. All other
+        move lists are interpreted as a set of moves in the current position.
+
+        *hmvc* and *fmvc* are not included by default. You can use:
+
+        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
+        """
+        epd = []
+
+        # Position part.
+        epd.append(self.board_fen())
+        epd.append(" ")
+
+        # Side to move.
+        epd.append("w" if self.turn == WHITE else "b")
+        epd.append(" ")
+
+        # Castling rights.
+        epd.append(self.castling_xfen())
+        epd.append(" ")
+
+        # En-passant square.
+        if self.ep_square:
+            epd.append(SQUARE_NAMES[self.ep_square])
+        else:
+            epd.append("-")
+
+        # Append operations.
+        for opcode, operand in operations.items():
+            epd.append(" ")
+            epd.append(opcode)
+
+            # Value is empty.
+            if operand is None:
+                epd.append(";")
+                continue
+
+            # Value is a move.
+            if hasattr(operand, "from_square") and hasattr(operand, "to_square") and hasattr(operand, "promotion"):
+                # Append SAN for moves.
+                epd.append(" ")
+                epd.append(self.san(operand))
+                epd.append(";")
+                continue
+
+            # Value is numeric.
+            if isinstance(operand, (int, float)):
+                # Append integer or float.
+                epd.append(" ")
+                epd.append(str(operand))
+                epd.append(";")
+                continue
+
+            # Value is a set of moves or a variation.
+            if hasattr(operand, "__iter__"):
+                position = Board(self.shredder_fen()) if opcode == "pv" else self
+                iterator = operand.__iter__()
+                first_move = next(iterator)
+                if hasattr(first_move, "from_square") and hasattr(first_move, "to_square") and hasattr(first_move, "promotion"):
+                    epd.append(" ")
+                    epd.append(position.san(first_move))
+                    if opcode == "pv":
+                        position.push(first_move)
+
+                    for move in iterator:
+                        epd.append(" ")
+                        epd.append(position.san(move))
+                        if opcode == "pv":
+                            position.push(move)
+
+                    epd.append(";")
+                    continue
+
+            # Append as escaped string.
+            epd.append(" \"")
+            epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace(";", "\\s"))
+            epd.append("\";")
+
+        return "".join(epd)
+
+    def set_epd(self, epd):
+        """
+        Parses the given EPD string and uses it to set the position.
+
+        If present the ``hmvc`` and the ``fmvn`` are used to set the half move
+        clock and the fullmove number. Otherwise ``0`` and ``1`` are used.
+
+        Returns a dictionary of parsed operations. Values can be strings,
+        integers, floats or move objects.
+
+        Raises :exc:`ValueError` if the EPD string is invalid.
+        """
+        # Split into 4 or 5 parts.
+        parts = epd.strip().rstrip(";").split(None, 4)
+        if len(parts) < 4:
+            raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
+
+        operations = {}
+
+        # Parse the operations.
+        if len(parts) > 4:
+            operation_part = parts.pop()
+            operation_part += ";"
+
+            opcode = ""
+            operand = ""
+            in_operand = False
+            in_quotes = False
+            escape = False
+
+            position = None
+
+            for c in operation_part:
+                if not in_operand:
+                    if c == ";":
+                        operations[opcode] = None
+                        opcode = ""
+                    elif c == " ":
+                        if opcode:
+                            in_operand = True
+                    else:
+                        opcode += c
+                else:
+                    if c == "\"":
+                        if not operand and not in_quotes:
+                            in_quotes = True
+                        elif escape:
+                            operand += c
+                    elif c == "\\":
+                        if escape:
+                            operand += c
+                        else:
+                            escape = True
+                    elif c == "s":
+                        if escape:
+                            operand += ";"
+                        else:
+                            operand += c
+                    elif c == ";":
+                        if escape:
+                            operand += "\\"
+
+                        if in_quotes:
+                            # A string operand.
+                            operations[opcode] = operand
+                        else:
+                            try:
+                                # An integer.
+                                operations[opcode] = int(operand)
+                            except ValueError:
+                                try:
+                                    # A float.
+                                    operations[opcode] = float(operand)
+                                except ValueError:
+                                    if position is None:
+                                        position = type(self)(" ".join(parts + ["0", "1"]))
+
+                                    if opcode == "pv":
+                                        # A variation.
+                                        operations[opcode] = []
+                                        for token in operand.split():
+                                            move = position.parse_san(token)
+                                            operations[opcode].append(move)
+                                            position.push(move)
+
+                                        # Reset the position.
+                                        while position.move_stack:
+                                            position.pop()
+                                    elif opcode in ("bm", "am"):
+                                        # A set of moves.
+                                        operations[opcode] = [position.parse_san(token) for token in operand.split()]
+                                    else:
+                                        # A single move.
+                                        operations[opcode] = position.parse_san(operand)
+
+                        opcode = ""
+                        operand = ""
+                        in_operand = False
+                        in_quotes = False
+                        escape = False
+                    else:
+                        operand += c
+
+        # Create a full FEN and parse it.
+        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
+        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
+        self.set_fen(" ".join(parts))
+
+        return operations
+
+    def san(self, move):
+        """
+        Gets the standard algebraic notation of the given move in the context of
+        the current position.
+
+        There is no validation. It is only guaranteed to work if the move is
+        legal or a null move.
+        """
+        if not move:
+            # Null move.
+            return "--"
+
+        piece = self.piece_type_at(move.from_square)
+
+        # Look ahead for check or checkmate.
+        self.push(move)
+        is_check = self.is_check()
+        is_checkmate = is_check and self.is_checkmate()
+        self.pop()
+
+        # Castling.
+        if piece == KING:
+            castling = self.occupied_co[self.turn] & BB_SQUARES[move.to_square] & self.rooks
+            if castling:
+                if file_index(move.to_square) < file_index(move.from_square):
+                    san = "O-O-O"
+                else:
+                    san = "O-O"
+
+                if is_checkmate:
+                    return san + "#"
+                elif is_check:
+                    return san + "+"
+                else:
+                    return san
+
+        if piece == PAWN:
+            san = ""
+        else:
+            # Get ambigous move candidates.
+            if piece == KNIGHT:
+                san = "N"
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
+            elif piece == BISHOP:
+                san = "B"
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
+            elif piece == ROOK:
+                san = "R"
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
+            elif piece == QUEEN:
+                san = "Q"
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
+            elif piece == KING:
+                san = "K"
+                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
+            else:
+                # Not possible with a legal move.
+                assert self.is_legal(move)
+
+            # Filter relevant candidates: Not excatly the current move, but
+            # to the same square.
+            others = BB_VOID
+            for candidate in candidates:
+                if candidate.to_square == move.to_square and candidate.from_square != move.from_square:
+                    others |= BB_SQUARES[candidate.from_square]
+
+            # Disambiguate.
+            if others:
+                row, column = False, False
+
+                if others & BB_RANKS[rank_index(move.from_square)]:
+                    column = True
+
+                if others & BB_FILES[file_index(move.from_square)]:
+                    row = True
+                else:
+                    column = True
+
+                if column:
+                    san += FILE_NAMES[file_index(move.from_square)]
+                if row:
+                    san += str(rank_index(move.from_square) + 1)
+
+        # Captures.
+        if self.is_capture(move):
+            if piece == PAWN:
+                san += FILE_NAMES[file_index(move.from_square)]
+            san += "x"
+
+        # Destination square.
+        san += SQUARE_NAMES[move.to_square]
+
+        # Promotion.
+        if move.promotion:
+            san += "=" + PIECE_SYMBOLS[move.promotion].upper()
+
+        # Add check or checkmate suffix
+        if is_checkmate:
+            san += "#"
+        elif is_check:
+            san += "+"
+
+        return san
+
     def parse_san(self, san):
         """
         Uses the current position as the context to parse a move in standard
@@ -2223,110 +2349,6 @@ class Board(object):
         move = self.parse_san(san)
         self.push(move)
         return move
-
-    def san(self, move):
-        """
-        Gets the standard algebraic notation of the given move in the context of
-        the current position.
-
-        There is no validation. It is only guaranteed to work if the move is
-        legal or a null move.
-        """
-        if not move:
-            # Null move.
-            return "--"
-
-        piece = self.piece_type_at(move.from_square)
-
-        # Look ahead for check or checkmate.
-        self.push(move)
-        is_check = self.is_check()
-        is_checkmate = is_check and self.is_checkmate()
-        self.pop()
-
-        # Castling.
-        if piece == KING:
-            castling = self.occupied_co[self.turn] & BB_SQUARES[move.to_square] & self.rooks
-            if castling:
-                if file_index(move.to_square) < file_index(move.from_square):
-                    san = "O-O-O"
-                else:
-                    san = "O-O"
-
-                if is_checkmate:
-                    return san + "#"
-                elif is_check:
-                    return san + "+"
-                else:
-                    return san
-
-        if piece == PAWN:
-            san = ""
-        else:
-            # Get ambigous move candidates.
-            if piece == KNIGHT:
-                san = "N"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
-            elif piece == BISHOP:
-                san = "B"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
-            elif piece == ROOK:
-                san = "R"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
-            elif piece == QUEEN:
-                san = "Q"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
-            elif piece == KING:
-                san = "K"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
-            else:
-                # Not possible with a legal move.
-                assert self.is_legal(move)
-
-            # Filter relevant candidates: Not excatly the current move, but
-            # to the same square.
-            others = BB_VOID
-            for candidate in candidates:
-                if candidate.to_square == move.to_square and candidate.from_square != move.from_square:
-                    others |= BB_SQUARES[candidate.from_square]
-
-            # Disambiguate.
-            if others:
-                row, column = False, False
-
-                if others & BB_RANKS[rank_index(move.from_square)]:
-                    column = True
-
-                if others & BB_FILES[file_index(move.from_square)]:
-                    row = True
-                else:
-                    column = True
-
-                if column:
-                    san += FILE_NAMES[file_index(move.from_square)]
-                if row:
-                    san += str(rank_index(move.from_square) + 1)
-
-        # Captures.
-        if self.is_capture(move):
-            if piece == PAWN:
-                san += FILE_NAMES[file_index(move.from_square)]
-            san += "x"
-
-        # Destination square.
-        san += SQUARE_NAMES[move.to_square]
-
-        # Promotion.
-        if move.promotion:
-            san += "=" + PIECE_SYMBOLS[move.promotion].upper()
-
-        # Add check or checkmate suffix
-        if is_checkmate:
-            san += "#"
-        elif is_check:
-            san += "+"
-
-        return san
 
     def uci(self, move, chess960=True):
         """
@@ -2746,28 +2768,6 @@ class Board(object):
                 break
 
         return mask
-
-    def pin_mask(self, color, square):
-        if not self.attacks_valid:
-            self.generate_attacks()
-
-        return self._pinned(color, BB_SQUARES[square])
-
-    def pin(self, color, square):
-        """
-        Detects pins of the given square to the king of the given color.
-
-        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
-        file or diagonal of the pin. If there is no pin, then a mask of the
-        entire board is returned.
-        """
-        return SquareSet(self.pin_mask(color, square))
-
-    def is_pinned(self, color, square):
-        """
-        Detects if the given square is pinned to the king of the given color.
-        """
-        return self.pin_mask(color, square) != BB_ALL
 
     def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if self.is_check():
