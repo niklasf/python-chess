@@ -817,13 +817,14 @@ class Board(object):
         self.fullmove_number = 1
         self.halfmove_clock = 0
 
+        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
+
         self.halfmove_clock_stack.clear()
         self.captured_piece_stack.clear()
         self.castling_right_stack.clear()
         self.ep_square_stack.clear()
         self.move_stack.clear()
 
-        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
 
@@ -853,12 +854,6 @@ class Board(object):
         self.occupied_co[BLACK] = BB_VOID
         self.occupied = BB_VOID
 
-        self.halfmove_clock_stack.clear()
-        self.captured_piece_stack.clear()
-        self.castling_right_stack.clear()
-        self.ep_square_stack.clear()
-        self.move_stack.clear()
-
         self.ep_square = 0
         self.castling_rights = BB_VOID
         self.turn = WHITE
@@ -866,6 +861,13 @@ class Board(object):
         self.halfmove_clock = 0
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
+
+        self.halfmove_clock_stack.clear()
+        self.captured_piece_stack.clear()
+        self.castling_right_stack.clear()
+        self.ep_square_stack.clear()
+        self.move_stack.clear()
+
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
 
@@ -2070,7 +2072,7 @@ class Board(object):
             if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                 square_index += int(c)
             elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
-                self.set_piece_at(SQUARES_180[square_index], Piece.from_symbol(c))
+                self.set_piece_at(SQUARES_180[square_index], Piece.from_symbol(c), _invalidate_attacks=False)
                 square_index += 1
 
         # Set the turn.
