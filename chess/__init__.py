@@ -1499,9 +1499,9 @@ class Board(object):
 
         # Extra assertion to catch legacy castling moves.
         if move.from_square == E1 and (move.to_square == G1 or move.to_square == C1):
-            assert self.is_legal(move)
+            assert self.is_pseudo_legal(move)
         elif move.from_square == E8 and (move.to_square == G8 or move.to_square == C8):
-            assert self.is_legal(move)
+            assert self.is_pseudo_legal(move)
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
