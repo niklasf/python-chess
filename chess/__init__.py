@@ -1523,7 +1523,7 @@ class Board(object):
             diff = abs(move.to_square - move.from_square)
 
             # Remove pawns captured en-passant.
-            if (diff == 7 or diff == 9) and not self.occupied & BB_SQUARES[move.to_square]:
+            if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 if self.turn == WHITE:
                     self.remove_piece_at(move.to_square - 8, _invalidate_attacks=False)
                 else:
