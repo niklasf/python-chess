@@ -8,8 +8,6 @@
 # The original test suite was created by Marcel van Kervinck and found at:
 # http://marcelk.net/rookie/nostalgia/v3/perft-random.epd
 
-from __future__ import print_function
-
 import chess
 import unittest
 import sys
