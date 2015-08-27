@@ -41,6 +41,9 @@ Changes:
 
 * `Board.fen()` will now only show completely legal en-passant squares.
 
+* `Board.set_piece_at()` and `Board.remove_piece_at()` will now clear the
+  move stack, because the old moves may not be valid in the changed position.
+
 * Changed shebangs from `#!/usr/bin/python` to `#!/usr/bin/env python` for
   better virtualenv support.
 
@@ -81,6 +84,8 @@ New features:
 * Added `Board.has_castling_rights(color)`,
   `Board.has_kingside_castling_rights(color)` and
   `Board.has_queenside_castling_rights(color)`.
+
+* Added `Board.clear_stack()`.
 
 * Support common set operations on `chess.SquareSet()`.
 
