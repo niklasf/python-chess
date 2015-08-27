@@ -160,8 +160,10 @@ Board
 
     .. py:attribute:: move_stack
 
-        The move stack. Use :func:`~chess.Board.push()`,
-        :func:`~chess.Board.pop()` and :func:`~chess.Board.peek()` for
+        The move stack. Use :func:`Board.push() <chess.Board.push()>`,
+        :func:`Board.pop() <chess.Board.pop()>`,
+        :func:`Board.peek() <chess.Board.peek()>` and
+        :func:`Board.clear_stack() <chess.Board.clear_stack()>` for
         manipulation.
 
 Square sets
