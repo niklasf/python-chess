@@ -829,9 +829,7 @@ class Board(object):
         self.transpositions.update((self.zobrist_hash(), ))
 
         self.attacks_valid = False
-        self.attacks_valid_stack.clear()
-        self.attacks_from_stack.clear()
-        self.attacks_to_stack.clear()
+        self.clear_stack()
 
     def clear(self):
         """
@@ -862,6 +860,11 @@ class Board(object):
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
+        self.attacks_valid = False
+        self.clear_stack()
+
+    def clear_stack(self):
+        """Clears the move stack and transposition table."""
         self.halfmove_clock_stack.clear()
         self.captured_piece_stack.clear()
         self.castling_right_stack.clear()
@@ -871,7 +874,6 @@ class Board(object):
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
 
-        self.attacks_valid = False
         self.attacks_valid_stack.clear()
         self.attacks_from_stack.clear()
         self.attacks_to_stack.clear()
@@ -927,8 +929,7 @@ class Board(object):
         else:
             return None
 
-    def remove_piece_at(self, square, _invalidate_attacks=True):
-        """Removes a piece from the given square if present."""
+    def _remove_piece_at(self, square):
         mask = BB_SQUARES[square]
         if not self.occupied & mask:
             return
@@ -960,48 +961,45 @@ class Board(object):
             piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
-        # Invalidate attacks.
-        if _invalidate_attacks:
-            self.attacks_valid = False
-            self.attacks_valid_stack.clear()
-            self.attacks_from_stack.clear()
-            self.attacks_to_stack.clear()
+    def remove_piece_at(self, square):
+        """Removes a piece from the given square if present."""
+        self._remove_piece_at(square)
+        self.clear_stack()
+        self.attacks_valid = False
 
-    def set_piece_at(self, square, piece, _invalidate_attacks=True):
-        """Sets a piece at the given square. An existing piece is replaced."""
-        self.remove_piece_at(square, _invalidate_attacks=False)
+    def _set_piece_at(self, square, piece_type, color):
+        self._remove_piece_at(square)
 
         mask = BB_SQUARES[square]
 
-        if piece.piece_type == PAWN:
+        if piece_type == PAWN:
             self.pawns |= mask
-        elif piece.piece_type == KNIGHT:
+        elif piece_type == KNIGHT:
             self.knights |= mask
-        elif piece.piece_type == BISHOP:
+        elif piece_type == BISHOP:
             self.bishops |= mask
-        elif piece.piece_type == ROOK:
+        elif piece_type == ROOK:
             self.rooks |= mask
-        elif piece.piece_type == QUEEN:
+        elif piece_type == QUEEN:
             self.queens |= mask
-        elif piece.piece_type == KING:
+        elif piece_type == KING:
             self.kings |= mask
 
         self.occupied ^= mask
-        self.occupied_co[piece.color] ^= mask
+        self.occupied_co[color] ^= mask
 
         # Update incremental zobrist hash.
-        if piece.color == BLACK:
-            piece_index = (piece.piece_type - 1) * 2
+        if color == BLACK:
+            piece_index = (piece_type - 1) * 2
         else:
-            piece_index = (piece.piece_type - 1) * 2 + 1
+            piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
-        # Invalidate attacks.
-        if _invalidate_attacks:
-            self.attacks_valid = False
-            self.attacks_valid_stack.clear()
-            self.attacks_from_stack.clear()
-            self.attacks_to_stack.clear()
+    def set_piece_at(self, square, piece):
+        """Sets a piece at the given square. An existing piece is replaced."""
+        self._set_piece_at(square, piece.piece_type, piece.color)
+        self.clear_stack()
+        self.attacks_valid = False
 
     def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if not self.attacks_valid:
@@ -1517,7 +1515,7 @@ class Board(object):
             piece_type = move.promotion
 
         # Remove piece from original square.
-        self.remove_piece_at(move.from_square, _invalidate_attacks=False)
+        self._remove_piece_at(move.from_square)
 
         # Handle special pawn moves.
         self.ep_square = 0
@@ -1527,9 +1525,9 @@ class Board(object):
             # Remove pawns captured en-passant.
             if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 if self.turn == WHITE:
-                    self.remove_piece_at(move.to_square - 8, _invalidate_attacks=False)
+                    self._remove_piece_at(move.to_square - 8)
                 else:
-                    self.remove_piece_at(move.to_square + 8, _invalidate_attacks=False)
+                    self._remove_piece_at(move.to_square + 8)
 
             # Set en-passant square.
             if diff == 16:
@@ -1552,23 +1550,19 @@ class Board(object):
         if castling:
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
-            self.remove_piece_at(move.from_square, _invalidate_attacks=False)
-            self.remove_piece_at(move.to_square, _invalidate_attacks=False)
+            self._remove_piece_at(move.from_square)
+            self._remove_piece_at(move.to_square)
 
             if a_side:
-                self.set_piece_at(C1 if self.turn == WHITE else C8, Piece(KING, self.turn),
-                    _invalidate_attacks=False)
-                self.set_piece_at(D1 if self.turn == WHITE else D8, Piece(ROOK, self.turn),
-                    _invalidate_attacks=False)
+                self._set_piece_at(C1 if self.turn == WHITE else C8, KING, self.turn)
+                self._set_piece_at(D1 if self.turn == WHITE else D8, ROOK, self.turn)
             else:
-                self.set_piece_at(G1 if self.turn == WHITE else G8, Piece(KING, self.turn),
-                    _invalidate_attacks=False)
-                self.set_piece_at(F1 if self.turn == WHITE else F8, Piece(ROOK, self.turn),
-                    _invalidate_attacks=False)
+                self._set_piece_at(G1 if self.turn == WHITE else G8, KING, self.turn)
+                self._set_piece_at(F1 if self.turn == WHITE else F8, ROOK, self.turn)
 
         # Put piece on target square.
         if not castling:
-            self.set_piece_at(move.to_square, Piece(piece_type, self.turn), _invalidate_attacks=False)
+            self._set_piece_at(move.to_square, piece_type, self.turn)
 
         # Swap turn.
         self.turn = not self.turn
@@ -1618,32 +1612,32 @@ class Board(object):
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
             if a_side:
-                self.remove_piece_at(C1 if self.turn == BLACK else C8, _invalidate_attacks=False)
-                self.remove_piece_at(D1 if self.turn == BLACK else D8, _invalidate_attacks=False)
+                self._remove_piece_at(C1 if self.turn == BLACK else C8)
+                self._remove_piece_at(D1 if self.turn == BLACK else D8)
             else:
-                self.remove_piece_at(G1 if self.turn == BLACK else G8, _invalidate_attacks=False)
-                self.remove_piece_at(F1 if self.turn == BLACK else F8, _invalidate_attacks=False)
+                self._remove_piece_at(G1 if self.turn == BLACK else G8)
+                self._remove_piece_at(F1 if self.turn == BLACK else F8)
 
-            self.set_piece_at(move.from_square, Piece(KING, not self.turn), _invalidate_attacks=False)
+            self._set_piece_at(move.from_square, KING, not self.turn)
 
         piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
 
         # Restore target square.
         if captured_piece:
-            self.set_piece_at(move.to_square, captured_piece, _invalidate_attacks=False)
+            self._set_piece_at(move.to_square, captured_piece.piece_type, captured_piece.color)
         else:
-            self.remove_piece_at(move.to_square, _invalidate_attacks=False)
+            self._remove_piece_at(move.to_square)
 
             # Restore captured pawn after en-passant.
             if piece == PAWN and abs(move.from_square - move.to_square) in (7, 9):
                 if self.turn == WHITE:
-                    self.set_piece_at(move.to_square + 8, Piece(PAWN, WHITE), _invalidate_attacks=False)
+                    self._set_piece_at(move.to_square + 8, PAWN, WHITE)
                 else:
-                    self.set_piece_at(move.to_square - 8, Piece(PAWN, BLACK), _invalidate_attacks=False)
+                    self._set_piece_at(move.to_square - 8, PAWN, BLACK)
 
         # Restore the source square.
         if not castling:
-            self.set_piece_at(move.from_square, Piece(piece, not self.turn), _invalidate_attacks=False)
+            self._set_piece_at(move.from_square, piece, not self.turn)
 
         # Swap turn.
         self.turn = not self.turn
@@ -2072,7 +2066,8 @@ class Board(object):
             if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                 square_index += int(c)
             elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
-                self.set_piece_at(SQUARES_180[square_index], Piece.from_symbol(c), _invalidate_attacks=False)
+                piece = Piece.from_symbol(c)
+                self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
                 square_index += 1
 
         # Set the turn.
