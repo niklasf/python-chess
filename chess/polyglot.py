@@ -39,16 +39,9 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
 
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
-        if promotion_part == 4:
-            return chess.Move(from_square, to_square, chess.QUEEN)
-        elif promotion_part == 3:
-            return chess.Move(from_square, to_square, chess.ROOK)
-        elif promotion_part == 2:
-            return chess.Move(from_square, to_square, chess.BISHOP)
-        elif promotion_part == 1:
-            return chess.Move(from_square, to_square, chess.KNIGHT)
-        else:
-            return chess.Move(from_square, to_square)
+        promotion = promotion_part + 1 if promotion_part else None
+
+        return chess.Move(from_square, to_square, promotion)
 
 
 class MemoryMappedReader(object):
