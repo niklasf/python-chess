@@ -208,6 +208,7 @@ Features
       True
 
 * Read Polyglot opening books.
+  `Docs <https://python-chess.readthedocs.org/en/latest/polyglot.html>`_.
 
   .. code:: python
 
@@ -228,6 +229,7 @@ Features
 
 * Read and write PGNs. Supports headers, comments, NAGs and a tree of
   variations.
+  `Docs <https://python-chess.readthedocs.org/en/latest/pgn.html>`_.
 
   .. code:: python
 
@@ -262,7 +264,8 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
-* Probe Syzygy endgame tablebases.
+* Probe Syzygy endgame tablebases (DTZ, WDL).
+  `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_.
 
   .. code:: python
 
@@ -278,7 +281,25 @@ Features
 
       >>> tablebases.close()
 
+* Probe Gaviota endgame tablebases (DTM, WDL) via a wrapper around
+  `libgtb <https://github.com/michiguel/Gaviota-Tablebases>`_.
+  `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`_.
+
+  .. code:: python
+
+      >>> import chess.gaviota
+
+      >>> tablebases = chess.gaviota.open_tablebases("data/gaviota")
+
+      >>> # White to move mates in 31 half moves in this KRvK endgame.
+      >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
+      >>> tablebases.probe_dtm(board)
+      31
+
+      >>> tablebases.close()
+
 * Communicate with an UCI engine.
+  `Docs <https://python-chess.readthedocs.org/en/latest/uci.html>`_.
 
   .. code:: python
 
@@ -352,8 +373,8 @@ If you like, let me know if you are creating something intresting with
 python-chess, for example:
 
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
-* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * extracting reasoning from chess engines - https://github.com/pcattori/deep-blue-talks
 
 License
