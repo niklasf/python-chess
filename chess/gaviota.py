@@ -131,7 +131,7 @@ class NativeTablebases(object):
         pliestomate = ctypes.c_uint()
         if not wdl_only:
             ret = self.libgtb.tb_probe_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
-            dtm = pliestomate.value
+            dtm = int(pliestomate.value)
         else:
             ret = self.libgtb.tb_probe_WDL_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info))
             dtm = 1
