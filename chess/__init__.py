@@ -2379,10 +2379,15 @@ class Board(object):
 
         Supports both UCI_Chess960 and legacy UCI notation.
 
+        The returned move is guaranteed to be either legal or a null move.
+
         Raises :exc:`ValueError` if the move is invalid or illegal in the
-        current position.
+        current position (but not a null move).
         """
         move = Move.from_uci(uci)
+
+        if not move:
+            return move
 
         if move.from_square == E1 or move.from_square == E8:
             if self.piece_type_at(move.from_square) == KING:
@@ -2407,7 +2412,7 @@ class Board(object):
         Parses a move in UCI notation and puts it on the move stack.
 
         Raises :exc:`ValueError` if the move is invalid or illegal in the
-        current position.
+        current position (but not a null move).
 
         Returns the move.
         """

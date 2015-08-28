@@ -44,6 +44,8 @@ Changes:
 * `Board.set_piece_at()` and `Board.remove_piece_at()` will now clear the
   move stack, because the old moves may not be valid in the changed position.
 
+* `Board.parse_uci()` and `Board.push_uci()` will now accept null moves.
+
 * Changed shebangs from `#!/usr/bin/python` to `#!/usr/bin/env python` for
   better virtualenv support.
 
