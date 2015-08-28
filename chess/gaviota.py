@@ -116,6 +116,7 @@ class NativeTablebases(object):
         c_ws = (ctypes.c_uint * 17)()
         c_wp = (ctypes.c_ubyte * 17)()
 
+        i = -1
         for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.WHITE])):
             c_ws[i] = square
             c_wp[i] = board.piece_type_at(square)
@@ -126,6 +127,7 @@ class NativeTablebases(object):
         c_bs = (ctypes.c_uint * 17)()
         c_bp = (ctypes.c_ubyte * 17)()
 
+        i = -1
         for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.BLACK])):
             c_bs[i] = square
             c_bp[i] = board.piece_type_at(square)
