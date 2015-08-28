@@ -391,3 +391,6 @@ the bitboard move generation parts are ported from there.
 Thanks to Ronald de Man for his Syzygy endgame tablebases
 (https://github.com/syzygy1/tb). The probing code in
 python-chess is very directly ported from his C probing code.
+
+Thanks to Miguel A. Ballicora for his Gaviota tablebases
+(https://github.com/michiguel/Gaviota-Tablebases).
