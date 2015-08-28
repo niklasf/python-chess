@@ -341,9 +341,9 @@ python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
 highlevel library.
 
-You can install the `gmpy2` or `gmpy` (https://code.google.com/p/gmpy/) modules
-in order to get a slight performance boost on basic operations like bit scans
-and population counts.
+You can install the `gmpy2` or `gmpy` (https://pypi.python.org/pypi/gmpy2)
+modules in order to get a slight performance boost on basic operations like
+bitscans and population counts.
 
 python-chess only imports very basic general (non-chess-related)
 operations from native libraries. All logic is pure Python. There will always
