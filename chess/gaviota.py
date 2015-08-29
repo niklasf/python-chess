@@ -59,6 +59,20 @@ class NativeTablebases(object):
         if ret:
             logging.debug(ret.decode("utf-8"))
 
+        av = self.libgtb.tb_availability()
+        if av & 1:
+            logging.debug("Some 3 piece tablebases available")
+        if av & 2:
+            logging.debug("All 3 piece tablebases complete")
+        if av & 4:
+            logging.debug("Some 4 piece tablebases available")
+        if av & 8:
+            logging.debug("All 4 piece tablebases complete")
+        if av & 16:
+            logging.debug("Some 5 piece tablebases available")
+        if av & 32:
+            logging.debug("All 5 piece tablebases complete")
+
     def _tbcache_restart(self, cache_mem, wdl_fraction):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
