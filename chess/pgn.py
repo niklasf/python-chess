@@ -516,7 +516,7 @@ def read_game(handle, error_handler=_raise):
     According to the specification PGN files should be ASCII. Also UTF-8 is
     common. So this is usually not a problem.
 
-    >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>> first_game = chess.pgn.read_game(pgn)
     >>> second_game = chess.pgn.read_game(pgn)
     >>>

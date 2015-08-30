@@ -223,7 +223,7 @@ Features
 
       >>> import chess.polyglot
 
-      >>> book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+      >>> book = chess.polyglot.open_reader("data/polyglot/performance.bin")
 
       >>> board = chess.Board()
       >>> main_entry = book.find(board)
@@ -244,7 +244,7 @@ Features
 
       >>> import chess.pgn
 
-      >>> pgn = open("data/games/molinari-bordais-1979.pgn")
+      >>> pgn = open("data/pgn/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
       >>> pgn.close()
 
