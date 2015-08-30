@@ -30,6 +30,8 @@ class NativeTablebases(object):
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
         self.libgtb.tb_restart.restype = ctypes.c_char_p
+        self.libgtb.tbpaths_getmain.restype = ctypes.c_char_p
+        self.libgtb.tb_probe_hard.argtypes = [ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint)]
 
         if self.libgtb.tb_is_initialized():
             raise RuntimeError("only one gaviota instance can be initialized at a time")
@@ -49,15 +51,17 @@ class NativeTablebases(object):
         self._tb_restart()
 
     def _tb_restart(self):
-        c_paths = (ctypes.c_char_p * len(self.paths))()
-        c_paths[:] = [path.encode("utf-8") for path in self.paths]
+        self.c_paths = (ctypes.c_char_p * len(self.paths))()
+        self.c_paths[:] = [path.encode("utf-8") for path in self.paths]
 
         verbosity = ctypes.c_int(1)
         compression_scheme = ctypes.c_int(4)
 
-        ret = self.libgtb.tb_restart(verbosity, compression_scheme, c_paths)
+        ret = self.libgtb.tb_restart(verbosity, compression_scheme, self.c_paths)
         if ret:
             logging.debug(ret.decode("utf-8"))
+
+        logging.debug("Main path has been set to %s", self.libgtb.tbpaths_getmain().decode("utf-8"))
 
         av = self.libgtb.tb_availability()
         if av & 1:
