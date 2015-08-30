@@ -139,6 +139,7 @@ class MemoryMappedReader(object):
             zobrist_hash = board.zobrist_hash()
         except AttributeError:
             zobrist_hash = int(board)
+            board = None
 
         i = self.bisect_key_left(zobrist_hash)
         size = len(self)
@@ -148,7 +149,7 @@ class MemoryMappedReader(object):
 
             if entry.key != zobrist_hash:
                 break
-            elif entry.weight >= minimum_weight:
+            elif entry.weight >= minimum_weight and (board is None or board.is_legal(entry.move())):
                 yield entry
 
             i += 1
