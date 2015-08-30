@@ -163,8 +163,13 @@ class NativeTablebases(object):
             ret = self.libgtb.tb_probe_WDL_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info))
             dtm = 1
 
-        # Probe failed, forbidden or unknown.
-        if not ret or info.value == 3 or info.value == 7:
+        # Probe forbidden.
+        if info.value == 3:
+            logging.warning("Tablebase for %s marked as forbidden", board.fen())
+            return None
+
+        # Probe failed or unknown.
+        if not ret or info.value == 7:
             return None
 
         # Draw.
