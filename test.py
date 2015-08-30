@@ -1140,7 +1140,7 @@ class SquareSetTestCase(unittest.TestCase):
 class PolyglotTestCase(unittest.TestCase):
 
     def test_performance_bin(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             pos = chess.Board()
 
             e4 = next(book.find_all(pos))
@@ -1152,7 +1152,7 @@ class PolyglotTestCase(unittest.TestCase):
             pos.push(e5.move())
 
     def test_mainline(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             board = chess.Board()
 
             while True:
@@ -1166,14 +1166,14 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
     def test_lasker_trap(self):
-        with chess.polyglot.open_reader("data/opening-books/lasker-trap.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/lasker-trap.bin") as book:
             board = chess.Board("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
             entry = book.find(board)
             cute_underpromotion = entry.move()
             self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
 
     def test_castling(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             # White decides between short castling and long castling at this
             # turning point in the Queens Gambit Exchange.
             pos = chess.Board("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
@@ -1191,14 +1191,14 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(len(moves), 1)
 
     def test_empty_book(self):
-        with chess.polyglot.open_reader("data/opening-books/empty.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/empty.bin") as book:
             self.assertEqual(len(book), 0)
 
             entries = book.find_all(chess.Board())
             self.assertEqual(len(list(entries)), 0)
 
     def test_reversed(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             # Last is first of reversed.
             self.assertEqual(book[-1], next(reversed(book)))
 
@@ -1220,7 +1220,7 @@ class PolyglotTestCase(unittest.TestCase):
                 assert first <= last
                 return last
 
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             # Uniform choice.
             entry = book.choice(chess.Board(), random=FirstMockRandom())
             self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
@@ -1236,23 +1236,23 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
 
     def test_find(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             entry = book.find(chess.Board())
             self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
 
     def test_contains(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             for entry in book:
                 self.assertTrue(entry in book)
 
     def test_last(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             last_entry = book[len(book)-1]
             self.assertTrue(any(book.find_all(last_entry.key)))
             self.assertTrue(all(book.find_all(last_entry.key)))
 
     def test_minimum_weight(self):
-        with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             with self.assertRaises(IndexError):
                 book.find(chess.Board(), minimum_weight=2)
 
@@ -1350,7 +1350,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(list(variation.move for variation in node.variations), [d4, e4])
 
     def test_read_game(self):
-        pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+        pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
         first_game = chess.pgn.read_game(pgn)
         second_game = chess.pgn.read_game(pgn)
         third_game = chess.pgn.read_game(pgn)
@@ -1527,7 +1527,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.variation(2), b)
 
     def test_scan_offsets(self):
-        with open("data/games/kasparov-deep-blue-1997.pgn") as pgn:
+        with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
             offsets = list(chess.pgn.scan_offsets(pgn))
             self.assertEqual(len(offsets), 6)
 
@@ -1542,7 +1542,7 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(sixth_game.headers["Site"], "06")
 
     def test_scan_headers(self):
-        with open("data/games/kasparov-deep-blue-1997.pgn") as pgn:
+        with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
             offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
                               if headers["Result"] == "1/2-1/2")
 
