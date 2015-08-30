@@ -32,27 +32,20 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
     """An entry from a polyglot opening book."""
 
     def move(self):
-        """Gets the move (as a `Move` object)."""
+        """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
         from_square = (self.raw_move >> 6) & 0x3f
 
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
-        if promotion_part == 4:
-            return chess.Move(from_square, to_square, chess.QUEEN)
-        elif promotion_part == 3:
-            return chess.Move(from_square, to_square, chess.ROOK)
-        elif promotion_part == 2:
-            return chess.Move(from_square, to_square, chess.BISHOP)
-        elif promotion_part == 1:
-            return chess.Move(from_square, to_square, chess.KNIGHT)
-        else:
-            return chess.Move(from_square, to_square)
+        promotion = promotion_part + 1 if promotion_part else None
+
+        return chess.Move(from_square, to_square, promotion)
 
 
 class MemoryMappedReader(object):
-    """Maps a polylgot opening book to memory."""
+    """Maps a polyglot opening book to memory."""
 
     def __init__(self, filename):
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
@@ -90,7 +83,7 @@ class MemoryMappedReader(object):
             raise IndexError()
 
         if key < 0:
-            key = len(self) - key
+            key = len(self) + key
 
         try:
             key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)
@@ -129,11 +122,11 @@ class MemoryMappedReader(object):
 
         The main entry is the first entry with the highest weight.
 
-        By default entries with weight *0* are excluded. This is a common way
+        By default entries with weight ``0`` are excluded. This is a common way
         to delete entries from an opening book without compacting it. Pass
-        *minimum_weight=0* to select all entries.
+        *minimum_weight* ``0`` to select all entries.
 
-        Raises *IndexError* if no entries are found.
+        Raises :exc:`IndexError` if no entries are found.
         """
         try:
             return max(self.find_all(board, minimum_weight), key=lambda entry: entry.weight)
@@ -164,7 +157,7 @@ class MemoryMappedReader(object):
         """
         Uniformly selects a random entry for the given position.
 
-        Raises *IndexError* if no entries are found.
+        Raises :exc:`IndexError` if no entries are found.
         """
         total_entries = sum(1 for entry in self.find_all(board, minimum_weight))
         if not total_entries:
@@ -175,10 +168,10 @@ class MemoryMappedReader(object):
 
     def weighted_choice(self, board, random=random):
         """
-        Selects a random entry for the given position, distrubuted by the
+        Selects a random entry for the given position, distributed by the
         weights of the entries.
 
-        Raises *IndexError* if no entries are found.
+        Raises :exc:`IndexError` if no entries are found.
         """
         total_weights = sum(entry.weight for entry in self.find_all(board))
         if not total_weights:

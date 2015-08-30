@@ -18,9 +18,9 @@
 
 import ctypes
 import ctypes.util
+import os.path
 import logging
 import chess
-import chess.syzygy
 
 
 class NativeTablebases(object):
@@ -30,6 +30,8 @@ class NativeTablebases(object):
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
         self.libgtb.tb_restart.restype = ctypes.c_char_p
+        self.libgtb.tbpaths_getmain.restype = ctypes.c_char_p
+        self.libgtb.tb_probe_hard.argtypes = [ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint)]
 
         if self.libgtb.tb_is_initialized():
             raise RuntimeError("only one gaviota instance can be initialized at a time")
@@ -42,19 +44,38 @@ class NativeTablebases(object):
 
     def open_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
+        if not os.path.isdir(directory):
+            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+
         self.paths.append(directory)
         self._tb_restart()
 
     def _tb_restart(self):
-        c_paths = (ctypes.c_char_p * len(self.paths))()
-        c_paths[:] = [bytes(path, "utf-8") for path in self.paths]
+        self.c_paths = (ctypes.c_char_p * len(self.paths))()
+        self.c_paths[:] = [path.encode("utf-8") for path in self.paths]
 
         verbosity = ctypes.c_int(1)
         compression_scheme = ctypes.c_int(4)
 
-        ret = self.libgtb.tb_restart(verbosity, compression_scheme, c_paths)
+        ret = self.libgtb.tb_restart(verbosity, compression_scheme, self.c_paths)
         if ret:
             logging.debug(ret.decode("utf-8"))
+
+        logging.debug("Main path has been set to %s", self.libgtb.tbpaths_getmain().decode("utf-8"))
+
+        av = self.libgtb.tb_availability()
+        if av & 1:
+            logging.debug("Some 3 piece tablebases available")
+        if av & 2:
+            logging.debug("All 3 piece tablebases complete")
+        if av & 4:
+            logging.debug("Some 4 piece tablebases available")
+        if av & 8:
+            logging.debug("All 4 piece tablebases complete")
+        if av & 16:
+            logging.debug("Some 5 piece tablebases available")
+        if av & 32:
+            logging.debug("All 5 piece tablebases complete")
 
     def _tbcache_restart(self, cache_mem, wdl_fraction):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
@@ -63,7 +84,7 @@ class NativeTablebases(object):
         """
         Probes for depth to mate information.
 
-        Returns *None* if the position was not found in any of the tables.
+        Returns ``None`` if the position was not found in any of the tables.
 
         Otherwise the absolute value is the number of half moves until
         forced mate. The value is positive if the side to move is winning,
@@ -82,10 +103,10 @@ class NativeTablebases(object):
         """
         Probes for win/draw/loss-information.
 
-        Returns *None* if the position was not found in any of the tables.
+        Returns ``None`` if the position was not found in any of the tables.
 
-        Returns *1* if the side to move is winning, *0* if it is a draw,
-        and *-1* if the side to move is losing.
+        Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
+        and ``-1`` if the side to move is losing.
 
         >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
         ...     tablebases.probe_wdl(chess.Board("4k3/8/B7/8/8/8/4K3 w - 0 1"))
@@ -100,6 +121,9 @@ class NativeTablebases(object):
         if chess.pop_count(board.occupied_co[chess.BLACK]) > 16:
             return None
 
+        if board.is_insufficient_material():
+            return 0
+
         if board.castling_rights:
             return None
 
@@ -110,29 +134,31 @@ class NativeTablebases(object):
         c_ws = (ctypes.c_uint * 17)()
         c_wp = (ctypes.c_ubyte * 17)()
 
+        i = -1
         for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.WHITE])):
             c_ws[i] = square
             c_wp[i] = board.piece_type_at(square)
 
         c_ws[i + 1] = 64
-        c_wp[i + 1] = chess.NONE
+        c_wp[i + 1] = 0
 
         c_bs = (ctypes.c_uint * 17)()
         c_bp = (ctypes.c_ubyte * 17)()
 
+        i = -1
         for i, square in enumerate(chess.SquareSet(board.occupied_co[chess.BLACK])):
             c_bs[i] = square
             c_bp[i] = board.piece_type_at(square)
 
         c_bs[i + 1] = 64
-        c_bp[i + 1] = chess.NONE
+        c_bp[i + 1] = 0
 
         # Do a hard probe.
         info = ctypes.c_uint()
         pliestomate = ctypes.c_uint()
         if not wdl_only:
             ret = self.libgtb.tb_probe_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info), ctypes.byref(pliestomate))
-            dtm = pliestomate.value
+            dtm = int(pliestomate.value)
         else:
             ret = self.libgtb.tb_probe_WDL_hard(stm, ep_square, castling, c_ws, c_bs, c_wp, c_bp, ctypes.byref(info))
             dtm = 1
@@ -176,12 +202,7 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     be open at a time.
     """
     if LibraryLoader:
-        if libgtb is None:
-            libgtb = ctypes.util.find_library("gtb")
-
-        if libgtb is None:
-            raise RuntimeError("libgtb not found")
-
+        libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
         return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
     else:
         raise RuntimeError("need a library loader for libgtb")

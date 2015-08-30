@@ -6,8 +6,13 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.10.0
+--------------
+
+New dependencies:
+
+* If you are using Python < 3.2 you have to install `futures` in order to
+  use the `chess.uci` module.
 
 Changes:
 
@@ -21,7 +26,30 @@ Changes:
 
   `stop` and `ponderhit` no longer have a result.
 
+* The values of the color constants `chess.WHITE` and `chess.BLACK` have been
+  changed. Previously `WHITE` was `0`, `BLACK` was `1`. Now `WHITE` is `True`,
+  `BLACK` is `False`. The recommended way to invert `color` is using
+  `not color`.
+
+* The pseudo piece type `chess.NONE` has been removed in favor of just using
+  `None`.
+
+* Changed the `Board(fen)` constructor. If the optional `fen` argument is not
+  given behavior did not change. However if `None` is passed explicitly an
+  empty board is created. Previously the starting position would have been
+  set up.
+
 * `Board.fen()` will now only show completely legal en-passant squares.
+
+* `Board.set_piece_at()` and `Board.remove_piece_at()` will now clear the
+  move stack, because the old moves may not be valid in the changed position.
+
+* `Board.parse_uci()` and `Board.push_uci()` will now accept null moves.
+
+* Changed shebangs from `#!/usr/bin/python` to `#!/usr/bin/env python` for
+  better virtualenv support.
+
+* Removed unused game data files from repository.
 
 Bugfixes:
 
@@ -31,6 +59,37 @@ Bugfixes:
 
 * Polyglot: `minimum_weight` for `find()`, `find_all()` and `choice()` was
   not respected.
+
+* Polyglot: Negative indexing of opening books was raising `IndexError`.
+
+* Various documentation fixes and improvements.
+
+New features:
+
+* Experimental probing of Gaviota tablebases via libgtb.
+
+* New methods to construct boards:
+
+  .. code:: python
+
+      >>> chess.Board.empty()
+      Board('8/8/8/8/8/8/8/8 w - - 0 1')
+
+      >>> board, ops = chess.Board.from_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13")
+      >>> board
+      Board('4k3/8/8/8/8/8/8/4K3 b - - 13 17')
+      >>> ops
+      {'fmvn': 17, 'hmvc': 13}
+
+* Added `Board.copy()` and hooks to let the copy module to the right thing.
+
+* Added `Board.has_castling_rights(color)`,
+  `Board.has_kingside_castling_rights(color)` and
+  `Board.has_queenside_castling_rights(color)`.
+
+* Added `Board.clear_stack()`.
+
+* Support common set operations on `chess.SquareSet()`.
 
 New in v0.9.1
 -------------
