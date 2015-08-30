@@ -13,6 +13,9 @@ python-chess: a pure Python chess library
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
 
+.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
+    :target: https://python-chess.readthedocs.org/en/latest/
+
 Introduction
 ------------
 
@@ -46,10 +49,16 @@ and handling of common formats. This is the scholars mate in python-chess:
 Documentation
 -------------
 
-.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
-    :target: https://python-chess.readthedocs.org/en/latest/
-
 https://python-chess.readthedocs.org/en/latest/
+
+
+* `Core <https://python-chess.readthedocs.org/en/latest/core.html>`_
+* `PGN parsing and writing <https://python-chess.readthedocs.org/en/latest/pgn.html>`_
+* `Polyglot opening book reading <https://python-chess.readthedocs.org/en/latest/polyglot.html>`_
+* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
+* `Gaviota endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/gaviota.html>`_
+* `UCI engine communication <https://python-chess.readthedocs.org/en/latest/uci.html>`_
+* `Changelog <https://python-chess.readthedocs.org/en/latest/changelog.html>`_
 
 Features
 --------
@@ -212,6 +221,7 @@ Features
       True
 
 * Read Polyglot opening books.
+  `Docs <https://python-chess.readthedocs.org/en/latest/polyglot.html>`__.
 
   .. code:: python
 
@@ -232,6 +242,7 @@ Features
 
 * Read and write PGNs. Supports headers, comments, NAGs and a tree of
   variations.
+  `Docs <https://python-chess.readthedocs.org/en/latest/pgn.html>`__.
 
   .. code:: python
 
@@ -266,7 +277,8 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
-* Probe Syzygy endgame tablebases.
+* Probe Syzygy endgame tablebases (DTZ, WDL).
+  `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`__.
 
   .. code:: python
 
@@ -282,7 +294,25 @@ Features
 
       >>> tablebases.close()
 
+* Probe Gaviota endgame tablebases (DTM, WDL) via a wrapper around
+  `libgtb <https://github.com/michiguel/Gaviota-Tablebases>`_.
+  `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
+
+  .. code:: python
+
+      >>> import chess.gaviota
+
+      >>> tablebases = chess.gaviota.open_tablebases("data/gaviota")
+
+      >>> # White to move mates in 31 half moves in this KRvK endgame.
+      >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
+      >>> tablebases.probe_dtm(board)
+      31
+
+      >>> tablebases.close()
+
 * Communicate with an UCI engine.
+  `Docs <https://python-chess.readthedocs.org/en/latest/uci.html>`__.
 
   .. code:: python
 
@@ -324,9 +354,9 @@ python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
 highlevel library.
 
-You can install the `gmpy2` or `gmpy` (https://code.google.com/p/gmpy/) modules
-in order to get a slight performance boost on basic operations like bit scans
-and population counts.
+You can install the `gmpy2` or `gmpy` (https://pypi.python.org/pypi/gmpy2)
+modules in order to get a slight performance boost on basic operations like
+bitscans and population counts.
 
 python-chess only imports very basic general (non-chess-related)
 operations from native libraries. All logic is pure Python. There will always
@@ -339,15 +369,15 @@ Installing
 
   ::
 
-      sudo pip install futures # Backport for Python < 3.2
-      sudo pip install python-chess
+      pip install futures # Backport for Python < 3.2
+      pip install python-chess
 
 * From current source code:
 
   ::
 
       python setup.py sdist
-      sudo python setup.py install
+      python setup.py install
 
 Featured projects
 -----------------
@@ -356,8 +386,8 @@ If you like, let me know if you are creating something intresting with
 python-chess, for example:
 
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
-* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * extracting reasoning from chess engines - https://github.com/pcattori/deep-blue-talks
 
 License
@@ -374,3 +404,6 @@ the bitboard move generation parts are ported from there.
 Thanks to Ronald de Man for his Syzygy endgame tablebases
 (https://github.com/syzygy1/tb). The probing code in
 python-chess is very directly ported from his C probing code.
+
+Thanks to Miguel A. Ballicora for his Gaviota tablebases
+(https://github.com/michiguel/Gaviota-Tablebases).

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
@@ -22,6 +22,7 @@ import distutils
 import os
 import setuptools
 import sys
+
 
 def read_description():
     """
@@ -47,6 +48,7 @@ def read_description():
 
     return description
 
+
 def dependencies():
     deps = []
 
@@ -54,6 +56,7 @@ def dependencies():
         deps.append("futures")
 
     return deps
+
 
 setuptools.setup(
     name="python-chess",
@@ -63,7 +66,7 @@ setuptools.setup(
     description="A pure Python chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Syzygy tablebase probing and UCI engine communication.",
     long_description=read_description(),
     license="GPL3",
-    keywords="chess fen pgn polyglot syzygy uci",
+    keywords="chess fen pgn polyglot syzygy gaviota uci",
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
@@ -74,7 +77,10 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

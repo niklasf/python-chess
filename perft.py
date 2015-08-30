@@ -1,14 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# A test set of more than 6000 positions. The perft node count for a given depth
-# is the number of legal move sequences from that position. This can be used
-# to check correctness and speed of the legal move generator.
+# Run a test set of more than 6000 positions. The perft node count for a given
+# depth is the number of legal move sequences from that position. This can be
+# used to check correctness and speed of the legal move generator.
 #
-# The original test suite was created by Marcel van Kervinck and found at
+# The original test suite was created by Marcel van Kervinck and found at:
 # http://marcelk.net/rookie/nostalgia/v3/perft-random.epd
-
-from __future__ import print_function
 
 import chess
 import unittest

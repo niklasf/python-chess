@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
@@ -117,6 +117,17 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), chess.STARTING_FEN)
         self.assertEqual(board.turn, chess.WHITE)
 
+    def test_empty(self):
+        board = chess.Board.empty()
+        self.assertEqual(board.fen(), "8/8/8/8/8/8/8/8 w - - 0 1")
+        self.assertEqual(board, chess.Board(None))
+
+    def test_from_epd(self):
+        base_epd = "rnbqkb1r/ppp1pppp/5n2/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq -"
+        board, ops = chess.Board.from_epd(base_epd + " ce 55;")
+        self.assertEqual(ops["ce"], 55)
+        self.assertEqual(board.fen(), base_epd + " 0 1")
+
     def test_move_making(self):
         board = chess.Board()
         move = chess.Move(chess.E2, chess.E4)
@@ -141,6 +152,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
         self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
         self.assertEqual(board.fen(), xfen)
+        self.assertTrue(board.has_castling_rights(chess.WHITE))
+        self.assertTrue(board.has_castling_rights(chess.BLACK))
+        self.assertTrue(board.has_kingside_castling_rights(chess.BLACK))
+        self.assertTrue(board.has_kingside_castling_rights(chess.WHITE))
+        self.assertTrue(board.has_queenside_castling_rights(chess.BLACK))
+        self.assertFalse(board.has_queenside_castling_rights(chess.WHITE))
 
         # Chess960 position #284.
         board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1")
@@ -1099,6 +1116,61 @@ class SquareSetTestCase(unittest.TestCase):
         bb >>= 2
         self.assertEqual(bb, chess.BB_C1)
 
+    def test_immutable_set_operations(self):
+        self.assertFalse(chess.SquareSet(chess.BB_A1).issubset(chess.BB_RANK_1))
+        self.assertTrue(chess.SquareSet(chess.BB_RANK_1).issubset(chess.BB_A1))
+
+        self.assertTrue(chess.SquareSet(chess.BB_A1).issuperset(chess.BB_RANK_1))
+        self.assertFalse(chess.SquareSet(chess.BB_RANK_1).issuperset(chess.BB_A1))
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).union(chess.BB_FILE_A), chess.BB_FILE_A)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).intersection(chess.BB_A2), chess.BB_VOID)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).difference(chess.BB_A2), chess.BB_A1)
+
+        self.assertEqual(chess.SquareSet(chess.BB_A1).symmetric_difference(chess.BB_A2), chess.BB_A1 | chess.BB_A2)
+
+        self.assertEqual(chess.SquareSet(chess.BB_C5).copy(), chess.BB_C5)
+
+    def test_mutable_set_operations(self):
+        squares = chess.SquareSet(chess.BB_A1)
+        squares.update(chess.BB_FILE_H)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_FILE_H)
+
+        squares.intersection_update(chess.BB_RANK_8)
+        self.assertEqual(squares, chess.BB_H8)
+
+        squares.difference_update(chess.BB_A1)
+        self.assertEqual(squares, chess.BB_H8)
+
+        squares.symmetric_difference_update(chess.BB_A1)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_H8)
+
+        squares.add(chess.A3)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_A3 | chess.BB_H8)
+
+        squares.remove(chess.H8)
+        self.assertEqual(squares, chess.BB_A1 | chess.BB_A3)
+
+        with self.assertRaises(KeyError):
+            squares.remove(chess.H8)
+
+        squares.discard(chess.H8)
+
+        squares.discard(chess.A1)
+        self.assertEqual(squares, chess.BB_A3)
+
+        squares.clear()
+        self.assertEqual(squares, chess.BB_VOID)
+
+        with self.assertRaises(KeyError):
+            squares.pop()
+
+        squares.add(chess.C7)
+        self.assertEqual(squares.pop(), chess.C7)
+        self.assertEqual(squares, chess.BB_VOID)
+
 
 class PolyglotTestCase(unittest.TestCase):
 
@@ -1163,7 +1235,7 @@ class PolyglotTestCase(unittest.TestCase):
     def test_reversed(self):
         with chess.polyglot.open_reader("data/opening-books/performance.bin") as book:
             # Last is first of reversed.
-            self.assertEqual(book[len(book) - 1], next(reversed(book)))
+            self.assertEqual(book[-1], next(reversed(book)))
 
             # First is last of reversed.
             for last in reversed(book):
@@ -1172,12 +1244,14 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_random_choice(self):
         class FirstMockRandom(object):
-            def randint(self, first, last):
+            @staticmethod
+            def randint(first, last):
                 assert first <= last
                 return first
 
         class LastMockRandom(object):
-            def randint(self, first, last):
+            @staticmethod
+            def randint(first, last):
                 assert first <= last
                 return last
 
@@ -2097,17 +2171,17 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl_table = tablebases.probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
-                    "Expecting wdl_table %d for %s, got %d (at line %d)" % (extra["wdl_table"], board.fen(), wdl_table, line + 1))
+                    "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
 
                 wdl = tablebases.probe_wdl(board)
                 self.assertEqual(
                     wdl, extra["wdl"],
-                    "Expecting wdl %d for %s, got %d (at line %d)" % (extra["wdl"], board.fen(), wdl, line + 1))
+                    "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
 
                 dtz = tablebases.probe_dtz(board)
                 self.assertEqual(
                     dtz, extra["dtz"],
-                    "Expecting dtz %d for %s, got %d (at line %d)" % (extra["dtz"], board.fen(), dtz, line + 1))
+                    "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
 
         tablebases.close()
 
