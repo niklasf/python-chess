@@ -301,6 +301,13 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.shredder_fen(), fen)
 
+    def test_castling_right_not_destroyed_bug(self):
+        # A rook move form H8 to H1 was only taking whites possible castling
+        # rights away.
+        board = chess.Board("2r1k2r/2qbbpp1/p2pp3/1p3PP1/Pn2P3/1PN1B3/1P3QB1/1K1R3R b k - 0 22")
+        board.push_san("Rxh1")
+        self.assertEqual(board.epd(), "2r1k3/2qbbpp1/p2pp3/1p3PP1/Pn2P3/1PN1B3/1P3QB1/1K1R3r w - -")
+
     def test_insufficient_material(self):
         # Starting position.
         board = chess.Board()
