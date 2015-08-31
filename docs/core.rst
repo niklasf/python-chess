@@ -130,6 +130,11 @@ Board
 
         The number of half moves since the last capture or pawn move.
 
+    .. py:attribute:: chess960
+
+        Whether the board is in Chess960 mode. In Chess960 castling moves are
+        represented as king moves to the corresponding rook square.
+
     .. py:attribute:: pseudo_legal_moves
         :annotation: = PseudoLegalMoveGenerator(self)
 
