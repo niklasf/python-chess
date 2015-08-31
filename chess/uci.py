@@ -1224,7 +1224,7 @@ class Engine(object):
 
         :return: Nothing.
 
-        :raises: `~chess.uci.EngineStateException` if the engine is not
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is not
             currently searching in ponder mode.
         """
         with self.state_changed:
