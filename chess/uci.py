@@ -1019,9 +1019,13 @@ class Engine(object):
             switchyard.append(board.pop())
 
         # Validate castling rights.
-        if not self.uci_chess960:
-            standard_chess_status = board.status(allow_chess960=False)
-            chess960_status = board.status(allow_chess960=True)
+        if not self.uci_chess960 and board.chess960:
+            chess960_status = board.status()
+
+            board.chess960 = False
+            standard_chess_status = board.status()
+            board.chess960 = True
+
             if standard_chess_status & chess.STATUS_BAD_CASTLING_RIGHTS and not chess960_status & chess.STATUS_BAD_CASTLING_RIGHTS:
                 LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 

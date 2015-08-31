@@ -218,6 +218,7 @@ class BoardTestCase(unittest.TestCase):
 
         # Let white castle short.
         move = board.parse_san("O-O")
+        self.assertEqual(move, chess.Move.from_uci("e1g1"))
         self.assertEqual(board.san(move), "O-O")
         self.assertTrue(move in board.legal_moves)
         board.push(move)
@@ -607,9 +608,10 @@ class BoardTestCase(unittest.TestCase):
 
         # Generally valid position, but not valid standard chess position due
         # to non-standard castling rights. Chess960 start position #0.
-        board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1")
+        board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=True)
         self.assertEqual(board.status(), chess.STATUS_VALID)
-        self.assertEqual(board.status(allow_chess960=False), chess.STATUS_BAD_CASTLING_RIGHTS)
+        board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=False)
+        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
 
     def test_epd(self):
         # Create an EPD with a move and a string.
@@ -1946,7 +1948,7 @@ class UciEngineTestCase(unittest.TestCase):
     def test_castling_ponder(self):
         # Setup position.
         fen = "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/5N2/PPPPBPPP/RNBQK2R b KQkq - 3 3"
-        board = chess.Board(fen)
+        board = chess.Board(fen, chess960=True)
         self.mock.expect("position fen " + fen)
         self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
@@ -1962,7 +1964,7 @@ class UciEngineTestCase(unittest.TestCase):
 
     def test_invalid_castling_rights(self):
         fen = "3qk3/4pp2/5r2/8/8/8/3PP1P1/4K1R1 b G - 0 1"
-        board = chess.Board(fen)
+        board = chess.Board(fen, chess960=True)
         board.push_san("Rf5")
 
         # White can castle with the G-side rook, which is not possible in

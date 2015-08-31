@@ -672,8 +672,6 @@ class Move(object):
     Represents a move from a square to a square and possibly the promotion
     piece type.
 
-    Castling moves are king moves to the corresponding rook square.
-
     Null moves are supported.
     """
 
@@ -767,9 +765,14 @@ class Board(object):
     The board is initialized to the starting position, unless otherwise
     specified in the optional *fen* argument. If *fen* is ``None`` an empty
     board is created.
+
+    Optionally supports *chess960*. In Chess960 castling moves are encoded
+    by a king move to the corresponding rook square.
     """
 
-    def __init__(self, fen=STARTING_FEN):
+    def __init__(self, fen=STARTING_FEN, chess960=False):
+        self.chess960 = chess960
+
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
@@ -1491,6 +1494,8 @@ class Board(object):
         >>> move in board.pseudo_legal_moves
         True
         """
+        move = self._to_chess960(move)
+
         # Increment fullmove number.
         if self.turn == BLACK:
             self.fullmove_number += 1
@@ -1518,12 +1523,6 @@ class Board(object):
                 self.attacks_valid = False
             self.ep_square = 0
             return
-
-        # Extra assertion to catch legacy castling moves.
-        if move.from_square == E1 and (move.to_square == G1 or move.to_square == C1):
-            assert self.is_pseudo_legal(move)
-        elif move.from_square == E8 and (move.to_square == G8 or move.to_square == C8):
-            assert self.is_pseudo_legal(move)
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
@@ -1600,6 +1599,7 @@ class Board(object):
         Restores the previous position and returns the last move from the stack.
         """
         move = self.move_stack.pop()
+        move = self._to_chess960(move)
 
         # Update transposition table.
         self.transpositions.subtract((self.zobrist_hash(), ))
@@ -2158,9 +2158,12 @@ class Board(object):
 
         # Castling.
         if piece == KING:
-            castling = self.occupied_co[self.turn] & BB_SQUARES[move.to_square] & self.rooks
+            diff = file_index(move.to_square) - file_index(move.from_square)
+            castling = abs(diff) > 1
+            castling = castling or self.occupied_co[self.turn] & BB_SQUARES[move.to_square] & self.rooks
+
             if castling:
-                if file_index(move.to_square) < file_index(move.from_square):
+                if diff < 0:
                     san = "O-O-O"
                 else:
                     san = "O-O"
@@ -2262,7 +2265,7 @@ class Board(object):
                 rook = bit_scan(rooks & -rooks)
                 rooks = rooks & (rooks - 1)
 
-            move = Move(bit_scan(king), rook)
+            move = self._from_chess960(bit_scan(king), rook)
             if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
@@ -2272,7 +2275,7 @@ class Board(object):
             rooks = self.castling_rights & (BB_RANK_1 if self.turn == WHITE else BB_RANK_8)
             rook = bit_scan(rooks & -rooks)
 
-            move = Move(bit_scan(king), rook)
+            move = self._from_chess960(bit_scan(king), rook)
             if rook is not None and rook >= 0 and move in self.generate_castling_moves():
                 return move
             else:
@@ -2350,26 +2353,35 @@ class Board(object):
         self.push(move)
         return move
 
-    def uci(self, move, chess960=True):
-        """
-        Gets the UCI notation of the move.
+    def uci(self, move, chess960=None):
+        """Gets the UCI notation of the move."""
+        if self.chess960 is None:
+            chess960 = self.chess960
 
-        Castling moves are returned in UCI_Chess960 notation. If you provide
-        ``False`` for *chess960* they will be converted to legacy UCI notation
-        in the context of the current position.
-        """
-        if not chess960 and (move.from_square == E1 or move.from_square == E8):
+        if move.from_square == E1 or move.from_square == E8:
             if self.piece_type_at(move.from_square) == KING:
                 if move.from_square == E1:
-                    if move.to_square == H1:
-                        return "e1g1"
-                    elif move.to_square == A1:
-                        return "e1c1"
+                    if not chess960:
+                        if move.to_square == H1:
+                            return "e1g1"
+                        elif move.to_square == A1:
+                            return "e1c1"
+                    else:
+                        if move.to_square == G1:
+                            return "e1h1"
+                        elif move.to_square == C1:
+                            return "e1a1"
                 elif move.from_square == E8:
-                    if move.to_square == H8:
-                        return "e8g8"
-                    elif move.to_square == A8:
-                        return "e8c8"
+                    if not chess960:
+                        if move.to_square == H8:
+                            return "e8g8"
+                        elif move.to_square == A8:
+                            return "e8c8"
+                    else:
+                        if move.to_square == G8:
+                            return "e8h8"
+                        elif move.to_square == C8:
+                            return "e8a8"
 
         return move.uci()
 
@@ -2377,7 +2389,7 @@ class Board(object):
         """
         Parses the given move in UCI notation.
 
-        Supports both UCI_Chess960 and legacy UCI notation.
+        Supports both UCI_Chess960 and standard UCI notation.
 
         The returned move is guaranteed to be either legal or a null move.
 
@@ -2389,18 +2401,30 @@ class Board(object):
         if not move:
             return move
 
-        if move.from_square == E1 or move.from_square == E8:
+        if move.from_square in [E1, E8]:
             if self.piece_type_at(move.from_square) == KING:
                 if move.from_square == E1:
-                    if move.to_square == G1:
-                        move.to_square = H1
-                    elif move.to_square == C1:
-                        move.to_square = A1
+                    if self.chess960:
+                        if move.to_square == G1:
+                            move.to_square = H1
+                        elif move.to_square == C1:
+                            move.to_square = A1
+                    else:
+                        if move.to_square == H1:
+                            move.to_square = G1
+                        elif move.to_square == A1:
+                            move.to_square = C1
                 elif move.from_square == E8:
-                    if move.to_square == G8:
-                        move.to_square = H8
-                    elif move.to_square == C8:
-                        move.to_square = A8
+                    if self.chess960:
+                        if move.to_square == G8:
+                            move.to_square = H8
+                        elif move.to_square == C8:
+                            move.to_square = A8
+                    else:
+                        if move.to_square == H8:
+                            move.to_square = G8
+                        elif move.to_square == A8:
+                            move.to_square = C8
 
         if not self.is_legal(move):
             raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
@@ -2441,7 +2465,14 @@ class Board(object):
 
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
-        return bool(BB_SQUARES[move.to_square] & self.occupied_co[self.turn])
+        if BB_SQUARES[move.to_square] & self.occupied_co[self.turn]:
+            return True
+
+        diff = file_index(move.from_square) - file_index(move.to_square)
+        if abs(diff) > 1 and self.piece_type_at(move.from_square) == KING:
+            return True
+
+        return False
 
     def has_castling_rights(self, color):
         """Checks if the given side has castling rights."""
@@ -2496,16 +2527,12 @@ class Board(object):
 
         return False
 
-    def status(self, allow_chess960=True):
+    def status(self):
         """
         Gets a bitmask of possible problems with the position.
 
         Move making, generation and validation are only guaranteed to work on
         a completely valid board.
-
-        By default positions with generalized Chess960 castling rights are
-        allowed. Pass ``False`` for *allow_chess960* in order to restrict
-        the validation to standard chess positions.
 
         :data:`~chess.STATUS_VALID` for a completely valid board.
 
@@ -2552,7 +2579,7 @@ class Board(object):
             white_castling_rights = self.castling_rights & BB_RANK_1
             black_castling_rights = self.castling_rights & BB_RANK_8
 
-            if allow_chess960:
+            if self.chess960:
                 # Can only castle on the backrank.
                 if self.castling_rights & ~(BB_RANK_1 | BB_RANK_8):
                     errors |= STATUS_BAD_CASTLING_RIGHTS
@@ -2632,7 +2659,7 @@ class Board(object):
 
         return errors
 
-    def is_valid(self, allow_chess960=True):
+    def is_valid(self):
         """
         Checks if the board is valid.
 
@@ -2641,7 +2668,7 @@ class Board(object):
 
         See :func:`~chess.Board.status()` for details.
         """
-        return self.status(allow_chess960) == STATUS_VALID
+        return self.status() == STATUS_VALID
 
     def generate_attacks(self):
         if self.attacks_valid:
@@ -2985,10 +3012,8 @@ class Board(object):
             # shielded us from an attack from a1 or a8, castling would be
             # into check.
             if a_side and rook & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a:
-
                 candidates = candidates & (candidates - 1)
                 continue
-
 
             empty_for_rook = BB_VOID
             empty_for_king = BB_VOID
@@ -3035,9 +3060,39 @@ class Board(object):
                     not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
 
                 if none_attacked:
-                    yield Move(bit_scan(king), bit_scan(rook))
+                    yield self._from_chess960(bit_scan(king), bit_scan(rook))
 
             candidates = candidates & (candidates - 1)
+
+    def _from_chess960(self, from_square, to_square, promotion=None):
+        if not self.chess960 and not promotion and from_square in [E1, E8] and self.piece_type_at(from_square) == KING:
+            if from_square == E1:
+                if to_square == H1:
+                    return Move(E1, G1)
+                elif to_square == A1:
+                    return Move(E1, C1)
+            elif from_square == E8:
+                if to_square == H8:
+                    return Move(E8, G8)
+                elif to_square == A8:
+                    return Move(E8, C8)
+
+        return Move(from_square, to_square, promotion)
+
+    def _to_chess960(self, move):
+        if not self.chess960 and not move.promotion and move.from_square in [E1, E8] and self.piece_type_at(move.from_square) == KING:
+            if move.from_square == E1:
+                if move.to_square == G1:
+                    return Move(E1, H1)
+                elif move.to_square == C1:
+                    return Move(E1, A1)
+            elif move.from_square == E8:
+                if move.to_square == G8:
+                    return Move(E8, H8)
+                elif move.to_square == C8:
+                    return Move(E8, A8)
+
+        return move
 
     def generate_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
         if not self.attacks_valid:
@@ -3247,7 +3302,10 @@ class Board(object):
                 moves = moves & (moves - 1)
 
     def __repr__(self):
-        return "Board('{0}')".format(self.fen())
+        if not self.chess960:
+            return "Board('{0}')".format(self.fen())
+        else:
+            return "Board('{0}', chess960=True)".format(self.fen())
 
     def __str__(self):
         builder = []
@@ -3460,6 +3518,8 @@ class Board(object):
     def copy(self):
         """Creates a copy of the board."""
         board = type(self)(None)
+        board.chess960 = self.chess960
+
         board.pawns = self.pawns
         board.knights= self.knights
         board.bishops = self.bishops
@@ -3500,19 +3560,19 @@ class Board(object):
         return board
 
     @classmethod
-    def empty(cls):
+    def empty(cls, chess960=False):
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
-        return cls(None)
+        return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls, epd):
+    def from_epd(cls, epd, chess960=False):
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
 
         Returns the board and the dictionary of parsed operations as a tuple.
         """
-        board = cls.empty()
+        board = cls.empty(chess960=chess960)
         return board, board.set_epd(epd)
 
 
