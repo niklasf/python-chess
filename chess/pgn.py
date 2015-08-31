@@ -345,19 +345,24 @@ class Game(GameNode):
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            return chess.Board(self.headers["FEN"])
+            chess960 = self.headers.get("Variant", None) == "Chess960"
+            board = chess.Board(self.headers["FEN"], chess960=chess960)
+            board.chess960 = board.chess960 or board.has_chess960_castling_rights()
+            return board
         else:
             return chess.Board()
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the `SetUp`
-        and `FEN` header tags.
+        Setup a specific starting position. This sets (or resets) the *SetUp*,
+        *FEN* and *Variant* header tags.
         """
         try:
             fen = board.fen()
         except AttributeError:
-            fen = chess.Board(board).fen()
+            board = chess.Board(board)
+            board.chess960 = board.has_chess960_castling_rights()
+            fen = board.fen()
 
         if fen == chess.STARTING_FEN:
             self.headers.pop("SetUp", None)
@@ -365,6 +370,11 @@ class Game(GameNode):
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
+
+        if board.chess960:
+            self.headers["Variant"] = "Chess960"
+        else:
+            self.headers.pop("Variant", None)
 
     def export(self, exporter, headers=True, comments=True, variations=True):
         exporter.start_game()
@@ -582,8 +592,8 @@ def read_game(handle, error_handler=_raise):
 
     # Movetext parser state.
     starting_comment = ""
-    variation_stack = collections.deque([ game ])
-    board_stack = collections.deque([ game.board() ])
+    variation_stack = collections.deque([game])
+    board_stack = collections.deque([game.board()])
     in_variation = False
 
     # Parse movetext.

@@ -2527,6 +2527,24 @@ class Board(object):
 
         return False
 
+    def has_chess960_castling_rights(self):
+        """
+        Checks if there are castling rights that are only possible in Chess960.
+        """
+        # Standard chess castling rights can only be on the standard
+        # starting rook squares.
+        if self.castling_rights & ~(BB_A1 | BB_A8 | BB_H1 | BB_H8):
+            return True
+
+        # If there are any castling rights in standard chess, the king must be
+        # on e1 or e8.
+        if self.has_castling_rights(WHITE) and not self.occupied_co[WHITE] & self.kings & BB_E1:
+            return True
+        if self.has_castling_rights(BLACK) and not self.occupied_co[BLACK] & self.kings & BB_E8:
+            return True
+
+        return False
+
     def status(self):
         """
         Gets a bitmask of possible problems with the position.
@@ -2589,16 +2607,8 @@ class Board(object):
                     errors |= STATUS_BAD_CASTLING_RIGHTS
                 if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
                     errors |= STATUS_BAD_CASTLING_RIGHTS
-            else:
-                # Can only castle on the starting rook squares.
-                if self.castling_rights & ~(BB_A1 | BB_A8 | BB_H1 | BB_H8):
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-
-                # King must be on e1 or e8.
-                if white_castling_rights and not self.occupied_co[WHITE] & self.kings & BB_E1:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-                if black_castling_rights and not self.occupied_co[BLACK] & self.kings & BB_E8:
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
+            elif self.has_chess960_castling_rights():
+                errors |= STATUS_BAD_CASTLING_RIGHTS
 
             # There must be rooks to castle with.
             if white_castling_rights & ~(self.occupied_co[WHITE] & self.rooks):
