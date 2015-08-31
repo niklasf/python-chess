@@ -1759,37 +1759,16 @@ class Board(object):
         else:
             return "-"
 
+    def is_ep_legal(self):
+        return self.ep_square and any(self.is_en_passant(move) for move in self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False))
+
     def fen(self):
         """Gets the FEN representation of the position."""
         fen = []
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
-
         fen.append(self.castling_xfen())
-
-        # Insert en-passant square only if legal.
-        if self.ep_square:
-            # Get potential capturing pawns.
-            if self.turn == WHITE:
-                ep_masks = shift_down(BB_SQUARES[self.ep_square])
-            else:
-                ep_masks = shift_up(BB_SQUARES[self.ep_square])
-            ep_masks = shift_left(ep_masks) | shift_right(ep_masks)
-            ep_masks = ep_masks & self.pawns & self.occupied_co[self.turn]
-
-            # Check legality.
-            while ep_masks:
-                ep_mask = ep_masks & -ep_masks
-                move = Move(bit_scan(ep_mask), self.ep_square)
-                if self.is_legal(move):
-                    fen.append(SQUARE_NAMES[self.ep_square])
-                    break
-                ep_masks = ep_masks & (ep_masks - 1)
-            else:
-                fen.append("-")
-        else:
-            fen.append("-")
-
+        fen.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
         return " ".join(fen)
@@ -1802,20 +1781,12 @@ class Board(object):
         castling rights in normal chess are HAha.
         """
         fen = []
-
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
-
         fen.append(self.castling_shredder_fen())
-
-        if self.ep_square:
-            fen.append(SQUARE_NAMES[self.ep_square])
-        else:
-            fen.append("-")
-
+        fen.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
-
         return " ".join(fen)
 
     def set_fen(self, fen):
@@ -1968,10 +1939,7 @@ class Board(object):
         epd.append(" ")
 
         # En-passant square.
-        if self.ep_square:
-            epd.append(SQUARE_NAMES[self.ep_square])
-        else:
-            epd.append("-")
+        epd.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
 
         # Append operations.
         for opcode, operand in operations.items():
