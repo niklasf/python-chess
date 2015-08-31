@@ -31,7 +31,7 @@ ENTRY_STRUCT = struct.Struct(">QHHI")
 class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
     """An entry from a polyglot opening book."""
 
-    def move(self):
+    def move(self, chess960=False):
         """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
@@ -40,6 +40,19 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
         promotion = promotion_part + 1 if promotion_part else None
+
+        # Convert castling moves.
+        if not chess960 and not promotion:
+            if from_square == chess.E1:
+                if to_square == chess.H1:
+                    return chess.Move(chess.E1, chess.G1)
+                elif to_square == chess.A1:
+                    return chess.Move(chess.E1, chess.C1)
+            elif from_square == chess.E8:
+                if to_square == chess.H8:
+                    return chess.Move(chess.E8, chess.G8)
+                elif to_square == chess.A8:
+                    return chess.Move(chess.E8, chess.C8)
 
         return chess.Move(from_square, to_square, promotion)
 
@@ -149,7 +162,7 @@ class MemoryMappedReader(object):
 
             if entry.key != zobrist_hash:
                 break
-            elif entry.weight >= minimum_weight and (board is None or board.is_legal(entry.move())):
+            elif entry.weight >= minimum_weight and (board is None or board.is_legal(entry.move(chess960=board.chess960))):
                 yield entry
 
             i += 1

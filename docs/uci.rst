@@ -87,9 +87,8 @@ Note about castling moves
 -------------------------
 
 There are different ways castling moves may be encoded. The normal way to do it
-is *e1g1* for short castling. However this is not always unique in Chess960.
-Therefore python-chess will consistently encode castling moves as a king
-move to the corresponding rook, i.e. *e1h1* for normal kingside castling.
+is ``e1g1`` for short castling. The same move would be ``e1h1`` in
+*UCI_Chess960* mode.
 
 This is abstracted away by the UCI module, but if the engine supports it, it
 is recommended to enable enable *UCI_Chess960* mode.
