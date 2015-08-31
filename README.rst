@@ -72,11 +72,18 @@ Features
 
 * Supports standard chess and Chess960.
 
+  .. code:: python
+
+      >>> board = chess.Board(chess960=True)
+
 * Legal move generator and move validation. This includes all castling
   rules and en-passant captures.
 
   .. code:: python
 
+      >>> board = chess.Board()
+      >>> board.legal_moves # doctest: +ELLIPSIS
+      <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
       >>> chess.Move.from_uci("a8a1") in board.legal_moves
       False
 
@@ -84,16 +91,17 @@ Features
 
   .. code:: python
 
-      >>> Qf7 = board.pop() # Unmake last move (Qf7#)
-      >>> Qf7
-      Move.from_uci('h5f7')
+      >>> Nf3 = chess.Move.from_uci("g1f3")
+      >>> board.push(Nf3) # Make the move
 
-      >>> board.push(Qf7) # Restore
+      >>> board.pop() # Unmake the last move
+      Move.from_uci('g1f3')
 
 * Show a simple ASCII board.
 
   .. code:: python
 
+      >>> board = chess.Board("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
       >>> print(board)
       r . b q k b . r
       p p p p . Q p p
