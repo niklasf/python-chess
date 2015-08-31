@@ -1327,24 +1327,39 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.board(), chess.Board())
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
+        self.assertFalse("Variant" in game.headers)
 
         fen = "rnbqkbnr/pp1ppp1p/6p1/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4"
         game.setup(fen)
         self.assertEqual(game.headers["FEN"], fen)
         self.assertEqual(game.headers["SetUp"], "1")
+        self.assertFalse("Variant" in game.headers)
 
         game.setup(chess.STARTING_FEN)
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
+        self.assertFalse("Variant" in game.headers)
 
         # Setup again, while starting FEN is already set.
         game.setup(chess.STARTING_FEN)
         self.assertFalse("FEN" in game.headers)
         self.assertFalse("SetUp" in game.headers)
+        self.assertFalse("Variant" in game.headers)
 
         game.setup(chess.Board(fen))
         self.assertEqual(game.headers["FEN"], fen)
         self.assertEqual(game.headers["SetUp"], "1")
+        self.assertFalse("Variant" in game.headers)
+
+        # Chess960 starting position 283.
+        fen = "rkbqrnnb/pppppppp/8/8/8/8/PPPPPPPP/RKBQRNNB w KQkq - 0 1"
+        game.setup(fen)
+        self.assertEqual(game.headers["FEN"], fen)
+        self.assertEqual(game.headers["SetUp"], "1")
+        self.assertEqual(game.headers["Variant"], "Chess960")
+        board = game.board()
+        self.assertTrue(board.chess960)
+        self.assertEqual(board.fen(), fen)
 
     def test_promote_to_main(self):
         e4 = chess.Move.from_uci("e2e4")
