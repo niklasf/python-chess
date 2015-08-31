@@ -3605,6 +3605,18 @@ class PseudoLegalMoveGenerator(object):
     def __contains__(self, move):
         return self.board.is_pseudo_legal(move)
 
+    def __str__(self):
+        builder = []
+        for move in self:
+            if self.board.is_legal(move):
+                builder.append(self.board.san(move))
+            else:
+                builder.append(self.board.uci(move))
+        return ", ".join(builder)
+
+    def __repr__(self):
+        return "<PeusdoLegalMoveGenerator at {0} ({1})>".format(hex(id(self)), str(self))
+
 
 class LegalMoveGenerator(object):
 
@@ -3624,6 +3636,12 @@ class LegalMoveGenerator(object):
 
     def __contains__(self, move):
         return self.board.is_legal(move)
+
+    def __str__(self):
+        return ", ".join(self.board.san(move) for move in self)
+
+    def __repr__(self):
+        return "<LegalMoveGenerator at {0} ({1})>".format(hex(id(self)), str(self))
 
 
 class SquareSet(object):
