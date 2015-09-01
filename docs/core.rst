@@ -157,11 +157,17 @@ Board
         >>> move in board.pseudo_legal_moves
         True
 
+        Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
+        :func:`~chess.Board.is_pseudo_legal()`.
+
     .. py:attribute:: legal_moves
         :annotation: = LegalMoveGenerator(self)
 
         A dynamic list of completely legal moves, much like the pseudo legal
         move list.
+
+        Wraps :func:`~chess.Board.generate_legal_moves()` and
+        :func:`~chess.Board.is_legal()`.
 
     .. py:attribute:: move_stack
 
