@@ -745,7 +745,7 @@ class Move(object):
         Gets a null move.
 
         A null move just passes the turn to the other side (and possibly
-        forfeits en-passant capturing). Null moves evaluate to ``False`` in
+        forfeits en passant capturing). Null moves evaluate to ``False`` in
         boolean contexts.
 
         >>> bool(chess.Move.null())
@@ -1097,7 +1097,7 @@ class Board(object):
 
             left_captures = left_captures & (left_captures - 1)
 
-        # Generate en-passant captures.
+        # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask:
             if self.turn == WHITE:
@@ -1172,7 +1172,7 @@ class Board(object):
         Checks if the given side attacks the given square.
 
         Pinned pieces still count as attackers. Pawns that can be captured
-        en-passant are attacked.
+        en passant are attacked.
         """
         return bool(self.attacker_mask(color, square))
 
@@ -1181,7 +1181,7 @@ class Board(object):
         Gets a set of attackers of the given color for the given square.
 
         Pinned pieces still count as attackers. Pawns that can be captured
-        en-passant are attacked.
+        en passant are attacked.
 
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
@@ -1197,7 +1197,7 @@ class Board(object):
 
         There will be no attacks if the square is empty. Pinned pieces are
         still attacking other squares. Pawns will attack pawns they could
-        capture en-passant.
+        capture en passant.
 
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
@@ -1473,7 +1473,7 @@ class Board(object):
         Updates the position with the given move and puts it onto a stack.
 
         Null moves just increment the move counters, switch turns and forfeit
-        en-passant capturing.
+        en passant capturing.
 
         No validation is performed. For performance moves are assumed to be at
         least pseudo legal. Otherwise there is no guarantee that the previous
@@ -1501,12 +1501,12 @@ class Board(object):
         self.attacks_from_stack.append(self.attacks_from)
         self.attacks_to_stack.append(self.attacks_to)
 
-        # On a null move simply swap turns and reset the en-passant square.
+        # On a null move simply swap turns and reset the en passant square.
         if not move:
             self.turn = not self.turn
             self.halfmove_clock += 1
 
-            # Invalidate en-passant attacks.
+            # Invalidate en passant attacks.
             if self.ep_square:
                 self.attacks_valid = False
             self.ep_square = 0
@@ -1531,14 +1531,14 @@ class Board(object):
         if piece_type == PAWN:
             diff = abs(move.to_square - move.from_square)
 
-            # Remove pawns captured en-passant.
+            # Remove pawns captured en passant.
             if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 if self.turn == WHITE:
                     self._remove_piece_at(move.to_square - 8)
                 else:
                     self._remove_piece_at(move.to_square + 8)
 
-            # Set en-passant square.
+            # Set en passant square.
             if diff == 16:
                 if self.turn == WHITE:
                     self.ep_square = move.to_square - 8
@@ -1638,7 +1638,7 @@ class Board(object):
         else:
             self._remove_piece_at(move.to_square)
 
-            # Restore captured pawn after en-passant.
+            # Restore captured pawn after en passant.
             if piece == PAWN and abs(move.from_square - move.to_square) in (7, 9):
                 if self.turn == WHITE:
                     self._set_piece_at(move.to_square + 8, PAWN, WHITE)
@@ -1747,7 +1747,8 @@ class Board(object):
         else:
             return "-"
 
-    def is_ep_legal(self):
+    def has_legal_en_passant(self):
+        """Checks if there is a legal en passant capture."""
         return self.ep_square and any(self.is_en_passant(move) for move in self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False))
 
     def fen(self):
@@ -1756,7 +1757,7 @@ class Board(object):
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
         fen.append(self.castling_xfen())
-        fen.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
+        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_ep_square() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
         return " ".join(fen)
@@ -1772,7 +1773,7 @@ class Board(object):
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
         fen.append(self.castling_shredder_fen())
-        fen.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
+        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
         return " ".join(fen)
@@ -1821,14 +1822,14 @@ class Board(object):
         if not FEN_CASTLING_REGEX.match(parts[2]):
             raise ValueError("invalid castling part in fen: {0}".format(repr(fen)))
 
-        # Check that the en-passant part is valid.
+        # Check that the en passant part is valid.
         if parts[3] != "-":
             if parts[1] == "w":
                 if rank_index(SQUARE_NAMES.index(parts[3])) != 5:
-                    raise ValueError("expected en-passant square to be on sixth rank: {0}".format(repr(fen)))
+                    raise ValueError("expected ep square to be on sixth rank: {0}".format(repr(fen)))
             else:
                 if rank_index(SQUARE_NAMES.index(parts[3])) != 2:
-                    raise ValueError("expected en-passant square to be on third rank: {0}".format(repr(fen)))
+                    raise ValueError("expected ep square to be on third rank: {0}".format(repr(fen)))
 
         # Check that the half move part is valid.
         if int(parts[4]) < 0:
@@ -1882,7 +1883,7 @@ class Board(object):
             else:
                 self.castling_rights |= BB_FILES[FILE_NAMES.index(flag)] & backrank
 
-        # Set the en-passant square.
+        # Set the en passant square.
         if parts[3] == "-":
             self.ep_square = 0
         else:
@@ -1926,8 +1927,8 @@ class Board(object):
         epd.append(self.castling_xfen())
         epd.append(" ")
 
-        # En-passant square.
-        epd.append(SQUARE_NAMES[self.ep_square] if self.is_ep_legal() else "-")
+        # En passant square.
+        epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
 
         # Append operations.
         for opcode, operand in operations.items():
@@ -2343,7 +2344,7 @@ class Board(object):
         return move
 
     def is_en_passant(self, move):
-        """Checks if the given pseudo-legal move is an en-passant capture."""
+        """Checks if the given pseudo-legal move is an en passant capture."""
         diff = abs(move.to_square - move.from_square)
 
         if diff not in (7, 9):
@@ -2556,7 +2557,7 @@ class Board(object):
                 pawn_mask = shift_up(BB_SQUARES[self.ep_square])
                 seventh_rank_mask = shift_down(BB_SQUARES[self.ep_square])
 
-            # The en-passant square must be on the third or sixth rank.
+            # The en passant square must be on the third or sixth rank.
             if rank_index(self.ep_square) != ep_rank:
                 errors |= STATUS_INVALID_EP_SQUARE
 
@@ -2565,7 +2566,7 @@ class Board(object):
             if not self.pawns & self.occupied_co[not self.turn] & pawn_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
-            # And the en-passant square must be empty.
+            # And the en passant square must be empty.
             if self.occupied & BB_SQUARES[self.ep_square]:
                 errors |= STATUS_INVALID_EP_SQUARE
 
@@ -2661,8 +2662,8 @@ class Board(object):
 
                 left_captures = left_captures & (left_captures - 1)
 
-        # Produce en-passant attacks. Here we are actually targeting the
-        # pawn, not the en-passant square.
+        # Produce en passant attacks. Here we are actually targeting the
+        # pawn, not the en passant square.
         if self.ep_square:
             if self.turn == WHITE:
                 capturing_pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
@@ -2834,7 +2835,7 @@ class Board(object):
 
             left_captures = left_captures & (left_captures - 1)
 
-        # Generate en-passant captures.
+        # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask:
             if self.turn == WHITE:
@@ -3060,7 +3061,7 @@ class Board(object):
                 mask = self._pinned(self.turn, attacker)
                 if king_attackers & mask:
                     if king_attackers & double_pawn_mask and attacker & en_passant_capturers:
-                        # Capture the attacking pawn en-passant.
+                        # Capture the attacking pawn en passant.
                         yield Move(attacker_index, self.ep_square)
                     elif attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
                         # Capture the attacker with a pawn and promote.
@@ -3372,7 +3373,7 @@ class Board(object):
 
         A zobrist hash is an exclusive or of pseudo random values picked from
         an array. Which values are picked is decided by features of the
-        position, such as piece positions, castling rights and en-passant
+        position, such as piece positions, castling rights and en passant
         squares. For this implementation an array of 781 values is required.
 
         The default behaviour is to use values from
@@ -3396,7 +3397,7 @@ class Board(object):
         if self.castling_rights & BB_A8:
             zobrist_hash ^= array[768 + 3]
 
-        # Hash in the en-passant file.
+        # Hash in the en passant file.
         if self.ep_square:
             # But only if theres actually a pawn ready to capture it. Legality
             # of the potential capture is irrelevant.

@@ -77,7 +77,7 @@ Features
       >>> board = chess.Board(chess960=True)
 
 * Legal move generator and move validation. This includes all castling
-  rules and en-passant captures.
+  rules and en passant captures.
 
   .. code:: python
 
