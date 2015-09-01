@@ -3401,13 +3401,13 @@ class Board(object):
             array = POLYGLOT_RANDOM_ARRAY
 
         # Hash in the castling flags.
-        if self.castling_rights & BB_H1:
+        if self.has_kingside_castling_rights(WHITE):
             zobrist_hash ^= array[768]
-        if self.castling_rights & BB_A1:
+        if self.has_queenside_castling_rights(WHITE):
             zobrist_hash ^= array[768 + 1]
-        if self.castling_rights & BB_H8:
+        if self.has_kingside_castling_rights(BLACK):
             zobrist_hash ^= array[768 + 2]
-        if self.castling_rights & BB_A8:
+        if self.has_queenside_castling_rights(BLACK):
             zobrist_hash ^= array[768 + 3]
 
         # Hash in the en passant file.
