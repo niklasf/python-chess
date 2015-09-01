@@ -1760,14 +1760,14 @@ class Board(object):
         of the position part (:func:`~chess.Board.board_fen()`), the turn,
         the castling part (:func:`~chess.Board.castling_xfen()`), a relevant
         en passant square (:data:`~chess.Board.ep_square`,
-        :func:`~chess.Board.has_legal_ep_square()`), the halfmove clock
+        :func:`~chess.Board.has_legal_en_passant()`), the halfmove clock
         and the fullmove number.
         """
         fen = []
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
         fen.append(self.castling_xfen())
-        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_ep_square() else "-")
+        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
         return " ".join(fen)
