@@ -3223,7 +3223,7 @@ class Board(object):
         return Move(from_square, to_square, promotion)
 
     def _to_chess960(self, move):
-        if move.from_square in [E1, E8] and move.to_square in [C1, G1, C8, G8] and self.piece_type_at(move.from_square) == KING:
+        if move.from_square in [E1, E8] and move.to_square in [C1, G1, C8, G8] and self.piece_type_at(move.from_square) == KING and self.piece_type_at(move.to_square) != ROOK:
             if move.from_square == E1:
                 if move.to_square == G1:
                     return Move(E1, H1)
