@@ -54,6 +54,9 @@ and so on to
 .. py:data:: chess.FILE_NAMES
     :annotation: = ['a', 'b', ..., 'g', 'h']
 
+.. py:data:: chess.RANK_NAMES
+    :annotation: = ['1', '2', ..., '7', '8']
+
 .. autofunction:: chess.file_index
 
 .. autofunction:: chess.rank_index
