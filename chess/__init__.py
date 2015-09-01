@@ -1752,7 +1752,17 @@ class Board(object):
         return self.ep_square and any(self.is_en_passant(move) for move in self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False))
 
     def fen(self):
-        """Gets the FEN representation of the position."""
+        """
+        Gets the FEN representation of the position.
+
+        A FEN string (e.g.
+        ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1``) consists
+        of the position part (:func:`~chess.Board.board_fen()`), the turn,
+        the castling part (:func:`~chess.Board.castling_xfen()`), a relevant
+        en passant square (:data:`~chess.Board.ep_square`,
+        :func:`~chess.Board.has_legal_ep_square()`), the halfmove clock
+        and the fullmove number.
+        """
         fen = []
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
@@ -1768,6 +1778,9 @@ class Board(object):
 
         Castling rights are encoded by the file of the rook. The starting
         castling rights in normal chess are HAha.
+
+        Use :func:`~chess.Board.castling_shredder_fen()` to get just the
+        castling part.
         """
         fen = []
         fen.append(self.board_fen())
