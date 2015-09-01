@@ -117,9 +117,10 @@ Board
 
     .. py:attribute:: ep_square
 
-        The potential en-passant square on the third or sixth rank or `0`. It
-        does not matter if en-passant would actually be possible on the next
-        move.
+        The potential en passant square on the third or sixth rank or ``0``.
+
+        Use :func:`~chess.Board.has_legal_en_passant()` to test if en passant
+        capturing would actually be possible on the next move.
 
     .. py:attribute:: fullmove_number
 

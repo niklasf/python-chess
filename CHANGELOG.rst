@@ -46,7 +46,7 @@ Changes:
   empty board is created. Previously the starting position would have been
   set up.
 
-* `Board.fen()` will now only show completely legal en-passant squares.
+* `Board.fen()` will now only show completely legal en passant squares.
 
 * `Board.set_piece_at()` and `Board.remove_piece_at()` will now clear the
   move stack, because the old moves may not be valid in the changed position.
@@ -107,7 +107,7 @@ Bugfixes:
   reporting.
 * The initial move number in PGNs was missing, if black was to move in the
   starting position. Thanks to Jürgen Précour for reporting.
-* Detect more impossible en-passant squares in `Board.status()`. There already
+* Detect more impossible en passant squares in `Board.status()`. There already
   was a requirement for a pawn on the fifth rank. Now the sixth and seventh
   rank must be empty, additionally. We do not do further retrograde analysis,
   because these are the only cases affecting move generation.
@@ -119,7 +119,7 @@ Bugfixes:
 
 * The initial move number in PGNs was missing, if black was to move in the
   starting position. Thanks to Jürgen Précour for reporting.
-* Detect more impossible en-passant squares in `Board.status()`. There already
+* Detect more impossible en passant squares in `Board.status()`. There already
   was a requirement for a pawn on the fifth rank. Now the sixth and seventh
   rank must be empty, additionally. We do not do further retrograde analysis,
   because these are the only cases affecting move generation.
@@ -388,7 +388,7 @@ New in v0.4.2
 -------------
 
 * Fix bug where `pawn_moves_from()` and consequently `is_legal()` weren't
-  handling en-passant correctly. Thanks to Norbert Naskov for reporting.
+  handling en passant correctly. Thanks to Norbert Naskov for reporting.
 
 New in v0.4.1
 -------------

@@ -165,12 +165,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
         self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
 
-        # Valid en-passant square on illegal board.
+        # Valid en passant square on illegal board.
         fen = "8/8/8/pP6/8/8/8/8 w - a6 0 1"
         board = chess.Board(fen)
         self.assertEqual(board.fen(), fen)
 
-        # Illegal en-passant square in illegal board.
+        # Illegal en passant square in illegal board.
         fen = "1r6/8/8/pP6/8/8/8/1K6 w - a6 0 1"
         board = chess.Board(fen)
         self.assertEqual(board.fen(), "1r6/8/8/pP6/8/8/8/1K6 w - - 0 1")
@@ -591,7 +591,7 @@ class BoardTestCase(unittest.TestCase):
         board.remove_piece_at(chess.E8)
         self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
 
-        # The en-passant square should be set even if no capture is actually
+        # The en passant square should be set even if no capture is actually
         # possible.
         board = chess.Board()
         board.push_san("e4")
@@ -705,7 +705,7 @@ class BoardTestCase(unittest.TestCase):
     def test_en_passant_attackers(self):
         board = chess.Board("4k3/8/8/8/4pPp1/8/8/4K3 b - f3 0 1")
 
-        # Still attacking the en-passant square.
+        # Still attacking the en passant square.
         attackers = board.attackers(chess.BLACK, chess.F3)
         self.assertEqual(len(attackers), 2)
         self.assertTrue(chess.E4 in attackers)
@@ -2139,10 +2139,10 @@ class SyzygyTestCase(unittest.TestCase):
     def test_wdl_ep(self):
         tablebases = chess.syzygy.Tablebases("data/syzygy")
 
-        # Winning KPvKP because of en-passant.
+        # Winning KPvKP because of en passant.
         board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
-        # If there was no en-passant this would be a draw.
+        # If there was no en passant this would be a draw.
         self.assertEqual(tablebases.probe_wdl_table(board), 0)
 
         # But it is a win.
