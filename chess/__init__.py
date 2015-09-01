@@ -45,6 +45,8 @@ UNICODE_PIECE_SYMBOLS = {
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
+RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
+
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 """The FEN of the standard chess starting position."""
 
@@ -2185,7 +2187,7 @@ class Board(object):
                 if column:
                     san += FILE_NAMES[file_index(move.from_square)]
                 if row:
-                    san += str(rank_index(move.from_square) + 1)
+                    san += RANK_NAMES[rank_index(move.from_square)]
 
         # Captures.
         if self.is_capture(move):
@@ -3268,7 +3270,7 @@ class Board(object):
                 builder.append("-" * 17)
                 builder.append("\n")
 
-                builder.append(str(rank_index + 1))
+                builder.append(RANK_NAMES[rank_index])
                 builder.append(" ")
 
             for file_index in range(8):
