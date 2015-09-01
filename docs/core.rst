@@ -112,8 +112,9 @@ Board
         >>> white_castle_kingside = board.castling_rights & chess.BB_H1
 
         Also see :func:`~chess.Board.has_castling_rights()`,
-        :func:`~chess.Board.has_kingside_castling_rights()` and
-        :func:`~chess.Board.has_queenside_castling_rights()`.
+        :func:`~chess.Board.has_kingside_castling_rights()`,
+        :func:`~chess.Board.has_queenside_castling_rights()` and
+        :func:`~chess.Board.has_chess960_castling_rights()`.
 
     .. py:attribute:: ep_square
 
