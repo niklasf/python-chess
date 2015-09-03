@@ -92,7 +92,7 @@ class OptionMap(collections.MutableMapping):
         return True
 
     def copy(self):
-        return OptionMap(self._store.values())
+        return type(self)(self._store.values())
 
     def __copy__(self):
         return self.copy()
