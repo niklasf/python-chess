@@ -663,7 +663,7 @@ class Piece(object):
 
         Raises :exc:`ValueError` if the symbol is invalid.
         """
-        if symbol.lower() == symbol:
+        if symbol.islower():
             return cls(PIECE_SYMBOLS.index(symbol), BLACK)
         else:
             return cls(PIECE_SYMBOLS.index(symbol.lower()), WHITE)
