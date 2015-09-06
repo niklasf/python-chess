@@ -6,6 +6,48 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.11.0
+--------------
+
+Changes:
+
+* **Chess960** support and the **representation of castling moves** has been
+  changed.
+
+  The constructor of board has a new `chess960` argument, defaulting to
+  `False`: `Board(fen=STARTING_FEN, chess960=False)`. That property is
+  available as `Board.chess960`.
+
+  In Chess960 mode the behaviour is as in the previous release. Castling moves
+  are represented as a king move to the corresponding rook square.
+
+  In the default standard chess mode castling moves are represented with
+  the standard UCI notation, e.g. `e1g1` for king-side castling.
+
+  `Board.uci(move, chess960=None)` creates UCI representations for moves.
+  Unlike `Move.uci()` it can convert them in the context of the current
+  position.
+
+  `Board.has_chess960_castling_rights()` has been added to test for castling
+  rights that are impossible in standard chess.
+
+  The modules `chess.polyglot`, `chess.pgn` and `chess.uci` will transparently
+  handle both modes.
+
+* In a previous release `Board.fen()` has been changed to only display an
+  en passant square if a legal en passant move is indeed possible. This has
+  now also been adapted for `Board.shredder_fen()` and `Board.epd()`.
+
+New features:
+
+* Get individual FEN components: `Board.board_fen()`, `Board.castling_xfen()`,
+  `Board.castling_shredder_fen()`.
+
+* Use `Board.has_legal_en_passant()` to test if a position has a legal
+  en passant move.
+
+* Make `repr(board.legal_moves)` human readable.
+
 New in v0.10.1
 --------------
 
