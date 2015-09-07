@@ -1549,7 +1549,7 @@ class Tablebases(object):
                 if v1 >= 0:
                     v = v1
             elif v < 0:
-                if v1 >= 0 or v1 < 100:
+                if v1 >= 0 or v1 < -100:
                     v = v1
             elif v > 100:
                 if v1 > 0:
