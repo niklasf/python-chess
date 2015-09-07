@@ -2012,6 +2012,22 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.position(board)
         self.mock.assert_done()
 
+    def test_hakkapeliitta_double_spaces(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info depth 10 seldepth 9 score cp 22 upperbound  time 17 nodes 48299 nps 2683000 tbhits 0 pv d7d5 e4e5")
+
+        with handler as info:
+            print(info)
+            self.assertEqual(info["score"][1].cp, 22)
+            self.assertEqual(info["score"][1].upperbound, True)
+            self.assertEqual(info["score"][1].lowerbound, False)
+            self.assertEqual(info["score"][1].mate, None)
+            self.assertEqual(info["nodes"], 48299)
+            self.assertEqual(info["nps"], 2683000)
+            self.assertEqual(info["tbhits"], 0)
+
 
 class UciOptionMapTestCase(unittest.TestCase):
 
