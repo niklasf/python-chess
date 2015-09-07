@@ -6,14 +6,17 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.11.1
+--------------
 
 Bugfixes:
 
 * `syzygy.Tablebases.probe_dtz()` has was giving wrong results for some
-   positions with possible en passant capturing. This was found and fixed
-   upstream: https://github.com/official-stockfish/Stockfish/issues/394.
+  positions with possible en passant capturing. This was found and fixed
+  upstream: https://github.com/official-stockfish/Stockfish/issues/394.
+
+* Ignore extra spaces in UCI `info` lines, as for example sent by the
+  Hakkapeliitta engine. Thanks to Jürgen Précour for reporting
 
 New in v0.11.0
 --------------
