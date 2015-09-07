@@ -16,7 +16,7 @@ Bugfixes:
   upstream: https://github.com/official-stockfish/Stockfish/issues/394.
 
 * Ignore extra spaces in UCI `info` lines, as for example sent by the
-  Hakkapeliitta engine. Thanks to Jürgen Précour for reporting
+  Hakkapeliitta engine. Thanks to Jürgen Précour for reporting.
 
 New in v0.11.0
 --------------
