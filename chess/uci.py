@@ -664,7 +664,7 @@ class Engine(object):
         # Find multipv parameter first.
         if "multipv" in arg:
             current_parameter = None
-            for token in arg.split(" "):
+            for token in arg.split():
                 if token == "string":
                     break
 
@@ -678,7 +678,11 @@ class Engine(object):
         for token in arg.split(" "):
             if current_parameter == "string":
                 string.append(token)
-            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"):
+            elif not token:
+                # Ignore extra spaces. Those can not be directly discarded,
+                # because they may occur in the string parameter.
+                pass
+            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"]:
                 end_of_parameter()
                 current_parameter = token
 
@@ -801,6 +805,10 @@ class Engine(object):
                 name.append(token)
             elif current_parameter == "type":
                 type.append(token)
+            elif current_parameter == "default":
+                default.append(token)
+            elif current_parameter == "var":
+                current_var.append(token)
             elif current_parameter == "min":
                 try:
                     min = int(token)
@@ -811,10 +819,6 @@ class Engine(object):
                     max = int(token)
                 except ValueError:
                     LOGGER.exception("exception parsing option max")
-            elif current_parameter == "default":
-                default.append(token)
-            elif current_parameter == "var":
-                current_var.append(token)
 
         if current_var is not None:
             var.append(" ".join(current_var))

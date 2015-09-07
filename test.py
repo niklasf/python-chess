@@ -2013,20 +2013,32 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_done()
 
     def test_hakkapeliitta_double_spaces(self):
+        class AssertLogClean(logging.Handler):
+            def handle(self, record):
+                raise RuntimeError("was expecting no log messages")
+
+        assert_log_clean = AssertLogClean()
+        assert_log_clean.setLevel(logging.ERROR)
+        logging.getLogger().addHandler(assert_log_clean)
+
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
-        self.engine.on_line_received("info depth 10 seldepth 9 score cp 22 upperbound  time 17 nodes 48299 nps 2683000 tbhits 0 pv d7d5 e4e5")
+        self.engine.on_line_received("info depth 10 seldepth 9 score cp 22 upperbound  time 17 nodes 48299 nps 2683000 tbhits 0")
 
         with handler as info:
-            print(info)
+            self.assertEqual(info["depth"], 10)
+            self.assertEqual(info["seldepth"], 9)
             self.assertEqual(info["score"][1].cp, 22)
             self.assertEqual(info["score"][1].upperbound, True)
             self.assertEqual(info["score"][1].lowerbound, False)
             self.assertEqual(info["score"][1].mate, None)
+            self.assertEqual(info["time"], 17)
             self.assertEqual(info["nodes"], 48299)
             self.assertEqual(info["nps"], 2683000)
             self.assertEqual(info["tbhits"], 0)
+
+        logging.getLogger().removeHandler(assert_log_clean)
 
 
 class UciOptionMapTestCase(unittest.TestCase):
