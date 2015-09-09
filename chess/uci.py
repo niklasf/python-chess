@@ -1008,6 +1008,9 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
+        # Work on a local copy.
+        board = board.copy()
+
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
@@ -1058,7 +1061,7 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
-        self.board = board.copy()
+        self.board = board
 
         def command():
             with self.semaphore:
