@@ -351,8 +351,8 @@ Features
       >>> engine.quit()
       0
 
-Peformance
-----------
+Performance
+-----------
 
 python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
