@@ -129,24 +129,7 @@ class MemoryMappedReader(object):
     def __contains__(self, entry):
         return any(current == entry for current in self.find_all(entry.key, entry.weight))
 
-    def find(self, board, minimum_weight=1):
-        """
-        Finds the main entry for the given position or zobrist hash.
-
-        The main entry is the first entry with the highest weight.
-
-        By default entries with weight ``0`` are excluded. This is a common way
-        to delete entries from an opening book without compacting it. Pass
-        *minimum_weight* ``0`` to select all entries.
-
-        Raises :exc:`IndexError` if no entries are found.
-        """
-        try:
-            return max(self.find_all(board, minimum_weight), key=lambda entry: entry.weight)
-        except ValueError:
-            raise IndexError()
-
-    def find_all(self, board, minimum_weight=1):
+    def find_all(self, board, minimum_weight=1, exclude_moves=()):
         """Seeks a specific position and yields corresponding entries."""
         try:
             zobrist_hash = board.zobrist_hash()
@@ -159,35 +142,65 @@ class MemoryMappedReader(object):
 
         while i < size:
             entry = self[i]
+            i += 1
 
             if entry.key != zobrist_hash:
                 break
-            elif entry.weight >= minimum_weight and (board is None or board.is_legal(entry.move(chess960=board.chess960))):
-                yield entry
 
-            i += 1
+            if entry.weight < minimum_weight:
+                continue
 
-    def choice(self, board, minimum_weight=1, random=random):
+            if board:
+                move = entry.move(chess960=board.chess960)
+            elif exclude_moves:
+                move = entry.move()
+
+            if exclude_moves and move in exclude_moves:
+                continue
+
+            if board and not board.is_legal(move):
+                continue
+
+            yield entry
+
+    def find(self, board, minimum_weight=1, exclude_moves=()):
+        """
+        Finds the main entry for the given position or zobrist hash.
+
+        The main entry is the first entry with the highest weight.
+
+        By default entries with weight ``0`` are excluded. This is a common way
+        to delete entries from an opening book without compacting it. Pass
+        *minimum_weight* ``0`` to select all entries.
+
+        Raises :exc:`IndexError` if no entries are found.
+        """
+        try:
+            return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
+        except ValueError:
+            raise IndexError()
+
+    def choice(self, board, minimum_weight=1, exclude_moves=(), random=random):
         """
         Uniformly selects a random entry for the given position.
 
         Raises :exc:`IndexError` if no entries are found.
         """
-        total_entries = sum(1 for entry in self.find_all(board, minimum_weight))
+        total_entries = sum(1 for entry in self.find_all(board, minimum_weight, exclude_moves))
         if not total_entries:
             raise IndexError()
 
         choice = random.randint(0, total_entries - 1)
-        return next(itertools.islice(self.find_all(board, minimum_weight), choice, None))
+        return next(itertools.islice(self.find_all(board, minimum_weight, exclude_moves), choice, None))
 
-    def weighted_choice(self, board, random=random):
+    def weighted_choice(self, board, exclude_moves=(), random=random):
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
 
         Raises :exc:`IndexError` if no entries are found.
         """
-        total_weights = sum(entry.weight for entry in self.find_all(board))
+        total_weights = sum(entry.weight for entry in self.find_all(board, exclude_moves=exclude_moves))
         if not total_weights:
             raise IndexError()
 

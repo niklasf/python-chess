@@ -1260,6 +1260,11 @@ class PolyglotTestCase(unittest.TestCase):
             entry = book.find(chess.Board())
             self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
 
+    def test_exclude_moves(self):
+        with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
+            entry = book.find(chess.Board(), exclude_moves=[chess.Move.from_uci("e2e4")])
+            self.assertEqual(entry.move(), chess.Move.from_uci("d2d4"))
+
     def test_contains(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             for entry in book:
