@@ -3459,10 +3459,10 @@ class Board(object):
         board.chess960 = self.chess960
 
         board.pawns = self.pawns
-        board.knights= self.knights
+        board.knights = self.knights
         board.bishops = self.bishops
         board.rooks = self.rooks
-        board.queens= self.queens
+        board.queens = self.queens
         board.kings = self.kings
 
         board.occupied_co[WHITE] = self.occupied_co[WHITE]
