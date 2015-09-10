@@ -17,10 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import itertools
 import re
+import sys
 
+if sys.version_info<(2,7):
+    import backport_collections as collections
+else:
+    import collections
 
 NAG_NULL = 0
 
