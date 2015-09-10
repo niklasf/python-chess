@@ -23,13 +23,19 @@ import chess.pgn
 import chess.uci
 import chess.syzygy
 import chess.gaviota
-import collections
 import os.path
 import textwrap
 import sys
 import time
 import unittest
 import logging
+
+if sys.version_info<(2,7):
+    import backport_collections as collections
+    import unittest2 as unittest
+else:
+    import collections
+    import unittest
 
 try:
     from StringIO import StringIO
