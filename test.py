@@ -1255,6 +1255,11 @@ class PolyglotTestCase(unittest.TestCase):
             entry = book.weighted_choice(chess.Board(), random=LastMockRandom())
             self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
 
+            # Weighted choice with excluded move.
+            entry = book.weighted_choice(chess.Board(),
+                exclude_moves=[chess.Move.from_uci("e2e4")], random=FirstMockRandom())
+            self.assertEqual(entry.move(), chess.Move.from_uci("d2d4"))
+
     def test_find(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             entry = book.find(chess.Board())
