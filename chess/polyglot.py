@@ -207,7 +207,7 @@ class MemoryMappedReader(object):
         choice = random.randint(0, total_weights - 1)
 
         current_sum = 0
-        for entry in self.find_all(board):
+        for entry in self.find_all(board, exclude_moves=exclude_moves):
             current_sum += entry.weight
             if current_sum > choice:
                 return entry
