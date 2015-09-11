@@ -23,10 +23,14 @@ __email__ = "niklas.fiekas@tu-clausthal.de"
 __version__ = "0.11.1"
 
 
-import collections
 import copy
 import re
+import sys
 
+if sys.version_info<(2,7):
+    import backport_collections as collections
+else:
+    import collections
 
 COLORS = [WHITE, BLACK] = [True, False]
 
