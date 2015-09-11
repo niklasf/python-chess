@@ -60,7 +60,7 @@ https://python-chess.readthedocs.org/en/latest/
 Features
 --------
 
-* Supports Python 2.7 and Python 3.3+.
+* Supports Python 2.6+ and Python 3.3+.
 
   .. code:: python
 
@@ -370,7 +370,6 @@ Installing
 
   ::
 
-      pip install futures # Backport for Python < 3.2
       pip install python-chess
 
 * From current source code:
