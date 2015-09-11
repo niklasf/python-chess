@@ -6,6 +6,11 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+* Python 2.6 support. Patch by vdbergh.
+
 New in v0.11.1
 --------------
 

@@ -52,6 +52,10 @@ def read_description():
 def dependencies():
     deps = []
 
+    if sys.version_info < (2, 7):
+        deps.append("backport_collections")
+        deps.append("unittest2")
+
     if sys.version_info < (3, 2):
         deps.append("futures")
 
@@ -77,6 +81,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
