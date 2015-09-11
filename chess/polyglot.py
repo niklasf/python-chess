@@ -17,12 +17,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import struct
 import os
 import mmap
 import random
 import itertools
+import chess
+import errno
+import sys
+
+if sys.version_info<(2,7):
+    import backport_collections as collections
+else:
+    import collections
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -65,7 +72,7 @@ class MemoryMappedReader(object):
 
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except ValueError:
+        except (ValueError,mmap.error):
             # Can not memory map empty opening books.
             self.mmap = None
 
