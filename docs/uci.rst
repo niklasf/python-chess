@@ -101,11 +101,6 @@ is recommended to enable enable *UCI_Chess960* mode.
 Info handler
 ------------
 
-Chess engines may send information about their calculations with the *info*
-command. You can register info handlers to be asynchronously notified whenever
-the engine sends more information. You would usually subclass the *InfoHandler*
-class.
-
 .. autoclass:: chess.uci.Score
     :members:
 
@@ -135,19 +130,15 @@ class.
         dictionary. To get a consistent snapshot use the object as if it were
         a :class:`threading.Lock()`.
 
-        >>> # Register the handler.
-        >>> handler = chess.uci.InfoHandler()
-        >>> engine.info_handlers.append(handler)
-
         >>> # Start thinking.
-        >>> engine.go(infinite=True)
+        >>> engine.go(infinite=True, async_callback=True)
 
         >>> # Wait a moment, then access a consistent snapshot.
         >>> time.sleep(3)
-        >>> with handler:
-        ...     if 1 in handler.info["score"]:
-        ...         print("Score: ", handler.info["score"][1].cp)
-        ...         print("Mate: ", handler.info["score"][1].mate)
+        >>> with info_handler:
+        ...     if 1 in info_handler.info["score"]:
+        ...         print("Score: ", info_handler.info["score"][1].cp)
+        ...         print("Mate: ", info_handler.info["score"][1].mate)
         Score: 34
         Mate: None
 

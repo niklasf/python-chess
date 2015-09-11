@@ -108,6 +108,23 @@ class OptionMap(collections.MutableMapping):
 
 
 class InfoHandler(object):
+    """
+    Chess engines may send information about their calculations with the
+    *info* command. You can register info handlers to be asynchronously
+    notified whenever the engine sends more information.
+
+    >>> # Register a standard info handler.
+    >>> info_handler = chess.uci.InfoHandler()
+    >>> engine.info_handlers.append(info_handler)
+
+    You would usually subclass the *InfoHandler* class.
+
+    >>> class MyHandler(chess.uci.InfoHandler):
+    ...     def post_info(self):
+    ...         # Called whenever a complete *info* line has been processed.
+    ...         super(MyHandler, self).post_info()
+    ...         print(self.info)
+    """
     def __init__(self):
         self.lock = threading.Lock()
 
