@@ -21,6 +21,7 @@ before_install:
  - export LD_LIBRARY_PATH="`pwd`:${LD_LIBRARY_PATH}"
  - cd ..
 install:
+ - python -c "import sys; sys.exit(int(sys.version_info < (2, 7)));" || pip install unittest2 backport_collections
  - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
  - pip install coveralls
  - pip install spur
