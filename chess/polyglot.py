@@ -72,10 +72,9 @@ class MemoryMappedReader(object):
 
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except Exception as e:
-            if type(e)==ValueError or (type(e)==mmap.error and e.errno==errno.EINVAL):
+        except (ValueError,mmap.error):
             # Can not memory map empty opening books.
-                self.mmap = None
+            self.mmap = None
 
     def __enter__(self):
         return self
