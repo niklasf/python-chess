@@ -33,7 +33,7 @@ import logging
 try:
     from collections import OrderedDict
 except ImportError:
-    from backport_collections import OrderedDcit # Python 2.6
+    from backport_collections import OrderedDict # Python 2.6
 
 try:
     import unittest2 # Python 2.6
