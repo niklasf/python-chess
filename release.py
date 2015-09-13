@@ -50,7 +50,7 @@ def check_changelog():
 
 def check_docs():
     print("--- CHECK DOCS ---------------------------------------------------")
-    system("python3 setup.py --long-description | rst2html --strict > /dev/null")
+    system("python3 setup.py --long-description | rst2html --strict --no-raw > /dev/null")
 
 
 def benchmark():
