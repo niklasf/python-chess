@@ -26,11 +26,10 @@ import chess
 import errno
 import sys
 
-if sys.version_info<(2,7):
+try:
     import backport_collections as collections
-else:
+except ImportError:
     import collections
-
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
@@ -72,7 +71,7 @@ class MemoryMappedReader(object):
 
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except (ValueError,mmap.error):
+        except (ValueError, mmap.error):
             # Can not memory map empty opening books.
             self.mmap = None
 

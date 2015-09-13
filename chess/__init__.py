@@ -27,9 +27,9 @@ import copy
 import re
 import sys
 
-if sys.version_info<(2,7):
+try:
     import backport_collections as collections
-else:
+except ImportError:
     import collections
 
 COLORS = [WHITE, BLACK] = [True, False]

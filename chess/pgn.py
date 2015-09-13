@@ -21,9 +21,9 @@ import itertools
 import re
 import sys
 
-if sys.version_info<(2,7):
+try:
     import backport_collections as collections
-else:
+except ImportError:
     import collections
 
 NAG_NULL = 0
