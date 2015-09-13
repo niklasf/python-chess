@@ -30,17 +30,20 @@ import time
 import unittest
 import logging
 
-if sys.version_info<(2,7):
-    import backport_collections as collections
-    import unittest2 as unittest
-else:
-    import collections
+try:
+    from collections import OrderedDict
+except ImportError:
+    from backport_collections import OrderedDcit # Python 2.6
+
+try:
+    import unittest2 # Python 2.6
+except ImportError:
     import unittest
 
 try:
-    from StringIO import StringIO
+    from StringIO import StringIO # Python 2
 except ImportError:
-    from io import StringIO
+    from io import StringIO # Python 3
 
 
 class SquareTestCase(unittest.TestCase):
@@ -1915,7 +1918,7 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("setoption name Null option value none")
         self.mock.expect("setoption name String option value value value")
         self.mock.expect("isready", ("readyok", ))
-        self.engine.setoption(collections.OrderedDict([
+        self.engine.setoption(OrderedDict([
             ("Yes", True),
             ("No", False),
             ("Null option", None),
