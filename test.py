@@ -27,7 +27,6 @@ import os.path
 import textwrap
 import sys
 import time
-import unittest
 import logging
 
 try:
@@ -36,7 +35,7 @@ except ImportError:
     from backport_collections import OrderedDict # Python 2.6
 
 try:
-    import unittest2 # Python 2.6
+    import unittest2 as unittest # Python 2.6
 except ImportError:
     import unittest
 
