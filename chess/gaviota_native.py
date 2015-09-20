@@ -12,10 +12,24 @@ class ProbeResultType:
     dtm = 0
 
 entries_per_block = 16 * 1024;
+validTables = [] # new List<string>(15);
+
+class currentConf:
+    currentStream = None
+    currentFilename = ""
+    whitePieceTypes = None
+    blackPieceTypes = None
+    whitePieceSquares = [] # new List<int>();
+    blackPieceSquares = [] # new List<int>();
+    Reversed = False
+
 currentStream = None
 currentFilename = ""
-validTables = [] # new List<string>(15);
-a8toa1 = {} #new Dictionary<int, int>();
+whitePieceTypes = []
+blackPieceTypes = []
+whitePieceSquares = [] # new List<int>();
+blackPieceSquares = [] # new List<int>();
+Reversed = False
 
 
 A1 = 0
@@ -85,8 +99,7 @@ G8 = 62
 H8 = 63
 NOINDEX = -1
 
-whitePieceSquares = [] # new List<int>();
-blackPieceSquares = [] # new List<int>();
+
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
 MAX_PpINDEX = (24 * 48)
@@ -136,181 +149,8 @@ class endgamekey:
 def EGTB():
     pass
 
-egkey = {
-    "kqk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
-    "krk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
-    "kbk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
-    "knk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
-    "kpk": endgamekey(MAX_kpk, 24, kpk_pctoindex),
-
-    "kqkq": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-    "kqkr": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-    "kqkb": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-    "kqkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-
-    "krkr": endgamekey(MAX_kakb, 1,  kakb_pctoindex),
-    "krkb": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-    "krkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-
-    "kbkb": endgamekey(MAX_kakb, 1,  kakb_pctoindex),
-    "kbkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-
-    "knkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
-
-    "kqqk": endgamekey(MAX_kaak, 1, kaak_pctoindex),
-    "kqrk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-    "kqbk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-    "kqnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-
-    "krrk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
-    "krbk": endgamekey(MAX_kabk, 1, kabk_pctoindex),
-    "krnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-
-    "kbbk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
-    "kbnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-
-    "knnk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
-    "kqkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
-    "krkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
-    "kbkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
-    "knkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
-
-    "kqpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
-    "krpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
-    "kbpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
-    "knpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
-
-    "kppk": endgamekey(MAX_kppk, MAX_PPINDEX , kppk_pctoindex),
-
-    "kpkp": endgamekey(MAX_kpkp, MAX_PpINDEX , kpkp_pctoindex),
-
-    "kppkp": endgamekey(MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_pctoindex) ,
-
-    "kbbkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "kbbkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "knnkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "knnkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-
-    # pwned does use anything below here
-    "kqqqk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
-    "kqqrk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "kqqbk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "kqqnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "kqrrk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "kqrbk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
-    "kqrnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
-    "kqbbk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "kqbnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
-    "kqnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "krrrk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
-    "krrbk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "krrnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "krbbk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "krbnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
-    "krnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "kbbbk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
-    "kbbnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
-    "kbnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
-    "knnnk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
-    "kqqkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "kqqkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "kqqkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "kqqkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "kqrkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqrkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqrkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqrkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqbkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqbkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqbkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqbkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kqnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krrkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "krrkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "krrkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "krrkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "krbkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krbkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krbkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krbkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "krnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kbbkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    #{ 84,"kbbkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    #{ 85,"kbbkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    "kbbkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "kbnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kbnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kbnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "kbnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
-    "knnkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    "knnkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    #{ 93,"knnkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    #{ 94,"knnkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-
-    "kqqpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
-    "kqrpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "kqbpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "kqnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "krrpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
-    "krbpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "krnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "kbbpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
-    "kbnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
-    "knnpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
-
-    "kqppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
-    "krppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
-    "kbppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
-    "knppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
-
-    "kqpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kqpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kqpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kqpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "krpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "krpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "krpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "krpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kbpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kbpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kbpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kbpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "knpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "knpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "knpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "knpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
-    "kppkq": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
-    "kppkr": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
-    "kppkb": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
-    "kppkn": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
-
-    "kqqkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
-    "kqrkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "kqbkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "kqnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "krrkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
-    "krbkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "krnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "kbbkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
-    "kbnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
-    "knnkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
-
-    "kqpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
-    "krpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
-    "kbpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
-    "knpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
-
-    #{143,"kppkp", MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_indextopc, kppkp_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    "kpppk": endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex)}
 
 decoder = LZMADecompressor()
-flipt = [[]]*64
 
 WE_FLAG = 1
 NS_FLAG = 2
@@ -320,7 +160,6 @@ def map24_b(s):
     s = s - 8
     return ((s & 3) + s) >> 1
 
-pp48_idx, pp48_sq_x, pp48_sq_y, _ = init_pp48_idx()
 
 #int[][][] ppp48_idx = new int[48][][];
 # TODO: init
@@ -386,41 +225,6 @@ def init_ppp48_idx():
                     ppp48_sq_z[idx] = k
                     idx = idx + 1
     return ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z
-
-def kpppk_pctoindex():
-    BLOCK_A = 64 * 64
-    BLOCK_B = 64
-
-    wk = whitePieceSquares[0]
-    pawn_a = whitePieceSquares[1]
-    pawn_b = whitePieceSquares[2]
-    pawn_c = whitePieceSquares[3]
-
-    bk = blackPieceSquares[0]
-
-    i = pawn_a - 8
-    j = pawn_b - 8
-    k = pawn_c - 8
-
-    ppp48_slice = ppp48_idx[i][j][k]
-
-    if (IDX_is_empty(ppp48_slice)):
-        wk = flipWE(wk)
-        pawn_a = flipWE(pawn_a)
-        pawn_b = flipWE(pawn_b)
-        pawn_c = flipWE(pawn_c)
-        bk = flipWE(bk)
-
-    i = pawn_a - 8
-    j = pawn_b - 8
-    k = pawn_c - 8
-
-    ppp48_slice = ppp48_idx[i][j][k];
-
-    if (IDX_is_empty(ppp48_slice)):
-        return NOINDEX
-
-    return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 def kapkb_pctoindex():
     BLOCK_A = 64 * 64 * 64 * 64
@@ -844,7 +648,6 @@ def aaa_getsubi(x, y, z):
     calc_idx = x + (y - 1) * y / 2 + bse
     return calc_idx
 
-aaa_xyz = init_aaa()
 
 def init_aaa():
     # getting aaa_base 
@@ -852,7 +655,7 @@ def init_aaa():
     comb[0] = 0;
 
     accum = 0;
-    aaa_base[0] = accum
+    aaa_base= [0]*64
     for a in xrange(64 - 1):
         accum = accum + comb[a]
         aaa_base[a + 1] = accum
@@ -910,7 +713,7 @@ def kaakb_pctoindex():
 
     ft = flipt[blackPieceSquares[0]][whitePieceSquares[0]]
 
-    ws = list(whitePiecesSquares[:N_WHITE])
+    ws = list(whitePieceSquares[:N_WHITE])
     bs = list(blackPieceSquares[:N_BLACK])
 
     if ((ft & WE_FLAG) != 0):
@@ -942,7 +745,7 @@ def kabkc_pctoindex():
     
     ft = flipt[blackPieceSquares[0]][whitePieceSquares[0]]
 
-    ws = list(whitePiecesSquares[:N_WHITE])
+    ws = list(whitePieceSquares[:N_WHITE])
     bs = list(blackPieceSquares[:N_BLACK])
 
 
@@ -966,7 +769,6 @@ def kabkc_pctoindex():
 
 
 
-aaidx = []
 aabase =[] # new byte[MAX_AAINDEX];
 
 def kpkp_pctoindex():
@@ -1121,7 +923,7 @@ def kabk_pctoindex():
 
     ft = flip_type(blackPieceSquares[0], whitePieceSquares[0]);
 
-    ws = list(whitePiecesSquares)
+    ws = list(whitePieceSquares)
     bs = list(blackPieceSquares)
 
     if ((ft & 1) != 0):
@@ -1175,7 +977,7 @@ def init_aaidx():
     # modifies aabase[], aaidx[][] 
     # default is noindex
     aaidx = [[-1]*64 for y in xrange(64)]
-    aabase[idx] = [0]*MAX_AAINDEX
+    aabase = [0]*MAX_AAINDEX
 
     idx = 0
     for x in xrange(64):
@@ -1196,7 +998,7 @@ def kaak_pctoindex():
 
     ft = flipt[blackPieceSquares[0]][whitePieceSquares[0]]
 
-    ws = list(whitePiecesSquares[:N_WHITE])
+    ws = list(whitePieceSquares[:N_WHITE])
     bs = list(blackPieceSquares[:N_BLACK])
 
     if ((ft & WE_FLAG) != 0):
@@ -1225,7 +1027,7 @@ def kakb_pctoindex():
 
     ft = flipt[blackPieceSquares[0]][whitePieceSquares[0]]
 
-    ws = list(whitePiecesSquares)
+    ws = list(whitePieceSquares)
     bs = list(blackPieceSquares)
 
     if ((ft & 1) != 0):
@@ -1253,10 +1055,69 @@ def kakb_pctoindex():
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + bs[1]
 
+def kpk_pctoindex():
+    BLOCK_A = 64 * 64
+    BLOCK_B = 64
+
+    pawn = whitePieceSquares[1]
+    wk = whitePieceSquares[0]
+    bk = blackPieceSquares[0]
+
+    if ( not (A2 <= pawn and pawn < A8)):
+                return NOINDEX
+
+    if ((pawn & 7) > 3):
+        #column is more than 3. e.g. = e,f,g, or h 
+        pawn = flipWE(pawn)
+        wk = flipWE(wk)
+        bk = flipWE(bk)
+
+    sq = pawn
+    sq ^= 56 # flipNS
+    sq -= 8  # down one row
+    pslice = ((sq + (sq & 3)) >> 1)
+
+    res = pslice * BLOCK_A + wk * BLOCK_B + bk
+    return res
+
+def kpppk_pctoindex():
+    BLOCK_A = 64 * 64
+    BLOCK_B = 64
+
+    wk = whitePieceSquares[0]
+    pawn_a = whitePieceSquares[1]
+    pawn_b = whitePieceSquares[2]
+    pawn_c = whitePieceSquares[3]
+
+    bk = blackPieceSquares[0]
+
+    i = pawn_a - 8
+    j = pawn_b - 8
+    k = pawn_c - 8
+
+    ppp48_slice = ppp48_idx[i][j][k]
+
+    if (IDX_is_empty(ppp48_slice)):
+        wk = flipWE(wk)
+        pawn_a = flipWE(pawn_a)
+        pawn_b = flipWE(pawn_b)
+        pawn_c = flipWE(pawn_c)
+        bk = flipWE(bk)
+
+    i = pawn_a - 8
+    j = pawn_b - 8
+    k = pawn_c - 8
+
+    ppp48_slice = ppp48_idx[i][j][k]
+
+    if (IDX_is_empty(ppp48_slice)):
+        return NOINDEX
+
+    return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
+
 def init_flipt():
     return [flip_type(i,j) for i in xrange(64) for j in xrange(64)]
 
-ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
              
 def init_ppidx():
     # modifies ppidx[][], pp_hi24[], pp_lo48[] 
@@ -1270,7 +1131,7 @@ def init_ppidx():
     for a in xrange(H7,A2-1,-1):
         if ((a & 7) < 4): # square in the queen side */:
             continue
-        for b in xrange(a - 1,b - 1, -1):
+        for b in xrange(a - 1, A2 - 1, -1):
             anchor = 0
             loosen = 0
 
@@ -1292,38 +1153,6 @@ def init_ppidx():
     return ppidx, pp_hi24, pp_lo48, idx
 
 
-def Init(egtb_path, sc):
-    streamCreator = sc
-    egtb_root_path = egtb_path
-    reach_init()
-    attack_maps_init()
-    init_flipt()
-
-    init_kkidx()
-    init_aaidx()
-    init_aaa()
-    init_pp48_idx()
-    init_ppp48_idx()
-
-    LoadTableDescriptions()
-
-    for i in xrange(64):
-         strow = (i % 8)
-         stcol = 7 - (i / 8)
-         newId = (stcol * 8) + strow
-         a8toa1[i] = newId
-
-    _dictionarySize = 4096
-    _posStateBits = 2
-    _numLiteralPosStateBits = 0
-    _numLiteralContextBits = 3
-    properties = [-1]*5
-    properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits)
-    for i in xrange(4):
-        properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
-    decoder.SetDecoderProperties(properties)
-
-Reversed = false
 
 #void SetupPieceArrayFromBoard(Board b)
 #    #    currentFilename = "";
@@ -1362,18 +1191,18 @@ Reversed = false
 #        #        res += new String(fenType[i], pieceCount[1, i]);
 #        res3 += new String(fenType[i], pieceCount[1, i]);
 #
-#    bool ok = false;
-#    Reversed = false;
+#    bool ok = False;
+#    Reversed = False;
 #    string newFile = res;
 #    if (!validTables.Contains(res))
 #        #        if (validTables.Contains(res3 + res2))
 #            #            newFile = res3 + res2;
-#            Reversed = true;
-#            ok = true;
+#            Reversed = True;
+#            ok = True;
 #    #        if (res == "kk")
-#            #            ok = true;
+#            #            ok = True;
 #    #    #    else
-#        #        ok = true;
+#        #        ok = True;
 #
 #    if (!ok)
 #        return;
@@ -1431,9 +1260,7 @@ def sortlists(ws, wp):
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2) 
 
-newFile = ""
-
-def SetupEGTB(whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq):
+def SetupEGTB(egtb_base, whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq):
     # TODO: returns whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq
     whiteSquares, whiteTypes = sortlists(whiteSquares, whiteTypes)
     blackSquares, blackTypes = sortlists(blackSquares, blackTypes)
@@ -1448,7 +1275,8 @@ def SetupEGTB(whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq):
         whiteScore += i;
         whiteLetters += new String(fenType[i], 1);
     '''
-    whiteScore = sum(whiteTypes)
+    # unused
+    # whiteScore = sum(whiteTypes)
     whiteLetters = "".join([fenType[i] for i in whiteTypes])
 
     '''
@@ -1457,19 +1285,20 @@ def SetupEGTB(whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq):
         blackScore += i;
         blackLetters += new String(fenType[i], 1);
     '''
-    blackScore = sum(blackTypes)
+    # unused
+    # blackScore = sum(blackTypes)
     blackLetters = "".join([fenType[i] for i in blackTypes])
     
     newFile = ""
 
-    if (validTables.Contains(whiteLetters + blackLetters)):
+    if ((whiteLetters + blackLetters) in validTables):
         whitePieceSquares = whiteSquares
         whitePieceTypes = whiteTypes
         blackPieceSquares = blackSquares
         blackPieceTypes = blackTypes
         newFile = whiteLetters + blackLetters
         Reversed = False
-    elif (validTables.Contains(blackLetters + whiteLetters)):
+    elif ((blackLetters + whiteLetters) in validTables):
         whitePieceSquares = blackSquares
         whitePieceTypes = blackTypes
         blackPieceSquares = whiteSquares
@@ -1485,13 +1314,13 @@ def SetupEGTB(whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq):
             epsq ^= 56
         else:
             newFile = whiteLetters + blackLetters
-            return false
+            return False
 
-    OpenEndgameTableBase(newFile)
-    return true
+    OpenEndgameTableBase(egtb_base, newFile)
+    return True
 
 
-def Probe(whiteSquares, blackSquares, whiteTypes, blackTypes, realside, epsq):
+def Probe(egtb_base, whiteSquares, blackSquares, whiteTypes, blackTypes, realside, epsq):
     probeResult = ProbeResultType()
 
     if ((len(blackSquares)== 1) and (len(whiteSquares) == 1)):
@@ -1507,7 +1336,7 @@ def Probe(whiteSquares, blackSquares, whiteTypes, blackTypes, realside, epsq):
 
     side = realside
 
-    if (not SetupEGTB(whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq)):
+    if (not SetupEGTB(egtb_base, whiteSquares, whiteTypes, blackSquares, blackTypes, side, epsq)):
         probeResult.found = False
         probeResult.error = "Could not find EGTB file: " + newFile
         return probeResult
@@ -1548,12 +1377,13 @@ def Probe(whiteSquares, blackSquares, whiteTypes, blackTypes, realside, epsq):
         probeResult.dtm = ret
         probeResult.ply = ply
     else:
-        probeResult.found = false
+        probeResult.found = False
 
-    return probeResult;
+    return probeResult
 
-def LoadTableDescriptions():
-        files = os.listdir(egtb_root_path)
+
+def LoadTableDescriptions(egtb_path):
+        files = os.listdir(egtb_path)
         for afile in files:
             tokes = afile.split(os.sep)
             if (len(tokes) > 0):
@@ -1562,55 +1392,55 @@ def LoadTableDescriptions():
                     validTables.append(fn.replace(".gtb.cp4", ""))
 
 #string BoardToPieces(Board board)
-#    #    int[,] pieceCount = new int[2, 7];
+#    #    int[,] pieceCount = new int[2, 7]
 
 #    cnt = 0
-#    for (i = 0; i < 64 i++)
-#        #        PieceType pieceType = board.pieceKind[i];
+#    for (i = 0 i < 64 i++)
+#        #        PieceType pieceType = board.pieceKind[i]
 #        if (pieceType == PieceType.All)
-#            continue;
-#        cnt++;
+#            continue
+#        cnt++
 #        # most I do is 5 man eg's in Pwned
 #        if (cnt > 5)
-#            return "";
-#        PlayerColor thisColor = board.pieceColor[i];
+#            return ""
+#        PlayerColor thisColor = board.pieceColor[i]
 
-#        pieceCount[thisColor, pieceType]++;
+#        pieceCount[thisColor, pieceType]++
 #
-#    string res = "";
-#    char[] fenType = { 'k', 'q', 'r', 'b', 'n', 'p' };
+#    string res = ""
+#    char[] fenType = { 'k', 'q', 'r', 'b', 'n', 'p' }
 
-#    for (i = 0; i < 6 i++)
-#        #        res += new String(fenType[i], pieceCount[0, i]);
+#    for (i = 0; i < 6; i++)
+#        #        res += new String(fenType[i], pieceCount[0, i])
 #
-#    for (i = 0; i < 6 i++)
-#        #        res += new String(fenType[i], pieceCount[1, i]);
+#    for (i = 0; i < 6; i++)
+#        #        res += new String(fenType[i], pieceCount[1, i])
 #
 #    # don't return a key if the table isn't loaded
 #    # make sure you call LoadTableDescriptions when the game loads
 #    if (validTables.Contains(res))
-#        return res;
+#        return res
 
-#    return "";
+#    return ""
 #
 
 #IStreamCreator streamCreator
 
-def OpenEndgameTableBase(pieces):
-    if (currentFilename == pieces):
-        return true
+def OpenEndgameTableBase(egtb_root_path, pieces):
+    # TODO: do not reopen the file
+    # if (currentFilename == pieces):
+    #    return True
     tablePath = egtb_root_path +os.sep + pieces + ".gtb.cp4"
     if (currentStream is not None):
         currentStream.close()
-        del currentStream
     if (os.path.isfile(tablePath)):
         # TODO : does not work! currentFileName is a global variable
         currentFilename = pieces
-        #currentStream = TitleContainer.OpenStream(tablePath);
+        #currentStream = TitleContainer.OpenStream(tablePath)
         currentStream = open(tablePath,'r')
         egtb_loadindexes()
 
-        currentPctoi = egkey[currentFilename].pctoi;
+        currentPctoi = egkey[currentFilename].pctoi
 
     return currentStream, currentPctoi
 
@@ -1653,7 +1483,7 @@ def fread32(currentStream):
 
     for i in xrange(SZ):
         x << 8
-        x |= i
+        x |= p[i]
     return x
 
 def egtb_loadindexes():
@@ -1666,7 +1496,7 @@ def egtb_loadindexes():
     p = [-1]*MAX_AAAINDEX
 
     # Get Reserved bytes, blocksize, offset 
-    #currentStream.Seek(0, SeekOrigin.Begin);
+    #currentStream.Seek(0, SeekOrigin.Begin)
 
     dummy = fread32(currentStream)
     dummy = fread32(currentStream)
@@ -1720,38 +1550,38 @@ def  egtb_block_unpack(side, n, bp):
 
 
 #public byte[] Decompress(byte[] inputBytes)
-#    #    MemoryStream newInStream = new MemoryStream(inputBytes);
+#    #    MemoryStream newInStream = new MemoryStream(inputBytes)
 
-#    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder();
+#    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder()
 
-#    newInStream.Seek(0, 0);
-#    MemoryStream newOutStream = new MemoryStream();
+#    newInStream.Seek(0, 0)
+#    MemoryStream newOutStream = new MemoryStream()
 
-#    byte[] properties2 = new byte[5];
+#    byte[] properties2 = new byte[5]
 #    if (newInStream.Read(properties2, 0, 5) != 5)
-#        throw (new Exception("input .lzma is too short"));
-#    long outSize = 0;
+#        throw (new Exception("input .lzma is too short"))
+#    long outSize = 0
 #    for (i = 0; i < 8 i++)
 #        #        v = newInStream.ReadByte()
 #        if (v < 0)
-#            throw (new Exception("Can't Read 1"));
-#        outSize |= ((long)(byte)v) << (8 * i);
-#    #    decoder.SetDecoderProperties(properties2);
+#            throw (new Exception("Can't Read 1"))
+#        outSize |= ((long)(byte)v) << (8 * i)
+#    #    decoder.SetDecoderProperties(properties2)
 
-#    long compressedSize = newInStream.Length - newInStream.Position;
-#    decoder.Code(newInStream, newOutStream, compressedSize, outSize, null);
+#    long compressedSize = newInStream.Length - newInStream.Position
+#    decoder.Code(newInStream, newOutStream, compressedSize, outSize, null)
 
-#    byte[] b = newOutStream.ToArray();
+#    byte[] b = newOutStream.ToArray()
 
-#    return b;
+#    return b
 
 
 
 #
 def split_index(entries_per_block, i, o):
         
-    n = i / entries_per_block;
-    offset = n * entries_per_block;
+    n = i / entries_per_block
+    offset = n * entries_per_block
     remainder = i - offset
     return offset, remainder
 
@@ -1760,15 +1590,15 @@ def split_index(entries_per_block, i, o):
 #    #    offset = 0
 #    remainder = 0
 
-#    split_index(entries_per_block, idx, ref offset, ref remainder);
+#    split_index(entries_per_block, idx, ref offset, ref remainder)
 
 #    int tableIndex = blockCache.FindIndex(delegate(TableBlock tb)
-#        #        return (tb.key == currentFilename) && (tb.offset == offset) && (tb.side == side);
-#    });
+#        #        return (tb.key == currentFilename) && (tb.offset == offset) && (tb.side == side)
+#    })
 
-#    dtm = blockCache[tableIndex].pcache[remainder];
+#    dtm = blockCache[tableIndex].pcache[remainder]
 
-#    return true;
+#    return True
 #
 class TableBlock:
 
@@ -1782,9 +1612,9 @@ class TableBlock:
     def __hash__(self):
             hash = 17
             # Suitable nullity checks etc, of course :)
-            hash = hash * 23 + key.__hash__()
-            hash = hash * 23 + side.__hash__()
-            hash = hash * 23 + offset.__hash__()
+            hash = hash * 23 + self.key.__hash__()
+            hash = hash * 23 + self.side.__hash__()
+            hash = hash * 23 + self.offset.__hash__()
             return hash
 
     def __eq__(self, other):
@@ -1793,18 +1623,18 @@ class TableBlock:
           (other.key, other.side, other.offset))
 
 #void removepiece(List<int> ys, List<PieceType> yp, int j)
-#    #    ys.RemoveAt(j);
-#    yp.RemoveAt(j);
+#    #    ys.RemoveAt(j)
+#    yp.RemoveAt(j)
 #
 NOSQUARE = 0
 
-blockCache = {} #new List<TableBlock>();
+blockCache = {} #new List<TableBlock>()
 
 def map88(x):
-        return x + (x & 56);
+        return x + (x & 56)
 
 def unmap88(x):
-        return x + (x & 7) >> 1;
+        return x + (x & 7) >> 1
 
 def FindBlockIndex(currentFilename, offset, side):
     blockCache.get((currentFilename, offset, side,))
@@ -1828,11 +1658,8 @@ def tb_probe_(side, epsq):
     if t is None:
         t = TableBlock(currentFilename, side, offset)
 
-        zipStream.seek(0, SeekOrigin.Begin)
-        packStream.seek(0, SeekOrigin.Begin)
-
         block = egtb_block_getnumber(side, idx)
-        n = eegtb_block_getsize(idx)
+        n = egtb_block_getsize(idx)
         z = egtb_block_getsize_zipped(block)
 
         egtb_block_park(currentFilename,block, currentStream)
@@ -1841,9 +1668,9 @@ def tb_probe_(side, epsq):
 
         Buffer_zipped = Buffer_zipped[LZMA86_HEADER_SIZE + 1:]
         #z = z - (LZMA86_HEADER_SIZE + 1)
-        #Array.Copy(Buffer_zipped, LZMA86_HEADER_SIZE + 1, Buffer_zipped, 0, z);
-        Buffer_packed = LZMADecompressor().decompress(Buffer_zipped)
-        #decoder.Code(zipStream, packStream, (long)z, (long)n, null);
+        #Array.Copy(Buffer_zipped, LZMA86_HEADER_SIZE + 1, Buffer_zipped, 0, z)
+        Buffer_packed = "toto" #LZMADecompressor().decompress(Buffer_zipped)
+        #decoder.Code(zipStream, packStream, (long)z, (long)n, null)
 
         t.pcache = egtb_block_unpack(side, n, Buffer_packed)
 
@@ -1851,13 +1678,13 @@ def tb_probe_(side, epsq):
         '''
         TODO: implement LRU
         if (blockCache.Count > 256):
-            blockCache.RemoveAt(0);
+            blockCache.RemoveAt(0)
         '''
         dtm = t.pcache[remainder]
     else:
-        dtm = t.pcache[remainder];
+        dtm = t.pcache[remainder]
 
-    return true, dtm
+    return True, dtm
 
 def Opp(side):
     if (side == 0):
@@ -1867,19 +1694,17 @@ def Opp(side):
 #uINFOMASK = 7
 #PLYSHIFT = 3
 
-def adjust_up(sw, dist):
-    uudist = dist
-    usw = (udist & INFOMASK)
+def adjust_up(dist):
+    udist = dist
+    sw = (udist & INFOMASK)
 
     if ((sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt)):
-        ux = 1
-        udist += (x << PLYSHIFT)
+        udist += (1 << PLYSHIFT)
 
     return udist
 
 
-def bestx(side, a, b):
-        
+def bestx(side, a, b):  
     comparison = [    #draw, wmate, bmate, forbid
         ''' draw '''  [0,    3,     0,     0],
         ''' wmate'''  [0,    1,     0,     0],
@@ -1894,7 +1719,7 @@ def bestx(side, a, b):
     ret = iFORBID
 
     if (a == iFORBID):
-        return b;
+        return b
     if (b == iFORBID):
         return a
     retu = [a, a, b, b]
@@ -1911,7 +1736,7 @@ def bestx(side, a, b):
     key = comparison[a & 3][b & 3] ^ xorkey[side]
     ret = retu[key]
 
-    return ret;
+    return ret
 
 def egtb_get_dtm(side, epsq, dtm):
     ok, dtm  = tb_probe_(side, epsq)
@@ -1921,7 +1746,7 @@ def egtb_get_dtm(side, epsq, dtm):
             capturer_a = 0
             capturer_b = 0
             xed = 0
-            okcall = true
+            okcall = True
 
             old_whitePieceSquares = list(whitePieceSquares)
             old_blackPieceSquares = list(blackPieceSquares)
@@ -1978,18 +1803,18 @@ def egtb_get_dtm(side, epsq, dtm):
                         noep = NOSQUARE
                         # TODO: fix this!
                         if ( not SetupEGTB(whitePieceSquares, whitePieceTypes, blackPieceSquares, blackPieceTypes, side, noep)):
-                            okcall = false
+                            okcall = False
                         else:
                             okcall, newdtm  = tb_probe_(Opp(side), NOSQUARE)
 
-                        whitePieceSquares = old_whitePieceSquares;
-                        whitePieceTypes = old_whitePieceType;
-                        blackPieceSquares = old_blackPieceSquares;
-                        blackPieceTypes = old_blackPieceType;
+                        whitePieceSquares = old_whitePieceSquares
+                        whitePieceTypes = old_whitePieceType
+                        blackPieceSquares = old_blackPieceSquares
+                        blackPieceTypes = old_blackPieceType
 
                         if (okcall):
                             epscore = newdtm
-                            epscore = adjust_up(sw, epscore)
+                            epscore = adjust_up(epscore)
 
                             # chooses to ep or not 
                             dtm = bestx(side, epscore, dtm)
@@ -2002,7 +1827,7 @@ def unpackdist(d):
     
 
 def egtb_filepeek(side, idx, dtm):
-    x = 0
+    
     maxindex = egkey[currentFilename].maxindex
 
     fpark_entry_packed(side, idx, maxindex)
@@ -2042,8 +1867,8 @@ def dtm_unpack(stm, packed):
     if (iDRAW == p or iFORBID == p):
         return p
 
-    info = p & 3;
-    store = p >> 2;
+    info = p & 3
+    store = p >> 2
 
     if (stm == 0):
         if (info == iWMATE):
@@ -2135,7 +1960,7 @@ def flip_type(x, y):
     if (rowx == colx and rowy > coly):
         x = flipNW_SE(x)
         y = flipNW_SE(y)
-        ret |= 4;
+        ret |= 4
     return ret
 
 def IDX_is_empty(x):
@@ -2179,7 +2004,7 @@ def norm_kkindex(x, y):
         x = flipNS(x) # x = x ^ 070  
         y = flipNS(y)
     rowx = getrow(x)
-    colx = getcol(x);
+    colx = getcol(x)
     if (rowx > colx):
         x = flipNW_SE(x) # x = ((x&7)<<3) | (x>>3) 
         y = flipNW_SE(y)
@@ -2189,14 +2014,7 @@ def norm_kkindex(x, y):
         x = flipNW_SE(x)
         y = flipNW_SE(y)
 
-    return pi, pj
-
-attmsk, attmap = attack_maps_init()
-
-def possible_attack(from_, to_, piece):
-    return (0 != (attmap[to_][from_] & attmsk[piece]))
-
-Reach = init_reach()
+    return x, y
 
 bstep = [ 17, 15, -15, -17, 0 ]
 rstep = [ 1, 16, -1, -16, 0 ]
@@ -2206,8 +2024,9 @@ kstep = [ 1, 17, 16, 15, -1, -17, -16, -15, 0 ]
 psteparr = [None, None, # NOPIECE & PAWN 
            nstep, bstep, rstep, kstep, kstep] # same for Q & K
 
-pslider = [false, false,
-           false,  true,  true,  true, false]
+pslider = [False, False,
+           False,  True,  True,  True, False
+]
 
 def tolist_rev(occ, input_piece, sq, thelist):
         # reversible moves from pieces. Output is a list of squares     
@@ -2224,6 +2043,8 @@ def tolist_rev(occ, input_piece, sq, thelist):
         for step in steparr:
             #for (direction = 0; steparr[direction] != 0; direction++)
             #step = steparr[direction]
+            if step == 0:
+                break
             s = from_ + step
             while (0 == (s & 0x88)):
                 us = unmap88(s)
@@ -2235,7 +2056,9 @@ def tolist_rev(occ, input_piece, sq, thelist):
     else:
         for step in steparr:
             # for (direction = 0; steparr[direction] != 0; direction++)
-            # step = steparr[direction];
+            # step = steparr[direction]
+            if step == 0:
+                break
             s = from_ + step
             if (0 == (s & 0x88)):
                 us = unmap88(s)
@@ -2272,7 +2095,7 @@ def reach_init():
             s = sq88 + STEP_A
             if (0 == (s & 0x88)):
                 us = unmap88(s)
-                thelistlist.append(us)
+                thelist.append(us)
             s = sq88 + STEP_B
             if (0 == (s & 0x88)):
                 us = unmap88(s)
@@ -2290,6 +2113,249 @@ def BB_ISBITON(bb, bit):
 def mapx88(x):
         return ((x & 56) << 1) | (x & 7)
 
+              
+def init_kkidx():
+    # modifies kkidx[][], wksq[], bksq[] 
+    i = 0
+    j = 0
+
+    # default is noindex
+    kkidx = [[-1]*64 for x in xrange(64)]
+    bksq = [-1]*64
+    wksq = [-1]*64
+    idx = 0
+    for x in xrange(64):
+        for y in xrange(64):
+            # is x,y illegal? continue 
+            if (possible_attack(x, y, wK) or x == y):
+                continue
+
+            # normalize 
+            # i <-- x; j <-- y 
+            i, j = norm_kkindex(x, y)
+
+            if (kkidx[i][j] == -1):
+                #still empty 
+                kkidx[i][j] = idx
+                kkidx[x][y] = idx
+                bksq[idx] = i
+                wksq[idx] = j
+                idx+=1
+
+    return kkidx, wksq, bksq
+
+def kxk_pctoindex():
+    BLOCK_Bx = 64
+    BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
+        
+    ft = flip_type(blackPieceSquares[0], whitePieceSquares[0])
+
+    ws = list(whitePieceSquares)
+    bs = list(blackPieceSquares)
+
+    if ((ft & 1) != 0):
+        ws = [flipWE(b) for b in ws]
+        bs = [flipWE(b) for b in ws]
+
+    if ((ft & 2) != 0):
+        ws = [flipNS(b) for b in ws]
+        bs = [flipNS(b) for b in ws]
+
+    if ((ft & 4) != 0):
+        ws = [flipNW_SE(b) for b in ws]
+        bs = [flipNW_SE(b) for b in ws]
+
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+
+    if (ki == -1):
+        return NOINDEX
+
+    return ki * BLOCK_Ax + ws[1]
+
+egkey = {
+    "kqk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
+    "krk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
+    "kbk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
+    "knk": endgamekey(MAX_KXK, 1, kxk_pctoindex),
+    "kpk": endgamekey(MAX_kpk, 24, kpk_pctoindex),
+
+    "kqkq": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+    "kqkr": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+    "kqkb": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+    "kqkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+
+    "krkr": endgamekey(MAX_kakb, 1,  kakb_pctoindex),
+    "krkb": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+    "krkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+
+    "kbkb": endgamekey(MAX_kakb, 1,  kakb_pctoindex),
+    "kbkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+
+    "knkn": endgamekey(MAX_kakb, 1, kakb_pctoindex),
+
+    "kqqk": endgamekey(MAX_kaak, 1, kaak_pctoindex),
+    "kqrk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+    "kqbk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+    "kqnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+
+    "krrk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
+    "krbk": endgamekey(MAX_kabk, 1, kabk_pctoindex),
+    "krnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+
+    "kbbk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
+    "kbnk": endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+
+    "knnk": endgamekey(MAX_kaak, 1,  kaak_pctoindex),
+    "kqkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
+    "krkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
+    "kbkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
+    "knkp": endgamekey(MAX_kakp, 24, kakp_pctoindex),
+
+    "kqpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
+    "krpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
+    "kbpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
+    "knpk": endgamekey(MAX_kapk, 24, kapk_pctoindex),
+
+    "kppk": endgamekey(MAX_kppk, MAX_PPINDEX , kppk_pctoindex),
+
+    "kpkp": endgamekey(MAX_kpkp, MAX_PpINDEX , kpkp_pctoindex),
+
+    "kppkp": endgamekey(MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_pctoindex) ,
+
+    "kbbkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
+    "kbbkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
+    "knnkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
+    "knnkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
+
+    # pwned does use anything below here
+    "kqqqk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
+    "kqqrk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "kqqbk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "kqqnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "kqrrk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "kqrbk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
+    "kqrnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
+    "kqbbk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "kqbnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
+    "kqnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "krrrk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
+    "krrbk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "krrnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "krbbk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "krbnk": endgamekey(MAX_kabck, 1, kabck_pctoindex),
+    "krnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "kbbbk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
+    "kbbnk": endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
+    "kbnnk": endgamekey(MAX_kabbk, 1, kabbk_pctoindex),
+    "knnnk": endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
+    "kqqkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kqqkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kqqkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kqqkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kqrkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqrkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqrkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqrkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqbkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqbkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqbkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqbkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kqnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krrkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "krrkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "krrkb": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "krrkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "krbkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krbkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krbkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krbkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "krnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kbbkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    #{ 84,"kbbkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
+    #{ 85,"kbbkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
+    "kbbkn": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kbnkq": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kbnkr": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kbnkb": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "kbnkn": endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
+    "knnkq": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "knnkr": endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    #{ 93,"knnkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
+    #{ 94,"knnkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
+
+    "kqqpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
+    "kqrpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "kqbpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "kqnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "krrpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
+    "krbpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "krnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "kbbpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
+    "kbnpk": endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
+    "knnpk": endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
+
+    "kqppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
+    "krppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
+    "kbppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
+    "knppk": endgamekey(MAX_kappk, MAX_PPINDEX, kappk_pctoindex),
+
+    "kqpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kqpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kqpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kqpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "krpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "krpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "krpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "krpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kbpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kbpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kbpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kbpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "knpkq": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "knpkr": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "knpkb": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "knpkn": endgamekey(MAX_kapkb, 24, kapkb_pctoindex),
+    "kppkq": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
+    "kppkr": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
+    "kppkb": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
+    "kppkn": endgamekey(MAX_kppka, MAX_PPINDEX, kppka_pctoindex),
+
+    "kqqkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
+    "kqrkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "kqbkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "kqnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "krrkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
+    "krbkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "krnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "kbbkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
+    "kbnkp": endgamekey(MAX_kabkp, 24, kabkp_pctoindex),
+    "knnkp": endgamekey(MAX_kaakp, 24, kaakp_pctoindex),
+
+    "kqpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
+    "krpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
+    "kbpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
+    "knpkp": endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
+
+    #{143,"kppkp", MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_indextopc, kppkp_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
+    "kpppk": endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex)}
+
+# inits
+
+Reach = reach_init()
+flipt = init_flipt()
+
+aaidx, aabase = init_aaidx()
+
+aaa_xyz = init_aaa()
+pp48_idx, pp48_sq_x, pp48_sq_y, _ = init_pp48_idx()
+ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
+ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z = init_ppp48_idx()
 
 def attack_maps_init():
     attmsk = [0] * 256
@@ -2316,7 +2382,7 @@ def attack_maps_init():
     attmsk[wK] = 1 << 6
     attmsk[bK] = 1 << 6
 
-    attmap = [[] for i in xrange(64)]
+    attmap = [[0]*64 for i in xrange(64)]
     for to_ in xrange(64):
         for from_ in xrange(64):
             m = 0
@@ -2337,7 +2403,7 @@ def attack_maps_init():
             if (BB_ISBITON(queen, to_)):
               m |= attmsk[wQ]
 
-            to88 = mapx88(to)
+            to88 = mapx88(to_)
             fr88 = mapx88(from_)
             diff = to88 - fr88
 
@@ -2346,91 +2412,42 @@ def attack_maps_init():
             if (diff == -17 or diff == -15):
               m |= attmsk[bP]
 
-            attmap[to][from_] = m
+            attmap[to_][from_] = m
 
     return attmsk, attmap
-              
-def init_kkidx():
-    # modifies kkidx[][], wksq[], bksq[] 
-    i = 0
-    j = 0
 
-    # default is noindex
-    kkidx = [[-1]*64 for x in xrange(64)]
- 
-    idx = 0;
-    for x in xrange(64):
-        for y in xrange(64):
-            # is x,y illegal? continue 
-            if (possible_attack(x, y, wK) or x == y):
-                continue
+attmsk, attmap = attack_maps_init()
 
-            # normalize 
-            # i <-- x; j <-- y 
-            i, j = norm_kkindex(x, y)
-
-            if (kkidx[i][j] == -1):
-                #still empty 
-                kkidx[i][j] = idx
-                kkidx[x][y] = idx
-                bksq[idx] = i
-                wksq[idx] = j
-                idx+=1;
-
-    return kkidx, wksq, bksq
+def possible_attack(from_, to_, piece):
+    return (0 != (attmap[to_][from_] & attmsk[piece]))
 
 kkidx, wksq, bksq = init_kkidx()
 
+def a8toa1_init():
+    a8toa1 = {}
+    for i in xrange(64):
+         strow = (i % 8)
+         stcol = 7 - (i / 8)
+         newId = (stcol * 8) + strow
+         a8toa1[i] = newId
+    return a8toa1
 
-def kxk_pctoindex():
-    BLOCK_Bx = 64
-    BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
-        
-    ft = flip_type(blackPieceSquares[0], whitePieceSquares[0])
+a8toa1 = a8toa1_init()
 
-    ws = list(whitePieceSquares)
-    bs = list(blackPieceSquares)
+def Init(egtb_path, sc):
+    streamCreator = sc
 
-    if ((ft & 1) != 0):
-        ws = [flipWE(b) for b in ws]
-        bs = [flipWE(b) for b in ws]
+    LoadTableDescriptions(egtb_path)
 
-    if ((ft & 2) != 0):
-        ws = [flipNS(b) for b in ws]
-        bs = [flipNS(b) for b in ws]
-
-    if ((ft & 4) != 0):
-        ws = [flipNW_SE(b) for b in ws]
-        bs = [flipNW_SE(b) for b in ws]
-
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
-
-    if (ki == -1):
-        return NOINDEX;
-
-    return ki * BLOCK_Ax + ws[1]
-
-def kpk_pctoindex():
-    BLOCK_A = 64 * 64
-    BLOCK_B = 64
-
-    pawn = whitePieceSquares[1]
-    wk = whitePieceSquares[0]
-    bk = blackPieceSquares[0]
-
-    if ( not (A2 <= pawn and pawn < A8)):
-                return NOINDEX;
-
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
-        pawn = flipWE(pawn)
-        wk = flipWE(wk)
-        bk = flipWE(bk)
-
-    sq = pawn
-    sq ^= 56 # flipNS
-    sq -= 8  # down one row
-    pslice = ((sq + (sq & 3)) >> 1)
-
-    res = pslice * BLOCK_A + wk * BLOCK_B + bk
-    return res
+    ''' 
+    TODO: decipher why the decoder properties are preset in hard and the LZMA header is skipped
+    _dictionarySize = 4096
+    _posStateBits = 2
+    _numLiteralPosStateBits = 0
+    _numLiteralContextBits = 3
+    properties = [-1]*5
+    properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits)
+    for i in xrange(4):
+        properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
+    decoder.SetDecoderProperties(properties)
+    '''
