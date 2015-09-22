@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from lzma import LZMADecompressor
+#from lzma import LZMADecompressor
 
 MateResult = Enum ("MateResult", "WhiteToMate BlackToMate Draw Unknown")
 
@@ -103,7 +103,7 @@ NOINDEX = -1
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
 MAX_PpINDEX = (24 * 48)
-MAX_AAINDEX = ((63 - 62) + (62 * (127 - 62) / 2) - 1 + 1)
+MAX_AAINDEX = int((63 - 62) + (62  / 2 * (127 - 62)) - 1 + 1)
 MAX_AAAINDEX = (64 * 21 * 31)
 MAX_PPP48_INDEX = 8648
 MAX_PP48_INDEX = (1128)
@@ -149,8 +149,8 @@ class endgamekey:
 def EGTB():
     pass
 
-
-decoder = LZMADecompressor()
+#decoder = LZMADecompressor()
+decoder = 1
 
 WE_FLAG = 1
 NS_FLAG = 2
@@ -159,13 +159,6 @@ NW_SE_FLAG = 4
 def map24_b(s):
     s = s - 8
     return ((s & 3) + s) >> 1
-
-
-#int[][][] ppp48_idx = new int[48][][];
-# TODO: init
-#int[] ppp48_sq_x = new int[MAX_PPP48_INDEX];
-#int[] ppp48_sq_y = new int[MAX_PPP48_INDEX];
-#int[] ppp48_sq_z = new int[MAX_PPP48_INDEX];
 
 itosq = [
     H7,G7,F7,E7,
@@ -190,7 +183,7 @@ def init_ppp48_idx():
     MAX_J = 48
     MAX_K = 48
 
-    ppp48_idx = [[[-1]* MAX_I for j in xrange(MAX_J)] for k in xrange(MAX_K)]
+    ppp48_idx = [[[-1]* MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
 
     # default is noindex 
 
@@ -577,13 +570,13 @@ def init_pp48_idx():
     idx = 0
     
     # default is noindex 
-    pp48_idx = [[-1]*MAX_J for i in xrange(MAX_I)]            
+    pp48_idx = [[-1]*MAX_J for i in range(MAX_I)]            
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
     
     idx = 0;
-    for a in xrange(H7, A2-1, -1):
-        for b in xrange(a - 1, A2 - 1, -1):
+    for a in range(H7, A2-1, -1):
+        for b in range(a - 1, A2 - 1, -1):
             i = flipWE(flipNS(a)) - 8
             j = flipWE(flipNS(b)) - 8
 
@@ -641,8 +634,6 @@ def kaaak_pctoindex():
                 return NOINDEX
     return ki * BLOCK_Ax + ai
 
-aaa_base = []
-
 def aaa_getsubi(x, y, z):
     bse = aaa_base[z];
     calc_idx = x + (y - 1) * y / 2 + bse
@@ -651,29 +642,28 @@ def aaa_getsubi(x, y, z):
 
 def init_aaa():
     # getting aaa_base 
-    comb = [ a * (a - 1) / 2 for a in xrange(64)];
+    comb = [ a * (a - 1) / 2 for a in range(64)];
     comb[0] = 0;
 
     accum = 0;
     aaa_base= [0]*64
-    for a in xrange(64 - 1):
+    for a in range(64 - 1):
         accum = accum + comb[a]
         aaa_base[a + 1] = accum
     # end getting aaa_base 
 
-
     # initialize aaa_xyz [][] 
-    aaa_xyz = [[-1] *3 for idx in xrange(MAX_AAAINDEX)]
+    aaa_xyz = [[-1] *3 for idx in range(MAX_AAAINDEX)]
 
     idx = 0;
-    for z in xrange(64):
-        for y in xrange(z):
-             for x  in xrange(y):
+    for z in range(64):
+        for y in range(z):
+             for x  in range(y):
                 aaa_xyz[idx][0] = x
                 aaa_xyz[idx][1] = y
                 aaa_xyz[idx][2] = z
                 idx+=1
-    return aaa_xyz
+    return aaa_base, aaa_xyz
 
 def kppkp_pctoindex():
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
@@ -976,12 +966,12 @@ def kakp_pctoindex():
 def init_aaidx():
     # modifies aabase[], aaidx[][] 
     # default is noindex
-    aaidx = [[-1]*64 for y in xrange(64)]
+    aaidx = [[-1]*64 for y in range(64)]
     aabase = [0]*MAX_AAINDEX
 
     idx = 0
-    for x in xrange(64):
-        for y in xrange(x + 1, 64):
+    for x in range(64):
+        for y in range(x + 1, 64):
         
             if (IDX_is_empty(aaidx[x][y])):
                 #still empty 
@@ -1116,22 +1106,22 @@ def kpppk_pctoindex():
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 def init_flipt():
-    return [flip_type(i,j) for i in xrange(64) for j in xrange(64)]
+    return [[flip_type(j,i) for i in range(64)] for j in range(64)]
 
              
 def init_ppidx():
     # modifies ppidx[][], pp_hi24[], pp_lo48[] 
     idx = 0
     # default is noindex
-    ppidx = [[-1] *48 for i in xrange(24)]
+    ppidx = [[-1] *48 for i in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
     pp_lo48 = [-1] * MAX_PPINDEX
 
     idx = 0;
-    for a in xrange(H7,A2-1,-1):
+    for a in range(H7,A2-1,-1):
         if ((a & 7) < 4): # square in the queen side */:
             continue
-        for b in xrange(a - 1, A2 - 1, -1):
+        for b in range(a - 1, A2 - 1, -1):
             anchor = 0
             loosen = 0
 
@@ -1481,7 +1471,7 @@ def fread32(currentStream):
 
     p = currentStream.read(SZ)
 
-    for i in xrange(SZ):
+    for i in range(SZ):
         x << 8
         x |= p[i]
     return x
@@ -1513,7 +1503,7 @@ def egtb_loadindexes():
     n_idx = blocks + 1
 
     # Input of Indexes 
-    for i in xrange(n_idx):
+    for i in range(n_idx):
         idx = fread32(currentStream)
         p[i] = idx # reads a 32 bit int, and converts it to index_t 
 
@@ -1782,7 +1772,7 @@ def egtb_get_dtm(side, epsq, dtm):
             if ((j > -1) and (ys[j] == xed)):
                 # xsl = xs.Count
                 # find capturers (i) 
-                for i in xrange(len(xs)): # (i = 0; (i < xsl) && okcall i++)
+                for i in range(len(xs)): # (i = 0; (i < xsl) && okcall i++)
                     if (xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b)):
                         epscore = iFORBID
 
@@ -1968,7 +1958,7 @@ def IDX_is_empty(x):
     # return (0 == (1 + (x)))
     return (x==-1)
 
-kkidx = [[] for i in xrange(64)]
+kkidx = [[] for i in range(64)]
 
 WHITES = (1 << 6)
 BLACKS = (1 << 7)
@@ -2010,7 +2000,7 @@ def norm_kkindex(x, y):
         y = flipNW_SE(y)
     rowy = getrow(y)
     coly = getcol(y)
-    if (rowx == colx and rowy > coly):
+    if (rowx == colx) and (rowy > coly):
         x = flipNW_SE(x)
         y = flipNW_SE(y)
 
@@ -2066,27 +2056,26 @@ def tolist_rev(occ, input_piece, sq, thelist):
                     thelist.append(us)
 
 def reach_init():
-    buflist = list()
-    thelist = list()
     
     stp_a = [ 15, -15 ]
     stp_b = [ 17, -17 ]
-    Reach = [ [-1]*64 for q in xrange(7)]
+    Reach = [[-1]*64 for q in range(7)]
 
-    for pc in xrange(KNIGHT, KING+1):
-        for sq in xrange(64):
+    for pc in range(KNIGHT, KING+1):
+        for sq in range(64):
             bb = 0
+            buflist = []
             tolist_rev(0, pc, sq, buflist)
             thelist = list(buflist)
             for li in thelist:
                 bb |= 1 << li
                 Reach[pc][sq] = bb
 
-    for side in xrange(2):
+    for side in range(2):
         index = 1 ^ side
         STEP_A = stp_a[side]
         STEP_B = stp_b[side]
-        for sq in xrange(64):
+        for sq in range(64):
             sq88 = map88(sq)
             bb = 0
 
@@ -2120,27 +2109,25 @@ def init_kkidx():
     j = 0
 
     # default is noindex
-    kkidx = [[-1]*64 for x in xrange(64)]
-    bksq = [-1]*64
-    wksq = [-1]*64
+    kkidx = [[-1]*64 for x in range(64)]
+    bksq = [-1]*MAX_KKINDEX
+    wksq = [-1]*MAX_KKINDEX
     idx = 0
-    for x in xrange(64):
-        for y in xrange(64):
+    for x in range(64):
+        for y in range(64):
             # is x,y illegal? continue 
-            if (possible_attack(x, y, wK) or x == y):
-                continue
-
-            # normalize 
-            # i <-- x; j <-- y 
-            i, j = norm_kkindex(x, y)
-
-            if (kkidx[i][j] == -1):
-                #still empty 
-                kkidx[i][j] = idx
-                kkidx[x][y] = idx
-                bksq[idx] = i
-                wksq[idx] = j
-                idx+=1
+            if (not possible_attack(x, y, wK)) and (x != y):
+                # normalize 
+                    # i <-- x; j <-- y 
+                i, j = norm_kkindex(x, y)
+    
+                if (kkidx[i][j] == -1):
+                    #still empty 
+                    kkidx[i][j] = idx
+                    kkidx[x][y] = idx
+                    bksq[idx] = i
+                    wksq[idx] = j
+                    idx+=1
 
     return kkidx, wksq, bksq
 
@@ -2349,10 +2336,8 @@ egkey = {
 
 Reach = reach_init()
 flipt = init_flipt()
-
-aaidx, aabase = init_aaidx()
-
-aaa_xyz = init_aaa()
+aabase, aaidx = init_aaidx()
+aaa_base, aaa_xyz = init_aaa()
 pp48_idx, pp48_sq_x, pp48_sq_y, _ = init_pp48_idx()
 ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
 ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z = init_ppp48_idx()
@@ -2382,9 +2367,9 @@ def attack_maps_init():
     attmsk[wK] = 1 << 6
     attmsk[bK] = 1 << 6
 
-    attmap = [[0]*64 for i in xrange(64)]
-    for to_ in xrange(64):
-        for from_ in xrange(64):
+    attmap = [[0]*64 for i in range(64)]
+    for to_ in range(64):
+        for from_ in range(64):
             m = 0
             rook = Reach[ROOK][from_]
             bishop = Reach[BISHOP][from_]
@@ -2425,7 +2410,7 @@ kkidx, wksq, bksq = init_kkidx()
 
 def a8toa1_init():
     a8toa1 = {}
-    for i in xrange(64):
+    for i in range(64):
          strow = (i % 8)
          stcol = 7 - (i / 8)
          newId = (stcol * 8) + strow
@@ -2447,7 +2432,7 @@ def Init(egtb_path, sc):
     _numLiteralContextBits = 3
     properties = [-1]*5
     properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits)
-    for i in xrange(4):
+    for i in range(4):
         properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
     decoder.SetDecoderProperties(properties)
     '''
