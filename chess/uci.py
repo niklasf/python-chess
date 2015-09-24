@@ -1358,11 +1358,11 @@ def popen_engine(command, engine_cls=Engine):
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
     """
-    Spwans a remote engine using a `Spur`_ shell.
+    Spawns a remote engine using a `Spur`_ shell.
 
     >>> import spur
     >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
-    >>> engine = chess.uci.spur_spwan_engine(shell, ["/usr/games/stockfish"])
+    >>> engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
     >>> engine.uci()
 
     .. _Spur: https://pypi.python.org/pypi/spur
