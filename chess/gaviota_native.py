@@ -1298,7 +1298,6 @@ def egtb_loadindexes(currentFilename, currentStream):
     offset = 0
     dummy = 0
     idx = 0
-    p = [-1]*MAX_AAAINDEX
 
     # Get Reserved bytes, blocksize, offset 
     #currentStream.Seek(0, SeekOrigin.Begin)
@@ -1317,8 +1316,10 @@ def egtb_loadindexes(currentFilename, currentStream):
     blocks = int((offset - 40) / 4) - 1
     n_idx = blocks + 1
 
+    p = [-1]*n_idx
+
     # Input of Indexes 
-    for i in range(n_idx):
+    for i in range(n_idx):  
         idx = fread32(currentStream)
         p[i] = idx # reads a 32 bit int, and converts it to index_t 
 
