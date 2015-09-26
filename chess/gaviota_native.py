@@ -14,7 +14,6 @@ class ProbeResultType(object):
         self.dtm = 0
 
 entries_per_block = 16 * 1024;
-#validTables = [] # new List<string>(15);
 
 class currentConf(object):
     def __init__(self):
@@ -24,82 +23,7 @@ class currentConf(object):
         self.blackPieceSquares = [] # new List<int>();
         self.Reversed = False
 
-#currentStream = None
-#currentFilename = ""
-#whitePieceTypes = []
-#blackPieceTypes = []
-#whitePieceSquares = [] # new List<int>();
-#blackPieceSquares = [] # new List<int>();
-#Reversed = False
-
-
-A1 = 0
-B1 = 1
-C1 = 2
-D1 = 3
-E1 = 4
-F1 = 5
-G1 = 6
-H1 = 7
-A2 = 8
-B2 = 9
-C2 = 10
-D2 = 11
-E2 = 12
-F2 = 13
-
-G2 = 14
-H2 = 15
-A3 = 16
-B3 = 17
-C3 = 18
-D3 = 19
-E3 = 20
-F3 = 21
-G3 = 22
-H3 = 23
-A4 = 24
-B4 = 25
-C4 = 26
-D4 = 27
-E4 = 28
-F4 = 29
-G4 = 30
-H4 = 31
-A5 = 32
-B5 = 33
-C5 = 34
-D5 = 35
-E5 = 36
-F5 = 37
-G5 = 38
-H5 = 39
-A6 = 40
-B6 = 41
-C6 = 42
-D6 = 43
-E6 = 44
-F6 = 45
-G6 = 46
-H6 = 47
-A7 = 48
-B7 = 49
-C7 = 50
-D7 = 51
-E7 = 52
-F7 = 53
-G7 = 54
-H7 = 55
-A8 = 56
-B8 = 57
-C8 = 58
-D8 = 59
-E8 = 60
-F8 = 61
-G8 = 62
-H8 = 63
 NOINDEX = -1
-
 
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
@@ -150,9 +74,6 @@ class endgamekey:
 def EGTB():
     pass
 
-#decoder = LZMADecompressor()
-decoder = 1
-
 WE_FLAG = 1
 NS_FLAG = 2
 NW_SE_FLAG = 4
@@ -162,18 +83,18 @@ def map24_b(s):
     return ((s & 3) + s) >> 1
 
 itosq = [
-    H7,G7,F7,E7,
-    H6,G6,F6,E6,
-    H5,G5,F5,E5,
-    H4,G4,F4,E4,
-    H3,G3,F3,E3,
-    H2,G2,F2,E2,
-    D7,C7,B7,A7,
-    D6,C6,B6,A6,
-    D5,C5,B5,A5,
-    D4,C4,B4,A4,
-    D3,C3,B3,A3,
-    D2,C2,B2,A2]
+    chess.H7,chess.G7,chess.F7,chess.E7,
+    chess.H6,chess.G6,chess.F6,chess.E6,
+    chess.H5,chess.G5,chess.F5,chess.E5,
+    chess.H4,chess.G4,chess.F4,chess.E4,
+    chess.H3,chess.G3,chess.F3,chess.E3,
+    chess.H2,chess.G2,chess.F2,chess.E2,
+    chess.D7,chess.C7,chess.B7,chess.A7,
+    chess.D6,chess.C6,chess.B6,chess.A6,
+    chess.D5,chess.C5,chess.B5,chess.A5,
+    chess.D4,chess.C4,chess.B4,chess.A4,
+    chess.D3,chess.C3,chess.B3,chess.A3,
+    chess.D2,chess.C2,chess.B2,chess.A2]
 
 def in_queenside(x):
     return (x & (1 << 2))==0
@@ -232,7 +153,7 @@ def kapkb_pctoindex(c):
     bk = c.blackPieceSquares[0]
     ba = c.blackPieceSquares[1]
 
-    if (not(A2 <= pawn and pawn < A8)):
+    if (not(chess.A2 <= pawn and pawn < chess.A8)):
         return NOINDEX
 
     if ((pawn & 7) > 3):
@@ -287,7 +208,7 @@ def kabkp_pctoindex(c):
     bk = c.blackPieceSquares[0]
     wb = c.whitePieceSquares[2]
 
-    if (not (A2 <= pawn and pawn < A8)):
+    if (not (chess.A2 <= pawn and pawn < chess.A8)):
                 return NOINDEX
     
     if ((pawn & 7) > 3):
@@ -569,8 +490,8 @@ def init_pp48_idx():
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
     
     idx = 0;
-    for a in range(H7, A2-1, -1):
-        for b in range(a - 1, A2 - 1, -1):
+    for a in range(chess.H7, chess.A2-1, -1):
+        for b in range(a - 1, chess.A2 - 1, -1):
             i = flipWE(flipNS(a)) - 8
             j = flipWE(flipNS(b)) - 8
 
@@ -875,7 +796,7 @@ def kapk_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if (not (A2 <= pawn and pawn < A8)):
+    if (not (chess.A2 <= pawn and pawn < chess.A8)):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
@@ -929,7 +850,7 @@ def kakp_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if (not (A2 <= pawn and pawn < A8)):
+    if (not (chess.A2 <= pawn and pawn < chess.A8)):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
@@ -1036,7 +957,7 @@ def kpk_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if ( not (A2 <= pawn and pawn < A8)):
+    if ( not (chess.A2 <= pawn and pawn < chess.A8)):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
@@ -1101,10 +1022,10 @@ def init_ppidx():
     pp_lo48 = [-1] * MAX_PPINDEX
 
     idx = 0;
-    for a in range(H7,A2-1,-1):
+    for a in range(chess.H7,chess.A2-1,-1):
         if ((a & 7) < 4): # square in the queen side */:
             continue
-        for b in range(a - 1, A2 - 1, -1):
+        for b in range(a - 1, chess.A2 - 1, -1):
             anchor = 0
             loosen = 0
 
@@ -1234,43 +1155,6 @@ def sortlists(ws, wp):
     z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2) 
-
-
-#string BoardToPieces(Board board)
-#    #    int[,] pieceCount = new int[2, 7]
-
-#    cnt = 0
-#    for (i = 0 i < 64 i++)
-#        #        PieceType pieceType = board.pieceKind[i]
-#        if (pieceType == PieceType.All)
-#            continue
-#        cnt++
-#        # most I do is 5 man eg's in Pwned
-#        if (cnt > 5)
-#            return ""
-#        PlayerColor thisColor = board.pieceColor[i]
-
-#        pieceCount[thisColor, pieceType]++
-#
-#    string res = ""
-#    char[] fenType = { 'k', 'q', 'r', 'b', 'n', 'p' }
-
-#    for (i = 0; i < 6; i++)
-#        #        res += new String(fenType[i], pieceCount[0, i])
-#
-#    for (i = 0; i < 6; i++)
-#        #        res += new String(fenType[i], pieceCount[1, i])
-#
-#    # don't return a key if the table isn't loaded
-#    # make sure you call LoadTableDescriptions when the game loads
-#    if (validTables.Contains(res))
-#        return res
-
-#    return ""
-#
-
-#IStreamCreator streamCreator
-
 
 class ZIPINFO:
     extraoffset = 0
@@ -1775,9 +1659,7 @@ def mapx88(x):
               
 def init_kkidx():
     # modifies kkidx[][], wksq[], bksq[] 
-    i = 0
-    j = 0
-
+ 
     # default is noindex
     kkidx = [[-1]*64 for x in range(64)]
     bksq = [-1]*MAX_KKINDEX
@@ -1785,7 +1667,7 @@ def init_kkidx():
     idx = 0
     for x in range(64):
         for y in range(64):
-            # is x,y illegal? continue 
+            # is x,y legal?
             if (not possible_attack(x, y, wK)) and (x != y):
                 # normalize 
                     # i <-- x; j <-- y 
@@ -2086,20 +1968,6 @@ def a8toa1_init():
 
 a8toa1 = a8toa1_init()
 
-
-''' 
-TODO: decipher why the decoder properties are preset in hard and the LZMA header is skipped
-_dictionarySize = 4096
-_posStateBits = 2
-_numLiteralPosStateBits = 0
-_numLiteralContextBits = 3
-properties = [-1]*5
-properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits)
-for i in range(4):
-    properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
-decoder.SetDecoderProperties(properties)
-'''
-
 class PythonTableBase(object):
     """ Provide access to Gaviota tablebases via full python code."""
 
@@ -2112,6 +1980,7 @@ class PythonTableBase(object):
         self.whiteTypes   = None
         self.blackTypes   = None
         self.realside = None
+        self.currentFilename = ""
         self.currentStream = None
         self.whitePieceSquares = None
         self.whitePieceTypes   = None
@@ -2271,14 +2140,12 @@ class PythonTableBase(object):
         else:
             self.newFile = whiteLetters + blackLetters
             return False,  side,  epsq
-
         self.OpenEndgameTableBase(self.newFile)
         return True,  side,  epsq
 
     def OpenEndgameTableBase(self, pieces):
-    # TODO: do not reopen the file
-    # if (currentFilename == pieces):
-    #    return True
+        if self.currentFilename ==pieces:
+            return
         tablePath = self.egtb_root_path +os.sep + pieces + ".gtb.cp4"
         if (self.currentStream is not None):
             self.currentStream.close()
