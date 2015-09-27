@@ -1,4 +1,5 @@
 import os
+import struct
 from enum import Enum
 from lzma import LZMADecompressor
 import chess
@@ -1184,28 +1185,21 @@ def egtb_loadindexes(currentFilename, currentStream):
     idx = 0
 
     # Get Reserved bytes, blocksize, offset 
-    #currentStream.Seek(0, SeekOrigin.Begin)
     currentStream.seek(0)
-    dummy = fread32(currentStream)
-    dummy = fread32(currentStream)
-    blocksize = fread32(currentStream)
-    dummy = fread32(currentStream)
-    tailblocksize1 = fread32(currentStream)
-    dummy = fread32(currentStream)
-    tailblocksize2 = fread32(currentStream)
-    dummy = fread32(currentStream)
-    offset = fread32(currentStream)
-    dummy = fread32(currentStream)
+    HeaderStruct=struct.Struct("<10I")
+    Header = HeaderStruct.unpack(currentStream.read(HeaderStruct.size))
+
+    #blocksize = Header[2]
+    #tailblocksize1 = Header[4]
+    #tailblocksize2 = Header[6]
+    offset = Header[8]
 
     blocks = int((offset - 40) / 4) - 1
     n_idx = blocks + 1
 
-    p = [-1]*n_idx
-
-    # Input of Indexes 
-    for i in range(n_idx):  
-        idx = fread32(currentStream)
-        p[i] = idx # reads a 32 bit int, and converts it to index_t 
+    # Input of Indexes
+    indexStruct=struct.Struct("<" + "I"*n_idx)
+    p=indexStruct.unpack(currentStream.read(indexStruct.size))
 
     if (not currentFilename in Zipinfo):
         Zipinfo[currentFilename] = ZIPINFO()
