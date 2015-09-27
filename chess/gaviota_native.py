@@ -1,4 +1,22 @@
+
 import os
+# -*- coding: utf-8 -*-
+#
+# This file is part of the python-chess library.
+# Copyright (C) 2015 Jean-Noël AVILA<jn.avila@free.fr>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 import struct
 from enum import Enum
 from lzma import LZMADecompressor
@@ -20,8 +38,8 @@ class currentConf(object):
     def __init__(self):
         self.whitePieceTypes = None
         self.blackPieceTypes = None
-        self.whitePieceSquares = [] # new List<int>();
-        self.blackPieceSquares = [] # new List<int>();
+        self.whitePieceSquares = [] 
+        self.blackPieceSquares = []
         self.Reversed = False
 
 NOINDEX = -1
@@ -66,14 +84,11 @@ INFOMASK = 7
 currentPctoi = None
 
 class endgamekey:
-
     def __init__(self, a_maxindex, a_slice_n, a_pctoi):
         self.maxindex = a_maxindex
         self.slice_n = a_slice_n
         self.pctoi = a_pctoi
 
-def EGTB():
-    pass
 
 WE_FLAG = 1
 NS_FLAG = 2
@@ -100,20 +115,15 @@ itosq = [
 def in_queenside(x):
     return (x & (1 << 2))==0
 
-
 def init_ppp48_idx():
     MAX_I = 48
     MAX_J = 48
     MAX_K = 48
-
     ppp48_idx = [[[-1]* MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
-
     # default is noindex 
-
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_z = [NOSQUARE] * MAX_PPP48_INDEX
-
     idx = 0
     for x in range(48):
         for y in range(x+1,48):
@@ -121,7 +131,6 @@ def init_ppp48_idx():
                 a = itosq[x]
                 b = itosq[y]
                 c = itosq[z]
-
                 if (not in_queenside(b)) or (not in_queenside(c)):
                     continue
 
@@ -256,7 +265,6 @@ def kaapk_pctoindex(c):
     
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
-
 def kaakp_pctoindex(c):
     BLOCK_C = MAX_AAINDEX
     BLOCK_B = 64 * BLOCK_C
@@ -291,9 +299,6 @@ def kapkp_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    anchor = 0
-    loosen = 0
-
     wk = c.whitePieceSquares[0]
     wa = c.whitePieceSquares[1]
     pawn_a = c.whitePieceSquares[2]
@@ -313,7 +318,6 @@ def kapkp_pctoindex(c):
     
     m = wsq_to_pidx24(anchor)
     n = loosen - 8
-
     pp_slice = m * 48 + n
 
     if (IDX_is_empty(pp_slice)):
@@ -325,9 +329,6 @@ def kappk_pctoindex(c):
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
     BLOCK_C = 64
-
-    anchor = 0
-    loosen = 0
 
     wk = c.whitePieceSquares[0]
     wa = c.whitePieceSquares[1]
@@ -359,9 +360,6 @@ def kppka_pctoindex(c):
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
     BLOCK_C = 64
-
-    anchor = 0
-    loosen = 0
 
     wk = c.whitePieceSquares[0]
     pawn_a = c.whitePieceSquares[1]
@@ -480,7 +478,7 @@ def kaabk_pctoindex(c):
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[3]
 
 def init_pp48_idx():
-    # modifies pp48_idx[][], pp48_sq_x[], pp48_sq_y[] 
+    # returns pp48_idx[][], pp48_sq_x[], pp48_sq_y[] 
     MAX_I = 48;
     MAX_J = 48;
     idx = 0
@@ -674,8 +672,6 @@ def kabkc_pctoindex(c):
 def kpkp_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
-    anchor = 0
-    loosen = 0
 
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
@@ -1015,8 +1011,7 @@ def init_flipt():
 
              
 def init_ppidx():
-    # modifies ppidx[][], pp_hi24[], pp_lo48[] 
-    idx = 0
+    # returns ppidx[][], pp_hi24[], pp_lo48[] 
     # default is noindex
     ppidx = [[-1] *48 for i in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
@@ -1047,112 +1042,11 @@ def init_ppidx():
                 idx+=1
     return ppidx, pp_hi24, pp_lo48, idx
 
-#void SetupPieceArrayFromBoard(Board b)
-#    #    currentFilename = "";
-
-#    for (i = 0; i < 7 i++)
-#        #        pieceCount[0, i] = 0;
-#        pieceCount[1, i] = 0;
-#        pieceSquares[0, i].Clear();
-#        pieceSquares[1, i].Clear();
-#
-#    cnt = 0
-#    for (i = 0; i < 64 i++)
-#        #        PieceType pieceType = b.pieceKind[i];
-
-#        if (pieceType == PieceType.All)
-#            continue;
-#        cnt++;
-#        # most I do is 5 man eg's in Pwned
-#        if (cnt > 5)
-#            return;
-
-#        PlayerColor thisColor = b.pieceColor[i];
-
-#        pieceCount[thisColor, pieceType]++;
-#        pieceSquares[thisColor, pieceType].Add(a8toa1[i]);
-#
-#    string res = "";
-#    char[] fenType = { 'k', 'q', 'r', 'b', 'n', 'p' };
-#    string res2 = "";
-#    string res3 = "";
-#    for (i = 0; i < 6 i++)
-#        #        res += new String(fenType[i], pieceCount[0, i]);
-#        res2 += new String(fenType[i], pieceCount[0, i]);
-#
-#    for (i = 0; i < 6 i++)
-#        #        res += new String(fenType[i], pieceCount[1, i]);
-#        res3 += new String(fenType[i], pieceCount[1, i]);
-#
-#    bool ok = False;
-#    Reversed = False;
-#    string newFile = res;
-#    if (!validTables.Contains(res))
-#        #        if (validTables.Contains(res3 + res2))
-#            #            newFile = res3 + res2;
-#            Reversed = True;
-#            ok = True;
-#    #        if (res == "kk")
-#            #            ok = True;
-#    #    #    else
-#        #        ok = True;
-#
-#    if (!ok)
-#        return;
-
-#    if (currentFilename != res)
-#        #        OpenEndgameTableBase(newFile);
-#
-#    whiteId = 0
-#    blackId = 1
-#    if (Reversed)
-#        #        whiteId = 1;
-#        blackId = 0;
-
-#        #if (epsq != NOSQUARE) epsq ^= 070;                              # added 
-#        #{ SQ_CONTENT* tempp = wp; wp = bp; bp = tempp; }  # added 
-#
-#    c.whitePieceSquares.Clear();
-#    whiteTypesSquares.Clear();
-#    for (i = 0; i < 7 i++)
-#        #        List<int> s = pieceSquares[whiteId, i];
-#        foreach (int x in s)
-#            #            c.whitePieceSquares.Add(x);
-#            whiteTypesSquares.Add(b.pieceKind[x]);
-#    #
-#    c.blackPieceSquares.Clear();
-#    blackTypesSquares.Clear();
-#    for (i = 0; i < 7 i++)
-#        #        List<int> s = pieceSquares[blackId, i];
-#        foreach (int x in s)
-#            #            c.blackPieceSquares.Add(x);
-#            blackTypesSquares.Add(b.pieceKind[x]);
-#    #
-#    if (Reversed)
-#        #        list_sq_flipNS(c.whitePieceSquares);
-#        list_sq_flipNS(c.blackPieceSquares);
-#    #
 def list_sq_flipNS(s):
     return [ i ^ 56 for i in s]
 
 def sortlists(ws, wp):
     # input is sorted 
-
-    '''wpl = wp.Count
-
-    for (i = 0; i < wpl; i++):
-        for (j = (i + 1); j < wpl; j++):
-            if (wp[j] > wp[i]):
-                tp = wp[i]; wp[i] = wp[j]; wp[j] = tp;
-                ts = ws[i]; ws[i] = ws[j]; ws[j] = ts;
-    
-    for i in range(len(wp)):
-        for j in range(i+1, len(wp)):
-            if (wp[j] > wp[i]):
-                tp = wp[i]; wp[i] = wp[j]; wp[j] = tp;
-                ts = ws[i]; ws[i] = ws[j]; ws[j] = ts;
-    return ws, wp
-    '''            
     z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2) 
@@ -1168,22 +1062,7 @@ Zipinfo = { }
 MAX_EGKEYS = 145
 SZ = 4
 
-#TODO: get rid of this and use struct
-def fread32(currentStream):
-    x = 0
-    p = currentStream.read(SZ)
-    for i in range(SZ):
-        x |= p[i] << (i * 8)
-    return x
-
 def egtb_loadindexes(currentFilename, currentStream):
-    blocksize = 1
-    tailblocksize1 = 0
-    tailblocksize2 = 0
-    offset = 0
-    dummy = 0
-    idx = 0
-
     # Get Reserved bytes, blocksize, offset 
     currentStream.seek(0)
     HeaderStruct=struct.Struct("<10I")
@@ -1225,7 +1104,6 @@ EGTB_MAXBLOCKSIZE = 65536
 Buffer_zipped = [-1] * EGTB_MAXBLOCKSIZE
 Buffer_packed = [-1] * EGTB_MAXBLOCKSIZE
 
-# bp:buffer packed to out:distance to mate buffer 
 def  egtb_block_unpack(side, n, bp):
     try:
         return [dtm_unpack(side, i) for i in bp[:n]]
@@ -1233,53 +1111,12 @@ def  egtb_block_unpack(side, n, bp):
         return [dtm_unpack(side, ord(i)) for i in bp[:n]]
         
 
-#public byte[] Decompress(byte[] inputBytes)
-#    #    MemoryStream newInStream = new MemoryStream(inputBytes)
-
-#    SevenZip.Compression.LZMA.Decoder decoder = new SevenZip.Compression.LZMA.Decoder()
-
-#    newInStream.Seek(0, 0)
-#    MemoryStream newOutStream = new MemoryStream()
-
-#    byte[] properties2 = new byte[5]
-#    if (newInStream.Read(properties2, 0, 5) != 5)
-#        throw (new Exception("input .lzma is too short"))
-#    long outSize = 0
-#    for (i = 0; i < 8 i++)
-#        #        v = newInStream.ReadByte()
-#        if (v < 0)
-#            throw (new Exception("Can't Read 1"))
-#        outSize |= ((long)(byte)v) << (8 * i)
-#    #    decoder.SetDecoderProperties(properties2)
-
-#    long compressedSize = newInStream.Length - newInStream.Position
-#    decoder.Code(newInStream, newOutStream, compressedSize, outSize, null)
-
-#    byte[] b = newOutStream.ToArray()
-
-#    return b
-
 def split_index(entries_per_block, i, o):        
     n = int(i / entries_per_block)
     offset = n * entries_per_block
     remainder = int(i - offset)
     return offset, remainder
 
-
-#bool get_dtm_from_cache(int side, int idx, ref int dtm)
-#    #    offset = 0
-#    remainder = 0
-
-#    split_index(entries_per_block, idx, ref offset, ref remainder)
-
-#    int tableIndex = blockCache.FindIndex(delegate(TableBlock tb)
-#        #        return (tb.key == currentFilename) && (tb.offset == offset) && (tb.side == side)
-#    })
-
-#    dtm = blockCache[tableIndex].pcache[remainder]
-
-#    return True
-#
 class TableBlock:
     def __init__(self, currentFilename, stm, o):
         self.key = currentFilename
@@ -1287,27 +1124,9 @@ class TableBlock:
         self.offset = o
         self.pcache = []
 
-    # TODO: not sure this is really useful...
-    def __hash__(self):
-            hash = 17
-            # Suitable nullity checks etc, of course :)
-            hash = hash * 23 + self.key.__hash__()
-            hash = hash * 23 + self.side.__hash__()
-            hash = hash * 23 + self.offset.__hash__()
-            return hash
-
-    def __eq__(self, other):
-        return (isinstance(other, type(self)) and
-          (self.key,  self.side,  self.offset) ==
-          (other.key, other.side, other.offset))
-
-#void removepiece(List<int> ys, List<PieceType> yp, int j)
-#    #    ys.RemoveAt(j)
-#    yp.RemoveAt(j)
-#
 NOSQUARE = 0
 
-blockCache = {} #new List<TableBlock>()
+blockCache = {}
 
 def map88(x):
         return x + (x & 56)
@@ -1330,9 +1149,6 @@ def Opp(side):
     if (side == 0):
         return 1
     return 0
-
-#uINFOMASK = 7
-#PLYSHIFT = 3
 
 def adjust_up(dist):
     udist = dist
@@ -1502,8 +1318,6 @@ def flip_type(x, y):
     return ret
 
 def IDX_is_empty(x):
-    #WTF?! testing -1 by an overflow ?
-    # return (0 == (1 + (x)))
     return (x==-1)
 
 kkidx = [[] for i in range(64)]
@@ -1579,8 +1393,6 @@ def tolist_rev(occ, input_piece, sq, thelist):
 
     if (slider):
         for step in steparr:
-            #for (direction = 0; steparr[direction] != 0; direction++)
-            #step = steparr[direction]
             if step == 0:
                 break
             s = from_ + step
@@ -1593,8 +1405,6 @@ def tolist_rev(occ, input_piece, sq, thelist):
 
     else:
         for step in steparr:
-            # for (direction = 0; steparr[direction] != 0; direction++)
-            # step = steparr[direction]
             if step == 0:
                 break
             s = from_ + step
@@ -1603,8 +1413,7 @@ def tolist_rev(occ, input_piece, sq, thelist):
                 if (0 == (0x1 & (occ >> us))):
                     thelist.append(us)
 
-def reach_init():
-    
+def reach_init():    
     stp_a = [ 15, -15 ]
     stp_b = [ 17, -17 ]
     Reach = [[-1]*64 for q in range(7)]
@@ -1652,7 +1461,7 @@ def mapx88(x):
 
               
 def init_kkidx():
-    # modifies kkidx[][], wksq[], bksq[] 
+    # returns kkidx[][], wksq[], bksq[] 
  
     # default is noindex
     kkidx = [[-1]*64 for x in range(64)]
@@ -2163,8 +1972,6 @@ class PythonTableBase(object):
                 old_blackPieceSquares = list(self.blackPieceSquares)
                 old_whitePieceType = list(self.whitePieceTypes)
                 old_blackPieceType = list(self.blackPieceTypes)
-                oldFileName = self.currentFilename
-                oldReversed = self.Reversed
 
                 if (side == 0):
                     xs = list(self.whitePieceSquares)
@@ -2316,8 +2123,8 @@ class PythonTableBase(object):
             blockCache[(t.key, t.side, t.offset)] = t
             '''
             TODO: implement LRU
-            if (blockCache.Count > 256):
-                blockCache.RemoveAt(0)
+            if (len(blockCache) > 256):
+                del blockCache[0]
             '''
             dtm = t.pcache[remainder]
         else:
