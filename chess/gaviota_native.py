@@ -526,18 +526,18 @@ def kaaak_pctoindex(c):
         ws = [flipNW_SE(i) for i in ws]
         bs = [flipNW_SE(i) for i in bs]        
                 
-        if (ws[2] < ws[1]):
-            tmp = ws[1]
-            ws[1] = ws[2]
-            ws[2] = tmp
-        if (ws[3] < ws[2]):
-            tmp = ws[2]
-            ws[2] = ws[3]
-            ws[3] = tmp
-        if (ws[2] < ws[1]):
-            tmp = ws[1]
-            ws[1] = ws[2]
-            ws[2] = tmp
+    if (ws[2] < ws[1]):
+        tmp = ws[1]
+        ws[1] = ws[2]
+        ws[2] = tmp
+    if (ws[3] < ws[2]):
+        tmp = ws[2]
+        ws[2] = ws[3]
+        ws[3] = tmp
+    if (ws[2] < ws[1]):
+        tmp = ws[1]
+        ws[1] = ws[2]
+        ws[2] = tmp
 
     ki = kkidx[bs[0]][ws[0]]
 
@@ -553,7 +553,7 @@ def kaaak_pctoindex(c):
 def aaa_getsubi(x, y, z):
     bse = aaa_base[z];
     calc_idx = x + (y - 1) * y / 2 + bse
-    return calc_idx
+    return int(calc_idx)
 
 def init_aaa():
     # getting aaa_base 
@@ -1262,7 +1262,7 @@ def  egtb_block_unpack(side, n, bp):
 def split_index(entries_per_block, i, o):        
     n = int(i / entries_per_block)
     offset = n * entries_per_block
-    remainder = i - offset
+    remainder = int(i - offset)
     return offset, remainder
 
 
