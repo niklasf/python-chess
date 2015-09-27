@@ -29,7 +29,7 @@ NOINDEX = -1
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
 MAX_PpINDEX = (24 * 48)
-MAX_AAINDEX = int((63 - 62) + (62  / 2 * (127 - 62)) - 1 + 1)
+MAX_AAINDEX = ((63 - 62) + int(62  / 2 * (127 - 62)) - 1 + 1)
 MAX_AAAINDEX = (64 * 21 * 31)
 MAX_PPP48_INDEX = 8648
 MAX_PP48_INDEX = (1128)
@@ -52,9 +52,9 @@ MAX_kaaak = MAX_KKINDEX * MAX_AAAINDEX
 MAX_kapkb = 24 * 64 * 64 * 64 * 64
 MAX_kabkp = 24 * 64 * 64 * 64 * 64
 MAX_kabpk = 24 * 64 * 64 * 64 * 64
-MAX_kppka = MAX_PPINDEX * 64 * 64 * 64
-MAX_kappk = MAX_PPINDEX * 64 * 64 * 64
-MAX_kapkp = MAX_PPINDEX * 64 * 64 * 64
+MAX_kppka = MAX_kppk*64
+MAX_kappk = MAX_kppk*64
+MAX_kapkp = MAX_kpkp*64
 MAX_kaapk = 24 * MAX_AAINDEX * 64 * 64
 MAX_kaakp = 24 * MAX_AAINDEX * 64 * 64
 MAX_kppkp = 24 * MAX_PP48_INDEX * 64 * 64
@@ -2301,7 +2301,10 @@ class PythonTableBase(object):
                 properties[5 + i] = ((n >> (8 * i)) & 0xFF)
 
             Buffer_zipped = self.currentStream.read(z)
-            Buffer_zipped = bytes(properties) + Buffer_zipped[15:]
+            if Buffer_zipped[0]==0:
+                Buffer_zipped = Buffer_zipped[2:]
+            else:
+                Buffer_zipped = bytes(properties) + Buffer_zipped[15:]
             #Buffer_zipped = bytes(properties) + Buffer_zipped[LZMA_PROPS_SIZE:]
             #z = z - (LZMA86_HEADER_SIZE + 1)
             #Array.Copy(Buffer_zipped, LZMA86_HEADER_SIZE + 1, Buffer_zipped, 0, z)
