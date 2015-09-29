@@ -33,7 +33,9 @@ with open("data/long-endgames.epd") as epds:
         if chess.pop_count(board.occupied) > 5:
             continue
 
-        expected = extra["dm"] * 2 - 1
+        expected = extra["dm"] * 2
+        if expected > 0:
+            expected -= 1
 
         # Check DTM.
         probe = tables.probe_dtm(board)
