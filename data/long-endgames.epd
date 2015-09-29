@@ -1,3 +1,10 @@
+# Hand picked endgames.
+
+k1K5/b7/8/1N6/8/8/5N2/8 w - - dm 1;
+8/8/5k2/8/7p/8/PP6/1K6 w - - dm -13;
+1k1K4/8/8/pP6/8/8/8/8 w - a6 dm 0;
+
+# Long endgames.
 # Source: http://kirill-kryukov.com/chess/longest-checkmates/longest-checkmates.shtml
 
 8/8/8/1k6/8/8/K5P1/8 w - - dm 28;
