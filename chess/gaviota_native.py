@@ -1,5 +1,3 @@
-
-import os
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
@@ -17,6 +15,7 @@ import os
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+import os
 import struct
 from enum import Enum
 from lzma import LZMADecompressor
@@ -1140,6 +1139,7 @@ def FindBlockIndex(currentFilename, offset, side):
 def removepiece(ys, yp, j):
     del ys[j]
     del yp[j]
+    return ys,  yp
 
 LZMA_PROPS_SIZE = 5
 LZMA86_SIZE_OFFSET = (1 + LZMA_PROPS_SIZE)
@@ -1162,10 +1162,10 @@ def adjust_up(dist):
 
 def bestx(side, a, b):  
     comparison = [    #draw, wmate, bmate, forbid
-        ''' draw '''  [0,    3,     0,     0],
-        ''' wmate'''  [0,    1,     0,     0],
-        '''bmate '''  [3,    3,     2,     0],
-        '''forbid'''  [3,    3,     3,     0]]
+                                [0,         3,         0,        0],        # draw
+                                [0,         1,         0,        0],        # wmate
+                                [3,         3,         2,        0],        # bmate
+                                [3,         3,         3,        0]]        # forbid
     # 0 = selectfirst   
     # 1 = selectlowest  
     # 2 = selecthighest 
@@ -1993,10 +1993,10 @@ class PythonTableBase(object):
                 except:
                     j = -1
                 # try first possible ep capture 
-                if (0 == (136 & (map88(xed) + 1))):
+                if (0 == (0x88 & (map88(xed) + 1))):
                     capturer_a = xed + 1
                 # try second possible ep capture 
-                if (0 == (136 & (map88(xed) - 1))):
+                if (0 == (0x88 & (map88(xed) - 1))):
                     capturer_b = xed - 1
 
                 if ((j > -1) and (ys[j] == xed)):
@@ -2012,10 +2012,10 @@ class PythonTableBase(object):
 
                             newdtm = 0
 
-                            self.whitePieceSquares = ys
-                            self.whitePieceTypes = yp
-                            self.blackPieceSquares = xs
-                            self.blackPieceTypes = xp
+                            self.whiteSquares = list(xs)
+                            self.whiteTypes = list(xp)
+                            self.blackSquares = list(ys)
+                            self.blackTypes = list(yp)
 
                             # changing currentFile to kpk for ex. we lost a piece so new file is regq
                             # make sure to change back when done
