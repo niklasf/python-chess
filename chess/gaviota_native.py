@@ -1117,10 +1117,11 @@ def split_index(entries_per_block, i, o):
     return offset, remainder
 
 class TableBlock:
-    def __init__(self, currentFilename, stm, o):
+    def __init__(self, currentFilename, stm, o,  age):
         self.key = currentFilename
         self.side = stm
         self.offset = o
+        self.age = age
         self.pcache = []
 
 NOSQUARE = 0
@@ -1133,9 +1134,6 @@ def map88(x):
 def unmap88(x):
         return x + (x & 7) >> 1
 
-def FindBlockIndex(currentFilename, offset, side):
-    blockCache.get((currentFilename, offset, side,))
-    
 def removepiece(ys, yp, j):
     del ys[j]
     del yp[j]
@@ -1790,6 +1788,7 @@ class PythonTableBase(object):
         self.blackPieceSquares = None
         self.blackPieceTypes   = None
         self.newFile = None
+        self.block_age = 0
 
     def LoadTableDescriptions(self, egtb_path):
         if not os.path.isdir(egtb_path):
@@ -2086,48 +2085,47 @@ class PythonTableBase(object):
         offset = 0
         offset, remainder = split_index(entries_per_block, idx, offset)
 
-        t = FindBlockIndex(self.currentFilename, offset, side)
-
+        t =blockCache.get((self.currentFilename, offset, side,))
         if t is None:
-            t = TableBlock(self.currentFilename, side, offset)
+            t = TableBlock(self.currentFilename, side, offset,  self.block_age)
 
             block = self.egtb_block_getnumber(side, idx)
             n = self.egtb_block_getsize(idx)
             z = egtb_block_getsize_zipped(self.currentFilename, block)
 
             egtb_block_park(self.currentFilename,block, self.currentStream)
-            _dictionarySize = 4096
-            _posStateBits = 2
-            _numLiteralPosStateBits = 0
-            _numLiteralContextBits = 3
-            properties =[0]*13
-            properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
-            for i in range(4):
-                properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
-            for i in range(8):
-                properties[5 + i] = ((n >> (8 * i)) & 0xFF)
 
             Buffer_zipped = self.currentStream.read(z)
             if Buffer_zipped[0]==0:
+                # if flag is zero, plain LZMA is following
                 Buffer_zipped = Buffer_zipped[2:]
             else:
+                # else LZMA86, we have to build a fake header
+                _dictionarySize = 4096
+                _posStateBits = 2
+                _numLiteralPosStateBits = 0
+                _numLiteralContextBits = 3
+                properties =[0]*13
+                properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
+                for i in range(4):
+                    properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
+                for i in range(8):
+                    properties[5 + i] = ((n >> (8 * i)) & 0xFF)
+                #concatenate the fake header with the true LZMA stream
                 Buffer_zipped = bytes(properties) + Buffer_zipped[15:]
-            #Buffer_zipped = bytes(properties) + Buffer_zipped[LZMA_PROPS_SIZE:]
-            #z = z - (LZMA86_HEADER_SIZE + 1)
-            #Array.Copy(Buffer_zipped, LZMA86_HEADER_SIZE + 1, Buffer_zipped, 0, z)
+
             Buffer_packed = LZMADecompressor().decompress(Buffer_zipped)
-            #decoder.Code(zipStream, packStream, (long)z, (long)n, null)
 
             t.pcache = egtb_block_unpack(side, n, Buffer_packed)
 
-            blockCache[(t.key, t.side, t.offset)] = t
-            '''
-            TODO: implement LRU
+            blockCache[(t.key, t.offset, t.side)] = t
             if (len(blockCache) > 256):
-                del blockCache[0]
-            '''
-            dtm = t.pcache[remainder]
+                lru = sorted(blockCache.values(), key=lambda x: x.age)[0]
+                del blockCache[(lru.key,  lru.offset,  lru.side, )]
         else:
-            dtm = t.pcache[remainder]
+            t.age = self.block_age
+
+        self.block_age +=1
+        dtm = t.pcache[remainder]
 
         return True, dtm
