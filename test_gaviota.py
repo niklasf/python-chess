@@ -5,10 +5,9 @@ from __future__ import print_function
 import chess
 import chess.gaviota
 
-#tables = chess.gaviota.open_tablebases("data/gaviota")
-tables = chess.gaviota.PythonTableBase("data/gaviota")
+tables = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
 
-with open("data/long-endgames.epd") as epds:
+with open("data/endgame-dm.epd") as epds:
     for line, epd in enumerate(epds):
         # Skip empty lines and comments.
         epd = epd.strip()
