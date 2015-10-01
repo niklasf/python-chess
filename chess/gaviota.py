@@ -115,22 +115,23 @@ def map24_b(s):
     s = s - 8
     return ((s & 3) + s) >> 1
 
-itosq = [
-    chess.H7,chess.G7,chess.F7,chess.E7,
-    chess.H6,chess.G6,chess.F6,chess.E6,
-    chess.H5,chess.G5,chess.F5,chess.E5,
-    chess.H4,chess.G4,chess.F4,chess.E4,
-    chess.H3,chess.G3,chess.F3,chess.E3,
-    chess.H2,chess.G2,chess.F2,chess.E2,
-    chess.D7,chess.C7,chess.B7,chess.A7,
-    chess.D6,chess.C6,chess.B6,chess.A6,
-    chess.D5,chess.C5,chess.B5,chess.A5,
-    chess.D4,chess.C4,chess.B4,chess.A4,
-    chess.D3,chess.C3,chess.B3,chess.A3,
-    chess.D2,chess.C2,chess.B2,chess.A2]
+ITOSQ = [
+    chess.H7, chess.G7, chess.F7, chess.E7,
+    chess.H6, chess.G6, chess.F6, chess.E6,
+    chess.H5, chess.G5, chess.F5, chess.E5,
+    chess.H4, chess.G4, chess.F4, chess.E4,
+    chess.H3, chess.G3, chess.F3, chess.E3,
+    chess.H2, chess.G2, chess.F2, chess.E2,
+    chess.D7, chess.C7, chess.B7, chess.A7,
+    chess.D6, chess.C6, chess.B6, chess.A6,
+    chess.D5, chess.C5, chess.B5, chess.A5,
+    chess.D4, chess.C4, chess.B4, chess.A4,
+    chess.D3, chess.C3, chess.B3, chess.A3,
+    chess.D2, chess.C2, chess.B2, chess.A2,
+]
 
 def in_queenside(x):
-    return (x & (1 << 2))==0
+    return (x & (1 << 2)) == 0
 
 def init_ppp48_idx():
     MAX_I = 48
@@ -145,9 +146,9 @@ def init_ppp48_idx():
     for x in range(48):
         for y in range(x+1,48):
             for z in range(y+1,48):
-                a = itosq[x]
-                b = itosq[y]
-                c = itosq[z]
+                a = ITOSQ[x]
+                b = ITOSQ[y]
+                c = ITOSQ[z]
                 if (not in_queenside(b)) or (not in_queenside(c)):
                     continue
 
@@ -1121,7 +1122,7 @@ EGTB_MAXBLOCKSIZE = 65536
 Buffer_zipped = [-1] * EGTB_MAXBLOCKSIZE
 Buffer_packed = [-1] * EGTB_MAXBLOCKSIZE
 
-def  egtb_block_unpack(side, n, bp):
+def egtb_block_unpack(side, n, bp):
     try:
         return [dtm_unpack(side, i) for i in bp[:n]]
     except:
@@ -1273,7 +1274,7 @@ def dtm_unpack(stm, packed):
             prefx = info
         elif (info == iDRAW):
             if (store == 63):
-                # 	exception: no position in the 5-man
+                # exception: no position in the 5-man
                 #    TBs needs to store 63 for iBMATE
                 #    it is then used to indicate iWMATE
                 #    when just overflows
