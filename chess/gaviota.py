@@ -2212,7 +2212,7 @@ class NativeTablebases(object):
         self.close()
 
 
-def open_native_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
     return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
 
