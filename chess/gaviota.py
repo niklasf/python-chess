@@ -1394,51 +1394,6 @@ def sortlists(ws, wp):
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2)
 
-class ZIPINFO:
-    extraoffset = 0
-    totalblocks = 0
-    blockindex = []
-
-# keep: keys are appended
-Zipinfo = { }
-
-def egtb_loadindexes(currentFilename, currentStream):
-    # Get Reserved bytes, blocksize, offset
-    currentStream.seek(0)
-    HeaderStruct=struct.Struct("<10I")
-    Header = HeaderStruct.unpack(currentStream.read(HeaderStruct.size))
-
-    #blocksize = Header[2]
-    #tailblocksize1 = Header[4]
-    #tailblocksize2 = Header[6]
-    offset = Header[8]
-
-    blocks = int((offset - 40) / 4) - 1
-    n_idx = blocks + 1
-
-    # Input of Indexes
-    indexStruct=struct.Struct("<" + "I"*n_idx)
-    p=indexStruct.unpack(currentStream.read(indexStruct.size))
-
-    if (not currentFilename in Zipinfo):
-        Zipinfo[currentFilename] = ZIPINFO()
-
-    Zipinfo[currentFilename].extraoffset = 0
-    Zipinfo[currentFilename].totalblocks = n_idx
-    Zipinfo[currentFilename].blockindex = p
-
-    return True
-
-def egtb_block_getsize_zipped(currentFilename, block):
-    i = Zipinfo[currentFilename].blockindex[block]
-    j = Zipinfo[currentFilename].blockindex[block + 1]
-    return j - i
-
-def egtb_block_park(currentFilename,block, currentStream):
-    i = Zipinfo[currentFilename].blockindex[block]
-    i += Zipinfo[currentFilename].extraoffset
-    currentStream.seek(i)
-    return i
 
 def egtb_block_unpack(side, n, bp):
     try:
@@ -1791,6 +1746,9 @@ class Request(object):
         self.white_piece_squares = None
 
 
+Zipinfo = collections.namedtuple("Zipinfo", ["extraoffset", "totalblocks", "blockindex"])
+
+
 class PythonTablebases(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
@@ -1799,6 +1757,7 @@ class PythonTablebases(object):
         self.available_tables = {}
 
         self.streams = {}
+        self.zipinfo = {}
 
         self.block_cache = {}
         self.block_age = 0
@@ -1955,7 +1914,7 @@ class PythonTablebases(object):
         if stream is None:
             path = self.available_tables[req.egkey]
             stream = open(path, "rb+")
-            egtb_loadindexes(req.egkey, stream) # Do not do this globally.
+            self.egtb_loadindexes(req.egkey, stream)
             self.streams[req.egkey] = stream
 
         return stream
@@ -1964,6 +1923,8 @@ class PythonTablebases(object):
         """Closes all loaded tables."""
         self.paths = []
         self.available_tables.clear()
+
+        self.zipinfo.clear()
 
         self.block_age = 0
         self.block_cache.clear()
@@ -2063,9 +2024,9 @@ class PythonTablebases(object):
 
             block = self.egtb_block_getnumber(req, idx)
             n = self.egtb_block_getsize(req, idx)
-            z = egtb_block_getsize_zipped(req.egkey, block)
+            z = self.egtb_block_getsize_zipped(req.egkey, block)
 
-            egtb_block_park(req.egkey, block, stream)
+            self.egtb_block_park(req.egkey, block, stream)
             buffer_zipped = stream.read(z)
 
             if buffer_zipped[0] == 0:
@@ -2108,6 +2069,38 @@ class PythonTablebases(object):
         dtm = t.pcache[remainder]
 
         return dtm
+
+    def egtb_loadindexes(self, egkey, stream):
+        zipinfo = self.zipinfo.get(egkey, None)
+
+        if zipinfo is None:
+            # Get reserved bytes, blocksize, offset.
+            stream.seek(0)
+            HeaderStruct = struct.Struct("<10I")
+            header = HeaderStruct.unpack(stream.read(HeaderStruct.size))
+            offset = header[8]
+
+            blocks = ((offset - 40) // 4) - 1
+            n_idx = blocks + 1
+
+            IndexStruct = struct.Struct("<" + "I" * n_idx)
+            p = IndexStruct.unpack(stream.read(IndexStruct.size))
+
+            zipinfo = Zipinfo(extraoffset=0, totalblocks=n_idx, blockindex=p)
+            self.zipinfo[egkey] = zipinfo
+
+        return zipinfo
+
+    def egtb_block_getsize_zipped(self, egkey, block):
+        i = self.zipinfo[egkey].blockindex[block]
+        j = self.zipinfo[egkey].blockindex[block + 1]
+        return j - i
+
+    def egtb_block_park(self, egkey, block, stream):
+        i = self.zipinfo[egkey].blockindex[block]
+        i += self.zipinfo[egkey].extraoffset
+        stream.seek(i)
+        return i
 
 
 class NativeTablebases(object):
