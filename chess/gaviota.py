@@ -73,9 +73,9 @@ MAX_kaaak = MAX_KKINDEX * MAX_AAAINDEX
 MAX_kapkb = 24 * 64 * 64 * 64 * 64
 MAX_kabkp = 24 * 64 * 64 * 64 * 64
 MAX_kabpk = 24 * 64 * 64 * 64 * 64
-MAX_kppka = MAX_kppk*64
-MAX_kappk = MAX_kppk*64
-MAX_kapkp = MAX_kpkp*64
+MAX_kppka = MAX_kppk * 64
+MAX_kappk = MAX_kppk * 64
+MAX_kapkp = MAX_kpkp * 64
 MAX_kaapk = 24 * MAX_AAINDEX * 64 * 64
 MAX_kaakp = 24 * MAX_AAINDEX * 64 * 64
 MAX_kppkp = 24 * MAX_PP48_INDEX * 64 * 64
@@ -104,6 +104,8 @@ ITOSQ = [
 ]
 
 ENTRIES_PER_BLOCK = 16 * 1024;
+
+EGTB_MAXBLOCKSIZE = 65536
 
 MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
 
@@ -1113,9 +1115,6 @@ def egtb_block_park(currentFilename,block, currentStream):
     currentStream.seek(i)
     return i
 
-EGTB_MAXBLOCKSIZE = 65536
-Buffer_zipped = [-1] * EGTB_MAXBLOCKSIZE
-Buffer_packed = [-1] * EGTB_MAXBLOCKSIZE
 
 def egtb_block_unpack(side, n, bp):
     try:
