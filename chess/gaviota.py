@@ -282,6 +282,33 @@ def init_aaidx():
 AABASE, AAIDX = init_aaidx()
 
 
+def init_aaa():
+    # Get aaa_base.
+    comb = [a * (a - 1) // 2 for a in range(64)]
+
+    accum = 0
+    aaa_base = [0] * 64
+    for a in range(64 - 1):
+        accum = accum + comb[a]
+        aaa_base[a + 1] = accum
+
+    # Get aaa_xyz.
+    aaa_xyz = [[-1] * 3 for idx in range(MAX_AAAINDEX)]
+
+    idx = 0
+    for z in range(64):
+        for y in range(z):
+             for x  in range(y):
+                aaa_xyz[idx][0] = x
+                aaa_xyz[idx][1] = y
+                aaa_xyz[idx][2] = z
+                idx += 1
+
+    return aaa_base, aaa_xyz
+
+AAA_BASE, AAA_XYZ = init_aaa()
+
+
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
@@ -308,9 +335,9 @@ def kapkb_pctoindex(c):
     sq = pawn
     sq ^= 56 # flip_ns
     sq -= 8  # down one row
-    pslice = ((sq + (sq & 3)) >> 1)
+    pslice = (sq + (sq & 3)) >> 1
 
-    return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba;
+    return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba
 
 def kabpk_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
@@ -661,34 +688,10 @@ def kaaak_pctoindex(c):
     return ki * BLOCK_Ax + ai
 
 def aaa_getsubi(x, y, z):
-    bse = aaa_base[z];
+    bse = AAA_BASE[z];
     calc_idx = x + (y - 1) * y / 2 + bse
     return int(calc_idx)
 
-def init_aaa():
-    # getting aaa_base
-    comb = [ a * (a - 1) / 2 for a in range(64)];
-    comb[0] = 0;
-
-    accum = 0;
-    aaa_base= [0]*64
-    for a in range(64 - 1):
-        accum = accum + comb[a]
-        aaa_base[a + 1] = accum
-    # end getting aaa_base
-
-    # initialize aaa_xyz [][]
-    aaa_xyz = [[-1] *3 for idx in range(MAX_AAAINDEX)]
-
-    idx = 0;
-    for z in range(64):
-        for y in range(z):
-             for x  in range(y):
-                aaa_xyz[idx][0] = x
-                aaa_xyz[idx][1] = y
-                aaa_xyz[idx][2] = z
-                idx+=1
-    return aaa_base, aaa_xyz
 
 def kppkp_pctoindex(c):
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
@@ -1710,7 +1713,6 @@ EGKEY = {
 
 # inits
 
-aaa_base, aaa_xyz = init_aaa()
 ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
 
 def attack_maps_init():
