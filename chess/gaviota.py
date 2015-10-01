@@ -2060,14 +2060,13 @@ class PythonTablebases(object):
     def egtb_block_getsize(self, idx):
         blocksz = ENTRIES_PER_BLOCK
         maxindex = EGKEY[self.currentFilename].maxindex
-        block = int(idx / blocksz)
+        block = idx // blocksz
         offset = block * blocksz
 
-        if ((offset + blocksz) > maxindex):
-            x = maxindex - offset # last block size
+        if (offset + blocksz) > maxindex:
+            return maxindex - offset # last block size
         else:
-            x = blocksz # size of a normal block
-        return x
+            return blocksz # size of a normal block
 
     def tb_probe_(self, side, epsq):
         c = currentConf()
