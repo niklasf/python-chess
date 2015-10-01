@@ -103,8 +103,6 @@ MAX_kpppk = MAX_PPP48_INDEX * 64 * 64
 PLYSHIFT = 3
 INFOMASK = 7
 
-currentPctoi = None
-
 Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
 
 WE_FLAG = 1
