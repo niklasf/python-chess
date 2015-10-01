@@ -1945,8 +1945,6 @@ class PythonTablebases(object):
                         xs[i] = req.epsq
                         removepiece(ys, yp, j)
 
-                        newdtm = 0
-
                         subreq = Request(xs, xp, ys, yp, opp(req.side), NOSQUARE)
                         try:
                             epscore = self._tb_probe(subreq)
@@ -2000,14 +1998,14 @@ class PythonTablebases(object):
                 buffer_zipped = buffer_zipped[2:]
             else:
                 # Else LZMA86. We have to build a fake header.
-                _dictionarySize = 4096
-                _posStateBits = 2
-                _numLiteralPosStateBits = 0
-                _numLiteralContextBits = 3
+                DICTIONARY_SIZE = 4096
+                POS_STATE_BITS = 2
+                NUM_LITERAL_POS_STATE_BITS = 0
+                NUM_LITERAL_CONTEXT_BITS = 3
                 properties = bytearray(13)
-                properties[0] = (_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits
+                properties[0] = (POS_STATE_BITS * 5 + NUM_LITERAL_POS_STATE_BITS) * 9 + NUM_LITERAL_CONTEXT_BITS
                 for i in range(4):
-                    properties[1 + i] = (_dictionarySize >> (8 * i)) & 0xFF
+                    properties[1 + i] = (DICTIONARY_SIZE >> (8 * i)) & 0xFF
                 for i in range(8):
                     properties[5 + i] = (n >> (8 * i)) & 0xFF
 
