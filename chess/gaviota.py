@@ -154,6 +154,47 @@ def idx_is_empty(x):
     return x == -1
 
 
+def getcol(x):
+    return x & 7
+
+def getrow(x):
+    return x >> 3
+
+def flip_type(x, y):
+    ret = 0
+
+    if getcol(x) > 3:
+        x = flip_we(x)
+        y = flip_we(y)
+        ret |= 1
+
+    if getrow(x) > 3:
+        x = flip_ns(x)
+        y = flip_ns(y)
+        ret |= 2
+
+    rowx = getrow(x)
+    colx = getcol(x)
+
+    if rowx > colx:
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
+        ret |= 4
+
+    rowy = getrow(y)
+    coly = getcol(y)
+    if rowx == colx and rowy > coly:
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
+        ret |= 4
+
+    return ret
+
+def init_flipt():
+    return [[flip_type(j, i) for i in range(64)] for j in range(64)]
+
+FLIPT = init_flipt()
+
 def init_ppp48_idx():
     MAX_I = 48
     MAX_J = 48
@@ -437,7 +478,7 @@ def kabck_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -467,7 +508,7 @@ def kabbk_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -498,7 +539,7 @@ def kaabk_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -558,7 +599,7 @@ def kaaak_pctoindex(c):
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     if ((ft & WE_FLAG) != 0):
         ws = [flip_we(i) for i in ws]
@@ -663,7 +704,7 @@ def kaakb_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -696,7 +737,7 @@ def kabkc_pctoindex(c):
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -941,7 +982,7 @@ def kaak_pctoindex(c):
     N_BLACK = 1
     BLOCK_Ax = MAX_AAINDEX
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
@@ -969,7 +1010,7 @@ def kakb_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
-    ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares)
     bs = list(c.blackPieceSquares)
@@ -1059,8 +1100,6 @@ def kpppk_pctoindex(c):
 
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
-def init_flipt():
-    return [[flip_type(j,i) for i in range(64)] for j in range(64)]
 
 
 def init_ppidx():
@@ -1325,34 +1364,6 @@ def dtm_unpack(stm, packed):
 
 
 BLOCK_Ax = 64
-def getcol(x):
-    return x & 7
-def getrow(x):
-    return x >> 3
-def flip_type(x, y):
-    ret = 0
-
-    if (getcol(x) > 3):
-        x = flip_we(x) # x = x ^ 07
-        y = flip_we(y)
-        ret |= 1
-    if (getrow(x) > 3):
-        x = flip_ns(x) # x = x ^ 070
-        y = flip_ns(y)
-        ret |= 2
-    rowx = getrow(x)
-    colx = getcol(x)
-    if (rowx > colx):
-        x = flip_nw_se(x) # x = ((x&7)<<3) | (x>>3)
-        y = flip_nw_se(y)
-        ret |= 4
-    rowy = getrow(y)
-    coly = getcol(y)
-    if (rowx == colx and rowy > coly):
-        x = flip_nw_se(x)
-        y = flip_nw_se(y)
-        ret |= 4
-    return ret
 
 
 kkidx = [[] for i in range(64)]
@@ -1696,7 +1707,6 @@ EGKEY = {
 
 # inits
 
-flipt = init_flipt()
 aabase, aaidx = init_aaidx()
 aaa_base, aaa_xyz = init_aaa()
 ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
