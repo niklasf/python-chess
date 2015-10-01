@@ -723,8 +723,6 @@ def kabkp_pctoindex(c):
         wb = flip_we(wb)
 
     sq = pawn
-    # sq ^= 56
-    # do not flip_ns
     sq -= 8 # down one row
     pslice = (sq + (sq & 3)) >> 1
 
@@ -1246,8 +1244,6 @@ def kakp_pctoindex(c):
         wa = flip_we(wa)
 
     sq = pawn
-    # sq ^= 56
-    # do not flip_ns
     sq -= 8 # down one row
     pslice = (sq + (sq & 3)) >> 1
 
