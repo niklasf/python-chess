@@ -1149,9 +1149,6 @@ def kpppk_pctoindex(c):
 
 
 
-def list_sq_flip_ns(s):
-    return [ i ^ 56 for i in s]
-
 def sortlists(ws, wp):
     # input is sorted
     z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
@@ -1971,8 +1968,8 @@ class PythonTablebases(object):
             self.newFile = blackLetters + whiteLetters
             self.Reversed = True
 
-            self.whitePieceSquares = list_sq_flip_ns(self.whitePieceSquares)
-            self.blackPieceSquares = list_sq_flip_ns(self.blackPieceSquares)
+            self.whitePieceSquares = [flip_ns(s) for s in self.whitePieceSquares]
+            self.blackPieceSquares = [flip_ns(s) for s in self.blackPieceSquares]
 
             side = Opp(side)
             if (epsq != NOSQUARE):
