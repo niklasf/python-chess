@@ -1526,7 +1526,7 @@ def kxk_pctoindex(c):
 
     return ki * BLOCK_Ax + ws[1]
 
-egkey = {
+EGKEY = {
     "kqk": Endgamekey(MAX_KXK, 1, kxk_pctoindex),
     "krk": Endgamekey(MAX_KXK, 1, kxk_pctoindex),
     "kbk": Endgamekey(MAX_KXK, 1, kxk_pctoindex),
@@ -1581,7 +1581,6 @@ egkey = {
     "knnkb": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
     "knnkn": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
 
-    # pwned does use anything below here
     "kqqqk": Endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
     "kqqrk": Endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
     "kqqbk": Endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
@@ -1631,8 +1630,6 @@ egkey = {
     "krnkb": Endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
     "krnkn": Endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
     "kbbkq": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    #{ 84,"kbbkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    #{ 85,"kbbkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
     "kbbkn": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
     "kbnkq": Endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
     "kbnkr": Endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
@@ -1640,8 +1637,6 @@ egkey = {
     "kbnkn": Endgamekey(MAX_kabkc, 1, kabkc_pctoindex),
     "knnkq": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
     "knnkr": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
-    #{ 93,"knnkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    #{ 94,"knnkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
 
     "kqqpk": Endgamekey(MAX_kaapk, 24, kaapk_pctoindex),
     "kqrpk": Endgamekey(MAX_kabpk, 24, kabpk_pctoindex),
@@ -1696,8 +1691,8 @@ egkey = {
     "kbpkp": Endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
     "knpkp": Endgamekey(MAX_kapkp, MAX_PpINDEX, kapkp_pctoindex),
 
-    #{143,"kppkp", MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_indextopc, kppkp_pctoindex, NULL ,  NULL   ,NULL ,0, 0 ,
-    "kpppk": Endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex)}
+    "kpppk": Endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex),
+}
 
 # inits
 
@@ -1972,7 +1967,7 @@ class PythonTableBase(object):
             self.currentFilename = pieces
             self.currentStream = open(tablePath,'rb')
             egtb_loadindexes(self.currentFilename, self.currentStream)
-            self.currentPctoi = egkey[self.currentFilename].pctoi
+            self.currentPctoi = EGKEY[self.currentFilename].pctoi
 
     def egtb_get_dtm(self, side, epsq):
         ok, dtm  = self.tb_probe_(side, epsq)
@@ -2057,7 +2052,7 @@ class PythonTableBase(object):
         return ok, dtm
 
     def egtb_block_getnumber(self, side, idx):
-        max = egkey[self.currentFilename].maxindex
+        max = EGKEY[self.currentFilename].maxindex
 
         blocks_per_side = 1 + (max - 1) // ENTRIES_PER_BLOCK
         block_in_side = idx // ENTRIES_PER_BLOCK
@@ -2066,7 +2061,7 @@ class PythonTableBase(object):
 
     def egtb_block_getsize(self, idx):
         blocksz = ENTRIES_PER_BLOCK
-        maxindex = egkey[self.currentFilename].maxindex
+        maxindex = EGKEY[self.currentFilename].maxindex
         block = int(idx / blocksz)
         offset = block * blocksz
 
