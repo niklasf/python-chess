@@ -628,6 +628,33 @@ def init_kkidx():
 KKIDX, WKSQ, BKSQ = init_kkidx()
 
 
+def kxk_pctoindex(c):
+    BLOCK_Ax = 64
+
+    ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0])
+
+    ws = c.whitePieceSquares
+    bs = c.blackPieceSquares
+
+    if (ft & 1) != 0:
+        ws = [flip_we(b) for b in ws]
+        bs = [flip_we(b) for b in bs]
+
+    if (ft & 2) != 0:
+        ws = [flip_ns(b) for b in ws]
+        bs = [flip_ns(b) for b in bs]
+
+    if (ft & 4) != 0:
+        ws = [flip_nw_se(b) for b in ws]
+        bs = [flip_nw_se(b) for b in bs]
+
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+
+    if ki == -1:
+        return NOINDEX
+
+    return ki * BLOCK_Ax + ws[1]
+
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
@@ -1583,32 +1610,6 @@ def dtm_unpack(stm, packed):
 
 
 
-def kxk_pctoindex(c):
-    BLOCK_Ax = 64
-
-    ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0])
-
-    ws = list(c.whitePieceSquares)
-    bs = list(c.blackPieceSquares)
-
-    if ((ft & 1) != 0):
-        ws = [flip_we(b) for b in ws]
-        bs = [flip_we(b) for b in bs]
-
-    if ((ft & 2) != 0):
-        ws = [flip_ns(b) for b in ws]
-        bs = [flip_ns(b) for b in bs]
-
-    if ((ft & 4) != 0):
-        ws = [flip_nw_se(b) for b in ws]
-        bs = [flip_nw_se(b) for b in bs]
-
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
-
-    if (ki == -1):
-        return NOINDEX
-
-    return ki * BLOCK_Ax + ws[1]
 
 Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
 
