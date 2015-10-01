@@ -1124,11 +1124,8 @@ def egtb_block_unpack(side, n, bp):
         return [dtm_unpack(side, ord(i)) for i in bp[:n]]
 
 
-def split_index(i, o):
-    n = i // ENTRIES_PER_BLOCK
-    offset = n * ENTRIES_PER_BLOCK
-    remainder = i - offset
-    return offset, remainder
+def split_index(i):
+    return divmod(i, ENTRIES_PER_BLOCK)
 
 class TableBlock:
     def __init__(self, currentFilename, stm, o,  age):
@@ -2075,8 +2072,7 @@ class PythonTablebases(object):
         c.blackPieceSquares = self.blackPieceSquares
         c.blackPieceTypes   = self.blackPieceTypes
         idx = self.currentPctoi(c)
-        offset = 0
-        offset, remainder = split_index(idx, offset)
+        offset, remainder = split_index(idx)
 
         t =blockCache.get((self.currentFilename, offset, side,))
         if t is None:
