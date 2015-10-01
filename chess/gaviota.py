@@ -1460,10 +1460,6 @@ class TableBlock:
         self.pcache = []
 
 
-blockCache = {}
-
-
-
 def removepiece(ys, yp, j):
     del ys[j]
     del yp[j]
@@ -1813,6 +1809,8 @@ class PythonTablebases(object):
         self.current_egkey = None
         self.current_stream = None
 
+        self.block_cache = {}
+
         if directory is not None:
             self.open_directory(directory)
 
@@ -1828,6 +1826,7 @@ class PythonTablebases(object):
         self.blackPieceTypes   = None
         self.newFile = None
         self.block_age = 0
+
 
     def open_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
@@ -1881,8 +1880,8 @@ class PythonTablebases(object):
             probeResult.error = "Could not find EGTB file: " + self.newFile
             return probeResult
 
-        is_dtm, dtm = self.egtb_get_dtm(side, epsq)
-        if (is_dtm):
+        dtm = self.egtb_get_dtm(side, epsq)
+        if (True or is_dtm):
             probeResult.found = True
             probeResult.stm = MateResult.Unknown
             ply,  res = unpackdist(dtm)
@@ -1976,93 +1975,96 @@ class PythonTablebases(object):
 
     def close(self):
         """Closes all loaded tables."""
+        self.paths = []
         self.valid_tables.clear()
+
+        self.block_age = 0
+        self.block_cache.clear()
 
         if self.current_stream is not None:
             self.current_stream.close()
             self.current_stream = None
 
     def egtb_get_dtm(self, side, epsq):
-        ok, dtm  = self.tb_probe_(side, epsq)
+        dtm  = self._tb_probe(side, epsq)
+        if (epsq != NOSQUARE):
+            capturer_a = 0
+            capturer_b = 0
+            xed = 0
+            okcall = True
 
-        if (ok):
-            if (epsq != NOSQUARE):
-                capturer_a = 0
-                capturer_b = 0
-                xed = 0
-                okcall = True
+            old_whitePieceSquares = list(self.whitePieceSquares)
+            old_blackPieceSquares = list(self.blackPieceSquares)
+            old_whitePieceType = list(self.whitePieceTypes)
+            old_blackPieceType = list(self.blackPieceTypes)
 
-                old_whitePieceSquares = list(self.whitePieceSquares)
-                old_blackPieceSquares = list(self.blackPieceSquares)
-                old_whitePieceType = list(self.whitePieceTypes)
-                old_blackPieceType = list(self.blackPieceTypes)
+            if (side == 0):
+                xs = list(self.whitePieceSquares)
+                xp = list(self.whitePieceTypes)
+                ys = list(self.blackPieceSquares)
+                yp = list(self.blackPieceTypes)
+            else:
+                xs = list(self.blackPieceSquares)
+                xp = list(self.blackPieceTypes)
+                ys = list(self.whitePieceSquares)
+                yp = list(self.whitePieceTypes)
 
-                if (side == 0):
-                    xs = list(self.whitePieceSquares)
-                    xp = list(self.whitePieceTypes)
-                    ys = list(self.blackPieceSquares)
-                    yp = list(self.blackPieceTypes)
-                else:
-                    xs = list(self.blackPieceSquares)
-                    xp = list(self.blackPieceTypes)
-                    ys = list(self.whitePieceSquares)
-                    yp = list(self.whitePieceTypes)
+            # captured pawn, trick: from epsquare to captured
+            xed = epsq ^ (1 << 3)
 
-                # captured pawn, trick: from epsquare to captured
-                xed = epsq ^ (1 << 3)
+            # find index captured (j)
+            try:
+                j = ys.index(xed)
+            except:
+                j = -1
+            # try first possible ep capture
+            if (0 == (0x88 & (map88(xed) + 1))):
+                capturer_a = xed + 1
+            # try second possible ep capture
+            if (0 == (0x88 & (map88(xed) - 1))):
+                capturer_b = xed - 1
 
-                # find index captured (j)
-                try:
-                    j = ys.index(xed)
-                except:
-                    j = -1
-                # try first possible ep capture
-                if (0 == (0x88 & (map88(xed) + 1))):
-                    capturer_a = xed + 1
-                # try second possible ep capture
-                if (0 == (0x88 & (map88(xed) - 1))):
-                    capturer_b = xed - 1
+            if ((j > -1) and (ys[j] == xed)):
+                # xsl = xs.Count
+                # find capturers (i)
+                for i in range(len(xs)): # (i = 0; (i < xsl) && okcall i++)
+                    if (xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b) and okcall):
+                        epscore = iFORBID
 
-                if ((j > -1) and (ys[j] == xed)):
-                    # xsl = xs.Count
-                    # find capturers (i)
-                    for i in range(len(xs)): # (i = 0; (i < xsl) && okcall i++)
-                        if (xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b) and okcall):
-                            epscore = iFORBID
+                        # execute capture
+                        xs[i] = epsq
+                        ys, yp = removepiece(ys, yp, j)
 
-                            # execute capture
-                            xs[i] = epsq
-                            ys, yp = removepiece(ys, yp, j)
+                        newdtm = 0
 
-                            newdtm = 0
+                        self.whiteSquares = list(xs)
+                        self.whiteTypes = list(xp)
+                        self.blackSquares = list(ys)
+                        self.blackTypes = list(yp)
 
-                            self.whiteSquares = list(xs)
-                            self.whiteTypes = list(xp)
-                            self.blackSquares = list(ys)
-                            self.blackTypes = list(yp)
+                        # changing currentFile to kpk for ex. we lost a piece so new file is regq
+                        # make sure to change back when done
+                        ret, _, _ = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side, NOSQUARE)
+                        if not ret:
+                            okcall = False
+                        else:
+                            newdtm  = self._tb_probe(Opp(side), NOSQUARE)
+                            okcall = True
 
-                            # changing currentFile to kpk for ex. we lost a piece so new file is regq
-                            # make sure to change back when done
-                            ret, _, _ = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side, NOSQUARE)
-                            if not ret:
-                                okcall = False
-                            else:
-                                okcall, newdtm  = self.tb_probe_(Opp(side), NOSQUARE)
+                        self.whitePieceSquares = old_whitePieceSquares
+                        self.whitePieceTypes   = old_whitePieceType
+                        self.blackPieceSquares = old_blackPieceSquares
+                        self.blackPieceTypes   = old_blackPieceType
 
-                            self.whitePieceSquares = old_whitePieceSquares
-                            self.whitePieceTypes   = old_whitePieceType
-                            self.blackPieceSquares = old_blackPieceSquares
-                            self.blackPieceTypes   = old_blackPieceType
+                        if (okcall):
+                            epscore = newdtm
+                            epscore = adjust_up(epscore)
 
-                            if (okcall):
-                                epscore = newdtm
-                                epscore = adjust_up(epscore)
-
-                                # chooses to ep or not
-                                dtm = bestx(side, epscore, dtm)
-                            else:
-                                break
-        return ok, dtm
+                            # chooses to ep or not
+                            dtm = bestx(side, epscore, dtm)
+                        else:
+                            break
+        return dtm
 
     def egtb_block_getnumber(self, side, idx):
         max = EGKEY[self.current_egkey].maxindex
@@ -2083,7 +2085,7 @@ class PythonTablebases(object):
         else:
             return blocksz # size of a normal block
 
-    def tb_probe_(self, side, epsq):
+    def _tb_probe(self, side, epsq):
         c = currentConf()
         c.whitePieceSquares = self.whitePieceSquares
         c.whitePieceTypes   = self.whitePieceTypes
@@ -2092,9 +2094,9 @@ class PythonTablebases(object):
         idx = EGKEY[self.current_egkey].pctoi(c)
         offset, remainder = split_index(idx)
 
-        t =blockCache.get((self.current_egkey, offset, side,))
+        t = self.block_cache.get((self.current_egkey, offset, side))
         if t is None:
-            t = TableBlock(self.current_egkey, side, offset,  self.block_age)
+            t = TableBlock(self.current_egkey, side, offset, self.block_age)
 
             block = self.egtb_block_getnumber(side, idx)
             n = self.egtb_block_getsize(idx)
@@ -2102,12 +2104,12 @@ class PythonTablebases(object):
 
             egtb_block_park(self.current_egkey, block, self.current_stream)
 
-            Buffer_zipped = self.current_stream.read(z)
-            if Buffer_zipped[0]==0:
-                # if flag is zero, plain LZMA is following
-                Buffer_zipped = Buffer_zipped[2:]
+            buffer_zipped = self.current_stream.read(z)
+            if buffer_zipped[0] == 0:
+                # If flag is zero, plain LZMA is following.
+                buffer_zipped = buffer_zipped[2:]
             else:
-                # else LZMA86, we have to build a fake header
+                # Else LZMA86. We have to build a fake header.
                 _dictionarySize = 4096
                 _posStateBits = 2
                 _numLiteralPosStateBits = 0
@@ -2119,23 +2121,29 @@ class PythonTablebases(object):
                 for i in range(8):
                     properties[5 + i] = (n >> (8 * i)) & 0xFF
                 # Concatenate the fake header with the true LZMA stream.
-                Buffer_zipped = properties + Buffer_zipped[15:]
+                buffer_zipped = properties + buffer_zipped[15:]
 
-            Buffer_packed = lzma.decompress(Buffer_zipped)
+            buffer_packed = lzma.decompress(buffer_zipped)
 
-            t.pcache = egtb_block_unpack(side, n, Buffer_packed)
+            t.pcache = egtb_block_unpack(side, n, buffer_packed)
 
-            blockCache[(t.key, t.offset, t.side)] = t
-            if (len(blockCache) > 256):
-                lru = sorted(blockCache.values(), key=lambda x: x.age)[0]
-                del blockCache[(lru.key,  lru.offset,  lru.side, )]
+            # Update LRU block cache.
+            self.block_cache[(t.key, t.offset, t.side)] = t
+            if len(self.block_cache) > 256:
+                lru_cache_key, lru_age = None, None
+                for cache_key, cache_entry in block_cache.items():
+                    if lru_age is None or cache_entry.block_age < lru_age:
+                        lru_cache_key = cache_entry
+                        lru_age = cache_entry.block_age
+
+                del block_age[lru_cache_key]
         else:
             t.age = self.block_age
 
-        self.block_age +=1
+        self.block_age += 1
         dtm = t.pcache[remainder]
 
-        return True, dtm
+        return dtm
 
 
 class NativeTablebases(object):
