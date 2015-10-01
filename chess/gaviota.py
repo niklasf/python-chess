@@ -2018,7 +2018,7 @@ class PythonTablebases(object):
                 # Concatenate the fake header with the true LZMA stream.
                 buffer_zipped = properties + buffer_zipped[15:]
 
-            buffer_packed = self.lzma.decompress(buffer_zipped)
+            buffer_packed = self.lzma.LZMADecompressor().decompress(buffer_zipped)
 
             t.pcache = egtb_block_unpack(req.side, n, buffer_packed)
 
@@ -2245,6 +2245,9 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     try:
         import lzma
     except ImportError:
-        from backports import lzma
+        try:
+            from backports import lzma
+        except ImportError:
+            LOGGER.exception("You should install backports.lzma")
 
     return PythonTablebases(directory, lzma)
