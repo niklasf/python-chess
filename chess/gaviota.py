@@ -27,11 +27,6 @@ import os
 import struct
 
 try:
-    from enum import Enum
-except ImportError:
-    from enum34 import Enum
-
-try:
     import lzma
 except ImportError:
     from backports import lzma
