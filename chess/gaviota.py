@@ -2103,16 +2103,16 @@ class PythonTablebases(object):
                 _posStateBits = 2
                 _numLiteralPosStateBits = 0
                 _numLiteralContextBits = 3
-                properties =[0]*13
-                properties[0] = ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
+                properties = bytearray(13)
+                properties[0] = (_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits
                 for i in range(4):
-                    properties[1 + i] = ((_dictionarySize >> (8 * i)) & 0xFF)
+                    properties[1 + i] = (_dictionarySize >> (8 * i)) & 0xFF
                 for i in range(8):
-                    properties[5 + i] = ((n >> (8 * i)) & 0xFF)
-                #concatenate the fake header with the true LZMA stream
-                Buffer_zipped = bytes(properties) + Buffer_zipped[15:]
+                    properties[5 + i] = (n >> (8 * i)) & 0xFF
+                # Concatenate the fake header with the true LZMA stream.
+                Buffer_zipped = properties + Buffer_zipped[15:]
 
-            Buffer_packed = lzma.LZMADecompressor().decompress(Buffer_zipped)
+            Buffer_packed = lzma.decompress(Buffer_zipped)
 
             t.pcache = egtb_block_unpack(side, n, Buffer_packed)
 
