@@ -195,6 +195,33 @@ def init_flipt():
 
 FLIPT = init_flipt()
 
+
+def init_pp48_idx():
+    MAX_I = 48;
+    MAX_J = 48;
+    idx = 0
+    pp48_idx = [[-1] * MAX_J for i in range(MAX_I)]
+    pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
+    pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
+
+    idx = 0
+    for a in range(chess.H7, chess.A2 - 1, -1):
+        for b in range(a - 1, chess.A2 - 1, -1):
+            i = flip_we(flip_ns(a)) - 8
+            j = flip_we(flip_ns(b)) - 8
+
+            if idx_is_empty(pp48_idx[i][j]):
+                pp48_idx[i][j] = idx
+                pp48_idx[j][i] = idx
+                pp48_sq_x[idx] = i
+                pp48_sq_y[idx] = j
+                idx += 1
+
+    return pp48_idx, pp48_sq_x, pp48_sq_y
+
+PP48_IDX, PP48_SQ_X, PP48_SQ_Y = init_pp48_idx()
+
+
 def init_ppp48_idx():
     MAX_I = 48
     MAX_J = 48
@@ -564,31 +591,6 @@ def kaabk_pctoindex(c):
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[3]
 
-
-def init_pp48_idx():
-    MAX_I = 48;
-    MAX_J = 48;
-    idx = 0
-    pp48_idx = [[-1] * MAX_J for i in range(MAX_I)]
-    pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
-    pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
-
-    idx = 0
-    for a in range(chess.H7, chess.A2 - 1, -1):
-        for b in range(a - 1, chess.A2 - 1, -1):
-            i = flip_we(flip_ns(a)) - 8
-            j = flip_we(flip_ns(b)) - 8
-
-            if idx_is_empty(pp48_idx[i][j]):
-                pp48_idx[i][j] = idx
-                pp48_idx[j][i] = idx
-                pp48_sq_x[idx] = i
-                pp48_sq_y[idx] = j
-                idx += 1
-
-    return pp48_idx, pp48_sq_x, pp48_sq_y
-
-PP48_IDX, PP48_SQ_X, PP48_SQ_Y = init_pp48_idx()
 
 
 def kaaak_pctoindex(c):
