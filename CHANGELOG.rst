@@ -11,6 +11,8 @@ Upcoming in the next release
 
 * Python 2.6 support. Patch by vdbergh.
 
+* Pure Python Gaviota tablebase probing. Thanks to Jean-Noël Avila.
+
 New in v0.11.1
 --------------
 

@@ -2236,7 +2236,7 @@ class NativeGaviotaTestCase(unittest.TestCase):
 
     def setUp(self):
         try:
-            self.tablebases = chess.gaviota.open_native_tablebases("data/gaviota")
+            self.tablebases = chess.gaviota.open_tablebases_native("data/gaviota")
         except (OSError, RuntimeError):
             self.skipTest("need libgtb")
 

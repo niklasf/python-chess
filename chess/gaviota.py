@@ -20,11 +20,11 @@
 import ctypes
 import ctypes.util
 import fnmatch
+import os
 import os.path
 import logging
-import chess
-import os
 import struct
+import chess
 
 try:
     import backport_collections as collections
