@@ -27,6 +27,6 @@ with open("data/endgame-dm.epd") as epds:
 
         # Check DTM.
         probe = tables.probe_dtm(board)
-        dtm = probe.dtm
+        dtm = probe
         print(board.epd(line=line, dtm=expected, got=dtm))
         assert expected == dtm

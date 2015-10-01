@@ -632,10 +632,10 @@ KKIDX, WKSQ, BKSQ = init_kkidx()
 def kxk_pctoindex(c):
     BLOCK_Ax = 64
 
-    ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0])
+    ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0])
 
-    ws = c.whitePieceSquares
-    bs = c.blackPieceSquares
+    ws = c.white_piece_squares
+    bs = c.black_piece_squares
 
     if (ft & 1) != 0:
         ws = [flip_we(b) for b in ws]
@@ -662,11 +662,11 @@ def kapkb_pctoindex(c):
     BLOCK_C = 64 * 64
     BLOCK_D = 64
 
-    pawn = c.whitePieceSquares[2]
-    wa = c.whitePieceSquares[1]
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
-    ba = c.blackPieceSquares[1]
+    pawn = c.white_piece_squares[2]
+    wa = c.white_piece_squares[1]
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
+    ba = c.black_piece_squares[1]
 
     if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
@@ -692,11 +692,11 @@ def kabpk_pctoindex(c):
     BLOCK_C = 64 * 64
     BLOCK_D = 64;
 
-    wk = c.whitePieceSquares[0]
-    wa = c.whitePieceSquares[1]
-    wb = c.whitePieceSquares[2]
-    pawn = c.whitePieceSquares[3]
-    bk = c.blackPieceSquares[0]
+    wk = c.white_piece_squares[0]
+    wa = c.white_piece_squares[1]
+    wb = c.white_piece_squares[2]
+    pawn = c.white_piece_squares[3]
+    bk = c.black_piece_squares[0]
 
     if (pawn & 7) > 3:
         # Column is more than 3, i.e. e, f, g or h.
@@ -716,11 +716,11 @@ def kabkp_pctoindex(c):
     BLOCK_C = 64 * 64
     BLOCK_D = 64
 
-    pawn = c.blackPieceSquares[1]
-    wa = c.whitePieceSquares[1]
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
-    wb = c.whitePieceSquares[2]
+    pawn = c.black_piece_squares[1]
+    wa = c.white_piece_squares[1]
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
+    wb = c.white_piece_squares[2]
 
     if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
@@ -746,11 +746,11 @@ def kaapk_pctoindex(c):
     BLOCK_B = 64 * BLOCK_C
     BLOCK_A = 64 * BLOCK_B
 
-    wk = c.whitePieceSquares[0]
-    wa = c.whitePieceSquares[1]
-    wa2 = c.whitePieceSquares[2]
-    pawn = c.whitePieceSquares[3]
-    bk = c.blackPieceSquares[0]
+    wk = c.white_piece_squares[0]
+    wa = c.white_piece_squares[1]
+    wa2 = c.white_piece_squares[2]
+    pawn = c.white_piece_squares[3]
+    bk = c.black_piece_squares[0]
 
     if (pawn & 7) > 3:
         # Column is more than 3, i.e. e, f, g or h.
@@ -774,11 +774,11 @@ def kaakp_pctoindex(c):
     BLOCK_B = 64 * BLOCK_C
     BLOCK_A = 64 * BLOCK_B
 
-    wk = c.whitePieceSquares[0]
-    wa = c.whitePieceSquares[1]
-    wa2 = c.whitePieceSquares[2]
-    bk = c.blackPieceSquares[0]
-    pawn = c.blackPieceSquares[1]
+    wk = c.white_piece_squares[0]
+    wa = c.white_piece_squares[1]
+    wa2 = c.white_piece_squares[2]
+    bk = c.black_piece_squares[0]
+    pawn = c.black_piece_squares[1]
 
     if (pawn & 7) > 3:
         # Column is more than 3, i.e. e, f, g or h.
@@ -803,11 +803,11 @@ def kapkp_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    wk = c.whitePieceSquares[0]
-    wa = c.whitePieceSquares[1]
-    pawn_a = c.whitePieceSquares[2]
-    bk = c.blackPieceSquares[0]
-    pawn_b = c.blackPieceSquares[1]
+    wk = c.white_piece_squares[0]
+    wa = c.white_piece_squares[1]
+    pawn_a = c.white_piece_squares[2]
+    bk = c.black_piece_squares[0]
+    pawn_b = c.black_piece_squares[1]
 
     anchor = pawn_a
     loosen = pawn_b
@@ -834,11 +834,11 @@ def kappk_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    wk = c.whitePieceSquares[0]
-    wa = c.whitePieceSquares[1]
-    pawn_a = c.whitePieceSquares[2]
-    pawn_b = c.whitePieceSquares[3]
-    bk = c.blackPieceSquares[0]
+    wk = c.white_piece_squares[0]
+    wa = c.white_piece_squares[1]
+    pawn_a = c.white_piece_squares[2]
+    pawn_b = c.white_piece_squares[3]
+    bk = c.black_piece_squares[0]
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
@@ -865,11 +865,11 @@ def kppka_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    wk = c.whitePieceSquares[0]
-    pawn_a = c.whitePieceSquares[1]
-    pawn_b = c.whitePieceSquares[2]
-    bk = c.blackPieceSquares[0]
-    ba = c.blackPieceSquares[1]
+    wk = c.white_piece_squares[0]
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.white_piece_squares[2]
+    bk = c.black_piece_squares[0]
+    ba = c.black_piece_squares[1]
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
@@ -897,10 +897,10 @@ def kabck_pctoindex(c):
     BLOCK_B = 64 * 64
     BLOCK_C = 64
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -927,10 +927,10 @@ def kabbk_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -958,10 +958,10 @@ def kaabk_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if ((ft & WE_FLAG) != 0):
         ws = [flip_we(i) for i in ws]
@@ -993,10 +993,10 @@ def kaaak_pctoindex(c):
     N_BLACK = 1
     BLOCK_Ax = MAX_AAAINDEX
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -1040,11 +1040,11 @@ def kppkp_pctoindex(c):
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
 
-    wk = c.whitePieceSquares[0]
-    pawn_a = c.whitePieceSquares[1]
-    pawn_b = c.whitePieceSquares[2]
-    bk = c.blackPieceSquares[0]
-    pawn_c = c.blackPieceSquares[1]
+    wk = c.white_piece_squares[0]
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.white_piece_squares[2]
+    bk = c.black_piece_squares[0]
+    pawn_c = c.black_piece_squares[1]
 
     if (pawn_c & 7) > 3:
         wk = flip_we(wk)
@@ -1072,10 +1072,10 @@ def kaakb_pctoindex(c):
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -1105,10 +1105,10 @@ def kabkc_pctoindex(c):
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -1133,10 +1133,10 @@ def kpkp_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
-    pawn_a = c.whitePieceSquares[1];
-    pawn_b = c.blackPieceSquares[1];
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
+    pawn_a = c.white_piece_squares[1];
+    pawn_b = c.black_piece_squares[1];
     #pp_putanchorfirst (pawn_a, pawn_b, &anchor, &loosen);
     anchor = pawn_a;
     loosen = pawn_b;
@@ -1161,10 +1161,10 @@ def kpkp_pctoindex(c):
 def kppk_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
-    wk = c.whitePieceSquares[0]
-    pawn_a = c.whitePieceSquares[1]
-    pawn_b = c.whitePieceSquares[2]
-    bk = c.blackPieceSquares[0]
+    wk = c.white_piece_squares[0]
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.white_piece_squares[2]
+    bk = c.black_piece_squares[0]
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
@@ -1189,10 +1189,10 @@ def kapk_pctoindex(c):
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
 
-    pawn = c.whitePieceSquares[2]
-    wa = c.whitePieceSquares[1]
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
+    pawn = c.white_piece_squares[2]
+    wa = c.white_piece_squares[1]
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
 
     if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
@@ -1214,10 +1214,10 @@ def kabk_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
-    ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0]);
+    ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0]);
 
-    ws = c.whitePieceSquares
-    bs = c.blackPieceSquares
+    ws = c.white_piece_squares
+    bs = c.black_piece_squares
 
     if (ft & 1) != 0:
         ws = [flip_we(b) for b in ws]
@@ -1243,10 +1243,10 @@ def kakp_pctoindex(c):
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
 
-    pawn = c.blackPieceSquares[1]
-    wa = c.whitePieceSquares[1]
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
+    pawn = c.black_piece_squares[1]
+    wa = c.white_piece_squares[1]
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
 
     if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
@@ -1270,10 +1270,10 @@ def kaak_pctoindex(c):
     N_BLACK = 1
     BLOCK_Ax = MAX_AAINDEX
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:N_WHITE]
-    bs = c.blackPieceSquares[:N_BLACK]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
     if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
@@ -1299,10 +1299,10 @@ def kakb_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
-    ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
+    ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.whitePieceSquares[:]
-    bs = c.blackPieceSquares[:]
+    ws = c.white_piece_squares[:]
+    bs = c.black_piece_squares[:]
 
     if (ft & 1) != 0:
         ws[0] = flip_we(ws[0])
@@ -1333,9 +1333,9 @@ def kpk_pctoindex(c):
     BLOCK_A = 64 * 64
     BLOCK_B = 64
 
-    pawn = c.whitePieceSquares[1]
-    wk = c.whitePieceSquares[0]
-    bk = c.blackPieceSquares[0]
+    pawn = c.white_piece_squares[1]
+    wk = c.white_piece_squares[0]
+    bk = c.black_piece_squares[0]
 
     if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
@@ -1357,12 +1357,12 @@ def kpppk_pctoindex(c):
     BLOCK_A = 64 * 64
     BLOCK_B = 64
 
-    wk = c.whitePieceSquares[0]
-    pawn_a = c.whitePieceSquares[1]
-    pawn_b = c.whitePieceSquares[2]
-    pawn_c = c.whitePieceSquares[3]
+    wk = c.white_piece_squares[0]
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.white_piece_squares[2]
+    pawn_c = c.white_piece_squares[3]
 
-    bk = c.blackPieceSquares[0]
+    bk = c.black_piece_squares[0]
 
     i = pawn_a - 8
     j = pawn_b - 8
@@ -1786,13 +1786,21 @@ class ProbeResultType(object):
         self.dtm = 0
 
 
-class currentConf(object):
-    def __init__(self):
-        self.whitePieceTypes = None
-        self.blackPieceTypes = None
-        self.whitePieceSquares = []
-        self.blackPieceSquares = []
-        self.Reversed = False
+class Request(object):
+    def __init__(self, white_squares, white_types, black_squares, black_types, side, epsq):
+        self.white_squares, self.white_types = sortlists(white_squares, white_types)
+        self.black_squares, self.black_types = sortlists(black_squares, black_types)
+        self.realside = side
+        self.side = side
+        self.epsq = epsq
+
+        self.egkey = None
+        self.white_piece_squares = None
+        self.white_piece_types = None
+        self.black_piece_squares = None
+        self.black_piece_types = None
+        self.is_reversed = None
+        self.white_piece_squares = None
 
 
 class PythonTablebases(object):
@@ -1806,23 +1814,10 @@ class PythonTablebases(object):
         self.current_stream = None
 
         self.block_cache = {}
+        self.block_age = 0
 
         if directory is not None:
             self.open_directory(directory)
-
-        self.whiteSquares = None
-        self.blackSquares = None
-        self.whiteTypes   = None
-        self.blackTypes   = None
-        self.realside = None
-
-        self.whitePieceSquares = None
-        self.whitePieceTypes   = None
-        self.blackPieceSquares = None
-        self.blackPieceTypes   = None
-        self.newFile = None
-        self.block_age = 0
-
 
     def open_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
@@ -1844,130 +1839,108 @@ class PythonTablebases(object):
         forced mate. The value is positive if the side to move is winning,
         otherwise it is negative.
         """
-        white = [(square,  board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
-        self.whiteSquares,  self.whiteTypes = zip(*white)
-        black = [(square, board.piece_type_at(square), ) for square in chess.SquareSet(board.occupied_co[chess.BLACK])]
-        self.blackSquares,  self.blackTypes = zip(*black)
+        # Prepare the tablebase request.
+        white = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
+        black = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.BLACK])]
+        white_squares, white_types = zip(*white)
+        black_squares, black_types = zip(*black)
         side = 0 if (board.turn == chess.WHITE) else 1
-        self.realside = side
-        self.epsq = board.ep_square if board.ep_square else NOSQUARE
-        return self._Probe(side,  self.epsq)
+        epsq = board.ep_square if board.ep_square else NOSQUARE
+        req = Request(white_squares, white_types, black_squares, black_types, side, epsq)
 
+        # KvK is a draw.
+        if len(white_squares) == 1 and len(black_squares) == 1:
+            return 0
 
-    def _Probe(self,  realside,  epsq):
+        # Only up to 5-men tablebases.
+        if len(white_squares) + len(black_squares) > 5:
+            return None
+
+        try:
+            dtm = self._egtb_get_dtm(req)
+        except IndexError:
+            return None
+
+        ply, res = unpackdist(dtm)
+
         probeResult = ProbeResultType()
 
-        if ((len(self.blackSquares)== 1) and (len(self.whiteSquares) == 1)):
-            probeResult.found = True
-            probeResult.stm = MateResult.Draw
-            probeResult.error = "With only 2 kings, Draw is assumed"
-            return probeResult
+        # TODO: Refactor this section.
+        probeResult.stm = MateResult.Unknown
+        ply,  res = unpackdist(dtm)
 
-        if ((len(self.blackSquares) + len(self.whiteSquares)) > 5):
-            probeResult.error = "Max 5 man tables are supported"
-            probeResult.found = False
-            return probeResult
+        ret = 0
 
-        side = realside
-
-        ret, side, epsq = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side ,epsq)
-        if not ret:
-            probeResult.found = False
-            probeResult.error = "Could not find EGTB file: " + self.newFile
-            return probeResult
-
-        dtm = self._egtb_get_dtm(side, epsq)
-        if (True or is_dtm):
-            probeResult.found = True
-            probeResult.stm = MateResult.Unknown
-            ply,  res = unpackdist(dtm)
-
-            ret = 0
-
-            if (res == iWMATE):
-                if (self.Reversed):
-                    probeResult.stm = MateResult.BlackToMate
-                else:
-                    probeResult.stm = MateResult.WhiteToMate
-            elif (res == iBMATE):
-                if (self.Reversed):
-                    probeResult.stm = MateResult.WhiteToMate
-                else:
-                    probeResult.stm = MateResult.BlackToMate
-            elif (res == iDRAW):
-                probeResult.stm = MateResult.Draw
-
-            if (self.realside == 0):
-                if (probeResult.stm == MateResult.BlackToMate):
-                    ret = -ply
-                elif (probeResult.stm == MateResult.WhiteToMate):
-                    ret = ply
+        if (res == iWMATE):
+            if (req.is_reversed):
+                probeResult.stm = MateResult.BlackToMate
             else:
-                if (probeResult.stm == MateResult.WhiteToMate):
-                    ret = -ply
-                elif (probeResult.stm == MateResult.BlackToMate):
-                    ret = ply
+                probeResult.stm = MateResult.WhiteToMate
+        elif (res == iBMATE):
+            if (req.is_reversed):
+                probeResult.stm = MateResult.WhiteToMate
+            else:
+                probeResult.stm = MateResult.BlackToMate
+        elif (res == iDRAW):
+            probeResult.stm = MateResult.Draw
 
-            probeResult.dtm = ret
-            probeResult.ply = ply
+        if (req.realside == 0):
+            if (probeResult.stm == MateResult.BlackToMate):
+                ret = -ply
+            elif (probeResult.stm == MateResult.WhiteToMate):
+                ret = ply
         else:
-            probeResult.found = False
+            if (probeResult.stm == MateResult.WhiteToMate):
+                ret = -ply
+            elif (probeResult.stm == MateResult.BlackToMate):
+                ret = ply
 
-        return probeResult
+        probeResult.dtm = ret
+        probeResult.ply = ply
 
-    def _setup_tablebase(self, white_squares, white_types, black_squares, black_types, side, epsq):
-        white_squares, white_types = sortlists(white_squares, white_types)
-        black_squares, black_types = sortlists(black_squares, black_types)
+        return probeResult.dtm
 
-        self.whiteSquares = white_squares
-        self.whiteTypes = white_types
-        self.blackSquares = black_squares
-        self.blackTypes = black_types
-
-        white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in white_types])
-        black_letters = "".join([chess.PIECE_SYMBOLS[i] for i in black_types])
+    def _setup_tablebase(self, req):
+        white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.white_types])
+        black_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.black_types])
 
         if (white_letters + black_letters) in self.available_tables:
-            self.whitePieceSquares = self.whiteSquares
-            self.whitePieceTypes   = self.whiteTypes
-            self.blackPieceSquares = self.blackSquares
-            self.blackPieceTypes   = self.blackTypes
-            self.newFile = white_letters + black_letters
-            self.Reversed = False
+            req.is_reversed = False
+            req.egkey = white_letters + black_letters
+            req.white_piece_squares = req.white_squares
+            req.white_piece_types  = req.white_types
+            req.black_piece_squares = req.black_squares
+            req.black_piece_types   = req.black_types
         elif (black_letters + white_letters) in self.available_tables:
-            self.whitePieceSquares = self.blackSquares
-            self.whitePieceTypes = self.blackTypes
-            self.blackPieceSquares = self.whiteSquares
-            self.blackPieceTypes = self.whiteTypes
-            self.newFile = black_letters + white_letters
-            self.Reversed = True
+            req.is_reversed = True
+            req.egkey = black_letters + white_letters
+            req.white_piece_squares = [flip_ns(s) for s in req.black_squares]
+            req.white_piece_tyoes = req.black_types
+            req.black_piece_squares = [flip_ns(s) for s in req.white_squares]
+            req.black_piece_types = req.white_types
 
-            self.whitePieceSquares = [flip_ns(s) for s in self.whitePieceSquares]
-            self.blackPieceSquares = [flip_ns(s) for s in self.blackPieceSquares]
-
-            side = Opp(side)
-            if (epsq != NOSQUARE):
-                epsq = flip_ns(epsq)
+            req.side = Opp(req.side)
+            if req.epsq != NOSQUARE:
+                req.epsq = flip_ns(epsq)
         else:
-            self.newFile = whiteLetters + blackLetters
-            return False, side, epsq
+            raise IndexError("no tablebase available for: {0} {1}".format(white_letters, black_letters))
 
-        self._open_tablebase(self.newFile)
-        return True, side, epsq
+        return self._open_tablebase(req)
 
-    def _open_tablebase(self, egkey):
-        if self.current_egkey == egkey:
-            return
+    def _open_tablebase(self, req):
+        if self.current_egkey == req.egkey:
+            return self.current_stream
 
-        path = self.available_tables[egkey]
+        path = self.available_tables[req.egkey]
 
         if self.current_stream is not None:
             self.current_stream.close()
             self.current_stream = None
 
-        self.current_egkey = egkey
+        self.current_egkey = req.egkey
         self.current_stream = open(path, "rb")
         egtb_loadindexes(self.current_egkey, self.current_stream)
+        return self.current_stream
 
     def close(self):
         """Closes all loaded tables."""
@@ -1981,33 +1954,27 @@ class PythonTablebases(object):
             self.current_stream.close()
             self.current_stream = None
 
-    def _egtb_get_dtm(self, side, epsq):
-        dtm  = self._tb_probe(side, epsq)
+    def _egtb_get_dtm(self, req):
+        dtm  = self._tb_probe(req)
 
-        if epsq != NOSQUARE:
+        if req.epsq != NOSQUARE:
             capturer_a = 0
             capturer_b = 0
             xed = 0
-            okcall = True
 
-            old_whitePieceSquares = list(self.whitePieceSquares)
-            old_blackPieceSquares = list(self.blackPieceSquares)
-            old_whitePieceType = list(self.whitePieceTypes)
-            old_blackPieceType = list(self.blackPieceTypes)
-
-            if (side == 0):
-                xs = list(self.whitePieceSquares)
-                xp = list(self.whitePieceTypes)
-                ys = list(self.blackPieceSquares)
-                yp = list(self.blackPieceTypes)
+            if (req.side == 0):
+                xs = list(req.white_piece_squares)
+                xp = list(req.white_piece_types)
+                ys = list(req.black_piece_squares)
+                yp = list(req.black_piece_types)
             else:
-                xs = list(self.blackPieceSquares)
-                xp = list(self.blackPieceTypes)
-                ys = list(self.whitePieceSquares)
-                yp = list(self.whitePieceTypes)
+                xs = list(req.black_piece_squares)
+                xp = list(req.black_piece_types)
+                ys = list(req.white_piece_squares)
+                yp = list(req.white_piece_types)
 
             # Captured pawn trick: from ep square to captured.
-            xed = epsq ^ (1 << 3)
+            xed = req.epsq ^ (1 << 3)
 
             # Find captured index (j).
             try:
@@ -2030,38 +1997,21 @@ class PythonTablebases(object):
                         epscore = iFORBID
 
                         # Execute capture.
-                        xs[i] = epsq
+                        xs[i] = req.epsq
                         ys, yp = removepiece(ys, yp, j)
 
                         newdtm = 0
 
-                        self.whiteSquares = list(xs)
-                        self.whiteTypes = list(xp)
-                        self.blackSquares = list(ys)
-                        self.blackTypes = list(yp)
-
-                        # Changing current file to new position.
-                        # Make sure to change back when done.
-                        ret, _, _ = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side, NOSQUARE)
-                        if not ret:
-                            okcall = False
-                        else:
-                            newdtm  = self._tb_probe(Opp(side), NOSQUARE)
-                            okcall = True
-
-                        self.whitePieceSquares = old_whitePieceSquares
-                        self.whitePieceTypes   = old_whitePieceType
-                        self.blackPieceSquares = old_blackPieceSquares
-                        self.blackPieceTypes   = old_blackPieceType
-
-                        if okcall:
-                            epscore = newdtm
+                        subreq = Request(xs, xp, ys, yp, Opp(req.side), NOSQUARE)
+                        try:
+                            epscore = self._tb_probe(subreq)
                             epscore = adjust_up(epscore)
 
                             # Chooses to ep or not.
-                            dtm = bestx(side, epscore, dtm)
-                        else:
+                            dtm = bestx(req.side, epscore, dtm)
+                        except IndexError:
                             break
+
         return dtm
 
     def egtb_block_getnumber(self, side, idx):
@@ -2083,26 +2033,23 @@ class PythonTablebases(object):
         else:
             return blocksz # size of a normal block
 
-    def _tb_probe(self, side, epsq):
-        c = currentConf()
-        c.whitePieceSquares = self.whitePieceSquares
-        c.whitePieceTypes   = self.whitePieceTypes
-        c.blackPieceSquares = self.blackPieceSquares
-        c.blackPieceTypes   = self.blackPieceTypes
-        idx = EGKEY[self.current_egkey].pctoi(c)
+    def _tb_probe(self, req):
+        stream = self._setup_tablebase(req)
+        idx = EGKEY[req.egkey].pctoi(req)
         offset, remainder = split_index(idx)
 
-        t = self.block_cache.get((self.current_egkey, offset, side))
+
+        t = self.block_cache.get((req.egkey, offset, req.side))
         if t is None:
-            t = TableBlock(self.current_egkey, side, offset, self.block_age)
+            t = TableBlock(req.egkey, req.side, offset, self.block_age)
 
-            block = self.egtb_block_getnumber(side, idx)
+            block = self.egtb_block_getnumber(req.side, idx)
             n = self.egtb_block_getsize(idx)
-            z = egtb_block_getsize_zipped(self.current_egkey, block)
+            z = egtb_block_getsize_zipped(req.egkey, block)
 
-            egtb_block_park(self.current_egkey, block, self.current_stream)
+            egtb_block_park(req.egkey, block, stream)
+            buffer_zipped = stream.read(z)
 
-            buffer_zipped = self.current_stream.read(z)
             if buffer_zipped[0] == 0:
                 # If flag is zero, plain LZMA is following.
                 buffer_zipped = buffer_zipped[2:]
@@ -2118,12 +2065,13 @@ class PythonTablebases(object):
                     properties[1 + i] = (_dictionarySize >> (8 * i)) & 0xFF
                 for i in range(8):
                     properties[5 + i] = (n >> (8 * i)) & 0xFF
+
                 # Concatenate the fake header with the true LZMA stream.
                 buffer_zipped = properties + buffer_zipped[15:]
 
             buffer_packed = lzma.decompress(buffer_zipped)
 
-            t.pcache = egtb_block_unpack(side, n, buffer_packed)
+            t.pcache = egtb_block_unpack(req.side, n, buffer_packed)
 
             # Update LRU block cache.
             self.block_cache[(t.key, t.offset, t.side)] = t
