@@ -20,6 +20,7 @@
 
 import ctypes
 import ctypes.util
+import fnmatch
 import os.path
 import logging
 import chess
@@ -1805,17 +1806,23 @@ class currentConf(object):
 class PythonTablebases(object):
     """ Provide access to Gaviota tablebases via full python code."""
 
-    def __init__(self,directory):
-        self.validTables = []
-        self.LoadTableDescriptions(directory)
-        self.egtb_root_path = directory
+    def __init__(self, directory):
+        self.paths = []
+        self.available_tables = {}
+
+        self.current_egkey = None
+        self.current_stream = None
+
+        if directory is not None:
+            self.open_directory(directory)
+
+
         self.whiteSquares = None
         self.blackSquares = None
         self.whiteTypes   = None
         self.blackTypes   = None
         self.realside = None
-        self.currentFilename = ""
-        self.currentStream = None
+
         self.whitePieceSquares = None
         self.whitePieceTypes   = None
         self.blackPieceSquares = None
@@ -1823,16 +1830,15 @@ class PythonTablebases(object):
         self.newFile = None
         self.block_age = 0
 
-    def LoadTableDescriptions(self, egtb_path):
-        if not os.path.isdir(egtb_path):
-            raise IOError("not a tablebase directory: {0}".format(repr(egtb_path)))
-        files = os.listdir(egtb_path)
-        for afile in files:
-            tokes = afile.split(os.sep)
-            if (len(tokes) > 0):
-                fn = tokes[-1]
-                if (fn.find(".gtb.cp4") != -1):
-                    self.validTables.append(fn.replace(".gtb.cp4", ""))
+    def open_directory(self, directory):
+        """Loads *.gtb.cp4* tables from a directory."""
+        if not os.path.isdir(directory):
+            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+
+        self.paths.append(directory)
+
+        for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
+            self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
 
     def probe_dtm(self, board):
         """
@@ -1843,15 +1849,8 @@ class PythonTablebases(object):
         Otherwise the absolute value is the number of half moves until
         forced mate. The value is positive if the side to move is winning,
         otherwise it is negative.
-
-        In the example position white to move will get mated in 10 half moves:
-
-        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_dtm(chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1"))
-        ...
-        -10
         """
-        white = [(square,  board.piece_type_at(square), ) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
+        white = [(square,  board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
         self.whiteSquares,  self.whiteTypes = zip(*white)
         black = [(square, board.piece_type_at(square), ) for square in chess.SquareSet(board.occupied_co[chess.BLACK])]
         self.blackSquares,  self.blackTypes = zip(*black)
@@ -1951,14 +1950,14 @@ class PythonTablebases(object):
         blackLetters = "".join([fenType[i] for i in self.blackTypes])
 
         self.newFile = ""
-        if ((whiteLetters+blackLetters) in self.validTables):
+        if ((whiteLetters+blackLetters) in self.available_tables):
             self.whitePieceSquares = self.whiteSquares
             self.whitePieceTypes   = self.whiteTypes
             self.blackPieceSquares = self.blackSquares
             self.blackPieceTypes   = self.blackTypes
             self.newFile = whiteLetters + blackLetters
             self.Reversed = False
-        elif ((blackLetters + whiteLetters) in self.validTables):
+        elif ((blackLetters + whiteLetters) in self.available_tables):
             self.whitePieceSquares = self.blackSquares
             self.whitePieceTypes = self.blackTypes
             self.blackPieceSquares = self.whiteSquares
@@ -1975,20 +1974,21 @@ class PythonTablebases(object):
         else:
             self.newFile = whiteLetters + blackLetters
             return False,  side,  epsq
-        self.OpenEndgameTableBase(self.newFile)
+        self._open_tablebase(self.newFile)
         return True,  side,  epsq
 
-    def OpenEndgameTableBase(self, pieces):
-        if self.currentFilename ==pieces:
+    def _open_tablebase(self, egkey):
+        if self.current_egkey == egkey:
             return
-        tablePath = self.egtb_root_path +os.sep + pieces + ".gtb.cp4"
-        if (self.currentStream is not None):
-            self.currentStream.close()
-        if (os.path.isfile(tablePath)):
-            self.currentFilename = pieces
-            self.currentStream = open(tablePath,'rb')
-            egtb_loadindexes(self.currentFilename, self.currentStream)
-            self.currentPctoi = EGKEY[self.currentFilename].pctoi
+
+        path = self.available_tables[egkey]
+
+        if self.current_stream is not None:
+            self.current_stream.close()
+
+        self.current_egkey = egkey
+        self.current_stream = open(path, "rb")
+        egtb_loadindexes(self.current_egkey, self.current_stream)
 
     def egtb_get_dtm(self, side, epsq):
         ok, dtm  = self.tb_probe_(side, epsq)
@@ -2073,7 +2073,7 @@ class PythonTablebases(object):
         return ok, dtm
 
     def egtb_block_getnumber(self, side, idx):
-        max = EGKEY[self.currentFilename].maxindex
+        max = EGKEY[self.current_egkey].maxindex
 
         blocks_per_side = 1 + (max - 1) // ENTRIES_PER_BLOCK
         block_in_side = idx // ENTRIES_PER_BLOCK
@@ -2082,7 +2082,7 @@ class PythonTablebases(object):
 
     def egtb_block_getsize(self, idx):
         blocksz = ENTRIES_PER_BLOCK
-        maxindex = EGKEY[self.currentFilename].maxindex
+        maxindex = EGKEY[self.current_egkey].maxindex
         block = idx // blocksz
         offset = block * blocksz
 
@@ -2097,20 +2097,20 @@ class PythonTablebases(object):
         c.whitePieceTypes   = self.whitePieceTypes
         c.blackPieceSquares = self.blackPieceSquares
         c.blackPieceTypes   = self.blackPieceTypes
-        idx = self.currentPctoi(c)
+        idx = EGKEY[self.current_egkey].pctoi(c)
         offset, remainder = split_index(idx)
 
-        t =blockCache.get((self.currentFilename, offset, side,))
+        t =blockCache.get((self.current_egkey, offset, side,))
         if t is None:
-            t = TableBlock(self.currentFilename, side, offset,  self.block_age)
+            t = TableBlock(self.current_egkey, side, offset,  self.block_age)
 
             block = self.egtb_block_getnumber(side, idx)
             n = self.egtb_block_getsize(idx)
-            z = egtb_block_getsize_zipped(self.currentFilename, block)
+            z = egtb_block_getsize_zipped(self.current_egkey, block)
 
-            egtb_block_park(self.currentFilename,block, self.currentStream)
+            egtb_block_park(self.current_egkey, block, self.current_stream)
 
-            Buffer_zipped = self.currentStream.read(z)
+            Buffer_zipped = self.current_stream.read(z)
             if Buffer_zipped[0]==0:
                 # if flag is zero, plain LZMA is following
                 Buffer_zipped = Buffer_zipped[2:]
