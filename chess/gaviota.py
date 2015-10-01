@@ -1075,9 +1075,6 @@ class ZIPINFO:
 # keep: keys are appended
 Zipinfo = { }
 
-MAX_EGKEYS = 145
-SZ = 4
-
 def egtb_loadindexes(currentFilename, currentStream):
     # Get Reserved bytes, blocksize, offset
     currentStream.seek(0)
