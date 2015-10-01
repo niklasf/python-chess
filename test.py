@@ -2232,25 +2232,25 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
 
-class GaviotaTestCase(unittest.TestCase):
+class NativeGaviotaTestCase(unittest.TestCase):
 
     def setUp(self):
         try:
-            self.tablebases = chess.gaviota.open_tablebases("data/gaviota")
+            self.tablebases = chess.gaviota.open_native_tablebases("data/gaviota")
         except (OSError, RuntimeError):
             self.skipTest("need libgtb")
 
     def tearDown(self):
         self.tablebases.close()
 
-    def test_probe_dtm(self):
+    def test_native_probe_dtm(self):
         board = chess.Board("6K1/8/8/8/4Q3/8/6k1/8 b - - 0 1")
         self.assertEqual(self.tablebases.probe_dtm(board), -14)
 
         board = chess.Board("8/3K4/8/8/8/4r3/4k3/8 b - - 0 1")
         self.assertEqual(self.tablebases.probe_dtm(board), 21)
 
-    def test_probe_wdl(self):
+    def test_native_probe_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
         self.assertEqual(self.tablebases.probe_wdl(board), 0)
 

@@ -23,6 +23,9 @@ import logging
 import chess
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class NativeTablebases(object):
     """Provides access to Gaviota tablebases via the shared library libgtb."""
 
@@ -59,23 +62,23 @@ class NativeTablebases(object):
 
         ret = self.libgtb.tb_restart(verbosity, compression_scheme, self.c_paths)
         if ret:
-            logging.debug(ret.decode("utf-8"))
+            LOGGER.debug(ret.decode("utf-8"))
 
-        logging.debug("Main path has been set to %s", self.libgtb.tbpaths_getmain().decode("utf-8"))
+        LOGGER.debug("Main path has been set to %s", self.libgtb.tbpaths_getmain().decode("utf-8"))
 
         av = self.libgtb.tb_availability()
         if av & 1:
-            logging.debug("Some 3 piece tablebases available")
+            LOGGER.debug("Some 3 piece tablebases available")
         if av & 2:
-            logging.debug("All 3 piece tablebases complete")
+            LOGGER.debug("All 3 piece tablebases complete")
         if av & 4:
-            logging.debug("Some 4 piece tablebases available")
+            LOGGER.debug("Some 4 piece tablebases available")
         if av & 8:
-            logging.debug("All 4 piece tablebases complete")
+            LOGGER.debug("All 4 piece tablebases complete")
         if av & 16:
-            logging.debug("Some 5 piece tablebases available")
+            LOGGER.debug("Some 5 piece tablebases available")
         if av & 32:
-            logging.debug("All 5 piece tablebases complete")
+            LOGGER.debug("All 5 piece tablebases complete")
 
     def _tbcache_restart(self, cache_mem, wdl_fraction):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
@@ -165,7 +168,7 @@ class NativeTablebases(object):
 
         # Probe forbidden.
         if info.value == 3:
-            logging.warning("Tablebase for %s marked as forbidden", board.fen())
+            LOGGER.warning("Tablebase for %s marked as forbidden", board.fen())
             return None
 
         # Probe failed or unknown.
@@ -197,6 +200,11 @@ class NativeTablebases(object):
         self.close()
 
 
+def open_native_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
+    libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
+    return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
+
+
 def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     Opens a collection of tablebases for probing.
@@ -206,8 +214,10 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     The shared library has global state and caches, so only one instance can
     be open at a time.
     """
-    if LibraryLoader:
-        libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
-        return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
-    else:
-        raise RuntimeError("need a library loader for libgtb")
+    try:
+        if LibraryLoader:
+            return open_native_tablebases(directory, libgtb, LibraryLoader)
+    except (OSError, RuntimeError) as err:
+        LOGGER.info("Falling back to pure Python tablebases: %r", err)
+
+    return PythonTablebases(directory)
