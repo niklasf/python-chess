@@ -9,8 +9,8 @@ Contents
     core
     pgn
     polyglot
-    syzygy
     gaviota
+    syzygy
     uci
     changelog
 

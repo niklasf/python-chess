@@ -278,23 +278,6 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
-* Probe Syzygy endgame tablebases (DTZ, WDL).
-  `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`__.
-
-  .. code:: python
-
-      >>> import chess.syzygy
-
-      >>> tablebases = chess.syzygy.open_tablebases("data/syzygy")
-
-      >>> # Black to move is losing in 53 half moves (distance to zero) in this
-      >>> # KNBvK endgame.
-      >>> board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
-      >>> tablebases.probe_dtz(board)
-      -53
-
-      >>> tablebases.close()
-
 * Probe Gaviota endgame tablebases (DTM, WDL) via a wrapper around
   `libgtb <https://github.com/michiguel/Gaviota-Tablebases>`_.
   `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
@@ -309,6 +292,23 @@ Features
       >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
       >>> tablebases.probe_dtm(board)
       31
+
+      >>> tablebases.close()
+
+* Probe Syzygy endgame tablebases (DTZ, WDL).
+  `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`__.
+
+  .. code:: python
+
+      >>> import chess.syzygy
+
+      >>> tablebases = chess.syzygy.open_tablebases("data/syzygy")
+
+      >>> # Black to move is losing in 53 half moves (distance to zero) in this
+      >>> # KNBvK endgame.
+      >>> board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
+      >>> tablebases.probe_dtz(board)
+      -53
 
       >>> tablebases.close()
 
