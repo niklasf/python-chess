@@ -44,6 +44,7 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
+
 NOSQUARE = 64
 NOINDEX = -1
 
@@ -158,7 +159,6 @@ def init_ppp48_idx():
     MAX_J = 48
     MAX_K = 48
     ppp48_idx = [[[-1] * MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
-
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_z = [NOSQUARE] * MAX_PPP48_INDEX
@@ -190,6 +190,9 @@ def init_ppp48_idx():
                     idx = idx + 1
 
     return ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z
+
+PPP48_IDX, PPP48_SQ_X, PPP48_SQ_Y, PPP48_SQ_Z = init_ppp48_idx()
+
 
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
@@ -1036,7 +1039,7 @@ def kpppk_pctoindex(c):
     j = pawn_b - 8
     k = pawn_c - 8
 
-    ppp48_slice = ppp48_idx[i][j][k]
+    ppp48_slice = PPP48_IDX[i][j][k]
 
     if idx_is_empty(ppp48_slice):
         wk = flip_we(wk)
@@ -1049,7 +1052,7 @@ def kpppk_pctoindex(c):
     j = pawn_b - 8
     k = pawn_c - 8
 
-    ppp48_slice = ppp48_idx[i][j][k]
+    ppp48_slice = PPP48_IDX[i][j][k]
 
     if idx_is_empty(ppp48_slice):
         return NOINDEX
@@ -1697,7 +1700,6 @@ flipt = init_flipt()
 aabase, aaidx = init_aaidx()
 aaa_base, aaa_xyz = init_aaa()
 ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
-ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z = init_ppp48_idx()
 
 def attack_maps_init():
     attmsk = [0] * 256
