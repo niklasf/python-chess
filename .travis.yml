@@ -6,6 +6,10 @@ python:
  - "3.3"
  - "3.4"
  - "3.5.0b3"
+addons:
+  apt:
+    packages:
+     - liblzma-dev
 before_install:
  - # Stockfish
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
@@ -23,6 +27,7 @@ before_install:
 install:
  - python -c "import sys; sys.exit(int(sys.version_info < (2, 7)));" || pip install unittest2 backport_collections
  - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
+ - python -c "import sys; sys.exit(int(sys.version_info < (3, 3)));" || pip install backports.lzma
  - pip install coveralls
  - pip install spur
 script:
