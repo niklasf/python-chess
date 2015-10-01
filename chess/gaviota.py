@@ -1993,6 +1993,8 @@ class PythonTablebases(object):
 
     def close(self):
         """Closes all loaded tables."""
+        self.valid_tables.clear()
+
         if self.current_stream is not None:
             self.current_stream.close()
             self.current_stream = None
@@ -2316,6 +2318,8 @@ class NativeTablebases(object):
 
     def close(self):
         """Closes all loaded tables and clears all caches."""
+        self.paths = []
+
         if self.libgtb.tb_is_initialized():
             self.libgtb.tbcache_done()
             self.libgtb.tb_done()
