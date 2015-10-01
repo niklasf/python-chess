@@ -47,6 +47,31 @@ LOGGER = logging.getLogger(__name__)
 NOSQUARE = 64
 NOINDEX = -1
 
+WHITES = 1 << 6
+BLACKS = 1 << 7
+
+NOPIECE = 0
+PAWN = 1
+KNIGHT = 2
+BISHOP = 3
+ROOK = 4
+QUEEN = 5
+KING = 6
+
+wK = KING | WHITES
+wP = PAWN | WHITES
+wN = KNIGHT | WHITES
+wB = BISHOP | WHITES
+wR = ROOK | WHITES
+wQ = QUEEN | WHITES
+
+bK = KING | BLACKS
+bP = PAWN | BLACKS
+bN = KNIGHT | BLACKS
+bB = BISHOP | BLACKS
+bR = ROOK | BLACKS
+bQ = QUEEN | BLACKS
+
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
 MAX_PpINDEX = 24 * 48
@@ -1329,31 +1354,6 @@ def IDX_is_empty(x):
 
 kkidx = [[] for i in range(64)]
 
-WHITES = (1 << 6)
-BLACKS = (1 << 7)
-
-NOPIECE = 0
-PAWN = 1
-KNIGHT = 2
-BISHOP = 3
-ROOK = 4
-QUEEN = 5
-KING = 6
-
-wK = (KING | WHITES)
-wP = (PAWN | WHITES)
-wN = (KNIGHT | WHITES)
-wB = (BISHOP | WHITES)
-wR = (ROOK | WHITES)
-wQ = (QUEEN | WHITES)
-
-#Blacks
-bK = (KING | BLACKS)
-bP = (PAWN | BLACKS)
-bN = (KNIGHT | BLACKS)
-bB = (BISHOP | BLACKS)
-bR = (ROOK | BLACKS)
-bQ = (QUEEN | BLACKS)
 
 def norm_kkindex(x, y):
     if (getcol(x) > 3):
