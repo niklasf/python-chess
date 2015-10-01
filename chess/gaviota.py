@@ -406,6 +406,228 @@ def init_ppidx():
 PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
+def bb_isbiton(bb, bit):
+        return 0 != (bb >> bit) & 1
+
+def map88(x):
+        return x + (x & 56)
+
+def unmap88(x):
+        return x + (x & 7) >> 1
+
+def mapx88(x):
+        return ((x & 56) << 1) | (x & 7)
+
+BSTEP = [17, 15, -15, -17, 0]
+RSTEP = [1, 16, -1, -16, 0]
+NSTEP = [18, 33, 31, 14, -18, -33, -31, -14, 0]
+KSTEP = [1, 17, 16, 15, -1, -17, -16, -15, 0]
+
+PSTEPARR = [
+    None, # No piece.
+    None, # Pawn.
+    NSTEP,
+    BSTEP,
+    RSTEP,
+    KSTEP, # Queen.
+    KSTEP, # King.
+]
+
+PSLIDER = [
+    False, # No piece.
+    False, # Pawn.
+    False,
+    True,
+    True,
+    True,
+    False,
+]
+
+def gen_rev(occ, input_piece, sq):
+    # Get list of reversible piece moves. Yields squares.
+    from_ = map88(sq)
+
+    pc = input_piece & (PAWN | KNIGHT | BISHOP | ROOK | QUEEN | KING)
+
+    steparr = PSTEPARR[pc]
+    slider = PSLIDER[pc]
+
+    if slider:
+        for step in steparr:
+            if step == 0:
+                break
+            s = from_ + step
+            while 0 == (s & 0x88):
+                us = unmap88(s)
+                if 0 != (0x1 & (occ >> us)):
+                    break
+                yield us
+                s += step
+
+    else:
+        for step in steparr:
+            if step == 0:
+                break
+            s = from_ + step
+            if 0 == (s & 0x88):
+                us = unmap88(s)
+                if 0 == (0x1 & (occ >> us)):
+                    yield us
+
+def reach_init():
+    stp_a = [15, -15]
+    stp_b = [17, -17]
+    reach = [[-1] * 64 for _ in range(7)]
+
+    for pc in range(KNIGHT, KING + 1):
+        for sq in range(64):
+            bb = 0
+            for li in gen_rev(0, pc, sq):
+                bb |= 1 << li
+                reach[pc][sq] = bb
+
+    for side in range(2):
+        index = 1 ^ side
+        step_a = stp_a[side]
+        step_b = stp_b[side]
+        for sq in range(64):
+            sq88 = map88(sq)
+            bb = 0
+
+            thelist = []
+
+            s = sq88 + step_a
+            if 0 == (s & 0x88):
+                us = unmap88(s)
+                thelist.append(us)
+
+            s = sq88 + step_b
+            if 0 == (s & 0x88):
+                us = unmap88(s)
+                thelist.append(us)
+
+            for li in thelist:
+                bb |= 1 << li
+
+            reach[index][sq] = bb
+
+    return reach
+
+REACH = reach_init()
+
+def attack_maps_init():
+    attmsk = [0] * 256
+    attmsk[wP] = 1 << 0
+    attmsk[bP] = 1 << 1
+
+    attmsk[KNIGHT] = 1 << 2
+    attmsk[wN] = 1 << 2
+    attmsk[bN] = 1 << 2
+
+    attmsk[BISHOP] = 1 << 3
+    attmsk[wB] = 1 << 3
+    attmsk[bB] = 1 << 3
+
+    attmsk[ROOK] = 1 << 4
+    attmsk[wR] = 1 << 4
+    attmsk[bR] = 1 << 4
+
+    attmsk[QUEEN] = 1 << 5
+    attmsk[wQ] = 1 << 5
+    attmsk[bQ] = 1 << 5
+
+    attmsk[KING] = 1 << 6
+    attmsk[wK] = 1 << 6
+    attmsk[bK] = 1 << 6
+
+    attmap = [[0] * 64 for i in range(64)]
+    for to_ in range(64):
+        for from_ in range(64):
+            m = 0
+            rook = REACH[ROOK][from_]
+            bishop = REACH[BISHOP][from_]
+            queen = REACH[QUEEN][from_]
+            knight = REACH[KNIGHT][from_]
+            king = REACH[KING][from_]
+
+            if bb_isbiton(knight, to_):
+                m |= attmsk[wN]
+            if bb_isbiton(king, to_):
+                m |= attmsk[wK]
+            if bb_isbiton(rook, to_):
+                m |= attmsk[wR]
+            if bb_isbiton(bishop, to_):
+                m |= attmsk[wB]
+            if bb_isbiton(queen, to_):
+                m |= attmsk[wQ]
+
+            to88 = mapx88(to_)
+            fr88 = mapx88(from_)
+            diff = to88 - fr88
+
+            if diff == 17 or diff == 15:
+                m |= attmsk[wP]
+            if diff == -17 or diff == -15:
+                m |= attmsk[bP]
+
+            attmap[to_][from_] = m
+
+    return attmsk, attmap
+
+ATTMSK, ATTMAP = attack_maps_init()
+
+def possible_attack(from_, to_, piece):
+    return 0 != ATTMAP[to_][from_] & ATTMSK[piece]
+
+def norm_kkindex(x, y):
+    if getcol(x) > 3:
+        x = flip_we(x)
+        y = flip_we(y)
+
+    if getrow(x) > 3:
+        x = flip_ns(x)
+        y = flip_ns(y)
+
+    rowx = getrow(x)
+    colx = getcol(x)
+
+    if (rowx > colx):
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
+
+    rowy = getrow(y)
+    coly = getcol(y)
+
+    if rowx == colx and rowy > coly:
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
+
+    return x, y
+
+def init_kkidx():
+    kkidx = [[-1] * 64 for x in range(64)]
+    bksq = [-1] * MAX_KKINDEX
+    wksq = [-1] * MAX_KKINDEX
+    idx = 0
+    for x in range(64):
+        for y in range(64):
+            # Check if x to y is legal.
+            if not possible_attack(x, y, wK) and x != y:
+                # Normalize.
+                i, j = norm_kkindex(x, y)
+
+                if idx_is_empty(kkidx[i][j]):
+                    kkidx[i][j] = idx
+                    kkidx[x][y] = idx
+                    bksq[idx] = i
+                    wksq[idx] = j
+                    idx += 1
+
+    return kkidx, wksq, bksq
+
+KKIDX, WKSQ, BKSQ = init_kkidx()
+
+
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
@@ -666,7 +888,7 @@ def kabck_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -696,7 +918,7 @@ def kabbk_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
     ai = AAIDX[ws[2]][ws[3]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -727,7 +949,7 @@ def kaabk_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -772,7 +994,7 @@ def kaaak_pctoindex(c):
         ws[1] = ws[2]
         ws[2] = tmp
 
-    ki = kkidx[bs[0]][ws[0]]
+    ki = KKIDX[bs[0]][ws[0]]
 
     if (ws[1] == ws[2] or ws[1] == ws[3] or ws[2] == ws[3]):
                 return NOINDEX
@@ -843,7 +1065,7 @@ def kaakb_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -876,7 +1098,7 @@ def kabkc_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -988,7 +1210,7 @@ def kabk_pctoindex(c):
         ws = [flip_nw_se(b) for b in ws]
         bs = [flip_nw_se(b) for b in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1045,7 +1267,7 @@ def kaak_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -1079,7 +1301,7 @@ def kakb_pctoindex(c):
         bs[0] = flip_nw_se(bs[0])
         bs[1] = flip_nw_se(bs[1])
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1223,11 +1445,7 @@ class TableBlock:
 
 blockCache = {}
 
-def map88(x):
-        return x + (x & 56)
 
-def unmap88(x):
-        return x + (x & 7) >> 1
 
 def removepiece(ys, yp, j):
     del ys[j]
@@ -1374,154 +1592,11 @@ def dtm_unpack(stm, packed):
     return ret
 
 
-BLOCK_Ax = 64
 
-
-kkidx = [[] for i in range(64)]
-
-
-def norm_kkindex(x, y):
-    if (getcol(x) > 3):
-        x = flip_we(x) # x = x ^ 07
-        y = flip_we(y)
-    if (getrow(x) > 3):
-        x = flip_ns(x) # x = x ^ 070
-        y = flip_ns(y)
-    rowx = getrow(x)
-    colx = getcol(x)
-    if (rowx > colx):
-        x = flip_nw_se(x) # x = ((x&7)<<3) | (x>>3)
-        y = flip_nw_se(y)
-    rowy = getrow(y)
-    coly = getcol(y)
-    if (rowx == colx) and (rowy > coly):
-        x = flip_nw_se(x)
-        y = flip_nw_se(y)
-
-    return x, y
-
-bstep = [ 17, 15, -15, -17, 0 ]
-rstep = [ 1, 16, -1, -16, 0 ]
-nstep = [ 18, 33, 31, 14, -18, -33, -31, -14, 0 ]
-kstep = [ 1, 17, 16, 15, -1, -17, -16, -15, 0 ]
-
-psteparr = [None, None, # NOPIECE & PAWN
-           nstep, bstep, rstep, kstep, kstep] # same for Q & K
-
-pslider = [False, False,
-           False,  True,  True,  True, False
-]
-
-def tolist_rev(occ, input_piece, sq, thelist):
-        # reversible moves from pieces. Output is a list of squares
-
-
-    from_ = map88(sq)
-
-    pc = input_piece & (PAWN | KNIGHT | BISHOP | ROOK | QUEEN | KING)
-
-    steparr = psteparr[pc]
-    slider = pslider[pc]
-
-    if (slider):
-        for step in steparr:
-            if step == 0:
-                break
-            s = from_ + step
-            while (0 == (s & 0x88)):
-                us = unmap88(s)
-                if (0 != (0x1 & (occ >> us))):
-                    break
-                thelist.append(us)
-                s += step
-
-    else:
-        for step in steparr:
-            if step == 0:
-                break
-            s = from_ + step
-            if (0 == (s & 0x88)):
-                us = unmap88(s)
-                if (0 == (0x1 & (occ >> us))):
-                    thelist.append(us)
-
-def reach_init():
-    stp_a = [15, -15]
-    stp_b = [17, -17]
-    reach = [[-1] * 64 for _ in range(7)]
-
-    for pc in range(KNIGHT, KING + 1):
-        for sq in range(64):
-            bb = 0
-            buflist = []
-            tolist_rev(0, pc, sq, buflist)
-            for li in buflist:
-                bb |= 1 << li
-                reach[pc][sq] = bb
-
-    for side in range(2):
-        index = 1 ^ side
-        step_a = stp_a[side]
-        step_b = stp_b[side]
-        for sq in range(64):
-            sq88 = map88(sq)
-            bb = 0
-
-            thelist = []
-
-            s = sq88 + step_a
-            if 0 == (s & 0x88):
-                us = unmap88(s)
-                thelist.append(us)
-
-            s = sq88 + step_b
-            if 0 == (s & 0x88):
-                us = unmap88(s)
-                thelist.append(us)
-
-            for li in thelist:
-                bb |= 1 << li
-
-            reach[index][sq] = bb
-
-    return reach
-
-REACH = reach_init()
-
-def bb_isbiton(bb, bit):
-        return 0 != (bb >> bit) & 1
-
-def mapx88(x):
-        return ((x & 56) << 1) | (x & 7)
-
-
-def init_kkidx():
-    # returns kkidx[][], wksq[], bksq[]
-
-    # default is noindex
-    kkidx = [[-1]*64 for x in range(64)]
-    bksq = [-1]*MAX_KKINDEX
-    wksq = [-1]*MAX_KKINDEX
-    idx = 0
-    for x in range(64):
-        for y in range(64):
-            # is x,y legal?
-            if (not possible_attack(x, y, wK)) and (x != y):
-                # normalize
-                    # i <-- x; j <-- y
-                i, j = norm_kkindex(x, y)
-
-                if (kkidx[i][j] == -1):
-                    #still empty
-                    kkidx[i][j] = idx
-                    kkidx[x][y] = idx
-                    bksq[idx] = i
-                    wksq[idx] = j
-                    idx+=1
-
-    return kkidx, wksq, bksq
 
 def kxk_pctoindex(c):
+    BLOCK_Ax = 64
+
     ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0])
 
     ws = list(c.whitePieceSquares)
@@ -1539,7 +1614,7 @@ def kxk_pctoindex(c):
         ws = [flip_nw_se(b) for b in ws]
         bs = [flip_nw_se(b) for b in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
 
     if (ki == -1):
         return NOINDEX
@@ -1560,28 +1635,28 @@ EGKEY = {
     "kqkb": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
     "kqkn": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
 
-    "krkr": Endgamekey(MAX_kakb, 1,  kakb_pctoindex),
+    "krkr": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
     "krkb": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
     "krkn": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
 
-    "kbkb": Endgamekey(MAX_kakb, 1,  kakb_pctoindex),
+    "kbkb": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
     "kbkn": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
 
     "knkn": Endgamekey(MAX_kakb, 1, kakb_pctoindex),
 
     "kqqk": Endgamekey(MAX_kaak, 1, kaak_pctoindex),
-    "kqrk": Endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-    "kqbk": Endgamekey(MAX_kabk, 1,  kabk_pctoindex),
-    "kqnk": Endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+    "kqrk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
+    "kqbk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
+    "kqnk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
 
-    "krrk": Endgamekey(MAX_kaak, 1,  kaak_pctoindex),
+    "krrk": Endgamekey(MAX_kaak, 1, kaak_pctoindex),
     "krbk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
-    "krnk": Endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+    "krnk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
 
-    "kbbk": Endgamekey(MAX_kaak, 1,  kaak_pctoindex),
-    "kbnk": Endgamekey(MAX_kabk, 1,  kabk_pctoindex),
+    "kbbk": Endgamekey(MAX_kaak, 1, kaak_pctoindex),
+    "kbnk": Endgamekey(MAX_kabk, 1, kabk_pctoindex),
 
-    "knnk": Endgamekey(MAX_kaak, 1,  kaak_pctoindex),
+    "knnk": Endgamekey(MAX_kaak, 1, kaak_pctoindex),
     "kqkp": Endgamekey(MAX_kakp, 24, kakp_pctoindex),
     "krkp": Endgamekey(MAX_kakp, 24, kakp_pctoindex),
     "kbkp": Endgamekey(MAX_kakp, 24, kakp_pctoindex),
@@ -1592,16 +1667,16 @@ EGKEY = {
     "kbpk": Endgamekey(MAX_kapk, 24, kapk_pctoindex),
     "knpk": Endgamekey(MAX_kapk, 24, kapk_pctoindex),
 
-    "kppk": Endgamekey(MAX_kppk, MAX_PPINDEX , kppk_pctoindex),
+    "kppk": Endgamekey(MAX_kppk, MAX_PPINDEX, kppk_pctoindex),
 
-    "kpkp": Endgamekey(MAX_kpkp, MAX_PpINDEX , kpkp_pctoindex),
+    "kpkp": Endgamekey(MAX_kpkp, MAX_PpINDEX, kpkp_pctoindex),
 
-    "kppkp": Endgamekey(MAX_kppkp, 24*MAX_PP48_INDEX, kppkp_pctoindex) ,
+    "kppkp": Endgamekey(MAX_kppkp, 24 * MAX_PP48_INDEX, kppkp_pctoindex),
 
-    "kbbkr": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "kbbkb": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "knnkb": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
-    "knnkn": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex) ,
+    "kbbkr": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "kbbkb": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "knnkb": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
+    "knnkn": Endgamekey(MAX_kaakb, 1, kaakb_pctoindex),
 
     "kqqqk": Endgamekey(MAX_kaaak, 1, kaaak_pctoindex),
     "kqqrk": Endgamekey(MAX_kaabk, 1, kaabk_pctoindex),
@@ -1716,73 +1791,6 @@ EGKEY = {
     "kpppk": Endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex),
 }
 
-
-
-def attack_maps_init():
-    attmsk = [0] * 256
-    attmsk[wP] = 1 << 0
-    attmsk[bP] = 1 << 1
-
-    attmsk[KNIGHT] = 1 << 2
-    attmsk[wN] = 1 << 2
-    attmsk[bN] = 1 << 2
-
-    attmsk[BISHOP] = 1 << 3
-    attmsk[wB] = 1 << 3
-    attmsk[bB] = 1 << 3
-
-    attmsk[ROOK] = 1 << 4
-    attmsk[wR] = 1 << 4
-    attmsk[bR] = 1 << 4
-
-    attmsk[QUEEN] = 1 << 5
-    attmsk[wQ] = 1 << 5
-    attmsk[bQ] = 1 << 5
-
-    attmsk[KING] = 1 << 6
-    attmsk[wK] = 1 << 6
-    attmsk[bK] = 1 << 6
-
-    attmap = [[0]*64 for i in range(64)]
-    for to_ in range(64):
-        for from_ in range(64):
-            m = 0
-            rook = REACH[ROOK][from_]
-            bishop = REACH[BISHOP][from_]
-            queen = REACH[QUEEN][from_]
-            knight = REACH[KNIGHT][from_]
-            king = REACH[KING][from_]
-
-            if (bb_isbiton(knight, to_)):
-              m |= attmsk[wN]
-            if (bb_isbiton(king, to_)):
-              m |= attmsk[wK]
-            if (bb_isbiton(rook, to_)):
-              m |= attmsk[wR]
-            if (bb_isbiton(bishop, to_)):
-              m |= attmsk[wB]
-            if (bb_isbiton(queen, to_)):
-              m |= attmsk[wQ]
-
-            to88 = mapx88(to_)
-            fr88 = mapx88(from_)
-            diff = to88 - fr88
-
-            if (diff == 17 or diff == 15):
-              m |= attmsk[wP]
-            if (diff == -17 or diff == -15):
-              m |= attmsk[bP]
-
-            attmap[to_][from_] = m
-
-    return attmsk, attmap
-
-attmsk, attmap = attack_maps_init()
-
-def possible_attack(from_, to_, piece):
-    return (0 != (attmap[to_][from_] & attmsk[piece]))
-
-kkidx, wksq, bksq = init_kkidx()
 
 MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
 
