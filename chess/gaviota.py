@@ -1440,83 +1440,23 @@ def egtb_block_park(currentFilename,block, currentStream):
     currentStream.seek(i)
     return i
 
-
 def egtb_block_unpack(side, n, bp):
     try:
         return [dtm_unpack(side, i) for i in bp[:n]]
     except:
         return [dtm_unpack(side, ord(i)) for i in bp[:n]]
 
-
 def split_index(i):
     return divmod(i, ENTRIES_PER_BLOCK)
 
 class TableBlock:
-    def __init__(self, currentFilename, stm, o,  age):
-        self.key = currentFilename
+    def __init__(self, key, stm, o, age):
+        self.key = key
         self.side = stm
         self.offset = o
         self.age = age
         self.pcache = []
 
-
-def removepiece(ys, yp, j):
-    del ys[j]
-    del yp[j]
-    return ys,  yp
-
-def Opp(side):
-    if (side == 0):
-        return 1
-    return 0
-
-def adjust_up(dist):
-    udist = dist
-    sw = (udist & INFOMASK)
-
-    if ((sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt)):
-        udist += (1 << PLYSHIFT)
-
-    return udist
-
-
-def bestx(side, a, b):
-    comparison = [    #draw, wmate, bmate, forbid
-                                [0,         3,         0,        0],        # draw
-                                [0,         1,         0,        0],        # wmate
-                                [3,         3,         2,        0],        # bmate
-                                [3,         3,         3,        0]]        # forbid
-    # 0 = selectfirst
-    # 1 = selectlowest
-    # 2 = selecthighest
-    # 3 = selectsecond
-
-    xorkey = [0, 3]
-    ret = iFORBID
-
-    if (a == iFORBID):
-        return b
-    if (b == iFORBID):
-        return a
-    retu = [a, a, b, b]
-    '''
-    retu[0] = a; # first parameter
-    retu[1] = a; # the lowest by default
-    retu[2] = b; # highest by default
-    retu[3] = b; # second parameter
-    '''
-    if (b < a):
-        retu[1] = b
-        retu[2] = a
-
-    key = comparison[a & 3][b & 3] ^ xorkey[side]
-    ret = retu[key]
-
-    return ret
-
-
-def unpackdist(d):
-    return d >> PLYSHIFT, d & INFOMASK
 
 tb_DRAW = 0
 tb_WMATE = 1
@@ -1534,6 +1474,58 @@ iBMATEt = tb_BMATE | 4
 iUNKNOWN = tb_UNKNOWN
 
 iUNKNBIT = (1 << 2)
+
+def removepiece(ys, yp, j):
+    del ys[j]
+    del yp[j]
+
+def opp(side):
+    if (side == 0):
+        return 1
+    return 0
+
+def adjust_up(dist):
+    udist = dist
+    sw = udist & INFOMASK
+
+    if (sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt):
+        udist += (1 << PLYSHIFT)
+
+    return udist
+
+def bestx(side, a, b):
+    # 0 = selectfirst
+    # 1 = selectlowest
+    # 2 = selecthighest
+    # 3 = selectsecond
+    comparison = [
+        #draw, wmate, bmate, forbid
+        [0,    3,     0,     0],    # draw
+        [0,    1,     0,     0],    # wmate
+        [3,    3,     2,     0],    # bmate
+        [3,    3,     3,     0],    # forbid
+    ]
+
+    xorkey = [0, 3]
+    ret = iFORBID
+
+    if (a == iFORBID):
+        return b
+    if (b == iFORBID):
+        return a
+
+    retu = [a, a, b, b]
+
+    if (b < a):
+        retu[1] = b
+        retu[2] = a
+
+    key = comparison[a & 3][b & 3] ^ xorkey[side]
+    return retu[key]
+
+def unpackdist(d):
+    return d >> PLYSHIFT, d & INFOMASK
+
 
 def dtm_unpack(stm, packed):
     p = packed
@@ -1599,10 +1591,6 @@ def dtm_unpack(stm, packed):
             prefx = 0
         ret = (prefx | (plies << 3))
     return ret
-
-
-
-
 
 Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
 
@@ -1954,7 +1942,7 @@ class PythonTablebases(object):
             req.black_piece_squares = [flip_ns(s) for s in req.white_squares]
             req.black_piece_types = req.white_types
 
-            req.side = Opp(req.side)
+            req.side = opp(req.side)
             if req.epsq != NOSQUARE:
                 req.epsq = flip_ns(epsq)
         else:
@@ -2028,11 +2016,11 @@ class PythonTablebases(object):
 
                         # Execute capture.
                         xs[i] = req.epsq
-                        ys, yp = removepiece(ys, yp, j)
+                        removepiece(ys, yp, j)
 
                         newdtm = 0
 
-                        subreq = Request(xs, xp, ys, yp, Opp(req.side), NOSQUARE)
+                        subreq = Request(xs, xp, ys, yp, opp(req.side), NOSQUARE)
                         try:
                             epscore = self._tb_probe(subreq)
                             epscore = adjust_up(epscore)
