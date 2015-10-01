@@ -1985,10 +1985,17 @@ class PythonTablebases(object):
 
         if self.current_stream is not None:
             self.current_stream.close()
+            self.current_stream = None
 
         self.current_egkey = egkey
         self.current_stream = open(path, "rb")
         egtb_loadindexes(self.current_egkey, self.current_stream)
+
+    def close(self):
+        """Closes all loaded tables."""
+        if self.current_stream is not None:
+            self.current_stream.close()
+            self.current_stream = None
 
     def egtb_get_dtm(self, side, epsq):
         ok, dtm  = self.tb_probe_(side, epsq)
