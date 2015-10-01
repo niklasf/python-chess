@@ -44,26 +44,7 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
-MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
-
-class ProbeResultType(object):
-    def __init__(self):
-        self.found = False
-        self.stm = MateResult.Unknown
-        self.error = ""
-        self.ply = 0
-        self.dtm = 0
-
-ENTRIES_PER_BLOCK = 16 * 1024;
-
-class currentConf(object):
-    def __init__(self):
-        self.whitePieceTypes = None
-        self.blackPieceTypes = None
-        self.whitePieceSquares = []
-        self.blackPieceSquares = []
-        self.Reversed = False
-
+NOSQUARE = 0
 NOINDEX = -1
 
 MAX_KKINDEX = 462
@@ -103,15 +84,9 @@ MAX_kpppk = MAX_PPP48_INDEX * 64 * 64
 PLYSHIFT = 3
 INFOMASK = 7
 
-Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
-
 WE_FLAG = 1
 NS_FLAG = 2
 NW_SE_FLAG = 4
-
-def map24_b(s):
-    s = s - 8
-    return ((s & 3) + s) >> 1
 
 ITOSQ = [
     chess.H7, chess.G7, chess.F7, chess.E7,
@@ -127,6 +102,31 @@ ITOSQ = [
     chess.D3, chess.C3, chess.B3, chess.A3,
     chess.D2, chess.C2, chess.B2, chess.A2,
 ]
+
+ENTRIES_PER_BLOCK = 16 * 1024;
+
+MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
+
+class ProbeResultType(object):
+    def __init__(self):
+        self.found = False
+        self.stm = MateResult.Unknown
+        self.error = ""
+        self.ply = 0
+        self.dtm = 0
+
+
+class currentConf(object):
+    def __init__(self):
+        self.whitePieceTypes = None
+        self.blackPieceTypes = None
+        self.whitePieceSquares = []
+        self.blackPieceSquares = []
+        self.Reversed = False
+
+def map24_b(s):
+    s = s - 8
+    return ((s & 3) + s) >> 1
 
 def in_queenside(x):
     return (x & (1 << 2)) == 0
@@ -1138,7 +1138,6 @@ class TableBlock:
         self.age = age
         self.pcache = []
 
-NOSQUARE = 0
 
 blockCache = {}
 
@@ -1522,6 +1521,8 @@ def kxk_pctoindex(c):
         return NOINDEX
 
     return ki * BLOCK_Ax + ws[1]
+
+Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
 
 EGKEY = {
     "kqk": Endgamekey(MAX_KXK, 1, kxk_pctoindex),
