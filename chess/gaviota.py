@@ -23,16 +23,16 @@ import ctypes.util
 import os.path
 import logging
 import chess
+import os
+import struct
+
+from enum import Enum
+from lzma import LZMADecompressor
 
 
 LOGGER = logging.getLogger(__name__)
-import os
-import struct
-from enum import Enum
-from lzma import LZMADecompressor
-import chess
 
-MateResult = Enum ("MateResult", "WhiteToMate BlackToMate Draw Unknown")
+MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
 
 class ProbeResultType(object):
     def __init__(self):
@@ -48,7 +48,7 @@ class currentConf(object):
     def __init__(self):
         self.whitePieceTypes = None
         self.blackPieceTypes = None
-        self.whitePieceSquares = [] 
+        self.whitePieceSquares = []
         self.blackPieceSquares = []
         self.Reversed = False
 
@@ -130,7 +130,7 @@ def init_ppp48_idx():
     MAX_J = 48
     MAX_K = 48
     ppp48_idx = [[[-1]* MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
-    # default is noindex 
+    # default is noindex
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_z = [NOSQUARE] * MAX_PPP48_INDEX
@@ -196,7 +196,7 @@ def kabpk_pctoindex(c):
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
     BLOCK_D = 64;
-    
+
     wk = c.whitePieceSquares[0]
     wa = c.whitePieceSquares[1]
     wb = c.whitePieceSquares[2]
@@ -210,7 +210,7 @@ def kabpk_pctoindex(c):
         bk = flipWE(bk)
         wa = flipWE(wa)
         wb = flipWE(wb)
-    
+
     pslice = wsq_to_pidx24(pawn)
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
@@ -221,7 +221,7 @@ def kabkp_pctoindex(c):
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
     BLOCK_D = 64
-   
+
     pawn = c.blackPieceSquares[1]
     wa = c.whitePieceSquares[1]
     wk = c.whitePieceSquares[0]
@@ -230,15 +230,15 @@ def kabkp_pctoindex(c):
 
     if (not (chess.A2 <= pawn and pawn < chess.A8)):
                 return NOINDEX
-    
+
     if ((pawn & 7) > 3):
-        # column is more than 3. e.g. = e,f,g, or h 
+        # column is more than 3. e.g. = e,f,g, or h
         pawn = flipWE(pawn)
         wk = flipWE(wk)
         bk = flipWE(bk)
         wa = flipWE(wa)
         wb = flipWE(wb)
-    
+
     sq = pawn
     # sq ^= 070;
     # do not flipNS
@@ -265,14 +265,14 @@ def kaapk_pctoindex(c):
         bk = flipWE(bk)
         wa = flipWE(wa)
         wa2 = flipWE(wa2)
-    
+
     pslice = wsq_to_pidx24(pawn)
 
     aa_combo = aaidx[wa][wa2]
 
     if (IDX_is_empty(aa_combo)):
                 return NOINDEX
-    
+
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
 def kaakp_pctoindex(c):
@@ -293,7 +293,7 @@ def kaakp_pctoindex(c):
         bk = flipWE(bk)
         wa = flipWE(wa)
         wa2 = flipWE(wa2)
-    
+
     pawn = flipNS(pawn)
     pslice = wsq_to_pidx24(pawn)
 
@@ -301,7 +301,7 @@ def kaakp_pctoindex(c):
 
     if (IDX_is_empty(aa_combo)):
                 return NOINDEX
-    
+
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
 def kapkp_pctoindex(c):
@@ -314,25 +314,25 @@ def kapkp_pctoindex(c):
     pawn_a = c.whitePieceSquares[2]
     bk = c.blackPieceSquares[0]
     pawn_b = c.blackPieceSquares[1]
-    
+
     anchor = pawn_a
     loosen = pawn_b
 
     if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         anchor = flipWE(anchor)
         loosen = flipWE(loosen)
         wk = flipWE(wk)
         bk = flipWE(bk)
         wa = flipWE(wa)
-    
+
     m = wsq_to_pidx24(anchor)
     n = loosen - 8
     pp_slice = m * 48 + n
 
     if (IDX_is_empty(pp_slice)):
                 return NOINDEX
-    
+
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
 
 def kappk_pctoindex(c):
@@ -349,13 +349,13 @@ def kappk_pctoindex(c):
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
     if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         anchor = flipWE(anchor)
         loosen = flipWE(loosen)
         wk = flipWE(wk)
         bk = flipWE(bk)
         wa = flipWE(wa)
-    
+
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
 
@@ -363,7 +363,7 @@ def kappk_pctoindex(c):
 
     if (IDX_is_empty(pp_slice)):
                 return NOINDEX
-    
+
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
 
 def kppka_pctoindex(c):
@@ -386,7 +386,7 @@ def kppka_pctoindex(c):
         wk = flipWE(wk)
         bk = flipWE(bk)
         ba = flipWE(ba)
-    
+
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
 
@@ -394,7 +394,7 @@ def kppka_pctoindex(c):
 
     if (IDX_is_empty(pp_slice)):
                 return NOINDEX
-    
+
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + ba
 
 def kabck_pctoindex(c):
@@ -412,16 +412,16 @@ def kabck_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
+        bs = [flipNW_SE(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
 
     if (IDX_is_empty(ki)):
                 return NOINDEX
@@ -441,16 +441,16 @@ def kabbk_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
-    
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+        bs = [flipNW_SE(i) for i in bs]
+
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
     ai = aaidx[ws[2]][ws[3]]
 
     if (IDX_is_empty(ki) or IDX_is_empty(ai)):
@@ -471,16 +471,16 @@ def kaabk_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
-    
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+        bs = [flipNW_SE(i) for i in bs]
+
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
     ai = aaidx[ws[1]][ws[2]]
 
     if (IDX_is_empty(ki) or IDX_is_empty(ai)):
@@ -488,23 +488,23 @@ def kaabk_pctoindex(c):
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[3]
 
 def init_pp48_idx():
-    # returns pp48_idx[][], pp48_sq_x[], pp48_sq_y[] 
+    # returns pp48_idx[][], pp48_sq_x[], pp48_sq_y[]
     MAX_I = 48;
     MAX_J = 48;
     idx = 0
-    
-    # default is noindex 
-    pp48_idx = [[-1]*MAX_J for i in range(MAX_I)]            
+
+    # default is noindex
+    pp48_idx = [[-1]*MAX_J for i in range(MAX_I)]
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
-    
+
     idx = 0;
     for a in range(chess.H7, chess.A2-1, -1):
         for b in range(a - 1, chess.A2 - 1, -1):
             i = flipWE(flipNS(a)) - 8
             j = flipWE(flipNS(b)) - 8
 
-            if (IDX_is_empty(pp48_idx[i][j])): 
+            if (IDX_is_empty(pp48_idx[i][j])):
                 pp48_idx[i][j] = idx
                 pp48_idx[j][i] = idx
                 pp48_sq_x[idx] = i
@@ -516,7 +516,7 @@ def kaaak_pctoindex(c):
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_Ax = MAX_AAAINDEX
-    
+
     ws = list(c.whitePieceSquares[:N_WHITE])
     bs = list(c.blackPieceSquares[:N_BLACK])
 
@@ -525,15 +525,15 @@ def kaaak_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
-                
+        bs = [flipNW_SE(i) for i in bs]
+
     if (ws[2] < ws[1]):
         tmp = ws[1]
         ws[1] = ws[2]
@@ -564,7 +564,7 @@ def aaa_getsubi(x, y, z):
     return int(calc_idx)
 
 def init_aaa():
-    # getting aaa_base 
+    # getting aaa_base
     comb = [ a * (a - 1) / 2 for a in range(64)];
     comb[0] = 0;
 
@@ -573,9 +573,9 @@ def init_aaa():
     for a in range(64 - 1):
         accum = accum + comb[a]
         aaa_base[a + 1] = accum
-    # end getting aaa_base 
+    # end getting aaa_base
 
-    # initialize aaa_xyz [][] 
+    # initialize aaa_xyz [][]
     aaa_xyz = [[-1] *3 for idx in range(MAX_AAAINDEX)]
 
     idx = 0;
@@ -600,7 +600,7 @@ def kppkp_pctoindex(c):
     pawn_c = c.blackPieceSquares[1]
 
     if ((pawn_c & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         wk = flipWE(wk)
         pawn_a = flipWE(pawn_a)
         pawn_b = flipWE(pawn_b)
@@ -609,7 +609,7 @@ def kppkp_pctoindex(c):
 
     i = flipWE(flipNS(pawn_a)) - 8
     j = flipWE(flipNS(pawn_b)) - 8
-    k = map24_b(pawn_c) # black pawn, so low indexes mean more advanced 0 == A2 
+    k = map24_b(pawn_c) # black pawn, so low indexes mean more advanced 0 == A2
 
     pp48_slice = pp48_idx[i][j]
 
@@ -632,16 +632,16 @@ def kaakb_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
+        bs = [flipNW_SE(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
     ai = aaidx[ws[1]][ws[2]]
 
     if (IDX_is_empty(ki) or IDX_is_empty(ai)):
@@ -655,7 +655,7 @@ def kabkc_pctoindex(c):
     BLOCK_Ax = 64 * 64 * 64
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
-    
+
     ft = flipt[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
     ws = list(c.whitePieceSquares[:N_WHITE])
@@ -664,16 +664,16 @@ def kabkc_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
+        bs = [flipNW_SE(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
 
     if (IDX_is_empty(ki)):
                 return NOINDEX
@@ -692,7 +692,7 @@ def kpkp_pctoindex(c):
     loosen = pawn_b;
 
     if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         anchor = flipWE(anchor)
         loosen = flipWE(loosen)
         wk = flipWE(wk)
@@ -712,7 +712,7 @@ def pp_putanchorfirst(a, b):
     row_b = b & 56;
     row_a = a & 56;
 
-    # default 
+    # default
     anchor = a;
     loosen = b;
     if (row_b > row_a):
@@ -753,7 +753,7 @@ def pp_putanchorfirst(a, b):
 
 def wsq_to_pidx24(pawn):
     sq = pawn
-    # input can be only queen side, pawn valid 
+    # input can be only queen side, pawn valid
     sq ^= 56 # flipNS
     sq -= 8   # down one row
     idx24 = (sq + (sq & 3)) >> 1
@@ -773,11 +773,11 @@ def kppk_pctoindex(c):
     pawn_a = c.whitePieceSquares[1]
     pawn_b = c.whitePieceSquares[2]
     bk = c.blackPieceSquares[0]
-             
+
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
     if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         anchor = flipWE(anchor)
         loosen = flipWE(loosen)
         wk = flipWE(wk)
@@ -807,7 +807,7 @@ def kapk_pctoindex(c):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         pawn = flipWE(pawn)
         wk = flipWE(wk)
         bk = flipWE(bk)
@@ -841,7 +841,7 @@ def kabk_pctoindex(c):
         ws = [flipNW_SE(b) for b in ws]
         bs = [flipNW_SE(b) for b in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
 
     if (IDX_is_empty(ki)):
                 return NOINDEX
@@ -861,7 +861,7 @@ def kakp_pctoindex(c):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         pawn = flipWE(pawn)
         wk = flipWE(wk)
         bk = flipWE(bk)
@@ -876,7 +876,7 @@ def kakp_pctoindex(c):
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
 def init_aaidx():
-    # modifies aabase[], aaidx[][] 
+    # modifies aabase[], aaidx[][]
     # default is noindex
     aaidx = [[-1]*64 for y in range(64)]
     aabase = [0]*MAX_AAINDEX
@@ -884,15 +884,15 @@ def init_aaidx():
     idx = 0
     for x in range(64):
         for y in range(x + 1, 64):
-        
+
             if (IDX_is_empty(aaidx[x][y])):
-                #still empty 
+                #still empty
                 aaidx[x][y] = idx
                 aaidx[y][x] = idx
                 aabase[idx] = x
                 idx+=1
     return aabase, aaidx
-             
+
 def kaak_pctoindex(c):
     N_WHITE = 3
     N_BLACK = 1
@@ -906,16 +906,16 @@ def kaak_pctoindex(c):
     if ((ft & WE_FLAG) != 0):
         ws = [flipWE(i) for i in ws]
         bs = [flipWE(i) for i in bs]
-    
+
     if ((ft & NS_FLAG) != 0):
         ws = [flipNS(i) for i in ws]
         bs = [flipNS(i) for i in bs]
-    
+
     if ((ft & NW_SE_FLAG) != 0):
         ws = [flipNW_SE(i) for i in ws]
-        bs = [flipNW_SE(i) for i in bs]        
+        bs = [flipNW_SE(i) for i in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
     ai = aaidx[ws[1]][ws[2]]
 
     if (IDX_is_empty(ki) or IDX_is_empty(ai)):
@@ -949,7 +949,7 @@ def kakb_pctoindex(c):
         bs[0] = flipNW_SE(bs[0])
         bs[1] = flipNW_SE(bs[1])
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
 
     if (IDX_is_empty(ki)):
                 return NOINDEX
@@ -968,7 +968,7 @@ def kpk_pctoindex(c):
                 return NOINDEX
 
     if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h 
+        #column is more than 3. e.g. = e,f,g, or h
         pawn = flipWE(pawn)
         wk = flipWE(wk)
         bk = flipWE(bk)
@@ -1019,9 +1019,9 @@ def kpppk_pctoindex(c):
 def init_flipt():
     return [[flip_type(j,i) for i in range(64)] for j in range(64)]
 
-             
+
 def init_ppidx():
-    # returns ppidx[][], pp_hi24[], pp_lo48[] 
+    # returns ppidx[][], pp_hi24[], pp_lo48[]
     # default is noindex
     ppidx = [[-1] *48 for i in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
@@ -1038,7 +1038,7 @@ def init_ppidx():
             anchor, loosen = pp_putanchorfirst(a, b)
 
             if ((anchor & 7) > 3):
-                #square in the king side 
+                #square in the king side
                 anchor = flipWE(anchor)
                 loosen = flipWE(loosen)
 
@@ -1056,10 +1056,10 @@ def list_sq_flipNS(s):
     return [ i ^ 56 for i in s]
 
 def sortlists(ws, wp):
-    # input is sorted 
+    # input is sorted
     z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
     wp2, ws2 = zip(*z)
-    return list(ws2), list(wp2) 
+    return list(ws2), list(wp2)
 
 class ZIPINFO:
     extraoffset = 0
@@ -1073,7 +1073,7 @@ MAX_EGKEYS = 145
 SZ = 4
 
 def egtb_loadindexes(currentFilename, currentStream):
-    # Get Reserved bytes, blocksize, offset 
+    # Get Reserved bytes, blocksize, offset
     currentStream.seek(0)
     HeaderStruct=struct.Struct("<10I")
     Header = HeaderStruct.unpack(currentStream.read(HeaderStruct.size))
@@ -1119,9 +1119,9 @@ def  egtb_block_unpack(side, n, bp):
         return [dtm_unpack(side, i) for i in bp[:n]]
     except:
         return [dtm_unpack(side, ord(i)) for i in bp[:n]]
-        
 
-def split_index(entries_per_block, i, o):        
+
+def split_index(entries_per_block, i, o):
     n = int(i / entries_per_block)
     offset = n * entries_per_block
     remainder = int(i - offset)
@@ -1169,16 +1169,16 @@ def adjust_up(dist):
     return udist
 
 
-def bestx(side, a, b):  
+def bestx(side, a, b):
     comparison = [    #draw, wmate, bmate, forbid
                                 [0,         3,         0,        0],        # draw
                                 [0,         1,         0,        0],        # wmate
                                 [3,         3,         2,        0],        # bmate
                                 [3,         3,         3,        0]]        # forbid
-    # 0 = selectfirst   
-    # 1 = selectlowest  
-    # 2 = selecthighest 
-    # 3 = selectsecond  
+    # 0 = selectfirst
+    # 1 = selectlowest
+    # 2 = selecthighest
+    # 3 = selectsecond
 
     xorkey = [0, 3]
     ret = iFORBID
@@ -1189,10 +1189,10 @@ def bestx(side, a, b):
         return a
     retu = [a, a, b, b]
     '''
-    retu[0] = a; # first parameter 
-    retu[1] = a; # the lowest by default 
-    retu[2] = b; # highest by default 
-    retu[3] = b; # second parameter 
+    retu[0] = a; # first parameter
+    retu[1] = a; # the lowest by default
+    retu[2] = b; # highest by default
+    retu[3] = b; # second parameter
     '''
     if (b < a):
         retu[1] = b
@@ -1206,7 +1206,7 @@ def bestx(side, a, b):
 
 def unpackdist(d):
     return d >> PLYSHIFT, d & INFOMASK
-    
+
 tb_DRAW = 0
 tb_WMATE = 1
 tb_BMATE = 2
@@ -1246,7 +1246,7 @@ def dtm_unpack(stm, packed):
             moves = store + 1 + 63
             plies = moves * 2 - 1
             prefx = iWMATE
-        elif (info == iFORBID):        
+        elif (info == iFORBID):
             moves = store + 63
             plies = moves * 2
             prefx = iBMATE
@@ -1266,10 +1266,10 @@ def dtm_unpack(stm, packed):
             prefx = info
         elif (info == iDRAW):
             if (store == 63):
-                # 	exception: no position in the 5-man 
-                #    TBs needs to store 63 for iBMATE 
-                #    it is then used to indicate iWMATE 
-                #    when just overflows 
+                # 	exception: no position in the 5-man
+                #    TBs needs to store 63 for iBMATE
+                #    it is then used to indicate iWMATE
+                #    when just overflows
                 store+=1
 
                 moves = store + 63
@@ -1305,17 +1305,17 @@ def flip_type(x, y):
     ret = 0
 
     if (getcol(x) > 3):
-        x = flipWE(x) # x = x ^ 07  
+        x = flipWE(x) # x = x ^ 07
         y = flipWE(y)
         ret |= 1
     if (getrow(x) > 3):
-        x = flipNS(x) # x = x ^ 070  
+        x = flipNS(x) # x = x ^ 070
         y = flipNS(y)
         ret |= 2
     rowx = getrow(x)
     colx = getcol(x)
     if (rowx > colx):
-        x = flipNW_SE(x) # x = ((x&7)<<3) | (x>>3) 
+        x = flipNW_SE(x) # x = ((x&7)<<3) | (x>>3)
         y = flipNW_SE(y)
         ret |= 4
     rowy = getrow(y)
@@ -1359,15 +1359,15 @@ bQ = (QUEEN | BLACKS)
 
 def norm_kkindex(x, y):
     if (getcol(x) > 3):
-        x = flipWE(x) # x = x ^ 07  
+        x = flipWE(x) # x = x ^ 07
         y = flipWE(y)
     if (getrow(x) > 3):
-        x = flipNS(x) # x = x ^ 070  
+        x = flipNS(x) # x = x ^ 070
         y = flipNS(y)
     rowx = getrow(x)
     colx = getcol(x)
     if (rowx > colx):
-        x = flipNW_SE(x) # x = ((x&7)<<3) | (x>>3) 
+        x = flipNW_SE(x) # x = ((x&7)<<3) | (x>>3)
         y = flipNW_SE(y)
     rowy = getrow(y)
     coly = getcol(y)
@@ -1382,7 +1382,7 @@ rstep = [ 1, 16, -1, -16, 0 ]
 nstep = [ 18, 33, 31, 14, -18, -33, -31, -14, 0 ]
 kstep = [ 1, 17, 16, 15, -1, -17, -16, -15, 0 ]
 
-psteparr = [None, None, # NOPIECE & PAWN 
+psteparr = [None, None, # NOPIECE & PAWN
            nstep, bstep, rstep, kstep, kstep] # same for Q & K
 
 pslider = [False, False,
@@ -1390,8 +1390,8 @@ pslider = [False, False,
 ]
 
 def tolist_rev(occ, input_piece, sq, thelist):
-        # reversible moves from pieces. Output is a list of squares     
-    
+        # reversible moves from pieces. Output is a list of squares
+
 
     from_ = map88(sq)
 
@@ -1422,7 +1422,7 @@ def tolist_rev(occ, input_piece, sq, thelist):
                 if (0 == (0x1 & (occ >> us))):
                     thelist.append(us)
 
-def reach_init():    
+def reach_init():
     stp_a = [ 15, -15 ]
     stp_b = [ 17, -17 ]
     Reach = [[-1]*64 for q in range(7)]
@@ -1468,10 +1468,10 @@ def BB_ISBITON(bb, bit):
 def mapx88(x):
         return ((x & 56) << 1) | (x & 7)
 
-              
+
 def init_kkidx():
-    # returns kkidx[][], wksq[], bksq[] 
- 
+    # returns kkidx[][], wksq[], bksq[]
+
     # default is noindex
     kkidx = [[-1]*64 for x in range(64)]
     bksq = [-1]*MAX_KKINDEX
@@ -1481,12 +1481,12 @@ def init_kkidx():
         for y in range(64):
             # is x,y legal?
             if (not possible_attack(x, y, wK)) and (x != y):
-                # normalize 
-                    # i <-- x; j <-- y 
+                # normalize
+                    # i <-- x; j <-- y
                 i, j = norm_kkindex(x, y)
-    
+
                 if (kkidx[i][j] == -1):
-                    #still empty 
+                    #still empty
                     kkidx[i][j] = idx
                     kkidx[x][y] = idx
                     bksq[idx] = i
@@ -1495,7 +1495,7 @@ def init_kkidx():
 
     return kkidx, wksq, bksq
 
-def kxk_pctoindex(c):        
+def kxk_pctoindex(c):
     ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0])
 
     ws = list(c.whitePieceSquares)
@@ -1513,7 +1513,7 @@ def kxk_pctoindex(c):
         ws = [flipNW_SE(b) for b in ws]
         bs = [flipNW_SE(b) for b in bs]
 
-    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king] 
+    ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
 
     if (ki == -1):
         return NOINDEX
@@ -1838,7 +1838,7 @@ class PythonTableBase(object):
         self.epsq = board.ep_square if board.ep_square else 0
         return self._Probe(side,  self.epsq)
 
-        
+
     def _Probe(self,  realside,  epsq):
         probeResult = ProbeResultType()
 
@@ -1904,12 +1904,12 @@ class PythonTableBase(object):
         self.whiteSquares, self.whiteTypes = sortlists(self.whiteSquares, self.whiteTypes)
         self.blackSquares, self.blackTypes = sortlists(self.blackSquares, self.blackTypes)
 
-        fenType = [ " ", "p", "n", "b", "r", "q", "k" ] 
+        fenType = [ " ", "p", "n", "b", "r", "q", "k" ]
         blackLetters = ""
         whiteLetters = ""
 
         '''
-        whiteScore = 0    
+        whiteScore = 0
         foreach (int i in whiteTypes)
             whiteScore += i;
             whiteLetters += new String(fenType[i], 1);
@@ -1994,7 +1994,7 @@ class PythonTableBase(object):
                     ys = list(self.whitePieceSquares)
                     yp = list(self.whitePieceTypes)
 
-                # captured pawn, trick: from epsquare to captured 
+                # captured pawn, trick: from epsquare to captured
                 xed = epsq ^ (1 << 3)
 
                 # find index captured (j)
@@ -2002,21 +2002,21 @@ class PythonTableBase(object):
                     j = ys.index(xed)
                 except:
                     j = -1
-                # try first possible ep capture 
+                # try first possible ep capture
                 if (0 == (0x88 & (map88(xed) + 1))):
                     capturer_a = xed + 1
-                # try second possible ep capture 
+                # try second possible ep capture
                 if (0 == (0x88 & (map88(xed) - 1))):
                     capturer_b = xed - 1
 
                 if ((j > -1) and (ys[j] == xed)):
                     # xsl = xs.Count
-                    # find capturers (i) 
+                    # find capturers (i)
                     for i in range(len(xs)): # (i = 0; (i < xsl) && okcall i++)
                         if (xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b) and okcall):
                             epscore = iFORBID
 
-                            # execute capture 
+                            # execute capture
                             xs[i] = epsq
                             ys, yp = removepiece(ys, yp, j)
 
@@ -2044,7 +2044,7 @@ class PythonTableBase(object):
                                 epscore = newdtm
                                 epscore = adjust_up(epscore)
 
-                                # chooses to ep or not 
+                                # chooses to ep or not
                                 dtm = bestx(side, epscore, dtm)
                             else:
                                 break
@@ -2056,7 +2056,7 @@ class PythonTableBase(object):
         blocks_per_side = 1 + int((max - 1) / entries_per_block)
         block_in_side = int(idx / entries_per_block)
 
-        return side * blocks_per_side + block_in_side 
+        return side * blocks_per_side + block_in_side
 
     def egtb_block_getsize(self, idx):
         blocksz = entries_per_block
@@ -2065,9 +2065,9 @@ class PythonTableBase(object):
         offset = block * blocksz
 
         if ((offset + blocksz) > maxindex):
-            x = maxindex - offset # last block size 
+            x = maxindex - offset # last block size
         else:
-            x = blocksz # size of a normal block 
+            x = blocksz # size of a normal block
         return x
 
     def egtb_filepeek(self, side, idx, dtm):
@@ -2085,13 +2085,13 @@ class PythonTableBase(object):
         fseek_i = (side * maximum + idx)
         self.currentStream.seek(fseek_i)
 
-    
+
     def tb_probe_(self, side, epsq):
         c = currentConf()
         c.whitePieceSquares = self.whitePieceSquares
-        c.whitePieceTypes   = self.whitePieceTypes 
+        c.whitePieceTypes   = self.whitePieceTypes
         c.blackPieceSquares = self.blackPieceSquares
-        c.blackPieceTypes   = self.blackPieceTypes 
+        c.blackPieceTypes   = self.blackPieceTypes
         idx = self.currentPctoi(c)
         offset = 0
         offset, remainder = split_index(entries_per_block, idx, offset)
