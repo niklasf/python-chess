@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 import ctypes
 import ctypes.util
 import fnmatch
@@ -1157,7 +1156,6 @@ def kpkp_pctoindex(c):
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-
 def kppk_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
@@ -1708,24 +1706,12 @@ def dtm_unpack(stm, packed):
 
 
 class TableBlock:
-    def __init__(self, key, side, offset, age):
-        self.key = key
+    def __init__(self, egkey, side, offset, age):
+        self.egkey = egkey
         self.side = side
         self.offset = offset
         self.age = age
-        self.pcache = []
-
-
-MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
-
-
-class ProbeResultType(object):
-    def __init__(self):
-        self.found = False
-        self.stm = MateResult.Unknown
-        self.error = ""
-        self.ply = 0
-        self.dtm = 0
+        self.pcache = None
 
 
 class Request(object):
@@ -1805,6 +1791,7 @@ class PythonTablebases(object):
         if len(white_squares) + len(black_squares) > 5:
             return None
 
+        # Probe.
         try:
             dtm = self.egtb_get_dtm(req)
         except IndexError:
@@ -1812,42 +1799,33 @@ class PythonTablebases(object):
 
         ply, res = unpackdist(dtm)
 
-        probeResult = ProbeResultType()
-
-        # TODO: Refactor this section.
-        probeResult.stm = MateResult.Unknown
-        ply,  res = unpackdist(dtm)
-
-        ret = 0
-
-        if (res == iWMATE):
-            if (req.is_reversed):
-                probeResult.stm = MateResult.BlackToMate
+        if res == iDRAW:
+            # Draw.
+            return 0
+        elif res == iWMATE:
+            # White mates in the stored position.
+            if req.realside == 1:
+                if req.is_reversed:
+                    return ply
+                else:
+                    return -ply
             else:
-                probeResult.stm = MateResult.WhiteToMate
-        elif (res == iBMATE):
-            if (req.is_reversed):
-                probeResult.stm = MateResult.WhiteToMate
+                if req.is_reversed:
+                    return -ply
+                else:
+                    return ply
+        elif res == iBMATE:
+            # Black mates in the stored position.
+            if req.realside == 0:
+                if req.is_reversed:
+                    return ply
+                else:
+                    return -ply
             else:
-                probeResult.stm = MateResult.BlackToMate
-        elif (res == iDRAW):
-            probeResult.stm = MateResult.Draw
-
-        if (req.realside == 0):
-            if (probeResult.stm == MateResult.BlackToMate):
-                ret = -ply
-            elif (probeResult.stm == MateResult.WhiteToMate):
-                ret = ply
-        else:
-            if (probeResult.stm == MateResult.WhiteToMate):
-                ret = -ply
-            elif (probeResult.stm == MateResult.BlackToMate):
-                ret = ply
-
-        probeResult.dtm = ret
-        probeResult.ply = ply
-
-        return probeResult.dtm
+                if req.is_reversed:
+                    return -ply
+                else:
+                    return ply
 
     def probe_wdl(self, board):
         """
@@ -2049,7 +2027,7 @@ class PythonTablebases(object):
             t.pcache = egtb_block_unpack(req.side, n, buffer_packed)
 
             # Update LRU block cache.
-            self.block_cache[(t.key, t.offset, t.side)] = t
+            self.block_cache[(t.egkey, t.offset, t.side)] = t
             if len(self.block_cache) > 256:
                 lru_cache_key, lru_age = None, None
                 for cache_key, cache_entry in block_cache.items():
