@@ -2024,14 +2024,14 @@ class PythonTablebases(object):
 
             # Update LRU block cache.
             self.block_cache[(t.egkey, t.offset, t.side)] = t
-            if len(self.block_cache) > 256:
+            if len(self.block_cache) > 128:
                 lru_cache_key, lru_age = None, None
-                for cache_key, cache_entry in block_cache.items():
-                    if lru_age is None or cache_entry.block_age < lru_age:
-                        lru_cache_key = cache_entry
-                        lru_age = cache_entry.block_age
+                for cache_key, cache_entry in self.block_cache.items():
+                    if lru_age is None or cache_entry.age < lru_age:
+                        lru_cache_key = cache_key
+                        lru_age = cache_entry.age
 
-                del block_age[lru_cache_key]
+                del self.block_cache[lru_cache_key]
         else:
             t.age = self.block_age
 
