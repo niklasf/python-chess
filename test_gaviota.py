@@ -3,21 +3,10 @@
 from __future__ import print_function
 
 import chess
-#import chess.gaviota
-import chess.gaviota_native
+import chess.gaviota
 
 #tables = chess.gaviota.open_tablebases("data/gaviota")
-tables = chess.gaviota_native.PythonTableBase("data/gaviota")
-
-def swap_colors(fen):
-    parts = fen.split()
-    turn = "w" if fen[1] == "b" else "b"
-    return " ".join([parts[0].swapcase(), turn] + parts[2:])
-
-def mirror_vertical(fen):
-    parts = fen.split()
-    position_parts = "/".join(reversed(parts[0].split("/")))
-    return " ".join([position_parts] + parts[1:])
+tables = chess.gaviota.PythonTableBase("data/gaviota")
 
 with open("data/long-endgames.epd") as epds:
     for line, epd in enumerate(epds):
@@ -38,13 +27,6 @@ with open("data/long-endgames.epd") as epds:
             expected -= 1
 
         # Check DTM.
-        probe = tables.probe_dtm(board)
-        dtm = probe.dtm
-        print(board.epd(line=line, dtm=expected, got=dtm))
-        assert expected == dtm
-
-        # Check DTM with mirrored board.
-        board = chess.Board(mirror_vertical(swap_colors(board.fen())))
         probe = tables.probe_dtm(board)
         dtm = probe.dtm
         print(board.epd(line=line, dtm=expected, got=dtm))

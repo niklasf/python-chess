@@ -2325,10 +2325,12 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     Opens a collection of tablebases for probing.
 
-    Currently the only access method is via the shared library libgtb.
-    You can optionally provide a specific library name or a library loader.
+    First native access via the shared library libgtb is tried. You can
+    optionally provide a specific library name or a library loader.
     The shared library has global state and caches, so only one instance can
     be open at a time.
+
+    Second pure Python probing code is tried.
     """
     try:
         if LibraryLoader:
