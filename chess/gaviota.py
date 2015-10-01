@@ -1421,47 +1421,50 @@ def tolist_rev(occ, input_piece, sq, thelist):
                     thelist.append(us)
 
 def reach_init():
-    stp_a = [ 15, -15 ]
-    stp_b = [ 17, -17 ]
-    Reach = [[-1]*64 for q in range(7)]
+    stp_a = [15, -15]
+    stp_b = [17, -17]
+    reach = [[-1] * 64 for _ in range(7)]
 
-    for pc in range(KNIGHT, KING+1):
+    for pc in range(KNIGHT, KING + 1):
         for sq in range(64):
             bb = 0
             buflist = []
             tolist_rev(0, pc, sq, buflist)
-            thelist = list(buflist)
-            for li in thelist:
+            for li in buflist:
                 bb |= 1 << li
-                Reach[pc][sq] = bb
+                reach[pc][sq] = bb
 
     for side in range(2):
         index = 1 ^ side
-        STEP_A = stp_a[side]
-        STEP_B = stp_b[side]
+        step_a = stp_a[side]
+        step_b = stp_b[side]
         for sq in range(64):
             sq88 = map88(sq)
             bb = 0
 
-            thelist = list()
+            thelist = []
 
-            s = sq88 + STEP_A
-            if (0 == (s & 0x88)):
+            s = sq88 + step_a
+            if 0 == (s & 0x88):
                 us = unmap88(s)
                 thelist.append(us)
-            s = sq88 + STEP_B
-            if (0 == (s & 0x88)):
+
+            s = sq88 + step_b
+            if 0 == (s & 0x88):
                 us = unmap88(s)
                 thelist.append(us)
 
             for li in thelist:
                 bb |= 1 << li
-            Reach[index][sq] = bb
 
-    return Reach
+            reach[index][sq] = bb
 
-def BB_ISBITON(bb, bit):
-        return (0 != (((bb) >> (bit)) & (1)))
+    return reach
+
+REACH = reach_init()
+
+def bb_isbiton(bb, bit):
+        return 0 != (bb >> bit) & 1
 
 def mapx88(x):
         return ((x & 56) << 1) | (x & 7)
@@ -1690,7 +1693,6 @@ EGKEY = {
 
 # inits
 
-Reach = reach_init()
 flipt = init_flipt()
 aabase, aaidx = init_aaidx()
 aaa_base, aaa_xyz = init_aaa()
@@ -1727,21 +1729,21 @@ def attack_maps_init():
     for to_ in range(64):
         for from_ in range(64):
             m = 0
-            rook = Reach[ROOK][from_]
-            bishop = Reach[BISHOP][from_]
-            queen = Reach[QUEEN][from_]
-            knight = Reach[KNIGHT][from_]
-            king = Reach[KING][from_]
+            rook = REACH[ROOK][from_]
+            bishop = REACH[BISHOP][from_]
+            queen = REACH[QUEEN][from_]
+            knight = REACH[KNIGHT][from_]
+            king = REACH[KING][from_]
 
-            if (BB_ISBITON(knight, to_)):
+            if (bb_isbiton(knight, to_)):
               m |= attmsk[wN]
-            if (BB_ISBITON(king, to_)):
+            if (bb_isbiton(king, to_)):
               m |= attmsk[wK]
-            if (BB_ISBITON(rook, to_)):
+            if (bb_isbiton(rook, to_)):
               m |= attmsk[wR]
-            if (BB_ISBITON(bishop, to_)):
+            if (bb_isbiton(bishop, to_)):
               m |= attmsk[wB]
-            if (BB_ISBITON(queen, to_)):
+            if (bb_isbiton(queen, to_)):
               m |= attmsk[wQ]
 
             to88 = mapx88(to_)
