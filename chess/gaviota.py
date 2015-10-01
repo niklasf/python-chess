@@ -309,6 +309,41 @@ def init_aaa():
 AAA_BASE, AAA_XYZ = init_aaa()
 
 
+def init_ppidx():
+    ppidx = [[-1] * 48 for i in range(24)]
+    pp_hi24 = [-1] * MAX_PPINDEX
+    pp_lo48 = [-1] * MAX_PPINDEX
+
+    idx = 0
+    for a in range(chess.H7, chess.A2 - 1, -1):
+        if in_queenside(a):
+            continue
+
+        for b in range(a - 1, chess.A2 - 1, -1):
+            anchor = 0
+            loosen = 0
+
+            anchor, loosen = pp_putanchorfirst(a, b)
+
+            if (anchor & 7) > 3:
+                # Square in the kingside.
+                anchor = flip_we(anchor)
+                loosen = flip_we(loosen)
+
+            i = wsq_to_pidx24(anchor)
+            j = wsq_to_pidx48(loosen)
+
+            if idx_is_empty(ppidx[i][j]):
+                ppidx[i][j] = idx
+                pp_hi24[idx] = i
+                pp_lo48[idx] = j
+                idx += 1
+
+    return ppidx, pp_hi24, pp_lo48
+
+PPIDX, PP_HI24, PP_LO48 = init_ppidx()
+
+
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
@@ -507,7 +542,7 @@ def kappk_pctoindex(c):
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
 
-    pp_slice = ppidx[i][j]
+    pp_slice = PPIDX[i][j]
 
     if idx_is_empty(pp_slice):
         return NOINDEX
@@ -538,7 +573,7 @@ def kppka_pctoindex(c):
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
 
-    pp_slice = ppidx[i][j]
+    pp_slice = PPIDX[i][j]
 
     if idx_is_empty(pp_slice):
         return NOINDEX
@@ -893,7 +928,7 @@ def kppk_pctoindex(c):
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
 
-    pp_slice = ppidx[i][j]
+    pp_slice = PPIDX[i][j]
 
     if idx_is_empty(pp_slice):
         return NOINDEX
@@ -1108,38 +1143,6 @@ def kpppk_pctoindex(c):
 
 
 
-def init_ppidx():
-    # returns ppidx[][], pp_hi24[], pp_lo48[]
-    # default is noindex
-    ppidx = [[-1] *48 for i in range(24)]
-    pp_hi24 = [-1] * MAX_PPINDEX
-    pp_lo48 = [-1] * MAX_PPINDEX
-
-    idx = 0;
-    for a in range(chess.H7,chess.A2-1,-1):
-        if ((a & 7) < 4): # square in the queen side */:
-            continue
-        for b in range(a - 1, chess.A2 - 1, -1):
-            anchor = 0
-            loosen = 0
-
-            anchor, loosen = pp_putanchorfirst(a, b)
-
-            if ((anchor & 7) > 3):
-                #square in the king side
-                anchor = flip_we(anchor)
-                loosen = flip_we(loosen)
-
-            i = wsq_to_pidx24(anchor)
-            j = wsq_to_pidx48(loosen)
-
-            if idx_is_empty(ppidx[i][j]):
-                ppidx[i][j] = idx
-                pp_hi24[idx] = i
-                pp_lo48[idx] = j
-                idx += 1
-
-    return ppidx, pp_hi24, pp_lo48, idx
 
 def list_sq_flip_ns(s):
     return [ i ^ 56 for i in s]
@@ -1711,9 +1714,7 @@ EGKEY = {
     "kpppk": Endgamekey(MAX_kpppk, MAX_PPP48_INDEX, kpppk_pctoindex),
 }
 
-# inits
 
-ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
 
 def attack_maps_init():
     attmsk = [0] * 256
