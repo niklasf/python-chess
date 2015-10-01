@@ -44,7 +44,7 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
-NOSQUARE = 0
+NOSQUARE = 64
 NOINDEX = -1
 
 MAX_KKINDEX = 462
@@ -1831,7 +1831,7 @@ class PythonTablebases(object):
         self.blackSquares,  self.blackTypes = zip(*black)
         side = 0 if (board.turn == chess.WHITE) else 1
         self.realside = side
-        self.epsq = board.ep_square if board.ep_square else 0
+        self.epsq = board.ep_square if board.ep_square else NOSQUARE
         return self._Probe(side,  self.epsq)
 
 
