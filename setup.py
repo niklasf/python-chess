@@ -67,7 +67,7 @@ setuptools.setup(
     version=chess.__version__,
     author=chess.__author__,
     author_email=chess.__email__,
-    description="A pure Python chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Syzygy tablebase probing and UCI engine communication.",
+    description="A pure Python chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Gaviota tablebase probing, Syzygy tablebase probing and UCI engine communication.",
     long_description=read_description(),
     license="GPL3",
     keywords="chess fen pgn polyglot syzygy gaviota uci",
