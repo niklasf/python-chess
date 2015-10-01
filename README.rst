@@ -52,8 +52,8 @@ https://python-chess.readthedocs.org/en/latest/
 * `Core <https://python-chess.readthedocs.org/en/latest/core.html>`_
 * `PGN parsing and writing <https://python-chess.readthedocs.org/en/latest/pgn.html>`_
 * `Polyglot opening book reading <https://python-chess.readthedocs.org/en/latest/polyglot.html>`_
-* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
 * `Gaviota endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/gaviota.html>`_
+* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
 * `UCI engine communication <https://python-chess.readthedocs.org/en/latest/uci.html>`_
 * `Changelog <https://python-chess.readthedocs.org/en/latest/changelog.html>`_
 
@@ -278,8 +278,7 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
-* Probe Gaviota endgame tablebases (DTM, WDL) via a wrapper around
-  `libgtb <https://github.com/michiguel/Gaviota-Tablebases>`_.
+* Probe Gaviota endgame tablebases (DTM, WDL).
   `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
 
   .. code:: python
