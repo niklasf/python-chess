@@ -132,25 +132,6 @@ ENTRIES_PER_BLOCK = 16 * 1024;
 
 EGTB_MAXBLOCKSIZE = 65536
 
-MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
-
-class ProbeResultType(object):
-    def __init__(self):
-        self.found = False
-        self.stm = MateResult.Unknown
-        self.error = ""
-        self.ply = 0
-        self.dtm = 0
-
-
-class currentConf(object):
-    def __init__(self):
-        self.whitePieceTypes = None
-        self.blackPieceTypes = None
-        self.whitePieceSquares = []
-        self.blackPieceSquares = []
-        self.Reversed = False
-
 def map24_b(s):
     s = s - 8
     return ((s & 3) + s) >> 1
@@ -162,26 +143,27 @@ def init_ppp48_idx():
     MAX_I = 48
     MAX_J = 48
     MAX_K = 48
-    ppp48_idx = [[[-1]* MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
-    # default is noindex
+    ppp48_idx = [[[-1] * MAX_I for j in range(MAX_J)] for k in range(MAX_K)]
+
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_z = [NOSQUARE] * MAX_PPP48_INDEX
+
     idx = 0
     for x in range(48):
-        for y in range(x+1,48):
-            for z in range(y+1,48):
+        for y in range(x + 1, 48):
+            for z in range(y + 1, 48):
                 a = ITOSQ[x]
                 b = ITOSQ[y]
                 c = ITOSQ[z]
-                if (not in_queenside(b)) or (not in_queenside(c)):
+                if not in_queenside(b) or not in_queenside(c):
                     continue
 
                 i = a - 8
                 j = b - 8
                 k = c - 8
 
-                if (IDX_is_empty(ppp48_idx[i][j][k])):
+                if IDX_is_empty(ppp48_idx[i][j][k]):
                     ppp48_idx[i][j][k] = idx
                     ppp48_idx[i][k][j] = idx
                     ppp48_idx[j][i][k] = idx
@@ -192,6 +174,7 @@ def init_ppp48_idx():
                     ppp48_sq_y[idx] = j
                     ppp48_sq_z[idx] = k
                     idx = idx + 1
+
     return ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z
 
 def kapkb_pctoindex(c):
@@ -1765,6 +1748,25 @@ def possible_attack(from_, to_, piece):
     return (0 != (attmap[to_][from_] & attmsk[piece]))
 
 kkidx, wksq, bksq = init_kkidx()
+
+MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
+
+class ProbeResultType(object):
+    def __init__(self):
+        self.found = False
+        self.stm = MateResult.Unknown
+        self.error = ""
+        self.ply = 0
+        self.dtm = 0
+
+
+class currentConf(object):
+    def __init__(self):
+        self.whitePieceTypes = None
+        self.blackPieceTypes = None
+        self.whitePieceSquares = []
+        self.blackPieceSquares = []
+        self.Reversed = False
 
 
 class PythonTablebases(object):
