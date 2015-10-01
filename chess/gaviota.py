@@ -309,6 +309,68 @@ def init_aaa():
 AAA_BASE, AAA_XYZ = init_aaa()
 
 
+def pp_putanchorfirst(a, b):
+    row_b = b & 56
+    row_a = a & 56
+
+    # Default.
+    anchor = a
+    loosen = b
+
+    if row_b > row_a:
+        anchor = b
+        loosen = a
+    elif row_b == row_a:
+        x = a
+        col = x & 7
+        inv = col ^ 7
+        x = (1 << col) | (1 << inv)
+        x &= (x - 1)
+        hi_a = x
+
+        x = b
+        col = x & 7
+        inv = col ^ 7
+        x = (1 << col) | (1 << inv)
+        x &= (x - 1)
+        hi_b = x
+
+        if hi_b > hi_a:
+            anchor = b
+            loosen = a
+
+        if hi_b < hi_a:
+            anchor = a
+            loosen = b
+
+        if hi_b == hi_a:
+            if a < b:
+                anchor = a
+                loosen = b
+            else:
+                anchor = b
+                loosen = a
+
+    return anchor, loosen
+
+def wsq_to_pidx24(pawn):
+    sq = pawn
+
+    sq = flip_ns(sq)
+    sq -= 8 # Down one row.
+
+    idx24 = (sq + (sq & 3)) >> 1
+    return idx24
+
+def wsq_to_pidx48(pawn):
+    sq = pawn
+
+    sq = flip_ns(sq)
+    sq -= 8 # Down one row.
+
+    idx48 = sq
+    return idx48
+
 def init_ppidx():
     ppidx = [[-1] * 48 for i in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
@@ -850,63 +912,6 @@ def kpkp_pctoindex(c):
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-def pp_putanchorfirst(a, b):
-    row_b = b & 56;
-    row_a = a & 56;
-
-    # default
-    anchor = a;
-    loosen = b;
-    if (row_b > row_a):
-        anchor = b;
-        loosen = a;
-    elif (row_b == row_a):
-            x = a
-            col = x & 7
-            inv = col ^ 7
-            x = (1 << col) | (1 << inv)
-            x &= (x - 1)
-            hi_a = x
-
-            x = b
-            col = x & 7
-            inv = col ^ 7
-            x = (1 << col) | (1 << inv)
-            x &= (x - 1)
-            hi_b = x
-
-            if (hi_b > hi_a):
-                anchor = b
-                loosen = a
-
-            if (hi_b < hi_a):
-                anchor = a
-                loosen = b
-
-            if (hi_b == hi_a):
-                if (a < b):
-                    anchor = a
-                    loosen = b
-                else:
-                    anchor = b
-                    loosen = a
-
-    return anchor, loosen
-
-def wsq_to_pidx24(pawn):
-    sq = pawn
-    # input can be only queen side, pawn valid
-    sq ^= 56 # flip_ns
-    sq -= 8   # down one row
-    idx24 = (sq + (sq & 3)) >> 1
-    return idx24
-
-def wsq_to_pidx48(pawn):
-    sq = pawn
-    sq ^= 56; # flip_ns
-    sq -= 8;   # down one row
-    idx48 = sq;
-    return idx48
 
 def kppk_pctoindex(c):
     BLOCK_Ax = 64 * 64
