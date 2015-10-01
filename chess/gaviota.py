@@ -1804,7 +1804,7 @@ class Request(object):
 
 
 class PythonTablebases(object):
-    """ Provide access to Gaviota tablebases via full python code."""
+    """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self, directory):
         self.paths = []
@@ -1837,6 +1837,13 @@ class PythonTablebases(object):
         Otherwise the absolute value is the number of half moves until
         forced mate. The value is positive if the side to move is winning,
         otherwise it is negative.
+
+        In the example position white to move will get mated in 10 half moves:
+
+        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
+        ...     tablebases.probe_dtm(chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1"))
+        ...
+        -10
         """
         # Prepare the tablebase request.
         white = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
@@ -1898,6 +1905,35 @@ class PythonTablebases(object):
         probeResult.ply = ply
 
         return probeResult.dtm
+
+    def probe_wdl(self, board):
+        """
+        Probes for win/draw/loss-information.
+
+        Returns ``None`` if the position was not found in any of the tables.
+
+        Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
+        and ``-1`` if the side to move is losing.
+
+        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
+        ...     tablebases.probe_wdl(chess.Board("4k3/8/B7/8/8/8/4K3 w - 0 1"))
+        ...
+        0
+        """
+        dtm = self.probe_dtm(board)
+
+        if dtm == 0:
+            if board.is_checkmate():
+                return -1
+            else:
+                return 0
+        elif dtm > 0:
+            return 1
+        elif dtm < 0:
+            return -1
+        else:
+            return None
+
 
     def _setup_tablebase(self, req):
         white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.white_types])
@@ -2144,38 +2180,9 @@ class NativeTablebases(object):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
 
     def probe_dtm(self, board):
-        """
-        Probes for depth to mate information.
-
-        Returns ``None`` if the position was not found in any of the tables.
-
-        Otherwise the absolute value is the number of half moves until
-        forced mate. The value is positive if the side to move is winning,
-        otherwise it is negative.
-
-        In the example position white to move will get mated in 10 half moves:
-
-        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_dtm(chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1"))
-        ...
-        -10
-        """
         return self._probe_hard(board)
 
     def probe_wdl(self, board):
-        """
-        Probes for win/draw/loss-information.
-
-        Returns ``None`` if the position was not found in any of the tables.
-
-        Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
-        and ``-1`` if the side to move is losing.
-
-        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_wdl(chess.Board("4k3/8/B7/8/8/8/4K3 w - 0 1"))
-        ...
-        0
-        """
         return self._probe_hard(board, wdl_only=True)
 
     def _probe_hard(self, board, wdl_only=False):
