@@ -1389,164 +1389,6 @@ def kpppk_pctoindex(c):
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 
-def sortlists(ws, wp):
-    z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
-    wp2, ws2 = zip(*z)
-    return list(ws2), list(wp2)
-
-
-def egtb_block_unpack(side, n, bp):
-    try:
-        return [dtm_unpack(side, i) for i in bp[:n]]
-    except:
-        return [dtm_unpack(side, ord(i)) for i in bp[:n]]
-
-def split_index(i):
-    return divmod(i, ENTRIES_PER_BLOCK)
-
-class TableBlock:
-    def __init__(self, key, stm, o, age):
-        self.key = key
-        self.side = stm
-        self.offset = o
-        self.age = age
-        self.pcache = []
-
-
-tb_DRAW = 0
-tb_WMATE = 1
-tb_BMATE = 2
-tb_FORBID = 3
-tb_UNKNOWN = 7
-iDRAW = tb_DRAW
-iWMATE = tb_WMATE
-iBMATE = tb_BMATE
-iFORBID = tb_FORBID
-
-iDRAWt = tb_DRAW | 4
-iWMATEt = tb_WMATE | 4
-iBMATEt = tb_BMATE | 4
-iUNKNOWN = tb_UNKNOWN
-
-iUNKNBIT = (1 << 2)
-
-def removepiece(ys, yp, j):
-    del ys[j]
-    del yp[j]
-
-def opp(side):
-    if (side == 0):
-        return 1
-    return 0
-
-def adjust_up(dist):
-    udist = dist
-    sw = udist & INFOMASK
-
-    if (sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt):
-        udist += (1 << PLYSHIFT)
-
-    return udist
-
-def bestx(side, a, b):
-    # 0 = selectfirst
-    # 1 = selectlowest
-    # 2 = selecthighest
-    # 3 = selectsecond
-    comparison = [
-        #draw, wmate, bmate, forbid
-        [0,    3,     0,     0],    # draw
-        [0,    1,     0,     0],    # wmate
-        [3,    3,     2,     0],    # bmate
-        [3,    3,     3,     0],    # forbid
-    ]
-
-    xorkey = [0, 3]
-    ret = iFORBID
-
-    if (a == iFORBID):
-        return b
-    if (b == iFORBID):
-        return a
-
-    retu = [a, a, b, b]
-
-    if (b < a):
-        retu[1] = b
-        retu[2] = a
-
-    key = comparison[a & 3][b & 3] ^ xorkey[side]
-    return retu[key]
-
-def unpackdist(d):
-    return d >> PLYSHIFT, d & INFOMASK
-
-
-def dtm_unpack(stm, packed):
-    p = packed
-
-    if (iDRAW == p or iFORBID == p):
-        return p
-
-    info = p & 3
-    store = p >> 2
-
-    if (stm == 0):
-        if (info == iWMATE):
-            moves = store + 1
-            plies = moves * 2 - 1
-            prefx = info
-        elif (info == iBMATE):
-            moves = store
-            plies = moves * 2
-            prefx = info
-        elif (info == iDRAW):
-            moves = store + 1 + 63
-            plies = moves * 2 - 1
-            prefx = iWMATE
-        elif (info == iFORBID):
-            moves = store + 63
-            plies = moves * 2
-            prefx = iBMATE
-        else:
-            plies = 0
-            prefx = 0
-
-        ret = (prefx | (plies << 3))
-    else:
-        if (info == iBMATE):
-            moves = store + 1
-            plies = moves * 2 - 1
-            prefx = info
-        elif (info == iWMATE):
-            moves = store
-            plies = moves * 2
-            prefx = info
-        elif (info == iDRAW):
-            if (store == 63):
-                # exception: no position in the 5-man
-                #    TBs needs to store 63 for iBMATE
-                #    it is then used to indicate iWMATE
-                #    when just overflows
-                store+=1
-
-                moves = store + 63
-                plies = moves * 2
-                prefx = iWMATE
-            else:
-                moves = store + 1 + 63
-                plies = moves * 2 - 1
-                prefx = iBMATE
-        elif (info == iFORBID):
-            moves = store + 63
-            plies = moves * 2
-            prefx = iWMATE
-        else:
-            plies = 0
-            prefx = 0
-        ret = (prefx | (plies << 3))
-    return ret
-
 Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
 
 EGKEY = {
@@ -1718,7 +1560,164 @@ EGKEY = {
 }
 
 
+def sortlists(ws, wp):
+    z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
+    wp2, ws2 = zip(*z)
+    return list(ws2), list(wp2)
+
+def egtb_block_unpack(side, n, bp):
+    try:
+        return [dtm_unpack(side, i) for i in bp[:n]]
+    except TypeError:
+        return [dtm_unpack(side, ord(i)) for i in bp[:n]]
+
+def split_index(i):
+    return divmod(i, ENTRIES_PER_BLOCK)
+
+
+tb_DRAW = 0
+tb_WMATE = 1
+tb_BMATE = 2
+tb_FORBID = 3
+tb_UNKNOWN = 7
+iDRAW = tb_DRAW
+iWMATE = tb_WMATE
+iBMATE = tb_BMATE
+iFORBID = tb_FORBID
+
+iDRAWt = tb_DRAW | 4
+iWMATEt = tb_WMATE | 4
+iBMATEt = tb_BMATE | 4
+iUNKNOWN = tb_UNKNOWN
+
+iUNKNBIT = (1 << 2)
+
+def removepiece(ys, yp, j):
+    del ys[j]
+    del yp[j]
+
+def opp(side):
+    return 1 if side == 0 else 0
+
+def adjust_up(dist):
+    udist = dist
+    sw = udist & INFOMASK
+
+    if (sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt):
+        udist += (1 << PLYSHIFT)
+
+    return udist
+
+def bestx(side, a, b):
+    # 0 = selectfirst
+    # 1 = selectlowest
+    # 2 = selecthighest
+    # 3 = selectsecond
+    comparison = [
+        #draw, wmate, bmate, forbid
+        [0,    3,     0,     0],    # draw
+        [0,    1,     0,     0],    # wmate
+        [3,    3,     2,     0],    # bmate
+        [3,    3,     3,     0],    # forbid
+    ]
+
+    xorkey = [0, 3]
+    ret = iFORBID
+
+    if (a == iFORBID):
+        return b
+    if (b == iFORBID):
+        return a
+
+    retu = [a, a, b, b]
+
+    if (b < a):
+        retu[1] = b
+        retu[2] = a
+
+    key = comparison[a & 3][b & 3] ^ xorkey[side]
+    return retu[key]
+
+def unpackdist(d):
+    return d >> PLYSHIFT, d & INFOMASK
+
+def dtm_unpack(stm, packed):
+    p = packed
+
+    if iDRAW == p or iFORBID == p:
+        return p
+
+    info = p & 3
+    store = p >> 2
+
+    if stm == 0:
+        if info == iWMATE:
+            moves = store + 1
+            plies = moves * 2 - 1
+            prefx = info
+        elif info == iBMATE:
+            moves = store
+            plies = moves * 2
+            prefx = info
+        elif info == iDRAW:
+            moves = store + 1 + 63
+            plies = moves * 2 - 1
+            prefx = iWMATE
+        elif info == iFORBID:
+            moves = store + 63
+            plies = moves * 2
+            prefx = iBMATE
+        else:
+            plies = 0
+            prefx = 0
+
+        ret = prefx | (plies << 3)
+    else:
+        if info == iBMATE:
+            moves = store + 1
+            plies = moves * 2 - 1
+            prefx = info
+        elif info == iWMATE:
+            moves = store
+            plies = moves * 2
+            prefx = info
+        elif info == iDRAW:
+            if store == 63:
+                # Exception: no position in the 5-man TBs needs to store 63 for
+                # iBMATE. It is then just used to indicate iWMATE.
+                store += 1
+
+                moves = store + 63
+                plies = moves * 2
+                prefx = iWMATE
+            else:
+                moves = store + 1 + 63
+                plies = moves * 2 - 1
+                prefx = iBMATE
+        elif info == iFORBID:
+            moves = store + 63
+            plies = moves * 2
+            prefx = iWMATE
+        else:
+            plies = 0
+            prefx = 0
+
+        ret = prefx | (plies << 3)
+
+    return ret
+
+
+class TableBlock:
+    def __init__(self, key, side, offset, age):
+        self.key = key
+        self.side = side
+        self.offset = offset
+        self.age = age
+        self.pcache = []
+
+
 MateResult = Enum("MateResult", "WhiteToMate BlackToMate Draw Unknown")
+
 
 class ProbeResultType(object):
     def __init__(self):
@@ -1753,7 +1752,6 @@ class PythonTablebases(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self, directory):
-        self.paths = []
         self.available_tables = {}
 
         self.streams = {}
@@ -1769,8 +1767,6 @@ class PythonTablebases(object):
         """Loads *.gtb.cp4* tables from a directory."""
         if not os.path.isdir(directory):
             raise IOError("not a tablebase directory: {0}".format(repr(directory)))
-
-        self.paths.append(directory)
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
@@ -1810,7 +1806,7 @@ class PythonTablebases(object):
             return None
 
         try:
-            dtm = self._egtb_get_dtm(req)
+            dtm = self.egtb_get_dtm(req)
         except IndexError:
             return None
 
@@ -1911,6 +1907,7 @@ class PythonTablebases(object):
 
     def _open_tablebase(self, req):
         stream = self.streams.get(req.egkey, None)
+
         if stream is None:
             path = self.available_tables[req.egkey]
             stream = open(path, "rb+")
@@ -1921,7 +1918,6 @@ class PythonTablebases(object):
 
     def close(self):
         """Closes all loaded tables."""
-        self.paths = []
         self.available_tables.clear()
 
         self.zipinfo.clear()
@@ -1933,7 +1929,7 @@ class PythonTablebases(object):
             _, stream = self.streams.popitem()
             stream.close()
 
-    def _egtb_get_dtm(self, req):
+    def egtb_get_dtm(self, req):
         dtm  = self._tb_probe(req)
 
         if req.epsq != NOSQUARE:
