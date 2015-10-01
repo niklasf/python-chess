@@ -2013,8 +2013,8 @@ class PythonTablebases(object):
         idx = EGKEY[req.egkey].pctoi(req)
         offset, remainder = split_index(idx)
 
-
         t = self.block_cache.get((req.egkey, offset, req.side))
+
         if t is None:
             t = TableBlock(req.egkey, req.side, offset, self.block_age)
 
