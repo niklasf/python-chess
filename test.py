@@ -2290,6 +2290,13 @@ class GaviotaTestCase(unittest.TestCase):
                 self.assertEqual(dtm, expected,
                     "Expecting dtm {0} for {1}, got {2} (at line {3})".format(expected, board.fen(), dtm, line + 1))
 
+    def test_wdl(self):
+        board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
+        self.assertEqual(self.tablebases.probe_wdl(board), 0)
+
+        board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
+        self.assertEqual(self.tablebases.probe_wdl(board), 1)
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
