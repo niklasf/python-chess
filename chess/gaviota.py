@@ -27,11 +27,6 @@ import os
 import struct
 
 try:
-    import lzma
-except ImportError:
-    from backports import lzma
-
-try:
     import backport_collections as collections
 except ImportError:
     import collections
@@ -1732,7 +1727,9 @@ Zipinfo = collections.namedtuple("Zipinfo", ["extraoffset", "totalblocks", "bloc
 class PythonTablebases(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
-    def __init__(self, directory):
+    def __init__(self, directory, lzma):
+        self.lzma = lzma
+
         self.available_tables = {}
 
         self.streams = {}
@@ -2017,7 +2014,7 @@ class PythonTablebases(object):
                 # Concatenate the fake header with the true LZMA stream.
                 buffer_zipped = properties + buffer_zipped[15:]
 
-            buffer_packed = lzma.decompress(buffer_zipped)
+            buffer_packed = self.lzma.decompress(buffer_zipped)
 
             t.pcache = egtb_block_unpack(req.side, n, buffer_packed)
 
@@ -2241,4 +2238,9 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     except (OSError, RuntimeError) as err:
         LOGGER.info("Falling back to pure Python tablebases: %r", err)
 
-    return PythonTablebases(directory)
+    try:
+        import lzma
+    except ImportError:
+        from backports import lzma
+
+    return PythonTablebases(directory, lzma)
