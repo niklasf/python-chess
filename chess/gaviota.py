@@ -1766,6 +1766,10 @@ class PythonTablebases(object):
         ...
         -10
         """
+        # Can not probe positions with castling rights.
+        if board.castling_rights:
+            return None
+
         # Prepare the tablebase request.
         white = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
         black = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.BLACK])]
