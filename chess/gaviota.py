@@ -2093,7 +2093,6 @@ class NativeTablebases(object):
         self._tbcache_restart(1024 * 1024, 50)
 
     def open_directory(self, directory):
-        """Loads *.gtb.cp4* tables from a directory."""
         if not os.path.isdir(directory):
             raise IOError("not a tablebase directory: {0}".format(repr(directory)))
 
@@ -2206,7 +2205,6 @@ class NativeTablebases(object):
             return dtm if board.turn == chess.BLACK else -dtm
 
     def close(self):
-        """Closes all loaded tables and clears all caches."""
         self.paths = []
 
         if self.libgtb.tb_is_initialized():

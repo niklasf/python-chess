@@ -8,6 +8,18 @@ castling rights are not included.
 .. autofunction:: chess.gaviota.open_tablebases
 
 .. autoclass:: chess.gaviota.PythonTablebases
+    :members:
+
+backports.lzma
+--------------
+
+For Python versions before 3.3 you have to install ``backports.lzma`` in order
+to use the pure Python probing code.
+
+.. code-block:: shell
+
+    sudo apt-get install liblzma-dev libpython2.7-dev
+    pip install backports.lzma
 
 libgtb
 ------
@@ -25,14 +37,3 @@ pure Python probing code is used.
 
 .. autoclass:: chess.gaviota.NativeTablebases
     :members:
-
-backports.lzma
---------------
-
-For Python versions before 3.3 you have to install ``backports.lzma`` in order
-to use the pure Python probing code.
-
-.. code-block:: shell
-
-    sudo apt-get install liblzma-dev libpython2.7-dev
-    pip install backports.lzma
