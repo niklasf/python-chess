@@ -262,6 +262,26 @@ def init_ppp48_idx():
 PPP48_IDX, PPP48_SQ_X, PPP48_SQ_Y, PPP48_SQ_Z = init_ppp48_idx()
 
 
+def init_aaidx():
+    aaidx = [[-1] * 64 for y in range(64)]
+    aabase = [0] * MAX_AAINDEX
+
+    idx = 0
+    for x in range(64):
+        for y in range(x + 1, 64):
+
+            if idx_is_empty(aaidx[x][y]):
+                # Still empty.
+                aaidx[x][y] = idx
+                aaidx[y][x] = idx
+                aabase[idx] = x
+                idx += 1
+
+    return aabase, aaidx
+
+AABASE, AAIDX = init_aaidx()
+
+
 def kapkb_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
@@ -369,7 +389,7 @@ def kaapk_pctoindex(c):
 
     pslice = wsq_to_pidx24(pawn)
 
-    aa_combo = aaidx[wa][wa2]
+    aa_combo = AAIDX[wa][wa2]
 
     if idx_is_empty(aa_combo):
         return NOINDEX
@@ -398,7 +418,7 @@ def kaakp_pctoindex(c):
     pawn = flip_ns(pawn)
     pslice = wsq_to_pidx24(pawn)
 
-    aa_combo = aaidx[wa][wa2]
+    aa_combo = AAIDX[wa][wa2]
 
     if idx_is_empty(aa_combo):
         return NOINDEX
@@ -553,7 +573,7 @@ def kabbk_pctoindex(c):
         bs = [flip_nw_se(i) for i in bs]
 
     ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
-    ai = aaidx[ws[2]][ws[3]]
+    ai = AAIDX[ws[2]][ws[3]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
        return NOINDEX
@@ -584,7 +604,7 @@ def kaabk_pctoindex(c):
         bs = [flip_nw_se(i) for i in bs]
 
     ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
-    ai = aaidx[ws[1]][ws[2]]
+    ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
         return NOINDEX
@@ -724,7 +744,7 @@ def kaakb_pctoindex(c):
         bs = [flip_nw_se(i) for i in bs]
 
     ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
-    ai = aaidx[ws[1]][ws[2]]
+    ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
                 return NOINDEX
@@ -960,25 +980,6 @@ def kakp_pctoindex(c):
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
-def init_aaidx():
-    # modifies aabase[], aaidx[][]
-    # default is noindex
-    aaidx = [[-1]*64 for y in range(64)]
-    aabase = [0]*MAX_AAINDEX
-
-    idx = 0
-    for x in range(64):
-        for y in range(x + 1, 64):
-
-            if idx_is_empty(aaidx[x][y]):
-                #still empty
-                aaidx[x][y] = idx
-                aaidx[y][x] = idx
-                aabase[idx] = x
-                idx+=1
-
-    return aabase, aaidx
-
 def kaak_pctoindex(c):
     N_WHITE = 3
     N_BLACK = 1
@@ -1002,7 +1003,7 @@ def kaak_pctoindex(c):
         bs = [flip_nw_se(i) for i in bs]
 
     ki = kkidx[bs[0]][ws[0]] # kkidx [black king] [white king]
-    ai = aaidx[ws[1]][ws[2]]
+    ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
         return NOINDEX
@@ -1709,7 +1710,6 @@ EGKEY = {
 
 # inits
 
-aabase, aaidx = init_aaidx()
 aaa_base, aaa_xyz = init_aaa()
 ppidx, pp_hi24, pp_lo48, _ = init_ppidx()
 
