@@ -2071,22 +2071,6 @@ class PythonTableBase(object):
             x = blocksz # size of a normal block
         return x
 
-    def egtb_filepeek(self, side, idx, dtm):
-        maxindex = self.egkey[self.currentFilename].maxindex
-        self.fpark_entry_packed(side, idx, maxindex)
-        dtm = self.fread_entry_packed(side)
-        return dtm
-
-    def fread_entry_packed(self, side):
-        p = self.currentStream.ReadByte()
-        px = dtm_unpack(side, p)
-        return px
-
-    def fpark_entry_packed(self, side, idx, maximum):
-        fseek_i = (side * maximum + idx)
-        self.currentStream.seek(fseek_i)
-
-
     def tb_probe_(self, side, epsq):
         c = currentConf()
         c.whitePieceSquares = self.whitePieceSquares
