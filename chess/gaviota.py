@@ -1816,7 +1816,6 @@ class PythonTablebases(object):
         if directory is not None:
             self.open_directory(directory)
 
-
         self.whiteSquares = None
         self.blackSquares = None
         self.whiteTypes   = None
@@ -1876,7 +1875,7 @@ class PythonTablebases(object):
 
         side = realside
 
-        ret,  side,  epsq = self.SetupEGTB(side,  epsq)
+        ret, side, epsq = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side ,epsq)
         if not ret:
             probeResult.found = False
             probeResult.error = "Could not find EGTB file: " + self.newFile
@@ -1921,48 +1920,31 @@ class PythonTablebases(object):
 
         return probeResult
 
-    def SetupEGTB(self,  side,  epsq):
-        self.whiteSquares, self.whiteTypes = sortlists(self.whiteSquares, self.whiteTypes)
-        self.blackSquares, self.blackTypes = sortlists(self.blackSquares, self.blackTypes)
+    def _setup_tablebase(self, white_squares, white_types, black_squares, black_types, side, epsq):
+        white_squares, white_types = sortlists(white_squares, white_types)
+        black_squares, black_types = sortlists(black_squares, black_types)
 
-        fenType = [ " ", "p", "n", "b", "r", "q", "k" ]
-        blackLetters = ""
-        whiteLetters = ""
+        self.whiteSquares = white_squares
+        self.whiteTypes = white_types
+        self.blackSquares = black_squares
+        self.blackTypes = black_types
 
-        '''
-        whiteScore = 0
-        foreach (int i in whiteTypes)
-            whiteScore += i;
-            whiteLetters += new String(fenType[i], 1);
-        '''
-        # unused
-        # whiteScore = sum(whiteTypes)
-        whiteLetters = "".join([fenType[i] for i in self.whiteTypes])
+        white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in white_types])
+        black_letters = "".join([chess.PIECE_SYMBOLS[i] for i in black_types])
 
-        '''
-        blackScore = 0
-        foreach (int i in blackTypes)
-            blackScore += i;
-            blackLetters += new String(fenType[i], 1);
-        '''
-        # unused
-        # blackScore = sum(blackTypes)
-        blackLetters = "".join([fenType[i] for i in self.blackTypes])
-
-        self.newFile = ""
-        if ((whiteLetters+blackLetters) in self.available_tables):
+        if (white_letters + black_letters) in self.available_tables:
             self.whitePieceSquares = self.whiteSquares
             self.whitePieceTypes   = self.whiteTypes
             self.blackPieceSquares = self.blackSquares
             self.blackPieceTypes   = self.blackTypes
-            self.newFile = whiteLetters + blackLetters
+            self.newFile = white_letters + black_letters
             self.Reversed = False
-        elif ((blackLetters + whiteLetters) in self.available_tables):
+        elif (black_letters + white_letters) in self.available_tables:
             self.whitePieceSquares = self.blackSquares
             self.whitePieceTypes = self.blackTypes
             self.blackPieceSquares = self.whiteSquares
             self.blackPieceTypes = self.whiteTypes
-            self.newFile = blackLetters + whiteLetters
+            self.newFile = black_letters + white_letters
             self.Reversed = True
 
             self.whitePieceSquares = [flip_ns(s) for s in self.whitePieceSquares]
@@ -1970,12 +1952,13 @@ class PythonTablebases(object):
 
             side = Opp(side)
             if (epsq != NOSQUARE):
-                epsq ^= 56
+                epsq = flip_ns(epsq)
         else:
             self.newFile = whiteLetters + blackLetters
-            return False,  side,  epsq
+            return False, side, epsq
+
         self._open_tablebase(self.newFile)
-        return True,  side,  epsq
+        return True, side, epsq
 
     def _open_tablebase(self, egkey):
         if self.current_egkey == egkey:
@@ -2060,7 +2043,7 @@ class PythonTablebases(object):
 
                             # changing currentFile to kpk for ex. we lost a piece so new file is regq
                             # make sure to change back when done
-                            ret,  _,  _ = self.SetupEGTB(side,  NOSQUARE)
+                            ret, _, _ = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side, NOSQUARE)
                             if not ret:
                                 okcall = False
                             else:
