@@ -1465,10 +1465,6 @@ def removepiece(ys, yp, j):
     del yp[j]
     return ys,  yp
 
-LZMA_PROPS_SIZE = 5
-LZMA86_SIZE_OFFSET = (1 + LZMA_PROPS_SIZE)
-LZMA86_HEADER_SIZE = (LZMA86_SIZE_OFFSET + 8)
-
 def Opp(side):
     if (side == 0):
         return 1
@@ -1880,7 +1876,7 @@ class PythonTablebases(object):
             probeResult.error = "Could not find EGTB file: " + self.newFile
             return probeResult
 
-        dtm = self.egtb_get_dtm(side, epsq)
+        dtm = self._egtb_get_dtm(side, epsq)
         if (True or is_dtm):
             probeResult.found = True
             probeResult.stm = MateResult.Unknown
@@ -1985,9 +1981,10 @@ class PythonTablebases(object):
             self.current_stream.close()
             self.current_stream = None
 
-    def egtb_get_dtm(self, side, epsq):
+    def _egtb_get_dtm(self, side, epsq):
         dtm  = self._tb_probe(side, epsq)
-        if (epsq != NOSQUARE):
+
+        if epsq != NOSQUARE:
             capturer_a = 0
             capturer_b = 0
             xed = 0
@@ -2009,29 +2006,30 @@ class PythonTablebases(object):
                 ys = list(self.whitePieceSquares)
                 yp = list(self.whitePieceTypes)
 
-            # captured pawn, trick: from epsquare to captured
+            # Captured pawn trick: from ep square to captured.
             xed = epsq ^ (1 << 3)
 
-            # find index captured (j)
+            # Find captured index (j).
             try:
                 j = ys.index(xed)
-            except:
+            except ValueError:
                 j = -1
-            # try first possible ep capture
-            if (0 == (0x88 & (map88(xed) + 1))):
+
+            # Try first possible ep capture.
+            if 0 == (0x88 & (map88(xed) + 1)):
                 capturer_a = xed + 1
-            # try second possible ep capture
-            if (0 == (0x88 & (map88(xed) - 1))):
+
+            # Try second possible ep capture
+            if 0 == (0x88 & (map88(xed) - 1)):
                 capturer_b = xed - 1
 
-            if ((j > -1) and (ys[j] == xed)):
-                # xsl = xs.Count
-                # find capturers (i)
-                for i in range(len(xs)): # (i = 0; (i < xsl) && okcall i++)
-                    if (xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b) and okcall):
+            if (j > -1) and (ys[j] == xed):
+                # Find capturers (i).
+                for i in range(len(xs)):
+                    if xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
                         epscore = iFORBID
 
-                        # execute capture
+                        # Execute capture.
                         xs[i] = epsq
                         ys, yp = removepiece(ys, yp, j)
 
@@ -2042,8 +2040,8 @@ class PythonTablebases(object):
                         self.blackSquares = list(ys)
                         self.blackTypes = list(yp)
 
-                        # changing currentFile to kpk for ex. we lost a piece so new file is regq
-                        # make sure to change back when done
+                        # Changing current file to new position.
+                        # Make sure to change back when done.
                         ret, _, _ = self._setup_tablebase(self.whiteSquares, self.whiteTypes, self.blackSquares, self.blackTypes, side, NOSQUARE)
                         if not ret:
                             okcall = False
@@ -2056,11 +2054,11 @@ class PythonTablebases(object):
                         self.blackPieceSquares = old_blackPieceSquares
                         self.blackPieceTypes   = old_blackPieceType
 
-                        if (okcall):
+                        if okcall:
                             epscore = newdtm
                             epscore = adjust_up(epscore)
 
-                            # chooses to ep or not
+                            # Chooses to ep or not.
                             dtm = bestx(side, epscore, dtm)
                         else:
                             break
