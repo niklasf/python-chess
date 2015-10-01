@@ -2230,7 +2230,7 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     try:
         if LibraryLoader:
-            return open_native_tablebases(directory, libgtb, LibraryLoader)
+            return open_tablebases_native(directory, libgtb, LibraryLoader)
     except (OSError, RuntimeError) as err:
         LOGGER.info("Falling back to pure Python tablebases: %r", err)
 
