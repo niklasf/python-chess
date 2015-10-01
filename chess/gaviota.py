@@ -26,8 +26,15 @@ import chess
 import os
 import struct
 
-from enum import Enum
-from lzma import LZMADecompressor
+try:
+    from enum import Enum
+except ImportError:
+    from enum34 import Enum
+
+try:
+    import lzma
+except ImportError:
+    from backports import lzma
 
 
 LOGGER = logging.getLogger(__name__)
@@ -2125,7 +2132,7 @@ class PythonTableBase(object):
                 #concatenate the fake header with the true LZMA stream
                 Buffer_zipped = bytes(properties) + Buffer_zipped[15:]
 
-            Buffer_packed = LZMADecompressor().decompress(Buffer_zipped)
+            Buffer_packed = lzma.LZMADecompressor().decompress(Buffer_zipped)
 
             t.pcache = egtb_block_unpack(side, n, Buffer_packed)
 

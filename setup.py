@@ -59,6 +59,9 @@ def dependencies():
     if sys.version_info < (3, 2):
         deps.append("futures")
 
+    if sys.version_info < (3, 4):
+        deps.append("enum34")
+
     return deps
 
 
