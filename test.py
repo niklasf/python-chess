@@ -2258,6 +2258,39 @@ class NativeGaviotaTestCase(unittest.TestCase):
         self.assertEqual(self.tablebases.probe_wdl(board), 1)
 
 
+class GaviotaTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
+
+    def tearDown(self):
+        self.tablebases.close()
+
+    def test_dm(self):
+        with open("data/endgame-dm.epd") as epds:
+            for line, epd in enumerate(epds):
+                # Skip empty lines and comments.
+                epd = epd.strip()
+                if not epd or epd.startswith("#"):
+                    continue
+
+                # Parse EPD.
+                board, extra = chess.Board.from_epd(epd)
+
+                # Skip 5 and 6 piece endgames.
+                if chess.pop_count(board.occupied) > 4:
+                    continue
+
+                # Check DTM.
+                if extra["dm"] > 0:
+                    expected = extra["dm"] * 2 - 1
+                else:
+                    expected = extra["dm"] * 2
+                dtm = self.tablebases.probe_dtm(board).dtm
+                self.assertEqual(dtm, expected,
+                    "Expecting dtm {0} for {1}, got {2} (at line {3})".format(expected, board.fen(), dtm, line + 1))
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)

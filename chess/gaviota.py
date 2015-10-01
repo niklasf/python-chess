@@ -1778,7 +1778,7 @@ def a8toa1_init():
 
 a8toa1 = a8toa1_init()
 
-class PythonTableBase(object):
+class PythonTablebases(object):
     """ Provide access to Gaviota tablebases via full python code."""
 
     def __init__(self,directory):
