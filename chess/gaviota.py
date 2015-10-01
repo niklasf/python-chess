@@ -1764,16 +1764,6 @@ def possible_attack(from_, to_, piece):
 
 kkidx, wksq, bksq = init_kkidx()
 
-def a8toa1_init():
-    a8toa1 = {}
-    for i in range(64):
-         strow = (i % 8)
-         stcol = 7 - (i / 8)
-         newId = (stcol * 8) + strow
-         a8toa1[i] = newId
-    return a8toa1
-
-a8toa1 = a8toa1_init()
 
 class PythonTablebases(object):
     """ Provide access to Gaviota tablebases via full python code."""
