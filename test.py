@@ -2286,7 +2286,7 @@ class GaviotaTestCase(unittest.TestCase):
                     expected = extra["dm"] * 2 - 1
                 else:
                     expected = extra["dm"] * 2
-                dtm = self.tablebases.probe_dtm(board).dtm
+                dtm = self.tablebases.probe_dtm(board)
                 self.assertEqual(dtm, expected,
                     "Expecting dtm {0} for {1}, got {2} (at line {3})".format(expected, board.fen(), dtm, line + 1))
 
