@@ -30,3 +30,5 @@ with open("data/endgame-dm.epd") as epds:
         dtm = probe
         print(board.epd(line=line, dtm=expected, got=dtm))
         assert expected == dtm
+
+tables.close()

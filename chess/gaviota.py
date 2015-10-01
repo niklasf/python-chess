@@ -1810,8 +1810,7 @@ class PythonTablebases(object):
         self.paths = []
         self.available_tables = {}
 
-        self.current_egkey = None
-        self.current_stream = None
+        self.streams = {}
 
         self.block_cache = {}
         self.block_age = 0
@@ -1928,31 +1927,26 @@ class PythonTablebases(object):
         return self._open_tablebase(req)
 
     def _open_tablebase(self, req):
-        if self.current_egkey == req.egkey:
-            return self.current_stream
+        stream = self.streams.get(req.egkey, None)
+        if stream is None:
+            path = self.available_tables[req.egkey]
+            stream = open(path, "rb+")
+            egtb_loadindexes(req.egkey, stream) # Do not do this globally.
+            self.streams[req.egkey] = stream
 
-        path = self.available_tables[req.egkey]
-
-        if self.current_stream is not None:
-            self.current_stream.close()
-            self.current_stream = None
-
-        self.current_egkey = req.egkey
-        self.current_stream = open(path, "rb")
-        egtb_loadindexes(self.current_egkey, self.current_stream)
-        return self.current_stream
+        return stream
 
     def close(self):
         """Closes all loaded tables."""
         self.paths = []
-        self.valid_tables.clear()
+        self.available_tables.clear()
 
         self.block_age = 0
         self.block_cache.clear()
 
-        if self.current_stream is not None:
-            self.current_stream.close()
-            self.current_stream = None
+        while self.streams:
+            _, stream = self.streams.popitem()
+            stream.close()
 
     def _egtb_get_dtm(self, req):
         dtm  = self._tb_probe(req)
@@ -2014,17 +2008,17 @@ class PythonTablebases(object):
 
         return dtm
 
-    def egtb_block_getnumber(self, side, idx):
-        max = EGKEY[self.current_egkey].maxindex
+    def egtb_block_getnumber(self, req, idx):
+        maxindex = EGKEY[req.egkey].maxindex
 
-        blocks_per_side = 1 + (max - 1) // ENTRIES_PER_BLOCK
+        blocks_per_side = 1 + (maxindex - 1) // ENTRIES_PER_BLOCK
         block_in_side = idx // ENTRIES_PER_BLOCK
 
-        return side * blocks_per_side + block_in_side
+        return req.side * blocks_per_side + block_in_side
 
-    def egtb_block_getsize(self, idx):
+    def egtb_block_getsize(self, req, idx):
         blocksz = ENTRIES_PER_BLOCK
-        maxindex = EGKEY[self.current_egkey].maxindex
+        maxindex = EGKEY[req.egkey].maxindex
         block = idx // blocksz
         offset = block * blocksz
 
@@ -2043,8 +2037,8 @@ class PythonTablebases(object):
         if t is None:
             t = TableBlock(req.egkey, req.side, offset, self.block_age)
 
-            block = self.egtb_block_getnumber(req.side, idx)
-            n = self.egtb_block_getsize(idx)
+            block = self.egtb_block_getnumber(req, idx)
+            n = self.egtb_block_getsize(req, idx)
             z = egtb_block_getsize_zipped(req.egkey, block)
 
             egtb_block_park(req.egkey, block, stream)
