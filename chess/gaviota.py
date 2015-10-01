@@ -49,7 +49,7 @@ class ProbeResultType(object):
         self.ply = 0
         self.dtm = 0
 
-entries_per_block = 16 * 1024;
+ENTRIES_PER_BLOCK = 16 * 1024;
 
 class currentConf(object):
     def __init__(self):
@@ -1128,10 +1128,10 @@ def  egtb_block_unpack(side, n, bp):
         return [dtm_unpack(side, ord(i)) for i in bp[:n]]
 
 
-def split_index(entries_per_block, i, o):
-    n = int(i / entries_per_block)
-    offset = n * entries_per_block
-    remainder = int(i - offset)
+def split_index(i, o):
+    n = i // ENTRIES_PER_BLOCK
+    offset = n * ENTRIES_PER_BLOCK
+    remainder = i - offset
     return offset, remainder
 
 class TableBlock:
@@ -2060,13 +2060,13 @@ class PythonTableBase(object):
     def egtb_block_getnumber(self, side, idx):
         max = egkey[self.currentFilename].maxindex
 
-        blocks_per_side = 1 + int((max - 1) / entries_per_block)
-        block_in_side = int(idx / entries_per_block)
+        blocks_per_side = 1 + (max - 1) // ENTRIES_PER_BLOCK
+        block_in_side = idx // ENTRIES_PER_BLOCK
 
         return side * blocks_per_side + block_in_side
 
     def egtb_block_getsize(self, idx):
-        blocksz = entries_per_block
+        blocksz = ENTRIES_PER_BLOCK
         maxindex = egkey[self.currentFilename].maxindex
         block = int(idx / blocksz)
         offset = block * blocksz
@@ -2101,7 +2101,7 @@ class PythonTableBase(object):
         c.blackPieceTypes   = self.blackPieceTypes
         idx = self.currentPctoi(c)
         offset = 0
-        offset, remainder = split_index(entries_per_block, idx, offset)
+        offset, remainder = split_index(idx, offset)
 
         t =blockCache.get((self.currentFilename, offset, side,))
         if t is None:
