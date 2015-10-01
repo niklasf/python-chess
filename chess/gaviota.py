@@ -640,11 +640,11 @@ def kapkb_pctoindex(c):
     bk = c.blackPieceSquares[0]
     ba = c.blackPieceSquares[1]
 
-    if (not(chess.A2 <= pawn and pawn < chess.A8)):
+    if not (chess.A2 <= pawn and pawn < chess.A8):
         return NOINDEX
 
-    if ((pawn & 7) > 3):
-        # column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -670,8 +670,8 @@ def kabpk_pctoindex(c):
     pawn = c.whitePieceSquares[3]
     bk = c.blackPieceSquares[0]
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h */
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -681,7 +681,6 @@ def kabpk_pctoindex(c):
     pslice = wsq_to_pidx24(pawn)
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
-
 
 def kabkp_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
@@ -695,11 +694,11 @@ def kabkp_pctoindex(c):
     bk = c.blackPieceSquares[0]
     wb = c.whitePieceSquares[2]
 
-    if (not (chess.A2 <= pawn and pawn < chess.A8)):
-                return NOINDEX
+    if not (chess.A2 <= pawn and pawn < chess.A8):
+        return NOINDEX
 
-    if ((pawn & 7) > 3):
-        # column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -707,10 +706,10 @@ def kabkp_pctoindex(c):
         wb = flip_we(wb)
 
     sq = pawn
-    # sq ^= 070;
+    # sq ^= 56
     # do not flip_ns
-    sq -= 8;   # down one row
-    pslice = ((sq + (sq & 3)) >> 1)
+    sq -= 8 # down one row
+    pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
 
@@ -725,8 +724,8 @@ def kaapk_pctoindex(c):
     pawn = c.whitePieceSquares[3]
     bk = c.blackPieceSquares[0]
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h */
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -753,8 +752,8 @@ def kaakp_pctoindex(c):
     bk = c.blackPieceSquares[0]
     pawn = c.blackPieceSquares[1]
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -785,8 +784,8 @@ def kapkp_pctoindex(c):
     anchor = pawn_a
     loosen = pawn_b
 
-    if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (anchor & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -815,8 +814,8 @@ def kappk_pctoindex(c):
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (anchor & 7) > 3:
+        # Column is more than 3, i.e. e, f, g or h.
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -846,8 +845,7 @@ def kppka_pctoindex(c):
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    if ((anchor & 7) > 3):
-        # column is more than 3. e.g. = e,f,g, or h
+    if (anchor & 7) > 3:
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -873,22 +871,22 @@ def kabck_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -903,22 +901,22 @@ def kabbk_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
     ai = AAIDX[ws[2]][ws[3]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -934,8 +932,8 @@ def kaabk_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
     if ((ft & WE_FLAG) != 0):
         ws = [flip_we(i) for i in ws]
@@ -949,7 +947,7 @@ def kaabk_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -957,47 +955,50 @@ def kaabk_pctoindex(c):
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[3]
 
-
+def aaa_getsubi(x, y, z):
+    bse = AAA_BASE[z]
+    calc_idx = x + (y - 1) * y // 2 + bse
+    return calc_idx
 
 def kaaak_pctoindex(c):
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_Ax = MAX_AAAINDEX
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    if (ws[2] < ws[1]):
+    if ws[2] < ws[1]:
         tmp = ws[1]
         ws[1] = ws[2]
         ws[2] = tmp
-    if (ws[3] < ws[2]):
+    if ws[3] < ws[2]:
         tmp = ws[2]
         ws[2] = ws[3]
         ws[3] = tmp
-    if (ws[2] < ws[1]):
+    if ws[2] < ws[1]:
         tmp = ws[1]
         ws[1] = ws[2]
         ws[2] = tmp
 
     ki = KKIDX[bs[0]][ws[0]]
 
-    if (ws[1] == ws[2] or ws[1] == ws[3] or ws[2] == ws[3]):
-                return NOINDEX
+    if ws[1] == ws[2] or ws[1] == ws[3] or ws[2] == ws[3]:
+        return NOINDEX
 
     ai = aaa_getsubi(ws[1], ws[2], ws[3])
 
@@ -1005,12 +1006,6 @@ def kaaak_pctoindex(c):
         return NOINDEX
 
     return ki * BLOCK_Ax + ai
-
-def aaa_getsubi(x, y, z):
-    bse = AAA_BASE[z];
-    calc_idx = x + (y - 1) * y / 2 + bse
-    return int(calc_idx)
-
 
 def kppkp_pctoindex(c):
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
@@ -1023,8 +1018,7 @@ def kppkp_pctoindex(c):
     bk = c.blackPieceSquares[0]
     pawn_c = c.blackPieceSquares[1]
 
-    if ((pawn_c & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (pawn_c & 7) > 3:
         wk = flip_we(wk)
         pawn_a = flip_we(pawn_a)
         pawn_b = flip_we(pawn_b)
@@ -1033,7 +1027,9 @@ def kppkp_pctoindex(c):
 
     i = flip_we(flip_ns(pawn_a)) - 8
     j = flip_we(flip_ns(pawn_b)) - 8
-    k = map24_b(pawn_c) # black pawn, so low indexes mean more advanced 0 == A2
+
+    # Black pawn, so low indexes mean more advanced.
+    k = map24_b(pawn_c)
 
     pp48_slice = PP48_IDX[i][j]
 
@@ -1050,26 +1046,26 @@ def kaakb_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
-                return NOINDEX
+        return NOINDEX
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + bs[1]
 
@@ -1083,18 +1079,18 @@ def kabkc_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
@@ -1117,8 +1113,7 @@ def kpkp_pctoindex(c):
     anchor = pawn_a;
     loosen = pawn_b;
 
-    if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (anchor & 7) > 3:
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -1145,8 +1140,7 @@ def kppk_pctoindex(c):
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    if ((anchor & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (anchor & 7) > 3:
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -1172,11 +1166,10 @@ def kapk_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if (not (chess.A2 <= pawn and pawn < chess.A8)):
-                return NOINDEX
+    if not (chess.A2 <= pawn and pawn < chess.A8):
+        return NOINDEX
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -1184,7 +1177,7 @@ def kapk_pctoindex(c):
 
     sq = pawn
     sq ^= 56 # flip_ns
-    sq -= 8   # down one row
+    sq -= 8 # down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
@@ -1195,22 +1188,22 @@ def kabk_pctoindex(c):
 
     ft = flip_type(c.blackPieceSquares[0], c.whitePieceSquares[0]);
 
-    ws = list(c.whitePieceSquares)
-    bs = list(c.blackPieceSquares)
+    ws = c.whitePieceSquares
+    bs = c.blackPieceSquares
 
-    if ((ft & 1) != 0):
+    if (ft & 1) != 0:
         ws = [flip_we(b) for b in ws]
         bs = [flip_we(b) for b in bs]
 
-    if ((ft & 2) != 0):
+    if (ft & 2) != 0:
         ws = [flip_ns(b) for b in ws]
         bs = [flip_ns(b) for b in bs]
 
-    if ((ft & 4) != 0):
+    if (ft & 4) != 0:
         ws = [flip_nw_se(b) for b in ws]
         bs = [flip_nw_se(b) for b in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1227,21 +1220,20 @@ def kakp_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if (not (chess.A2 <= pawn and pawn < chess.A8)):
-                return NOINDEX
+    if not (chess.A2 <= pawn and pawn < chess.A8):
+        return NOINDEX
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
         wa = flip_we(wa)
 
-    sq = pawn;
-    #sq ^= 070;
-    # flip_ns
-    sq -= 8   # down one row
-    pslice = ((sq + (sq & 3)) >> 1)
+    sq = pawn
+    # sq ^= 56
+    # do not flip_ns
+    sq -= 8 # down one row
+    pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
@@ -1252,26 +1244,27 @@ def kaak_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares[:N_WHITE])
-    bs = list(c.blackPieceSquares[:N_BLACK])
+    ws = c.whitePieceSquares[:N_WHITE]
+    bs = c.blackPieceSquares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
         return NOINDEX
+
     return ki * BLOCK_Ax + ai
 
 def kakb_pctoindex(c):
@@ -1280,28 +1273,28 @@ def kakb_pctoindex(c):
 
     ft = FLIPT[c.blackPieceSquares[0]][c.whitePieceSquares[0]]
 
-    ws = list(c.whitePieceSquares)
-    bs = list(c.blackPieceSquares)
+    ws = c.whitePieceSquares[:]
+    bs = c.blackPieceSquares[:]
 
-    if ((ft & 1) != 0):
+    if (ft & 1) != 0:
         ws[0] = flip_we(ws[0])
         ws[1] = flip_we(ws[1])
         bs[0] = flip_we(bs[0])
         bs[1] = flip_we(bs[1])
 
-    if ((ft & 2) != 0):
+    if (ft & 2) != 0:
         ws[0] = flip_ns(ws[0])
         ws[1] = flip_ns(ws[1])
         bs[0] = flip_ns(bs[0])
         bs[1] = flip_ns(bs[1])
 
-    if ((ft & 4) != 0):
+    if (ft & 4) != 0:
         ws[0] = flip_nw_se(ws[0])
         ws[1] = flip_nw_se(ws[1])
         bs[0] = flip_nw_se(bs[0])
         bs[1] = flip_nw_se(bs[1])
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1316,11 +1309,10 @@ def kpk_pctoindex(c):
     wk = c.whitePieceSquares[0]
     bk = c.blackPieceSquares[0]
 
-    if ( not (chess.A2 <= pawn and pawn < chess.A8)):
-                return NOINDEX
+    if not (chess.A2 <= pawn and pawn < chess.A8):
+        return NOINDEX
 
-    if ((pawn & 7) > 3):
-        #column is more than 3. e.g. = e,f,g, or h
+    if (pawn & 7) > 3:
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -1369,10 +1361,7 @@ def kpppk_pctoindex(c):
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 
-
-
 def sortlists(ws, wp):
-    # input is sorted
     z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2)
