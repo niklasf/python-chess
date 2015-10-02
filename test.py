@@ -2278,7 +2278,7 @@ class GaviotaTestCase(unittest.TestCase):
                 board, extra = chess.Board.from_epd(epd)
 
                 # Skip 5 and 6 piece endgames.
-                if chess.pop_count(board.occupied) > 4:
+                if not os.path.exists("egtb/gaviota/kbbbk.gtb.cp4") and chess.pop_count(board.occupied) > 4:
                     continue
 
                 # Check DTM.
