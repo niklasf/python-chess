@@ -29,9 +29,7 @@ before_install:
  - cd ..
  - # Gaviota tablebases
  - cd data/gaviota
- - wget --no-clobber https://syzygy-tables.info/gaviota/INDEX.txt
- - wget --no-clobber --input-file INDEX.txt
- - md5sum -c MD5SUMS.txt
+ - wget --no-clobber --input-file TEST-SOURCE.txt
  - cd ../..
 install:
  - python -c "import sys; sys.exit(int(sys.version_info < (2, 7)));" || pip install unittest2 backport_collections

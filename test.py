@@ -2266,8 +2266,8 @@ class GaviotaTestCase(unittest.TestCase):
     def tearDown(self):
         self.tablebases.close()
 
-    def test_dm(self):
-        with open("data/endgame-dm.epd") as epds:
+    def test_dm_4(self):
+        with open("data/endgame-dm-4.epd") as epds:
             for line, epd in enumerate(epds):
                 # Skip empty lines and comments.
                 epd = epd.strip()
@@ -2277,9 +2277,26 @@ class GaviotaTestCase(unittest.TestCase):
                 # Parse EPD.
                 board, extra = chess.Board.from_epd(epd)
 
-                # Skip 5 and 6 piece endgames.
-                if not os.path.exists("egtb/gaviota/kbbbk.gtb.cp4") and chess.pop_count(board.occupied) > 4:
+                # Check DTM.
+                if extra["dm"] > 0:
+                    expected = extra["dm"] * 2 - 1
+                else:
+                    expected = extra["dm"] * 2
+                dtm = self.tablebases.probe_dtm(board)
+                self.assertEqual(dtm, expected,
+                    "Expecting dtm {0} for {1}, got {2} (at line {3})".format(expected, board.fen(), dtm, line + 1))
+
+    @unittest.skipUnless(os.path.exists("data/gaviota/kqrnk.gtb.cp4"), "need 5 piece gaviota tables")
+    def test_dm_5(self):
+        with open("data/endgame-dm-5.epd") as epds:
+            for line, epd in enumerate(epds):
+                # Skip empty lines and comments.
+                epd = epd.strip()
+                if not epd or epd.startswith("#"):
                     continue
+
+                # Parse EPD.
+                board, extra = chess.Board.from_epd(epd)
 
                 # Check DTM.
                 if extra["dm"] > 0:
