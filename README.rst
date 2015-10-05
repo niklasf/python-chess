@@ -196,6 +196,10 @@ Features
       >>> board = chess.Board()
       >>> board.san(chess.Move(chess.E2, chess.E4))
       'e4'
+      >>> board.parse_san('Nf3')
+      Move.from_uci('g1f3')
+      >>> board.variation_san([chess.Move.from_uci(m) for m in ["e2e4", "e7e5", "g1f3"]])
+      '1. e4 e5 2. Nf3'
 
 * Parses and creates FENs, extended FENs and Shredder FENs.
 
