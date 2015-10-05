@@ -110,7 +110,7 @@ class PerftTestCase(unittest.TestCase):
         # Source: http://www.talkchess.com/forum/viewtopic.php?t=55274
 
         # XFEN 00
-        board = chess.Board("r1k1r2q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K1R2Q w KQkq - 0 1 ")
+        board = chess.Board("r1k1r2q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K1R2Q w KQkq - 0 1", chess960=True)
         self.assertEqual(perft(board, 1), 23)
         self.assertEqual(perft(board, 2), 522)
         self.assertEqual(perft(board, 3), 12333)
@@ -119,7 +119,7 @@ class PerftTestCase(unittest.TestCase):
         sys.stdout.flush()
 
         # XFEN 01
-        board = chess.Board("r1k2r1q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K2R1Q w KQkq - 0 1")
+        board = chess.Board("r1k2r1q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K2R1Q w KQkq - 0 1", chess960=True)
         self.assertEqual(perft(board, 1), 28)
         self.assertEqual(perft(board, 2), 738)
         self.assertEqual(perft(board, 3), 20218)
@@ -128,7 +128,7 @@ class PerftTestCase(unittest.TestCase):
         sys.stdout.flush()
 
         # XFEN 02
-        board = chess.Board("8/8/8/4B2b/6nN/8/5P2/2R1K2k w Q - 0 1")
+        board = chess.Board("8/8/8/4B2b/6nN/8/5P2/2R1K2k w Q - 0 1", chess960=True)
         self.assertEqual(perft(board, 1), 34)
         self.assertEqual(perft(board, 2), 318)
         self.assertEqual(perft(board, 3), 9002)
@@ -137,7 +137,7 @@ class PerftTestCase(unittest.TestCase):
         sys.stdout.flush()
 
         # XFEN 03
-        board = chess.Board("2r5/8/8/8/8/8/6PP/k2KR3 w K - 0 1")
+        board = chess.Board("2r5/8/8/8/8/8/6PP/k2KR3 w K - 0 1", chess960=True)
         self.assertEqual(perft(board, 1), 17)
         self.assertEqual(perft(board, 2), 242)
         self.assertEqual(perft(board, 3), 3931)
@@ -146,7 +146,7 @@ class PerftTestCase(unittest.TestCase):
         sys.stdout.flush()
 
         # XFEN 04
-        board = chess.Board("4r3/3k4/8/8/8/8/6PP/qR1K1R2 w KQ - 0 1")
+        board = chess.Board("4r3/3k4/8/8/8/8/6PP/qR1K1R2 w KQ - 0 1", chess960=True)
         self.assertEqual(perft(board, 1), 19)
         self.assertEqual(perft(board, 2), 628)
         self.assertEqual(perft(board, 3), 12858)

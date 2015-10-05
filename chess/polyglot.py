@@ -17,13 +17,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import struct
 import os
 import mmap
 import random
 import itertools
+import chess
+import errno
+import sys
 
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
@@ -31,7 +37,7 @@ ENTRY_STRUCT = struct.Struct(">QHHI")
 class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
     """An entry from a polyglot opening book."""
 
-    def move(self):
+    def move(self, chess960=False):
         """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
@@ -40,6 +46,19 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
         # Extract the promotion type.
         promotion_part = (self.raw_move >> 12) & 0x7
         promotion = promotion_part + 1 if promotion_part else None
+
+        # Convert castling moves.
+        if not chess960 and not promotion:
+            if from_square == chess.E1:
+                if to_square == chess.H1:
+                    return chess.Move(chess.E1, chess.G1)
+                elif to_square == chess.A1:
+                    return chess.Move(chess.E1, chess.C1)
+            elif from_square == chess.E8:
+                if to_square == chess.H8:
+                    return chess.Move(chess.E8, chess.G8)
+                elif to_square == chess.A8:
+                    return chess.Move(chess.E8, chess.C8)
 
         return chess.Move(from_square, to_square, promotion)
 
@@ -52,7 +71,7 @@ class MemoryMappedReader(object):
 
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except ValueError:
+        except (ValueError, mmap.error):
             # Can not memory map empty opening books.
             self.mmap = None
 
@@ -116,7 +135,41 @@ class MemoryMappedReader(object):
     def __contains__(self, entry):
         return any(current == entry for current in self.find_all(entry.key, entry.weight))
 
-    def find(self, board, minimum_weight=1):
+    def find_all(self, board, minimum_weight=1, exclude_moves=()):
+        """Seeks a specific position and yields corresponding entries."""
+        try:
+            zobrist_hash = board.zobrist_hash()
+        except AttributeError:
+            zobrist_hash = int(board)
+            board = None
+
+        i = self.bisect_key_left(zobrist_hash)
+        size = len(self)
+
+        while i < size:
+            entry = self[i]
+            i += 1
+
+            if entry.key != zobrist_hash:
+                break
+
+            if entry.weight < minimum_weight:
+                continue
+
+            if board:
+                move = entry.move(chess960=board.chess960)
+            elif exclude_moves:
+                move = entry.move()
+
+            if exclude_moves and move in exclude_moves:
+                continue
+
+            if board and not board.is_legal(move):
+                continue
+
+            yield entry
+
+    def find(self, board, minimum_weight=1, exclude_moves=()):
         """
         Finds the main entry for the given position or zobrist hash.
 
@@ -129,58 +182,38 @@ class MemoryMappedReader(object):
         Raises :exc:`IndexError` if no entries are found.
         """
         try:
-            return max(self.find_all(board, minimum_weight), key=lambda entry: entry.weight)
+            return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
         except ValueError:
             raise IndexError()
 
-    def find_all(self, board, minimum_weight=1):
-        """Seeks a specific position and yields corresponding entries."""
-        try:
-            zobrist_hash = board.zobrist_hash()
-        except AttributeError:
-            zobrist_hash = int(board)
-
-        i = self.bisect_key_left(zobrist_hash)
-        size = len(self)
-
-        while i < size:
-            entry = self[i]
-
-            if entry.key != zobrist_hash:
-                break
-            elif entry.weight >= minimum_weight:
-                yield entry
-
-            i += 1
-
-    def choice(self, board, minimum_weight=1, random=random):
+    def choice(self, board, minimum_weight=1, exclude_moves=(), random=random):
         """
         Uniformly selects a random entry for the given position.
 
         Raises :exc:`IndexError` if no entries are found.
         """
-        total_entries = sum(1 for entry in self.find_all(board, minimum_weight))
+        total_entries = sum(1 for entry in self.find_all(board, minimum_weight, exclude_moves))
         if not total_entries:
             raise IndexError()
 
         choice = random.randint(0, total_entries - 1)
-        return next(itertools.islice(self.find_all(board, minimum_weight), choice, None))
+        return next(itertools.islice(self.find_all(board, minimum_weight, exclude_moves), choice, None))
 
-    def weighted_choice(self, board, random=random):
+    def weighted_choice(self, board, exclude_moves=(), random=random):
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
 
         Raises :exc:`IndexError` if no entries are found.
         """
-        total_weights = sum(entry.weight for entry in self.find_all(board))
+        total_weights = sum(entry.weight for entry in self.find_all(board, exclude_moves=exclude_moves))
         if not total_weights:
             raise IndexError()
 
         choice = random.randint(0, total_weights - 1)
 
         current_sum = 0
-        for entry in self.find_all(board):
+        for entry in self.find_all(board, exclude_moves=exclude_moves):
             current_sum += entry.weight
             if current_sum > choice:
                 return entry
@@ -192,7 +225,7 @@ def open_reader(path):
     """
     Creates a reader for the file at the given path.
 
-    >>> with open_reader("data/opening-books/performance.bin") as reader:
+    >>> with open_reader("data/polyglot/performance.bin") as reader:
     ...    for entry in reader.find_all(board):
     ...        print(entry.move(), entry.weight, entry.learn)
     e2e4 1 0

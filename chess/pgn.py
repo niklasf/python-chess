@@ -17,10 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import itertools
 import re
+import sys
 
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 NAG_NULL = 0
 
@@ -345,19 +349,24 @@ class Game(GameNode):
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            return chess.Board(self.headers["FEN"])
+            chess960 = self.headers.get("Variant", None) == "Chess960"
+            board = chess.Board(self.headers["FEN"], chess960=chess960)
+            board.chess960 = board.chess960 or board.has_chess960_castling_rights()
+            return board
         else:
             return chess.Board()
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the `SetUp`
-        and `FEN` header tags.
+        Setup a specific starting position. This sets (or resets) the *SetUp*,
+        *FEN* and *Variant* header tags.
         """
         try:
             fen = board.fen()
         except AttributeError:
-            fen = chess.Board(board).fen()
+            board = chess.Board(board)
+            board.chess960 = board.has_chess960_castling_rights()
+            fen = board.fen()
 
         if fen == chess.STARTING_FEN:
             self.headers.pop("SetUp", None)
@@ -365,6 +374,11 @@ class Game(GameNode):
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
+
+        if board.chess960:
+            self.headers["Variant"] = "Chess960"
+        else:
+            self.headers.pop("Variant", None)
 
     def export(self, exporter, headers=True, comments=True, variations=True):
         exporter.start_game()
@@ -516,7 +530,7 @@ def read_game(handle, error_handler=_raise):
     According to the specification PGN files should be ASCII. Also UTF-8 is
     common. So this is usually not a problem.
 
-    >>> pgn = open("data/games/kasparov-deep-blue-1997.pgn")
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>> first_game = chess.pgn.read_game(pgn)
     >>> second_game = chess.pgn.read_game(pgn)
     >>>
@@ -582,8 +596,8 @@ def read_game(handle, error_handler=_raise):
 
     # Movetext parser state.
     starting_comment = ""
-    variation_stack = collections.deque([ game ])
-    board_stack = collections.deque([ game.board() ])
+    variation_stack = collections.deque([game])
+    board_stack = collections.deque([game.board()])
     in_variation = False
 
     # Parse movetext.

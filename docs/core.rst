@@ -54,6 +54,9 @@ and so on to
 .. py:data:: chess.FILE_NAMES
     :annotation: = ['a', 'b', ..., 'g', 'h']
 
+.. py:data:: chess.RANK_NAMES
+    :annotation: = ['1', '2', ..., '7', '8']
+
 .. autofunction:: chess.file_index
 
 .. autofunction:: chess.rank_index
@@ -112,14 +115,16 @@ Board
         >>> white_castle_kingside = board.castling_rights & chess.BB_H1
 
         Also see :func:`~chess.Board.has_castling_rights()`,
-        :func:`~chess.Board.has_kingside_castling_rights()` and
-        :func:`~chess.Board.has_queenside_castling_rights()`.
+        :func:`~chess.Board.has_kingside_castling_rights()`,
+        :func:`~chess.Board.has_queenside_castling_rights()` and
+        :func:`~chess.Board.has_chess960_castling_rights()`.
 
     .. py:attribute:: ep_square
 
-        The potential en-passant square on the third or sixth rank or `0`. It
-        does not matter if en-passant would actually be possible on the next
-        move.
+        The potential en passant square on the third or sixth rank or ``0``.
+
+        Use :func:`~chess.Board.has_legal_en_passant()` to test if en passant
+        capturing would actually be possible on the next move.
 
     .. py:attribute:: fullmove_number
 
@@ -129,6 +134,11 @@ Board
     .. py:attribute:: halfmove_clock
 
         The number of half moves since the last capture or pawn move.
+
+    .. py:attribute:: chess960
+
+        Whether the board is in Chess960 mode. In Chess960 castling moves are
+        represented as king moves to the corresponding rook square.
 
     .. py:attribute:: pseudo_legal_moves
         :annotation: = PseudoLegalMoveGenerator(self)
@@ -152,11 +162,17 @@ Board
         >>> move in board.pseudo_legal_moves
         True
 
+        Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
+        :func:`~chess.Board.is_pseudo_legal()`.
+
     .. py:attribute:: legal_moves
         :annotation: = LegalMoveGenerator(self)
 
         A dynamic list of completely legal moves, much like the pseudo legal
         move list.
+
+        Wraps :func:`~chess.Board.generate_legal_moves()` and
+        :func:`~chess.Board.is_legal()`.
 
     .. py:attribute:: move_stack
 

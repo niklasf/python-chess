@@ -1,10 +1,18 @@
 language: python
 sudo: false
 python:
+ - "2.6"
  - "2.7"
  - "3.3"
  - "3.4"
  - "3.5.0b3"
+addons:
+  apt:
+    packages:
+     - liblzma-dev
+cache:
+  directories:
+    - data/gaviota
 before_install:
  - # Stockfish
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
@@ -13,14 +21,20 @@ before_install:
  - cp stockfish-6-linux/Linux/stockfish_6_x64 bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
- - # Gaviota tablebases
+ - # Gaviota libgtb
  - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
  - cd Gaviota-Tablebases
  - make
  - export LD_LIBRARY_PATH="`pwd`:${LD_LIBRARY_PATH}"
  - cd ..
+ - # Gaviota tablebases
+ - cd data/gaviota
+ - wget --no-clobber --input-file TEST-SOURCE.txt
+ - cd ../..
 install:
+ - python -c "import sys; sys.exit(int(sys.version_info < (2, 7)));" || pip install unittest2 backport_collections
  - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
+ - python -c "import sys; sys.exit(int(sys.version_info < (3, 3)));" || pip install backports.lzma
  - pip install coveralls
  - pip install spur
 script:

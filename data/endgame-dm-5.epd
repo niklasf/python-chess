@@ -1,0 +1,46 @@
+# Endgames selected from
+# http://kirill-kryukov.com/chess/longest-checkmates/longest-checkmates.shtml
+# to test Gaviota tablebase probing.
+
+# kaaak_pctoindex krrrk
+# kaabk_pctoindex krrnk
+# kaakb_pctoindex knnkn
+# kaakp_pctoindex knnkp
+# kaapk_pctoindex krrpk
+# kabbk_pctoindex kqbbk
+# kabck_pctoindex kqrnk
+# kabkc_pctoindex kbnkb
+# kabkp_pctoindex krnkp
+# kabpk_pctoindex krnpk
+# kapkb_pctoindex krpkn
+# kapkp_pctoindex kbpkp
+# kappk_pctoindex knppk
+# kppka_pctoindex kppkq
+# kppkp_pctoindex kppkp
+# kpppk_pctoindex kpppk
+
+8/8/5k2/8/7p/8/PP6/1K6 w - - dm -13;
+K7/8/8/8/2k3P1/6P1/6P1/8 w - - dm 33;
+7N/K5k1/8/8/8/6P1/6P1/8 w - - dm 32;
+6k1/6NR/7P/8/8/8/8/K7 w - - dm 17;
+8/K7/8/8/5k2/4RPR1/8/8 w - - dm 14;
+8/8/6R1/6Nk/6R1/8/8/K7 w - - dm 10;
+8/8/8/8/4k3/5R2/R7/RK6 w - - dm 5;
+8/8/8/8/8/1B6/Q1B1k3/K7 w - - dm 6;
+Q7/N7/8/8/8/8/3k4/K1R5 w - - dm 5;
+8/8/8/8/1p2P3/4P3/1k6/3K4 w - - dm 127;
+8/4P3/7q/8/8/8/k1K1P3/8 w - - dm 124;
+1N6/8/p7/8/8/8/2k1N3/K7 w - - dm 115;
+7n/8/8/8/8/8/2NK4/1kN5 w - - dm 7;
+8/7p/8/8/8/1B6/K6P/2k5 w - - dm 67;
+8/7B/8/4N3/8/8/3k4/K1b5 w - - dm 39;
+8/5n2/8/8/8/7k/7P/3K3R w - - dm 54;
+8/8/8/4R3/8/2k3N1/3p4/K7 w - - dm 29;
+8/8/7P/3K4/5p2/4p3/8/7k w - - dm 43;
+8/8/7P/8/4n3/1k6/8/3K3n w - - dm 74;
+3K4/8/1P6/8/6p1/8/4b3/7k w - - dm 51;
+1n6/1K1P4/8/8/8/8/4r3/1k6 w - - dm 68;
+8/8/8/8/n7/kn6/8/NK6 w - - dm 1;
+8/8/8/8/3N4/p7/3r4/k1K5 w - - dm 8;
+8/8/8/8/2n5/8/b7/k1K1B3 w - - dm 2;
+8/8/8/2K5/5p2/8/1Q2pk2/8 w - - dm 41;
