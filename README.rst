@@ -7,9 +7,6 @@ python-chess: a pure Python chess library
 .. image:: https://coveralls.io/repos/niklasf/python-chess/badge.png
     :target: https://coveralls.io/r/niklasf/python-chess
 
-.. image:: https://landscape.io/github/niklasf/python-chess/master/landscape.png
-    :target: https://landscape.io/github/niklasf/python-chess/master
-
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
 
@@ -55,15 +52,15 @@ https://python-chess.readthedocs.org/en/latest/
 * `Core <https://python-chess.readthedocs.org/en/latest/core.html>`_
 * `PGN parsing and writing <https://python-chess.readthedocs.org/en/latest/pgn.html>`_
 * `Polyglot opening book reading <https://python-chess.readthedocs.org/en/latest/polyglot.html>`_
-* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
 * `Gaviota endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/gaviota.html>`_
+* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
 * `UCI engine communication <https://python-chess.readthedocs.org/en/latest/uci.html>`_
 * `Changelog <https://python-chess.readthedocs.org/en/latest/changelog.html>`_
 
 Features
 --------
 
-* Supports Python 2.7 and Python 3.3+.
+* Supports Python 2.6+ and Python 3.3+.
 
   .. code:: python
 
@@ -72,11 +69,18 @@ Features
 
 * Supports standard chess and Chess960.
 
+  .. code:: python
+
+      >>> board = chess.Board(chess960=True)
+
 * Legal move generator and move validation. This includes all castling
-  rules and en-passant captures.
+  rules and en passant captures.
 
   .. code:: python
 
+      >>> board = chess.Board()
+      >>> board.legal_moves # doctest: +ELLIPSIS
+      <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
       >>> chess.Move.from_uci("a8a1") in board.legal_moves
       False
 
@@ -84,16 +88,17 @@ Features
 
   .. code:: python
 
-      >>> Qf7 = board.pop() # Unmake last move (Qf7#)
-      >>> Qf7
-      Move.from_uci('h5f7')
+      >>> Nf3 = chess.Move.from_uci("g1f3")
+      >>> board.push(Nf3) # Make the move
 
-      >>> board.push(Qf7) # Restore
+      >>> board.pop() # Unmake the last move
+      Move.from_uci('g1f3')
 
 * Show a simple ASCII board.
 
   .. code:: python
 
+      >>> board = chess.Board("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
       >>> print(board)
       r . b q k b . r
       p p p p . Q p p
@@ -227,7 +232,7 @@ Features
 
       >>> import chess.polyglot
 
-      >>> book = chess.polyglot.open_reader("data/opening-books/performance.bin")
+      >>> book = chess.polyglot.open_reader("data/polyglot/performance.bin")
 
       >>> board = chess.Board()
       >>> main_entry = book.find(board)
@@ -248,7 +253,7 @@ Features
 
       >>> import chess.pgn
 
-      >>> pgn = open("data/games/molinari-bordais-1979.pgn")
+      >>> pgn = open("data/pgn/molinari-bordais-1979.pgn")
       >>> first_game = chess.pgn.read_game(pgn)
       >>> pgn.close()
 
@@ -277,6 +282,22 @@ Features
       >>> first_game.headers["Result"]
       '0-1'
 
+* Probe Gaviota endgame tablebases (DTM, WDL).
+  `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
+
+  .. code:: python
+
+      >>> import chess.gaviota
+
+      >>> tablebases = chess.gaviota.open_tablebases("data/gaviota")
+
+      >>> # White to move mates in 31 half moves in this KRvK endgame.
+      >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
+      >>> tablebases.probe_dtm(board)
+      31
+
+      >>> tablebases.close()
+
 * Probe Syzygy endgame tablebases (DTZ, WDL).
   `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`__.
 
@@ -291,23 +312,6 @@ Features
       >>> board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
       >>> tablebases.probe_dtz(board)
       -53
-
-      >>> tablebases.close()
-
-* Probe Gaviota endgame tablebases (DTM, WDL) via a wrapper around
-  `libgtb <https://github.com/michiguel/Gaviota-Tablebases>`_.
-  `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
-
-  .. code:: python
-
-      >>> import chess.gaviota
-
-      >>> tablebases = chess.gaviota.open_tablebases("data/gaviota")
-
-      >>> # White to move mates in 31 half moves in this KRvK endgame.
-      >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
-      >>> tablebases.probe_dtm(board)
-      31
 
       >>> tablebases.close()
 
@@ -347,8 +351,8 @@ Features
       >>> engine.quit()
       0
 
-Peformance
-----------
+Performance
+-----------
 
 python-chess is not intended to be used by serious chess engines where
 performance is critical. The goal is rather to create a simple and relatively
@@ -369,7 +373,6 @@ Installing
 
   ::
 
-      pip install futures # Backport for Python < 3.2
       pip install python-chess
 
 * From current source code:

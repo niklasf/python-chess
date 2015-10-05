@@ -17,12 +17,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import signal
 import subprocess
 import logging
 import threading
 import concurrent.futures
+import sys
+
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 try:
     import queue
@@ -92,7 +97,7 @@ class OptionMap(collections.MutableMapping):
         return True
 
     def copy(self):
-        return OptionMap(self._store.values())
+        return type(self)(self._store.values())
 
     def __copy__(self):
         return self.copy()
@@ -102,6 +107,23 @@ class OptionMap(collections.MutableMapping):
 
 
 class InfoHandler(object):
+    """
+    Chess engines may send information about their calculations with the
+    *info* command. You can register info handlers to be asynchronously
+    notified whenever the engine sends more information.
+
+    >>> # Register a standard info handler.
+    >>> info_handler = chess.uci.InfoHandler()
+    >>> engine.info_handlers.append(info_handler)
+
+    You would usually subclass the *InfoHandler* class.
+
+    >>> class MyHandler(chess.uci.InfoHandler):
+    ...     def post_info(self):
+    ...         # Called whenever a complete *info* line has been processed.
+    ...         super(MyHandler, self).post_info()
+    ...         print(self.info)
+    """
     def __init__(self):
         self.lock = threading.Lock()
 
@@ -664,7 +686,7 @@ class Engine(object):
         # Find multipv parameter first.
         if "multipv" in arg:
             current_parameter = None
-            for token in arg.split(" "):
+            for token in arg.split():
                 if token == "string":
                     break
 
@@ -678,7 +700,11 @@ class Engine(object):
         for token in arg.split(" "):
             if current_parameter == "string":
                 string.append(token)
-            elif token in ("depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"):
+            elif not token:
+                # Ignore extra spaces. Those can not be directly discarded,
+                # because they may occur in the string parameter.
+                pass
+            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"]:
                 end_of_parameter()
                 current_parameter = token
 
@@ -801,6 +827,10 @@ class Engine(object):
                 name.append(token)
             elif current_parameter == "type":
                 type.append(token)
+            elif current_parameter == "default":
+                default.append(token)
+            elif current_parameter == "var":
+                current_var.append(token)
             elif current_parameter == "min":
                 try:
                     min = int(token)
@@ -811,10 +841,6 @@ class Engine(object):
                     max = int(token)
                 except ValueError:
                     LOGGER.exception("exception parsing option max")
-            elif current_parameter == "default":
-                default.append(token)
-            elif current_parameter == "var":
-                current_var.append(token)
 
         if current_var is not None:
             var.append(" ".join(current_var))
@@ -1004,6 +1030,9 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
+        # Work on a local copy.
+        board = board.copy()
+
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
@@ -1019,9 +1048,13 @@ class Engine(object):
             switchyard.append(board.pop())
 
         # Validate castling rights.
-        if not self.uci_chess960:
-            standard_chess_status = board.status(allow_chess960=False)
-            chess960_status = board.status(allow_chess960=True)
+        if not self.uci_chess960 and board.chess960:
+            chess960_status = board.status()
+
+            board.chess960 = False
+            standard_chess_status = board.status()
+            board.chess960 = True
+
             if standard_chess_status & chess.STATUS_BAD_CASTLING_RIGHTS and not chess960_status & chess.STATUS_BAD_CASTLING_RIGHTS:
                 LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 
@@ -1050,7 +1083,7 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
-        self.board = board.copy()
+        self.board = board
 
         def command():
             with self.semaphore:
@@ -1220,7 +1253,7 @@ class Engine(object):
 
         :return: Nothing.
 
-        :raises: `~chess.uci.EngineStateException` if the engine is not
+        :raises: :exc:`~chess.uci.EngineStateException` if the engine is not
             currently searching in ponder mode.
         """
         with self.state_changed:
@@ -1325,11 +1358,11 @@ def popen_engine(command, engine_cls=Engine):
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
     """
-    Spwans a remote engine using a `Spur`_ shell.
+    Spawns a remote engine using a `Spur`_ shell.
 
     >>> import spur
     >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
-    >>> engine = chess.uci.spur_spwan_engine(shell, ["/usr/games/stockfish"])
+    >>> engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
     >>> engine.uci()
 
     .. _Spur: https://pypi.python.org/pypi/spur

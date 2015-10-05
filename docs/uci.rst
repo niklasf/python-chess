@@ -30,8 +30,10 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
 
     .. py:attribute:: uciok
 
-        *threading.Event()* that will be set as soon as *uciok* was received.
-        By then name, author and options should be available.
+        :class:`threading.Event()` that will be set as soon as *uciok* was
+        received. By then :data:`~chess.uci.Engine.name`,
+        :data:`~chess.uci.Engine.author` and :data:`~chess.uci.Engine.options`
+        should be available.
 
     .. py:attribute:: return_code
 
@@ -39,9 +41,9 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
 
     .. py:attribute:: terminated
 
-        *threading.Event()* that will be set as soon as the underyling
-        operating system process is terminated and the *return_code* is
-        available.
+        :class:`threading.Event()` that will be set as soon as the underyling
+        operating system process is terminated and the
+        :data:`~chess.uci.Engine.return_code` is available.
 
 UCI commands
 ------------
@@ -50,7 +52,8 @@ UCI commands
     :members: uci, debug, isready, setoption, ucinewgame, position, go, stop,
         ponderhit, quit
 
-*EngineTerminatedException* is raised if the engine process is no longer alive.
+:exc:`~chess.uci.EngineTerminatedException` is raised if the engine process is
+no longer alive.
 
 Asynchronous communication
 --------------------------
@@ -75,7 +78,7 @@ True
 
 Instead of just passing *async_callback=True* a callback function may be
 passed. It will be invoked **possibly on a different thread** as soon as the
-command is completed. It takes a *Command* object as a single argument.
+command is completed. It takes the command future as a single argument.
 
 >>> def on_go_finished(command):
 ...     # Will likely be executed on a different thread.
@@ -87,9 +90,8 @@ Note about castling moves
 -------------------------
 
 There are different ways castling moves may be encoded. The normal way to do it
-is *e1g1* for short castling. However this is not always unique in Chess960.
-Therefore python-chess will consistently encode castling moves as a king
-move to the corresponding rook, i.e. *e1h1* for normal kingside castling.
+is ``e1g1`` for short castling. The same move would be ``e1h1`` in
+*UCI_Chess960* mode.
 
 This is abstracted away by the UCI module, but if the engine supports it, it
 is recommended to enable enable *UCI_Chess960* mode.
@@ -99,21 +101,16 @@ is recommended to enable enable *UCI_Chess960* mode.
 Info handler
 ------------
 
-Chess engines may send information about their calculations with the *info*
-command. You can register info handlers to be asynchronously notified whenever
-the engine sends more information. You would usually subclass the *InfoHandler*
-class.
-
 .. autoclass:: chess.uci.Score
     :members:
 
     .. py:attribute:: cp
 
-        Evaluation in centipawns or *None*.
+        Evaluation in centipawns or ``None``.
 
     .. py:attribute:: mate
 
-        Mate in x or *None*. Negative if the engine thinks it is going to be
+        Mate in x or ``None``. Negative if the engine thinks it is going to be
         mated.
 
     .. py:attribute:: lowerbound
@@ -131,21 +128,17 @@ class.
 
         The default implementation stores all received information in this
         dictionary. To get a consistent snapshot use the object as if it were
-        a *threading.Lock()*.
-
-        >>> # Register the handler.
-        >>> handler = chess.uci.InfoHandler()
-        >>> engine.info_handlers.append(handler)
+        a :class:`threading.Lock()`.
 
         >>> # Start thinking.
-        >>> engine.go(infinite=True)
+        >>> engine.go(infinite=True, async_callback=True)
 
         >>> # Wait a moment, then access a consistent snapshot.
         >>> time.sleep(3)
-        >>> with handler:
-        ...     if 1 in handler.info["score"]:
-        ...         print("Score: ", handler.info["score"][1].cp)
-        ...         print("Mate: ", handler.info["score"][1].mate)
+        >>> with info_handler:
+        ...     if 1 in info_handler.info["score"]:
+        ...         print("Score: ", info_handler.info["score"][1].cp)
+        ...         print("Mate: ", info_handler.info["score"][1].mate)
         Score: 34
         Mate: None
 
@@ -164,10 +157,10 @@ Options
 
         The type of the option.
 
-        Officially documented types are *check* for a boolean value, *spin*
-        for an integer value between a minimum and a maximum, *combo* for an
+        Officially documented types are ``check`` for a boolean value, ``spin``
+        for an integer value between a minimum and a maximum, ``combo`` for an
         enumeration of predefined string values (one of which can be selected),
-        *button* for an action and *string* for a textfield.
+        ``button`` for an action and ``string`` for a textfield.
 
     .. py:attribute:: default
 

@@ -1353,14 +1353,14 @@ class Tablebases(object):
         if v is None or not success:
             return None
 
-        # If en-passant is not possible, we are done.
+        # If en passant is not possible, we are done.
         if not board.ep_square:
             return v
 
-        # Now handle en-passant.
+        # Now handle en passant.
         v1 = -3
 
-        # Look at least at all legal en-passant captures.
+        # Look at least at all legal en passant captures.
         for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
             # Filter out non-en-passant moves.
             if not board.is_en_passant(move):
@@ -1385,7 +1385,7 @@ class Tablebases(object):
                 v = v1
             elif v == 0:
                 # If there is not at least one legal non-en-passant move we are
-                # forced to play the losing en-passant cature.
+                # forced to play the losing en passant cature.
                 if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
                     v = v1
 
@@ -1549,7 +1549,7 @@ class Tablebases(object):
                 if v1 >= 0:
                     v = v1
             elif v < 0:
-                if v1 >= 0 or v1 < 100:
+                if v1 >= 0 or v1 < -100:
                     v = v1
             elif v > 100:
                 if v1 > 0:

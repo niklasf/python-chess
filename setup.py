@@ -52,6 +52,10 @@ def read_description():
 def dependencies():
     deps = []
 
+    if sys.version_info < (2, 7):
+        deps.append("backport_collections")
+        deps.append("unittest2")
+
     if sys.version_info < (3, 2):
         deps.append("futures")
 
@@ -63,7 +67,7 @@ setuptools.setup(
     version=chess.__version__,
     author=chess.__author__,
     author_email=chess.__email__,
-    description="A pure Python chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Syzygy tablebase probing and UCI engine communication.",
+    description="A pure Python chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Gaviota tablebase probing, Syzygy tablebase probing and UCI engine communication.",
     long_description=read_description(),
     license="GPL3",
     keywords="chess fen pgn polyglot syzygy gaviota uci",
@@ -77,6 +81,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",

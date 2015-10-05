@@ -4,8 +4,16 @@ venv/
 *~
 .coverage
 .coveralls.yml
+nosetests.xml
+
 dist/
 build/
 python_chess.egg-info/
-nosetests.xml
 docs/_build/
+
+data/gaviota/*.gtb.cp4
+data/syzygy/*.rtbw
+data/syzygy/*.rtbz
+
+pythonhosted.zip
+release-v*.txt
