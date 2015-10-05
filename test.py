@@ -422,6 +422,41 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(chess.Move.from_uci("f2f1n")), "f1=N+")
         self.assertEqual(board.fen(), fen)
 
+    def test_variations(self):
+        board = chess.Board()
+        self.assertEqual('1. e4 e5 2. Nf3',
+                         board.variation_san([chess.Move.from_uci(m) for m in
+                                              ['e2e4','e7e5','g1f3']]))
+        self.assertEqual('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6',
+                         board.variation_san([chess.Move.from_uci(m) for m in
+                                              ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6']]))
+
+        fen = "rn1qr1k1/1p2bppp/p3p3/3pP3/P2P1B2/2RB1Q1P/1P3PP1/R5K1 w - - 0 19"
+        board = chess.Board(fen)
+        variation = ['d3h7', 'g8h7', 'f3h5', 'h7g8', 'c3g3', 'e7f8', 'f4g5',
+                     'e8e7', 'g5f6', 'b8d7', 'h5h6', 'd7f6', 'e5f6', 'g7g6',
+                     'f6e7', 'f8e7']
+        var_w = board.variation_san([chess.Move.from_uci(m) for m in variation])
+        self.assertEqual('19. Bxh7+ Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 ' +
+                         '23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7',
+                         var_w)
+        self.assertEqual(fen, board.fen(), msg="Board unchanged by variation_san")
+        board.push(chess.Move.from_uci(variation.pop(0)))
+        var_b = board.variation_san([chess.Move.from_uci(m) for m in variation])
+        self.assertEqual('19...Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 ' +
+                         '23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7',
+                         var_b)
+
+        illegal_variation = ['d3h7', 'g8h7', 'f3h6', 'h7g8']
+        board = chess.Board(fen)
+        with self.assertRaises(ValueError) as err:
+            board.variation_san([chess.Move.from_uci(m) for m in illegal_variation])
+        message = str(err.exception)
+        self.assertTrue('illegal move' in message.lower(),
+                        msg="Error [{0}] mentions illegal move".format(message))
+        self.assertTrue('f3h6' in message,
+                        msg="Illegal move f3h6 appears in message [{0}]".format(message))
+
     def test_is_legal_move(self):
         fen = "3k4/6P1/7P/8/K7/8/8/4R3 w - - 0 1"
         board = chess.Board(fen)
