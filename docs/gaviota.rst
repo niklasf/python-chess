@@ -24,12 +24,13 @@ to use the pure Python probing code.
 libgtb
 ------
 
-For faster access you can build and install a shared library. Otherwise the
-pure Python probing code is used.
+For faster access you can build and install
+a `shared library <https://github.com/michiguel/Gaviota-Tablebases>`_.
+Otherwise the pure Python probing code is used.
 
 .. code-block:: shell
 
-    git clone https://github.com/michiguel/Gaviota-Tablebases
+    git clone https://github.com/michiguel/Gaviota-Tablebases.git
     cd Gaviota-Tablebases
     make
     sudo make install
