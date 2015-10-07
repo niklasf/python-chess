@@ -158,6 +158,7 @@ class BoardTestCase(unittest.TestCase):
         xfen = "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11"
         board = chess.Board(xfen, chess960=True)
         self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
+        self.assertEqual(board.clean_castling_rights(), chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
         self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
         self.assertEqual(board.fen(), xfen)
         self.assertTrue(board.has_castling_rights(chess.WHITE))
@@ -170,6 +171,7 @@ class BoardTestCase(unittest.TestCase):
         # Chess960 position #284.
         board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1", chess960=True)
         board.castling_rights = board.rooks
+        self.assertTrue(board.clean_castling_rights() & chess.BB_A1)
         self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
         self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
 
@@ -262,7 +264,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
     def test_ninesixty_castling(self):
-        fen = "3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1"
+        fen = "3r1k1r/4pp2/8/8/8/8/8/4RKR1 w Gd - 1 1"
         board = chess.Board(fen, chess960=True)
 
         # Let white do the king side swap.
@@ -272,19 +274,19 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(move.to_square, chess.G1)
         self.assertTrue(move in board.legal_moves)
         board.push(move)
-        self.assertEqual(board.shredder_fen(), "3rk2r/4p3/8/8/8/8/8/4RRK1 b hd - 2 1")
+        self.assertEqual(board.shredder_fen(), "3r1k1r/4pp2/8/8/8/8/8/4RRK1 b d - 2 1")
 
-        # Black can not castly kingside.
+        # Black can not castle kingside.
         self.assertFalse(chess.Move.from_uci("e8h8") in board.legal_moves)
 
         # Let black castle queenside.
         move = board.parse_san("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
-        self.assertEqual(move.from_square, chess.E8)
+        self.assertEqual(move.from_square, chess.F8)
         self.assertEqual(move.to_square, chess.D8)
         self.assertTrue(move in board.legal_moves)
         board.push(move)
-        self.assertEqual(board.shredder_fen(), "2kr3r/4p3/8/8/8/8/8/4RRK1 w - - 3 2")
+        self.assertEqual(board.shredder_fen(), "2kr3r/4pp2/8/8/8/8/8/4RRK1 w - - 3 2")
 
         # Restore initial position.
         board.pop()
