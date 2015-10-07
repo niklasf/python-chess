@@ -6,8 +6,19 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.12.1
+--------------
+
+Changes:
+
+* Robust handling of invalid castling rights. You can also use the new
+  method `Board.clean_castling_rights()` to get the subset of strictly valid
+  castling rights.
+
 New in v0.12.0
 --------------
+
+New features:
 
 * Python 2.6 support. Patch by vdbergh.
 
