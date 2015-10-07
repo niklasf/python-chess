@@ -2440,6 +2440,8 @@ class Board(object):
                 white_castling = 0
             if not self.occupied_co[BLACK] & self.kings & BB_E8:
                 black_castling = 0
+
+            return white_castling | black_castling
         else:
             # The kings must be on the backrank.
             if not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
@@ -2447,24 +2449,61 @@ class Board(object):
             if not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
                 black_castling = 0
 
+            # Find the kings.
+            white_king = bit_scan(self.occupied_co[WHITE] & self.kings)
+            black_king = bit_scan(self.occupied_co[BLACK] & self.kings)
+
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
             if white_castling and black_castling:
-                white_king_file = file_index(bit_scan(self.kings & self.occupied_co[WHITE]))
-                black_king_file = file_index(bit_scan(self.kings & self.occupied_co[BLACK]))
-                if white_king_file != black_king_file:
-                    if black_king_file == 4:
+                if file_index(white_king) != file_index(black_king):
+                    if file_index(black_king) == 4:
                         white_castling = 0
                     else:
                         black_castling = 0
 
-            # TODO: King must be in between the rooks.
+            # There are only two ways of castling, a-side and h-side, and the
+            # king must be between the rooks.
+            white_a_side = (white_castling & -white_castling)
 
-            # TODO: Only one rook on each side.
+            white_h_side = BB_VOID
+            while white_castling:
+                white_h_side = (white_castling & -white_castling)
+                white_castling = white_castling & (white_castling - 1)
 
-            # TODO: Rook files must match, giving preference to white.
+            if white_a_side and bit_scan(white_a_side) > white_king:
+                white_a_side = BB_VOID
+            if white_h_side and bit_scan(white_h_side) < white_king:
+                white_h_side = BB_VOID
 
-        return white_castling | black_castling
+            black_a_side = (black_castling & -black_castling)
+
+            black_h_side = BB_VOID
+            while black_castling:
+                black_h_side = (black_castling & -black_castling)
+                black_castling = black_castling & (black_castling - 1)
+
+            if black_a_side and bit_scan(black_a_side) > black_king:
+                black_a_side = BB_VOID
+            if black_h_side and bit_scan(black_h_side) < black_king:
+                black_h_side = BB_VOID
+
+            # Rooks must be on the same file, giving preference to the a or h
+            # file and then to white.
+            if black_a_side and white_a_side and file_index(bit_scan(black_a_side)) != file_index(bit_scan(white_a_side)):
+                if black_a_side == BB_A8:
+                    white_a_side = BB_VOID
+                else:
+                    black_a_side = BB_VOID
+
+            if black_h_side and white_h_side and file_index(bit_scan(black_h_side)) != file_index(bit_scan(white_h_side)):
+                if black_h_side == BB_H8:
+                    white_h_side = BB_VOID
+                else:
+                    black_h_side = BB_VOID
+
+            # Done.
+            return black_a_side | black_h_side | white_a_side | white_h_side
 
     def is_kingside_castling(self, move):
         """
@@ -2603,32 +2642,9 @@ class Board(object):
         if self.pawns & (BB_RANK_1 | BB_RANK_8):
             errors |= STATUS_PAWNS_ON_BACKRANK
 
-        if self.castling_rights:
-            if self.castling_rights != self.clean_castling_rights():
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-
-            white_castling_rights = self.castling_rights & BB_RANK_1
-            black_castling_rights = self.castling_rights & BB_RANK_8
-
-            # There are only two ways of castling: a-side and h-side.
-            if pop_count(white_castling_rights) > 2:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-            if pop_count(black_castling_rights) > 2:
-                errors |= STATUS_BAD_CASTLING_RIGHTS
-
-            # The king must be between rooks with castling rights.
-            if pop_count(white_castling_rights) == 2:
-                king = bit_scan(self.occupied_co[WHITE] & self.kings)
-                a_side = bit_scan(white_castling_rights)
-                h_side = bit_scan(white_castling_rights, a_side + 1)
-                if not (a_side < king < h_side):
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
-            if pop_count(black_castling_rights) == 2:
-                king = bit_scan(self.occupied_co[BLACK] & self.kings)
-                a_side = bit_scan(black_castling_rights)
-                h_side = bit_scan(black_castling_rights, a_side + 1)
-                if not (a_side < king < h_side):
-                    errors |= STATUS_BAD_CASTLING_RIGHTS
+        # Castling rights.
+        if self.castling_rights != self.clean_castling_rights():
+            errors |= STATUS_BAD_CASTLING_RIGHTS
 
         if self.ep_square:
             if self.turn == WHITE:
