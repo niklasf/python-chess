@@ -1525,7 +1525,7 @@ class Board(object):
             self.halfmove_clock += 1
 
         # Update castling rights.
-        self.castling_rights = self._clean_castling_rights()
+        self.castling_rights = self.clean_castling_rights()
         self.castling_rights &= ~BB_SQUARES[move.to_square]
         self.castling_rights &= ~BB_SQUARES[move.from_square]
         if piece_type == KING:
@@ -1690,7 +1690,7 @@ class Board(object):
         return "".join(builder)
 
     def castling_shredder_fen(self):
-        castling_rights = self._clean_castling_rights()
+        castling_rights = self.clean_castling_rights()
         if not castling_rights:
             return "-"
 
@@ -1723,7 +1723,7 @@ class Board(object):
             king_file = file_index(bit_scan(king_mask))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
-            castling_rights = self._clean_castling_rights() & backrank
+            castling_rights = self.clean_castling_rights() & backrank
             while castling_rights:
                 rook = castling_rights & -castling_rights
                 rook_file = file_index(bit_scan(rook))
@@ -2421,6 +2421,51 @@ class Board(object):
 
         return False
 
+    def clean_castling_rights(self):
+        """
+        Returns valid castling rights filtered from
+        :data:`~chess.Board.castling_rights`.
+        """
+        castling = self.castling_rights & self.rooks
+        white_castling = castling & BB_RANK_1 & self.occupied_co[WHITE]
+        black_castling = castling & BB_RANK_8 & self.occupied_co[BLACK]
+
+        if not self.chess960:
+            # The rooks must be on a1, h1, a8 or h8.
+            white_castling &= (BB_A1 | BB_H1)
+            black_castling &= (BB_A8 | BB_H8)
+
+            # The kings must be on e1 or e8.
+            if not self.occupied_co[WHITE] & self.kings & BB_E1:
+                white_castling = 0
+            if not self.occupied_co[BLACK] & self.kings & BB_E8:
+                black_castling = 0
+        else:
+            # The kings must be on the backrank.
+            if not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
+                white_castling = 0
+            if not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
+                black_castling = 0
+
+            # Kings must be on the same file, giving preference to the e-file
+            # and then to white.
+            if white_castling and black_castling:
+                white_king_file = file_index(bit_scan(self.kings & self.occupied_co[WHITE]))
+                black_king_file = file_index(bit_scan(self.kings & self.occupied_co[BLACK]))
+                if white_king_file != black_king_file:
+                    if black_king_file == 4:
+                        white_castling = 0
+                    else:
+                        black_castling = 0
+
+            # TODO: King must be in between the rooks.
+
+            # TODO: Only one rook on each side.
+
+            # TODO: Rook files must match, giving preference to white.
+
+        return white_castling | black_castling
+
     def is_kingside_castling(self, move):
         """
         Checks if the given pseudo-legal move is a kingside castling move.
@@ -2436,7 +2481,7 @@ class Board(object):
     def has_castling_rights(self, color):
         """Checks if the given side has castling rights."""
         backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
-        return bool(self._clean_castling_rights() & backrank)
+        return bool(self.clean_castling_rights() & backrank)
 
     def has_kingside_castling_rights(self, color):
         """
@@ -2450,7 +2495,7 @@ class Board(object):
         king_file = file_index(bit_scan(king_mask))
         backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
-        castling_rights = self._clean_castling_rights() & backrank
+        castling_rights = self.clean_castling_rights() & backrank
         while castling_rights:
             rook = castling_rights & -castling_rights
             rook_file = file_index(bit_scan(rook))
@@ -2474,7 +2519,7 @@ class Board(object):
         king_file = file_index(bit_scan(king_mask))
         backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
-        castling_rights = self._clean_castling_rights() & backrank
+        castling_rights = self.clean_castling_rights() & backrank
         while castling_rights:
             rook = castling_rights & -castling_rights
             rook_file = file_index(bit_scan(rook))
@@ -2556,7 +2601,7 @@ class Board(object):
             errors |= STATUS_PAWNS_ON_BACKRANK
 
         if self.castling_rights:
-            if self.castling_rights != self._clean_castling_rights():
+            if self.castling_rights != self.clean_castling_rights():
                 errors |= STATUS_BAD_CASTLING_RIGHTS
 
             white_castling_rights = self.castling_rights & BB_RANK_1
@@ -2958,7 +3003,7 @@ class Board(object):
         bb_f = BB_FILE_F & backrank
         bb_g = BB_FILE_G & backrank
 
-        candidates = self._clean_castling_rights() & backrank
+        candidates = self.clean_castling_rights() & backrank
         while candidates:
             rook = candidates & -candidates
             rook_file_index = file_index(bit_scan(rook))
@@ -3256,47 +3301,6 @@ class Board(object):
                     return Move(E8, A8)
 
         return move
-
-    def _clean_castling_rights(self):
-        castling = self.castling_rights & self.rooks
-        white_castling = castling & BB_RANK_1 & self.occupied_co[WHITE]
-        black_castling = castling & BB_RANK_8 & self.occupied_co[BLACK]
-
-        if not self.chess960:
-            # The rooks must be on a1, h1, a8 or h8.
-            white_castling &= (BB_A1 | BB_H1)
-            black_castling &= (BB_A8 | BB_H8)
-
-            # The kings must be on e1 or e8.
-            if not self.occupied_co[WHITE] & self.kings & BB_E1:
-                white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & BB_E8:
-                black_castling = 0
-        else:
-            # The kings must be on the backrank.
-            if not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
-                white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
-                black_castling = 0
-
-            # Kings must be on the same file, giving preference to the e-file
-            # and then to white.
-            if white_castling and black_castling:
-                white_king_file = file_index(bit_scan(self.kings & self.occupied_co[WHITE]))
-                black_king_file = file_index(bit_scan(self.kings & self.occupied_co[BLACK]))
-                if white_king_file != black_king_file:
-                    if black_king_file == 4:
-                        white_castling = 0
-                    else:
-                        black_castling = 0
-
-            # TODO: King must be in between the rooks.
-
-            # TODO: Only one rook on each side.
-
-            # TODO: Rook files must match, giving preference to white.
-
-        return white_castling | black_castling
 
     def __repr__(self):
         if not self.chess960:
