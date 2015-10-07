@@ -1049,13 +1049,7 @@ class Engine(object):
 
         # Validate castling rights.
         if not self.uci_chess960 and board.chess960:
-            chess960_status = board.status()
-
-            board.chess960 = False
-            standard_chess_status = board.status()
-            board.chess960 = True
-
-            if standard_chess_status & chess.STATUS_BAD_CASTLING_RIGHTS and not chess960_status & chess.STATUS_BAD_CASTLING_RIGHTS:
+            if board.has_chess960_castling_rights():
                 LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 
                 # Just send the final FEN without transpositions in hops
