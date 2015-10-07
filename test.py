@@ -156,7 +156,7 @@ class BoardTestCase(unittest.TestCase):
     def test_xfen(self):
         # https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#Beispiel
         xfen = "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11"
-        board = chess.Board("rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gkq - 4 11")
+        board = chess.Board(xfen, chess960=True)
         self.assertEqual(board.castling_rights, chess.BB_G1 | chess.BB_A8 | chess.BB_G8)
         self.assertEqual(board.shredder_fen(), "rn2k1r1/ppp1pp1p/3p2p1/5bn1/P7/2N2B2/1PPPPP2/2BNK1RR w Gga - 4 11")
         self.assertEqual(board.fen(), xfen)
@@ -168,7 +168,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.has_queenside_castling_rights(chess.WHITE))
 
         # Chess960 position #284.
-        board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1")
+        board = chess.Board("rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w - - 0 1", chess960=True)
         board.castling_rights = board.rooks
         self.assertEqual(board.fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w KQkq - 0 1")
         self.assertEqual(board.shredder_fen(), "rkbqrbnn/pppppppp/8/8/8/8/PPPPPPPP/RKBQRBNN w EAea - 0 1")
@@ -263,7 +263,7 @@ class BoardTestCase(unittest.TestCase):
 
     def test_ninesixty_castling(self):
         fen = "3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1"
-        board = chess.Board("3rk2r/4p3/8/8/8/8/8/4RKR1 w GEhd - 1 1")
+        board = chess.Board(fen, chess960=True)
 
         # Let white do the king side swap.
         move = board.parse_san("O-O")
@@ -292,7 +292,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.shredder_fen(), fen)
 
         fen = "Qr4k1/4pppp/8/8/8/8/8/R5KR w Hb - 0 1"
-        board = chess.Board(fen)
+        board = chess.Board(fen, True)
 
         # White can just hop the rook over.
         move = board.parse_san("O-O")
@@ -316,6 +316,16 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("2r1k2r/2qbbpp1/p2pp3/1p3PP1/Pn2P3/1PN1B3/1P3QB1/1K1R3R b k - 0 22")
         board.push_san("Rxh1")
         self.assertEqual(board.epd(), "2r1k3/2qbbpp1/p2pp3/1p3PP1/Pn2P3/1PN1B3/1P3QB1/1K1R3r w - -")
+
+    def test_invalid_castling_rights(self):
+        # KQkq is not valid in this standard chess position.
+        board = chess.Board("1r2k3/8/8/8/8/8/8/R3KR2 w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.fen(), "1r2k3/8/8/8/8/8/8/R3KR2 w Q - 0 1")
+        self.assertTrue(board.has_queenside_castling_rights(chess.WHITE))
+        self.assertFalse(board.has_kingside_castling_rights(chess.WHITE))
+        self.assertFalse(board.has_queenside_castling_rights(chess.BLACK))
+        self.assertFalse(board.has_kingside_castling_rights(chess.BLACK))
 
     def test_insufficient_material(self):
         # Starting position.
@@ -602,7 +612,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(count, 26)
 
     def test_ninesixty_castling_bug(self):
-        board = chess.Board("4r3/3k4/8/8/8/8/q5PP/1R1KR3 w Q - 2 2")
+        board = chess.Board("4r3/3k4/8/8/8/8/q5PP/1R1KR3 w Q - 2 2", chess960=True)
         move = chess.Move.from_uci("d1b1")
         self.assertTrue(board.is_castling(move))
         self.assertTrue(move in board.generate_pseudo_legal_moves())
