@@ -2489,6 +2489,9 @@ class Board(object):
     def has_chess960_castling_rights(self):
         """
         Checks if there are castling rights that are only possible in Chess960.
+
+        The castling rights could still be invalid in the concrete position,
+        even in Chess960.
         """
         # Standard chess castling rights can only be on the standard
         # starting rook squares.
@@ -2497,9 +2500,9 @@ class Board(object):
 
         # If there are any castling rights in standard chess, the king must be
         # on e1 or e8.
-        if self.has_castling_rights(WHITE) and not self.occupied_co[WHITE] & self.kings & BB_E1:
+        if self.castling_rights & BB_RANK_1 and not self.occupied_co[WHITE] & self.kings & BB_E1:
             return True
-        if self.has_castling_rights(BLACK) and not self.occupied_co[BLACK] & self.kings & BB_E8:
+        if self.castling_rights & BB_RANK_8 and not self.occupied_co[BLACK] & self.kings & BB_E8:
             return True
 
         return False
