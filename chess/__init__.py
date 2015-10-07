@@ -3279,8 +3279,16 @@ class Board(object):
             if not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
                 black_castling = 0
 
-            # TODO: Kings must be on the same file, giving preference to
-            # the e-file.
+            # Kings must be on the same file, giving preference to the e-file
+            # and then to white.
+            if white_castling and black_castling:
+                white_king_file = file_index(bit_scan(self.kings & self.occupied_co[WHITE]))
+                black_king_file = file_index(bit_scan(self.kings & self.occupied_co[BLACK]))
+                if white_king_file != black_king_file:
+                    if black_king_file == 4:
+                        white_castling = 0
+                    else:
+                        black_castling = 0
 
             # TODO: King must be in between the rooks.
 
