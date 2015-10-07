@@ -2421,6 +2421,18 @@ class Board(object):
 
         return False
 
+    def is_kingside_castling(self, move):
+        """
+        Checks if the given pseudo-legal move is a kingside castling move.
+        """
+        return self.is_castling(move) and file_index(move.to_square) > file_index(move.from_square)
+
+    def is_queenside_castling(self, move):
+        """
+        Checks if the given pseudo-legal move is a queenside castling move.
+        """
+        return self.is_castling(move) and file_index(move.to_square) < file_index(move.from_square)
+
     def clean_castling_rights(self):
         """
         Returns valid castling rights filtered from
@@ -2504,18 +2516,6 @@ class Board(object):
 
             # Done.
             return black_a_side | black_h_side | white_a_side | white_h_side
-
-    def is_kingside_castling(self, move):
-        """
-        Checks if the given pseudo-legal move is a kingside castling move.
-        """
-        return self.is_castling(move) and file_index(move.to_square) > file_index(move.from_square)
-
-    def is_queenside_castling(self, move):
-        """
-        Checks if the given pseudo-legal move is a queenside castling move.
-        """
-        return self.is_castling(move) and file_index(move.to_square) < file_index(move.from_square)
 
     def has_castling_rights(self, color):
         """Checks if the given side has castling rights."""
