@@ -1863,7 +1863,7 @@ class PythonTablebases(object):
             req.is_reversed = True
             req.egkey = black_letters + white_letters
             req.white_piece_squares = [flip_ns(s) for s in req.black_squares]
-            req.white_piece_tyoes = req.black_types
+            req.white_piece_types = req.black_types
             req.black_piece_squares = [flip_ns(s) for s in req.white_squares]
             req.black_piece_types = req.white_types
 
@@ -1907,7 +1907,8 @@ class PythonTablebases(object):
             capturer_b = 0
             xed = 0
 
-            if (req.side == 0):
+            # Flip for move generation.
+            if req.side == 0:
                 xs = list(req.white_piece_squares)
                 xp = list(req.white_piece_types)
                 ys = list(req.black_piece_squares)
@@ -1945,6 +1946,12 @@ class PythonTablebases(object):
                         xs[i] = req.epsq
                         removepiece(ys, yp, j)
 
+                        # Flip back.
+                        if req.side == 1:
+                            xs, ys = ys, xs
+                            xp, yp = yp, xp
+
+                        # Make subrequest.
                         subreq = Request(xs, xp, ys, yp, opp(req.side), NOSQUARE)
                         try:
                             epscore = self._tb_probe(subreq)
