@@ -2646,6 +2646,7 @@ class Board(object):
         if self.castling_rights != self.clean_castling_rights():
             errors |= STATUS_BAD_CASTLING_RIGHTS
 
+        # En passant.
         if self.ep_square:
             if self.turn == WHITE:
                 ep_rank = 5
@@ -2673,9 +2674,9 @@ class Board(object):
             if self.occupied & seventh_rank_mask:
                 errors |= STATUS_INVALID_EP_SQUARE
 
-        if not errors & (STATUS_NO_WHITE_KING | STATUS_NO_BLACK_KING | STATUS_TOO_MANY_KINGS):
-            if self.was_into_check():
-                errors |= STATUS_OPPOSITE_CHECK
+        # Side to move giving check.
+        if self.was_into_check():
+            errors |= STATUS_OPPOSITE_CHECK
 
         return errors
 
