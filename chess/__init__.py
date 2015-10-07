@@ -3565,7 +3565,7 @@ class Board(object):
         board.captured_piece_stack = copy.copy(self.captured_piece_stack)
         board.castling_right_stack = copy.copy(self.castling_right_stack)
         board.ep_square_stack = copy.copy(self.ep_square_stack)
-        board.move_stack = copy.copy(self.move_stack)
+        board.move_stack = copy.deepcopy(self.move_stack)
 
         board.incremental_zobrist_hash = self.incremental_zobrist_hash
         board.transpositions = copy.copy(self.transpositions)
