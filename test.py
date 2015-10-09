@@ -333,6 +333,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
         self.assertEqual(board.fen(), "4k2r/8/8/8/8/8/8/R1K5 w k - 0 1")
 
+        board = chess.Board("1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQkq - 0 1", chess960=True)
+        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.fen(), "1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQq - 0 1")
+
     def test_insufficient_material(self):
         # Starting position.
         board = chess.Board()
