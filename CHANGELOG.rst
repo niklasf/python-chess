@@ -6,6 +6,14 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.12.3
+--------------
+
+Bugfixes:
+
+* Some invalid castling rights were silently ignored by `Board.set_fen()`. Now
+  it is ensured information is stored for retrieval using `Board.status()`.
+
 New in v0.12.2
 --------------
 
