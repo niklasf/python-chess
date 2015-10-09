@@ -1889,17 +1889,27 @@ class Board(object):
             flag = flag.lower()
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
             rooks = self.occupied_co[color] & self.rooks & backrank
+            king = self.occupied_co[color] & self.kings & backrank
 
             if flag == "q":
                 # Select the leftmost rook.
-                self.castling_rights |= (rooks & -rooks)
+                mask = rooks & -rooks
+
+                if king and bit_scan(mask) < bit_scan(king):
+                    self.castling_rights |= mask
+                else:
+                    self.castling_rights |= BB_FILE_A & backrank
             elif flag == "k":
                 # Select the rightmost rook.
                 mask = BB_VOID
                 while rooks:
-                    mask = (rooks & -rooks)
+                    mask = rooks & -rooks
                     rooks = rooks & (rooks - 1)
-                self.castling_rights |= mask
+
+                if king and bit_scan(king) < bit_scan(mask):
+                    self.castling_rights |= mask
+                else:
+                    self.castling_rights |= BB_FILE_H & backrank
             else:
                 self.castling_rights |= BB_FILES[FILE_NAMES.index(flag)] & backrank
 
