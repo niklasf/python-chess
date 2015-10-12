@@ -138,6 +138,10 @@ class GameNode(object):
 
         return node
 
+    def is_end(self):
+        """Checks if this node is the last node in the current variation."""
+        return not node.variations
+
     def starts_variation(self):
         """
         Checks if this node starts a variation (and can thus have a starting
