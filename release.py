@@ -170,12 +170,12 @@ def github_release(tagname):
 
 
 if __name__ == "__main__":
-    check_git()
-    check_docs()
-    check_changelog()
     test()
     doctest()
     benchmark()
+    check_docs()
+    check_changelog()
+    check_git()
     tagname = tag_and_push()
     update_rtd()
     pypi()
