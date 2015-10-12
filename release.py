@@ -19,6 +19,7 @@ def system(command):
 def check_git():
     print("--- CHECK GIT ----------------------------------------------------")
     system("git diff --exit-code")
+    system("git diff --cached --exit-code")
 
 
 def test():
