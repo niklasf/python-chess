@@ -14,3 +14,4 @@ https://syzygy-tables.info/gaviota/krnkp.gtb.cp4
 https://syzygy-tables.info/gaviota/kpppk.gtb.cp4
 https://syzygy-tables.info/gaviota/knnkp.gtb.cp4
 https://syzygy-tables.info/gaviota/krnpk.gtb.cp4
+https://syzygy-tables.info/gaviota/knpkp.gtb.cp4
