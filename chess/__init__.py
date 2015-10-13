@@ -3584,7 +3584,12 @@ class Board(object):
         board.incremental_zobrist_hash = self.incremental_zobrist_hash
         board.transpositions = copy.copy(self.transpositions)
 
-        board.attacks_valid = False
+        board.attacks_valid = self.attacks_valid
+        board.attacks_from = copy.copy(self.attacks_from)
+        board.attacks_to = copy.copy(self.attacks_to)
+        board.attacks_valid_stack = copy.copy(self.attacks_valid_stack)
+        board.attacks_valid_stack = copy.copy(self.attacks_from_stack)
+        board.attacks_to_stack = copy.copy(self.attacks_to_stack)
 
         return board
 
