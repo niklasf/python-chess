@@ -6,6 +6,21 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+Bugfixes:
+
+* Another en passant related Bugfix for pure Python Gaviota tablebase probing.
+
+New features:
+
+* Added `pgn.GameNode.is_end()`.
+
+Changes:
+
+* Added tox.ini to specify test suite and flake8 options.
+
 New in v0.12.3
 --------------
 
