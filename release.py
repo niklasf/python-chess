@@ -12,8 +12,10 @@ import bs4
 
 
 def system(command):
-    if 0 != os.system(command):
-        sys.exit(1)
+    print(command)
+    exit_code = os.system(command)
+    if exit_code != 0:
+        sys.exit(exit_code)
 
 
 def check_git():
