@@ -1377,6 +1377,7 @@ class PgnTestCase(unittest.TestCase):
         e4_c5.comment = "Sicilian"
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
+        e4_d5_exd5.comment = "Best"
 
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter()
@@ -1399,7 +1400,8 @@ class PgnTestCase(unittest.TestCase):
             [Result "*"]
 
             { Test game: } 1. e4 { Scandinavian defense: } d5 ( { This } 1... h5 $2
-            { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5 *""")
+            { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
+            { Best } *""")
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
@@ -1659,7 +1661,7 @@ class PgnTestCase(unittest.TestCase):
     def test_scan_headers(self):
         with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
             offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
-                              if headers["Result"] == "1/2-1/2")
+                       if headers["Result"] == "1/2-1/2")
 
             first_drawn_game_offset = next(offsets)
             pgn.seek(first_drawn_game_offset)

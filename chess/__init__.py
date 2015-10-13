@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+"""
+A pure Python chess library with move generation and validation, Polyglot
+opening book probing, PGN reading and writing, Gaviota tablebase probing,
+Syzygy tablebase probing and UCI engine communication.
+"""
+
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"

@@ -116,9 +116,9 @@ INVFLAP = [
     11, 19, 27, 35, 43, 51,
 ]
 
-FILE_TO_FILE = [ 0, 1, 2, 3, 3, 2, 1, 0 ]
+FILE_TO_FILE = [0, 1, 2, 3, 3, 2, 1, 0]
 
-KK_IDX = [ [
+KK_IDX = [[
      -1,  -1,  -1,   0,   1,   2,   3,   4,
      -1,  -1,  -1,   5,   6,   7,   8,   9,
      10,  11,  12,  13,  14,  15,  16,  17,
@@ -208,7 +208,7 @@ KK_IDX = [ [
      -1,  -1,  -1,  -1,  -1, 459, 438, 439,
      -1,  -1,  -1,  -1,  -1,  -1, 460, 440,
      -1,  -1,  -1,  -1,  -1,  -1,  -1, 461,
-] ]
+]]
 
 BINOMIAL = []
 for i in range(5):
@@ -632,7 +632,7 @@ class Table(object):
                 if not OFFDIAG[pos[2]]:
                     idx -= j * 21
             i = 3
-        else: # K2
+        else:  # K2
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
             i = 2
 
@@ -746,7 +746,7 @@ class Table(object):
         code = self.read_uint64_be(ptr)
 
         ptr += 2 * 4
-        bitcnt = 0 # Number of empty bits in code
+        bitcnt = 0  # Number of empty bits in code
         while True:
             l = m
             while code < d.base[base_idx + l]:
