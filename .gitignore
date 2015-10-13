@@ -5,6 +5,7 @@ venv/
 .coverage
 .coveralls.yml
 nosetests.xml
+.tox
 
 dist/
 build/

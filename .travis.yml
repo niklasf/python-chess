@@ -31,15 +31,5 @@ before_install:
  - cd data/gaviota
  - wget --no-clobber --input-file TEST-SOURCE.txt
  - cd ../..
-install:
- - python -c "import sys; sys.exit(int(sys.version_info < (2, 7)));" || pip install unittest2 backport_collections
- - python -c "import sys; sys.exit(int(sys.version_info < (3, 2)));" || pip install futures
- - python -c "import sys; sys.exit(int(sys.version_info < (3, 3)));" || pip install backports.lzma
- - pip install coveralls
- - pip install spur
-script:
- - coverage run --source chess test.py --verbose
- - coverage run --source chess --append -m doctest README.rst --verbose
- - coverage run --source chess --append perft.py --verbose
-after_success:
- - coveralls
+install: pip install tox-travis
+script: tox
