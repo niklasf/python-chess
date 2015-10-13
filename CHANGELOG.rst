@@ -6,8 +6,8 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.12.4
+--------------
 
 Bugfixes:
 
@@ -18,6 +18,9 @@ New features:
 * Added `pgn.GameNode.is_end()`.
 
 Changes:
+
+* Big speedup for `pgn` module. Boards are cached less agressively. Board
+  move stacks are copied faster.
 
 * Added tox.ini to specify test suite and flake8 options.
 
