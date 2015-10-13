@@ -1,23 +1,29 @@
+# 5 piece endgames for Gaviota tablebase testing.
+
+# Handpicked.
+
+4k3/8/8/6Pp/n2K4/8/8/8 w - h6 dm 0;
+4k3/8/8/6Pp/n2K4/8/8/8 w - - dm -21;
+
 # Endgames selected from
 # http://kirill-kryukov.com/chess/longest-checkmates/longest-checkmates.shtml
-# to test Gaviota tablebase probing.
-
-# kaaak_pctoindex krrrk
-# kaabk_pctoindex krrnk
-# kaakb_pctoindex knnkn
-# kaakp_pctoindex knnkp
-# kaapk_pctoindex krrpk
-# kabbk_pctoindex kqbbk
-# kabck_pctoindex kqrnk
-# kabkc_pctoindex kbnkb
-# kabkp_pctoindex krnkp
-# kabpk_pctoindex krnpk
-# kapkb_pctoindex krpkn
-# kapkp_pctoindex kbpkp
-# kappk_pctoindex knppk
-# kppka_pctoindex kppkq
-# kppkp_pctoindex kppkp
-# kpppk_pctoindex kpppk
+# to cover all indexing schemes:
+# - kaaak_pctoindex krrrk
+# - kaabk_pctoindex krrnk
+# - kaakb_pctoindex knnkn
+# - kaakp_pctoindex knnkp
+# - kaapk_pctoindex krrpk
+# - kabbk_pctoindex kqbbk
+# - kabck_pctoindex kqrnk
+# - kabkc_pctoindex kbnkb
+# - kabkp_pctoindex krnkp
+# - kabpk_pctoindex krnpk
+# - kapkb_pctoindex krpkn
+# - kapkp_pctoindex kbpkp
+# - kappk_pctoindex knppk
+# - kppka_pctoindex kppkq
+# - kppkp_pctoindex kppkp
+# - kpppk_pctoindex kpppk
 
 8/8/5k2/8/7p/8/PP6/1K6 w - - dm -13;
 K7/8/8/8/2k3P1/6P1/6P1/8 w - - dm 33;

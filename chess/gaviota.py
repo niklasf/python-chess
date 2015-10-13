@@ -1867,7 +1867,7 @@ class PythonTablebases(object):
 
             req.side = opp(req.side)
             if req.epsq != NOSQUARE:
-                req.epsq = flip_ns(epsq)
+                req.epsq = flip_ns(req.epsq)
         else:
             raise IndexError("no tablebase available for: {0} {1}".format(white_letters, black_letters))
 
