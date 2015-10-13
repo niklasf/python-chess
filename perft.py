@@ -50,7 +50,7 @@ def debug_perft(board, depth):
     assert board.is_valid()
 
     if depth >= 1:
-        count =  0
+        count = 0
 
         for move in board.pseudo_legal_moves:
             assert move in board.pseudo_legal_moves, (move, board)

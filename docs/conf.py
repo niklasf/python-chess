@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath('..'))
 import chess
 
 # Autodoc.
-extensions = [ "sphinx.ext.autodoc" ]
+extensions = ["sphinx.ext.autodoc"]
 autodoc_member_order = 'bysource'
 
 # The suffix of source filenames.
@@ -43,7 +43,7 @@ release = chess.__version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = [ "_build" ]
+exclude_patterns = ["_build"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"

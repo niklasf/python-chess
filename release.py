@@ -156,7 +156,7 @@ def pythonhosted(tagname):
         }, files={
             "content": zip_file,
         })
-    if res.status_code != 200 or not tagname in res.text:
+    if res.status_code != 200 or tagname not in res.text:
         print(res.text)
         print(res)
         sys.exit(1)
