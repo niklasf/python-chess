@@ -32,17 +32,17 @@ import logging
 try:
     from collections import OrderedDict
 except ImportError:
-    from backport_collections import OrderedDict # Python 2.6
+    from backport_collections import OrderedDict  # Python 2.6
 
 try:
-    import unittest2 as unittest # Python 2.6
+    import unittest2 as unittest  # Python 2.6
 except ImportError:
     import unittest
 
 try:
-    from StringIO import StringIO # Python 2
+    from StringIO import StringIO  # Python 2
 except ImportError:
-    from io import StringIO # Python 3
+    from io import StringIO  # Python 3
 
 
 class SquareTestCase(unittest.TestCase):
@@ -446,10 +446,10 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board()
         self.assertEqual('1. e4 e5 2. Nf3',
                          board.variation_san([chess.Move.from_uci(m) for m in
-                                              ['e2e4','e7e5','g1f3']]))
+                                              ['e2e4', 'e7e5', 'g1f3']]))
         self.assertEqual('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6',
                          board.variation_san([chess.Move.from_uci(m) for m in
-                                              ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6']]))
+                                              ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1b5', 'a7a6']]))
 
         fen = "rn1qr1k1/1p2bppp/p3p3/3pP3/P2P1B2/2RB1Q1P/1P3PP1/R5K1 w - - 0 19"
         board = chess.Board(fen)
@@ -682,7 +682,7 @@ class BoardTestCase(unittest.TestCase):
         epd = board.epd(bm=chess.Move(chess.D6, chess.D1), id="BK.01")
         self.assertTrue(epd in (
             "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
-            "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - id \"BK.01\"; bm Qd1+;" ))
+            "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - id \"BK.01\"; bm Qd1+;"))
 
         # Create an EPD with a noop.
         board = chess.Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
@@ -691,17 +691,17 @@ class BoardTestCase(unittest.TestCase):
         # Create an EPD with a variation.
         board = chess.Board("k7/8/8/8/8/8/4PPPP/4K1NR w K - 0 1")
         epd = board.epd(pv=[
-            chess.Move.from_uci("g1f3"), # Nf3
-            chess.Move.from_uci("a8a7"), # Ka7
-            chess.Move.from_uci("e1h1"), # O-O
+            chess.Move.from_uci("g1f3"),  # Nf3
+            chess.Move.from_uci("a8a7"),  # Ka7
+            chess.Move.from_uci("e1h1"),  # O-O
         ])
         self.assertEqual(epd, "k7/8/8/8/8/8/4PPPP/4K1NR w K - pv Nf3 Ka7 O-O;")
 
         # Create an EPD with a set of moves.
         board = chess.Board("8/8/8/4k3/8/1K6/8/8 b - - 0 1")
         epd = board.epd(bm=[
-            chess.Move.from_uci("e5e6"), # Ke6
-            chess.Move.from_uci("e5e4"), # Ke4
+            chess.Move.from_uci("e5e6"),  # Ke6
+            chess.Move.from_uci("e5e4"),  # Ke4
         ])
         self.assertEqual(epd, "8/8/8/4k3/8/1K6/8/8 b - - bm Ke6 Ke4;")
 
@@ -842,9 +842,9 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.can_claim_threefold_repetition())
 
         # Undo moves and check if everything works backwards.
-        board.pop() # e4
+        board.pop()  # e4
         self.assertTrue(board.can_claim_threefold_repetition())
-        board.pop() # Ng8
+        board.pop()  # Ng8
         self.assertTrue(board.can_claim_threefold_repetition())
         while board.move_stack:
             board.pop()
@@ -957,7 +957,8 @@ class BoardTestCase(unittest.TestCase):
             chess.Move(chess.C1, chess.E3),
             chess.Move(chess.G8, chess.F6),
             chess.Move(chess.D7, chess.D8, chess.QUEEN),
-            chess.Move(chess.E5, chess.E4) ]
+            chess.Move(chess.E5, chess.E4),
+        ]
 
         sample_fens = [
             chess.STARTING_FEN,
@@ -972,7 +973,8 @@ class BoardTestCase(unittest.TestCase):
             "rnbqk1nr/p2p3p/1p5b/2pPppp1/8/P7/1PPQPPPP/RNB1KBNR w KQkq c6 0 1",
             "rnb1k2r/pp1p1p1p/1q1P4/2pnpPp1/6P1/2N5/PP1BP2P/R2QKBNR w KQkq e6 0 1",
             "1n4kr/2B4p/2nb2b1/ppp5/P1PpP3/3P4/5K2/1N1R4 b - c3 0 1",
-            "r2n3r/1bNk2pp/6P1/pP3p2/3pPqnP/1P1P1p1R/2P3B1/Q1B1bKN1 b - e3 0 1" ]
+            "r2n3r/1bNk2pp/6P1/pP3p2/3pPqnP/1P1P1p1R/2P3B1/Q1B1bKN1 b - e3 0 1",
+        ]
 
         for sample_fen in sample_fens:
             board = chess.Board(sample_fen)
@@ -987,7 +989,7 @@ class BoardTestCase(unittest.TestCase):
             # Check that moves not generated as pseudo legal do not pass the
             # pseudo legality check.
             for move in sample_moves:
-                if not move in pseudo_legal_moves:
+                if move not in pseudo_legal_moves:
                     self.assertFalse(board.is_pseudo_legal(move))
 
     def test_pieces(self):
@@ -1340,7 +1342,7 @@ class PolyglotTestCase(unittest.TestCase):
 
     def test_last(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
-            last_entry = book[len(book)-1]
+            last_entry = book[len(book) - 1]
             self.assertTrue(any(book.find_all(last_entry.key)))
             self.assertTrue(all(book.find_all(last_entry.key)))
 
@@ -1726,6 +1728,7 @@ class StockfishTestCase(unittest.TestCase):
 
     def test_async_callback(self):
         self.async_callback_called = False
+
         def async_callback(command):
             self.async_callback_called = True
 

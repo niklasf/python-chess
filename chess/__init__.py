@@ -24,7 +24,6 @@ __version__ = "0.12.3"
 
 import copy
 import re
-import sys
 
 try:
     import backport_collections as collections
@@ -75,7 +74,7 @@ SQUARES = [
     A5, B5, C5, D5, E5, F5, G5, H5,
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8 ] = range(64)
+    A8, B8, C8, D8, E8, F8, G8, H8] = range(64)
 
 SQUARES_180 = [
     A8, B8, C8, D8, E8, F8, G8, H8,
@@ -85,7 +84,7 @@ SQUARES_180 = [
     A4, B4, C4, D4, E4, F4, G4, H4,
     A3, B3, C3, D3, E3, F3, G3, H3,
     A2, B2, C2, D2, E2, F2, G2, H2,
-    A1, B1, C1, D1, E1, F1, G1, H1 ]
+    A1, B1, C1, D1, E1, F1, G1, H1]
 
 SQUARE_NAMES = [
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
@@ -95,7 +94,7 @@ SQUARE_NAMES = [
     "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
     "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
     "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8" ]
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"]
 
 def file_index(square):
     """Gets the file index of square where ``0`` is the a file."""
@@ -123,7 +122,7 @@ BB_SQUARES = [
     BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6,
     BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
-] = [ 1 << i for i in SQUARES ]
+] = [1 << i for i in SQUARES]
 
 BB_LIGHT_SQUARES = BB_DARK_SQUARES = BB_VOID
 
@@ -2359,7 +2358,7 @@ class Board(object):
             self.chess960 = chess960
 
         move = self._to_chess960(move)
-        move = uci = self._from_chess960(move.from_square, move.to_square, move.promotion)
+        move = self._from_chess960(move.from_square, move.to_square, move.promotion)
 
         self.chess960 = board_chess960
         return move.uci()
@@ -3184,7 +3183,6 @@ class Board(object):
 
                 attacker_attackers = attacker_attackers & (attacker_attackers - 1)
 
-
         # Eliminate the sliding moves where we are still in check by the same
         # piece.
         attackers = king_attackers
@@ -3411,15 +3409,15 @@ class Board(object):
                                 border-color:black;\
                                 border-style:solid;\
                                 border-width:0pt 0pt 0pt 0pt">'
-        for rank in range(8,0,-1):
+        for rank in range(8, 0, -1):
             string += tr
             string += '<td style="vertical-align:middle;\
                                   width:12pt">%d</td>' % rank
-            for i,file_ in enumerate('a b c d e f g h'.split()):
-                square = SQUARE_NAMES.index('%s%d' % (file_,rank))
+            for i, file_ in enumerate('a b c d e f g h'.split()):
+                square = SQUARE_NAMES.index('%s%d' % (file_, rank))
                 piece = self.piece_at(square)
                 char = piece.unicode_symbol() if piece else ''
-                if (i+rank) % 2 == 0:
+                if (i + rank) % 2 == 0:
                     string += '<td style="width:28pt;\
                                           height:28pt;\
                                           border-collapse:collapse;\

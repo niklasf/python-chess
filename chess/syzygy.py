@@ -221,9 +221,9 @@ for i in range(5):
             l *= k + 1
         BINOMIAL[i].append(f // l)
 
-PAWNIDX = [ [ 0 for _ in range(24) ] for _ in range(5) ]
+PAWNIDX = [[0 for _ in range(24)] for _ in range(5)]
 
-PFACTOR = [ [ 0 for _ in range(4) ] for _ in range(5) ]
+PFACTOR = [[0 for _ in range(4)] for _ in range(5)]
 
 for i in range(5):
     j = 0
@@ -608,7 +608,7 @@ class Table(object):
             for i in range(n):
                 pos[i] = FLIPDIAG[pos[i]]
 
-        if self.enc_type == 0: # 111
+        if self.enc_type == 0:  # 111
             i = int(pos[1] > pos[0])
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
@@ -621,7 +621,7 @@ class Table(object):
             else:
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
             i = 3
-        elif self.enc_type == 1: # K3
+        elif self.enc_type == 1:  # K3
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
@@ -845,12 +845,12 @@ class WdlTable(Table):
             self.pieces = {}
 
             self.factor = {}
-            self.factor[0] = [0, 0, 0, 0, 0, 0] # White
-            self.factor[1] = [0, 0, 0, 0, 0, 0] # Black
+            self.factor[0] = [0, 0, 0, 0, 0, 0]  # White
+            self.factor[1] = [0, 0, 0, 0, 0, 0]  # Black
 
             self.norm = {}
-            self.norm[0] = [0 for _ in range(self.num)] # White
-            self.norm[1] = [0 for _ in range(self.num)] # Black
+            self.norm[0] = [0 for _ in range(self.num)]  # White
+            self.norm[1] = [0 for _ in range(self.num)]  # Black
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
