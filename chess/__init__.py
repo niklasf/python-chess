@@ -732,6 +732,14 @@ class Move(object):
         else:
             return hash(self.to_square ^ self.from_square << 6)
 
+    def __copy__(self):
+        return type(self)(self.from_square, self.to_square, self.promotion)
+
+    def __deepcopy__(self, memo):
+        move = self.__copy__()
+        memo[id(self)] = move
+        return move
+
     @classmethod
     def from_uci(cls, uci):
         """
