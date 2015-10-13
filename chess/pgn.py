@@ -19,7 +19,6 @@
 import chess
 import itertools
 import re
-import sys
 
 try:
     import backport_collections as collections
@@ -487,7 +486,7 @@ class StringExporter(object):
 
     def __str__(self):
         if self.current_line:
-            return "\n".join(itertools.chain(self.lines, [ self.current_line.rstrip() ] )).rstrip()
+            return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
         else:
             return "\n".join(self.lines).rstrip()
 
@@ -625,7 +624,7 @@ def read_game(handle, error_handler=_raise):
             if token.startswith("{"):
                 # Consume until the end of the comment.
                 line = token[1:]
-                comment_lines = [ ]
+                comment_lines = []
                 while line and "}" not in line:
                     comment_lines.append(line.rstrip())
                     line = handle.readline()
@@ -762,7 +761,6 @@ def scan_headers(handle):
 
     last_pos = handle.tell()
     line = handle.readline()
-
 
     while line:
         # Skip single line comments.

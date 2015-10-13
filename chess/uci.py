@@ -22,7 +22,6 @@ import subprocess
 import logging
 import threading
 import concurrent.futures
-import sys
 
 try:
     import backport_collections as collections

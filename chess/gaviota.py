@@ -119,7 +119,7 @@ ITOSQ = [
     chess.D2, chess.C2, chess.B2, chess.A2,
 ]
 
-ENTRIES_PER_BLOCK = 16 * 1024;
+ENTRIES_PER_BLOCK = 16 * 1024
 
 EGTB_MAXBLOCKSIZE = 65536
 
@@ -187,8 +187,8 @@ FLIPT = init_flipt()
 
 
 def init_pp48_idx():
-    MAX_I = 48;
-    MAX_J = 48;
+    MAX_I = 48
+    MAX_J = 48
     idx = 0
     pp48_idx = [[-1] * MAX_J for i in range(MAX_I)]
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
@@ -247,7 +247,7 @@ def init_ppp48_idx():
                     ppp48_sq_z[idx] = k
                     idx = idx + 1
 
-    return ppp48_idx, ppp48_sq_x,ppp48_sq_y, ppp48_sq_z
+    return ppp48_idx, ppp48_sq_x, ppp48_sq_y, ppp48_sq_z
 
 PPP48_IDX, PPP48_SQ_X, PPP48_SQ_Y, PPP48_SQ_Z = init_ppp48_idx()
 
@@ -288,7 +288,7 @@ def init_aaa():
     idx = 0
     for z in range(64):
         for y in range(z):
-             for x  in range(y):
+            for x in range(y):
                 aaa_xyz[idx][0] = x
                 aaa_xyz[idx][1] = y
                 aaa_xyz[idx][2] = z
@@ -347,7 +347,7 @@ def wsq_to_pidx24(pawn):
     sq = pawn
 
     sq = flip_ns(sq)
-    sq -= 8 # Down one row.
+    sq -= 8  # Down one row.
 
     idx24 = (sq + (sq & 3)) >> 1
     return idx24
@@ -356,7 +356,7 @@ def wsq_to_pidx48(pawn):
     sq = pawn
 
     sq = flip_ns(sq)
-    sq -= 8 # Down one row.
+    sq -= 8  # Down one row.
 
     idx48 = sq
     return idx48
@@ -414,18 +414,18 @@ NSTEP = [18, 33, 31, 14, -18, -33, -31, -14, 0]
 KSTEP = [1, 17, 16, 15, -1, -17, -16, -15, 0]
 
 PSTEPARR = [
-    None, # No piece.
-    None, # Pawn.
+    None,  # No piece.
+    None,  # Pawn.
     NSTEP,
     BSTEP,
     RSTEP,
-    KSTEP, # Queen.
-    KSTEP, # King.
+    KSTEP,  # Queen.
+    KSTEP,  # King.
 ]
 
 PSLIDER = [
-    False, # No piece.
-    False, # Pawn.
+    False,  # No piece.
+    False,  # Pawn.
     False,
     True,
     True,
@@ -638,7 +638,7 @@ def kxk_pctoindex(c):
         ws = [flip_nw_se(b) for b in ws]
         bs = [flip_nw_se(b) for b in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
     if ki == -1:
         return NOINDEX
@@ -669,8 +669,8 @@ def kapkb_pctoindex(c):
         ba = flip_we(ba)
 
     sq = pawn
-    sq ^= 56 # flip_ns
-    sq -= 8  # down one row
+    sq ^= 56  # flip_ns
+    sq -= 8   # down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba
@@ -679,7 +679,7 @@ def kabpk_pctoindex(c):
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
-    BLOCK_D = 64;
+    BLOCK_D = 64
 
     wk = c.white_piece_squares[0]
     wa = c.white_piece_squares[1]
@@ -723,7 +723,7 @@ def kabkp_pctoindex(c):
         wb = flip_we(wb)
 
     sq = pawn
-    sq -= 8 # down one row
+    sq -= 8  # down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
@@ -901,7 +901,7 @@ def kabck_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -931,17 +931,17 @@ def kabbk_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[2]][ws[3]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
-       return NOINDEX
+        return NOINDEX
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[1]
 
 def kaabk_pctoindex(c):
-    N_WHITE = 4;
-    N_BLACK = 1;
+    N_WHITE = 4
+    N_BLACK = 1
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
 
@@ -962,7 +962,7 @@ def kaabk_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -1076,7 +1076,7 @@ def kaakb_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -1109,7 +1109,7 @@ def kabkc_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX [black king] [white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX [black king] [white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1122,11 +1122,11 @@ def kpkp_pctoindex(c):
 
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
-    pawn_a = c.white_piece_squares[1];
-    pawn_b = c.black_piece_squares[1];
-    #pp_putanchorfirst (pawn_a, pawn_b, &anchor, &loosen);
-    anchor = pawn_a;
-    loosen = pawn_b;
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.black_piece_squares[1]
+
+    anchor = pawn_a
+    loosen = pawn_b
 
     if (anchor & 7) > 3:
         anchor = flip_we(anchor)
@@ -1190,8 +1190,8 @@ def kapk_pctoindex(c):
         wa = flip_we(wa)
 
     sq = pawn
-    sq ^= 56 # flip_ns
-    sq -= 8 # down one row
+    sq ^= 56  # flip_ns
+    sq -= 8   # down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
@@ -1200,7 +1200,7 @@ def kabk_pctoindex(c):
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
-    ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0]);
+    ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0])
 
     ws = c.white_piece_squares
     bs = c.black_piece_squares
@@ -1217,7 +1217,7 @@ def kabk_pctoindex(c):
         ws = [flip_nw_se(b) for b in ws]
         bs = [flip_nw_se(b) for b in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1244,7 +1244,7 @@ def kakp_pctoindex(c):
         wa = flip_we(wa)
 
     sq = pawn
-    sq -= 8 # down one row
+    sq -= 8  # down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
@@ -1271,7 +1271,7 @@ def kaak_pctoindex(c):
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
 
     if idx_is_empty(ki) or idx_is_empty(ai):
@@ -1306,7 +1306,7 @@ def kakb_pctoindex(c):
         bs[0] = flip_nw_se(bs[0])
         bs[1] = flip_nw_se(bs[1])
 
-    ki = KKIDX[bs[0]][ws[0]] # KKIDX[black king][white king]
+    ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
     if idx_is_empty(ki):
         return NOINDEX
@@ -1330,8 +1330,8 @@ def kpk_pctoindex(c):
         bk = flip_we(bk)
 
     sq = pawn
-    sq ^= 56 # flip_ns
-    sq -= 8  # down one row
+    sq ^= 56  # flip_ns
+    sq -= 8   # down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     res = pslice * BLOCK_A + wk * BLOCK_B + bk
@@ -1545,7 +1545,7 @@ EGKEY = {
 
 
 def sortlists(ws, wp):
-    z = sorted(zip(wp, ws), key=lambda x : x[0], reverse=True)
+    z = sorted(zip(wp, ws), key=lambda x: x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2)
 
@@ -1598,15 +1598,14 @@ def bestx(side, a, b):
     # 2 = selecthighest
     # 3 = selectsecond
     comparison = [
-        #draw, wmate, bmate, forbid
-        [0,    3,     0,     0],    # draw
-        [0,    1,     0,     0],    # wmate
-        [3,    3,     2,     0],    # bmate
-        [3,    3,     3,     0],    # forbid
+        # draw, wmate, bmate, forbid
+        [0, 3, 0, 0],  # draw
+        [0, 1, 0, 0],  # wmate
+        [3, 3, 2, 0],  # bmate
+        [3, 3, 3, 0],  # forbid
     ]
 
     xorkey = [0, 3]
-    ret = iFORBID
 
     if (a == iFORBID):
         return b
@@ -1847,7 +1846,6 @@ class PythonTablebases(object):
         else:
             return None
 
-
     def _setup_tablebase(self, req):
         white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.white_types])
         black_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.black_types])
@@ -1856,9 +1854,9 @@ class PythonTablebases(object):
             req.is_reversed = False
             req.egkey = white_letters + black_letters
             req.white_piece_squares = req.white_squares
-            req.white_piece_types  = req.white_types
+            req.white_piece_types = req.white_types
             req.black_piece_squares = req.black_squares
-            req.black_piece_types   = req.black_types
+            req.black_piece_types = req.black_types
         elif (black_letters + white_letters) in self.available_tables:
             req.is_reversed = True
             req.egkey = black_letters + white_letters
@@ -1900,7 +1898,7 @@ class PythonTablebases(object):
             stream.close()
 
     def egtb_get_dtm(self, req):
-        dtm  = self._tb_probe(req)
+        dtm = self._tb_probe(req)
 
         if req.epsq != NOSQUARE:
             capturer_a = 0
@@ -1979,9 +1977,9 @@ class PythonTablebases(object):
         offset = block * blocksz
 
         if (offset + blocksz) > maxindex:
-            return maxindex - offset # last block size
+            return maxindex - offset  # last block size
         else:
-            return blocksz # size of a normal block
+            return blocksz  # size of a normal block
 
     def _tb_probe(self, req):
         stream = self._setup_tablebase(req)
@@ -2082,7 +2080,17 @@ class NativeTablebases(object):
         self.libgtb.tb_init.restype = ctypes.c_char_p
         self.libgtb.tb_restart.restype = ctypes.c_char_p
         self.libgtb.tbpaths_getmain.restype = ctypes.c_char_p
-        self.libgtb.tb_probe_hard.argtypes = [ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_uint), ctypes.POINTER(ctypes.c_uint)]
+        self.libgtb.tb_probe_hard.argtypes = [
+            ctypes.c_uint,
+            ctypes.c_uint,
+            ctypes.c_uint,
+            ctypes.POINTER(ctypes.c_uint),
+            ctypes.POINTER(ctypes.c_uint),
+            ctypes.POINTER(ctypes.c_ubyte),
+            ctypes.POINTER(ctypes.c_ubyte),
+            ctypes.POINTER(ctypes.c_uint),
+            ctypes.POINTER(ctypes.c_uint)
+        ]
 
         if self.libgtb.tb_is_initialized():
             raise RuntimeError("only one gaviota instance can be initialized at a time")

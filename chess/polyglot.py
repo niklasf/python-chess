@@ -22,9 +22,6 @@ import os
 import mmap
 import random
 import itertools
-import chess
-import errno
-import sys
 
 try:
     import backport_collections as collections
