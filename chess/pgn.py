@@ -99,17 +99,23 @@ class GameNode(object):
 
         self.board_cached = None
 
-    def board(self):
+    def board(self, _cache=True):
         """
         Gets a board with the position of the node.
 
         It's a copy, so modifying the board will not alter the game.
         """
-        if not self.board_cached:
-            self.board_cached = self.parent.board()
-            self.board_cached.push(self.move)
+        if self.board_cached:
+            return self.board_cached.copy()
 
-        return self.board_cached.copy()
+        board = self.parent.board(_cache=False)
+        board.push(self.move)
+
+        if _cache:
+            self.board_cached = board
+            return board.copy()
+        else:
+            return board
 
     def san(self):
         """
@@ -344,7 +350,7 @@ class Game(GameNode):
 
         self.errors = []
 
-    def board(self):
+    def board(self, _cache=False):
         """
         Gets the starting position of the game.
 
