@@ -1609,6 +1609,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertFalse(end_node.starts_variation())
         self.assertTrue(alternative_node.starts_variation())
 
+        self.assertFalse(game.is_end())
+        self.assertFalse(node.is_end())
+        self.assertTrue(alternative_node.is_end())
+        self.assertTrue(end_node.is_end())
+
     def test_promote_demote(self):
         game = chess.pgn.Game()
         a = game.add_variation(chess.Move(chess.A2, chess.A3))

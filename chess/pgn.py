@@ -139,7 +139,7 @@ class GameNode(object):
 
     def is_end(self):
         """Checks if this node is the last node in the current variation."""
-        return not node.variations
+        return not self.variations
 
     def starts_variation(self):
         """
