@@ -1828,7 +1828,7 @@ class PythonTablebases(object):
         and ``-1`` if the side to move is losing.
 
         >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_wdl(chess.Board("8/4k3/8/B7/8/8/8/4K3 w - 0 1"))
+        ...     tablebases.probe_wdl(chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1"))
         ...
         0
         """
