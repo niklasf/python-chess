@@ -2071,6 +2071,12 @@ class PythonTablebases(object):
         stream.seek(i)
         return i
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
 
 class NativeTablebases(object):
     """Provides access to Gaviota tablebases via the shared library libgtb."""

@@ -2379,6 +2379,14 @@ class GaviotaTestCase(unittest.TestCase):
         board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
         self.assertEqual(self.tablebases.probe_wdl(board), 1)
 
+    def test_context_manager(self):
+        self.assertTrue(self.tablebases.available_tables)
+
+        with self.tablebases:
+            pass
+
+        self.assertFalse(self.tablebases.available_tables)
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
