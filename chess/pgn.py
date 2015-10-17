@@ -641,9 +641,10 @@ def read_game(handle, error_handler=_raise):
                 else:
                     line = ""
 
-                if in_variation or not variation_stack[-1].parent:
-                    # Add the comment if in the middle of a variation or
-                    # directly to the game.
+                if in_variation or (not variation_stack[-1].parent and variation_stack[-1].is_end()):
+                    # Add as a comment for the current node if in the middle of
+                    # a variation. Add as a comment for the game, if the
+                    # comment starts before any move.
                     if variation_stack[-1].comment:
                         comment_lines.insert(0, variation_stack[-1].comment)
                     variation_stack[-1].comment = "\n".join(comment_lines).strip()

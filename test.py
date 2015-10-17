@@ -1563,6 +1563,24 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.comment, "Empty game, but has a comment")
 
+    def test_game_starting_variation(self):
+        pgn = StringIO(textwrap.dedent("""\
+            {Start of game} 1. e4 ({Start of variation} 1. d4) 1... e5
+            """))
+
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.comment, "Start of game")
+
+        node = game.variation(0)
+        self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
+        self.assertFalse(node.comment)
+        self.assertFalse(node.starting_comment)
+
+        node = game.variation(1)
+        self.assertEqual(node.move, chess.Move.from_uci("d2d4"))
+        self.assertFalse(node.comment)
+        self.assertEqual(node.starting_comment, "Start of variation")
+
     def test_annotation_symbols(self):
         pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
