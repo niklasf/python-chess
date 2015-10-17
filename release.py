@@ -168,7 +168,7 @@ def pythonhosted(tagname):
 
 def github_release(tagname):
     print("--- GITHUB RELEASE -----------------------------------------------")
-    print("https://github.com/niklasf/python-chess/releases/tag/{0}".format(tagname))
+    print("https://github.com/niklasf/python-chess/releases/new?tag={0}".format(tagname))
 
 
 if __name__ == "__main__":
