@@ -6,6 +6,18 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.12.5
+--------------
+
+Bugfixes:
+
+* Context manager support for pure Python Gaviota probing code. Various
+  documentation fixes for Gaviota probing. Thanks to Jürgen Précour for
+  reporting.
+
+* PGN variation start comments for variations on the very first move were
+  assigned to the game. Thanks to Norbert Räcke for reporting.
+
 New in v0.12.4
 --------------
 
