@@ -534,17 +534,20 @@ def read_game(handle, error_handler=_raise):
     """
     Reads a game from a file opened in text mode.
 
-    By using text mode the parser does not need to handle encodings. It is the
-    callers responsibility to open the file with the correct encoding.
-    According to the specification PGN files should be ASCII. Also UTF-8 is
-    common. So this is usually not a problem.
-
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>> first_game = chess.pgn.read_game(pgn)
     >>> second_game = chess.pgn.read_game(pgn)
     >>>
     >>> first_game.headers["Event"]
     'IBM Man-Machine, New York USA'
+
+    By using text mode the parser does not need to handle encodings. It is the
+    callers responsibility to open the file with the correct encoding.
+    PGN files are ASCII or UTF-8 most of the time. So the following should
+    cover most relevant cases (ASCII, UTF-8 without BOM, UTF-8 with BOM,
+    UTF-8 with encoding errors).
+
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig", errors="surrogateescape")
 
     Use `StringIO` to parse games from a string.
 
