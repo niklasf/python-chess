@@ -264,7 +264,7 @@ Features
 
       >>> # Iterate through the mainline of this embarrasingly short game.
       >>> node = first_game
-      >>> while node.variations:
+      >>> while not node.is_end():
       ...     next_node = node.variation(0)
       ...     print(node.board().san(next_node.move))
       ...     node = next_node
