@@ -2079,7 +2079,10 @@ class PythonTablebases(object):
 
 
 class NativeTablebases(object):
-    """Provides access to Gaviota tablebases via the shared library libgtb."""
+    """
+    Provides access to Gaviota tablebases via the shared library libgtb.
+    Has the same interface as :class:`~chess.gaviota.PythonTablebases`.
+    """
 
     def __init__(self, directory, libgtb):
         self.libgtb = libgtb
@@ -2234,6 +2237,15 @@ class NativeTablebases(object):
 
 
 def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
+    """
+    Opens a collection of tablebases for probing using libgtb.
+
+    In most cases :func:`~chess.gaviota.open_tablebases()` should be used.
+    Use this function only if you do not want to downgrade to pure Python
+    tablebase probing.
+
+    Raises :exc:`RuntimeError` or :exc:`OSError` when libgtb can not be used.
+    """
     libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
     return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
 
