@@ -36,5 +36,7 @@ Otherwise the pure Python probing code is used.
     sudo make install
 
 
+.. autofunction:: chess.gaviota.open_tablebases_native
+
 .. autoclass:: chess.gaviota.NativeTablebases
     :members:
