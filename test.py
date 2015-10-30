@@ -457,14 +457,14 @@ class BoardTestCase(unittest.TestCase):
                      'e8e7', 'g5f6', 'b8d7', 'h5h6', 'd7f6', 'e5f6', 'g7g6',
                      'f6e7', 'f8e7']
         var_w = board.variation_san([chess.Move.from_uci(m) for m in variation])
-        self.assertEqual('19. Bxh7+ Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 ' +
-                         '23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7',
+        self.assertEqual(("19. Bxh7+ Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 "
+                          "23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7"),
                          var_w)
         self.assertEqual(fen, board.fen(), msg="Board unchanged by variation_san")
         board.push(chess.Move.from_uci(variation.pop(0)))
         var_b = board.variation_san([chess.Move.from_uci(m) for m in variation])
-        self.assertEqual('19...Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 ' +
-                         '23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7',
+        self.assertEqual(("19...Kxh7 20. Qh5+ Kg8 21. Rg3 Bf8 22. Bg5 Re7 "
+                          "23. Bf6 Nd7 24. Qh6 Nxf6 25. exf6 g6 26. fxe7 Bxe7"),
                          var_b)
 
         illegal_variation = ['d3h7', 'g8h7', 'f3h6', 'h7g8']

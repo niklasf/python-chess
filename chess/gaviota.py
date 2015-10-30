@@ -555,9 +555,9 @@ def attack_maps_init():
             fr88 = mapx88(from_)
             diff = to88 - fr88
 
-            if diff == 17 or diff == 15:
+            if diff in [17, 15]:
                 m |= attmsk[wP]
-            if diff == -17 or diff == -15:
+            elif diff in [-17, -15]:
                 m |= attmsk[bP]
 
             attmap[to_][from_] = m
@@ -657,7 +657,7 @@ def kapkb_pctoindex(c):
     bk = c.black_piece_squares[0]
     ba = c.black_piece_squares[1]
 
-    if not (chess.A2 <= pawn and pawn < chess.A8):
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -711,7 +711,7 @@ def kabkp_pctoindex(c):
     bk = c.black_piece_squares[0]
     wb = c.white_piece_squares[2]
 
-    if not (chess.A2 <= pawn and pawn < chess.A8):
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1180,7 +1180,7 @@ def kapk_pctoindex(c):
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn and pawn < chess.A8):
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1234,7 +1234,7 @@ def kakp_pctoindex(c):
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn and pawn < chess.A8):
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1321,7 +1321,7 @@ def kpk_pctoindex(c):
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not (chess.A2 <= pawn and pawn < chess.A8):
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
     if (pawn & 7) > 3:
@@ -1587,7 +1587,7 @@ def adjust_up(dist):
     udist = dist
     sw = udist & INFOMASK
 
-    if (sw == iWMATE) or (sw == iWMATEt) or (sw == iBMATE) or (sw == iBMATEt):
+    if sw in [iWMATE, iWMATEt, iBMATE, iBMATEt]:
         udist += (1 << PLYSHIFT)
 
     return udist
@@ -1627,7 +1627,7 @@ def unpackdist(d):
 def dtm_unpack(stm, packed):
     p = packed
 
-    if iDRAW == p or iFORBID == p:
+    if p in [iDRAW, iFORBID]:
         return p
 
     info = p & 3
