@@ -1874,7 +1874,7 @@ class PythonTablebases(object):
         return self._open_tablebase(req)
 
     def _open_tablebase(self, req):
-        stream = self.streams.get(req.egkey, None)
+        stream = self.streams.get(req.egkey)
 
         if stream is None:
             path = self.available_tables[req.egkey]
