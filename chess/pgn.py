@@ -358,7 +358,7 @@ class Game(GameNode):
         starting position.
         """
         if "FEN" in self.headers and "SetUp" in self.headers and self.headers["SetUp"] == "1":
-            chess960 = self.headers.get("Variant", None) == "Chess960"
+            chess960 = self.headers.get("Variant") == "Chess960"
             board = chess.Board(self.headers["FEN"], chess960=chess960)
             board.chess960 = board.chess960 or board.has_chess960_castling_rights()
             return board
