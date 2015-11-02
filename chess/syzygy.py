@@ -1585,5 +1585,15 @@ class Tablebases(object):
 def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
     """
     Opens a collection of tablebases for probing. See
-    :class:`~chess.syzygy.Tablebases`."""
+    :class:`~chess.syzygy.Tablebases`.
+
+    .. note::
+
+        Generally probing requires tablebase files for the specific
+        material composition, **as well as** tablebase files with less pieces.
+        This is important because 6-piece and 5-piece files are often
+        distributed seperately, but are both required for 6-piece positions.
+        Use :func:`~chess.syzygy.Tablebases.open_directory()` to load
+        tablebases from additional directories.
+    """
     return Tablebases(directory, load_wdl, load_dtz)
