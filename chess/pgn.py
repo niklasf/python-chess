@@ -245,73 +245,65 @@ class GameNode(object):
         self.promote_to_main(move)
         return node
 
-    def export(self, exporter, comments=True, variations=True, _board=None, _after_variation=False):
-        if _board is None:
-            _board = self.board()
+    def accept(self, visitor, _board=None):
+        board = self.board() if _board is None else _board
 
         # The mainline move goes first.
         if self.variations:
             main_variation = self.variations[0]
+            visitor.visit_move(board, main_variation.move)
 
-            # Append fullmove number.
-            exporter.put_fullmove_number(_board.turn, _board.fullmove_number, _after_variation)
+            # Visit NAGs.
+            for nag in sorted(main_variation.nags):
+                visitor.visit_nag(nag)
 
-            # Append SAN.
-            exporter.put_move(_board, main_variation.move)
-
-            if comments:
-                # Append NAGs.
-                exporter.put_nags(main_variation.nags)
-
-                # Append the comment.
-                if main_variation.comment:
-                    exporter.put_comment(main_variation.comment)
+            # Visit the comment.
+            if main_variation.comment:
+                visitor.visit_comment(main_variation.comment)
 
         # Then export sidelines.
-        if variations:
-            for variation in itertools.islice(self.variations, 1, None):
-                # Start variation.
-                exporter.start_variation()
+        for variation in itertools.islice(self.variations, 1, None):
+            # Start variation.
+            visitor.begin_variation()
 
-                # Append starting comment.
-                if comments and variation.starting_comment:
-                    exporter.put_starting_comment(variation.starting_comment)
+            # Append starting comment.
+            if variation.starting_comment:
+                visitor.visit_comment(variation.starting_comment)
 
-                # Append fullmove number.
-                exporter.put_fullmove_number(_board.turn, _board.fullmove_number, True)
+            # Visit move.
+            visitor.visit_move(board, variation.move)
 
-                # Append SAN.
-                exporter.put_move(_board, variation.move)
+            # Visit NAGs.
+            for nag in sorted(variation.nags):
+                visitor.visit_nag(nag)
 
-                if comments:
-                    # Append NAGs.
-                    exporter.put_nags(variation.nags)
+            # Visit comment.
+            if variation.comment:
+                visitor.visit_comment(variation.comment)
 
-                    # Append the comment.
-                    if variation.comment:
-                        exporter.put_comment(variation.comment)
+            # Recursively append the next moves.
+            board.push(variation.move)
+            variation.accept(visitor, _board=board)
+            board.pop()
 
-                # Recursively append the next moves.
-                _board.push(variation.move)
-                variation.export(exporter, comments, variations, _board, _after_variation=False)
-                _board.pop()
-
-                # End variation.
-                exporter.end_variation()
+            # End variation.
+            visitor.end_variation()
 
         # The mainline is continued last.
         if self.variations:
             main_variation = self.variations[0]
 
             # Recursively append the next moves.
-            _board.push(main_variation.move)
-            main_variation.export(exporter, comments, variations, _board, _after_variation=variations and len(self.variations) > 1)
-            _board.pop()
+            board.push(main_variation.move)
+            main_variation.accept(visitor, _board=board)
+            board.pop()
+
+        # Get the result if not called recursively.
+        if _board is None:
+            return visitor.result()
 
     def __str__(self):
-        exporter = StringExporter(columns=None)
-        self.export(exporter)
-        return exporter.__str__()
+        return self.accept(StringExporter(columns=None))
 
 
 class Game(GameNode):
@@ -394,22 +386,22 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
-    def export(self, exporter, headers=True, comments=True, variations=True):
-        exporter.start_game()
+    def accept(self, visitor):
+        visitor.begin_game()
 
-        if headers:
-            exporter.start_headers()
-            for tagname, tagvalue in self.headers.items():
-                exporter.put_header(tagname, tagvalue)
-            exporter.end_headers()
+        visitor.begin_headers()
+        for tagname, tagvalue in self.headers.items():
+            visitor.visit_header(tagname, tagvalue)
+        visitor.end_headers()
 
-        if comments and self.comment:
-            exporter.put_starting_comment(self.comment)
+        if self.comment:
+            visitor.visit_comment(self.comment)
 
-        super(Game, self).export(exporter, comments=comments, variations=variations, _after_variation=True)
+        super(Game, self).accept(visitor, _board=self.board())
 
-        exporter.put_result(self.headers["Result"])
-        exporter.end_game()
+        visitor.visit_result(self.headers["Result"])
+        visitor.end_game()
+        return visitor.result()
 
 
 class BaseVisitor(object):
@@ -509,7 +501,7 @@ class GameModelCreator(BaseVisitor):
         return self.game if self.found_game else None
 
 
-class StringExporter(object):
+class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
 
@@ -527,10 +519,17 @@ class StringExporter(object):
     There will be no newlines at the end of the string.
     """
 
-    def __init__(self, columns=80):
-        self.lines = []
+    def __init__(self, columns=80, headers=True, comments=True, variations=True):
         self.columns = columns
+        self.headers = headers
+        self.comments = comments
+        self.variations = variations
+
+        self.force_movenumber = True
+
+        self.lines = []
         self.current_line = ""
+        self.variation_depth = 0
 
     def flush_current_line(self):
         if self.current_line:
@@ -546,57 +545,67 @@ class StringExporter(object):
         self.flush_current_line()
         self.lines.append(line.rstrip())
 
-    def start_game(self):
-        pass
+    def begin_game(self):
+        self.after_variation = True
 
     def end_game(self):
         self.write_line()
 
-    def start_headers(self):
-        pass
-
-    def put_header(self, tagname, tagvalue):
-        self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
+    def visit_header(self, tagname, tagvalue):
+        if self.headers:
+            self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
 
     def end_headers(self):
-        self.write_line()
+        if self.headers:
+            self.write_line()
 
-    def start_variation(self):
-        self.write_token("( ")
+    def begin_variation(self):
+        self.variation_depth += 1
+
+        if self.variations:
+            self.write_token("( ")
+            self.force_movenumber = True
 
     def end_variation(self):
-        self.write_token(") ")
+        self.variation_depth -= 1
 
-    def put_starting_comment(self, comment):
-        self.put_comment(comment)
+        if self.variations:
+            self.write_token(") ")
+            self.force_movenumber = True
 
-    def put_comment(self, comment):
-        self.write_token("{ " + comment.replace("}", "").strip() + " } ")
+    def visit_comment(self, comment):
+        if self.comments and (self.variations or not self.variation_depth):
+            self.write_token("{ " + comment.replace("}", "").strip() + " } ")
+            self.force_movenumber = True
 
-    def put_nags(self, nags):
-        for nag in sorted(nags):
-            self.put_nag(nag)
+    def visit_nag(self, nag):
+        if self.comments and (self.variations or not self.variation_depth):
+            self.write_token("$" + str(nag) + " ")
 
-    def put_nag(self, nag):
-        self.write_token("$" + str(nag) + " ")
+    def visit_move(self, board, move):
+        if self.variations or not self.variation_depth:
+            # Write the move number.
+            if board.turn == chess.WHITE:
+                self.write_token(str(board.fullmove_number) + ". ")
+            elif self.force_movenumber:
+                self.write_token(str(board.fullmove_number) + "... ")
 
-    def put_fullmove_number(self, turn, fullmove_number, variation_start):
-        if turn == chess.WHITE:
-            self.write_token(str(fullmove_number) + ". ")
-        elif variation_start:
-            self.write_token(str(fullmove_number) + "... ")
+            # Write the SAN.
+            self.write_token(board.san(move) + " ")
 
-    def put_move(self, board, move):
-        self.write_token(board.san(move) + " ")
+            self.force_movenumber = False
 
-    def put_result(self, result):
+    def visit_result(self, result):
         self.write_token(result + " ")
 
-    def __str__(self):
+    def result(self):
         if self.current_line:
             return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
         else:
             return "\n".join(self.lines).rstrip()
+
+    def __str__(self):
+        return self.result()
 
 
 class FileExporter(StringExporter):
@@ -612,8 +621,8 @@ class FileExporter(StringExporter):
     >>> game.export(exporter)
     """
 
-    def __init__(self, handle, columns=80):
-        super(FileExporter, self).__init__(columns=columns)
+    def __init__(self, handle, columns=80, headers=True, comments=True, variations=True):
+        super(FileExporter, self).__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
     def flush_current_line(self):
@@ -626,6 +635,15 @@ class FileExporter(StringExporter):
         self.flush_current_line()
         self.handle.write(line.rstrip())
         self.handle.write("\n")
+
+    def result(self):
+        return None
+
+    def __repr__(self):
+        return "<FileExporter at {0}>".format(hex(id(self)))
+
+    def __str__(self):
+        return self.__repr__()
 
 
 def read_game(handle, Visitor=GameModelCreator):
