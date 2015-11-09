@@ -407,6 +407,100 @@ class Game(GameNode):
         exporter.end_game()
 
 
+class BaseVisitor(object):
+
+    def begin_game(self):
+        pass
+
+    def end_game(self):
+        pass
+
+    def begin_headers(self):
+        pass
+
+    def visit_header(self, tagname, tagvalue):
+        pass
+
+    def end_headers(self):
+        pass
+
+    def begin_variation(self):
+        pass
+
+    def end_variation(self):
+        pass
+
+    def visit_comment(self, comment):
+        pass
+
+    def visit_nag(self, nag):
+        pass
+
+    def visit_move(self, board, move):
+        pass
+
+    def visit_result(self, result):
+        pass
+
+    def handle_error(self, error):
+        raise error
+
+    def result(self):
+        return None
+
+
+class GameModelCreator(BaseVisitor):
+
+    def __init__(self):
+        self.game = Game()
+        self.found_game = False
+
+        self.variation_stack = collections.deque([self.game])
+        self.starting_comment = ""
+        self.in_variation = False
+
+    def begin_game(self):
+        self.found_game = True
+
+    def visit_header(self, tagname, tagvalue):
+        self.game.headers[tagname] = tagvalue
+
+    def visit_nag(self, nag):
+        self.variation_stack[-1].nags.add(nag)
+
+    def begin_variation(self):
+        self.variation_stack.append(self.variation_stack[-1].parent)
+        self.in_variation = False
+
+    def end_variation(self):
+        self.variation_stack.pop()
+
+    def visit_result(self, result):
+        if self.game.headers.get("Result", "*") == "*":
+            self.game.headers["Result"] = result
+
+    def visit_comment(self, comment):
+        if self.in_variation or (not self.variation_stack[-1].parent and self.variation_stack[-1].is_end()):
+            # Add as a comment for the current node if in the middle of
+            # a variation. Add as a comment for the game, if the comment
+            # starts before any move.
+            new_comment = [self.variation_stack[-1].comment, comment]
+            self.variation_stack[-1].comment = "\n".join(new_comment).strip()
+        else:
+            # Otherwise it is a starting comment.
+            new_comment = [self.starting_comment, comment]
+            self.starting_comment = "\n".join(new_comment).strip()
+
+    def visit_move(self, board, move):
+        self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
+        self.variation_stack[-1].starting_comment = self.starting_comment
+        self.starting_comment = ""
+        self.in_variation = True
+
+    def result(self):
+        return self.game if self.found_game else None
+
+
 class StringExporter(object):
     """
     Allows exporting a game as a string.
@@ -526,11 +620,7 @@ class FileExporter(StringExporter):
         self.handle.write("\n")
 
 
-def _raise(error):
-    raise error
-
-
-def read_game(handle, error_handler=_raise):
+def read_game(handle, Visitor=GameModelCreator):
     """
     Reads a game from a file opened in text mode.
 
@@ -578,7 +668,9 @@ def read_game(handle, error_handler=_raise):
 
     Returns the parsed game or ``None`` if the EOF is reached.
     """
-    game = Game()
+    visitor = Visitor()
+
+    dummy_game = Game()
     found_game = False
     found_content = False
 
@@ -592,33 +684,39 @@ def read_game(handle, error_handler=_raise):
             continue
 
         found_game = True
+        visitor.begin_game()
+        visitor.begin_headers()
 
         # Read header tags.
         tag_match = TAG_REGEX.match(line)
         if tag_match:
-            game.headers[tag_match.group(1)] = tag_match.group(2)
+            dummy_game.headers[tag_match.group(1)] = tag_match.group(2)
+            visitor.visit_header(tag_match.group(1), tag_match.group(2))
         else:
             break
 
         line = handle.readline()
+
+    if found_game:
+        visitor.end_headers()
 
     # Get the next non-empty line.
     while not line.strip() and line:
         line = handle.readline()
 
     # Movetext parser state.
-    starting_comment = ""
-    variation_stack = collections.deque([game])
-    board_stack = collections.deque([game.board()])
-    in_variation = False
+    board_stack = collections.deque([dummy_game.board()])
 
     # Parse movetext.
     while line:
         read_next_line = True
 
         # An empty line is the end of a game.
-        if not line.strip() and found_game and found_content:
-            return game
+        if not line.strip() and found_content:
+            if found_game:
+                visitor.end_game()
+
+            return visitor.result()
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
@@ -628,7 +726,9 @@ def read_game(handle, error_handler=_raise):
                 line = handle.readline()
                 continue
 
-            found_game = True
+            if not found_game:
+                found_game = True
+                visitor.begin_game()
 
             if token.startswith("{"):
                 # Consume until the end of the comment.
@@ -644,18 +744,7 @@ def read_game(handle, error_handler=_raise):
                 else:
                     line = ""
 
-                if in_variation or (not variation_stack[-1].parent and variation_stack[-1].is_end()):
-                    # Add as a comment for the current node if in the middle of
-                    # a variation. Add as a comment for the game, if the
-                    # comment starts before any move.
-                    if variation_stack[-1].comment:
-                        comment_lines.insert(0, variation_stack[-1].comment)
-                    variation_stack[-1].comment = "\n".join(comment_lines).strip()
-                else:
-                    # Otherwise it is a starting comment.
-                    if starting_comment:
-                        comment_lines.insert(0, starting_comment)
-                    starting_comment = "\n".join(comment_lines).strip()
+                visitor.visit_comment("\n".join(comment_lines).strip())
 
                 # Continue with the current or the next line.
                 if line:
@@ -663,42 +752,41 @@ def read_game(handle, error_handler=_raise):
                 break
             elif token.startswith("$"):
                 # Found a NAG.
-                variation_stack[-1].nags.add(int(token[1:]))
+                try:
+                    nag = int(token[1:])
+                except ValueError as error:
+                    visitor.handle_error(error)
+                else:
+                    visitor.visit_nag(nag)
             elif token == "?":
-                variation_stack[-1].nags.add(NAG_MISTAKE)
+                visitor.visit_nag(NAG_MISTAKE)
             elif token == "??":
-                variation_stack[-1].nags.add(NAG_BLUNDER)
+                visitor.visit_nag(NAG_BLUNDER)
             elif token == "!":
-                variation_stack[-1].nags.add(NAG_GOOD_MOVE)
+                visitor.visit_nag(NAG_GOOD_MOVE)
             elif token == "!!":
-                variation_stack[-1].nags.add(NAG_BRILLIANT_MOVE)
+                visitor.visit_nag(NAG_BRILLIANT_MOVE)
             elif token == "!?":
-                variation_stack[-1].nags.add(NAG_SPECULATIVE_MOVE)
+                visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
-                variation_stack[-1].nags.add(NAG_DUBIOUS_MOVE)
+                visitor.visit_nag(NAG_DUBIOUS_MOVE)
             elif token == "(":
-                # Found a start variation token.
-                if variation_stack[-1].parent:
-                    variation_stack.append(variation_stack[-1].parent)
+                if board_stack[-1].move_stack:
+                    visitor.begin_variation()
 
                     board = board_stack[-1].copy()
                     board.pop()
                     board_stack.append(board)
-
-                    in_variation = False
             elif token == ")":
                 # Found a close variation token. Always leave at least the
                 # root node on the stack.
-                if len(variation_stack) > 1:
-                    variation_stack.pop()
+                if len(board_stack) > 1:
+                    visitor.end_variation()
                     board_stack.pop()
-            elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(variation_stack) == 1:
+            elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 # Found a result token.
                 found_content = True
-
-                # Set result header if not present, yet.
-                if game.headers.get("Result", "*") == "*":
-                    game.headers["Result"] = token
+                visitor.visit_result(token)
             else:
                 # Found a SAN token.
                 found_content = True
@@ -712,21 +800,19 @@ def read_game(handle, error_handler=_raise):
                 # Parse the SAN.
                 try:
                     move = board_stack[-1].parse_san(token)
-                    in_variation = True
-                    variation_stack[-1] = variation_stack[-1].add_variation(move)
-                    variation_stack[-1].starting_comment = starting_comment
-                    board_stack[-1].push(move)
-                    starting_comment = ""
                 except ValueError as error:
-                    game.errors.append(error)
-                    if error_handler:
-                        error_handler(error)
+                    visitor.handle_error(error)
+                else:
+                    visitor.visit_move(board_stack[-1], move)
+                    board_stack[-1].push(move)
 
         if read_next_line:
             line = handle.readline()
 
     if found_game:
-        return game
+        visitor.end_game()
+
+    return visitor.result()
 
 
 def scan_headers(handle):
