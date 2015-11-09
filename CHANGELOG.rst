@@ -6,6 +6,15 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+* `chess.pgn.Game.export()` and `chess.pgn.GameNode.export()` have been
+  removed and replaced with a new visitor concept.
+
+* `chess.pgn.read_game()` no longer takes an `error_handler` argument. Errors
+  are now logged. Use the new visitor concept to change this behaviour.
+
 New in v0.12.5
 --------------
 
