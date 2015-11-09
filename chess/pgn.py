@@ -19,11 +19,16 @@
 import chess
 import itertools
 import re
+import logging
 
 try:
     import backport_collections as collections
 except ImportError:
     import collections
+
+
+LOGGER = logging.getLogger(__name__)
+
 
 NAG_NULL = 0
 
@@ -496,6 +501,9 @@ class GameModelCreator(BaseVisitor):
         self.variation_stack[-1].starting_comment = self.starting_comment
         self.starting_comment = ""
         self.in_variation = True
+
+    def handle_error(self, error):
+        logging.exception("error during pgn parsing")
 
     def result(self):
         return self.game if self.found_game else None
