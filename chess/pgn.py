@@ -530,7 +530,7 @@ class GameModelCreator(BaseVisitor):
         self.in_variation = True
 
     def handle_error(self, error):
-        logging.exception("error during pgn parsing")
+        LOGGER.exception("error during pgn parsing")
 
     def result(self):
         """
