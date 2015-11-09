@@ -474,7 +474,7 @@ class BaseVisitor(object):
         raise error
 
     def result(self):
-        """Called to get the result of the game. Defaults to ``None``."""
+        """Called to get the result of the visitor. Defaults to ``None``."""
         return None
 
 
