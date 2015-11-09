@@ -739,9 +739,11 @@ def read_game(handle, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
+        if not found_game:
+            visitor.begin_game()
+            visitor.begin_headers()
+
         found_game = True
-        visitor.begin_game()
-        visitor.begin_headers()
 
         # Read header tags.
         tag_match = TAG_REGEX.match(line)
