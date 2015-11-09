@@ -97,7 +97,7 @@ Visitors are an advanced concept for game tree traversal.
 .. autoclass:: chess.pgn.BaseVisitor
     :members:
 
-The following visitors are available.
+The following visitors are readily available.
 
 .. autoclass:: chess.pgn.GameModelCreator
     :members:
