@@ -246,6 +246,10 @@ class GameNode(object):
         return node
 
     def accept(self, visitor, _board=None):
+        """
+        Traverse game nodes in PGN order using the given *visitor*. Returns
+        the visitor result.
+        """
         board = self.board() if _board is None else _board
 
         # The mainline move goes first.
@@ -261,7 +265,7 @@ class GameNode(object):
             if main_variation.comment:
                 visitor.visit_comment(main_variation.comment)
 
-        # Then export sidelines.
+        # Then visit sidelines.
         for variation in itertools.islice(self.variations, 1, None):
             # Start variation.
             visitor.begin_variation()
@@ -387,6 +391,10 @@ class Game(GameNode):
             self.headers.pop("Variant", None)
 
     def accept(self, visitor):
+        """
+        Traverses the game in PGN order using the given *visitor*. Returns
+        the visitor result.
+        """
         visitor.begin_game()
 
         visitor.begin_headers()
@@ -405,48 +413,75 @@ class Game(GameNode):
 
 
 class BaseVisitor(object):
+    """
+    Base class for visitors.
+
+    Use with :func:`chess.pgn.Game.accept()` or
+    :func:`chess.pgn.GameNode.accept()`.
+
+    Methods are called in PGN order.
+    """
 
     def begin_game(self):
+        """Called at the start of a game."""
         pass
 
     def end_game(self):
+        """Called at the end of a game."""
         pass
 
     def begin_headers(self):
+        """Called at the start of the game headers."""
         pass
 
     def visit_header(self, tagname, tagvalue):
+        """Called for each game header."""
         pass
 
     def end_headers(self):
+        """Called at the end of the game headers."""
         pass
 
     def begin_variation(self):
+        """
+        Called at the start of a new variation. It is not called for the
+        mainline of the game.
+        """
         pass
 
     def end_variation(self):
+        """Concludes a variation."""
         pass
 
     def visit_comment(self, comment):
+        """Called for each comment."""
         pass
 
     def visit_nag(self, nag):
+        """Called for each NAG."""
         pass
 
     def visit_move(self, board, move):
+        """Called for each move. *board* is the board state before the move."""
         pass
 
     def visit_result(self, result):
+        """Called at the end of the game with the *Result*-header."""
         pass
 
     def handle_error(self, error):
+        """Called for errors encountered. Defaults to raising an exception."""
         raise error
 
     def result(self):
+        """Called to get the result of the game. Defaults to ``None``."""
         return None
 
 
 class GameModelCreator(BaseVisitor):
+    """
+    Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
+    """
 
     def __init__(self):
         self.game = Game()
@@ -498,6 +533,10 @@ class GameModelCreator(BaseVisitor):
         logging.exception("error during pgn parsing")
 
     def result(self):
+        """
+        Returns a :class:`~chess.pgn.Game()` or ``None`` if no game was
+        encountered.
+        """
         return self.game if self.found_game else None
 
 
@@ -505,14 +544,10 @@ class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
 
-    :func:`chess.pgn.Game.export()` also provides options to include or exclude
-    headers, variations or comments. By default everything is included.
-
     >>> exporter = chess.pgn.StringExporter()
-    >>> game.export(exporter, headers=True, variations=True, comments=True)
-    >>> pgn_string = str(exporter)
+    >>> pgn_string = game.accept(exporter, headers=True, variations=True, comments=True)
 
-    Only `columns` characters are written per line. If `columns` is ``None``
+    Only *columns* characters are written per line. If *columns* is ``None``
     then the entire movetext will be on a single line. This does not affect
     header tags and comments.
 
@@ -616,9 +651,9 @@ class FileExporter(StringExporter):
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
 
-    >>> new_pgn = open("new.pgn", "w")
+    >>> new_pgn = open("new.pgn", "w", encoding="utf-8")
     >>> exporter = chess.pgn.FileExporter(new_pgn)
-    >>> game.export(exporter)
+    >>> game.accept(exporter)
     """
 
     def __init__(self, handle, columns=80, headers=True, comments=True, variations=True):
@@ -685,12 +720,7 @@ def read_game(handle, Visitor=GameModelCreator):
     fine.
 
     The parser is relatively forgiving when it comes to errors. It skips over
-    tokens it can not parse. However it is difficult to handle illegal or
-    ambiguous moves. If such a move is encountered the default behaviour is to
-    stop right in the middle of the game and raise :exc:`ValueError`. If you
-    pass ``None`` for *error_handler* all errors are silently ignored, instead.
-    If you pass a function this function will be called with the error as an
-    argument.
+    tokens it can not parse. Any exceptions are logged.
 
     Returns the parsed game or ``None`` if the EOF is reached.
     """

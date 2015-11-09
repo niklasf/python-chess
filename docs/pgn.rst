@@ -86,8 +86,21 @@ Remember that games in files should be separated with extra blank lines.
 
 >>> print(game, file=handle, end="\n\n")
 
-Use exporter objects if you need more control. Exporter objects are used to
-allow extensible formatting of PGN like data.
+Use the :class:`~chess.pgn.StringExporter()` or
+:class:`~chess.pgn.FileExporter()` visitors if you need more control.
+
+Visitors
+--------
+
+Visitors are an advanced concept for game tree traversal.
+
+.. autoclass:: chess.pgn.BaseVisitor
+    :members:
+
+The following visitors are available.
+
+.. autoclass:: chess.pgn.GameModelCreator
+    :members:
 
 .. autoclass:: chess.pgn.StringExporter
     :members:
