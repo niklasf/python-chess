@@ -1380,16 +1380,16 @@ class PgnTestCase(unittest.TestCase):
         e4_d5_exd5.comment = "Best"
 
         # Test string exporter with various options.
-        exporter = chess.pgn.StringExporter()
-        game.export(exporter, headers=False, comments=False, variations=False)
+        exporter = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
+        game.accept(exporter)
         self.assertEqual(str(exporter), "1. e4 d5 2. exd5 *")
 
-        exporter = chess.pgn.StringExporter()
-        game.export(exporter, headers=False, comments=False)
+        exporter = chess.pgn.StringExporter(headers=False, comments=False)
+        game.accept(exporter)
         self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 ) 2. exd5 *")
 
         exporter = chess.pgn.StringExporter()
-        game.export(exporter)
+        game.accept(exporter)
         pgn = textwrap.dedent("""\
             [Event "?"]
             [Site "?"]
@@ -1399,7 +1399,7 @@ class PgnTestCase(unittest.TestCase):
             [Black "?"]
             [Result "*"]
 
-            { Test game: } 1. e4 { Scandinavian defense: } d5 ( { This } 1... h5 $2
+            { Test game: } 1. e4 { Scandinavian defense: } 1... d5 ( { This } 1... h5 $2
             { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
             { Best } *""")
         self.assertEqual(str(exporter), pgn)
@@ -1407,7 +1407,7 @@ class PgnTestCase(unittest.TestCase):
         # Test file exporter.
         virtual_file = StringIO()
         exporter = chess.pgn.FileExporter(virtual_file)
-        game.export(exporter)
+        game.accept(exporter)
         self.assertEqual(virtual_file.getvalue(), pgn + "\n\n")
 
     def test_setup(self):
