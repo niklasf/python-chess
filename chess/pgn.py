@@ -462,7 +462,12 @@ class BaseVisitor(object):
         pass
 
     def visit_move(self, board, move):
-        """Called for each move. *board* is the board state before the move."""
+        """
+        Called for each move.
+
+        *board* is the board state before the move. The board state must be
+        restored before the traversal continues.
+        """
         pass
 
     def visit_result(self, result):
