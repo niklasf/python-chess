@@ -26,7 +26,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@tu-clausthal.de"
 
-__version__ = "0.12.5"
+__version__ = "0.13.0"
 
 import copy
 import re
