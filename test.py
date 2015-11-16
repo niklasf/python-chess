@@ -1715,6 +1715,32 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.headers["Result"], "1-0")
 
+    def test_missing_setup_tag(self):
+        pgn = StringIO(textwrap.dedent("""\
+            [Event "Test position"]
+            [Site "Black to move "]
+            [Date "1997.10.26"]
+            [Round "?"]
+            [White "Pos  16"]
+            [Black "VA33.EPD"]
+            [Result "1-0"]
+            [FEN "rbb1N1k1/pp1n1ppp/8/2Pp4/3P4/4P3/P1Q2PPq/R1BR1K2 b - - 0 1"]
+
+            {Houdini 1.5 x64: 1)} 1... Nxc5 ({Houdini 1.5 x64: 2)} 1... Qh1+ 2. Ke2 Qxg2 3.
+            Kd2 Nxc5 4. Qxc5 Bg4 5. Ba3 Qxf2+ 6. Kc3 Qxe3+ 7. Kb2 Qxe8 8. Re1 Be6 9. Rh1 a5
+            10. Rag1 Ba7 11. Qc3 g6 12. Bc5 Qb5+ 13. Qb3 Qe2+ 14. Qc2 Qxc2+ 15. Kxc2 Bxc5
+            16. dxc5 Rc8 17. Kd2 {-2.39/22}) 2. dxc5 Bg4 3. f3 Bxf3 4. Qf2 Bxd1 5. Nd6 Bxd6
+            6. cxd6 Qxd6 7. Bb2 Ba4 8. Qf4 Bb5+ 9. Kf2 Qg6 10. Bd4 f6 11. Qc7 Bc6 12. a4 a6
+            13. Qg3 Qxg3+ 14. Kxg3 Rc8 15. Rc1 Kf7 16. a5 h5 17. Rh1 {-2.63/23}
+            1-0"""))
+
+        game = chess.pgn.read_game(pgn)
+        self.assertTrue("FEN" in game.headers)
+        self.assertFalse("SetUp" in game.headers)
+
+        board = chess.Board("rbb1N1k1/pp1n1ppp/8/2Pp4/3P4/4P3/P1Q2PPq/R1BR1K2 b - - 0 1")
+        self.assertEqual(game.board(), board)
+
 
 class StockfishTestCase(unittest.TestCase):
 
