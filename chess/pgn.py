@@ -549,8 +549,8 @@ class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
 
-    >>> exporter = chess.pgn.StringExporter()
-    >>> pgn_string = game.accept(exporter, headers=True, variations=True, comments=True)
+    >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
+    >>> pgn_string = game.accept(exporter)
 
     Only *columns* characters are written per line. If *columns* is ``None``
     then the entire movetext will be on a single line. This does not affect
