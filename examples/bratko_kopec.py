@@ -44,18 +44,18 @@ def test_epd(engine, epd, movetime):
 
     if enginemove in epd_info["bm"]:
         print("%s (expecting %s): +1" % (
-            epd_info["id"],
+            epd_info.get("id", position.fen()),
             " or ".join(position.san(bm) for bm in epd_info["bm"])))
         return 1.0
     else:
         print("%s (expecting %s): +0 (got %s)" % (
-            epd_info["id"],
+            epd_info.get("id", position.fen()),
             " or ".join(position.san(bm) for bm in epd_info["bm"]),
             position.san(enginemove)))
         return 0.0
 
 
-def test_epd_with_fractional_scores(engine, epd):
+def test_epd_with_fractional_scores(engine, epd, movetime):
     info_handler = chess.uci.InfoHandler()
     engine.info_handlers.append(info_handler)
 
@@ -71,8 +71,8 @@ def test_epd_with_fractional_scores(engine, epd):
     score = 0.0
 
     print("%s (expecting %s):" % (
-        epd_info["id"],
-        " or ".join(position.san(bm) for bm in epd_info["bm"])), end="")
+        epd_info.get("id", position.fen()),
+        " or ".join(position.san(bm) for bm in epd_info["bm"])), end=" ")
 
     for step in range(0, 3):
         time.sleep(movetime / 4000.0)
@@ -82,9 +82,9 @@ def test_epd_with_fractional_scores(engine, epd):
             if 1 in info["pv"] and len(info["pv"][1]) >= 1:
                 if info["pv"][1][0] in epd_info["bm"]:
                     score = 1.0 / (4 - step)
-                print("(%s)" % position.san(info["pv"][1][0]), end="")
+                print("(%s)" % position.san(info["pv"][1][0]), end=" ")
             else:
-                print("(no pv)", end="")
+                print("(no pv)", end=" ")
 
     # Assess the final best move by the engine.
     time.sleep(movetime / 4000.0)
@@ -125,7 +125,8 @@ if __name__ == "__main__":
         3rn2k/ppb2rpp/2ppqp2/5N2/2P1P3/1P5Q/PB3PPP/3RR1K1 w - - bm Nh6; id "BK.21";
         2r2rk1/1bqnbpp1/1p1ppn1p/pP6/N1P1P3/P2B1N1P/1B2QPP1/R2R2K1 b - - bm Bxe4; id "BK.22";
         r1bqk2r/pp2bppp/2p5/3pP3/P2Q1P2/2N1B3/1PP3PP/R4RK1 b kq - bm f6; id "BK.23";
-        r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id "BK.24";"""))
+        r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id "BK.24";
+        """))
 
     # Parse command line arguments.
     parser = argparse.ArgumentParser(description="Run an EPD test suite with an UCI engine.")
@@ -155,7 +156,7 @@ if __name__ == "__main__":
     count = 0
 
     for epd in itertools.chain(*args.epd):
-        print(epd, end="")
+        print(epd.rstrip())
 
         # Skip comments and empty lines.
         epd = epd.strip()
