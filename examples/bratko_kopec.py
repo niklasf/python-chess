@@ -25,6 +25,7 @@ import time
 import textwrap
 import argparse
 import itertools
+import logging
 
 try:
     from StringIO import StringIO  # Python 2
@@ -100,6 +101,7 @@ def test_epd_with_fractional_scores(engine, epd):
 
 if __name__ == "__main__":
     bratko_kopec = StringIO(textwrap.dedent("""\
+        % Default Bratko-Kopec testsuite.
         1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id "BK.01";
         3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - - bm d5; id "BK.02";
         2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - - bm f5; id "BK.03";
@@ -125,33 +127,42 @@ if __name__ == "__main__":
         r1bqk2r/pp2bppp/2p5/3pP3/P2Q1P2/2N1B3/1PP3PP/R4RK1 b kq - bm f6; id "BK.23";
         r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - - bm f4; id "BK.24";"""))
 
+    # Parse command line arguments.
     parser = argparse.ArgumentParser(description="Run an EPD test suite with an UCI engine.")
     parser.add_argument("-e", "--engine", required=True,
-        help="The UCI engine under test")
+        help="The UCI engine under test.")
     parser.add_argument("epd", nargs="*", type=argparse.FileType("r"), default=[bratko_kopec],
         help="EPD test suites. Will default to Bratko-Kopec if none given.")
-    parser.add_argument("-t", "--movetime", default=120000, type=int,
-        help="Time to move in milliseconds")
+    parser.add_argument("-t", "--movetime", default=1000, type=int,
+        help="Time to move in milliseconds.")
     parser.add_argument("-s", "--simple", dest="test_epd", action="store_const",
         default=test_epd_with_fractional_scores,
         const=test_epd,
         help="Run in simple mode without fractional scores.")
+    parser.add_argument("-d", "--debug", action="store_true",
+        help="Show debug logs.")
     args = parser.parse_args()
 
+    # Configure logger.
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARNING)
+
+    # Open engine.
     engine = chess.uci.popen_engine(args.engine)
     engine.uci()
 
+    # Run each test line.
     score = 0.0
     count = 0
 
     for epd in itertools.chain(*args.epd):
         print(epd, end="")
 
-        # Skip comments.
+        # Skip comments and empty lines.
         epd = epd.strip()
-        if epd.startswith("#") or epd.startswith("%"):
+        if not epd or epd.startswith("#") or epd.startswith("%"):
             continue
 
+        # Run the actual test.
         score += args.test_epd(engine, epd, args.movetime)
         count += 1
 
