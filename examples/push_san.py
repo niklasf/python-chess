@@ -20,6 +20,7 @@
 import chess
 import timeit
 
+
 def play_immortal_game():
     board = chess.Board()
 
@@ -114,6 +115,7 @@ def play_immortal_game():
     # 23.Be7# 1-0
     board.push_san("Be7#")
     assert board.is_checkmate()
+
 
 if __name__ == "__main__":
     print(timeit.timeit(
