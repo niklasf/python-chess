@@ -40,7 +40,7 @@ Squares
 
 and so on to
 
-.. py:data:: chess.H7
+.. py:data:: chess.G8
     :annotation: = 62
 .. py:data:: chess.H8
     :annotation: = 63
