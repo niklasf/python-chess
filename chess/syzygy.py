@@ -1493,28 +1493,56 @@ class Tablebases(object):
         """
         Probes DTZ tables for distance to zero information.
 
-        Probing is thread-safe when done with different *board* objects and
-        if *board* objects are not modified during probing.
-
         Return ``None`` if the position was not found in any of the loaded
         tables. Both DTZ and WDL tables are required in order to probe for DTZ
         values.
 
         Returns a positive value if the side to move is winning, ``0`` if the
         position is a draw and a negative value if the side to move is losing.
+        More precisely:
 
-        A non-zero distance to zero means the number of halfmoves until the
-        next pawn move or capture can be forced, keeping a won position.
+        +-----+------------------+--------------------------------------------+
+        | WDL | DTZ              |                                            |
+        +=====+==================+============================================+
+        |  -2 | -100 <= n < -1   | Unconditional loss (assuming 50-move       |
+        |     |                  | counter is zero), where a zeroing move can |
+        |     |                  | be forced in -n plies.                     |
+        +-----+------------------+--------------------------------------------+
+        |  -1 |         n < -100 | Loss, but draw under the 50-move rule.     |
+        |     |                  | A zeroing move can be forced in -n plies   |
+        |     |                  | or -n - 100 plies (if a later phase is     |
+        |     |                  | responsible for the blessed loss).         |
+        +-----+------------------+--------------------------------------------+
+        |   0 |         0        | Draw.                                      |
+        +-----+------------------+--------------------------------------------+
+        |   1 |   100 < n        | Win, but draw under the 50-move rule.      |
+        |     |                  | A zeroing move can be forced in n plies or |
+        |     |                  | n - 100 plies (if a later phase is         |
+        |     |                  | responsible for the cursed win).           |
+        +-----+------------------+--------------------------------------------+
+        |   2 |     1 < n <= 100 | Unconditional win (assuming 50-move        |
+        |     |                  | counter is zero), where a zeroing move can |
+        |     |                  | be forced in n plies.                      |
+        +-----+------------------+--------------------------------------------+
+
+        The return value can be off by one: a return value -n can mean a loss
+        in n + 1 plies and a return value +n can mean a win in n + 1 plies.
+        This is guaranteed not to happen for positions exactly on the edge of
+        the 50-move rule, so that this never impacts results of practical play.
+
         Minmaxing the DTZ values guarantees winning a won position (and drawing
         a drawn position), because it makes progress keeping the win in hand.
         However the lines are not always the most straightforward ways to win.
-        Engines like Stockfish calculate themselves, checking with DTZ, but only
-        play according to DTZ if they can not manage on their own.
+        Engines like Stockfish calculate themselves, checking with DTZ, but
+        only play according to DTZ if they can not manage on their own.
 
         >>> with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
         ...     tablebases.probe_dtz(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -53
+
+        Probing is thread-safe when done with different *board* objects and
+        if *board* objects are not modified during probing.
         """
         v = self.probe_dtz_no_ep(board)
         if v is None:
