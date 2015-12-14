@@ -1375,9 +1375,8 @@ class Board(object):
         Gets the game result.
 
         ``1-0``, ``0-1`` or ``1/2-1/2`` if the
-        :func:`game is over <chess.Board.is_game_over()>`.
-
-        Otherwise the result is undetermined: ``*``.
+        :func:`game is over <chess.Board.is_game_over()>`. Otherwise the result
+        is undetermined: ``*``.
         """
         # Checkmate.
         if self.is_checkmate():
