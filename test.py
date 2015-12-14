@@ -399,9 +399,36 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.is_check())
         self.assertTrue(board.is_checkmate())
         self.assertTrue(board.is_game_over())
+        self.assertTrue(board.is_game_over(claim_draw=True))
         self.assertFalse(board.is_stalemate())
 
         self.assertEqual(board.fen(), "1rbqkbnr/pppp1Qpp/2n5/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQk - 0 4")
+
+    def test_result(self):
+        # Undetermined.
+        board = chess.Board()
+        self.assertEqual(board.result(claim_draw=True), "*")
+
+        # White checkmated.
+        board = chess.Board("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3")
+        self.assertEqual(board.result(claim_draw=True), "0-1")
+
+        # Stalemate.
+        board = chess.Board("7K/7P/7k/8/6q1/8/8/8 w - - 0 1")
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Insufficient material.
+        board = chess.Board("4k3/8/8/8/8/5B2/8/4K3 w - - 0 1")
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Fiftyseven-move rule.
+        board = chess.Board("4k3/8/6r1/8/8/8/2R5/4K3 w - - 369 1")
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Fifty-move rule.
+        board = chess.Board("4k3/8/6r1/8/8/8/2R5/4K3 w - - 120 1")
+        self.assertEqual(board.result(), "*")
+        self.assertEqual(board.result(claim_draw=True), "1/2-1/2")
 
     def test_san(self):
         # Castling with check.
@@ -895,7 +922,9 @@ class BoardTestCase(unittest.TestCase):
         # Give the possibility to repeat.
         board.push_san("Qd1")
         self.assertFalse(board.is_fivefold_repetition())
+        self.assertFalse(board.is_game_over())
         self.assertTrue(board.can_claim_threefold_repetition())
+        self.assertTrue(board.is_game_over(claim_draw=True))
 
         # Do in fact repeat.
         self.assertFalse(board.is_fivefold_repetition())
