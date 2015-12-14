@@ -1340,10 +1340,13 @@ class Board(object):
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
 
-    def is_game_over(self):
+    def is_game_over(self, claim_draw=False):
         """
         Checks if the game is over due to checkmate, stalemate, insufficient
         mating material, the seventyfive-move rule or fivefold repetition.
+
+        The game is not considered to be over by threefold repetition or the
+        fifty-move rule, unless *claim_draw* is given.
         """
         # Seventyfive-move rule.
         if self.halfmove_clock >= 150:
@@ -1361,7 +1364,46 @@ class Board(object):
         if self.is_fivefold_repetition():
             return True
 
+        # Draw claim.
+        if claim_draw and self.can_claim_draw():
+            return True
+
         return False
+
+    def result(self, claim_draw=False):
+        """
+        Gets the game result.
+
+        ``1-0``, ``0-1`` or ``1/2-1/2`` if the
+        :func:`game is over <chess.Board.is_game_over()>`.
+
+        Otherwise the result is undetermined: ``*``.
+        """
+        # Checkmate.
+        if self.is_checkmate():
+            if self.turn == WHITE:
+                return "0-1"
+            else:
+                return "1-0"
+
+        # Draw claimed.
+        if claim_draw and self.can_claim_draw():
+            return "1/2-1/2"
+
+        # Seventyfive-move rule or fivefold repetition.
+        if self.halfmove_clock >= 150 or self.is_fivefold_repetition():
+            return "1/2-1/2"
+
+        # Insufficient material.
+        if self.is_insufficient_material():
+            return "1/2-1/2"
+
+        # Stalemate.
+        if not any(self.generate_legal_moves()):
+            return "1/2-1/2"
+
+        # Undetermined.
+        return "*"
 
     def is_checkmate(self):
         """Checks if the current position is a checkmate."""
