@@ -58,6 +58,9 @@ RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 """The FEN of the standard chess starting position."""
 
+STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+"""The board part of the FEN of the standard chess starting position."""
+
 STATUS_VALID = 0
 STATUS_NO_WHITE_KING = 1
 STATUS_NO_BLACK_KING = 2
@@ -772,54 +775,19 @@ class Move(object):
         return cls(0, 0, None)
 
 
-class Board(object):
-    """
-    A board and additional information representing a position.
+class BaseBoard(object):
 
-    Provides move generation, validation, parsing, attack generation,
-    game end detection, move counters and the capability to make and unmake
-    moves.
-
-    The board is initialized to the starting position, unless otherwise
-    specified in the optional *fen* argument. If *fen* is ``None`` an empty
-    board is created.
-
-    Optionally supports *chess960*. In Chess960 castling moves are encoded
-    by a king move to the corresponding rook square.
-    """
-
-    def __init__(self, fen=STARTING_FEN, chess960=False):
-        self.chess960 = chess960
-
-        self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
-        self.legal_moves = LegalMoveGenerator(self)
-
+    def __init__(self, fen=STARTING_BOARD_FEN):
         self.occupied_co = [BB_VOID, BB_VOID]
 
-        self.attacks_valid = False
-        self.attacks_from = collections.defaultdict(int)
-        self.attacks_to = collections.defaultdict(int)
-        self.attacks_valid_stack = collections.deque()
-        self.attacks_from_stack = collections.deque()
-        self.attacks_to_stack = collections.deque()
-
-        self.halfmove_clock_stack = collections.deque()
-        self.captured_piece_stack = collections.deque()
-        self.castling_right_stack = collections.deque()
-        self.ep_square_stack = collections.deque()
-        self.move_stack = collections.deque()
-
-        self.transpositions = collections.Counter()
-
         if fen is None:
-            self.clear()
-        elif fen == STARTING_FEN:
-            self.reset()
+            self.clear_board()
+        elif fen == STARTING_BOARD_FEN:
+            self.reset_board()
         else:
-            self.set_fen(fen)
+            self.set_board_fen(fen)
 
-    def reset(self):
-        """Restores the starting position."""
+    def reset_board(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
@@ -829,39 +797,11 @@ class Board(object):
 
         self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
-
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
-
-        self.ep_square = 0
-        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
-        self.turn = WHITE
-        self.fullmove_number = 1
-        self.halfmove_clock = 0
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
-        self.halfmove_clock_stack.clear()
-        self.captured_piece_stack.clear()
-        self.castling_right_stack.clear()
-        self.ep_square_stack.clear()
-        self.move_stack.clear()
-
-        self.transpositions.clear()
-        self.transpositions.update((self.zobrist_hash(), ))
-
-        self.attacks_valid = False
-        self.clear_stack()
-
-    def clear(self):
-        """
-        Clears the board.
-
-        Resets move stacks and move counters. The side to move is white. There
-        are no rooks or kings, so castling rights are removed.
-
-        In order to be in a valid :func:`~chess.Board.status()` at least kings
-        need to be put on the board.
-        """
+    def clear_board(self):
         self.pawns = BB_VOID
         self.knights = BB_VOID
         self.bishops = BB_VOID
@@ -873,31 +813,7 @@ class Board(object):
         self.occupied_co[BLACK] = BB_VOID
         self.occupied = BB_VOID
 
-        self.ep_square = 0
-        self.castling_rights = BB_VOID
-        self.turn = WHITE
-        self.fullmove_number = 1
-        self.halfmove_clock = 0
-
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
-
-        self.attacks_valid = False
-        self.clear_stack()
-
-    def clear_stack(self):
-        """Clears the move stack and transposition table."""
-        self.halfmove_clock_stack.clear()
-        self.captured_piece_stack.clear()
-        self.castling_right_stack.clear()
-        self.ep_square_stack.clear()
-        self.move_stack.clear()
-
-        self.transpositions.clear()
-        self.transpositions.update((self.zobrist_hash(), ))
-
-        self.attacks_valid_stack.clear()
-        self.attacks_from_stack.clear()
-        self.attacks_to_stack.clear()
 
     def pieces_mask(self, piece_type, color):
         if piece_type == PAWN:
@@ -983,10 +899,7 @@ class Board(object):
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def remove_piece_at(self, square):
-        """Removes a piece from the given square if present."""
         self._remove_piece_at(square)
-        self.clear_stack()
-        self.attacks_valid = False
 
     def _set_piece_at(self, square, piece_type, color):
         self._remove_piece_at(square)
@@ -1017,8 +930,202 @@ class Board(object):
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def set_piece_at(self, square, piece):
-        """Sets a piece at the given square. An existing piece is replaced."""
         self._set_piece_at(square, piece.piece_type, piece.color)
+
+    def board_fen(self):
+        builder = []
+        empty = 0
+
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if not piece:
+                empty += 1
+            else:
+                if empty:
+                    builder.append(str(empty))
+                    empty = 0
+                builder.append(piece.symbol())
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if empty:
+                    builder.append(str(empty))
+                    empty = 0
+
+                if square != H1:
+                    builder.append("/")
+
+        return "".join(builder)
+
+    def set_board_fen(self, fen):
+        # Ensure the FEN is valid.
+        rows = fen.split("/")
+        if len(rows) != 8:
+            raise ValueError("expected 8 rows in position part of fen: {0}".format(repr(fen)))
+
+        # Validate each row.
+        for row in rows:
+            field_sum = 0
+            previous_was_digit = False
+
+            for c in row:
+                if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                    if previous_was_digit:
+                        raise ValueError("two subsequent digits in position part of fen: {0}".format(repr(fen)))
+                    field_sum += int(c)
+                    previous_was_digit = True
+                elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+                    field_sum += 1
+                    previous_was_digit = False
+                else:
+                    raise ValueError("invalid character in position part of fen: {0}".format(repr(fen)))
+
+            if field_sum != 8:
+                raise ValueError("expected 8 columns per row in position part of fen: {0}".format(repr(fen)))
+
+        # Clear the board.
+        self.clear_board()
+
+        # Put pieces on the board.
+        square_index = 0
+        for c in fen:
+            if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+                square_index += int(c)
+            elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+                piece = Piece.from_symbol(c)
+                self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
+                square_index += 1
+
+    def board_zobrist_hash(self, array=None):
+        if array is None:
+            return self.incremental_zobrist_hash
+
+        zobrist_hash = 0
+
+        squares = self.occupied_co[BLACK]
+        square = bit_scan(squares)
+        while square != -1 and square is not None:
+            piece_index = (self.piece_type_at(square) - 1) * 2
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            square = bit_scan(squares, square + 1)
+
+        squares = self.occupied_co[WHITE]
+        square = bit_scan(squares)
+        while square != -1 and square is not None:
+            piece_index = (self.piece_type_at(square) - 1) * 2 + 1
+            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
+            square = bit_scan(squares, square + 1)
+
+        return zobrist_hash
+
+    # TODO: copy()
+    # TODO: set_board_fen()
+
+
+class Board(BaseBoard):
+    """
+    A board and additional information representing a position.
+
+    Provides move generation, validation, parsing, attack generation,
+    game end detection, move counters and the capability to make and unmake
+    moves.
+
+    The board is initialized to the starting position, unless otherwise
+    specified in the optional *fen* argument. If *fen* is ``None`` an empty
+    board is created.
+
+    Optionally supports *chess960*. In Chess960 castling moves are encoded
+    by a king move to the corresponding rook square.
+    """
+
+    def __init__(self, fen=STARTING_FEN, chess960=False):
+        BaseBoard.__init__(self, None)
+
+        self.chess960 = chess960
+
+        self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
+        self.legal_moves = LegalMoveGenerator(self)
+
+        self.attacks_valid = False
+        self.attacks_from = collections.defaultdict(int)
+        self.attacks_to = collections.defaultdict(int)
+        self.attacks_valid_stack = collections.deque()
+        self.attacks_from_stack = collections.deque()
+        self.attacks_to_stack = collections.deque()
+
+        self.halfmove_clock_stack = collections.deque()
+        self.captured_piece_stack = collections.deque()
+        self.castling_right_stack = collections.deque()
+        self.ep_square_stack = collections.deque()
+        self.move_stack = collections.deque()
+
+        self.transpositions = collections.Counter()
+
+        if fen is None:
+            self.clear()
+        elif fen == STARTING_FEN:
+            self.reset()
+        else:
+            self.set_fen(fen)
+
+    def reset(self):
+        """Restores the starting position."""
+        self.reset_board()
+
+        self.ep_square = 0
+        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
+        self.turn = WHITE
+        self.fullmove_number = 1
+        self.halfmove_clock = 0
+
+        self.attacks_valid = False
+        self.clear_stack()
+
+    def clear(self):
+        """
+        Clears the board.
+
+        Resets move stacks and move counters. The side to move is white. There
+        are no rooks or kings, so castling rights are removed.
+
+        In order to be in a valid :func:`~chess.Board.status()` at least kings
+        need to be put on the board.
+        """
+        self.clear_board()
+
+        self.ep_square = 0
+        self.castling_rights = BB_VOID
+        self.turn = WHITE
+        self.fullmove_number = 1
+        self.halfmove_clock = 0
+
+        self.attacks_valid = False
+        self.clear_stack()
+
+    def clear_stack(self):
+        """Clears the move stack and transposition table."""
+        self.halfmove_clock_stack.clear()
+        self.captured_piece_stack.clear()
+        self.castling_right_stack.clear()
+        self.ep_square_stack.clear()
+        self.move_stack.clear()
+
+        self.transpositions.clear()
+        self.transpositions.update((self.zobrist_hash(), ))
+
+        self.attacks_valid_stack.clear()
+        self.attacks_from_stack.clear()
+        self.attacks_to_stack.clear()
+
+    def remove_piece_at(self, square):
+        """Removes a piece from the given square if present."""
+        super(Board, self).remove_piece_at(square)
+        self.clear_stack()
+        self.attacks_valid = False
+
+    def set_piece_at(self, square, piece):
+        """Sets a piece at the given square. An existing piece is replaced."""
+        super(Board, self).set_piece_at(square, piece)
         self.clear_stack()
         self.attacks_valid = False
 
@@ -1718,31 +1825,6 @@ class Board(object):
         """Gets the last move from the move stack."""
         return self.move_stack[-1]
 
-    def board_fen(self):
-        builder = []
-        empty = 0
-
-        for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if not piece:
-                empty += 1
-            else:
-                if empty:
-                    builder.append(str(empty))
-                    empty = 0
-                builder.append(piece.symbol())
-
-            if BB_SQUARES[square] & BB_FILE_H:
-                if empty:
-                    builder.append(str(empty))
-                    empty = 0
-
-                if square != H1:
-                    builder.append("/")
-
-        return "".join(builder)
-
     def castling_shredder_fen(self):
         castling_rights = self.clean_castling_rights()
         if not castling_rights:
@@ -1863,31 +1945,6 @@ class Board(object):
         if len(parts) != 6:
             raise ValueError("fen string should consist of 6 parts: {0}".format(repr(fen)))
 
-        # Ensure the board part is valid.
-        rows = parts[0].split("/")
-        if len(rows) != 8:
-            raise ValueError("expected 8 rows in position part of fen: {0}".format(repr(fen)))
-
-        # Validate each row.
-        for row in rows:
-            field_sum = 0
-            previous_was_digit = False
-
-            for c in row:
-                if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
-                    if previous_was_digit:
-                        raise ValueError("two subsequent digits in position part of fen: {0}".format(repr(fen)))
-                    field_sum += int(c)
-                    previous_was_digit = True
-                elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
-                    field_sum += 1
-                    previous_was_digit = False
-                else:
-                    raise ValueError("invalid character in position part of fen: {0}".format(repr(fen)))
-
-            if field_sum != 8:
-                raise ValueError("expected 8 columns per row in position part of fen: {0}".format(repr(fen)))
-
         # Check that the turn part is valid.
         if not parts[1] in ["w", "b"]:
             raise ValueError("expected 'w' or 'b' for turn part of fen: {0}".format(repr(fen)))
@@ -1914,18 +1971,8 @@ class Board(object):
         if int(parts[5]) < 0:
             raise ValueError("fullmove number must be positive: {0}".format(repr(fen)))
 
-        # Clear board and invalidate attacks.
-        self.clear()
-
-        # Put pieces on the board.
-        square_index = 0
-        for c in parts[0]:
-            if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
-                square_index += int(c)
-            elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
-                piece = Piece.from_symbol(c)
-                self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
-                square_index += 1
+        # Validate the board part and set it.
+        self.set_board_fen(parts[0])
 
         # Set the turn.
         if parts[1] == "w":
@@ -1977,9 +2024,9 @@ class Board(object):
         self.halfmove_clock = int(parts[4])
         self.fullmove_number = int(parts[5]) or 1
 
-        # Reset the transposition table.
-        self.transpositions.clear()
-        self.transpositions.update((self.zobrist_hash(), ))
+        # Clear attacks and move stack.
+        self.attacks_valid = False
+        self.clear_stack()
 
     def epd(self, **operations):
         """
@@ -3576,28 +3623,6 @@ class Board(object):
         # Hash in the turn.
         if self.turn == WHITE:
             zobrist_hash ^= array[780]
-
-        return zobrist_hash
-
-    def board_zobrist_hash(self, array=None):
-        if array is None:
-            return self.incremental_zobrist_hash
-
-        zobrist_hash = 0
-
-        squares = self.occupied_co[BLACK]
-        square = bit_scan(squares)
-        while square != -1 and square is not None:
-            piece_index = (self.piece_type_at(square) - 1) * 2
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-            square = bit_scan(squares, square + 1)
-
-        squares = self.occupied_co[WHITE]
-        square = bit_scan(squares)
-        while square != -1 and square is not None:
-            piece_index = (self.piece_type_at(square) - 1) * 2 + 1
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-            square = bit_scan(squares, square + 1)
 
         return zobrist_hash
 
