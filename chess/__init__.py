@@ -1018,8 +1018,165 @@ class BaseBoard(object):
 
         return zobrist_hash
 
-    # TODO: copy()
-    # TODO: set_board_fen()
+    def __repr__(self):
+        return "BaseBoard('{0}')".format(self.board_fen())
+
+    def __str__(self):
+        builder = []
+
+        for square in SQUARES_180:
+            piece = self.piece_at(square)
+
+            if piece:
+                builder.append(piece.symbol())
+            else:
+                builder.append(".")
+
+            if BB_SQUARES[square] & BB_FILE_H:
+                if square != H1:
+                    builder.append("\n")
+            else:
+                builder.append(" ")
+
+        return "".join(builder)
+
+    def __unicode__(self, invert_color=False, borders=False):
+        builder = []
+        for rank_index in range(7, -1, -1):
+            if borders:
+                builder.append("  ")
+                builder.append("-" * 17)
+                builder.append("\n")
+
+                builder.append(RANK_NAMES[rank_index])
+                builder.append(" ")
+
+            for file_index in range(8):
+                square_index = square(file_index, rank_index)
+
+                if borders:
+                    builder.append("|")
+                elif file_index > 0:
+                    builder.append(" ")
+
+                piece = self.piece_at(square_index)
+
+                if piece:
+                    builder.append(piece.unicode_symbol(invert_color=invert_color))
+                else:
+                    builder.append(".")
+
+            if borders:
+                builder.append("|")
+
+            if borders or rank_index > 0:
+                builder.append("\n")
+
+        if borders:
+            builder.append("  ")
+            builder.append("-" * 17)
+            builder.append("\n")
+            builder.append("   a b c d e f g h")
+
+        return "".join(builder)
+
+    def __html__(self):
+        """
+        Returns a html-version of the board.
+        Can be displayed in e.g. an IPython notebook using
+        IPython.display.HTML(board.__html__())
+        """
+        tr = '<tr style="vertical-align:bottom;">'
+        string = '<table style="text-align:center;\
+                                border-spacing:0pt;\
+                                font-family:\'Arial Unicode MS\';\
+                                border-collapse:collapse;\
+                                border-color:black;\
+                                border-style:solid;\
+                                border-width:0pt 0pt 0pt 0pt">'
+        for rank in range(8, 0, -1):
+            string += tr
+            string += '<td style="vertical-align:middle;\
+                                  width:12pt">%d</td>' % rank
+            for i, file_ in enumerate('a b c d e f g h'.split()):
+                square = SQUARE_NAMES.index('%s%d' % (file_, rank))
+                piece = self.piece_at(square)
+                char = piece.unicode_symbol() if piece else ''
+                if (i + rank) % 2 == 0:
+                    string += '<td style="width:28pt;\
+                                          height:28pt;\
+                                          border-collapse:collapse;\
+                                          border-color:black;\
+                                          border-style:solid;\
+                                          border-width:0pt 0pt 0pt 0pt">\
+                                          <span style="font-size:250%%;">\
+                                          %s</span></td>' % char
+                else:
+                    string += '<td style="background:silver;">\
+                               <span style="font-size:250%%;">\
+                               %s</span></td>' % char
+            string += '</tr>'
+        string += '<tr><td></td>'
+        for file_ in 'a b c d e f g h'.split():
+            string += '<td style="text-align:center">%s</td>' % file_
+        string += '</tr></table>'
+        return string
+
+    def __eq__(self, board):
+        return not self.__ne__(board)
+
+    def __ne__(self, board):
+        try:
+            if self.occupied != board.occupied:
+                return True
+            if self.occupied_co[WHITE] != board.occupied_co[WHITE]:
+                return True
+            if self.pawns != board.pawns:
+                return True
+            if self.knights != board.knights:
+                return True
+            if self.bishops != board.bishops:
+                return True
+            if self.rooks != board.rooks:
+                return True
+            if self.queens != board.queens:
+                return True
+            if self.kings != board.kings:
+                return True
+        except AttributeError:
+            return True
+
+        return False
+
+    def copy(self):
+        board = type(self)(None)
+
+        board.pawns = self.pawns
+        board.knights = self.knights
+        board.bishops = self.bishops
+        board.rooks = self.rooks
+        board.queens = self.queens
+        board.kings = self.kings
+
+        board.occupied_co[WHITE] = self.occupied_co[WHITE]
+        board.occupied_co[BLACK] = self.occupied_co[BLACK]
+        board.occupied = self.occupied
+
+        board.incremental_zobrist_hash = self.incremental_zobrist_hash
+
+        return board
+
+    def __copy__(self):
+        return self.copy_board()
+
+    def __deepcopy__(self, memo):
+        board = self.copy()
+        memo[id(self)] = board
+        return board
+
+    @classmethod
+    def empty(cls):
+        return cls(None)
 
 
 class Board(BaseBoard):
@@ -3438,129 +3595,12 @@ class Board(BaseBoard):
         else:
             return "Board('{0}', chess960=True)".format(self.fen())
 
-    def __str__(self):
-        builder = []
-
-        for square in SQUARES_180:
-            piece = self.piece_at(square)
-
-            if piece:
-                builder.append(piece.symbol())
-            else:
-                builder.append(".")
-
-            if BB_SQUARES[square] & BB_FILE_H:
-                if square != H1:
-                    builder.append("\n")
-            else:
-                builder.append(" ")
-
-        return "".join(builder)
-
-    def __unicode__(self, invert_color=False, borders=False):
-        builder = []
-        for rank_index in range(7, -1, -1):
-            if borders:
-                builder.append("  ")
-                builder.append("-" * 17)
-                builder.append("\n")
-
-                builder.append(RANK_NAMES[rank_index])
-                builder.append(" ")
-
-            for file_index in range(8):
-                square_index = square(file_index, rank_index)
-
-                if borders:
-                    builder.append("|")
-                elif file_index > 0:
-                    builder.append(" ")
-
-                piece = self.piece_at(square_index)
-
-                if piece:
-                    builder.append(piece.unicode_symbol(invert_color=invert_color))
-                else:
-                    builder.append(".")
-
-            if borders:
-                builder.append("|")
-
-            if borders or rank_index > 0:
-                builder.append("\n")
-
-        if borders:
-            builder.append("  ")
-            builder.append("-" * 17)
-            builder.append("\n")
-            builder.append("   a b c d e f g h")
-
-        return "".join(builder)
-
-    def __html__(self):
-        """
-        Returns a html-version of the board.
-        Can be displayed in e.g. an IPython notebook using
-        IPython.display.HTML(board.__html__())
-        """
-        tr = '<tr style="vertical-align:bottom;">'
-        string = '<table style="text-align:center;\
-                                border-spacing:0pt;\
-                                font-family:\'Arial Unicode MS\';\
-                                border-collapse:collapse;\
-                                border-color:black;\
-                                border-style:solid;\
-                                border-width:0pt 0pt 0pt 0pt">'
-        for rank in range(8, 0, -1):
-            string += tr
-            string += '<td style="vertical-align:middle;\
-                                  width:12pt">%d</td>' % rank
-            for i, file_ in enumerate('a b c d e f g h'.split()):
-                square = SQUARE_NAMES.index('%s%d' % (file_, rank))
-                piece = self.piece_at(square)
-                char = piece.unicode_symbol() if piece else ''
-                if (i + rank) % 2 == 0:
-                    string += '<td style="width:28pt;\
-                                          height:28pt;\
-                                          border-collapse:collapse;\
-                                          border-color:black;\
-                                          border-style:solid;\
-                                          border-width:0pt 0pt 0pt 0pt">\
-                                          <span style="font-size:250%%;">\
-                                          %s</span></td>' % char
-                else:
-                    string += '<td style="background:silver;">\
-                               <span style="font-size:250%%;">\
-                               %s</span></td>' % char
-            string += '</tr>'
-        string += '<tr><td></td>'
-        for file_ in 'a b c d e f g h'.split():
-            string += '<td style="text-align:center">%s</td>' % file_
-        string += '</tr></table>'
-        return string
-
-    def __eq__(self, board):
-        return not self.__ne__(board)
-
     def __ne__(self, board):
+        if super(Board, self).__ne__(board):
+            return True
+
         try:
             if self.chess960 != board.chess960:
-                return True
-            if self.occupied != board.occupied:
-                return True
-            if self.occupied_co[WHITE] != board.occupied_co[WHITE]:
-                return True
-            if self.pawns != board.pawns:
-                return True
-            if self.knights != board.knights:
-                return True
-            if self.bishops != board.bishops:
-                return True
-            if self.rooks != board.rooks:
-                return True
-            if self.queens != board.queens:
-                return True
-            if self.kings != board.kings:
                 return True
             if self.ep_square != board.ep_square:
                 return True
@@ -3628,20 +3668,9 @@ class Board(BaseBoard):
 
     def copy(self):
         """Creates a copy of the board."""
-        board = type(self)(None)
+        board = super(Board, self).copy()
+
         board.chess960 = self.chess960
-
-        board.pawns = self.pawns
-        board.knights = self.knights
-        board.bishops = self.bishops
-        board.rooks = self.rooks
-        board.queens = self.queens
-        board.kings = self.kings
-
-        board.occupied_co[WHITE] = self.occupied_co[WHITE]
-        board.occupied_co[BLACK] = self.occupied_co[BLACK]
-
-        board.occupied = self.occupied
 
         board.ep_square = self.ep_square
         board.castling_rights = self.castling_rights
@@ -3655,7 +3684,6 @@ class Board(BaseBoard):
         board.ep_square_stack = copy.copy(self.ep_square_stack)
         board.move_stack = copy.deepcopy(self.move_stack)
 
-        board.incremental_zobrist_hash = self.incremental_zobrist_hash
         board.transpositions = copy.copy(self.transpositions)
 
         board.attacks_valid = self.attacks_valid
