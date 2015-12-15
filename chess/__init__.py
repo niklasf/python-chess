@@ -2129,7 +2129,7 @@ class Board(BaseBoard):
             raise ValueError("fullmove number must be positive: {0}".format(repr(fen)))
 
         # Validate the board part and set it.
-        self.set_board_fen(parts[0])
+        super(Board, self).set_board_fen(parts[0])
 
         # Set the turn.
         if parts[1] == "w":
@@ -2181,7 +2181,12 @@ class Board(BaseBoard):
         self.halfmove_clock = int(parts[4])
         self.fullmove_number = int(parts[5]) or 1
 
-        # Clear attacks and move stack.
+        # Invalidate attacks and clear move stack.
+        self.attacks_valid = False
+        self.clear_stack()
+
+    def set_board_fen(self, fen):
+        super(Board, self).set_board_fen(fen)
         self.attacks_valid = False
         self.clear_stack()
 
