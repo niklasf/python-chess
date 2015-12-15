@@ -103,6 +103,7 @@ Board
 
 .. autoclass:: chess.Board
     :members:
+    :inherited-members:
 
     .. py:attribute:: turn
 
