@@ -1167,7 +1167,7 @@ class BaseBoard(object):
         return board
 
     def __copy__(self):
-        return self.copy_board()
+        return self.copy()
 
     def __deepcopy__(self, memo):
         board = self.copy()
@@ -3693,14 +3693,6 @@ class Board(BaseBoard):
         board.attacks_valid_stack = copy.copy(self.attacks_from_stack)
         board.attacks_to_stack = copy.copy(self.attacks_to_stack)
 
-        return board
-
-    def __copy__(self):
-        return self.copy()
-
-    def __deepcopy__(self, memo):
-        board = self.copy()
-        memo[id(self)] = board
         return board
 
     @classmethod
