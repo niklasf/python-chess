@@ -781,13 +781,13 @@ class BaseBoard(object):
         self.occupied_co = [BB_VOID, BB_VOID]
 
         if fen is None:
-            self.clear_board()
+            self._clear_board()
         elif fen == STARTING_BOARD_FEN:
-            self.reset_board()
+            self._reset_board()
         else:
             self.set_board_fen(fen)
 
-    def reset_board(self):
+    def _reset_board(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
@@ -801,7 +801,10 @@ class BaseBoard(object):
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
-    def clear_board(self):
+    def reset_board(self):
+        self._reset_board()
+
+    def _clear_board(self):
         self.pawns = BB_VOID
         self.knights = BB_VOID
         self.bishops = BB_VOID
@@ -814,6 +817,9 @@ class BaseBoard(object):
         self.occupied = BB_VOID
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
+
+    def clear_board(self):
+        self._clear_board()
 
     def pieces_mask(self, piece_type, color):
         if piece_type == PAWN:
@@ -957,7 +963,7 @@ class BaseBoard(object):
 
         return "".join(builder)
 
-    def set_board_fen(self, fen):
+    def _set_board_fen(self, fen):
         # Ensure the FEN is valid.
         rows = fen.split("/")
         if len(rows) != 8:
@@ -984,7 +990,7 @@ class BaseBoard(object):
                 raise ValueError("expected 8 columns per row in position part of fen: {0}".format(repr(fen)))
 
         # Clear the board.
-        self.clear_board()
+        self._clear_board()
 
         # Put pieces on the board.
         square_index = 0
@@ -995,6 +1001,9 @@ class BaseBoard(object):
                 piece = Piece.from_symbol(c)
                 self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
                 square_index += 1
+
+    def set_board_fen(self, fen):
+        self._set_board_fen(fen)
 
     def board_zobrist_hash(self, array=None):
         if array is None:
@@ -1227,14 +1236,16 @@ class Board(BaseBoard):
 
     def reset(self):
         """Restores the starting position."""
-        self.reset_board()
-
         self.ep_square = 0
         self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
 
+        self.reset_board()
+
+    def reset_board(self):
+        super(Board, self).reset_board()
         self.attacks_valid = False
         self.clear_stack()
 
@@ -1248,14 +1259,16 @@ class Board(BaseBoard):
         In order to be in a valid :func:`~chess.Board.status()` at least kings
         need to be put on the board.
         """
-        self.clear_board()
-
         self.ep_square = 0
         self.castling_rights = BB_VOID
         self.turn = WHITE
         self.fullmove_number = 1
         self.halfmove_clock = 0
 
+        self.clear_board()
+
+    def clear_board(self):
+        super(Board, self).clear_board()
         self.attacks_valid = False
         self.clear_stack()
 
@@ -2129,7 +2142,7 @@ class Board(BaseBoard):
             raise ValueError("fullmove number must be positive: {0}".format(repr(fen)))
 
         # Validate the board part and set it.
-        super(Board, self).set_board_fen(parts[0])
+        self._set_board_fen(parts[0])
 
         # Set the turn.
         if parts[1] == "w":
