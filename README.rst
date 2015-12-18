@@ -13,6 +13,9 @@ python-chess: a pure Python chess library
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.org/en/latest/
 
+.. image:: https://img.shields.io/badge/bug%20bounty-100%24-orange.svg
+    :target: #100%24-bug-bounty
+
 Introduction
 ------------
 
@@ -368,12 +371,23 @@ Features
       >>> engine.quit()
       0
 
+100$ bug bounty
+---------------
+
+There is a 100$ bug bounty for the first report of a critical issue in the
+core module. (Most likely I'll renew the bounty.)
+The bug must be reproducible in the latest release, not yet reported,
+and not yet fixed in the master branch. I consider critical:
+
+* Move generation
+* Move validation
+* Move making
+* Parser errors that leave objects in an inconsistent state
+
 Performance
 -----------
 
-python-chess is not intended to be used by serious chess engines where
-performance is critical. The goal is rather to create a simple and relatively
-highlevel library.
+Correctness > clean interface > performance.
 
 You can install the `gmpy2` or `gmpy` (https://pypi.python.org/pypi/gmpy2)
 modules in order to get a slight performance boost on basic operations like
@@ -386,18 +400,10 @@ be pure Python fallbacks.
 Installing
 ----------
 
-* With pip:
+::
 
-  ::
+    pip install python-chess
 
-      pip install python-chess
-
-* From current source code:
-
-  ::
-
-      python setup.py sdist
-      python setup.py install
 
 Featured projects
 -----------------
@@ -408,7 +414,6 @@ python-chess, for example:
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
 * a cross platform chess GUI - https://asdfjkl.github.io/jerry/
-* extracting reasoning from chess engines - https://github.com/pcattori/deep-blue-talks
 
 License
 -------
