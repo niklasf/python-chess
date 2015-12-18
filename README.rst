@@ -14,7 +14,7 @@ python-chess: a pure Python chess library
     :target: https://python-chess.readthedocs.org/en/latest/
 
 .. image:: https://img.shields.io/badge/bug%20bounty-100%24-orange.svg
-    :target: #100%24-bug-bounty
+    :target: #bug-bounty
 
 Introduction
 ------------
@@ -371,10 +371,10 @@ Features
       >>> engine.quit()
       0
 
-100$ bug bounty
----------------
+Bug bounty
+----------
 
-There is a 100$ bug bounty for the first report of a critical issue in the
+There is a **100$ bug bounty** for the first report of a critical issue in the
 core module. (Most likely I'll renew the bounty.)
 The bug must be reproducible in the latest release, not yet reported,
 and not yet fixed in the master branch. I consider critical:
