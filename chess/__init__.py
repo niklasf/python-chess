@@ -776,8 +776,16 @@ class Move(object):
 
 
 class BaseBoard(object):
+    """
+    A board representing the position of chess pieces. See
+    :class:`~chess.Board()` for a full board with move generation.
 
-    def __init__(self, fen=STARTING_BOARD_FEN):
+    The board is initialized to the standard chess starting position, unless
+    otherwise specified in the optional *board_fen* argument. If *board_fen*
+    is ``None`` an empty board is created.
+    """
+
+    def __init__(self, board_fen=STARTING_BOARD_FEN):
         self.occupied_co = [BB_VOID, BB_VOID]
 
         if fen is None:
@@ -785,7 +793,7 @@ class BaseBoard(object):
         elif fen == STARTING_BOARD_FEN:
             self._reset_board()
         else:
-            self.set_board_fen(fen)
+            self.set_board_fen(board_fen)
 
     def _reset_board(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
@@ -819,6 +827,7 @@ class BaseBoard(object):
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
     def clear_board(self):
+        """Clears the board."""
         self._clear_board()
 
     def pieces_mask(self, piece_type, color):
@@ -905,6 +914,7 @@ class BaseBoard(object):
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def remove_piece_at(self, square):
+        """Removes a piece from the given square if present."""
         self._remove_piece_at(square)
 
     def _set_piece_at(self, square, piece_type, color):
@@ -936,9 +946,13 @@ class BaseBoard(object):
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def set_piece_at(self, square, piece):
+        """Sets a piece at the given square. An existing piece is replaced."""
         self._set_piece_at(square, piece.piece_type, piece.color)
 
     def board_fen(self):
+        """
+        Gets the board FEN.
+        """
         builder = []
         empty = 0
 
@@ -1003,6 +1017,11 @@ class BaseBoard(object):
                 square_index += 1
 
     def set_board_fen(self, fen):
+        """
+        Parses a FEN and sets the board from it.
+
+        Raises :exc:`ValueError` if the FEN string is invalid.
+        """
         self._set_board_fen(fen)
 
     def board_zobrist_hash(self, array=None):
@@ -1158,6 +1177,7 @@ class BaseBoard(object):
         return False
 
     def copy(self):
+        """Creates a copy of the board."""
         board = type(self)(None)
 
         board.pawns = self.pawns
@@ -1185,12 +1205,17 @@ class BaseBoard(object):
 
     @classmethod
     def empty(cls):
+        """
+        Creates a new empty board. Also see
+        :func:`~chess.BaseBoard.clear_board()`.
+        """
         return cls(None)
 
 
 class Board(BaseBoard):
     """
-    A board and additional information representing a position.
+    A :class:`~chess.BaseBoard` and additional information representing
+    a chess position.
 
     Provides move generation, validation, parsing, attack generation,
     game end detection, move counters and the capability to make and unmake
@@ -1288,13 +1313,11 @@ class Board(BaseBoard):
         self.attacks_to_stack.clear()
 
     def remove_piece_at(self, square):
-        """Removes a piece from the given square if present."""
         super(Board, self).remove_piece_at(square)
         self.clear_stack()
         self.attacks_valid = False
 
     def set_piece_at(self, square, piece):
-        """Sets a piece at the given square. An existing piece is replaced."""
         super(Board, self).set_piece_at(square, piece)
         self.clear_stack()
         self.attacks_valid = False
@@ -2108,7 +2131,7 @@ class Board(BaseBoard):
         """
         Parses a FEN and sets the position from it.
 
-        Rasies :exc:`ValueError` if the FEN string is invalid.
+        Raises :exc:`ValueError` if the FEN string is invalid.
         """
         # Ensure there are six parts.
         parts = fen.split()
@@ -3685,7 +3708,6 @@ class Board(BaseBoard):
         return zobrist_hash
 
     def copy(self):
-        """Creates a copy of the board."""
         board = super(Board, self).copy()
 
         board.chess960 = self.chess960

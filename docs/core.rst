@@ -95,15 +95,15 @@ Moves
 
         The promotion piece type.
 
-
 Board
 -----
 
 .. autodata:: chess.STARTING_FEN
 
+.. autodata:: chess.STARTING_BOARD_FEN
+
 .. autoclass:: chess.Board
     :members:
-    :inherited-members:
 
     .. py:attribute:: turn
 
@@ -183,6 +183,9 @@ Board
         :func:`Board.peek() <chess.Board.peek()>` and
         :func:`Board.clear_stack() <chess.Board.clear_stack()>` for
         manipulation.
+
+.. autoclass:: chess.BaseBoard
+    :members:
 
 Square sets
 -----------
