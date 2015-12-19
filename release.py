@@ -56,12 +56,6 @@ def check_docs():
     system("python3 setup.py --long-description | rst2html --strict --no-raw > /dev/null")
 
 
-def benchmark():
-    print("--- BENCHMARK ----------------------------------------------------")
-    system("python2 benchmark.py")
-    system("python3 benchmark.py")
-
-
 def tag_and_push():
     print("--- TAG AND PUSH -------------------------------------------------")
     tagname = "v{0}".format(chess.__version__)
@@ -174,7 +168,6 @@ def github_release(tagname):
 if __name__ == "__main__":
     test()
     doctest()
-    benchmark()
     check_docs()
     check_changelog()
     check_git()
