@@ -788,9 +788,9 @@ class BaseBoard(object):
     def __init__(self, board_fen=STARTING_BOARD_FEN):
         self.occupied_co = [BB_VOID, BB_VOID]
 
-        if fen is None:
+        if board_fen is None:
             self._clear_board()
-        elif fen == STARTING_BOARD_FEN:
+        elif board_fen == STARTING_BOARD_FEN:
             self._reset_board()
         else:
             self.set_board_fen(board_fen)
