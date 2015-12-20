@@ -807,7 +807,7 @@ class BaseBoard(object):
         elif board_fen == STARTING_BOARD_FEN:
             self._reset_board()
         else:
-            self.set_board_fen(board_fen)
+            self._set_board_fen(board_fen)
 
     def _reset_board(self):
         self.pawns = BB_RANK_2 | BB_RANK_7
