@@ -1253,6 +1253,10 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(squares.pop(), chess.C7)
         self.assertEqual(squares, chess.BB_VOID)
 
+    def test_from_square(self):
+        self.assertEqual(chess.SquareSet.from_square(chess.H5), chess.BB_H5)
+        self.assertEqual(chess.SquareSet.from_square(chess.C2), chess.BB_C2)
+
 
 class PolyglotTestCase(unittest.TestCase):
 
