@@ -27,6 +27,8 @@ Minor new features:
 
 * Allow `chess.Board.set_piece_at(square, None)`.
 
+* Added `chess.SquareSet.from_square(square)`.
+
 New in v0.13.0
 --------------
 
