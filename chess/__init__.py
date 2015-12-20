@@ -659,13 +659,19 @@ class Piece(object):
         return self.unicode_symbol(invert_color)
 
     def __eq__(self, other):
-        try:
-            return self.piece_type == other.piece_type and self.color == other.color
-        except AttributeError:
-            return False
+        ne = self.__ne__(other)
+        return NotImplemented if ne is NotImplemented else not ne
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        try:
+            if self.piece_type != other.piece_type:
+                return True
+            elif self.color != other.color:
+                return True
+            else:
+                return False
+        except AttributeError:
+            return NotImplemented
 
     @classmethod
     def from_symbol(cls, symbol):
@@ -715,13 +721,21 @@ class Move(object):
     __nonzero__ = __bool__
 
     def __eq__(self, other):
-        try:
-            return self.from_square == other.from_square and self.to_square == other.to_square and self.promotion == other.promotion
-        except AttributeError:
-            return False
+        ne = self.__ne__(other)
+        return NotImplemented if ne is NotImplemented else not ne
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        try:
+            if self.from_square != other.from_square:
+                return True
+            elif self.to_square != other.to_square:
+                return True
+            elif self.promotion != other.promotion:
+                return True
+            else:
+                return False
+        except AttributeError:
+            return NotImplemented
 
     def __repr__(self):
         return "Move.from_uci('{0}')".format(self.uci())
@@ -1151,30 +1165,31 @@ class BaseBoard(object):
         return string
 
     def __eq__(self, board):
-        return not self.__ne__(board)
+        ne = self.__ne__(board)
+        return NotImplemented if ne is NotImplemented else not ne
 
     def __ne__(self, board):
         try:
             if self.occupied != board.occupied:
                 return True
-            if self.occupied_co[WHITE] != board.occupied_co[WHITE]:
+            elif self.occupied_co[WHITE] != board.occupied_co[WHITE]:
                 return True
-            if self.pawns != board.pawns:
+            elif self.pawns != board.pawns:
                 return True
-            if self.knights != board.knights:
+            elif self.knights != board.knights:
                 return True
-            if self.bishops != board.bishops:
+            elif self.bishops != board.bishops:
                 return True
-            if self.rooks != board.rooks:
+            elif self.rooks != board.rooks:
                 return True
-            if self.queens != board.queens:
+            elif self.queens != board.queens:
                 return True
-            if self.kings != board.kings:
+            elif self.kings != board.kings:
                 return True
+            else:
+                return False
         except AttributeError:
-            return True
-
-        return False
+            return NotImplemented
 
     def copy(self):
         """Creates a copy of the board."""
@@ -3637,26 +3652,31 @@ class Board(BaseBoard):
             return "Board('{0}', chess960=True)".format(self.fen())
 
     def __ne__(self, board):
-        if super(Board, self).__ne__(board):
+        # Compare base board.
+        ne = super(Board, self).__ne__(board)
+        if ne is NotImplemented:
+            return NotImplemented
+        elif ne:
             return True
 
+        # Compare additional information.
         try:
             if self.chess960 != board.chess960:
                 return True
-            if self.ep_square != board.ep_square:
+            elif self.ep_square != board.ep_square:
                 return True
-            if self.castling_rights != board.castling_rights:
+            elif self.castling_rights != board.castling_rights:
                 return True
-            if self.turn != board.turn:
+            elif self.turn != board.turn:
                 return True
-            if self.fullmove_number != board.fullmove_number:
+            elif self.fullmove_number != board.fullmove_number:
                 return True
-            if self.halfmove_clock != board.halfmove_clock:
+            elif self.halfmove_clock != board.halfmove_clock:
                 return True
+            else:
+                return False
         except AttributeError:
-            return True
-
-        return False
+            return NotImplemented
 
     def zobrist_hash(self, array=None):
         """
@@ -3948,16 +3968,14 @@ class SquareSet(object):
     __nonzero__ = __bool__
 
     def __eq__(self, other):
-        try:
-            return int(self) == int(other)
-        except ValueError:
-            return False
+        ne = self.__ne__(other)
+        return NotImplemented if ne is NotImplemented else not ne
 
     def __ne__(self, other):
         try:
             return int(self) != int(other)
         except ValueError:
-            return True
+            return NotImplemented
 
     def __len__(self):
         return pop_count(self.mask)
