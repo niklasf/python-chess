@@ -24,9 +24,9 @@ Syzygy tablebase probing and UCI engine communication.
 
 __author__ = "Niklas Fiekas"
 
-__email__ = "niklas.fiekas@tu-clausthal.de"
+__email__ = "niklas.fiekas@backscattering.de"
 
-__version__ = "0.13.0"
+__version__ = "0.13.1"
 
 import copy
 import re
