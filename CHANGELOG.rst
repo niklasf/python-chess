@@ -6,6 +6,27 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Missing *SetUp* tags in PGNs are ignored.
+
+* Incompatible comparisons on `chess.Piece`, `chess.Move`, `chess.Board`
+  and `chess.SquareSet` now return *NotImplemented* instead of *False*.
+
+Minor new features:
+
+* Factored out basic board operations to `chess.BaseBoard`. This is inherited
+  by `chess.Board` and extended with the usual move generation features.
+
+* Added optional *claim_draw* argument to `chess.Base.is_game_over()`.
+
+* Added `chess.Board.result(claim_draw=False)`.
+
+* Allow `chess.Board.set_piece_at(square, None)`.
+
 New in v0.13.0
 --------------
 
