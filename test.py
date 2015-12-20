@@ -195,6 +195,9 @@ class BoardTestCase(unittest.TestCase):
         board.set_piece_at(chess.E4, chess.Piece.from_symbol("r"))
         self.assertEqual(board.piece_type_at(chess.E4), chess.ROOK)
 
+        board.set_piece_at(chess.F1, None)
+        self.assertEqual(board.piece_at(chess.F1), None)
+
     def test_pawn_captures(self):
         board = chess.Board()
 

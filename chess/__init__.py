@@ -960,8 +960,16 @@ class BaseBoard(object):
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def set_piece_at(self, square, piece):
-        """Sets a piece at the given square. An existing piece is replaced."""
-        self._set_piece_at(square, piece.piece_type, piece.color)
+        """
+        Sets a piece at the given square.
+
+        An existing piece is replaced. Setting *piece* to ``None`` is
+        equivalent to :func:`~chess.Board.remove_piece_at()`.
+        """
+        if piece is None:
+            self._remove_piece_at(square)
+        else:
+            self._set_piece_at(square, piece.piece_type, piece.color)
 
     def board_fen(self):
         """
