@@ -1257,6 +1257,9 @@ class Tablebases(object):
         """
         num = 0
 
+        if not os.path.isdir(directory):
+            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+
         for filename in filenames():
             if load_wdl and os.path.isfile(os.path.join(directory, filename) + ".rtbw"):
                 wdl_table = WdlTable(directory, filename)
