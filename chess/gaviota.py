@@ -2128,7 +2128,7 @@ class NativeTablebases(object):
         if ret:
             LOGGER.debug(ret.decode("utf-8"))
 
-        LOGGER.debug("Main path has been set to %s", self.libgtb.tbpaths_getmain().decode("utf-8"))
+        LOGGER.debug("Main path has been set to %r", self.libgtb.tbpaths_getmain().decode("utf-8"))
 
         av = self.libgtb.tb_availability()
         if av & 1:
