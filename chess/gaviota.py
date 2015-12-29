@@ -2154,13 +2154,11 @@ class NativeTablebases(object):
         return self._probe_hard(board, wdl_only=True)
 
     def _probe_hard(self, board, wdl_only=False):
-        if chess.pop_count(board.occupied_co[chess.WHITE]) > 16:
-            return None
-        if chess.pop_count(board.occupied_co[chess.BLACK]) > 16:
-            return None
-
         if board.is_insufficient_material():
             return 0
+
+        if chess.pop_count(board.occupied) > 5:
+            return None
 
         if board.castling_rights:
             return None
