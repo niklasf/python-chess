@@ -1690,7 +1690,7 @@ def dtm_unpack(stm, packed):
     return ret
 
 
-class TableBlock:
+class TableBlock(object):
     def __init__(self, egkey, side, offset, age):
         self.egkey = egkey
         self.side = side
