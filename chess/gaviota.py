@@ -2040,7 +2040,7 @@ class PythonTablebases(object):
         return dtm
 
     def egtb_loadindexes(self, egkey, stream):
-        zipinfo = self.zipinfo.get(egkey, None)
+        zipinfo = self.zipinfo.get(egkey)
 
         if zipinfo is None:
             # Get reserved bytes, blocksize, offset.

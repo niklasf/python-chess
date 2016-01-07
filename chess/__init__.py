@@ -318,16 +318,16 @@ for bb_square in BB_SQUARES:
     BB_KING_ATTACKS.append(mask & BB_ALL)
     KING_MOVES[bb_square] = mask & BB_ALL
 
-def _attack_table(square_list):
+def _attack_table(square_lists):
     attack_table = {}
     attack_table[0] = {}
     attack_table[0][0] = 0
 
-    for i in range(len(square_list)):
-        list_size = len(square_list[i])
+    for square_list in square_lists:
+        list_size = len(square_list)
 
         for current_position in range(list_size):
-            current_bb = square_list[i][current_position]
+            current_bb = square_list[current_position]
             attack_table[current_bb] = {}
 
             for occupation in range(1 << list_size):
@@ -335,13 +335,13 @@ def _attack_table(square_list):
 
                 # Loop over squares to the right of the mover.
                 for newsquare in range(current_position + 1, list_size):
-                    moves |= square_list[i][newsquare]
+                    moves |= square_list[newsquare]
                     if (1 << newsquare) & occupation:
                         break
 
                 # Loop over squares to the left of the mover.
                 for newsquare in range(current_position - 1, -1, -1):
-                    moves |= square_list[i][newsquare]
+                    moves |= square_list[newsquare]
                     if (1 << newsquare) & occupation:
                         break
 
@@ -349,7 +349,7 @@ def _attack_table(square_list):
                 temp_bb = 0
                 while occupation:
                     lowest = occupation & -occupation
-                    temp_bb |= square_list[i][BB_SQUARES.index(lowest)]
+                    temp_bb |= square_list[BB_SQUARES.index(lowest)]
                     occupation = occupation & (occupation - 1)
 
                 attack_table[current_bb][temp_bb] = moves
