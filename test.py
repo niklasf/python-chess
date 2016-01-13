@@ -1777,6 +1777,21 @@ class PgnTestCase(unittest.TestCase):
         board = chess.Board("rbb1N1k1/pp1n1ppp/8/2Pp4/3P4/4P3/P1Q2PPq/R1BR1K2 b - - 0 1")
         self.assertEqual(game.board(), board)
 
+    def test_game_from_board(self):
+        setup = "3k4/8/4K3/8/8/8/8/2R5 b - - 0 1"
+        board = chess.Board(setup)
+        board.push_san("Ke8")
+        board.push_san("Rc8#")
+
+        game = chess.pgn.Game.from_board(board)
+        self.assertEqual(game.headers["FEN"], setup)
+
+        end_node = game.end()
+        self.assertEqual(end_node.move, chess.Move.from_uci("c1c8"))
+        self.assertEqual(end_node.parent.move, chess.Move.from_uci("d8e8"))
+
+        self.assertEqual(game.headers["Result"], "1-0")
+
 
 class StockfishTestCase(unittest.TestCase):
 
