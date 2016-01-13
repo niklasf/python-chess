@@ -411,6 +411,28 @@ class Game(GameNode):
         visitor.end_game()
         return visitor.result()
 
+    @classmethod
+    def from_board(cls, board):
+        """Creates a game from the move stack of a :class:`~chess.Board()`."""
+        # Undo all moves.
+        switchyard = collections.deque()
+        while board.move_stack:
+            switchyard.append(board.pop())
+
+        # Setup initial position.
+        game = cls()
+        game.setup(board)
+        node = game
+
+        # Replay all moves.
+        while switchyard:
+            move = switchyard.pop()
+            node = node.add_variation(move)
+            board.push(move)
+
+        game.headers["Result"] = board.result()
+        return game
+
 
 class BaseVisitor(object):
     """
