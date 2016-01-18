@@ -790,7 +790,11 @@ def read_game(handle, Visitor=GameModelCreator):
         line = handle.readline()
 
     # Movetext parser state.
-    board_stack = collections.deque([dummy_game.board()])
+    try:
+        board_stack = collections.deque([dummy_game.board()])
+    except ValueError as error:
+        visitor.handle_error(error)
+        board_stack = collections.deque([chess.Board()])
 
     # Parse movetext.
     while line:
