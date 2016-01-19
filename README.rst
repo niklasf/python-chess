@@ -341,7 +341,6 @@ Features
   .. code:: python
 
       >>> import chess.uci
-      >>> import time
 
       >>> engine = chess.uci.popen_engine("stockfish")
       >>> engine.uci()
