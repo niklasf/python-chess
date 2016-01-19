@@ -6,6 +6,22 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.13.2
+--------------
+
+Changes:
+
+* `chess.syzygy.open_tablebases()` now raises if the given directory
+  does not exist.
+
+* Allow visitors to handle invalid `FEN` tags in PGNs.
+
+* Gaviota tablebase probing fails faster for piece counts > 5.
+
+Minor new features:
+
+* Added `chess.pgn.Game.from_board()`.
+
 New in v0.13.1
 --------------
 
