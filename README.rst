@@ -13,9 +13,6 @@ python-chess: a pure Python chess library
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.org/en/latest/
 
-.. image:: https://img.shields.io/badge/bug%20bounty-100%24-orange.svg
-    :target: #bug-bounty
-
 Introduction
 ------------
 
