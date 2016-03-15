@@ -603,7 +603,7 @@ class Engine(object):
             # non-UCI_Chess960 castling moves.
             try:
                 self.ponder = chess.Move.from_uci(tokens[2])
-                if self.ponder.from_square in (chess.E1, chess.E8) and self.ponder.to_square in (chess.C1, chess.C8, chess.G1, chess.G8):
+                if self.ponder.from_square in [chess.E1, chess.E8] and self.ponder.to_square in [chess.C1, chess.C8, chess.G1, chess.G8]:
                     # Make a copy of the board to avoid race conditions.
                     board = self.board.copy()
                     board.push(self.bestmove)
@@ -730,7 +730,7 @@ class Engine(object):
                 if current_parameter == "pv":
                     pv = []
 
-                if current_parameter in ("refutation", "pv", "currline"):
+                if current_parameter in ["refutation", "pv", "currline"]:
                     board = self.board.copy()
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
@@ -749,7 +749,7 @@ class Engine(object):
                 # Ignore multipv. It was already parsed before anything else.
                 pass
             elif current_parameter == "score":
-                if token in ("cp", "mate"):
+                if token in ["cp", "mate"]:
                     score_kind = token
                 elif token == "lowerbound":
                     score_lowerbound = True
