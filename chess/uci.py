@@ -1337,7 +1337,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command, engine_cls=Engine):
+def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
     """
     Opens a local chess engine process.
 
@@ -1354,8 +1354,11 @@ def popen_engine(command, engine_cls=Engine):
     The input and input streams will be linebuffered and able both Windows
     and Unix newlines.
     """
-    process = PopenProcess(command)
-    return engine_cls(process)
+    # Work around possible race condition in Python 2 subprocess module,
+    # that can occur when concurrently opening processes.
+    with _popen_lock:
+        process = PopenProcess(command)
+        return engine_cls(process)
 
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
