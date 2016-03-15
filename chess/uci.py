@@ -18,10 +18,11 @@
 
 import chess
 import signal
-import subprocess
 import logging
 import threading
 import concurrent.futures
+import os
+import sys
 
 try:
     import backport_collections as collections
@@ -32,6 +33,14 @@ try:
     import queue
 except ImportError:
     import Queue as queue
+
+if os.name == "posix" and sys.version_info[0] < 3:
+    try:
+        import subprocess32 as subprocess
+    except ImportError:
+        import subprocess
+else:
+    import subprocess
 
 
 LOGGER = logging.getLogger(__name__)
