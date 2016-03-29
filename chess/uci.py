@@ -694,7 +694,7 @@ class Engine(object):
         # Find multipv parameter first.
         if "multipv" in arg:
             current_parameter = None
-            for token in arg.split():
+            for token in arg.split(" "):
                 if token == "string":
                     break
 
