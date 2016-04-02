@@ -2022,7 +2022,7 @@ class Board(BaseBoard):
             self._remove_piece_at(move.to_square)
 
             # Restore captured pawn after en passant.
-            if piece == PAWN and abs(move.from_square - move.to_square) in (7, 9):
+            if piece == PAWN and abs(move.from_square - move.to_square) in [7, 9]:
                 if self.turn == WHITE:
                     self._set_piece_at(move.to_square + 8, PAWN, WHITE)
                 else:
@@ -2727,7 +2727,7 @@ class Board(BaseBoard):
         """Checks if the given pseudo-legal move is an en passant capture."""
         diff = abs(move.to_square - move.from_square)
 
-        if diff not in (7, 9):
+        if diff not in [7, 9]:
             return False
 
         if not self.pawns & BB_SQUARES[move.from_square]:
