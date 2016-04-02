@@ -1504,7 +1504,7 @@ class Board(BaseBoard):
 
             double_moves = double_moves & (double_moves - 1)
 
-    def attacker_mask(self, color, square):
+    def attackers_mask(self, color, square):
         self.generate_attacks()
         return self.attacks_to[BB_SQUARES[square]] & self.occupied_co[color]
 
@@ -1515,7 +1515,7 @@ class Board(BaseBoard):
         Pinned pieces still count as attackers. Pawns that can be captured
         en passant are attacked.
         """
-        return bool(self.attacker_mask(color, square))
+        return bool(self.attackers_mask(color, square))
 
     def attackers(self, color, square):
         """
@@ -1526,7 +1526,7 @@ class Board(BaseBoard):
 
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
-        return SquareSet(self.attacker_mask(color, square))
+        return SquareSet(self.attackers_mask(color, square))
 
     def attacks_mask(self, square):
         self.generate_attacks()
