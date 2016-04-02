@@ -6,6 +6,18 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* `Board.attacker_mask()` has been renamed to `Board.attackers_mask()` for
+  consistency.
+
+* `chess.uci` now uses `subprocess32` if applicable (and available).
+  Additionally a lock is used to work around a race condition in Python 2, that
+  can occur when spawning engines from multiple threads at the same time.
+
 New in v0.13.2
 --------------
 
