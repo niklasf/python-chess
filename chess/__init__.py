@@ -3271,24 +3271,34 @@ class Board(BaseBoard):
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask:
             if self.turn == WHITE:
-                candidates = pawns & BB_RANK_5
+                rank = BB_RANK_5
+                last_double = ep_square_mask >> 8 & self.pawns & their_pieces
             else:
-                candidates = pawns & BB_RANK_4
+                rank = BB_RANK_4
+                last_double = ep_square_mask << 8 & self.pawns & their_pieces
 
             capturing_pawns = BB_VOID
 
             # Left side capture.
             if ep_square_mask & ~BB_FILE_A:
                 left_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawns |= candidates & left_file
+                capturing_pawns |= pawns & rank & left_file
 
             # Right side capture.
             if ep_square_mask & ~BB_FILE_H:
                 right_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawns |= candidates & right_file
+                capturing_pawns |= pawns & rank & right_file
 
             while capturing_pawns:
                 capturing_pawn = capturing_pawns & -capturing_pawns
+
+                # Handle the special case where the king would be in check,
+                # if the pawn and its capturer disappear from the rank.
+                skewered_king = self.kings & our_pieces & rank
+                future_rank_occupancy = self.occupied & rank & ~capturing_pawn & ~last_double
+                horizontal_attackers = their_pieces & (self.rooks | self.queens)
+                if skewered_king and RANK_ATTACKS[skewered_king][future_rank_occupancy] & horizontal_attackers:
+                    break
 
                 if ep_square_mask & self._pinned(self.turn, capturing_pawn):
                     yield Move(bit_scan(capturing_pawn), self.ep_square)
