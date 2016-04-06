@@ -3155,39 +3155,26 @@ class Board(BaseBoard):
 
         return mask
 
-    def generate_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_check():
-            return self.generate_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
+            return self.generate_evasions() # XXX
         else:
-            return self.generate_non_evasions(castling=castling, pawns=pawns, knights=knights, bishops=bishops, rooks=rooks, queens=queens, king=king)
+            return self.generate_non_evasions() # XXX
 
-    def generate_non_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
         self.generate_attacks()
 
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
 
-        # Selective move generation.
-        selected_pieces = BB_VOID
-        if knights:
-            selected_pieces |= self.knights
-        if bishops:
-            selected_pieces |= self.bishops
-        if rooks:
-            selected_pieces |= self.rooks
-        if queens:
-            selected_pieces |= self.queens
-        if king:
-            selected_pieces |= self.kings
-
         # Generate piece moves.
-        non_pawns = our_pieces & selected_pieces
+        non_pawns = our_pieces & ~self.pawns & from_mask
         while non_pawns:
             from_square = non_pawns & -non_pawns
             from_square_index = bit_scan(from_square)
 
             mask = self._pinned(self.turn, from_square)
-            moves = self.attacks_from[from_square] & ~our_pieces & mask
+            moves = self.attacks_from[from_square] & ~our_pieces & mask & to_mask
             while moves:
                 to_square = moves & -moves
 
@@ -3203,22 +3190,22 @@ class Board(BaseBoard):
 
         # Generate castling moves. Since we are generating non-evasions we
         # already know that we are not in check.
-        if castling:
-            for move in self.generate_castling_moves():
-                yield move
+        for move in self.generate_castling_moves(from_mask, to_mask):
+            yield move
 
         # The remaining moves are all pawn moves.
+        pawns = self.pawns & our_pieces & from_mask
         if not pawns:
             return
 
         # Generate pawn captures.
-        pawns = self.pawns & our_pieces
+        targets = their_pieces & to_mask
         if self.turn == WHITE:
-            right_captures = pawns << 9 & their_pieces & ~BB_FILE_A & BB_ALL
-            left_captures = pawns << 7 & their_pieces & ~BB_FILE_H & BB_ALL
+            right_captures = pawns << 9 & targets & ~BB_FILE_A & BB_ALL
+            left_captures = pawns << 7 & targets & ~BB_FILE_H & BB_ALL
         else:
-            right_captures = pawns >> 7 & their_pieces & ~BB_FILE_A
-            left_captures = pawns >> 9 & their_pieces & ~BB_FILE_H
+            right_captures = pawns >> 7 & targets & ~BB_FILE_A
+            left_captures = pawns >> 9 & targets & ~BB_FILE_H
 
         # Yield right captures.
         while right_captures:
@@ -3268,7 +3255,7 @@ class Board(BaseBoard):
 
         # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
-        if ep_square_mask:
+        if ep_square_mask & to_mask:
             if self.turn == WHITE:
                 capturing_pawns = pawns & BB_RANK_5
             else:
@@ -3299,6 +3286,9 @@ class Board(BaseBoard):
         else:
             single_moves = pawns >> 8 & ~self.occupied
             double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+
+        single_moves &= to_mask
+        double_moves &= to_mask
 
         # Generate single pawn moves.
         while single_moves:
