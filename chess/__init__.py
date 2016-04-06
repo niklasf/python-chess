@@ -30,6 +30,7 @@ __version__ = "0.13.2"
 
 import copy
 import re
+import itertools
 
 try:
     import backport_collections as collections
@@ -1503,6 +1504,11 @@ class Board(BaseBoard):
             if capturing_pawn:
                 yield Move(bit_scan(capturing_pawn), self.ep_square)
 
+    def generate_pseudo_legal_captures(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        return itertools.chain(
+            self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
+            self.generate_pseudo_legal_ep(from_mask, to_mask))
+
     def attackers_mask(self, color, square):
         self.generate_attacks()
         return self.attacks_to[BB_SQUARES[square]] & self.occupied_co[color]
@@ -2098,14 +2104,6 @@ class Board(BaseBoard):
             return "".join(builder)
         else:
             return "-"
-
-    def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if not self.ep_square:
-            return
-
-        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
-            if not self.is_into_check(move):
-                yield move
 
     def has_legal_en_passant(self):
         """Checks if there is a legal en passant capture."""
@@ -3134,6 +3132,19 @@ class Board(BaseBoard):
             return self.generate_evasions(from_mask, to_mask)
         else:
             return self.generate_non_evasions(from_mask, to_mask)
+
+    def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if not self.ep_square:
+            return
+
+        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+            if not self.is_into_check(move):
+                yield move
+
+    def generate_legal_captures(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        return itertools.chain(
+            self.generate_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
+            self.generate_legal_ep(from_mask, to_mask))
 
     def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
         self.generate_attacks()

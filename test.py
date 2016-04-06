@@ -1154,6 +1154,24 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(move in board.generate_legal_ep())
         self.assertTrue(move in board.generate_evasions())
 
+    def test_capture_generation(self):
+        board = chess.Board("3q1rk1/ppp1p1pp/4b3/3pPp2/3P4/1K1n4/PPQ2PPP/3b1BNR w - f6 0 1")
+
+        # Fully legal captures.
+        lc = list(board.generate_legal_captures())
+        self.assertTrue(board.parse_san("Qxd1") in lc)
+        self.assertTrue(board.parse_san("exf6") in lc)  # En passant.
+        self.assertTrue(board.parse_san("Bxd3") in lc)
+        self.assertEqual(len(lc), 3)
+
+        plc = list(board.generate_pseudo_legal_captures())
+        self.assertTrue(board.parse_san("Qxd1") in plc)
+        self.assertTrue(board.parse_san("exf6") in plc)  # En passant.
+        self.assertTrue(board.parse_san("Bxd3") in plc)
+        self.assertTrue(chess.Move.from_uci("c2c7") in plc)
+        self.assertTrue(chess.Move.from_uci("c2d3") in plc)
+        self.assertEqual(len(plc), 5)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
