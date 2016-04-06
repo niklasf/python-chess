@@ -1119,7 +1119,10 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/7k/8/7p/8/8/8/K7 w - h6 0 1")
         self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
 
-    def test_diagonally_pinned_en_passant(self):
+    def test_diagonally_reinforced_en_passant_evasion_try(self):
+        # Note that the position under test can not be reached by a sequence
+        # of legal moves. The last move must have been e4, but then whites king
+        # would have been in check already.
         board = chess.Board("8/8/8/5k2/4Pp2/8/2B5/4K3 b - e3 0 1")
         move = chess.Move.from_uci("f4e3")
         self.assertTrue(board.is_pseudo_legal(move))
