@@ -315,6 +315,16 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.shredder_fen(), fen)
 
+    def test_selective_castling(self):
+        board = chess.Board("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+
+        # King not selected
+        self.assertFalse(any(board.generate_castling_moves(chess.BB_ALL & ~board.kings)))
+
+        # Rook on h1 not selected
+        moves = board.generate_castling_moves(chess.BB_ALL, chess.BB_ALL & ~chess.BB_H1)
+        self.assertEqual(len(list(moves)), 1)
+
     def test_castling_right_not_destroyed_bug(self):
         # A rook move from H8 to H1 was only taking whites possible castling
         # rights away.

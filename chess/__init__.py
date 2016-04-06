@@ -3341,11 +3341,15 @@ class Board(BaseBoard):
 
             double_moves = double_moves & (double_moves - 1)
 
-    def generate_castling_moves(self):
+    def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        king = self.occupied_co[self.turn] & self.kings & from_mask
+        king_square = bit_scan(king)
+        if king_square is None or king_square == -1:
+            return
+
         if self.is_check():
             return
 
-        king = self.occupied_co[self.turn] & self.kings
         king_file_index = file_index(bit_scan(king))
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
 
@@ -3355,7 +3359,7 @@ class Board(BaseBoard):
         bb_f = BB_FILE_F & backrank
         bb_g = BB_FILE_G & backrank
 
-        candidates = self.clean_castling_rights() & backrank
+        candidates = self.clean_castling_rights() & backrank & to_mask
         while candidates:
             rook = candidates & -candidates
             rook_file_index = file_index(bit_scan(rook))
