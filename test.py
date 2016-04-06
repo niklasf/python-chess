@@ -1119,6 +1119,38 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/7k/8/7p/8/8/8/K7 w - h6 0 1")
         self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
 
+    def test_diagonally_pinned_en_passant(self):
+        board = chess.Board("8/8/8/5k2/4Pp2/8/2B5/4K3 b - e3 0 1")
+        move = chess.Move.from_uci("f4e3")
+        self.assertTrue(board.is_pseudo_legal(move))
+        self.assertTrue(move in board.generate_pseudo_legal_moves())
+        self.assertTrue(move in board.generate_pseudo_legal_ep())
+        self.assertFalse(board.is_legal(move))
+        self.assertFalse(move in board.generate_legal_moves())
+        self.assertFalse(move in board.generate_legal_ep())
+
+    def test_file_pinned_en_passant(self):
+        board = chess.Board("8/5K2/8/3k4/3pP3/8/8/3R4 b - e3 0 1")
+        move = chess.Move.from_uci("d4e3")
+        self.assertTrue(board.is_pseudo_legal(move))
+        self.assertTrue(move in board.generate_pseudo_legal_moves())
+        self.assertTrue(move in board.generate_pseudo_legal_ep())
+        self.assertFalse(board.is_legal(move))
+        self.assertFalse(move in board.generate_legal_moves())
+        self.assertFalse(move in board.generate_legal_ep())
+
+    def test_en_passant_evasion(self):
+        board = chess.Board("8/8/8/2k5/2pP4/8/4K3/8 b - d3 0 1")
+        move = chess.Move.from_uci("c4d3")
+        self.assertEqual(move, board.parse_san("cxd3"))
+        self.assertTrue(board.is_pseudo_legal(move))
+        self.assertTrue(move in board.generate_pseudo_legal_moves())
+        self.assertTrue(move in board.generate_pseudo_legal_ep())
+        self.assertTrue(board.is_legal(move))
+        self.assertTrue(move in board.generate_legal_moves())
+        self.assertTrue(move in board.generate_legal_ep())
+        self.assertTrue(move in board.generate_evasions())
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
