@@ -1575,31 +1575,25 @@ class Board(BaseBoard):
         Checks if the given move would leave the king in check or put it into
         check. The move must be at least pseudo legal.
         """
-        from_square_mask = BB_SQUARES[move.from_square]
-        to_square_mask = BB_SQUARES[move.to_square]
+        from_mask = BB_SQUARES[move.from_square]
+        to_mask = BB_SQUARES[move.to_square]
 
         # If already in check, look if it is an evasion.
         if self.is_check():
-            return move not in self.generate_evasions(
-                castling=False,
-                pawns=from_square_mask & self.pawns,
-                knights=from_square_mask & self.knights,
-                bishops=from_square_mask & self.bishops,
-                rooks=from_square_mask & self.rooks,
-                queens=from_square_mask & self.queens,
-                king=from_square_mask & self.kings)
+            return move not in self.generate_evasions(from_mask, to_mask)
 
         # We are assuming pseudo legality, so castling moves are always legal.
         if self.is_castling(move):
             return False
 
         # Detect uncovered check.
-        if not self._pinned(self.turn, from_square_mask) & to_square_mask:
+        if not self._pinned(self.turn, from_mask) & to_mask:
             return True
 
         # Detect king moves into check.
-        if from_square_mask & self.kings:
-            return self.attacks_to[to_square_mask] & self.occupied_co[not self.turn]
+        if from_mask & self.kings:
+            if self.attacks_to[to_mask] & self.occupied_co[not self.turn]:
+                return True
 
         return False
 
@@ -2489,32 +2483,17 @@ class Board(BaseBoard):
         if piece == PAWN:
             san = ""
         else:
-            # Get ambigous move candidates.
-            if piece == KNIGHT:
-                san = "N"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
-            elif piece == BISHOP:
-                san = "B"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
-            elif piece == ROOK:
-                san = "R"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
-            elif piece == QUEEN:
-                san = "Q"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
-            elif piece == KING:
-                san = "K"
-                candidates = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
-            else:
-                # Not possible with a legal move.
-                assert self.is_legal(move)
+            san = PIECE_SYMBOLS[piece].upper()
 
-            # Filter relevant candidates: Not excatly the current move, but
-            # to the same square.
+            # Get ambigous move candidates.
+            # Relevant candidates: Not excatly the current move,
+            # but to the same square.
             others = BB_VOID
-            for candidate in candidates:
-                if candidate.to_square == move.to_square and candidate.from_square != move.from_square:
-                    others |= BB_SQUARES[candidate.from_square]
+            from_mask = self.pieces_mask(piece, self.turn)
+            from_mask &= ~BB_SQUARES[move.from_square]
+            to_mask = BB_SQUARES[move.to_square]
+            for candidate in self.generate_legal_moves(from_mask, to_mask):
+                others |= BB_SQUARES[candidate.from_square]
 
             # Disambiguate.
             if others:
@@ -2611,6 +2590,7 @@ class Board(BaseBoard):
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
+        to_mask = BB_SQUARES[to_square]
 
         # Get the promotion type.
         if not match.group(5):
@@ -2619,21 +2599,13 @@ class Board(BaseBoard):
             promotion = PIECE_SYMBOLS.index(match.group(5)[-1].lower())
 
         # Filter by piece type.
-        if match.group(1) == "N":
-            moves = self.generate_legal_moves(castling=False, pawns=False, knights=True, bishops=False, rooks=False, queens=False, king=False)
-        elif match.group(1) == "B":
-            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=True, rooks=False, queens=False, king=False)
-        elif match.group(1) == "K":
-            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=False, king=True)
-        elif match.group(1) == "R":
-            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=True, queens=False, king=False)
-        elif match.group(1) == "Q":
-            moves = self.generate_legal_moves(castling=False, pawns=False, knights=False, bishops=False, rooks=False, queens=True, king=False)
+        if not match.group(1):
+            from_mask = self.pawns
         else:
-            moves = self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
+            piece_type = PIECE_SYMBOLS.index(match.group(1).lower())
+            from_mask = self.pieces_mask(piece_type, self.turn)
 
         # Filter by source file.
-        from_mask = BB_ALL
         if match.group(2):
             from_mask &= BB_FILES[FILE_NAMES.index(match.group(2))]
 
@@ -2643,14 +2615,8 @@ class Board(BaseBoard):
 
         # Match legal moves.
         matched_move = None
-        for move in moves:
-            if move.to_square != to_square:
-                continue
-
+        for move in self.generate_legal_moves(from_mask, to_mask):
             if move.promotion != promotion:
-                continue
-
-            if not BB_SQUARES[move.from_square] & from_mask:
                 continue
 
             if matched_move:
@@ -3165,9 +3131,9 @@ class Board(BaseBoard):
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_check():
-            return self.generate_evasions() # XXX
+            return self.generate_evasions(from_mask, to_mask)
         else:
-            return self.generate_non_evasions() # XXX
+            return self.generate_non_evasions(from_mask, to_mask)
 
     def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
         self.generate_attacks()
