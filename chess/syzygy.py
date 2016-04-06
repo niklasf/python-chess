@@ -1295,11 +1295,8 @@ class Tablebases(object):
         return self.wdl[key].probe_wdl_table(board)
 
     def probe_ab(self, board, alpha, beta):
-        for move in board.generate_legal_moves():
-            # Only look at non-ep captures.
-            if not board.piece_type_at(move.to_square):
-                continue
-
+        # Generate non-ep captures.
+        for move in board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
             # Do the move.
             board.push(move)
 
