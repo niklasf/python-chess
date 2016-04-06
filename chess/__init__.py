@@ -3478,13 +3478,13 @@ class Board(BaseBoard):
             # There is one attacker, so it can be captured. If there are more
             # than one attackers we can not capture both at the same time,
             # so the king would have to be moved.
-            attacker_attackers = self.attacks_to[king_attackers] & our_pieces & selected_pieces & ~our_king
+            attacker_attackers = self.attacks_to[king_attackers] & our_pieces & ~our_king & from_mask
             while attacker_attackers:
                 attacker = attacker_attackers & -attacker_attackers
                 attacker_index = bit_scan(attacker)
 
                 mask = self._pinned(self.turn, attacker)
-                if king_attackers & mask:
+                if king_attackers & mask & to_mask:
                     if king_attackers & double_pawn_mask and attacker & en_passant_capturers:
                         # Capture the attacking pawn en passant.
                         yield Move(attacker_index, self.ep_square)
@@ -3522,10 +3522,10 @@ class Board(BaseBoard):
 
             attackers = attackers & (attackers - 1)
 
-        if king:
+        if our_king & from_mask:
             # Move the king. Capturing other pieces or even the attacker is
             # allowed.
-            moves = KING_MOVES[our_king] & ~our_pieces
+            moves = KING_MOVES[our_king] & ~our_pieces & to_mask
             while moves:
                 to_square = moves & -moves
                 to_square_index = bit_scan(to_square)
@@ -3561,13 +3561,15 @@ class Board(BaseBoard):
             else:
                 moves = 0
 
-            # Try moving all pieces (except pawns and the king) to the empty
-            # squares.
+            moves &= to_mask
+
+            # Try moving pieces to the empty squares.
             while moves:
                 empty_square = moves & -moves
                 empty_square_index = bit_scan(empty_square)
 
-                blockers = self.attacks_to[empty_square] & ~our_pawns & ~our_king & ~their_pieces & selected_pieces
+                # Blocking piece moves (excluding pawns and the king).
+                blockers = self.attacks_to[empty_square] & our_pieces & ~our_pawns & ~our_king & from_mask
                 while blockers:
                     blocker = blockers & -blockers
 
@@ -3576,11 +3578,6 @@ class Board(BaseBoard):
                         yield Move(bit_scan(blocker), empty_square_index)
 
                     blockers = blockers & (blockers - 1)
-
-                # The following is all about handling pawns.
-                if not pawns:
-                    moves = moves & (moves - 1)
-                    continue
 
                 # Generate pawn advances to the empty square.
                 blocking_pawn = empty_square & forward_pawns
@@ -3591,8 +3588,7 @@ class Board(BaseBoard):
                         from_square = blocking_pawn << 8
                     from_square_index = bit_scan(from_square)
 
-                    mask = self._pinned(self.turn, from_square)
-                    if mask & empty_square:
+                    if from_square & from_mask and self._pinned(self.turn, from_square) & empty_square:
                         if empty_square & BB_RANK_1 or empty_square & BB_RANK_8:
                             yield Move(from_square_index, empty_square_index, QUEEN)
                             yield Move(from_square_index, empty_square_index, ROOK)
@@ -3606,13 +3602,16 @@ class Board(BaseBoard):
                     blocking_pawn = empty_square & double_forward_pawns
                     if blocking_pawn:
                         if self.turn == WHITE:
-                            mask = self._pinned(self.turn, blocking_pawn >> 16)
-                            if mask & empty_square and (empty_square >> 8) & ~self.occupied:
-                                yield Move(bit_scan(blocking_pawn >> 16), empty_square_index)
+                            from_square = empty_square >> 16
+                            middle_square = empty_square >> 8
                         else:
-                            mask = self._pinned(self.turn, blocking_pawn << 16)
-                            if mask & empty_square and (empty_square << 8) & ~self.occupied:
-                                yield Move(bit_scan(blocking_pawn << 16), empty_square_index)
+                            from_square = empty_square << 16
+                            middle_square = empty_square << 8
+
+                        if from_square & from_mask and middle_square & ~self.occupied:
+                            mask = self._pinned(self.turn, from_square)
+                            if mask & empty_square:
+                                yield Move(bit_scan(from_square), empty_square_index)
 
                 moves = moves & (moves - 1)
 
