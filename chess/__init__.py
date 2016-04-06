@@ -2105,9 +2105,17 @@ class Board(BaseBoard):
         else:
             return "-"
 
+    def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if not self.ep_square:
+            return
+
+        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+            if not self.is_into_check(move):
+                yield move
+
     def has_legal_en_passant(self):
         """Checks if there is a legal en passant capture."""
-        return self.ep_square and any(self.is_en_passant(move) for move in self.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False))
+        return any(self.generate_legal_ep())
 
     def fen(self):
         """
