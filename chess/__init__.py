@@ -1345,32 +1345,17 @@ class Board(BaseBoard):
         self.clear_stack()
         self.attacks_valid = False
 
-    def generate_pseudo_legal_moves(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_pseudo_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         self.generate_attacks()
 
-        our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[not self.turn]
-
-        # Selective move generation.
-        selected_pieces = BB_VOID
-        if knights:
-            selected_pieces |= self.knights
-        if bishops:
-            selected_pieces |= self.bishops
-        if rooks:
-            selected_pieces |= self.rooks
-        if queens:
-            selected_pieces |= self.queens
-        if king:
-            selected_pieces |= self.kings
-
         # Generate piece moves.
-        non_pawns = our_pieces & selected_pieces
+        our_pieces = self.occupied_co[self.turn]
+        non_pawns = our_pieces & ~self.pawns & from_mask
         while non_pawns:
             from_square = non_pawns & -non_pawns
             from_square_index = bit_scan(from_square)
 
-            moves = self.attacks_from[from_square] & ~our_pieces
+            moves = self.attacks_from[from_square] & ~our_pieces & to_mask
             while moves:
                 to_square = moves & -moves
                 yield Move(from_square_index, bit_scan(to_square))
@@ -1379,22 +1364,22 @@ class Board(BaseBoard):
             non_pawns = non_pawns & (non_pawns - 1)
 
         # Generate castling moves.
-        if castling:
-            for move in self.generate_castling_moves():
-                yield move
+        for move in self.generate_castling_moves():
+            yield move
 
         # The remaining moves are all pawn moves.
+        pawns = self.pawns & self.occupied_co[self.turn] & from_mask
         if not pawns:
             return
 
         # Generate pawn captures.
-        pawns = self.pawns & our_pieces
+        targets = self.occupied_co[not self.turn] & to_mask
         if self.turn == WHITE:
-            right_captures = pawns << 9 & their_pieces & ~BB_FILE_A & BB_ALL
-            left_captures = pawns << 7 & their_pieces & ~BB_FILE_H & BB_ALL
+            right_captures = pawns << 9 & ~BB_FILE_A & targets
+            left_captures = pawns << 7 & ~BB_FILE_H & targets
         else:
-            right_captures = pawns >> 7 & their_pieces & ~BB_FILE_A
-            left_captures = pawns >> 9 & their_pieces & ~BB_FILE_H
+            right_captures = pawns >> 7 & ~BB_FILE_A & targets
+            left_captures = pawns >> 9 & ~BB_FILE_H & targets
 
         # Yield right captures.
         while right_captures:
@@ -1438,10 +1423,6 @@ class Board(BaseBoard):
 
             left_captures = left_captures & (left_captures - 1)
 
-        # Generate en passant captures.
-        for move in self.generate_pseudo_legal_ep():
-            yield move
-
         # Prepare pawn advance generation.
         if self.turn == WHITE:
             single_moves = pawns << 8 & ~self.occupied
@@ -1449,6 +1430,9 @@ class Board(BaseBoard):
         else:
             single_moves = pawns >> 8 & ~self.occupied
             double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+
+        single_moves &= to_mask
+        double_moves &= to_mask
 
         # Generate single pawn moves.
         while single_moves:
@@ -1485,6 +1469,10 @@ class Board(BaseBoard):
             yield Move(from_square_index, to_square_index)
 
             double_moves = double_moves & (double_moves - 1)
+
+        # Generate en passant captures.
+        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+            yield move
 
     def generate_pseudo_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if not self.ep_square:
@@ -1665,7 +1653,7 @@ class Board(BaseBoard):
 
         # Handle pawn moves.
         if piece == PAWN:
-            return move in self.generate_pseudo_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False)
+            return move in self.generate_pseudo_legal_moves(from_mask, to_mask)
 
         # Handle all other pieces.
         self.generate_attacks()
