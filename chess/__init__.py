@@ -3394,38 +3394,33 @@ class Board(BaseBoard):
         our_king = self.kings & our_pieces
 
         our_pawns = self.pawns & our_pieces
-        en_passant_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
-        double_pawn_mask = BB_VOID
+        ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
         en_passant_capturers = BB_VOID
 
         if self.turn == WHITE:
             forward_pawns = our_pawns << 8 & BB_ALL
             double_forward_pawns = (our_pawns & BB_RANK_2) << 16 & BB_ALL
-
-            if en_passant_mask:
-                double_pawn_mask = en_passant_mask >> 8
+            last_double_mask = ep_square_mask >> 8 & self.pawns & self.occupied_co[BLACK]
 
             # Capture torward the right.
-            if en_passant_mask & ~BB_FILE_A:
-                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[en_passant_mask] >> 1
+            if ep_square_mask & ~BB_FILE_A:
+                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[ep_square_mask] >> 1
 
             # Capture toward the left.
-            if en_passant_mask & ~BB_FILE_H:
-                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[en_passant_mask] << 1
+            if ep_square_mask & ~BB_FILE_H:
+                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[ep_square_mask] << 1
         else:
             forward_pawns = our_pawns >> 8
             double_forward_pawns = (our_pawns & BB_RANK_7) >> 16
-
-            if en_passant_mask:
-                double_pawn_mask = en_passant_mask << 8
+            last_double_mask = ep_square_mask << 8 & self.pawns & self.occupied_co[WHITE]
 
             # Capture torward the right.
-            if en_passant_mask & ~BB_FILE_A:
-                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[en_passant_mask] >> 1
+            if ep_square_mask & ~BB_FILE_A:
+                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[ep_square_mask] >> 1
 
             # Capture toward the left.
-            if en_passant_mask & ~BB_FILE_H:
-                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[en_passant_mask] << 1
+            if ep_square_mask & ~BB_FILE_H:
+                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[ep_square_mask] << 1
 
         # Look up all pieces giving check.
         king_attackers = self.attacks_to[our_king] & their_pieces
@@ -3443,11 +3438,13 @@ class Board(BaseBoard):
                 attacker_index = bit_scan(attacker)
 
                 mask = self._pinned(self.turn, attacker)
-                if king_attackers & mask & to_mask:
-                    if king_attackers & double_pawn_mask and attacker & en_passant_capturers:
+
+                if king_attackers & last_double_mask and attacker & en_passant_capturers:
+                    if ep_square_mask & mask & to_mask:
                         # Capture the attacking pawn en passant.
                         yield Move(attacker_index, self.ep_square)
-                    elif attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
+                elif king_attackers & mask & to_mask:
+                    if attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
                         # Capture the attacker with a pawn and promote.
                         yield Move(attacker_index, king_attackers_index, QUEEN)
                         yield Move(attacker_index, king_attackers_index, ROOK)
