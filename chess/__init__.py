@@ -3411,23 +3411,8 @@ class Board(BaseBoard):
 
             candidates = candidates & (candidates - 1)
 
-    def generate_evasions(self, castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True):
+    def generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
         self.generate_attacks()
-
-        # Selective move generation.
-        selected_pieces = BB_VOID
-        if pawns:
-            selected_pieces |= self.pawns
-        if knights:
-            selected_pieces |= self.knights
-        if bishops:
-            selected_pieces |= self.bishops
-        if rooks:
-            selected_pieces |= self.rooks
-        if queens:
-            selected_pieces |= self.queens
-        if king:
-            selected_pieces |= self.kings
 
         # Prepare basic information.
         our_pieces = self.occupied_co[self.turn]
