@@ -1363,12 +1363,8 @@ class Tablebases(object):
         # Now handle en passant.
         v1 = -3
 
-        # Look at least at all legal en passant captures.
-        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
-            # Filter out non-en-passant moves.
-            if not board.is_en_passant(move):
-                continue
-
+        # Look at all legal en passant captures.
+        for move in board.generate_legal_ep():
             # Do the move.
             board.push(move)
 
@@ -1415,8 +1411,9 @@ class Tablebases(object):
 
         if wdl > 0:
             # Generate all legal non-capturing pawn moves.
-            for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
+            for move in board.generate_legal_moves(board.pawns, ~board.occupied):
                 if board.is_capture(move):
+                    # En passant.
                     continue
 
                 board.push(move)
@@ -1443,10 +1440,7 @@ class Tablebases(object):
         if wdl > 0:
             best = 0xffff
 
-            for move in board.generate_legal_moves(pawns=False):
-                if board.piece_type_at(move.to_square):
-                    continue
-
+            for move in board.generate_legal_moves(~board.pawns, ~board.occupied):
                 board.push(move)
 
                 v_plus = self.probe_dtz(board)
@@ -1556,11 +1550,8 @@ class Tablebases(object):
 
         v1 = -3
 
-        for move in board.generate_legal_moves(castling=False, pawns=True, knights=False, bishops=False, rooks=False, queens=False, king=False):
-            # Filter out non-en-passant moves.
-            if not board.is_en_passant(move):
-                continue
-
+        # Generate all en-passant moves.
+        for move in board.generate_legal_ep():
             board.push(move)
 
             v0_plus, success = self.probe_ab(board, -2, 2)
