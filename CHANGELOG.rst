@@ -6,17 +6,78 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.14.0
+--------------
 
 Changes:
 
-* `Board.attacker_mask()` has been renamed to `Board.attackers_mask()` for
+* `Board.attacker_mask()` **has been renamed to** `Board.attackers_mask()` for
   consistency.
+
+* **The signature of** `Board.generate_legal_moves()` **and**
+  `Board.generate_pseudo_legal_moves()` **has been changed.** Previously it
+  was possible to select piece types for selective move generation:
+
+  `Board.generate_legal_moves(castling=True, pawns=True, knights=True, bishops=True, rooks=True, queens=True, king=True)`
+
+  Now it is possible to select arbitrary sets of origin and target squares.
+  `to_mask` uses the corresponding rook squares for castling moves.
+
+  `Board.generate_legal_moves(from_mask=BB_ALL, to_mask=BB)`
+
+  To generate all knight and queen moves do:
+
+  `board.generate_legal_moves(board.knights | board.queens)`
+
+  To generate only castling moves use:
+
+  `Board.generate_castling_moves(from_mask=BB_ALL, to_mask=BB_ALL)`
+
+* Additional hardening has been added on top of the bugfix from v0.13.3.
+  Diagonal skewers on the last double pawn move are now handled correctly,
+  even though such positions can not be reached with a sequence of legal moves.
+
+* `chess.syzygy` now uses the more efficient selective move generation.
+
+New features:
+
+* The following move generation methods have been added:
+  `Board.generate_pseudo_legal_ep(from_mask=BB_ALL, to_mask=BB_ALL)`,
+  `Board.generate_legal_ep(from_mask=BB_ALL, to_mask=BB_ALL)`,
+  `Board.generate_pseudo_legal_captures(from_mask=BB_ALL, to_mask=BB_ALL)`,
+  `Board.generate_legal_captures(from_mask=BB_ALL, to_mask=BB_ALL)`.
+
+
+New in v0.13.3
+--------------
+
+**This is a bugfix release for a move generation bug.** Other than the bugfix
+itself there are only minimal fully backwardscompatible changes.
+You should update immediately.
+
+Bugfixes:
+
+* When capturing en passant, both the capturer and the captured pawn disappear
+  from the fourth or fifth rank. If those pawns were covering a horizontal
+  attack on the king, then capturing en passant should not have been legal.
+
+  `Board.generate_legal_moves()` and `Board.is_into_check()` have been fixed.
+
+  The same principle applies for diagonal skewers, but nothing has been done
+  in this release: If the last double pawn move covers a diagonal attack, then
+  the king would have already been in check.
+
+  v0.14.0 adds additional hardening for all cases. It is recommended you
+  upgrade to v0.14.0 as soon as you can deal with the
+  non-backwards compatible changes.
+
+Changes:
 
 * `chess.uci` now uses `subprocess32` if applicable (and available).
   Additionally a lock is used to work around a race condition in Python 2, that
   can occur when spawning engines from multiple threads at the same time.
+
+* Consistently handle tabs in UCI engine output.
 
 New in v0.13.2
 --------------
