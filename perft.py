@@ -114,6 +114,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 48)
         self.assertEqual(perft(board, 2), 2039)
         self.assertEqual(perft(board, 3), 97862)
+        self.assertEqual(into_check_perft(board, 3), 97862)
         sys.stdout.write(".")
         sys.stdout.flush()
 
@@ -123,6 +124,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 2), 191)
         self.assertEqual(perft(board, 3), 2812)
         self.assertEqual(perft(board, 4), 43238)
+        self.assertEqual(into_check_perft(board, 4), 43238)
         sys.stdout.write(".")
         sys.stdout.flush()
 
@@ -131,6 +133,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 6)
         self.assertEqual(perft(board, 2), 264)
         self.assertEqual(perft(board, 3), 9467)
+        self.assertEqual(into_check_perft(board, 3), 9467)
         sys.stdout.write(".")
         sys.stdout.flush()
 
@@ -139,6 +142,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 44)
         self.assertEqual(perft(board, 2), 1486)
         self.assertEqual(perft(board, 3), 62379)
+        self.assertEqual(into_check_perft(board, 3), 62379)
         sys.stdout.write(".")
         sys.stdout.flush()
 
@@ -147,6 +151,7 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 46)
         self.assertEqual(perft(board, 2), 2079)
         self.assertEqual(perft(board, 3), 89890)
+        self.assertEqual(into_check_perft(board, 3), 89890)
         sys.stdout.write(".")
         sys.stdout.flush()
 
