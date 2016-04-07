@@ -1604,12 +1604,7 @@ class Board(BaseBoard):
         # Detect en-passant moves, removing both the capturer and the captured
         # pawn from the rank, leading to a skewer.
         if self.is_en_passant(move):
-            rank = RANK_MASK[from_mask]
-            last_double = rank & FILE_MASK[to_mask]
-            skewered_king = rank & self.kings & self.occupied_co[self.turn]
-            future_rank_occupancy = self.occupied & rank & ~from_mask & ~last_double
-            horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
-            if skewered_king and RANK_ATTACKS[skewered_king][future_rank_occupancy] & horizontal_attackers:
+            if self._ep_skewered(from_mask):
                 return True
 
         return False
@@ -3138,6 +3133,31 @@ class Board(BaseBoard):
 
         return mask
 
+    def _ep_skewered(self, capturer_mask):
+        # Handle the special case where the king would be in check, if the
+        # pawn and its capturer disappear from the rank.
+
+        ep_square_mask = BB_SQUARES[self.ep_square]
+
+        if self.turn == WHITE:
+            rank = BB_RANK_5
+            last_double = ep_square_mask >> 8
+        else:
+            rank = BB_RANK_4
+            last_double = ep_square_mask << 8
+
+        # Horizontal attack on the fifth or fourth rank.
+        king_mask = self.kings & self.occupied_co[self.turn] & rank
+        if not king_mask:
+            return False
+
+        occupancy = self.occupied & rank & ~capturer_mask & ~last_double
+        horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
+        if RANK_ATTACKS[king_mask][occupancy] & horizontal_attackers:
+            return True
+
+        return False
+
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_check():
             return self.generate_evasions(from_mask, to_mask)
@@ -3251,10 +3271,8 @@ class Board(BaseBoard):
         if ep_square_mask & to_mask:
             if self.turn == WHITE:
                 rank = BB_RANK_5
-                last_double = ep_square_mask >> 8 & self.pawns & their_pieces
             else:
                 rank = BB_RANK_4
-                last_double = ep_square_mask << 8 & self.pawns & their_pieces
 
             capturing_pawns = BB_VOID
 
@@ -3271,16 +3289,11 @@ class Board(BaseBoard):
             while capturing_pawns:
                 capturing_pawn = capturing_pawns & -capturing_pawns
 
-                # Handle the special case where the king would be in check,
-                # if the pawn and its capturer disappear from the rank.
-                skewered_king = self.kings & our_pieces & rank
-                future_rank_occupancy = self.occupied & rank & ~capturing_pawn & ~last_double
-                horizontal_attackers = their_pieces & (self.rooks | self.queens)
-                if skewered_king and RANK_ATTACKS[skewered_king][future_rank_occupancy] & horizontal_attackers:
-                    break
-
                 if ep_square_mask & self._pinned(self.turn, capturing_pawn):
-                    yield Move(bit_scan(capturing_pawn), self.ep_square)
+                    if self._ep_skewered(capturing_pawn):
+                        break
+                    else:
+                        yield Move(bit_scan(capturing_pawn), self.ep_square)
 
                 capturing_pawns = capturing_pawns & (capturing_pawns - 1)
 
@@ -3473,7 +3486,8 @@ class Board(BaseBoard):
                 if king_attackers & last_double_mask and attacker & en_passant_capturers:
                     if ep_square_mask & mask & to_mask:
                         # Capture the attacking pawn en passant.
-                        yield Move(attacker_index, self.ep_square)
+                        if not self._ep_skewered(attacker):
+                            yield Move(attacker_index, self.ep_square)
                 elif king_attackers & mask & to_mask:
                     if attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
                         # Capture the attacker with a pawn and promote.
