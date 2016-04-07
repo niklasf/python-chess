@@ -1147,6 +1147,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(move in board.generate_legal_moves())
         self.assertFalse(move in board.generate_legal_ep())
 
+        # Diagonal attack uncovered. Non-evasion.
+        board = chess.Board("8/8/8/7B/6Pp/8/4k2K/3r4 b - g3 0 1")
+        move = chess.Move.from_uci("h4g3")
+        self.assertTrue(board.is_pseudo_legal(move))
+        self.assertTrue(move in board.generate_pseudo_legal_moves())
+        self.assertTrue(move in board.generate_pseudo_legal_ep())
+        self.assertFalse(board.is_legal(move))
+        self.assertFalse(move in board.generate_legal_moves())
+        self.assertFalse(move in board.generate_legal_ep())
+
     def test_file_pinned_en_passant(self):
         board = chess.Board("8/5K2/8/3k4/3pP3/8/8/3R4 b - e3 0 1")
         move = chess.Move.from_uci("d4e3")
