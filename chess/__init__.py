@@ -1602,6 +1602,17 @@ class Board(BaseBoard):
         if from_square_mask & self.kings:
             return self.attacks_to[to_square_mask] & self.occupied_co[not self.turn]
 
+        # Detect en-passant moves, removing both the capturer and the captured
+        # pawn from the rank, leading to a skewer.
+        if self.is_en_passant(move):
+            rank = RANK_MASK[from_square_mask]
+            last_double = rank & FILE_MASK[to_square_mask]
+            skewered_king = rank & self.kings & self.occupied_co[self.turn]
+            future_rank_occupancy = self.occupied & rank & ~from_square_mask & ~last_double
+            horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
+            if skewered_king and RANK_ATTACKS[skewered_king][future_rank_occupancy] & horizontal_attackers:
+                return True
+
         return False
 
     def was_into_check(self):
