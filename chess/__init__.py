@@ -3145,9 +3145,6 @@ class Board(BaseBoard):
             return self.generate_non_evasions(from_mask, to_mask)
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if not self.ep_square:
-            return
-
         for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
             if not self.is_into_check(move):
                 yield move
