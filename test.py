@@ -1137,10 +1137,6 @@ class BoardTestCase(unittest.TestCase):
         # of legal moves. The last move must have been a double pawn move,
         # but then the king would have been in check already.
 
-        return  # TODO: Activate and fix
-
-        # TODO: Test diagonal skewer non-evasion.
-
         # Diagonal attack uncovered. Evasion try.
         board = chess.Board("8/8/8/5k2/4Pp2/8/2B5/4K3 b - e3 0 1")
         move = chess.Move.from_uci("f4e3")

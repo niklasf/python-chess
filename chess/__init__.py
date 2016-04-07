@@ -3137,7 +3137,11 @@ class Board(BaseBoard):
         # Handle the special case where the king would be in check, if the
         # pawn and its capturer disappear from the rank.
 
+        # Vertical skewers of the captured pawn are not possible. (Pins on
+        # the capturer are not handled here.)
+
         ep_square_mask = BB_SQUARES[self.ep_square]
+        king_mask = self.kings & self.occupied_co[self.turn]
 
         if self.turn == WHITE:
             rank = BB_RANK_5
@@ -3147,14 +3151,30 @@ class Board(BaseBoard):
             last_double = ep_square_mask << 8
 
         # Horizontal attack on the fifth or fourth rank.
-        king_mask = self.kings & self.occupied_co[self.turn] & rank
-        if not king_mask:
-            return False
+        if king_mask & rank:
+            occupancy = self.occupied & rank & ~capturer_mask & ~last_double
+            horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
+            if RANK_ATTACKS[king_mask][occupancy] & horizontal_attackers:
+                return True
 
-        occupancy = self.occupied & rank & ~capturer_mask & ~last_double
-        horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
-        if RANK_ATTACKS[king_mask][occupancy] & horizontal_attackers:
-            return True
+        # Diagonal skewers. These are not actually possible in a real game,
+        # because if the latest double pawn move covers a diagonal attack,
+        # then the other side would have been in check already.
+        diagonal_attackers = self.occupied_co[not self.turn] & (self.bishops | self.queens)
+
+        # Diagonal NE.
+        diagonal = DIAG_MASK_NE[last_double]
+        if king_mask & diagonal:
+            occupancy = self.occupied & diagonal & ~last_double
+            if DIAG_ATTACKS_NE[king_mask][occupancy] & diagonal_attackers:
+                return True
+
+        # Diagonal NW.
+        diagonal = DIAG_MASK_NW[last_double]
+        if king_mask & diagonal:
+            occupancy = self.occupied & diagonal & ~last_double
+            if DIAG_ATTACKS_NW[king_mask][occupancy] & diagonal_attackers:
+                return True
 
         return False
 
