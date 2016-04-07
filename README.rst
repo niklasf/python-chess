@@ -79,7 +79,7 @@ Features
   .. code:: python
 
       >>> board = chess.Board()
-      >>> board.legal_moves # doctest: +ELLIPSIS
+      >>> board.legal_moves  # doctest: +ELLIPSIS
       <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
       >>> chess.Move.from_uci("a8a1") in board.legal_moves
       False
@@ -341,7 +341,7 @@ Features
 
       >>> engine = chess.uci.popen_engine("stockfish")
       >>> engine.uci()
-      >>> engine.author
+      >>> engine.author  # doctest: +SKIP
       'Tord Romstad, Marco Costalba and Joona Kiiski'
 
       >>> # Synchronous mode.
