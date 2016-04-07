@@ -1123,6 +1123,7 @@ class BoardTestCase(unittest.TestCase):
         # Horizontal pin. Non evasion.
         board = chess.Board("8/8/8/r2Pp2K/8/8/4k3/8 w - e6 0 1")
         move = chess.Move.from_uci("d5e6")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
         self.assertTrue(board.is_pseudo_legal(move))
         self.assertTrue(move in board.generate_pseudo_legal_moves())
         self.assertTrue(move in board.generate_pseudo_legal_ep())
