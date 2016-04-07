@@ -6,17 +6,36 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.13.3
+--------------
+
+**This is a bugfix release for a move generation bug.** Other than the bugfix
+itself there are only minimal fully backwardscompatible changes.
+You should update immediately.
+
+Bugfixes:
+
+* When capturing en passant, both the capturer and the captured pawn disappear
+  from the fourth or fifth rank. If those pawns were covering a horizontal
+  attack on the king, then capturing en passant should not have been legal.
+
+  `Board.generate_legal_moves()` and `Board.is_into_check()` have been fixed.
+
+  The same principle applies for diagonal skewers, but nothing has been done
+  in this release: If the last double pawn move covers a diagonal attack, then
+  the king would have already been in check.
+
+  v0.14.0 adds additional hardening for all cases. It is recommended you
+  upgrade to v0.14.0 as soon as you can deal with the
+  non-backwards compatible changes.
 
 Changes:
-
-* `Board.attacker_mask()` has been renamed to `Board.attackers_mask()` for
-  consistency.
 
 * `chess.uci` now uses `subprocess32` if applicable (and available).
   Additionally a lock is used to work around a race condition in Python 2, that
   can occur when spawning engines from multiple threads at the same time.
+
+* Consistently handle tabs in UCI engine output.
 
 New in v0.13.2
 --------------
