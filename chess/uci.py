@@ -190,7 +190,9 @@ class InfoHandler(object):
         In MultiPV mode this is related to the most recent *multipv* number
         sent by the engine.
         """
-        self.info["score"][self.info.get("multipv", 1)] = Score(cp, mate, lowerbound, upperbound)
+        if not lowerbound and not upperbound:
+            score = Score(cp, mate, lowerbound, upperbound)
+            self.info["score"][self.info.get("multipv", 1)] = score
 
     def currmove(self, move):
         """
