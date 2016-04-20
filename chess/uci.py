@@ -61,7 +61,7 @@ class Option(collections.namedtuple("Option", ["name", "type", "default", "min",
     pass
 
 
-class Score(collections.namedtuple("Score", ["mate", "cp", "lowerbound", "upperbound"])):
+class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperbound"])):
     """A centipawns or mate score sent by an UCI engine."""
     pass
 
@@ -175,7 +175,7 @@ class InfoHandler(object):
         """
         self.info["multipv"] = num
 
-    def score(self, mate, cp, lowerbound, upperbound):
+    def score(self, cp, mate, lowerbound, upperbound):
         """
         Received a new evaluation in centipawns or a mate score.
 
@@ -191,7 +191,7 @@ class InfoHandler(object):
         sent by the engine.
         """
         if not lowerbound and not upperbound:
-            score = Score(mate, cp, lowerbound, upperbound)
+            score = Score(cp, mate, lowerbound, upperbound)
             self.info["score"][self.info.get("multipv", 1)] = score
 
     def currmove(self, move):
@@ -639,8 +639,8 @@ class Engine(object):
         board = None
         pv = None
         score_kind = None
-        score_mate = None
         score_cp = None
+        score_mate = None
         score_lowerbound = False
         score_upperbound = False
         refutation_move = None
@@ -657,9 +657,9 @@ class Engine(object):
                 for info_handler in self.info_handlers:
                     info_handler.pv(pv)
 
-            if score_mate is not None or score_cp is not None:
+            if score_cp is not None or score_mate is not None:
                 for info_handler in self.info_handlers:
-                    info_handler.score(score_mate, score_cp, score_lowerbound, score_upperbound)
+                    info_handler.score(score_cp, score_mate, score_lowerbound, score_upperbound)
 
             if refutation_move is not None:
                 if refuted_by:
@@ -751,22 +751,22 @@ class Engine(object):
                 # Ignore multipv. It was already parsed before anything else.
                 pass
             elif current_parameter == "score":
-                if token in ["mate", "cp"]:
+                if token in ["cp", "mate"]:
                     score_kind = token
                 elif token == "lowerbound":
                     score_lowerbound = True
                 elif token == "upperbound":
                     score_upperbound = True
-                elif score_kind == "mate":
-                    try:
-                        score_mate = int(token)
-                    except ValueError:
-                        LOGGER.exception("exception parsing score mate value")
                 elif score_kind == "cp":
                     try:
                         score_cp = int(token)
                     except ValueError:
                         LOGGER.exception("exception parsing score cp value")
+                elif score_kind == "mate":
+                    try:
+                        score_mate = int(token)
+                    except ValueError:
+                        LOGGER.exception("exception parsing score mate value")
             elif current_parameter == "currmove":
                 handle_move_token(token, lambda handler, val: handler.currmove(val))
             elif current_parameter == "currmovenumber":
