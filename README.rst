@@ -10,8 +10,8 @@ python-chess: a pure Python chess library
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
 
-.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
-    :target: https://python-chess.readthedocs.org/en/latest/
+.. image:: https://readthedocs.io/projects/python-chess/badge/?version=latest
+    :target: https://python-chess.readthedocs.io/en/latest/
 
 Introduction
 ------------
@@ -46,16 +46,16 @@ and handling of common formats. This is the scholars mate in python-chess:
 Documentation
 -------------
 
-https://python-chess.readthedocs.org/en/latest/
+https://python-chess.readthedocs.io/en/latest/
 
 
-* `Core <https://python-chess.readthedocs.org/en/latest/core.html>`_
-* `PGN parsing and writing <https://python-chess.readthedocs.org/en/latest/pgn.html>`_
-* `Polyglot opening book reading <https://python-chess.readthedocs.org/en/latest/polyglot.html>`_
-* `Gaviota endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/gaviota.html>`_
-* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.org/en/latest/syzygy.html>`_
-* `UCI engine communication <https://python-chess.readthedocs.org/en/latest/uci.html>`_
-* `Changelog <https://python-chess.readthedocs.org/en/latest/changelog.html>`_
+* `Core <https://python-chess.readthedocs.io/en/latest/core.html>`_
+* `PGN parsing and writing <https://python-chess.readthedocs.io/en/latest/pgn.html>`_
+* `Polyglot opening book reading <https://python-chess.readthedocs.io/en/latest/polyglot.html>`_
+* `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/gaviota.html>`_
+* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/syzygy.html>`_
+* `UCI engine communication <https://python-chess.readthedocs.io/en/latest/uci.html>`_
+* `Changelog <https://python-chess.readthedocs.io/en/latest/changelog.html>`_
 
 Features
 --------
@@ -226,7 +226,7 @@ Features
       True
 
 * Read Polyglot opening books.
-  `Docs <https://python-chess.readthedocs.org/en/latest/polyglot.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/latest/polyglot.html>`__.
 
   .. code:: python
 
@@ -247,7 +247,7 @@ Features
 
 * Read and write PGNs. Supports headers, comments, NAGs and a tree of
   variations.
-  `Docs <https://python-chess.readthedocs.org/en/latest/pgn.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/latest/pgn.html>`__.
 
   .. code:: python
 
@@ -300,7 +300,7 @@ Features
       '0-1'
 
 * Probe Gaviota endgame tablebases (DTM, WDL).
-  `Docs <https://python-chess.readthedocs.org/en/latest/gaviota.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/latest/gaviota.html>`__.
 
   .. code:: python
 
@@ -316,7 +316,7 @@ Features
       >>> tablebases.close()
 
 * Probe Syzygy endgame tablebases (DTZ, WDL).
-  `Docs <https://python-chess.readthedocs.org/en/latest/syzygy.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/latest/syzygy.html>`__.
 
   .. code:: python
 
@@ -333,7 +333,7 @@ Features
       >>> tablebases.close()
 
 * Communicate with an UCI engine.
-  `Docs <https://python-chess.readthedocs.org/en/latest/uci.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/latest/uci.html>`__.
 
   .. code:: python
 

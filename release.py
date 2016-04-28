@@ -117,9 +117,9 @@ def pythonhosted(tagname):
         zip_file.writestr("index.html", textwrap.dedent("""\
             <html>
               <head>
-                <meta http-equiv="refresh" content="0;url=http://python-chess.readthedocs.org/en/{0}/">
+                <meta http-equiv="refresh" content="0;url=http://python-chess.readthedocs.io/en/{0}/">
                 <script>
-                  window.location.href = 'http://python-chess.readthedocs.org/en/{0}/';
+                  window.location.href = 'http://python-chess.readthedocs.io/en/{0}/';
                 </script>
               </head>
             </html>""".format(tagname)))
