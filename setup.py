@@ -32,8 +32,8 @@ def read_description():
 
     # Link to the documentation of the specific version.
     description = description.replace(
-        "//python-chess.readthedocs.org/en/latest/",
-        "//python-chess.readthedocs.org/en/v{0}/".format(chess.__version__))
+        "//python-chess.readthedocs.io/en/latest/",
+        "//python-chess.readthedocs.io/en/v{0}/".format(chess.__version__))
 
     # Use documentation badge for the specific version.
     description = description.replace(
