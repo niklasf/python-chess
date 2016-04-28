@@ -1245,9 +1245,9 @@ class Board(BaseBoard):
     game end detection, move counters and the capability to make and unmake
     moves.
 
-    The board is initialized to the starting position, unless otherwise
-    specified in the optional *fen* argument. If *fen* is ``None`` an empty
-    board is created.
+    The board is initialized to the standard chess starting position,
+    unless otherwise specified in the optional *fen* argument.
+    If *fen* is ``None`` an empty board is created.
 
     Optionally supports *chess960*. In Chess960 castling moves are encoded
     by a king move to the corresponding rook square.
