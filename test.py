@@ -2436,7 +2436,7 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_wdl_tablebase(self):
-        tablebases = chess.syzygy.Tablebases()
+        tablebases = chess.syzygy.Tablebases(max_fds=2)
         self.assertEqual(tablebases.open_directory("data/syzygy"), 70)
 
         # Winning KRvKB.

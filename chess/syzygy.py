@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import collections
 import mmap
 import os
 import struct
@@ -434,8 +435,9 @@ class Table(object):
 
     def init_mmap(self):
         # Open fd.
-        if not self.fd:
-            self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+        if self.fd is None:
+            path = os.path.join(self.directory, self.filename) + self.suffix
+            self.fd = os.open(path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         # Open mmap.
         if self.data is None:
@@ -800,12 +802,14 @@ class Table(object):
         return USHORT.unpack_from(self.data, data_ptr)[0]
 
     def close(self):
-        self.data.close()
+        if self.data is not None:
+            self.data.close()
 
-        try:
-            os.close(self.fd)
-        except OSError:
-            pass
+        if self.fd is not None:
+            try:
+                os.close(self.fd)
+            except OSError:
+                pass
 
         self.data = None
         self.fd = None
@@ -1249,9 +1253,14 @@ class Tablebases(object):
     Directly loads tables from *directory*. See
     :func:`~chess.syzygy.Tablebases.open_directory`.
     """
-    def __init__(self, directory=None, load_wdl=True, load_dtz=True):
+    def __init__(self, directory=None, load_wdl=True, load_dtz=True, max_fds=128):
+        self.max_fds = max(2, max_fds)
+
         self.wdl = {}
         self.dtz = {}
+
+        self.wdl_lru = collections.deque()
+        self.dtz_lru = collections.deque()
 
         if directory:
             self.open_directory(directory, load_wdl, load_dtz)
@@ -1300,10 +1309,22 @@ class Tablebases(object):
             return 0
 
         key = calc_key(board)
-        if key not in self.wdl:
+        try:
+            table = self.wdl[key]
+        except KeyError:
             return None
 
-        return self.wdl[key].probe_wdl_table(board)
+        try:
+            self.wdl_lru.remove(table)
+        except ValueError:
+            pass
+
+        self.wdl_lru.append(table)
+
+        if len(self.wdl_lru) > self.max_fds // 2:
+            self.wdl_lru.popleft().close()
+
+        return table.probe_wdl_table(board)
 
     def probe_ab(self, board, alpha, beta):
         # Generate non-ep captures.
@@ -1400,11 +1421,22 @@ class Tablebases(object):
 
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
-
-        if key not in self.dtz:
+        try:
+            table = self.dtz[key]
+        except KeyError:
             return None, 0
 
-        return self.dtz[key].probe_dtz_table(board, wdl)
+        try:
+            self.dtz_lru.remove(table)
+        except ValueError:
+            pass
+
+        self.dtz_lru.append(table)
+
+        if len(self.dtz_lru) > self.max_fds // 2:
+            self.dtz_lru.popleft().close()
+
+        return table.probe_dtz_table(board, wdl)
 
     def probe_dtz_no_ep(self, board):
         wdl, success = self.probe_ab(board, -2, 2)
@@ -1612,7 +1644,7 @@ class Tablebases(object):
         self.close()
 
 
-def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
+def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128):
     """
     Opens a collection of tablebases for probing. See
     :class:`~chess.syzygy.Tablebases`.
@@ -1626,4 +1658,4 @@ def open_tablebases(directory=None, load_wdl=True, load_dtz=True):
         Use :func:`~chess.syzygy.Tablebases.open_directory()` to load
         tablebases from additional directories.
     """
-    return Tablebases(directory, load_wdl, load_dtz)
+    return Tablebases(directory, load_wdl, load_dtz, max_fds)
