@@ -1261,7 +1261,7 @@ class Tablebases(object):
     Directly loads tables from *directory*. See
     :func:`~chess.syzygy.Tablebases.open_directory`.
 
-    If **max_fds** is not ``None``, will at most use *max_fds* open file
+    If *max_fds* is not ``None``, will at most use *max_fds* open file
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
     """
