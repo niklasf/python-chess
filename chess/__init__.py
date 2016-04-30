@@ -1048,6 +1048,9 @@ class BaseBoard(object):
         self._set_board_fen(fen)
 
     def _set_chess960_sp(self, n):
+        if not (0 <= n <= 959):
+            raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(n)))
+
         backranks = BB_RANK_1 | BB_RANK_8
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
