@@ -1319,10 +1319,10 @@ class Tablebases(object):
         except ValueError:
             pass
 
-        self.wdl_lru.append(table)
+        self.wdl_lru.appendleft(table)
 
         if len(self.wdl_lru) > self.max_fds // 2:
-            self.wdl_lru.popleft().close()
+            self.wdl_lru.pop().close()
 
         return table.probe_wdl_table(board)
 
@@ -1431,10 +1431,10 @@ class Tablebases(object):
         except ValueError:
             pass
 
-        self.dtz_lru.append(table)
+        self.dtz_lru.appendleft(table)
 
         if len(self.dtz_lru) > self.max_fds // 2:
-            self.dtz_lru.popleft().close()
+            self.dtz_lru.pop().close()
 
         return table.probe_dtz_table(board, wdl)
 
