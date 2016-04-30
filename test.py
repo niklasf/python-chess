@@ -1199,6 +1199,7 @@ class BoardTestCase(unittest.TestCase):
 
     def test_from_chess960_sp(self):
         board = chess.Board.from_chess960_sp(909)
+        self.assertTrue(board.chess960)
         self.assertEqual(board.fen(), "rkqbrnbn/pppppppp/8/8/8/8/PPPPPPPP/RKQBRNBN w KQkq - 0 1")
 
 

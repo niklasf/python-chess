@@ -2335,6 +2335,7 @@ class Board(BaseBoard):
 
     def set_chess960_sp(self, sharnagl):
         super(Board, self).set_chess960_sp(sharnagl)
+        self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
         self.ep_square = 0
