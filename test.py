@@ -1197,6 +1197,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(chess.Move.from_uci("c2d3") in plc)
         self.assertEqual(len(plc), 5)
 
+    def test_from_chess960_sp(self):
+        board = chess.Board.from_chess960_sp(909)
+        self.assertEqual(board.fen(), "rkqbrnbn/pppppppp/8/8/8/8/PPPPPPPP/RKQBRNBN w KQkq - 0 1")
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -1219,6 +1223,24 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertTrue("Qxh2+" in repr(board.pseudo_legal_moves))
         self.assertTrue("e8d7" in str(board.pseudo_legal_moves))
         self.assertTrue("e8d7" in repr(board.pseudo_legal_moves))
+
+
+class BaseBoardTestCase(unittest.TestCase):
+
+    def test_set_chess960_sp(self):
+        board = chess.BaseBoard()
+
+        board.set_chess960_sp(0)
+        self.assertEqual(board.board_fen(), "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR")
+
+        board.set_chess960_sp(631)
+        self.assertEqual(board.board_fen(), "rnbkqrnb/pppppppp/8/8/8/8/PPPPPPPP/RNBKQRNB")
+
+        board.set_chess960_sp(518)
+        self.assertEqual(board.board_fen(), chess.STARTING_BOARD_FEN)
+
+        board.set_chess960_sp(959)
+        self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
 
 
 class SquareSetTestCase(unittest.TestCase):
