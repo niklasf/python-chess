@@ -1310,7 +1310,7 @@ class BaseBoard(object):
     @classmethod
     def from_chess960_sp(cls, sharnagl):
         """
-        Creates a new empty board, initialized to a Chess960 starting position.
+        Creates a new bnoard, initialized to a Chess960 starting position.
         Also see :func:`~chess.BaseBoard.set_chess960_sp()`.
         """
         board = cls.empty()
