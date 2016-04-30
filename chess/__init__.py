@@ -1047,15 +1047,15 @@ class BaseBoard(object):
         """
         self._set_board_fen(fen)
 
-    def _set_chess960_sp(self, n):
-        if not (0 <= n <= 959):
-            raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(n)))
+    def _set_chess960_pos(self, sharnagl):
+        if not (0 <= sharnagl <= 959):
+            raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(sharnagl)))
 
         backranks = BB_RANK_1 | BB_RANK_8
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
-        n, bw = divmod(n, 4)
+        n, bw = divmod(sharnagl, 4)
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
@@ -1111,13 +1111,13 @@ class BaseBoard(object):
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
-    def set_chess960_sp(self, sharnagl):
+    def set_chess960_pos(self, sharnagl):
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
 
-        >>> board.set_chess960_sp(random.randint(0, 959))
+        >>> board.set_chess960_pos(random.randint(0, 959))
         """
-        self._set_chess960_sp(sharnagl)
+        self._set_chess960_pos(sharnagl)
 
     def board_zobrist_hash(self, array=None):
         if array is None:
@@ -1308,13 +1308,13 @@ class BaseBoard(object):
         return cls(None)
 
     @classmethod
-    def from_chess960_sp(cls, sharnagl):
+    def from_chess960_pos(cls, sharnagl):
         """
         Creates a new board, initialized to a Chess960 starting position.
-        Also see :func:`~chess.BaseBoard.set_chess960_sp()`.
+        Also see :func:`~chess.BaseBoard.set_chess960_pos()`.
         """
         board = cls.empty()
-        board.set_chess960_sp(sharnagl)
+        board.set_chess960_pos(sharnagl)
         return board
 
 
@@ -1333,6 +1333,8 @@ class Board(BaseBoard):
 
     Optionally supports *chess960*. In Chess960 castling moves are encoded
     by a king move to the corresponding rook square.
+    Use :func:`chess.Board.from_chess960_pos()` to create a board with one
+    of the Chess960 starting positions.
     """
 
     def __init__(self, fen=STARTING_FEN, chess960=False):
@@ -2336,8 +2338,8 @@ class Board(BaseBoard):
         self.attacks_valid = False
         self.clear_stack()
 
-    def set_chess960_sp(self, sharnagl):
-        super(Board, self).set_chess960_sp(sharnagl)
+    def set_chess960_pos(self, sharnagl):
+        super(Board, self).set_chess960_pos(sharnagl)
         self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
@@ -3887,9 +3889,9 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_sp(cls, sharnagl):
+    def from_chess960_pos(cls, sharnagl):
         board = cls.empty(chess960=True)
-        board.set_chess960_sp(sharnagl)
+        board.set_chess960_pos(sharnagl)
         return board
 
 
