@@ -1260,18 +1260,33 @@ class Tablebases(object):
 
     Directly loads tables from *directory*. See
     :func:`~chess.syzygy.Tablebases.open_directory`.
+
+    If **max_fds** is not ``None``, will at most use *max_fds* open file
+    descriptors at any given time. The least recently used tables are closed,
+    if nescessary.
     """
     def __init__(self, directory=None, load_wdl=True, load_dtz=True, max_fds=128):
-        self.max_fds = max(2, max_fds)
+        self.max_fds = max_fds
+        self.lru = collections.deque()
 
         self.wdl = {}
         self.dtz = {}
 
-        self.wdl_lru = collections.deque()
-        self.dtz_lru = collections.deque()
-
         if directory:
             self.open_directory(directory, load_wdl, load_dtz)
+
+    def _bump_lru(self, table):
+        if self.max_fds is None:
+            return
+
+        try:
+            self.lru.remove(table)
+            self.lru.appendleft(table)
+        except ValueError:
+            self.lru.appendleft(table)
+
+            if len(self.lru) > self.max_fds:
+                self.lru.pop().close()
 
     def open_directory(self, directory, load_wdl=True, load_dtz=True):
         """
@@ -1322,15 +1337,7 @@ class Tablebases(object):
         except KeyError:
             return None
 
-        try:
-            self.wdl_lru.remove(table)
-        except ValueError:
-            pass
-
-        self.wdl_lru.appendleft(table)
-
-        if len(self.wdl_lru) > self.max_fds // 2:
-            self.wdl_lru.pop().close()
+        self._bump_lru(table)
 
         return table.probe_wdl_table(board)
 
@@ -1434,15 +1441,7 @@ class Tablebases(object):
         except KeyError:
             return None, 0
 
-        try:
-            self.dtz_lru.remove(table)
-        except ValueError:
-            pass
-
-        self.dtz_lru.appendleft(table)
-
-        if len(self.dtz_lru) > self.max_fds // 2:
-            self.dtz_lru.pop().close()
+        self._bump_lru(table)
 
         return table.probe_dtz_table(board, wdl)
 
@@ -1644,6 +1643,8 @@ class Tablebases(object):
         while self.dtz:
             _, dtz = self.dtz.popitem()
             dtz.close()
+
+        self.lru.clear()
 
     def __enter__(self):
         return self
