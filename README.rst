@@ -10,7 +10,7 @@ python-chess: a pure Python chess library
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
 
-.. image:: https://readthedocs.io/projects/python-chess/badge/?version=latest
+.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
 
 Introduction
