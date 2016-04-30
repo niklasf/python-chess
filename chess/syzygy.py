@@ -396,16 +396,8 @@ class Table(object):
         self.filename = filename
         self.suffix = suffix
 
-        self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
-        self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-
-        if sys.version_info >= (3, ):
-            self.read_ubyte = self.data.__getitem__
-        else:
-            def read_ubyte(data_ptr):
-                return ord(self.data[data_ptr])
-
-            self.read_ubyte = read_ubyte
+        self.fd = None
+        self.data = None
 
         self.key = calc_key_from_filename(filename)
         self.mirrored_key = calc_key_from_filename(filename, True)
@@ -439,6 +431,23 @@ class Table(object):
                 # suicide chess.
                 # TODO: Could be implemented.
                 assert False
+
+    def init_mmap(self):
+        # Open fd.
+        if not self.fd:
+            self.fd = os.open(os.path.join(directory, filename) + suffix, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+
+        # Open mmap.
+        if self.data is None:
+            self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+
+            if sys.version_info >= (3, ):
+                self.read_ubyte = self.data.__getitem__
+            else:
+                def read_ubyte(data_ptr):
+                    return ord(self.data[data_ptr])
+
+                self.read_ubyte = read_ubyte
 
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
@@ -798,6 +807,9 @@ class Table(object):
         except OSError:
             pass
 
+        self.data = None
+        self.fd = None
+
     def __enter__(self):
         return self
 
@@ -825,10 +837,9 @@ class WdlTable(Table):
         self.lock = threading.Lock()
 
     def init_table_wdl(self):
-        if self.initialized:
-            return
-
         with self.lock:
+            self.init_mmap()
+
             if self.initialized:
                 return
 
@@ -1040,10 +1051,9 @@ class DtzTable(Table):
         self.lock = threading.Lock()
 
     def init_table_dtz(self):
-        if self.initialized:
-            return
-
         with self.lock:
+            self.init_mmap()
+
             if self.initialized:
                 return
 
