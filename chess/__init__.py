@@ -1364,11 +1364,11 @@ class Board(BaseBoard):
 
     def reset(self):
         """Restores the starting position."""
-        self.ep_square = 0
-        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
         self.turn = WHITE
-        self.fullmove_number = 1
+        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
+        self.ep_square = 0
         self.halfmove_clock = 0
+        self.fullmove_number = 1
 
         self.reset_board()
 
@@ -1387,11 +1387,11 @@ class Board(BaseBoard):
         In order to be in a valid :func:`~chess.Board.status()` at least kings
         need to be put on the board.
         """
-        self.ep_square = 0
-        self.castling_rights = BB_VOID
         self.turn = WHITE
-        self.fullmove_number = 1
+        self.castling_rights = BB_VOID
+        self.ep_square = 0
         self.halfmove_clock = 0
+        self.fullmove_number = 1
 
         self.clear_board()
 
