@@ -1047,8 +1047,66 @@ class BaseBoard(object):
         """
         self._set_board_fen(fen)
 
-    def _set_chess960_sp(self, sharnagl):
-        pass
+    def _set_chess960_sp(self, n):
+        backranks = BB_RANK_1 | BB_RANK_8
+
+        # See http://www.russellcottrell.com/Chess/Chess960.htm for
+        # a description of the algorithm.
+        n, bw = divmod(n, 4)
+        n, bb = divmod(n, 4)
+        n, q = divmod(n, 6)
+
+        for n1 in range(0, 4):
+            n2 = n + (3 - n1) * (4 - n1) // 2 - 5
+            if n1 < n2 and 1 <= n2 <= 4:
+                break
+
+        # Bishops.
+        bw_file = bw * 2 + 1
+        bb_file = bb * 2
+        self.bishops = (BB_FILES[bw_file] | BB_FILES[bb_file]) & backranks
+
+        # Queens.
+        q_file = q
+        q_file += int(min(bw_file, bb_file) <= q_file)
+        q_file += int(max(bw_file, bb_file) <= q_file)
+        self.queens = BB_FILES[q_file] & backranks
+
+        used = [bw_file, bb_file, q_file]
+
+        # Knights.
+        self.knights = BB_VOID
+        for i in range(0, 8):
+            if i not in used:
+                if n1 == 0 or n2 == 0:
+                    self.knights |= BB_FILES[i] & backranks
+                    used.append(i)
+                n1 -= 1
+                n2 -= 1
+
+        # RKR.
+        for i in range(0, 8):
+            if i not in used:
+                self.rooks = BB_FILES[i] & backranks
+                used.append(i)
+                break
+        for i in range(1, 8):
+            if i not in used:
+                self.kings = BB_FILES[i] & backranks
+                used.append(i)
+                break
+        for i in range(2, 8):
+            if i not in used:
+                self.rooks |= BB_FILES[i] & backranks
+                break
+
+        # Finalize.
+        self.pawns = BB_RANK_2 | BB_RANK_7
+        self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
+        self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
+        self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
+
+        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
     def set_chess960_sp(self, sharnagl):
         """
