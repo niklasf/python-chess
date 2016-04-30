@@ -1046,6 +1046,10 @@ class WdlTable(Table):
 
         return res - 2
 
+    def close(self):
+        with self.lock:
+            super(WdlTable, self).close()
+
 
 class DtzTable(Table):
 
@@ -1241,6 +1245,10 @@ class DtzTable(Table):
 
         self.files[f].factor = [0, 0, 0, 0, 0, 0]
         self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor, order, order2, self.files[f].norm, f)
+
+    def close(self):
+        with self.lock:
+            super(DtzTable, self).close()
 
 
 class Tablebases(object):
