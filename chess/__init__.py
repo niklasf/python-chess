@@ -1047,6 +1047,17 @@ class BaseBoard(object):
         """
         self._set_board_fen(fen)
 
+    def _set_chess960_sp(self, sharnagl):
+        pass
+
+    def set_chess960_sp(self, sharnagl):
+        """
+        Sets up a Chess960 starting position given its index between 0 and 959.
+
+        >>> board.set_chess960_sp(random.randint(0, 959))
+        """
+        self._set_chess960_sp(sharnagl)
+
     def board_zobrist_hash(self, array=None):
         if array is None:
             return self.incremental_zobrist_hash
@@ -1234,6 +1245,16 @@ class BaseBoard(object):
         :func:`~chess.BaseBoard.clear_board()`.
         """
         return cls(None)
+
+    @classmethod
+    def from_chess960_sp(cls, sharnagl):
+        """
+        Creates a new empty board, initialized to a Chess960 starting position.
+        Also see :func:`~chess.BaseBoard.set_chess960_sp()`.
+        """
+        board = cls.empty()
+        board.set_chess960_sp(sharnagl)
+        return board
 
 
 class Board(BaseBoard):
@@ -2251,6 +2272,11 @@ class Board(BaseBoard):
 
     def set_board_fen(self, fen):
         super(Board, self).set_board_fen(fen)
+        self.attacks_valid = False
+        self.clear_stack()
+
+    def set_chess960_sp(self, sharnagl):
+        super(Board, self).set_chess960_sp(sharnagl)
         self.attacks_valid = False
         self.clear_stack()
 
@@ -3791,6 +3817,12 @@ class Board(BaseBoard):
         """
         board = cls.empty(chess960=chess960)
         return board, board.set_epd(epd)
+
+    @classmethod
+    def from_chess960_sp(cls, sharnagl):
+        board = cls.empty(chess960=True)
+        board.set_chess960_sp(sharnagl)
+        return board
 
 
 class PseudoLegalMoveGenerator(object):
