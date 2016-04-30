@@ -26,8 +26,10 @@ import chess
 
 def main(bench_only=False):
     board = chess.Board.empty(chess960=True)
+
     for sharnagl in range(0, 960):
-        board.set_chess960_sp(sharnagl)
+        board.set_chess960_pos(sharnagl)
+
         if not bench_only:
             print(str(sharnagl).rjust(3), board.fen())
 

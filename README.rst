@@ -71,7 +71,12 @@ Features
 
   .. code:: python
 
-      >>> board = chess.Board(chess960=True)
+      >>> chess.Board(chess960=True)
+      Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', chess960=True)
+
+      >>> chess.Board.from_chess960_pos(330)
+      Board('nrqkbbrn/pppppppp/8/8/8/8/PPPPPPPP/NRQKBBRN w KQkq - 0 1', chess960=True)
+
 
 * Legal move generator and move validation. This includes all castling
   rules and en passant captures.
