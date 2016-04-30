@@ -1256,6 +1256,7 @@ class Tablebases(object):
         Returns the number of successfully openened and loaded tablebase files.
         """
         num = 0
+        directory = os.path.abspath(directory)
 
         if not os.path.isdir(directory):
             raise IOError("not a tablebase directory: {0}".format(repr(directory)))
