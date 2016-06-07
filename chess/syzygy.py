@@ -1465,10 +1465,10 @@ class Tablebases(object):
 
                 board.push(move)
 
-                v_plus, success = self.probe_ab(board, -2, -wdl + 1)
+                v_plus = self.probe_wdl(board)
                 board.pop()
 
-                if v_plus is None or not success:
+                if v_plus is None:
                     return None
 
                 v = -v_plus

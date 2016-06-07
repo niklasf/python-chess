@@ -2437,7 +2437,7 @@ class SyzygyTestCase(unittest.TestCase):
 
     def test_probe_wdl_tablebase(self):
         tablebases = chess.syzygy.Tablebases(max_fds=2)
-        self.assertEqual(tablebases.open_directory("data/syzygy"), 70)
+        self.assertTrue(tablebases.open_directory("data/syzygy") >= 70)
 
         # Winning KRvKB.
         board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
@@ -2500,6 +2500,15 @@ class SyzygyTestCase(unittest.TestCase):
                     dtz, extra["dtz"],
                     "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
 
+        tablebases.close()
+
+    def test_stockfish_dtz_bug(self):
+        board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
+        tablebases = chess.syzygy.Tablebases("data/syzygy")
+        dtz = tablebases.probe_dtz(board)
+        if dtz is None:
+            self.skipTest("need KBPvKP.rtbz and its children")
+        self.assertEqual(tablebases.probe_dtz(board), 15)
         tablebases.close()
 
 
