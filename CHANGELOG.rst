@@ -6,6 +6,31 @@ is more important to get things right, than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.14.1
+--------------
+
+Bugfixes:
+
+* Backport Bugfix for Syzygy DTZ related to en-passant.
+  See official-stockfish/Stockfish@6e2ca97d93812b2.
+
+Changes:
+
+* Added optional argument *max_fds=128* to `chess.syzygy.open_tablebases()`.
+  An LRU cache is used to keep at most *max_fds* files open. This allows using
+  many tables without running out of file descriptors.
+  Previously all tables were opened at once.
+
+* Syzygy and Gaviota now store absolute tablebase paths, in case you change
+  the working directory of the process.
+
+* The default implementation of `chess.uci.InfoHandler.score()` will no longer
+  store score bounds in `info["score"]`, only real scores.
+
+* Added `Board.set_chess960_pos()`.
+
+* Documentation improvements.
+
 New in v0.14.0
 --------------
 
