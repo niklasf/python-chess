@@ -189,12 +189,16 @@ class MemoryMappedReader(object):
 
         Raises :exc:`IndexError` if no entries are found.
         """
-        total_entries = sum(1 for entry in self.find_all(board, minimum_weight, exclude_moves))
-        if not total_entries:
+        chosen_entry = None
+
+        for i, entry in enumerate(self.find_all(board, minimum_weight, exclude_moves)):
+            if chosen_entry is None or random.randint(0, i) == i:
+                chosen_entry = entry
+
+        if chosen_entry is None:
             raise IndexError()
 
-        choice = random.randint(0, total_entries - 1)
-        return next(itertools.islice(self.find_all(board, minimum_weight, exclude_moves), choice, None))
+        return chosen_entry
 
     def weighted_choice(self, board, exclude_moves=(), random=random):
         """
