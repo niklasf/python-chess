@@ -188,6 +188,8 @@ BB_RANKS = [
     BB_A8 | BB_B8 | BB_C8 | BB_D8 | BB_E8 | BB_F8 | BB_G8 | BB_H8
 ]
 
+BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
+
 RANK_MASK = {}
 RANK_MASK[0] = 0
 
@@ -1051,8 +1053,6 @@ class BaseBoard(object):
         if not (0 <= sharnagl <= 959):
             raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(sharnagl)))
 
-        backranks = BB_RANK_1 | BB_RANK_8
-
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
         n, bw = divmod(sharnagl, 4)
@@ -1067,13 +1067,13 @@ class BaseBoard(object):
         # Bishops.
         bw_file = bw * 2 + 1
         bb_file = bb * 2
-        self.bishops = (BB_FILES[bw_file] | BB_FILES[bb_file]) & backranks
+        self.bishops = (BB_FILES[bw_file] | BB_FILES[bb_file]) & BB_BACKRANKS
 
         # Queens.
         q_file = q
         q_file += int(min(bw_file, bb_file) <= q_file)
         q_file += int(max(bw_file, bb_file) <= q_file)
-        self.queens = BB_FILES[q_file] & backranks
+        self.queens = BB_FILES[q_file] & BB_BACKRANKS
 
         used = [bw_file, bb_file, q_file]
 
@@ -1082,7 +1082,7 @@ class BaseBoard(object):
         for i in range(0, 8):
             if i not in used:
                 if n1 == 0 or n2 == 0:
-                    self.knights |= BB_FILES[i] & backranks
+                    self.knights |= BB_FILES[i] & BB_BACKRANKS
                     used.append(i)
                 n1 -= 1
                 n2 -= 1
@@ -1090,17 +1090,17 @@ class BaseBoard(object):
         # RKR.
         for i in range(0, 8):
             if i not in used:
-                self.rooks = BB_FILES[i] & backranks
+                self.rooks = BB_FILES[i] & BB_BACKRANKS
                 used.append(i)
                 break
         for i in range(1, 8):
             if i not in used:
-                self.kings = BB_FILES[i] & backranks
+                self.kings = BB_FILES[i] & BB_BACKRANKS
                 used.append(i)
                 break
         for i in range(2, 8):
             if i not in used:
-                self.rooks |= BB_FILES[i] & backranks
+                self.rooks |= BB_FILES[i] & BB_BACKRANKS
                 break
 
         # Finalize.

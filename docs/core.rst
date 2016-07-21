@@ -199,9 +199,6 @@ Common integer masks are:
     :annotation: = 0
 .. py:data:: chess.BB_ALL
 
-.. py:data:: chess.BB_LIGHT_SQUARES
-.. py:data:: chess.BB_DARK_SQUARES
-
 Single squares:
 
 .. py:data:: chess.BB_SQUARES
@@ -212,5 +209,14 @@ Ranks and files:
 .. py:data:: chess.BB_RANKS
     :annotation: = [chess.BB_RANK_1, ..., chess.BB_RANK_8]
 
+
 .. py:data:: chess.BB_FILES
     :annotation: = [chess.BB_FILE_A, ..., chess.BB_FILE_H]
+
+Other masks:
+
+.. py:data:: chess.BB_LIGHT_SQUARES
+.. py:data:: chess.BB_DARK_SQUARES
+
+.. py:data:: chess.BB_BACKRANKS
+    :annotation: = chess.BB_RANK_1 | chess.BB_RANK_8
