@@ -1458,55 +1458,31 @@ class Board(BaseBoard):
             return
 
         # Generate pawn captures.
-        targets = self.occupied_co[not self.turn] & to_mask
-        if self.turn == WHITE:
-            right_captures = pawns << 9 & ~BB_FILE_A & targets
-            left_captures = pawns << 7 & ~BB_FILE_H & targets
-        else:
-            right_captures = pawns >> 7 & ~BB_FILE_A & targets
-            left_captures = pawns >> 9 & ~BB_FILE_H & targets
-
-        # Yield right captures.
-        while right_captures:
-            to_square = right_captures & -right_captures
-            to_square_index = bit_scan(to_square)
-
-            if self.turn == WHITE:
-                from_square = to_square >> 9
-            else:
-                from_square = to_square << 7
+        capturers = pawns
+        while capturers:
+            from_square = capturers & -capturers
             from_square_index = bit_scan(from_square)
 
-            if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
-                yield Move(from_square_index, to_square_index, QUEEN)
-                yield Move(from_square_index, to_square_index, ROOK)
-                yield Move(from_square_index, to_square_index, BISHOP)
-                yield Move(from_square_index, to_square_index, KNIGHT)
-            else:
-                yield Move(from_square_index, to_square_index)
+            targets = (
+                self.attacks_from[from_square] &
+                self.occupied_co[not self.turn] & to_mask &
+                (DIAG_ATTACKS_NW[from_square][BB_VOID] | DIAG_ATTACKS_NE[from_square][BB_VOID]))
 
-            right_captures = right_captures & (right_captures - 1)
+            while targets:
+                to_square = targets & -targets
+                to_square_index = bit_scan(to_square)
 
-        # Yield left captures.
-        while left_captures:
-            to_square = left_captures & -left_captures
-            to_square_index = bit_scan(to_square)
+                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
+                    yield Move(from_square_index, to_square_index, QUEEN)
+                    yield Move(from_square_index, to_square_index, ROOK)
+                    yield Move(from_square_index, to_square_index, BISHOP)
+                    yield Move(from_square_index, to_square_index, KNIGHT)
+                else:
+                    yield Move(from_square_index, to_square_index)
 
-            if self.turn == WHITE:
-                from_square = to_square >> 7
-            else:
-                from_square = to_square << 9
-            from_square_index = bit_scan(from_square)
+                targets = targets & (targets - 1)
 
-            if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
-                yield Move(from_square_index, to_square_index, QUEEN)
-                yield Move(from_square_index, to_square_index, ROOK)
-                yield Move(from_square_index, to_square_index, BISHOP)
-                yield Move(from_square_index, to_square_index, KNIGHT)
-            else:
-                yield Move(from_square_index, to_square_index)
-
-            left_captures = left_captures & (left_captures - 1)
+            capturers = capturers & (capturers - 1)
 
         # Prepare pawn advance generation.
         if self.turn == WHITE:
@@ -3328,27 +3304,21 @@ class Board(BaseBoard):
             return
 
         # Generate pawn captures.
-        targets = their_pieces & to_mask
-        if self.turn == WHITE:
-            right_captures = pawns << 9 & targets & ~BB_FILE_A & BB_ALL
-            left_captures = pawns << 7 & targets & ~BB_FILE_H & BB_ALL
-        else:
-            right_captures = pawns >> 7 & targets & ~BB_FILE_A
-            left_captures = pawns >> 9 & targets & ~BB_FILE_H
-
-        # Yield right captures.
-        while right_captures:
-            to_square = right_captures & -right_captures
-            to_square_index = bit_scan(to_square)
-
-            if self.turn == WHITE:
-                from_square = to_square >> 9
-            else:
-                from_square = to_square << 7
+        capturers = pawns
+        while capturers:
+            from_square = capturers & -capturers
             from_square_index = bit_scan(from_square)
 
-            mask = self._pinned(self.turn, from_square)
-            if mask & to_square:
+            targets = (
+                self.attacks_from[from_square] &
+                self.occupied_co[not self.turn] & to_mask &
+                (DIAG_ATTACKS_NW[from_square][BB_VOID] | DIAG_ATTACKS_NE[from_square][BB_VOID]) &
+                self._pinned(self.turn, from_square))
+
+            while targets:
+                to_square = targets & -targets
+                to_square_index = bit_scan(to_square)
+
                 if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
                     yield Move(from_square_index, to_square_index, QUEEN)
                     yield Move(from_square_index, to_square_index, ROOK)
@@ -3357,30 +3327,9 @@ class Board(BaseBoard):
                 else:
                     yield Move(from_square_index, to_square_index)
 
-            right_captures = right_captures & (right_captures - 1)
+                targets = targets & (targets - 1)
 
-        # Yield left captures.
-        while left_captures:
-            to_square = left_captures & -left_captures
-            to_square_index = bit_scan(to_square)
-
-            if self.turn == WHITE:
-                from_square = to_square >> 7
-            else:
-                from_square = to_square << 9
-            from_square_index = bit_scan(from_square)
-
-            mask = self._pinned(self.turn, from_square)
-            if mask & to_square:
-                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
-                    yield Move(from_square_index, to_square_index, QUEEN)
-                    yield Move(from_square_index, to_square_index, ROOK)
-                    yield Move(from_square_index, to_square_index, BISHOP)
-                    yield Move(from_square_index, to_square_index, KNIGHT)
-                else:
-                    yield Move(from_square_index, to_square_index)
-
-            left_captures = left_captures & (left_captures - 1)
+            capturers = capturers & (capturers - 1)
 
         # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
