@@ -117,14 +117,28 @@ class OptionMap(collections.MutableMapping):
 class InfoHandler(object):
     """
     Chess engines may send information about their calculations with the
-    *info* command. You can register info handlers to be asynchronously
-    notified whenever the engine sends more information.
+    *info* command. Info handlers can be used to aggregate or react to this
+    information.
 
     >>> # Register a standard info handler.
     >>> info_handler = chess.uci.InfoHandler()
     >>> engine.info_handlers.append(info_handler)
 
-    You would usually subclass the *InfoHandler* class.
+    >>> # Start a search.
+    >>> engine.position(board)
+    >>> engine.go(movetime=1000)
+    BestMove(bestmove=Move.from_uci('e2e4'), ponder=Move.from_uci('e7e6'))
+
+    >>> # Retrieve the score of the mainline (PV 1) after search is completed.
+    >>> # Note that the score is relative to the side to move.
+    >>> info_handler.info["score"][1]
+    Score(cp=34, mate=None, lowerbound=False, upperbound=False)
+
+    See :data:`~chess.InfoHandler.info` for a way to access this dictionary
+    in a thread-safe way during search.
+
+    If you want to be notified whenever new information is available
+    you would usually subclass the *InfoHandler* class:
 
     >>> class MyHandler(chess.uci.InfoHandler):
     ...     def post_info(self):
