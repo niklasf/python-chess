@@ -2561,7 +2561,7 @@ class Board(BaseBoard):
         else:
             san = PIECE_SYMBOLS[piece].upper()
 
-            # Get ambigous move candidates.
+            # Get ambiguous move candidates.
             # Relevant candidates: Not excatly the current move,
             # but to the same square.
             others = BB_VOID
