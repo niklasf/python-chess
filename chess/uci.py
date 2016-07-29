@@ -128,13 +128,13 @@ class InfoHandler(object):
     >>> engine.position(board)
     >>> engine.go(movetime=1000)
     BestMove(bestmove=Move.from_uci('e2e4'), ponder=Move.from_uci('e7e6'))
-
+    >>>
     >>> # Retrieve the score of the mainline (PV 1) after search is completed.
     >>> # Note that the score is relative to the side to move.
     >>> info_handler.info["score"][1]
     Score(cp=34, mate=None, lowerbound=False, upperbound=False)
 
-    See :data:`~chess.InfoHandler.info` for a way to access this dictionary
+    See :attr:`~chess.uci.InfoHandler.info` for a way to access this dictionary
     in a thread-safe way during search.
 
     If you want to be notified whenever new information is available
