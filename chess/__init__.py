@@ -1449,7 +1449,7 @@ class Board(BaseBoard):
             non_pawns = non_pawns & (non_pawns - 1)
 
         # Generate castling moves.
-        for move in self.generate_castling_moves():
+        for move in self.generate_castling_moves(from_mask, to_mask):
             yield move
 
         # The remaining moves are all pawn moves.
