@@ -1038,6 +1038,22 @@ class BoardTestCase(unittest.TestCase):
                 if move not in pseudo_legal_moves:
                     self.assertFalse(board.is_pseudo_legal(move))
 
+    def test_pseudo_legal_castling_masks(self):
+        board = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
+        kingside = chess.Move.from_uci("e1g1")
+        queenside = chess.Move.from_uci("e1c1")
+
+        moves = list(board.generate_pseudo_legal_moves())
+        self.assertTrue(kingside in moves)
+        self.assertTrue(queenside in moves)
+
+        moves = list(board.generate_pseudo_legal_moves(from_mask=chess.BB_RANK_2))
+        self.assertEqual(moves, [])
+
+        moves = list(board.generate_pseudo_legal_moves(to_mask=chess.BB_A1))
+        self.assertFalse(kingside in moves)
+        self.assertTrue(queenside in moves)
+
     def test_pieces(self):
         board = chess.Board()
         king = board.pieces(chess.KING, chess.WHITE)
