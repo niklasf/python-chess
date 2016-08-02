@@ -1385,7 +1385,6 @@ class Board(BaseBoard):
 
     def reset_board(self):
         super(Board, self).reset_board()
-        self.attacks_valid = False
         self.clear_stack()
 
     def clear(self):
@@ -1408,7 +1407,6 @@ class Board(BaseBoard):
 
     def clear_board(self):
         super(Board, self).clear_board()
-        self.attacks_valid = False
         self.clear_stack()
 
     def clear_stack(self):
@@ -1425,12 +1423,10 @@ class Board(BaseBoard):
     def remove_piece_at(self, square):
         super(Board, self).remove_piece_at(square)
         self.clear_stack()
-        self.attacks_valid = False
 
     def set_piece_at(self, square, piece):
         super(Board, self).set_piece_at(square, piece)
         self.clear_stack()
-        self.attacks_valid = False
 
     def generate_pseudo_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         # Generate piece moves.
@@ -1986,10 +1982,6 @@ class Board(BaseBoard):
         if not move:
             self.turn = not self.turn
             self.halfmove_clock += 1
-
-            # Invalidate en passant attacks.
-            if self.ep_square:
-                self.attacks_valid = False
             self.ep_square = 0
             return
 
@@ -2060,9 +2052,6 @@ class Board(BaseBoard):
 
         # Update transposition table.
         self.transpositions.update((self.zobrist_hash(), ))
-
-        # Invalidate attacks.
-        self.attacks_valid = False
 
     def pop(self):
         """
@@ -2331,13 +2320,11 @@ class Board(BaseBoard):
         self.halfmove_clock = int(parts[4])
         self.fullmove_number = int(parts[5]) or 1
 
-        # Invalidate attacks and clear move stack.
-        self.attacks_valid = False
+        # Clear move stack.
         self.clear_stack()
 
     def set_board_fen(self, fen):
         super(Board, self).set_board_fen(fen)
-        self.attacks_valid = False
         self.clear_stack()
 
     def set_chess960_pos(self, sharnagl):
@@ -2349,7 +2336,6 @@ class Board(BaseBoard):
         self.halfmove_clock = 0
         self.fullmove_number = 1
 
-        self.attacks_valid = False
         self.clear_stack()
 
     def epd(self, **operations):
