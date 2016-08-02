@@ -1620,7 +1620,32 @@ class Board(BaseBoard):
         return SquareSet(self.attacks_mask(square))
 
     def pin_mask(self, color, square):
-        return self._pinned(color, BB_SQUARES[square])
+        square_mask = BB_SQUARES[square]
+
+        king = self.kings & self.occupied_co[color]
+        other_pieces = self.occupied_co[not color]
+        sliders = (self.rooks | self.bishops | self.queens) & other_pieces
+
+        mask = BB_ALL
+
+        for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
+                                              (RANK_MASK, RANK_ATTACKS),
+                                              (DIAG_MASK_NW, DIAG_ATTACKS_NW),
+                                              (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
+            if direction_masks[square_mask] & direction_masks[king] & self._attacks_to(square_mask) & other_pieces:
+                attackers = direction_masks[king] & self.attacks_to_mask(square) & sliders
+                while attackers:
+                    attacker = attackers & -attackers
+
+                    pieces = direction_masks[king] & self.occupied & ~square_mask
+                    if attack_table[attacker][pieces] & king:
+                        mask = direction_masks[king]
+
+                    attackers = attackers & (attackers - 1)
+
+                break
+
+        return mask
 
     def pin(self, color, square):
         """
@@ -1663,7 +1688,7 @@ class Board(BaseBoard):
             return False
 
         # Detect uncovered check.
-        if not self._pinned(self.turn, from_mask) & to_mask:
+        if not self.pin_mask(self.turn, move.from_square) & to_mask:
             return True
 
         # Detect king moves into check.
@@ -3057,36 +3082,6 @@ class Board(BaseBoard):
         See :func:`~chess.Board.status()` for details.
         """
         return self.status() == STATUS_VALID
-
-    def _pinned(self, color, square_mask):
-        if color == WHITE:
-            king = self.kings & self.occupied_co[WHITE]
-            other_pieces = self.occupied_co[BLACK]
-        else:
-            king = self.kings & self.occupied_co[BLACK]
-            other_pieces = self.occupied_co[WHITE]
-        sliders = (self.rooks | self.bishops | self.queens) & other_pieces
-
-        mask = BB_ALL
-
-        for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
-                                              (RANK_MASK, RANK_ATTACKS),
-                                              (DIAG_MASK_NW, DIAG_ATTACKS_NW),
-                                              (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
-            if direction_masks[square_mask] & direction_masks[king] & self._attacks_to(square_mask) & other_pieces:
-                attackers = direction_masks[king] & self._attacks_to(square_mask) & sliders
-                while attackers:
-                    attacker = attackers & -attackers
-
-                    pieces = direction_masks[king] & self.occupied & ~square_mask
-                    if attack_table[attacker][pieces] & king:
-                        mask = direction_masks[king]
-
-                    attackers = attackers & (attackers - 1)
-
-                break
-
-        return mask
 
     def _ep_skewered(self, capturer_mask):
         # Handle the special case where the king would be in check, if the
