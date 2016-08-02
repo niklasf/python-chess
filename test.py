@@ -812,17 +812,15 @@ class BoardTestCase(unittest.TestCase):
     def test_en_passant_attackers(self):
         board = chess.Board("4k3/8/8/8/4pPp1/8/8/4K3 b - f3 0 1")
 
-        # Still attacking the en passant square.
+        # Attacking the en passant square.
         attackers = board.attackers(chess.BLACK, chess.F3)
         self.assertEqual(len(attackers), 2)
         self.assertTrue(chess.E4 in attackers)
         self.assertTrue(chess.G4 in attackers)
 
-        # Also attacking the pawn.
+        # Not attacking the pawn directly.
         attackers = board.attackers(chess.BLACK, chess.F4)
-        self.assertEqual(len(attackers), 2)
-        self.assertTrue(chess.E4 in attackers)
-        self.assertTrue(chess.G4 in attackers)
+        self.assertEqual(attackers, chess.BB_VOID)
 
     def test_attacks(self):
         board = chess.Board("5rk1/p5pp/2p3p1/1p1pR3/3P2P1/2N5/PP3n2/2KB4 w - - 1 26")
