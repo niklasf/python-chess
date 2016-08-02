@@ -3237,41 +3237,31 @@ class Board(BaseBoard):
 
         # Generate single pawn moves.
         while single_moves:
-            to_square = single_moves & -single_moves
-            to_square_index = bit_scan(to_square)
+            to_bb = single_moves & -single_moves
+            to_square = bit_scan(to_bb)
+            from_square = to_square + (8 if self.turn == BLACK else -8)
 
-            if self.turn == WHITE:
-                from_square = to_square >> 8
-            else:
-                from_square = to_square << 8
-            from_square_index = bit_scan(from_square)
-
-            mask = self._pinned(self.turn, from_square)
-            if mask & to_square:
-                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
-                    yield Move(from_square_index, to_square_index, QUEEN)
-                    yield Move(from_square_index, to_square_index, ROOK)
-                    yield Move(from_square_index, to_square_index, BISHOP)
-                    yield Move(from_square_index, to_square_index, KNIGHT)
+            mask = self.pin_mask(self.turn, from_square)
+            if mask & to_bb:
+                if BB_BACKRANKS & to_bb:
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
+                    yield Move(from_square, to_square, KNIGHT)
                 else:
-                    yield Move(from_square_index, to_square_index)
+                    yield Move(from_square, to_square)
 
             single_moves = single_moves & (single_moves - 1)
 
         # Generate double pawn moves.
         while double_moves:
-            to_square = double_moves & -double_moves
-            to_square_index = bit_scan(to_square)
+            to_bb = double_moves & -double_moves
+            to_square = bit_scan(to_bb)
+            from_square = to_square + (16 if self.turn == BLACK else -16)
 
-            if self.turn == WHITE:
-                from_square = to_square >> 16
-            else:
-                from_square = to_square << 16
-            from_square_index = bit_scan(from_square)
-
-            mask = self._pinned(self.turn, from_square)
-            if mask & to_square:
-                yield Move(from_square_index, to_square_index)
+            mask = self.pin_mask(self.turn, from_square)
+            if mask & to_bb:
+                yield Move(from_square, to_square)
 
             double_moves = double_moves & (double_moves - 1)
 
