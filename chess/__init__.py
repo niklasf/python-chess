@@ -1539,26 +1539,14 @@ class Board(BaseBoard):
         if not ep_square_mask:
             return
 
-        pawns = self.pawns & self.occupied_co[self.turn] & from_mask
+        capturers = (
+            self.pawns & self.occupied_co[self.turn] & from_mask &
+            PAWN_ATTACKS[not self.turn][ep_square_mask])
 
-        if self.turn == WHITE:
-            capturing_pawns = pawns & BB_RANK_5
-        else:
-            capturing_pawns = pawns & BB_RANK_4
-
-        # Left side capture.
-        if ep_square_mask & ~BB_FILE_A:
-            left_file = FILE_MASK[ep_square_mask] >> 1
-            capturing_pawn = capturing_pawns & left_file
-            if capturing_pawn:
-                yield Move(bit_scan(capturing_pawn), self.ep_square)
-
-        # Right side capture.
-        if ep_square_mask & ~BB_FILE_H:
-            right_file = FILE_MASK[ep_square_mask] << 1
-            capturing_pawn = capturing_pawns & right_file
-            if capturing_pawn:
-                yield Move(bit_scan(capturing_pawn), self.ep_square)
+        capturer = bit_scan(capturers)
+        while capturer != -1 and capturer is not None:
+            yield Move(capturer, self.ep_square)
+            capturer = bit_scan(capturers, capturer + 1)
 
     def generate_pseudo_legal_captures(self, from_mask=BB_ALL, to_mask=BB_ALL):
         return itertools.chain(
