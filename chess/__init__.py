@@ -1358,13 +1358,6 @@ class Board(BaseBoard):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
-        self.attacks_valid = False
-        self.attacks_from = collections.defaultdict(int)
-        self.attacks_to = collections.defaultdict(int)
-        self.attacks_valid_stack = collections.deque()
-        self.attacks_from_stack = collections.deque()
-        self.attacks_to_stack = collections.deque()
-
         self.halfmove_clock_stack = collections.deque()
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
@@ -1429,10 +1422,6 @@ class Board(BaseBoard):
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
 
-        self.attacks_valid_stack.clear()
-        self.attacks_from_stack.clear()
-        self.attacks_to_stack.clear()
-
     def remove_piece_at(self, square):
         super(Board, self).remove_piece_at(square)
         self.clear_stack()
@@ -1444,8 +1433,6 @@ class Board(BaseBoard):
         self.attacks_valid = False
 
     def generate_pseudo_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        self.generate_attacks()
-
         # Generate piece moves.
         our_pieces = self.occupied_co[self.turn]
         non_pawns = our_pieces & ~self.pawns & from_mask
@@ -1453,7 +1440,7 @@ class Board(BaseBoard):
             from_square = non_pawns & -non_pawns
             from_square_index = bit_scan(from_square)
 
-            moves = self.attacks_from[from_square] & ~our_pieces & to_mask
+            moves = self.attacks_from(from_square) & ~our_pieces & to_mask
             while moves:
                 to_square = moves & -moves
                 yield Move(from_square_index, bit_scan(to_square))
@@ -1477,7 +1464,7 @@ class Board(BaseBoard):
             from_square_index = bit_scan(from_square)
 
             targets = (
-                self.attacks_from[from_square] &
+                self.attacks_from(from_square) &
                 self.occupied_co[not self.turn] & to_mask &
                 (DIAG_ATTACKS_NW[from_square][BB_VOID] | DIAG_ATTACKS_NE[from_square][BB_VOID]))
 
@@ -1582,9 +1569,27 @@ class Board(BaseBoard):
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
 
+    def attacks_to(self, bb_square):
+        rank_pieces = RANK_MASK[bb_square] & self.occupied
+        file_pieces = FILE_MASK[bb_square] & self.occupied
+        ne_pieces = DIAG_MASK_NE[bb_square] & self.occupied
+        nw_pieces = DIAG_MASK_NW[bb_square] & self.occupied
+
+        parallel_sliders = self.queens | self.rooks
+        diagonal_sliders = self.queens | self.bishops
+
+        return (
+            (KING_MOVES[bb_square] & self.kings) |
+            (KNIGHT_MOVES[bb_square] & self.knights) |
+            (RANK_ATTACKS[bb_square][rank_pieces] & parallel_sliders) |
+            (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
+            (DIAG_ATTACKS_NE[bb_square][ne_pieces] & diagonal_sliders) |
+            (DIAG_ATTACKS_NW[bb_square][nw_pieces] & diagonal_sliders) |
+            (PAWN_ATTACKS[WHITE][bb_square] & self.pawns & self.occupied_co[BLACK]) |
+            (PAWN_ATTACKS[BLACK][bb_square] & self.pawns & self.occupied_co[WHITE]))
+
     def attackers_mask(self, color, square):
-        self.generate_attacks()
-        return self.attacks_to[BB_SQUARES[square]] & self.occupied_co[color]
+        return self.attacks_to(BB_SQUARES[square]) & self.occupied_co[color]
 
     def is_attacked_by(self, color, square):
         """
@@ -1606,9 +1611,31 @@ class Board(BaseBoard):
         """
         return SquareSet(self.attackers_mask(color, square))
 
+    def attacks_from(self, bb_square):
+        if bb_square & self.pawns:
+            if bb_square & self.occupied_co[WHITE]:
+                return PAWN_ATTACKS[WHITE][bb_square]
+            else:
+                return PAWN_ATTACKS[BLACK][bb_square]
+        elif bb_square & self.knights:
+            return KNIGHT_MOVES[bb_square]
+        elif bb_square & self.kings:
+            return KING_MOVES[bb_square]
+        else:
+            attacks = BB_VOID
+
+            if bb_square & self.bishops or bb_square & self.queens:
+                attacks |= DIAG_ATTACKS_NE[bb_square][DIAG_MASK_NE[bb_square] & self.occupied]
+                attacks |= DIAG_ATTACKS_NW[bb_square][DIAG_MASK_NW[bb_square] & self.occupied]
+
+            if bb_square & self.rooks or bb_square & self.queens:
+                attacks |= RANK_ATTACKS[bb_square][RANK_MASK[bb_square] & self.occupied]
+                attacks |= FILE_ATTACKS[bb_square][FILE_MASK[bb_square] & self.occupied]
+
+            return attacks
+
     def attacks_mask(self, square):
-        self.generate_attacks()
-        return self.attacks_from[BB_SQUARES[square]]
+        return self.attacks_from(BB_SQUARES[square])
 
     def attacks(self, square):
         """
@@ -1671,7 +1698,7 @@ class Board(BaseBoard):
 
         # Detect king moves into check.
         if from_mask & self.kings:
-            if self.attacks_to[to_mask] & self.occupied_co[not self.turn]:
+            if self.attacks_to(to_mask) & self.occupied_co[not self.turn]:
                 return True
 
         # Detect en-passant moves, removing both the capturer and the captured
@@ -1735,8 +1762,7 @@ class Board(BaseBoard):
             return move in self.generate_pseudo_legal_moves(from_mask, to_mask)
 
         # Handle all other pieces.
-        self.generate_attacks()
-        return bool(self.attacks_from[from_mask] & to_mask)
+        return bool(self.attacks_from(from_mask) & to_mask)
 
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
@@ -1956,11 +1982,6 @@ class Board(BaseBoard):
         self.ep_square_stack.append(self.ep_square)
         self.move_stack.append(move)
 
-        # Remember attacks.
-        self.attacks_valid_stack.append(self.attacks_valid)
-        self.attacks_from_stack.append(self.attacks_from)
-        self.attacks_to_stack.append(self.attacks_to)
-
         # On a null move simply swap turns and reset the en passant square.
         if not move:
             self.turn = not self.turn
@@ -2062,14 +2083,6 @@ class Board(BaseBoard):
         self.castling_rights = self.castling_right_stack.pop()
         self.ep_square = self.ep_square_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
-
-        # Restore attacks.
-        try:
-            self.attacks_valid = self.attacks_valid_stack.pop()
-            self.attacks_from = self.attacks_from_stack.pop()
-            self.attacks_to = self.attacks_to_stack.pop()
-        except IndexError:
-            self.attacks_valid = False
 
         # On a null move simply swap the turn.
         if not move:
@@ -3085,90 +3098,7 @@ class Board(BaseBoard):
         """
         return self.status() == STATUS_VALID
 
-    def generate_attacks(self):
-        if self.attacks_valid:
-            return
-
-        self.attacks_from = collections.defaultdict(int)
-        self.attacks_to = collections.defaultdict(int)
-
-        # Produce piece attacks.
-        non_pawns = self.occupied & ~self.pawns
-        queens_or_rooks = self.queens | self.rooks
-        queens_or_bishops = self.queens | self.bishops
-
-        while non_pawns:
-            from_square = non_pawns & -non_pawns
-            rank_pieces = RANK_MASK[from_square & queens_or_rooks] & self.occupied
-            file_pieces = FILE_MASK[from_square & queens_or_rooks] & self.occupied
-            ne_pieces = DIAG_MASK_NE[from_square & queens_or_bishops] & self.occupied
-            nw_pieces = DIAG_MASK_NW[from_square & queens_or_bishops] & self.occupied
-
-            moves = (KING_MOVES[from_square & self.kings] |
-                     KNIGHT_MOVES[from_square & self.knights] |
-                     RANK_ATTACKS[from_square & queens_or_rooks][rank_pieces] |
-                     FILE_ATTACKS[from_square & queens_or_rooks][file_pieces] |
-                     DIAG_ATTACKS_NE[from_square & queens_or_bishops][ne_pieces] |
-                     DIAG_ATTACKS_NW[from_square & queens_or_bishops][nw_pieces])
-
-            while moves:
-                to_square = moves & -moves
-                self.attacks_from[from_square] |= to_square
-                self.attacks_to[to_square] |= from_square
-                moves = moves & (moves - 1)
-
-            non_pawns = non_pawns & (non_pawns - 1)
-
-        # Produce pawn attacks.
-        for white_to_move in [False, True]:
-            pawns = self.pawns & self.occupied_co[white_to_move]
-
-            while pawns:
-                from_square = pawns & -pawns
-
-                captures = PAWN_ATTACKS[white_to_move][from_square]
-                self.attacks_from[from_square] = captures
-
-                while captures:
-                    capture = captures & -captures
-                    self.attacks_to[capture] |= from_square
-                    captures = captures & (captures - 1)
-
-                pawns = pawns & (pawns - 1)
-
-        # Produce en passant attacks. Here we are actually targeting the
-        # pawn, not the en passant square.
-        if self.ep_square:
-            if self.turn == WHITE:
-                capturing_pawns = self.pawns & self.occupied_co[WHITE] & BB_RANK_5
-            else:
-                capturing_pawns = self.pawns & self.occupied_co[BLACK] & BB_RANK_4
-
-            ep_square_mask = BB_SQUARES[self.ep_square]
-            double_pawn = ep_square_mask << 8 if self.turn == BLACK else ep_square_mask >> 8
-
-            # Left side capture.
-            if ep_square_mask & ~BB_FILE_A:
-                left_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawn = capturing_pawns & left_file
-                if capturing_pawn:
-                    self.attacks_from[capturing_pawn] |= double_pawn
-                    self.attacks_to[double_pawn] |= capturing_pawn
-
-            # Right side capture.
-            if ep_square_mask & ~BB_FILE_H:
-                right_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawn = capturing_pawns & right_file
-                if capturing_pawn:
-                    self.attacks_from[capturing_pawn] |= double_pawn
-                    self.attacks_to[double_pawn] |= capturing_pawn
-
-        # Attacks are now valid.
-        self.attacks_valid = True
-
     def _pinned(self, color, square_mask):
-        self.generate_attacks()
-
         if color == WHITE:
             king = self.kings & self.occupied_co[WHITE]
             other_pieces = self.occupied_co[BLACK]
@@ -3183,8 +3113,8 @@ class Board(BaseBoard):
                                               (RANK_MASK, RANK_ATTACKS),
                                               (DIAG_MASK_NW, DIAG_ATTACKS_NW),
                                               (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
-            if direction_masks[square_mask] & direction_masks[king] & self.attacks_to[square_mask] & other_pieces:
-                attackers = direction_masks[king] & self.attacks_to[square_mask] & sliders
+            if direction_masks[square_mask] & direction_masks[king] & self.attacks_to(square_mask) & other_pieces:
+                attackers = direction_masks[king] & self.attacks_to(square_mask) & sliders
                 while attackers:
                     attacker = attackers & -attackers
 
@@ -3260,8 +3190,6 @@ class Board(BaseBoard):
             self.generate_legal_ep(from_mask, to_mask))
 
     def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        self.generate_attacks()
-
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
 
@@ -3272,11 +3200,11 @@ class Board(BaseBoard):
             from_square_index = bit_scan(from_square)
 
             mask = self._pinned(self.turn, from_square)
-            moves = self.attacks_from[from_square] & ~our_pieces & mask & to_mask
+            moves = self.attacks_from(from_square) & ~our_pieces & mask & to_mask
             while moves:
                 to_square = moves & -moves
 
-                if from_square & self.kings and self.attacks_to[to_square] & their_pieces:
+                if from_square & self.kings and self.attacks_to(to_square) & their_pieces:
                     # Do not move the king into check.
                     pass
                 else:
@@ -3303,7 +3231,7 @@ class Board(BaseBoard):
             from_square_index = bit_scan(from_square)
 
             targets = (
-                self.attacks_from[from_square] &
+                self.attacks_from(from_square) &
                 self.occupied_co[not self.turn] & to_mask &
                 (DIAG_ATTACKS_NW[from_square][BB_VOID] | DIAG_ATTACKS_NE[from_square][BB_VOID]) &
                 self._pinned(self.turn, from_square))
@@ -3477,7 +3405,7 @@ class Board(BaseBoard):
                 none_attacked = True
                 while not_attacked_for_king:
                     test_attack = not_attacked_for_king & -not_attacked_for_king
-                    if self.attacks_to[test_attack] & self.occupied_co[not self.turn]:
+                    if self.attacks_to(test_attack) & self.occupied_co[not self.turn]:
                         none_attacked = False
                         break
                     not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
@@ -3488,8 +3416,6 @@ class Board(BaseBoard):
             candidates = candidates & (candidates - 1)
 
     def generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        self.generate_attacks()
-
         # Prepare basic information.
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
@@ -3525,7 +3451,7 @@ class Board(BaseBoard):
                 en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[ep_square_mask] << 1
 
         # Look up all pieces giving check.
-        king_attackers = self.attacks_to[our_king] & their_pieces
+        king_attackers = self.attacks_to(our_king) & their_pieces
         king_attackers_index = bit_scan(king_attackers)
         assert king_attackers
         num_attackers = pop_count(king_attackers)
@@ -3534,7 +3460,12 @@ class Board(BaseBoard):
             # There is one attacker, so it can be captured. If there are more
             # than one attackers we can not capture both at the same time,
             # so the king would have to be moved.
-            attacker_attackers = self.attacks_to[king_attackers] & our_pieces & ~our_king & from_mask
+
+            attacker_attackers = self.attacks_to(king_attackers) & our_pieces & ~our_king & from_mask
+
+            if king_attackers & last_double_mask:
+                attacker_attackers |= en_passant_capturers & self.attacks_to(ep_square_mask)
+
             while attacker_attackers:
                 attacker = attacker_attackers & -attacker_attackers
                 attacker_index = bit_scan(attacker)
@@ -3589,7 +3520,7 @@ class Board(BaseBoard):
                 to_square = moves & -moves
                 to_square_index = bit_scan(to_square)
 
-                attacked_square = self.attacks_to[to_square] & their_pieces
+                attacked_square = self.attacks_to(to_square) & their_pieces
 
                 capture_attacker = to_square & attacker_masks & king_attackers
                 any_capture = to_square & ~attacker_masks
@@ -3628,7 +3559,7 @@ class Board(BaseBoard):
                 empty_square_index = bit_scan(empty_square)
 
                 # Blocking piece moves (excluding pawns and the king).
-                blockers = self.attacks_to[empty_square] & our_pieces & ~our_pawns & ~our_king & from_mask
+                blockers = self.attacks_to(empty_square) & our_pieces & ~our_pawns & ~our_king & from_mask
                 while blockers:
                     blocker = blockers & -blockers
 
@@ -3804,13 +3735,6 @@ class Board(BaseBoard):
         board.move_stack = copy.deepcopy(self.move_stack)
 
         board.transpositions = copy.copy(self.transpositions)
-
-        board.attacks_valid = self.attacks_valid
-        board.attacks_from = copy.copy(self.attacks_from)
-        board.attacks_to = copy.copy(self.attacks_to)
-        board.attacks_valid_stack = copy.copy(self.attacks_valid_stack)
-        board.attacks_valid_stack = copy.copy(self.attacks_from_stack)
-        board.attacks_to_stack = copy.copy(self.attacks_to_stack)
 
         return board
 
