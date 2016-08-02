@@ -3211,33 +3211,18 @@ class Board(BaseBoard):
         # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask & to_mask:
-            if self.turn == WHITE:
-                rank = BB_RANK_5
-            else:
-                rank = BB_RANK_4
+            capturers = PAWN_ATTACKS[not self.turn][ep_square_mask] & pawns
+            while capturers:
+                capturer_bb = capturers & -capturers
+                capturer = bit_scan(capturer_bb)
 
-            capturing_pawns = BB_VOID
-
-            # Left side capture.
-            if ep_square_mask & ~BB_FILE_A:
-                left_file = FILE_MASK[ep_square_mask] >> 1
-                capturing_pawns |= pawns & rank & left_file
-
-            # Right side capture.
-            if ep_square_mask & ~BB_FILE_H:
-                right_file = FILE_MASK[ep_square_mask] << 1
-                capturing_pawns |= pawns & rank & right_file
-
-            while capturing_pawns:
-                capturing_pawn = capturing_pawns & -capturing_pawns
-
-                if ep_square_mask & self._pinned(self.turn, capturing_pawn):
-                    if self._ep_skewered(capturing_pawn):
+                if ep_square_mask & self.pin_mask(self.turn, capturer):
+                    if self._ep_skewered(capturer_bb):
                         break
                     else:
-                        yield Move(bit_scan(capturing_pawn), self.ep_square)
+                        yield Move(capturer, self.ep_square)
 
-                capturing_pawns = capturing_pawns & (capturing_pawns - 1)
+                capturers = capturers & (capturers - 1)
 
         # Prepare pawn advance generation.
         if self.turn == WHITE:
