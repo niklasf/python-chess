@@ -299,7 +299,7 @@ for bb_square in BB_SQUARES:
     mask |= shift_2_right(shift_up(bb_square))
     mask |= shift_2_left(shift_down(bb_square))
     mask |= shift_2_right(shift_down(bb_square))
-    BB_KNIGHT_ATTACKS.append(mask & BB_ALL)
+    BB_KNIGHT_ATTACKS.append(mask)
 
 BB_KING_ATTACKS = []
 
@@ -313,7 +313,7 @@ for bb_square in BB_SQUARES:
     mask |= shift_up_right(bb_square)
     mask |= shift_down_left(bb_square)
     mask |= shift_down_right(bb_square)
-    BB_KING_ATTACKS.append(mask & BB_ALL)
+    BB_KING_ATTACKS.append(mask)
 
 BB_PAWN_ATTACKS = [[], []]
 
