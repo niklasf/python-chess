@@ -302,8 +302,6 @@ for bb_square in BB_SQUARES:
     BB_KNIGHT_ATTACKS.append(mask & BB_ALL)
 
 BB_KING_ATTACKS = []
-KING_MOVES = {}
-KING_MOVES[0] = 0
 
 for bb_square in BB_SQUARES:
     mask = BB_VOID
@@ -316,7 +314,6 @@ for bb_square in BB_SQUARES:
     mask |= shift_down_left(bb_square)
     mask |= shift_down_right(bb_square)
     BB_KING_ATTACKS.append(mask & BB_ALL)
-    KING_MOVES[bb_square] = mask & BB_ALL
 
 BB_PAWN_ATTACKS = [[], []]
 
@@ -1538,7 +1535,7 @@ class Board(BaseBoard):
         diagonal_sliders = self.queens | self.bishops
 
         attackers = (
-            (KING_MOVES[bb_square] & self.kings) |
+            (BB_KING_ATTACKS[square] & self.kings) |
             (BB_KNIGHT_ATTACKS[square] & self.knights) |
             (RANK_ATTACKS[bb_square][rank_pieces] & parallel_sliders) |
             (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
@@ -1578,7 +1575,7 @@ class Board(BaseBoard):
         elif bb_square & self.knights:
             return BB_KNIGHT_ATTACKS[square]
         elif bb_square & self.kings:
-            return KING_MOVES[bb_square]
+            return BB_KING_ATTACKS[square]
         else:
             attacks = BB_VOID
 
@@ -3325,6 +3322,7 @@ class Board(BaseBoard):
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
         our_king = self.kings & our_pieces
+        king_square = bit_scan(our_king)
 
         our_pawns = self.pawns & our_pieces
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
@@ -3343,7 +3341,7 @@ class Board(BaseBoard):
             ep_capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & our_pawns
 
         # Look up all pieces giving check.
-        king_attackers = self.attackers_mask(not self.turn, bit_scan(our_king))
+        king_attackers = self.attackers_mask(not self.turn, king_square)
         assert king_attackers
         num_attackers = pop_count(king_attackers)
 
@@ -3407,7 +3405,7 @@ class Board(BaseBoard):
         if our_king & from_mask:
             # Move the king. Capturing other pieces or even the attacker is
             # allowed.
-            moves = KING_MOVES[our_king] & ~our_pieces & to_mask
+            moves = BB_KING_ATTACKS[king_square] & ~our_pieces & to_mask
             while moves:
                 to_bb = moves & -moves
                 to_square = bit_scan(to_bb)
@@ -3418,9 +3416,9 @@ class Board(BaseBoard):
                 any_capture = to_bb & ~attacker_masks
 
                 if to_bb & their_pieces and not attacked_square and (capture_attacker or any_capture):
-                    yield Move(bit_scan(our_king), to_square)
+                    yield Move(king_square, to_square)
                 elif to_bb and not attacked_square and not (to_bb & attacker_masks):
-                    yield Move(bit_scan(our_king), to_square)
+                    yield Move(king_square, to_square)
 
                 moves = moves & (moves - 1)
 
