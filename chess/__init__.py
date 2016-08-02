@@ -3354,36 +3354,22 @@ class Board(BaseBoard):
 
         our_pawns = self.pawns & our_pieces
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
-        en_passant_capturers = BB_VOID
+        ep_capturers = BB_VOID
 
         if self.turn == WHITE:
             forward_pawns = our_pawns << 8 & BB_ALL
             double_forward_pawns = (our_pawns & BB_RANK_2) << 16 & BB_ALL
             last_double_mask = ep_square_mask >> 8 & self.pawns & self.occupied_co[BLACK]
-
-            # Capture torward the right.
-            if ep_square_mask & ~BB_FILE_A:
-                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[ep_square_mask] >> 1
-
-            # Capture toward the left.
-            if ep_square_mask & ~BB_FILE_H:
-                en_passant_capturers |= our_pawns & BB_RANK_5 & FILE_MASK[ep_square_mask] << 1
         else:
             forward_pawns = our_pawns >> 8
             double_forward_pawns = (our_pawns & BB_RANK_7) >> 16
             last_double_mask = ep_square_mask << 8 & self.pawns & self.occupied_co[WHITE]
 
-            # Capture torward the right.
-            if ep_square_mask & ~BB_FILE_A:
-                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[ep_square_mask] >> 1
-
-            # Capture toward the left.
-            if ep_square_mask & ~BB_FILE_H:
-                en_passant_capturers |= our_pawns & BB_RANK_4 & FILE_MASK[ep_square_mask] << 1
+        if ep_square_mask & to_mask:
+            ep_capturers = PAWN_ATTACKS[not self.turn][ep_square_mask] & our_pawns
 
         # Look up all pieces giving check.
-        king_attackers = self._attacks_to(our_king) & their_pieces
-        king_attackers_index = bit_scan(king_attackers)
+        king_attackers = self.attacks_to_mask(bit_scan(our_king)) & their_pieces
         assert king_attackers
         num_attackers = pop_count(king_attackers)
 
@@ -3391,32 +3377,33 @@ class Board(BaseBoard):
             # There is one attacker, so it can be captured. If there are more
             # than one attackers we can not capture both at the same time,
             # so the king would have to be moved.
+            to_square = bit_scan(king_attackers)
 
-            attacker_attackers = self._attacks_to(king_attackers) & our_pieces & ~our_king & from_mask
+            attacker_attackers = self.attacks_to_mask(to_square) & our_pieces & ~our_king & from_mask
 
             if king_attackers & last_double_mask:
-                attacker_attackers |= en_passant_capturers & self._attacks_to(ep_square_mask)
+                attacker_attackers |= ep_capturers & self.attacks_to_mask(self.ep_square) & from_mask
 
             while attacker_attackers:
                 attacker = attacker_attackers & -attacker_attackers
-                attacker_index = bit_scan(attacker)
+                from_square = bit_scan(attacker)
 
-                mask = self._pinned(self.turn, attacker)
+                mask = self.pin_mask(self.turn, from_square)
 
-                if king_attackers & last_double_mask and attacker & en_passant_capturers:
+                if king_attackers & last_double_mask and attacker & ep_capturers:
                     if ep_square_mask & mask & to_mask:
                         # Capture the attacking pawn en passant.
                         if not self._ep_skewered(attacker):
-                            yield Move(attacker_index, self.ep_square)
+                            yield Move(from_square, self.ep_square)
                 elif king_attackers & mask & to_mask:
-                    if attacker & our_pawns and king_attackers & (BB_RANK_8 | BB_RANK_1):
+                    if attacker & our_pawns and king_attackers & BB_BACKRANKS:
                         # Capture the attacker with a pawn and promote.
-                        yield Move(attacker_index, king_attackers_index, QUEEN)
-                        yield Move(attacker_index, king_attackers_index, ROOK)
-                        yield Move(attacker_index, king_attackers_index, BISHOP)
-                        yield Move(attacker_index, king_attackers_index, KNIGHT)
+                        yield Move(from_square, to_square, QUEEN)
+                        yield Move(from_square, to_square, ROOK)
+                        yield Move(from_square, to_square, BISHOP)
+                        yield Move(from_square, to_square, KNIGHT)
                     else:
-                        yield Move(attacker_index, king_attackers_index)
+                        yield Move(from_square, to_square)
 
                 attacker_attackers = attacker_attackers & (attacker_attackers - 1)
 
