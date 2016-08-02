@@ -3435,18 +3435,18 @@ class Board(BaseBoard):
             # allowed.
             moves = KING_MOVES[our_king] & ~our_pieces & to_mask
             while moves:
-                to_square = moves & -moves
-                to_square_index = bit_scan(to_square)
+                to_bb = moves & -moves
+                to_square = bit_scan(to_bb)
 
-                attacked_square = self._attacks_to(to_square) & their_pieces
+                attacked_square = self.attacks_to_mask(to_square) & their_pieces
 
-                capture_attacker = to_square & attacker_masks & king_attackers
-                any_capture = to_square & ~attacker_masks
+                capture_attacker = to_bb & attacker_masks & king_attackers
+                any_capture = to_bb & ~attacker_masks
 
-                if to_square & their_pieces and not attacked_square and (capture_attacker or any_capture):
-                    yield Move(bit_scan(our_king), to_square_index)
-                elif to_square and not attacked_square and not (to_square & attacker_masks):
-                    yield Move(bit_scan(our_king), to_square_index)
+                if to_bb & their_pieces and not attacked_square and (capture_attacker or any_capture):
+                    yield Move(bit_scan(our_king), to_square)
+                elif to_bb and not attacked_square and not (to_bb & attacker_masks):
+                    yield Move(bit_scan(our_king), to_square)
 
                 moves = moves & (moves - 1)
 
@@ -3473,53 +3473,51 @@ class Board(BaseBoard):
 
             # Try moving pieces to the empty squares.
             while moves:
-                empty_square = moves & -moves
-                empty_square_index = bit_scan(empty_square)
+                empty_bb = moves & -moves
+                empty_square = bit_scan(empty_bb)
 
                 # Blocking piece moves (excluding pawns and the king).
-                blockers = self._attacks_to(empty_square) & our_pieces & ~our_pawns & ~our_king & from_mask
-                while blockers:
-                    blocker = blockers & -blockers
+                blockers = self.attacks_to_mask(empty_square) & our_pieces & ~our_pawns & ~our_king & from_mask
+                blocker = bit_scan(blockers)
+                while blocker != -1 and blocker is not None:
+                    mask = self.pin_mask(self.turn, blocker)
+                    if mask & empty_bb:
+                        yield Move(blocker, empty_square)
 
-                    mask = self._pinned(self.turn, blocker)
-                    if mask & empty_square:
-                        yield Move(bit_scan(blocker), empty_square_index)
-
-                    blockers = blockers & (blockers - 1)
+                    blocker = bit_scan(blockers, blocker + 1)
 
                 # Generate pawn advances to the empty square.
-                blocking_pawn = empty_square & forward_pawns
+                blocking_pawn = empty_bb & forward_pawns
                 if blocking_pawn:
-                    if self.turn == WHITE:
-                        from_square = blocking_pawn >> 8
-                    else:
-                        from_square = blocking_pawn << 8
-                    from_square_index = bit_scan(from_square)
+                    from_bb = blocking_pawn >> 8 if self.turn == WHITE else blocking_pawn << 8
+                    from_square = bit_scan(from_bb)
 
-                    if from_square & from_mask and self._pinned(self.turn, from_square) & empty_square:
-                        if empty_square & BB_RANK_1 or empty_square & BB_RANK_8:
-                            yield Move(from_square_index, empty_square_index, QUEEN)
-                            yield Move(from_square_index, empty_square_index, ROOK)
-                            yield Move(from_square_index, empty_square_index, BISHOP)
-                            yield Move(from_square_index, empty_square_index, KNIGHT)
+                    if from_bb & from_mask and self.pin_mask(self.turn, from_square) & empty_bb:
+                        if empty_bb & BB_BACKRANKS:
+                            yield Move(from_square, empty_square, QUEEN)
+                            yield Move(from_square, empty_square, ROOK)
+                            yield Move(from_square, empty_square, BISHOP)
+                            yield Move(from_square, empty_square, KNIGHT)
                         else:
-                            yield Move(from_square_index, empty_square_index)
+                            yield Move(from_square, empty_square)
                 else:
                     # Generate double pawn advances to the empty square.
                     # Make sure the square inbetween is not occupied.
-                    blocking_pawn = empty_square & double_forward_pawns
+                    blocking_pawn = empty_bb & double_forward_pawns
                     if blocking_pawn:
                         if self.turn == WHITE:
-                            from_square = empty_square >> 16
-                            middle_square = empty_square >> 8
+                            from_bb = empty_bb >> 16
+                            middle_bb = empty_bb >> 8
                         else:
-                            from_square = empty_square << 16
-                            middle_square = empty_square << 8
+                            from_bb = empty_bb << 16
+                            middle_bb = empty_bb << 8
 
-                        if from_square & from_mask and middle_square & ~self.occupied:
-                            mask = self._pinned(self.turn, from_square)
-                            if mask & empty_square:
-                                yield Move(bit_scan(from_square), empty_square_index)
+                        from_square = bit_scan(from_bb)
+
+                        if from_bb & from_mask and middle_bb & ~self.occupied:
+                            mask = self.pin_mask(self.turn, from_square)
+                            if mask & empty_bb:
+                                yield Move(from_square, empty_square)
 
                 moves = moves & (moves - 1)
 
