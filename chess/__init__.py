@@ -288,8 +288,6 @@ def shift_down_right(b):
 
 
 BB_KNIGHT_ATTACKS = []
-KNIGHT_MOVES = {}
-KNIGHT_MOVES[0] = 0
 
 for bb_square in BB_SQUARES:
     mask = BB_VOID
@@ -302,7 +300,6 @@ for bb_square in BB_SQUARES:
     mask |= shift_2_left(shift_down(bb_square))
     mask |= shift_2_right(shift_down(bb_square))
     BB_KNIGHT_ATTACKS.append(mask & BB_ALL)
-    KNIGHT_MOVES[bb_square] = mask & BB_ALL
 
 BB_KING_ATTACKS = []
 KING_MOVES = {}
@@ -1542,7 +1539,7 @@ class Board(BaseBoard):
 
         attackers = (
             (KING_MOVES[bb_square] & self.kings) |
-            (KNIGHT_MOVES[bb_square] & self.knights) |
+            (BB_KNIGHT_ATTACKS[square] & self.knights) |
             (RANK_ATTACKS[bb_square][rank_pieces] & parallel_sliders) |
             (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
             (DIAG_ATTACKS_NE[bb_square][ne_pieces] & diagonal_sliders) |
@@ -1579,7 +1576,7 @@ class Board(BaseBoard):
             else:
                 return BB_PAWN_ATTACKS[BLACK][square]
         elif bb_square & self.knights:
-            return KNIGHT_MOVES[bb_square]
+            return BB_KNIGHT_ATTACKS[square]
         elif bb_square & self.kings:
             return KING_MOVES[bb_square]
         else:
