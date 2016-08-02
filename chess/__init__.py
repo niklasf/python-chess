@@ -321,6 +321,19 @@ for bb_square in BB_SQUARES:
     BB_KING_ATTACKS.append(mask & BB_ALL)
     KING_MOVES[bb_square] = mask & BB_ALL
 
+PAWN_ATTACKS = [{}, {}]
+
+for bb_square in BB_SQUARES:
+    mask = BB_VOID
+    mask |= shift_up_left(bb_square)
+    mask |= shift_up_right(bb_square)
+    PAWN_ATTACKS[WHITE][bb_square] = mask
+
+    mask = BB_VOID
+    mask |= shift_down_left(bb_square)
+    mask |= shift_down_right(bb_square)
+    PAWN_ATTACKS[BLACK][bb_square] = mask
+
 def _attack_table(square_lists):
     attack_table = {}
     attack_table[0] = {}
@@ -3108,40 +3121,20 @@ class Board(BaseBoard):
 
         # Produce pawn attacks.
         for white_to_move in [False, True]:
-            if white_to_move:
-                pawns = self.pawns & self.occupied_co[WHITE]
-                right_captures = pawns << 9 & ~BB_FILE_A & BB_ALL
-                left_captures = pawns << 7 & ~BB_FILE_H & BB_ALL
-            else:
-                pawns = self.pawns & self.occupied_co[BLACK]
-                right_captures = pawns >> 7 & ~BB_FILE_A
-                left_captures = pawns >> 9 & ~BB_FILE_H
+            pawns = self.pawns & self.occupied_co[white_to_move]
 
-            while right_captures:
-                to_square = right_captures & -right_captures
+            while pawns:
+                from_square = pawns & -pawns
 
-                if white_to_move:
-                    from_square = to_square >> 9
-                else:
-                    from_square = to_square << 7
+                captures = PAWN_ATTACKS[white_to_move][from_square]
+                self.attacks_from[from_square] = captures
 
-                self.attacks_from[from_square] |= to_square
-                self.attacks_to[to_square] |= from_square
+                while captures:
+                    capture = captures & -captures
+                    self.attacks_to[capture] |= from_square
+                    captures = captures & (captures - 1)
 
-                right_captures = right_captures & (right_captures - 1)
-
-            while left_captures:
-                to_square = left_captures & -left_captures
-
-                if white_to_move:
-                    from_square = to_square >> 7
-                else:
-                    from_square = to_square << 9
-
-                self.attacks_from[from_square] |= to_square
-                self.attacks_to[to_square] |= from_square
-
-                left_captures = left_captures & (left_captures - 1)
+                pawns = pawns & (pawns - 1)
 
         # Produce en passant attacks. Here we are actually targeting the
         # pawn, not the en passant square.
