@@ -3023,7 +3023,7 @@ class Board(BaseBoard):
             errors |= STATUS_TOO_MANY_BLACK_PAWNS
 
         # Pawns can not be on the backrank.
-        if self.pawns & (BB_RANK_1 | BB_RANK_8):
+        if self.pawns & BB_BACKRANKS:
             errors |= STATUS_PAWNS_ON_BACKRANK
 
         # Castling rights.
