@@ -321,18 +321,18 @@ for bb_square in BB_SQUARES:
     BB_KING_ATTACKS.append(mask & BB_ALL)
     KING_MOVES[bb_square] = mask & BB_ALL
 
-PAWN_ATTACKS = [{}, {}]
+BB_PAWN_ATTACKS = [[], []]
 
 for bb_square in BB_SQUARES:
     mask = BB_VOID
     mask |= shift_up_left(bb_square)
     mask |= shift_up_right(bb_square)
-    PAWN_ATTACKS[WHITE][bb_square] = mask
+    BB_PAWN_ATTACKS[WHITE].append(mask)
 
     mask = BB_VOID
     mask |= shift_down_left(bb_square)
     mask |= shift_down_right(bb_square)
-    PAWN_ATTACKS[BLACK][bb_square] = mask
+    BB_PAWN_ATTACKS[BLACK].append(mask)
 
 def _attack_table(square_lists):
     attack_table = {}
@@ -1457,7 +1457,7 @@ class Board(BaseBoard):
         from_square = bit_scan(capturers)
         while from_square != -1 and from_square is not None:
             targets = (
-                PAWN_ATTACKS[self.turn][BB_SQUARES[from_square]] &
+                BB_PAWN_ATTACKS[self.turn][from_square] &
                 self.occupied_co[not self.turn] & to_mask)
 
             to_square = bit_scan(targets)
@@ -1512,16 +1512,12 @@ class Board(BaseBoard):
             yield move
 
     def generate_pseudo_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if not self.ep_square:
-            return
-
-        ep_square_mask = BB_SQUARES[self.ep_square] & to_mask
-        if not ep_square_mask:
+        if not self.ep_square or not BB_SQUARES[self.ep_square] & to_mask:
             return
 
         capturers = (
             self.pawns & self.occupied_co[self.turn] & from_mask &
-            PAWN_ATTACKS[not self.turn][ep_square_mask])
+            BB_PAWN_ATTACKS[not self.turn][self.ep_square])
 
         capturer = bit_scan(capturers)
         while capturer != -1 and capturer is not None:
@@ -1551,7 +1547,7 @@ class Board(BaseBoard):
             (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
             (DIAG_ATTACKS_NE[bb_square][ne_pieces] & diagonal_sliders) |
             (DIAG_ATTACKS_NW[bb_square][nw_pieces] & diagonal_sliders) |
-            (PAWN_ATTACKS[not color][bb_square] & self.pawns))
+            (BB_PAWN_ATTACKS[not color][square] & self.pawns))
 
         return attackers & self.occupied_co[color]
 
@@ -1579,9 +1575,9 @@ class Board(BaseBoard):
 
         if bb_square & self.pawns:
             if bb_square & self.occupied_co[WHITE]:
-                return PAWN_ATTACKS[WHITE][bb_square]
+                return BB_PAWN_ATTACKS[WHITE][square]
             else:
-                return PAWN_ATTACKS[BLACK][bb_square]
+                return BB_PAWN_ATTACKS[BLACK][square]
         elif bb_square & self.knights:
             return KNIGHT_MOVES[bb_square]
         elif bb_square & self.kings:
@@ -3170,13 +3166,10 @@ class Board(BaseBoard):
             return
 
         # Generate pawn captures.
-        capturers = pawns
-        while capturers:
-            from_bb = capturers & -capturers
-            from_square = bit_scan(from_bb)
-
+        from_square = bit_scan(pawns)
+        while from_square != -1 and from_square is not None:
             targets = (
-                PAWN_ATTACKS[self.turn][from_bb] &
+                BB_PAWN_ATTACKS[self.turn][from_square] &
                 self.occupied_co[not self.turn] & to_mask &
                 self.pin_mask(self.turn, from_square))
 
@@ -3192,12 +3185,12 @@ class Board(BaseBoard):
 
                 to_square = bit_scan(targets, to_square + 1)
 
-            capturers = capturers & (capturers - 1)
+            from_square = bit_scan(pawns, from_square + 1)
 
         # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask & to_mask:
-            capturers = PAWN_ATTACKS[not self.turn][ep_square_mask] & pawns
+            capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & pawns
             while capturers:
                 capturer_bb = capturers & -capturers
                 capturer = bit_scan(capturer_bb)
@@ -3350,7 +3343,7 @@ class Board(BaseBoard):
             last_double_mask = ep_square_mask << 8 & self.pawns & self.occupied_co[WHITE]
 
         if ep_square_mask & to_mask:
-            ep_capturers = PAWN_ATTACKS[not self.turn][ep_square_mask] & our_pawns
+            ep_capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & our_pawns
 
         # Look up all pieces giving check.
         king_attackers = self.attackers_mask(not self.turn, bit_scan(our_king))
