@@ -1216,11 +1216,7 @@ class Engine(object):
         def command():
             with self.semaphore:
                 self.send_line(" ".join(builder))
-
-                with self.readyok_received:
-                    self.send_line("isready")
-                    self.readyok_received.wait()
-                    self.search_started.set()
+                self.search_started.set()
 
             self.bestmove_received.wait()
 

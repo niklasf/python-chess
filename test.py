@@ -2061,7 +2061,6 @@ class UciEngineTestCase(unittest.TestCase):
 
     def test_ponderhit(self):
         self.mock.expect("go ponder")
-        self.mock.expect("isready", ("readyok", ))
         ponder_command = self.engine.go(ponder=True, async_callback=True)
         self.mock.expect("ponderhit", ("bestmove e2e4", ))
         self.engine.ponderhit()
@@ -2074,7 +2073,6 @@ class UciEngineTestCase(unittest.TestCase):
 
     def test_go(self):
         self.mock.expect("go infinite searchmoves e2e4 d2d4")
-        self.mock.expect("isready", ("readyok", ))
         go_command = self.engine.go(searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")], infinite=True, async_callback=True)
 
         self.mock.expect("stop", ("bestmove e2e4", ))
@@ -2087,14 +2085,12 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", (
             "bestmove d2d4 ponder d7d5",
         ))
-        self.mock.expect("isready", ("readyok", ))
         self.engine.go(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9)
         self.mock.assert_done()
 
         self.mock.expect("go movetime 3333", (
             "bestmove (none) ponder (none)",
         ))
-        self.mock.expect("isready", ("readyok", ))
         bestmove, pondermove = self.engine.go(movetime=3333)
         self.assertTrue(bestmove is None)
         self.assertTrue(pondermove is None)
@@ -2103,7 +2099,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("go mate 2", (
             "bestmove (none)",
         ))
-        self.mock.expect("isready", ("readyok", ))
         bestmove, pondermove = self.engine.go(mate=2)
         self.assertTrue(bestmove is None)
         self.assertTrue(pondermove is None)
@@ -2170,7 +2165,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.engine.info_handlers.append(handler)
 
         self.mock.expect("go", ("bestmove d2d4", ))
-        self.mock.expect("isready", ("readyok", ))
         self.engine.go()
 
         self.engine.on_line_received("info tbhits 123 cpuload 456 hashfull 789")
@@ -2180,7 +2174,6 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["hashfull"], 789)
 
         self.mock.expect("go", ("bestmove e2e4", ))
-        self.mock.expect("isready", ("readyok", ))
         self.engine.go()
 
         self.assertFalse("tbhits" in handler.info)
@@ -2242,7 +2235,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("go movetime 70 searchmoves a2a3 e1g1", (
             "bestmove e1g1",
         ))
-        self.mock.expect("isready", ("readyok", ))
         bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
             board.parse_san("a3"),
             board.parse_san("O-O"),
@@ -2269,7 +2261,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("go movetime 70 searchmoves a2a3 e1h1", (
             "bestmove e1h1",
         ))
-        self.mock.expect("isready", ("readyok", ))
         bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
             board.parse_san("a3"),
             board.parse_san("O-O"),
@@ -2288,7 +2279,6 @@ class UciEngineTestCase(unittest.TestCase):
 
         # Test castling moves as ponder moves.
         self.mock.expect("go depth 15", ("bestmove f6e4 ponder e1g1", ))
-        self.mock.expect("isready", ("readyok", ))
         bestmove, ponder = self.engine.go(depth=15)
         self.assertEqual(bestmove, chess.Move.from_uci("f6e4"))
         self.assertEqual(ponder, chess.Move.from_uci("e1h1"))
