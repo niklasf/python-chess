@@ -3156,21 +3156,20 @@ class Board(BaseBoard):
         # Generate piece moves.
         non_pawns = our_pieces & ~self.pawns & from_mask
         while non_pawns:
-            from_square = non_pawns & -non_pawns
-            from_square_index = bit_scan(from_square)
+            from_bb = non_pawns & -non_pawns
+            from_square = bit_scan(from_bb)
 
-            mask = self._pinned(self.turn, from_square)
-            moves = self._attacks_from(from_square) & ~our_pieces & mask & to_mask
-            while moves:
-                to_square = moves & -moves
-
-                if from_square & self.kings and self._attacks_to(to_square) & their_pieces:
+            mask = self.pin_mask(self.turn, from_square)
+            moves = self.attacks_from_mask(from_square) & ~our_pieces & mask & to_mask
+            to_square = bit_scan(moves)
+            while to_square != -1 and to_square is not None:
+                if from_bb & self.kings and self.attacks_to_mask(to_square) & their_pieces:
                     # Do not move the king into check.
                     pass
                 else:
-                    yield Move(from_square_index, bit_scan(to_square))
+                    yield Move(from_square, to_square)
 
-                moves = moves & (moves - 1)
+                to_square = bit_scan(moves, to_square + 1)
 
             non_pawns = non_pawns & (non_pawns - 1)
 
@@ -3187,28 +3186,25 @@ class Board(BaseBoard):
         # Generate pawn captures.
         capturers = pawns
         while capturers:
-            from_square = capturers & -capturers
-            from_square_index = bit_scan(from_square)
+            from_bb = capturers & -capturers
+            from_square = bit_scan(from_bb)
 
             targets = (
-                self._attacks_from(from_square) &
+                PAWN_ATTACKS[self.turn][from_bb] &
                 self.occupied_co[not self.turn] & to_mask &
-                (DIAG_ATTACKS_NW[from_square][BB_VOID] | DIAG_ATTACKS_NE[from_square][BB_VOID]) &
-                self._pinned(self.turn, from_square))
+                self.pin_mask(self.turn, from_square))
 
-            while targets:
-                to_square = targets & -targets
-                to_square_index = bit_scan(to_square)
-
-                if BB_RANK_1 & to_square or BB_RANK_8 & to_square:
-                    yield Move(from_square_index, to_square_index, QUEEN)
-                    yield Move(from_square_index, to_square_index, ROOK)
-                    yield Move(from_square_index, to_square_index, BISHOP)
-                    yield Move(from_square_index, to_square_index, KNIGHT)
+            to_square = bit_scan(targets)
+            while to_square != -1 and to_square is not None:
+                if rank_index(to_square) in [0, 7]:
+                    yield Move(from_square, to_square, QUEEN)
+                    yield Move(from_square, to_square, ROOK)
+                    yield Move(from_square, to_square, BISHOP)
+                    yield Move(from_square, to_square, KNIGHT)
                 else:
-                    yield Move(from_square_index, to_square_index)
+                    yield Move(from_square, to_square)
 
-                targets = targets & (targets - 1)
+                to_square = bit_scan(targets, to_square + 1)
 
             capturers = capturers & (capturers - 1)
 
