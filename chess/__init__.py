@@ -1435,7 +1435,7 @@ class Board(BaseBoard):
         non_pawns = our_pieces & ~self.pawns & from_mask
         from_square = bit_scan(non_pawns)
         while from_square != -1 and from_square is not None:
-            moves = self.attacks_from_mask(from_square) & ~our_pieces & to_mask
+            moves = self.attacks_mask(from_square) & ~our_pieces & to_mask
             to_square = bit_scan(moves)
             while to_square != -1 and to_square is not None:
                 yield Move(from_square, to_square)
@@ -1533,7 +1533,9 @@ class Board(BaseBoard):
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
 
-    def _attacks_to(self, bb_square):
+    def attackers_mask(self, color, square):
+        bb_square = BB_SQUARES[square]
+
         rank_pieces = RANK_MASK[bb_square] & self.occupied
         file_pieces = FILE_MASK[bb_square] & self.occupied
         ne_pieces = DIAG_MASK_NE[bb_square] & self.occupied
@@ -1542,21 +1544,16 @@ class Board(BaseBoard):
         parallel_sliders = self.queens | self.rooks
         diagonal_sliders = self.queens | self.bishops
 
-        return (
+        attackers = (
             (KING_MOVES[bb_square] & self.kings) |
             (KNIGHT_MOVES[bb_square] & self.knights) |
             (RANK_ATTACKS[bb_square][rank_pieces] & parallel_sliders) |
             (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
             (DIAG_ATTACKS_NE[bb_square][ne_pieces] & diagonal_sliders) |
             (DIAG_ATTACKS_NW[bb_square][nw_pieces] & diagonal_sliders) |
-            (PAWN_ATTACKS[WHITE][bb_square] & self.pawns & self.occupied_co[BLACK]) |
-            (PAWN_ATTACKS[BLACK][bb_square] & self.pawns & self.occupied_co[WHITE]))
+            (PAWN_ATTACKS[not color][bb_square] & self.pawns))
 
-    def attacks_to_mask(self, square):
-        return self._attacks_to(BB_SQUARES[square])
-
-    def attackers_mask(self, color, square):
-        return self._attacks_to(BB_SQUARES[square]) & self.occupied_co[color]
+        return attackers & self.occupied_co[color]
 
     def is_attacked_by(self, color, square):
         """
@@ -1571,14 +1568,15 @@ class Board(BaseBoard):
         """
         Gets a set of attackers of the given color for the given square.
 
-        Pinned pieces still count as attackers. Pawns that can be captured
-        en passant are attacked.
+        Pinned pieces still count as attackers.
 
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
         return SquareSet(self.attackers_mask(color, square))
 
-    def _attacks_from(self, bb_square):
+    def attacks_mask(self, square):
+        bb_square = BB_SQUARES[square]
+
         if bb_square & self.pawns:
             if bb_square & self.occupied_co[WHITE]:
                 return PAWN_ATTACKS[WHITE][bb_square]
@@ -1601,19 +1599,12 @@ class Board(BaseBoard):
 
             return attacks
 
-    def attacks_from_mask(self, square):
-        return self._attacks_from(BB_SQUARES[square])
-
-    def attacks_mask(self, square):
-        return self._attacks_from(BB_SQUARES[square])
-
     def attacks(self, square):
         """
         Gets a set of attacked squares from a given square.
 
         There will be no attacks if the square is empty. Pinned pieces are
-        still attacking other squares. Pawns will attack pawns they could
-        capture en passant.
+        still attacking other squares.
 
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
@@ -1623,17 +1614,18 @@ class Board(BaseBoard):
         square_mask = BB_SQUARES[square]
 
         king = self.kings & self.occupied_co[color]
-        other_pieces = self.occupied_co[not color]
-        sliders = (self.rooks | self.bishops | self.queens) & other_pieces
+        sliders = self.rooks | self.bishops | self.queens
 
         mask = BB_ALL
+
+        square_attackers = self.attackers_mask(not color, square)
 
         for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
                                               (RANK_MASK, RANK_ATTACKS),
                                               (DIAG_MASK_NW, DIAG_ATTACKS_NW),
                                               (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
-            if direction_masks[square_mask] & direction_masks[king] & self._attacks_to(square_mask) & other_pieces:
-                attackers = direction_masks[king] & self.attacks_to_mask(square) & sliders
+            if direction_masks[square_mask] & direction_masks[king] & square_attackers:
+                attackers = direction_masks[king] & square_attackers & sliders
                 while attackers:
                     attacker = attackers & -attackers
 
@@ -1693,7 +1685,7 @@ class Board(BaseBoard):
 
         # Detect king moves into check.
         if from_mask & self.kings:
-            if self._attacks_to(to_mask) & self.occupied_co[not self.turn]:
+            if self.attackers_mask(not self.turn, move.to_square):
                 return True
 
         # Detect en-passant moves, removing both the capturer and the captured
@@ -1757,7 +1749,7 @@ class Board(BaseBoard):
             return move in self.generate_pseudo_legal_moves(from_mask, to_mask)
 
         # Handle all other pieces.
-        return bool(self._attacks_from(from_mask) & to_mask)
+        return bool(self.attacks_mask(move.from_square) & to_mask)
 
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
@@ -3146,7 +3138,6 @@ class Board(BaseBoard):
 
     def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
         our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[not self.turn]
 
         # Generate piece moves.
         non_pawns = our_pieces & ~self.pawns & from_mask
@@ -3155,10 +3146,10 @@ class Board(BaseBoard):
             from_square = bit_scan(from_bb)
 
             mask = self.pin_mask(self.turn, from_square)
-            moves = self.attacks_from_mask(from_square) & ~our_pieces & mask & to_mask
+            moves = self.attacks_mask(from_square) & ~our_pieces & mask & to_mask
             to_square = bit_scan(moves)
             while to_square != -1 and to_square is not None:
-                if from_bb & self.kings and self.attacks_to_mask(to_square) & their_pieces:
+                if from_bb & self.kings and self.attackers_mask(not self.turn, to_square):
                     # Do not move the king into check.
                     pass
                 else:
@@ -3328,15 +3319,13 @@ class Board(BaseBoard):
             empty_for_king &= ~rook
 
             if not self.occupied & (empty_for_king | empty_for_rook):
-                none_attacked = True
-                while not_attacked_for_king:
-                    test_attack = not_attacked_for_king & -not_attacked_for_king
-                    if self._attacks_to(test_attack) & self.occupied_co[not self.turn]:
-                        none_attacked = False
+                test_square = bit_scan(not_attacked_for_king)
+                while test_square != -1 and test_square is not None:
+                    if self.attackers_mask(not self.turn, test_square):
                         break
-                    not_attacked_for_king = not_attacked_for_king & (not_attacked_for_king - 1)
 
-                if none_attacked:
+                    test_square = bit_scan(not_attacked_for_king, test_square + 1)
+                else:
                     yield self._from_chess960(bit_scan(king), bit_scan(rook))
 
             candidates = candidates & (candidates - 1)
@@ -3364,7 +3353,7 @@ class Board(BaseBoard):
             ep_capturers = PAWN_ATTACKS[not self.turn][ep_square_mask] & our_pawns
 
         # Look up all pieces giving check.
-        king_attackers = self.attacks_to_mask(bit_scan(our_king)) & their_pieces
+        king_attackers = self.attackers_mask(not self.turn, bit_scan(our_king))
         assert king_attackers
         num_attackers = pop_count(king_attackers)
 
@@ -3374,10 +3363,10 @@ class Board(BaseBoard):
             # so the king would have to be moved.
             to_square = bit_scan(king_attackers)
 
-            attacker_attackers = self.attacks_to_mask(to_square) & our_pieces & ~our_king & from_mask
+            attacker_attackers = self.attackers_mask(self.turn, to_square) & ~our_king & from_mask
 
             if king_attackers & last_double_mask:
-                attacker_attackers |= ep_capturers & self.attacks_to_mask(self.ep_square) & from_mask
+                attacker_attackers |= ep_capturers & self.attackers_mask(self.turn, self.ep_square) & from_mask
 
             while attacker_attackers:
                 attacker = attacker_attackers & -attacker_attackers
@@ -3433,7 +3422,7 @@ class Board(BaseBoard):
                 to_bb = moves & -moves
                 to_square = bit_scan(to_bb)
 
-                attacked_square = self.attacks_to_mask(to_square) & their_pieces
+                attacked_square = self.attackers_mask(not self.turn, to_square)
 
                 capture_attacker = to_bb & attacker_masks & king_attackers
                 any_capture = to_bb & ~attacker_masks
@@ -3472,7 +3461,7 @@ class Board(BaseBoard):
                 empty_square = bit_scan(empty_bb)
 
                 # Blocking piece moves (excluding pawns and the king).
-                blockers = self.attacks_to_mask(empty_square) & our_pieces & ~our_pawns & ~our_king & from_mask
+                blockers = self.attackers_mask(self.turn, empty_square) & ~our_pawns & ~our_king & from_mask
                 blocker = bit_scan(blockers)
                 while blocker != -1 and blocker is not None:
                     mask = self.pin_mask(self.turn, blocker)
