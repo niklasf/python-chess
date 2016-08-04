@@ -61,7 +61,7 @@ class Option(collections.namedtuple("Option", ["name", "type", "default", "min",
     pass
 
 
-class Score(collections.namedtuple("Score", ["cp", "mate", "lowerbound", "upperbound"])):
+class Score(collections.namedtuple("Score", ["cp", "mate"])):
     """A centipawns or mate score sent by an UCI engine."""
     pass
 
@@ -205,8 +205,7 @@ class InfoHandler(object):
         sent by the engine.
         """
         if not lowerbound and not upperbound:
-            score = Score(cp, mate, lowerbound, upperbound)
-            self.info["score"][self.info.get("multipv", 1)] = score
+            self.info["score"][self.info.get("multipv", 1)] = Score(cp, mate)
 
     def currmove(self, move):
         """

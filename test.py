@@ -2327,8 +2327,6 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["depth"], 10)
             self.assertEqual(info["seldepth"], 9)
             self.assertEqual(info["score"][1].cp, 22)
-            self.assertEqual(info["score"][1].upperbound, False)
-            self.assertEqual(info["score"][1].lowerbound, False)
             self.assertEqual(info["score"][1].mate, None)
             self.assertEqual(info["time"], 17)
             self.assertEqual(info["nodes"], 48299)
