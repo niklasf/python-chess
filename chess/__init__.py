@@ -1126,6 +1126,94 @@ class BaseBoard(object):
         """
         self._set_chess960_pos(sharnagl)
 
+    def chess960_pos(self):
+        """
+        Gets the Chess960 starting position index between 0 and 959
+        or ``None``.
+        """
+        if self.occupied_co[WHITE] != BB_RANK_1 | BB_RANK_2:
+            return None
+        if self.occupied_co[BLACK] != BB_RANK_7 | BB_RANK_8:
+            return None
+        if self.pawns != BB_RANK_2 | BB_RANK_7:
+            return None
+
+        if pop_count(self.bishops) != 4:
+            return None
+        if pop_count(self.rooks) != 4:
+            return None
+        if pop_count(self.knights) != 4:
+            return None
+        if pop_count(self.queens) != 2:
+            return None
+        if pop_count(self.kings) != 2:
+            return None
+
+        if (BB_RANK_1 & self.knights) << 56 != BB_RANK_8 & self.knights:
+            return None
+        if (BB_RANK_1 & self.bishops) << 56 != BB_RANK_8 & self.bishops:
+            return None
+        if (BB_RANK_1 & self.rooks) << 56 != BB_RANK_8 & self.rooks:
+            return None
+        if (BB_RANK_1 & self.queens) << 56 != BB_RANK_8 & self.queens:
+            return None
+        if (BB_RANK_1 & self.kings) << 56 != BB_RANK_8 & self.kings:
+            return None
+
+        x = self.bishops & (2 + 8 + 32 + 128)
+        if not x:
+            return None
+        bs1 = (bit_scan(x) - 1) // 2
+        cc_pos = bs1
+        x = self.bishops & (1 + 4 + 16 + 64)
+        if not x:
+            return None
+        bs2 = bit_scan(x) * 2
+        cc_pos += bs2
+
+        q = 0
+        qf = False
+        n0 = 0
+        n1 = 0
+        n0f = False
+        n1f = False
+        rf = 0
+        n0s = [0, 4, 7, 9]
+        for square in range(A1, H1 + 1):
+            bb = BB_SQUARES[square]
+            if bb & self.queens:
+                qf = True
+            elif bb & self.rooks or bb & self.kings:
+                if bb & self.kings:
+                    if rf != 1:
+                        return None
+                else:
+                    rf += 1
+
+                if not qf:
+                    q += 1
+
+                if not n0f:
+                    n0 += 1
+                elif not n1f:
+                    n1 += 1
+            elif bb & self.knights:
+                if not qf:
+                    q += 1
+
+                if not n0f:
+                    n0f = True
+                elif not n1f:
+                    n1f = True
+
+        if n0 < 4 and n1f and qf:
+            cc_pos += q * 16
+            krn = n0s[n0] + n1
+            cc_pos += krn * 96
+            return cc_pos
+        else:
+            return None
+
     def board_zobrist_hash(self, array=None):
         if array is None:
             return self.incremental_zobrist_hash
@@ -2318,6 +2406,33 @@ class Board(BaseBoard):
         self.fullmove_number = 1
 
         self.clear_stack()
+
+    def chess960_pos(self, ignore_turn=False, ignore_castling=False, ignore_counters=True):
+        """
+        Gets the Chess960 starting position index between 0 and 956
+        or ``None`` if the current position is not a Chess960 starting
+        position.
+
+        By default white to move (**ignore_turn**) and full castling rights
+        (**ignore_castling**) are required, but move counters
+        (**ignore_counters**) are ignored.
+        """
+        if self.ep_square:
+            return None
+
+        if not ignore_turn:
+            if self.turn != WHITE:
+                return None
+
+        if not ignore_castling:
+            if self.clean_castling_rights() != self.rooks:
+                return None
+
+        if not ignore_counters:
+            if self.fullmove_number != 1 or self.halfmove_clock != 0:
+                return None
+
+        return super(Board, self).chess960_pos()
 
     def epd(self, **operations):
         """
