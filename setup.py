@@ -75,7 +75,7 @@ setuptools.setup(
     test_suite="test",
     install_requires=dependencies(),
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
