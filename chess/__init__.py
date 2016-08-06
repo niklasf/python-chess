@@ -1171,6 +1171,7 @@ class BaseBoard(object):
         bs2 = bit_scan(x) * 2
         cc_pos += bs2
 
+        # Algorithm from ChessX src/database/bitboard.cpp r2254.
         q = 0
         qf = False
         n0 = 0
