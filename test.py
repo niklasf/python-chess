@@ -1251,15 +1251,19 @@ class BaseBoardTestCase(unittest.TestCase):
 
         board.set_chess960_pos(0)
         self.assertEqual(board.board_fen(), "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR")
+        self.assertEqual(board.chess960_pos(), 0)
 
         board.set_chess960_pos(631)
         self.assertEqual(board.board_fen(), "rnbkqrnb/pppppppp/8/8/8/8/PPPPPPPP/RNBKQRNB")
+        self.assertEqual(board.chess960_pos(), 631)
 
         board.set_chess960_pos(518)
         self.assertEqual(board.board_fen(), chess.STARTING_BOARD_FEN)
+        self.assertEqual(board.chess960_pos(), 518)
 
         board.set_chess960_pos(959)
         self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
+        self.assertEqual(board.chess960_pos(), 959)
 
 
 class SquareSetTestCase(unittest.TestCase):
