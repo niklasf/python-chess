@@ -12,7 +12,7 @@ New in v0.15.0
 Changes:
 
 * `chess.uci.Score` **no longer has** `upperbound` **and** `lowerbound`
-  **attributes**. Previously these were always false.
+  **attributes**. Previously these were always *False*.
 
 * Significant improvements of move generation speed, around **2.3x faster
   PGN parsing**. Removed the following internal attributes and methods of
@@ -20,7 +20,7 @@ Changes:
   `_pinned()`, `attacks_valid_stack`, `attacks_from_stack`, `attacks_to_stack`,
   `generate_attacks()`.
 
-* UCI: Do not send *isready* directly after go. Though allowed by the UCI
+* UCI: Do not send *isready* directly after *go*. Though allowed by the UCI
   protocol specification it is just not nescessary and many engines were having
   trouble with this.
 
