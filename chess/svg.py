@@ -1,3 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of the python-chess library.
+# Copyright (C) 2012-2015 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Piece vector graphics are copyright (C) Colin M.L. Burnett
+# <https://en.wikipedia.org/wiki/User:Cburnett> and also licensed under the
+# GNU General Public License.
+
 import chess
 
 
@@ -41,10 +63,35 @@ def _text(content, x, y, width, height):
 
 
 def piece(piece):
+    """
+    Renders the given :class:`chess.Piece` as an SVG.
+
+    >>> chess.svg.piece(chess.Piece.from_symbol("R"))
+
+    .. image:: ../docs/wR.svg
+    """
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
 def board(board=None, squares=None, flipped=False, coordinates=True, style=None, pre="", post=""):
+    """
+    Renders a board with pieces and/or selected squares as an SVG.
+
+    :param board: A :class:`chess.BaseBoard` with pieces or ``None``.
+    :param squares: A :class:`chess.SquareSet` with selected squares.
+    :param flipped: Pass ``True`` to flip the board.
+    :param coordinates: Pass ``False`` to disable coordinates in the margin.
+    :param style: CSS to use instead of the default stylesheet.
+
+    Custom verbatim XML can be added before (*pre*) and after (*post*) all
+    elements.
+
+    >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
+    >>> squares = board.attacks(chess.E4)
+    >>> chess.svg.board(board=board, squares=squares)
+
+    .. image:: ../docs/Ne4.svg
+    """
     builder = []
     builder.append(pre)
 

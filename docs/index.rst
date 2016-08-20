@@ -12,6 +12,7 @@ Contents
     gaviota
     syzygy
     uci
+    svg
     changelog
 
 Indices and tables
