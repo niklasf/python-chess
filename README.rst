@@ -67,6 +67,10 @@ Features
       >>> # Python 2 compability for the following examples.
       >>> from __future__ import print_function
 
+* IPython notebook integration. `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
+
+  .. image:: https://github.com/niklasf/python-chess/raw/image-in-readme/docs/ipython.png
+
 * Supports standard chess and Chess960.
 
   .. code:: python
