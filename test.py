@@ -1081,12 +1081,6 @@ class BoardTestCase(unittest.TestCase):
             ♙ ♙ . . . . ♙ ♙
             . . . . . . ♔ ."""))
 
-        html = board.__html__()
-        self.assertTrue(u"♛" in html)
-        self.assertTrue(u"♙" in html)
-        self.assertFalse(u"♜" in html)
-        self.assertFalse(u"♖" in html)
-
     def test_move_info(self):
         board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
 
