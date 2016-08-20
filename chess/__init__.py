@@ -39,9 +39,13 @@ except ImportError:
 
 COLORS = [WHITE, BLACK] = [True, False]
 
+COLOR_NAMES = ["black", "white"]
+
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 
 PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
+
+PIECE_NAMES = ["", "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
@@ -667,6 +671,10 @@ class Piece(object):
 
     def __unicode__(self, invert_color=False):
         return self.unicode_symbol(invert_color)
+
+    def _repr_svg_(self):
+        import chess.svg
+        return chess.svg.piece(self)
 
     def __eq__(self, other):
         ne = self.__ne__(other)
@@ -1299,47 +1307,9 @@ class BaseBoard(object):
 
         return "".join(builder)
 
-    def __html__(self):
-        """
-        Returns a html-version of the board.
-        Can be displayed in e.g. an IPython notebook using
-        IPython.display.HTML(board.__html__())
-        """
-        tr = '<tr style="vertical-align:bottom;">'
-        string = '<table style="text-align:center;\
-                                border-spacing:0pt;\
-                                font-family:\'Arial Unicode MS\';\
-                                border-collapse:collapse;\
-                                border-color:black;\
-                                border-style:solid;\
-                                border-width:0pt 0pt 0pt 0pt">'
-        for rank in range(8, 0, -1):
-            string += tr
-            string += '<td style="vertical-align:middle;\
-                                  width:12pt">%d</td>' % rank
-            for i, file_ in enumerate('a b c d e f g h'.split()):
-                square = SQUARE_NAMES.index('%s%d' % (file_, rank))
-                piece = self.piece_at(square)
-                char = piece.unicode_symbol() if piece else ''
-                if (i + rank) % 2 == 0:
-                    string += '<td style="width:28pt;\
-                                          height:28pt;\
-                                          border-collapse:collapse;\
-                                          border-color:black;\
-                                          border-style:solid;\
-                                          border-width:0pt 0pt 0pt 0pt">\
-                                          <span style="font-size:250%%;">\
-                                          %s</span></td>' % char
-                else:
-                    string += '<td style="background:silver;">\
-                               <span style="font-size:250%%;">\
-                               %s</span></td>' % char
-            string += '</tr>'
-        string += '<tr><td></td>'
-        for file_ in 'a b c d e f g h'.split():
-            string += '<td style="text-align:center">%s</td>' % file_
-        string += '</tr></table>'
-        return string
+    def _repr_svg_(self):
+        import chess.svg
+        return chess.svg.board(board=self)
 
     def __eq__(self, board):
         ne = self.__ne__(board)
@@ -4079,6 +4049,10 @@ class SquareSet(object):
                 builder.append(" ")
 
         return "".join(builder)
+
+    def _repr_svg_(self):
+        import chess.svg
+        return chess.svg.board(squares=self)
 
     def __hash__(self):
         return hash(self.mask)
