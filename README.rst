@@ -69,7 +69,7 @@ Features
 
 * IPython notebook integration. `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
 
-  .. image:: https://github.com/niklasf/python-chess/raw/image-in-readme/docs/ipython.png
+  .. image:: https://github.com/niklasf/python-chess/raw/master/docs/ipython.png
 
 * Supports standard chess and Chess960.
 
