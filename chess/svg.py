@@ -53,7 +53,7 @@ DEFAULT_STYLE = """\
 
 
 def _svg(content, width, height):
-    return """<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="%d" height="%d">%s</svg>""" % (width, height, content)
+    return """<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="%d" height="%d">%s</svg>""" % (width, height, content)
 
 
 def _text(content, x, y, width, height):
