@@ -720,6 +720,19 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=False)
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
 
+    def test_one_king_movegen(self):
+        board = chess.Board.empty()
+        board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
+        self.assertFalse(board.is_valid())
+        self.assertEqual(len(board.legal_moves), 3)
+        self.assertEqual(len(board.pseudo_legal_moves), 3)
+        board.push_san("Kb1")
+        self.assertEqual(len(board.legal_moves), 0)
+        self.assertEqual(len(board.pseudo_legal_moves), 0)
+        board.push_san("--")
+        self.assertEqual(len(board.legal_moves), 5)
+        self.assertEqual(len(board.pseudo_legal_moves), 5)
+
     def test_epd(self):
         # Create an EPD with a move and a string.
         board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
