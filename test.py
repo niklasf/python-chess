@@ -2520,13 +2520,24 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
     def test_stockfish_dtz_bug(self):
-        board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
-        tablebases = chess.syzygy.Tablebases("data/syzygy")
-        dtz = tablebases.probe_dtz(board)
-        if dtz is None:
-            self.skipTest("need KBPvKP.rtbz and its children")
-        self.assertEqual(tablebases.probe_dtz(board), 15)
-        tablebases.close()
+        with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
+            board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
+            dtz = tablebases.probe_dtz(board)
+            if dtz is None:
+                self.skipTest("need KBPvKP.rtbz and its children")
+            self.assertEqual(tablebases.probe_dtz(board), 15)
+
+    def test_issue_93(self):
+        with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
+            board = chess.Board("4r1K1/6PP/3k4/8/8/8/8/8 w - - 1 64")
+
+            wdl = tablebases.probe_wdl(board)
+            if wdl is None:
+                self.skipTest("need KPPvKR.rtbw and its children")
+
+            dtz = tablebases.probe_dtz(board)
+            if dtz is None:
+                self.skipTest("need KPPvKR.rtbz and its children")
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
