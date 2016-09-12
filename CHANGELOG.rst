@@ -6,6 +6,18 @@ is more important to get things right than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.15.1
+--------------
+
+Bugfixes:
+
+* Fix a bug where `shift_up_right()` and `shift_up_left()` were producing
+  integers larger than 64bit when shifting squares off the board.
+
+New features:
+
+* Replaced __html__ with experimental SVG rendering for IPython.
+
 New in v0.15.0
 --------------
 
