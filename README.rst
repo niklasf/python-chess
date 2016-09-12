@@ -376,19 +376,6 @@ Features
       >>> engine.quit()
       0
 
-Bug bounty
-----------
-
-There is a **100$ bug bounty** for the first report of a critical issue in the
-core module. (Most likely I'll renew the bounty.)
-The bug must be reproducible in the latest release, not yet reported,
-and not yet fixed in the master branch. I consider critical:
-
-* Move generation
-* Move validation
-* Move making
-* Parser errors that leave objects in an inconsistent state
-
 Performance
 -----------
 
