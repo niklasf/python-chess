@@ -2534,10 +2534,12 @@ class SyzygyTestCase(unittest.TestCase):
             wdl = tablebases.probe_wdl(board)
             if wdl is None:
                 self.skipTest("need KPPvKR.rtbw and its children")
+            self.assertEqual(wdl, 2)
 
             dtz = tablebases.probe_dtz(board)
             if dtz is None:
                 self.skipTest("need KPPvKR.rtbz and its children")
+            self.assertEqual(dtz, 4)
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
