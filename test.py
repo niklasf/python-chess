@@ -53,6 +53,29 @@ class SquareTestCase(unittest.TestCase):
             rank_index = chess.rank_index(square)
             self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
 
+    def test_shifts(self):
+        shifts = [
+            chess.shift_down,
+            chess.shift_2_down,
+            chess.shift_up,
+            chess.shift_2_up,
+            chess.shift_right,
+            chess.shift_2_right,
+            chess.shift_left,
+            chess.shift_2_left,
+            chess.shift_up_left,
+            chess.shift_up_right,
+            chess.shift_down_left,
+            chess.shift_down_right,
+        ]
+
+        for shift in shifts:
+            for bb_square in chess.BB_SQUARES:
+                shifted = shift(bb_square)
+                c = chess.pop_count(shifted)
+                self.assertTrue(c <= 1)
+                self.assertEqual(c, chess.pop_count(shifted & chess.BB_ALL))
+
 
 class MoveTestCase(unittest.TestCase):
 

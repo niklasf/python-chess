@@ -267,10 +267,10 @@ def shift_2_up(b):
     return (b << 16) & BB_ALL
 
 def shift_right(b):
-    return (b << 1) & ~BB_FILE_A
+    return (b << 1) & ~BB_FILE_A & BB_ALL
 
 def shift_2_right(b):
-    return (b << 2) & ~BB_FILE_A & ~BB_FILE_B
+    return (b << 2) & ~BB_FILE_A & ~BB_FILE_B & BB_ALL
 
 def shift_left(b):
     return (b >> 1) & ~BB_FILE_H
