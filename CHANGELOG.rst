@@ -6,6 +6,16 @@ is more important to get things right than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.15.2
+--------------
+
+Bugfixes:
+
+* Fix a bug where `shift_right()` and `shift_2_right()` were producing
+  integers larger than 64bit when shifting squares off the board. This is
+  very similar to the bug fixed in v0.15.1. Thanks to piccoloprogrammatore
+  for reporting.
+
 New in v0.15.1
 --------------
 
