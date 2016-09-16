@@ -1955,6 +1955,13 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertEqual(game.headers["Result"], "1-0")
 
+    def test_errors(self):
+        pgn = StringIO("1. e4 Qa1 e5 2. Qxf8")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual(len(game.errors), 2)
+
 
 class StockfishTestCase(unittest.TestCase):
 

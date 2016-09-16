@@ -558,6 +558,7 @@ class GameModelCreator(BaseVisitor):
 
     def handle_error(self, error):
         LOGGER.exception("error during pgn parsing")
+        self.game.errors.append(error)
 
     def result(self):
         """
