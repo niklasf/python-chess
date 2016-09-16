@@ -246,6 +246,13 @@ class GameNode(object):
         self.variations.insert(0, node)
         return node
 
+    def main_line(self):
+        """Yields the moves of the main line starting in this node."""
+        node = self
+        while node.variations:
+            node = node.variations[0]
+            yield node.move
+
     def add_line(self, moves, comment="", starting_comment="", nags=()):
         """
         Creates a sequence of child nodes for the given list of moves.
@@ -267,7 +274,6 @@ class GameNode(object):
         node.nags.update(nags)
 
         return node
-
 
     def accept(self, visitor, _board=None):
         """
