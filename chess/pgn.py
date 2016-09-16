@@ -246,6 +246,29 @@ class GameNode(object):
         self.variations.insert(0, node)
         return node
 
+    def add_line(self, moves, comment="", starting_comment="", nags=()):
+        """
+        Creates a sequence of child nodes for the given list of moves.
+        Adds *comment* and *nags* to the last node of the line and returns it.
+        """
+        node = self
+
+        # Add line.
+        for move in moves:
+            node = node.add_variation(move, starting_comment=starting_comment)
+            starting_comment = ""
+
+        # Merge comment and NAGs.
+        if node.comment:
+            node.comment +=  " " + comment
+        else:
+            node.comment = comment
+
+        node.nags.update(nags)
+
+        return node
+
+
     def accept(self, visitor, _board=None):
         """
         Traverse game nodes in PGN order using the given *visitor*. Returns

@@ -1962,6 +1962,24 @@ class PgnTestCase(unittest.TestCase):
         logging.disable(logging.NOTSET)
         self.assertEqual(len(game.errors), 2)
 
+    def test_add_line(self):
+        game = chess.pgn.Game()
+        game.add_variation(chess.Move.from_uci("e2e4"))
+
+        tail = game.add_line([
+            chess.Move.from_uci("g1f3"),
+            chess.Move.from_uci("d7d5")
+        ], starting_comment="start", comment="end", nags=(17, 42))
+
+        self.assertEqual(tail.parent.move, chess.Move.from_uci("g1f3"))
+        self.assertEqual(tail.parent.starting_comment, "start")
+        self.assertEqual(tail.parent.comment, "")
+        self.assertEqual(len(tail.parent.nags), 0)
+
+        self.assertEqual(tail.move, chess.Move.from_uci("d7d5"))
+        self.assertEqual(tail.comment, "end")
+        self.assertTrue(42 in tail.nags)
+
 
 class StockfishTestCase(unittest.TestCase):
 
