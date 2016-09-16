@@ -349,6 +349,8 @@ class Game(GameNode):
         self.headers["Black"] = "?"
         self.headers["Result"] = "*"
 
+        self.errors = []
+
     def board(self, _cache=False):
         """
         Gets the starting position of the game.
