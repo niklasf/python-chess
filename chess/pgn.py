@@ -408,7 +408,7 @@ class Game(GameNode):
 
         super(Game, self).accept(visitor, _board=self.board())
 
-        visitor.visit_result(self.headers["Result"])
+        visitor.visit_result(self.headers.get("Result", "*"))
         visitor.end_game()
         return visitor.result()
 
