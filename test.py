@@ -1966,10 +1966,9 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.Game()
         game.add_variation(chess.Move.from_uci("e2e4"))
 
-        tail = game.add_line([
-            chess.Move.from_uci("g1f3"),
-            chess.Move.from_uci("d7d5")
-        ], starting_comment="start", comment="end", nags=(17, 42))
+        moves = [chess.Move.from_uci("g1f3"), chess.Move.from_uci("d7d5")]
+
+        tail = game.add_line(moves, starting_comment="start", comment="end", nags=(17, 42))
 
         self.assertEqual(tail.parent.move, chess.Move.from_uci("g1f3"))
         self.assertEqual(tail.parent.starting_comment, "start")
@@ -1979,6 +1978,14 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(tail.move, chess.Move.from_uci("d7d5"))
         self.assertEqual(tail.comment, "end")
         self.assertTrue(42 in tail.nags)
+
+    def test_main_line(self):
+        moves = [chess.Move.from_uci(uci) for uci in ["d2d3", "g8f6", "e2e4"]]
+
+        game = chess.pgn.Game()
+        game.add_line(moves)
+
+        self.assertEqual(list(game.main_line()), moves)
 
 
 class StockfishTestCase(unittest.TestCase):
