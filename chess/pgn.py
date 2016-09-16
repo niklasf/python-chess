@@ -242,7 +242,8 @@ class GameNode(object):
         main variation.
         """
         node = self.add_variation(move, comment=comment)
-        self.promote_to_main(move)
+        self.variations.remove(node)
+        self.variations.insert(0, node)
         return node
 
     def accept(self, visitor, _board=None):
