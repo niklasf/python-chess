@@ -6,6 +6,19 @@ is more important to get things right than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.15.3
+--------------
+
+Bugfixes:
+
+* `pgn.Game.errors` was not populated as documented. Thanks to Ryan Delaney
+  for reporting.
+
+New features:
+
+* Added `pgn.GameNode.add_line()` and `pgn.GameNode.main_line()` which make
+  it easier to work with list of moves as variations.
+
 New in v0.15.2
 --------------
 
