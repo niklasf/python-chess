@@ -17,7 +17,7 @@ Bugfixes:
 New features:
 
 * Added `pgn.GameNode.add_line()` and `pgn.GameNode.main_line()` which make
-  it easier to work with list of moves as variations.
+  it easier to work with lists of moves as variations.
 
 New in v0.15.2
 --------------
