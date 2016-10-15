@@ -1805,7 +1805,7 @@ class PgnTestCase(unittest.TestCase):
     def test_tree_traversal(self):
         game = chess.pgn.Game()
         node = game.add_variation(chess.Move(chess.E2, chess.E4))
-        alternative_node = game.add_variation(chess.D2, chess.D4)
+        alternative_node = game.add_variation(chess.Move(chess.D2, chess.D4))
         end_node = node.add_variation(chess.Move(chess.E7, chess.E5))
 
         self.assertEqual(game.root(), game)
