@@ -95,6 +95,9 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param flipped: Pass ``True`` to flip the board.
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
+    :param lastmove: A :class:`chess.Move` to be highlighted.
+    :param check: A square to be marked as check.
+    :param size: The width and height of the image.
     :param style: CSS to use instead of the default stylesheet.
 
     Custom verbatim XML can be added before (*pre*) and after (*post*) all
