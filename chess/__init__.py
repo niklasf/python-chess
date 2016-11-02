@@ -3617,7 +3617,14 @@ class Board(BaseBoard):
 
     def _repr_svg_(self):
         import chess.svg
-        return chess.svg.board(board=self, lastmove=self.peek() if self.move_stack else None)
+        lastmove = self.peek() if self.move_stack else None
+
+        if self.is_check():
+            check = bit_scan(self.kings & self.occupied_co[self.turn])
+        else:
+            check = None
+
+        return chess.svg.board(board=self, lastmove=lastmove, check=check)
 
     def __ne__(self, board):
         # Compare base board.
