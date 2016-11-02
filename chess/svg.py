@@ -73,7 +73,7 @@ def piece(piece):
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, style=None, pre="", post=""):
+def board(board=None, squares=None, flipped=False, coordinates=True, size=400, style=None, pre="", post=""):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -107,40 +107,42 @@ def board(board=None, squares=None, flipped=False, coordinates=True, style=None,
         builder.append(XX)
     builder.append("</defs>")
 
-    margin = 20
+    margin = 0.05 * size if coordinates else 0
+    square_size = (size - 2 * margin) / 8.0
+    piece_scale = square_size / 45.0
 
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.file_index(square)
         rank_index = chess.rank_index(square)
 
-        x = (file_index if not flipped else 7 - file_index) * 45 + margin
-        y = (7 - rank_index if not flipped else rank_index) * 45 + margin
+        x = (file_index if not flipped else 7 - file_index) * square_size + margin
+        y = (7 - rank_index if not flipped else rank_index) * square_size + margin
 
         cls = "light" if chess.BB_LIGHT_SQUARES & bb else "dark"
         name = chess.SQUARE_NAMES[square]
-        builder.append("""<rect x="%d" y="%d" class="square %s %s" width="45" height="45" style="stroke: none;" />""" % (x, y, cls, name))
+        builder.append("""<rect x="%f" y="%f" class="square %s %s" width="%f" height="%f" style="stroke: none;" />""" % (x, y, cls, name, square_size, square_size))
 
         # Render pieces.
         if board is not None:
             piece = board.piece_at(square)
             if piece:
                 href = "%s-%s" % (chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type])
-                builder.append("""<use xlink:href="#%s" x="%d" y="%d" />""" % (href, x, y))
+                builder.append("""<use xlink:href="#%s" transform="translate(%f, %f) scale(%f %f)" />""" % (href, x, y, piece_scale, piece_scale))
 
         # Render selected squares.
         if squares is not None and squares & bb:
-            builder.append("""<use xlink:href="#xx" x="%d" y="%d" />""" % (x, y))
+            builder.append("""<use xlink:href="#xx" x="%f" y="%f" />""" % (x, y))
 
     if coordinates:
         for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = (file_index if not flipped else 7 - file_index) * 45 + margin
-            builder.append(_text(file_name, x, 0, 45, margin))
-            builder.append(_text(file_name, x, margin + 8 * 45, 45, margin))
+            x = (file_index if not flipped else 7 - file_index) * square_size + margin
+            builder.append(_text(file_name, x, 0, square_size, margin))
+            builder.append(_text(file_name, x, margin + 8 * square_size, square_size, margin))
 
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = (7 - rank_index if not flipped else rank_index) * 45 + margin
-            builder.append(_text(rank_name, 0, y, margin, 45))
-            builder.append(_text(rank_name, margin + 8 * 45, y, margin, 45))
+            y = (7 - rank_index if not flipped else rank_index) * square_size + margin
+            builder.append(_text(rank_name, 0, y, margin, square_size))
+            builder.append(_text(rank_name, margin + 8 * square_size, y, margin, square_size))
 
     builder.append(post)
-    return _svg("".join(builder), 45 * 8 + 2 * margin, 45 * 8 + 2 * margin)
+    return _svg("".join(builder), size, size)
