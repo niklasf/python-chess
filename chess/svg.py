@@ -49,6 +49,13 @@ DEFAULT_STYLE = """\
 .square.dark {
   fill: #d18b47;
 }
+
+.square.dark.lastmove {
+  fill: #aaa23b;
+}
+.square.light.lastmove {
+  fill: #cdd16a;
+}
 """
 
 
@@ -73,7 +80,7 @@ def piece(piece):
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, size=400, style=None, pre="", post=""):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, size=400, style=None, pre="", post=""):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -118,9 +125,10 @@ def board(board=None, squares=None, flipped=False, coordinates=True, size=400, s
         x = (file_index if not flipped else 7 - file_index) * square_size + margin
         y = (7 - rank_index if not flipped else rank_index) * square_size + margin
 
-        cls = "light" if chess.BB_LIGHT_SQUARES & bb else "dark"
-        name = chess.SQUARE_NAMES[square]
-        builder.append("""<rect x="%f" y="%f" class="square %s %s" width="%f" height="%f" style="stroke: none;" />""" % (x, y, cls, name, square_size, square_size))
+        cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark", chess.SQUARE_NAMES[square]]
+        if lastmove and square in [lastmove.from_square, lastmove.to_square]:
+            cls.append("lastmove")
+        builder.append("""<rect x="%f" y="%f" class="%s" width="%f" height="%f" style="stroke: none;" />""" % (x, y, " ".join(cls), square_size, square_size))
 
         # Render pieces.
         if board is not None:

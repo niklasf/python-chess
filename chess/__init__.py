@@ -3615,6 +3615,10 @@ class Board(BaseBoard):
         else:
             return "Board('{0}', chess960=True)".format(self.fen())
 
+    def _repr_svg_(self):
+        import chess.svg
+        return chess.svg.board(board=self, lastmove=self.peek() if self.move_stack else None)
+
     def __ne__(self, board):
         # Compare base board.
         ne = super(Board, self).__ne__(board)
