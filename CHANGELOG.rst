@@ -6,6 +6,13 @@ is more important to get things right than to be consistent with previous
 versions. Use this changelog to see what changed in a new release, because this
 might include API breaking changes.
 
+New in v0.15.4
+--------------
+
+New features:
+
+* Highlight last move and checks when rendering board SVGs.
+
 New in v0.15.3
 --------------
 
