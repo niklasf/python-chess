@@ -42,6 +42,9 @@ PIECES = {
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
 
+CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="25%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="89%" stop-color="rgba(169, 0, 0, 0)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
+
+
 DEFAULT_STYLE = """\
 .square.light {
   fill: #ffce9e;
@@ -55,6 +58,10 @@ DEFAULT_STYLE = """\
 }
 .square.light.lastmove {
   fill: #cdd16a;
+}
+
+.check {
+  fill: url(#check_gradient);
 }
 """
 
@@ -80,7 +87,7 @@ def piece(piece):
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, size=400, style=None, pre="", post=""):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, size=400, style=None, pre="", post=""):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -112,6 +119,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             builder.append(piece_def)
     if squares:
         builder.append(XX)
+    if check is not None:
+        builder.append(CHECK_GRADIENT)
     builder.append("</defs>")
 
     margin = 0.05 * size if coordinates else 0
@@ -129,6 +138,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
         builder.append("""<rect x="%f" y="%f" class="%s" width="%f" height="%f" style="stroke: none;" />""" % (x, y, " ".join(cls), square_size, square_size))
+        if square == check:
+            builder.append("""<rect x="%f" y="%f" class="check" width="%f" height="%f" />""" % (x, y, square_size, square_size))
 
         # Render pieces.
         if board is not None:
