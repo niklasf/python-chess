@@ -42,7 +42,7 @@ PIECES = {
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
 
-CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="25%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="89%" stop-color="rgba(169, 0, 0, 0)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
+CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
 
 DEFAULT_STYLE = """\
