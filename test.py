@@ -2177,7 +2177,6 @@ class UciEngineTestCase(unittest.TestCase):
         # Set a position where d1h5 g6h5 would be a legal sequence of moves.
         fen = "8/8/6k1/8/8/8/1K6/3B4 w - - 0 1"
         self.mock.expect("position fen " + fen)
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(chess.Board(fen))
 
         self.engine.on_line_received("info refutation d1h5 g6h5")
@@ -2293,7 +2292,6 @@ class UciEngineTestCase(unittest.TestCase):
         fen = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w KQkq - 1 1"
         board = chess.Board(fen)
         self.mock.expect("position fen " + fen)
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
         self.mock.assert_done()
 
@@ -2319,7 +2317,6 @@ class UciEngineTestCase(unittest.TestCase):
 
         # Expect a Shredder FEN during for the position command.
         self.mock.expect("position fen rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w HAha - 1 1")
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
         self.mock.assert_done()
 
@@ -2340,7 +2337,6 @@ class UciEngineTestCase(unittest.TestCase):
         fen = "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/5N2/PPPPBPPP/RNBQK2R b KQkq - 3 3"
         board = chess.Board(fen, chess960=True)
         self.mock.expect("position fen " + fen)
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
 
         # Test castling moves as ponder moves.
@@ -2360,7 +2356,6 @@ class UciEngineTestCase(unittest.TestCase):
         # standard chess. The UCI module should just send the final FEN,
         # show a warning and hope for the best.
         self.mock.expect("position fen 3qk3/4pp2/8/5r2/8/8/3PP1P1/4K1R1 w K - 1 2")
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
         self.mock.assert_done()
 
@@ -2371,7 +2366,6 @@ class UciEngineTestCase(unittest.TestCase):
 
         # Then those castling rights should work fine.
         self.mock.expect("position fen " + fen + " moves f6f5")
-        self.mock.expect("isready", ("readyok", ))
         self.engine.position(board)
         self.mock.assert_done()
 

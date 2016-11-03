@@ -1101,14 +1101,10 @@ class Engine(object):
 
         def command():
             with self.semaphore:
-                with self.readyok_received:
-                    self.send_line(" ".join(builder))
+                self.send_line(" ".join(builder))
 
-                    self.send_line("isready")
-                    self.readyok_received.wait()
-
-                    if self.terminated.is_set():
-                        raise EngineTerminatedException()
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
