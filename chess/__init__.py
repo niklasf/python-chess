@@ -2870,6 +2870,10 @@ class Board(BaseBoard):
         """Checks if the given pseudo-legal move is a capture."""
         return BB_SQUARES[move.to_square] & self.occupied_co[not self.turn] or self.is_en_passant(move)
 
+    def is_zeroing(self, move):
+        """Checks if the given pseudo-legal move is a capture or pawn move."""
+        return BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn]
+
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
         if BB_SQUARES[move.to_square] & self.occupied_co[self.turn] & self.rooks:
