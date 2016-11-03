@@ -620,7 +620,7 @@ class Engine(object):
                 self.ponder = chess.Move.from_uci(tokens[2])
                 if self.ponder.from_square in [chess.E1, chess.E8] and self.ponder.to_square in [chess.C1, chess.C8, chess.G1, chess.G8]:
                     # Make a copy of the board to avoid race conditions.
-                    board = self.board.copy()
+                    board = self.board.copy(stack=False)
                     board.push(self.bestmove)
                     self.ponder = board.parse_uci(tokens[2])
             except ValueError:
@@ -746,7 +746,7 @@ class Engine(object):
                     pv = []
 
                 if current_parameter in ["refutation", "pv", "currline"]:
-                    board = self.board.copy()
+                    board = self.board.copy(stack=False)
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
             elif current_parameter == "seldepth":
@@ -1053,9 +1053,6 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
-        # Work on a local copy.
-        board = board.copy()
-
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
@@ -1100,7 +1097,7 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
-        self.board = board
+        self.board = board.copy(stack=False)
 
         def command():
             with self.semaphore:
