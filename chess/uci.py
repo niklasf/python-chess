@@ -1061,18 +1061,23 @@ class Engine(object):
         builder = []
         builder.append("position")
 
-        # Take back moves to obtain the first FEN we know. Later giving the
-        # moves explicitly allows for transposition detection.
+        # Take back moves to obtain the FEN at the latest pawn move or
+        # capture. Later giving the moves explicitly allows for transposition
+        # detection.
         switchyard = collections.deque()
         while board.move_stack:
-            switchyard.append(board.pop())
+            move = board.pop()
+            switchyard.append(move)
+
+            if board.is_zeroing(move):
+                break
 
         # Validate castling rights.
         if not self.uci_chess960 and board.chess960:
             if board.has_chess960_castling_rights():
                 LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 
-                # Just send the final FEN without transpositions in hops
+                # Just send the final FEN without transpositions in hopes
                 # that this will work.
                 while switchyard:
                     board.push(switchyard.pop())
