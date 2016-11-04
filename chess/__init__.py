@@ -2870,6 +2870,10 @@ class Board(BaseBoard):
         """Checks if the given pseudo-legal move is a capture."""
         return BB_SQUARES[move.to_square] & self.occupied_co[not self.turn] or self.is_en_passant(move)
 
+    def is_zeroing(self, move):
+        """Checks if the given pseudo-legal move is a capture or pawn move."""
+        return BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn]
+
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
         if BB_SQUARES[move.to_square] & self.occupied_co[self.turn] & self.rooks:
@@ -3702,7 +3706,7 @@ class Board(BaseBoard):
 
         return zobrist_hash
 
-    def copy(self):
+    def copy(self, stack=True):
         board = super(Board, self).copy()
 
         board.chess960 = self.chess960
@@ -3713,13 +3717,16 @@ class Board(BaseBoard):
         board.fullmove_number = self.fullmove_number
         board.halfmove_clock = self.halfmove_clock
 
-        board.halfmove_clock_stack = copy.copy(self.halfmove_clock_stack)
-        board.captured_piece_stack = copy.copy(self.captured_piece_stack)
-        board.castling_right_stack = copy.copy(self.castling_right_stack)
-        board.ep_square_stack = copy.copy(self.ep_square_stack)
-        board.move_stack = copy.deepcopy(self.move_stack)
+        if stack:
+            board.halfmove_clock_stack = copy.copy(self.halfmove_clock_stack)
+            board.captured_piece_stack = copy.copy(self.captured_piece_stack)
+            board.castling_right_stack = copy.copy(self.castling_right_stack)
+            board.ep_square_stack = copy.copy(self.ep_square_stack)
+            board.move_stack = copy.deepcopy(self.move_stack)
 
-        board.transpositions = copy.copy(self.transpositions)
+            board.transpositions = copy.copy(self.transpositions)
+        else:
+            board.transpositions.update((self.zobrist_hash(), ))
 
         return board
 

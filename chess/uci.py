@@ -620,7 +620,7 @@ class Engine(object):
                 self.ponder = chess.Move.from_uci(tokens[2])
                 if self.ponder.from_square in [chess.E1, chess.E8] and self.ponder.to_square in [chess.C1, chess.C8, chess.G1, chess.G8]:
                     # Make a copy of the board to avoid race conditions.
-                    board = self.board.copy()
+                    board = self.board.copy(stack=False)
                     board.push(self.bestmove)
                     self.ponder = board.parse_uci(tokens[2])
             except ValueError:
@@ -746,7 +746,7 @@ class Engine(object):
                     pv = []
 
                 if current_parameter in ["refutation", "pv", "currline"]:
-                    board = self.board.copy()
+                    board = self.board.copy(stack=False)
             elif current_parameter == "depth":
                 handle_integer_token(token, lambda handler, val: handler.depth(val))
             elif current_parameter == "seldepth":
@@ -1053,9 +1053,6 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
-        # Work on a local copy.
-        board = board.copy()
-
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
@@ -1064,18 +1061,23 @@ class Engine(object):
         builder = []
         builder.append("position")
 
-        # Take back moves to obtain the first FEN we know. Later giving the
-        # moves explicitly allows for transposition detection.
+        # Take back moves to obtain the FEN at the latest pawn move or
+        # capture. Later giving the moves explicitly allows for transposition
+        # detection.
         switchyard = collections.deque()
         while board.move_stack:
-            switchyard.append(board.pop())
+            move = board.pop()
+            switchyard.append(move)
+
+            if board.is_zeroing(move):
+                break
 
         # Validate castling rights.
         if not self.uci_chess960 and board.chess960:
             if board.has_chess960_castling_rights():
                 LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 
-                # Just send the final FEN without transpositions in hops
+                # Just send the final FEN without transpositions in hopes
                 # that this will work.
                 while switchyard:
                     board.push(switchyard.pop())
@@ -1100,18 +1102,14 @@ class Engine(object):
                 builder.append(board.uci(move, chess960=self.uci_chess960))
                 board.push(move)
 
-        self.board = board
+        self.board = board.copy(stack=False)
 
         def command():
             with self.semaphore:
-                with self.readyok_received:
-                    self.send_line(" ".join(builder))
+                self.send_line(" ".join(builder))
 
-                    self.send_line("isready")
-                    self.readyok_received.wait()
-
-                    if self.terminated.is_set():
-                        raise EngineTerminatedException()
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
