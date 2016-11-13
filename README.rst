@@ -69,7 +69,11 @@ Features
 
 * IPython notebook integration. `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
 
-  .. image:: https://github.com/niklasf/python-chess/raw/master/docs/ipython.png
+  .. code:: python
+
+      >>> board  # doctest: +SKIP
+
+  .. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
 
 * Supports standard chess and Chess960.
 
@@ -410,6 +414,7 @@ python-chess, for example:
 
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+* an HTTP microservice to render board images - https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram - https://github.com/cxjdavin/tgchessbot
 * connecting Stockfish to the Novag Citrine - http://empiricalrabbit.blogspot.de/2016/05/integrating-with-python-chess-module.html
 * a cross platform chess GUI - https://asdfjkl.github.io/jerry/
