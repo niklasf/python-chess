@@ -36,23 +36,26 @@ except ImportError:
 def test_epd(engine, epd, movetime):
     position = chess.Board()
     epd_info = position.set_epd(epd)
+    epd_string = "%s" % epd_info.get("id", position.fen())
+    if "am" in epd_info:
+        epd_string = "%s (avoid %s)" % (epd_string, " and ".join(position.san(am) for am in epd_info["am"]))
+    if "bm" in epd_info:
+        epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
     engine.position(position)
 
     enginemove, pondermove = engine.go(movetime=movetime)
 
-    if enginemove in epd_info["bm"]:
-        print("%s (expecting %s): +1" % (
-            epd_info.get("id", position.fen()),
-            " or ".join(position.san(bm) for bm in epd_info["bm"])))
-        return 1.0
-    else:
-        print("%s (expecting %s): +0 (got %s)" % (
-            epd_info.get("id", position.fen()),
-            " or ".join(position.san(bm) for bm in epd_info["bm"]),
-            position.san(enginemove)))
+    if "am" in epd_info and enginemove in epd_info["am"]:
+        print("%s: %s | +0" % (epd_string, position.san(enginemove)))
         return 0.0
+    elif "bm" in epd_info and not enginemove in epd_info["bm"]:
+        print("%s: %s | +0" % (epd_string, position.san(enginemove)))
+        return 0.0
+    else:
+        print("%s: %s | +1" % (epd_string, position.san(enginemove)))
+        return 1.0
 
 
 def test_epd_with_fractional_scores(engine, epd, movetime):
@@ -61,6 +64,11 @@ def test_epd_with_fractional_scores(engine, epd, movetime):
 
     position = chess.Board()
     epd_info = position.set_epd(epd)
+    epd_string = "%s" % epd_info.get("id", position.fen())
+    if "am" in epd_info:
+        epd_string = "%s (avoid %s)" % (epd_string, " and ".join(position.san(am) for am in epd_info["am"]))
+    if "bm" in epd_info:
+        epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
     engine.position(position)
@@ -70,9 +78,7 @@ def test_epd_with_fractional_scores(engine, epd, movetime):
 
     score = 0.0
 
-    print("%s (expecting %s):" % (
-        epd_info.get("id", position.fen()),
-        " or ".join(position.san(bm) for bm in epd_info["bm"])), end=" ")
+    print("%s:" % epd_string, end=" ")
 
     for step in range(0, 3):
         time.sleep(movetime / 4000.0)
@@ -80,9 +86,14 @@ def test_epd_with_fractional_scores(engine, epd, movetime):
         # Assess the current principal variation.
         with info_handler as info:
             if 1 in info["pv"] and len(info["pv"][1]) >= 1:
-                if info["pv"][1][0] in epd_info["bm"]:
-                    score = 1.0 / (4 - step)
-                print("(%s)" % position.san(info["pv"][1][0]), end=" ")
+                move = info["pv"][1][0]
+                print("(%s)" % position.san(move), end=" ")
+                if "am" in epd_info and move in epd_info["am"]:
+                    continue #fail
+                elif "bm" in epd_info and not move in epd_info["bm"]:
+                    continue #fail
+                else:
+                     score = 1.0 / (4 - step)
             else:
                 print("(no pv)", end=" ")
 
@@ -90,8 +101,12 @@ def test_epd_with_fractional_scores(engine, epd, movetime):
     time.sleep(movetime / 4000.0)
     engine.stop()
     enginemove, pondermove = search.result()
-    if enginemove in epd_info["bm"]:
-        score = 1.0
+    if "am" in epd_info and enginemove in epd_info["am"]:
+        pass #fail
+    elif "bm" in epd_info and not enginemove in epd_info["bm"]:
+        pass #fail
+    else:
+         score = 1.0
 
     print("%s | +%g" % (position.san(enginemove), score))
 
