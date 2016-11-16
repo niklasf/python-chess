@@ -23,6 +23,7 @@ import chess.pgn
 import chess.uci
 import chess.syzygy
 import chess.gaviota
+import chess.variant
 import os.path
 import textwrap
 import sys
@@ -2680,6 +2681,18 @@ class GaviotaTestCase(unittest.TestCase):
             pass
 
         self.assertFalse(self.tablebases.available_tables)
+
+
+class SuicideTestCase(unittest.TestCase):
+
+    def test_parse_san(self):
+        board = chess.variant.SuicideBoard()
+        board.push_san("e4")
+        board.push_san("d5")
+
+        # Capture mandatory.
+        with self.assertRaises(ValueError):
+            board.push_san("Nf3")
 
 
 if __name__ == "__main__":

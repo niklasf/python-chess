@@ -74,8 +74,9 @@ class SuicideBoard(chess.Board):
     def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         # Generate captures first.
         found_capture = False
-        for move in self.generate_pseudo_legal_captures(from_mask, to_mask):
-            yield move
+        for move in self.generate_pseudo_legal_captures():
+            if chess.BB_SQUARES[move.from_square] & from_mask and chess.BB_SQUARES[move.to_mask] & to_mask:
+                yield move
             found_capture = True
 
         # Captures are mandatory. Stop here if any were found.
