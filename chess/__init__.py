@@ -835,6 +835,8 @@ class BaseBoard(object):
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
+        self.promoted = BB_VOID
+
         self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
@@ -851,6 +853,8 @@ class BaseBoard(object):
         self.rooks = BB_VOID
         self.queens = BB_VOID
         self.kings = BB_VOID
+
+        self.promoted = BB_VOID
 
         self.occupied_co[WHITE] = BB_VOID
         self.occupied_co[BLACK] = BB_VOID
@@ -934,9 +938,10 @@ class BaseBoard(object):
             self.kings ^= mask
 
         color = bool(self.occupied_co[WHITE] & mask)
-
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
+
+        self.promoted &= ~mask
 
         # Update incremental zobrist hash.
         if color == BLACK:
@@ -949,7 +954,7 @@ class BaseBoard(object):
         """Removes a piece from the given square if present."""
         self._remove_piece_at(square)
 
-    def _set_piece_at(self, square, piece_type, color):
+    def _set_piece_at(self, square, piece_type, color, promoted=False):
         self._remove_piece_at(square)
 
         mask = BB_SQUARES[square]
@@ -970,6 +975,9 @@ class BaseBoard(object):
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
 
+        if promoted:
+            self.promoted ^= mask
+
         # Update incremental zobrist hash.
         if color == BLACK:
             piece_index = (piece_type - 1) * 2
@@ -977,7 +985,7 @@ class BaseBoard(object):
             piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
-    def set_piece_at(self, square, piece):
+    def set_piece_at(self, square, piece, promoted=False):
         """
         Sets a piece at the given square.
 
@@ -987,9 +995,9 @@ class BaseBoard(object):
         if piece is None:
             self._remove_piece_at(square)
         else:
-            self._set_piece_at(square, piece.piece_type, piece.color)
+            self._set_piece_at(square, piece.piece_type, piece.color, promoted)
 
-    def board_fen(self):
+    def board_fen(self, promoted=False):
         """
         Gets the board FEN.
         """
@@ -1005,6 +1013,8 @@ class BaseBoard(object):
                 if empty:
                     builder.append(str(empty))
                     empty = 0
+                if promoted and BB_SQUARES[square] & self.promoted:
+                    builder.append("~")
                 builder.append(piece.symbol())
 
             if BB_SQUARES[square] & BB_FILE_H:
@@ -1027,6 +1037,7 @@ class BaseBoard(object):
         for row in rows:
             field_sum = 0
             previous_was_digit = False
+            previous_was_piece = False
 
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
@@ -1034,9 +1045,16 @@ class BaseBoard(object):
                         raise ValueError("two subsequent digits in position part of fen: {0}".format(repr(fen)))
                     field_sum += int(c)
                     previous_was_digit = True
+                    previous_was_piece = False
+                elif c == "~":
+                    if not previous_was_piece:
+                        raise ValueError("~ not after piece in position part of fen: {0}".format(repr(fen)))
+                    previous_was_digit = False
+                    previous_was_piece = False
                 elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
                     field_sum += 1
                     previous_was_digit = False
+                    previous_was_piece = True
                 else:
                     raise ValueError("invalid character in position part of fen: {0}".format(repr(fen)))
 
@@ -1055,6 +1073,8 @@ class BaseBoard(object):
                 piece = Piece.from_symbol(c)
                 self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
                 square_index += 1
+            elif c == "~":
+                self.promoted |= BB_SQUARES[SQUARES_180[square_index - 1]]
 
     def set_board_fen(self, fen):
         """
@@ -1123,6 +1143,7 @@ class BaseBoard(object):
         self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
+        self.promoted = BB_VOID
 
         self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
@@ -1144,6 +1165,8 @@ class BaseBoard(object):
         if self.occupied_co[BLACK] != BB_RANK_7 | BB_RANK_8:
             return None
         if self.pawns != BB_RANK_2 | BB_RANK_7:
+            return None
+        if self.promoted:
             return None
 
         if pop_count(self.bishops) != 4:
@@ -1246,7 +1269,7 @@ class BaseBoard(object):
         return zobrist_hash
 
     def __repr__(self):
-        return "BaseBoard('{0}')".format(self.board_fen())
+        return "{0}('{1}')".format(type(self).__name__, self.board_fen())
 
     def __str__(self):
         builder = []
@@ -1352,6 +1375,7 @@ class BaseBoard(object):
         board.occupied_co[WHITE] = self.occupied_co[WHITE]
         board.occupied_co[BLACK] = self.occupied_co[BLACK]
         board.occupied = self.occupied
+        board.promoted = self.promoted
 
         board.incremental_zobrist_hash = self.incremental_zobrist_hash
 
@@ -1415,6 +1439,7 @@ class Board(BaseBoard):
         self.captured_piece_stack = collections.deque()
         self.castling_right_stack = collections.deque()
         self.ep_square_stack = collections.deque()
+        self.promoted_stack = collections.deque()
         self.move_stack = collections.deque()
 
         self.transpositions = collections.Counter()
@@ -1468,6 +1493,7 @@ class Board(BaseBoard):
         self.captured_piece_stack.clear()
         self.castling_right_stack.clear()
         self.ep_square_stack.clear()
+        self.promoted_stack.clear()
         self.move_stack.clear()
 
         self.transpositions.clear()
@@ -1803,6 +1829,15 @@ class Board(BaseBoard):
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
 
+    def is_variant_loss(self):
+        return False
+
+    def is_variant_win(self):
+        return False
+
+    def is_variant_draw(self):
+        return False
+
     def is_game_over(self, claim_draw=False):
         """
         Checks if the game is over due to checkmate, stalemate, insufficient
@@ -1811,6 +1846,10 @@ class Board(BaseBoard):
         The game is not considered to be over by threefold repetition or the
         fifty-move rule, unless *claim_draw* is given.
         """
+        # Special chess variant conditions
+        if self.is_variant_loss() or self.is_variant_win() or self.is_variant_draw():
+            return True
+
         # Seventyfive-move rule.
         if self.halfmove_clock >= 150:
             return True
@@ -1841,12 +1880,17 @@ class Board(BaseBoard):
         :func:`game is over <chess.Board.is_game_over()>`. Otherwise the result
         is undetermined: ``*``.
         """
+        # Chess variant support
+        if self.is_variant_loss():
+            return "0-1" if self.turn == WHITE else "1-0"
+        elif self.is_variant_win():
+            return "1-0" if self.turn == WHITE else "0-1"
+        elif self.is_variant_draw():
+            return "1/2-1/2"
+
         # Checkmate.
         if self.is_checkmate():
-            if self.turn == WHITE:
-                return "0-1"
-            else:
-                return "1-0"
+            return "0-1" if self.turn == WHITE else "1-0"
 
         # Draw claimed.
         if claim_draw and self.can_claim_draw():
@@ -2011,11 +2055,13 @@ class Board(BaseBoard):
             self.fullmove_number += 1
 
         # Remember game state.
+        promoted = self.promoted & BB_SQUARES[move.from_square]
         captured_piece = self.piece_at(move.to_square) if move else None
         self.halfmove_clock_stack.append(self.halfmove_clock)
         self.castling_right_stack.append(self.castling_rights)
         self.captured_piece_stack.append(captured_piece)
         self.ep_square_stack.append(self.ep_square)
+        self.promoted_stack.append(self.promoted)
         self.move_stack.append(move)
 
         # On a null move simply swap turns and reset the en passant square.
@@ -2036,14 +2082,20 @@ class Board(BaseBoard):
         self.castling_rights = self.clean_castling_rights()
         self.castling_rights &= ~BB_SQUARES[move.to_square]
         self.castling_rights &= ~BB_SQUARES[move.from_square]
-        if piece_type == KING:
+        if piece_type == KING and not promoted:
             if self.turn == WHITE:
                 self.castling_rights &= ~BB_RANK_1
             else:
                 self.castling_rights &= ~BB_RANK_8
+        elif captured_piece and captured_piece.piece_type == KING and not self.promoted & BB_SQUARES[move.to_square]:
+            if self.turn == WHITE and rank_index(move.to_square) == 7:
+                self.castling_rights &= ~BB_RANK_8
+            elif self.turn == BLACK and rank_index(move.to_square) == 0:
+                self.castling_rights &= ~BB_RANK_1
 
         # Promotion.
         if move.promotion:
+            promoted = True
             piece_type = move.promotion
 
         # Remove piece from original square.
@@ -2085,7 +2137,7 @@ class Board(BaseBoard):
 
         # Put piece on target square.
         if not castling:
-            self._set_piece_at(move.to_square, piece_type, self.turn)
+            self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
         # Swap turn.
         self.turn = not self.turn
@@ -2111,6 +2163,7 @@ class Board(BaseBoard):
         self.halfmove_clock = self.halfmove_clock_stack.pop()
         self.castling_rights = self.castling_right_stack.pop()
         self.ep_square = self.ep_square_stack.pop()
+        self.promoted = self.promoted_stack.pop()
         captured_piece = self.captured_piece_stack.pop()
 
         # On a null move simply swap the turn.
@@ -2188,7 +2241,7 @@ class Board(BaseBoard):
         builder = []
 
         for color in [BLACK, WHITE]:
-            king_mask = self.kings & self.occupied_co[color]
+            king_mask = self.kings & self.occupied_co[color] & ~self.promoted
             if not king_mask:
                 continue
 
@@ -2230,7 +2283,7 @@ class Board(BaseBoard):
         """Checks if there is a legal en passant capture."""
         return any(self.generate_legal_ep())
 
-    def fen(self):
+    def fen(self, promoted=False):
         """
         Gets the FEN representation of the position.
 
@@ -2241,9 +2294,12 @@ class Board(BaseBoard):
         en passant square (:data:`~chess.Board.ep_square`,
         :func:`~chess.Board.has_legal_en_passant()`), the halfmove clock
         and the fullmove number.
+
+        Optionally designates *promoted* pieces with a ``~`` after
+        their symbol.
         """
         fen = []
-        fen.append(self.board_fen())
+        fen.append(self.board_fen(promoted=promoted))
         fen.append("w" if self.turn == WHITE else "b")
         fen.append(self.castling_xfen())
         fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
@@ -2251,7 +2307,7 @@ class Board(BaseBoard):
         fen.append(str(self.fullmove_number))
         return " ".join(fen)
 
-    def shredder_fen(self):
+    def shredder_fen(self, promoted=False):
         """
         Gets the Shredder FEN representation of the position.
 
@@ -2260,11 +2316,14 @@ class Board(BaseBoard):
 
         Use :func:`~chess.Board.castling_shredder_fen()` to get just the
         castling part.
+
+        Optionally designates *promoted* pieces with a ``~`` after
+        their symbol.
         """
         fen = []
         fen.append(self.board_fen())
         fen.append("w" if self.turn == WHITE else "b")
-        fen.append(self.castling_shredder_fen())
+        fen.append(self.castling_shredder_fen(promoted=promoted))
         fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
@@ -2912,22 +2971,23 @@ class Board(BaseBoard):
             black_castling &= (BB_A8 | BB_H8)
 
             # The kings must be on e1 or e8.
-            if not self.occupied_co[WHITE] & self.kings & BB_E1:
+            if not self.occupied_co[WHITE] & self.kings & ~self.promoted & BB_E1:
                 white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & BB_E8:
+            if not self.occupied_co[BLACK] & self.kings & ~self.promoted & BB_E8:
                 black_castling = 0
 
             return white_castling | black_castling
         else:
             # The kings must be on the backrank.
-            if not self.occupied_co[WHITE] & self.kings & BB_RANK_1:
+            white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self.promoted
+            black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self.promoted
+            if not white_king_mask:
                 white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & BB_RANK_8:
+            if not black_king_mask:
                 black_castling = 0
 
-            # Find the kings.
-            white_king = bit_scan(self.occupied_co[WHITE] & self.kings)
-            black_king = bit_scan(self.occupied_co[BLACK] & self.kings)
+            white_king = bit_scan(white_king_mask)
+            black_king = bit_scan(black_king_mask)
 
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
@@ -3328,8 +3388,16 @@ class Board(BaseBoard):
 
             double_moves = double_moves & (double_moves - 1)
 
+    def _attacked_for_king(self, path):
+        test_square = bit_scan(path)
+        while test_square != -1 and test_square is not None:
+            if self.attackers_mask(not self.turn, test_square):
+                return True
+            test_square = bit_scan(path, test_square + 1)
+        return False
+
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        king = self.occupied_co[self.turn] & self.kings & from_mask
+        king = self.occupied_co[self.turn] & self.kings & ~self.promoted & from_mask
         king_square = bit_scan(king)
         if king_square is None or king_square == -1:
             return
@@ -3396,13 +3464,7 @@ class Board(BaseBoard):
             empty_for_king &= ~rook
 
             if not self.occupied & (empty_for_king | empty_for_rook):
-                test_square = bit_scan(not_attacked_for_king)
-                while test_square != -1 and test_square is not None:
-                    if self.attackers_mask(not self.turn, test_square):
-                        break
-
-                    test_square = bit_scan(not_attacked_for_king, test_square + 1)
-                else:
+                if not self._attacked_for_king(not_attacked_for_king):
                     yield self._from_chess960(bit_scan(king), bit_scan(rook))
 
             candidates = candidates & (candidates - 1)
@@ -3615,9 +3677,9 @@ class Board(BaseBoard):
 
     def __repr__(self):
         if not self.chess960:
-            return "Board('{0}')".format(self.fen())
+            return "{0}('{1}')".format(type(self).__name__, self.fen())
         else:
-            return "Board('{0}', chess960=True)".format(self.fen())
+            return "{0}('{1}', chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self):
         import chess.svg
@@ -3722,6 +3784,7 @@ class Board(BaseBoard):
             board.captured_piece_stack = copy.copy(self.captured_piece_stack)
             board.castling_right_stack = copy.copy(self.castling_right_stack)
             board.ep_square_stack = copy.copy(self.ep_square_stack)
+            board.promoted_stack = copy.copy(self.promoted_stack)
             board.move_stack = copy.deepcopy(self.move_stack)
 
             board.transpositions = copy.copy(self.transpositions)
