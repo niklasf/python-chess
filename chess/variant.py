@@ -75,7 +75,7 @@ class SuicideBoard(chess.Board):
         # Generate captures first.
         found_capture = False
         for move in self.generate_pseudo_legal_captures():
-            if chess.BB_SQUARES[move.from_square] & from_mask and chess.BB_SQUARES[move.to_mask] & to_mask:
+            if chess.BB_SQUARES[move.from_square] & from_mask and chess.BB_SQUARES[move.to_square] & to_mask:
                 yield move
             found_capture = True
 
