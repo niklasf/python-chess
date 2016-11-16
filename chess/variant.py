@@ -64,8 +64,27 @@ class SuicideBoard(chess.Board):
             return self.is_stalemate() and self._material_balance() == 0
 
     def is_insufficient_material(self):
-        # TODO
-        return False
+        # Enough material.
+        if self.knights or self.rooks or self.queens or self.kings:
+            return False
+
+        # All pawns must be blocked.
+        w_pawns = self.pawns & self.occupied_co[chess.WHITE]
+        b_pawns = self.pawns & self.occupied_co[chess.BLACK]
+
+        b_blocked_pawns = chess.shift_up(w_pawns) & b_pawns
+        w_blocked_pawns = chess.shift_down(b_pawns) & w_pawns
+
+        if (b_blocked_pawns | w_blocked_pawns) != self.pawns:
+            return False
+
+        # Bishop and pawns of each side are on distinct color complexes.
+        if self.occupied_co[WHITE] & BB_DARK_SQUARES == 0:
+            return self.occupied_co[BLACK] & BB_LIGHT_SQUARES == 0
+        elif self.occupied_co[WHITE] & BB_LIGHT_SQUARES == 0:
+            return self.occupied_co[BLACK] & BB_DARK_SQUARES == 0
+        else:
+            return False
 
     def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         return
