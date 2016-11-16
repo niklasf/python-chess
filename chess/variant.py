@@ -70,6 +70,10 @@ class SuicideBoard(chess.Board):
         if self.knights or self.rooks or self.queens or self.kings:
             return False
 
+        # Must have bishops.
+        if not (self.occupied_co[chess.WHITE] & self.bishops and self.occupied_co[chess.BLACK] & self.bishops):
+            return False
+
         # All pawns must be blocked.
         w_pawns = self.pawns & self.occupied_co[chess.WHITE]
         b_pawns = self.pawns & self.occupied_co[chess.BLACK]
