@@ -2723,6 +2723,10 @@ class SuicideTestCase(unittest.TestCase):
         board = chess.variant.SuicideBoard("6B1/6pB/6P1/8/8/8/8/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
+        # Pawns not really locked up.
+        board = chess.variant.SuicideBoard("8/8/8/2pp4/2PP4/8/8/8 w - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
