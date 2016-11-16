@@ -81,10 +81,10 @@ class SuicideBoard(chess.Board):
             return False
 
         # Bishop and pawns of each side are on distinct color complexes.
-        if self.occupied_co[WHITE] & BB_DARK_SQUARES == 0:
-            return self.occupied_co[BLACK] & BB_LIGHT_SQUARES == 0
-        elif self.occupied_co[WHITE] & BB_LIGHT_SQUARES == 0:
-            return self.occupied_co[BLACK] & BB_DARK_SQUARES == 0
+        if self.occupied_co[chess.WHITE] & chess.BB_DARK_SQUARES == 0:
+            return self.occupied_co[chess.BLACK] & chess.BB_LIGHT_SQUARES == 0
+        elif self.occupied_co[chess.WHITE] & chess.BB_LIGHT_SQUARES == 0:
+            return self.occupied_co[chess.BLACK] & chess.BB_DARK_SQUARES == 0
         else:
             return False
 
