@@ -1269,7 +1269,7 @@ class BaseBoard(object):
         return zobrist_hash
 
     def __repr__(self):
-        return "BaseBoard('{0}')".format(self.board_fen())
+        return "{0}('{1}')".format(type(self).__name__, self.board_fen())
 
     def __str__(self):
         builder = []
@@ -3677,9 +3677,9 @@ class Board(BaseBoard):
 
     def __repr__(self):
         if not self.chess960:
-            return "Board('{0}')".format(self.fen())
+            return "{0}('{1}')".format(type(self).__name__, self.fen())
         else:
-            return "Board('{0}', chess960=True)".format(self.fen())
+            return "{0}('{1}', chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self):
         import chess.svg
