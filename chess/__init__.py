@@ -78,6 +78,7 @@ STATUS_TOO_MANY_BLACK_PIECES = 128
 STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
+STATUS_EMPTY = 2048
 
 
 SQUARES = [
@@ -3141,6 +3142,10 @@ class Board(BaseBoard):
         :data:`~chess.STATUS_OPPOSITE_CHECK`.
         """
         errors = STATUS_VALID
+
+        # There must be at least one piece.
+        if not self.occupied:
+            errors |= STATUS_EMPTY
 
         # There must be exactly one king of each color.
         if not self.occupied_co[WHITE] & self.kings:
