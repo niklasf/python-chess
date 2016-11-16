@@ -9,6 +9,7 @@
 # http://marcelk.net/rookie/nostalgia/v3/perft-random.epd
 
 import chess
+import chess.variant
 import unittest
 import sys
 
@@ -202,6 +203,16 @@ class PerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 4), 405636)
         sys.stdout.write(".\n")
         sys.stdout.flush()
+
+
+class GiveawayPerftTestCase(unittest.TestCase):
+
+    def test_giveaway_starting_position(self):
+        board = chess.variant.GiveawayBoard()
+        self.assertEqual(perft(board, 1), 20)
+        self.assertEqual(perft(board, 2), 400)
+        self.assertEqual(perft(board, 3), 8067)
+        self.assertEqual(perft(board, 4), 153299)
 
 
 if __name__ == "__main__":
