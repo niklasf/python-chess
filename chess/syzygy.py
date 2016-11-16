@@ -315,6 +315,38 @@ def normalize_filename(filename):
         return filename
 
 
+def _dependencies(filename, one_king=True):
+    for p in PCHR:
+        if p == "K" and one_king:
+            continue
+
+        w, b = filename.split("v", 1)
+
+        # Promotions.
+        if p != "P" and "P" in w:
+            yield normalize_filename(w.replace("P", p, 1) + "v" + b)
+        if p != "P" and "P" in b:
+            yield normalize_filename(w + "v" + b.replace("P", p, 1))
+
+        # Captures.
+        w, b = filename.split("v", 1)
+        if p in w and len(w) > 1:
+            yield normalize_filename(w.replace(p, "", 1) + "v" + b)
+        if p in b and len(b) > 1:
+            yield normalize_filename(w + "v" + b.replace(p, "", 1))
+
+
+def dependencies(filename, one_king=True):
+    closed = set()
+    if one_king:
+        closed.add("KvK")
+
+    for dependency in _dependencies(filename, one_king):
+        if not dependency in closed and len(dependency) > 2:
+            yield dependency
+            closed.add(dependency)
+
+
 def calc_key(board, mirror=False):
     key = 0
 
