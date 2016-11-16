@@ -307,6 +307,14 @@ def filenames():
                     yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
 
 
+def normalize_filename(filename):
+    w, b = filename.split("v", 1)
+    if (len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w]):
+        return b + "v" + w
+    else:
+        return filename
+
+
 def calc_key(board, mirror=False):
     key = 0
 

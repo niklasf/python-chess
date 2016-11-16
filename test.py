@@ -2446,6 +2446,19 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertTrue("KRNvKRP" in chess.syzygy.filenames())
         self.assertTrue("KRPvKP" in chess.syzygy.filenames())
 
+    def test_normalize_filename(self):
+        names = set(chess.syzygy.filenames())
+        for name in names:
+            self.assertTrue(
+                chess.syzygy.normalize_filename(name) in names,
+                "Already normalized {0}".format(name))
+
+            w, b = name.split("v", 1)
+            swapped = b + "v" + w
+            self.assertTrue(
+                chess.syzygy.normalize_filename(swapped) in names,
+                "Normalized {0}".format(swapped))
+
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
         wdl.init_table_wdl()
