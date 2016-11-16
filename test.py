@@ -2694,6 +2694,31 @@ class SuicideTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             board.push_san("Nf3")
 
+    def test_insufficient_material(self):
+        # Kings only.
+        board = chess.variant.SuicideBoard("8/8/8/2k5/8/8/4K3/8 b - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
+        # Bishops on same color.
+        board = chess.variant.SuicideBoard("8/8/8/5b2/2B5/1B6/8/8 b - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
+        # Opposite color bishops.
+        board = chess.variant.SuicideBoard("4b3/8/8/8/3B4/2B5/8/8 b - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Pawn not blocked.
+        board = chess.variant.SuicideBoard("8/5b2/5P2/8/3B4/2B5/8/8 b - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
+        # Pawn blocked.
+        board = chess.variant.SuicideBoard("8/5p2/5P2/8/3B4/1bB5/8/8 b - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Pawns blocked but on wrong color.
+        board = chess.variant.SuicideBoard("8/5p2/5P2/8/8/8/3b4/8 b - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
