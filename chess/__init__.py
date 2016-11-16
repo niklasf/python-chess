@@ -2321,9 +2321,9 @@ class Board(BaseBoard):
         their symbol.
         """
         fen = []
-        fen.append(self.board_fen())
+        fen.append(self.board_fen(promoted=promoted))
         fen.append("w" if self.turn == WHITE else "b")
-        fen.append(self.castling_shredder_fen(promoted=promoted))
+        fen.append(self.castling_shredder_fen())
         fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
         fen.append(str(self.halfmove_clock))
         fen.append(str(self.fullmove_number))
