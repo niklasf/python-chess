@@ -1428,6 +1428,8 @@ class Board(BaseBoard):
     of the Chess960 starting positions.
     """
 
+    uci_variant = "chess"
+
     def __init__(self, fen=STARTING_FEN, chess960=False):
         BaseBoard.__init__(self, None)
 

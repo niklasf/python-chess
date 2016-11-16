@@ -23,6 +23,8 @@ SUICIDE_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 class SuicideBoard(chess.Board):
 
+    uci_variant = "suicide"
+
     def pin_mask(self, color, square):
         return chess.BB_ALL
 
@@ -117,6 +119,8 @@ class SuicideBoard(chess.Board):
 GIVEAWAY_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
 class GiveawayBoard(SuicideBoard):
+
+    uci_variant = "giveaway"
 
     def __init__(self, fen=GIVEAWAY_STARTING_FEN, chess960=False):
         super(GiveawayBoard, self).__init__(fen, chess960)

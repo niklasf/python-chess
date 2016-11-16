@@ -505,6 +505,7 @@ class Engine(object):
 
         self.board = chess.Board()
         self.uci_chess960 = None
+        self.uci_variant = None
 
         self.name = None
         self.author = None
@@ -588,9 +589,11 @@ class Engine(object):
             return
 
     def _uciok(self):
-        # Set UCI_Chess960 default value.
+        # Set UCI_Chess960 and UCI_Variant default value.
         if self.uci_chess960 is None and "UCI_Chess960" in self.options:
             self.uci_chess960 = self.options["UCI_Chess960"].default
+        if self.uci_variant is None and "UCI_Variant" in self.options:
+            self.uci_variant = self.options["UCI_Variant"].default
 
         self.uciok.set()
 
@@ -973,6 +976,8 @@ class Engine(object):
         for name, value in options.items():
             if name.lower() == "uci_chess960":
                 self.uci_chess960 = value
+            if name.lower() == "uci_variant":
+                self.uci_variant = value.lower()
 
             builder = []
             builder.append("setoption name")
@@ -1049,6 +1054,13 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
+        # Check UCI_Variant
+        uci_variant = type(board).uci_variant
+        if uci_variant == "chess" and self.uci_variant is None:
+            pass
+        elif uci_variant != self.uci_variant:
+            LOGGER.error("current UCI_Variant (%s) does not match position (%s)", self.uci_variant, uci_variant)
+
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
@@ -1079,15 +1091,17 @@ class Engine(object):
                     board.push(switchyard.pop())
 
         # Send startposition.
-        if board.fen() == chess.STARTING_FEN:
+        if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
         else:
             builder.append("fen")
 
+            promoted = uci_variant in ["giveaway", "suicide"] and board.has_chess960_castling_rights()
+
             if self.uci_chess960:
-                builder.append(board.shredder_fen())
+                builder.append(board.shredder_fen(promoted=promoted))
             else:
-                builder.append(board.fen())
+                builder.append(board.fen(promoted=promoted))
 
         # Send moves.
         if switchyard:
