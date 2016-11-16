@@ -84,6 +84,15 @@ class SuicideBoard(chess.Board):
         if (b_blocked_pawns | w_blocked_pawns) != self.pawns:
             return False
 
+        turn = self.turn
+        turn = chess.WHITE
+        if any(self.generate_pseudo_legal_moves(self.pawns)):
+            return False
+        turn = chess.BLACK
+        if any(self.generate_pseudo_legal_moves(self.pawns)):
+            return False
+        self.turn = turn
+
         # Bishop and pawns of each side are on distinct color complexes.
         if self.occupied_co[chess.WHITE] & chess.BB_DARK_SQUARES == 0:
             return self.occupied_co[chess.BLACK] & chess.BB_LIGHT_SQUARES == 0
