@@ -1803,6 +1803,15 @@ class Board(BaseBoard):
     def is_legal(self, move):
         return self.is_pseudo_legal(move) and not self.is_into_check(move)
 
+    def is_variant_loss(self):
+        return False
+
+    def is_variant_win(self):
+        return False
+
+    def is_variant_draw(self):
+        return False
+
     def is_game_over(self, claim_draw=False):
         """
         Checks if the game is over due to checkmate, stalemate, insufficient
@@ -1811,6 +1820,10 @@ class Board(BaseBoard):
         The game is not considered to be over by threefold repetition or the
         fifty-move rule, unless *claim_draw* is given.
         """
+        # Special chess variant conditions
+        if self.is_variant_loss() or self.is_variant_win() or self.is_variant_draw():
+            return True
+
         # Seventyfive-move rule.
         if self.halfmove_clock >= 150:
             return True
@@ -1841,12 +1854,17 @@ class Board(BaseBoard):
         :func:`game is over <chess.Board.is_game_over()>`. Otherwise the result
         is undetermined: ``*``.
         """
+        # Chess variant support
+        if self.is_variant_loss():
+            return "0-1" if self.turn == WHITE else "1-0"
+        elif self.is_variant_win():
+            return "1-0" if self.turn == WHITE else "0-1"
+        elif self.is_variant_draw():
+            return "1/2-1/2"
+
         # Checkmate.
         if self.is_checkmate():
-            if self.turn == WHITE:
-                return "0-1"
-            else:
-                return "1-0"
+            return "0-1" if self.turn == WHITE else "1-0"
 
         # Draw claimed.
         if claim_draw and self.can_claim_draw():
@@ -3328,6 +3346,14 @@ class Board(BaseBoard):
 
             double_moves = double_moves & (double_moves - 1)
 
+    def _attacked_for_king(self, path):
+        test_square = bit_scan(path)
+        while test_square != -1 and test_square is not None:
+            if self.attackers_mask(not self.turn, test_square):
+                return True
+            test_square = bit_scan(path, test_square + 1)
+        return False
+
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         king = self.occupied_co[self.turn] & self.kings & from_mask
         king_square = bit_scan(king)
@@ -3396,13 +3422,7 @@ class Board(BaseBoard):
             empty_for_king &= ~rook
 
             if not self.occupied & (empty_for_king | empty_for_rook):
-                test_square = bit_scan(not_attacked_for_king)
-                while test_square != -1 and test_square is not None:
-                    if self.attackers_mask(not self.turn, test_square):
-                        break
-
-                    test_square = bit_scan(not_attacked_for_king, test_square + 1)
-                else:
+                if not self._attacked_for_king(not_attacked_for_king):
                     yield self._from_chess960(bit_scan(king), bit_scan(rook))
 
             candidates = candidates & (candidates - 1)
