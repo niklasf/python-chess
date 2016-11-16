@@ -633,11 +633,9 @@ class Engine(object):
             info_handler.on_bestmove(self.bestmove, self.ponder)
 
     def _copyprotection(self, arg):
-        # TODO: Implement copyprotection
         LOGGER.error("engine copyprotection not supported")
 
     def _registration(self, arg):
-        # TODO: Implement registration
         LOGGER.error("engine registration not supported")
 
     def _info(self, arg):
@@ -1004,8 +1002,6 @@ class Engine(object):
                         raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
-
-    # TODO: Implement register command
 
     def ucinewgame(self, async_callback=None):
         """
