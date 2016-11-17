@@ -2732,6 +2732,7 @@ class SuicideTestCase(unittest.TestCase):
         print(board.legal_moves)
         d1K = chess.Move.from_uci("d2d1k")
         self.assertTrue(d1K in board.generate_legal_moves())
+        self.assertTrue(board.is_pseudo_legal(d1K))
         self.assertTrue(board.is_legal(d1K))
         self.assertEqual(board.san(d1K), "d1=K")
         self.assertEqual(board.parse_san("d1=K"), d1K)
