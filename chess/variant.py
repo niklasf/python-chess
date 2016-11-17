@@ -101,6 +101,14 @@ class SuicideBoard(chess.Board):
         else:
             return False
 
+    def generate_pseudo_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        for move in super(SuicideBoard, self).generate_pseudo_legal_moves(from_mask, to_mask):
+            # Add king promotions.
+            if move.promotion == chess.QUEEN:
+                yield chess.Move(move.from_square, move.to_square, chess.KING)
+
+            yield move
+
     def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         return
         yield
