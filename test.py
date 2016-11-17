@@ -2729,7 +2729,6 @@ class SuicideTestCase(unittest.TestCase):
 
     def test_king_promotions(self):
         board = chess.variant.SuicideBoard("8/6P1/8/3K1k2/8/8/3p4/8 b - - 0 1")
-        print(board.legal_moves)
         d1K = chess.Move.from_uci("d2d1k")
         self.assertTrue(d1K in board.generate_legal_moves())
         self.assertTrue(board.is_pseudo_legal(d1K))
