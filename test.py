@@ -2727,6 +2727,15 @@ class SuicideTestCase(unittest.TestCase):
         board = chess.variant.SuicideBoard("8/8/8/2pp4/2PP4/8/8/8 w - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
+    def test_king_promotions(self):
+        board = chess.variant.SuicideBoard("8/6P1/8/3K1k2/8/8/3p4/8 b - - 0 1")
+        print(board.legal_moves)
+        d1K = chess.Move.from_uci("d2d1k")
+        self.assertTrue(d1K in board.generate_legal_moves())
+        self.assertTrue(board.is_legal(d1K))
+        self.assertEqual(board.san(d1K), "d1=K")
+        self.assertEqual(board.parse_san("d1=K"), d1K)
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
