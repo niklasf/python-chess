@@ -55,16 +55,8 @@ TRIANGLE = [
     6, 0, 1, 2, 2, 1, 0, 6,
 ]
 
-FLIPDIAG = [
-     0,  8, 16, 24, 32, 40, 48, 56,
-     1,  9, 17, 25, 33, 41, 49, 57,
-     2, 10, 18, 26, 34, 42, 50, 58,
-     3, 11, 19, 27, 35, 43, 51, 59,
-     4, 12, 20, 28, 36, 44, 52, 60,
-     5, 13, 21, 29, 37, 45, 53, 61,
-     6, 14, 22, 30, 38, 46, 54, 62,
-     7, 15, 23, 31, 39, 47, 55, 63,
-]
+def flipdiag(square):
+    return ((square >> 3) | (square << 3)) & 63
 
 LOWER = [
     28,  0,  1,  2,  3,  4,  5,  6,
@@ -657,7 +649,7 @@ class Table(object):
 
         if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
             for i in range(n):
-                pos[i] = FLIPDIAG[pos[i]]
+                pos[i] = flipdiag(pos[i])
 
         if self.enc_type == 0:  # 111
             i = int(pos[1] > pos[0])
