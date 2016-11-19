@@ -401,9 +401,17 @@ be pure Python fallbacks.
 Installing
 ----------
 
+Download and install the latest release:
+
 ::
 
     pip install python-chess
+
+Install from the repository:
+
+::
+
+    python setup.py install
 
 
 Selected use cases
