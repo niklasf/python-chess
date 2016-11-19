@@ -2,7 +2,7 @@
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2015 Jean-Noël Avila <jn.avila@free.fr>
-# Copyright (C) 2015 Niklas Fiekas <niklas.fiekas@tu-clausthal.de>
+# Copyright (C) 2015-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
