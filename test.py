@@ -2459,6 +2459,9 @@ class SyzygyTestCase(unittest.TestCase):
                 chess.syzygy.normalize_filename(swapped) in names,
                 "Normalized {0}".format(swapped))
 
+    def test_normalize_nnvbb(self):
+        self.assertEqual(chess.syzygy.normalize_filename("KNNvKBB"), "KBBvKNN")
+
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
         wdl.init_table_wdl()
