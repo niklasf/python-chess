@@ -298,13 +298,19 @@ def filenames():
                 for l in range(k, 6):
                     yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
 
+    # XXX
+    yield "NNvK"
+    yield "RRvK"
+
 
 def normalize_filename(filename):
     w, b = filename.split("v", 1)
+    w = "".join(sorted(w, key=PCHR.index))
+    b = "".join(sorted(b, key=PCHR.index))
     if (len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w]):
         return b + "v" + w
     else:
-        return filename
+        return w + "v" + b
 
 
 def _dependencies(filename, one_king=True):
@@ -337,6 +343,24 @@ def dependencies(filename, one_king=True):
         if not dependency in closed and len(dependency) > 2:
             yield dependency
             closed.add(dependency)
+
+
+def all_dependencies(targets, one_king=True):
+    closed = set()
+    if one_king:
+        closed.add("KvK")
+
+    open_list = [normalize_filename(filename) for filename in targets]
+
+    while open_list:
+        filename = open_list.pop()
+        if filename in closed:
+            continue
+
+        yield filename
+        closed.add(filename)
+
+        open_list.extend(_dependencies(filename, one_king))
 
 
 def calc_key(board, mirror=False):
