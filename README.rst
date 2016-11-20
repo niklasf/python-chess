@@ -385,19 +385,6 @@ Features
       >>> engine.quit()
       0
 
-Performance
------------
-
-Correctness > clean interface > performance.
-
-You can install the `gmpy2` or `gmpy` (https://pypi.python.org/pypi/gmpy2)
-modules in order to get a slight performance boost on basic operations like
-bitscans and population counts.
-
-python-chess only imports very basic general (non-chess-related)
-operations from native libraries. All logic is pure Python. There will always
-be pure Python fallbacks.
-
 Installing
 ----------
 
