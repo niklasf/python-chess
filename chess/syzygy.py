@@ -298,10 +298,6 @@ def filenames():
                 for l in range(k, 6):
                     yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
 
-    # XXX
-    yield "NNvK"
-    yield "RRvK"
-
 
 def normalize_filename(filename):
     w, b = filename.split("v", 1)
