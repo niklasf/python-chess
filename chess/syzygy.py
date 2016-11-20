@@ -55,6 +55,8 @@ TRIANGLE = [
     6, 0, 1, 2, 2, 1, 0, 6,
 ]
 
+INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
+
 def flipdiag(square):
     return ((square >> 3) | (square << 3)) & 63
 
@@ -203,6 +205,17 @@ KK_IDX = [[
      -1,  -1,  -1,  -1,  -1,  -1,  -1, 461,
 ]]
 
+MTWIST = [
+    15, 63, 55, 47, 40, 48, 56, 12,
+    62, 11, 39, 31, 24, 32,  8, 57,
+    54, 38,  7, 23, 16,  4, 33, 49,
+    46, 30, 22,  3,  0, 17, 25, 41,
+    45, 29, 21,  2,  1, 18, 26, 42,
+    53, 37,  6, 20, 19,  5, 34, 50,
+    61, 10, 36, 28, 27, 35,  9, 58,
+    14, 60, 52, 44, 43, 51, 59, 13,
+]
+
 BINOMIAL = []
 for i in range(5):
     BINOMIAL.append([])
@@ -248,6 +261,17 @@ for i in range(5):
         s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
         j += 1
     PFACTOR[i][3] = s
+
+MULTIDX = [[0 for _ in range(10)] for _ in range(5)]
+
+MFACTOR = [0 for _ in range(5)]
+
+for i in range(5):
+    s = 0
+    for j in range(10):
+        MULTIDX[i][j] = s
+        s += 1 if i == 0 else BINOMIAL[i - 1][INVTRIANGLE[j]]
+    MFACTOR[i] = s
 
 WDL_TO_MAP = [1, 3, 0, 2, 0]
 
@@ -479,11 +503,15 @@ class Table(object):
                 self.enc_type = 0
             elif j == 2:
                 self.enc_type = 2
-            else:
-                # Each player will always have a king, unless we're playing
-                # suicide chess.
-                # TODO: Could be implemented.
-                assert False
+            else:  # only for suicide
+                j = 16
+                for i in range(16):
+                    for piece_type in PCHR:
+                        if 1 < black_part.count(piece_type) < j:
+                            j = black_part.count(piece_type)
+                        if 1 < white_part.count(piece_type) < j:
+                            j = white_part.count(piece_type)
+                        self.enc_type = 1 + j
 
     def init_mmap(self):
         # Open fd.
