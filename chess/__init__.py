@@ -2169,7 +2169,9 @@ class Board(BaseBoard):
         # Put piece on target square.
         if not castling:
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
-            self._push_capture(move, move.to_square, captured_piece_type)
+
+            if captured_piece_type:
+                self._push_capture(move, move.to_square, captured_piece_type)
 
         # Swap turn.
         self.turn = not self.turn
