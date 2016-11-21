@@ -724,10 +724,17 @@ class Table(object):
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
             i = 3
         elif self.enc_type == 2:  # K2
-            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            if not self.variant.connected_kings:
+                idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            else:
+                i = pos[1] > pos[0]
 
-            if self.variant.connected_kings:
-                assert False, "Connected kings not implemented"  # TODO
+                if OFFDIAG[pos[0]]:
+                    idx = TRIANGLE[pos[0]] * 63 + (pos[1] - i)
+                elif OFFDIAG[pos[1]]:
+                    idx = 6 * 63 + DIAG[pos[0]] * 28 + LOWER[pos[1]]
+                else:
+                    idx = 6 * 63 + 4 * 28 + (DIAG[pos[0]]) * 7 + (DIAG[pos[1]] - i)
 
             i = 2
         elif self.enc_type == 3:  # 2, e.g. KKvK
