@@ -307,6 +307,9 @@ class KingOfTheHillBoard(chess.Board):
     def is_variant_loss(self):
         return self.kings & self.occupied_co[not self.turn] & BB_HILL
 
+    def is_insufficient_material(self):
+        return False
+
 
 # TODO: Crazyhouse
 # TODO: Racing kings
