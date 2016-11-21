@@ -1409,7 +1409,7 @@ class BaseBoard(object):
         return board
 
 
-class _BoardState:
+class _BoardState(object):
 
     def __init__(self, board):
         self.pawns = board.pawns
