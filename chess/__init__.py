@@ -2702,7 +2702,7 @@ class Board(BaseBoard):
         # Look ahead for check or checkmate.
         self.push(move)
         is_check = self.is_check()
-        is_checkmate = is_check and self.is_checkmate()
+        is_checkmate = (is_check and self.is_checkmate()) or self.is_variant_loss() or self.is_variant_win()
         self.pop()
 
         # Drops.
