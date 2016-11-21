@@ -2062,6 +2062,9 @@ class Board(BaseBoard):
 
         return False
 
+    def _push_capture(self, move, capture_square, piece_type):
+        pass
+
     def push(self, move):
         """
         Updates the position with the given move and puts it onto a stack.
@@ -2136,8 +2139,10 @@ class Board(BaseBoard):
             if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 if self.turn == WHITE:
                     self._remove_piece_at(move.to_square - 8)
+                    self._push_capture(move, move.to_square - 8, PAWN)
                 else:
                     self._remove_piece_at(move.to_square + 8)
+                    self._push_capture(move, move.to_square + 8, PAWN)
 
             # Set en passant square.
             if diff == 16:
@@ -2164,6 +2169,7 @@ class Board(BaseBoard):
         # Put piece on target square.
         if not castling:
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
+            self._push_capture(move, move.to_square, captured_piece_type)
 
         # Swap turn.
         self.turn = not self.turn

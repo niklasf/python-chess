@@ -19,7 +19,7 @@
 import chess
 
 
-SUICIDE_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+SUICIDE_STARTING_FEN = chess.STARTING_FEN
 
 class SuicideBoard(chess.Board):
 
@@ -176,3 +176,109 @@ class GiveawayBoard(SuicideBoard):
 
     def is_variant_draw(self):
         return False
+
+
+ATOMIC_STARTING_FEN = chess.STARTING_FEN
+
+class AtomicBoard(chess.Board):
+
+    uci_variant = "atomic"
+    starting_fen = ATOMIC_STARTING_FEN
+
+    tbw_suffix = ".atbw"
+    tbz_suffix = ".atbz"
+    tbw_magic = [0x55, 0x8D, 0xA4, 0x49]
+    tbz_magic = [0x91, 0xA9, 0x5E, 0xEB]
+    connected_kings = True
+    one_king = True
+
+    def is_variant_win(self):
+        return not self.kings & self.occupied_co[not self.turn]
+
+    def is_variant_loss(self):
+        return not self.kings & self.occupied_co[self.turn]
+
+    def is_insufficient_material(self):
+        if self.is_variant_loss() or self.is_variant_win():
+            return False
+
+        if self.pawns or self.queens:
+            return False
+
+        if chess.pop_count(self.KNIGHT | self.BISHOP | self.ROOK) == 1:
+            return True
+
+        # Only knights.
+        if self.occupied == (self.kings | self.knights):
+            return chess.pop_count(self.knights) <= 2
+
+        # Only bishops.
+        if self.occupied == (self.kings | self.bishops):
+            # All bishops on opposite colors.
+            if not self.pieces_mask(chess.BISHOP, chess.WHITE) & chess.BB_DARK_SQUARES:
+                return not self.pieces_mask(chess.BISHOP, chess.BLACK) & chess.BB_LIGHT_SQUARES
+            if not self.pieces_mask(chess.BISHOP, chess.WHITE) & chess.BB_LIGHT_SQUARES:
+                return not self.pieces_mask(chess.BISHOP, chess.BLACK) & chess.BB_DARK_SQUARES
+
+        return False
+
+    def _attacked_for_king(self, path):
+        # Can castle onto attacked squares if they are connected to the
+        # enemy king.
+        enemy_kings = self.kings & self.occupied_co[not self.turn]
+        enemy_king = chess.bit_scan(enemy_kings)
+        while enemy_king != -1 and enemy_king is not None:
+            path &= ~chess.BB_KING_ATTACKS[enemy_king]
+            enemy_king = chess.bit_scan(enemy_kings, enemy_king + 1)
+
+        return super(AtomicBoard, self)._attacked_for_king(path)
+
+    def _kings_connected(self):
+        kings = self.kings & self.occupied_co[chess.WHITE]
+        king_square = chess.bit_scan(kings)
+        while king_square != -1 and king_square is not None:
+            if chess.BB_KING_ATTACKS[king_square] & self.kings & self.occupied_co[chess.BLACK]:
+                return True
+
+            king_square = chess.bit_scan(kings, king_square + 1)
+
+        return False
+
+    def _push_capture(self, move, capture_square, piece_type):
+        # Explode the capturing piece.
+        self._remove_piece_at(move.to_square)
+
+        # Explode all non pawns around.
+        explosion_radius = chess.BB_KING_ATTACKS[capture_square] & ~self.pawns
+        explosion = chess.bit_scan(explosion_radius)
+        while explosion != -1 and explosion is not None:
+            self._remove_piece_at(explosion)
+            explosion = chess.bit_scan(explosion_radius, explosion + 1)
+
+    def is_check(self):
+        return not self.is_variant_loss() and not self._kings_connected() and super(AtomicBoard, self).is_check()
+
+    def was_into_check(self):
+        return not self.is_variant_win() and not self._kings_connected() and super(AtomicBoard, self).was_into_check()
+
+    def is_into_check(self, move):
+        self.push(move)
+        was_into_check = self.was_into_check()
+        self.pop()
+        return was_into_check
+
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
+            if not self.is_into_check(move):
+                yield move
+
+    generate_evasions = generate_non_evasions = generate_legal_moves
+
+    def status(self):
+        status = super(SuicideBoard, self).status()
+        status &= ~chess.STATUS_OPPOSITE_CHECK
+        if self.turn == chess.WHITE:
+            status &= ~chess.STATUS_NO_WHITE_KING
+        else:
+            status &= ~chess.STATUS_NO_BLACK_KING
+        return status
