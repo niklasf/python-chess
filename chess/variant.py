@@ -24,6 +24,14 @@ SUICIDE_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 class SuicideBoard(chess.Board):
 
     uci_variant = "suicide"
+    starting_fen = SUICIDE_STARTING_FEN
+
+    tbw_suffix = ".stbw"
+    tbz_suffix = ".stbz"
+    tbw_magic = [0x7b, 0xf6, 0x93, 0x15]
+    tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
+    connected_kings = True
+    one_king = False
 
     def pin_mask(self, color, square):
         return chess.BB_ALL
@@ -142,6 +150,12 @@ GIVEAWAY_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 class GiveawayBoard(SuicideBoard):
 
     uci_variant = "giveaway"
+    starting_fen = GIVEAWAY_STARTING_FEN
+
+    tbw_suffix = ".gtbw"
+    tbz_suffix = ".gtbz"
+    tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
+    tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
 
     def __init__(self, fen=GIVEAWAY_STARTING_FEN, chess960=False):
         super(GiveawayBoard, self).__init__(fen, chess960)
