@@ -2074,9 +2074,6 @@ class Board(BaseBoard):
         self.stack.append(_BoardState(self))
         self.move_stack.append(move)
 
-        promoted = self.promoted & BB_SQUARES[move.from_square]
-        captured_piece = self.piece_at(move.to_square) if move else None
-
         # Increment fullmove number.
         if self.turn == BLACK:
             self.fullmove_number += 1
@@ -2088,9 +2085,13 @@ class Board(BaseBoard):
             self.ep_square = 0
             return
 
+        promoted = self.promoted & BB_SQUARES[move.from_square]
+        captured_piece_type = self.piece_type_at(move.to_square)
+        captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
+
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
-        if piece_type == PAWN or (captured_piece and captured_piece.color != self.turn):
+        if piece_type == PAWN or (captured_piece_type and captured_color != self.turn):
             self.halfmove_clock = 0
         else:
             self.halfmove_clock += 1
@@ -2104,7 +2105,7 @@ class Board(BaseBoard):
                 self.castling_rights &= ~BB_RANK_1
             else:
                 self.castling_rights &= ~BB_RANK_8
-        elif captured_piece and captured_piece.piece_type == KING and not self.promoted & BB_SQUARES[move.to_square]:
+        elif captured_piece_type == KING and not self.promoted & BB_SQUARES[move.to_square]:
             if self.turn == WHITE and rank_index(move.to_square) == 7:
                 self.castling_rights &= ~BB_RANK_8
             elif self.turn == BLACK and rank_index(move.to_square) == 0:
@@ -2138,7 +2139,7 @@ class Board(BaseBoard):
                     self.ep_square = move.to_square + 8
 
         # Castling.
-        castling = piece_type == KING and captured_piece and captured_piece.color == self.turn
+        castling = piece_type == KING and captured_piece_type and captured_color == self.turn
         if castling:
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
