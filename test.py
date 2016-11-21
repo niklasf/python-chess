@@ -2753,6 +2753,17 @@ class SuicideTestCase(unittest.TestCase):
         self.assertEqual(board.parse_san("d1=K"), d1K)
 
 
+class AtomicTestCase(unittest.TestCase):
+
+    def test_atomic_capture(self):
+        fen = "rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 3 4"
+        board = chess.variant.AtomicBoard(fen)
+        board.push_san("dxc4")
+        self.assertEqual(board.fen(), "rnbqkb1r/pp2pppp/2p2n2/8/3P4/5N2/PP2PPPP/R1BQKB1R w KQkq - 0 5")
+        board.pop()
+        self.assertEqual(board.fen(), fen)
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
