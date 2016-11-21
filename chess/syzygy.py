@@ -325,11 +325,11 @@ def filenames(one_king=True):
                     yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
 
 
-def normalize_filename(filename):
+def normalize_filename(filename, mirror=False):
     w, b = filename.split("v", 1)
     w = "".join(sorted(w, key=PCHR.index))
     b = "".join(sorted(b, key=PCHR.index))
-    if (len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w]):
+    if mirror ^ ((len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w])):
         return b + "v" + w
     else:
         return w + "v" + b
@@ -386,45 +386,24 @@ def all_dependencies(targets, one_king=True):
 
 
 def calc_key(board, mirror=False):
-    key = 0
+    w = board.occupied_co[chess.WHITE ^ mirror]
+    b = board.occupied_co[chess.BLACK ^ mirror]
 
-    for color in chess.COLORS:
-        mirrored_color = color ^ mirror
-
-        for i in range(chess.pop_count(board.pawns & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 5 * 16 + i]
-        for i in range(chess.pop_count(board.knights & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 4 * 16 + i]
-        for i in range(chess.pop_count(board.bishops & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 3 * 16 + i]
-        for i in range(chess.pop_count(board.rooks & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 2 * 16 + i]
-        for i in range(chess.pop_count(board.queens & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 1 * 16 + i]
-        for i in range(chess.pop_count(board.kings & board.occupied_co[color])):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[mirrored_color * 6 * 16 + 0 * 16 + i]
-
-    return key
-
-
-def calc_key_from_filename(filename, mirror=False):
-    white, black = filename.split("v")
-
-    color = chess.WHITE ^ mirror
-
-    key = 0
-
-    for piece_index, piece in enumerate(PCHR):
-        for i in range(white.count(piece)):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
-
-    color = not color
-
-    for piece_index, piece in enumerate(PCHR):
-        for i in range(black.count(piece)):
-            key ^= chess.POLYGLOT_RANDOM_ARRAY[color * 6 * 16 + piece_index * 16 + i]
-
-    return key
+    return "".join([
+        "K" * chess.pop_count(board.kings & w),
+        "Q" * chess.pop_count(board.queens & w),
+        "R" * chess.pop_count(board.rooks & w),
+        "B" * chess.pop_count(board.bishops & w),
+        "N" * chess.pop_count(board.knights & w),
+        "P" * chess.pop_count(board.pawns & w),
+        "v",
+        "K" * chess.pop_count(board.kings & b),
+        "Q" * chess.pop_count(board.queens & b),
+        "R" * chess.pop_count(board.rooks & b),
+        "B" * chess.pop_count(board.bishops & b),
+        "N" * chess.pop_count(board.knights & b),
+        "P" * chess.pop_count(board.pawns & b)
+    ])
 
 
 def subfactor(k, n):
@@ -478,8 +457,8 @@ class Table(object):
         self.fd = None
         self.data = None
 
-        self.key = calc_key_from_filename(filename)
-        self.mirrored_key = calc_key_from_filename(filename, True)
+        self.key = normalize_filename(filename)
+        self.mirrored_key = normalize_filename(filename, mirror=True)
         self.symmetric = self.key == self.mirrored_key
 
         # Leave the v out of the filename to get the number of pieces.

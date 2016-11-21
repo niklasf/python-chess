@@ -2434,7 +2434,7 @@ class SyzygyTestCase(unittest.TestCase):
     def test_calc_key(self):
         board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         key_from_board = chess.syzygy.calc_key(board)
-        key_from_filename = chess.syzygy.calc_key_from_filename("KBNvK")
+        key_from_filename = chess.syzygy.normalize_filename("KBNvK")
         self.assertEqual(key_from_board, key_from_filename)
 
     def test_filenames(self):
