@@ -620,7 +620,10 @@ class Table(object):
         while i < self.num or k == order:
             if k == order:
                 factor[0] = f
-                f *= PIVFAC[self.enc_type] # XXX mfactor
+                if self.enc_type < 4:
+                    f *= PIVFAC[self.enc_type]
+                else:
+                    f *= MFACTOR[self.enc_type - 2]
             else:
                 factor[i] = f
                 f *= subfactor(norm[i], n)
@@ -724,7 +727,7 @@ class Table(object):
             idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
 
             if self.variant.connected_kings:
-                assert False, "Connected kings not implemented"
+                assert False, "Connected kings not implemented"  # TODO
 
             i = 2
         elif self.enc_type == 3:  # 2, e.g. KKvK
@@ -751,7 +754,7 @@ class Table(object):
                     idx += BINOMIAL[i - 1][MTWIST[pos[i]]]
                     i += 1
         else:
-            assert False, "Not not implemented"
+            assert False, "enc_type >= 4 not implemented"  # TODO
 
         idx *= factor[0]
 
