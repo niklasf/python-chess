@@ -1454,6 +1454,14 @@ class Board(BaseBoard):
     """
 
     uci_variant = "chess"
+    starting_fen = STARTING_FEN
+
+    tbw_suffix = ".rtbw"
+    tbz_suffix = ".rtbz"
+    tbw_magic = [0x71, 0xE8, 0x23, 0x5D]
+    tbz_magic = [0xD7, 0x66, 0x0C, 0xA5]
+    connected_kings = False
+    one_king = True
 
     def __init__(self, fen=STARTING_FEN, chess960=False):
         BaseBoard.__init__(self, None)

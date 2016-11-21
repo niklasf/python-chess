@@ -30,9 +30,6 @@ UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
-WDL_MAGIC = [0x71, 0xE8, 0x23, 0x5D]
-DTZ_MAGIC = [0xD7, 0x66, 0x0C, 0xA5]
-
 OFFDIAG = [
     0, -1, -1, -1, -1, -1, -1, -1,
     1,  0, -1, -1, -1, -1, -1, -1,
@@ -282,7 +279,12 @@ WDL_TO_DTZ = [-1, -101, 0, 101, 1]
 PCHR = ["K", "Q", "R", "B", "N", "P"]
 
 
-def filenames():
+def filenames(one_king=True):
+    if not one_king:
+        for filename in all_dependencies(["PPPPPvP", "PPPPvPP", "PPPvPPP"], one_king=False):
+            yield filename
+        return
+
     for i in range(1, 6):
         yield "K%cvK" % (PCHR[i], )
 
@@ -468,10 +470,10 @@ class PawnFileDataDtz(object):
 
 class Table(object):
 
-    def __init__(self, directory, filename, suffix):
+    def __init__(self, directory, filename, variant):
         self.directory = directory
         self.filename = filename
-        self.suffix = suffix
+        self.variant = variant
 
         self.fd = None
         self.data = None
@@ -602,7 +604,10 @@ class Table(object):
             i += norm[i]
 
     def calc_factors_piece(self, factor, order, norm):
-        PIVFAC = [31332, 28056, 462]
+        if not self.variant.connected_kings:
+            PIVFAC = [31332, 28056, 462]
+        else:
+            PIVFAC = [31332, 0, 518, 278]
 
         n = 64 - norm[0]
 
@@ -612,7 +617,7 @@ class Table(object):
         while i < self.num or k == order:
             if k == order:
                 factor[0] = f
-                f *= PIVFAC[self.enc_type]
+                f *= PIVFAC[self.enc_type] # XXX mfactor
             else:
                 factor[i] = f
                 f *= subfactor(norm[i], n)
@@ -712,20 +717,38 @@ class Table(object):
             else:
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
             i = 3
-        elif self.enc_type == 1:  # K3
-            j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
+        elif self.enc_type == 2:  # K2
+            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
 
-            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
-            if idx < 441:
-                idx = idx + 441 * (pos[2] - j)
-            else:
-                idx = 441 * 62 + (idx - 441) + 21 * LOWER[pos[2]]
-                if not OFFDIAG[pos[2]]:
-                    idx -= j * 21
-            i = 3
-        else:  # K2
-            idx = KK_IDX[TRIANGLE[pos[0]]][pos[1]]
+            if self.variant.connected_kings:
+                assert False, "Connected kings not implemented"
+
             i = 2
+        elif self.enc_type == 3:  # 2, e.g. KKvK
+            for i in range(norm[0]):
+                if TRIANGLE[pos[0]] > TRIANGLE[pos[i]]:
+                    pos[0], pos[1] = pos[1], pos[0]
+                if pos[0] & 0x04:
+                    for i in range(n):
+                        pos[i] ^= 0x07
+                if pos[0] & 0x20:
+                    for i in range(n):
+                        pos[i] ^= 0x38
+                if OFFDIAG[pos[0]] > 0:
+                    for i in range(n):
+                        pos[i] = flipdiag(pos[i])
+                for i in range(1, norm[0]):
+                    for j in range(i + 1, norm[0]):
+                        if MTWIST[pos[i]] > MTWIST[pos[j]]:
+                            pos[i], pos[j] = pos[j], pos[i]
+
+                idx = MULTIDX[norm[0] - 1][TRIANGLE[pos[0]]]
+                i = 1
+                while i < norm[0]:
+                    idx += BINOMIAL[i - 1][MTWIST[pos[i]]]
+                    i += 1
+        else:
+            assert False, "Not not implemented"
 
         idx *= factor[0]
 
@@ -915,8 +938,9 @@ class Table(object):
 
 class WdlTable(Table):
 
-    def __init__(self, directory, filename, suffix=".rtbw"):
-        super(WdlTable, self).__init__(directory, filename, suffix)
+    def __init__(self, directory, filename, variant=chess.Board, suffix=None):
+        super(WdlTable, self).__init__(directory, filename, variant)
+        self.suffix = suffix or variant.tbw_suffix
         self.initialized = False
         self.lock = threading.Lock()
 
@@ -927,10 +951,8 @@ class WdlTable(Table):
             if self.initialized:
                 return
 
-            assert WDL_MAGIC[0] == self.read_ubyte(0)
-            assert WDL_MAGIC[1] == self.read_ubyte(1)
-            assert WDL_MAGIC[2] == self.read_ubyte(2)
-            assert WDL_MAGIC[3] == self.read_ubyte(3)
+            for i, magic in enumerate(self.variant.tbw_magic):
+                assert magic == self.read_ubyte(i)
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1065,11 +1087,7 @@ class WdlTable(Table):
 
         key = calc_key(board)
 
-        if self.symmetric:
-            cmirror = 0 if board.turn == chess.WHITE else 8
-            mirror = 0 if board.turn == chess.WHITE else 0x38
-            bside = 0
-        else:
+        if not self.symmetric:
             if key != self.key:
                 cmirror = 8
                 mirror = 0x38
@@ -1077,6 +1095,10 @@ class WdlTable(Table):
             else:
                 cmirror = mirror = 0
                 bside = int(board.turn != chess.WHITE)
+        else:
+            cmirror = 0 if board.turn == chess.WHITE else 8
+            mirror = 0 if board.turn == chess.WHITE else 0x38
+            bside = 0
 
         if not self.has_pawns:
             p = [0, 0, 0, 0, 0, 0]
@@ -1133,8 +1155,9 @@ class WdlTable(Table):
 
 class DtzTable(Table):
 
-    def __init__(self, directory, filename, suffix=".rtbz"):
-        super(DtzTable, self).__init__(directory, filename, suffix)
+    def __init__(self, directory, filename, variant=chess.Board, suffix=None):
+        super(DtzTable, self).__init__(directory, filename, variant)
+        self.suffix = suffix or variant.tbz_suffix
         self.initialized = False
         self.lock = threading.Lock()
 
@@ -1145,10 +1168,8 @@ class DtzTable(Table):
             if self.initialized:
                 return
 
-            assert DTZ_MAGIC[0] == self.read_ubyte(0)
-            assert DTZ_MAGIC[1] == self.read_ubyte(1)
-            assert DTZ_MAGIC[2] == self.read_ubyte(2)
-            assert DTZ_MAGIC[3] == self.read_ubyte(3)
+            for i, magic in enumerate(self.variant.tbz_magic):
+                assert magic == self.read_ubyte(i)
 
             self.factor = [0, 0, 0, 0, 0, 0]
             self.norm = [0 for _ in range(self.num)]
@@ -1345,7 +1366,9 @@ class Tablebases(object):
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
     """
-    def __init__(self, directory=None, load_wdl=True, load_dtz=True, max_fds=128):
+    def __init__(self, directory=None, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+        self.variant = VariantBoard
+
         self.max_fds = max_fds
         self.lru = collections.deque()
 
@@ -1383,9 +1406,9 @@ class Tablebases(object):
         if not os.path.isdir(directory):
             raise IOError("not a tablebase directory: {0}".format(repr(directory)))
 
-        for filename in filenames():
-            if load_wdl and os.path.isfile(os.path.join(directory, filename) + ".rtbw"):
-                wdl_table = WdlTable(directory, filename)
+        for filename in filenames(one_king=self.variant.one_king):
+            if load_wdl and os.path.isfile(os.path.join(directory, filename) + self.variant.tbw_suffix):
+                wdl_table = WdlTable(directory, filename, self.variant)
                 if wdl_table.key in self.wdl:
                     self.wdl[wdl_table.key].close()
 
@@ -1394,8 +1417,8 @@ class Tablebases(object):
 
                 num += 1
 
-            if load_dtz and os.path.isfile(os.path.join(directory, filename) + ".rtbz"):
-                dtz_table = DtzTable(directory, filename)
+            if load_dtz and os.path.isfile(os.path.join(directory, filename) + self.variant.tbz_suffix):
+                dtz_table = DtzTable(directory, filename, self.variant)
                 if dtz_table.key in self.dtz:
                     self.dtz[dtz_table.key].close()
 
@@ -1733,7 +1756,7 @@ class Tablebases(object):
         self.close()
 
 
-def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128):
+def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
     """
     Opens a collection of tablebases for probing. See
     :class:`~chess.syzygy.Tablebases`.
@@ -1747,4 +1770,4 @@ def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128):
         Use :func:`~chess.syzygy.Tablebases.open_directory()` to load
         tablebases from additional directories.
     """
-    return Tablebases(directory, load_wdl, load_dtz, max_fds)
+    return Tablebases(directory, load_wdl, load_dtz, max_fds, VariantBoard)
