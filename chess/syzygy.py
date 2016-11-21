@@ -737,31 +737,31 @@ class Table(object):
                     idx = 6 * 63 + 4 * 28 + (DIAG[pos[0]]) * 7 + (DIAG[pos[1]] - i)
 
             i = 2
-        elif self.enc_type == 3:  # 2, e.g. KKvK
+        elif self.enc_type == 3:
+            assert False, "enc_type 3 not implemented"  # TODO
+        else:  # 3 and higher, e.g. KKKvK and KKKKvK
             for i in range(norm[0]):
                 if TRIANGLE[pos[0]] > TRIANGLE[pos[i]]:
                     pos[0], pos[1] = pos[1], pos[0]
-                if pos[0] & 0x04:
-                    for i in range(n):
-                        pos[i] ^= 0x07
-                if pos[0] & 0x20:
-                    for i in range(n):
-                        pos[i] ^= 0x38
-                if OFFDIAG[pos[0]] > 0:
-                    for i in range(n):
-                        pos[i] = flipdiag(pos[i])
-                for i in range(1, norm[0]):
-                    for j in range(i + 1, norm[0]):
-                        if MTWIST[pos[i]] > MTWIST[pos[j]]:
-                            pos[i], pos[j] = pos[j], pos[i]
+            if pos[0] & 0x04:
+                for i in range(n):
+                    pos[i] ^= 0x07
+            if pos[0] & 0x20:
+                for i in range(n):
+                    pos[i] ^= 0x38
+            if OFFDIAG[pos[0]] > 0:
+                for i in range(n):
+                    pos[i] = flipdiag(pos[i])
+            for i in range(1, norm[0]):
+                for j in range(i + 1, norm[0]):
+                    if MTWIST[pos[i]] > MTWIST[pos[j]]:
+                        pos[i], pos[j] = pos[j], pos[i]
 
-                idx = MULTIDX[norm[0] - 1][TRIANGLE[pos[0]]]
-                i = 1
-                while i < norm[0]:
-                    idx += BINOMIAL[i - 1][MTWIST[pos[i]]]
-                    i += 1
-        else:
-            assert False, "enc_type >= 4 not implemented"  # TODO
+            idx = MULTIDX[norm[0] - 1][TRIANGLE[pos[0]]]
+            i = 1
+            while i < norm[0]:
+                idx += BINOMIAL[i - 1][MTWIST[pos[i]]]
+                i += 1
 
         idx *= factor[0]
 
