@@ -215,5 +215,15 @@ class GiveawayPerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 4), 153299)
 
 
+class AtomicPerftTestCase(unittest.TestCase):
+
+    def test_atomic_start_position(self):
+        board = chess.variant.AtomicBoard()
+        self.assertEqual(perft(board, 1), 20)
+        self.assertEqual(perft(board, 2), 400)
+        self.assertEqual(perft(board, 3), 8902)
+        self.assertEqual(perft(board, 4), 197326)
+
+
 if __name__ == "__main__":
     unittest.main()
