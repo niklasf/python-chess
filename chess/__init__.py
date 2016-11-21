@@ -1409,6 +1409,31 @@ class BaseBoard(object):
         return board
 
 
+class _BoardState:
+
+    def __init__(self, board):
+        self.pawns = board.pawns
+        self.knights = board.knights
+        self.bishops = board.bishops
+        self.rooks = board.rooks
+        self.queens = board.queens
+        self.kings = board.kings
+
+        self.occupied_w = board.occupied_co[WHITE]
+        self.occupied_b = board.occupied_co[BLACK]
+        self.occupied = board.occupied
+
+        self.promoted = board.promoted
+
+        self.incremental_zobrist_hash = board.incremental_zobrist_hash
+
+        self.turn = board.turn
+        self.castling_rights = board.castling_rights
+        self.ep_square = board.ep_square
+        self.halfmove_clock = board.halfmove_clock
+        self.fullmove_number = board.fullmove_number
+
+
 class Board(BaseBoard):
     """
     A :class:`~chess.BaseBoard` and additional information representing
@@ -1438,12 +1463,8 @@ class Board(BaseBoard):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
-        self.halfmove_clock_stack = collections.deque()
-        self.captured_piece_stack = collections.deque()
-        self.castling_right_stack = collections.deque()
-        self.ep_square_stack = collections.deque()
-        self.promoted_stack = collections.deque()
         self.move_stack = collections.deque()
+        self.stack = collections.deque()
 
         self.transpositions = collections.Counter()
 
@@ -1492,12 +1513,8 @@ class Board(BaseBoard):
 
     def clear_stack(self):
         """Clears the move stack and transposition table."""
-        self.halfmove_clock_stack.clear()
-        self.captured_piece_stack.clear()
-        self.castling_right_stack.clear()
-        self.ep_square_stack.clear()
-        self.promoted_stack.clear()
         self.move_stack.clear()
+        self.stack.clear()
 
         self.transpositions.clear()
         self.transpositions.update((self.zobrist_hash(), ))
@@ -2053,19 +2070,16 @@ class Board(BaseBoard):
         """
         move = self._to_chess960(move)
 
+        # Remember game state.
+        self.stack.append(_BoardState(self))
+        self.move_stack.append(move)
+
+        promoted = self.promoted & BB_SQUARES[move.from_square]
+        captured_piece = self.piece_at(move.to_square) if move else None
+
         # Increment fullmove number.
         if self.turn == BLACK:
             self.fullmove_number += 1
-
-        # Remember game state.
-        promoted = self.promoted & BB_SQUARES[move.from_square]
-        captured_piece = self.piece_at(move.to_square) if move else None
-        self.halfmove_clock_stack.append(self.halfmove_clock)
-        self.castling_right_stack.append(self.castling_rights)
-        self.captured_piece_stack.append(captured_piece)
-        self.ep_square_stack.append(self.ep_square)
-        self.promoted_stack.append(self.promoted)
-        self.move_stack.append(move)
 
         # On a null move simply swap turns and reset the en passant square.
         if not move:
@@ -2153,63 +2167,31 @@ class Board(BaseBoard):
         Restores the previous position and returns the last move from the stack.
         """
         stack_move = self.move_stack.pop()
-        move = self._to_chess960(stack_move)
+        state = self.stack.pop()
 
         # Update transposition table.
         self.transpositions.subtract((self.zobrist_hash(), ))
 
-        # Decrement fullmove number.
-        if self.turn == WHITE:
-            self.fullmove_number -= 1
+        self.pawns = state.pawns
+        self.knights = state.knights
+        self.bishops = state.bishops
+        self.rooks = state.rooks
+        self.queens = state.queens
+        self.kings = state.kings
 
-        # Restore state.
-        self.halfmove_clock = self.halfmove_clock_stack.pop()
-        self.castling_rights = self.castling_right_stack.pop()
-        self.ep_square = self.ep_square_stack.pop()
-        self.promoted = self.promoted_stack.pop()
-        captured_piece = self.captured_piece_stack.pop()
+        self.occupied_co[WHITE] = state.occupied_w
+        self.occupied_co[BLACK] = state.occupied_b
+        self.occupied = state.occupied
 
-        # On a null move simply swap the turn.
-        if not move:
-            self.turn = not self.turn
-            return move
+        self.promoted = state.promoted
 
-        # Remove the rook after castling and restore the king. Castling is
-        # encoded as capturing our own rook.
-        castling = captured_piece and captured_piece.color != self.turn
-        if castling:
-            a_side = file_index(move.to_square) < file_index(move.from_square)
+        self.incremental_zobrist_hash = state.incremental_zobrist_hash
 
-            if a_side:
-                self._remove_piece_at(C1 if self.turn == BLACK else C8)
-                self._remove_piece_at(D1 if self.turn == BLACK else D8)
-            else:
-                self._remove_piece_at(G1 if self.turn == BLACK else G8)
-                self._remove_piece_at(F1 if self.turn == BLACK else F8)
-
-            self._set_piece_at(move.from_square, KING, not self.turn)
-
-        piece = PAWN if move.promotion else self.piece_type_at(move.to_square)
-
-        # Restore target square.
-        if captured_piece:
-            self._set_piece_at(move.to_square, captured_piece.piece_type, captured_piece.color)
-        else:
-            self._remove_piece_at(move.to_square)
-
-            # Restore captured pawn after en passant.
-            if piece == PAWN and abs(move.from_square - move.to_square) in [7, 9]:
-                if self.turn == WHITE:
-                    self._set_piece_at(move.to_square + 8, PAWN, WHITE)
-                else:
-                    self._set_piece_at(move.to_square - 8, PAWN, BLACK)
-
-        # Restore the source square.
-        if not castling:
-            self._set_piece_at(move.from_square, piece, not self.turn)
-
-        # Swap turn.
-        self.turn = not self.turn
+        self.turn = state.turn
+        self.castling_rights = state.castling_rights
+        self.ep_square = state.ep_square
+        self.halfmove_clock = state.halfmove_clock
+        self.fullmove_number = state.fullmove_number
 
         return stack_move
 
@@ -3787,13 +3769,8 @@ class Board(BaseBoard):
         board.halfmove_clock = self.halfmove_clock
 
         if stack:
-            board.halfmove_clock_stack = copy.copy(self.halfmove_clock_stack)
-            board.captured_piece_stack = copy.copy(self.captured_piece_stack)
-            board.castling_right_stack = copy.copy(self.castling_right_stack)
-            board.ep_square_stack = copy.copy(self.ep_square_stack)
-            board.promoted_stack = copy.copy(self.promoted_stack)
             board.move_stack = copy.deepcopy(self.move_stack)
-
+            board.stack = copy.copy(self.stack)
             board.transpositions = copy.copy(self.transpositions)
         else:
             board.transpositions.update((self.zobrist_hash(), ))
