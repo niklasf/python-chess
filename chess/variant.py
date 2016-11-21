@@ -267,7 +267,13 @@ class AtomicBoard(chess.Board):
         self.pop()
         return was_into_check
 
+    def is_stalemate(self):
+        return not self.is_variant_loss() and super(AtomicBoard, self).is_stalemate()
+
     def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.is_variant_loss():
+            return
+
         for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
             if not self.is_into_check(move):
                 yield move
