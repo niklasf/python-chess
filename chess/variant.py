@@ -288,3 +288,26 @@ class AtomicBoard(chess.Board):
         else:
             status &= ~chess.STATUS_NO_BLACK_KING
         return status
+
+
+BB_HILL = chess.BB_E4 | chess.BB_D4 | chess.BB_E5 | chess.BB_D5
+
+KING_OF_THE_HILL_STARTING_FEN = chess.STARTING_FEN
+
+class KingOfTheHillBoard(chess.Board):
+
+    uci_variant = "kingofthehill"
+
+    tbw_suffix = tbz_suffix = None
+    tbw_magic = tbz_magic = None
+
+    def is_variant_win(self):
+        return self.kings & self.occupied_co[self.turn] & BB_HILL
+
+    def is_variant_loss(self):
+        return self.kings & self.occupied_co[not self.turn] & BB_HILL
+
+
+# TODO: Crazyhouse
+# TODO: Racing kings
+# TODO: Horde
