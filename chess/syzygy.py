@@ -402,7 +402,31 @@ def calc_key(board, mirror=False):
         "R" * chess.pop_count(board.rooks & b),
         "B" * chess.pop_count(board.bishops & b),
         "N" * chess.pop_count(board.knights & b),
-        "P" * chess.pop_count(board.pawns & b)
+        "P" * chess.pop_count(board.pawns & b),
+    ])
+
+
+def recalc_key(pieces, mirror=False):
+    # Some endgames are stored with a different key than their filename
+    # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
+
+    w = 8 if mirror else 0
+    b = 0 if mirror else 8
+
+    return "".join([
+        "K" * pieces.count(6 ^ w),
+        "Q" * pieces.count(5 ^ w),
+        "R" * pieces.count(4 ^ w),
+        "B" * pieces.count(3 ^ w),
+        "N" * pieces.count(2 ^ w),
+        "P" * pieces.count(1 ^ w),
+        "v",
+        "K" * pieces.count(6 ^ b),
+        "Q" * pieces.count(5 ^ b),
+        "R" * pieces.count(4 ^ b),
+        "B" * pieces.count(3 ^ b),
+        "N" * pieces.count(2 ^ b),
+        "P" * pieces.count(1 ^ b),
     ])
 
 
@@ -991,6 +1015,9 @@ class WdlTable(Table):
                 if split:
                     data_ptr = (data_ptr + 0x3f) & ~0x3f
                     self.precomp[1].data = data_ptr
+
+                self.key = recalc_key(self.pieces[0])
+                self.mirrored_key = recalc_key(self.pieces[0], mirror=True)
             else:
                 s = 1 + int(self.pawns[1] > 0)
                 for f in range(4):
@@ -1186,6 +1213,9 @@ class DtzTable(Table):
                 p_data = (p_data + 0x3f) & ~0x3f
                 self.precomp.data = p_data
                 p_data += self.size[2]
+
+                self.key = recalc_key(self.pieces)
+                self.mirrored_key = recalc_key(self.pieces, mirror=True)
             else:
                 s = 1 + int(self.pawns[1] > 0)
                 for f in range(4):
