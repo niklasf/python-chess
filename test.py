@@ -2464,6 +2464,10 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertTrue("KRNvKRP" in chess.syzygy.filenames())
         self.assertTrue("KRPvKP" in chess.syzygy.filenames())
 
+    def test_suicide_filenames(self):
+        # Test number of 6 piece filenames.
+        self.assertEqual(sum(1 for eg in chess.syzygy.filenames(one_king=False) if len(eg) == 7), 5754)
+
     def test_normalize_filename(self):
         names = set(chess.syzygy.filenames())
         for name in names:
