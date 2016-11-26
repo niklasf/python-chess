@@ -333,7 +333,29 @@ class RacingKings(chess.Board):
         self.set_fen(starting_fen)
 
     # TODO: Do not allow checks
-    # TODO: Game end conditions
+
+    def is_variant_draw(self):
+        in_goal = self.kings & chess.BB_RANK_8
+        return in_goal & self.occupied_co[chess.WHITE] and in_goal & self.occupied_co[chess.BLACK]
+
+    def is_variant_loss(self):
+        if self.is_variant_draw():
+            return False
+
+        if self.turn == chess.WHITE:
+            return self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8
+        else:
+            if not self.kings & self.occupied_co[chess.WHITE]:
+                return False
+
+            # Black can not reach the backrank on the next move.
+            return not any(move for move in self.generate_legal_moves(self.kings, chess.BB_RANK_8))
+
+    def is_variant_win(self):
+        if self.is_variant_draw():
+            return False
+
+        return self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
     def is_insufficient_material(self):
         return False
