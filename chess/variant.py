@@ -390,6 +390,9 @@ class HordeBoard(chess.Board):
     uci_variant = "horde"
     starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
 
+    tbw_suffix = tbz_suffix = None
+    tbw_magic = tbz_magic = None
+
     def __init__(self, fen=starting_fen, chess960=False):
         super(HordeBoard, self).__init__(fen, chess960)
 
