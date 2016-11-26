@@ -1479,7 +1479,7 @@ class Board(BaseBoard):
 
         if fen is None:
             self.clear()
-        elif fen == STARTING_FEN:
+        elif fen == starting_fen:
             self.reset()
         else:
             self.set_fen(fen)
