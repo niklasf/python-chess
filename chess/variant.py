@@ -377,6 +377,12 @@ class RacingKingsBoard(chess.Board):
     def is_insufficient_material(self):
         return False
 
+    def status(self):
+        status = super(RacingKingsBoard, self).status()
+        if self.is_check():
+            status |= chess.STATUS_ILLEGAL_CHECK
+        return status
+
 
 class HordeBoard(chess.Board):
 
@@ -401,6 +407,19 @@ class HordeBoard(chess.Board):
 
     def is_insufficient_material(self):
         return False
+
+    def status(self):
+        status = super(HordeBoard, self).status()
+        status &= ~chess.STATUS_NO_WHITE_KING
+
+        if self.occupied_co[chess.WHITE] <= 36:
+            status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
+            status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
+
+        if self.occupied_co[chess.WHITE] & self.kings:
+            status |= chess.STATUS_TOO_MANY_KINGS
+
+        return status
 
 
 # TODO: Crazyhouse
