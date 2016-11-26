@@ -1,5 +1,5 @@
-Variant support (experimental)
-==============================
+Variants (experimental)
+=======================
 
 python-chess supports several chess variants.
 

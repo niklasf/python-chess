@@ -55,6 +55,7 @@ https://python-chess.readthedocs.io/en/latest/
 * `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/gaviota.html>`_
 * `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/syzygy.html>`_
 * `UCI engine communication <https://python-chess.readthedocs.io/en/latest/uci.html>`_
+* `Variants <https://python-chess.readthedocs.io/en/latest/variant.html>`_
 * `Changelog <https://python-chess.readthedocs.io/en/latest/changelog.html>`_
 
 Features
