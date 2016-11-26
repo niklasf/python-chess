@@ -2865,6 +2865,13 @@ class HordeTestCase(unittest.TestCase):
         self.assertFalse(any(board.generate_pseudo_legal_ep()))
 
 
+class ThreeCheckTest(unittest.TestCase):
+
+    def test_get_fen(self):
+        self.assertEqual(chess.variant.ThreeCheckBoard().fen(), chess.variant.ThreeCheckBoard.starting_fen)
+        self.assertEqual(chess.variant.ThreeCheckBoard().epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)

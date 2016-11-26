@@ -465,7 +465,15 @@ class ThreeCheckBoard(chess.Board):
     def is_insufficient_material(self):
         return self.occupied == self.kings
 
-    # TODO: Get/set FEN/EPD, zobrist hashing
+    # TODO: set FEN/EPD, zobrist hashing
+
+    def epd(self, shredder_fen=False, promoted=False, **operations):
+        epd = []
+        epd.append(super(ThreeCheckBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted))
+        epd.append("%d+%d" % (max(self.remaining_checks_co[chess.WHITE], 0), max(self.remaining_checks_co[chess.BLACK], 0)))
+        if operations:
+            epd.append(self._epd_operations(operations))
+        return " ".join(epd)
 
     def is_variant_draw(self):
         return self.remaining_checks_co[chess.WHITE] <= 0 and self.remaining_checks_co[chess.BLACK] <= 0
