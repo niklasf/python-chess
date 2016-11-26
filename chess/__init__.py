@@ -2462,42 +2462,14 @@ class Board(BaseBoard):
 
         return super(Board, self).chess960_pos()
 
-    def epd(self, shredder_fen=False, promoted=False, **operations):
-        """
-        Gets an EPD representation of the current position.
-
-        EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats and moves and lists of moves and None.
-        All other operands are converted to strings.
-
-        A list of moves for *pv* will be interpreted as a variation. All other
-        move lists are interpreted as a set of moves in the current position.
-
-        *hmvc* and *fmvc* are not included by default. You can use:
-
-        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
-        """
+    def _epd_operations(self, operations):
         epd = []
+        first_op = True
 
-        # Position part.
-        epd.append(self.board_fen(promoted=promoted))
-        epd.append(" ")
-
-        # Side to move.
-        epd.append("w" if self.turn == WHITE else "b")
-        epd.append(" ")
-
-        # Castling rights.
-        epd.append(self.castling_shredder_fen() if shredder_fen else self.castling_xfen())
-        epd.append(" ")
-
-        # En passant square.
-        epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
-
-        # Append operations.
         for opcode, operand in operations.items():
-            epd.append(" ")
+            if not first_op:
+                epd.append(" ")
+            first_op = False
             epd.append(opcode)
 
             # Value is empty.
@@ -2547,6 +2519,34 @@ class Board(BaseBoard):
             epd.append("\";")
 
         return "".join(epd)
+
+    def epd(self, shredder_fen=False, promoted=False, **operations):
+        """
+        Gets an EPD representation of the current position.
+
+        EPD operations can be given as keyword arguments. Supported operands
+        are strings, integers, floats and moves and lists of moves and None.
+        All other operands are converted to strings.
+
+        A list of moves for *pv* will be interpreted as a variation. All other
+        move lists are interpreted as a set of moves in the current position.
+
+        *hmvc* and *fmvc* are not included by default. You can use:
+
+        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
+        """
+        epd = []
+
+        epd.append(self.board_fen(promoted=promoted))
+        epd.append("w" if self.turn == WHITE else "b")
+        epd.append(self.castling_shredder_fen() if shredder_fen else self.castling_xfen())
+        epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
+
+        if operations:
+            epd.append(self._epd_operations(operations))
+
+        return " ".join(epd)
 
     def set_epd(self, epd):
         """
