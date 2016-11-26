@@ -332,7 +332,7 @@ class RacingKingsBoard(chess.Board):
     def reset(self):
         self.set_fen(type(self).starting_fen)
 
-    def _gives_check(move):
+    def _gives_check(self, move):
         self.push(move)
         gives_check = self.is_check()
         self.pop()
