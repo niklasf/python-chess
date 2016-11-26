@@ -2727,6 +2727,15 @@ class SuicideTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             board.push_san("Nf3")
 
+    def test_is_legal(self):
+        board = chess.variant.SuicideBoard("4k3/8/8/8/8/1r3B2/8/4K3 b - - 0 1")
+        Rxf3 = board.parse_san("Rxf3")
+        Rb4 = chess.Move.from_uci("b3b4")
+        self.assertTrue(board.is_legal(Rxf3))
+        self.assertTrue(Rxf3 in board.generate_legal_moves())
+        self.assertFalse(board.is_legal(Rb4))
+        self.assertFalse(Rb4 in board.generate_legal_moves())
+
     def test_insufficient_material(self):
         # Kings only.
         board = chess.variant.SuicideBoard("8/8/8/2k5/8/8/4K3/8 b - - 0 1")
