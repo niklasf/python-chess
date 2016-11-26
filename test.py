@@ -1999,6 +1999,12 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.end().board().fen(), "8/8/1b2N3/8/4k3/4K3/8/8 b - - 1 1")
 
+        game.setup(chess.variant.SuicideBoard())
+        self.assertEqual(game.headers["Variant"], "Suicide")
+
+        game.setup(chess.Board())
+        self.assertFalse("Variant" in game.headers)
+
 
 class StockfishTestCase(unittest.TestCase):
 
