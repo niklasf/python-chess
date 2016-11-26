@@ -412,7 +412,7 @@ class HordeBoard(chess.Board):
         status = super(HordeBoard, self).status()
         status &= ~chess.STATUS_NO_WHITE_KING
 
-        if self.occupied_co[chess.WHITE] <= 36:
+        if chess.pop_count(self.occupied_co[chess.WHITE]) <= 36:
             status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
             status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
 

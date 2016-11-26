@@ -2844,9 +2844,9 @@ class RacingKingsTestCase(unittest.TestCase):
 
 class HordeTestCase(unittest.TestCase):
 
-    def test_is_valid_horde(self):
+    def test_status(self):
         board = chess.variant.HordeBoard()
-        self.assertTrue(board.is_valid())
+        self.assertEqual(board.status(), chess.STATUS_VALID)
 
     def test_double_pawn_push(self):
         board = chess.variant.HordeBoard("8/8/8/8/8/3k1p2/8/PPPPPPPP w - - 0 1")
