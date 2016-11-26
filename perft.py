@@ -237,5 +237,15 @@ class RacingKingsPerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 4), 296242)
 
 
+class HordePerftTestCase(unittest.TestCase):
+
+    def test_horde_start_position(self):
+        board = chess.variant.HordeBoard()
+        self.assertEqual(perft(board, 1), 8)
+        self.assertEqual(perft(board, 2), 128)
+        self.assertEqual(perft(board, 3), 1274)
+        self.assertEqual(perft(board, 4), 23310)
+
+
 if __name__ == "__main__":
     unittest.main()
