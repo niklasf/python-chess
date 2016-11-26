@@ -1586,10 +1586,10 @@ class Board(BaseBoard):
         # Prepare pawn advance generation.
         if self.turn == WHITE:
             single_moves = pawns << 8 & ~self.occupied
-            double_moves = single_moves << 8 & ~self.occupied & BB_RANK_4
+            double_moves = single_moves << 8 & ~self.occupied & (BB_RANK_3 | BB_RANK_4)
         else:
             single_moves = pawns >> 8 & ~self.occupied
-            double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+            double_moves = single_moves >> 8 & ~self.occupied & (BB_RANK_6 | BB_RANK_5)
 
         single_moves &= to_mask
         double_moves &= to_mask
@@ -2148,9 +2148,9 @@ class Board(BaseBoard):
 
             # Set en passant square.
             if diff == 16:
-                if self.turn == WHITE:
+                if rank_index(move.to_square) == 3:
                     self.ep_square = move.to_square - 8
-                else:
+                elif rank_index(move.to_square) == 4:
                     self.ep_square = move.to_square + 8
 
         # Castling.
@@ -3358,10 +3358,10 @@ class Board(BaseBoard):
         # Prepare pawn advance generation.
         if self.turn == WHITE:
             single_moves = pawns << 8 & ~self.occupied
-            double_moves = single_moves << 8 & ~self.occupied & BB_RANK_4
+            double_moves = single_moves << 8 & ~self.occupied & (BB_RANK_3 | BB_RANK_4)
         else:
             single_moves = pawns >> 8 & ~self.occupied
-            double_moves = single_moves >> 8 & ~self.occupied & BB_RANK_5
+            double_moves = single_moves >> 8 & ~self.occupied & (BB_RANK_6 | BB_RANK_5)
 
         single_moves &= to_mask
         double_moves &= to_mask
@@ -3490,11 +3490,11 @@ class Board(BaseBoard):
 
         if self.turn == WHITE:
             forward_pawns = our_pawns << 8 & BB_ALL
-            double_forward_pawns = (our_pawns & BB_RANK_2) << 16 & BB_ALL
+            double_forward_pawns = (our_pawns & (BB_RANK_1 | BB_RANK_2)) << 16 & BB_ALL
             last_double_mask = ep_square_mask >> 8 & self.pawns & self.occupied_co[BLACK]
         else:
             forward_pawns = our_pawns >> 8
-            double_forward_pawns = (our_pawns & BB_RANK_7) >> 16
+            double_forward_pawns = (our_pawns & (BB_RANK_8 | BB_RANK_7)) >> 16
             last_double_mask = ep_square_mask << 8 & self.pawns & self.occupied_co[WHITE]
 
         if ep_square_mask & to_mask:
