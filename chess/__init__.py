@@ -2302,14 +2302,11 @@ class Board(BaseBoard):
         Optionally designates *promoted* pieces with a ``~`` after
         their symbol.
         """
-        fen = []
-        fen.append(self.board_fen(promoted=promoted))
-        fen.append("w" if self.turn == WHITE else "b")
-        fen.append(self.castling_xfen())
-        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
-        fen.append(str(self.halfmove_clock))
-        fen.append(str(self.fullmove_number))
-        return " ".join(fen)
+        return " ".join([
+            self.epd(promoted=promoted),
+            str(self.halfmove_clock),
+            str(self.fullmove_number)
+        ])
 
     def shredder_fen(self, promoted=False):
         """
@@ -2324,14 +2321,11 @@ class Board(BaseBoard):
         Optionally designates *promoted* pieces with a ``~`` after
         their symbol.
         """
-        fen = []
-        fen.append(self.board_fen(promoted=promoted))
-        fen.append("w" if self.turn == WHITE else "b")
-        fen.append(self.castling_shredder_fen())
-        fen.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
-        fen.append(str(self.halfmove_clock))
-        fen.append(str(self.fullmove_number))
-        return " ".join(fen)
+        return " ".join([
+            self.epd(shredder_fen=True, promoted=promoted),
+            str(self.halfmove_clock),
+            str(self.fullmove_number)
+        ])
 
     def set_fen(self, fen):
         """
@@ -2468,7 +2462,7 @@ class Board(BaseBoard):
 
         return super(Board, self).chess960_pos()
 
-    def epd(self, **operations):
+    def epd(self, shredder_fen=False, promoted=False, **operations):
         """
         Gets an EPD representation of the current position.
 
@@ -2487,7 +2481,7 @@ class Board(BaseBoard):
         epd = []
 
         # Position part.
-        epd.append(self.board_fen())
+        epd.append(self.board_fen(promoted=promoted))
         epd.append(" ")
 
         # Side to move.
@@ -2495,7 +2489,7 @@ class Board(BaseBoard):
         epd.append(" ")
 
         # Castling rights.
-        epd.append(self.castling_xfen())
+        epd.append(self.castling_shredder_fen() if shredder_fen else self.castling_xfen())
         epd.append(" ")
 
         # En passant square.
