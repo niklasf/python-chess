@@ -2811,6 +2811,37 @@ class AtomicTestCase(unittest.TestCase):
         self.assertFalse(Nxc4 in board.generate_legal_moves())
 
 
+class RacingKingsTestCase(unittest.TestCase):
+
+    def test_variant_end(self):
+        board = chess.variant.RacingKingsBoard()
+        board.push_san("Nxc2")
+        self.assertFalse(board.is_variant_draw())
+        self.assertFalse(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+
+        # Black is given a chance to catch up.
+        board = chess.variant.RacingKingsBoard("1K6/7k/8/8/8/8/8/8 b - - 0 1")
+        self.assertFalse(board.is_game_over())
+
+        board.push_san("Kg7") # ??
+        self.assertFalse(board.is_variant_draw())
+        self.assertTrue(board.is_variant_win())
+        self.assertFalse(board.is_variant_loss())
+
+        # White to move is lost, because black reached the backrank.
+        board = chess.variant.RacingKingsBoard("1k6/6K1/8/8/8/8/8/8 w - - 0 1")
+        self.assertFalse(board.is_variant_draw())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_loss())
+
+        # Black to move is lost, because they cannot reach the backrank.
+        board = chess.variant.RacingKingsBoard("5RK1/1k6/8/8/8/8/8/8 b - - 0 1")
+        self.assertFalse(board.is_variant_draw())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_loss())
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
