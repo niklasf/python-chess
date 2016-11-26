@@ -461,6 +461,9 @@ class ThreeCheckBoard(chess.Board):
         if was_in_check:
             self.remaining_checks_co[self.turn] += 1
 
+    def is_insufficient_material(self):
+        return self.occupied == self.kings
+
     # TODO: Get/set FEN/EPD, zobrist hashing
 
     def is_variant_draw(self):
