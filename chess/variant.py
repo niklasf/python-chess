@@ -193,7 +193,7 @@ class AtomicBoard(chess.Board):
     one_king = True
 
     def is_variant_win(self):
-        return not self.kings & self.occupied_co[not self.turn]
+        return self.kings and not self.kings & self.occupied_co[not self.turn]
 
     def is_variant_loss(self):
         return not self.kings & self.occupied_co[self.turn]
