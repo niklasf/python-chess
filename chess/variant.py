@@ -330,7 +330,7 @@ class RacingKingsBoard(chess.Board):
         super(RacingKingsBoard, self).__init__(fen, chess960)
 
     def reset(self):
-        self.set_fen(starting_fen)
+        self.set_fen(type(self).starting_fen)
 
     def _gives_check(move):
         self.push(move)
