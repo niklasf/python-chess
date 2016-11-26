@@ -27,6 +27,7 @@ Suicide          :class:`chess.variant.SuicideBoard`       suicide       .stbw, 
 Giveaway         :class:`chess.variant.GiveawayBoard`      giveaway      .gtbw, .gtbz
 Atomic           :class:`chess.variant.AtomicBoard`        atomic        .atbw, .atbz
 King of the Hill :class:`chess.variant.KingOfTheHillBoard` kingofthehill
+Racing Kings     :class:`chess.variant.RacingKings`        racingkings
 ================ ========================================= ============= ============
 
 .. autofunction:: chess.variant.find_variant
