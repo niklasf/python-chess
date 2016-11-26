@@ -19,13 +19,10 @@
 import chess
 
 
-SUICIDE_STARTING_FEN = chess.STARTING_FEN
-
 class SuicideBoard(chess.Board):
 
     aliases = ["Suicide", "Suicide chess"]
     uci_variant = "suicide"
-    starting_fen = SUICIDE_STARTING_FEN
 
     tbw_suffix = ".stbw"
     tbz_suffix = ".stbz"
@@ -137,6 +134,15 @@ class SuicideBoard(chess.Board):
                 if not self.is_en_passant(move):
                     yield move
 
+    def is_legal(self, move):
+        if not super(SuicideBoard, self).is_legal(move):
+            return False
+
+        if self.is_capture(move):
+            return True
+        else:
+            return not any(self.generate_pseudo_legal_captures())
+
     def status(self):
         status = super(SuicideBoard, self).status()
         status &= ~chess.STATUS_NO_WHITE_KING
@@ -146,20 +152,18 @@ class SuicideBoard(chess.Board):
         return status
 
 
-GIVEAWAY_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
-
 class GiveawayBoard(SuicideBoard):
 
     aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess"]
     uci_variant = "giveaway"
-    starting_fen = GIVEAWAY_STARTING_FEN
+    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
     tbw_suffix = ".gtbw"
     tbz_suffix = ".gtbz"
     tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
     tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
 
-    def __init__(self, fen=GIVEAWAY_STARTING_FEN, chess960=False):
+    def __init__(self, fen=starting_fen, chess960=False):
         super(GiveawayBoard, self).__init__(fen, chess960)
 
         # Give back castling rights that were removed when resetting.
@@ -180,13 +184,10 @@ class GiveawayBoard(SuicideBoard):
         return False
 
 
-ATOMIC_STARTING_FEN = chess.STARTING_FEN
-
 class AtomicBoard(chess.Board):
 
     aliases = ["Atomic", "Atom", "Atomic chess"]
     uci_variant = "atomic"
-    starting_fen = ATOMIC_STARTING_FEN
 
     tbw_suffix = ".atbw"
     tbz_suffix = ".atbz"
@@ -295,8 +296,6 @@ class AtomicBoard(chess.Board):
 
 BB_HILL = chess.BB_E4 | chess.BB_D4 | chess.BB_E5 | chess.BB_D5
 
-KING_OF_THE_HILL_STARTING_FEN = chess.STARTING_FEN
-
 class KingOfTheHillBoard(chess.Board):
 
     aliases = ["King of the Hill", "KOTH"]
@@ -318,6 +317,7 @@ class KingOfTheHillBoard(chess.Board):
 # TODO: Crazyhouse
 # TODO: Racing kings
 # TODO: Horde
+
 
 VARIANTS = [chess.Board, SuicideBoard, GiveawayBoard, AtomicBoard, KingOfTheHillBoard]
 
