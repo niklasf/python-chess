@@ -378,11 +378,42 @@ class RacingKingsBoard(chess.Board):
         return False
 
 
+class HordeBoard(chess.Board):
+
+    aliases = ["Horde", "Horde chess"]
+    uci_variant = "horde"
+    starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
+
+    def __init__(self, fen=starting_fen, chess960=False):
+        super(HordeBoard, self).__init__(fen, chess960)
+
+    def reset(self):
+        self.set_fen(type(self).starting_fen)
+
+    def is_variant_draw(self):
+        return not self.occupied
+
+    def is_variant_loss(self):
+        return self.occupied and not self.occupied_co[self.turn]
+
+    def is_variant_win(self):
+        return self.occupied and not self.occupied_co[not self.turn]
+
+    def is_insufficient_material(self):
+        return False
+
+
 # TODO: Crazyhouse
-# TODO: Horde
 
 
-VARIANTS = [chess.Board, SuicideBoard, GiveawayBoard, AtomicBoard, KingOfTheHillBoard]
+VARIANTS = [
+    chess.Board,
+    SuicideBoard, GiveawayBoard,
+    AtomicBoard,
+    KingOfTheHillBoard,
+    RacingKingsBoard,
+    HordeBoard,
+]
 
 
 def find_variant(name):
