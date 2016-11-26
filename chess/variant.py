@@ -196,7 +196,7 @@ class AtomicBoard(chess.Board):
         return self.kings and not self.kings & self.occupied_co[not self.turn]
 
     def is_variant_loss(self):
-        return not self.kings & self.occupied_co[self.turn]
+        return self.kings and not self.kings & self.occupied_co[self.turn]
 
     def is_insufficient_material(self):
         if self.is_variant_loss() or self.is_variant_win():
@@ -256,10 +256,10 @@ class AtomicBoard(chess.Board):
             explosion = chess.bit_scan(explosion_radius, explosion + 1)
 
     def is_check(self):
-        return not self.is_variant_loss() and not self._kings_connected() and super(AtomicBoard, self).is_check()
+        return not self._kings_connected() and super(AtomicBoard, self).is_check()
 
     def was_into_check(self):
-        return not self.is_variant_win() and not self._kings_connected() and super(AtomicBoard, self).was_into_check()
+        return not self._kings_connected() and super(AtomicBoard, self).was_into_check()
 
     def is_into_check(self, move):
         self.push(move)
@@ -267,12 +267,22 @@ class AtomicBoard(chess.Board):
         self.pop()
         return was_into_check
 
+    def is_legal(self, move):
+        if not self.is_pseudo_legal(move):
+            return False
+
+        self.push(move)
+        legal = self.kings and not self.is_variant_win() and (self.is_variant_loss() or not self.was_into_check())
+        self.pop()
+
+        return legal
+
     def is_stalemate(self):
         return not self.is_variant_loss() and super(AtomicBoard, self).is_stalemate()
 
     def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
-            if not self.is_into_check(move):
+            if self.is_legal(move):
                 yield move
 
     generate_evasions = generate_non_evasions = generate_legal_moves
