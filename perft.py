@@ -15,7 +15,9 @@ import sys
 
 
 def perft(board, depth):
-    if depth > 1:
+    if board.is_variant_win() or board.is_variant_draw() or board.is_variant_loss():
+        return 1
+    elif depth > 1:
         count = 0
 
         for move in board.legal_moves:
