@@ -413,15 +413,18 @@ class Game(GameNode):
             board.chess960 = board.has_chess960_castling_rights()
             fen = board.fen()
 
-        if fen == chess.STARTING_FEN:
+        if fen == type(board).starting_fen:
             self.headers.pop("SetUp", None)
             self.headers.pop("FEN", None)
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
 
-        if board.chess960:
+        if type(board).aliases[0] == "Standard" and board.chess960:
             self.headers["Variant"] = "Chess960"
+        elif type(board).aliases[0] != "Standard":
+            self.headers["Variant"] = type(board).aliases[0]
+            self.headers["FEN"] = board.fen()
         else:
             self.headers.pop("Variant", None)
 

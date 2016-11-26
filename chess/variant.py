@@ -150,7 +150,7 @@ GIVEAWAY_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
 class GiveawayBoard(SuicideBoard):
 
-    aliases = "Giveaway", "Giveaway chess"
+    aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess"]
     uci_variant = "giveaway"
     starting_fen = GIVEAWAY_STARTING_FEN
 
