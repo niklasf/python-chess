@@ -386,7 +386,8 @@ Features
       >>> engine.quit()
       0
 
-* Chess variant support: Suicide, Giveaway, Atomic, King of the Hill.
+* Chess variant support: Suicide, Giveaway, Atomic, King of the Hill,
+  Racing Kings, Horde, Three-check.
   `Docs <https://python-chess.readthedocs.io/en/latest/variant.html>`__.
 
 Installing

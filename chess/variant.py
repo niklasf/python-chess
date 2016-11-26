@@ -428,6 +428,51 @@ class HordeBoard(chess.Board):
         return status
 
 
+class ThreeCheckBoard(chess.Board):
+
+    aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
+    uci_variant = "threecheck"
+
+    tbw_suffix = tbz_suffix = None
+    tbw_magic = tbz_magic = None
+
+    def __init__(self, fen=starting_fen, chess960=False):
+        self.remaining_checks_co = [3, 3]
+        super(ThreeCheckBoard, self).__init__(fen, chess960)
+
+    def reset_board(self):
+        super(ThreeCheckBoard, self).reset_board()
+        self.remaining_checks_co[chess.WHITE] = 3
+        self.remaining_checks_co[chess.BLACK] = 3
+
+    def clear_board(self):
+        super(ThreeCheckBoard, self).clear_board()
+        self.remaining_checks_co[chess.WHITE] = 3
+        self.remaining_checks_co[chess.BLACK] = 3
+
+    def push(self, move):
+        super(ThreeCheckBoard, self).push(move)
+        if self.is_check():
+            self.remaining_checks_co[not self.turn] -= 1
+
+    def pop(self):
+        was_in_check = self.is_check()
+        move = super(ThreeCheckBoard, self).pop()
+        if was_in_check:
+            self.remaining_checks_co[self.turn] += 1
+
+    # TODO: Get/set FEN/EPD, zobrist hashing
+
+    def is_variant_draw(self):
+        return self.remaining_checks_co[chess.WHITE] <= 0 and self.remaining_checks_co[chess.BLACK] <= 0
+
+    def is_variant_loss(self):
+        return self.remaining_checks_co[not self.turn] <= 0 and self.remaining_checks_co[self.turn] > 0
+
+    def is_variant_win(self):
+        return self.remaining_checks_co[self.turn] <= 0 and self.remaining_checks_co[not self.turn] > 0
+
+
 # TODO: Crazyhouse
 
 
@@ -438,6 +483,7 @@ VARIANTS = [
     KingOfTheHillBoard,
     RacingKingsBoard,
     HordeBoard,
+    ThreeCheckBoard
 ]
 
 
