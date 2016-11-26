@@ -1988,6 +1988,17 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertEqual(list(game.main_line()), moves)
 
+    def test_variants(self):
+        pgn = StringIO(textwrap.dedent("""\
+            [Variant "Atomic"]
+            [FEN "8/8/1b6/8/3Nk3/4K3/8/8 w - - 0 1"]
+
+            1. Ne6
+            """))
+
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.end().board().fen(), "8/8/1b2N3/8/4k3/4K3/8/8 b - - 1 1")
+
 
 class StockfishTestCase(unittest.TestCase):
 

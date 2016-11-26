@@ -23,6 +23,7 @@ SUICIDE_STARTING_FEN = chess.STARTING_FEN
 
 class SuicideBoard(chess.Board):
 
+    aliases = ["Suicide", "Suicide chess"]
     uci_variant = "suicide"
     starting_fen = SUICIDE_STARTING_FEN
 
@@ -149,6 +150,7 @@ GIVEAWAY_STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
 class GiveawayBoard(SuicideBoard):
 
+    aliases = "Giveaway", "Giveaway chess"
     uci_variant = "giveaway"
     starting_fen = GIVEAWAY_STARTING_FEN
 
@@ -182,6 +184,7 @@ ATOMIC_STARTING_FEN = chess.STARTING_FEN
 
 class AtomicBoard(chess.Board):
 
+    aliases = ["Atomic", "Atom", "Atomic chess"]
     uci_variant = "atomic"
     starting_fen = ATOMIC_STARTING_FEN
 
@@ -296,6 +299,7 @@ KING_OF_THE_HILL_STARTING_FEN = chess.STARTING_FEN
 
 class KingOfTheHillBoard(chess.Board):
 
+    aliases = ["King of the Hill", "KOTH"]
     uci_variant = "kingofthehill"
 
     tbw_suffix = tbz_suffix = None
@@ -314,3 +318,12 @@ class KingOfTheHillBoard(chess.Board):
 # TODO: Crazyhouse
 # TODO: Racing kings
 # TODO: Horde
+
+VARIANTS = [chess.Board, SuicideBoard, GiveawayBoard, AtomicBoard, KingOfTheHillBoard]
+
+
+def find_variant(name):
+    for variant in VARIANTS:
+        if any(alias.lower() == name.lower() for alias in variant.aliases):
+            return variant
+    raise ValueError("unsupported variant: {0}".format(name))
