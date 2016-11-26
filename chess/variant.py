@@ -307,8 +307,29 @@ class KingOfTheHillBoard(chess.Board):
         return False
 
 
+class RacingKings(chess.Board):
+
+    aliases = ["Racing Kings", "Racing", "Race"]
+    uci_variant = "racingkings"
+    starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
+
+    tbw_suffix = tbz_suffix = None
+    tbw_magic = tbz_magic = None
+
+    def __init__(self, fen=starting_fen, chess960=False):
+        super(RacingKings, self).__init__(fen, chess960)
+
+    def reset(self):
+        self.set_fen(starting_fen)
+
+    # TODO: Do not allow checks
+    # TODO: Game end conditions
+
+    def is_insufficient_material(self):
+        return False
+
+
 # TODO: Crazyhouse
-# TODO: Racing kings
 # TODO: Horde
 
 
