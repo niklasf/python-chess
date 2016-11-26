@@ -432,6 +432,7 @@ class ThreeCheckBoard(chess.Board):
 
     aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
     uci_variant = "threecheck"
+    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
 
     tbw_suffix = tbz_suffix = None
     tbw_magic = tbz_magic = None
