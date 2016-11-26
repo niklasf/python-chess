@@ -2789,6 +2789,27 @@ class AtomicTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.fen(), fen)
 
+    def test_atomic_mate_legality(self):
+        # We are in check. Not just any move will do.
+        board = chess.variant.AtomicBoard("8/8/1Q2pk2/8/8/8/3K4/1n6 w - - 0 1")
+        self.assertTrue(board.is_check())
+        Qa7 = chess.Move.from_uci("b6a7")
+        self.assertTrue(board.is_pseudo_legal(Qa7))
+        self.assertFalse(board.is_legal(Qa7))
+        self.assertFalse(Qa7 in board.generate_legal_moves())
+
+        # Ignore check to explode the opponents king.
+        Qxe6 = board.parse_san("Qxe6#")
+        self.assertTrue(board.is_legal(Qxe6))
+        self.assertTrue(Qxe6 in board.generate_legal_moves())
+
+        # Exploding both kings is not a legal check evasion.
+        board = chess.variant.AtomicBoard("8/8/8/2K5/2P5/2k1n3/8/2R5 b - - 0 1")
+        Nxc4 = chess.Move.from_uci("e3c4")
+        self.assertTrue(board.is_pseudo_legal(Nxc4))
+        self.assertFalse(board.is_legal(Nxc4))
+        self.assertFalse(Nxc4 in board.generate_legal_moves())
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
