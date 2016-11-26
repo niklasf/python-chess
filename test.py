@@ -2842,6 +2842,29 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertTrue(board.is_variant_loss())
 
 
+class HordeTestCase(unittest.TestCase):
+
+    def test_is_valid_horde(self):
+        board = chess.variant.HordeBoard()
+        self.assertTrue(board.is_valid())
+
+    def test_double_pawn_push(self):
+        board = chess.variant.HordeBoard("8/8/8/8/8/3k1p2/8/PPPPPPPP w - - 0 1")
+
+        # Double pawn push blocked by king.
+        self.assertFalse(chess.Move.from_uci("d1d3") in board.generate_legal_moves())
+
+        # Double pawn push from backrank possible.
+        self.assertTrue(chess.Move.from_uci("e1e2") in board.generate_legal_moves())
+        self.assertTrue(board.is_legal(board.parse_san("e2")))
+        self.assertTrue(chess.Move.from_uci("e1e3") in board.generate_legal_moves())
+        self.assertTrue(board.is_legal(board.parse_san("e3")))
+
+        # En-passant not possible.
+        board.push_san("e3")
+        self.assertFalse(any(board.generate_pseudo_legal_ep()))
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
