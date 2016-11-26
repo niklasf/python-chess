@@ -317,7 +317,7 @@ class KingOfTheHillBoard(chess.Board):
         return False
 
 
-class RacingKings(chess.Board):
+class RacingKingsBoard(chess.Board):
 
     aliases = ["Racing Kings", "Racing", "Race"]
     uci_variant = "racingkings"
@@ -327,12 +327,29 @@ class RacingKings(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(RacingKings, self).__init__(fen, chess960)
+        super(RacingKingsBoard, self).__init__(fen, chess960)
 
     def reset(self):
         self.set_fen(starting_fen)
 
-    # TODO: Do not allow checks
+    def _gives_check(move):
+        self.push(move)
+        gives_check = self.is_check()
+        self.pop()
+        return gives_check
+
+    def is_legal(self, move):
+        return super(RacingKingsBoard, self).is_legal(move) and not self._gives_check(move)
+
+    def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        for move in super(RacingKingsBoard, self).generate_evasions(from_mask, to_mask):
+            if not self._gives_check(move):
+                yield move
+
+    def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        for move in super(RacingKingsBoard, self).generate_non_evasions(from_mask, to_mask):
+            if not self._gives_check(move):
+                yield move
 
     def is_variant_draw(self):
         in_goal = self.kings & chess.BB_RANK_8
