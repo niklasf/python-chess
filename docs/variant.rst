@@ -1,34 +1,46 @@
 Variant support (experimental)
 ==============================
 
+python-chess supports several chess variants.
+
+>>> board = chess.variant.GiveawayBoard()
+
+>>> # General information about the variants
+>>> type(board).uci_variant
+'giveaway'
+>>> type(board).starting_fen
+'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
+
+>>> # Check for special variant game-end conditions
+>>> board.is_variant_win()
+False
+>>> board.is_variant_draw()
+False
+>>> board.is_variant_loss()
+False
+
 ================ ========================================= ============= ============
 Variant          Board class                               UCI           Syzygy
 ================ ========================================= ============= ============
 Standard         :class:`chess.Board`                      chess         .rtbw, .rtbz
-Suicide          :class:`chess.variant.SuicideBoard`       suicide
-Giveaway         :class:`chess.variant.GiveawayBoard`      giveaway
+Suicide          :class:`chess.variant.SuicideBoard`       suicide       .stbw, .stbz
+Giveaway         :class:`chess.variant.GiveawayBoard`      giveaway      .gtbw, .gtbz
 Atomic           :class:`chess.variant.AtomicBoard`        atomic        .atbw, .atbz
 King of the Hill :class:`chess.variant.KingOfTheHillBoard` kingofthehill
 ================ ========================================= ============= ============
 
 .. autofunction:: chess.variant.find_variant
 
->>> board = chess.variant.GiveawayBoard()
->>> type(board).uci_variant
-'giveaway'
->>> type(board).starting_fen
-'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
-
-UCI module
-----------
+UCI
+---
 
 Stockfish and other engines allow you to switch variants by setting the
 ``UCI_Variant`` option.
 
 >>> engine.setoption({"UCI_Variant": "atomic"})
 
-Syzygy module
--------------
+Syzygy
+------
 
 Syzygy tablebases are available for suicide, giveaway and atomic chess.
 
