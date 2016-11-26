@@ -13,6 +13,7 @@ Contents
     syzygy
     uci
     svg
+    variant
     changelog
 
 Indices and tables
