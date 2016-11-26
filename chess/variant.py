@@ -323,6 +323,7 @@ VARIANTS = [chess.Board, SuicideBoard, GiveawayBoard, AtomicBoard, KingOfTheHill
 
 
 def find_variant(name):
+    """Looks for a variant board class by variant name."""
     for variant in VARIANTS:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
