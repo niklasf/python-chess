@@ -416,6 +416,9 @@ class HordeBoard(chess.Board):
             status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
             status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
 
+        if not self.occupied_co[chess.BLACK] & chess.BB_RANK_8:
+            status &= ~chess.STATUS_PAWNS_ON_BACKRANK
+
         if self.occupied_co[chess.WHITE] & self.kings:
             status |= chess.STATUS_TOO_MANY_KINGS
 
