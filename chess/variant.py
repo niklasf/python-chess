@@ -166,10 +166,6 @@ class GiveawayBoard(SuicideBoard):
     def __init__(self, fen=starting_fen, chess960=False):
         super(GiveawayBoard, self).__init__(fen, chess960)
 
-        # Give back castling rights that were removed when resetting.
-        if fen == chess.STARTING_FEN:
-            self.castling_rights = chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
-
     def reset(self):
         super(GiveawayBoard, self).reset()
         self.castling_rights = chess.BB_VOID
