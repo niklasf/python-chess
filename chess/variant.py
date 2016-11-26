@@ -362,7 +362,7 @@ class RacingKingsBoard(chess.Board):
         if self.turn == chess.WHITE:
             return self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8
         else:
-            if not self.kings & self.occupied_co[chess.WHITE]:
+            if not self.kings & self.occupied_co[chess.WHITE] & chess.BB_RANK_8:
                 return False
 
             # Black can not reach the backrank on the next move.
