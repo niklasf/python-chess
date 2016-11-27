@@ -26,7 +26,7 @@ and handling of common formats. This is the scholars mate in python-chess:
     >>> board = chess.Board()
 
     >>> board.legal_moves  # doctest: +ELLIPSIS
-    <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
+    <LegalMoveGenerator at ... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, ...)>
     >>> chess.Move.from_uci("a8a1") in board.legal_moves
     False
 
