@@ -2896,6 +2896,16 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertNotEqual(board_a.zobrist_hash(), board_b.zobrist_hash())
 
 
+class CrazyhouseTestCase(unittest.TestCase):
+
+    def test_lichess_pgn(self):
+        pgn = open("data/pgn/saturs-jannlee-zh-lichess.pgn")
+        game = chess.pgn.read_game(pgn)
+        final_board = game.end().board()
+        self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[PPBRRQN] w - - 98 62")
+        pgn.close()
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
