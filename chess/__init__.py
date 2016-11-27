@@ -2321,7 +2321,7 @@ class Board(BaseBoard):
         :func:`~chess.Board.has_legal_en_passant()`), the halfmove clock
         and the fullmove number.
 
-        Optionally designates *promoted* pieces with a ``~`` after
+        Optionally designates *promoted* pieces with a ``~`` before
         their symbol.
         """
         return " ".join([
@@ -2340,7 +2340,7 @@ class Board(BaseBoard):
         Use :func:`~chess.Board.castling_shredder_fen()` to get just the
         castling part.
 
-        Optionally designates *promoted* pieces with a ``~`` after
+        Optionally designates *promoted* pieces with a ``~`` before
         their symbol.
         """
         return " ".join([
