@@ -610,7 +610,7 @@ class CrazyhouseBoard(chess.Board):
 
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
-        king_square = chess.bit_scan(our_king)
+        king_square = chess.bit_scan(king_bb)
         if king_square is None or king_square == -1:
             return ~self.occupied
 
@@ -621,23 +621,23 @@ class CrazyhouseBoard(chess.Board):
         if num_attackers == 0:
             return ~self.occupied
         elif num_attackers == 1:
-            king_rank_mask = chess.RANK_MASK[our_king]
-            king_file_mask = chess.FILE_MASK[our_king]
-            king_diag_ne = chess.DIAG_MASK_NE[our_king]
-            king_diag_nw = chess.DIAG_MASK_NW[our_king]
+            king_rank_mask = chess.RANK_MASK[king_bb]
+            king_file_mask = chess.FILE_MASK[king_bb]
+            king_diag_ne = chess.DIAG_MASK_NE[king_bb]
+            king_diag_nw = chess.DIAG_MASK_NW[king_bb]
 
             if king_rank_mask == chess.RANK_MASK[king_attackers]:
                 rank_pieces = king_rank_mask & self.occupied
-                return chess.RANK_ATTACKS[our_king][rank_pieces] & ~self.occupied & chess.RANK_ATTACKS[king_attackers][rank_pieces]
+                return chess.RANK_ATTACKS[king_bb][rank_pieces] & ~self.occupied & chess.RANK_ATTACKS[king_attackers][rank_pieces]
             elif king_file_mask == chess.FILE_MASK[king_attackers]:
                 file_pieces = king_file_mask & self.occupied
-                return chess.FILE_ATTACKS[our_king][file_pieces] & ~self.occupied & FILE_ATTACKS[king_attackers][file_pieces]
+                return chess.FILE_ATTACKS[king_bb][file_pieces] & ~self.occupied & FILE_ATTACKS[king_attackers][file_pieces]
             elif king_diag_ne == chess.DIAG_MASK_NE[king_attackers]:
                 ne_pieces = king_diag_ne & self.occupied
-                return chess.DIAG_ATTACKS_NE[our_king][ne_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NE[king_attackers][ne_pieces]
+                return chess.DIAG_ATTACKS_NE[king_bb][ne_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NE[king_attackers][ne_pieces]
             elif king_diag_nw == chess.DIAG_MASK_NW[king_attackers]:
                 nw_pieces = king_diag_nw & self.occupied
-                return chess.DIAG_ATTACKS_NW[our_king][nw_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NW[king_attackers][nw_pieces]
+                return chess.DIAG_ATTACKS_NW[king_bb][nw_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NW[king_attackers][nw_pieces]
 
         return chess.BB_VOID
 
