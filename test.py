@@ -2926,6 +2926,16 @@ class CrazyhouseTestCase(unittest.TestCase):
         board.push_san("@e6")
         self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnpp2p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPn] w - - 26 14")
 
+    def test_capture(self):
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/1n6/8/3B4/8/4K3 w - - 0 1")
+        board.push_san("Bxb5+")
+        self.assertEqual(board.fen(), "4k3/8/8/1B6/8/8/8/4K3[N] b - - 1 1")
+
+    def test_capture_with_promotion(self):
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/1p6/2R1K3 b - - 0 1")
+        board.push_san("bxc1=Q")
+        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2~q1K3[r] w - - 1 2")
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:

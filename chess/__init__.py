@@ -2077,7 +2077,7 @@ class Board(BaseBoard):
 
         return False
 
-    def _push_capture(self, move, capture_square, piece_type):
+    def _push_capture(self, move, capture_square, piece_type, was_promoted):
         pass
 
     def push(self, move):
@@ -2162,10 +2162,10 @@ class Board(BaseBoard):
             if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 if self.turn == WHITE:
                     self._remove_piece_at(move.to_square - 8)
-                    self._push_capture(move, move.to_square - 8, PAWN)
+                    self._push_capture(move, move.to_square - 8, PAWN, False)
                 else:
                     self._remove_piece_at(move.to_square + 8)
-                    self._push_capture(move, move.to_square + 8, PAWN)
+                    self._push_capture(move, move.to_square + 8, PAWN, False)
 
             # Set en passant square.
             if diff == 16:
@@ -2191,10 +2191,11 @@ class Board(BaseBoard):
 
         # Put piece on target square.
         if not castling:
+            was_promoted = BB_SQUARES[move.to_square] & self.promoted
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
             if captured_piece_type:
-                self._push_capture(move, move.to_square, captured_piece_type)
+                self._push_capture(move, move.to_square, captured_piece_type, was_promoted)
 
         # Swap turn.
         self.turn = not self.turn
