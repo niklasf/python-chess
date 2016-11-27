@@ -473,17 +473,20 @@ class ThreeCheckBoard(chess.Board):
             raise ValueError("three-check fen should consist of 7 parts: {0}".format(repr(fen)))
 
         # Extract check part.
-        if "+" in parts[6]:
-            raise ValueError("lichess three-check fens are not supported: {0}".format(repr(fen)))
-
-        check_part = parts.pop(4)
-
-        # Parse check part.
-        try:
-            w, b = check_part.split("+", 1)
-            wc, bc = int(w), int(b)
-        except ValueError:
-            raise ValueError("invalid check part in three-check fen: {0}".format(check_part))
+        if "+" == parts[6][0]:
+            check_part = parts.pop()[1:]
+            try:
+                w, b = check_part.split("+", 1)
+                wc, bc = 3 - int(w), 3 - int(b)
+            except ValueError:
+                raise ValueError("invalid check part in lichess three-check fen: {0}".format(repr(check_part)))
+        else:
+            check_part = parts.pop(4)
+            try:
+                w, b = check_part.split("+", 1)
+                wc, bc = int(w), int(b)
+            except ValueError:
+                raise ValueError("invalid check part in three-check fen: {0}".format(repr(check_part)))
 
         # Set fen.
         super(ThreeCheckBoard, self).set_fen(" ".join(parts))
