@@ -608,8 +608,41 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
-    def legal_drop_mask(self):
-        return chess.BB_ALL
+    def legal_drop_squares_mask(self):
+        king_bb = self.kings & self.occupied_co[self.turn]
+        king_square = bit_scan(our_king)
+        if king_square is None or king_square == -1:
+            return ~self.occupied
+
+        king_attackers = self.attackers_mask(not self.turn, king_square)
+        num_attackers = chess.pop_count(king_attackers)
+
+
+        if num_attackers == 0:
+            return ~self.occupied
+        elif num_attackers == 1:
+            king_rank_mask = chess.RANK_MASK[our_king]
+            king_file_mask = chess.FILE_MASK[our_king]
+            king_diag_ne = chess.DIAG_MASK_NE[our_king]
+            king_diag_nw = chess.DIAG_MASK_NW[our_king]
+
+            if king_rank_mask == chess.RANK_MASK[king_attackers]:
+                rank_pieces = king_rank_mask & self.occupied
+                return chess.RANK_ATTACKS[our_king][rank_pieces] & ~self.occupied & chess.RANK_ATTACKS[king_attackers][rank_pieces]
+            elif king_file_mask == chess.FILE_MASK[king_attackers]:
+                file_pieces = king_file_mask & self.occupied
+                return chess.FILE_ATTACKS[our_king][file_pieces] & ~self.occupied & FILE_ATTACKS[king_attackers][file_pieces]
+            elif king_diag_ne == chess.DIAG_MASK_NE[king_attackers]:
+                ne_pieces = king_diag_ne & self.occupied
+                return chess.DIAG_ATTACKS_NE[our_king][ne_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NE[king_attackers][ne_pieces]
+            elif king_diag_nw == chess.DIAG_MASK_NW[king_attackers]:
+                nw_pieces = king_diag_nw & self.occupied
+                return chess.DIAG_ATTACKS_NW[our_king][nw_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NW[king_attackers][nw_pieces]
+
+        return chess.BB_VOID
+
+    def legal_drop_squares(self):
+        return chess.SquareSet(self.legal_drop_squares_mask())
 
     def is_pseudo_legal(self, move):
         if move.drop and move.from_square == move.to_square:
@@ -625,7 +658,7 @@ class CrazyhouseBoard(chess.Board):
 
     def is_legal(self, move):
         if move.drop:
-            return self.is_pseudo_legal(move) and self.legal_drop_mask() & chess.BB_SQUARES[move.to_square]
+            return self.is_pseudo_legal(move) and self.legal_drop_squares_mask() & chess.BB_SQUARES[move.to_square]
         else:
             return super(CrazyhouseBoard, self).is_legal(move)
 
@@ -634,12 +667,12 @@ class CrazyhouseBoard(chess.Board):
         to_square = chess.bit_scan(to_mask)
         while to_square != -1 and to_square is not None:
             for pt, count in self.pockets[self.turn].pieces.items():
-                if count:
+                if count and (pt != chess.PAWN or not chess.BB_BACKRANKS & chess.BB_SQUARES[to_square]):
                     yield chess.Move(to_square, to_square, drop=pt)
             to_square = chess.bit_scan(to_mask, to_square + 1)
 
     def generate_legal_drops(self, to_mask=chess.BB_ALL):
-        return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_mask() & to_mask)
+        return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask)
 
     def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         return itertools.chain(
