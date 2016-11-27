@@ -637,6 +637,12 @@ class CrazyhouseBoard(chess.Board):
         else:
             self.pockets[self.turn].add(piece_type)
 
+    def can_claim_fifty_moves(self):
+        return False
+
+    def is_seventyfive_moves(self):
+        return False
+
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
         king_square = chess.bit_scan(king_bb)

@@ -1894,7 +1894,7 @@ class Board(BaseBoard):
             return True
 
         # Seventyfive-move rule.
-        if self.halfmove_clock >= 150:
+        if self.is_seventyfive_moves():
             return True
 
         # Insufficient material.
@@ -1940,7 +1940,7 @@ class Board(BaseBoard):
             return "1/2-1/2"
 
         # Seventyfive-move rule or fivefold repetition.
-        if self.halfmove_clock >= 150 or self.is_fivefold_repetition():
+        if self.is_seventyfive_moves() or self.is_fivefold_repetition():
             return "1/2-1/2"
 
         # Insufficient material.
