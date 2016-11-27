@@ -25,6 +25,11 @@ and handling of common formats. This is the scholars mate in python-chess:
 
     >>> board = chess.Board()
 
+    >>> board.legal_moves  # doctest: +ELLIPSIS
+    <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
+    >>> chess.Move.from_uci("a8a1") in board.legal_moves
+    False
+
     >>> board.push_san("e4")
     Move.from_uci('e2e4')
     >>> board.push_san("e5")
@@ -42,6 +47,11 @@ and handling of common formats. This is the scholars mate in python-chess:
 
     >>> board.is_checkmate()
     True
+
+    >>> board
+    Board('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+
+.. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
 
 Documentation
 -------------
@@ -61,43 +71,9 @@ https://python-chess.readthedocs.io/en/latest/
 Features
 --------
 
-* Supports Python 2.6+ and Python 3.3+.
-
-  .. code:: python
-
-      >>> # Python 2 compability for the following examples.
-      >>> from __future__ import print_function
-
+* Supports Python 2.6+, Python 3.3+ and PyPy.
 * IPython notebook integration. `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
-
-  .. code:: python
-
-      >>> board  # doctest: +SKIP
-
-  .. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
-
-* Supports standard chess and Chess960.
-
-  .. code:: python
-
-      >>> chess.Board(chess960=True)
-      Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', chess960=True)
-
-      >>> chess.Board.from_chess960_pos(330)
-      Board('nrqkbbrn/pppppppp/8/8/8/8/PPPPPPPP/NRQKBBRN w KQkq - 0 1', chess960=True)
-
-
-* Legal move generator and move validation. This includes all castling
-  rules and en passant captures.
-
-  .. code:: python
-
-      >>> board = chess.Board()
-      >>> board.legal_moves  # doctest: +ELLIPSIS
-      <LegalMoveGenerator at 0x... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, a4, b4, c4, d4, e4, f4, g4, h4)>
-      >>> chess.Move.from_uci("a8a1") in board.legal_moves
-      False
-
+* Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic, King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse. `Variant docs <https://python-chess.readthedocs.io/en/latest/variant.html>`_.
 * Make and unmake moves.
 
   .. code:: python
@@ -385,10 +361,6 @@ Features
       >>> # Quit.
       >>> engine.quit()
       0
-
-* Chess variant support: Suicide, Giveaway, Atomic, King of the Hill,
-  Racing Kings, Horde, Three-check.
-  `Docs <https://python-chess.readthedocs.io/en/latest/variant.html>`__.
 
 Installing
 ----------
