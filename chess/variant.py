@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import copy
 
 
 class SuicideBoard(chess.Board):
@@ -556,7 +557,70 @@ class ThreeCheckBoard(chess.Board):
         return board
 
 
-# TODO: Crazyhouse
+class CrazyhousePocket(object):
+
+    def __init__(self, symbols):
+        self.pieces = {}
+        for symbol in symbols:
+            pt = chess.PIECE_SYMBOLS.index(symbol)
+            self.pieces[pt] = self.pieces.get(pt, 0) + 1
+
+    def count(self, piece_type):
+        return self.pieces.get(piece_type, 0)
+
+    def reset(self):
+        self.pieces.clear()
+
+    def __str__(self):
+        return "".join(chess.PIECE_SYMBOLS[pt] * self.count(pt) for pt in reversed(chess.PIECE_TYPES))
+
+    def copy(self):
+        pocket = type(self)
+        pocket.pieces = copy.copy(self.pieces)
+        return pocket
+
+class CrazyhouseBoard(chess.Board):
+
+    aliases = ["Crazyhouse", "Crazy House", "House"]
+    uci_variant = "crazyhouse"
+    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+
+    tbw_suffix = tbz_suffix = None
+    tbw_magic = tbz_magic = None
+
+    def __init__(self, fen=starting_fen, chess960=False):
+        self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
+        super(CrazyhouseBoard, self).__init__(fen, chess960)
+
+    def reset_board(self):
+        super(CrazyhouseBoard, self).reset_board()
+        self.pockets[chess.WHITE].reset()
+        self.pockets[chess.BLACK].reset()
+
+    def clear_board(self):
+        super(CrazyhouseBoard, self).clear_board()
+        self.pockets[chess.WHITE].reset()
+        self.pockets[chess.BLACK].reset()
+
+    # TODO: zobrist_hash
+
+    # TODO: insufficient_material
+
+    def fen(self, promoted=True):
+        return super(CrazyhouseBoard, self).fen(promoted=promoted)
+
+    def shredder_fen(self, promoted=True):
+        return super(CrazyhouseBoard, self).shredder_fen(promoted=promoted)
+
+    def epd(self, shredder_fen=False, promoted=True, **operations):
+        epd = super(CrazyhouseBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted)
+        board_part, info_part = epd.split(" ", 1)
+        return "%s[%s%s] %s" % (board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
+
+    def copy(self, stack=True):
+        board = super(CrazyhouseBoard, self).copy(stack=stack)
+        board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
+        board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
 
 
 VARIANTS = [
@@ -566,7 +630,8 @@ VARIANTS = [
     KingOfTheHillBoard,
     RacingKingsBoard,
     HordeBoard,
-    ThreeCheckBoard
+    ThreeCheckBoard,
+    CrazyhouseBoard,
 ]
 
 
