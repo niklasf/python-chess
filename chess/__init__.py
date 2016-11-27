@@ -711,13 +711,14 @@ class Move(object):
     Represents a move from a square to a square and possibly the promotion
     piece type.
 
-    Null moves are supported.
+    Drops and null moves are supported.
     """
 
-    def __init__(self, from_square, to_square, promotion=None):
+    def __init__(self, from_square, to_square, promotion=None, drop=None):
         self.from_square = from_square
         self.to_square = to_square
         self.promotion = promotion
+        self.drop = drop
 
     def uci(self):
         """
@@ -728,7 +729,9 @@ class Move(object):
 
         The UCI representatin of null moves is ``0000``.
         """
-        if self.promotion:
+        if self.drop:
+            return PIECE_SYMBOLS[self.drop].upper() + "@" + SQUARE_NAMES[self.to_square]
+        elif self.promotion:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
         elif self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square]
@@ -736,7 +739,7 @@ class Move(object):
             return "0000"
 
     def __bool__(self):
-        return bool(self.from_square or self.to_square or self.promotion)
+        return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
     __nonzero__ = __bool__
 
@@ -751,6 +754,8 @@ class Move(object):
             elif self.to_square != other.to_square:
                 return True
             elif self.promotion != other.promotion:
+                return True
+            elif self.drop != other.drop:
                 return True
             else:
                 return False
@@ -786,11 +791,15 @@ class Move(object):
         """
         if uci == "0000":
             return cls.null()
+        elif "@" == uci[1]:
+            drop = PIECE_SYMBOLS.index(uci[0].lower())
+            square = SQUARE_NAMES.index(uci[2:])
+            return cls(square, square, drop=drop)
         elif len(uci) == 4:
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
         elif len(uci) == 5:
             promotion = PIECE_SYMBOLS.index(uci[4])
-            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion)
+            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion)
         else:
             raise ValueError("expected uci string to be of length 4 or 5: {0}".format(repr(uci)))
 
@@ -1815,6 +1824,10 @@ class Board(BaseBoard):
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
         if not move:
+            return False
+
+        # Drops are not pseudo legal.
+        if move.drop:
             return False
 
         # Source square must not be vacant.
