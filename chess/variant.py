@@ -608,6 +608,17 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
+    def push(self, move):
+        if move.drop:
+            self.pockets[self.turn].remove(move.drop)
+
+        return super(CrazyhouseBoard, self).push(move)
+
+    def pop(self):
+        move = super(CrazyhouseBoard, self).pop()
+        if move.drop:
+            self.pockets[self.turn].add(move.drop)
+
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
         king_square = chess.bit_scan(king_bb)
