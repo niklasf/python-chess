@@ -2887,6 +2887,13 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertEqual(board.epd(), "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3")
         self.assertEqual(extra["foo"], "bar")
 
+    def test_zobrist_hash(self):
+        board_a = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+3 0 1")
+        board_b = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+2 0 1")
+
+        # Check count differs.
+        self.assertNotEqual(board_a.zobrist_hash(), board_b.zobrist_hash())
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:

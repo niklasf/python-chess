@@ -428,6 +428,12 @@ class HordeBoard(chess.Board):
         return status
 
 
+THREE_CHECK_POLYGLOT_RANDOM_ARRAY = [
+    0x1d6dc0ee61ce803e, 0xc6284b653d38e96a,
+    0x803f5fb0d2f97fae, 0xb183ccc9e73df9ed,
+    0xfdeef11602d6b443, 0x1b0ce4198b3801a6,
+]
+
 class ThreeCheckBoard(chess.Board):
 
     aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
@@ -465,7 +471,21 @@ class ThreeCheckBoard(chess.Board):
     def is_insufficient_material(self):
         return self.occupied == self.kings
 
-    # TODO: zobrist hashing
+    def zobrist_hash(self, array=None, three_check_array=None):
+        zobrist_hash = super(ThreeCheckBoard, self).zobrist_hash(array)
+
+        if three_check_array is None:
+            three_check_array = THREE_CHECK_POLYGLOT_RANDOM_ARRAY
+
+        white_count = min(3, 3 - self.remaining_checks[chess.WHITE])
+        black_count = min(3, 3 - self.remaining_checks[chess.BLACK])
+
+        if white_count > 0:
+            zobrist_hash ^= three_check_array[black_count - 1]
+        if black_count > 0:
+            zobrist_hash ^= three_check_array[white_count + 2]
+
+        return zobrist_hash
 
     def set_epd(self, epd):
         # Split into 5 or 6 parts.
