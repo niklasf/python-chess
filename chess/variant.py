@@ -610,7 +610,7 @@ class CrazyhouseBoard(chess.Board):
 
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
-        king_square = bit_scan(our_king)
+        king_square = chess.bit_scan(our_king)
         if king_square is None or king_square == -1:
             return ~self.occupied
 
