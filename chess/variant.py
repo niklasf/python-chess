@@ -612,10 +612,14 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.BLACK].reset()
 
     def push(self, move):
+        hmvc = self.halfmove_clock
+
         if move.drop:
             self.pockets[self.turn].remove(move.drop)
 
-        return super(CrazyhouseBoard, self).push(move)
+        super(CrazyhouseBoard, self).push(move)
+
+        self.halfmove_clock = hmvc + 1
 
     def pop(self):
         move = super(CrazyhouseBoard, self).pop()
