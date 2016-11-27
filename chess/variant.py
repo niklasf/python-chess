@@ -580,8 +580,11 @@ class CrazyhousePocket(object):
     def __str__(self):
         return "".join(chess.PIECE_SYMBOLS[pt] * self.count(pt) for pt in reversed(chess.PIECE_TYPES))
 
+    def __repr__(self):
+        return "CrazyhousePocket('{0}')".format(str(self))
+
     def copy(self):
-        pocket = type(self)
+        pocket = type(self)()
         pocket.pieces = copy.copy(self.pieces)
         return pocket
 
