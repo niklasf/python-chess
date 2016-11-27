@@ -76,7 +76,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
 
     score = 0.0
 
-    print("%s:" % epd_string, end=" ")
+    print("%s:" % epd_string, end=" ", flush=True)
 
     for step in range(0, 3):
         time.sleep(movetime / 4000.0)
@@ -85,7 +85,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
         with info_handler as info:
             if 1 in info["pv"] and len(info["pv"][1]) >= 1:
                 move = info["pv"][1][0]
-                print("(%s)" % position.san(move), end=" ")
+                print("(%s)" % position.san(move), end=" ", flush=True)
                 if "am" in epd_info and move in epd_info["am"]:
                     continue #fail
                 elif "bm" in epd_info and not move in epd_info["bm"]:
@@ -93,7 +93,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
                 else:
                      score = 1.0 / (4 - step)
             else:
-                print("(no pv)", end=" ")
+                print("(no pv)", end=" ", flush=True)
 
     # Assess the final best move by the engine.
     time.sleep(movetime / 4000.0)
@@ -106,7 +106,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
     else:
          score = 1.0
 
-    print("%s | +%g" % (position.san(enginemove), score))
+    print("%s | +%g" % (position.san(enginemove), score), flush=True)
 
     engine.info_handlers.remove(info_handler)
     return score
