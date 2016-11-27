@@ -2898,6 +2898,14 @@ class ThreeCheckTestCase(unittest.TestCase):
 
 class CrazyhouseTestCase(unittest.TestCase):
 
+    def test_pawn_drop(self):
+        board = chess.variant.CrazyhouseBoard("r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 0 13")
+        P_at_e6 = chess.Move.from_uci("P@e6")
+        self.assertTrue(chess.E6 in board.legal_drop_squares())
+        self.assertTrue(P_at_e6 in board.generate_legal_moves())
+        self.assertTrue(board.is_pseudo_legal(P_at_e6))
+        self.assertTrue(board.is_legal(P_at_e6))
+
     def test_lichess_pgn(self):
         pgn = open("data/pgn/saturs-jannlee-zh-lichess.pgn")
         game = chess.pgn.read_game(pgn)
