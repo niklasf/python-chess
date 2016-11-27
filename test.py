@@ -2865,11 +2865,16 @@ class HordeTestCase(unittest.TestCase):
         self.assertFalse(any(board.generate_pseudo_legal_ep()))
 
 
-class ThreeCheckTest(unittest.TestCase):
+class ThreeCheckTestCase(unittest.TestCase):
 
     def test_get_fen(self):
         self.assertEqual(chess.variant.ThreeCheckBoard().fen(), chess.variant.ThreeCheckBoard.starting_fen)
         self.assertEqual(chess.variant.ThreeCheckBoard().epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+
+    def test_copy(self):
+        fen = "8/8/1K2p3/3qP2k/8/8/8/8 b - - 2+1 3 57"
+        board = chess.variant.ThreeCheckBoard(fen)
+        self.assertEqual(board.copy().fen(), fen)
 
 
 if __name__ == "__main__":
