@@ -247,15 +247,5 @@ class HordePerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 4), 23310)
 
 
-class CrazyhousePerftTestCase(unittest.TestCase):
-
-    def test_crazyhouse_start_position(self):
-        board = chess.variant.CrazyhouseBoard()
-        self.assertEqual(perft(board, 1), 20)
-        self.assertEqual(perft(board, 2), 400)
-        self.assertEqual(perft(board, 3), 8902)
-        self.assertEqual(perft(board, 4), 197281)
-
-
 if __name__ == "__main__":
     unittest.main()
