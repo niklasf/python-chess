@@ -507,6 +507,12 @@ class ThreeCheckBoard(chess.Board):
     def is_variant_win(self):
         return self.remaining_checks_co[self.turn] <= 0 and self.remaining_checks_co[not self.turn] > 0
 
+    def copy(self, stack=True):
+        board = super(ThreeCheckBoard, self).copy(stack=stack)
+        board.remaining_checks_co[chess.WHITE] = self.remaining_checks_co[chess.WHITE]
+        board.remaining_checks_co[chess.BLACK] = self.remaining_checks_co[chess.BLACK]
+        return board
+
 
 # TODO: Crazyhouse
 
