@@ -580,6 +580,9 @@ class CrazyhousePocket(object):
     def __str__(self):
         return "".join(chess.PIECE_SYMBOLS[pt] * self.count(pt) for pt in reversed(chess.PIECE_TYPES))
 
+    def __len__(self):
+        return sum(self.pieces.values())
+
     def __repr__(self):
         return "CrazyhousePocket('{0}')".format(str(self))
 
@@ -778,6 +781,19 @@ class CrazyhouseBoard(chess.Board):
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
         return board
+
+    def status(self):
+        status = super(CrazyhouseBoard, self).status()
+
+        if chess.pop_count(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
+            status &= ~chess.STATUS_TOO_MANY_BLACK_PAWNS
+            status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
+
+        if chess.pop_count(self.occupied) + len(self.pockets[chess.WHITE]) + len(self.pockets[chess.BLACK]) <= 32:
+            status &= ~chess.STATUS_TOO_MANY_BLACK_PIECES
+            status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
+
+        return status
 
 
 VARIANTS = [

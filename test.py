@@ -2915,6 +2915,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         final_board = game.end().board()
         self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
+        self.assertTrue(final_board.is_valid())
         pgn.close()
 
     def test_pawns_in_pocket(self):
