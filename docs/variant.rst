@@ -30,6 +30,7 @@ King of the Hill :class:`chess.variant.KingOfTheHillBoard` kingofthehill
 Racing Kings     :class:`chess.variant.RacingKingsBoard`   racingkings
 Horde            :class:`chess.variant.HordeBoard`         horde
 Three-check      :class:`chess.variant.ThreeCheckBoard`    threecheck
+Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
 ================ ========================================= ============= ============
 
 .. autofunction:: chess.variant.find_variant
