@@ -2878,8 +2878,8 @@ class ThreeCheckTestCase(unittest.TestCase):
 
     def test_lichess_fen(self):
         board = chess.variant.ThreeCheckBoard("8/8/1K2p3/3qP2k/8/8/8/8 b - - 3 57 +1+2")
-        self.assertEqual(board.remaining_checks_co[chess.WHITE], 2)
-        self.assertEqual(board.remaining_checks_co[chess.BLACK], 1)
+        self.assertEqual(board.remaining_checks[chess.WHITE], 2)
+        self.assertEqual(board.remaining_checks[chess.BLACK], 1)
 
     def test_set_epd(self):
         epd = "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3 foo \"bar\";"

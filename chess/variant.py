@@ -438,29 +438,29 @@ class ThreeCheckBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        self.remaining_checks_co = [3, 3]
+        self.remaining_checks = [3, 3]
         super(ThreeCheckBoard, self).__init__(fen, chess960)
 
     def reset_board(self):
         super(ThreeCheckBoard, self).reset_board()
-        self.remaining_checks_co[chess.WHITE] = 3
-        self.remaining_checks_co[chess.BLACK] = 3
+        self.remaining_checks[chess.WHITE] = 3
+        self.remaining_checks[chess.BLACK] = 3
 
     def clear_board(self):
         super(ThreeCheckBoard, self).clear_board()
-        self.remaining_checks_co[chess.WHITE] = 3
-        self.remaining_checks_co[chess.BLACK] = 3
+        self.remaining_checks[chess.WHITE] = 3
+        self.remaining_checks[chess.BLACK] = 3
 
     def push(self, move):
         super(ThreeCheckBoard, self).push(move)
         if self.is_check():
-            self.remaining_checks_co[not self.turn] -= 1
+            self.remaining_checks[not self.turn] -= 1
 
     def pop(self):
         was_in_check = self.is_check()
         move = super(ThreeCheckBoard, self).pop()
         if was_in_check:
-            self.remaining_checks_co[self.turn] += 1
+            self.remaining_checks[self.turn] += 1
 
     def is_insufficient_material(self):
         return self.occupied == self.kings
@@ -509,30 +509,30 @@ class ThreeCheckBoard(chess.Board):
 
         # Set fen.
         super(ThreeCheckBoard, self).set_fen(" ".join(parts))
-        self.remaining_checks_co[chess.WHITE] = wc
-        self.remaining_checks_co[chess.BLACK] = bc
+        self.remaining_checks[chess.WHITE] = wc
+        self.remaining_checks[chess.BLACK] = bc
 
     def epd(self, shredder_fen=False, promoted=False, **operations):
         epd = []
         epd.append(super(ThreeCheckBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted))
-        epd.append("%d+%d" % (max(self.remaining_checks_co[chess.WHITE], 0), max(self.remaining_checks_co[chess.BLACK], 0)))
+        epd.append("%d+%d" % (max(self.remaining_checks[chess.WHITE], 0), max(self.remaining_checks[chess.BLACK], 0)))
         if operations:
             epd.append(self._epd_operations(operations))
         return " ".join(epd)
 
     def is_variant_draw(self):
-        return self.remaining_checks_co[chess.WHITE] <= 0 and self.remaining_checks_co[chess.BLACK] <= 0
+        return self.remaining_checks[chess.WHITE] <= 0 and self.remaining_checks[chess.BLACK] <= 0
 
     def is_variant_loss(self):
-        return self.remaining_checks_co[not self.turn] <= 0 and self.remaining_checks_co[self.turn] > 0
+        return self.remaining_checks[not self.turn] <= 0 and self.remaining_checks[self.turn] > 0
 
     def is_variant_win(self):
-        return self.remaining_checks_co[self.turn] <= 0 and self.remaining_checks_co[not self.turn] > 0
+        return self.remaining_checks[self.turn] <= 0 and self.remaining_checks[not self.turn] > 0
 
     def copy(self, stack=True):
         board = super(ThreeCheckBoard, self).copy(stack=stack)
-        board.remaining_checks_co[chess.WHITE] = self.remaining_checks_co[chess.WHITE]
-        board.remaining_checks_co[chess.BLACK] = self.remaining_checks_co[chess.BLACK]
+        board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.WHITE]
+        board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.BLACK]
         return board
 
 
