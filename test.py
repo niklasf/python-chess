@@ -2910,7 +2910,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         pgn = open("data/pgn/saturs-jannlee-zh-lichess.pgn")
         game = chess.pgn.read_game(pgn)
         final_board = game.end().board()
-        self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 98 62")
+        self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
         pgn.close()
 
     def test_pawns_in_pocket(self):
@@ -2918,7 +2918,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         board.push_san("d4")
         board.push_san("exd4")
         board.push_san("cxd4")
-        self.assertEqual(board,fen(), "r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 25 13")
+        self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 25 13")
         board.push_san("@e6")
         self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnpp2p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPn] w - - 26 14")
 
