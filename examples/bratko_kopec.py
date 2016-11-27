@@ -28,11 +28,6 @@ import argparse
 import itertools
 import logging
 
-try:
-    from StringIO import StringIO  # Python 2
-except ImportError:
-    from io import StringIO  # Python 3
-
 
 def test_epd(engine, epd, VariantBoard, movetime):
     position = VariantBoard()
