@@ -1755,7 +1755,24 @@ class Board(BaseBoard):
 
     def pin(self, color, square):
         """
-        Detects pins of the given square to the king of the given color.
+        Detects an absolute pin (and its direction) of the given square to
+        the king of the given color.
+
+        >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
+        >>> board.is_pinned(chess.WHITE, chess.C3)
+        True
+        >>> direction = board.pin(chess.WHITE, chess.C3)
+        >>> direction
+        SquareSet(0b100000010000001000000100000010000)
+        >>> print(direction)
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        1 . . . . . . .
+        . 1 . . . . . .
+        . . 1 . . . . .
+        . . . 1 . . . .
+        . . . . 1 . . .
 
         Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
         file or diagonal of the pin. If there is no pin, then a mask of the
