@@ -160,25 +160,6 @@ Features
       . . . . . . 1 .
       . . . . . . 1 .
 
-* Detects absolute pins and their directions.
-
-  .. code:: python
-
-      >>> board.is_pinned(chess.BLACK, chess.E8)
-      True
-      >>> pin = board.pin(chess.BLACK, chess.E8)
-      >>> pin
-      SquareSet(0b1000000100000010000001000000000000000000000000000000000000000)
-      >>> print(pin)
-      . . . . 1 . . .
-      . . . . . 1 . .
-      . . . . . . 1 .
-      . . . . . . . 1
-      . . . . . . . .
-      . . . . . . . .
-      . . . . . . . .
-      . . . . . . . .
-
 * Parses and creates SAN representation of moves.
 
   .. code:: python
@@ -214,6 +195,8 @@ Features
       >>> ops = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
       >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
       True
+
+* Detects absolute `pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin`_.
 
 * Read Polyglot opening books.
   `Docs <https://python-chess.readthedocs.io/en/latest/polyglot.html>`__.
