@@ -2876,6 +2876,11 @@ class ThreeCheckTestCase(unittest.TestCase):
         board = chess.variant.ThreeCheckBoard(fen)
         self.assertEqual(board.copy().fen(), fen)
 
+    def test_lichess_fen(self):
+        board = chess.variant.ThreeCheckBoard("8/8/1K2p3/3qP2k/8/8/8/8 b - - 3 57 +1+2")
+        self.assertEqual(board.remaining_checks_co[chess.WHITE], 2)
+        self.assertEqual(board.remaining_checks_co[chess.BLACK], 1)
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
