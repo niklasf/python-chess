@@ -18,6 +18,7 @@
 
 import chess
 import copy
+import itertools
 
 
 class SuicideBoard(chess.Board):
@@ -606,6 +607,44 @@ class CrazyhouseBoard(chess.Board):
         super(CrazyhouseBoard, self).clear_board()
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
+
+    def legal_drop_mask(self):
+        return chess.BB_ALL
+
+    def is_pseudo_legal(self, move):
+        if move.drop and move.from_square == move.to_square:
+            if chess.BB_SQUARES[move.to_square] & self.occupied:
+                return False
+
+            if move.drop == chess.PAWN & chess.BB_BACKRANKS:
+                return False
+
+            return self.pockets[self.turn].count(move.drop) >= 0
+        else:
+            return super(CrazyhouseBoard, self).is_pseudo_legal(move)
+
+    def is_legal(self, move):
+        if move.drop:
+            return self.is_pseudo_legal(move) and self.legal_drop_mask() & chess.BB_SQUARES[move.to_square]
+        else:
+            return super(CrazyhouseBoard, self).is_legal(move)
+
+    def generate_pseudo_legal_drops(self, to_mask=chess.BB_ALL):
+        return
+        yield
+
+    def generate_legal_drops(self, to_mask=chess.BB_ALL):
+        return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_mask() & to_mask)
+
+    def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        return itertools.chain(
+            super(CrazyhouseBoard, self).generate_non_evasions(from_mask, to_mask),
+            self.generate_legal_drops(from_mask & to_mask))
+
+    def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        return itertools.chain(
+            super(CrazyhouseBoard, self).generate_evasions(from_mask, to_mask),
+            self.generate_legal_drops(from_mask & to_mask))
 
     # TODO: zobrist_hash
 

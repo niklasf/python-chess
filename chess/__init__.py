@@ -2697,6 +2697,13 @@ class Board(BaseBoard):
         is_checkmate = is_check and self.is_checkmate()
         self.pop()
 
+        # Drops.
+        is move.drop:
+            san = ""
+            if move.drop != PAWN:
+                san = PIECE_SYMBOLS[move.drop].upper()
+            san += "@" + SQUARE_NAMES[move.to_square]
+
         # Castling.
         if self.is_castling(move):
             if file_index(move.to_square) < file_index(move.from_square):
@@ -2704,6 +2711,7 @@ class Board(BaseBoard):
             else:
                 san = "O-O"
 
+        if move.drop or self.is_castling(move):
             if is_checkmate:
                 return san + "#"
             elif is_check:
