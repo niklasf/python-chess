@@ -618,6 +618,17 @@ class CrazyhouseBoard(chess.Board):
         move = super(CrazyhouseBoard, self).pop()
         if move.drop:
             self.pockets[self.turn].add(move.drop)
+        elif self.is_capture(move):
+            if chess.BB_SQUARES[move.to_square] & self.promoted:
+                self.pockets[self.turn].remove(chess.PAWN)
+            else:
+                self.pockets[self.turn].remove(self.piece_type_at(move.to_square))
+
+    def _push_capture(self, move, capture_square, piece_type):
+        if chess.BB_SQUARES[capture_square] & self.promoted:
+            self.pockets[self.turn].add(chess.PAWN)
+        else:
+            self.pockets[self.turn].add(piece_type)
 
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
