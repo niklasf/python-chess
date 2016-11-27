@@ -587,7 +587,7 @@ class CrazyhousePocket(object):
 
 class CrazyhouseBoard(chess.Board):
 
-    aliases = ["Crazyhouse", "Crazy House", "House"]
+    aliases = ["Crazyhouse", "Crazy House", "House", "ZH"]
     uci_variant = "crazyhouse"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 
@@ -703,6 +703,30 @@ class CrazyhouseBoard(chess.Board):
 
     def is_insufficient_material(self):
         return False
+
+    def set_fen(self, fen):
+        position_part, info_part = fen.split(None, 1)
+
+        # Transform to lichess-style ZH FEN.
+        if position_part.endswith("]"):
+            if position_part.count("/") != 7:
+                raise ValueError("expected 8 rows in position part of zh fen: {0}", format(repr(fen)))
+            position_part = position_part[:-1].replace("[", "/", 1)
+
+        # Split off pocket part.
+        if position_part.count("/") == 8:
+            position_part, pocket_part = position_part.rsplit("/", 1)
+        else:
+            pocket_part = ""
+
+        # Parse pocket.
+        white_pocket = CrazyhousePocket(c.lower() for c in pocket_part if c.isupper())
+        black_pocket = CrazyhousePocket(c for c in pocket_part if not c.isupper())
+
+        # Set FEN and pockets.
+        super(CrazyhouseBoard, self).set_fen(position_part + " " + info_part)
+        self.pockets[chess.WHITE] = white_pocket
+        self.pockets[chess.BLACK] = black_pocket
 
     def fen(self, promoted=True):
         return super(CrazyhouseBoard, self).fen(promoted=promoted)
