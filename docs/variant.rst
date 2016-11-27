@@ -41,7 +41,12 @@ UCI
 Stockfish and other engines allow you to switch variants by setting the
 ``UCI_Variant`` option.
 
->>> engine.setoption({"UCI_Variant": "atomic"})
+>>> board = chess.variant.RacingKingsBoard()
+>>> engine.setoption({
+...     "UCI_Variant": type(board).uci_variant,
+...     "UCI_Chess960": board.chess960
+... })
+>>> engine.position(board)
 
 Syzygy
 ------
