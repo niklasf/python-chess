@@ -467,6 +467,29 @@ class ThreeCheckBoard(chess.Board):
 
     # TODO: set FEN/EPD, zobrist hashing
 
+    def set_fen(self, fen):
+        parts = fen.split()
+        if len(parts) != 7:
+            raise ValueError("three-check fen should consist of 7 parts: {0}".format(repr(fen)))
+
+        # Extract check part.
+        if "+" in parts[6]:
+            raise ValueError("lichess three-check fens are not supported: {0}".format(repr(fen)))
+
+        check_part = parts.pop(4)
+
+        # Parse check part.
+        try:
+            w, b = check_part.split("+", 1)
+            wc, bc = int(w), int(b)
+        except ValueError:
+            raise ValueError("invalid check part in three-check fen: {0}".format(check_part))
+
+        # Set fen.
+        super(ThreeCheckBoard, self).set_fen(" ".join(parts))
+        self.remaining_checks_co[chess.WHITE] = wc
+        self.remaining_checks_co[chess.BLACK] = bc
+
     def epd(self, shredder_fen=False, promoted=False, **operations):
         epd = []
         epd.append(super(ThreeCheckBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted))
