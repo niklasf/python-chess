@@ -2084,15 +2084,18 @@ class Board(BaseBoard):
         """
         Updates the position with the given move and puts it onto a stack.
 
+        >>> Nf3 = chess.Move.from_uci("g1f3")
+        >>> board.push(Nf3) # Make the move
+
+        >>> board.pop() # Unmake the last move
+        Move.from_uci('g1f3')
+
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
 
-        No validation is performed. For performance moves are assumed to be at
-        least pseudo legal. Otherwise there is no guarantee that the previous
-        board state can be restored. To check it yourself you can use:
-
-        >>> move in board.pseudo_legal_moves
-        True
+        :warning: No validation is performed. For performance moves are assumed
+        to be at least pseudo legal. Otherwise there is no guarantee that the
+        previous board state can be restored.
         """
         move = self._to_chess960(move)
 
