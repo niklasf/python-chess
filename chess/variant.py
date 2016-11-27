@@ -631,7 +631,7 @@ class CrazyhouseBoard(chess.Board):
                 return chess.RANK_ATTACKS[king_bb][rank_pieces] & ~self.occupied & chess.RANK_ATTACKS[king_attackers][rank_pieces]
             elif king_file_mask == chess.FILE_MASK[king_attackers]:
                 file_pieces = king_file_mask & self.occupied
-                return chess.FILE_ATTACKS[king_bb][file_pieces] & ~self.occupied & FILE_ATTACKS[king_attackers][file_pieces]
+                return chess.FILE_ATTACKS[king_bb][file_pieces] & ~self.occupied & chess.FILE_ATTACKS[king_attackers][file_pieces]
             elif king_diag_ne == chess.DIAG_MASK_NE[king_attackers]:
                 ne_pieces = king_diag_ne & self.occupied
                 return chess.DIAG_ATTACKS_NE[king_bb][ne_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NE[king_attackers][ne_pieces]
