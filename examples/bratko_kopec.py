@@ -146,11 +146,10 @@ if __name__ == "__main__":
     count = 0
 
     for epd in itertools.chain(*args.epd):
-        print(epd.rstrip())
-
         # Skip comments and empty lines.
         epd = epd.strip()
         if not epd or epd.startswith("#") or epd.startswith("%"):
+            print(epd.rstrip())
             continue
 
         # Run the actual test.
