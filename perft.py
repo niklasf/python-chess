@@ -247,5 +247,13 @@ class HordePerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 4), 23310)
 
 
+class CrazyhousePerftTestCase(unittest.TestCase):
+
+    def test_all_drop_types(self):
+        board = chess.variant.CrazyhouseBoard("2k5/8/8/8/8/8/8/4K3[QRBNPqrbnp] w - - 0 1")
+        self.assertEqual(perft(board, 1), 301)
+        self.assertEqual(perft(board, 2), 75353)
+
+
 if __name__ == "__main__":
     unittest.main()
