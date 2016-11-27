@@ -2548,6 +2548,94 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
+    def _parse_epd_ops(self, operation_part, make_board):
+        operations = {}
+
+        if not operation_part:
+            return operations
+
+        operation_part += ";"
+
+        opcode = ""
+        operand = ""
+        in_operand = False
+        in_quotes = False
+        escape = False
+
+        position = None
+
+        for c in operation_part:
+            if not in_operand:
+                if c == ";":
+                    operations[opcode] = None
+                    opcode = ""
+                elif c == " ":
+                    if opcode:
+                        in_operand = True
+                else:
+                    opcode += c
+            else:
+                if c == "\"":
+                    if not operand and not in_quotes:
+                        in_quotes = True
+                    elif escape:
+                        operand += c
+                elif c == "\\":
+                    if escape:
+                        operand += c
+                    else:
+                        escape = True
+                elif c == "s":
+                    if escape:
+                        operand += ";"
+                    else:
+                        operand += c
+                elif c == ";":
+                    if escape:
+                        operand += "\\"
+
+                    if in_quotes:
+                        # A string operand.
+                        operations[opcode] = operand
+                    else:
+                        try:
+                            # An integer.
+                            operations[opcode] = int(operand)
+                        except ValueError:
+                            try:
+                                # A float.
+                                operations[opcode] = float(operand)
+                            except ValueError:
+                                if position is None:
+                                    position = make_board()
+                                if opcode == "pv":
+                                    # A variation.
+                                    operations[opcode] = []
+                                    for token in operand.split():
+                                        move = position.parse_san(token)
+                                        operations[opcode].append(move)
+                                        position.push(move)
+
+                                    # Reset the position.
+                                    while position.move_stack:
+                                        position.pop()
+                                elif opcode in ("bm", "am"):
+                                    # A set of moves.
+                                    operations[opcode] = [position.parse_san(token) for token in operand.split()]
+                                else:
+                                    # A single move.
+                                    operations[opcode] = position.parse_san(operand)
+
+                    opcode = ""
+                    operand = ""
+                    in_operand = False
+                    in_quotes = False
+                    escape = False
+                else:
+                    operand += c
+
+        return operations
+
     def set_epd(self, epd):
         """
         Parses the given EPD string and uses it to set the position.
@@ -2565,91 +2653,11 @@ class Board(BaseBoard):
         if len(parts) < 4:
             raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
 
-        operations = {}
-
-        # Parse the operations.
+        # Parse ops.
         if len(parts) > 4:
-            operation_part = parts.pop()
-            operation_part += ";"
-
-            opcode = ""
-            operand = ""
-            in_operand = False
-            in_quotes = False
-            escape = False
-
-            position = None
-
-            for c in operation_part:
-                if not in_operand:
-                    if c == ";":
-                        operations[opcode] = None
-                        opcode = ""
-                    elif c == " ":
-                        if opcode:
-                            in_operand = True
-                    else:
-                        opcode += c
-                else:
-                    if c == "\"":
-                        if not operand and not in_quotes:
-                            in_quotes = True
-                        elif escape:
-                            operand += c
-                    elif c == "\\":
-                        if escape:
-                            operand += c
-                        else:
-                            escape = True
-                    elif c == "s":
-                        if escape:
-                            operand += ";"
-                        else:
-                            operand += c
-                    elif c == ";":
-                        if escape:
-                            operand += "\\"
-
-                        if in_quotes:
-                            # A string operand.
-                            operations[opcode] = operand
-                        else:
-                            try:
-                                # An integer.
-                                operations[opcode] = int(operand)
-                            except ValueError:
-                                try:
-                                    # A float.
-                                    operations[opcode] = float(operand)
-                                except ValueError:
-                                    if position is None:
-                                        position = type(self)(" ".join(parts + ["0", "1"]))
-
-                                    if opcode == "pv":
-                                        # A variation.
-                                        operations[opcode] = []
-                                        for token in operand.split():
-                                            move = position.parse_san(token)
-                                            operations[opcode].append(move)
-                                            position.push(move)
-
-                                        # Reset the position.
-                                        while position.move_stack:
-                                            position.pop()
-                                    elif opcode in ("bm", "am"):
-                                        # A set of moves.
-                                        operations[opcode] = [position.parse_san(token) for token in operand.split()]
-                                    else:
-                                        # A single move.
-                                        operations[opcode] = position.parse_san(operand)
-
-                        opcode = ""
-                        operand = ""
-                        in_operand = False
-                        in_quotes = False
-                        escape = False
-                    else:
-                        operand += c
+            operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts) + " 0 1"))
+        else:
+            operations = {}
 
         # Create a full FEN and parse it.
         parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")

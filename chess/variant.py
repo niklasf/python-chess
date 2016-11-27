@@ -467,6 +467,25 @@ class ThreeCheckBoard(chess.Board):
 
     # TODO: set FEN/EPD, zobrist hashing
 
+    def set_epd(self, epd):
+        # Split into 5 or 6 parts.
+        parts = epd.strip().rstrip(";").split(None, 5)
+        if len(parts) < 5:
+            raise ValueError("three-check epd should consist of at least 5 parts: {0}".format(repr(epd)))
+
+        # Parse ops.
+        if len(parts) > 5:
+            operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts + " 0 1")))
+        else:
+            operations = {}
+
+        # Create a full FEN an parse it.
+        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
+        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
+        self.set_fen(" ".join(parts))
+
+        return operations
+
     def set_fen(self, fen):
         parts = fen.split()
         if len(parts) != 7:

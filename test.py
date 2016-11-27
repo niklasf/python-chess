@@ -2881,6 +2881,12 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertEqual(board.remaining_checks_co[chess.WHITE], 2)
         self.assertEqual(board.remaining_checks_co[chess.BLACK], 1)
 
+    def test_set_epd(self):
+        epd = "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3 foo \"bar\";"
+        board, extra = chess.variant.ThreeCheckBoard.from_epd(epd)
+        self.assertEqual(board.epd(), "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3")
+        self.assertEqual(extra["foo"], "bar")
+
 
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
