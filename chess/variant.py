@@ -465,7 +465,7 @@ class ThreeCheckBoard(chess.Board):
     def is_insufficient_material(self):
         return self.occupied == self.kings
 
-    # TODO: set FEN/EPD, zobrist hashing
+    # TODO: zobrist hashing
 
     def set_epd(self, epd):
         # Split into 5 or 6 parts.
