@@ -630,8 +630,13 @@ class CrazyhouseBoard(chess.Board):
             return super(CrazyhouseBoard, self).is_legal(move)
 
     def generate_pseudo_legal_drops(self, to_mask=chess.BB_ALL):
-        return
-        yield
+        to_mask = to_mask & ~self.occupied
+        to_square = chess.bit_scan(to_mask)
+        while to_square != -1 and to_square is not None:
+            for pt, count in self.pockets[self.turn].pieces.items():
+                if count:
+                    yield chess.Move(to_square, to_square, drop=pt)
+            to_square = chess.bit_scan(to_mask, to_square + 1)
 
     def generate_legal_drops(self, to_mask=chess.BB_ALL):
         return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_mask() & to_mask)
