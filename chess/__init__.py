@@ -2111,6 +2111,14 @@ class Board(BaseBoard):
             self.ep_square = 0
             return
 
+        # Drops.
+        if move.drop:
+            self._set_piece_at(move.to_square, move.drop, self.turn)
+            self.turn = not self.turn
+            self.halfmove_clock += 1
+            self.ep_square = 0
+            return
+
         promoted = self.promoted & BB_SQUARES[move.from_square]
         captured_piece_type = self.piece_type_at(move.to_square)
         captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
