@@ -72,8 +72,14 @@ Features
 --------
 
 * Supports Python 2.6+, Python 3.3+ and PyPy.
-* IPython notebook integration. `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
-* Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic, King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse. `Variant docs <https://python-chess.readthedocs.io/en/latest/variant.html>`_.
+
+* IPython notebook integration.
+  `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
+
+* Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic,
+  King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse.
+  `Variant docs <https://python-chess.readthedocs.io/en/latest/variant.html>`_.
+
 * Make and unmake moves.
 
   .. code:: python
