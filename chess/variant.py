@@ -559,11 +559,16 @@ class ThreeCheckBoard(chess.Board):
 
 class CrazyhousePocket(object):
 
-    def __init__(self, symbols):
+    def __init__(self, symbols=""):
         self.pieces = {}
         for symbol in symbols:
-            pt = chess.PIECE_SYMBOLS.index(symbol)
-            self.pieces[pt] = self.pieces.get(pt, 0) + 1
+            self.add(chess.PIECE_SYMBOLS.index(symbol))
+
+    def add(self, pt):
+        self.pieces[pt] = self.pieces.get(pt, 0) + 1
+
+    def remove(self, pt):
+        self.pieces[pt] -= 1
 
     def count(self, piece_type):
         return self.pieces.get(piece_type, 0)
