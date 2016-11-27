@@ -612,14 +612,10 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.BLACK].reset()
 
     def push(self, move):
-        hmvc = self.halfmove_clock
-
         if move.drop:
             self.pockets[self.turn].remove(move.drop)
 
         super(CrazyhouseBoard, self).push(move)
-
-        self.halfmove_clock = hmvc + 1
 
     def pop(self):
         move = super(CrazyhouseBoard, self).pop()
@@ -641,6 +637,9 @@ class CrazyhouseBoard(chess.Board):
         return False
 
     def is_seventyfive_moves(self):
+        return False
+
+    def is_zeroing(self, move):
         return False
 
     def legal_drop_squares_mask(self):
