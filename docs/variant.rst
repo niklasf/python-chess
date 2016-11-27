@@ -35,6 +35,14 @@ Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
 
 .. autofunction:: chess.variant.find_variant
 
+Chess960
+--------
+
+Chess960 is orthogonal to all other variants.
+
+>>> chess.Board(chess960=True)
+... Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', chess960=True)
+
 UCI
 ---
 
