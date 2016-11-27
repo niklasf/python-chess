@@ -254,12 +254,12 @@ class CrazyhousePerftTestCase(unittest.TestCase):
         self.assertEqual(perft(board, 1), 301)
         self.assertEqual(perft(board, 2), 75353)
 
-    def test_queen_drops(self):
-        board = chess.variant.CrazyhouseBoard("2k5/8/8/8/8/8/8/4K3[Qq] w - - 0 1")
+    def test_drops(self):
+        board = chess.variant.CrazyhouseBoard("2k5/8/8/8/8/8/8/4K3[Qn] w - - 0 1")
         self.assertEqual(perft(board, 1), 67)
         self.assertEqual(perft(board, 2), 3083)
-        self.assertEqual(perft(board, 3), 65994)
-        self.assertEqual(perft(board, 4), 1464939)
+        self.assertEqual(perft(board, 3), 88634)
+        self.assertEqual(perft(board, 4), 932554)
 
 
 if __name__ == "__main__":
