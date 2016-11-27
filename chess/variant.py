@@ -674,7 +674,7 @@ class CrazyhouseBoard(chess.Board):
             if chess.BB_SQUARES[move.to_square] & self.occupied:
                 return False
 
-            if move.drop == chess.PAWN & chess.BB_BACKRANKS:
+            if move.drop == chess.PAWN and chess.BB_SQUARES[move.to_square] & chess.BB_BACKRANKS:
                 return False
 
             return self.pockets[self.turn].count(move.drop) >= 0
