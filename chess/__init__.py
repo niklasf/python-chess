@@ -2125,7 +2125,7 @@ class Board(BaseBoard):
 
         # Update half move counter.
         piece_type = self.piece_type_at(move.from_square)
-        if piece_type == PAWN or (captured_piece_type and captured_color != self.turn):
+        if self.is_zeroing(move):
             self.halfmove_clock = 0
         else:
             self.halfmove_clock += 1
