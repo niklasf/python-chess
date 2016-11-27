@@ -206,7 +206,7 @@ Features
       >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
       True
 
-* Detects absolute `pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin`_.
+* Detects absolute `pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin>`_.
 
 * Read Polyglot opening books.
   `Docs <https://python-chess.readthedocs.io/en/latest/polyglot.html>`__.
