@@ -2698,7 +2698,7 @@ class Board(BaseBoard):
         self.pop()
 
         # Drops.
-        is move.drop:
+        if move.drop:
             san = ""
             if move.drop != PAWN:
                 san = PIECE_SYMBOLS[move.drop].upper()
