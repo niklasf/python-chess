@@ -246,7 +246,7 @@ class AtomicBoard(chess.Board):
 
         return False
 
-    def _push_capture(self, move, capture_square, piece_type):
+    def _push_capture(self, move, capture_square, piece_type, was_promoted):
         # Explode the capturing piece.
         self._remove_piece_at(move.to_square)
 
@@ -631,8 +631,8 @@ class CrazyhouseBoard(chess.Board):
             else:
                 self.pockets[self.turn].remove(self.piece_type_at(move.to_square))
 
-    def _push_capture(self, move, capture_square, piece_type):
-        if chess.BB_SQUARES[capture_square] & self.promoted:
+    def _push_capture(self, move, capture_square, piece_type, was_promoted):
+        if was_promoted:
             self.pockets[self.turn].add(chess.PAWN)
         else:
             self.pockets[self.turn].add(piece_type)
