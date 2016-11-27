@@ -765,6 +765,7 @@ class CrazyhouseBoard(chess.Board):
         board = super(CrazyhouseBoard, self).copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
+        return board
 
 
 VARIANTS = [
