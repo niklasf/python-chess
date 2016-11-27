@@ -51,8 +51,6 @@ and handling of common formats. This is the scholars mate in python-chess:
     >>> board
     Board('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
 
-.. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
-
 Documentation
 -------------
 
@@ -75,6 +73,12 @@ Features
 
 * IPython notebook integration.
   `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
+
+  .. code:: python
+
+      >>> board  # doctest: +SKIP
+
+  .. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
 
 * Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic,
   King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse.
