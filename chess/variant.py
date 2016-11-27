@@ -646,6 +646,9 @@ class CrazyhouseBoard(chess.Board):
 
     def is_pseudo_legal(self, move):
         if move.drop and move.from_square == move.to_square:
+            if move.drop == chess.KING:
+                return False
+
             if chess.BB_SQUARES[move.to_square] & self.occupied:
                 return False
 
@@ -686,7 +689,20 @@ class CrazyhouseBoard(chess.Board):
 
     # TODO: zobrist_hash
 
-    # TODO: insufficient_material
+    def parse_san(self, san):
+        if "@" in san:
+            uci = san.rstrip("+# ")
+            if uci[0] == "@":
+                uci = "P" + uci
+            move = chess.Move.from_uci(uci)
+            if not self.is_legal(move):
+                raise ValueError("illegal drop san: {0}".format(repr(san)))
+            return move
+        else:
+            return super(CrazyhouseBoard, self).parse_san(san)
+
+    def is_insufficient_material(self):
+        return False
 
     def fen(self, promoted=True):
         return super(CrazyhouseBoard, self).fen(promoted=promoted)
