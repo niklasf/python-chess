@@ -1161,6 +1161,9 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("1n1R2k1/2b1qpp1/p3p2p/1p6/1P2Q2P/4PNP1/P4PB1/6K1 b - - 0 1")
         self.assertFalse(board.is_pinned(chess.BLACK, chess.B8))
 
+        # The empty square e8 would be considered pinned.
+        self.assertTrue(board.is_pinned(chess.BLACK, chess.E8))
+
     def test_impossible_en_passant(self):
         # Not a pawn there.
         board = chess.Board("1b1b4/8/b1P5/2kP4/8/2b4K/8/8 w - c6 0 1")
