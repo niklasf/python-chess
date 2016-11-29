@@ -21,6 +21,7 @@ import chess
 import os
 import setuptools
 import sys
+import platform
 
 
 def read_description():
@@ -53,10 +54,29 @@ def dependencies():
 
     if sys.version_info < (2, 7):
         deps.append("backport_collections")
-        deps.append("unittest2")
+
+    return deps
+
+def extra_dependencies():
+    extras = {}
 
     if sys.version_info < (3, 2):
-        deps.append("futures")
+        extras["uci"] = ["futures"]
+
+    if sys.version_info < (3, 3):
+        extras["gaviota"] = ["backports.lzma"]
+
+    return extras
+
+
+def test_dependencies():
+    deps = [dep for extra in extra_dependencies().values() for dep in extra]
+
+    if sys.version_info < (2, 7):
+        deps.append("unittest2")
+
+    if platform.python_implementation() == "CPython":
+        deps.append("spur")
 
     return deps
 
@@ -74,6 +94,8 @@ setuptools.setup(
     packages=["chess"],
     test_suite="test",
     install_requires=dependencies(),
+    extras_require=extra_dependencies(),
+    tests_require=test_dependencies(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
