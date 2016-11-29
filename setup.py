@@ -59,6 +59,8 @@ def dependencies():
 
 def extra_dependencies():
     extras = {}
+    extras["uci"] = []
+    extras["gaviota"] = []
 
     if sys.version_info < (3, 2):
         extras["uci"] = ["futures"]
