@@ -41,8 +41,7 @@ before_install:
  - cd ../..
 install:
  - pip install requests[security] coverage coveralls
- - python setup.py test -nv
- - python setup.py install
+ - python setup.py develop
 script:
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py --verbose; fi
