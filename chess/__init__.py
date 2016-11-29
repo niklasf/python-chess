@@ -1730,8 +1730,6 @@ class Board(BaseBoard):
         king = self.kings & self.occupied_co[color]
         sliders = self.rooks | self.bishops | self.queens
 
-        mask = BB_ALL
-
         square_attackers = self.attackers_mask(not color, square)
 
         for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
@@ -1747,13 +1745,13 @@ class Board(BaseBoard):
 
                     pieces = direction_masks[king] & self.occupied & ~square_mask
                     if attack_table[attacker][occupancy & ~square_mask] & king and not attack_table[attacker][occupancy] & king:
-                        mask = direction_masks[king]
+                        return direction_masks[king]
 
                     attackers = attackers & (attackers - 1)
 
                 break
 
-        return mask
+        return BB_ALL
 
     def pin(self, color, square):
         """
