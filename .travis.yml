@@ -39,6 +39,8 @@ before_install:
  - cd ../..
 install:
  - pip install coverage coveralls
+ - python -c "import platform; import sys; sys.exit(not (platform.python_implementation() != 'CPython'))" || pip install spur
+ - python -c "import sys; sys.exit(not (sys.version_info < (3,3)))" || pip install backports.lzma
  - python setup.py install
 script:
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
