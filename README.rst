@@ -362,14 +362,7 @@ Download and install the latest release:
 
 ::
 
-    pip install python-chess
-
-Install from the repository:
-
-::
-
-    python setup.py install
-
+    pip install python-chess[uci,gaviota]
 
 Selected use cases
 ------------------
