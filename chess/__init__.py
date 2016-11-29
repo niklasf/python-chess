@@ -1740,11 +1740,13 @@ class Board(BaseBoard):
                                               (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
             if direction_masks[square_mask] & direction_masks[king] & square_attackers:
                 attackers = direction_masks[king] & square_attackers & sliders
+                occupancy = direction_masks[king] & self.occupied
+
                 while attackers:
                     attacker = attackers & -attackers
 
                     pieces = direction_masks[king] & self.occupied & ~square_mask
-                    if attack_table[attacker][pieces] & king:
+                    if attack_table[attacker][occupancy & ~square_mask] & king and not attack_table[attacker][occupancy] & king:
                         mask = direction_masks[king]
 
                     attackers = attackers & (attackers - 1)
