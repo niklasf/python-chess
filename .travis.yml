@@ -6,6 +6,12 @@ python:
  - "3.3"
  - "3.4"
  - "3.5"
+ - "pypy"
+ - "pypy3"
+matrix:
+  include:
+   - python: "pypy"
+     env: PERFT=1
 addons:
   apt:
     packages:
@@ -31,5 +37,12 @@ before_install:
  - cd data/gaviota
  - wget --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
  - cd ../..
-install: pip install tox-travis
-script: tox
+install:
+ - pip install coverage coveralls
+ - python setup.py install
+script:
+ - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py --verbose; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append -m doctest README.rst --verbose; fi
+ - if [[ $PERFT -ne 1 ]]; then coveralls; fi
+ - if [[ $PERFT -eq 1 ]]; then python perft.py --verbose; fi
