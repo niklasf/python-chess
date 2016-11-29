@@ -39,7 +39,7 @@ before_install:
  - cd ../..
 install:
  - pip install coverage coveralls
- - python setup.pv test -nv
+ - python setup.py test -nv
  - python setup.py install
 script:
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
