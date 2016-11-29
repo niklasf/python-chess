@@ -1156,6 +1156,11 @@ class BoardTestCase(unittest.TestCase):
 
         self.assertEqual(board.pin(chess.WHITE, chess.D2), chess.BB_E1 | chess.BB_D2 | chess.BB_C3 | chess.BB_B4 | chess.BB_A5)
 
+    def test_pin_in_check(self):
+        # The knight on the eighth rank is on the outer side of the rank attack.
+        board = chess.Board("1n1R2k1/2b1qpp1/p3p2p/1p6/1P2Q2P/4PNP1/P4PB1/6K1 b - - 0 1")
+        self.assertFalse(board.is_pinned(chess.BLACK, chess.B8))
+
     def test_impossible_en_passant(self):
         # Not a pawn there.
         board = chess.Board("1b1b4/8/b1P5/2kP4/8/2b4K/8/8 w - c6 0 1")
