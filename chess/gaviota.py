@@ -2272,6 +2272,6 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
         try:
             from backports import lzma
         except ImportError:
-            LOGGER.exception("You should install backports.lzma")
+            raise ImportError("chess.gaviota requires backports.lzma or libgtb")
 
     return PythonTablebases(directory, lzma)

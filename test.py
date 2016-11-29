@@ -2667,7 +2667,10 @@ class NativeGaviotaTestCase(unittest.TestCase):
 class GaviotaTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
+        try:
+            self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
+        except ImportError as err:
+            self.skipTest(str(err))
 
     def tearDown(self):
         self.tablebases.close()
