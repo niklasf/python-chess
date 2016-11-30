@@ -24,7 +24,6 @@ import chess.uci
 import chess.syzygy
 import chess.gaviota
 import chess.variant
-import doctest
 import os.path
 import textwrap
 import sys
@@ -2956,13 +2955,6 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2~q1K3[r] w - - 1 2")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
-
-
-class DocTest(unittest.TestCase):
-
-    def test_readme(self):
-        fail, total = doctest.testfile("README.rst", verbose="-v" in sys.argv or "--verbose" in sys.argv)
-        self.assertEqual(fail, 0)
 
 
 if __name__ == "__main__":
