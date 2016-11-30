@@ -3125,19 +3125,16 @@ class Board(BaseBoard):
         Checks if the given side has kingside (that is h-side in Chess960)
         castling rights.
         """
-        king_mask = self.kings & self.occupied_co[color]
+        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+        king_mask = self.kings & self.occupied_co[color] & backrank & ~self.promoted
         if not king_mask:
             return False
-
-        king_file = file_index(bit_scan(king_mask))
-        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
         castling_rights = self.clean_castling_rights() & backrank
         while castling_rights:
             rook = castling_rights & -castling_rights
-            rook_file = file_index(bit_scan(rook))
 
-            if rook_file > king_file:
+            if rook > king_mask:
                 return True
 
             castling_rights = castling_rights & (castling_rights - 1)
@@ -3149,19 +3146,16 @@ class Board(BaseBoard):
         Checks if the given side has queenside (that is a-side in Chess960)
         castling rights.
         """
-        king_mask = self.kings & self.occupied_co[color]
+        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
+        king_mask = self.kings & self.occupied_co[color] & backrank & ~self.promoted
         if not king_mask:
             return False
-
-        king_file = file_index(bit_scan(king_mask))
-        backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
         castling_rights = self.clean_castling_rights() & backrank
         while castling_rights:
             rook = castling_rights & -castling_rights
-            rook_file = file_index(bit_scan(rook))
 
-            if rook_file < king_file:
+            if rook < king_mask:
                 return True
 
             castling_rights = castling_rights & (castling_rights - 1)
