@@ -267,23 +267,6 @@ Features
       g3
       Nd3#
 
-      >>> # Use a visitor to do the same task.
-      >>> class PrintSanVisitor(chess.pgn.BaseVisitor):
-      ...     def visit_move(self, board, move):
-      ...         print(board.san(move))
-      ...
-      >>> first_game.accept(PrintSanVisitor())
-      e4
-      c5
-      c4
-      Nc6
-      Ne2
-      Nf6
-      Nbc3
-      Nb4
-      g3
-      Nd3#
-
       >>> first_game.headers["Result"]
       '0-1'
 
