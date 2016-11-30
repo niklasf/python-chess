@@ -2642,6 +2642,9 @@ class SyzygyTestCase(unittest.TestCase):
 class NativeGaviotaTestCase(unittest.TestCase):
 
     def setUp(self):
+        if platform.python_implementation() != "CPython":
+            self.skipTest("need CPython for native Gaviota")
+
         try:
             self.tablebases = chess.gaviota.open_tablebases_native("data/gaviota")
         except (OSError, RuntimeError):
