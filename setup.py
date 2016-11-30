@@ -59,14 +59,17 @@ def dependencies():
 
 def extra_dependencies():
     extras = {}
-    extras["uci"] = []
-    extras["gaviota"] = []
 
     if sys.version_info < (3, 2):
         extras["uci"] = ["futures"]
+    else:
+        extras["uci"] = []
 
-    if sys.version_info < (3, 3):
-        extras["gaviota"] = ["backports.lzma"]
+    if platform.python_implementation() == "CPython":
+        if sys.version_info < (3, 3):
+            extras["gaviota"] = ["backports.lzma"]
+        else:
+            extras["gaviota"] = []
 
     return extras
 

@@ -290,19 +290,6 @@ Features
 * Probe Gaviota endgame tablebases (DTM, WDL).
   `Docs <https://python-chess.readthedocs.io/en/latest/gaviota.html>`__.
 
-  .. code:: python
-
-      >>> import chess.gaviota
-
-      >>> tablebases = chess.gaviota.open_tablebases("data/gaviota")
-
-      >>> # White to move mates in 31 half moves in this KRvK endgame.
-      >>> board = chess.Board("8/8/8/8/4k3/8/6R1/7K w - - 0 1")
-      >>> tablebases.probe_dtm(board)
-      31
-
-      >>> tablebases.close()
-
 * Probe Syzygy endgame tablebases (DTZ, WDL).
   `Docs <https://python-chess.readthedocs.io/en/latest/syzygy.html>`__.
 
