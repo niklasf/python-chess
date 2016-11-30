@@ -540,8 +540,8 @@ class BaseVisitor(object):
         raise error
 
     def result(self):
-        """Called to get the result of the visitor. Defaults to ``None``."""
-        return None
+        """Called to get the result of the visitor. Defaults to ``True``."""
+        return True
 
 
 class GameModelCreator(BaseVisitor):
@@ -551,14 +551,10 @@ class GameModelCreator(BaseVisitor):
 
     def __init__(self):
         self.game = Game()
-        self.found_game = False
 
         self.variation_stack = collections.deque([self.game])
         self.starting_comment = ""
         self.in_variation = False
-
-    def begin_game(self):
-        self.found_game = True
 
     def visit_header(self, tagname, tagvalue):
         self.game.headers[tagname] = tagvalue
@@ -604,7 +600,7 @@ class GameModelCreator(BaseVisitor):
         Returns a :class:`~chess.pgn.Game()` or ``None`` if no game was
         encountered.
         """
-        return self.game if self.found_game else None
+        return self.game
 
 
 class StringExporter(BaseVisitor):
@@ -809,8 +805,7 @@ def read_game(handle, Visitor=GameModelCreator):
         if not found_game:
             visitor.begin_game()
             visitor.begin_headers()
-
-        found_game = True
+            found_game = True
 
         # Read header tags.
         tag_match = TAG_REGEX.match(line)
@@ -844,8 +839,9 @@ def read_game(handle, Visitor=GameModelCreator):
         if not line.strip() and found_content:
             if found_game:
                 visitor.end_game()
-
-            return visitor.result()
+                return visitor.result()
+            else:
+                return
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
@@ -940,8 +936,7 @@ def read_game(handle, Visitor=GameModelCreator):
 
     if found_game:
         visitor.end_game()
-
-    return visitor.result()
+        return visitor.result()
 
 
 def scan_headers(handle):
