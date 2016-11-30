@@ -1,0 +1,6 @@
+id atomic-start
+epd rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
+perft 1 20
+perft 2 400
+perft 3 8902
+perft 4 197326

@@ -1,0 +1,6 @@
+id horde-start
+epd rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq -
+perft 1 8
+perft 2 128
+perft 3 1274
+perft 4 23310

@@ -1,0 +1,11 @@
+id zh-all-drop-types
+epd 2k5/8/8/8/8/8/8/4K3[QRBNPqrbnp] w - -
+perft 1 301
+perft 2 75353
+
+id zh-drops
+epd 2k5/8/8/8/8/8/8/4K3[Qn] w - -
+perft 1 67
+perft 2 3083
+perft 3 88634
+perft 4 932554

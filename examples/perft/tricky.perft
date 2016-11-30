@@ -1,0 +1,79 @@
+#
+# Source: https://chessprogramming.wikispaces.com/Perft+Results
+#
+
+# Position 2: Kiwipete by Peter McKenzie.
+id pos-2
+epd r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
+perft 1 48
+perft 2 2039
+perft 3 97862
+
+# Position 3.
+id pos-3
+epd 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -
+perft 1 14
+perft 2 191
+perft 3 2812
+perft 4 43238
+
+# Position 4 (mirrored).
+id pos-4
+epd r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ -
+perft 1 6
+perft 2 264
+perft 3 9467
+
+# Position 5: http://www.talkchess.com/forum/viewtopic.php?t=42463
+id pos-5
+epd rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ -
+perft 1 44
+perft 2 1486
+perft 3 62379
+
+# Position 6 by Steven Edwards.
+id pos-6
+epd r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - -
+perft 1 46
+perft 2 2079
+perft 3 89890
+
+
+#
+# Source: http://www.talkchess.com/forum/viewtopic.php?t=55274
+#
+
+id xfen-00
+epd r1k1r2q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K1R2Q w KQkq -
+perft 1 23
+perft 2 522
+perft 3 12333
+perft 4 285754
+
+id xfen-01
+epd r1k2r1q/p1ppp1pp/8/8/8/8/P1PPP1PP/R1K2R1Q w KQkq -
+perft 1 28
+perft 2 738
+perft 3 20218
+perft 4 541480
+
+id xfen-02
+epd 8/8/8/4B2b/6nN/8/5P2/2R1K2k w Q -
+perft 1 34
+perft 2 318
+perft 3 9002
+perft 4 118388
+
+id xfen-03
+epd 2r5/8/8/8/8/8/6PP/k2KR3 w K -
+perft 1 17
+perft 2 242
+perft 3 3931
+perft 4 57700
+
+id xfen-04
+epd 4r3/3k4/8/8/8/8/6PP/qR1K1R2 w KQ -
+perft 1 19
+perft 2 628
+perft 3 12858
+perft 4 405636

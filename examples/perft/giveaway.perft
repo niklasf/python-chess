@@ -1,0 +1,6 @@
+id giveaway-start
+epd rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - -
+perft 1 20
+perft 2 400
+perft 3 8067
+perft 4 153299
