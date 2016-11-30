@@ -45,10 +45,10 @@ script:
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py --verbose; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess -m doctest README.rst --verbose; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py examples/perft/random.perft --max-nodes 10000; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py examples/perft/tricky.perft; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py --variant giveaway examples/perft/giveaway.perft; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py --variant atomic examples/perft/atomic.perft; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py --variant racingkings examples/perft/racingkings.perft; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py --variant horde examples/perft/horde.perft; fi
- - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py --variant crazyhouse examples/perft/crazyhouse.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/tricky.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft; fi
+ - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft; fi

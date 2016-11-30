@@ -35,7 +35,7 @@ def perft(depth, board):
         return 1
 
 
-def parallel_perft(depth, board, pool):
+def parallel_perft(pool, depth, board):
     if board.is_variant_win() or board.is_variant_draw() or board.is_variant_loss():
         return 1
     elif depth > 1:
@@ -59,7 +59,7 @@ def sdiv(a, b):
         return float("Inf")
 
 
-def main(perft_file, VariantBoard, pool, max_depth, max_nodes):
+def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
     current_id = None
     board = VariantBoard(chess960=True)
     column = 0
@@ -82,7 +82,7 @@ def main(perft_file, VariantBoard, pool, max_depth, max_nodes):
             if (max_depth and depth > max_depth) or (max_nodes and nodes > max_nodes):
                 continue
 
-            perft_nodes = parallel_perft(depth, board, pool)
+            perft_nodes = perft_f(depth, board)
             if nodes != perft_nodes:
                 print()
                 print()
@@ -123,8 +123,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     VariantBoard = chess.variant.find_variant(args.variant)
-    pool = multiprocessing.Pool(args.threads)
+
+    if args.threads == 1:
+        perft_f = perft
+    else:
+        pool = multiprocessing.Pool(args.threads)
+        perft_f = functools.partial(parallel_perft, pool)
 
     for perft_file in args.perft:
         print("###", perft_file.name)
-        main(perft_file, VariantBoard, pool, args.max_depth, args.max_nodes)
+        main(perft_file, VariantBoard, perft_f, args.max_depth, args.max_nodes)
