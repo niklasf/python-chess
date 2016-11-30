@@ -1248,6 +1248,9 @@ class Engine(object):
         def command():
             with self.semaphore:
                 with self.state_changed:
+                    if not self.idle:
+                        self.search_started.wait()
+
                     backoff = 0.5
                     while not self.bestmove_received.is_set() and not self.terminated.is_set():
                         if self.idle:
