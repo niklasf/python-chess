@@ -21,7 +21,6 @@ import struct
 import os
 import mmap
 import random
-import itertools
 
 try:
     import backport_collections as collections

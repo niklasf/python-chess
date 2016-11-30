@@ -469,6 +469,7 @@ class ThreeCheckBoard(chess.Board):
         move = super(ThreeCheckBoard, self).pop()
         if was_in_check:
             self.remaining_checks[self.turn] += 1
+        return move
 
     def is_insufficient_material(self):
         return self.occupied == self.kings
@@ -653,7 +654,6 @@ class CrazyhouseBoard(chess.Board):
 
         king_attackers = self.attackers_mask(not self.turn, king_square)
         num_attackers = chess.pop_count(king_attackers)
-
 
         if num_attackers == 0:
             return ~self.occupied
