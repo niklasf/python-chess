@@ -321,7 +321,7 @@ class KingOfTheHillBoard(chess.Board):
 
 class RacingKingsBoard(chess.Board):
 
-    aliases = ["Racing Kings", "Racing", "Race"]
+    aliases = ["Racing Kings", "Racing", "Race", "racingkings"]
     uci_variant = "racingkings"
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
 
