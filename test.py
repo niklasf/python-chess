@@ -2679,6 +2679,7 @@ class GaviotaTestCase(unittest.TestCase):
     def tearDown(self):
         self.tablebases.close()
 
+    @unittest.skipUnless(os.path.exists("data/gaviota/krrk.gtb.cp4"), "need 4 piece gaviota tables")
     def test_dm_4(self):
         with open("data/endgame-dm-4.epd") as epds:
             for line, epd in enumerate(epds):
