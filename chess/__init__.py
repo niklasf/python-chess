@@ -3032,6 +3032,9 @@ class Board(BaseBoard):
         Returns valid castling rights filtered from
         :data:`~chess.Board.castling_rights`.
         """
+        if self.stack:
+            return self.castling_rights
+
         castling = self.castling_rights & self.rooks
         white_castling = castling & BB_RANK_1 & self.occupied_co[WHITE]
         black_castling = castling & BB_RANK_8 & self.occupied_co[BLACK]
