@@ -26,14 +26,7 @@ def check_git():
 
 def test():
     print("--- TEST ---------------------------------------------------------")
-    system("python2 test.py")
-    system("python3 test.py")
-
-
-def doctest():
-    print("--- DOCTEST ------------------------------------------------------")
-    system("python2 -m doctest README.rst")
-    system("python3 -m doctest README.rst")
+    system("tox -e py27,py35")
 
 
 def check_changelog():
@@ -167,7 +160,6 @@ def github_release(tagname):
 
 if __name__ == "__main__":
     test()
-    doctest()
     check_docs()
     check_changelog()
     check_git()
