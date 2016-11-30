@@ -39,8 +39,9 @@ before_install:
  - cd ../..
 install:
  - pip install coverage coveralls
+ - pip install -e .[test]
 script:
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess setup.py test --verbose; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py --verbose; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
  - if [[ $PERFT -eq 1 ]]; then python perft.py --verbose; fi
