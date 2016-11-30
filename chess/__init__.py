@@ -2415,8 +2415,32 @@ class Board(BaseBoard):
             self.turn = BLACK
 
         # Set castling flags.
+        self._set_castling_fen(parts[2])
+
+        # Set the en passant square.
+        if parts[3] == "-":
+            self.ep_square = 0
+        else:
+            self.ep_square = SQUARE_NAMES.index(parts[3])
+
+        # Set the mover counters.
+        self.halfmove_clock = int(parts[4])
+        self.fullmove_number = int(parts[5]) or 1
+
+        # Clear move stack.
+        self.clear_stack()
+
+    def _set_castling_fen(self, castling_fen):
+        if not castling_fen:
+            self.castling_rights = BB_VOID
+            return
+
+        if not FEN_CASTLING_REGEX.match(castling_fen):
+            raise ValueError("invalid castling fen: {0}".format(repr(castling_fen)))
+
         self.castling_rights = BB_VOID
-        for flag in parts[2]:
+
+        for flag in castling_fen:
             if flag == "-":
                 break
 
@@ -2448,17 +2472,9 @@ class Board(BaseBoard):
             else:
                 self.castling_rights |= BB_FILES[FILE_NAMES.index(flag)] & backrank
 
-        # Set the en passant square.
-        if parts[3] == "-":
-            self.ep_square = 0
-        else:
-            self.ep_square = SQUARE_NAMES.index(parts[3])
-
-        # Set the mover counters.
-        self.halfmove_clock = int(parts[4])
-        self.fullmove_number = int(parts[5]) or 1
-
-        # Clear move stack.
+    def set_castling_fen(self, castling_fen):
+        """Sets castling rights from a string in FEN notation like ``Qqk``."""
+        self._set_castling_fen(castling_fen)
         self.clear_stack()
 
     def set_board_fen(self, fen):
