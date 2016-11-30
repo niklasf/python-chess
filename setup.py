@@ -57,6 +57,7 @@ def dependencies():
 
     return deps
 
+
 def extra_dependencies():
     extras = {}
 
@@ -71,19 +72,15 @@ def extra_dependencies():
         else:
             extras["gaviota"] = []
 
-    return extras
-
-
-def test_dependencies():
-    deps = [dep for extra in extra_dependencies().values() for dep in extra]
+    extras["test"] = extras["uci"] + extras.get("gaviota", [])
 
     if sys.version_info < (2, 7):
-        deps.append("unittest2")
+        extras["test"].append("unittest2")
 
     if platform.python_implementation() == "CPython":
         deps.append("spur")
 
-    return deps
+    return extras
 
 
 setuptools.setup(
@@ -100,7 +97,7 @@ setuptools.setup(
     test_suite="test",
     install_requires=dependencies(),
     extras_require=extra_dependencies(),
-    tests_require=test_dependencies(),
+    tests_require=extra_dependencies().get("test"),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
