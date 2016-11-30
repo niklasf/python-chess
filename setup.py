@@ -78,7 +78,7 @@ def extra_dependencies():
         extras["test"].append("unittest2")
 
     if platform.python_implementation() == "CPython":
-        deps.append("spur")
+        extras["test"].append("spur")
 
     return extras
 
