@@ -30,6 +30,7 @@ import textwrap
 import sys
 import time
 import logging
+import platform
 
 try:
     from collections import OrderedDict
