@@ -268,7 +268,7 @@ class GameNode(object):
 
         # Merge comment and NAGs.
         if node.comment:
-            node.comment +=  " " + comment
+            node.comment += " " + comment
         else:
             node.comment = comment
 

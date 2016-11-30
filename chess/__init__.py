@@ -1743,7 +1743,6 @@ class Board(BaseBoard):
                 while attackers:
                     attacker = attackers & -attackers
 
-                    pieces = direction_masks[king] & self.occupied & ~square_mask
                     if (attack_table[attacker][occupancy ^ square_mask] & king) ^ (attack_table[attacker][occupancy] & king):
                         return direction_masks[king]
 

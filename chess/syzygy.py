@@ -465,7 +465,7 @@ def dependencies(filename, one_king=True):
         closed.add("KvK")
 
     for dependency in _dependencies(filename, one_king):
-        if not dependency in closed and len(dependency) > 2:
+        if dependency not in closed and len(dependency) > 2:
             yield dependency
             closed.add(dependency)
 
