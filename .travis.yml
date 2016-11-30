@@ -43,6 +43,6 @@ install:
 script:
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py --verbose; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source -m doctest README.rst --verbose; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess -m doctest README.rst --verbose; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
  - if [[ $PERFT -eq 1 ]]; then python perft.py --verbose; fi
