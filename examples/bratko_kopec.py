@@ -23,7 +23,6 @@ import chess
 import chess.uci
 import chess.variant
 import time
-import textwrap
 import argparse
 import itertools
 import logging
@@ -48,7 +47,7 @@ def test_epd(engine, epd, VariantBoard, movetime):
     if "am" in epd_info and enginemove in epd_info["am"]:
         print("%s: %s | +0" % (epd_string, position.san(enginemove)))
         return 0.0
-    elif "bm" in epd_info and not enginemove in epd_info["bm"]:
+    elif "bm" in epd_info and enginemove not in epd_info["bm"]:
         print("%s: %s | +0" % (epd_string, position.san(enginemove)))
         return 0.0
     else:
@@ -90,11 +89,11 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
                 print("(%s)" % position.san(move), end=" ")
                 sys.stdout.flush()
                 if "am" in epd_info and move in epd_info["am"]:
-                    continue #fail
-                elif "bm" in epd_info and not move in epd_info["bm"]:
-                    continue #fail
+                    continue  # fail
+                elif "bm" in epd_info and move not in epd_info["bm"]:
+                    continue  # fail
                 else:
-                     score = 1.0 / (4 - step)
+                    score = 1.0 / (4 - step)
             else:
                 print("(no pv)", end=" ")
                 sys.stdout.flush()
@@ -104,11 +103,11 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
     engine.stop()
     enginemove, pondermove = search.result()
     if "am" in epd_info and enginemove in epd_info["am"]:
-        pass #fail
-    elif "bm" in epd_info and not enginemove in epd_info["bm"]:
-        pass #fail
+        pass  # fail
+    elif "bm" in epd_info and enginemove not in epd_info["bm"]:
+        pass  # fail
     else:
-         score = 1.0
+        score = 1.0
 
     print("%s | +%g" % (position.san(enginemove), score))
 
