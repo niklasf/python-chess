@@ -280,7 +280,7 @@ Features
 
       >>> import chess.syzygy
 
-      >>> tablebases = chess.syzygy.open_tablebases("data/syzygy")
+      >>> tablebases = chess.syzygy.open_tablebases("data/syzygy/regular")
 
       >>> # Black to move is losing in 53 half moves (distance to zero) in this
       >>> # KNBvK endgame.
