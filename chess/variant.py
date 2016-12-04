@@ -32,6 +32,7 @@ class SuicideBoard(chess.Board):
     tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
     connected_kings = True
     one_king = False
+    captures_compulsory = True
 
     def pin_mask(self, color, square):
         return chess.BB_ALL

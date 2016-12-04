@@ -1568,9 +1568,16 @@ class Tablebases(object):
         return num
 
     def probe_wdl_table(self, board):
-        # Test for KvK.
-        if board.kings == board.occupied:
-            return 0
+        if self.variant.one_king:
+            # Test for KvK.
+            if board.kings == board.occupied:
+                return 0
+        else:
+            # Test for suicide game end.
+            if board.is_variant_win():
+                return 2
+            elif board.is_variant_draw():
+                return 0
 
         key = calc_key(board)
         try:
@@ -1585,9 +1592,7 @@ class Tablebases(object):
     def probe_ab(self, board, alpha, beta):
         # Generate non-ep captures.
         for move in board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
-            # Do the move.
             board.push(move)
-
             v_plus, success = self.probe_ab(board, -beta, -alpha)
             board.pop()
 
@@ -1636,6 +1641,10 @@ class Tablebases(object):
         if board.castling_rights:
             return None
 
+        # Suicide/giveaway.
+        if self.variant.captures_compulsory:
+            return self.sprobe_wdl(board, -2, 2)
+
         # Probe.
         v, success = self.probe_ab(board, -2, 2)
         if v is None or not success:
@@ -1674,6 +1683,40 @@ class Tablebases(object):
                     v = v1
 
         return v
+
+    def sprobe_wdl(self, board, alpha, beta):
+        # First try captures.
+        capts = False
+        if chess.pop_count(board.occupied_co[not board.turn]) > 1:
+            for move in board.generate_legal_captures():
+                capts = True
+
+                board.push(move)
+                v_plus = self.sprobe_wdl(board, -beta, -alpha)
+                board.pop()
+
+                if v_plus is None:
+                    return None
+
+                v = -v_plus
+                alpha = max(v, alpha)
+
+                if alpha >= beta:
+                    return alpha
+
+            if capts:
+                return alpha
+        else:
+            if any(board.generate_legal_captures()):
+                return -2
+
+        # TODO: 6 piece queries will require probing of threats.
+
+        v = self.probe_wdl_table(board)
+        if v is None:
+            return None
+
+        return max(alpha, v)
 
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)

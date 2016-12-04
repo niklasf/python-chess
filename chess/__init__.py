@@ -1473,6 +1473,7 @@ class Board(BaseBoard):
     tbz_magic = [0xD7, 0x66, 0x0C, 0xA5]
     connected_kings = False
     one_king = True
+    captures_compulsory = False
 
     def __init__(self, fen=STARTING_FEN, chess960=False):
         BaseBoard.__init__(self, None)
