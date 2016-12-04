@@ -852,7 +852,7 @@ class Table(object):
             if OFFDIAG[pos[0]] > 0 or (OFFDIAG[pos[0]] == 0 and OFFDIAG[pos[1]] > 0):
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
-            if TEST45[pos[i]] and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
+            if TEST45[pos[1]] and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
                 pos[0], pos[1] = pos[1], pos[0]
                 for i in range(n):
                     pos[i] = flipdiag(pos[i] ^ 0x38)
