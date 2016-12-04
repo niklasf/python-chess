@@ -2494,7 +2494,7 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertEqual(chess.syzygy.normalize_filename("KNNvKBB"), "KBBvKNN")
 
     def test_probe_pawnless_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy", "KBNvK")
+        wdl = chess.syzygy.WdlTable("data/syzygy/regular", "KBNvK")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
@@ -2515,7 +2515,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy", "KRvKP")
+        wdl = chess.syzygy.WdlTable("data/syzygy/regular", "KRvKP")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
@@ -2527,7 +2527,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_dtz_table_piece(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy", "KRvKN")
+        dtz = chess.syzygy.DtzTable("data/syzygy/regular", "KRvKN")
         dtz.init_table_dtz()
 
         # Pawnless position with white to move.
@@ -2541,7 +2541,7 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_dtz_table_pawn(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy", "KNvKP")
+        dtz = chess.syzygy.DtzTable("data/syzygy/regular", "KNvKP")
         dtz.init_table_dtz()
 
         board = chess.Board("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
@@ -2551,7 +2551,7 @@ class SyzygyTestCase(unittest.TestCase):
 
     def test_probe_wdl_tablebase(self):
         tablebases = chess.syzygy.Tablebases(max_fds=2)
-        self.assertTrue(tablebases.open_directory("data/syzygy") >= 70)
+        self.assertTrue(tablebases.open_directory("data/syzygy/regular") >= 70)
 
         # Winning KRvKB.
         board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
@@ -2568,7 +2568,7 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
     def test_wdl_ep(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy")
+        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
 
         # Winning KPvKP because of en passant.
         board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
@@ -2582,7 +2582,7 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
     def test_dtz_ep(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy")
+        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
 
         board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
         self.assertEqual(tablebases.probe_dtz_no_ep(board), -1)
@@ -2591,7 +2591,7 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
     def test_testsuite(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy")
+        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
 
         board = chess.Board()
 
@@ -2617,7 +2617,7 @@ class SyzygyTestCase(unittest.TestCase):
         tablebases.close()
 
     def test_stockfish_dtz_bug(self):
-        with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
             board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
             dtz = tablebases.probe_dtz(board)
             if dtz is None:
@@ -2625,7 +2625,7 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tablebases.probe_dtz(board), 15)
 
     def test_issue_93(self):
-        with chess.syzygy.open_tablebases("data/syzygy") as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
             board = chess.Board("4r1K1/6PP/3k4/8/8/8/8/8 w - - 1 64")
 
             wdl = tablebases.probe_wdl(board)
