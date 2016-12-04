@@ -19,6 +19,7 @@ addons:
 cache:
   directories:
     - data/gaviota
+    - data/syzygy/suicide
 before_install:
  - # Stockfish
  - wget https://stockfish.s3.amazonaws.com/stockfish-6-linux.zip
@@ -37,6 +38,10 @@ before_install:
  - cd data/gaviota
  - wget --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
  - cd ../..
+ - # Suicide syzygy bases
+ - cd data/syzygy/suicide
+ - wget --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
+ - cd ../../..
 install:
  - pip install coverage coveralls
  - pip install -e .[test]
