@@ -2638,6 +2638,18 @@ class SyzygyTestCase(unittest.TestCase):
                 self.skipTest("need KPPvKR.rtbz and its children")
             self.assertEqual(dtz, 4)
 
+    def test_sprobe_wdl(self):
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
+            with open("data/giveaway-dm.epd") as epds:
+                for epd in epds:
+                    board, solution = chess.variant.SuicideBoard.from_epd(epd)
+
+                    wdl = tablebases.probe_wdl(board)
+                    if wdl is None:
+                        self.skipTest("need %d piece suicide tablebases" % chess.pop_count(board.occupied))
+                    if solution["max_dtm"] > 0:
+                        self.assertEqual(wdl, 2)
+
 
 class NativeGaviotaTestCase(unittest.TestCase):
 
