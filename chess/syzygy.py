@@ -859,9 +859,9 @@ class Table(object):
             idx = PP_IDX[TRIANGLE[pos[0]]][pos[1]]
             i = 2
         else:  # 3 and higher, e.g. KKKvK and KKKKvK
-            for i in range(norm[0]):
+            for i in range(1, norm[0]):
                 if TRIANGLE[pos[0]] > TRIANGLE[pos[i]]:
-                    pos[0], pos[1] = pos[1], pos[0]
+                    pos[0], pos[i] = pos[i], pos[0]
             if pos[0] & 0x04:
                 for i in range(n):
                     pos[i] ^= 0x07
