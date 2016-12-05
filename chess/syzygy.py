@@ -370,7 +370,7 @@ for i in range(5):
     s = 0
     for j in range(10):
         MULTIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][INVTRIANGLE[j]]
+        s += 1 if i == 0 else BINOMIAL[i - 1][MTWIST[INVTRIANGLE[j]]]
     MFACTOR[i] = s
 
 WDL_TO_MAP = [1, 3, 0, 2, 0]
@@ -797,21 +797,22 @@ class Table(object):
     def encode_piece(self, norm, pos, factor):
         n = self.num
 
-        if pos[0] & 0x04:
-            for i in range(n):
-                pos[i] ^= 0x07
+        if self.enc_type < 3:
+            if pos[0] & 0x04:
+                for i in range(n):
+                    pos[i] ^= 0x07
 
-        if pos[0] & 0x20:
-            for i in range(n):
-                pos[i] ^= 0x38
+            if pos[0] & 0x20:
+                for i in range(n):
+                    pos[i] ^= 0x38
 
-        for i in range(n):
-            if OFFDIAG[pos[i]]:
-                break
-
-        if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
             for i in range(n):
-                pos[i] = flipdiag(pos[i])
+                if OFFDIAG[pos[i]]:
+                    break
+
+            if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
+                for i in range(n):
+                    pos[i] = flipdiag(pos[i])
 
         if self.enc_type == 0:  # 111
             i = int(pos[1] > pos[0])
