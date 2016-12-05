@@ -23,6 +23,7 @@ import os
 import struct
 import sys
 import threading
+import math
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -1591,8 +1592,20 @@ class Tablebases(object):
         return table.probe_wdl_table(board)
 
     def probe_ab(self, board, alpha, beta):
-        # Generate non-ep captures.
-        for move in board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
+        if not self.variant.captures_compulsory:
+            # Generate non-ep captures.
+            moves = board.generate_legal_moves(to_mask=board.occupied_co[not board.turn])
+        else:
+            # Suicide chess: First try captures.
+            moves = list(board.generate_legal_captures())
+            if chess.pop_count(board.occupied_co[not board.turn]) <= 1 and any(moves):
+                return -2, 2
+
+        found_moves = False
+
+        for move in moves:
+            found_moves = True
+
             board.push(move)
             v_plus, success = self.probe_ab(board, -beta, -alpha)
             board.pop()
@@ -1606,6 +1619,14 @@ class Tablebases(object):
                 if v >= beta:
                     return v, 2
                 alpha = v
+
+        # Suicide chess.
+        if self.variant.captures_compulsory:
+            # Captures found.
+            if found_moves:
+                return alpha, 2
+
+            assert chess.pop_count(board.occupied) < 6, "6 man tables threat checking not implemented"
 
         v = self.probe_wdl_table(board)
         if v is None:
@@ -1642,17 +1663,13 @@ class Tablebases(object):
         if board.castling_rights:
             return None
 
-        # Suicide/giveaway.
-        if self.variant.captures_compulsory:
-            return self.sprobe_wdl(board, -2, 2)
-
         # Probe.
         v, success = self.probe_ab(board, -2, 2)
         if v is None or not success:
             return None
 
         # If en passant is not possible, we are done.
-        if not board.ep_square:
+        if not board.ep_square or self.variant.captures_compulsory:
             return v
 
         # Now handle en passant.
@@ -1685,40 +1702,6 @@ class Tablebases(object):
 
         return v
 
-    def sprobe_wdl(self, board, alpha, beta):
-        # First try captures.
-        capts = False
-        if chess.pop_count(board.occupied_co[not board.turn]) > 1:
-            for move in board.generate_legal_captures():
-                capts = True
-
-                board.push(move)
-                v_plus = self.sprobe_wdl(board, -beta, -alpha)
-                board.pop()
-
-                if v_plus is None:
-                    return None
-
-                v = -v_plus
-                alpha = max(v, alpha)
-
-                if alpha >= beta:
-                    return alpha
-
-            if capts:
-                return alpha
-        else:
-            if any(board.generate_legal_captures()):
-                return -2
-
-        # TODO: 6 piece queries will require probing of threats.
-
-        v = self.probe_wdl_table(board)
-        if v is None:
-            return None
-
-        return max(alpha, v)
-
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
         try:
@@ -1739,7 +1722,7 @@ class Tablebases(object):
             return 0
 
         if success == 2:
-            return 1 if wdl == 2 else 101
+            return math.copysign(1 if abs(wdl) == 2 else 101, wdl)
 
         if wdl > 0:
             # Generate all legal non-capturing pawn moves.
@@ -1877,7 +1860,7 @@ class Tablebases(object):
         if v is None:
             return None
 
-        if not board.ep_square:
+        if not board.ep_square or self.variant.captures_compulsory:
             return v
 
         v1 = -3
