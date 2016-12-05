@@ -2648,7 +2648,7 @@ class SyzygyTestCase(unittest.TestCase):
                     if wdl is None:
                         self.skipTest("need %d piece suicide tablebases" % chess.pop_count(board.occupied))
                     if solution["max_dtm"] > 0:
-                        self.assertEqual(wdl, 2)
+                        self.assertEqual(wdl, 2, "Expecting wdl {0}, got {1} (in {2})".format(2, wdl, epd))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
