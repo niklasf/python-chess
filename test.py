@@ -2640,15 +2640,22 @@ class SyzygyTestCase(unittest.TestCase):
 
     def test_sprobe_wdl(self):
         with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
-            with open("data/giveaway-dm.epd") as epds:
+            with open("data/suicide-dm.epd") as epds:
                 for epd in epds:
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                     wdl = tablebases.probe_wdl(board)
                     if wdl is None:
                         self.skipTest("need %d piece suicide tablebases" % chess.pop_count(board.occupied))
+
                     if solution["max_dtm"] > 0:
-                        self.assertEqual(wdl, 2, "Expecting wdl {0}, got {1} (in {2})".format(2, wdl, epd))
+                        expected_wdl = 2
+                    elif solution["max_dtm"] < 0:
+                        expected_wdl = -2
+                    else:
+                        expected_wdl = 0
+
+                    self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):

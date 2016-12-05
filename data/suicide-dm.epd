@@ -12,7 +12,7 @@
 8/P7/8/8/8/5k2/8/7b w - - bm a8=K; max_dtm 6;
 8/P7/8/k7/P7/8/8/8 w - - bm a8=N; max_dtm 4;
 7r/1K2P3/8/8/8/8/7p/8 b - - bm Rc8; max_dtm 11;
-8/5p2/7p/8/7P/8/5P2/8 w - - bm h5; max_dtm 3;
+8/5p2/7p/8/7P/8/5P2/8 w - - bm h5; max_dtm 0;
 8/8/8/3R4/p7/3K4/k7/8 w - - bm Kc4; max_dtm 8;
 8/8/8/4b3/8/1R5R/4P3/8 w - - bm Rb2; max_dtm 5;
 8/8/8/8/5k1k/3k4/8/7K b - - bm Kde3; max_dtm 5;
