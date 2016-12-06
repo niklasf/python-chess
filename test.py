@@ -2650,7 +2650,7 @@ class SyzygyTestCase(unittest.TestCase):
 
                     wdl = tablebases.probe_wdl(board)
                     if wdl is None:
-                        self.skipTest("need %d piece suicide table: %s" % (chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
+                        self.skipTest("need {0} piece suicide table: {1}".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
 
                     if solution["max_dtm"] > 0:
                         expected_wdl = 2
