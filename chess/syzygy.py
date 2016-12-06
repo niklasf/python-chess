@@ -810,7 +810,6 @@ class Table(object):
             for i in range(n):
                 if OFFDIAG[pos[i]]:
                     break
-
             if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])

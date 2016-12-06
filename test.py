@@ -2642,11 +2642,15 @@ class SyzygyTestCase(unittest.TestCase):
         with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
             with open("data/suicide-dm.epd") as epds:
                 for epd in epds:
+                    epd = epd.strip()
+                    if epd.startswith("%") or epd.startswith("#"):
+                        continue
+
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                     wdl = tablebases.probe_wdl(board)
                     if wdl is None:
-                        self.skipTest("need %d piece suicide tablebase: %s" % (chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
+                        self.skipTest("need %d piece suicide table: %s" % (chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
 
                     if solution["max_dtm"] > 0:
                         expected_wdl = 2
