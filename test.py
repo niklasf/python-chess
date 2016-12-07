@@ -2991,6 +2991,9 @@ class GiveawayTestCase(unittest.TestCase):
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.end().board().fen(), "8/2k5/8/8/8/8/6b1/8 w - - 0 32")
 
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.end().board().fen(), "8/6k1/3K4/8/8/3k4/8/8 w - - 4 33")
+
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))
