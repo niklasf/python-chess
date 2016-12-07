@@ -2987,6 +2987,14 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
 
 
+class GiveawayTestCase(unittest.TestCase):
+
+    def test_antichess_pgn(self):
+        with open("data/pgn/antichess-programfox.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.end().board().fen(), "8/2k5/8/8/8/8/6b1/8 w - - 0 32")
+
+
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
