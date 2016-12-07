@@ -627,6 +627,7 @@ class Table(object):
         if self.data is None:
             self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
+            # Micro optimizations for read_ubyte.
             if sys.version_info >= (3, ):
                 self.read_ubyte = self.data.__getitem__
             else:
