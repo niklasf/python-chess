@@ -28,6 +28,7 @@ import os.path
 import textwrap
 import sys
 import time
+import threading
 import logging
 import platform
 
@@ -2061,18 +2062,19 @@ class StockfishTestCase(unittest.TestCase):
             self.assertTrue(result[0] in operations["bm"], operations["id"])
 
     def test_async_callback(self):
-        self.async_callback_called = False
+        self.async_callback_called = threading.Event()
 
         def async_callback(command):
-            self.async_callback_called = True
+            self.async_callback_called.set()
 
         command = self.engine.isready(async_callback=async_callback)
 
         # Wait for the command to be executed.
         command.result()
-
-        self.assertTrue(self.async_callback_called)
         self.assertTrue(command.done())
+
+        self.async_callback_called.wait()
+        self.assertTrue(self.async_callback_called.is_set())
 
     def test_initialization(self):
         self.assertTrue("Stockfish" in self.engine.name)
