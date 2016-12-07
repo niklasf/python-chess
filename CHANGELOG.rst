@@ -33,7 +33,7 @@ Changes:
 
 * **Endgame tablebase probing (Syzygy, Gaviota):** `probe_wdl()` **,**
   `probe_dtz()` **and** `probe_dtm()` **now raise** `KeyError` **or**
-  `MissingTableError` **instead of returning *None***. If you prefer getting
+  `MissingTableError` **instead of returning** *None*. If you prefer getting
   `None` in case  of an error use `get_wdl()`, `get_dtz()` and `get_dtm()`.
 * `chess.pgn.BaseVisitor.result()` returns `True` by default and is no longer
   used by `chess.pgn.read_game()` if no game was found.
