@@ -2993,7 +2993,10 @@ class GiveawayTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if "-v" in sys.argv or "--verbose" in sys.argv:
+    verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))
+    verbosity += sys.argv.count("--verbose")
+
+    if verbosity >= 2:
         logging.basicConfig(level=logging.DEBUG)
 
     raise_log_handler = RaiseLogHandler()
