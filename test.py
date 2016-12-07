@@ -2055,13 +2055,6 @@ class StockfishTestCase(unittest.TestCase):
             result = self.engine.go(mate=5)
             self.assertTrue(result[0] in operations["bm"], operations["id"])
 
-    def test_async(self):
-        self.engine.ucinewgame()
-        command = self.engine.go(movetime=1000, async_callback=True)
-        self.assertFalse(command.done())
-        command.result()
-        self.assertTrue(command.done())
-
     def test_async_callback(self):
         self.async_callback_called = False
 
@@ -2084,7 +2077,6 @@ class StockfishTestCase(unittest.TestCase):
 
     def test_terminate(self):
         self.engine.go(infinite=True, async_callback=True)
-        time.sleep(0.1)
 
 
 class SpurEngineTestCase(unittest.TestCase):
@@ -2179,10 +2171,12 @@ class UciEngineTestCase(unittest.TestCase):
     def test_go(self):
         self.mock.expect("go infinite searchmoves e2e4 d2d4")
         go_command = self.engine.go(searchmoves=[chess.Move.from_uci("e2e4"), chess.Move.from_uci("d2d4")], infinite=True, async_callback=True)
+        self.assertFalse(go_command.done())
 
         self.mock.expect("stop", ("bestmove e2e4", ))
         self.engine.stop()
         bestmove, pondermove = go_command.result()
+        self.assertTrue(go_command.done())
         self.mock.assert_done()
         self.assertEqual(bestmove, chess.Move.from_uci("e2e4"))
         self.assertTrue(pondermove is None)
