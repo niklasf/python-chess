@@ -550,6 +550,7 @@ def dtz_before_zeroing(wdl):
 
 
 class MissingTableError(KeyError):
+    """Can not probe position because a required table is missing."""
     pass
 
 
@@ -1652,9 +1653,6 @@ class Tablebases(object):
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
 
-        Returns ``None`` if the position was not found in any of the loaded
-        tables.
-
         Returns ``2`` if the side to move is winning, ``0`` if the position is
         a draw and ``-2`` if the side to move is losing.
 
@@ -1666,10 +1664,17 @@ class Tablebases(object):
         ...     tablebases.probe_wdl(chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1"))
         ...
         -2
+
+        :raises: :exc:`KeyError` (or specifically
+            :exc:`chess.syzygy.MissingTableError`) if the probe fails.
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
             raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
+
+        # Validate piece count.
+        if chess.pop_count(board.occupied) > 6:
+            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
 
         # Probe.
         v, success = self.probe_ab(board, -2, 2)
@@ -1789,9 +1794,7 @@ class Tablebases(object):
         """
         Probes DTZ tables for distance to zero information.
 
-        Return ``None`` if the position was not found in any of the loaded
-        tables. Both DTZ and WDL tables are required in order to probe for DTZ
-        values.
+        Both DTZ and WDL tables are required in order to probe for DTZ.
 
         Returns a positive value if the side to move is winning, ``0`` if the
         position is a draw and a negative value if the side to move is losing.
@@ -1839,6 +1842,9 @@ class Tablebases(object):
 
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
+
+        :raises: :exc:`KeyError` (or specifically
+            :exc:`chess.syzygy.MissingTableError`) if the probe fails.
         """
         v = self.probe_dtz_no_ep(board)
 

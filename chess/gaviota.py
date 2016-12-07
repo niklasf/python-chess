@@ -1690,6 +1690,10 @@ def dtm_unpack(stm, packed):
     return ret
 
 
+class MissingTableError(KeyError):
+    """Can not probe position because a required table is missing."""
+
+
 class TableBlock(object):
     def __init__(self, egkey, side, offset, age):
         self.egkey = egkey
@@ -1740,7 +1744,7 @@ class PythonTablebases(object):
         """Loads *.gtb.cp4* tables from a directory."""
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
-            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+            raise IOError("not a directory: {0}".format(repr(directory)))
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
@@ -1749,11 +1753,9 @@ class PythonTablebases(object):
         """
         Probes for depth to mate information.
 
-        Returns ``None`` if the position was not found in any of the tables.
-
-        Otherwise the absolute value is the number of half moves until
-        forced mate. The value is positive if the side to move is winning,
-        otherwise it is negative.
+        The absolute value is the number of half moves until forced mate
+        (or ``0`` in drawn positions). The value is positive if the
+        side to move is winning, otherwise it is negative.
 
         In the example position white to move will get mated in 10 half moves:
 
@@ -1761,10 +1763,13 @@ class PythonTablebases(object):
         ...     tablebases.probe_dtm(chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1"))
         ...
         -10
+
+        :raises: :exc:`KeyError` (or specifically
+            :exc:`chess.gaviota.MissingTableError`) if the probe fails.
         """
         # Can not probe positions with castling rights.
         if board.castling_rights:
-            return None
+            raise KeyError("gaviota tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         # Prepare the tablebase request.
         white = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
@@ -1781,14 +1786,10 @@ class PythonTablebases(object):
 
         # Only up to 5-men tablebases.
         if len(white_squares) + len(black_squares) > 5:
-            return None
+            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
 
         # Probe.
-        try:
-            dtm = self.egtb_get_dtm(req)
-        except IndexError:
-            return None
-
+        dtm = self.egtb_get_dtm(req)
         ply, res = unpackdist(dtm)
 
         if res == iDRAW:
@@ -1823,8 +1824,6 @@ class PythonTablebases(object):
         """
         Probes for win/draw/loss-information.
 
-        Returns ``None`` if the position was not found in any of the tables.
-
         Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
         and ``-1`` if the side to move is losing.
 
@@ -1832,6 +1831,9 @@ class PythonTablebases(object):
         ...     tablebases.probe_wdl(chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1"))
         ...
         0
+
+        :raises: :exc:`KeyError` (or specifically
+            :exc:`chess.gaviota.MissingTableError`) if the probe fails.
         """
         dtm = self.probe_dtm(board)
 
@@ -1844,8 +1846,6 @@ class PythonTablebases(object):
             return 1
         elif dtm < 0:
             return -1
-        else:
-            return None
 
     def _setup_tablebase(self, req):
         white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.white_types])
@@ -1870,7 +1870,7 @@ class PythonTablebases(object):
             if req.epsq != NOSQUARE:
                 req.epsq = flip_ns(req.epsq)
         else:
-            raise IndexError("no tablebase available for: {0} {1}".format(white_letters, black_letters))
+            raise MissingTableError("no gaviota table available for: {0}v{1}".format(white_letters.upper(), black_letters.upper()))
 
         return self._open_tablebase(req)
 
@@ -2113,7 +2113,7 @@ class NativeTablebases(object):
 
     def open_directory(self, directory):
         if not os.path.isdir(directory):
-            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+            raise IOError("not a directory: {0}".format(repr(directory)))
 
         self.paths.append(directory)
         self._tb_restart()
@@ -2159,10 +2159,10 @@ class NativeTablebases(object):
             return 0
 
         if chess.pop_count(board.occupied) > 5:
-            return None
+            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
 
         if board.castling_rights:
-            return None
+            raise KeyError("gaviota tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
         ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
@@ -2202,12 +2202,11 @@ class NativeTablebases(object):
 
         # Probe forbidden.
         if info.value == 3:
-            LOGGER.warning("Tablebase for %s marked as forbidden", board.fen())
-            return None
+            raise KeyError("gaviota table for {0} marked as forbidden".format(board.fen()))
 
         # Probe failed or unknown.
         if not ret or info.value == 7:
-            return None
+            raise KeyError("gaviota probe failed for {0}".format(board.fen()))
 
         # Draw.
         if info.value == 0:

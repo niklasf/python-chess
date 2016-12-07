@@ -2714,7 +2714,7 @@ class GaviotaTestCase(unittest.TestCase):
     def tearDown(self):
         self.tablebases.close()
 
-    @unittest.skipUnless(os.path.exists("data/gaviota/krrk.gtb.cp4"), "need 4 piece gaviota tables")
+    @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_4(self):
         with open("data/endgame-dm-4.epd") as epds:
             for line, epd in enumerate(epds):
@@ -2735,7 +2735,7 @@ class GaviotaTestCase(unittest.TestCase):
                 self.assertEqual(dtm, expected,
                     "Expecting dtm {0} for {1}, got {2} (at line {3})".format(expected, board.fen(), dtm, line + 1))
 
-    @unittest.skipUnless(os.path.exists("data/gaviota/kqrnk.gtb.cp4"), "need 5 piece gaviota tables")
+    @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_5(self):
         with open("data/endgame-dm-5.epd") as epds:
             for line, epd in enumerate(epds):
