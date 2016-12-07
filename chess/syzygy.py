@@ -1055,18 +1055,6 @@ class Table(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state["fd"]
-        del state["data"]
-        del state["read_ubyte"]
-        del state["lock"]
-        return state
-
-    def __setstate__(self, state):
-        self.__init__(self.directory, self.filename, self.suffix)
-        self.__dict__.update(state)
-
 
 class WdlTable(Table):
 
