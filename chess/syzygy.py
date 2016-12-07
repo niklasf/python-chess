@@ -545,6 +545,10 @@ def subfactor(k, n):
     return f // l
 
 
+def dtz_before_zeroing(wdl):
+    return ((wdl > 0) - (wdl < 0)) * (1 if abs(wdl) == 2 else 101)
+
+
 class PairsData(object):
     def __init__(self):
         self.indextable = None
@@ -1721,7 +1725,7 @@ class Tablebases(object):
             return 0
 
         if success == 2:
-            return math.copysign(1 if abs(wdl) == 2 else 101, wdl)
+            return dtz_before_zeroing(wdl)
 
         if wdl > 0:
             # Generate all legal non-capturing pawn moves.
