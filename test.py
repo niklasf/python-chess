@@ -47,6 +47,11 @@ except ImportError:
     from io import StringIO  # Python 3
 
 
+class RaiseLogHandler(logging.Handler):
+    def handle(self, record):
+        raise RuntimeError("was expecting no log messages")
+
+
 def catchAndSkip(signature, message=None):
     def _decorator(f):
         def _wrapper(self):
@@ -2389,7 +2394,9 @@ class UciEngineTestCase(unittest.TestCase):
         # standard chess. The UCI module should just send the final FEN,
         # show a warning and hope for the best.
         self.mock.expect("position fen 3qk3/4pp2/8/5r2/8/8/3PP1P1/4K1R1 w K - 1 2")
+        logging.disable(logging.ERROR)
         self.engine.position(board)
+        logging.disable(logging.NOTSET)
         self.mock.assert_done()
 
         # Activate Chess960 mode.
@@ -2403,14 +2410,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.assert_done()
 
     def test_hakkapeliitta_double_spaces(self):
-        class AssertLogClean(logging.Handler):
-            def handle(self, record):
-                raise RuntimeError("was expecting no log messages")
-
-        assert_log_clean = AssertLogClean()
-        assert_log_clean.setLevel(logging.ERROR)
-        logging.getLogger().addHandler(assert_log_clean)
-
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)
 
@@ -2425,8 +2424,6 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["nodes"], 48299)
             self.assertEqual(info["nps"], 2683000)
             self.assertEqual(info["tbhits"], 0)
-
-        logging.getLogger().removeHandler(assert_log_clean)
 
 
 class UciOptionMapTestCase(unittest.TestCase):
@@ -2998,5 +2995,9 @@ class GiveawayTestCase(unittest.TestCase):
 if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         logging.basicConfig(level=logging.DEBUG)
+
+    raise_log_handler = RaiseLogHandler()
+    raise_log_handler.setLevel(logging.ERROR)
+    logging.getLogger().addHandler(raise_log_handler)
 
     unittest.main()
