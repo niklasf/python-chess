@@ -30,6 +30,10 @@ class SuicideBoard(chess.Board):
     tbz_suffix = ".stbz"
     tbw_magic = [0x7b, 0xf6, 0x93, 0x15]
     tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
+    pawnless_tbw_suffix = ".gtbw"
+    pawnless_tbz_suffix = ".gtbz"
+    pawnless_tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
+    pawnless_tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
     connected_kings = True
     one_king = False
     captures_compulsory = True
@@ -165,6 +169,10 @@ class GiveawayBoard(SuicideBoard):
     tbz_suffix = ".gtbz"
     tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
     tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
+    pawnless_tbw_suffix = ".stbw"
+    pawnless_tbz_suffix = ".stbz"
+    pawnless_tbw_magic = [0x7b, 0xf6, 0x93, 0x15]
+    pawnless_tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
 
     def __init__(self, fen=starting_fen, chess960=False):
         super(GiveawayBoard, self).__init__(fen, chess960)

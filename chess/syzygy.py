@@ -1547,28 +1547,30 @@ class Tablebases(object):
         directory = os.path.abspath(directory)
 
         if not os.path.isdir(directory):
-            raise IOError("not a tablebase directory: {0}".format(repr(directory)))
+            raise IOError("not a directory: {0}".format(repr(directory)))
 
         for filename in filenames(one_king=self.variant.one_king):
-            if load_wdl and os.path.isfile(os.path.join(directory, filename) + self.variant.tbw_suffix):
-                wdl_table = WdlTable(directory, filename, self.variant)
-                if wdl_table.key in self.wdl:
-                    self.wdl[wdl_table.key].close()
+            load = []
+            if load_wdl:
+                load.append((self.wdl, WdlTable, self.variant.tbw_suffix))
+                if "P" not in filename and self.variant.pawnless_tbw_suffix:
+                    load.append((self.wdl, WdlTable, self.variant.pawnless_tbw_suffix))
+            if load_dtz:
+                load.append((self.dtz, DtzTable, self.variant.tbz_suffix))
+                if "P" not in filename and self.variant.pawnless_tbz_suffix:
+                    load.append((self.dtz, DtzTable, self.variant.pawnless_tbz_suffix))
 
-                self.wdl[wdl_table.key] = wdl_table
-                self.wdl[wdl_table.mirrored_key] = wdl_table
+            for hashtable, Table, suffix in load:
+                if os.path.isfile(os.path.join(directory, filename) + suffix):
+                    table = Table(directory, filename, self.variant, suffix)
 
-                num += 1
+                    if table.key in hashtable:
+                        hashtable[table.key].close()
 
-            if load_dtz and os.path.isfile(os.path.join(directory, filename) + self.variant.tbz_suffix):
-                dtz_table = DtzTable(directory, filename, self.variant)
-                if dtz_table.key in self.dtz:
-                    self.dtz[dtz_table.key].close()
+                    hashtable[table.key] = table
+                    hashtable[table.mirrored_key] = table
 
-                self.dtz[dtz_table.key] = dtz_table
-                self.dtz[dtz_table.mirrored_key] = dtz_table
-
-                num += 1
+                    num += 1
 
         return num
 

@@ -1471,6 +1471,8 @@ class Board(BaseBoard):
     tbz_suffix = ".rtbz"
     tbw_magic = [0x71, 0xE8, 0x23, 0x5D]
     tbz_magic = [0xD7, 0x66, 0x0C, 0xA5]
+    pawnless_tbw_suffix = pawnless_tbz_suffix = None
+    pawnless_tbw_magic = pawnless_tbz_magic = None
     connected_kings = False
     one_king = True
     captures_compulsory = False
