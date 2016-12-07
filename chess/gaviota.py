@@ -1765,7 +1765,9 @@ class PythonTablebases(object):
         -10
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.gaviota.MissingTableError`) if the probe fails.
+            :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
+            :func:`~chess.gaviota.PythonTablebases.get_dtm()` if you prefer
+            to get ``None`` instead of an exception.
         """
         # Can not probe positions with castling rights.
         if board.castling_rights:
@@ -1820,6 +1822,12 @@ class PythonTablebases(object):
                 else:
                     return ply
 
+    def get_dtm(self, board, default=None):
+        try:
+            return self.probe_dtm(board)
+        except KeyError:
+            return default
+
     def probe_wdl(self, board):
         """
         Probes for win/draw/loss-information.
@@ -1833,7 +1841,9 @@ class PythonTablebases(object):
         0
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.gaviota.MissingTableError`) if the probe fails.
+            :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
+            :func:`~chess.gaviota.PythonTablebases.get_wdl()` if you prefer
+            to get ``None`` instead of an exception.
         """
         dtm = self.probe_dtm(board)
 
@@ -1846,6 +1856,12 @@ class PythonTablebases(object):
             return 1
         elif dtm < 0:
             return -1
+
+    def get_wdl(self, board, default=None):
+        try:
+            return self.probe_wdl(board)
+        except KeyError:
+            return default
 
     def _setup_tablebase(self, req):
         white_letters = "".join([chess.PIECE_SYMBOLS[i] for i in req.white_types])

@@ -1666,7 +1666,9 @@ class Tablebases(object):
         -2
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the probe fails.
+            :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
+            :func:`~chess.syzygy.Tablebases.get_wdl()` if you prefer to get
+            ``None`` instead of an exception.
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
@@ -1708,6 +1710,12 @@ class Tablebases(object):
                     v = v1
 
         return v
+
+    def get_wdl(self, board, default=None):
+        try:
+            return self.probe_wdl(board)
+        except KeyError:
+            return default
 
     def probe_dtz_table(self, board, wdl):
         key = calc_key(board)
@@ -1844,7 +1852,9 @@ class Tablebases(object):
         if *board* objects are not modified during probing.
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the probe fails.
+            :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
+            :func:`~chess.syzygy.Tablebases.get_dtz()` if you prefer to get
+            ``None`` instead of an exception.
         """
         v = self.probe_dtz_no_ep(board)
 
@@ -1886,6 +1896,12 @@ class Tablebases(object):
                     v = v1
 
         return v
+
+    def get_dtz(self, board, default=None):
+        try:
+            return self.probe_dtz(board)
+        except KeyError:
+            return default
 
     def close(self):
         """Closes all loaded tables."""
