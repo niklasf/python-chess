@@ -31,17 +31,6 @@ UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
-OFFDIAG = [
-    0, -1, -1, -1, -1, -1, -1, -1,
-    1,  0, -1, -1, -1, -1, -1, -1,
-    1,  1,  0, -1, -1, -1, -1, -1,
-    1,  1,  1,  0, -1, -1, -1, -1,
-    1,  1,  1,  1,  0, -1, -1, -1,
-    1,  1,  1,  1,  1,  0, -1, -1,
-    1,  1,  1,  1,  1,  1,  0, -1,
-    1,  1,  1,  1,  1,  1,  1,  0,
-]
-
 TRIANGLE = [
     6, 0, 1, 2, 2, 1, 0, 6,
     0, 7, 3, 4, 4, 3, 7, 0,
@@ -54,6 +43,9 @@ TRIANGLE = [
 ]
 
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
+
+def offdiag(square):
+    return chess.rank_index(square) - chess.file_index(square)
 
 def flipdiag(square):
     return ((square >> 3) | (square << 3)) & 63
@@ -820,9 +812,9 @@ class Table(object):
                     pos[i] ^= 0x38
 
             for i in range(n):
-                if OFFDIAG[pos[i]]:
+                if offdiag(pos[i]):
                     break
-            if i < (3 if self.enc_type == 0 else 2) and OFFDIAG[pos[i]] > 0:
+            if i < (3 if self.enc_type == 0 else 2) and offdiag(pos[i]) > 0:
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
 
@@ -830,11 +822,11 @@ class Table(object):
             i = int(pos[1] > pos[0])
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
-            if OFFDIAG[pos[0]]:
+            if offdiag(pos[0]):
                 idx = TRIANGLE[pos[0]] * 63 * 62 + (pos[1] - i) * 62 + (pos[2] - j)
-            elif OFFDIAG[pos[1]]:
+            elif offdiag(pos[1]):
                 idx = 6 * 63 * 62 + DIAG[pos[0]] * 28 * 62 + LOWER[pos[1]] * 62 + pos[2] - j
-            elif OFFDIAG[pos[2]]:
+            elif offdiag(pos[2]):
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + (DIAG[pos[0]]) * 7 * 28 + (DIAG[pos[1]] - i) * 28 + LOWER[pos[2]]
             else:
                 idx = 6 * 63 * 62 + 4 * 28 * 62 + 4 * 7 * 28 + (DIAG[pos[0]] * 7 * 6) + (DIAG[pos[1]] - i) * 6 + (DIAG[pos[2]] - j)
@@ -845,9 +837,9 @@ class Table(object):
             else:
                 i = pos[1] > pos[0]
 
-                if OFFDIAG[pos[0]]:
+                if offdiag(pos[0]):
                     idx = TRIANGLE[pos[0]] * 63 + (pos[1] - i)
-                elif OFFDIAG[pos[1]]:
+                elif offdiag(pos[1]):
                     idx = 6 * 63 + DIAG[pos[0]] * 28 + LOWER[pos[1]]
                 else:
                     idx = 6 * 63 + 4 * 28 + (DIAG[pos[0]]) * 7 + (DIAG[pos[1]] - i)
@@ -862,7 +854,7 @@ class Table(object):
             if pos[0] & 0x20:
                 for i in range(n):
                     pos[i] ^= 0x38
-            if OFFDIAG[pos[0]] > 0 or (OFFDIAG[pos[0]] == 0 and OFFDIAG[pos[1]] > 0):
+            if offdiag(pos[0]) > 0 or (offdiag(pos[0]) == 0 and offdiag(pos[1]) > 0):
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
             if TEST45[pos[1]] and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
@@ -881,7 +873,7 @@ class Table(object):
             if pos[0] & 0x20:
                 for i in range(n):
                     pos[i] ^= 0x38
-            if OFFDIAG[pos[0]] > 0:
+            if offdiag(pos[0]) > 0:
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
             for i in range(1, norm[0]):
