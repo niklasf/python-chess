@@ -549,6 +549,10 @@ def dtz_before_zeroing(wdl):
     return ((wdl > 0) - (wdl < 0)) * (1 if abs(wdl) == 2 else 101)
 
 
+class MissingTableError(KeyError):
+    pass
+
+
 class PairsData(object):
     def __init__(self):
         self.indextable = None
@@ -1593,7 +1597,7 @@ class Tablebases(object):
         try:
             table = self.wdl[key]
         except KeyError:
-            return None
+            raise MissingTableError("did not find wdl table {0}".format(key))
 
         self._bump_lru(table)
 
@@ -1615,13 +1619,11 @@ class Tablebases(object):
             found_moves = True
 
             board.push(move)
-            v_plus, success = self.probe_ab(board, -beta, -alpha)
-            board.pop()
-
-            if v_plus is None or not success:
-                return None, 0
-
-            v = -v_plus
+            try:
+                v_plus, success = self.probe_ab(board, -beta, -alpha)
+                v = -v_plus
+            finally:
+                board.pop()
 
             if v > alpha:
                 if v >= beta:
@@ -1637,8 +1639,6 @@ class Tablebases(object):
             assert chess.pop_count(board.occupied) < 6, "6 man tables threat checking not implemented"
 
         v = self.probe_wdl_table(board)
-        if v is None:
-            return None, 0
 
         if alpha >= v:
             return alpha, 1 + int(alpha > 0)
@@ -1669,12 +1669,10 @@ class Tablebases(object):
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
-            return None
+            raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         # Probe.
         v, success = self.probe_ab(board, -2, 2)
-        if v is None or not success:
-            return None
 
         # If en passant is not possible, we are done.
         if not board.ep_square or self.variant.captures_compulsory:
@@ -1685,16 +1683,12 @@ class Tablebases(object):
 
         # Look at all legal en passant captures.
         for move in board.generate_legal_ep():
-            # Do the move.
             board.push(move)
-
-            v0_plus, success = self.probe_ab(board, -2, 2)
-            board.pop()
-
-            if v0_plus is None or not success:
-                return None
-
-            v0 = -v0_plus
+            try:
+                v0_plus, success = self.probe_ab(board, -2, 2)
+                v0 = -v0_plus
+            finally:
+                board.pop()
 
             if v0 > v1:
                 v1 = v0
@@ -1715,7 +1709,7 @@ class Tablebases(object):
         try:
             table = self.dtz[key]
         except KeyError:
-            return None, 0
+            raise MissingTableError("did not find dtz table {0}".format(key))
 
         self._bump_lru(table)
 
@@ -1723,8 +1717,6 @@ class Tablebases(object):
 
     def probe_dtz_no_ep(self, board):
         wdl, success = self.probe_ab(board, -2, 2)
-        if wdl is None or not success:
-            return None
 
         if wdl == 0:
             return 0
@@ -1740,14 +1732,10 @@ class Tablebases(object):
                     continue
 
                 board.push(move)
-
-                v_plus = self.probe_wdl(board)
-                board.pop()
-
-                if v_plus is None:
-                    return None
-
-                v = -v_plus
+                try:
+                    v = -self.probe_wdl(board)
+                finally:
+                    board.pop()
 
                 if v == wdl:
                     return 1 if v == 2 else 101
@@ -1765,14 +1753,10 @@ class Tablebases(object):
 
             for move in board.generate_legal_moves(~board.pawns, ~board.occupied):
                 board.push(move)
-
-                v_plus = self.probe_dtz(board)
-                board.pop()
-
-                if v_plus is None:
-                    return None
-
-                v = -v_plus
+                try:
+                    v = -self.probe_dtz(board)
+                finally:
+                    board.pop()
 
                 if v > 0 and v + 1 < best:
                     best = v + 1
@@ -1784,25 +1768,17 @@ class Tablebases(object):
             for move in board.generate_legal_moves():
                 board.push(move)
 
-                if board.halfmove_clock == 0:
-                    if wdl == -2:
-                        v = -1
+                try:
+                    if board.halfmove_clock == 0:
+                        if wdl == -2:
+                            v = -1
+                        else:
+                            v, success = self.probe_ab(board, 1, 2)
+                            v = 0 if v == 2 else -101
                     else:
-                        v, success = self.probe_ab(board, 1, 2)
-                        if v is None or not success:
-                            board.pop()
-                            return None
-
-                        v = 0 if v == 2 else -101
-                else:
-                    v_plus_one = self.probe_dtz(board)
-                    if v_plus_one is None:
-                        board.pop()
-                        return None
-
-                    v = -v_plus_one - 1
-
-                board.pop()
+                        v = -self.probe_dtz(board) - 1
+                finally:
+                    board.pop()
 
                 if v < best:
                     best = v
@@ -1865,8 +1841,6 @@ class Tablebases(object):
         if *board* objects are not modified during probing.
         """
         v = self.probe_dtz_no_ep(board)
-        if v is None:
-            return None
 
         if not board.ep_square or self.variant.captures_compulsory:
             return v
@@ -1876,14 +1850,11 @@ class Tablebases(object):
         # Generate all en-passant moves.
         for move in board.generate_legal_ep():
             board.push(move)
-
-            v0_plus, success = self.probe_ab(board, -2, 2)
-            board.pop()
-
-            if v0_plus is None or not success:
-                return None
-
-            v0 = -v0_plus
+            try:
+                v0_plus, success = self.probe_ab(board, -2, 2)
+                v0 = -v0_plus
+            finally:
+                board.pop()
 
             if v0 > v1:
                 v1 = v0

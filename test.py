@@ -47,6 +47,17 @@ except ImportError:
     from io import StringIO  # Python 3
 
 
+def catchAndSkip(signature, message=None):
+    def _decorator(f):
+        def _wrapper(self):
+            try:
+                return f(self)
+            except signature as err:
+                raise unittest.SkipTest(message or err)
+        return _wrapper
+    return _decorator
+
+
 class SquareTestCase(unittest.TestCase):
 
     def test_square(self):
@@ -2616,28 +2627,20 @@ class SyzygyTestCase(unittest.TestCase):
 
         tablebases.close()
 
+    @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
         with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
             board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
-            dtz = tablebases.probe_dtz(board)
-            if dtz is None:
-                self.skipTest("need KBPvKP.rtbz and its children")
             self.assertEqual(tablebases.probe_dtz(board), 15)
 
+    @catchAndSkip(chess.syzygy.MissingTableError)
     def test_issue_93(self):
         with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
             board = chess.Board("4r1K1/6PP/3k4/8/8/8/8/8 w - - 1 64")
+            self.assertEqual(tablebases.probe_wdl(board), 2)
+            self.assertEqual(tablebases.probe_dtz(board), 4)
 
-            wdl = tablebases.probe_wdl(board)
-            if wdl is None:
-                self.skipTest("need KPPvKR.rtbw and its children")
-            self.assertEqual(wdl, 2)
-
-            dtz = tablebases.probe_dtz(board)
-            if dtz is None:
-                self.skipTest("need KPPvKR.rtbz and its children")
-            self.assertEqual(dtz, 4)
-
+    @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtm(self):
         with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
             with open("data/suicide-dtm.epd") as epds:
@@ -2647,15 +2650,11 @@ class SyzygyTestCase(unittest.TestCase):
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                     wdl = tablebases.probe_wdl(board)
-                    if wdl is None:
-                        self.skipTest("need {0} piece suicide table: {1}.stbw".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
 
                     expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
                     self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
 
                     dtz = tablebases.probe_dtz(board)
-                    if dtz is None:
-                        self.skipTest("need {0} piece suicide table: {1}.stbz".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
 
                     if wdl > 0:
                         self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
@@ -2666,6 +2665,7 @@ class SyzygyTestCase(unittest.TestCase):
                         self.assertLessEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
                         self.assertGreaterEqual(dtz, 2 * solution["max_dtm"])
 
+    @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtz(self):
         with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
             with open("data/suicide-dtz.epd") as epds:
@@ -2677,22 +2677,15 @@ class SyzygyTestCase(unittest.TestCase):
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                     dtz = tablebases.probe_dtz(board)
-                    if dtz is None:
-                        self.skipTest("need suicide table: {0}".format(chess.syzygy.calc_key(board)))
-
                     self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
 
+    @unittest.skipUnless(platform.python_implementation() == "CPython", "need CPython for native Gaviota")
+    @catchAndSkip((OSError, RuntimeError), "need libgtb")
     def setUp(self):
-        if platform.python_implementation() != "CPython":
-            self.skipTest("need CPython for native Gaviota")
-
-        try:
-            self.tablebases = chess.gaviota.open_tablebases_native("data/gaviota")
-        except (OSError, RuntimeError):
-            self.skipTest("need libgtb")
+        self.tablebases = chess.gaviota.open_tablebases_native("data/gaviota")
 
     def tearDown(self):
         self.tablebases.close()
@@ -2714,11 +2707,9 @@ class NativeGaviotaTestCase(unittest.TestCase):
 
 class GaviotaTestCase(unittest.TestCase):
 
+    @catchAndSkip(ImportError)
     def setUp(self):
-        try:
-            self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
-        except ImportError as err:
-            self.skipTest(str(err))
+        self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
 
     def tearDown(self):
         self.tablebases.close()
