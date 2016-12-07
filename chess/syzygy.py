@@ -287,16 +287,10 @@ PP_IDX = [[
      -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1
 ]]
 
-TEST45 = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 0, 0, 0, 0, 0,
-    1, 1, 0, 0, 0, 0, 0, 0,
-    1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-]
+def test45(sq):
+    return chess.BB_SQUARES[sq] & (chess.BB_A5 | chess.BB_A6 | chess.BB_A7 |
+                                   chess.BB_B5 | chess.BB_B6 |
+                                   chess.BB_C5)
 
 MTWIST = [
     15, 63, 55, 47, 40, 48, 56, 12,
@@ -857,7 +851,7 @@ class Table(object):
             if offdiag(pos[0]) > 0 or (offdiag(pos[0]) == 0 and offdiag(pos[1]) > 0):
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
-            if TEST45[pos[1]] and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
+            if test45(pos[1]) and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
                 pos[0], pos[1] = pos[1], pos[0]
                 for i in range(n):
                     pos[i] = flipdiag(pos[i] ^ 0x38)
