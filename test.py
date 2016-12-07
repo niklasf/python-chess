@@ -2638,9 +2638,37 @@ class SyzygyTestCase(unittest.TestCase):
                 self.skipTest("need KPPvKR.rtbz and its children")
             self.assertEqual(dtz, 4)
 
-    def test_sprobe_wdl(self):
+    def test_suicide_dtm(self):
         with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
-            with open("data/suicide-dm.epd") as epds:
+            with open("data/suicide-dtm.epd") as epds:
+                for epd in epds:
+                    epd = epd.strip()
+
+                    board, solution = chess.variant.SuicideBoard.from_epd(epd)
+
+                    wdl = tablebases.probe_wdl(board)
+                    if wdl is None:
+                        self.skipTest("need {0} piece suicide table: {1}.stbw".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
+
+                    expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
+                    self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
+
+                    dtz = tablebases.probe_dtz(board)
+                    if dtz is None:
+                        self.skipTest("need {0} piece suicide table: {1}.stbz".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
+
+                    if wdl > 0:
+                        self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                        self.assertLessEqual(dtz, 2 * solution["max_dtm"])
+                    elif wdl == 0:
+                        self.assertEqual(dtz, 0)
+                    else:
+                        self.assertLessEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                        self.assertGreaterEqual(dtz, 2 * solution["max_dtm"])
+
+    def test_suicide_dtz(self):
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
+            with open("data/suicide-dtz.epd") as epds:
                 for epd in epds:
                     epd = epd.strip()
                     if epd.startswith("%") or epd.startswith("#"):
@@ -2648,18 +2676,11 @@ class SyzygyTestCase(unittest.TestCase):
 
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
-                    wdl = tablebases.probe_wdl(board)
-                    if wdl is None:
-                        self.skipTest("need {0} piece suicide table: {1}".format(chess.pop_count(board.occupied), chess.syzygy.calc_key(board)))
+                    dtz = tablebases.probe_dtz(board)
+                    if dtz is None:
+                        self.skipTest("need suicide table: {0}".format(chess.syzygy.calc_key(board)))
 
-                    if solution["max_dtm"] > 0:
-                        expected_wdl = 2
-                    elif solution["max_dtm"] < 0:
-                        expected_wdl = -2
-                    else:
-                        expected_wdl = 0
-
-                    self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
+                    self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
