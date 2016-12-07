@@ -597,8 +597,7 @@ class GameModelCreator(BaseVisitor):
 
     def result(self):
         """
-        Returns a :class:`~chess.pgn.Game()` or ``None`` if no game was
-        encountered.
+        Returns the visited :class:`~chess.pgn.Game()`.
         """
         return self.game
 
