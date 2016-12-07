@@ -1539,6 +1539,21 @@ class Tablebases(object):
             if len(self.lru) > self.max_fds:
                 self.lru.pop().close()
 
+    def _open_table(self, hashtable, directory, filename, Table, suffix, pawnless_suffix):
+        if os.path.isfile(os.path.join(directory, filename) + suffix):
+            table = Table(directory, filename, self.variant, suffix)
+        elif "P" not in filename and pawnless_suffix and os.path.isfile(os.path.join(directory, filename) + pawnless_suffix):
+            table = Table(directory, filename, self.variant, pawnless_suffix)
+        else:
+            return 0
+
+        if table.key in hashtable:
+            hashtable[table.key].close()
+
+        hashtable[table.key] = table
+        hashtable[table.mirrored_key] = table
+        return 1
+
     def open_directory(self, directory, load_wdl=True, load_dtz=True):
         """
         Loads tables from a directory.
@@ -1555,27 +1570,10 @@ class Tablebases(object):
             raise IOError("not a directory: {0}".format(repr(directory)))
 
         for filename in filenames(one_king=self.variant.one_king):
-            load = []
             if load_wdl:
-                load.append((self.wdl, WdlTable, self.variant.tbw_suffix))
-                if "P" not in filename and self.variant.pawnless_tbw_suffix:
-                    load.append((self.wdl, WdlTable, self.variant.pawnless_tbw_suffix))
+                num += self._open_table(self.wdl, directory, filename, WdlTable, self.variant.tbw_suffix, self.variant.pawnless_tbw_suffix)
             if load_dtz:
-                load.append((self.dtz, DtzTable, self.variant.tbz_suffix))
-                if "P" not in filename and self.variant.pawnless_tbz_suffix:
-                    load.append((self.dtz, DtzTable, self.variant.pawnless_tbz_suffix))
-
-            for hashtable, Table, suffix in load:
-                if os.path.isfile(os.path.join(directory, filename) + suffix):
-                    table = Table(directory, filename, self.variant, suffix)
-
-                    if table.key in hashtable:
-                        hashtable[table.key].close()
-
-                    hashtable[table.key] = table
-                    hashtable[table.mirrored_key] = table
-
-                    num += 1
+                num += self._open_table(self.dtz, directory, filename, DtzTable, self.variant.tbz_suffix, self.variant.pawnless_tbz_suffix)
 
         return num
 
