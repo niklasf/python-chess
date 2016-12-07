@@ -178,7 +178,7 @@ class MemoryMappedReader(object):
         to delete entries from an opening book without compacting it. Pass
         *minimum_weight* ``0`` to select all entries.
 
-        Raises :exc:`IndexError` if no entries are found.
+        :raises: :exc:`IndexError` if no entries are found.
         """
         try:
             return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
@@ -189,7 +189,7 @@ class MemoryMappedReader(object):
         """
         Uniformly selects a random entry for the given position.
 
-        Raises :exc:`IndexError` if no entries are found.
+        :raises: :exc:`IndexError` if no entries are found.
         """
         chosen_entry = None
 
@@ -207,7 +207,7 @@ class MemoryMappedReader(object):
         Selects a random entry for the given position, distributed by the
         weights of the entries.
 
-        Raises :exc:`IndexError` if no entries are found.
+        :raises: :exc:`IndexError` if no entries are found.
         """
         total_weights = sum(entry.weight for entry in self.find_all(board, exclude_moves=exclude_moves))
         if not total_weights:

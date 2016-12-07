@@ -698,7 +698,7 @@ class Piece(object):
         """
         Creates a piece instance from a piece symbol.
 
-        Raises :exc:`ValueError` if the symbol is invalid.
+        :raises: :exc:`ValueError` if the symbol is invalid.
         """
         if symbol.islower():
             return cls(PIECE_SYMBOLS.index(symbol), BLACK)
@@ -787,7 +787,7 @@ class Move(object):
         """
         Parses an UCI string.
 
-        Raises :exc:`ValueError` if the UCI string is invalid.
+        :raises: :exc:`ValueError` if the UCI string is invalid.
         """
         if uci == "0000":
             return cls.null()
@@ -1091,7 +1091,7 @@ class BaseBoard(object):
         """
         Parses a FEN and sets the board from it.
 
-        Raises :exc:`ValueError` if the FEN string is invalid.
+        :raises: :exc:`ValueError` if the FEN string is invalid.
         """
         self._set_board_fen(fen)
 
@@ -2375,7 +2375,7 @@ class Board(BaseBoard):
         """
         Parses a FEN and sets the position from it.
 
-        Raises :exc:`ValueError` if the FEN string is invalid.
+        :raises: :exc:`ValueError` if the FEN string is invalid.
         """
         # Ensure there are six parts.
         parts = fen.split()
@@ -2706,7 +2706,7 @@ class Board(BaseBoard):
         Returns a dictionary of parsed operations. Values can be strings,
         integers, floats or move objects.
 
-        Raises :exc:`ValueError` if the EPD string is invalid.
+        :raises: :exc:`ValueError` if the EPD string is invalid.
         """
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
@@ -2856,7 +2856,7 @@ class Board(BaseBoard):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        Raises :exc:`ValueError` if the SAN is invalid or ambiguous.
+        :raises: :exc:`ValueError` if the SAN is invalid or ambiguous.
         """
         # Null moves.
         if san == "--":
@@ -2922,9 +2922,9 @@ class Board(BaseBoard):
         Parses a move in standard algebraic notation, makes the move and puts
         it on the the move stack.
 
-        Raises :exc:`ValueError` if neither legal nor a null move.
-
         Returns the move.
+
+        :raises: :exc:`ValueError` if neither legal nor a null move.
         """
         move = self.parse_san(san)
         self.push(move)
@@ -2955,8 +2955,8 @@ class Board(BaseBoard):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        Raises :exc:`ValueError` if the move is invalid or illegal in the
-        current position (but not a null move).
+        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+            current position (but not a null move).
         """
         move = Move.from_uci(uci)
 
@@ -2975,10 +2975,10 @@ class Board(BaseBoard):
         """
         Parses a move in UCI notation and puts it on the move stack.
 
-        Raises :exc:`ValueError` if the move is invalid or illegal in the
-        current position (but not a null move).
-
         Returns the move.
+
+        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+            current position (but not a null move).
         """
         move = self.parse_uci(uci)
         self.push(move)
@@ -4048,7 +4048,7 @@ class SquareSet(object):
         """
         Remove a square from the set.
 
-        Raises :exc:`KeyError` if the given square was not in the set.
+        :raises: :exc:`KeyError` if the given square was not in the set.
         """
         mask = BB_SQUARES[square]
         if self.mask & mask:
@@ -4064,7 +4064,7 @@ class SquareSet(object):
         """
         Removes a square from the set and returns it.
 
-        Raises :exc:`KeyError` on an empty set.
+        :raises: :exc:`KeyError` on an empty set.
         """
         if not self.mask:
             raise KeyError("pop from empty set")

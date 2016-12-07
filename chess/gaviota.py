@@ -2258,7 +2258,7 @@ def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     Use this function only if you do not want to downgrade to pure Python
     tablebase probing.
 
-    Raises :exc:`RuntimeError` or :exc:`OSError` when libgtb can not be used.
+    :raises: :exc:`RuntimeError` or :exc:`OSError` when libgtb can not be used.
     """
     libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
     return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
