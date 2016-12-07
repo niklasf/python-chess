@@ -161,7 +161,7 @@ class SuicideBoard(chess.Board):
 
 class GiveawayBoard(SuicideBoard):
 
-    aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess"]
+    aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess", "Anti chess"]
     uci_variant = "giveaway"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
