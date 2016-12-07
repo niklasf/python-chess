@@ -1,10 +1,52 @@
 Changelog for python-chess
 ==========================
 
-This project is pretty young and maturing only slowly. At the current stage it
-is more important to get things right than to be consistent with previous
-versions. Use this changelog to see what changed in a new release, because this
-might include API breaking changes.
+At the current stage of this project it is more important to get things right
+than to be consistent with previous versions. Use this changelog to see what
+changed in a new release, because this might include API breaking changes.
+
+Upcoming in the next release
+----------------------------
+
+Bugfixes:
+
+* `pin_mask()`, `pin()` and `is_pinned()` make more sense when already
+  in check. Thanks to Ferdinand Mosca.
+
+New features:
+
+* **Variant support: Suicide, Giveaway, Atomic, King of the Hill, Racing Kings,
+  Horde, Three-check, Crazyhouse.** `chess.Move` now supports drops.
+* More fine grained dependencies. Use *pip install python-chess[uci,gaviota]* to
+  install dependencies for the full feature set.
+* Added `chess.STATUS_EMPTY` and `chess.STATUS_ILLEGAL_CHECK`.
+* The `board.promoted` mask keeps track of promoted pieces.
+* Optionally copy boards without the move stack: `board.copy(stack=False)`.
+* `examples/bratko_kopec` now supports avoid move (am), variants and
+  displays fractional scores immidiately. Thanks to Daniel Dugovic.
+* `perft.py` rewritten with multi-threading support and moved to
+  `examples/perft`.
+* `chess.syzygy.dependencies()`, `chess.syzygy.all_dependencies()` to generate
+  Syzygy tablebase dependencies.
+
+Changes:
+
+* **Endgame tablebase probing (Syzygy, Gaviota):** `probe_wdl()` **,**
+  `probe_dtz()` **and** `probe_dtm()` **now raise** `KeyError` **or**
+  `MissingTableError` **instead of returning *None***. If you prefer getting
+  `None` in case  of an error use `get_wdl()`, `get_dtz()` and `get_dtm()`.
+* `chess.pgn.BaseVisitor.result()` returns `True` by default and is no longer
+  used by `chess.pgn.read_game()` if no game was found.
+* Non-fast-forward update of the Git repository to reduce size (old binary
+  test assets removed).
+* `board.pop()` now uses a boardstate stack to undo moves.
+* `uci.engine.position()` will send the move history only until the latest
+  zeroing move.
+* Optimize `board.clean_castling_rights()` and micro-optimizations improving
+  PGN parser performance by around 20%.
+* Syzygy tables now directly use the endgame name as hash keys.
+* Improve test performance (especially on Travis CI).
+* Documentation updates and improvements.
 
 New in v0.15.4
 --------------
