@@ -644,6 +644,9 @@ class Table(object):
 
                 self.read_ubyte = read_ubyte
 
+    def check_magic(self, magic):
+        return all(self.read_ubyte(i) == m for i, m in enumerate(magic))
+
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
 
@@ -1088,8 +1091,9 @@ class WdlTable(Table):
             if self.initialized:
                 return
 
-            for i, magic in enumerate(self.variant.tbw_magic):
-                assert magic == self.read_ubyte(i)
+            assert self.check_magic(self.variant.tbw_magic) or (
+                not self.has_pawns and self.variant.pawnless_tbw_magic
+                and self.check_magic(self.variant.pawnless_tbw_magic))
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1308,8 +1312,9 @@ class DtzTable(Table):
             if self.initialized:
                 return
 
-            for i, magic in enumerate(self.variant.tbz_magic):
-                assert magic == self.read_ubyte(i)
+            assert self.check_magic(self.variant.tbz_magic) or (
+                not self.has_pawns and self.variant.pawnless_tbz_magic
+                and self.check_magic(self.variant.pawnless_tbz_magic))
 
             self.factor = [0, 0, 0, 0, 0, 0]
             self.norm = [0 for _ in range(self.num)]
