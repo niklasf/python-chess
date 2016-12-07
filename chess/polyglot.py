@@ -56,7 +56,10 @@ class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn
                 elif to_square == chess.A8:
                     return chess.Move(chess.E8, chess.C8)
 
-        return chess.Move(from_square, to_square, promotion)
+        if promotion and from_square == to_square:
+            return chess.Move(from_square, to_square, drop=promotion)
+        else:
+            return chess.Move(from_square, to_square, promotion)
 
 
 class MemoryMappedReader(object):
