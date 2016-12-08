@@ -1580,21 +1580,12 @@ class Tablebases(object):
 
         return table.probe_wdl_table(board)
 
-    def probe_ab(self, board, alpha, beta):
-        if not self.variant.captures_compulsory:
-            # Generate non-ep captures.
-            moves = board.generate_legal_moves(to_mask=board.occupied_co[not board.turn])
-        else:
-            # Suicide chess: First try captures.
-            moves = list(board.generate_legal_captures())
-            if chess.pop_count(board.occupied_co[not board.turn]) <= 1 and any(moves):
-                return -2, 2
+    def probe_ab(self, board, alpha, beta, threats=False):
+        if self.variant.captures_compulsory:
+            return self.sprobe_ab(board, alpha, beta, threats)
 
-        found_moves = False
-
-        for move in moves:
-            found_moves = True
-
+        # Generate non-ep captures.
+        for move in  board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
             board.push(move)
             try:
                 v_plus, success = self.probe_ab(board, -beta, -alpha)
@@ -1607,20 +1598,64 @@ class Tablebases(object):
                     return v, 2
                 alpha = v
 
-        # Suicide chess.
-        if self.variant.captures_compulsory:
-            # Captures found.
-            if found_moves:
-                return alpha, 2
-
-            assert chess.pop_count(board.occupied) < 6, "6 man tables threat checking not implemented"
-
         v = self.probe_wdl_table(board)
 
         if alpha >= v:
             return alpha, 1 + int(alpha > 0)
         else:
             return v, 1
+
+    def sprobe_ab(self, board, alpha, beta, threats=False):
+        if chess.pop_count(board.occupied_co[not board.turn]) > 1:
+            v, captures_found = self.sprobe_capts(board, alpha, beta)
+            if captures_found:
+                return v, 2
+        else:
+            if any(board.generate_legal_captures()):
+                return -2, 2
+
+        threats_found = False
+
+        if threats or chess.pop_count(board.occupied) >= 6:
+            for threat in board.generate_legal_moves(~board.pawns):
+                board.push(threat)
+                try:
+                    v_plus, captures_found = self.sprobe_capts(board, -beta, -alpha)
+                    v = -v_plus
+                finally:
+                    board.pop()
+
+                if captures_found and v > alpha:
+                    threats_found = True
+                    alpha = v
+                    if alpha >= beta:
+                        return v, 3
+
+        v = self.probe_wdl_table(board)
+        if v > alpha:
+            return v, 1
+        else:
+            return alpha, 3 if threats_found else 1
+
+    def sprobe_capts(self, board, alpha, beta):
+        captures_found = False
+
+        for move in board.generate_legal_captures():
+            captures_found = True
+
+            board.push(move)
+            try:
+                v_plus, success = self.sprobe_ab(board, -beta, -alpha)
+                v = -v_plus
+            finally:
+                board.pop()
+
+            alpha = max(v, alpha)
+
+            if alpha >= beta:
+                break
+
+        return alpha, captures_found
 
     def probe_wdl(self, board):
         """
@@ -1705,13 +1740,17 @@ class Tablebases(object):
         return table.probe_dtz_table(board, wdl)
 
     def probe_dtz_no_ep(self, board):
-        wdl, success = self.probe_ab(board, -2, 2)
+        wdl, success = self.probe_ab(board, -2, 2, threats=True)
 
         if wdl == 0:
             return 0
 
         if success == 2:
             return dtz_before_zeroing(wdl)
+
+        if success == 3:
+            # The position is a win or a cursed win by a threat move.
+            return 2 if wdl == 2 else 102
 
         if wdl > 0:
             # Generate all legal non-capturing pawn moves.
@@ -1762,7 +1801,7 @@ class Tablebases(object):
                         if wdl == -2:
                             v = -1
                         else:
-                            v, success = self.probe_ab(board, 1, 2)
+                            v, success = self.probe_ab(board, 1, 2, threats=True)
                             v = 0 if v == 2 else -101
                     else:
                         v = -self.probe_dtz(board) - 1
