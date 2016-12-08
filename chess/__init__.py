@@ -2142,7 +2142,8 @@ class Board(BaseBoard):
             return
 
         promoted = self.promoted & BB_SQUARES[move.from_square]
-        captured_piece_type = self.piece_type_at(move.to_square)
+        capture_square = move.to_square
+        captured_piece_type = self.piece_type_at(capture_square)
         captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
 
         # Update half move counter.
@@ -2182,12 +2183,13 @@ class Board(BaseBoard):
 
             # Remove pawns captured en passant.
             if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
+                captured_piece_type = PAWN
                 if self.turn == WHITE:
                     self._remove_piece_at(move.to_square - 8)
-                    self._push_capture(move, move.to_square - 8, PAWN, False)
+                    capture_square = move.to_square - 8
                 else:
                     self._remove_piece_at(move.to_square + 8)
-                    self._push_capture(move, move.to_square + 8, PAWN, False)
+                    capture_square = move.to_square + 8
 
             # Set en passant square.
             if diff == 16:
@@ -2217,7 +2219,7 @@ class Board(BaseBoard):
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
             if captured_piece_type:
-                self._push_capture(move, move.to_square, captured_piece_type, was_promoted)
+                self._push_capture(move, capture_square, captured_piece_type, was_promoted)
 
         # Swap turn.
         self.turn = not self.turn

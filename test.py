@@ -2859,6 +2859,18 @@ class AtomicTestCase(unittest.TestCase):
         self.assertFalse(board.is_legal(Nxc4))
         self.assertFalse(Nxc4 in board.generate_legal_moves())
 
+    def test_atomic_en_passant(self):
+        # Real world position.
+        board = chess.variant.AtomicBoard("rn2kb1r/2p1p2p/p2q1pp1/1pPP4/Q7/4P3/PP3P1P/R3K3 w Qkq b6 0 11")
+        board.push_san("cxb6+")
+        self.assertEqual(board.fen(), "rn2kb1r/2p1p2p/p2q1pp1/3P4/Q7/4P3/PP3P1P/R3K3 b Qkq - 0 11")
+
+        # Test the explosion radius.
+        board = chess.variant.AtomicBoard("3kK3/8/8/2NNNNN1/2NN1pN1/2NN1NN1/2NNPNN1/2NNNNN1 w - - 0 1")
+        board.push_san("e4")
+        board.push_san("fxe3")
+        self.assertEqual(board.fen(), "3kK3/8/8/2NNNNN1/2N3N1/2N3N1/2N3N1/2NNNNN1 w - - 0 2")
+
 
 class RacingKingsTestCase(unittest.TestCase):
 

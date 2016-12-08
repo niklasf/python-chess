@@ -260,7 +260,7 @@ class AtomicBoard(chess.Board):
         self._remove_piece_at(move.to_square)
 
         # Explode all non pawns around.
-        explosion_radius = chess.BB_KING_ATTACKS[capture_square] & ~self.pawns
+        explosion_radius = chess.BB_KING_ATTACKS[move.to_square] & ~self.pawns
         explosion = chess.bit_scan(explosion_radius)
         while explosion != -1 and explosion is not None:
             self._remove_piece_at(explosion)
