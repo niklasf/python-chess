@@ -4,3 +4,10 @@ perft 1 20
 perft 2 400
 perft 3 8902
 perft 4 197326
+
+id programfox-en-passant
+epd rn2kb1r/1pp1p2p/p2q1pp1/3P4/2P3b1/4PN2/PP3PPP/R2QKB1R b KQkq -
+perft 1 40
+perft 2 1238
+perft 3 45237
+perft 4 1434825
