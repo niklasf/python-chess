@@ -1582,6 +1582,13 @@ class Tablebases(object):
 
     def probe_ab(self, board, alpha, beta, threats=False):
         if self.variant.captures_compulsory:
+            if board.is_variant_win():
+                return 2, 2
+            elif board.is_variant_loss():
+                return -2, 2
+            elif board.is_variant_draw():
+                return 0, 2
+
             return self.sprobe_ab(board, alpha, beta, threats)
 
         # Generate non-ep captures.
