@@ -2672,6 +2672,21 @@ class SyzygyTestCase(unittest.TestCase):
                     dtz = tablebases.probe_dtz(board)
                     self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
+    @catchAndSkip(chess.syzygy.MissingTableError)
+    def test_suicide_stats(self):
+        board = chess.variant.SuicideBoard()
+
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tablebases:
+            with open("data/suicide-stats.epd") as epds:
+                for l, epd in enumerate(epds):
+                    solution = board.set_epd(epd)
+
+                    wdl = tablebases.probe_wdl(board)
+                    self.assertEqual(wdl, solution["wdl"], "Expected wdl {0}, got {1} (in l. {2})".format(solution["wdl"], wdl, l + 1))
+
+                    dtz = tablebases.probe_dtz(board)
+                    self.assertLessEqual(abs(dtz - solution["dtz"]), 1, "Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
+
 
 class NativeGaviotaTestCase(unittest.TestCase):
 
