@@ -648,7 +648,8 @@ class Table(object):
             if wdl:
                 d.min_len = self.read_ubyte(data_ptr + 1)
             else:
-                d.min_len = 0
+                # http://www.talkchess.com/forum/viewtopic.php?p=698093#698093
+                d.min_len = 1 if self.variant.captures_compulsory else 0
             self._next = data_ptr + 2
             self.size[size_idx + 0] = 0
             self.size[size_idx + 1] = 0
