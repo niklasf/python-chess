@@ -487,10 +487,6 @@ class BaseVisitor(object):
         """Called at the start of a game."""
         pass
 
-    def end_game(self):
-        """Called at the end of a game."""
-        pass
-
     def begin_headers(self):
         """Called at the start of the game headers."""
         pass
@@ -501,6 +497,23 @@ class BaseVisitor(object):
 
     def end_headers(self):
         """Called at the end of the game headers."""
+        pass
+
+    def visit_move(self, board, move):
+        """
+        Called for each move.
+
+        *board* is the board state before the move. The board state must be
+        restored before the traversal continues.
+        """
+        pass
+
+    def visit_comment(self, comment):
+        """Called for each comment."""
+        pass
+
+    def visit_nag(self, nag):
+        """Called for each NAG."""
         pass
 
     def begin_variation(self):
@@ -514,34 +527,21 @@ class BaseVisitor(object):
         """Concludes a variation."""
         pass
 
-    def visit_comment(self, comment):
-        """Called for each comment."""
-        pass
-
-    def visit_nag(self, nag):
-        """Called for each NAG."""
-        pass
-
-    def visit_move(self, board, move):
-        """
-        Called for each move.
-
-        *board* is the board state before the move. The board state must be
-        restored before the traversal continues.
-        """
-        pass
-
     def visit_result(self, result):
         """Called at the end of the game with the *Result*-header."""
         pass
 
-    def handle_error(self, error):
-        """Called for errors encountered. Defaults to raising an exception."""
-        raise error
+    def end_game(self):
+        """Called at the end of a game."""
+        pass
 
     def result(self):
         """Called to get the result of the visitor. Defaults to ``True``."""
         return True
+
+    def handle_error(self, error):
+        """Called for errors encountered. Defaults to raising an exception."""
+        raise error
 
 
 class GameModelCreator(BaseVisitor):
@@ -592,6 +592,10 @@ class GameModelCreator(BaseVisitor):
         self.in_variation = True
 
     def handle_error(self, error):
+        """
+        Populates :data:`chess.pgn.Game.errors` with encountered errors and
+        logs them.
+        """
         LOGGER.exception("error during pgn parsing")
         self.game.errors.append(error)
 
