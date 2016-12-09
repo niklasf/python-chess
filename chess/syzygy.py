@@ -1776,12 +1776,8 @@ class Tablebases(object):
                     return 1 if v == 2 else 101
 
         dtz, success = self.probe_dtz_table(board, wdl)
-        dtz += 1
-
         if success >= 0:
-            if wdl & 1:
-                dtz += 100
-            return dtz if wdl >= 0 else -dtz
+            return dtz_before_zeroing(wdl) + (dtz if wdl > 0 else -dtz)
 
         if wdl > 0:
             best = 0xffff
