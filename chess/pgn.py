@@ -389,16 +389,16 @@ class Game(GameNode):
         Unless the `SetUp` and `FEN` header tags are set this is the default
         starting position.
         """
-        if "Variant" not in self.headers:
+        chess960 = self.headers.get("Variant", "").lower() == "chess960"
+
+        if chess960 or "Variant" not in self.headers:
             VariantBoard = chess.Board
-        elif self.headers["Variant"].lower() == "chess960":
-            VariantBoard = lambda fen: chess.Board(fen, chess960=True)
         else:
             from chess.variant import find_variant
             VariantBoard = find_variant(self.headers["Variant"])
 
         fen = self.headers.get("FEN") if self.headers.get("SetUp", "1") == "1" else None
-        board = VariantBoard(fen or VariantBoard.starting_fen)
+        board = VariantBoard(fen or VariantBoard.starting_fen, chess960)
         board.chess960 = board.chess960 or board.has_chess960_castling_rights()
         return board
 

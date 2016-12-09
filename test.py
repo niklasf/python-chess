@@ -1768,6 +1768,16 @@ class PgnTestCase(unittest.TestCase):
         last_node = game.end()
         self.assertEqual(last_node.move.uci(), "b2b1q")
 
+    def test_chess960_without_fen(self):
+        pgn = StringIO(textwrap.dedent("""\
+            [Variant "Chess960"]
+
+            1. e4 *
+            """))
+
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.variation(0).move, chess.Move.from_uci("e2e4"))
+
     def test_variation_stack(self):
         # Ignore superfluous closing brackets.
         pgn = StringIO("1. e4 (1. d4))) !? *")
