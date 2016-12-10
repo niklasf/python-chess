@@ -345,7 +345,6 @@ python-chess, for example:
 * an HTTP microservice to render board images - https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram - https://github.com/cxjdavin/tgchessbot
 * connecting Stockfish to the Novag Citrine - http://empiricalrabbit.blogspot.de/2016/05/integrating-with-python-chess-module.html
-* a cross platform chess GUI - https://asdfjkl.github.io/jerry/
 * a tool to build `Anki <http://ankisrs.net/>`_ decks from a PGN opening repertoire - https://github.com/asdfjkl/pgn2anki
 
 License
