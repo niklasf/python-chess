@@ -1752,7 +1752,7 @@ class Tablebases(object):
         if wdl == 0:
             return 0
 
-        if success == 2:
+        if success == 2 or not board.occupied_co[board.turn] & ~board.pawns:
             return dtz_before_zeroing(wdl)
 
         if success == 3:
