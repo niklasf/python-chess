@@ -2682,7 +2682,6 @@ class SyzygyTestCase(unittest.TestCase):
                     dtz = tablebases.probe_dtz(board)
                     self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
-    @unittest.expectedFailure
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
