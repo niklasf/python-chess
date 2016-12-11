@@ -23,7 +23,6 @@ import os
 import struct
 import sys
 import threading
-import math
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -1592,7 +1591,7 @@ class Tablebases(object):
             return self.sprobe_ab(board, alpha, beta, threats)
 
         # Generate non-ep captures.
-        for move in  board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
+        for move in board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
             board.push(move)
             try:
                 v_plus, success = self.probe_ab(board, -beta, -alpha)

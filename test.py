@@ -2909,7 +2909,7 @@ class RacingKingsTestCase(unittest.TestCase):
         board = chess.variant.RacingKingsBoard("1K6/7k/8/8/8/8/8/8 b - - 0 1")
         self.assertFalse(board.is_game_over())
 
-        board.push_san("Kg7") # ??
+        board.push_san("Kg7")  # ??
         self.assertFalse(board.is_variant_draw())
         self.assertTrue(board.is_variant_win())
         self.assertFalse(board.is_variant_loss())
