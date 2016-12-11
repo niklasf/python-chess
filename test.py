@@ -2691,11 +2691,8 @@ class SyzygyTestCase(unittest.TestCase):
                 for l, epd in enumerate(epds):
                     solution = board.set_epd(epd)
 
-                    wdl = tablebases.probe_wdl(board)
-                    self.assertEqual(wdl, solution["wdl"], "Expected wdl {0}, got {1} (in l. {2})".format(solution["wdl"], wdl, l + 1))
-
                     dtz = tablebases.probe_dtz(board)
-                    self.assertLessEqual(abs(dtz - solution["dtz"]), 1, "Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
+                    self.assertAlmostEqual(dtz, solution["dtz"], delta=1, msg="Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
