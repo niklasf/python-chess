@@ -24,6 +24,7 @@ import chess.uci
 import chess.syzygy
 import chess.gaviota
 import chess.variant
+import os
 import os.path
 import textwrap
 import sys
@@ -2682,6 +2683,7 @@ class SyzygyTestCase(unittest.TestCase):
                     dtz = tablebases.probe_dtz(board)
                     self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
+    @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
