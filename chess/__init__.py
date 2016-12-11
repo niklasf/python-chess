@@ -2113,8 +2113,8 @@ class Board(BaseBoard):
         en passant capturing.
 
         :warning: No validation is performed. For performance moves are assumed
-        to be at least pseudo legal. Otherwise there is no guarantee that the
-        previous board state can be restored.
+            to be at least pseudo legal. Otherwise there is no guarantee
+            that the previous board state can be restored.
         """
         move = self._to_chess960(move)
 
