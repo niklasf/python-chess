@@ -5,8 +5,8 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
-Upcoming in the next release
-----------------------------
+New in v0.16.0
+--------------
 
 Bugfixes:
 
