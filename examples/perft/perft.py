@@ -95,6 +95,11 @@ def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
                 print("     perft", depth, nodes, "(got %d instead)" % perft_nodes)
                 print()
                 print(board)
+                print()
+                for move in board.legal_moves:
+                    board.push(move)
+                    print("%s: %d" % (move, perft_f(depth - 1, board)))
+                    board.pop()
                 sys.exit(1)
 
             total_nodes += perft_nodes
