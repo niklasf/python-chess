@@ -266,6 +266,9 @@ class AtomicBoard(chess.Board):
             self._remove_piece_at(explosion)
             explosion = chess.bit_scan(explosion_radius, explosion + 1)
 
+        # Destroy castling rights.
+        self.castling_rights &= ~explosion_radius
+
     def is_check(self):
         return not self._kings_connected() and super(AtomicBoard, self).is_check()
 
