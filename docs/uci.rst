@@ -71,7 +71,7 @@ and continue.
 >>> command = engine.go(movetime=2000, async_callback=True)
 >>> command.done()
 False
->>> command.result() # Synchronously wait for the command to finish
+>>> command.result()  # Synchronously wait for the command to finish
 BestMove(bestmove=Move.from_uci('e2e4'), ponder=None)
 >>> command.done()
 True

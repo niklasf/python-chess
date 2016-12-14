@@ -2104,9 +2104,9 @@ class Board(BaseBoard):
         Updates the position with the given move and puts it onto a stack.
 
         >>> Nf3 = chess.Move.from_uci("g1f3")
-        >>> board.push(Nf3) # Make the move
+        >>> board.push(Nf3)  # Make the move
 
-        >>> board.pop() # Unmake the last move
+        >>> board.pop()  # Unmake the last move
         Move.from_uci('g1f3')
 
         Null moves just increment the move counters, switch turns and forfeit
