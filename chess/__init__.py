@@ -1501,7 +1501,7 @@ class Board(BaseBoard):
         """Restores the starting position."""
         self.turn = WHITE
         self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
-        self.ep_square = 0
+        self.ep_square = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
 
@@ -1523,7 +1523,7 @@ class Board(BaseBoard):
         """
         self.turn = WHITE
         self.castling_rights = BB_VOID
-        self.ep_square = 0
+        self.ep_square = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
 
@@ -2130,7 +2130,7 @@ class Board(BaseBoard):
         if not move:
             self.turn = not self.turn
             self.halfmove_clock += 1
-            self.ep_square = 0
+            self.ep_square = None
             return
 
         # Drops.
@@ -2138,7 +2138,7 @@ class Board(BaseBoard):
             self._set_piece_at(move.to_square, move.drop, self.turn)
             self.turn = not self.turn
             self.halfmove_clock += 1
-            self.ep_square = 0
+            self.ep_square = None
             return
 
         promoted = self.promoted & BB_SQUARES[move.from_square]
@@ -2177,7 +2177,7 @@ class Board(BaseBoard):
         self._remove_piece_at(move.from_square)
 
         # Handle special pawn moves.
-        self.ep_square = 0
+        self.ep_square = None
         if piece_type == PAWN:
             diff = abs(move.to_square - move.from_square)
 

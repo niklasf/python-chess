@@ -123,7 +123,7 @@ Board
 
     .. py:attribute:: ep_square
 
-        The potential en passant square on the third or sixth rank or ``0``.
+        The potential en passant square on the third or sixth rank or ``None``.
 
         Use :func:`~chess.Board.has_legal_en_passant()` to test if en passant
         capturing would actually be possible on the next move.
