@@ -1765,7 +1765,7 @@ class Board(BaseBoard):
         True
         >>> direction = board.pin(chess.WHITE, chess.C3)
         >>> direction
-        SquareSet(0b100000010000001000000100000010000)
+        SquareSet(0b0000000000000000000000000000000100000010000001000000100000010000)
         >>> print(direction)
         . . . . . . . .
         . . . . . . . .
@@ -3953,7 +3953,7 @@ class SquareSet(object):
 
     >>> squares = chess.SquareSet(chess.BB_B1 | chess.BB_G1)
     >>> squares
-    SquareSet(0b1000010)
+    SquareSet(0b0000000000000000000000000000000000000000000000000000000001000010)
 
     >>> print(squares)
     . . . . . . . .
@@ -4184,7 +4184,7 @@ class SquareSet(object):
         return self.mask
 
     def __repr__(self):
-        return "SquareSet({0})".format(bin(self.mask))
+        return "SquareSet({:#066b})".format(self.mask)
 
     def __str__(self):
         builder = []
