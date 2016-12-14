@@ -119,8 +119,6 @@ Features
       False
       >>> board.is_game_over()
       True
-      >>> board.halfmove_clock
-      0
 
 * Detects repetitions. Has a half move clock.
 
