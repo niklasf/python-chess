@@ -4184,7 +4184,7 @@ class SquareSet(object):
         return self.mask
 
     def __repr__(self):
-        return "SquareSet({:#066b})".format(self.mask)
+        return "SquareSet({0:#066b})".format(self.mask)
 
     def __str__(self):
         builder = []
