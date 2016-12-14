@@ -142,39 +142,37 @@ Board
         Whether the board is in Chess960 mode. In Chess960 castling moves are
         represented as king moves to the corresponding rook square.
 
+    .. py:attribute:: legal_moves
+        :annotation: = LegalMoveGenerator(self)
+
+        A dynamic list of legal moves.
+
+        The following operations do not just generate everything but map to
+        more efficient methods.
+
+        >>> len(board.legal_moves)
+        20
+
+        >>> bool(board.legal_moves)
+        True
+
+        >>> move in board.legal_moves
+        True
+
+        Wraps :func:`~chess.Board.generate_legal_moves()` and
+        :func:`~chess.Board.is_legal()`.
+
     .. py:attribute:: pseudo_legal_moves
         :annotation: = PseudoLegalMoveGenerator(self)
 
-        A dynamic list of pseudo legal moves.
+        A dynamic list of pseudo legal moves, much like the legal move list.
 
         Pseudo legal moves might leave or put the king in check, but are
         otherwise valid. Null moves are not pseudo legal. Castling moves are
         only included if they are completely legal.
 
-        For performance moves are generated on the fly and only when nescessary.
-        The following operations do not just generate everything but map to
-        more efficient methods.
-
-        >>> len(board.pseudo_legal_moves)
-        20
-
-        >>> bool(board.pseudo_legal_moves)
-        True
-
-        >>> move in board.pseudo_legal_moves
-        True
-
         Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
         :func:`~chess.Board.is_pseudo_legal()`.
-
-    .. py:attribute:: legal_moves
-        :annotation: = LegalMoveGenerator(self)
-
-        A dynamic list of completely legal moves, much like the pseudo legal
-        move list.
-
-        Wraps :func:`~chess.Board.generate_legal_moves()` and
-        :func:`~chess.Board.is_legal()`.
 
     .. py:attribute:: move_stack
 
