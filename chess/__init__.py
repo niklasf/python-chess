@@ -3211,7 +3211,9 @@ class Board(BaseBoard):
         :data:`~chess.STATUS_TOO_MANY_BLACK_PIECES`,
         :data:`~chess.STATUS_BAD_CASTLING_RIGHTS`,
         :data:`~chess.STATUS_INVALID_EP_SQUARE`,
-        :data:`~chess.STATUS_OPPOSITE_CHECK`.
+        :data:`~chess.STATUS_OPPOSITE_CHECK`,
+        :data:`~chess.STATUS_EMPTY`,
+        :data:`~chess.STATUS_ILLEGAL_CHECK`.
         """
         errors = STATUS_VALID
 
