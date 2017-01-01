@@ -2833,7 +2833,7 @@ class Board(BaseBoard):
 
         This board will not be modified as a result of calling this.
         """
-        board = self.copy()
+        board = self.copy(stack=False)
         san = []
         move_numbers = []
         first_move = True
