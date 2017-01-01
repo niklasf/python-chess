@@ -2835,21 +2835,21 @@ class Board(BaseBoard):
         """
         board = self.copy(stack=False)
         san = []
-        move_numbers = []
-        first_move = True
+
         for move in variation:
             if not board.is_legal(move):
                 raise ValueError("illegal move {0} in position {1}".format(move, board.fen()))
-            san.append(board.san(move))
+
             if board.turn == WHITE:
-                move_numbers.append("{0}. ".format(board.fullmove_number))
-            elif first_move:
-                move_numbers.append("{0}...".format(board.fullmove_number))
+                san.append("{0}. {1}".format(board.fullmove_number, board.san(move)))
+            elif not san:
+                san.append("{0}...{1}".format(board.fullmove_number, board.san(move)))
             else:
-                move_numbers.append("")
+                san.append(board.san(move))
+
             board.push(move)
-            first_move = False
-        return " ".join(["{0}{1}".format(num, s) for (num, s) in zip(move_numbers, san)])
+
+        return " ".join(san)
 
     def parse_san(self, san):
         """
