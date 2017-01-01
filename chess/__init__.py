@@ -2116,11 +2116,11 @@ class Board(BaseBoard):
             to be at least pseudo legal. Otherwise there is no guarantee
             that the previous board state can be restored.
         """
-        move = self._to_chess960(move)
-
         # Remember game state.
         self.stack.append(_BoardState(self))
         self.move_stack.append(move)
+
+        move = self._to_chess960(move)
 
         # Increment fullmove number.
         if self.turn == BLACK:
@@ -2231,7 +2231,7 @@ class Board(BaseBoard):
         """
         Restores the previous position and returns the last move from the stack.
         """
-        stack_move = self.move_stack.pop()
+        move = self.move_stack.pop()
         state = self.stack.pop()
 
         # Update transposition table.
@@ -2258,7 +2258,7 @@ class Board(BaseBoard):
         self.halfmove_clock = state.halfmove_clock
         self.fullmove_number = state.fullmove_number
 
-        return stack_move
+        return move
 
     def peek(self):
         """Gets the last move from the move stack."""

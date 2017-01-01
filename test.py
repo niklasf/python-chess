@@ -530,7 +530,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(chess.Move.from_uci("f2f1n")), "f1=N+")
         self.assertEqual(board.fen(), fen)
 
-    def test_variations(self):
+    def test_variation_san(self):
         board = chess.Board()
         self.assertEqual('1. e4 e5 2. Nf3',
                          board.variation_san([chess.Move.from_uci(m) for m in
@@ -564,6 +564,20 @@ class BoardTestCase(unittest.TestCase):
                       msg="Error [{0}] mentions illegal move".format(message))
         self.assertIn('f3h6', message,
                       msg="Illegal move f3h6 appears in message [{0}]".format(message))
+
+    def test_move_stack_usage(self):
+        board = chess.Board()
+        board.push_uci("d2d4")
+        board.push_uci("d7d5")
+        board.push_uci("g1f3")
+        board.push_uci("c8f5")
+        board.push_uci("e2e3")
+        board.push_uci("e7e6")
+        board.push_uci("f1d3")
+        board.push_uci("f8d6")
+        board.push_uci("e1h1")
+        san = chess.Board().variation_san(board.move_stack)
+        self.assertEqual(san, "1. d4 d5 2. Nf3 Bf5 3. e3 e6 4. Bd3 Bd6 5. O-O")
 
     def test_is_legal_move(self):
         fen = "3k4/6P1/7P/8/K7/8/8/4R3 w - - 0 1"
