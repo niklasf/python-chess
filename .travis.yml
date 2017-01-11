@@ -1,5 +1,6 @@
 language: python
-sudo: false
+dist: trusty
+sudo: required  # Required for pypy installation on trusty
 python:
  - "2.6"
  - "2.7"
@@ -43,7 +44,6 @@ before_install:
  - wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
  - cd ../../..
 install:
- - pip install requests[security]
  - pip install coverage coveralls
  - pip install -e .[test]
 script:
