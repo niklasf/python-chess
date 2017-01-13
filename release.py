@@ -26,7 +26,7 @@ def check_git():
 
 def test():
     print("--- TEST ---------------------------------------------------------")
-    system("tox -e py27,py35")
+    system("tox --skip-missing-interpreters")
 
 
 def check_changelog():
