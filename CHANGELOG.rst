@@ -5,6 +5,18 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+New in v0.16.2
+--------------
+
+Changes:
+
+* `board.move_stack` now contains the exact move objects added with
+  `Board.push()` (instead of normalized copies for castling moves).
+  This ensures they can be used with `Board.variation_san()` amongst others.
+* `board.ep_square` is now `None` instead of `0` for no en passant square.
+* `chess.svg`: Better vector graphics for knights. Thanks to ProgramFox.
+* Documentation improvements.
+
 New in v0.16.1
 --------------
 
