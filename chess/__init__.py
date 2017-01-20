@@ -431,9 +431,9 @@ RANK_ATTACKS = _attack_table([
 ])
 
 
-SAN_REGEX = re.compile("^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\\+|#)?$")
+SAN_REGEX = re.compile(r"([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
 
-FEN_CASTLING_REGEX = re.compile("^-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2}$")
+FEN_CASTLING_REGEX = re.compile(r"-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2}\Z")
 
 
 POLYGLOT_RANDOM_ARRAY = [

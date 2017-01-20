@@ -530,6 +530,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(chess.Move.from_uci("f2f1n")), "f1=N+")
         self.assertEqual(board.fen(), fen)
 
+    def test_san_newline(self):
+        fen = "rnbqk2r/ppppppbp/5np1/8/8/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 4"
+        board = chess.Board(fen)
+
+        with self.assertRaises(ValueError):
+            board.parse_san("O-O\n")
+
+        with self.assertRaises(ValueError):
+            board.parse_san("Nc3\n")
+
     def test_variation_san(self):
         board = chess.Board()
         self.assertEqual('1. e4 e5 2. Nf3',

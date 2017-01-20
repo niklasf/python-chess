@@ -73,7 +73,7 @@ NAG_WHITE_SEVERE_TIME_PRESSURE = 138
 NAG_BLACK_SEVERE_TIME_PRESSURE = 139
 
 
-TAG_REGEX = re.compile(r"\[([A-Za-z0-9_]+)\s+\"(.*)\"\]")
+TAG_REGEX = re.compile(r"\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 
 MOVETEXT_REGEX = re.compile(r"""
     (%.*?[\n\r])
