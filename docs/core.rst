@@ -118,8 +118,9 @@ Board
         Also see :func:`~chess.Board.has_castling_rights()`,
         :func:`~chess.Board.has_kingside_castling_rights()`,
         :func:`~chess.Board.has_queenside_castling_rights()`,
-        :func:`~chess.Board.has_chess960_castling_rights()` and
-        :func:`~chess.Board.clean_castling_rights()`.
+        :func:`~chess.Board.has_chess960_castling_rights()`,
+        :func:`~chess.Board.clean_castling_rights()` and
+        :func:`~chess.Board.set_castling_fen()`.
 
     .. py:attribute:: ep_square
 
