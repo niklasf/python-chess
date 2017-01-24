@@ -3476,16 +3476,11 @@ class Board(BaseBoard):
         return False
 
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        king = self.occupied_co[self.turn] & self.kings & ~self.promoted & from_mask
-        king_square = bit_scan(king)
-        if king_square is None or king_square == -1:
-            return
-
-        if self.is_check():
-            return
-
-        king_file_index = file_index(bit_scan(king))
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
+        king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
+        king = king & -king
+        if not king or self.is_check():
+            return
 
         bb_a = BB_FILE_A & backrank
         bb_c = BB_FILE_C & backrank
@@ -3496,9 +3491,8 @@ class Board(BaseBoard):
         candidates = self.clean_castling_rights() & backrank & to_mask
         while candidates:
             rook = candidates & -candidates
-            rook_file_index = file_index(bit_scan(rook))
 
-            a_side = rook_file_index < king_file_index
+            a_side = rook < king
 
             # In the special case where we castle queenside and our rook
             # shielded us from an attack from a1 or a8, castling would be
@@ -3512,27 +3506,19 @@ class Board(BaseBoard):
 
             if a_side:
                 if not rook & bb_d:
-                    empty_for_rook = (
-                        RANK_ATTACKS[rook][rook | bb_d] &
-                        RANK_ATTACKS[bb_d][bb_d | rook])
+                    empty_for_rook = RANK_ATTACKS[rook][rook | bb_d] & RANK_ATTACKS[bb_d][bb_d | rook]
                     empty_for_rook |= bb_d
 
                 if not king & bb_c:
-                    empty_for_king = (
-                        RANK_ATTACKS[king][king | bb_c] &
-                        RANK_ATTACKS[bb_c][bb_c | king])
+                    empty_for_king = RANK_ATTACKS[king][king | bb_c] & RANK_ATTACKS[bb_c][bb_c | king]
                     empty_for_king |= bb_c
             else:
                 if not rook & bb_f:
-                    empty_for_rook = (
-                        RANK_ATTACKS[rook][rook | bb_f] &
-                        RANK_ATTACKS[bb_f][bb_f | rook])
+                    empty_for_rook = RANK_ATTACKS[rook][rook | bb_f] & RANK_ATTACKS[bb_f][bb_f | rook]
                     empty_for_rook |= bb_f
 
                 if not king & bb_g:
-                    empty_for_king = (
-                        RANK_ATTACKS[king][king | bb_g] &
-                        RANK_ATTACKS[bb_g][bb_g | king])
+                    empty_for_king = RANK_ATTACKS[king][king | bb_g] & RANK_ATTACKS[bb_g][bb_g | king]
                     empty_for_king |= bb_g
 
             empty_for_rook &= ~king
