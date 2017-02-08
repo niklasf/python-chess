@@ -3,6 +3,7 @@ Variants (experimental)
 
 python-chess supports several chess variants.
 
+>>> import chess.variant
 >>> board = chess.variant.GiveawayBoard()
 
 >>> # General information about the variants
