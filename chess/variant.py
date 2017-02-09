@@ -395,6 +395,8 @@ class RacingKingsBoard(chess.Board):
         status = super(RacingKingsBoard, self).status()
         if self.is_check():
             status |= chess.STATUS_ILLEGAL_CHECK
+        if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
+            status |= chess.STATUS_RACE_OVER
         return status
 
 

@@ -2968,6 +2968,14 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_variant_draw())
         self.assertEqual(board.result(), "1-0")
 
+    def test_race_over(self):
+        self.assertTrue(chess.variant.RacingKingsBoard().is_valid())
+
+        # This position with black to move and both kings on the backrank is
+        # invalid because the race should have been over already.
+        board = chess.variant.RacingKingsBoard("3krQK1/8/8/8/1q6/3B1N2/1b6/1R4R1 b - - 0 0")
+        self.assertEqual(board.status(), chess.STATUS_RACE_OVER)
+
 
 class HordeTestCase(unittest.TestCase):
 
