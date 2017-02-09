@@ -406,7 +406,7 @@ class RacingKingsBoard(chess.Board):
                 status |= chess.STATUS_RACE_MATERIAL
             if chess.pop_count(self.occupied_co[color] & self.rooks) > 2:
                 status |= chess.STATUS_RACE_MATERIAL
-            if chess.pop_count(self.occupied_co[color] & self.queens) > 2:
+            if chess.pop_count(self.occupied_co[color] & self.queens) > 1:
                 status |= chess.STATUS_RACE_MATERIAL
         return status
 
