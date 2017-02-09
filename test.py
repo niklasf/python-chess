@@ -2950,6 +2950,24 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_variant_win())
         self.assertTrue(board.is_variant_loss())
 
+    def test_stalemate(self):
+        board = chess.variant.RacingKingsBoard("1Q4R1/5K2/4B3/8/8/3N4/8/k7 b - - 0 1")
+        self.assertTrue(board.is_game_over())
+        self.assertTrue(board.is_stalemate())
+        self.assertFalse(board.is_variant_win())
+        self.assertFalse(board.is_variant_draw())
+        self.assertFalse(board.is_variant_loss())
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Here white already reached the backrank.
+        board = chess.variant.RacingKingsBoard("4Q1K1/8/7k/4R3/8/5B2/8/3N4 b - - 0 1")
+        self.assertTrue(board.is_game_over())
+        self.assertTrue(board.is_stalemate())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_variant_draw())
+        self.assertEqual(board.result(), "1-0")
+
 
 class HordeTestCase(unittest.TestCase):
 
