@@ -397,6 +397,17 @@ class RacingKingsBoard(chess.Board):
             status |= chess.STATUS_ILLEGAL_CHECK
         if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
             status |= chess.STATUS_RACE_OVER
+        if self.pawns:
+            status |= chess.STATUS_RACE_MATERIAL
+        for color in chess.COLORS:
+            if chess.pop_count(self.occupied_co[color] & self.knights) > 2:
+                status |= chess.STATUS_RACE_MATERIAL
+            if chess.pop_count(self.occupied_co[color] & self.bishops) > 2:
+                status |= chess.STATUS_RACE_MATERIAL
+            if chess.pop_count(self.occupied_co[color] & self.rooks) > 2:
+                status |= chess.STATUS_RACE_MATERIAL
+            if chess.pop_count(self.occupied_co[color] & self.queens) > 2:
+                status |= chess.STATUS_RACE_MATERIAL
         return status
 
 

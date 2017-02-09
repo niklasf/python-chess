@@ -2976,6 +2976,13 @@ class RacingKingsTestCase(unittest.TestCase):
         board = chess.variant.RacingKingsBoard("3krQK1/8/8/8/1q6/3B1N2/1b6/1R4R1 b - - 0 0")
         self.assertEqual(board.status(), chess.STATUS_RACE_OVER)
 
+    def test_race_material(self):
+        board = chess.variant.RacingKingsBoard()
+
+        # Switch color of the black rook.
+        board.set_piece_at(chess.B1, chess.Piece.from_symbol("R"))
+        self.assertEqual(board.status(), chess.STATUS_RACE_MATERIAL)
+
 
 class HordeTestCase(unittest.TestCase):
 
