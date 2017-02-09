@@ -79,7 +79,7 @@ STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 STATUS_EMPTY = 2048
-STATUS_ILLEGAL_CHECK = 4096
+STATUS_RACE_CHECK = STATUS_ILLEGAL_CHECK = 4096
 STATUS_RACE_OVER = 8192
 STATUS_RACE_MATERIAL = 16384
 
@@ -3215,7 +3215,9 @@ class Board(BaseBoard):
         :data:`~chess.STATUS_INVALID_EP_SQUARE`,
         :data:`~chess.STATUS_OPPOSITE_CHECK`,
         :data:`~chess.STATUS_EMPTY`,
-        :data:`~chess.STATUS_ILLEGAL_CHECK`.
+        :data:`~chess.STATUS_RACE_CHECK`,
+        :data:`~chess.STATUS_RACE_OVER`,
+        :data:`~chess.STATUS_RACE_MATERIAL`.
         """
         errors = STATUS_VALID
 
