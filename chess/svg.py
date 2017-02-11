@@ -45,25 +45,31 @@ XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opac
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
 
+DEFAULT_COLORS = {
+        'square light': '#ffce9e',
+        'square dark': '#d18b47',
+        'square dark lastmove': '#aaa23b',
+        'square light lastmove': '#cdd16a'
+        }
 DEFAULT_STYLE = """\
-.square.light {
-  fill: #ffce9e;
-}
-.square.dark {
-  fill: #d18b47;
-}
+.square.light {{
+  fill: {square light};
+}}
+.square.dark {{
+  fill: {square dark};
+}}
 
-.square.dark.lastmove {
-  fill: #aaa23b;
-}
-.square.light.lastmove {
-  fill: #cdd16a;
-}
+.square.dark.lastmove {{
+  fill: {square dark lastmove};
+}}
+.square.light.lastmove {{
+  fill: {square light lastmove};
+}}
 
-.check {
+.check {{
   fill: url(#check_gradient);
-}
-"""
+}}
+""".format(**DEFAULT_COLORS)
 
 
 def _svg(content, width, height):
@@ -137,10 +143,13 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         x = (file_index if not flipped else 7 - file_index) * square_size + margin
         y = (7 - rank_index if not flipped else rank_index) * square_size + margin
 
-        cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark", chess.SQUARE_NAMES[square]]
+        cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
-        builder.append("""<rect x="%f" y="%f" class="%s" width="%f" height="%f" style="stroke: none;" />""" % (x, y, " ".join(cls), square_size, square_size))
+        fill_color = DEFAULT_COLORS[" ".join(cls)]
+        cls.append(chess.SQUARE_NAMES[square])
+        # Fill color is required for renderers without <style> support (SVG Tiny only) as fallback.
+        builder.append("""<rect x="%f" y="%f" class="%s" width="%f" height="%f" style="stroke: none;" fill="%s" />""" % (x, y, " ".join(cls), square_size, square_size, fill_color))
         if square == check:
             builder.append("""<rect x="%f" y="%f" class="check" width="%f" height="%f" />""" % (x, y, square_size, square_size))
 
