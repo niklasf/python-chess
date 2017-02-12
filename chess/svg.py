@@ -46,26 +46,13 @@ CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-c
 
 
 DEFAULT_COLORS = {
-        'square light': '#ffce9e',
-        'square dark': '#d18b47',
-        'square dark lastmove': '#aaa23b',
-        'square light lastmove': '#cdd16a'
-        }
+    'square light': '#ffce9e',
+    'square dark': '#d18b47',
+    'square dark lastmove': '#aaa23b',
+    'square light lastmove': '#cdd16a'
+}
+
 DEFAULT_STYLE = """\
-.square.light {{
-  fill: {square light};
-}}
-.square.dark {{
-  fill: {square dark};
-}}
-
-.square.dark.lastmove {{
-  fill: {square dark lastmove};
-}}
-.square.light.lastmove {{
-  fill: {square light lastmove};
-}}
-
 .check {{
   fill: url(#check_gradient);
 }}
