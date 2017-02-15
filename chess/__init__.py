@@ -963,9 +963,14 @@ class BaseBoard(object):
             piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
+        return piece_type, color
+
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
-        self._remove_piece_at(square)
+        piece = self._remove_piece_at(square)
+        if piece:
+            piece_type, color = piece
+            return Piece(piece_type, color)
 
     def _set_piece_at(self, square, piece_type, color, promoted=False):
         self._remove_piece_at(square)
@@ -1544,8 +1549,9 @@ class Board(BaseBoard):
         self.transpositions.update((self.zobrist_hash(), ))
 
     def remove_piece_at(self, square):
-        super(Board, self).remove_piece_at(square)
+        piece = super(Board, self).remove_piece_at(square)
         self.clear_stack()
+        return piece
 
     def set_piece_at(self, square, piece):
         super(Board, self).set_piece_at(square, piece)
@@ -2143,17 +2149,17 @@ class Board(BaseBoard):
             self.ep_square = None
             return
 
-        promoted = self.promoted & BB_SQUARES[move.from_square]
-        capture_square = move.to_square
-        captured_piece_type = self.piece_type_at(capture_square)
-        captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
-
         # Update half move counter.
-        piece_type = self.piece_type_at(move.from_square)
         if self.is_zeroing(move):
             self.halfmove_clock = 0
         else:
             self.halfmove_clock += 1
+
+        promoted = self.promoted & BB_SQUARES[move.from_square]
+        piece_type, _ = self._remove_piece_at(move.from_square)
+        capture_square = move.to_square
+        captured_piece_type = self.piece_type_at(capture_square)
+        captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
 
         # Update castling rights.
         self.castling_rights = self.clean_castling_rights()
@@ -2174,9 +2180,6 @@ class Board(BaseBoard):
         if move.promotion:
             promoted = True
             piece_type = move.promotion
-
-        # Remove piece from original square.
-        self._remove_piece_at(move.from_square)
 
         # Handle special pawn moves.
         self.ep_square = None
