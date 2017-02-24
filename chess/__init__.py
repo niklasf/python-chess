@@ -2162,6 +2162,7 @@ class Board(BaseBoard):
         if move.drop:
             self._set_piece_at(move.to_square, move.drop, self.turn)
             self.turn = not self.turn
+            self.transpositions.update((self.zobrist_hash(), ))
             return
 
         # Zero the half move clock.
