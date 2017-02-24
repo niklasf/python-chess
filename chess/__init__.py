@@ -2147,14 +2147,14 @@ class Board(BaseBoard):
 
         move = self._to_chess960(move)
 
-        # Increment fullmove number.
+        # Increment move counters.
+        self.halfmove_clock += 1
         if self.turn == BLACK:
             self.fullmove_number += 1
 
         # On a null move simply swap turns and reset the en passant square.
         if not move:
             self.turn = not self.turn
-            self.halfmove_clock += 1
             self.ep_square = None
             return
 
@@ -2162,15 +2162,12 @@ class Board(BaseBoard):
         if move.drop:
             self._set_piece_at(move.to_square, move.drop, self.turn)
             self.turn = not self.turn
-            self.halfmove_clock += 1
             self.ep_square = None
             return
 
-        # Update half move counter.
+        # Zero the half move clock.
         if self.is_zeroing(move):
             self.halfmove_clock = 0
-        else:
-            self.halfmove_clock += 1
 
         promoted = self.promoted & BB_SQUARES[move.from_square]
         piece_type, _ = self._remove_piece_at(move.from_square)
