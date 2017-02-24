@@ -3037,10 +3037,7 @@ class Board(BaseBoard):
             return True
 
         diff = file_index(move.from_square) - file_index(move.to_square)
-        if abs(diff) > 1 and self.piece_type_at(move.from_square) == KING:
-            return True
-
-        return False
+        return abs(diff) > 1 and self.kings & BB_SQUARES[move.from_square]
 
     def is_kingside_castling(self, move):
         """
