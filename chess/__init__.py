@@ -2198,7 +2198,7 @@ class Board(BaseBoard):
                 self.ep_square = move.from_square + 8
             elif diff == -16 and rank_index(move.from_square) == 6:
                 self.ep_square = move.from_square - 8
-            elif move.to_square == ep_square and abs(diff) in [7, 9] and not self.occupied & to_bb:
+            elif move.to_square == ep_square and abs(diff) in [7, 9] and not captured_piece_type:
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
                 capture_square = ep_square + down
