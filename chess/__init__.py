@@ -2147,6 +2147,10 @@ class Board(BaseBoard):
 
         move = self._to_chess960(move)
 
+        # Reset ep square.
+        ep_square = self.ep_square
+        self.ep_square = None
+
         # Increment move counters.
         self.halfmove_clock += 1
         if self.turn == BLACK:
@@ -2155,14 +2159,12 @@ class Board(BaseBoard):
         # On a null move simply swap turns and reset the en passant square.
         if not move:
             self.turn = not self.turn
-            self.ep_square = None
             return
 
         # Drops.
         if move.drop:
             self._set_piece_at(move.to_square, move.drop, self.turn)
             self.turn = not self.turn
-            self.ep_square = None
             return
 
         # Zero the half move clock.
@@ -2190,32 +2192,24 @@ class Board(BaseBoard):
             elif self.turn == BLACK and rank_index(move.to_square) == 0:
                 self.castling_rights &= ~BB_RANK_1
 
+        # Handle special pawn moves.
+        if piece_type == PAWN:
+            diff = move.to_square - move.from_square
+
+            if diff == 16 and rank_index(move.from_square) == 1:
+                self.ep_square = move.from_square + 8
+            elif diff == -16 and rank_index(move.from_square) == 6:
+                self.ep_square = move.from_square - 8
+            elif move.to_square == ep_square and abs(diff) in [7, 9]:
+                # Remove pawns captured en passant.
+                down = -8 if self.turn == WHITE else 8
+                capture_square = ep_square + down
+                captured_piece_type, captured_color = self._remove_piece_at(capture_square)
+
         # Promotion.
         if move.promotion:
             promoted = True
             piece_type = move.promotion
-
-        # Handle special pawn moves.
-        self.ep_square = None
-        if piece_type == PAWN:
-            diff = abs(move.to_square - move.from_square)
-
-            # Remove pawns captured en passant.
-            if diff in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
-                captured_piece_type = PAWN
-                if self.turn == WHITE:
-                    self._remove_piece_at(move.to_square - 8)
-                    capture_square = move.to_square - 8
-                else:
-                    self._remove_piece_at(move.to_square + 8)
-                    capture_square = move.to_square + 8
-
-            # Set en passant square.
-            if diff == 16:
-                if rank_index(move.to_square) == 3:
-                    self.ep_square = move.to_square - 8
-                elif rank_index(move.to_square) == 4:
-                    self.ep_square = move.to_square + 8
 
         # Castling.
         castling = piece_type == KING and captured_piece_type and captured_color == self.turn
@@ -3008,17 +3002,9 @@ class Board(BaseBoard):
     def is_en_passant(self, move):
         """Checks if the given pseudo-legal move is an en passant capture."""
         diff = abs(move.to_square - move.from_square)
-
-        if diff not in [7, 9]:
-            return False
-
-        if not self.pawns & BB_SQUARES[move.from_square]:
-            return False
-
-        if self.occupied & BB_SQUARES[move.to_square]:
-            return False
-
-        return True
+        from_bb = BB_SQUARES[move.from_square]
+        to_bb = BB_SQUARES[move.to_square]
+        return diff in [7, 9] and self.pawns & from_bb and not self.occupied & to_bb
 
     def is_capture(self, move):
         """Checks if the given pseudo-legal move is a capture."""
