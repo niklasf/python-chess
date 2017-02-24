@@ -2197,7 +2197,7 @@ class Board(BaseBoard):
                 self.ep_square = move.from_square + 8
             elif diff == -16 and rank_index(move.from_square) == 6:
                 self.ep_square = move.from_square - 8
-            elif move.to_square == ep_square and abs(diff) in [7, 9]:
+            elif move.to_square == ep_square and abs(diff) in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
                 capture_square = ep_square + down
@@ -2434,7 +2434,7 @@ class Board(BaseBoard):
 
         # Set the en passant square.
         if parts[3] == "-":
-            self.ep_square = 0
+            self.ep_square = None
         else:
             self.ep_square = SQUARE_NAMES.index(parts[3])
 
@@ -2501,7 +2501,7 @@ class Board(BaseBoard):
         self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
-        self.ep_square = 0
+        self.ep_square = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
 
