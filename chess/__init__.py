@@ -2136,9 +2136,7 @@ class Board(BaseBoard):
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
 
-        :warning: No validation is performed. For performance moves are assumed
-            to be at least pseudo legal. Otherwise there is no guarantee
-            that the previous board state can be restored.
+        :warning: Moves are not checked for legality.
         """
         # Remember game state.
         self.stack.append(_BoardState(self))
@@ -2225,7 +2223,7 @@ class Board(BaseBoard):
                 self._set_piece_at(F1 if self.turn == WHITE else F8, ROOK, self.turn)
 
         # Put piece on target square.
-        if not castling:
+        if not castling and piece_type:
             was_promoted = BB_SQUARES[move.to_square] & self.promoted
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
