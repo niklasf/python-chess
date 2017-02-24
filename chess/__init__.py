@@ -915,7 +915,9 @@ class BaseBoard(object):
         """Gets the piece type at the given square."""
         mask = BB_SQUARES[square]
 
-        if self.pawns & mask:
+        if not self.occupied & mask:
+            return None
+        elif self.pawns & mask:
             return PAWN
         elif self.knights & mask:
             return KNIGHT
@@ -927,15 +929,10 @@ class BaseBoard(object):
             return QUEEN
         elif self.kings & mask:
             return KING
-        else:
-            return None
 
     def _remove_piece_at(self, square):
-        mask = BB_SQUARES[square]
-        if not self.occupied & mask:
-            return
-
         piece_type = self.piece_type_at(square)
+        mask = BB_SQUARES[square]
 
         if piece_type == PAWN:
             self.pawns ^= mask
@@ -947,8 +944,10 @@ class BaseBoard(object):
             self.rooks ^= mask
         elif piece_type == QUEEN:
             self.queens ^= mask
-        else:
+        elif piece_type == KING:
             self.kings ^= mask
+        else:
+            return
 
         color = bool(self.occupied_co[WHITE] & mask)
         self.occupied ^= mask
@@ -963,13 +962,13 @@ class BaseBoard(object):
             piece_index = (piece_type - 1) * 2 + 1
         self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
-        return piece_type, color
+        return piece_type
 
     def remove_piece_at(self, square):
         """Removes a piece from the given square if present."""
-        piece = self._remove_piece_at(square)
-        if piece:
-            piece_type, color = piece
+        color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
+        piece_type = self._remove_piece_at(square)
+        if piece_type:
             return Piece(piece_type, color)
 
     def _set_piece_at(self, square, piece_type, color, promoted=False):
@@ -2172,10 +2171,9 @@ class Board(BaseBoard):
             self.halfmove_clock = 0
 
         promoted = self.promoted & BB_SQUARES[move.from_square]
-        piece_type, _ = self._remove_piece_at(move.from_square)
+        piece_type = self._remove_piece_at(move.from_square)
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
-        captured_color = bool(self.occupied_co[WHITE] & BB_SQUARES[move.to_square])
 
         # Update castling rights.
         self.castling_rights = self.clean_castling_rights()
@@ -2204,7 +2202,7 @@ class Board(BaseBoard):
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
                 capture_square = ep_square + down
-                captured_piece_type, captured_color = self._remove_piece_at(capture_square)
+                captured_piece_type = self._remove_piece_at(capture_square)
 
         # Promotion.
         if move.promotion:
@@ -2212,7 +2210,7 @@ class Board(BaseBoard):
             piece_type = move.promotion
 
         # Castling.
-        castling = piece_type == KING and captured_piece_type and captured_color == self.turn
+        castling = piece_type == KING and self.occupied_co[self.turn] & BB_SQUARES[move.to_square]
         if castling:
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
