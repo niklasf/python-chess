@@ -2169,21 +2169,22 @@ class Board(BaseBoard):
         if self.is_zeroing(move):
             self.halfmove_clock = 0
 
-        promoted = self.promoted & BB_SQUARES[move.from_square]
+        from_bb = BB_SQUARES[move.from_square]
+        to_bb = BB_SQUARES[move.to_square]
+
+        promoted = self.promoted & from_bb
         piece_type = self._remove_piece_at(move.from_square)
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
 
         # Update castling rights.
-        self.castling_rights = self.clean_castling_rights()
-        self.castling_rights &= ~BB_SQUARES[move.to_square]
-        self.castling_rights &= ~BB_SQUARES[move.from_square]
+        self.castling_rights = self.clean_castling_rights() & ~to_bb & ~from_bb
         if piece_type == KING and not promoted:
             if self.turn == WHITE:
                 self.castling_rights &= ~BB_RANK_1
             else:
                 self.castling_rights &= ~BB_RANK_8
-        elif captured_piece_type == KING and not self.promoted & BB_SQUARES[move.to_square]:
+        elif captured_piece_type == KING and not self.promoted & to_bb:
             if self.turn == WHITE and rank_index(move.to_square) == 7:
                 self.castling_rights &= ~BB_RANK_8
             elif self.turn == BLACK and rank_index(move.to_square) == 0:
@@ -2197,7 +2198,7 @@ class Board(BaseBoard):
                 self.ep_square = move.from_square + 8
             elif diff == -16 and rank_index(move.from_square) == 6:
                 self.ep_square = move.from_square - 8
-            elif move.to_square == ep_square and abs(diff) in [7, 9] and not self.occupied & BB_SQUARES[move.to_square]:
+            elif move.to_square == ep_square and abs(diff) in [7, 9] and not self.occupied & to_bb:
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
                 capture_square = ep_square + down
@@ -2209,7 +2210,7 @@ class Board(BaseBoard):
             piece_type = move.promotion
 
         # Castling.
-        castling = piece_type == KING and self.occupied_co[self.turn] & BB_SQUARES[move.to_square]
+        castling = piece_type == KING and self.occupied_co[self.turn] & to_bb
         if castling:
             a_side = file_index(move.to_square) < file_index(move.from_square)
 
@@ -2225,7 +2226,7 @@ class Board(BaseBoard):
 
         # Put piece on target square.
         if not castling and piece_type:
-            was_promoted = BB_SQUARES[move.to_square] & self.promoted
+            was_promoted = self.promoted & to_bb
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
             if captured_piece_type:
