@@ -2962,7 +2962,7 @@ class RacingKingsTestCase(unittest.TestCase):
         # Here white already reached the backrank.
         board = chess.variant.RacingKingsBoard("4Q1K1/8/7k/4R3/8/5B2/8/3N4 b - - 0 1")
         self.assertTrue(board.is_game_over())
-        self.assertTrue(board.is_stalemate())
+        self.assertFalse(board.is_stalemate())
         self.assertFalse(board.is_variant_win())
         self.assertTrue(board.is_variant_loss())
         self.assertFalse(board.is_variant_draw())
@@ -2982,6 +2982,13 @@ class RacingKingsTestCase(unittest.TestCase):
         # Switch color of the black rook.
         board.set_piece_at(chess.B1, chess.Piece.from_symbol("R"))
         self.assertEqual(board.status(), chess.STATUS_RACE_MATERIAL)
+
+    def test_legal_moves_after_end(self):
+        board = chess.variant.RacingKingsBoard("1k5b/5b2/8/8/8/8/3N3K/N4B2 w - - 0 1")
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_stalemate())
+        self.assertFalse(any(board.generate_legal_moves()))
 
 
 class HordeTestCase(unittest.TestCase):

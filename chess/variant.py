@@ -60,6 +60,9 @@ class SuicideBoard(chess.Board):
         return (chess.pop_count(self.occupied_co[self.turn]) -
                 chess.pop_count(self.occupied_co[not self.turn]))
 
+    def is_variant_end(self):
+        return not all(has_pieces for has_pieces in self.occupied_co)
+
     def is_variant_win(self):
         if not self.occupied_co[self.turn]:
             return True
@@ -203,6 +206,9 @@ class AtomicBoard(chess.Board):
     connected_kings = True
     one_king = True
 
+    def is_variant_end(self):
+        return not all(self.kings & side for side in self.occupied_co)
+
     def is_variant_win(self):
         return self.kings and not self.kings & self.occupied_co[not self.turn]
 
@@ -321,6 +327,9 @@ class KingOfTheHillBoard(chess.Board):
     tbw_suffix = tbz_suffix = None
     tbw_magic = tbz_magic = None
 
+    def is_variant_end(self):
+        return self.kings & BB_HILL
+
     def is_variant_win(self):
         return self.kings & self.occupied_co[self.turn] & BB_HILL
 
@@ -365,28 +374,38 @@ class RacingKingsBoard(chess.Board):
             if not self._gives_check(move):
                 yield move
 
+    def is_variant_end(self):
+        if not self.kings & chess.BB_RANK_8:
+            return False
+
+        if self.turn == chess.WHITE or self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8:
+            return True
+
+        black_king = chess.bit_scan(self.kings & self.occupied_co[chess.BLACK])
+        if black_king is None or black_king == -1:
+            return True
+
+        # White has reached the backrank. The game is over if black can not
+        # also reach the backrank on the next move. Check if there are any
+        # safe squares for the king.
+        targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8
+        target = chess.bit_scan(targets)
+        while target != -1 and target is not None:
+            if not self.attackers_mask(chess.WHITE, target):
+                return False
+            target = chess.bit_scan(targets, target + 1)
+
+        return True
+
     def is_variant_draw(self):
         in_goal = self.kings & chess.BB_RANK_8
-        return in_goal & self.occupied_co[chess.WHITE] and in_goal & self.occupied_co[chess.BLACK]
+        return all(in_goal & side for side in self.occupied_co)
 
     def is_variant_loss(self):
-        if self.is_variant_draw():
-            return False
-
-        if self.turn == chess.WHITE:
-            return self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8
-        else:
-            if not self.kings & self.occupied_co[chess.WHITE] & chess.BB_RANK_8:
-                return False
-
-            # Black can not reach the backrank on the next move.
-            return not any(move for move in self.generate_legal_moves(self.kings, chess.BB_RANK_8))
+        return self.is_variant_end() and not self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
     def is_variant_win(self):
-        if self.is_variant_draw():
-            return False
-
-        return self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
+        return self.is_variant_end() and self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
     def is_insufficient_material(self):
         return False
@@ -425,6 +444,9 @@ class HordeBoard(chess.Board):
 
     def reset(self):
         self.set_fen(type(self).starting_fen)
+
+    def is_variant_end(self):
+        return not all(has_pieces for has_pieces in self.occupied_co)
 
     def is_variant_draw(self):
         return not self.occupied
@@ -567,6 +589,9 @@ class ThreeCheckBoard(chess.Board):
         if operations:
             epd.append(self._epd_operations(operations))
         return " ".join(epd)
+
+    def is_variant_end(self):
+        return any(remaining_checks <= 0 for remaining_checks in self.remaining_checks)
 
     def is_variant_draw(self):
         return self.remaining_checks[chess.WHITE] <= 0 and self.remaining_checks[chess.BLACK] <= 0

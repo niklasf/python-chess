@@ -1897,15 +1897,33 @@ class Board(BaseBoard):
         return bool(self.attacks_mask(move.from_square) & to_mask)
 
     def is_legal(self, move):
-        return self.is_pseudo_legal(move) and not self.is_into_check(move)
+        return not self.is_variant_end() and self.is_pseudo_legal(move) and not self.is_into_check(move)
+
+    def is_variant_end(self):
+        """
+        Checks if the game is over due to a special variant end condition.
+
+        Note for example that stalemate is not considered a variant-specific
+        end condition (this method will return ``False``), yet it can have a
+        special **result** in suicide chess (any of
+        :func:`~chess.Board.is_variant_loss()`,
+        :func:`~chess.Board.is_variant_win()`,
+        :func:`~chess.Board.is_variant_draw()` might return ``True``).
+        """
+        return False
 
     def is_variant_loss(self):
+        """Checks if a special variant-specific loss condition is fulfilled."""
         return False
 
     def is_variant_win(self):
+        """Checks if a special variant-specific win condition is fulfilled."""
         return False
 
     def is_variant_draw(self):
+        """
+        Checks if a special variant-specific drawing condition is fulfilled.
+        """
         return False
 
     def is_game_over(self, claim_draw=False):
@@ -1916,10 +1934,6 @@ class Board(BaseBoard):
         The game is not considered to be over by threefold repetition or the
         fifty-move rule, unless *claim_draw* is given.
         """
-        # Special chess variant conditions
-        if self.is_variant_loss() or self.is_variant_win() or self.is_variant_draw():
-            return True
-
         # Seventyfive-move rule.
         if self.is_seventyfive_moves():
             return True
@@ -1991,6 +2005,9 @@ class Board(BaseBoard):
     def is_stalemate(self):
         """Checks if the current position is a stalemate."""
         if self.is_check():
+            return False
+
+        if self.is_variant_end():
             return False
 
         return not any(self.generate_legal_moves())
@@ -3353,6 +3370,9 @@ class Board(BaseBoard):
             return self.generate_non_evasions(from_mask, to_mask)
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if self.is_variant_end():
+            return
+
         for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
             if not self.is_into_check(move):
                 yield move
@@ -3363,6 +3383,9 @@ class Board(BaseBoard):
             self.generate_legal_ep(from_mask, to_mask))
 
     def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if self.is_variant_end():
+            return
+
         our_pieces = self.occupied_co[self.turn]
 
         # Generate piece moves.
@@ -3483,6 +3506,9 @@ class Board(BaseBoard):
         return False
 
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if self.is_variant_end():
+            return
+
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
         king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
         king = king & -king
@@ -3542,6 +3568,9 @@ class Board(BaseBoard):
             candidates = candidates & (candidates - 1)
 
     def generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if self.is_variant_end():
+            return
+
         # Prepare basic information.
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
