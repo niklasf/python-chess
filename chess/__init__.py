@@ -854,8 +854,6 @@ class BaseBoard(object):
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
-        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
-
     def reset_board(self):
         self._reset_board()
 
@@ -872,8 +870,6 @@ class BaseBoard(object):
         self.occupied_co[WHITE] = BB_VOID
         self.occupied_co[BLACK] = BB_VOID
         self.occupied = BB_VOID
-
-        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
 
     def clear_board(self):
         """Clears the board."""
@@ -949,18 +945,11 @@ class BaseBoard(object):
         else:
             return
 
-        color = bool(self.occupied_co[WHITE] & mask)
         self.occupied ^= mask
-        self.occupied_co[color] ^= mask
+        self.occupied_co[WHITE] &= ~mask
+        self.occupied_co[BLACK] &= ~mask
 
         self.promoted &= ~mask
-
-        # Update incremental zobrist hash.
-        if color == BLACK:
-            piece_index = (piece_type - 1) * 2
-        else:
-            piece_index = (piece_type - 1) * 2 + 1
-        self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
         return piece_type
 
@@ -994,13 +983,6 @@ class BaseBoard(object):
 
         if promoted:
             self.promoted ^= mask
-
-        # Update incremental zobrist hash.
-        if color == BLACK:
-            piece_index = (piece_type - 1) * 2
-        else:
-            piece_index = (piece_type - 1) * 2 + 1
-        self.incremental_zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + 8 * rank_index(square) + file_index(square)]
 
     def set_piece_at(self, square, piece, promoted=False):
         """
@@ -1162,8 +1144,6 @@ class BaseBoard(object):
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
         self.promoted = BB_VOID
 
-        self.incremental_zobrist_hash = self.board_zobrist_hash(POLYGLOT_RANDOM_ARRAY)
-
     def set_chess960_pos(self, sharnagl):
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
@@ -1265,7 +1245,7 @@ class BaseBoard(object):
 
     def board_zobrist_hash(self, array=None):
         if array is None:
-            return self.incremental_zobrist_hash
+            array = POLYGLOT_RANDOM_ARRAY
 
         zobrist_hash = 0
 
@@ -1394,8 +1374,6 @@ class BaseBoard(object):
         board.occupied = self.occupied
         board.promoted = self.promoted
 
-        board.incremental_zobrist_hash = self.incremental_zobrist_hash
-
         return board
 
     def __copy__(self):
@@ -1441,13 +1419,17 @@ class _BoardState(object):
 
         self.promoted = board.promoted
 
-        self.incremental_zobrist_hash = board.incremental_zobrist_hash
-
         self.turn = board.turn
         self.castling_rights = board.castling_rights
         self.ep_square = board.ep_square
         self.halfmove_clock = board.halfmove_clock
         self.fullmove_number = board.fullmove_number
+
+    def transposition_key(self):
+        return (self.pawns, self.knights, self.bishops, self.rooks,
+                self.queens, self.kings,
+                self.occupied_w, self.occupied_b, self.promoted,
+                self.turn, self.castling_rights, self.ep_square)
 
 
 class Board(BaseBoard):
@@ -1493,8 +1475,6 @@ class Board(BaseBoard):
 
         self.move_stack = collections.deque()
         self.stack = collections.deque()
-
-        self.transpositions = collections.Counter()
 
         if fen is None:
             self.clear()
@@ -1543,9 +1523,6 @@ class Board(BaseBoard):
         """Clears the move stack and transposition table."""
         self.move_stack.clear()
         self.stack.clear()
-
-        self.transpositions.clear()
-        self.transpositions.update((self.zobrist_hash(), ))
 
     def remove_piece_at(self, square):
         piece = super(Board, self).remove_piece_at(square)
@@ -2052,11 +2029,9 @@ class Board(BaseBoard):
         a claim by one of the players) if a position occurs for the fifth time
         on consecutive alternating moves.
         """
-        zobrist_hash = self.zobrist_hash()
+        transposition_key = _BoardState(self).transposition_key()
 
-        # A minimum amount of moves must have been played and the position
-        # in question must have appeared at least five times.
-        if len(self.move_stack) < 16 or self.transpositions[zobrist_hash] < 5:
+        if len(self.stack) < 16:
             return False
 
         switchyard = collections.deque()
@@ -2064,17 +2039,18 @@ class Board(BaseBoard):
         for _ in range(4):
             # Go back two full moves, each.
             for _ in range(4):
-                switchyard.append(self.pop())
+                board_state = self.stack.pop()
+                switchyard.append(board_state)
 
             # Check the position was the same before.
-            if self.zobrist_hash() != zobrist_hash:
+            if board_state.transposition_key() != transposition_key:
                 while switchyard:
-                    self.push(switchyard.pop())
+                    self.stack.append(switchyard.pop())
 
                 return False
 
         while switchyard:
-            self.push(switchyard.pop())
+            self.stack.append(switchyard.pop())
 
         return True
 
@@ -2104,15 +2080,21 @@ class Board(BaseBoard):
         board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.
         """
+        # Count positions.
+        transposition_key = _BoardState(self).transposition_key()
+        transpositions = collections.Counter()
+        transpositions.update((transposition_key, ))
+        transpositions.update(state.transposition_key() for state in self.stack)
+
         # Threefold repetition occured.
-        if self.transpositions[self.zobrist_hash()] >= 3:
+        if transpositions[transposition_key] >= 3:
             return True
 
         # The next legal move is a threefold repetition.
         for move in self.generate_legal_moves():
             self.push(move)
 
-            if self.transpositions[self.zobrist_hash()] >= 3:
+            if transpositions[_BoardState(self).transposition_key()] >= 2:
                 self.pop()
                 return True
 
@@ -2162,7 +2144,6 @@ class Board(BaseBoard):
         if move.drop:
             self._set_piece_at(move.to_square, move.drop, self.turn)
             self.turn = not self.turn
-            self.transpositions.update((self.zobrist_hash(), ))
             return
 
         # Zero the half move clock.
@@ -2235,18 +2216,12 @@ class Board(BaseBoard):
         # Swap turn.
         self.turn = not self.turn
 
-        # Update transposition table.
-        self.transpositions.update((self.zobrist_hash(), ))
-
     def pop(self):
         """
         Restores the previous position and returns the last move from the stack.
         """
         move = self.move_stack.pop()
         state = self.stack.pop()
-
-        # Update transposition table.
-        self.transpositions.subtract((self.zobrist_hash(), ))
 
         self.pawns = state.pawns
         self.knights = state.knights
@@ -2260,8 +2235,6 @@ class Board(BaseBoard):
         self.occupied = state.occupied
 
         self.promoted = state.promoted
-
-        self.incremental_zobrist_hash = state.incremental_zobrist_hash
 
         self.turn = state.turn
         self.castling_rights = state.castling_rights
@@ -3861,9 +3834,6 @@ class Board(BaseBoard):
         if stack:
             board.move_stack = copy.deepcopy(self.move_stack)
             board.stack = copy.copy(self.stack)
-            board.transpositions = copy.copy(self.transpositions)
-        else:
-            board.transpositions.update((self.zobrist_hash(), ))
 
         return board
 
