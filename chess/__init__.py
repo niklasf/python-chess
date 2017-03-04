@@ -794,8 +794,8 @@ class BaseBoard(object):
 
     def remove_piece_at(self, square):
         """
-        Removes the piece from the given square. Returns :class:`~chess.Piece`
-        or ``None`` if the square was already empty.
+        Removes the piece from the given square. Returns the
+        :class:`~chess.Piece` or ``None`` if the square was already empty.
         """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)

@@ -12,13 +12,11 @@ python-chess supports several chess variants.
 >>> type(board).starting_fen
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 
->>> # Check for special variant results
->>> board.is_variant_win()
-False
->>> board.is_variant_draw()
-False
->>> board.is_variant_loss()
-False
+.. autofunction:: chess.Board.is_variant_win()
+.. autofunction:: chess.Board.is_variant_draw()
+.. autofunction:: chess.Board.is_variant_loss()
+
+.. autofunction:: chess.Board.is_variant_end
 
 ================ ========================================= ============= ============
 Variant          Board class                               UCI           Syzygy
