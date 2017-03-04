@@ -662,7 +662,7 @@ class Move(object):
 class BaseBoard(object):
     """
     A board representing the position of chess pieces. See
-    :class:`~chess.Board()` for a full board with move generation.
+    :class:`~chess.Board` for a full board with move generation.
 
     The board is initialized to the standard chess starting position, unless
     otherwise specified in the optional *board_fen* argument. If *board_fen*
@@ -793,7 +793,10 @@ class BaseBoard(object):
         return piece_type
 
     def remove_piece_at(self, square):
-        """Removes a piece from the given square if present."""
+        """
+        Removes the piece from the given square. Returns :class:`~chess.Piece`
+        or ``None`` if the square was already empty.
+        """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)
         if piece_type:

@@ -5,6 +5,41 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Various performance tweaks, totalling **20% faster PGN parsing and 25%
+  better perft speed**.
+* `file_index()` and `rank_index()` have been renamed to `square_file()` and
+  `square_rank()` respectively. Aliases will be removed in some future release.
+* `STATUS_ILLEGAL_CHECK` has been renamed to `STATUS_RACE_CHECK`. The alias
+  will be removed in a future release.
+* `board.push()` no longer requires pseudo-legality.
+* Removed `board.transpositions`. Transpositions are now counted on demand.
+* Documentation improvements.
+
+Bugfixes:
+
+* **Positions in variant end are now guaranteed to have no legal moves.**
+  `board.is_variant_end()` has been added to test for special variant end
+  conditions. Thanks to salvador-dali.
+* `chess.svg`: Fixed a typo in the class names of black queens. Fixed fill
+  color for black rooks and queens. Added SVG Tiny support. These combined
+  changes fix display in a number of applications, including
+  Jupyter Qt Console. Thanks to Alexander Meshcheryakov.
+* `board.ep_square` was not consistently `None` instead of `0`.
+* Detect invalid racing kings positions: `STATUS_RACE_OVER`,
+  `STATUS_RACE_MATERIAL`.
+* `SAN_REGEX`, `FEN_CASTLING_REGEX` and `TAG_REGEX` now try to match the
+  entire string and no longer accept newlines.
+
+New features:
+
+* `board.remove_piece_at()` now returns the removed piece.
+* Added `square_distance()` and `square_mirror()`.
+
 New in v0.16.2
 --------------
 
