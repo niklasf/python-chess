@@ -107,9 +107,8 @@ def square(file_index, rank_index):
     return rank_index * 8 + file_index
 
 
-BB_VOID = 0b0000000000000000000000000000000000000000000000000000000000000000
-
-BB_ALL = 0b1111111111111111111111111111111111111111111111111111111111111111
+BB_VOID = 0
+BB_ALL = 0xffffffffffffffff
 
 BB_SQUARES = [
     BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
@@ -122,13 +121,8 @@ BB_SQUARES = [
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
 ] = [1 << sq for sq in SQUARES]
 
-BB_LIGHT_SQUARES = BB_DARK_SQUARES = BB_VOID
-
-for square_index, mask in enumerate(BB_SQUARES):
-    if (file_index(square_index) + rank_index(square_index)) % 2:
-        BB_LIGHT_SQUARES |= mask
-    else:
-        BB_DARK_SQUARES |= mask
+BB_LIGHT_SQUARES = 0x55aa55aa55aa55aa
+BB_DARK_SQUARES = 0xaa55aa55aa55aa55
 
 BB_FILES = [
     BB_FILE_A,
