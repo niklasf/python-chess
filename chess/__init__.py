@@ -268,33 +268,26 @@ def shift_down_right(b):
     return (b >> 7) & ~BB_FILE_A
 
 
-BB_KNIGHT_ATTACKS = []
+def _sliding_attacks(square, occupied, deltas):
+    attacks = 0
 
-for bb_square in BB_SQUARES:
-    mask = BB_VOID
-    mask |= shift_left(shift_2_up(bb_square))
-    mask |= shift_right(shift_2_up(bb_square))
-    mask |= shift_left(shift_2_down(bb_square))
-    mask |= shift_right(shift_2_down(bb_square))
-    mask |= shift_2_left(shift_up(bb_square))
-    mask |= shift_2_right(shift_up(bb_square))
-    mask |= shift_2_left(shift_down(bb_square))
-    mask |= shift_2_right(shift_down(bb_square))
-    BB_KNIGHT_ATTACKS.append(mask)
+    for delta in deltas:
+        sq = square
 
-BB_KING_ATTACKS = []
+        while True:
+            sq += delta
+            if sq < 0 or sq >= 64 or square_distance(sq, sq - delta) > 2:
+                break
 
-for bb_square in BB_SQUARES:
-    mask = BB_VOID
-    mask |= shift_left(bb_square)
-    mask |= shift_right(bb_square)
-    mask |= shift_up(bb_square)
-    mask |= shift_down(bb_square)
-    mask |= shift_up_left(bb_square)
-    mask |= shift_up_right(bb_square)
-    mask |= shift_down_left(bb_square)
-    mask |= shift_down_right(bb_square)
-    BB_KING_ATTACKS.append(mask)
+            attacks |= BB_SQUARES[sq]
+
+            if occupied & BB_SQUARES[sq]:
+                break
+
+    return attacks
+
+BB_KNIGHT_ATTACKS = [_sliding_attacks(sq, BB_ALL, [17, 15, 10, 6, -17, -15, -10, -6]) for sq in SQUARES]
+BB_KING_ATTACKS = [_sliding_attacks(sq, BB_ALL, [9, 8, 7, 1, -9, -8, -7, -1]) for sq in SQUARES]
 
 BB_PAWN_ATTACKS = [[], []]
 
