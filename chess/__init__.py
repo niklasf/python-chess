@@ -1520,7 +1520,7 @@ class Board(BaseBoard):
         self.clear_stack()
 
     def clear_stack(self):
-        """Clears the move stack and transposition table."""
+        """Clears the move stack."""
         self.move_stack.clear()
         self.stack.clear()
 
