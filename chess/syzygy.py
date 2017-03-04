@@ -44,7 +44,7 @@ TRIANGLE = [
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
 
 def offdiag(square):
-    return chess.rank_index(square) - chess.file_index(square)
+    return chess.square_rank(square) - chess.square_file(square)
 
 def flipdiag(square):
     return ((square >> 3) | (square << 3)) & 63

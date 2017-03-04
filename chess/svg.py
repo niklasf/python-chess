@@ -124,8 +124,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     piece_scale = square_size / 45.0
 
     for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.file_index(square)
-        rank_index = chess.rank_index(square)
+        file_index = chess.square_file(square)
+        rank_index = chess.square_rank(square)
 
         x = (file_index if not flipped else 7 - file_index) * square_size + margin
         y = (7 - rank_index if not flipped else rank_index) * square_size + margin

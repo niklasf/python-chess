@@ -1399,7 +1399,7 @@ class Board(BaseBoard):
 
             to_square = bit_scan(targets)
             while to_square != -1 and to_square is not None:
-                if rank_index(to_square) in [0, 7]:
+                if square_rank(to_square) in [0, 7]:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, ROOK)
                     yield Move(from_square, to_square, BISHOP)
@@ -1427,7 +1427,7 @@ class Board(BaseBoard):
         while to_square != -1 and to_square is not None:
             from_square = to_square + (8 if self.turn == BLACK else -8)
 
-            if rank_index(to_square) in [0, 7]:
+            if square_rank(to_square) in [0, 7]:
                 yield Move(from_square, to_square, QUEEN)
                 yield Move(from_square, to_square, ROOK)
                 yield Move(from_square, to_square, BISHOP)
@@ -1683,9 +1683,9 @@ class Board(BaseBoard):
             if piece != PAWN:
                 return False
 
-            if self.turn == WHITE and rank_index(move.to_square) != 7:
+            if self.turn == WHITE and square_rank(move.to_square) != 7:
                 return False
-            elif self.turn == BLACK and rank_index(move.to_square) != 0:
+            elif self.turn == BLACK and square_rank(move.to_square) != 0:
                 return False
 
         # Handle castling.
@@ -1998,18 +1998,18 @@ class Board(BaseBoard):
             else:
                 self.castling_rights &= ~BB_RANK_8
         elif captured_piece_type == KING and not self.promoted & to_bb:
-            if self.turn == WHITE and rank_index(move.to_square) == 7:
+            if self.turn == WHITE and square_rank(move.to_square) == 7:
                 self.castling_rights &= ~BB_RANK_8
-            elif self.turn == BLACK and rank_index(move.to_square) == 0:
+            elif self.turn == BLACK and square_rank(move.to_square) == 0:
                 self.castling_rights &= ~BB_RANK_1
 
         # Handle special pawn moves.
         if piece_type == PAWN:
             diff = move.to_square - move.from_square
 
-            if diff == 16 and rank_index(move.from_square) == 1:
+            if diff == 16 and square_rank(move.from_square) == 1:
                 self.ep_square = move.from_square + 8
-            elif diff == -16 and rank_index(move.from_square) == 6:
+            elif diff == -16 and square_rank(move.from_square) == 6:
                 self.ep_square = move.from_square - 8
             elif move.to_square == ep_square and abs(diff) in [7, 9] and not captured_piece_type:
                 # Remove pawns captured en passant.
@@ -2025,7 +2025,7 @@ class Board(BaseBoard):
         # Castling.
         castling = piece_type == KING and self.occupied_co[self.turn] & to_bb
         if castling:
-            a_side = file_index(move.to_square) < file_index(move.from_square)
+            a_side = square_file(move.to_square) < square_file(move.from_square)
 
             self._remove_piece_at(move.from_square)
             self._remove_piece_at(move.to_square)
@@ -2090,13 +2090,13 @@ class Board(BaseBoard):
         black_castling_rights = castling_rights & BB_RANK_8
         while black_castling_rights:
             mask = black_castling_rights & -black_castling_rights
-            builder.append(FILE_NAMES[file_index(bit_scan(mask))])
+            builder.append(FILE_NAMES[square_file(bit_scan(mask))])
             black_castling_rights = black_castling_rights & (black_castling_rights - 1)
 
         white_castling_rights = castling_rights & BB_RANK_1
         while white_castling_rights:
             mask = white_castling_rights & -white_castling_rights
-            builder.append(FILE_NAMES[file_index(bit_scan(mask))].upper())
+            builder.append(FILE_NAMES[square_file(bit_scan(mask))].upper())
             white_castling_rights = white_castling_rights & (white_castling_rights - 1)
 
         builder.reverse()
@@ -2111,13 +2111,13 @@ class Board(BaseBoard):
             if not king_mask:
                 continue
 
-            king_file = file_index(bit_scan(king_mask))
+            king_file = square_file(bit_scan(king_mask))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
             castling_rights = self.clean_castling_rights() & backrank
             while castling_rights:
                 rook = castling_rights & -castling_rights
-                rook_file = file_index(bit_scan(rook))
+                rook_file = square_file(bit_scan(rook))
 
                 a_side = rook_file < king_file
 
@@ -2125,7 +2125,7 @@ class Board(BaseBoard):
                 other_rooks = self.occupied_co[color] & self.rooks & backrank & ~rook
                 while other_rooks:
                     other_rook = other_rooks & -other_rooks
-                    if (file_index(bit_scan(other_rook)) < rook_file) == a_side:
+                    if (square_file(bit_scan(other_rook)) < rook_file) == a_side:
                         shredder = True
                         break
                     other_rooks = other_rooks & (other_rooks - 1)
@@ -2211,10 +2211,10 @@ class Board(BaseBoard):
         # Check that the en passant part is valid.
         if parts[3] != "-":
             if parts[1] == "w":
-                if rank_index(SQUARE_NAMES.index(parts[3])) != 5:
+                if square_rank(SQUARE_NAMES.index(parts[3])) != 5:
                     raise ValueError("expected ep square to be on sixth rank: {0}".format(repr(fen)))
             else:
-                if rank_index(SQUARE_NAMES.index(parts[3])) != 2:
+                if square_rank(SQUARE_NAMES.index(parts[3])) != 2:
                     raise ValueError("expected ep square to be on third rank: {0}".format(repr(fen)))
 
         # Check that the half move part is valid.
@@ -2571,7 +2571,7 @@ class Board(BaseBoard):
 
         # Castling.
         if self.is_castling(move):
-            if file_index(move.to_square) < file_index(move.from_square):
+            if square_file(move.to_square) < square_file(move.from_square):
                 san = "O-O-O"
             else:
                 san = "O-O"
@@ -2605,23 +2605,23 @@ class Board(BaseBoard):
             if others:
                 row, column = False, False
 
-                if others & BB_RANKS[rank_index(move.from_square)]:
+                if others & BB_RANKS[square_rank(move.from_square)]:
                     column = True
 
-                if others & BB_FILES[file_index(move.from_square)]:
+                if others & BB_FILES[square_file(move.from_square)]:
                     row = True
                 else:
                     column = True
 
                 if column:
-                    san += FILE_NAMES[file_index(move.from_square)]
+                    san += FILE_NAMES[square_file(move.from_square)]
                 if row:
-                    san += RANK_NAMES[rank_index(move.from_square)]
+                    san += RANK_NAMES[square_rank(move.from_square)]
 
         # Captures.
         if self.is_capture(move):
             if piece == PAWN:
-                san += FILE_NAMES[file_index(move.from_square)]
+                san += FILE_NAMES[square_file(move.from_square)]
             san += "x"
 
         # Destination square.
@@ -2822,20 +2822,20 @@ class Board(BaseBoard):
         if BB_SQUARES[move.to_square] & self.occupied_co[self.turn] & self.rooks:
             return True
 
-        diff = file_index(move.from_square) - file_index(move.to_square)
+        diff = square_file(move.from_square) - square_file(move.to_square)
         return abs(diff) > 1 and self.kings & BB_SQUARES[move.from_square]
 
     def is_kingside_castling(self, move):
         """
         Checks if the given pseudo-legal move is a kingside castling move.
         """
-        return self.is_castling(move) and file_index(move.to_square) > file_index(move.from_square)
+        return self.is_castling(move) and square_file(move.to_square) > square_file(move.from_square)
 
     def is_queenside_castling(self, move):
         """
         Checks if the given pseudo-legal move is a queenside castling move.
         """
-        return self.is_castling(move) and file_index(move.to_square) < file_index(move.from_square)
+        return self.is_castling(move) and square_file(move.to_square) < square_file(move.from_square)
 
     def clean_castling_rights(self):
         """
@@ -2876,8 +2876,8 @@ class Board(BaseBoard):
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
             if white_castling and black_castling:
-                if file_index(white_king) != file_index(black_king):
-                    if file_index(black_king) == 4:
+                if square_file(white_king) != square_file(black_king):
+                    if square_file(black_king) == 4:
                         white_castling = 0
                     else:
                         black_castling = 0
@@ -2910,13 +2910,13 @@ class Board(BaseBoard):
 
             # Rooks must be on the same file, giving preference to the a or h
             # file and then to white.
-            if black_a_side and white_a_side and file_index(bit_scan(black_a_side)) != file_index(bit_scan(white_a_side)):
+            if black_a_side and white_a_side and square_file(bit_scan(black_a_side)) != square_file(bit_scan(white_a_side)):
                 if black_a_side == BB_A8:
                     white_a_side = BB_VOID
                 else:
                     black_a_side = BB_VOID
 
-            if black_h_side and white_h_side and file_index(bit_scan(black_h_side)) != file_index(bit_scan(white_h_side)):
+            if black_h_side and white_h_side and square_file(bit_scan(black_h_side)) != square_file(bit_scan(white_h_side)):
                 if black_h_side == BB_H8:
                     white_h_side = BB_VOID
                 else:
@@ -3068,7 +3068,7 @@ class Board(BaseBoard):
                 seventh_rank_mask = shift_down(BB_SQUARES[self.ep_square])
 
             # The en passant square must be on the third or sixth rank.
-            if rank_index(self.ep_square) != ep_rank:
+            if square_rank(self.ep_square) != ep_rank:
                 errors |= STATUS_INVALID_EP_SQUARE
 
             # The last move must have been a double pawn push, so there must
@@ -3211,7 +3211,7 @@ class Board(BaseBoard):
 
             to_square = bit_scan(targets)
             while to_square != -1 and to_square is not None:
-                if rank_index(to_square) in [0, 7]:
+                if square_rank(to_square) in [0, 7]:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, ROOK)
                     yield Move(from_square, to_square, BISHOP)
@@ -3644,7 +3644,7 @@ class Board(BaseBoard):
             ep_mask = shift_left(ep_mask) | shift_right(ep_mask)
 
             if ep_mask & self.pawns & self.occupied_co[self.turn]:
-                zobrist_hash ^= array[772 + file_index(self.ep_square)]
+                zobrist_hash ^= array[772 + square_file(self.ep_square)]
 
         # Hash in the turn.
         if self.turn == WHITE:

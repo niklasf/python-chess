@@ -69,8 +69,8 @@ class SquareTestCase(unittest.TestCase):
 
     def test_square(self):
         for square in chess.SQUARES:
-            file_index = chess.file_index(square)
-            rank_index = chess.rank_index(square)
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
             self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
 
     def test_shifts(self):
