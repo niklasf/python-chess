@@ -152,12 +152,6 @@ BB_FILES = [
     BB_FILE_H
 ] = [0x0101010101010101 << i for i in range(8)]
 
-FILE_MASK = {}
-FILE_MASK[0] = 0
-
-for square_index, mask in enumerate(BB_SQUARES):
-    FILE_MASK[mask] = BB_FILES[file_index(square_index)]
-
 BB_RANKS = [
     BB_RANK_1,
     BB_RANK_2,
@@ -171,45 +165,6 @@ BB_RANKS = [
 
 BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
-RANK_MASK = {}
-RANK_MASK[0] = 0
-
-for square_index, mask in enumerate(BB_SQUARES):
-    RANK_MASK[mask] = BB_RANKS[rank_index(square_index)]
-
-DIAG_MASK_NW = {}
-DIAG_MASK_NW[0] = 0
-
-for i in range(8):
-    DIAG_MASK_NW[1 << i] = 0
-    for j in range(i + 1):
-        DIAG_MASK_NW[1 << i] |= 1 << (i + 7 * j)
-    for j in range(i + 1):
-        DIAG_MASK_NW[1 << (i + 7 * j)] = DIAG_MASK_NW[1 << i]
-
-for i in range(63, 55, -1):
-    DIAG_MASK_NW[1 << i] = 0
-    for j in range(64 - i):
-        DIAG_MASK_NW[1 << i] |= 1 << (i - 7 * j)
-    for j in range(64 - i):
-        DIAG_MASK_NW[1 << (i - 7 * j)] = DIAG_MASK_NW[1 << i]
-
-DIAG_MASK_NE = {}
-DIAG_MASK_NE[0] = 0
-
-for i in range(7, -1, -1):
-    DIAG_MASK_NE[1 << i] = 0
-    for j in range(8 - i):
-        DIAG_MASK_NE[1 << i] |= 1 << (i + 9 * j)
-    for j in range(8 - i):
-        DIAG_MASK_NE[1 << (i + 9 * j)] = DIAG_MASK_NE[1 << i]
-
-for i in range(56, 64):
-    DIAG_MASK_NE[1 << i] = 0
-    for j in range(i - 55):
-        DIAG_MASK_NE[1 << i] |= 1 << (i - 9 * j)
-    for j in range(i - 55):
-        DIAG_MASK_NE[1 << (i - 9 * j)] = DIAG_MASK_NE[1 << i]
 
 try:
     from gmpy2 import popcount as pop_count
@@ -292,12 +247,13 @@ BB_PAWN_ATTACKS = [[_sliding_attacks(sq, BB_ALL, deltas) for sq in SQUARES] for 
 
 
 def _attack_table(deltas):
+    mask_table = {0: 0}
     attack_table = {}
 
     for square, bb in enumerate(BB_SQUARES):
         attack_table[bb] = {}
 
-        mask = _sliding_attacks(square, 0, deltas) | bb
+        mask = mask_table[bb] = _sliding_attacks(square, 0, deltas) | bb
 
         # Carry-Rippler trick to iterate subsets of mask.
         subset = 0
@@ -308,12 +264,12 @@ def _attack_table(deltas):
             if not subset:
                 break
 
-    return attack_table
+    return mask_table, attack_table
 
-DIAG_ATTACKS_NE = _attack_table([-9, 9])
-DIAG_ATTACKS_NW = _attack_table([-7, 7])
-FILE_ATTACKS = _attack_table([-8, 8])
-RANK_ATTACKS = _attack_table([-1, 1])
+DIAG_MASK_NE, DIAG_ATTACKS_NE = _attack_table([-9, 9])
+DIAG_MASK_NW, DIAG_ATTACKS_NW = _attack_table([-7, 7])
+FILE_MASK, FILE_ATTACKS = _attack_table([-8, 8])
+RANK_MASK, RANK_ATTACKS = _attack_table([-1, 1])
 
 
 SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
