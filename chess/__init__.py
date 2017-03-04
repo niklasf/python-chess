@@ -91,20 +91,37 @@ SQUARES = [
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8] = range(64)
 
-SQUARES_180 = [sq ^ 0x38 for sq in SQUARES]
-SQUARE_NAMES = [FILE_NAMES[sq & 7] + RANK_NAMES[sq >> 3] for sq in SQUARES]
-
-def file_index(square):
-    """Gets the file index of square where ``0`` is the a file."""
-    return square & 7
-
-def rank_index(square):
-    """Gets the rank index of the square where ``0`` is the first rank."""
-    return square >> 3
-
 def square(file_index, rank_index):
     """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
+
+def square_mirror(square):
+    """Mirrors the square vertically."""
+    return square ^ 0x38
+
+def square_file(square):
+    """Gets the file index of the square where ``0`` is the a file."""
+    return square & 7
+
+def square_rank(square):
+    """Gets the rank index of the square where ``0`` is the first rank."""
+    return square >> 3
+
+def square_name(square):
+    """Gets the name of the square, e.g. ``a3``."""
+    return FILE_NAMES[square_file(square)] + RANK_NAMES[square_rank(square)]
+
+def square_distance(a, b):
+    """
+    Gets the distance (i.e. the number of king steps) from square *a* to *b*.
+    """
+    return max(abs(square_file(a) - square_file(b)), abs(square_rank(a) - square_rank(b)))
+
+SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
+SQUARE_NAMES = [square_name(sq) for sq in SQUARES]
+
+# TODO: Remove aliases.
+file_index, rank_index = square_file, square_rank
 
 
 BB_VOID = 0
