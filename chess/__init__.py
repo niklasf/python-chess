@@ -1249,19 +1249,12 @@ class BaseBoard(object):
 
         zobrist_hash = 0
 
-        squares = self.occupied_co[BLACK]
-        square = bit_scan(squares)
-        while square != -1 and square is not None:
-            piece_index = (self.piece_type_at(square) - 1) * 2
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-            square = bit_scan(squares, square + 1)
-
-        squares = self.occupied_co[WHITE]
-        square = bit_scan(squares)
-        while square != -1 and square is not None:
-            piece_index = (self.piece_type_at(square) - 1) * 2 + 1
-            zobrist_hash ^= array[64 * piece_index + 8 * rank_index(square) + file_index(square)]
-            square = bit_scan(squares, square + 1)
+        for pivot, squares in enumerate(self.occupied_co):
+            square = bit_scan(squares)
+            while square != -1 and square is not None:
+                piece_index = (self.piece_type_at(square) - 1) * 2 + pivot
+                zobrist_hash ^= array[64 * piece_index + square]
+                square = bit_scan(squares, square + 1)
 
         return zobrist_hash
 
