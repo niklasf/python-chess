@@ -291,101 +291,29 @@ BB_KING_ATTACKS = [_sliding_attacks(sq, BB_ALL, [9, 8, 7, 1, -9, -8, -7, -1]) fo
 BB_PAWN_ATTACKS = [[_sliding_attacks(sq, BB_ALL, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
 
 
-def _attack_table(square_lists):
+def _attack_table(deltas):
     attack_table = {}
-    attack_table[0] = {}
-    attack_table[0][0] = 0
 
-    for square_list in square_lists:
-        list_size = len(square_list)
+    for square, bb in enumerate(BB_SQUARES):
+        attack_table[bb] = {}
 
-        for current_position in range(list_size):
-            current_bb = square_list[current_position]
-            attack_table[current_bb] = {}
+        mask = _sliding_attacks(square, 0, deltas) | bb
 
-            for occupation in range(1 << list_size):
-                moves = 0
+        # Carry-Rippler trick to iterate subsets of mask.
+        subset = 0
+        while True:
+            attack_table[bb][subset] = _sliding_attacks(square, subset, deltas)
 
-                # Loop over squares to the right of the mover.
-                for newsquare in range(current_position + 1, list_size):
-                    moves |= square_list[newsquare]
-                    if (1 << newsquare) & occupation:
-                        break
-
-                # Loop over squares to the left of the mover.
-                for newsquare in range(current_position - 1, -1, -1):
-                    moves |= square_list[newsquare]
-                    if (1 << newsquare) & occupation:
-                        break
-
-                # Convert occupation to a bitboard number.
-                temp_bb = 0
-                while occupation:
-                    lowest = occupation & -occupation
-                    temp_bb |= square_list[BB_SQUARES.index(lowest)]
-                    occupation = occupation & (occupation - 1)
-
-                attack_table[current_bb][temp_bb] = moves
+            subset = (subset - mask) & mask
+            if not subset:
+                break
 
     return attack_table
 
-DIAG_ATTACKS_NE = _attack_table([
-                                [BB_H1],
-                            [BB_H2, BB_G1],
-                        [BB_H3, BB_G2, BB_F1],
-                    [BB_H4, BB_G3, BB_F2, BB_E1],
-                [BB_H5, BB_G4, BB_F3, BB_E2, BB_D1],
-            [BB_H6, BB_G5, BB_F4, BB_E3, BB_D2, BB_C1],
-        [BB_H7, BB_G6, BB_F5, BB_E4, BB_D3, BB_C2, BB_B1],
-    [BB_H8, BB_G7, BB_F6, BB_E5, BB_D4, BB_C3, BB_B2, BB_A1],
-        [BB_G8, BB_F7, BB_E6, BB_D5, BB_C4, BB_B3, BB_A2],
-            [BB_F8, BB_E7, BB_D6, BB_C5, BB_B4, BB_A3],
-                [BB_E8, BB_D7, BB_C6, BB_B5, BB_A4],
-                    [BB_D8, BB_C7, BB_B6, BB_A5],
-                        [BB_C8, BB_B7, BB_A6],
-                            [BB_B8, BB_A7],
-                                [BB_A8],
-])
-
-DIAG_ATTACKS_NW = _attack_table([
-                                [BB_A1],
-                            [BB_B1, BB_A2],
-                        [BB_C1, BB_B2, BB_A3],
-                    [BB_D1, BB_C2, BB_B3, BB_A4],
-                [BB_E1, BB_D2, BB_C3, BB_B4, BB_A5],
-            [BB_F1, BB_E2, BB_D3, BB_C4, BB_B5, BB_A6],
-        [BB_G1, BB_F2, BB_E3, BB_D4, BB_C5, BB_B6, BB_A7],
-    [BB_H1, BB_G2, BB_F3, BB_E4, BB_D5, BB_C6, BB_B7, BB_A8],
-        [BB_H2, BB_G3, BB_F4, BB_E5, BB_D6, BB_C7, BB_B8],
-            [BB_H3, BB_G4, BB_F5, BB_E6, BB_D7, BB_C8],
-                [BB_H4, BB_G5, BB_F6, BB_E7, BB_D8],
-                    [BB_H5, BB_G6, BB_F7, BB_E8],
-                        [BB_H6, BB_G7, BB_F8],
-                            [BB_H7, BB_G8],
-                                [BB_H8],
-])
-
-FILE_ATTACKS = _attack_table([
-    [BB_A1, BB_A2, BB_A3, BB_A4, BB_A5, BB_A6, BB_A7, BB_A8],
-    [BB_B1, BB_B2, BB_B3, BB_B4, BB_B5, BB_B6, BB_B7, BB_B8],
-    [BB_C1, BB_C2, BB_C3, BB_C4, BB_C5, BB_C6, BB_C7, BB_C8],
-    [BB_D1, BB_D2, BB_D3, BB_D4, BB_D5, BB_D6, BB_D7, BB_D8],
-    [BB_E1, BB_E2, BB_E3, BB_E4, BB_E5, BB_E6, BB_E7, BB_E8],
-    [BB_F1, BB_F2, BB_F3, BB_F4, BB_F5, BB_F6, BB_F7, BB_F8],
-    [BB_G1, BB_G2, BB_G3, BB_G4, BB_G5, BB_G6, BB_G7, BB_G8],
-    [BB_H1, BB_H2, BB_H3, BB_H4, BB_H5, BB_H6, BB_H7, BB_H8],
-])
-
-RANK_ATTACKS = _attack_table([
-    [BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1],
-    [BB_A2, BB_B2, BB_C2, BB_D2, BB_E2, BB_F2, BB_G2, BB_H2],
-    [BB_A3, BB_B3, BB_C3, BB_D3, BB_E3, BB_F3, BB_G3, BB_H3],
-    [BB_A4, BB_B4, BB_C4, BB_D4, BB_E4, BB_F4, BB_G4, BB_H4],
-    [BB_A5, BB_B5, BB_C5, BB_D5, BB_E5, BB_F5, BB_G5, BB_H5],
-    [BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6],
-    [BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7],
-    [BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8],
-])
+DIAG_ATTACKS_NE = _attack_table([-9, 9])
+DIAG_ATTACKS_NW = _attack_table([-7, 7])
+FILE_ATTACKS = _attack_table([-8, 8])
+RANK_ATTACKS = _attack_table([-1, 1])
 
 
 SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
