@@ -288,19 +288,8 @@ def _sliding_attacks(square, occupied, deltas):
 
 BB_KNIGHT_ATTACKS = [_sliding_attacks(sq, BB_ALL, [17, 15, 10, 6, -17, -15, -10, -6]) for sq in SQUARES]
 BB_KING_ATTACKS = [_sliding_attacks(sq, BB_ALL, [9, 8, 7, 1, -9, -8, -7, -1]) for sq in SQUARES]
+BB_PAWN_ATTACKS = [[_sliding_attacks(sq, BB_ALL, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
 
-BB_PAWN_ATTACKS = [[], []]
-
-for bb_square in BB_SQUARES:
-    mask = BB_VOID
-    mask |= shift_up_left(bb_square)
-    mask |= shift_up_right(bb_square)
-    BB_PAWN_ATTACKS[WHITE].append(mask)
-
-    mask = BB_VOID
-    mask |= shift_down_left(bb_square)
-    mask |= shift_down_right(bb_square)
-    BB_PAWN_ATTACKS[BLACK].append(mask)
 
 def _attack_table(square_lists):
     attack_table = {}
