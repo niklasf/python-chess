@@ -57,11 +57,15 @@ and so on to
 .. py:data:: chess.RANK_NAMES
     :annotation: = ['1', '2', ..., '7', '8']
 
-.. autofunction:: chess.file_index
-
-.. autofunction:: chess.rank_index
-
 .. autofunction:: chess.square
+
+.. autofunction:: chess.square_file
+
+.. autofunction:: chess.square_rank
+
+.. autofunction:: chess.square_distance
+
+.. autofunction:: chess.square_mirror
 
 Pieces
 ------

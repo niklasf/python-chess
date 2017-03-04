@@ -95,10 +95,6 @@ def square(file_index, rank_index):
     """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
 
-def square_mirror(square):
-    """Mirrors the square vertically."""
-    return square ^ 0x38
-
 def square_file(square):
     """Gets the file index of the square where ``0`` is the a file."""
     return square & 7
@@ -116,6 +112,10 @@ def square_distance(a, b):
     Gets the distance (i.e. the number of king steps) from square *a* to *b*.
     """
     return max(abs(square_file(a) - square_file(b)), abs(square_rank(a) - square_rank(b)))
+
+def square_mirror(square):
+    """Mirrors the square vertically."""
+    return square ^ 0x38
 
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 SQUARE_NAMES = [square_name(sq) for sq in SQUARES]
