@@ -38,13 +38,10 @@ except ImportError:
     import collections
 
 COLORS = [WHITE, BLACK] = [True, False]
-
 COLOR_NAMES = ["black", "white"]
 
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
-
 PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
-
 PIECE_NAMES = ["", "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 UNICODE_PIECE_SYMBOLS = {
@@ -95,16 +92,7 @@ SQUARES = [
     A8, B8, C8, D8, E8, F8, G8, H8] = range(64)
 
 SQUARES_180 = [sq ^ 0x38 for sq in SQUARES]
-
-SQUARE_NAMES = [
-    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
-    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
-    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
-    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
-    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
-    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
-    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"]
+SQUARE_NAMES = [FILE_NAMES[sq & 7] + RANK_NAMES[sq >> 3] for sq in SQUARES]
 
 def file_index(square):
     """Gets the file index of square where ``0`` is the a file."""
@@ -132,7 +120,7 @@ BB_SQUARES = [
     BB_A6, BB_B6, BB_C6, BB_D6, BB_E6, BB_F6, BB_G6, BB_H6,
     BB_A7, BB_B7, BB_C7, BB_D7, BB_E7, BB_F7, BB_G7, BB_H7,
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
-] = [1 << i for i in SQUARES]
+] = [1 << sq for sq in SQUARES]
 
 BB_LIGHT_SQUARES = BB_DARK_SQUARES = BB_VOID
 
