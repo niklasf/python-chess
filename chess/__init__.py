@@ -1674,7 +1674,7 @@ class Board(BaseBoard):
         if not king:
             return False
 
-        return self.is_attacked_by(not self.turn, lsb(king))
+        return self.is_attacked_by(not self.turn, msb(king))
 
     def is_into_check(self, move):
         """
@@ -1697,7 +1697,7 @@ class Board(BaseBoard):
         if not king:
             return False
 
-        return self.is_attacked_by(self.turn, lsb(king))
+        return self.is_attacked_by(self.turn, msb(king))
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -2146,7 +2146,7 @@ class Board(BaseBoard):
             if not king_mask:
                 continue
 
-            king_file = square_file(lsb(king_mask))
+            king_file = square_file(msb(king_mask))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
             for rook_square in scan_reversed(self.clean_castling_rights() & backrank):
@@ -2295,21 +2295,15 @@ class Board(BaseBoard):
 
             if flag == "q":
                 # Select the leftmost rook.
-                mask = rooks & -rooks
-
-                if king and lsb(mask) < lsb(king):
-                    self.castling_rights |= mask
+                if king and lsb(rooks) < msb(king):
+                    self.castling_rights |= rooks & -rooks
                 else:
                     self.castling_rights |= BB_FILE_A & backrank
             elif flag == "k":
                 # Select the rightmost rook.
-                mask = BB_VOID
-                while rooks:
-                    mask = rooks & -rooks
-                    rooks = rooks & (rooks - 1)
-
-                if king and lsb(king) < lsb(mask):
-                    self.castling_rights |= mask
+                rook = msb(rooks)
+                if king and msb(king) < rook:
+                    self.castling_rights |= BB_SQUARES[rook]
                 else:
                     self.castling_rights |= BB_FILE_H & backrank
             else:
@@ -2892,8 +2886,8 @@ class Board(BaseBoard):
             if not black_king_mask:
                 black_castling = 0
 
-            white_king = lsb(white_king_mask)
-            black_king = lsb(black_king_mask)
+            white_king = msb(white_king_mask)
+            black_king = msb(black_king_mask)
 
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
@@ -2906,16 +2900,16 @@ class Board(BaseBoard):
 
             # There are only two ways of castling, a-side and h-side, and the
             # king must be between the rooks.
-            white_a_side = (white_castling & -white_castling)
+            white_a_side = white_castling & -white_castling
 
             white_h_side = BB_VOID
             while white_castling:
                 white_h_side = (white_castling & -white_castling)
                 white_castling = white_castling & (white_castling - 1)
 
-            if white_a_side and lsb(white_a_side) > white_king:
+            if white_a_side and msb(white_a_side) > white_king:
                 white_a_side = BB_VOID
-            if white_h_side and lsb(white_h_side) < white_king:
+            if white_h_side and msb(white_h_side) < white_king:
                 white_h_side = BB_VOID
 
             black_a_side = (black_castling & -black_castling)
@@ -2925,20 +2919,20 @@ class Board(BaseBoard):
                 black_h_side = (black_castling & -black_castling)
                 black_castling = black_castling & (black_castling - 1)
 
-            if black_a_side and lsb(black_a_side) > black_king:
+            if black_a_side and msb(black_a_side) > black_king:
                 black_a_side = BB_VOID
-            if black_h_side and lsb(black_h_side) < black_king:
+            if black_h_side and msb(black_h_side) < black_king:
                 black_h_side = BB_VOID
 
             # Rooks must be on the same file, giving preference to the a or h
             # file and then to white.
-            if black_a_side and white_a_side and square_file(lsb(black_a_side)) != square_file(lsb(white_a_side)):
+            if black_a_side and white_a_side and square_file(msb(black_a_side)) != square_file(msb(white_a_side)):
                 if black_a_side == BB_A8:
                     white_a_side = BB_VOID
                 else:
                     black_a_side = BB_VOID
 
-            if black_h_side and white_h_side and square_file(lsb(black_h_side)) != square_file(lsb(white_h_side)):
+            if black_h_side and white_h_side and square_file(msb(black_h_side)) != square_file(msb(white_h_side)):
                 if black_h_side == BB_H8:
                     white_h_side = BB_VOID
                 else:
@@ -3310,7 +3304,7 @@ class Board(BaseBoard):
 
             if not self.occupied & (empty_for_king | empty_for_rook):
                 if not self._attacked_for_king(not_attacked_for_king):
-                    yield self._from_chess960(lsb(king), lsb(rook))
+                    yield self._from_chess960(msb(king), msb(rook))
 
             candidates = candidates & (candidates - 1)
 
@@ -3355,7 +3349,7 @@ class Board(BaseBoard):
         lastmove = self.peek() if self.move_stack else None
 
         if self.is_check():
-            check = lsb(self.kings & self.occupied_co[self.turn])
+            check = msb(self.kings & self.occupied_co[self.turn])
         else:
             check = None
 
@@ -3661,7 +3655,7 @@ class SquareSet(object):
             raise KeyError("pop from empty set")
 
         square = lsb(self.mask)
-        self.mask = self.mask & (self.mask - 1)
+        self.mask &= (self.mask - 1)
         return square
 
     def clear(self):
