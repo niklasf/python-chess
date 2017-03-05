@@ -2834,11 +2834,10 @@ class Board(BaseBoard):
 
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
-        if BB_SQUARES[move.to_square] & self.occupied_co[self.turn] & self.rooks:
-            return True
-
-        diff = square_file(move.from_square) - square_file(move.to_square)
-        return abs(diff) > 1 and self.kings & BB_SQUARES[move.from_square]
+        if self.kings & BB_SQUARES[move.from_square]:
+            diff = square_file(move.from_square) - square_file(move.to_square)
+            return abs(diff) > 1 or self.rooks & self.occupied_co[self.turn] & BB_SQUARES[move.to_square]
+        return False
 
     def is_kingside_castling(self, move):
         """
