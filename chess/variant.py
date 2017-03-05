@@ -243,23 +243,15 @@ class AtomicBoard(chess.Board):
         # Can castle onto attacked squares if they are connected to the
         # enemy king.
         enemy_kings = self.kings & self.occupied_co[not self.turn]
-        enemy_king = chess.bit_scan(enemy_kings)
-        while enemy_king != -1 and enemy_king is not None:
+        for enemy_king in chess.scan_forward(enemy_kings):
             path &= ~chess.BB_KING_ATTACKS[enemy_king]
-            enemy_king = chess.bit_scan(enemy_kings, enemy_king + 1)
 
         return super(AtomicBoard, self)._attacked_for_king(path)
 
     def _kings_connected(self):
-        kings = self.kings & self.occupied_co[chess.WHITE]
-        king_square = chess.bit_scan(kings)
-        while king_square != -1 and king_square is not None:
-            if chess.BB_KING_ATTACKS[king_square] & self.kings & self.occupied_co[chess.BLACK]:
-                return True
-
-            king_square = chess.bit_scan(kings, king_square + 1)
-
-        return False
+        white_kings = self.kings & self.occupied_co[chess.WHITE]
+        black_kings = self.kings & self.occupied_co[chess.BLACK]
+        return any(chess.BB_KING_ATTACKS[sq] & black_kings for sq in chess.scan_forward(white_kings))
 
     def _push_capture(self, move, capture_square, piece_type, was_promoted):
         # Explode the capturing piece.
@@ -267,10 +259,8 @@ class AtomicBoard(chess.Board):
 
         # Explode all non pawns around.
         explosion_radius = chess.BB_KING_ATTACKS[move.to_square] & ~self.pawns
-        explosion = chess.bit_scan(explosion_radius)
-        while explosion != -1 and explosion is not None:
+        for explosion in chess.scan_forward(explosion_radius):
             self._remove_piece_at(explosion)
-            explosion = chess.bit_scan(explosion_radius, explosion + 1)
 
         # Destroy castling rights.
         self.castling_rights &= ~explosion_radius
@@ -381,22 +371,17 @@ class RacingKingsBoard(chess.Board):
         if self.turn == chess.WHITE or self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8:
             return True
 
-        black_king = chess.bit_scan(self.kings & self.occupied_co[chess.BLACK])
-        if black_king is None or black_king == -1:
+        black_kings = self.kings & self.occupied_co[chess.BLACK]
+        if not black_kings:
             return True
+
+        black_king = chess.lsb(black_kings)
 
         # White has reached the backrank. The game is over if black can not
         # also reach the backrank on the next move. Check if there are any
         # safe squares for the king.
         targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8
-        target = chess.bit_scan(targets)
-        while target != -1 and target is not None:
-            if not self.attackers_mask(chess.WHITE, target):
-                return False
-            target = chess.bit_scan(targets, target + 1)
-
-        return True
-
+        return all(self.attackers_mask(chess.WHITE, target) for target in chess.scan_forward(targets))
     def is_variant_draw(self):
         in_goal = self.kings & chess.BB_RANK_8
         return all(in_goal & side for side in self.occupied_co)
@@ -698,16 +683,17 @@ class CrazyhouseBoard(chess.Board):
 
     def legal_drop_squares_mask(self):
         king_bb = self.kings & self.occupied_co[self.turn]
-        king_square = chess.bit_scan(king_bb)
-        if king_square is None or king_square == -1:
+        if not king_bb:
             return ~self.occupied
+
+        king_square = chess.lsb(king_bb)
 
         king_attackers = self.attackers_mask(not self.turn, king_square)
         num_attackers = chess.pop_count(king_attackers)
 
-        if num_attackers == 0:
+        if not king_attackers:
             return ~self.occupied
-        elif num_attackers == 1:
+        elif chess.pop_count(king_attackers) == 1:
             king_rank_mask = chess.RANK_MASK[king_bb]
             king_file_mask = chess.FILE_MASK[king_bb]
             king_diag_ne = chess.DIAG_MASK_NE[king_bb]
@@ -753,13 +739,10 @@ class CrazyhouseBoard(chess.Board):
             return super(CrazyhouseBoard, self).is_legal(move)
 
     def generate_pseudo_legal_drops(self, to_mask=chess.BB_ALL):
-        to_mask = to_mask & ~self.occupied
-        to_square = chess.bit_scan(to_mask)
-        while to_square != -1 and to_square is not None:
+        for to_square in chess.scan_forward(to_mask & ~self.occupied):
             for pt, count in self.pockets[self.turn].pieces.items():
                 if count and (pt != chess.PAWN or not chess.BB_BACKRANKS & chess.BB_SQUARES[to_square]):
                     yield chess.Move(to_square, to_square, drop=pt)
-            to_square = chess.bit_scan(to_mask, to_square + 1)
 
     def generate_legal_drops(self, to_mask=chess.BB_ALL):
         return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask)
