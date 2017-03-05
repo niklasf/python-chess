@@ -693,10 +693,7 @@ class Move(object):
         return self.uci()
 
     def __hash__(self):
-        if self.promotion:
-            return hash(self.to_square ^ self.from_square << 6 ^ self.promotion << 12)
-        else:
-            return hash(self.to_square ^ self.from_square << 6)
+        return hash((self.to_square, self.from_square, self.promotion, self.drop))
 
     def __copy__(self):
         return type(self)(self.from_square, self.to_square, self.promotion)
