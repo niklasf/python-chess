@@ -3210,13 +3210,12 @@ class Board(BaseBoard):
         checker = msb(checkers)
         if BB_SQUARES[checker] == checkers:
             # Capture or block a single checker.
-            target = (BB_BETWEEN[king][checker] | checkers) & to_mask
-            for move in self.generate_pseudo_legal_moves(~self.kings & from_mask, target):
-                if not self.is_en_passant(move):
-                    yield move
-            for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
-                yield move
+            target = BB_BETWEEN[king][checker] | checkers
+            if self.ep_square:
+                target |= BB_SQUARES[self.ep_square]
 
+            for move in self.generate_pseudo_legal_moves(~self.kings & from_mask, target & to_mask):
+                yield move
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
