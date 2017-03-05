@@ -167,6 +167,7 @@ BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
 
 try:
+    # Added in Python 2.7 and 3.1 respectively.
     int.bit_length
 except AttributeError:
     def _lsb_table():
