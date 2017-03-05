@@ -178,17 +178,23 @@ except:
 
     def lsb(bb, _table=_lsb_table()):
         return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
+
+    def scan_forward(bb, _bin=bin, _len=len):
+        string = _bin(bb)
+        l = _len(string)
+        r = string.rfind("1")
+        while r != -1:
+            yield l - r - 1
+            r = string.rfind("1", 0, r)
 else:
     def lsb(bb):
         return (bb & -bb).bit_length() - 1
 
-def scan_forward(bb, _bin=bin, _len=len):
-    string = _bin(bb)
-    l = _len(string)
-    r = string.rfind("1")
-    while r != -1:
-        yield l - r - 1
-        r = string.rfind("1", 0, r)
+    def scan_forward(bb):
+        while bb:
+            r = bb & -bb
+            yield r.bit_length() - 1
+            bb ^= r
 
 def bit_scan(b, n=0):
     string = bin(b)
