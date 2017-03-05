@@ -479,19 +479,19 @@ def calc_key(board, mirror=False):
     b = board.occupied_co[chess.BLACK ^ mirror]
 
     return "".join([
-        "K" * chess.pop_count(board.kings & w),
-        "Q" * chess.pop_count(board.queens & w),
-        "R" * chess.pop_count(board.rooks & w),
-        "B" * chess.pop_count(board.bishops & w),
-        "N" * chess.pop_count(board.knights & w),
-        "P" * chess.pop_count(board.pawns & w),
+        "K" * chess.popcount(board.kings & w),
+        "Q" * chess.popcount(board.queens & w),
+        "R" * chess.popcount(board.rooks & w),
+        "B" * chess.popcount(board.bishops & w),
+        "N" * chess.popcount(board.knights & w),
+        "P" * chess.popcount(board.pawns & w),
         "v",
-        "K" * chess.pop_count(board.kings & b),
-        "Q" * chess.pop_count(board.queens & b),
-        "R" * chess.pop_count(board.rooks & b),
-        "B" * chess.pop_count(board.bishops & b),
-        "N" * chess.pop_count(board.knights & b),
-        "P" * chess.pop_count(board.pawns & b),
+        "K" * chess.popcount(board.kings & b),
+        "Q" * chess.popcount(board.queens & b),
+        "R" * chess.popcount(board.rooks & b),
+        "B" * chess.popcount(board.bishops & b),
+        "N" * chess.popcount(board.knights & b),
+        "P" * chess.popcount(board.pawns & b),
     ])
 
 
@@ -1600,7 +1600,7 @@ class Tablebases(object):
             return v, 1
 
     def sprobe_ab(self, board, alpha, beta, threats=False):
-        if chess.pop_count(board.occupied_co[not board.turn]) > 1:
+        if chess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
                 return v, 2
@@ -1610,7 +1610,7 @@ class Tablebases(object):
 
         threats_found = False
 
-        if threats or chess.pop_count(board.occupied) >= 6:
+        if threats or chess.popcount(board.occupied) >= 6:
             for threat in board.generate_legal_moves(~board.pawns):
                 board.push(threat)
                 try:
@@ -1680,8 +1680,8 @@ class Tablebases(object):
             raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         # Validate piece count.
-        if chess.pop_count(board.occupied) > 6:
-            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
+        if chess.popcount(board.occupied) > 6:
+            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, success = self.probe_ab(board, -2, 2)

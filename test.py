@@ -92,9 +92,9 @@ class SquareTestCase(unittest.TestCase):
         for shift in shifts:
             for bb_square in chess.BB_SQUARES:
                 shifted = shift(bb_square)
-                c = chess.pop_count(shifted)
+                c = chess.popcount(shifted)
                 self.assertLessEqual(c, 1)
-                self.assertEqual(c, chess.pop_count(shifted & chess.BB_ALL))
+                self.assertEqual(c, chess.popcount(shifted & chess.BB_ALL))
 
 
 class MoveTestCase(unittest.TestCase):
@@ -928,7 +928,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.ep_square)
 
         self.assertFalse(board.piece_at(chess.E1))
-        self.assertEqual(chess.pop_count(board.occupied), 0)
+        self.assertEqual(chess.popcount(board.occupied), 0)
 
     def test_threefold_repetition(self):
         board = chess.Board()

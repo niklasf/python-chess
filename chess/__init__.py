@@ -218,6 +218,7 @@ else:
             yield r
             bb ^= _BB_SQUARES[r]
 
+# TODO: Remove (deprecated)
 def bit_scan(b, n=0):
     string = bin(b)
     l = len(string)
@@ -227,15 +228,16 @@ def bit_scan(b, n=0):
     else:
         return l - r - 1
 
-
 try:
-    from gmpy2 import popcount as pop_count
+    from gmpy2 import popcount
 except ImportError:
     try:
-        from gmpy import popcount as pop_count
+        from gmpy import popcount
     except ImportError:
-        def pop_count(b):
-            return bin(b).count("1")
+        def popcount(b, _bin=bin):
+            return _bin(b).count("1")
+
+pop_count = popcount  # TODO: Remove alias
 
 
 def shift_down(b):
@@ -1089,15 +1091,15 @@ class BaseBoard(object):
         if self.promoted:
             return None
 
-        if pop_count(self.bishops) != 4:
+        if popcount(self.bishops) != 4:
             return None
-        if pop_count(self.rooks) != 4:
+        if popcount(self.rooks) != 4:
             return None
-        if pop_count(self.knights) != 4:
+        if popcount(self.knights) != 4:
             return None
-        if pop_count(self.queens) != 2:
+        if popcount(self.queens) != 2:
             return None
-        if pop_count(self.kings) != 2:
+        if popcount(self.kings) != 2:
             return None
 
         if (BB_RANK_1 & self.knights) << 56 != BB_RANK_8 & self.knights:
@@ -1870,7 +1872,7 @@ class Board(BaseBoard):
             return False
 
         # A single knight or a single bishop.
-        if pop_count(self.occupied) <= 3:
+        if popcount(self.occupied) <= 3:
             return True
 
         # More than a single knight.
@@ -3049,19 +3051,19 @@ class Board(BaseBoard):
             errors |= STATUS_NO_WHITE_KING
         if not self.occupied_co[BLACK] & self.kings:
             errors |= STATUS_NO_BLACK_KING
-        if pop_count(self.occupied & self.kings) > 2:
+        if popcount(self.occupied & self.kings) > 2:
             errors |= STATUS_TOO_MANY_KINGS
 
         # There can not be more than 16 pieces of any color.
-        if pop_count(self.occupied_co[WHITE]) > 16:
+        if popcount(self.occupied_co[WHITE]) > 16:
             errors |= STATUS_TOO_MANY_WHITE_PIECES
-        if pop_count(self.occupied_co[BLACK]) > 16:
+        if popcount(self.occupied_co[BLACK]) > 16:
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
         # There can not be more than eight pawns of any color.
-        if pop_count(self.occupied_co[WHITE] & self.pawns) > 8:
+        if popcount(self.occupied_co[WHITE] & self.pawns) > 8:
             errors |= STATUS_TOO_MANY_WHITE_PAWNS
-        if pop_count(self.occupied_co[BLACK] & self.pawns) > 8:
+        if popcount(self.occupied_co[BLACK] & self.pawns) > 8:
             errors |= STATUS_TOO_MANY_BLACK_PAWNS
 
         # Pawns can not be on the backrank.
@@ -3179,7 +3181,7 @@ class Board(BaseBoard):
         for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
             b = BB_BETWEEN[sq][sniper] & self.occupied
 
-            if pop_count(b) <= 1:
+            if popcount(b) <= 1:
                 blockers |= b
 
         return blockers
@@ -3677,7 +3679,7 @@ class SquareSet(object):
             return NotImplemented
 
     def __len__(self):
-        return pop_count(self.mask)
+        return popcount(self.mask)
 
     def __iter__(self):
         return scan_forward(self.mask)

@@ -57,8 +57,8 @@ class SuicideBoard(chess.Board):
         return False
 
     def _material_balance(self):
-        return (chess.pop_count(self.occupied_co[self.turn]) -
-                chess.pop_count(self.occupied_co[not self.turn]))
+        return (chess.popcount(self.occupied_co[self.turn]) -
+                chess.popcount(self.occupied_co[not self.turn]))
 
     def is_variant_end(self):
         return not all(has_pieces for has_pieces in self.occupied_co)
@@ -221,12 +221,12 @@ class AtomicBoard(chess.Board):
         if self.pawns or self.queens:
             return False
 
-        if chess.pop_count(self.KNIGHT | self.BISHOP | self.ROOK) == 1:
+        if chess.popcount(self.KNIGHT | self.BISHOP | self.ROOK) == 1:
             return True
 
         # Only knights.
         if self.occupied == (self.kings | self.knights):
-            return chess.pop_count(self.knights) <= 2
+            return chess.popcount(self.knights) <= 2
 
         # Only bishops.
         if self.occupied == (self.kings | self.bishops):
@@ -400,13 +400,13 @@ class RacingKingsBoard(chess.Board):
         if self.pawns:
             status |= chess.STATUS_RACE_MATERIAL
         for color in chess.COLORS:
-            if chess.pop_count(self.occupied_co[color] & self.knights) > 2:
+            if chess.popcount(self.occupied_co[color] & self.knights) > 2:
                 status |= chess.STATUS_RACE_MATERIAL
-            if chess.pop_count(self.occupied_co[color] & self.bishops) > 2:
+            if chess.popcount(self.occupied_co[color] & self.bishops) > 2:
                 status |= chess.STATUS_RACE_MATERIAL
-            if chess.pop_count(self.occupied_co[color] & self.rooks) > 2:
+            if chess.popcount(self.occupied_co[color] & self.rooks) > 2:
                 status |= chess.STATUS_RACE_MATERIAL
-            if chess.pop_count(self.occupied_co[color] & self.queens) > 1:
+            if chess.popcount(self.occupied_co[color] & self.queens) > 1:
                 status |= chess.STATUS_RACE_MATERIAL
         return status
 
@@ -445,7 +445,7 @@ class HordeBoard(chess.Board):
         status = super(HordeBoard, self).status()
         status &= ~chess.STATUS_NO_WHITE_KING
 
-        if chess.pop_count(self.occupied_co[chess.WHITE]) <= 36:
+        if chess.popcount(self.occupied_co[chess.WHITE]) <= 36:
             status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
             status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
 
@@ -685,11 +685,11 @@ class CrazyhouseBoard(chess.Board):
         king_square = chess.lsb(king_bb)
 
         king_attackers = self.attackers_mask(not self.turn, king_square)
-        num_attackers = chess.pop_count(king_attackers)
+        num_attackers = chess.popcount(king_attackers)
 
         if not king_attackers:
             return ~self.occupied
-        elif chess.pop_count(king_attackers) == 1:
+        elif chess.popcount(king_attackers) == 1:
             king_rank_mask = chess.RANK_MASK[king_bb]
             king_file_mask = chess.FILE_MASK[king_bb]
             king_diag_ne = chess.DIAG_MASK_NE[king_bb]
@@ -809,11 +809,11 @@ class CrazyhouseBoard(chess.Board):
     def status(self):
         status = super(CrazyhouseBoard, self).status()
 
-        if chess.pop_count(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
+        if chess.popcount(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
             status &= ~chess.STATUS_TOO_MANY_BLACK_PAWNS
             status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
 
-        if chess.pop_count(self.occupied) + len(self.pockets[chess.WHITE]) + len(self.pockets[chess.BLACK]) <= 32:
+        if chess.popcount(self.occupied) + len(self.pockets[chess.WHITE]) + len(self.pockets[chess.BLACK]) <= 32:
             status &= ~chess.STATUS_TOO_MANY_BLACK_PIECES
             status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
 
