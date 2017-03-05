@@ -1232,11 +1232,9 @@ class WdlTable(Table):
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_piece(self.norm[bside], p, self.factor[bside])
             res = self.decompress_pairs(self.precomp[bside], idx)
@@ -1248,11 +1246,9 @@ class WdlTable(Table):
             piece_type = k & 0x07
             bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-            square = chess.bit_scan(bb)
-            while square != -1 and square is not None:
+            for square in chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
-                square = chess.bit_scan(bb, square + 1)
 
             f = self.pawn_file(p)
             pc = self.files[f].pieces[bside]
@@ -1261,11 +1257,9 @@ class WdlTable(Table):
                 piece_type = pc[i] & 0x07
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_pawn(self.files[f].norm[bside], p, self.files[f].factor[bside])
             res = self.decompress_pairs(self.files[f].precomp[bside], idx)
@@ -1403,11 +1397,9 @@ class DtzTable(Table):
                 color = (pc[i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_piece(self.norm, p, self.factor)
             res = self.decompress_pairs(self.precomp, idx)
@@ -1425,11 +1417,9 @@ class DtzTable(Table):
 
             i = 0
             p = [0, 0, 0, 0, 0, 0]
-            square = chess.bit_scan(bb)
-            while square != -1 and square is not None:
+            for square in chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
-                square = chess.bit_scan(bb, square + 1)
             f = self.pawn_file(p)
             if self.flags[f] & 1 != bside:
                 return 0, -1
@@ -1440,11 +1430,9 @@ class DtzTable(Table):
                 color = (pc[i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_pawn(self.files[f].norm, p, self.files[f].factor)
             res = self.decompress_pairs(self.files[f].precomp, idx)
