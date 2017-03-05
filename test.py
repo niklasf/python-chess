@@ -1278,7 +1278,6 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.is_legal(move))
         self.assertIn(move, board.generate_legal_moves())
         self.assertIn(move, board.generate_legal_ep())
-        self.assertIn(move, board.generate_evasions())
 
     def test_capture_generation(self):
         board = chess.Board("3q1rk1/ppp1p1pp/4b3/3pPp2/3P4/1K1n4/PPQ2PPP/3b1BNR w - f6 0 1")
