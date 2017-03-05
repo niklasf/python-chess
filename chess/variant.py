@@ -125,11 +125,10 @@ class SuicideBoard(chess.Board):
 
             yield move
 
-    def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        return
-        yield
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.is_variant_end():
+            return
 
-    def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         # Generate captures first.
         found_capture = False
         for move in self.generate_pseudo_legal_captures():
@@ -278,6 +277,9 @@ class AtomicBoard(chess.Board):
         return was_into_check
 
     def is_legal(self, move):
+        if self.is_variant_end():
+            return False
+
         if not self.is_pseudo_legal(move):
             return False
 
@@ -294,8 +296,6 @@ class AtomicBoard(chess.Board):
         for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
             if self.is_legal(move):
                 yield move
-
-    generate_evasions = generate_non_evasions = generate_legal_moves
 
     def status(self):
         status = super(SuicideBoard, self).status()
@@ -354,13 +354,8 @@ class RacingKingsBoard(chess.Board):
     def is_legal(self, move):
         return super(RacingKingsBoard, self).is_legal(move) and not self._gives_check(move)
 
-    def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        for move in super(RacingKingsBoard, self).generate_evasions(from_mask, to_mask):
-            if not self._gives_check(move):
-                yield move
-
-    def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        for move in super(RacingKingsBoard, self).generate_non_evasions(from_mask, to_mask):
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        for move in super(RacingKingsBoard, self).generate_legal_moves(from_mask, to_mask):
             if not self._gives_check(move):
                 yield move
 
@@ -382,6 +377,7 @@ class RacingKingsBoard(chess.Board):
         # safe squares for the king.
         targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8
         return all(self.attackers_mask(chess.WHITE, target) for target in chess.scan_forward(targets))
+
     def is_variant_draw(self):
         in_goal = self.kings & chess.BB_RANK_8
         return all(in_goal & side for side in self.occupied_co)
@@ -747,14 +743,9 @@ class CrazyhouseBoard(chess.Board):
     def generate_legal_drops(self, to_mask=chess.BB_ALL):
         return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask)
 
-    def generate_non_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         return itertools.chain(
-            super(CrazyhouseBoard, self).generate_non_evasions(from_mask, to_mask),
-            self.generate_legal_drops(from_mask & to_mask))
-
-    def generate_evasions(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        return itertools.chain(
-            super(CrazyhouseBoard, self).generate_evasions(from_mask, to_mask),
+            super(CrazyhouseBoard, self).generate_legal_moves(from_mask, to_mask),
             self.generate_legal_drops(from_mask & to_mask))
 
     # TODO: zobrist_hash
