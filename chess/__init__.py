@@ -3215,26 +3215,22 @@ class Board(BaseBoard):
             for move in self.generate_evasions(from_mask, to_mask):
                 yield move
         else:
-            moves = self.generate_non_evasions(from_mask, to_mask)
             pinners, blockers = self._slider_blockers(self.occupied_co[not self.turn], msb(self.kings & self.occupied_co[self.turn]))
 
-            for move in moves:
+            for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
                 if self.is_en_passant(move):
-                    yield move # TODO assert False
+                    if self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and not self._ep_skewered(BB_SQUARES[move.from_square]):
+                        yield move
                 elif self.is_castling(move):
                     yield move
                 elif self.kings & BB_SQUARES[move.from_square]:
                     if not self.is_attacked_by(not self.turn, move.to_square):
                         yield move
-                    else:
-                        assert False
                 else:
                     if not self.occupied_co[self.turn] & blockers & BB_SQUARES[move.from_square]:
                         yield move
                     elif BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn]:
                         yield move
-                    else:
-                        assert False
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
