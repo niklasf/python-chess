@@ -166,15 +166,21 @@ BB_RANKS = [
 BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
 
-def _lsb_table():
-    table = [0 for _ in range(64)]
-    for square, bb in enumerate(BB_SQUARES):
-        index = (((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58
-        table[index] = square
-    return table
+try:
+    int.bit_length
+except:
+    def _lsb_table():
+        table = [0 for _ in range(64)]
+        for square, bb in enumerate(BB_SQUARES):
+            index = (((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58
+            table[index] = square
+        return table
 
-def lsb(bb, _table=_lsb_table()):
-    return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
+    def lsb(bb, _table=_lsb_table()):
+        return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
+else:
+    def lsb(bb):
+        return (bb & -bb).bit_length() - 1
 
 def scan_forward(bb, _bin=bin, _len=len):
     string = _bin(bb)
