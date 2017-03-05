@@ -1110,11 +1110,9 @@ class BaseBoard(object):
         zobrist_hash = 0
 
         for pivot, squares in enumerate(self.occupied_co):
-            square = bit_scan(squares)
-            while square != -1 and square is not None:
+            for square in scan_forward(squares):
                 piece_index = (self.piece_type_at(square) - 1) * 2 + pivot
                 zobrist_hash ^= array[64 * piece_index + square]
-                square = bit_scan(squares, square + 1)
 
         return zobrist_hash
 
@@ -1391,15 +1389,10 @@ class Board(BaseBoard):
 
         # Generate piece moves.
         non_pawns = our_pieces & ~self.pawns & from_mask
-        from_square = bit_scan(non_pawns)
-        while from_square != -1 and from_square is not None:
+        for from_square in scan_forward(non_pawns):
             moves = self.attacks_mask(from_square) & ~our_pieces & to_mask
-            to_square = bit_scan(moves)
-            while to_square != -1 and to_square is not None:
+            for to_square in scan_forward(moves):
                 yield Move(from_square, to_square)
-                to_square = bit_scan(moves, to_square + 1)
-
-            from_square = bit_scan(non_pawns, from_square + 1)
 
         # Generate castling moves.
         for move in self.generate_castling_moves(from_mask, to_mask):
@@ -1412,14 +1405,12 @@ class Board(BaseBoard):
 
         # Generate pawn captures.
         capturers = pawns
-        from_square = bit_scan(capturers)
-        while from_square != -1 and from_square is not None:
+        for from_square in scan_forward(capturers):
             targets = (
                 BB_PAWN_ATTACKS[self.turn][from_square] &
                 self.occupied_co[not self.turn] & to_mask)
 
-            to_square = bit_scan(targets)
-            while to_square != -1 and to_square is not None:
+            for to_square in scan_forward(targets):
                 if square_rank(to_square) in [0, 7]:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, ROOK)
@@ -1427,10 +1418,6 @@ class Board(BaseBoard):
                     yield Move(from_square, to_square, KNIGHT)
                 else:
                     yield Move(from_square, to_square)
-
-                to_square = bit_scan(targets, to_square + 1)
-
-            from_square = bit_scan(capturers, from_square + 1)
 
         # Prepare pawn advance generation.
         if self.turn == WHITE:
@@ -1444,8 +1431,7 @@ class Board(BaseBoard):
         double_moves &= to_mask
 
         # Generate single pawn moves.
-        to_square = bit_scan(single_moves)
-        while to_square != -1 and to_square is not None:
+        for to_square in scan_forward(single_moves):
             from_square = to_square + (8 if self.turn == BLACK else -8)
 
             if square_rank(to_square) in [0, 7]:
@@ -1456,14 +1442,10 @@ class Board(BaseBoard):
             else:
                 yield Move(from_square, to_square)
 
-            to_square = bit_scan(single_moves, to_square + 1)
-
         # Generate double pawn moves.
-        to_square = bit_scan(double_moves)
-        while to_square != -1 and to_square is not None:
+        for to_square in scan_forward(double_moves):
             from_square = to_square + (16 if self.turn == BLACK else -16)
             yield Move(from_square, to_square)
-            to_square = bit_scan(double_moves, to_square + 1)
 
         # Generate en passant captures.
         for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
@@ -1477,10 +1459,8 @@ class Board(BaseBoard):
             self.pawns & self.occupied_co[self.turn] & from_mask &
             BB_PAWN_ATTACKS[not self.turn][self.ep_square])
 
-        capturer = bit_scan(capturers)
-        while capturer != -1 and capturer is not None:
+        for capturer in scan_forward(capturers):
             yield Move(capturer, self.ep_square)
-            capturer = bit_scan(capturers, capturer + 1)
 
     def generate_pseudo_legal_captures(self, from_mask=BB_ALL, to_mask=BB_ALL):
         return itertools.chain(
@@ -2108,17 +2088,11 @@ class Board(BaseBoard):
 
         builder = []
 
-        black_castling_rights = castling_rights & BB_RANK_8
-        while black_castling_rights:
-            mask = black_castling_rights & -black_castling_rights
-            builder.append(FILE_NAMES[square_file(bit_scan(mask))])
-            black_castling_rights = black_castling_rights & (black_castling_rights - 1)
+        for square in scan_forward(castling_rights & BB_RANK_8):
+            builder.append(FILE_NAMES[square_file(square)])
 
-        white_castling_rights = castling_rights & BB_RANK_1
-        while white_castling_rights:
-            mask = white_castling_rights & -white_castling_rights
-            builder.append(FILE_NAMES[square_file(bit_scan(mask))].upper())
-            white_castling_rights = white_castling_rights & (white_castling_rights - 1)
+        for square in scan_forward(castling_rights & BB_RANK_1):
+            builder.append(FILE_NAMES[square_file(square)].upper())
 
         builder.reverse()
 
@@ -2132,33 +2106,21 @@ class Board(BaseBoard):
             if not king_mask:
                 continue
 
-            king_file = square_file(bit_scan(king_mask))
+            king_file = square_file(lsb(king_mask))
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
-            castling_rights = self.clean_castling_rights() & backrank
-            while castling_rights:
-                rook = castling_rights & -castling_rights
-                rook_file = square_file(bit_scan(rook))
-
+            for rook_square in scan_forward(self.clean_castling_rights() & backrank):
+                rook_file = square_file(rook_square)
                 a_side = rook_file < king_file
 
-                shredder = False
-                other_rooks = self.occupied_co[color] & self.rooks & backrank & ~rook
-                while other_rooks:
-                    other_rook = other_rooks & -other_rooks
-                    if (square_file(bit_scan(other_rook)) < rook_file) == a_side:
-                        shredder = True
-                        break
-                    other_rooks = other_rooks & (other_rooks - 1)
+                other_rooks = self.occupied_co[color] & self.rooks & backrank & ~BB_SQUARES[rook_square]
 
-                if shredder:
+                if any((square_file(other) < rook_file) == a_side for other in scan_forward(other_rooks)):
                     ch = FILE_NAMES[rook_file]
                 else:
                     ch = "q" if a_side else "k"
 
                 builder.append(ch.upper() if color == WHITE else ch)
-
-                castling_rights = castling_rights & (castling_rights - 1)
 
         if builder:
             builder.reverse()
@@ -3194,23 +3156,15 @@ class Board(BaseBoard):
 
         # Generate piece moves.
         non_pawns = our_pieces & ~self.pawns & from_mask
-        while non_pawns:
-            from_bb = non_pawns & -non_pawns
-            from_square = bit_scan(from_bb)
-
+        for from_square in scan_forward(non_pawns):
             mask = self.pin_mask(self.turn, from_square)
             moves = self.attacks_mask(from_square) & ~our_pieces & mask & to_mask
-            to_square = bit_scan(moves)
-            while to_square != -1 and to_square is not None:
-                if from_bb & self.kings and self.attackers_mask(not self.turn, to_square):
+            for to_square in scan_forward(moves):
+                if self.kings & BB_SQUARES[from_square] and self.attackers_mask(not self.turn, to_square):
                     # Do not move the king into check.
                     pass
                 else:
                     yield Move(from_square, to_square)
-
-                to_square = bit_scan(moves, to_square + 1)
-
-            non_pawns = non_pawns & (non_pawns - 1)
 
         # Generate castling moves. Since we are generating non-evasions we
         # already know that we are not in check.
@@ -3223,15 +3177,13 @@ class Board(BaseBoard):
             return
 
         # Generate pawn captures.
-        from_square = bit_scan(pawns)
-        while from_square != -1 and from_square is not None:
+        for from_square in scan_forward(pawns):
             targets = (
                 BB_PAWN_ATTACKS[self.turn][from_square] &
                 self.occupied_co[not self.turn] & to_mask &
                 self.pin_mask(self.turn, from_square))
 
-            to_square = bit_scan(targets)
-            while to_square != -1 and to_square is not None:
+            for to_square in scan_forward(targets):
                 if square_rank(to_square) in [0, 7]:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, ROOK)
@@ -3240,25 +3192,16 @@ class Board(BaseBoard):
                 else:
                     yield Move(from_square, to_square)
 
-                to_square = bit_scan(targets, to_square + 1)
-
-            from_square = bit_scan(pawns, from_square + 1)
-
         # Generate en passant captures.
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
         if ep_square_mask & to_mask:
             capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & pawns
-            while capturers:
-                capturer_bb = capturers & -capturers
-                capturer = bit_scan(capturer_bb)
-
+            for capturer in scan_forward(capturers):
                 if ep_square_mask & self.pin_mask(self.turn, capturer):
-                    if self._ep_skewered(capturer_bb):
+                    if self._ep_skewered(BB_SQUARES[capturer]):
                         break
                     else:
                         yield Move(capturer, self.ep_square)
-
-                capturers = capturers & (capturers - 1)
 
         # Prepare pawn advance generation.
         if self.turn == WHITE:
@@ -3272,14 +3215,12 @@ class Board(BaseBoard):
         double_moves &= to_mask
 
         # Generate single pawn moves.
-        while single_moves:
-            to_bb = single_moves & -single_moves
-            to_square = bit_scan(to_bb)
+        for to_square in scan_forward(single_moves):
             from_square = to_square + (8 if self.turn == BLACK else -8)
 
             mask = self.pin_mask(self.turn, from_square)
-            if mask & to_bb:
-                if BB_BACKRANKS & to_bb:
+            if mask & BB_SQUARES[to_square]:
+                if square_rank(to_square) in [0, 7]:
                     yield Move(from_square, to_square, QUEEN)
                     yield Move(from_square, to_square, ROOK)
                     yield Move(from_square, to_square, BISHOP)
@@ -3287,27 +3228,16 @@ class Board(BaseBoard):
                 else:
                     yield Move(from_square, to_square)
 
-            single_moves = single_moves & (single_moves - 1)
-
         # Generate double pawn moves.
-        while double_moves:
-            to_bb = double_moves & -double_moves
-            to_square = bit_scan(to_bb)
+        for to_square in scan_forward(double_moves):
             from_square = to_square + (16 if self.turn == BLACK else -16)
 
             mask = self.pin_mask(self.turn, from_square)
-            if mask & to_bb:
+            if mask & BB_SQUARES[to_square]:
                 yield Move(from_square, to_square)
 
-            double_moves = double_moves & (double_moves - 1)
-
     def _attacked_for_king(self, path):
-        test_square = bit_scan(path)
-        while test_square != -1 and test_square is not None:
-            if self.attackers_mask(not self.turn, test_square):
-                return True
-            test_square = bit_scan(path, test_square + 1)
-        return False
+        return any(self.attackers_mask(not self.turn, sq) for sq in scan_forward(path))
 
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
@@ -3413,9 +3343,8 @@ class Board(BaseBoard):
             if king_attackers & last_double_mask:
                 attacker_attackers |= ep_capturers & self.attackers_mask(self.turn, self.ep_square) & from_mask
 
-            while attacker_attackers:
-                attacker = attacker_attackers & -attacker_attackers
-                from_square = bit_scan(attacker)
+            for from_square in scan_forward(attacker_attackers):
+                attacker = BB_SQUARES[from_square]
 
                 mask = self.pin_mask(self.turn, from_square)
 
@@ -3433,8 +3362,6 @@ class Board(BaseBoard):
                         yield Move(from_square, to_square, KNIGHT)
                     else:
                         yield Move(from_square, to_square)
-
-                attacker_attackers = attacker_attackers & (attacker_attackers - 1)
 
         # Eliminate the sliding moves where we are still in check by the same
         # piece.
@@ -3463,10 +3390,8 @@ class Board(BaseBoard):
             # Move the king. Capturing other pieces or even the attacker is
             # allowed.
             moves = BB_KING_ATTACKS[king_square] & ~our_pieces & to_mask
-            while moves:
-                to_bb = moves & -moves
-                to_square = bit_scan(to_bb)
-
+            for to_square in scan_forward(moves):
+                to_bb = BB_SQUARES[to_square]
                 attacked_square = self.attackers_mask(not self.turn, to_square)
 
                 capture_attacker = to_bb & attacker_masks & king_attackers
@@ -3501,25 +3426,21 @@ class Board(BaseBoard):
             moves &= to_mask
 
             # Try moving pieces to the empty squares.
-            while moves:
-                empty_bb = moves & -moves
-                empty_square = bit_scan(empty_bb)
+            for empty_square in scan_forward(moves):
+                empty_bb = BB_SQUARES[empty_square]
 
                 # Blocking piece moves (excluding pawns and the king).
                 blockers = self.attackers_mask(self.turn, empty_square) & ~our_pawns & ~our_king & from_mask
-                blocker = bit_scan(blockers)
-                while blocker != -1 and blocker is not None:
+                for blocker in scan_forward(blockers):
                     mask = self.pin_mask(self.turn, blocker)
                     if mask & empty_bb:
                         yield Move(blocker, empty_square)
-
-                    blocker = bit_scan(blockers, blocker + 1)
 
                 # Generate pawn advances to the empty square.
                 blocking_pawn = empty_bb & forward_pawns
                 if blocking_pawn:
                     from_bb = blocking_pawn >> 8 if self.turn == WHITE else blocking_pawn << 8
-                    from_square = bit_scan(from_bb)
+                    from_square = lsb(from_bb)
 
                     if from_bb & from_mask and self.pin_mask(self.turn, from_square) & empty_bb:
                         if empty_bb & BB_BACKRANKS:
@@ -3541,14 +3462,12 @@ class Board(BaseBoard):
                             from_bb = empty_bb << 16
                             middle_bb = empty_bb << 8
 
-                        from_square = bit_scan(from_bb)
+                        from_square = lsb(from_bb)
 
                         if from_bb & from_mask and middle_bb & ~self.occupied:
                             mask = self.pin_mask(self.turn, from_square)
                             if mask & empty_bb:
                                 yield Move(from_square, empty_square)
-
-                moves = moves & (moves - 1)
 
     def _from_chess960(self, from_square, to_square, promotion=None):
         if not self.chess960 and from_square in [E1, E8] and to_square in [A1, H1, A8, H8] and self.piece_type_at(from_square) == KING:
@@ -3922,15 +3841,12 @@ class SquareSet(object):
         return pop_count(self.mask)
 
     def __iter__(self):
-        square = bit_scan(self.mask)
-        while square != -1 and square is not None:
-            yield square
-            square = bit_scan(self.mask, square + 1)
+        return scan_forward(self.mask)
 
     def __reversed__(self):
         string = bin(self.mask)
         l = len(string)
-        r = string.find("1", 0)
+        r = string.find("1")
         while r != -1:
             yield l - r - 1
             r = string.find("1", r + 1)
