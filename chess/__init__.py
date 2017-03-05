@@ -324,6 +324,35 @@ FILE_MASK, FILE_ATTACKS = _attack_table([-8, 8])
 RANK_MASK, RANK_ATTACKS = _attack_table([-1, 1])
 
 
+def _rays():
+    rays = []
+    between = []
+    for a, bb_a in enumerate(BB_SQUARES):
+        rays_row = []
+        between_row = []
+        for b, bb_b in enumerate(BB_SQUARES):
+            if DIAG_ATTACKS_NE[bb_a][0] & bb_b:
+                rays_row.append(DIAG_ATTACKS_NE[bb_a][0] | bb_a)
+                between_row.append(DIAG_ATTACKS_NE[bb_a][bb_b] & DIAG_ATTACKS_NE[bb_b][bb_a])
+            elif DIAG_ATTACKS_NW[bb_a][0] & bb_b:
+                rays_row.append(DIAG_ATTACKS_NW[bb_a][0] | bb_a)
+                between_row.append(DIAG_ATTACKS_NW[bb_a][bb_b] & DIAG_ATTACKS_NW[bb_b][bb_a])
+            elif RANK_ATTACKS[bb_a][0] & bb_b:
+                rays_row.append(RANK_ATTACKS[bb_a][0] | bb_a)
+                between_row.append(RANK_ATTACKS[bb_a][bb_b] & RANK_ATTACKS[bb_b][bb_a])
+            elif FILE_ATTACKS[bb_a][0] & bb_b:
+                rays_row.append(FILE_ATTACKS[bb_a][0] | bb_a)
+                between_row.append(FILE_ATTACKS[bb_a][bb_b] & FILE_ATTACKS[bb_b][bb_a])
+            else:
+                rays_row.append(0)
+                between_row.append(0)
+        rays.append(rays_row)
+        between.append(between_row)
+    return rays, between
+
+BB_RAYS, BB_BETWEEN = _rays()
+
+
 SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
 
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
@@ -3160,11 +3189,52 @@ class Board(BaseBoard):
 
         return False
 
+    def _slider_blockers(self, sliders, sq):
+        snipers = ((RANK_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
+                   (FILE_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
+                   (DIAG_ATTACKS_NW[BB_SQUARES[sq]][0] & (self.bishops | self.queens)) |
+                   (DIAG_ATTACKS_NE[BB_SQUARES[sq]][0] & (self.bishops | self.queens)))
+
+        pinners = 0
+        blockers = 0
+
+        for sniper in scan_reversed(snipers & sliders):
+            b = BB_BETWEEN[sq][sniper] & self.occupied
+
+            if pop_count(b) <= 1:
+                blockers |= b
+
+                team = bool(self.occupied_co[WHITE] & BB_SQUARES[sq])
+                if b & self.occupied_co[team]:
+                    pinners |= sniper
+
+        return pinners, blockers
+
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_check():
-            return self.generate_evasions(from_mask, to_mask)
+            for move in self.generate_evasions(from_mask, to_mask):
+                yield move
         else:
-            return self.generate_non_evasions(from_mask, to_mask)
+            moves = self.generate_non_evasions(from_mask, to_mask)
+            pinners, blockers = self._slider_blockers(self.occupied_co[not self.turn], msb(self.kings & self.occupied_co[self.turn]))
+
+            for move in moves:
+                if self.is_en_passant(move):
+                    yield move # TODO assert False
+                elif self.is_castling(move):
+                    yield move
+                elif self.kings & BB_SQUARES[move.from_square]:
+                    if not self.is_attacked_by(not self.turn, move.to_square):
+                        yield move
+                    else:
+                        assert False
+                else:
+                    if not self.occupied_co[self.turn] & blockers & BB_SQUARES[move.from_square]:
+                        yield move
+                    elif BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn]:
+                        yield move
+                    else:
+                        assert False
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
