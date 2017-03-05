@@ -166,6 +166,17 @@ BB_RANKS = [
 BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
 
+def _lsb_table():
+    table = [0 for _ in range(64)]
+    for square, bb in enumerate(BB_SQUARES):
+        index = (((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58
+        table[index] = square
+    return table
+
+def lsb(bb, _table=_lsb_table()):
+    return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
+
+
 try:
     from gmpy2 import popcount as pop_count
     from gmpy2 import bit_scan1 as bit_scan
@@ -1033,12 +1044,12 @@ class BaseBoard(object):
         x = self.bishops & (2 + 8 + 32 + 128)
         if not x:
             return None
-        bs1 = (bit_scan(x) - 1) // 2
+        bs1 = (lsb(x) - 1) // 2
         cc_pos = bs1
         x = self.bishops & (1 + 4 + 16 + 64)
         if not x:
             return None
-        bs2 = bit_scan(x) * 2
+        bs2 = lsb(x) * 2
         cc_pos += bs2
 
         # Algorithm from ChessX src/database/bitboard.cpp r2254.
@@ -1609,11 +1620,11 @@ class Board(BaseBoard):
 
     def is_check(self):
         """Returns if the current side to move is in check."""
-        king_square = bit_scan(self.kings & self.occupied_co[self.turn])
-        if king_square is None or king_square == -1:
+        king = self.kings & self.occupied_co[self.turn]
+        if not king:
             return False
 
-        return self.is_attacked_by(not self.turn, king_square)
+        return self.is_attacked_by(not self.turn, lsb(king))
 
     def is_into_check(self, move):
         """
@@ -1653,11 +1664,11 @@ class Board(BaseBoard):
         Checks if the king of the other side is attacked. Such a position is not
         valid and could only be reached by an illegal move.
         """
-        king_square = bit_scan(self.kings & self.occupied_co[not self.turn])
-        if king_square is None or king_square == -1:
+        king = self.kings & self.occupied_co[not self.turn]
+        if not king:
             return False
 
-        return self.is_attacked_by(self.turn, king_square)
+        return self.is_attacked_by(self.turn, lsb(king))
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -2278,7 +2289,7 @@ class Board(BaseBoard):
                 # Select the leftmost rook.
                 mask = rooks & -rooks
 
-                if king and bit_scan(mask) < bit_scan(king):
+                if king and lsb(mask) < lsb(king):
                     self.castling_rights |= mask
                 else:
                     self.castling_rights |= BB_FILE_A & backrank
@@ -2289,7 +2300,7 @@ class Board(BaseBoard):
                     mask = rooks & -rooks
                     rooks = rooks & (rooks - 1)
 
-                if king and bit_scan(king) < bit_scan(mask):
+                if king and lsb(king) < lsb(mask):
                     self.castling_rights |= mask
                 else:
                     self.castling_rights |= BB_FILE_H & backrank
@@ -2873,8 +2884,8 @@ class Board(BaseBoard):
             if not black_king_mask:
                 black_castling = 0
 
-            white_king = bit_scan(white_king_mask)
-            black_king = bit_scan(black_king_mask)
+            white_king = lsb(white_king_mask)
+            black_king = lsb(black_king_mask)
 
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
@@ -2894,9 +2905,9 @@ class Board(BaseBoard):
                 white_h_side = (white_castling & -white_castling)
                 white_castling = white_castling & (white_castling - 1)
 
-            if white_a_side and bit_scan(white_a_side) > white_king:
+            if white_a_side and lsb(white_a_side) > white_king:
                 white_a_side = BB_VOID
-            if white_h_side and bit_scan(white_h_side) < white_king:
+            if white_h_side and lsb(white_h_side) < white_king:
                 white_h_side = BB_VOID
 
             black_a_side = (black_castling & -black_castling)
@@ -2906,20 +2917,20 @@ class Board(BaseBoard):
                 black_h_side = (black_castling & -black_castling)
                 black_castling = black_castling & (black_castling - 1)
 
-            if black_a_side and bit_scan(black_a_side) > black_king:
+            if black_a_side and lsb(black_a_side) > black_king:
                 black_a_side = BB_VOID
-            if black_h_side and bit_scan(black_h_side) < black_king:
+            if black_h_side and lsb(black_h_side) < black_king:
                 black_h_side = BB_VOID
 
             # Rooks must be on the same file, giving preference to the a or h
             # file and then to white.
-            if black_a_side and white_a_side and square_file(bit_scan(black_a_side)) != square_file(bit_scan(white_a_side)):
+            if black_a_side and white_a_side and square_file(lsb(black_a_side)) != square_file(lsb(white_a_side)):
                 if black_a_side == BB_A8:
                     white_a_side = BB_VOID
                 else:
                     black_a_side = BB_VOID
 
-            if black_h_side and white_h_side and square_file(bit_scan(black_h_side)) != square_file(bit_scan(white_h_side)):
+            if black_h_side and white_h_side and square_file(lsb(black_h_side)) != square_file(lsb(white_h_side)):
                 if black_h_side == BB_H8:
                     white_h_side = BB_VOID
                 else:
@@ -3349,7 +3360,7 @@ class Board(BaseBoard):
 
             if not self.occupied & (empty_for_king | empty_for_rook):
                 if not self._attacked_for_king(not_attacked_for_king):
-                    yield self._from_chess960(bit_scan(king), bit_scan(rook))
+                    yield self._from_chess960(lsb(king), lsb(rook))
 
             candidates = candidates & (candidates - 1)
 
@@ -3361,7 +3372,7 @@ class Board(BaseBoard):
         our_pieces = self.occupied_co[self.turn]
         their_pieces = self.occupied_co[not self.turn]
         our_king = self.kings & our_pieces
-        king_square = bit_scan(our_king)
+        king_square = lsb(our_king)
 
         our_pawns = self.pawns & our_pieces
         ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
@@ -3388,7 +3399,7 @@ class Board(BaseBoard):
             # There is one attacker, so it can be captured. If there are more
             # than one attackers we can not capture both at the same time,
             # so the king would have to be moved.
-            to_square = bit_scan(king_attackers)
+            to_square = lsb(king_attackers)
 
             attacker_attackers = self.attackers_mask(self.turn, to_square) & ~our_king & from_mask
 
@@ -3573,7 +3584,7 @@ class Board(BaseBoard):
         lastmove = self.peek() if self.move_stack else None
 
         if self.is_check():
-            check = bit_scan(self.kings & self.occupied_co[self.turn])
+            check = lsb(self.kings & self.occupied_co[self.turn])
         else:
             check = None
 
@@ -3878,9 +3889,9 @@ class SquareSet(object):
         if not self.mask:
             raise KeyError("pop from empty set")
 
-        square_mask = self.mask & -self.mask
+        square = lsb(self.mask)
         self.mask = self.mask & (self.mask - 1)
-        return bit_scan(square_mask)
+        return square
 
     def clear(self):
         self.mask = BB_VOID
