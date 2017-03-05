@@ -3168,20 +3168,24 @@ class Board(BaseBoard):
 
         sq = msb(king)
 
-        snipers = ((RANK_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
-                   (FILE_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
-                   (DIAG_ATTACKS_NW[BB_SQUARES[sq]][0] & (self.bishops | self.queens)) |
-                   (DIAG_ATTACKS_NE[BB_SQUARES[sq]][0] & (self.bishops | self.queens)))
+        rooks_and_queens = self.rooks | self.queens
+        bishops_and_queens = self.bishops | self.queens
+
+        snipers = ((RANK_ATTACKS[BB_SQUARES[sq]][0] & rooks_and_queens) |
+                   (FILE_ATTACKS[BB_SQUARES[sq]][0] & rooks_and_queens) |
+                   (DIAG_ATTACKS_NW[BB_SQUARES[sq]][0] & bishops_and_queens) |
+                   (DIAG_ATTACKS_NE[BB_SQUARES[sq]][0] & bishops_and_queens))
 
         blockers = 0
 
         for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
             b = BB_BETWEEN[sq][sniper] & self.occupied
 
-            if popcount(b) <= 1:
+            # Add to blockers if exactly one piece in between.
+            if BB_SQUARES[msb(b)] == b:
                 blockers |= b
 
-        return blockers
+        return blockers & self.occupied_co[self.turn]
 
     def _is_safe(self, blockers, move):
         if self.is_en_passant(move):
@@ -3191,7 +3195,7 @@ class Board(BaseBoard):
         elif self.kings & BB_SQUARES[move.from_square]:
             return not self.is_attacked_by(not self.turn, move.to_square)
         else:
-            return (not self.occupied_co[self.turn] & blockers & BB_SQUARES[move.from_square] or
+            return (not blockers & BB_SQUARES[move.from_square] or
                     BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn])
 
     def _generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
