@@ -324,6 +324,35 @@ FILE_MASK, FILE_ATTACKS = _attack_table([-8, 8])
 RANK_MASK, RANK_ATTACKS = _attack_table([-1, 1])
 
 
+def _rays():
+    rays = []
+    between = []
+    for a, bb_a in enumerate(BB_SQUARES):
+        rays_row = []
+        between_row = []
+        for b, bb_b in enumerate(BB_SQUARES):
+            if DIAG_ATTACKS_NE[bb_a][0] & bb_b:
+                rays_row.append(DIAG_ATTACKS_NE[bb_a][0] | bb_a)
+                between_row.append(DIAG_ATTACKS_NE[bb_a][bb_b] & DIAG_ATTACKS_NE[bb_b][bb_a])
+            elif DIAG_ATTACKS_NW[bb_a][0] & bb_b:
+                rays_row.append(DIAG_ATTACKS_NW[bb_a][0] | bb_a)
+                between_row.append(DIAG_ATTACKS_NW[bb_a][bb_b] & DIAG_ATTACKS_NW[bb_b][bb_a])
+            elif RANK_ATTACKS[bb_a][0] & bb_b:
+                rays_row.append(RANK_ATTACKS[bb_a][0] | bb_a)
+                between_row.append(RANK_ATTACKS[bb_a][bb_b] & RANK_ATTACKS[bb_b][bb_a])
+            elif FILE_ATTACKS[bb_a][0] & bb_b:
+                rays_row.append(FILE_ATTACKS[bb_a][0] | bb_a)
+                between_row.append(FILE_ATTACKS[bb_a][bb_b] & FILE_ATTACKS[bb_b][bb_a])
+            else:
+                rays_row.append(0)
+                between_row.append(0)
+        rays.append(rays_row)
+        between.append(between_row)
+    return rays, between
+
+BB_RAYS, BB_BETWEEN = _rays()
+
+
 SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
 
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
@@ -1652,33 +1681,12 @@ class Board(BaseBoard):
         Checks if the given move would leave the king in check or put it into
         check. The move must be at least pseudo legal.
         """
-        from_mask = BB_SQUARES[move.from_square]
-        to_mask = BB_SQUARES[move.to_square]
-
         # If already in check, look if it is an evasion.
         if self.is_check():
-            return move not in self.generate_evasions(from_mask, to_mask)
-
-        # We are assuming pseudo legality, so castling moves are always legal.
-        if self.is_castling(move):
-            return False
-
-        # Detect uncovered check.
-        if not self.pin_mask(self.turn, move.from_square) & to_mask:
-            return True
-
-        # Detect king moves into check.
-        if from_mask & self.kings:
-            if self.attackers_mask(not self.turn, move.to_square):
+            if move not in self._generate_evasions(BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
                 return True
 
-        # Detect en-passant moves, removing both the capturer and the captured
-        # pawn from the rank, leading to a skewer.
-        if self.is_en_passant(move):
-            if self._ep_skewered(from_mask):
-                return True
-
-        return False
+        return not self._is_safe(self._slider_blockers(), move)
 
     def was_into_check(self):
         """
@@ -3160,11 +3168,73 @@ class Board(BaseBoard):
 
         return False
 
-    def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if self.is_check():
-            return self.generate_evasions(from_mask, to_mask)
+    def _slider_blockers(self):
+        king = self.kings & self.occupied_co[self.turn]
+        if not king:
+            return 0
+
+        sq = msb(king)
+
+        snipers = ((RANK_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
+                   (FILE_ATTACKS[BB_SQUARES[sq]][0] & (self.rooks | self.queens)) |
+                   (DIAG_ATTACKS_NW[BB_SQUARES[sq]][0] & (self.bishops | self.queens)) |
+                   (DIAG_ATTACKS_NE[BB_SQUARES[sq]][0] & (self.bishops | self.queens)))
+
+        blockers = 0
+
+        for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
+            b = BB_BETWEEN[sq][sniper] & self.occupied
+
+            if pop_count(b) <= 1:
+                blockers |= b
+
+        return blockers
+
+    def _is_safe(self, blockers, move):
+        if self.is_en_passant(move):
+            return self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and not self._ep_skewered(BB_SQUARES[move.from_square])
+        elif self.is_castling(move):
+            return True
+        elif self.kings & BB_SQUARES[move.from_square]:
+            return not self.is_attacked_by(not self.turn, move.to_square)
         else:
-            return self.generate_non_evasions(from_mask, to_mask)
+            return (not self.occupied_co[self.turn] & blockers & BB_SQUARES[move.from_square] or
+                    BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn])
+
+    def _generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        king = msb(self.kings & self.occupied_co[self.turn])
+        checkers = self.attackers_mask(not self.turn, king)
+        sliders = checkers & (self.bishops | self.rooks | self.queens)
+
+        attacked = 0
+        for checker in scan_reversed(sliders):
+            attacked |= BB_RAYS[king][checker] & ~BB_SQUARES[checker]
+
+        if BB_SQUARES[king] & from_mask:
+            for to_square in scan_reversed(BB_KING_ATTACKS[king] & ~self.occupied_co[self.turn] & ~attacked & to_mask):
+                yield Move(king, to_square)
+
+        checker = msb(checkers)
+        if BB_SQUARES[checker] == checkers:
+            # Capture or block a single checker.
+            target = (BB_BETWEEN[king][checker] | checkers) & to_mask
+            for move in self.generate_pseudo_legal_moves(~self.kings & from_mask, target):
+                if not self.is_en_passant(move):
+                    yield move
+            for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+                yield move
+
+
+    def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
+        if self.is_variant_end():
+            moves = []
+        elif self.is_check():
+            moves = self._generate_evasions(from_mask, to_mask)
+        else:
+            moves = self.generate_pseudo_legal_moves(from_mask, to_mask)
+
+        blockers = self._slider_blockers()
+        return (move for move in moves if self._is_safe(blockers, move))
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
@@ -3178,94 +3248,6 @@ class Board(BaseBoard):
         return itertools.chain(
             self.generate_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_legal_ep(from_mask, to_mask))
-
-    def generate_non_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if self.is_variant_end():
-            return
-
-        our_pieces = self.occupied_co[self.turn]
-
-        # Generate piece moves.
-        non_pawns = our_pieces & ~self.pawns & from_mask
-        for from_square in scan_reversed(non_pawns):
-            mask = self.pin_mask(self.turn, from_square)
-            moves = self.attacks_mask(from_square) & ~our_pieces & mask & to_mask
-            for to_square in scan_reversed(moves):
-                if self.kings & BB_SQUARES[from_square] and self.attackers_mask(not self.turn, to_square):
-                    # Do not move the king into check.
-                    pass
-                else:
-                    yield Move(from_square, to_square)
-
-        # Generate castling moves. Since we are generating non-evasions we
-        # already know that we are not in check.
-        for move in self.generate_castling_moves(from_mask, to_mask):
-            yield move
-
-        # The remaining moves are all pawn moves.
-        pawns = self.pawns & our_pieces & from_mask
-        if not pawns:
-            return
-
-        # Generate pawn captures.
-        for from_square in scan_reversed(pawns):
-            targets = (
-                BB_PAWN_ATTACKS[self.turn][from_square] &
-                self.occupied_co[not self.turn] & to_mask &
-                self.pin_mask(self.turn, from_square))
-
-            for to_square in scan_reversed(targets):
-                if square_rank(to_square) in [0, 7]:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-                    yield Move(from_square, to_square, KNIGHT)
-                else:
-                    yield Move(from_square, to_square)
-
-        # Generate en passant captures.
-        ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else BB_VOID
-        if ep_square_mask & to_mask:
-            capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & pawns
-            for capturer in scan_reversed(capturers):
-                if ep_square_mask & self.pin_mask(self.turn, capturer):
-                    if self._ep_skewered(BB_SQUARES[capturer]):
-                        break
-                    else:
-                        yield Move(capturer, self.ep_square)
-
-        # Prepare pawn advance generation.
-        if self.turn == WHITE:
-            single_moves = pawns << 8 & ~self.occupied
-            double_moves = single_moves << 8 & ~self.occupied & (BB_RANK_3 | BB_RANK_4)
-        else:
-            single_moves = pawns >> 8 & ~self.occupied
-            double_moves = single_moves >> 8 & ~self.occupied & (BB_RANK_6 | BB_RANK_5)
-
-        single_moves &= to_mask
-        double_moves &= to_mask
-
-        # Generate single pawn moves.
-        for to_square in scan_reversed(single_moves):
-            from_square = to_square + (8 if self.turn == BLACK else -8)
-
-            mask = self.pin_mask(self.turn, from_square)
-            if mask & BB_SQUARES[to_square]:
-                if square_rank(to_square) in [0, 7]:
-                    yield Move(from_square, to_square, QUEEN)
-                    yield Move(from_square, to_square, ROOK)
-                    yield Move(from_square, to_square, BISHOP)
-                    yield Move(from_square, to_square, KNIGHT)
-                else:
-                    yield Move(from_square, to_square)
-
-        # Generate double pawn moves.
-        for to_square in scan_reversed(double_moves):
-            from_square = to_square + (16 if self.turn == BLACK else -16)
-
-            mask = self.pin_mask(self.turn, from_square)
-            if mask & BB_SQUARES[to_square]:
-                yield Move(from_square, to_square)
 
     def _attacked_for_king(self, path):
         return any(self.attackers_mask(not self.turn, sq) for sq in scan_reversed(path))
@@ -3331,174 +3313,6 @@ class Board(BaseBoard):
                     yield self._from_chess960(lsb(king), lsb(rook))
 
             candidates = candidates & (candidates - 1)
-
-    def generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if self.is_variant_end():
-            return
-
-        # Prepare basic information.
-        our_pieces = self.occupied_co[self.turn]
-        their_pieces = self.occupied_co[not self.turn]
-        our_king = self.kings & our_pieces
-        king_square = lsb(our_king)
-
-        our_pawns = self.pawns & our_pieces
-        ep_square_mask = BB_SQUARES[self.ep_square] if self.ep_square else 0
-        ep_capturers = BB_VOID
-
-        if self.turn == WHITE:
-            forward_pawns = our_pawns << 8 & BB_ALL
-            double_forward_pawns = (our_pawns & (BB_RANK_1 | BB_RANK_2)) << 16 & BB_ALL
-            last_double_mask = ep_square_mask >> 8 & self.pawns & self.occupied_co[BLACK]
-        else:
-            forward_pawns = our_pawns >> 8
-            double_forward_pawns = (our_pawns & (BB_RANK_8 | BB_RANK_7)) >> 16
-            last_double_mask = ep_square_mask << 8 & self.pawns & self.occupied_co[WHITE]
-
-        if ep_square_mask & to_mask:
-            ep_capturers = BB_PAWN_ATTACKS[not self.turn][self.ep_square] & our_pawns
-
-        # Look up all pieces giving check.
-        king_attackers = self.attackers_mask(not self.turn, king_square)
-        assert king_attackers
-        num_attackers = pop_count(king_attackers)
-
-        if num_attackers == 1:
-            # There is one attacker, so it can be captured. If there are more
-            # than one attackers we can not capture both at the same time,
-            # so the king would have to be moved.
-            to_square = lsb(king_attackers)
-
-            attacker_attackers = self.attackers_mask(self.turn, to_square) & ~our_king & from_mask
-
-            if king_attackers & last_double_mask:
-                attacker_attackers |= ep_capturers & self.attackers_mask(self.turn, self.ep_square) & from_mask
-
-            for from_square in scan_reversed(attacker_attackers):
-                attacker = BB_SQUARES[from_square]
-
-                mask = self.pin_mask(self.turn, from_square)
-
-                if king_attackers & last_double_mask and attacker & ep_capturers:
-                    if ep_square_mask & mask & to_mask:
-                        # Capture the attacking pawn en passant.
-                        if not self._ep_skewered(attacker):
-                            yield Move(from_square, self.ep_square)
-                elif king_attackers & mask & to_mask:
-                    if attacker & our_pawns and king_attackers & BB_BACKRANKS:
-                        # Capture the attacker with a pawn and promote.
-                        yield Move(from_square, to_square, QUEEN)
-                        yield Move(from_square, to_square, ROOK)
-                        yield Move(from_square, to_square, BISHOP)
-                        yield Move(from_square, to_square, KNIGHT)
-                    else:
-                        yield Move(from_square, to_square)
-
-        # Eliminate the sliding moves where we are still in check by the same
-        # piece.
-        attackers = king_attackers
-        king_rank_mask = RANK_MASK[our_king]
-        king_file_mask = FILE_MASK[our_king]
-        king_diag_ne = DIAG_MASK_NE[our_king]
-        king_diag_nw = DIAG_MASK_NW[our_king]
-        attacker_masks = 0
-        while attackers:
-            attacker = attackers & -attackers
-
-            if attacker & (self.queens | self.rooks | self.bishops):
-                if king_rank_mask == RANK_MASK[attacker]:
-                    attacker_masks |= king_rank_mask
-                if king_file_mask == FILE_MASK[attacker]:
-                    attacker_masks |= king_file_mask
-                if king_diag_ne == DIAG_MASK_NE[attacker]:
-                    attacker_masks |= king_diag_ne
-                if king_diag_nw == DIAG_MASK_NW[attacker]:
-                    attacker_masks |= king_diag_nw
-
-            attackers = attackers & (attackers - 1)
-
-        if our_king & from_mask:
-            # Move the king. Capturing other pieces or even the attacker is
-            # allowed.
-            moves = BB_KING_ATTACKS[king_square] & ~our_pieces & to_mask
-            for to_square in scan_reversed(moves):
-                to_bb = BB_SQUARES[to_square]
-                attacked_square = self.attackers_mask(not self.turn, to_square)
-
-                capture_attacker = to_bb & attacker_masks & king_attackers
-                any_capture = to_bb & ~attacker_masks
-
-                if to_bb & their_pieces and not attacked_square and (capture_attacker or any_capture):
-                    yield Move(king_square, to_square)
-                elif to_bb and not attacked_square and not (to_bb & attacker_masks):
-                    yield Move(king_square, to_square)
-
-                moves = moves & (moves - 1)
-
-        # Block the check.
-        if num_attackers == 1:
-            # Determine empty squares between the attacker and the king in
-            # order to block the check.
-            if king_rank_mask == RANK_MASK[king_attackers]:
-                rank_pieces = king_rank_mask & self.occupied
-                moves = RANK_ATTACKS[our_king][rank_pieces] & ~self.occupied & RANK_ATTACKS[king_attackers][rank_pieces]
-            elif king_file_mask == FILE_MASK[king_attackers]:
-                file_pieces = king_file_mask & self.occupied
-                moves = FILE_ATTACKS[our_king][file_pieces] & ~self.occupied & FILE_ATTACKS[king_attackers][file_pieces]
-            elif king_diag_ne == DIAG_MASK_NE[king_attackers]:
-                ne_pieces = king_diag_ne & self.occupied
-                moves = DIAG_ATTACKS_NE[our_king][ne_pieces] & ~self.occupied & DIAG_ATTACKS_NE[king_attackers][ne_pieces]
-            elif king_diag_nw == DIAG_MASK_NW[king_attackers]:
-                nw_pieces = king_diag_nw & self.occupied
-                moves = DIAG_ATTACKS_NW[our_king][nw_pieces] & ~self.occupied & DIAG_ATTACKS_NW[king_attackers][nw_pieces]
-            else:
-                moves = 0
-
-            moves &= to_mask
-
-            # Try moving pieces to the empty squares.
-            for empty_square in scan_reversed(moves):
-                empty_bb = BB_SQUARES[empty_square]
-
-                # Blocking piece moves (excluding pawns and the king).
-                blockers = self.attackers_mask(self.turn, empty_square) & ~our_pawns & ~our_king & from_mask
-                for blocker in scan_reversed(blockers):
-                    mask = self.pin_mask(self.turn, blocker)
-                    if mask & empty_bb:
-                        yield Move(blocker, empty_square)
-
-                # Generate pawn advances to the empty square.
-                blocking_pawn = empty_bb & forward_pawns
-                if blocking_pawn:
-                    from_bb = blocking_pawn >> 8 if self.turn == WHITE else blocking_pawn << 8
-                    from_square = lsb(from_bb)
-
-                    if from_bb & from_mask and self.pin_mask(self.turn, from_square) & empty_bb:
-                        if empty_bb & BB_BACKRANKS:
-                            yield Move(from_square, empty_square, QUEEN)
-                            yield Move(from_square, empty_square, ROOK)
-                            yield Move(from_square, empty_square, BISHOP)
-                            yield Move(from_square, empty_square, KNIGHT)
-                        else:
-                            yield Move(from_square, empty_square)
-                else:
-                    # Generate double pawn advances to the empty square.
-                    # Make sure the square inbetween is not occupied.
-                    blocking_pawn = empty_bb & double_forward_pawns
-                    if blocking_pawn:
-                        if self.turn == WHITE:
-                            from_bb = empty_bb >> 16
-                            middle_bb = empty_bb >> 8
-                        else:
-                            from_bb = empty_bb << 16
-                            middle_bb = empty_bb << 8
-
-                        from_square = lsb(from_bb)
-
-                        if from_bb & from_mask and middle_bb & ~self.occupied:
-                            mask = self.pin_mask(self.turn, from_square)
-                            if mask & empty_bb:
-                                yield Move(from_square, empty_square)
 
     def _from_chess960(self, from_square, to_square, promotion=None):
         if not self.chess960 and from_square in [E1, E8] and to_square in [A1, H1, A8, H8] and self.piece_type_at(from_square) == KING:
