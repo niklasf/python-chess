@@ -176,26 +176,33 @@ def _lsb_table():
 def lsb(bb, _table=_lsb_table()):
     return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
 
+def scan_forward(bb, _bin=bin, _len=len):
+    string = _bin(bb)
+    l = _len(string)
+    r = string.rfind("1")
+    while r != -1:
+        yield l - r - 1
+        r = string.rfind("1", 0, r)
+
+def bit_scan(b, n=0):
+    string = bin(b)
+    l = len(string)
+    r = string.rfind("1", 0, l - n)
+    if r == -1:
+        return -1
+    else:
+        return l - r - 1
+
 
 try:
     from gmpy2 import popcount as pop_count
-    from gmpy2 import bit_scan1 as bit_scan
 except ImportError:
     try:
         from gmpy import popcount as pop_count
-        from gmpy import scan1 as bit_scan
     except ImportError:
         def pop_count(b):
             return bin(b).count("1")
 
-        def bit_scan(b, n=0):
-            string = bin(b)
-            l = len(string)
-            r = string.rfind("1", 0, l - n)
-            if r == -1:
-                return -1
-            else:
-                return l - r - 1
 
 def shift_down(b):
     return b >> 8
