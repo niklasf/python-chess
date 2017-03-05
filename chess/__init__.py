@@ -656,7 +656,7 @@ class Move(object):
         >>> bool(chess.Move.null())
         False
         """
-        return cls(0, 0, None)
+        return cls(0, 0)
 
 
 class BaseBoard(object):
