@@ -1669,23 +1669,29 @@ class Board(BaseBoard):
 
     def is_check(self):
         """Returns if the current side to move is in check."""
-        king = self.kings & self.occupied_co[self.turn]
-        if not king:
+        king_mask = self.kings & self.occupied_co[self.turn]
+        if not king_mask:
             return False
 
-        return self.is_attacked_by(not self.turn, msb(king))
+        return self.is_attacked_by(not self.turn, msb(king_mask))
 
     def is_into_check(self, move):
         """
         Checks if the given move would leave the king in check or put it into
         check. The move must be at least pseudo legal.
         """
-        # If already in check, look if it is an evasion.
-        if self.is_check():
-            if move not in self._generate_evasions(BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
+        king_mask = self.kings & self.occupied_co[self.turn]
+        if not king_mask:
+            return False
+
+        king = msb(king_mask)
+        checkers = self.attackers_mask(not self.turn, king)
+        if checkers:
+            # If already in check, look if it is an evasion.
+            if move not in self._generate_evasions(king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
                 return True
 
-        return not self._is_safe(self._slider_blockers(), move)
+        return not self._is_safe(self._slider_blockers(king), move)
 
     def was_into_check(self):
         """
@@ -3146,24 +3152,18 @@ class Board(BaseBoard):
 
         return False
 
-    def _slider_blockers(self):
-        king = self.kings & self.occupied_co[self.turn]
-        if not king:
-            return 0
-
-        sq = msb(king)
-
+    def _slider_blockers(self, king):
         rooks_and_queens = self.rooks | self.queens
         bishops_and_queens = self.bishops | self.queens
 
-        snipers = ((BB_RANK_ATTACKS[sq][0] & rooks_and_queens) |
-                   (BB_FILE_ATTACKS[sq][0] & rooks_and_queens) |
-                   (BB_DIAG_ATTACKS[sq][0] & bishops_and_queens))
+        snipers = ((BB_RANK_ATTACKS[king][0] & rooks_and_queens) |
+                   (BB_FILE_ATTACKS[king][0] & rooks_and_queens) |
+                   (BB_DIAG_ATTACKS[king][0] & bishops_and_queens))
 
         blockers = 0
 
         for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
-            b = BB_BETWEEN[sq][sniper] & self.occupied
+            b = BB_BETWEEN[king][sniper] & self.occupied
 
             # Add to blockers if exactly one piece in between.
             if BB_SQUARES[msb(b)] == b:
@@ -3182,9 +3182,7 @@ class Board(BaseBoard):
             return (not blockers & BB_SQUARES[move.from_square] or
                     BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn])
 
-    def _generate_evasions(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        king = msb(self.kings & self.occupied_co[self.turn])
-        checkers = self.attackers_mask(not self.turn, king)
+    def _generate_evasions(self, king, checkers, from_mask=BB_ALL, to_mask=BB_ALL):
         sliders = checkers & (self.bishops | self.rooks | self.queens)
 
         attacked = 0
@@ -3206,18 +3204,25 @@ class Board(BaseBoard):
                 yield move
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        blockers = self._slider_blockers()
-
         if self.is_variant_end():
             return
-        elif self.is_check():
-            for move in self._generate_evasions(from_mask, to_mask):
-                if self._is_safe(blockers, move):
-                    yield move
+
+        king_mask = self.kings & self.occupied_co[self.turn]
+        if king_mask:
+            king = msb(king_mask)
+            blockers = self._slider_blockers(king)
+            checkers = self.attackers_mask(not self.turn, king)
+            if checkers:
+                for move in self._generate_evasions(king, checkers, from_mask, to_mask):
+                    if self._is_safe(blockers, move):
+                        yield move
+                return
         else:
-            for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
-                if self._is_safe(blockers, move):
-                    yield move
+            blockers = 0
+
+        for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
+            if self._is_safe(blockers, move):
+                yield move
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
