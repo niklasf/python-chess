@@ -301,39 +301,31 @@ BB_PAWN_ATTACKS = [[_sliding_attacks(sq, BB_ALL, deltas) for sq in SQUARES] for 
 
 
 def _attack_table(deltas):
-    mask_table = {0: 0}
-    attack_table = {}
+    mask_table = []
+    attack_table = []
 
     for square, bb in enumerate(BB_SQUARES):
-        attack_table[bb] = {}
-
-        mask = mask_table[bb] = _sliding_attacks(square, 0, deltas) | bb
+        attacks = {}
+        mask = _sliding_attacks(square, 0, deltas) | bb
 
         # Carry-Rippler trick to iterate subsets of mask.
         subset = 0
         while True:
-            attack_table[bb][subset] = _sliding_attacks(square, subset, deltas)
+            attacks[subset] = _sliding_attacks(square, subset, deltas)
 
             subset = (subset - mask) & mask
             if not subset:
                 break
 
+        attack_table.append(attacks)
+        mask_table.append(mask)
+
     return mask_table, attack_table
 
-DIAG_MASK_NE, DIAG_ATTACKS_NE = _attack_table([-9, 9])
-DIAG_MASK_NW, DIAG_ATTACKS_NW = _attack_table([-7, 7])
-FILE_MASK, FILE_ATTACKS = _attack_table([-8, 8])
-RANK_MASK, RANK_ATTACKS = _attack_table([-1, 1])
-
-BB_DIAG_MASKS_NE = [DIAG_MASK_NE[bb] for bb in BB_SQUARES]
-BB_DIAG_MASKS_NW = [DIAG_MASK_NW[bb] for bb in BB_SQUARES]
-BB_FILE_MASKS = [FILE_MASK[bb] for bb in BB_SQUARES]
-BB_RANK_MASKS = [RANK_MASK[bb] for bb in BB_SQUARES]
-
-BB_DIAG_ATTACKS_NE = [DIAG_ATTACKS_NE[bb] for bb in BB_SQUARES]
-BB_DIAG_ATTACKS_NW = [DIAG_ATTACKS_NW[bb] for bb in BB_SQUARES]
-BB_FILE_ATTACKS = [FILE_ATTACKS[bb] for bb in BB_SQUARES]
-BB_RANK_ATTACKS = [RANK_ATTACKS[bb] for bb in BB_SQUARES]
+BB_DIAG_MASKS_NE, BB_DIAG_ATTACKS_NE = _attack_table([-9, 9])
+BB_DIAG_MASKS_NW, BB_DIAG_ATTACKS_NW = _attack_table([-7, 7])
+BB_FILE_MASKS, BB_FILE_ATTACKS = _attack_table([-8, 8])
+BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 
 def _rays():
@@ -3165,10 +3157,10 @@ class Board(BaseBoard):
         rooks_and_queens = self.rooks | self.queens
         bishops_and_queens = self.bishops | self.queens
 
-        snipers = ((RANK_ATTACKS[BB_SQUARES[sq]][0] & rooks_and_queens) |
-                   (FILE_ATTACKS[BB_SQUARES[sq]][0] & rooks_and_queens) |
-                   (DIAG_ATTACKS_NW[BB_SQUARES[sq]][0] & bishops_and_queens) |
-                   (DIAG_ATTACKS_NE[BB_SQUARES[sq]][0] & bishops_and_queens))
+        snipers = ((BB_RANK_ATTACKS[sq][0] & rooks_and_queens) |
+                   (BB_FILE_ATTACKS[sq][0] & rooks_and_queens) |
+                   (BB_DIAG_ATTACKS_NW[sq][0] & bishops_and_queens) |
+                   (BB_DIAG_ATTACKS_NE[sq][0] & bishops_and_queens))
 
         blockers = 0
 
@@ -3258,6 +3250,7 @@ class Board(BaseBoard):
         bb_f = BB_FILE_F & backrank
         bb_g = BB_FILE_G & backrank
 
+        # TODO: Rewrite
         candidates = self.clean_castling_rights() & backrank & to_mask
         while candidates:
             rook = candidates & -candidates
@@ -3276,20 +3269,14 @@ class Board(BaseBoard):
 
             if a_side:
                 if not rook & bb_d:
-                    empty_for_rook = RANK_ATTACKS[rook][rook | bb_d] & RANK_ATTACKS[bb_d][bb_d | rook]
-                    empty_for_rook |= bb_d
-
+                    empty_for_rook = BB_BETWEEN[msb(rook)][msb(bb_d)] | bb_d
                 if not king & bb_c:
-                    empty_for_king = RANK_ATTACKS[king][king | bb_c] & RANK_ATTACKS[bb_c][bb_c | king]
-                    empty_for_king |= bb_c
+                    empty_for_king = BB_BETWEEN[msb(king)][msb(bb_c)] | bb_c
             else:
                 if not rook & bb_f:
-                    empty_for_rook = RANK_ATTACKS[rook][rook | bb_f] & RANK_ATTACKS[bb_f][bb_f | rook]
-                    empty_for_rook |= bb_f
-
+                    empty_for_rook = BB_BETWEEN[msb(rook)][msb(bb_f)] | bb_f
                 if not king & bb_g:
-                    empty_for_king = RANK_ATTACKS[king][king | bb_g] & RANK_ATTACKS[bb_g][bb_g | king]
-                    empty_for_king |= bb_g
+                    empty_for_king = BB_BETWEEN[msb(king)][msb(bb_g)] | bb_g
 
             empty_for_rook &= ~king
             empty_for_rook &= ~rook

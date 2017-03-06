@@ -688,25 +688,9 @@ class CrazyhouseBoard(chess.Board):
         if not king_attackers:
             return ~self.occupied
         elif chess.popcount(king_attackers) == 1:
-            king_rank_mask = chess.RANK_MASK[king_bb]
-            king_file_mask = chess.FILE_MASK[king_bb]
-            king_diag_ne = chess.DIAG_MASK_NE[king_bb]
-            king_diag_nw = chess.DIAG_MASK_NW[king_bb]
-
-            if king_rank_mask == chess.RANK_MASK[king_attackers]:
-                rank_pieces = king_rank_mask & self.occupied
-                return chess.RANK_ATTACKS[king_bb][rank_pieces] & ~self.occupied & chess.RANK_ATTACKS[king_attackers][rank_pieces]
-            elif king_file_mask == chess.FILE_MASK[king_attackers]:
-                file_pieces = king_file_mask & self.occupied
-                return chess.FILE_ATTACKS[king_bb][file_pieces] & ~self.occupied & chess.FILE_ATTACKS[king_attackers][file_pieces]
-            elif king_diag_ne == chess.DIAG_MASK_NE[king_attackers]:
-                ne_pieces = king_diag_ne & self.occupied
-                return chess.DIAG_ATTACKS_NE[king_bb][ne_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NE[king_attackers][ne_pieces]
-            elif king_diag_nw == chess.DIAG_MASK_NW[king_attackers]:
-                nw_pieces = king_diag_nw & self.occupied
-                return chess.DIAG_ATTACKS_NW[king_bb][nw_pieces] & ~self.occupied & chess.DIAG_ATTACKS_NW[king_attackers][nw_pieces]
-
-        return chess.BB_VOID
+            return chess.BB_BETWEEN[king_square][chess.msb(king_attackers)] & ~self.occupied
+        else:
+            return chess.BB_VOID
 
     def legal_drop_squares(self):
         return chess.SquareSet(self.legal_drop_squares_mask())
