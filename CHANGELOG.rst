@@ -10,14 +10,20 @@ Upcoming in the next release
 
 Changes:
 
-* Various performance tweaks, totalling **20% faster PGN parsing and 25%
-  better perft speed**.
-* `file_index()` and `rank_index()` have been renamed to `square_file()` and
-  `square_rank()` respectively. Aliases will be removed in some future release.
+* Rewritten move generator, various performance tweaks, code simplications
+  (500 lines removed) amounting to **doubled PGN parsing and perft speed**.
+* Removed `board.generate_evasions()` and `board.generate_non_evasions()`.
+* Removed `board.transpositions`. Transpositions are now counted on demand.
+* `file_index()`, `rank_index()`, and `pop_count()` have been renamed to
+  `square_file()`, `square_rank()` and `popcount()` respectively. Aliases will
+  be removed in some future release.
 * `STATUS_ILLEGAL_CHECK` has been renamed to `STATUS_RACE_CHECK`. The alias
   will be removed in a future release.
+* Removed `DIAG_ATTACKS_NE`, `DIAG_ATTACKS_NW`, `RANK_ATTACKS` and
+  `FILE_ATTACKS` as well as the corresponding masks. New attack tables
+  `BB_DIAG_ATTACKS` (combined both diagonal tables), `BB_RANK_ATTACKS` and
+  `BB_FILE_ATTACKS` are indexed by square instead of mask.
 * `board.push()` no longer requires pseudo-legality.
-* Removed `board.transpositions`. Transpositions are now counted on demand.
 * Documentation improvements.
 
 Bugfixes:
@@ -34,11 +40,14 @@ Bugfixes:
   `STATUS_RACE_MATERIAL`.
 * `SAN_REGEX`, `FEN_CASTLING_REGEX` and `TAG_REGEX` now try to match the
   entire string and no longer accept newlines.
+* Fixed `Move.__hash__()` for drops.
 
 New features:
 
 * `board.remove_piece_at()` now returns the removed piece.
 * Added `square_distance()` and `square_mirror()`.
+* Added `msb()`, `lsb()`, `scan_reversed()` and `scan_forward()`.
+* Added `BB_RAYS` and `BB_BETWEEN`.
 
 New in v0.16.2
 --------------
