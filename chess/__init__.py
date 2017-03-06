@@ -1615,28 +1615,27 @@ class Board(BaseBoard):
         return SquareSet(self.attacks_mask(square))
 
     def pin_mask(self, color, square):
+        king_mask = self.kings & self.occupied_co[color]
+        if not king_mask:
+            return BB_ALL
+
+        king = msb(king_mask)
+
+        sliders = self.rooks | self.bishops | self.queens
+        square_attackers = self.attackers_mask(not color, square)
         square_mask = BB_SQUARES[square]
 
-        king = self.kings & self.occupied_co[color]
-        sliders = self.rooks | self.bishops | self.queens
-
-        square_attackers = self.attackers_mask(not color, square)
-
-        for direction_masks, attack_table in [(FILE_MASK, FILE_ATTACKS),
-                                              (RANK_MASK, RANK_ATTACKS),
-                                              (DIAG_MASK_NW, DIAG_ATTACKS_NW),
-                                              (DIAG_MASK_NE, DIAG_ATTACKS_NE)]:
-            if direction_masks[square_mask] & direction_masks[king] & square_attackers:
+        for direction_masks, attack_table in [(BB_FILE_MASKS, BB_FILE_ATTACKS),
+                                              (BB_RANK_MASKS, BB_RANK_ATTACKS),
+                                              (BB_DIAG_MASKS_NW, BB_DIAG_ATTACKS_NW),
+                                              (BB_DIAG_MASKS_NE, BB_DIAG_ATTACKS_NE)]:
+            if direction_masks[square] & direction_masks[king] & square_attackers:
                 attackers = direction_masks[king] & square_attackers & sliders
                 occupancy = direction_masks[king] & self.occupied
 
-                while attackers:
-                    attacker = attackers & -attackers
-
-                    if (attack_table[attacker][occupancy ^ square_mask] & king) ^ (attack_table[attacker][occupancy] & king):
+                for attacker in scan_reversed(attackers):
+                    if (attack_table[attacker][occupancy ^ square_mask] & king_mask) ^ (attack_table[attacker][occupancy] & king_mask):
                         return direction_masks[king]
-
-                    attackers = attackers & (attackers - 1)
 
                 break
 
