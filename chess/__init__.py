@@ -3260,7 +3260,6 @@ class Board(BaseBoard):
             # shielded us from an attack from a1 or a8, castling would be
             # into check.
             if a_side and rook & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a:
-                candidates = candidates & (candidates - 1)
                 continue
 
             empty_for_rook = BB_VOID
