@@ -3188,11 +3188,17 @@ class Board(BaseBoard):
         if BB_SQUARES[checker] == checkers:
             # Capture or block a single checker.
             target = BB_BETWEEN[king][checker] | checkers
-            if self.ep_square:
-                target |= BB_SQUARES[self.ep_square]
 
             for move in self.generate_pseudo_legal_moves(~self.kings & from_mask, target & to_mask):
                 yield move
+
+            # Capture the checking pawn en passant (but avoid yielding
+            # duplicate moves).
+            if self.ep_square and not BB_SQUARES[self.ep_square] & target:
+                last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
+                if last_double == checker:
+                    for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+                        yield move
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
