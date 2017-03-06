@@ -1463,8 +1463,9 @@ class Board(BaseBoard):
                 yield Move(from_square, to_square)
 
         # Generate castling moves.
-        for move in self.generate_castling_moves(from_mask, to_mask):
-            yield move
+        if from_mask & self.kings:
+            for move in self.generate_castling_moves(from_mask, to_mask):
+                yield move
 
         # The remaining moves are all pawn moves.
         pawns = self.pawns & self.occupied_co[self.turn] & from_mask
@@ -1516,8 +1517,9 @@ class Board(BaseBoard):
             yield Move(from_square, to_square)
 
         # Generate en passant captures.
-        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
-            yield move
+        if self.ep_square:
+            for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+                yield move
 
     def generate_pseudo_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if not self.ep_square or not BB_SQUARES[self.ep_square] & to_mask:
