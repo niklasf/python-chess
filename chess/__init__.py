@@ -326,8 +326,7 @@ def _attack_table(deltas):
 
     return mask_table, attack_table
 
-BB_DIAG_MASKS_NE, BB_DIAG_ATTACKS_NE = _attack_table([-9, 9])
-BB_DIAG_MASKS_NW, BB_DIAG_ATTACKS_NW = _attack_table([-7, 7])
+BB_DIAG_MASKS, BB_DIAG_ATTACKS = _attack_table([-9, -7, 7, 9])
 BB_FILE_MASKS, BB_FILE_ATTACKS = _attack_table([-8, 8])
 BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
@@ -339,12 +338,9 @@ def _rays():
         rays_row = []
         between_row = []
         for b, bb_b in enumerate(BB_SQUARES):
-            if BB_DIAG_ATTACKS_NE[a][0] & bb_b:
-                rays_row.append(BB_DIAG_ATTACKS_NE[a][0] | bb_a)
-                between_row.append(BB_DIAG_ATTACKS_NE[a][BB_DIAG_MASKS_NE[a] & bb_b] & BB_DIAG_ATTACKS_NE[b][BB_DIAG_MASKS_NE[b] & bb_a])
-            elif BB_DIAG_ATTACKS_NW[a][0] & bb_b:
-                rays_row.append(BB_DIAG_ATTACKS_NW[a][0] | bb_a)
-                between_row.append(BB_DIAG_ATTACKS_NW[a][BB_DIAG_MASKS_NW[a] & bb_b] & BB_DIAG_ATTACKS_NW[b][BB_DIAG_MASKS_NW[b] & bb_a])
+            if BB_DIAG_ATTACKS[a][0] & bb_b:
+                rays_row.append((BB_DIAG_ATTACKS[a][0] & BB_DIAG_ATTACKS[b][0]) | bb_a | bb_b)
+                between_row.append(BB_DIAG_ATTACKS[a][BB_DIAG_MASKS[a] & bb_b] & BB_DIAG_ATTACKS[b][BB_DIAG_MASKS[b] & bb_a])
             elif BB_RANK_ATTACKS[a][0] & bb_b:
                 rays_row.append(BB_RANK_ATTACKS[a][0] | bb_a)
                 between_row.append(BB_RANK_ATTACKS[a][BB_RANK_MASKS[a] & bb_b] & BB_RANK_ATTACKS[b][BB_RANK_MASKS[b] & bb_a])
@@ -1540,19 +1536,17 @@ class Board(BaseBoard):
     def attackers_mask(self, color, square):
         rank_pieces = BB_RANK_MASKS[square] & self.occupied
         file_pieces = BB_FILE_MASKS[square] & self.occupied
-        ne_pieces = BB_DIAG_MASKS_NE[square] & self.occupied
-        nw_pieces = BB_DIAG_MASKS_NW[square] & self.occupied
+        diag_pieces = BB_DIAG_MASKS[square] & self.occupied
 
-        parallel_sliders = self.queens | self.rooks
-        diagonal_sliders = self.queens | self.bishops
+        queens_and_rooks = self.queens | self.rooks
+        queens_and_bishops = self.queens | self.bishops
 
         attackers = (
             (BB_KING_ATTACKS[square] & self.kings) |
             (BB_KNIGHT_ATTACKS[square] & self.knights) |
-            (BB_RANK_ATTACKS[square][rank_pieces] & parallel_sliders) |
-            (BB_FILE_ATTACKS[square][file_pieces] & parallel_sliders) |
-            (BB_DIAG_ATTACKS_NE[square][ne_pieces] & diagonal_sliders) |
-            (BB_DIAG_ATTACKS_NW[square][nw_pieces] & diagonal_sliders) |
+            (BB_RANK_ATTACKS[square][rank_pieces] & queens_and_rooks) |
+            (BB_FILE_ATTACKS[square][file_pieces] & queens_and_rooks) |
+            (BB_DIAG_ATTACKS[square][diag_pieces] & queens_and_bishops) |
             (BB_PAWN_ATTACKS[not color][square] & self.pawns))
 
         return attackers & self.occupied_co[color]
@@ -1590,15 +1584,11 @@ class Board(BaseBoard):
             return BB_KING_ATTACKS[square]
         else:
             attacks = BB_VOID
-
             if bb_square & self.bishops or bb_square & self.queens:
-                attacks |= BB_DIAG_ATTACKS_NE[square][BB_DIAG_MASKS_NE[square] & self.occupied]
-                attacks |= BB_DIAG_ATTACKS_NW[square][BB_DIAG_MASKS_NW[square] & self.occupied]
-
+                attacks = BB_DIAG_ATTACKS[square][BB_DIAG_MASKS[square] & self.occupied]
             if bb_square & self.rooks or bb_square & self.queens:
-                attacks |= BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied]
-                attacks |= BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied]
-
+                attacks |= (BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied] |
+                            BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied])
             return attacks
 
     def attacks(self, square):
@@ -1622,14 +1612,13 @@ class Board(BaseBoard):
 
         for attacks, sliders in [(BB_FILE_ATTACKS, self.rooks | self.queens),
                                  (BB_RANK_ATTACKS, self.rooks | self.queens),
-                                 (BB_DIAG_ATTACKS_NW, self.bishops | self.queens),
-                                 (BB_DIAG_ATTACKS_NE, self.bishops | self.queens)]:
-            ray = attacks[king][0]
-            if ray & square_mask:
-                snipers = ray & sliders & self.occupied_co[not color]
+                                 (BB_DIAG_ATTACKS, self.bishops | self.queens)]:
+            rays = attacks[king][0]
+            if rays & square_mask:
+                snipers = rays & sliders & self.occupied_co[not color]
                 for sniper in scan_reversed(snipers):
                     if BB_BETWEEN[sniper][king] & (self.occupied | square_mask) == square_mask:
-                        return ray | king_mask
+                        return BB_RAYS[king][sniper]
 
                 break
 
@@ -3142,9 +3131,7 @@ class Board(BaseBoard):
         # because if the latest double pawn move covers a diagonal attack,
         # then the other side would have been in check already.
         diagonal_attackers = self.occupied_co[not self.turn] & (self.bishops | self.queens)
-        if BB_DIAG_ATTACKS_NE[king][BB_DIAG_MASKS_NE[king] & occupancy] & diagonal_attackers:
-            return True
-        if BB_DIAG_ATTACKS_NW[king][BB_DIAG_MASKS_NW[king] & occupancy] & diagonal_attackers:
+        if BB_DIAG_ATTACKS[king][BB_DIAG_MASKS[king] & occupancy] & diagonal_attackers:
             return True
 
         return False
@@ -3161,8 +3148,7 @@ class Board(BaseBoard):
 
         snipers = ((BB_RANK_ATTACKS[sq][0] & rooks_and_queens) |
                    (BB_FILE_ATTACKS[sq][0] & rooks_and_queens) |
-                   (BB_DIAG_ATTACKS_NW[sq][0] & bishops_and_queens) |
-                   (BB_DIAG_ATTACKS_NE[sq][0] & bishops_and_queens))
+                   (BB_DIAG_ATTACKS[sq][0] & bishops_and_queens))
 
         blockers = 0
 
