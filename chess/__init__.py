@@ -3210,15 +3210,18 @@ class Board(BaseBoard):
                 yield move
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
-        if self.is_variant_end():
-            moves = []
-        elif self.is_check():
-            moves = self._generate_evasions(from_mask, to_mask)
-        else:
-            moves = self.generate_pseudo_legal_moves(from_mask, to_mask)
-
         blockers = self._slider_blockers()
-        return (move for move in moves if self._is_safe(blockers, move))
+
+        if self.is_variant_end():
+            return
+        elif self.is_check():
+            for move in self._generate_evasions(from_mask, to_mask):
+                if self._is_safe(blockers, move):
+                    yield move
+        else:
+            for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
+                if self._is_safe(blockers, move):
+                    yield move
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
