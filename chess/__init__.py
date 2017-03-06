@@ -3245,7 +3245,7 @@ class Board(BaseBoard):
             self.generate_legal_ep(from_mask, to_mask))
 
     def _attacked_for_king(self, path):
-        return any(self.attackers_mask(not self.turn, sq) for sq in scan_reversed(path))
+        return any(self.is_attacked_by(not self.turn, sq) for sq in scan_reversed(path))
 
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
