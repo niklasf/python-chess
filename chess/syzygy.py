@@ -1072,8 +1072,8 @@ class WdlTable(Table):
                 return
 
             assert self.check_magic(self.variant.tbw_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbw_magic
-                and self.check_magic(self.variant.pawnless_tbw_magic))
+                not self.has_pawns and self.variant.pawnless_tbw_magic and
+                self.check_magic(self.variant.pawnless_tbw_magic))
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1287,8 +1287,8 @@ class DtzTable(Table):
                 return
 
             assert self.check_magic(self.variant.tbz_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbz_magic
-                and self.check_magic(self.variant.pawnless_tbz_magic))
+                not self.has_pawns and self.variant.pawnless_tbz_magic and
+                self.check_magic(self.variant.pawnless_tbz_magic))
 
             self.factor = [0, 0, 0, 0, 0, 0]
             self.norm = [0 for _ in range(self.num)]

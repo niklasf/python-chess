@@ -370,7 +370,7 @@ class RacingKingsBoard(chess.Board):
         if not black_kings:
             return True
 
-        black_king = chess.lsb(black_kings)
+        black_king = chess.msb(black_kings)
 
         # White has reached the backrank. The game is over if black can not
         # also reach the backrank on the next move. Check if there are any
@@ -682,10 +682,8 @@ class CrazyhouseBoard(chess.Board):
         if not king_bb:
             return ~self.occupied
 
-        king_square = chess.lsb(king_bb)
-
+        king_square = chess.msb(king_bb)
         king_attackers = self.attackers_mask(not self.turn, king_square)
-        num_attackers = chess.popcount(king_attackers)
 
         if not king_attackers:
             return ~self.occupied
