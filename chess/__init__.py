@@ -1607,27 +1607,23 @@ class Board(BaseBoard):
         return SquareSet(self.attacks_mask(square))
 
     def pin_mask(self, color, square):
+        square_mask = BB_SQUARES[square]
         king_mask = self.kings & self.occupied_co[color]
         if not king_mask:
             return BB_ALL
 
         king = msb(king_mask)
 
-        sliders = self.rooks | self.bishops | self.queens
-        square_attackers = self.attackers_mask(not color, square)
-        square_mask = BB_SQUARES[square]
-
-        for direction_masks, attack_table in [(BB_FILE_MASKS, BB_FILE_ATTACKS),
-                                              (BB_RANK_MASKS, BB_RANK_ATTACKS),
-                                              (BB_DIAG_MASKS_NW, BB_DIAG_ATTACKS_NW),
-                                              (BB_DIAG_MASKS_NE, BB_DIAG_ATTACKS_NE)]:
-            if direction_masks[square] & direction_masks[king] & square_attackers:
-                attackers = direction_masks[king] & square_attackers & sliders
-                occupancy = direction_masks[king] & self.occupied
-
-                for attacker in scan_reversed(attackers):
-                    if (attack_table[attacker][occupancy ^ square_mask] & king_mask) ^ (attack_table[attacker][occupancy] & king_mask):
-                        return direction_masks[king]
+        for attacks, sliders in [(BB_FILE_ATTACKS, self.rooks | self.queens),
+                                 (BB_RANK_ATTACKS, self.rooks | self.queens),
+                                 (BB_DIAG_ATTACKS_NW, self.bishops | self.queens),
+                                 (BB_DIAG_ATTACKS_NE, self.bishops | self.queens)]:
+            ray = attacks[king][0]
+            if ray & square_mask:
+                snipers = ray & sliders & self.occupied_co[not color]
+                for sniper in scan_reversed(snipers):
+                    if BB_BETWEEN[sniper][king] & (self.occupied | square_mask) == square_mask:
+                        return ray | king_mask
 
                 break
 
