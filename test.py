@@ -1233,6 +1233,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(move, board.generate_legal_ep())
 
     def test_diagonally_skewered_en_passant(self):
+        # The capturing pawn is still blocking the diagonal.
+        board = chess.Board("2b1r2r/8/5P1k/2p1pP2/5R1P/6PK/4q3/4R3 w - e6 0 1")
+        move = chess.Move.from_uci("f5e6")
+        self.assertIn(move, board.generate_legal_ep())
+        self.assertIn(move, board.generate_legal_moves())
+
         # Regarding the following positions:
         # Note that the positions under test can not be reached by a sequence
         # of legal moves. The last move must have been a double pawn move,

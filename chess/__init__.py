@@ -3126,7 +3126,8 @@ class Board(BaseBoard):
 
         last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
 
-        occupancy = self.occupied & ~BB_SQUARES[last_double] & ~BB_SQUARES[capturer]
+        occupancy = (self.occupied & ~BB_SQUARES[last_double] &
+                     ~BB_SQUARES[capturer] | BB_SQUARES[self.ep_square])
 
         # Horizontal attack on the fifth or fourth rank.
         horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
