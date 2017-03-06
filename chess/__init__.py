@@ -3251,9 +3251,8 @@ class Board(BaseBoard):
         bb_g = BB_FILE_G & backrank
 
         # TODO: Rewrite
-        candidates = self.clean_castling_rights() & backrank & to_mask
-        while candidates:
-            rook = candidates & -candidates
+        for candidate in scan_reversed(self.clean_castling_rights() & backrank & to_mask):
+            rook = BB_SQUARES[candidate]
 
             a_side = rook < king
 
@@ -3269,12 +3268,12 @@ class Board(BaseBoard):
 
             if a_side:
                 if not rook & bb_d:
-                    empty_for_rook = BB_BETWEEN[msb(rook)][msb(bb_d)] | bb_d
+                    empty_for_rook = BB_BETWEEN[candidate][msb(bb_d)] | bb_d
                 if not king & bb_c:
                     empty_for_king = BB_BETWEEN[msb(king)][msb(bb_c)] | bb_c
             else:
                 if not rook & bb_f:
-                    empty_for_rook = BB_BETWEEN[msb(rook)][msb(bb_f)] | bb_f
+                    empty_for_rook = BB_BETWEEN[candidate][msb(bb_f)] | bb_f
                 if not king & bb_g:
                     empty_for_king = BB_BETWEEN[msb(king)][msb(bb_g)] | bb_g
 
@@ -3287,9 +3286,7 @@ class Board(BaseBoard):
 
             if not self.occupied & (empty_for_king | empty_for_rook):
                 if not self._attacked_for_king(not_attacked_for_king):
-                    yield self._from_chess960(msb(king), msb(rook))
-
-            candidates = candidates & (candidates - 1)
+                    yield self._from_chess960(msb(king), candidate)
 
     def _from_chess960(self, from_square, to_square, promotion=None):
         if not self.chess960 and from_square in [E1, E8] and to_square in [A1, H1, A8, H8] and self.piece_type_at(from_square) == KING:
