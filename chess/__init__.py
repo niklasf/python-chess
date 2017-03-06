@@ -2819,10 +2819,10 @@ class Board(BaseBoard):
 
     def is_en_passant(self, move):
         """Checks if the given pseudo-legal move is an en passant capture."""
-        diff = abs(move.to_square - move.from_square)
-        from_bb = BB_SQUARES[move.from_square]
-        to_bb = BB_SQUARES[move.to_square]
-        return diff in [7, 9] and self.pawns & from_bb and not self.occupied & to_bb
+        return (self.ep_square == move.to_square and
+                self.pawns & BB_SQUARES[move.from_square] and
+                abs(move.to_square - move.from_square) in [7, 9] and
+                not self.occupied & BB_SQUARES[move.to_square])
 
     def is_capture(self, move):
         """Checks if the given pseudo-legal move is a capture."""
