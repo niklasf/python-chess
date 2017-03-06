@@ -325,6 +325,16 @@ DIAG_MASK_NW, DIAG_ATTACKS_NW = _attack_table([-7, 7])
 FILE_MASK, FILE_ATTACKS = _attack_table([-8, 8])
 RANK_MASK, RANK_ATTACKS = _attack_table([-1, 1])
 
+BB_DIAG_MASKS_NE = [DIAG_MASK_NE[bb] for bb in BB_SQUARES]
+BB_DIAG_MASKS_NW = [DIAG_MASK_NW[bb] for bb in BB_SQUARES]
+BB_FILE_MASKS = [FILE_MASK[bb] for bb in BB_SQUARES]
+BB_RANK_MASKS = [RANK_MASK[bb] for bb in BB_SQUARES]
+
+BB_DIAG_ATTACKS_NE = [DIAG_ATTACKS_NE[bb] for bb in BB_SQUARES]
+BB_DIAG_ATTACKS_NW = [DIAG_ATTACKS_NW[bb] for bb in BB_SQUARES]
+BB_FILE_ATTACKS = [FILE_ATTACKS[bb] for bb in BB_SQUARES]
+BB_RANK_ATTACKS = [RANK_ATTACKS[bb] for bb in BB_SQUARES]
+
 
 def _rays():
     rays = []
@@ -333,18 +343,18 @@ def _rays():
         rays_row = []
         between_row = []
         for b, bb_b in enumerate(BB_SQUARES):
-            if DIAG_ATTACKS_NE[bb_a][0] & bb_b:
-                rays_row.append(DIAG_ATTACKS_NE[bb_a][0] | bb_a)
-                between_row.append(DIAG_ATTACKS_NE[bb_a][bb_b] & DIAG_ATTACKS_NE[bb_b][bb_a])
-            elif DIAG_ATTACKS_NW[bb_a][0] & bb_b:
-                rays_row.append(DIAG_ATTACKS_NW[bb_a][0] | bb_a)
-                between_row.append(DIAG_ATTACKS_NW[bb_a][bb_b] & DIAG_ATTACKS_NW[bb_b][bb_a])
-            elif RANK_ATTACKS[bb_a][0] & bb_b:
-                rays_row.append(RANK_ATTACKS[bb_a][0] | bb_a)
-                between_row.append(RANK_ATTACKS[bb_a][bb_b] & RANK_ATTACKS[bb_b][bb_a])
-            elif FILE_ATTACKS[bb_a][0] & bb_b:
-                rays_row.append(FILE_ATTACKS[bb_a][0] | bb_a)
-                between_row.append(FILE_ATTACKS[bb_a][bb_b] & FILE_ATTACKS[bb_b][bb_a])
+            if BB_DIAG_ATTACKS_NE[a][0] & bb_b:
+                rays_row.append(BB_DIAG_ATTACKS_NE[a][0] | bb_a)
+                between_row.append(BB_DIAG_ATTACKS_NE[a][bb_b] & BB_DIAG_ATTACKS_NE[b][bb_a])
+            elif BB_DIAG_ATTACKS_NW[a][0] & bb_b:
+                rays_row.append(BB_DIAG_ATTACKS_NW[a][0] | bb_a)
+                between_row.append(BB_DIAG_ATTACKS_NW[a][bb_b] & BB_DIAG_ATTACKS_NW[b][bb_a])
+            elif BB_RANK_ATTACKS[a][0] & bb_b:
+                rays_row.append(BB_RANK_ATTACKS[a][0] | bb_a)
+                between_row.append(BB_RANK_ATTACKS[a][bb_b] & BB_RANK_ATTACKS[b][bb_a])
+            elif BB_FILE_ATTACKS[a][0] & bb_b:
+                rays_row.append(BB_FILE_ATTACKS[a][0] | bb_a)
+                between_row.append(BB_FILE_ATTACKS[a][bb_b] & BB_FILE_ATTACKS[b][bb_a])
             else:
                 rays_row.append(0)
                 between_row.append(0)
@@ -1530,12 +1540,10 @@ class Board(BaseBoard):
             self.generate_pseudo_legal_ep(from_mask, to_mask))
 
     def attackers_mask(self, color, square):
-        bb_square = BB_SQUARES[square]
-
-        rank_pieces = RANK_MASK[bb_square] & self.occupied
-        file_pieces = FILE_MASK[bb_square] & self.occupied
-        ne_pieces = DIAG_MASK_NE[bb_square] & self.occupied
-        nw_pieces = DIAG_MASK_NW[bb_square] & self.occupied
+        rank_pieces = BB_RANK_MASKS[square] & self.occupied
+        file_pieces = BB_FILE_MASKS[square] & self.occupied
+        ne_pieces = BB_DIAG_MASKS_NE[square] & self.occupied
+        nw_pieces = BB_DIAG_MASKS_NW[square] & self.occupied
 
         parallel_sliders = self.queens | self.rooks
         diagonal_sliders = self.queens | self.bishops
@@ -1543,10 +1551,10 @@ class Board(BaseBoard):
         attackers = (
             (BB_KING_ATTACKS[square] & self.kings) |
             (BB_KNIGHT_ATTACKS[square] & self.knights) |
-            (RANK_ATTACKS[bb_square][rank_pieces] & parallel_sliders) |
-            (FILE_ATTACKS[bb_square][file_pieces] & parallel_sliders) |
-            (DIAG_ATTACKS_NE[bb_square][ne_pieces] & diagonal_sliders) |
-            (DIAG_ATTACKS_NW[bb_square][nw_pieces] & diagonal_sliders) |
+            (BB_RANK_ATTACKS[square][rank_pieces] & parallel_sliders) |
+            (BB_FILE_ATTACKS[square][file_pieces] & parallel_sliders) |
+            (BB_DIAG_ATTACKS_NE[square][ne_pieces] & diagonal_sliders) |
+            (BB_DIAG_ATTACKS_NW[square][nw_pieces] & diagonal_sliders) |
             (BB_PAWN_ATTACKS[not color][square] & self.pawns))
 
         return attackers & self.occupied_co[color]
@@ -1586,12 +1594,12 @@ class Board(BaseBoard):
             attacks = BB_VOID
 
             if bb_square & self.bishops or bb_square & self.queens:
-                attacks |= DIAG_ATTACKS_NE[bb_square][DIAG_MASK_NE[bb_square] & self.occupied]
-                attacks |= DIAG_ATTACKS_NW[bb_square][DIAG_MASK_NW[bb_square] & self.occupied]
+                attacks |= BB_DIAG_ATTACKS_NE[square][BB_DIAG_MASKS_NE[square] & self.occupied]
+                attacks |= BB_DIAG_ATTACKS_NW[square][BB_DIAG_MASKS_NW[square] & self.occupied]
 
             if bb_square & self.rooks or bb_square & self.queens:
-                attacks |= RANK_ATTACKS[bb_square][RANK_MASK[bb_square] & self.occupied]
-                attacks |= FILE_ATTACKS[bb_square][FILE_MASK[bb_square] & self.occupied]
+                attacks |= BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied]
+                attacks |= BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied]
 
             return attacks
 
@@ -3115,48 +3123,36 @@ class Board(BaseBoard):
         """
         return self.status() == STATUS_VALID
 
-    def _ep_skewered(self, capturer_mask):
+    def _ep_skewered(self, capturer):
         # Handle the special case where the king would be in check, if the
         # pawn and its capturer disappear from the rank.
 
         # Vertical skewers of the captured pawn are not possible. (Pins on
         # the capturer are not handled here.)
 
-        ep_square_mask = BB_SQUARES[self.ep_square]
         king_mask = self.kings & self.occupied_co[self.turn]
+        if not king_mask:
+            return False
 
-        if self.turn == WHITE:
-            rank = BB_RANK_5
-            last_double = ep_square_mask >> 8
-        else:
-            rank = BB_RANK_4
-            last_double = ep_square_mask << 8
+        king = msb(king_mask)
+
+        last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
+
+        occupancy = self.occupied & ~BB_SQUARES[last_double] & ~BB_SQUARES[capturer]
 
         # Horizontal attack on the fifth or fourth rank.
-        if king_mask & rank:
-            occupancy = self.occupied & rank & ~capturer_mask & ~last_double
-            horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
-            if RANK_ATTACKS[king_mask][occupancy] & horizontal_attackers:
-                return True
+        horizontal_attackers = self.occupied_co[not self.turn] & (self.rooks | self.queens)
+        if BB_RANK_ATTACKS[king][BB_RANK_MASKS[king] & occupancy] & horizontal_attackers:
+            return True
 
         # Diagonal skewers. These are not actually possible in a real game,
         # because if the latest double pawn move covers a diagonal attack,
         # then the other side would have been in check already.
         diagonal_attackers = self.occupied_co[not self.turn] & (self.bishops | self.queens)
-
-        # Diagonal NE.
-        diagonal = DIAG_MASK_NE[last_double]
-        if king_mask & diagonal:
-            occupancy = self.occupied & diagonal & ~last_double
-            if DIAG_ATTACKS_NE[king_mask][occupancy] & diagonal_attackers:
-                return True
-
-        # Diagonal NW.
-        diagonal = DIAG_MASK_NW[last_double]
-        if king_mask & diagonal:
-            occupancy = self.occupied & diagonal & ~last_double
-            if DIAG_ATTACKS_NW[king_mask][occupancy] & diagonal_attackers:
-                return True
+        if BB_DIAG_ATTACKS_NE[king][BB_DIAG_MASKS_NE[king] & occupancy] & diagonal_attackers:
+            return True
+        if BB_DIAG_ATTACKS_NW[king][BB_DIAG_MASKS_NW[king] & occupancy] & diagonal_attackers:
+            return True
 
         return False
 
@@ -3188,7 +3184,7 @@ class Board(BaseBoard):
 
     def _is_safe(self, blockers, move):
         if self.is_en_passant(move):
-            return self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and not self._ep_skewered(BB_SQUARES[move.from_square])
+            return self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and not self._ep_skewered(move.from_square)
         elif self.is_castling(move):
             return True
         elif self.kings & BB_SQUARES[move.from_square]:
