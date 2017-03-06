@@ -306,7 +306,11 @@ def _attack_table(deltas):
 
     for square, bb in enumerate(BB_SQUARES):
         attacks = {}
-        mask = _sliding_attacks(square, 0, deltas) | bb
+
+        edges = (((BB_RANK_1 | BB_RANK_8) & ~BB_RANKS[square_rank(square)]) |
+                 ((BB_FILE_A | BB_FILE_H) & ~BB_FILES[square_file(square)]))
+
+        mask = _sliding_attacks(square, 0, deltas) & ~edges
 
         # Carry-Rippler trick to iterate subsets of mask.
         subset = 0
@@ -337,16 +341,16 @@ def _rays():
         for b, bb_b in enumerate(BB_SQUARES):
             if BB_DIAG_ATTACKS_NE[a][0] & bb_b:
                 rays_row.append(BB_DIAG_ATTACKS_NE[a][0] | bb_a)
-                between_row.append(BB_DIAG_ATTACKS_NE[a][bb_b] & BB_DIAG_ATTACKS_NE[b][bb_a])
+                between_row.append(BB_DIAG_ATTACKS_NE[a][BB_DIAG_MASKS_NE[a] & bb_b] & BB_DIAG_ATTACKS_NE[b][BB_DIAG_MASKS_NE[b] & bb_a])
             elif BB_DIAG_ATTACKS_NW[a][0] & bb_b:
                 rays_row.append(BB_DIAG_ATTACKS_NW[a][0] | bb_a)
-                between_row.append(BB_DIAG_ATTACKS_NW[a][bb_b] & BB_DIAG_ATTACKS_NW[b][bb_a])
+                between_row.append(BB_DIAG_ATTACKS_NW[a][BB_DIAG_MASKS_NW[a] & bb_b] & BB_DIAG_ATTACKS_NW[b][BB_DIAG_MASKS_NW[b] & bb_a])
             elif BB_RANK_ATTACKS[a][0] & bb_b:
                 rays_row.append(BB_RANK_ATTACKS[a][0] | bb_a)
-                between_row.append(BB_RANK_ATTACKS[a][bb_b] & BB_RANK_ATTACKS[b][bb_a])
+                between_row.append(BB_RANK_ATTACKS[a][BB_RANK_MASKS[a] & bb_b] & BB_RANK_ATTACKS[b][BB_RANK_MASKS[b] & bb_a])
             elif BB_FILE_ATTACKS[a][0] & bb_b:
                 rays_row.append(BB_FILE_ATTACKS[a][0] | bb_a)
-                between_row.append(BB_FILE_ATTACKS[a][bb_b] & BB_FILE_ATTACKS[b][bb_a])
+                between_row.append(BB_FILE_ATTACKS[a][BB_FILE_MASKS[a] & bb_b] & BB_FILE_ATTACKS[b][BB_FILE_MASKS[b] & bb_a])
             else:
                 rays_row.append(0)
                 between_row.append(0)
