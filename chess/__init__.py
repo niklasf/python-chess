@@ -1558,7 +1558,17 @@ class Board(BaseBoard):
         Pinned pieces still count as attackers. Pawns that can be captured
         en passant are attacked.
         """
-        return bool(self.attackers_mask(color, square))
+        them = self.occupied_co[color]
+
+        if BB_DIAG_ATTACKS[square][BB_DIAG_MASKS[square] & self.occupied] & (self.queens | self.bishops) & them:
+            return True
+
+        queens_and_rooks = (self.queens | self.rooks) & them
+        return ((BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied] & queens_and_rooks) or
+                (BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied] & queens_and_rooks) or
+                (BB_KNIGHT_ATTACKS[square] & self.knights & them) or
+                (BB_PAWN_ATTACKS[not color][square] & self.pawns & them) or
+                (BB_KING_ATTACKS[square] & self.kings & them))
 
     def attackers(self, color, square):
         """
