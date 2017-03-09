@@ -1556,7 +1556,7 @@ class Board(BaseBoard):
         Checks if the given side attacks the given square.
 
         Pinned pieces still count as attackers. Pawns that can be captured
-        en passant are attacked.
+        en passant are **not** considered attacked.
         """
         return bool(self.attackers_mask(color, square))
 
