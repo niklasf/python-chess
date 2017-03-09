@@ -1774,11 +1774,18 @@ class Board(BaseBoard):
 
     def is_game_over(self, claim_draw=False):
         """
-        Checks if the game is over due to checkmate, stalemate, insufficient
-        mating material, the seventyfive-move rule or fivefold repetition.
+        Checks if the game is over due to
+        :func:`checkmate <chess.Board.is_checkmate()>`,
+        :func:`stalemate <chess.Board.is_stalemate()>`,
+        :func:`insufficient material <chess.Board.is_insufficient_material()>`,
+        the :func:`seventyfive-move rule <chess.Board.is_seventyfive_moves()>`,
+        :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`
+        or a :func:`variant end condition <chess.Board.is_variant_end()>`.
 
-        The game is not considered to be over by threefold repetition or the
-        fifty-move rule, unless *claim_draw* is given.
+        The game is not considered to be over by
+        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`
+        or the :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>`,
+        unless *claim_draw* is given.
         """
         # Seventyfive-move rule.
         if self.is_seventyfive_moves():
