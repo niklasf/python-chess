@@ -1681,7 +1681,7 @@ class Board(BaseBoard):
             if move not in self._generate_evasions(king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
                 return True
 
-        return not self._is_safe(self._slider_blockers(king), move)
+        return not self._is_safe(king, self._slider_blockers(king), move)
 
     def was_into_check(self):
         """
@@ -3111,18 +3111,12 @@ class Board(BaseBoard):
         """
         return self.status() == STATUS_VALID
 
-    def _ep_skewered(self, capturer):
+    def _ep_skewered(self, king, capturer):
         # Handle the special case where the king would be in check, if the
         # pawn and its capturer disappear from the rank.
 
         # Vertical skewers of the captured pawn are not possible. (Pins on
         # the capturer are not handled here.)
-
-        king_mask = self.kings & self.occupied_co[self.turn]
-        if not king_mask:
-            return False
-
-        king = msb(king_mask)
 
         last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
 
@@ -3162,16 +3156,18 @@ class Board(BaseBoard):
 
         return blockers & self.occupied_co[self.turn]
 
-    def _is_safe(self, blockers, move):
-        if self.is_en_passant(move):
-            return self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and not self._ep_skewered(move.from_square)
-        elif self.is_castling(move):
-            return True
-        elif self.kings & BB_SQUARES[move.from_square]:
-            return not self.is_attacked_by(not self.turn, move.to_square)
+    def _is_safe(self, king, blockers, move):
+        if move.from_square == king:
+            if self.is_castling(move):
+                return True
+            else:
+                return not self.is_attacked_by(not self.turn, move.to_square)
+        elif self.is_en_passant(move):
+            return (self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and
+                    not self._ep_skewered(king, move.from_square))
         else:
             return (not blockers & BB_SQUARES[move.from_square] or
-                    BB_RAYS[move.from_square][move.to_square] & self.kings & self.occupied_co[self.turn])
+                    BB_RAYS[move.from_square][move.to_square] & BB_SQUARES[king])
 
     def _generate_evasions(self, king, checkers, from_mask=BB_ALL, to_mask=BB_ALL):
         sliders = checkers & (self.bishops | self.rooks | self.queens)
@@ -3211,14 +3207,14 @@ class Board(BaseBoard):
             checkers = self.attackers_mask(not self.turn, king)
             if checkers:
                 for move in self._generate_evasions(king, checkers, from_mask, to_mask):
-                    if self._is_safe(blockers, move):
+                    if self._is_safe(king, blockers, move):
                         yield move
-                return
+            else:
+                for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
+                    if self._is_safe(king, blockers, move):
+                        yield move
         else:
-            blockers = 0
-
-        for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
-            if self._is_safe(blockers, move):
+            for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
                 yield move
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
