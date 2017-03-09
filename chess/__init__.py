@@ -1984,7 +1984,8 @@ class Board(BaseBoard):
 
     def push(self, move):
         """
-        Updates the position with the given move and puts it onto a stack.
+        Updates the position with the given move and puts it onto the
+        move stack.
 
         >>> Nf3 = chess.Move.from_uci("g1f3")
         >>> board.push(Nf3)  # Make the move
