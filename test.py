@@ -341,7 +341,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.shredder_fen(), fen)
 
         fen = "Qr4k1/4pppp/8/8/8/8/8/R5KR w Hb - 0 1"
-        board = chess.Board(fen, True)
+        board = chess.Board(fen, chess960=True)
 
         # White can just hop the rook over.
         move = board.parse_san("O-O")

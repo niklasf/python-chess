@@ -174,7 +174,7 @@ class GiveawayBoard(SuicideBoard):
     pawnless_tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(GiveawayBoard, self).__init__(fen, chess960)
+        super(GiveawayBoard, self).__init__(fen, chess960=chess960)
 
     def reset(self):
         super(GiveawayBoard, self).reset()
@@ -337,7 +337,7 @@ class RacingKingsBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(RacingKingsBoard, self).__init__(fen, chess960)
+        super(RacingKingsBoard, self).__init__(fen, chess960=chess960)
 
     def reset(self):
         self.set_fen(type(self).starting_fen)
@@ -418,7 +418,7 @@ class HordeBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(HordeBoard, self).__init__(fen, chess960)
+        super(HordeBoard, self).__init__(fen, chess960=chess960)
 
     def reset(self):
         self.set_fen(type(self).starting_fen)
@@ -472,7 +472,7 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.remaining_checks = [3, 3]
-        super(ThreeCheckBoard, self).__init__(fen, chess960)
+        super(ThreeCheckBoard, self).__init__(fen, chess960=chess960)
 
     def reset_board(self):
         super(ThreeCheckBoard, self).reset_board()
@@ -631,7 +631,7 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
-        super(CrazyhouseBoard, self).__init__(fen, chess960)
+        super(CrazyhouseBoard, self).__init__(fen, chess960=chess960)
 
     def reset_board(self):
         super(CrazyhouseBoard, self).reset_board()

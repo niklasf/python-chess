@@ -398,7 +398,7 @@ class Game(GameNode):
             VariantBoard = find_variant(self.headers["Variant"])
 
         fen = self.headers.get("FEN") if self.headers.get("SetUp", "1") == "1" else None
-        board = VariantBoard(fen or VariantBoard.starting_fen, chess960)
+        board = VariantBoard(fen or VariantBoard.starting_fen, chess960=chess960)
         board.chess960 = board.chess960 or board.has_chess960_castling_rights()
         return board
 
