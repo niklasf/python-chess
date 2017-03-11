@@ -2281,7 +2281,7 @@ class Board(BaseBoard):
         self.clear_stack()
 
     def _set_castling_fen(self, castling_fen):
-        if not castling_fen:
+        if not castling_fen or castling_fen == "-":
             self.castling_rights = BB_VOID
             return
 
@@ -2291,25 +2291,22 @@ class Board(BaseBoard):
         self.castling_rights = BB_VOID
 
         for flag in castling_fen:
-            if flag == "-":
-                break
-
             color = WHITE if flag.isupper() else BLACK
             flag = flag.lower()
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
             rooks = self.occupied_co[color] & self.rooks & backrank
-            king = self.occupied_co[color] & self.kings & backrank
+            king = self.king(color)
 
             if flag == "q":
                 # Select the leftmost rook.
-                if king and lsb(rooks) < msb(king):
+                if king is not None and lsb(rooks) < king:
                     self.castling_rights |= rooks & -rooks
                 else:
                     self.castling_rights |= BB_FILE_A & backrank
             elif flag == "k":
                 # Select the rightmost rook.
                 rook = msb(rooks)
-                if king and msb(king) < rook:
+                if king is not None and king < rook:
                     self.castling_rights |= BB_SQUARES[rook]
                 else:
                     self.castling_rights |= BB_FILE_H & backrank
