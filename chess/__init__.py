@@ -3582,9 +3582,6 @@ class SquareSet(object):
     def symmetric_difference(self, other):
         return self ^ other
 
-    def copy(self):
-        return type(self)(self.mask)
-
     def update(self, other):
         self |= other
 
@@ -3597,9 +3594,12 @@ class SquareSet(object):
     def symmetric_difference_update(self, other):
         self ^= other
 
+    def copy(self):
+        return type(self)(self.mask)
+
     def add(self, square):
         """Add a square to the set."""
-        self |= BB_SQUARES[square]
+        self.mask |= BB_SQUARES[square]
 
     def remove(self, square):
         """
@@ -3615,7 +3615,7 @@ class SquareSet(object):
 
     def discard(self, square):
         """Discards a square from the set."""
-        self &= ~BB_SQUARES[square]
+        self.mask &= ~BB_SQUARES[square]
 
     def pop(self):
         """
@@ -3644,7 +3644,7 @@ class SquareSet(object):
 
     def __ne__(self, other):
         try:
-            return int(self) != int(other)
+            return self.mask != int(other)
         except ValueError:
             return NotImplemented
 
@@ -3753,9 +3753,6 @@ class SquareSet(object):
     def _repr_svg_(self):
         import chess.svg
         return chess.svg.board(squares=self)
-
-    def __hash__(self):
-        return hash(self.mask)
 
     @classmethod
     def from_square(cls, square):
