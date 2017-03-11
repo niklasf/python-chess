@@ -3286,13 +3286,13 @@ class Board(BaseBoard):
                     yield self._from_chess960(msb(king), candidate)
 
     def _from_chess960(self, from_square, to_square, promotion=None):
-        if not self.chess960 and from_square in [E1, E8] and to_square in [A1, H1, A8, H8] and self.piece_type_at(from_square) == KING:
-            if from_square == E1:
+        if not self.chess960:
+            if from_square == E1 and self.kings & BB_E1:
                 if to_square == H1:
                     return Move(E1, G1)
                 elif to_square == A1:
                     return Move(E1, C1)
-            elif from_square == E8:
+            elif from_square == E8 and self.kings & BB_E8:
                 if to_square == H8:
                     return Move(E8, G8)
                 elif to_square == A8:
@@ -3301,17 +3301,16 @@ class Board(BaseBoard):
         return Move(from_square, to_square, promotion)
 
     def _to_chess960(self, move):
-        if move.from_square in [E1, E8] and move.to_square in [C1, G1, C8, G8] and self.piece_type_at(move.from_square) == KING and self.piece_type_at(move.to_square) != ROOK:
-            if move.from_square == E1:
-                if move.to_square == G1:
-                    return Move(E1, H1)
-                elif move.to_square == C1:
-                    return Move(E1, A1)
-            elif move.from_square == E8:
-                if move.to_square == G8:
-                    return Move(E8, H8)
-                elif move.to_square == C8:
-                    return Move(E8, A8)
+        if move.from_square == E1 and self.kings & BB_E1:
+            if move.to_square == G1 and not self.rooks & BB_G1:
+                return Move(E1, H1)
+            elif move.to_square == C1 and not self.rooks & BB_C1:
+                return Move(E1, A1)
+        elif move.from_square == E8 and self.kings & BB_E8:
+            if move.to_square == G8 and not self.rooks & BB_G8:
+                return Move(E8, H8)
+            elif move.to_square == C8 and not self.rooks & BB_C8:
+                return Move(E8, A8)
 
         return move
 
