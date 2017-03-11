@@ -847,6 +847,18 @@ class BaseBoard(object):
         elif self.kings & mask:
             return KING
 
+    def king(self, color):
+        """
+        Finds the king square of the given side. Returns ``None`` if there
+        is no king of that color.
+
+        In variants with king promotions only non-promoted kings are
+        considered.
+        """
+        king_mask = self.occupied_co[color] & self.kings & ~self.promoted
+        if king_mask:
+            return msb(king_mask)
+
     def _remove_piece_at(self, square):
         piece_type = self.piece_type_at(square)
         mask = BB_SQUARES[square]
@@ -1603,12 +1615,11 @@ class Board(BaseBoard):
         return SquareSet(self.attacks_mask(square))
 
     def pin_mask(self, color, square):
-        square_mask = BB_SQUARES[square]
-        king_mask = self.kings & self.occupied_co[color]
-        if not king_mask:
+        king = self.king(color)
+        if king is None:
             return BB_ALL
 
-        king = msb(king_mask)
+        square_mask = BB_SQUARES[square]
 
         for attacks, sliders in [(BB_FILE_ATTACKS, self.rooks | self.queens),
                                  (BB_RANK_ATTACKS, self.rooks | self.queens),
@@ -1659,22 +1670,18 @@ class Board(BaseBoard):
 
     def is_check(self):
         """Returns if the current side to move is in check."""
-        king_mask = self.kings & self.occupied_co[self.turn]
-        if not king_mask:
-            return False
-
-        return self.is_attacked_by(not self.turn, msb(king_mask))
+        king = self.king(self.turn)
+        return king is not None and self.is_attacked_by(not self.turn, king)
 
     def is_into_check(self, move):
         """
         Checks if the given move would leave the king in check or put it into
         check. The move must be at least pseudo legal.
         """
-        king_mask = self.kings & self.occupied_co[self.turn]
-        if not king_mask:
+        king = self.king(self.turn)
+        if king is None:
             return False
 
-        king = msb(king_mask)
         checkers = self.attackers_mask(not self.turn, king)
         if checkers:
             # If already in check, look if it is an evasion.
@@ -1688,11 +1695,8 @@ class Board(BaseBoard):
         Checks if the king of the other side is attacked. Such a position is not
         valid and could only be reached by an illegal move.
         """
-        king = self.kings & self.occupied_co[not self.turn]
-        if not king:
-            return False
-
-        return self.is_attacked_by(self.turn, msb(king))
+        king = self.king(not self.turn)
+        return king is not None and self.is_attacked_by(self.turn, king)
 
     def is_pseudo_legal(self, move):
         # Null moves are not pseudo legal.
@@ -3323,12 +3327,7 @@ class Board(BaseBoard):
     def _repr_svg_(self):
         import chess.svg
         lastmove = self.peek() if self.move_stack else None
-
-        if self.is_check():
-            check = msb(self.kings & self.occupied_co[self.turn])
-        else:
-            check = None
-
+        check = self.king() if self.is_check() else None
         return chess.svg.board(board=self, lastmove=lastmove, check=check)
 
     def __ne__(self, board):
