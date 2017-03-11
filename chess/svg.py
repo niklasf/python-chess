@@ -53,10 +53,10 @@ DEFAULT_COLORS = {
 }
 
 DEFAULT_STYLE = """\
-.check {{
+.check {
   fill: url(#check_gradient);
-}}
-""".format(**DEFAULT_COLORS)
+}
+"""
 
 
 def _svg(content, width, height):
