@@ -801,7 +801,7 @@ def read_game(handle, Visitor=GameModelCreator):
     # Parse game headers.
     while line:
         # Skip empty lines and comments.
-        if not line.strip() or line.strip().startswith("%"):
+        if line.isspace() or line.lstrip().startswith("%"):
             line = handle.readline()
             continue
 
@@ -824,7 +824,7 @@ def read_game(handle, Visitor=GameModelCreator):
         visitor.end_headers()
 
     # Get the next non-empty line.
-    while not line.strip() and line:
+    while line.isspace():
         line = handle.readline()
 
     # Movetext parser state.
@@ -839,7 +839,7 @@ def read_game(handle, Visitor=GameModelCreator):
         read_next_line = True
 
         # An empty line is the end of a game.
-        if not line.strip() and found_content:
+        if found_content and line.isspace():
             if found_game:
                 visitor.end_game()
                 return visitor.result()
