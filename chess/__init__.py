@@ -2861,6 +2861,8 @@ class Board(BaseBoard):
         :data:`~chess.Board.castling_rights`.
         """
         if self.stack:
+            # Castling rights do not change in a game, so we can assume them to
+            # be filtered already.
             return self.castling_rights
 
         castling = self.castling_rights & self.rooks
@@ -2888,14 +2890,11 @@ class Board(BaseBoard):
             if not black_king_mask:
                 black_castling = 0
 
-            white_king = msb(white_king_mask)
-            black_king = msb(black_king_mask)
-
             # Kings must be on the same file, giving preference to the e-file
             # and then to white.
             if white_castling and black_castling:
-                if square_file(white_king) != square_file(black_king):
-                    if square_file(black_king) == 4:
+                if square_file(msb(white_king_mask)) != square_file(msb(black_king_mask)):
+                    if black_king_mask == BB_E8:
                         white_castling = 0
                     else:
                         black_castling = 0
@@ -2903,27 +2902,19 @@ class Board(BaseBoard):
             # There are only two ways of castling, a-side and h-side, and the
             # king must be between the rooks.
             white_a_side = white_castling & -white_castling
+            white_h_side = BB_SQUARES[msb(white_castling)] if white_castling else BB_VOID
 
-            white_h_side = BB_VOID
-            while white_castling:
-                white_h_side = (white_castling & -white_castling)
-                white_castling = white_castling & (white_castling - 1)
-
-            if white_a_side and msb(white_a_side) > white_king:
+            if white_a_side and msb(white_a_side) > msb(white_king_mask):
                 white_a_side = BB_VOID
-            if white_h_side and msb(white_h_side) < white_king:
+            if white_h_side and msb(white_h_side) < msb(white_king_mask):
                 white_h_side = BB_VOID
 
             black_a_side = (black_castling & -black_castling)
+            black_h_side = BB_SQUARES[msb(black_castling)] if black_castling else BB_VOID
 
-            black_h_side = BB_VOID
-            while black_castling:
-                black_h_side = (black_castling & -black_castling)
-                black_castling = black_castling & (black_castling - 1)
-
-            if black_a_side and msb(black_a_side) > black_king:
+            if black_a_side and msb(black_a_side) > msb(black_king_mask):
                 black_a_side = BB_VOID
-            if black_h_side and msb(black_h_side) < black_king:
+            if black_h_side and msb(black_h_side) < msb(black_king_mask):
                 black_h_side = BB_VOID
 
             # Rooks must be on the same file, giving preference to the a or h
@@ -3159,7 +3150,7 @@ class Board(BaseBoard):
             b = BB_BETWEEN[king][sniper] & self.occupied
 
             # Add to blockers if exactly one piece in between.
-            if BB_SQUARES[msb(b)] == b:
+            if b and BB_SQUARES[msb(b)] == b:
                 blockers |= b
 
         return blockers & self.occupied_co[self.turn]
