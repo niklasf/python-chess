@@ -44,9 +44,6 @@ class SuicideBoard(chess.Board):
     def _attacked_for_king(self, path):
         return False
 
-    def _ep_skewered(self, capturer_mask):
-        return False
-
     def is_check(self):
         return False
 

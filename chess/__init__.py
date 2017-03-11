@@ -285,7 +285,7 @@ def _sliding_attacks(square, occupied, deltas):
 
         while True:
             sq += delta
-            if sq < 0 or sq >= 64 or square_distance(sq, sq - delta) > 2:
+            if not (0 <= sq < 64) or square_distance(sq, sq - delta) > 2:
                 break
 
             attacks |= BB_SQUARES[sq]

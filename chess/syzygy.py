@@ -744,7 +744,7 @@ class Table(object):
 
         fac = 1
         k = 0
-        while i < self.num or k == order or k == order2:
+        while i < self.num or k in [order, order2]:
             if k == order:
                 factor[0] = fac
                 fac *= PFACTOR[norm[0] - 1][f]
