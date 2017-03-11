@@ -987,7 +987,7 @@ def scan_headers(handle):
 
     while line:
         # Skip single line comments.
-        if line.startswith("%"):
+        if line.lstrip().startswith("%"):
             last_pos = handle.tell()
             line = handle.readline()
             continue
