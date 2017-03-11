@@ -2818,6 +2818,14 @@ class GaviotaTestCase(unittest.TestCase):
         self.assertFalse(self.tablebases.available_tables)
 
 
+class SvgTestCase(unittest.TestCase):
+
+    def test_svg_board(self):
+        svg = chess.BaseBoard("4k3/8/8/8/8/8/8/4KB2")._repr_svg_()
+        self.assertIn("white bishop", svg)
+        self.assertNotIn("black queen", svg)
+
+
 class SuicideTestCase(unittest.TestCase):
 
     def test_parse_san(self):

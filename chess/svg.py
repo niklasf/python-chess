@@ -111,8 +111,10 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
 
     builder.append("<defs>")
     if board:
-        for piece_def in PIECES.values():
-            builder.append(piece_def)
+        for color in chess.COLORS:
+            for piece_type in chess.PIECE_TYPES:
+                if board.pieces_mask(piece_type, color):
+                    builder.append(PIECES[chess.Piece(piece_type, color).symbol()])
     if squares:
         builder.append(XX)
     if check is not None:
