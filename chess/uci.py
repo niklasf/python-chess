@@ -388,6 +388,7 @@ class PopenProcess(object):
         self.process = None
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
+        self._stdin_lock = threading.Lock()
 
     def spawn(self, engine):
         self.engine = engine
@@ -395,12 +396,23 @@ class PopenProcess(object):
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
-        while self.is_alive():
+        while True:
             line = self.process.stdout.readline()
             if not line:
-                continue
+                # Stream closed.
+                break
 
             self.engine.on_line_received(line.rstrip())
+
+        # Close file descriptors.
+        self.process.stdout.close()
+        with self._stdin_lock:
+            self.process.stdin.close()
+
+        # Ensure the process is terminated (not just the in/out streams).
+        if self.is_alive():
+            self.terminate()
+            self.wait_for_return_code()
 
         self.engine.on_terminated()
 
@@ -414,9 +426,9 @@ class PopenProcess(object):
         self.process.kill()
 
     def send_line(self, string):
-        self.process.stdin.write(string)
-        self.process.stdin.write("\n")
-        self.process.stdin.flush()
+        with self._stdin_lock:
+            self.process.stdin.write(string + "\n")
+            self.process.stdin.flush()
 
     def wait_for_return_code(self):
         self.process.wait()
