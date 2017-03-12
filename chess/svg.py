@@ -41,6 +41,7 @@ PIECES = {
 
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
+ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="2" markerHeight="4" orient="auto"><polygon points="0 0, 2 2, 0 4" fill="#888"/></marker>"""
 
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
@@ -58,6 +59,13 @@ DEFAULT_STYLE = """\
 }}
 """.format(**DEFAULT_COLORS)
 
+class Arrow():
+    """
+    Details of an arrow to be drawn.
+    """
+    def __init__(self, head, tail):
+        self.head = head
+        self.tail = tail
 
 def _svg(content, width, height):
     return """<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="%d" height="%d">%s</svg>""" % (width, height, content)
@@ -80,7 +88,7 @@ def piece(piece):
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, size=400, style=None, pre="", post=""):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, size=400, style=None, pre="", post="", arrows=[]):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -92,6 +100,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param check: A square to be marked as check.
     :param size: The width and height of the image.
     :param style: CSS to use instead of the default stylesheet.
+    :param arrows: A list of Arrow objects.
 
     Custom verbatim XML can be added before (*pre*) and after (*post*) all
     elements.
@@ -115,6 +124,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             builder.append(piece_def)
     if squares:
         builder.append(XX)
+    if arrows:
+        builder.append(ARROWHEAD)
     if check is not None:
         builder.append(CHECK_GRADIENT)
     builder.append("</defs>")
@@ -161,6 +172,18 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             y = (7 - rank_index if not flipped else rank_index) * square_size + margin
             builder.append(_text(rank_name, 0, y, margin, square_size))
             builder.append(_text(rank_name, margin + 8 * square_size, y, margin, square_size))
+
+    for arrow in arrows:
+        head_file = chess.file_index(arrow.head)
+        head_rank = chess.rank_index(arrow.head)
+        tail_file = chess.file_index(arrow.tail)
+        tail_rank = chess.rank_index(arrow.tail)
+
+        xhead = (head_file + 1 if not flipped else 8 - head_file) * square_size
+        yhead = (8 - head_rank if not flipped else head_rank + 1) * square_size
+        xtail = (tail_file + 1 if not flipped else 8 - tail_file) * square_size
+        ytail = (8 - tail_rank if not flipped else tail_rank + 1) * square_size
+        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="4" marker-end="url(#arrowhead)"/>""" % (xtail, ytail, xhead, yhead))
 
     builder.append(post)
     return _svg("".join(builder), size, size)
