@@ -76,7 +76,7 @@ STATUS_BAD_CASTLING_RIGHTS = 256
 STATUS_INVALID_EP_SQUARE = 512
 STATUS_OPPOSITE_CHECK = 1024
 STATUS_EMPTY = 2048
-STATUS_RACE_CHECK = STATUS_ILLEGAL_CHECK = 4096  # TODO: Remove alias
+STATUS_RACE_CHECK = 4096
 STATUS_RACE_OVER = 8192
 STATUS_RACE_MATERIAL = 16384
 
@@ -119,9 +119,6 @@ def square_mirror(square):
 
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 SQUARE_NAMES = [square_name(sq) for sq in SQUARES]
-
-# TODO: Remove aliases.
-file_index, rank_index = square_file, square_rank
 
 
 BB_VOID = 0
@@ -218,26 +215,9 @@ else:
             yield r
             bb ^= _BB_SQUARES[r]
 
-# TODO: Remove (deprecated)
-def bit_scan(b, n=0):
-    string = bin(b)
-    l = len(string)
-    r = string.rfind("1", 0, l - n)
-    if r == -1:
-        return -1
-    else:
-        return l - r - 1
 
-try:
-    from gmpy2 import popcount
-except ImportError:
-    try:
-        from gmpy import popcount
-    except ImportError:
-        def popcount(b, _bin=bin):
-            return _bin(b).count("1")
-
-pop_count = popcount  # TODO: Remove alias
+def popcount(b, _bin=bin):
+    return _bin(b).count("1")
 
 
 def shift_down(b):
