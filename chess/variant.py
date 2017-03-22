@@ -50,7 +50,7 @@ class SuicideBoard(chess.Board):
     def is_into_check(self, move):
         return False
 
-    def was_into_check(self, move):
+    def was_into_check(self):
         return False
 
     def _material_balance(self):
