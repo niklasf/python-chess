@@ -1000,7 +1000,7 @@ class BaseBoard(object):
         self._set_board_fen(fen)
 
     def _set_chess960_pos(self, sharnagl):
-        if not (0 <= sharnagl <= 959):
+        if not 0 <= sharnagl <= 959:
             raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(sharnagl)))
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for

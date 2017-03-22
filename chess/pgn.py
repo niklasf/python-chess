@@ -646,9 +646,6 @@ class StringExporter(BaseVisitor):
         self.flush_current_line()
         self.lines.append(line.rstrip())
 
-    def begin_game(self):
-        self.after_variation = True
-
     def end_game(self):
         self.write_line()
 
