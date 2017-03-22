@@ -295,7 +295,7 @@ class AtomicBoard(chess.Board):
                 yield move
 
     def status(self):
-        status = super(SuicideBoard, self).status()
+        status = super(AtomicBoard, self).status()
         status &= ~chess.STATUS_OPPOSITE_CHECK
         if self.turn == chess.WHITE:
             status &= ~chess.STATUS_NO_WHITE_KING
@@ -540,7 +540,7 @@ class ThreeCheckBoard(chess.Board):
             raise ValueError("three-check fen should consist of 7 parts: {0}".format(repr(fen)))
 
         # Extract check part.
-        if "+" == parts[6][0]:
+        if parts[6][0] == "+":
             check_part = parts.pop()[1:]
             try:
                 w, b = check_part.split("+", 1)
