@@ -218,7 +218,7 @@ class AtomicBoard(chess.Board):
         if self.pawns or self.queens:
             return False
 
-        if chess.popcount(self.KNIGHT | self.BISHOP | self.ROOK) == 1:
+        if chess.popcount(self.knights | self.bishops | self.rooks) == 1:
             return True
 
         # Only knights.

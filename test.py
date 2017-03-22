@@ -2932,6 +2932,23 @@ class AtomicTestCase(unittest.TestCase):
         board.push_san("fxe3")
         self.assertEqual(board.fen(), "3kK3/8/8/2NNNNN1/2N3N1/2N3N1/2N3N1/2NNNNN1 w - - 0 2")
 
+    def test_atomic_insufficient_material(self):
+        # Starting position.
+        board = chess.variant.AtomicBoard()
+        self.assertFalse(board.is_insufficient_material())
+
+        # Single rook.
+        board = chess.variant.AtomicBoard("8/3k4/8/8/4R3/4K3/8/8 w - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Only bishops but no captures possible.
+        board = chess.variant.AtomicBoard("7k/4b3/8/8/8/3B4/2B5/K7 w - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Bishops of both sides on the same color complex.
+        board = chess.variant.AtomicBoard("7k/3b4/8/8/8/3B4/2B5/K7 w - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
