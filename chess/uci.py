@@ -380,14 +380,22 @@ class MockProcess(object):
 
 
 class PopenProcess(object):
-    def __init__(self, engine, command):
+    def __init__(self, engine, command, **kwargs):
         self.engine = engine
 
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
         self._stdin_lock = threading.Lock()
 
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
+        popen_args = {
+            "stdout": subprocess.PIPE,
+            "stdin": subprocess.PIPE,
+            "bufsize": 1,  # Line buffering
+            "universal_newlines": True,
+        }
+        popen_args.update(kwargs)
+        self.process = subprocess.Popen(command, **popen_args)
+
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
