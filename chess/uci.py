@@ -901,7 +901,13 @@ class Engine(object):
             future.add_done_callback(async_callback)
             return future
         else:
-            return future.result()
+            # Avoid calling future.result() without a timeout. In Python 2
+            # such a call cannot be interrupted.
+            while not future.done():
+                try:
+                    return future.result(timeout=60)
+                except concurrent.futures.TimeoutError:
+                    pass
 
     def uci(self, async_callback=None):
         """
