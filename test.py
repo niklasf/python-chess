@@ -2183,7 +2183,7 @@ class SpurEngineTestCase(unittest.TestCase):
 class UciEngineTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.engine = chess.uci.Engine(chess.uci.MockProcess())
+        self.engine = chess.uci.Engine(chess.uci.MockProcess)
         self.mock = self.engine.process
 
         self.mock.expect("uci", ("uciok", ))

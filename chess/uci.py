@@ -317,7 +317,8 @@ class InfoHandler(object):
 
 
 class MockProcess(object):
-    def __init__(self):
+    def __init__(self, engine):
+        self.engine = engine
         self._expectations = collections.deque()
         self._is_dead = threading.Event()
         self._std_streams_closed = False
@@ -325,6 +326,7 @@ class MockProcess(object):
         self._send_queue = queue.Queue()
         self._send_thread = threading.Thread(target=self._send_thread_target)
         self._send_thread.daemon = True
+        self._send_thread.start()
 
     def _send_thread_target(self):
         while not self._is_dead.is_set():
@@ -332,10 +334,6 @@ class MockProcess(object):
             if line is not None:
                 self.engine.on_line_received(line)
             self._send_queue.task_done()
-
-    def spawn(self, engine):
-        self.engine = engine
-        self._send_thread.start()
 
     def expect(self, expectation, responses=()):
         self._expectations.append((expectation, responses))
@@ -382,17 +380,14 @@ class MockProcess(object):
 
 
 class PopenProcess(object):
-    def __init__(self, command):
-        self.command = command
+    def __init__(self, engine, command):
+        self.engine = engine
 
-        self.process = None
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
         self._stdin_lock = threading.Lock()
 
-    def spawn(self, engine):
-        self.engine = engine
-        self.process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
@@ -443,32 +438,20 @@ class PopenProcess(object):
 
 class SpurProcess(object):
     def __init__(self, shell, command):
+        self.engine = engine
         self.shell = shell
-        self.command = command
 
         self._stdout_buffer = []
 
         self._result = None
 
-        self.process = None
-        self.spawned = threading.Event()
-
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
-    def spawn(self, engine):
-        self.engine = engine
-
-        self.process = self.shell.spawn(self.command, store_pid=True, allow_error=True, stdout=self)
-        self.spawned.set()
-
+        self.process = self.shell.spawn(command, store_pid=True, allow_error=True, stdout=self)
         self._waiting_thread.start()
 
     def write(self, byte):
-        # Wait for spawn to return. Otherwise we might already try processing
-        # data before self.process is set.
-        self.spawned.wait()
-
         # Interally called whenever a byte is received.
         if byte == b"\r":
             pass
@@ -506,9 +489,7 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process, Executor=concurrent.futures.ThreadPoolExecutor):
-        self.process = process
-
+    def __init__(self, process_factory, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.pondering = False
         self.state_changed = threading.Condition()
@@ -536,9 +517,8 @@ class Engine(object):
 
         self.info_handlers = []
 
-        self.process.spawn(self)
-
         self.pool = Executor(max_workers=3)
+        self.process = process_factory(self)
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -1391,8 +1371,7 @@ def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
     # Work around possible race condition in Python 2 subprocess module,
     # that can occur when concurrently opening processes.
     with _popen_lock:
-        process = PopenProcess(command)
-        return engine_cls(process)
+        return engine_cls(lambda engine: PopenProcess(engine, command))
 
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
@@ -1406,5 +1385,4 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    process = SpurProcess(shell, command)
-    return engine_cls(process)
+    return engine_cls(lambda engine: SpurProcess(engine, shell, command))
