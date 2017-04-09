@@ -1373,7 +1373,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
+def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock()):
     """
     Opens a local chess engine process.
 
@@ -1387,15 +1387,25 @@ def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
     >>> engine.author
     'Tord Romstad, Marco Costalba and Joona Kiiski'
 
-    The input and input streams will be linebuffered and able both Windows
-    and Unix newlines.
+    :param setpgrp: Open the engine process in a new process group. This will
+        stop signals (such as keyboards interrupts) from propagating from the
+        parent process. Defaults to ``False``.
     """
     engine = engine_cls()
+
+    kwargs = {}
+    if setpgrp:
+        try:
+            # Windows
+            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        except AttributeError:
+            # Unix
+            kwargs["preexec_fn"] = os.setpgrp
 
     # Work around possible race condition in Python 2 subprocess module,
     # that can occur when concurrently opening processes.
     with _popen_lock:
-        PopenProcess(engine, command)
+        PopenProcess(engine, command, **kwargs)
 
     return engine
 
