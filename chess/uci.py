@@ -323,6 +323,8 @@ class MockProcess(object):
         self._is_dead = threading.Event()
         self._std_streams_closed = False
 
+        self.engine.on_process_spawned(self)
+
         self._send_queue = queue.Queue()
         self._send_thread = threading.Thread(target=self._send_thread_target)
         self._send_thread.daemon = True
@@ -386,6 +388,8 @@ class PopenProcess(object):
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
         self._stdin_lock = threading.Lock()
+
+        self.engine.on_process_spawned(self)
 
         popen_args = {
             "stdout": subprocess.PIPE,
@@ -456,6 +460,7 @@ class SpurProcess(object):
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
+        self.engine.on_process_spawned(self)
         self.process = self.shell.spawn(command, store_pid=True, allow_error=True, stdout=self)
         self._waiting_thread.start()
 
@@ -497,7 +502,7 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process_factory, Executor=concurrent.futures.ThreadPoolExecutor):
+    def __init__(self, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.pondering = False
         self.state_changed = threading.Condition()
@@ -526,7 +531,10 @@ class Engine(object):
         self.info_handlers = []
 
         self.pool = Executor(max_workers=3)
-        self.process = process_factory(self)
+        self.process = None
+
+    def on_process_spawned(self, process):
+        self.process = process
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -1382,10 +1390,14 @@ def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
     The input and input streams will be linebuffered and able both Windows
     and Unix newlines.
     """
+    engine = engine_cls()
+
     # Work around possible race condition in Python 2 subprocess module,
     # that can occur when concurrently opening processes.
     with _popen_lock:
-        return engine_cls(lambda engine: PopenProcess(engine, command))
+        PopenProcess(engine, command)
+
+    return engine
 
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
@@ -1399,4 +1411,6 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    return engine_cls(lambda engine: SpurProcess(engine, shell, command))
+    engine = engine_cls()
+    SpurProcess(engine, shell, command)
+    return engine
