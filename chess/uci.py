@@ -903,7 +903,7 @@ class Engine(object):
         else:
             # Avoid calling future.result() without a timeout. In Python 2
             # such a call cannot be interrupted.
-            while not future.done():
+            while True:
                 try:
                     return future.result(timeout=60)
                 except concurrent.futures.TimeoutError:
