@@ -445,7 +445,7 @@ class PopenProcess(object):
 
 
 class SpurProcess(object):
-    def __init__(self, shell, command):
+    def __init__(self, engine, shell, command):
         self.engine = engine
         self.shell = shell
 
