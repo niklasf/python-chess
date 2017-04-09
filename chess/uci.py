@@ -23,6 +23,7 @@ import threading
 import concurrent.futures
 import os
 import sys
+import platform
 
 try:
     import backport_collections as collections
@@ -44,6 +45,8 @@ else:
 
 
 LOGGER = logging.getLogger(__name__)
+
+FUTURE_POLL_TIMEOUT = 0.1 if platform.system() == "Windows" else 60
 
 
 class EngineStateException(Exception):
@@ -913,7 +916,7 @@ class Engine(object):
             # such a call cannot be interrupted.
             while True:
                 try:
-                    return future.result(timeout=60)
+                    return future.result(timeout=FUTURE_POLL_TIMEOUT)
                 except concurrent.futures.TimeoutError:
                     pass
 
