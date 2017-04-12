@@ -22,6 +22,10 @@
 
 import chess
 
+try:
+    import backport_collections as collections
+except ImportError:
+    import collections
 
 PIECES = {
     "b": """<g id="black-bishop" class="black bishop" fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2zm6-4c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z" fill="#000" stroke-linecap="butt"/><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#fff" stroke-linejoin="miter"/></g>""",
@@ -41,7 +45,7 @@ PIECES = {
 
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
-ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="2" markerHeight="4" orient="auto"><polygon points="0 0, 2 2, 0 4" fill="#888"/></marker>"""
+ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" opacity="0.5" orient="auto"><polygon points="0 0, 3 2, 0 4" fill="#888"/></marker>"""
 
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
@@ -59,13 +63,9 @@ DEFAULT_STYLE = """\
 }}
 """.format(**DEFAULT_COLORS)
 
-class Arrow():
-    """
-    Details of an arrow to be drawn.
-    """
-    def __init__(self, head, tail):
-        self.head = head
-        self.tail = tail
+class Arrow(collections.namedtuple("Arrow", ["tail", "head"])):
+    """Details of an arrow to be drawn."""
+    pass
 
 def _svg(content, width, height):
     return """<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="%d" height="%d">%s</svg>""" % (width, height, content)
@@ -88,7 +88,7 @@ def piece(piece):
     return _svg(PIECES[piece.symbol()], 45, 45)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, size=400, style=None, pre="", post="", arrows=[]):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=[], size=400, style=None, pre="", post=""):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -173,17 +173,42 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             builder.append(_text(rank_name, 0, y, margin, square_size))
             builder.append(_text(rank_name, margin + 8 * square_size, y, margin, square_size))
 
+    arrow_width = 11 * size/400
+
     for arrow in arrows:
-        head_file = chess.file_index(arrow.head)
-        head_rank = chess.rank_index(arrow.head)
-        tail_file = chess.file_index(arrow.tail)
-        tail_rank = chess.rank_index(arrow.tail)
+        head_file = chess.file_index(arrow[1])
+        head_rank = chess.rank_index(arrow[1])
+        tail_file = chess.file_index(arrow[0])
+        tail_rank = chess.rank_index(arrow[0])
 
         xhead = (head_file + 1 if not flipped else 8 - head_file) * square_size
         yhead = (8 - head_rank if not flipped else head_rank + 1) * square_size
         xtail = (tail_file + 1 if not flipped else 8 - tail_file) * square_size
         ytail = (8 - tail_rank if not flipped else tail_rank + 1) * square_size
-        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="4" marker-end="url(#arrowhead)"/>""" % (xtail, ytail, xhead, yhead))
+
+        # Corrections for arrow width
+
+        # Correction for non-horizontal arrows
+        if xhead != xtail:
+            yhead -= square_size / (2 * arrow_width)
+            ytail -= square_size / (2 * arrow_width)
+        # Correction for non-vertical arrows
+        if yhead != ytail:
+            xhead -= square_size / (2 * arrow_width)
+            xtail -= square_size / (2 * arrow_width)
+
+        # Corrections for arrow head
+        correction = 0.5
+        if xhead > xtail:
+            xhead -= correction * square_size
+        elif xhead < xtail:
+            xhead += correction * square_size
+        if xhead > xtail:
+            yhead -= correction * square_size
+        elif xhead < xtail:
+            yhead += correction * square_size
+
+        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="%f" stroke-opacity="0.5" marker-end="url(#arrowhead)"/>""" % (xtail, ytail, xhead, yhead, arrow_width))
 
     builder.append(post)
     return _svg("".join(builder), size, size)
