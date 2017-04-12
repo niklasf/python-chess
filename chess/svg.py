@@ -181,10 +181,10 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     arrow_width = 0.25 * square_size
 
     for arrow in arrows:
-        head_file = chess.file_index(arrow[1])
-        head_rank = chess.rank_index(arrow[1])
-        tail_file = chess.file_index(arrow[0])
-        tail_rank = chess.rank_index(arrow[0])
+        head_file = chess.square_file(arrow[1])
+        head_rank = chess.square_rank(arrow[1])
+        tail_file = chess.square_file(arrow[0])
+        tail_rank = chess.square_rank(arrow[0])
 
         xhead = margin + (head_file + 0.5 if not flipped else 8 - head_file) * square_size
         yhead = margin + (7.5 - head_rank if not flipped else head_rank + 1) * square_size
