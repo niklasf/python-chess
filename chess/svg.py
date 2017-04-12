@@ -20,7 +20,10 @@
 # <https://en.wikipedia.org/wiki/User:Cburnett> and also licensed under the
 # GNU General Public License.
 
+from __future__ import division
+
 import chess
+import math
 
 try:
     import backport_collections as collections
@@ -173,7 +176,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             builder.append(_text(rank_name, 0, y, margin, square_size))
             builder.append(_text(rank_name, margin + 8 * square_size, y, margin, square_size))
 
-    arrow_width = 11 * size/400
+    arrow_width = 0.25 * square_size
 
     for arrow in arrows:
         head_file = chess.file_index(arrow[1])
@@ -181,34 +184,22 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         tail_file = chess.file_index(arrow[0])
         tail_rank = chess.rank_index(arrow[0])
 
-        xhead = (head_file + 1 if not flipped else 8 - head_file) * square_size
-        yhead = (8 - head_rank if not flipped else head_rank + 1) * square_size
-        xtail = (tail_file + 1 if not flipped else 8 - tail_file) * square_size
-        ytail = (8 - tail_rank if not flipped else tail_rank + 1) * square_size
+        xhead = margin + (head_file + 0.5 if not flipped else 8 - head_file) * square_size
+        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 1) * square_size
+        xtail = margin + (tail_file + 0.5 if not flipped else 8 - tail_file) * square_size
+        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 1) * square_size
 
-        # Corrections for arrow width
+        adjacent = xhead - xtail
+        opposite = yhead - ytail
+        hypot = math.hypot(adjacent, opposite)
 
-        # Correction for non-horizontal arrows
-        if xhead != xtail:
-            yhead -= square_size / (2 * arrow_width)
-            ytail -= square_size / (2 * arrow_width)
-        # Correction for non-vertical arrows
-        if yhead != ytail:
-            xhead -= square_size / (2 * arrow_width)
-            xtail -= square_size / (2 * arrow_width)
+        # Make the arrow shorter so the tip of the arrow is exactly in the
+        # center of the square.
+        marker_length = 3 / 4 * square_size
+        yhead -= opposite * marker_length / hypot
+        xhead -= adjacent * marker_length / hypot
 
-        # Corrections for arrow head
-        correction = 0.5
-        if xhead > xtail:
-            xhead -= correction * square_size
-        elif xhead < xtail:
-            xhead += correction * square_size
-        if xhead > xtail:
-            yhead -= correction * square_size
-        elif xhead < xtail:
-            yhead += correction * square_size
-
-        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="%f" stroke-opacity="0.5" marker-end="url(#arrowhead)"/>""" % (xtail, ytail, xhead, yhead, arrow_width))
+        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="%f" stroke-opacity="0.5" marker-end="url(#arrowhead)" />""" % (xtail, ytail, xhead, yhead, arrow_width))
 
     builder.append(post)
     return _svg("".join(builder), size, size)
