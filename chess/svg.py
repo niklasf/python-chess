@@ -101,9 +101,9 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects.
     :param size: The width and height of the image.
     :param style: CSS to use instead of the default stylesheet.
-    :param arrows: A list of Arrow objects.
 
     Custom verbatim XML can be added before (*pre*) and after (*post*) all
     elements.
