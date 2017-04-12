@@ -191,6 +191,11 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         xtail = margin + (tail_file + 0.5 if not flipped else 8 - tail_file) * square_size
         ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 1) * square_size
 
+        if (head_file, head_rank) == (tail_file, tail_rank):
+            stroke = 0.1 * square_size
+            builder.append("""<circle cx="%f" cy="%f" r="%f" stroke-width="%f" stroke="#888" fill="none" opacity="0.5" />""" % (xhead, yhead, (square_size - stroke) / 2, stroke))
+            continue
+
         adjacent = xhead - xtail
         opposite = yhead - ytail
         hypot = math.hypot(adjacent, opposite)
