@@ -25,10 +25,15 @@ from __future__ import division
 import chess
 import math
 
+import xml.etree.ElementTree as ET
+
 try:
     import backport_collections as collections
 except ImportError:
     import collections
+
+
+SQUARE_SIZE = 45
 
 PIECES = {
     "b": """<g id="black-bishop" class="black bishop" fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2zm6-4c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z" fill="#000" stroke-linecap="butt"/><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#fff" stroke-linejoin="miter"/></g>""",
@@ -45,19 +50,17 @@ PIECES = {
     "R": """<g id="white-rook" class="white rook" fill="#fff" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" stroke-linecap="butt"/><path d="M34 14l-3 3H14l-3-3"/><path d="M31 17v12.5H14V17" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5"/><path d="M11 14h23" fill="none" stroke-linejoin="miter"/></g>"""
 }
 
-
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
 ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" orient="auto"><polygon points="0 0, 3 2, 0 4" fill="#888"/></marker>"""
 
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
-
 DEFAULT_COLORS = {
-    'square light': '#ffce9e',
-    'square dark': '#d18b47',
-    'square dark lastmove': '#aaa23b',
-    'square light lastmove': '#cdd16a'
+    "square light": "#ffce9e",
+    "square dark": "#d18b47",
+    "square dark lastmove": "#aaa23b",
+    "square light lastmove": "#cdd16a",
 }
 
 DEFAULT_STYLE = """\
@@ -66,21 +69,40 @@ DEFAULT_STYLE = """\
 }
 """
 
+
 class Arrow(collections.namedtuple("Arrow", ["tail", "head"])):
     """Details of an arrow to be drawn."""
     pass
 
-def _svg(content, width, height):
-    return """<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="%d" height="%d">%s</svg>""" % (width, height, content)
+
+def _svg(viewbox, size):
+    svg = ET.Element("svg", {
+        "xmlns": "http://www.w3.org/2000/svg",
+        "version": "1.1",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+        "viewBox": "0 0 %d %d" % (viewbox, viewbox),
+    })
+
+    if size is not None:
+        svg.set("width", str(size))
+        svg.set("height", str(size))
+
+    return svg
 
 
 def _text(content, x, y, width, height):
-    font_size = max(1, int(min(width, height) * 0.7))
-    return """<text x="%d" y="%d" text-anchor="middle" alignment-baseline="middle" font-size="%d">%s</text>""" % (
-        x + width // 2, y + height // 2, font_size, content)
+    t = ET.Element("text", {
+        "x": str(x + width // 2),
+        "y": str(y + height // 2),
+        "font-size": str(max(1, int(min(width, height) * 0.7))),
+        "text-anchor": "middle",
+        "alignment-baseline": "middle",
+    })
+    t.text = content
+    return t
 
 
-def piece(piece):
+def piece(piece, size=None):
     """
     Renders the given :class:`chess.Piece` as an SVG.
 
@@ -88,10 +110,12 @@ def piece(piece):
 
     .. image:: ../docs/wR.svg
     """
-    return _svg(PIECES[piece.symbol()], 45, 45)
+    svg = _svg(SQUARE_SIZE, size)
+    svg.append(ET.fromstring(PIECES[piece.symbol()]))
+    return ET.tostring(svg)
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=[], size=400, style=None, pre="", post=""):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
@@ -114,71 +138,84 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
 
     .. image:: ../docs/Ne4.svg
     """
-    builder = []
-    builder.append(pre)
+    margin = 20 if coordinates else 0
+    svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
-    builder.append("<style>")
-    builder.append(DEFAULT_STYLE if style is None else style)
-    builder.append("</style>")
+    ET.SubElement(svg, "style").text = DEFAULT_STYLE if style is None else style
 
-    builder.append("<defs>")
+    defs = ET.SubElement(svg, "defs")
     if board:
         for color in chess.COLORS:
             for piece_type in chess.PIECE_TYPES:
                 if board.pieces_mask(piece_type, color):
-                    builder.append(PIECES[chess.Piece(piece_type, color).symbol()])
+                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, color).symbol()]))
     if squares:
-        builder.append(XX)
+        defs.append(ET.fromstring(XX))
     if arrows:
-        builder.append(ARROWHEAD)
+        defs.append(ET.fromstring(ARROWHEAD))
     if check is not None:
-        builder.append(CHECK_GRADIENT)
-    builder.append("</defs>")
-
-    margin = 0.05 * size if coordinates else 0
-    square_size = (size - 2 * margin) / 8.0
-    piece_scale = square_size / 45.0
+        defs.append(ET.fromstring(CHECK_GRADIENT))
 
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
 
-        x = (file_index if not flipped else 7 - file_index) * square_size + margin
-        y = (7 - rank_index if not flipped else rank_index) * square_size + margin
+        x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
+        y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
         fill_color = DEFAULT_COLORS[" ".join(cls)]
         cls.append(chess.SQUARE_NAMES[square])
-        # Fill color is required for renderers without <style> support (SVG Tiny only) as fallback.
-        builder.append("""<rect x="%f" y="%f" class="%s" width="%f" height="%f" style="stroke: none;" fill="%s" />""" % (x, y, " ".join(cls), square_size, square_size, fill_color))
+
+        # Fill color is required for renderers without <style> support
+        # (SVG Tiny only) as fallback.
+        ET.SubElement(svg, "rect", {
+            "x": str(x),
+            "y": str(y),
+            "width": str(SQUARE_SIZE),
+            "height": str(SQUARE_SIZE),
+            "class": " ".join(cls),
+            "stroke": "none",
+            "fill": fill_color,
+        })
+
         if square == check:
-            builder.append("""<rect x="%f" y="%f" class="check" width="%f" height="%f" />""" % (x, y, square_size, square_size))
+            ET.SubElement(svg, "rect", {
+                "x": str(x),
+                "y": str(y),
+                "width": str(SQUARE_SIZE),
+                "height": str(SQUARE_SIZE),
+                "class": "check",
+            })
 
         # Render pieces.
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                href = "%s-%s" % (chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type])
-                builder.append("""<use xlink:href="#%s" transform="translate(%f, %f) scale(%f %f)" />""" % (href, x, y, piece_scale, piece_scale))
+                ET.SubElement(svg, "use", {
+                    "xlink:href": "#%s-%s" % (chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]),
+                    "transform": "translate(%d, %d)" % (x, y),
+                })
 
         # Render selected squares.
         if squares is not None and squares & bb:
-            builder.append("""<use xlink:href="#xx" x="%f" y="%f" />""" % (x, y))
+            ET.SubElement(svg, "use", {
+                "xlink:href": "#xx",
+                "x": str(x),
+                "y": str(y),
+            })
 
     if coordinates:
         for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = (file_index if not flipped else 7 - file_index) * square_size + margin
-            builder.append(_text(file_name, x, 0, square_size, margin))
-            builder.append(_text(file_name, x, margin + 8 * square_size, square_size, margin))
-
+            x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
+            svg.append(_text(file_name, x, 0, SQUARE_SIZE, margin))
+            svg.append(_text(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = (7 - rank_index if not flipped else rank_index) * square_size + margin
-            builder.append(_text(rank_name, 0, y, margin, square_size))
-            builder.append(_text(rank_name, margin + 8 * square_size, y, margin, square_size))
-
-    arrow_width = 0.25 * square_size
+            y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
+            svg.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
+            svg.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
 
     for arrow in arrows:
         head_file = chess.square_file(arrow[1])
@@ -186,27 +223,42 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         tail_file = chess.square_file(arrow[0])
         tail_rank = chess.square_rank(arrow[0])
 
-        xhead = margin + (head_file + 0.5 if not flipped else 8 - head_file) * square_size
-        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 1) * square_size
-        xtail = margin + (tail_file + 0.5 if not flipped else 8 - tail_file) * square_size
-        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 1) * square_size
+        xhead = margin + (head_file + 0.5 if not flipped else 8 - head_file) * SQUARE_SIZE
+        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 1) * SQUARE_SIZE
+        xtail = margin + (tail_file + 0.5 if not flipped else 8 - tail_file) * SQUARE_SIZE
+        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 1) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
-            stroke = 0.1 * square_size
-            builder.append("""<circle cx="%f" cy="%f" r="%f" stroke-width="%f" stroke="#888" fill="none" opacity="0.5" />""" % (xhead, yhead, (square_size - stroke) / 2, stroke))
-            continue
+            ET.SubElement(svg, "circle", {
+                "cx": str(xhead),
+                "cy": str(yhead),
+                "r": str((SQUARE_SIZE - 5) / 2),
+                "stroke-width": "5",
+                "stroke": "#888",
+                "fill": "none",
+                "opacity": "0.5",
+            })
+        else:
+            adjacent = xhead - xtail
+            opposite = yhead - ytail
+            hypot = math.hypot(adjacent, opposite)
 
-        adjacent = xhead - xtail
-        opposite = yhead - ytail
-        hypot = math.hypot(adjacent, opposite)
+            # Make the arrow shorter so the tip of the arrow is exactly in the
+            # center of the square.
+            marker_length = 3 / 4 * SQUARE_SIZE
+            yhead -= opposite * marker_length / hypot
+            xhead -= adjacent * marker_length / hypot
 
-        # Make the arrow shorter so the tip of the arrow is exactly in the
-        # center of the square.
-        marker_length = 3 / 4 * square_size
-        yhead -= opposite * marker_length / hypot
-        xhead -= adjacent * marker_length / hypot
+            ET.SubElement(svg, "line", {
+                "x1": str(xtail),
+                "y1": str(ytail),
+                "x2": str(xhead),
+                "y2": str(yhead),
+                "stroke": "#888",
+                "stroke-width": "15",
+                "opacity": "0.5",
+                "stroke-linecap": "round",
+                "marker-end": "url(#arrowhead)",
+            })
 
-        builder.append("""<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="%f" opacity="0.5" stroke-linecap="round" marker-end="url(#arrowhead)" />""" % (xtail, ytail, xhead, yhead, arrow_width))
-
-    builder.append(post)
-    return _svg("".join(builder), size, size)
+    return ET.tostring(svg)
