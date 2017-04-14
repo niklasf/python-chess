@@ -125,12 +125,10 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects.
-    :param size: The width and height of the image.
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects or tuples
+        like ``(chess.E2, chess.E4)``.
+    :param size: Limit the SVG size by setting width and height of the image.
     :param style: CSS to use instead of the default stylesheet.
-
-    Custom verbatim XML can be added before (*pre*) and after (*post*) all
-    elements.
 
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
     >>> squares = board.attacks(chess.E4)
