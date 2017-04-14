@@ -112,7 +112,7 @@ def piece(piece, size=None):
     """
     svg = _svg(SQUARE_SIZE, size)
     svg.append(ET.fromstring(PIECES[piece.symbol()]))
-    return ET.tostring(svg)
+    return ET.tostring(svg).decode("utf-8")
 
 
 def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
@@ -261,4 +261,4 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "marker-end": "url(#arrowhead)",
             })
 
-    return ET.tostring(svg)
+    return ET.tostring(svg).decode("utf-8")

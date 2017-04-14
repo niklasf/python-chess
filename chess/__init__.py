@@ -582,7 +582,7 @@ class Piece(object):
 
     def _repr_svg_(self):
         import chess.svg
-        return chess.svg.piece(self)
+        return chess.svg.piece(self, size=45)
 
     def __eq__(self, other):
         ne = self.__ne__(other)
@@ -1236,7 +1236,7 @@ class BaseBoard(object):
 
     def _repr_svg_(self):
         import chess.svg
-        return chess.svg.board(board=self)
+        return chess.svg.board(board=self, size=400)
 
     def __eq__(self, board):
         ne = self.__ne__(board)
@@ -3304,8 +3304,8 @@ class Board(BaseBoard):
     def _repr_svg_(self):
         import chess.svg
         lastmove = self.peek() if self.move_stack else None
-        check = self.king() if self.is_check() else None
-        return chess.svg.board(board=self, lastmove=lastmove, check=check)
+        check = self.king(self.turn) if self.is_check() else None
+        return chess.svg.board(board=self, lastmove=lastmove, check=check, size=400)
 
     def __ne__(self, board):
         # Compare base board.
@@ -3732,7 +3732,7 @@ class SquareSet(object):
 
     def _repr_svg_(self):
         import chess.svg
-        return chess.svg.board(squares=self)
+        return chess.svg.board(squares=self, size=400)
 
     @classmethod
     def from_square(cls, square):
