@@ -2760,7 +2760,7 @@ class Board(BaseBoard):
             self.chess960 = chess960
 
         move = self._to_chess960(move)
-        move = self._from_chess960(move.from_square, move.to_square, move.promotion)
+        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
 
         self.chess960 = board_chess960
         return move.uci()
@@ -2782,7 +2782,7 @@ class Board(BaseBoard):
             return move
 
         move = self._to_chess960(move)
-        move = self._from_chess960(move.from_square, move.to_square, move.promotion)
+        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
             raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
@@ -3266,8 +3266,8 @@ class Board(BaseBoard):
                 if not self._attacked_for_king(not_attacked_for_king):
                     yield self._from_chess960(msb(king), candidate)
 
-    def _from_chess960(self, from_square, to_square, promotion=None):
-        if not self.chess960:
+    def _from_chess960(self, from_square, to_square, promotion=None, drop=None):
+        if not self.chess960 and drop is None:
             if from_square == E1 and self.kings & BB_E1:
                 if to_square == H1:
                     return Move(E1, G1)
@@ -3279,7 +3279,7 @@ class Board(BaseBoard):
                 elif to_square == A8:
                     return Move(E8, C8)
 
-        return Move(from_square, to_square, promotion)
+        return Move(from_square, to_square, promotion, drop)
 
     def _to_chess960(self, move):
         if move.from_square == E1 and self.kings & BB_E1:

@@ -119,6 +119,7 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("b5c7").uci(), "b5c7")
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
+        self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
 
 
 class PieceTestCase(unittest.TestCase):
@@ -3114,6 +3115,27 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2~q1K3[r] w - - 1 2")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
+
+    def test_uci_info_handler(self):
+        fen = "3r1r1k/p1p1Ppp1/2Np1n2/2b1p1N1/4P1bq/3P4/PPP2PPP/R4RK1[QBPbn] b - - 35 18"
+        board = chess.variant.CrazyhouseBoard(fen)
+        bestmove = board.parse_uci("B@f4")
+
+        engine = chess.uci.Engine()
+        mock = chess.uci.MockProcess(engine)
+        info_handler = chess.uci.InfoHandler()
+        engine.info_handlers.append(info_handler)
+
+        mock.expect("setoption name UCI_Variant value crazyhouse")
+        mock.expect("isready", ("readyok", ))
+        engine.setoption({"UCI_Variant": type(board).uci_variant})
+
+        mock.expect("position fen %s" % fen)
+        engine.position(board)
+
+        mock.expect("go", ("info pv B@f4 P@g3", "bestmove B@f4"))
+        self.assertEqual(engine.go().bestmove, bestmove)
+        mock.assert_done()
 
 
 class GiveawayTestCase(unittest.TestCase):
