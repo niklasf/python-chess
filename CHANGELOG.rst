@@ -5,6 +5,46 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+New in v0.18.0
+--------------
+
+Bugfixes:
+
+* Fixed `Board.parse_uci()` for crazyhouse drops. Thanks to Ryan Delaney.
+* Fixed `AtomicBoard.is_insufficient_material()`.
+* Fixed signature of `SuicideBoard.was_into_check()`.
+* Explicitly close input and output streams when a `chess.uci.PopenProcess`
+  terminates.
+* The documentation of `Board.attackers()` was wrongly stating that en passant
+  capturable pawns are considered attacked.
+
+Changes:
+
+* `chess.SquareSet` is no longer hashable (since it is mutable).
+* Removed functions and constants deprecated in v0.17.0.
+* Dropped `gmpy2` and `gmpy` as optional dependencies. They were no longer
+  improving performance.
+* Various tweaks and optimizations for 5% improvement in PGN parsing and perft
+  speed. (Signature of `_is_safe` and `_ep_skewered` changed).
+* Rewritten `chess.svg.board()` using `xml.etree`. No longer supports *pre* and
+  *post*. Use an XML parser if you need to modify the SVG. Now only inserts
+  actually used piece defintions.
+* Untangled UCI process and engine instanciation, changing signatures of
+  constructors and allowing arbitrary arguments to `subprocess.Popen`.
+* Coding style and documentation improvements.
+
+New features:
+
+* `chess.svg.board()` now supports arrows. Thanks to @rheber for implementing
+  this feature.
+* Let `chess.uci.PopenEngine` consistently handle Ctrl+C across platforms
+  and Python versions. `chess.uci.popen_engine()` now supports a `setpgrp`
+  keyword argument to start the engine process in a new process group.
+  Thanks to @dubiousjim.
+* Added `board.king(color)` to find the (royal) king of a given side.
+* SVGs now have `viewBox` and `chess.svg.board(size=None)` supports and
+  defaults to `None` (i.e. scaling to the size of the container).
+
 New in v0.17.0
 --------------
 
