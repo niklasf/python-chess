@@ -3112,7 +3112,7 @@ class CrazyhouseTestCase(unittest.TestCase):
     def test_capture_with_promotion(self):
         board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/1p6/2R1K3 b - - 0 1")
         board.push_san("bxc1=Q")
-        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2~q1K3[r] w - - 1 2")
+        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2q~1K3[r] w - - 1 2")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
 
@@ -3136,6 +3136,11 @@ class CrazyhouseTestCase(unittest.TestCase):
         mock.expect("go", ("info pv B@f4 P@g3", "bestmove B@f4"))
         self.assertEqual(engine.go().bestmove, bestmove)
         mock.assert_done()
+
+    def test_crazyhouse_fen(self):
+        fen = "r3kb1r/p1pN1ppp/2p1p3/8/2Pn4/3Q4/PP3PPP/R1B2q~K1[] w kq - 0 1"
+        board = chess.variant.CrazyhouseBoard(fen)
+        self.assertEqual(board.fen(), fen)
 
 
 class GiveawayTestCase(unittest.TestCase):

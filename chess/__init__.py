@@ -928,9 +928,9 @@ class BaseBoard(object):
                 if empty:
                     builder.append(str(empty))
                     empty = 0
+                builder.append(piece.symbol())
                 if promoted and BB_SQUARES[square] & self.promoted:
                     builder.append("~")
-                builder.append(piece.symbol())
 
             if BB_SQUARES[square] & BB_FILE_H:
                 if empty:
