@@ -3147,6 +3147,14 @@ class CrazyhouseTestCase(unittest.TestCase):
         board = chess.variant.CrazyhouseBoard(fen)
         self.assertEqual(board.fen(), fen)
 
+    def test_push_pop_ep(self):
+        fen = "rnbqkb1r/ppp1pppp/5n2/3pP3/8/8/PPPP1PPP/RNBQKBNR[] w KQkq d6 0 3"
+        board = chess.variant.CrazyhouseBoard(fen)
+        board.push_san("exd6")
+        self.assertEqual(board.fen(), "rnbqkb1r/ppp1pppp/3P1n2/8/8/8/PPPP1PPP/RNBQKBNR[P] b KQkq - 1 3")
+        board.pop()
+        self.assertEqual(board.fen(), fen)
+
 
 class GiveawayTestCase(unittest.TestCase):
 

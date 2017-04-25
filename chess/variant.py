@@ -659,7 +659,7 @@ class CrazyhouseBoard(chess.Board):
         if move.drop:
             self.pockets[self.turn].add(move.drop)
         elif self.is_capture(move):
-            if chess.BB_SQUARES[move.to_square] & self.promoted:
+            if self.is_en_passant(move) or chess.BB_SQUARES[move.to_square] & self.promoted:
                 self.pockets[self.turn].remove(chess.PAWN)
             else:
                 self.pockets[self.turn].remove(self.piece_type_at(move.to_square))
