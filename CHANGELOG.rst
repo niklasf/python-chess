@@ -5,6 +5,20 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+New in v0.18.1
+--------------
+
+Bugfixes:
+
+* Crazyhouse drops were accepted as pseudo legal (and legal) even if the
+  respective piece was not in the pocket.
+* Fix ~ order (marker for promoted pieces) in FENs.
+* Promoted pieces in Crazyhouse were not communicated with UCI engines.
+
+Changes:
+
+* `ThreeCheckBoard.uci_variant` changed from `threecheck` to `3check`.
+
 New in v0.18.0
 --------------
 
