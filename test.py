@@ -3137,6 +3137,11 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(engine.go().bestmove, bestmove)
         mock.assert_done()
 
+    def test_illegal_drop_uci(self):
+        board = chess.variant.CrazyhouseBoard()
+        with self.assertRaises(ValueError):
+            board.parse_uci("N@f3")
+
     def test_crazyhouse_fen(self):
         fen = "r3kb1r/p1pN1ppp/2p1p3/8/2Pn4/3Q4/PP3PPP/R1B2q~K1[] w kq - 0 1"
         board = chess.variant.CrazyhouseBoard(fen)

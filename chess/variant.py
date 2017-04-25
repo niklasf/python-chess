@@ -703,7 +703,7 @@ class CrazyhouseBoard(chess.Board):
             if move.drop == chess.PAWN and chess.BB_SQUARES[move.to_square] & chess.BB_BACKRANKS:
                 return False
 
-            return self.pockets[self.turn].count(move.drop) >= 0
+            return self.pockets[self.turn].count(move.drop) > 0
         else:
             return super(CrazyhouseBoard, self).is_pseudo_legal(move)
 
