@@ -2158,7 +2158,7 @@ class Board(BaseBoard):
         """Checks if there is a legal en passant capture."""
         return any(self.generate_legal_ep())
 
-    def fen(self, promoted=False):
+    def fen(self, promoted=None):
         """
         Gets the FEN representation of the position.
 
@@ -2179,7 +2179,7 @@ class Board(BaseBoard):
             str(self.fullmove_number)
         ])
 
-    def shredder_fen(self, promoted=False):
+    def shredder_fen(self, promoted=None):
         """
         Gets the Shredder FEN representation of the position.
 
@@ -2398,7 +2398,7 @@ class Board(BaseBoard):
 
         return "".join(epd)
 
-    def epd(self, shredder_fen=False, promoted=False, **operations):
+    def epd(self, shredder_fen=False, promoted=None, **operations):
         """
         Gets an EPD representation of the current position.
 

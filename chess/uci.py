@@ -1112,13 +1112,7 @@ class Engine(object):
             builder.append("startpos")
         else:
             builder.append("fen")
-
-            promoted = uci_variant in ["giveaway", "suicide"] and board.has_chess960_castling_rights()
-
-            if self.uci_chess960:
-                builder.append(board.shredder_fen(promoted=promoted))
-            else:
-                builder.append(board.fen(promoted=promoted))
+            builder.append(board.shredder_fen() if self.uci_chess960 else board.fen())
 
         # Send moves.
         if switchyard:
