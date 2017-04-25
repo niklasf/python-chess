@@ -12,6 +12,7 @@ Bugfixes:
 
 * Crazyhouse drops were accepted as pseudo legal (and legal) even if the
   respective piece was not in the pocket.
+* CrazyhouseBoard.pop() was failing to undo en passant moves.
 * Fix ~ order (marker for promoted pieces) in FENs.
 * Promoted pieces in Crazyhouse were not communicated with UCI engines.
 
