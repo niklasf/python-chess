@@ -9,3 +9,10 @@ perft 1 67
 perft 2 3083
 perft 3 88634
 perft 4 932554
+
+id zh-middlegame
+epd r1bqk2r/pppp1ppp/2n1p3/4P3/1b1Pn3/2NB1N2/PPP2PPP/R1BQK2R[] b KQkq -
+perft 1 42
+perft 2 1347
+perft 3 58057
+perft 4 2083382
