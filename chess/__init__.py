@@ -678,7 +678,7 @@ class Move(object):
         return hash((self.to_square, self.from_square, self.promotion, self.drop))
 
     def __copy__(self):
-        return type(self)(self.from_square, self.to_square, self.promotion)
+        return type(self)(self.from_square, self.to_square, self.promotion, self.drop)
 
     def __deepcopy__(self, memo):
         move = self.__copy__()

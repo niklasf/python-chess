@@ -24,6 +24,7 @@ import chess.uci
 import chess.syzygy
 import chess.gaviota
 import chess.variant
+import copy
 import os
 import os.path
 import textwrap
@@ -120,6 +121,14 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
         self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
+
+    def test_copy(self):
+        a = chess.Move.from_uci("N@f3")
+        b = chess.Move.from_uci("a1h8")
+        c = chess.Move.from_uci("g7g8r")
+        self.assertEqual(copy.copy(a), a)
+        self.assertEqual(copy.copy(b), b)
+        self.assertEqual(copy.copy(c), c)
 
 
 class PieceTestCase(unittest.TestCase):
@@ -3086,12 +3095,15 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertTrue(board.is_legal(P_at_e6))
 
     def test_lichess_pgn(self):
-        pgn = open("data/pgn/saturs-jannlee-zh-lichess.pgn")
-        game = chess.pgn.read_game(pgn)
-        final_board = game.end().board()
-        self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
-        self.assertTrue(final_board.is_valid())
-        pgn.close()
+        with open("data/pgn/saturs-jannlee-zh-lichess.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            final_board = game.end().board()
+            self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
+            self.assertTrue(final_board.is_valid())
+
+        with open("data/pgn/knightvuillaume-jannlee-zh-lichess.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.end().board().move_stack[23], chess.Move.from_uci("N@f3"))
 
     def test_pawns_in_pocket(self):
         board = chess.variant.CrazyhouseBoard("r2q1rk1/ppp2pp1/1bnp3p/3Bp3/4P1b1/2PPPN2/PP4PP/R2Q1RK1/NBn w - - 22 12")
