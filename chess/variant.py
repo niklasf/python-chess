@@ -663,6 +663,7 @@ class CrazyhouseBoard(chess.Board):
                 self.pockets[self.turn].remove(chess.PAWN)
             else:
                 self.pockets[self.turn].remove(self.piece_type_at(move.to_square))
+        return move
 
     def _push_capture(self, move, capture_square, piece_type, was_promoted):
         if was_promoted:

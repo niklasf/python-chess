@@ -3152,7 +3152,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         board = chess.variant.CrazyhouseBoard(fen)
         board.push_san("exd6")
         self.assertEqual(board.fen(), "rnbqkb1r/ppp1pppp/3P1n2/8/8/8/PPPP1PPP/RNBQKBNR[P] b KQkq - 1 3")
-        board.pop()
+        self.assertEqual(board.pop(), chess.Move.from_uci("e5d6"))
         self.assertEqual(board.fen(), fen)
 
 
