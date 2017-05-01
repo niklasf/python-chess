@@ -3068,6 +3068,9 @@ class ThreeCheckTestCase(unittest.TestCase):
         board.push_san("Qxf7+")
         self.assertEqual(board.fen(), "r1bqkbnr/pppp1Qpp/2n5/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 2+3 0 3")
 
+        lichess_fen = "r1bqkbnr/pppp1Qpp/2n5/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 0 3 +1+0"
+        self.assertEqual(board.fen(), chess.variant.ThreeCheckBoard(lichess_fen).fen())
+
     def test_copy(self):
         fen = "8/8/1K2p3/3qP2k/8/8/8/8 b - - 2+1 3 57"
         board = chess.variant.ThreeCheckBoard(fen)
