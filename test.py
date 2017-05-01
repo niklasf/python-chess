@@ -3057,8 +3057,16 @@ class HordeTestCase(unittest.TestCase):
 class ThreeCheckTestCase(unittest.TestCase):
 
     def test_get_fen(self):
-        self.assertEqual(chess.variant.ThreeCheckBoard().fen(), chess.variant.ThreeCheckBoard.starting_fen)
-        self.assertEqual(chess.variant.ThreeCheckBoard().epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+        board = chess.variant.ThreeCheckBoard()
+        self.assertEqual(board.fen(), chess.variant.ThreeCheckBoard.starting_fen)
+        self.assertEqual(board.epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+
+        board.push_san("e4")
+        board.push_san("e5")
+        board.push_san("Qf3")
+        board.push_san("Nc6")
+        board.push_san("Qxf7+")
+        self.assertEqual(board.fen(), "r1bqkbnr/pppp1Qpp/2n5/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 2+3 0 3")
 
     def test_copy(self):
         fen = "8/8/1K2p3/3qP2k/8/8/8/8 b - - 2+1 3 57"
