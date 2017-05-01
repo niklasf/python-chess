@@ -1,0 +1,17 @@
+[Event "Crazyhouse Bullet Arena"]
+[Site "https://lichess.org/R4GSdrpV"]
+[Date "2017.04.25"]
+[White "knightvuillaume"]
+[Black "JannLee"]
+[Result "0-1"]
+[WhiteElo "1608"]
+[BlackElo "2774"]
+[PlyCount "48"]
+[Variant "Crazyhouse"]
+[TimeControl "60+0"]
+[ECO "?"]
+[Opening "?"]
+[Termination "Normal"]
+[Annotator "lichess.org"]
+
+1. d4 { [%clk 0:01:00] } d5 { [%clk 0:01:00] } 2. Nc3 { [%clk 0:01:00] } Bf5 { [%clk 0:01:00] } 3. e3 { [%clk 0:00:59] } e6 { [%clk 0:00:59] } 4. Bd3 { [%clk 0:00:59] } Bg6?! { (0.00 → 0.75) Inaccuracy. Best move was Nf6. } { [%clk 0:00:59] } (4... Nf6) 5. Nf3 { [%clk 0:00:57] } Bd6? { (0.70 → 1.99) Mistake. Best move was Nf6. } { [%clk 0:00:59] } (5... Nf6 6. O-O Bd6 7. Bxg6 hxg6 8. Ne5 O-O 9. B@f4 B@h4 10. Nf3 Bxf4 11. exf4 B@g4 12. B@g5) 6. O-O? { (1.99 → 0.50) Mistake. Best move was e4. } { [%clk 0:00:56] } (6. e4 dxe4 7. Nxe4 Nc6 8. O-O P@g4 9. Nxd6+ cxd6 10. Bxg6 hxg6 11. Ng5 B@f6 12. Qxg4 Nxd4) 6... Ne7? { (0.50 → 1.56) Mistake. Best move was Nf6. } { [%clk 0:00:59] } (6... Nf6 7. Bxg6 hxg6 8. B@e5 B@g4 9. Bxd6 cxd6 10. B@e2 O-O 11. Nd2 Bxe2 12. Nxe2 B@g4 13. f3) 7. g3? { (1.56 → -0.90) Mistake. Best move was e4. } { [%clk 0:00:55] } (7. e4 O-O) 7... Nbc6?! { (-0.90 → -0.34) Inaccuracy. Best move was Bxd3. } { [%clk 0:00:58] } (7... Bxd3 8. cxd3 B@g4 9. B@g2 O-O 10. e4 Nbc6 11. Be3 dxe4 12. dxe4 P@h3 13. Bxh3 Bxh3 14. P@g2) 8. Re1? { (-0.34 → -1.67) Mistake. Best move was e4. } { [%clk 0:00:53] } (8. e4 O-O 9. exd5 Nxd5 10. Bxg6 hxg6 11. B@h4 Nxc3 12. bxc3 N@h3+ 13. Kg2 f6 14. Kxh3 P@g4+) 8... O-O { [%clk 0:00:58] } 9. Ne2? { (-1.54 → -4.23) Mistake. Best move was Bxg6. } { [%clk 0:00:52] } (9. Bxg6) 9... e5? { (-4.23 → -2.33) Mistake. Best move was Nb4. } { [%clk 0:00:56] } (9... Nb4) 10. dxe5?! { (-2.33 → -2.87) Inaccuracy. Best move was Bxg6. } { [%clk 0:00:51] } (10. Bxg6) 10... Nxe5 { [%clk 0:00:56] } 11. Nxe5 { [%clk 0:00:51] } Bxe5 { [%clk 0:00:56] } 12. f4?? { (-2.17 → -8.28) Blunder. Best move was P@g2. } { [%clk 0:00:50] } (12. P@g2 P@e4 13. N@g4 Bd6 14. Nf4 exd3 15. cxd3 B@g5 16. Nxg6 Nxg6 17. B@c3 h5 18. P@f5 hxg4) 12... N@f3+ { [%clk 0:00:53] } 13. Kg2? { (-7.69 → -9.81) Mistake. Best move was Kf2. } { [%clk 0:00:48] } (13. Kf2 Nxh2 14. Ng1 P@f3 15. fxe5 Ng4+ 16. Kxf3 P@h2 17. B@h3 h1=Q+ 18. P@g2 Qxh3 19. gxh3 B@e4+) 13... Nxe1+ { [%clk 0:00:52] } 14. Qxe1 { [%clk 0:00:48] } Bd6?? { (-9.90 → -4.96) Blunder. Best move was Be4+. } { [%clk 0:00:49] } (14... Be4+ 15. P@f3) 15. P@f3?? { (-4.96 → -9.72) Blunder. Best move was Ng1. } { [%clk 0:00:45] } (15. Ng1 Bxd3) 15... P@e4 { [%clk 0:00:48] } 16. fxe4?! { (-9.12 → -10.91) Inaccuracy. Best move was N@h6+. } { [%clk 0:00:44] } (16. N@h6+ Kh8) 16... dxe4 { [%clk 0:00:48] } 17. Bc4 { [%clk 0:00:43] } P@f3+ { [%clk 0:00:47] } 18. Kf2 { [%clk 0:00:42] } fxe2 { [%clk 0:00:46] } 19. Qxe2 { [%clk 0:00:42] } N@h3+ { [%clk 0:00:45] } 20. Kg2 { [%clk 0:00:41] } R@f2+ { [%clk 0:00:43] } 21. Qxf2 { [%clk 0:00:40] } Nxf2 { [%clk 0:00:43] } 22. Kxf2 { [%clk 0:00:40] } Q@f3+ { [%clk 0:00:43] } 23. Ke1?! { (-24.75 → Mate in 8) Checkmate is now unavoidable. Best move was Kg1. } { [%clk 0:00:39] } (23. Kg1 Bxf4) 23... Bxf4?! { (Mate in 8 → -23.58) Lost forced checkmate sequence. Best move was Bb4+. } { [%clk 0:00:43] } (23... Bb4+ 24. P@d2 Bxd2+ 25. Bxd2 P@f2+ 26. Kf1 Qxd2 27. N@h6+ Kh8 28. Nxf7+ Rxf7 29. R@f8+ Raxf8 30. Bxf7) 24. gxf4?! { (-23.58 → Mate in 1) Checkmate is now unavoidable. Best move was P@d3. } { [%clk 0:00:37] } (24. P@d3 exd3) 24... Qdd1# { [%clk 0:00:42] } { Black wins by checkmate. } 0-1
