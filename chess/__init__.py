@@ -2129,11 +2129,11 @@ class Board(BaseBoard):
         builder = []
 
         for color in COLORS:
-            king_mask = self.kings & self.occupied_co[color] & ~self.promoted
-            if not king_mask:
+            king = self.king(color)
+            if king is None:
                 continue
 
-            king_file = square_file(msb(king_mask))
+            king_file = square_file(king)
             backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
 
             for rook_square in scan_reversed(self.clean_castling_rights() & backrank):

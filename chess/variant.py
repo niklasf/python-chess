@@ -681,17 +681,16 @@ class CrazyhouseBoard(chess.Board):
         return False
 
     def legal_drop_squares_mask(self):
-        king_bb = self.kings & self.occupied_co[self.turn]
-        if not king_bb:
+        king = self.king(self.turn)
+        if king is None:
             return ~self.occupied
 
-        king_square = chess.msb(king_bb)
-        king_attackers = self.attackers_mask(not self.turn, king_square)
+        king_attackers = self.attackers_mask(not self.turn, king)
 
         if not king_attackers:
             return ~self.occupied
         elif chess.popcount(king_attackers) == 1:
-            return chess.BB_BETWEEN[king_square][chess.msb(king_attackers)] & ~self.occupied
+            return chess.BB_BETWEEN[king][chess.msb(king_attackers)] & ~self.occupied
         else:
             return chess.BB_VOID
 
