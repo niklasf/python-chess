@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2012-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ TRIANGLE = [
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
 
 def offdiag(square):
-    return chess.rank_index(square) - chess.file_index(square)
+    return chess.square_rank(square) - chess.square_file(square)
 
 def flipdiag(square):
     return ((square >> 3) | (square << 3)) & 63
@@ -479,19 +479,19 @@ def calc_key(board, mirror=False):
     b = board.occupied_co[chess.BLACK ^ mirror]
 
     return "".join([
-        "K" * chess.pop_count(board.kings & w),
-        "Q" * chess.pop_count(board.queens & w),
-        "R" * chess.pop_count(board.rooks & w),
-        "B" * chess.pop_count(board.bishops & w),
-        "N" * chess.pop_count(board.knights & w),
-        "P" * chess.pop_count(board.pawns & w),
+        "K" * chess.popcount(board.kings & w),
+        "Q" * chess.popcount(board.queens & w),
+        "R" * chess.popcount(board.rooks & w),
+        "B" * chess.popcount(board.bishops & w),
+        "N" * chess.popcount(board.knights & w),
+        "P" * chess.popcount(board.pawns & w),
         "v",
-        "K" * chess.pop_count(board.kings & b),
-        "Q" * chess.pop_count(board.queens & b),
-        "R" * chess.pop_count(board.rooks & b),
-        "B" * chess.pop_count(board.bishops & b),
-        "N" * chess.pop_count(board.knights & b),
-        "P" * chess.pop_count(board.pawns & b),
+        "K" * chess.popcount(board.kings & b),
+        "Q" * chess.popcount(board.queens & b),
+        "R" * chess.popcount(board.rooks & b),
+        "B" * chess.popcount(board.bishops & b),
+        "N" * chess.popcount(board.knights & b),
+        "P" * chess.popcount(board.pawns & b),
     ])
 
 
@@ -744,7 +744,7 @@ class Table(object):
 
         fac = 1
         k = 0
-        while i < self.num or k == order or k == order2:
+        while i < self.num or k in [order, order2]:
             if k == order:
                 factor[0] = fac
                 fac *= PFACTOR[norm[0] - 1][f]
@@ -1072,8 +1072,8 @@ class WdlTable(Table):
                 return
 
             assert self.check_magic(self.variant.tbw_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbw_magic
-                and self.check_magic(self.variant.pawnless_tbw_magic))
+                not self.has_pawns and self.variant.pawnless_tbw_magic and
+                self.check_magic(self.variant.pawnless_tbw_magic))
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1232,11 +1232,9 @@ class WdlTable(Table):
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_piece(self.norm[bside], p, self.factor[bside])
             res = self.decompress_pairs(self.precomp[bside], idx)
@@ -1248,11 +1246,9 @@ class WdlTable(Table):
             piece_type = k & 0x07
             bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-            square = chess.bit_scan(bb)
-            while square != -1 and square is not None:
+            for square in chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
-                square = chess.bit_scan(bb, square + 1)
 
             f = self.pawn_file(p)
             pc = self.files[f].pieces[bside]
@@ -1261,11 +1257,9 @@ class WdlTable(Table):
                 piece_type = pc[i] & 0x07
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_pawn(self.files[f].norm[bside], p, self.files[f].factor[bside])
             res = self.decompress_pairs(self.files[f].precomp[bside], idx)
@@ -1293,8 +1287,8 @@ class DtzTable(Table):
                 return
 
             assert self.check_magic(self.variant.tbz_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbz_magic
-                and self.check_magic(self.variant.pawnless_tbz_magic))
+                not self.has_pawns and self.variant.pawnless_tbz_magic and
+                self.check_magic(self.variant.pawnless_tbz_magic))
 
             self.factor = [0, 0, 0, 0, 0, 0]
             self.norm = [0 for _ in range(self.num)]
@@ -1403,11 +1397,9 @@ class DtzTable(Table):
                 color = (pc[i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_piece(self.norm, p, self.factor)
             res = self.decompress_pairs(self.precomp, idx)
@@ -1425,11 +1417,9 @@ class DtzTable(Table):
 
             i = 0
             p = [0, 0, 0, 0, 0, 0]
-            square = chess.bit_scan(bb)
-            while square != -1 and square is not None:
+            for square in chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
-                square = chess.bit_scan(bb, square + 1)
             f = self.pawn_file(p)
             if self.flags[f] & 1 != bside:
                 return 0, -1
@@ -1440,11 +1430,9 @@ class DtzTable(Table):
                 color = (pc[i] ^ cmirror) >> 3
                 bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
-                square = chess.bit_scan(bb)
-                while square != -1 and square is not None:
+                for square in chess.scan_forward(bb):
                     p[i] = square ^ mirror
                     i += 1
-                    square = chess.bit_scan(bb, square + 1)
 
             idx = self.encode_pawn(self.files[f].norm, p, self.files[f].factor)
             res = self.decompress_pairs(self.files[f].precomp, idx)
@@ -1612,7 +1600,7 @@ class Tablebases(object):
             return v, 1
 
     def sprobe_ab(self, board, alpha, beta, threats=False):
-        if chess.pop_count(board.occupied_co[not board.turn]) > 1:
+        if chess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
                 return v, 2
@@ -1622,7 +1610,7 @@ class Tablebases(object):
 
         threats_found = False
 
-        if threats or chess.pop_count(board.occupied) >= 6:
+        if threats or chess.popcount(board.occupied) >= 6:
             for threat in board.generate_legal_moves(~board.pawns):
                 board.push(threat)
                 try:
@@ -1692,8 +1680,8 @@ class Tablebases(object):
             raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         # Validate piece count.
-        if chess.pop_count(board.occupied) > 6:
-            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
+        if chess.popcount(board.occupied) > 6:
+            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, success = self.probe_ab(board, -2, 2)

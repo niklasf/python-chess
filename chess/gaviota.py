@@ -2,7 +2,7 @@
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2015 Jean-Noël Avila <jn.avila@free.fr>
-# Copyright (C) 2015-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2015-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1788,7 +1788,7 @@ class PythonTablebases(object):
 
         # Only up to 5-men tablebases.
         if len(white_squares) + len(black_squares) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
+            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         dtm = self.egtb_get_dtm(req)
@@ -2174,8 +2174,8 @@ class NativeTablebases(object):
         if board.is_insufficient_material():
             return 0
 
-        if chess.pop_count(board.occupied) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.pop_count(board.occupied), board.fen()))
+        if chess.popcount(board.occupied) > 5:
+            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         if board.castling_rights:
             raise KeyError("gaviota tables do not contain positions with castling rights: {0}".format(board.fen()))

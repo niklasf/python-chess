@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2012-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ NAG_WHITE_SEVERE_TIME_PRESSURE = 138
 NAG_BLACK_SEVERE_TIME_PRESSURE = 139
 
 
-TAG_REGEX = re.compile(r"\[([A-Za-z0-9_]+)\s+\"(.*)\"\]")
+TAG_REGEX = re.compile(r"^\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 
 MOVETEXT_REGEX = re.compile(r"""
     (%.*?[\n\r])
@@ -398,7 +398,7 @@ class Game(GameNode):
             VariantBoard = find_variant(self.headers["Variant"])
 
         fen = self.headers.get("FEN") if self.headers.get("SetUp", "1") == "1" else None
-        board = VariantBoard(fen or VariantBoard.starting_fen, chess960)
+        board = VariantBoard(fen or VariantBoard.starting_fen, chess960=chess960)
         board.chess960 = board.chess960 or board.has_chess960_castling_rights()
         return board
 
@@ -646,9 +646,6 @@ class StringExporter(BaseVisitor):
         self.flush_current_line()
         self.lines.append(line.rstrip())
 
-    def begin_game(self):
-        self.after_variation = True
-
     def end_game(self):
         self.write_line()
 
@@ -801,7 +798,7 @@ def read_game(handle, Visitor=GameModelCreator):
     # Parse game headers.
     while line:
         # Skip empty lines and comments.
-        if not line.strip() or line.strip().startswith("%"):
+        if line.isspace() or line.lstrip().startswith("%"):
             line = handle.readline()
             continue
 
@@ -824,7 +821,7 @@ def read_game(handle, Visitor=GameModelCreator):
         visitor.end_headers()
 
     # Get the next non-empty line.
-    while not line.strip() and line:
+    while line.isspace():
         line = handle.readline()
 
     # Movetext parser state.
@@ -839,7 +836,7 @@ def read_game(handle, Visitor=GameModelCreator):
         read_next_line = True
 
         # An empty line is the end of a game.
-        if not line.strip() and found_content:
+        if found_content and line.isspace():
             if found_game:
                 visitor.end_game()
                 return visitor.result()

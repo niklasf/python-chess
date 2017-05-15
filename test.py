@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2012-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import chess.uci
 import chess.syzygy
 import chess.gaviota
 import chess.variant
+import copy
 import os
 import os.path
 import textwrap
@@ -69,8 +70,8 @@ class SquareTestCase(unittest.TestCase):
 
     def test_square(self):
         for square in chess.SQUARES:
-            file_index = chess.file_index(square)
-            rank_index = chess.rank_index(square)
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
             self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
 
     def test_shifts(self):
@@ -92,9 +93,9 @@ class SquareTestCase(unittest.TestCase):
         for shift in shifts:
             for bb_square in chess.BB_SQUARES:
                 shifted = shift(bb_square)
-                c = chess.pop_count(shifted)
+                c = chess.popcount(shifted)
                 self.assertLessEqual(c, 1)
-                self.assertEqual(c, chess.pop_count(shifted & chess.BB_ALL))
+                self.assertEqual(c, chess.popcount(shifted & chess.BB_ALL))
 
 
 class MoveTestCase(unittest.TestCase):
@@ -119,6 +120,15 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("b5c7").uci(), "b5c7")
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
+        self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
+
+    def test_copy(self):
+        a = chess.Move.from_uci("N@f3")
+        b = chess.Move.from_uci("a1h8")
+        c = chess.Move.from_uci("g7g8r")
+        self.assertEqual(copy.copy(a), a)
+        self.assertEqual(copy.copy(b), b)
+        self.assertEqual(copy.copy(c), c)
 
 
 class PieceTestCase(unittest.TestCase):
@@ -341,7 +351,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.shredder_fen(), fen)
 
         fen = "Qr4k1/4pppp/8/8/8/8/8/R5KR w Hb - 0 1"
-        board = chess.Board(fen, True)
+        board = chess.Board(fen, chess960=True)
 
         # White can just hop the rook over.
         move = board.parse_san("O-O")
@@ -529,6 +539,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(chess.Move.from_uci("f2f1q")), "f1=Q")
         self.assertEqual(board.san(chess.Move.from_uci("f2f1n")), "f1=N+")
         self.assertEqual(board.fen(), fen)
+
+    def test_san_newline(self):
+        fen = "rnbqk2r/ppppppbp/5np1/8/8/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 4"
+        board = chess.Board(fen)
+
+        with self.assertRaises(ValueError):
+            board.parse_san("O-O\n")
+
+        with self.assertRaises(ValueError):
+            board.parse_san("Nc3\n")
 
     def test_variation_san(self):
         board = chess.Board()
@@ -918,7 +938,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.ep_square)
 
         self.assertFalse(board.piece_at(chess.E1))
-        self.assertEqual(chess.pop_count(board.occupied), 0)
+        self.assertEqual(chess.popcount(board.occupied), 0)
 
     def test_threefold_repetition(self):
         board = chess.Board()
@@ -1223,6 +1243,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(move, board.generate_legal_ep())
 
     def test_diagonally_skewered_en_passant(self):
+        # The capturing pawn is still blocking the diagonal.
+        board = chess.Board("2b1r2r/8/5P1k/2p1pP2/5R1P/6PK/4q3/4R3 w - e6 0 1")
+        move = chess.Move.from_uci("f5e6")
+        self.assertIn(move, board.generate_legal_ep())
+        self.assertIn(move, board.generate_legal_moves())
+
         # Regarding the following positions:
         # Note that the positions under test can not be reached by a sequence
         # of legal moves. The last move must have been a double pawn move,
@@ -1268,7 +1294,6 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.is_legal(move))
         self.assertIn(move, board.generate_legal_moves())
         self.assertIn(move, board.generate_legal_ep())
-        self.assertIn(move, board.generate_evasions())
 
     def test_capture_generation(self):
         board = chess.Board("3q1rk1/ppp1p1pp/4b3/3pPp2/3P4/1K1n4/PPQ2PPP/3b1BNR w - f6 0 1")
@@ -2168,8 +2193,8 @@ class SpurEngineTestCase(unittest.TestCase):
 class UciEngineTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.engine = chess.uci.Engine(chess.uci.MockProcess())
-        self.mock = self.engine.process
+        self.engine = chess.uci.Engine()
+        self.mock = chess.uci.MockProcess(self.engine)
 
         self.mock.expect("uci", ("uciok", ))
         self.engine.uci()
@@ -2803,6 +2828,14 @@ class GaviotaTestCase(unittest.TestCase):
         self.assertFalse(self.tablebases.available_tables)
 
 
+class SvgTestCase(unittest.TestCase):
+
+    def test_svg_board(self):
+        svg = chess.BaseBoard("4k3/8/8/8/8/8/8/4KB2")._repr_svg_()
+        self.assertIn("white bishop", svg)
+        self.assertNotIn("black queen", svg)
+
+
 class SuicideTestCase(unittest.TestCase):
 
     def test_parse_san(self):
@@ -2909,6 +2942,23 @@ class AtomicTestCase(unittest.TestCase):
         board.push_san("fxe3")
         self.assertEqual(board.fen(), "3kK3/8/8/2NNNNN1/2N3N1/2N3N1/2N3N1/2NNNNN1 w - - 0 2")
 
+    def test_atomic_insufficient_material(self):
+        # Starting position.
+        board = chess.variant.AtomicBoard()
+        self.assertFalse(board.is_insufficient_material())
+
+        # Single rook.
+        board = chess.variant.AtomicBoard("8/3k4/8/8/4R3/4K3/8/8 w - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Only bishops but no captures possible.
+        board = chess.variant.AtomicBoard("7k/4b3/8/8/8/3B4/2B5/K7 w - - 0 1")
+        self.assertTrue(board.is_insufficient_material())
+
+        # Bishops of both sides on the same color complex.
+        board = chess.variant.AtomicBoard("7k/3b4/8/8/8/3B4/2B5/K7 w - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
@@ -2940,6 +2990,46 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_variant_win())
         self.assertTrue(board.is_variant_loss())
 
+    def test_stalemate(self):
+        board = chess.variant.RacingKingsBoard("1Q4R1/5K2/4B3/8/8/3N4/8/k7 b - - 0 1")
+        self.assertTrue(board.is_game_over())
+        self.assertTrue(board.is_stalemate())
+        self.assertFalse(board.is_variant_win())
+        self.assertFalse(board.is_variant_draw())
+        self.assertFalse(board.is_variant_loss())
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Here white already reached the backrank.
+        board = chess.variant.RacingKingsBoard("4Q1K1/8/7k/4R3/8/5B2/8/3N4 b - - 0 1")
+        self.assertTrue(board.is_game_over())
+        self.assertFalse(board.is_stalemate())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_variant_draw())
+        self.assertEqual(board.result(), "1-0")
+
+    def test_race_over(self):
+        self.assertTrue(chess.variant.RacingKingsBoard().is_valid())
+
+        # This position with black to move and both kings on the backrank is
+        # invalid because the race should have been over already.
+        board = chess.variant.RacingKingsBoard("3krQK1/8/8/8/1q6/3B1N2/1b6/1R4R1 b - - 0 0")
+        self.assertEqual(board.status(), chess.STATUS_RACE_OVER)
+
+    def test_race_material(self):
+        board = chess.variant.RacingKingsBoard()
+
+        # Switch color of the black rook.
+        board.set_piece_at(chess.B1, chess.Piece.from_symbol("R"))
+        self.assertEqual(board.status(), chess.STATUS_RACE_MATERIAL)
+
+    def test_legal_moves_after_end(self):
+        board = chess.variant.RacingKingsBoard("1k5b/5b2/8/8/8/8/3N3K/N4B2 w - - 0 1")
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_stalemate())
+        self.assertFalse(any(board.generate_legal_moves()))
+
 
 class HordeTestCase(unittest.TestCase):
 
@@ -2967,8 +3057,19 @@ class HordeTestCase(unittest.TestCase):
 class ThreeCheckTestCase(unittest.TestCase):
 
     def test_get_fen(self):
-        self.assertEqual(chess.variant.ThreeCheckBoard().fen(), chess.variant.ThreeCheckBoard.starting_fen)
-        self.assertEqual(chess.variant.ThreeCheckBoard().epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+        board = chess.variant.ThreeCheckBoard()
+        self.assertEqual(board.fen(), chess.variant.ThreeCheckBoard.starting_fen)
+        self.assertEqual(board.epd(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3")
+
+        board.push_san("e4")
+        board.push_san("e5")
+        board.push_san("Qf3")
+        board.push_san("Nc6")
+        board.push_san("Qxf7+")
+        self.assertEqual(board.fen(), "r1bqkbnr/pppp1Qpp/2n5/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 2+3 0 3")
+
+        lichess_fen = "r1bqkbnr/pppp1Qpp/2n5/4p3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 0 3 +1+0"
+        self.assertEqual(board.fen(), chess.variant.ThreeCheckBoard(lichess_fen).fen())
 
     def test_copy(self):
         fen = "8/8/1K2p3/3qP2k/8/8/8/8 b - - 2+1 3 57"
@@ -3005,12 +3106,15 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertTrue(board.is_legal(P_at_e6))
 
     def test_lichess_pgn(self):
-        pgn = open("data/pgn/saturs-jannlee-zh-lichess.pgn")
-        game = chess.pgn.read_game(pgn)
-        final_board = game.end().board()
-        self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
-        self.assertTrue(final_board.is_valid())
-        pgn.close()
+        with open("data/pgn/saturs-jannlee-zh-lichess.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            final_board = game.end().board()
+            self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
+            self.assertTrue(final_board.is_valid())
+
+        with open("data/pgn/knightvuillaume-jannlee-zh-lichess.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.end().board().move_stack[23], chess.Move.from_uci("N@f3"))
 
     def test_pawns_in_pocket(self):
         board = chess.variant.CrazyhouseBoard("r2q1rk1/ppp2pp1/1bnp3p/3Bp3/4P1b1/2PPPN2/PP4PP/R2Q1RK1/NBn w - - 22 12")
@@ -3031,9 +3135,48 @@ class CrazyhouseTestCase(unittest.TestCase):
     def test_capture_with_promotion(self):
         board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/1p6/2R1K3 b - - 0 1")
         board.push_san("bxc1=Q")
-        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2~q1K3[r] w - - 1 2")
+        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2q~1K3[r] w - - 1 2")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
+
+    def test_uci_info_handler(self):
+        fen = "3r1r1k/p1p1Ppp1/2Np1n2/2b1p1N1/4P1bq/3P4/PPP2PPP/R4RK1[QBPbn] b - - 35 18"
+        board = chess.variant.CrazyhouseBoard(fen)
+        bestmove = board.parse_uci("B@f4")
+
+        engine = chess.uci.Engine()
+        mock = chess.uci.MockProcess(engine)
+        info_handler = chess.uci.InfoHandler()
+        engine.info_handlers.append(info_handler)
+
+        mock.expect("setoption name UCI_Variant value crazyhouse")
+        mock.expect("isready", ("readyok", ))
+        engine.setoption({"UCI_Variant": type(board).uci_variant})
+
+        mock.expect("position fen %s" % fen)
+        engine.position(board)
+
+        mock.expect("go", ("info pv B@f4 P@g3", "bestmove B@f4"))
+        self.assertEqual(engine.go().bestmove, bestmove)
+        mock.assert_done()
+
+    def test_illegal_drop_uci(self):
+        board = chess.variant.CrazyhouseBoard()
+        with self.assertRaises(ValueError):
+            board.parse_uci("N@f3")
+
+    def test_crazyhouse_fen(self):
+        fen = "r3kb1r/p1pN1ppp/2p1p3/8/2Pn4/3Q4/PP3PPP/R1B2q~K1[] w kq - 0 1"
+        board = chess.variant.CrazyhouseBoard(fen)
+        self.assertEqual(board.fen(), fen)
+
+    def test_push_pop_ep(self):
+        fen = "rnbqkb1r/ppp1pppp/5n2/3pP3/8/8/PPPP1PPP/RNBQKBNR[] w KQkq d6 0 3"
+        board = chess.variant.CrazyhouseBoard(fen)
+        board.push_san("exd6")
+        self.assertEqual(board.fen(), "rnbqkb1r/ppp1pppp/3P1n2/8/8/8/PPPP1PPP/RNBQKBNR[P] b KQkq - 1 3")
+        self.assertEqual(board.pop(), chess.Move.from_uci("e5d6"))
+        self.assertEqual(board.fen(), fen)
 
 
 class GiveawayTestCase(unittest.TestCase):

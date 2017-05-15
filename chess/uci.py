@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2012-2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2012-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import threading
 import concurrent.futures
 import os
 import sys
+import platform
 
 try:
     import backport_collections as collections
@@ -44,6 +45,8 @@ else:
 
 
 LOGGER = logging.getLogger(__name__)
+
+FUTURE_POLL_TIMEOUT = 0.1 if platform.system() == "Windows" else 60
 
 
 class EngineStateException(Exception):
@@ -317,14 +320,18 @@ class InfoHandler(object):
 
 
 class MockProcess(object):
-    def __init__(self):
+    def __init__(self, engine):
+        self.engine = engine
         self._expectations = collections.deque()
         self._is_dead = threading.Event()
         self._std_streams_closed = False
 
+        self.engine.on_process_spawned(self)
+
         self._send_queue = queue.Queue()
         self._send_thread = threading.Thread(target=self._send_thread_target)
         self._send_thread.daemon = True
+        self._send_thread.start()
 
     def _send_thread_target(self):
         while not self._is_dead.is_set():
@@ -332,10 +339,6 @@ class MockProcess(object):
             if line is not None:
                 self.engine.on_line_received(line)
             self._send_queue.task_done()
-
-    def spawn(self, engine):
-        self.engine = engine
-        self._send_thread.start()
 
     def expect(self, expectation, responses=()):
         self._expectations.append((expectation, responses))
@@ -382,25 +385,44 @@ class MockProcess(object):
 
 
 class PopenProcess(object):
-    def __init__(self, command):
-        self.command = command
+    def __init__(self, engine, command, **kwargs):
+        self.engine = engine
 
-        self.process = None
         self._receiving_thread = threading.Thread(target=self._receiving_thread_target)
         self._receiving_thread.daemon = True
+        self._stdin_lock = threading.Lock()
 
-    def spawn(self, engine):
-        self.engine = engine
-        self.process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=1, universal_newlines=True)
+        self.engine.on_process_spawned(self)
+
+        popen_args = {
+            "stdout": subprocess.PIPE,
+            "stdin": subprocess.PIPE,
+            "bufsize": 1,  # Line buffering
+            "universal_newlines": True,
+        }
+        popen_args.update(kwargs)
+        self.process = subprocess.Popen(command, **popen_args)
+
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
-        while self.is_alive():
+        while True:
             line = self.process.stdout.readline()
             if not line:
-                continue
+                # Stream closed.
+                break
 
             self.engine.on_line_received(line.rstrip())
+
+        # Close file descriptors.
+        self.process.stdout.close()
+        with self._stdin_lock:
+            self.process.stdin.close()
+
+        # Ensure the process is terminated (not just the in/out streams).
+        if self.is_alive():
+            self.terminate()
+            self.wait_for_return_code()
 
         self.engine.on_terminated()
 
@@ -414,9 +436,9 @@ class PopenProcess(object):
         self.process.kill()
 
     def send_line(self, string):
-        self.process.stdin.write(string)
-        self.process.stdin.write("\n")
-        self.process.stdin.flush()
+        with self._stdin_lock:
+            self.process.stdin.write(string + "\n")
+            self.process.stdin.flush()
 
     def wait_for_return_code(self):
         self.process.wait()
@@ -430,33 +452,22 @@ class PopenProcess(object):
 
 
 class SpurProcess(object):
-    def __init__(self, shell, command):
+    def __init__(self, engine, shell, command):
+        self.engine = engine
         self.shell = shell
-        self.command = command
 
         self._stdout_buffer = []
 
         self._result = None
 
-        self.process = None
-        self.spawned = threading.Event()
-
         self._waiting_thread = threading.Thread(target=self._waiting_thread_target)
         self._waiting_thread.daemon = True
 
-    def spawn(self, engine):
-        self.engine = engine
-
-        self.process = self.shell.spawn(self.command, store_pid=True, allow_error=True, stdout=self)
-        self.spawned.set()
-
+        self.engine.on_process_spawned(self)
+        self.process = self.shell.spawn(command, store_pid=True, allow_error=True, stdout=self)
         self._waiting_thread.start()
 
     def write(self, byte):
-        # Wait for spawn to return. Otherwise we might already try processing
-        # data before self.process is set.
-        self.spawned.wait()
-
         # Interally called whenever a byte is received.
         if byte == b"\r":
             pass
@@ -494,9 +505,7 @@ class SpurProcess(object):
 
 
 class Engine(object):
-    def __init__(self, process, Executor=concurrent.futures.ThreadPoolExecutor):
-        self.process = process
-
+    def __init__(self, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.pondering = False
         self.state_changed = threading.Condition()
@@ -524,9 +533,11 @@ class Engine(object):
 
         self.info_handlers = []
 
-        self.process.spawn(self)
-
         self.pool = Executor(max_workers=3)
+        self.process = None
+
+    def on_process_spawned(self, process):
+        self.process = process
 
     def send_line(self, line):
         LOGGER.debug("%s << %s", self.process, line)
@@ -901,7 +912,13 @@ class Engine(object):
             future.add_done_callback(async_callback)
             return future
         else:
-            return future.result()
+            # Avoid calling future.result() without a timeout. In Python 2
+            # such a call cannot be interrupted.
+            while True:
+                try:
+                    return future.result(timeout=FUTURE_POLL_TIMEOUT)
+                except concurrent.futures.TimeoutError:
+                    pass
 
     def uci(self, async_callback=None):
         """
@@ -1095,13 +1112,7 @@ class Engine(object):
             builder.append("startpos")
         else:
             builder.append("fen")
-
-            promoted = uci_variant in ["giveaway", "suicide"] and board.has_chess960_castling_rights()
-
-            if self.uci_chess960:
-                builder.append(board.shredder_fen(promoted=promoted))
-            else:
-                builder.append(board.fen(promoted=promoted))
+            builder.append(board.shredder_fen() if self.uci_chess960 else board.fen())
 
         # Send moves.
         if switchyard:
@@ -1359,7 +1370,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
+def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock()):
     """
     Opens a local chess engine process.
 
@@ -1373,14 +1384,27 @@ def popen_engine(command, engine_cls=Engine, _popen_lock=threading.Lock()):
     >>> engine.author
     'Tord Romstad, Marco Costalba and Joona Kiiski'
 
-    The input and input streams will be linebuffered and able both Windows
-    and Unix newlines.
+    :param setpgrp: Open the engine process in a new process group. This will
+        stop signals (such as keyboards interrupts) from propagating from the
+        parent process. Defaults to ``False``.
     """
+    engine = engine_cls()
+
+    kwargs = {}
+    if setpgrp:
+        try:
+            # Windows
+            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        except AttributeError:
+            # Unix
+            kwargs["preexec_fn"] = os.setpgrp
+
     # Work around possible race condition in Python 2 subprocess module,
     # that can occur when concurrently opening processes.
     with _popen_lock:
-        process = PopenProcess(command)
-        return engine_cls(process)
+        PopenProcess(engine, command, **kwargs)
+
+    return engine
 
 
 def spur_spawn_engine(shell, command, engine_cls=Engine):
@@ -1394,5 +1418,6 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
 
     .. _Spur: https://pypi.python.org/pypi/spur
     """
-    process = SpurProcess(shell, command)
-    return engine_cls(process)
+    engine = engine_cls()
+    SpurProcess(engine, shell, command)
+    return engine

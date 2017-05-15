@@ -5,6 +5,119 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+New in v0.18.1
+--------------
+
+Bugfixes:
+
+* Crazyhouse drops were accepted as pseudo legal (and legal) even if the
+  respective piece was not in the pocket.
+* `CrazyhouseBoard.pop()` was failing to undo en passant moves.
+* `CrazyhouseBoard.pop()` was always returning `None`.
+* `Move.__copy__()` was failing to copy Crazyhouse drops.
+* Fix ~ order (marker for promoted pieces) in FENs.
+* Promoted pieces in Crazyhouse were not communicated with UCI engines.
+
+Changes:
+
+* `ThreeCheckBoard.uci_variant` changed from `threecheck` to `3check`.
+
+New in v0.18.0
+--------------
+
+Bugfixes:
+
+* Fixed `Board.parse_uci()` for crazyhouse drops. Thanks to Ryan Delaney.
+* Fixed `AtomicBoard.is_insufficient_material()`.
+* Fixed signature of `SuicideBoard.was_into_check()`.
+* Explicitly close input and output streams when a `chess.uci.PopenProcess`
+  terminates.
+* The documentation of `Board.attackers()` was wrongly stating that en passant
+  capturable pawns are considered attacked.
+
+Changes:
+
+* `chess.SquareSet` is no longer hashable (since it is mutable).
+* Removed functions and constants deprecated in v0.17.0.
+* Dropped `gmpy2` and `gmpy` as optional dependencies. They were no longer
+  improving performance.
+* Various tweaks and optimizations for 5% improvement in PGN parsing and perft
+  speed. (Signature of `_is_safe` and `_ep_skewered` changed).
+* Rewritten `chess.svg.board()` using `xml.etree`. No longer supports *pre* and
+  *post*. Use an XML parser if you need to modify the SVG. Now only inserts
+  actually used piece defintions.
+* Untangled UCI process and engine instanciation, changing signatures of
+  constructors and allowing arbitrary arguments to `subprocess.Popen`.
+* Coding style and documentation improvements.
+
+New features:
+
+* `chess.svg.board()` now supports arrows. Thanks to @rheber for implementing
+  this feature.
+* Let `chess.uci.PopenEngine` consistently handle Ctrl+C across platforms
+  and Python versions. `chess.uci.popen_engine()` now supports a `setpgrp`
+  keyword argument to start the engine process in a new process group.
+  Thanks to @dubiousjim.
+* Added `board.king(color)` to find the (royal) king of a given side.
+* SVGs now have `viewBox` and `chess.svg.board(size=None)` supports and
+  defaults to `None` (i.e. scaling to the size of the container).
+
+New in v0.17.0
+--------------
+
+Changes:
+
+* Rewritten move generator, various performance tweaks, code simplications
+  (500 lines removed) amounting to **doubled PGN parsing and perft speed**.
+* Removed `board.generate_evasions()` and `board.generate_non_evasions()`.
+* Removed `board.transpositions`. Transpositions are now counted on demand.
+* `file_index()`, `rank_index()`, and `pop_count()` have been renamed to
+  `square_file()`, `square_rank()` and `popcount()` respectively. Aliases will
+  be removed in some future release.
+* `STATUS_ILLEGAL_CHECK` has been renamed to `STATUS_RACE_CHECK`. The alias
+  will be removed in a future release.
+* Removed `DIAG_ATTACKS_NE`, `DIAG_ATTACKS_NW`, `RANK_ATTACKS` and
+  `FILE_ATTACKS` as well as the corresponding masks. New attack tables
+  `BB_DIAG_ATTACKS` (combined both diagonal tables), `BB_RANK_ATTACKS` and
+  `BB_FILE_ATTACKS` are indexed by square instead of mask.
+* `board.push()` no longer requires pseudo-legality.
+* Documentation improvements.
+
+Bugfixes:
+
+* **Positions in variant end are now guaranteed to have no legal moves.**
+  `board.is_variant_end()` has been added to test for special variant end
+  conditions. Thanks to salvador-dali.
+* `chess.svg`: Fixed a typo in the class names of black queens. Fixed fill
+  color for black rooks and queens. Added SVG Tiny support. These combined
+  changes fix display in a number of applications, including
+  Jupyter Qt Console. Thanks to Alexander Meshcheryakov.
+* `board.ep_square` was not consistently `None` instead of `0`.
+* Detect invalid racing kings positions: `STATUS_RACE_OVER`,
+  `STATUS_RACE_MATERIAL`.
+* `SAN_REGEX`, `FEN_CASTLING_REGEX` and `TAG_REGEX` now try to match the
+  entire string and no longer accept newlines.
+* Fixed `Move.__hash__()` for drops.
+
+New features:
+
+* `board.remove_piece_at()` now returns the removed piece.
+* Added `square_distance()` and `square_mirror()`.
+* Added `msb()`, `lsb()`, `scan_reversed()` and `scan_forward()`.
+* Added `BB_RAYS` and `BB_BETWEEN`.
+
+New in v0.16.2
+--------------
+
+Changes:
+
+* `board.move_stack` now contains the exact move objects added with
+  `Board.push()` (instead of normalized copies for castling moves).
+  This ensures they can be used with `Board.variation_san()` amongst others.
+* `board.ep_square` is now `None` instead of `0` for no en passant square.
+* `chess.svg`: Better vector graphics for knights. Thanks to ProgramFox.
+* Documentation improvements.
+
 New in v0.16.1
 --------------
 

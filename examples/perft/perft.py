@@ -20,8 +20,6 @@ import sys
 def perft(depth, board):
     if depth < 1:
         return 1
-    elif board.is_variant_win() or board.is_variant_draw() or board.is_variant_loss():
-        return 0
     elif depth > 1:
         count = 0
 
@@ -40,8 +38,6 @@ def perft(depth, board):
 def parallel_perft(pool, depth, board):
     if depth < 1:
         return 1
-    elif board.is_variant_win() or board.is_variant_draw() or board.is_variant_loss():
-        return 0
     elif depth > 1:
         def successors(board):
             for move in board.legal_moves:

@@ -26,7 +26,7 @@ and handling of common formats. This is the scholars mate in python-chess:
     >>> board = chess.Board()
 
     >>> board.legal_moves  # doctest: +ELLIPSIS
-    <LegalMoveGenerator at ... (Na3, Nc3, Nf3, Nh3, a3, b3, c3, d3, e3, f3, g3, h3, ...)>
+    <LegalMoveGenerator at ... (Nh3, Nf3, Nc3, Na3, h3, g3, f3, e3, d3, c3, ...)>
     >>> chess.Move.from_uci("a8a1") in board.legal_moves
     False
 
@@ -340,6 +340,7 @@ python-chess, for example:
 
 * a stand alone chess computer based on DGT board - http://www.picochess.org/
 * a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
+* a GUI to play against UCI chess engines - http://johncheetham.com/projects/jcchess/
 * an HTTP microservice to render board images - https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram - https://github.com/cxjdavin/tgchessbot
 * connecting Stockfish to the Novag Citrine - http://empiricalrabbit.blogspot.de/2016/05/integrating-with-python-chess-module.html
@@ -351,10 +352,10 @@ License
 python-chess is licensed under the GPL3. See the LICENSE file for the
 full copyright and license information.
 
-Thanks to Sam Tannous for publishing his approach to `avoid rotated bitboards
-with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_ alongside
-his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_. Some of
-the bitboard move generation parts are ported from there.
+Thanks to the Stockfish authors. Thanks to Sam Tannous for publishing his
+approach to `avoid rotated bitboards with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_
+alongside his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_.
+Some move generation ideas are taken from these sources.
 
 Thanks to Ronald de Man for his Syzygy endgame tablebases
 (https://github.com/syzygy1/tb). The probing code in

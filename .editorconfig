@@ -1,0 +1,13 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.py]
+charset = utf-8
+ident_style = space
+ident_size = 4
+
+[Makefile]
+ident_style = tab

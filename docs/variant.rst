@@ -3,6 +3,7 @@ Variants (experimental)
 
 python-chess supports several chess variants.
 
+>>> import chess.variant
 >>> board = chess.variant.GiveawayBoard()
 
 >>> # General information about the variants
@@ -11,13 +12,9 @@ python-chess supports several chess variants.
 >>> type(board).starting_fen
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 
->>> # Check for special variant game-end conditions
->>> board.is_variant_win()
-False
->>> board.is_variant_draw()
-False
->>> board.is_variant_loss()
-False
+See :func:`chess.Board.is_variant_end()`, :func:`~chess.Board.is_variant_win()`
+:func:`~chess.Board.is_variant_draw()` :func:`~chess.Board.is_variant_loss()`
+for special variant end conditions and results.
 
 ================ ========================================= ============= ============
 Variant          Board class                               UCI           Syzygy

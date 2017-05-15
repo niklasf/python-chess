@@ -57,11 +57,15 @@ and so on to
 .. py:data:: chess.RANK_NAMES
     :annotation: = ['1', '2', ..., '7', '8']
 
-.. autofunction:: chess.file_index
-
-.. autofunction:: chess.rank_index
-
 .. autofunction:: chess.square
+
+.. autofunction:: chess.square_file
+
+.. autofunction:: chess.square_rank
+
+.. autofunction:: chess.square_distance
+
+.. autofunction:: chess.square_mirror
 
 Pieces
 ------
@@ -118,8 +122,9 @@ Board
         Also see :func:`~chess.Board.has_castling_rights()`,
         :func:`~chess.Board.has_kingside_castling_rights()`,
         :func:`~chess.Board.has_queenside_castling_rights()`,
-        :func:`~chess.Board.has_chess960_castling_rights()` and
-        :func:`~chess.Board.clean_castling_rights()`.
+        :func:`~chess.Board.has_chess960_castling_rights()`,
+        :func:`~chess.Board.clean_castling_rights()` and
+        :func:`~chess.Board.set_castling_fen()`.
 
     .. py:attribute:: ep_square
 
