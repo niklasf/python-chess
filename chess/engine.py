@@ -51,6 +51,11 @@ class EngineTerminatedException(Exception):
     pass
 
 
+class EngineStateException(Exception):
+    """Unexpected engine state."""
+    pass
+
+
 class MockProcess(object):
     def __init__(self, engine):
         self.engine = engine

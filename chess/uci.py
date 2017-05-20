@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from chess.engine import EngineTerminatedException
+from chess.engine import EngineStateException
 from chess.engine import MockProcess
 from chess.engine import PopenProcess
 from chess.engine import SpurProcess
@@ -32,11 +33,6 @@ try:
     import backport_collections as collections
 except ImportError:
     import collections
-
-
-class EngineStateException(Exception):
-    """Unexpected UCI engine state."""
-    pass
 
 
 class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
