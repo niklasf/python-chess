@@ -44,6 +44,9 @@ class SuicideBoard(chess.Board):
     def _attacked_for_king(self, path):
         return False
 
+    def _castling_uncovers_rank_attack(self, rook_bb):
+        return False
+
     def is_check(self):
         return False
 
@@ -248,6 +251,11 @@ class AtomicBoard(chess.Board):
             path &= ~chess.BB_KING_ATTACKS[enemy_king]
 
         return super(AtomicBoard, self)._attacked_for_king(path)
+
+    def _castling_uncovers_rank_attack(self, rook_bb):
+        king_to = chess.C1 if self.turn == chess.WHITE else chess.C8
+        return (super(AtomicBoard, self)._castling_uncovers_rank_attack(rook_bb) and
+                not chess.BB_KING_ATTACKS[king_to] & self.kings & self.occupied_co[not self.turn])
 
     def _kings_connected(self):
         white_kings = self.kings & self.occupied_co[chess.WHITE]
