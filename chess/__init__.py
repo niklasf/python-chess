@@ -3316,7 +3316,7 @@ class Board(BaseBoard):
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
         king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
         king = king & -king
-        if not king or self.is_check():
+        if not king or self._attacked_for_king(king):
             return
 
         bb_a = BB_FILE_A & backrank
@@ -3325,7 +3325,6 @@ class Board(BaseBoard):
         bb_f = BB_FILE_F & backrank
         bb_g = BB_FILE_G & backrank
 
-        # TODO: Rewrite
         for candidate in scan_reversed(self.clean_castling_rights() & backrank & to_mask):
             rook = BB_SQUARES[candidate]
 
@@ -3334,6 +3333,7 @@ class Board(BaseBoard):
             # In the special case where we castle queenside and our rook
             # shielded us from an attack from a1 or a8, castling would be
             # into check.
+            # TODO: This might be broken in variant games.
             if a_side and rook & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a:
                 continue
 
@@ -3351,16 +3351,9 @@ class Board(BaseBoard):
                 if not king & bb_g:
                     empty_for_king = BB_BETWEEN[msb(king)][msb(bb_g)] | bb_g
 
-            empty_for_rook &= ~king
-            empty_for_rook &= ~rook
-
-            empty_for_king &= ~king
-            not_attacked_for_king = empty_for_king
-            empty_for_king &= ~rook
-
-            if not self.occupied & (empty_for_king | empty_for_rook):
-                if not self._attacked_for_king(not_attacked_for_king):
-                    yield self._from_chess960(msb(king), candidate)
+            if not ((self.occupied ^ king ^ rook) & (empty_for_king | empty_for_rook) or
+                    self._attacked_for_king(empty_for_king)):
+                yield self._from_chess960(msb(king), candidate)
 
     def _from_chess960(self, from_square, to_square, promotion=None, drop=None):
         if not self.chess960 and drop is None:
