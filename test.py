@@ -50,8 +50,9 @@ except ImportError:
     from io import StringIO  # Python 3
 
 
-class RaiseLogHandler(logging.Handler):
+class RaiseLogHandler(logging.StreamHandler):
     def handle(self, record):
+        super(RaiseLogHandler, self).handle(record)
         raise RuntimeError("was expecting no log messages")
 
 
@@ -2064,6 +2065,11 @@ class PgnTestCase(unittest.TestCase):
         game.add_line(moves)
 
         self.assertEqual(list(game.main_line()), moves)
+
+    def test_lan(self):
+        pgn = StringIO("1. e2-e4")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.end().move, chess.Move.from_uci("e2e4"))
 
     def test_variants(self):
         pgn = StringIO(textwrap.dedent("""\
