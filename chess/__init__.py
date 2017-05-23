@@ -2820,6 +2820,20 @@ class Board(BaseBoard):
         """Checks if the given pseudo-legal move is a capture or pawn move."""
         return BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn]
 
+    def is_irreversible(self, move):
+        """
+        Checks if the given pseudo-legal move is irreversible.
+
+        In standard chess pawn moves, captures and moves that destroy castling
+        rights are irreversible.
+        """
+        backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
+        castling_rights = self.clean_castling_rights() & backrank
+        return (self.is_zeroing(move) or
+                castling_rights and BB_SQUARES[move.from_square] & self.kings & ~self.promoted or
+                castling_rights & BB_SQUARES[move.from_square] or
+                castling_rights & BB_SQUARES[move.to_square])
+
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""
         if self.kings & BB_SQUARES[move.from_square]:
