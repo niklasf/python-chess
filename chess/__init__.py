@@ -3309,6 +3309,12 @@ class Board(BaseBoard):
     def _attacked_for_king(self, path):
         return any(self.is_attacked_by(not self.turn, sq) for sq in scan_reversed(path))
 
+    def _castling_uncovers_rank_attack(self, rook_bb):
+        # In the special case where we castle queenside and our rook shielded
+        # us from an attack from a1 or a8, castling would be into check.
+        bb_a = BB_SQUARES[square(0, 0 if self.turn == WHITE else 7)]
+        return rook_bb & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a
+
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
             return
@@ -3319,7 +3325,6 @@ class Board(BaseBoard):
         if not king or self._attacked_for_king(king):
             return
 
-        bb_a = BB_FILE_A & backrank
         bb_c = BB_FILE_C & backrank
         bb_d = BB_FILE_D & backrank
         bb_f = BB_FILE_F & backrank
@@ -3329,13 +3334,6 @@ class Board(BaseBoard):
             rook = BB_SQUARES[candidate]
 
             a_side = rook < king
-
-            # In the special case where we castle queenside and our rook
-            # shielded us from an attack from a1 or a8, castling would be
-            # into check.
-            # TODO: This might be broken in variant games.
-            if a_side and rook & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a:
-                continue
 
             empty_for_rook = BB_VOID
             empty_for_king = BB_VOID
@@ -3352,7 +3350,8 @@ class Board(BaseBoard):
                     empty_for_king = BB_BETWEEN[msb(king)][msb(bb_g)] | bb_g
 
             if not ((self.occupied ^ king ^ rook) & (empty_for_king | empty_for_rook) or
-                    self._attacked_for_king(empty_for_king)):
+                    self._attacked_for_king(empty_for_king) or
+                    (a_side and self._castling_uncovers_rank_attack(rook))):
                 yield self._from_chess960(msb(king), candidate)
 
     def _from_chess960(self, from_square, to_square, promotion=None, drop=None):
