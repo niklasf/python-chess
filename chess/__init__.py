@@ -1525,10 +1525,10 @@ class Board(BaseBoard):
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
 
-    def attackers_mask(self, color, square):
-        rank_pieces = BB_RANK_MASKS[square] & self.occupied
-        file_pieces = BB_FILE_MASKS[square] & self.occupied
-        diag_pieces = BB_DIAG_MASKS[square] & self.occupied
+    def _attackers_mask(self, color, square, occupied):
+        rank_pieces = BB_RANK_MASKS[square] & occupied
+        file_pieces = BB_FILE_MASKS[square] & occupied
+        diag_pieces = BB_DIAG_MASKS[square] & occupied
 
         queens_and_rooks = self.queens | self.rooks
         queens_and_bishops = self.queens | self.bishops
@@ -1542,6 +1542,9 @@ class Board(BaseBoard):
             (BB_PAWN_ATTACKS[not color][square] & self.pawns))
 
         return attackers & self.occupied_co[color]
+
+    def attackers_mask(self, color, square):
+        return self._attackers_mask(color, square, self.occupied)
 
     def is_attacked_by(self, color, square):
         """
@@ -3210,14 +3213,15 @@ class Board(BaseBoard):
             self.generate_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_legal_ep(from_mask, to_mask))
 
-    def _attacked_for_king(self, path):
-        return any(self.is_attacked_by(not self.turn, sq) for sq in scan_reversed(path))
+    def _attacked_for_king(self, path, occupied):
+        return any(self._attackers_mask(not self.turn, sq, occupied) for sq in scan_reversed(path))
 
-    def _castling_uncovers_rank_attack(self, rook_bb):
-        # In the special case where we castle queenside and our rook shielded
-        # us from an attack from a1 or a8, castling would be into check.
-        bb_a = BB_SQUARES[square(0, 0 if self.turn == WHITE else 7)]
-        return rook_bb & BB_FILE_B and self.occupied_co[not self.turn] & (self.queens | self.rooks) & bb_a
+    def _castling_uncovers_rank_attack(self, rook_bb, king_to):
+        # Test the special case where we castle and our rook shielded us from
+        # an attack, so castling would be into check.
+        rank_pieces = BB_RANK_MASKS[king_to] & (self.occupied ^ rook_bb)
+        sliders = (self.queens | self.rooks) & self.occupied_co[not self.turn]
+        return BB_RANK_ATTACKS[king_to][rank_pieces] & sliders
 
     def generate_castling_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
@@ -3226,7 +3230,7 @@ class Board(BaseBoard):
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
         king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
         king = king & -king
-        if not king or self._attacked_for_king(king):
+        if not king or self._attacked_for_king(king, self.occupied):
             return
 
         bb_c = BB_FILE_C & backrank
@@ -3243,19 +3247,21 @@ class Board(BaseBoard):
             empty_for_king = BB_VOID
 
             if a_side:
+                king_to = msb(bb_c)
                 if not rook & bb_d:
                     empty_for_rook = BB_BETWEEN[candidate][msb(bb_d)] | bb_d
                 if not king & bb_c:
-                    empty_for_king = BB_BETWEEN[msb(king)][msb(bb_c)] | bb_c
+                    empty_for_king = BB_BETWEEN[msb(king)][king_to] | bb_c
             else:
+                king_to = msb(bb_g)
                 if not rook & bb_f:
                     empty_for_rook = BB_BETWEEN[candidate][msb(bb_f)] | bb_f
                 if not king & bb_g:
-                    empty_for_king = BB_BETWEEN[msb(king)][msb(bb_g)] | bb_g
+                    empty_for_king = BB_BETWEEN[msb(king)][king_to] | bb_g
 
             if not ((self.occupied ^ king ^ rook) & (empty_for_king | empty_for_rook) or
-                    self._attacked_for_king(empty_for_king) or
-                    (a_side and self._castling_uncovers_rank_attack(rook))):
+                    self._attacked_for_king(empty_for_king, self.occupied ^ king) or
+                    self._castling_uncovers_rank_attack(rook, king_to)):
                 yield self._from_chess960(msb(king), candidate)
 
     def _from_chess960(self, from_square, to_square, promotion=None, drop=None):
