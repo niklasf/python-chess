@@ -41,10 +41,10 @@ class SuicideBoard(chess.Board):
     def pin_mask(self, color, square):
         return chess.BB_ALL
 
-    def _attacked_for_king(self, path):
+    def _attacked_for_king(self, path, occupied):
         return False
 
-    def _castling_uncovers_rank_attack(self, rook_bb):
+    def _castling_uncovers_rank_attack(self, rook_bb, king_to):
         return False
 
     def is_check(self):
@@ -243,19 +243,18 @@ class AtomicBoard(chess.Board):
 
         return False
 
-    def _attacked_for_king(self, path):
+    def _attacked_for_king(self, path, occupied):
         # Can castle onto attacked squares if they are connected to the
         # enemy king.
         enemy_kings = self.kings & self.occupied_co[not self.turn]
         for enemy_king in chess.scan_forward(enemy_kings):
             path &= ~chess.BB_KING_ATTACKS[enemy_king]
 
-        return super(AtomicBoard, self)._attacked_for_king(path)
+        return super(AtomicBoard, self)._attacked_for_king(path, occupied)
 
-    def _castling_uncovers_rank_attack(self, rook_bb):
-        king_to = chess.C1 if self.turn == chess.WHITE else chess.C8
-        return (super(AtomicBoard, self)._castling_uncovers_rank_attack(rook_bb) and
-                not chess.BB_KING_ATTACKS[king_to] & self.kings & self.occupied_co[not self.turn])
+    def _castling_uncovers_rank_attack(self, rook_bb, king_to):
+        return (not chess.BB_KING_ATTACKS[king_to] & self.kings & self.occupied_co[not self.turn] and
+                super(AtomicBoard, self)._castling_uncovers_rank_attack(rook_bb, king_to))
 
     def _kings_connected(self):
         white_kings = self.kings & self.occupied_co[chess.WHITE]
