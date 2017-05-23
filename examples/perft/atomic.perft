@@ -34,3 +34,10 @@ perft 2 282
 perft 3 6746
 perft 4 98644
 perft 5 2585160
+
+id shakmaty-bench
+epd rn2kb1r/1pp1p2p/p2q1pp1/3P4/2P3b1/4PN2/PP3PPP/R2QKB1R b KQkq -
+perft 1 40
+perft 2 1238
+perft 3 45237
+perft 4 1434825
