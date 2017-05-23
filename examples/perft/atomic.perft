@@ -18,3 +18,19 @@ perft 1 28
 perft 2 833
 perft 3 23353
 perft 4 714499
+
+id atomic960-castle-1
+epd 8/8/8/8/8/8/2k5/rR4KR w KQ -
+perft 1 18
+perft 2 180
+perft 3 4364
+perft 4 61401
+perft 5 1603055
+
+id atomic960-castle-2
+epd r3k1rR/5K2/8/8/8/8/8/8 b kq -
+perft 1 25
+perft 2 282
+perft 3 6746
+perft 4 98644
+perft 5 2585160
