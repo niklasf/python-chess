@@ -1,0 +1,25 @@
+
+To long001.idx:
+
+Changed:
+
+  KGA: bishop's gambit, Chigorin's attack/Gifford variation
+  KGA: bishop's gambit, Chigorin's attack (Gifford variation)
+
+  Santasiere's folly
+  Santasiere's Folly
+
+  Nimzo-Indian: 4.e3 c5, 5.Ne2 (Rubinstein)
+  Nimzo-Indian: 4.e3 c5, 5.Ne2 (Rubinstein, anti-H\"ubner system)
+
+  Ruy Lopez: closed (8...Na5)
+  Ruy Lopez: closed (9...Na5)
+
+  All occurences of "defence" to "defense"
+  All occurences of "manoevre" to "maneuver"
+  All occurences of "centre" to "center"
+
+Added:
+
+  Queen's pawn: London system
+   d2d4 g8f6 c1f4

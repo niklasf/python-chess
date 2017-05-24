@@ -1,0 +1,27 @@
+
+You'll find the following files:
+
+fen.doc
+long001.idx
+eco000.idx
+nic000.idx
+changes.txt
+
+long.idx is standard English long name
+eco.idx is the ECO classification scheme
+nic.idx is the NIC classification scheme
+
+Current features:
+
+Include color reversed positions (tagged with a *).
+
+Please do not modify any of these files and then distribute, since I do
+not want multiple versions of these floating around and confusing people.
+If there is something you'd like to see added or changed, please contact
+me so we can do it together and keep everything coherent.  The next
+versions planned will hopefully feature *much* greater compression of data,
+and the abilility to recognize a transposition out of one main line and
+into another (there is a difference between very early positions and deep
+main lines).
+
+Chris Long {clong@cnj.digex.net, clong@eden.rutgers.edu}
