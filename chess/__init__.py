@@ -337,7 +337,7 @@ def _rays():
 BB_RAYS, BB_BETWEEN = _rays()
 
 
-SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?x?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
+SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
 
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
@@ -2819,6 +2819,20 @@ class Board(BaseBoard):
     def is_zeroing(self, move):
         """Checks if the given pseudo-legal move is a capture or pawn move."""
         return BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn]
+
+    def is_irreversible(self, move):
+        """
+        Checks if the given pseudo-legal move is irreversible.
+
+        In standard chess pawn moves, captures and moves that destroy castling
+        rights are irreversible.
+        """
+        backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
+        castling_rights = self.clean_castling_rights() & backrank
+        return (self.is_zeroing(move) or
+                castling_rights and BB_SQUARES[move.from_square] & self.kings & ~self.promoted or
+                castling_rights & BB_SQUARES[move.from_square] or
+                castling_rights & BB_SQUARES[move.to_square])
 
     def is_castling(self, move):
         """Checks if the given pseudo-legal move is a castling move."""

@@ -684,8 +684,12 @@ class CrazyhouseBoard(chess.Board):
     def is_seventyfive_moves(self):
         return False
 
-    def is_zeroing(self, move):
-        return False
+    def is_irreversible(self, move):
+        backrank = chess.BB_RANK_1 if self.turn == chess.WHITE else chess.BB_RANK_8
+        castling_rights = self.clean_castling_rights() & backrank
+        return (castling_rights and chess.BB_SQUARES[move.from_square] & self.kings & ~self.promoted or
+                castling_rights & chess.BB_SQUARES[move.from_square] or
+                castling_rights & chess.BB_SQUARES[move.to_square])
 
     def legal_drop_squares_mask(self):
         king = self.king(self.turn)
