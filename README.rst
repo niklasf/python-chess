@@ -346,13 +346,10 @@ python-chess, for example:
 * connecting Stockfish to the Novag Citrine - http://empiricalrabbit.blogspot.de/2016/05/integrating-with-python-chess-module.html
 * a tool to build `Anki <http://ankisrs.net/>`_ decks from a PGN opening repertoire - https://github.com/asdfjkl/pgn2anki
 
-License
--------
+Acknowledgements
+----------------
 
-python-chess is licensed under the GPL3. See the LICENSE file for the
-full copyright and license information.
-
-Thanks to the Stockfish authors. Thanks to Sam Tannous for publishing his
+Thanks to the Stockfish authors and thanks to Sam Tannous for publishing his
 approach to `avoid rotated bitboards with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_
 alongside his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_.
 Some move generation ideas are taken from these sources.
@@ -362,4 +359,11 @@ Thanks to Ronald de Man for his Syzygy endgame tablebases
 python-chess is very directly ported from his C probing code.
 
 Thanks to Miguel A. Ballicora for his Gaviota tablebases
-(https://github.com/michiguel/Gaviota-Tablebases).
+(https://github.com/michiguel/Gaviota-Tablebases). (I wish the generating code
+was free software).
+
+License
+-------
+
+python-chess is licensed under the GPL 3 (or any later version at your option).
+See the LICENSE file for the full license text.

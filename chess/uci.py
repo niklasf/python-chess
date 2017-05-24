@@ -885,7 +885,7 @@ class Engine(object):
             move = board.pop()
             switchyard.append(move)
 
-            if board.is_zeroing(move):
+            if board.is_irreversible(move):
                 break
 
         # Validate castling rights.
