@@ -628,31 +628,31 @@ class BoardTestCase(unittest.TestCase):
 
         board = chess.Board()
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        self.assertEqual(board.zobrist_hash(), 0x463b96181691fc9c)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x463b96181691fc9c)
 
         board.push_san("e4")
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
-        self.assertEqual(board.zobrist_hash(), 0x823c9b50fd114196)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x823c9b50fd114196)
 
         board.push_san("d5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
-        self.assertEqual(board.zobrist_hash(), 0x0756b94461c50fb0)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x0756b94461c50fb0)
 
         board.push_san("e5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
-        self.assertEqual(board.zobrist_hash(), 0x662fafb965db29d4)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x662fafb965db29d4)
 
         board.push_san("f5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3")
-        self.assertEqual(board.zobrist_hash(), 0x22a48b5a8e47ff78)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x22a48b5a8e47ff78)
 
         board.push_san("Ke2")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 1 3")
-        self.assertEqual(board.zobrist_hash(), 0x652a607ca3f242c1)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x652a607ca3f242c1)
 
         board.push_san("Kf7")
         self.assertEqual(board.fen(), "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 2 4")
-        self.assertEqual(board.zobrist_hash(), 0x00fdd303c946bdd9)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x00fdd303c946bdd9)
 
         board = chess.Board()
         board.push_san("a4")
@@ -661,12 +661,12 @@ class BoardTestCase(unittest.TestCase):
         board.push_san("b4")
         board.push_san("c4")
         self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3")
-        self.assertEqual(board.zobrist_hash(), 0x3c8123ea7b067637)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x3c8123ea7b067637)
 
         board.push_san("bxc3")
         board.push_san("Ra3")
         self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 1 4")
-        self.assertEqual(board.zobrist_hash(), 0x5c3f9b829b279560)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x5c3f9b829b279560)
 
     def test_castling_move_generation_bug(self):
         # Specific test position right after castling.
@@ -3100,13 +3100,6 @@ class ThreeCheckTestCase(unittest.TestCase):
         board, extra = chess.variant.ThreeCheckBoard.from_epd(epd)
         self.assertEqual(board.epd(), "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3")
         self.assertEqual(extra["foo"], "bar")
-
-    def test_zobrist_hash(self):
-        board_a = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+3 0 1")
-        board_b = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+2 0 1")
-
-        # Check count differs.
-        self.assertNotEqual(board_a.zobrist_hash(), board_b.zobrist_hash())
 
 
 class CrazyhouseTestCase(unittest.TestCase):
