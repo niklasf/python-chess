@@ -27,23 +27,23 @@ and handling of common formats. This is the scholars mate in python-chess:
 
     >>> board.legal_moves  # doctest: +ELLIPSIS
     <LegalMoveGenerator at ... (Nh3, Nf3, Nc3, Na3, h3, g3, f3, e3, d3, c3, ...)>
-    >>> chess.Move.from_uci("a8a1") in board.legal_moves
+    >>> chess.Move.from_pacn("a8a1") in board.legal_moves
     False
 
     >>> board.push_san("e4")
-    Move.from_uci('e2e4')
+    Move.from_pacn('e2e4')
     >>> board.push_san("e5")
-    Move.from_uci('e7e5')
+    Move.from_pacn('e7e5')
     >>> board.push_san("Qh5")
-    Move.from_uci('d1h5')
+    Move.from_pacn('d1h5')
     >>> board.push_san("Nc6")
-    Move.from_uci('b8c6')
+    Move.from_pacn('b8c6')
     >>> board.push_san("Bc4")
-    Move.from_uci('f1c4')
+    Move.from_pacn('f1c4')
     >>> board.push_san("Nf6")
-    Move.from_uci('g8f6')
+    Move.from_pacn('g8f6')
     >>> board.push_san("Qxf7")
-    Move.from_uci('h5f7')
+    Move.from_pacn('h5f7')
 
     >>> board.is_checkmate()
     True
@@ -88,11 +88,11 @@ Features
 
   .. code:: python
 
-      >>> Nf3 = chess.Move.from_uci("g1f3")
+      >>> Nf3 = chess.Move.from_pacn("g1f3")
       >>> board.push(Nf3)  # Make the move
 
       >>> board.pop()  # Unmake the last move
-      Move.from_uci('g1f3')
+      Move.from_pacn('g1f3')
 
 * Show a simple ASCII board.
 
@@ -176,8 +176,8 @@ Features
       >>> board.san(chess.Move(chess.E2, chess.E4))
       'e4'
       >>> board.parse_san('Nf3')
-      Move.from_uci('g1f3')
-      >>> board.variation_san([chess.Move.from_uci(m) for m in ["e2e4", "e7e5", "g1f3"]])
+      Move.from_pacn('g1f3')
+      >>> board.variation_san([chess.Move.from_pacn(m) for m in ["e2e4", "e7e5", "g1f3"]])
       '1. e4 e5 2. Nf3'
 
 * Parses and creates FENs, extended FENs and Shredder FENs.
@@ -201,7 +201,7 @@ Features
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - bm d4;'
 
       >>> ops = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";")
-      >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
+      >>> ops == {'bm': [chess.Move.from_pacn('d6d1')], 'id': 'BK.01'}
       True
 
 * Detects absolute `pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin>`_.
@@ -218,7 +218,7 @@ Features
       >>> board = chess.Board()
       >>> main_entry = book.find(board)
       >>> main_entry.move()
-      Move.from_uci('e2e4')
+      Move.from_pacn('e2e4')
       >>> main_entry.weight
       1
       >>> main_entry.learn
@@ -304,18 +304,18 @@ Features
       >>> board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
       >>> engine.position(board)
       >>> engine.go(movetime=2000)  # Gets tuple of bestmove and ponder move.
-      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
+      BestMove(bestmove=Move.from_pacn('d6d1'), ponder=Move.from_pacn('c1d1'))
 
       >>> # Asynchronous mode.
       >>> def callback(command):
       ...    bestmove, ponder = command.result()
-      ...    assert bestmove == chess.Move.from_uci('d6d1')
+      ...    assert bestmove == chess.Move.from_pacn('d6d1')
       ...
       >>> command = engine.go(movetime=2000, async_callback=callback)
       >>> command.done()
       False
       >>> command.result()
-      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
+      BestMove(bestmove=Move.from_pacn('d6d1'), ponder=Move.from_pacn('c1d1'))
       >>> command.done()
       True
 
