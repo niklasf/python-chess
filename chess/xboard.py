@@ -28,6 +28,7 @@ import chess
 
 import concurrent.futures
 import threading
+import random
 
 try:
     import backport_collections as collections
@@ -284,9 +285,10 @@ class Engine(object):
 
         :return: Nothing
         """
-        self.ping_num = num
-        self.send_line("ping " + num)
-        self.pong_received.wait()
+        with self.pong_received:
+            self.ping_num = num
+            self.send_line("ping " + str(num))
+            self.pong_received.wait()
 
     def xboard(self, async_callback=None):
         """
@@ -302,7 +304,7 @@ class Engine(object):
         def command():
             with self.semaphore:
                 self.send_line("xboard")
-                self.ping(randint(0, 100))
+                self.ping(random.randint(0, 100))
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
@@ -351,7 +353,7 @@ class Engine(object):
 
         def command():
             with self.semaphore:
-                self.send_line("st " + time)
+                self.send_line("st " + str(time))
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException
@@ -372,7 +374,7 @@ class Engine(object):
 
         def command():
             with self.semaphore:
-                self.send_line("sd " + depth)
+                self.send_line("sd " + str(depth))
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException
