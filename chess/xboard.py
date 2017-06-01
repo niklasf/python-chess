@@ -311,7 +311,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def new(self, board, async_callback=None):
+    def new(self, async_callback=None):
         """
         Reset the board to the standard chess starting position.
         Set White on move.
@@ -338,6 +338,8 @@ class Engine(object):
                     raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
+
+    # def setboard here
 
     def st(self, time, async_callback=None):
         """
@@ -423,3 +425,116 @@ class Engine(object):
                     raise EngineTerminatedException
 
         return self._queue_command(command, async_callback)
+
+    # def go() here
+
+    def quit(self, async_callback=None):
+        """
+        Quit the engine as soon as possible.
+
+        :return: The return code of the engine process.
+        """
+        def command():
+            with self.semaphore:
+                self.send_line("quit")
+
+                self.terminated.wait()
+                return self.return_code
+
+        return self._queue_command(command, async_callback)
+
+    def _queue_termination(self, async_callback):
+        def wait():
+            self.terminated.wait()
+            return self.return_code
+
+        try:
+            return self._queue_command(wait, async_callback)
+        except EngineTerminatedException:
+            assert self.terminated.is_set()
+
+            future = concurrent.futures.Future()
+            future.set_result(self.return_code)
+            if async_callback is True:
+                return future
+            elif async_callback:
+                future.add_done_callback(async_callback)
+            else:
+                return future.result()
+
+    def terminate(self, async_callback=None):
+        """
+        Terminate the engine.
+
+        This is not an XBoard command. It instead tries to terminate the engine
+        on operating system level, for example by sending SIGTERM on Unix
+        systems. If possible, first try the *quit* command.
+
+        :return: The return code of the engine process (or a Future).
+        """
+        self.process.terminate()
+        return self._queue_termination(async_callback)
+
+    def kill(self, async_callback=None):
+        """
+        Kill the engine.
+
+        Forcefully kill the engine process, for example by sending SIGKILL.
+
+        :return: The return code of the engine process (or a Future).
+        """
+        self.process.kill()
+        return self._queue_termination(async_callback)
+
+    def is_alive(self):
+        """Poll the engine process to check if it is alive."""
+        return self.process.is_alive()
+
+
+def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock()):
+    """
+    Opens a local chess engine process.
+
+    No initialization commands are sent, so do not forget to send the
+    mandatory *xboard* command.
+
+    >>> engine = chess.xboard.popen_engine("/usr/games/crafty")
+    >>> engine.xboard()
+
+    :param setpgrp: Open the engine process in a new process group. This will
+        stop signals (such as keyboards interrupts) from propagating from the
+        parent process. Defaults to ``False``.
+    """
+    engine = engine_cls()
+
+    kwargs = {}
+    if setpgrp:
+        try:
+            # Windows
+            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        except AttributeError:
+            # Unix
+            kwargs["preexec_fn"] = os.setpgrp
+
+    # Work around possible race condition in Python 2 subprocess module,
+    # that can occur when concurrently opening processes.
+    with _popen_lock:
+        PopenProcess(engine, command, **kwargs)
+
+    return engine
+
+
+def spur_spawn_engine(shell, command, engine_cls=Engine):
+    """
+    Spawns a remote engine using a `Spur`_ shell.
+
+    >>> import spur
+    >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
+    >>> engine = chess.xboard.spur_spawn_engine(shell, ["/usr/games/crafty"])
+    >>> engine.xboard()
+
+    .. _Spur: https://pypi.python.org/pypi/spur
+    """
+    engine = engine_cls()
+    SpurProcess(engine, shell, command)
+    return engine
