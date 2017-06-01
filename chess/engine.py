@@ -20,6 +20,7 @@ import logging
 import threading
 import os
 import sys
+import signal
 import platform
 
 try:
