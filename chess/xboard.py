@@ -55,9 +55,9 @@ class PostHandler(object):
     >>>
     >>> # Retrieve the score of the mainline (PV 1) after search is completed.
     >>> # Note that the score is relative to the side to move.
-    >>> info_handler.info["score"][1]
-    Score(cp=34, mate=None, lowerbound=False, upperbound=False)
-    See :attr:`~chess.xboard.InfoHandler.info` for a way to access this dictionary
+    >>> post_handler.info["score"]
+    34
+    See :attr:`~chess.xboard.PostHandler.post` for a way to access this dictionary
     in a thread-safe way during search.
 
     If you want to be notified whenever new information is available
@@ -114,7 +114,14 @@ class PostHandler(object):
         self.lock.release()
 
     def on_move(self, move):
-        """A new move has been received"""
+        """A new move has been received."""
+        pass
+
+    def on_go(self):
+        """A go command is being sent."""
+        with self.lock:
+            self.post.clear()
+            self.post["pv"] = {}
         pass
 
     def acquire(self, blocking=True):
@@ -454,6 +461,7 @@ class Engine(object):
 
     def go(self, async_callback=None):
         """
+        Set engine to move on the current side to play.
         Start calculating on the current position.
 
         :return: the best move according to the engine.
@@ -463,6 +471,14 @@ class Engine(object):
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("go command while engine is already busy")
+
+            self.idle = False
+            self.search_started.clear()
+            self.move_received.clear()
+            self.state_changed.notify_all()
+
+        for post_handler in self.post_handlers:
+            post_handler.on_go()
 
         def command():
             with self.semaphore:
