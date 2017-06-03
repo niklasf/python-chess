@@ -44,19 +44,19 @@ class PostHandler(object):
 
     >>> # Register a standard post handler.
     >>> post_handler = chess.xboard.PostHandler()
-    >>> engine.info_handlers.append(post_handler)
+    >>> engine.post_handlers.append(post_handler)
 
     >>> # Start a search.
     >>> engine.setboard(board)
     >>> engine.st(1)
     >>> engine.go()
-    TODO: comments below this
-    BestMove(bestmove=Move.from_pacn('e2e4'), ponder=Move.from_pacn('e7e6'))
+    e2e4
     >>>
     >>> # Retrieve the score of the mainline (PV 1) after search is completed.
     >>> # Note that the score is relative to the side to move.
-    >>> post_handler.info["score"]
+    >>> post_handler.post["score"]
     34
+
     See :attr:`~chess.xboard.PostHandler.post` for a way to access this dictionary
     in a thread-safe way during search.
 
@@ -95,7 +95,7 @@ class PostHandler(object):
         """Received the principal variation as a list of moves."""
         self.post["pv"] = moves
 
-    def pre_info(self, line):
+    def pre_info(self):
         """
         Received a new info line about to be processed.
 
@@ -177,15 +177,17 @@ class Engine(object):
     def on_line_received(self, buf):
         LOGGER.debug("%s >> %s", self.process, buf)
 
-        command_and_args = buf.split(None, 1)
+        command_and_args = buf.split()
         if not command_and_args:
             return
 
-        if len(command_and_args) >= 2:
+        if len(command_and_args) == 2:
             if command_and_args[0] == "pong":
                 return self._pong(command_and_args[1])
             elif command_and_args[0] == "move":
                 return self._move(command_and_args[1])
+        elif len(command_and_args) >= 5:
+            return self._post(buf)
 
     def on_terminated(self):
         self.return_code = self.process.wait_for_return_code()
@@ -215,7 +217,10 @@ class Engine(object):
         try:
             self.move = self.board.parse_pacn(arg)
         except ValueError:
-            LOGGER.exception("exception parsing move")
+            try:
+                self.move = self.board.parse_san(arg)
+            except ValueError:
+                LOGGER.exception("exception parsing move")
 
         self.move_received.set()
         for post_handler in self.post_handlers:
@@ -227,7 +232,7 @@ class Engine(object):
 
         # Notify post handlers of start.
         for post_handler in self.post_handlers:
-            post_handler.pre_info(arg)
+            post_handler.pre_info()
 
         def handle_integer_token(token, fn):
             try:
@@ -241,23 +246,31 @@ class Engine(object):
 
         pv = []
         board = self.board.copy(stack=False)
-        tokens = arg.split(" ")
+        tokens = arg.split()
         # Order: <score> <depth> <time> <nodes> <pv>
         handle_integer_token(tokens[0], lambda handler, val: handler.depth(val))
         handle_integer_token(tokens[1], lambda handler, val: handler.score(val))
         handle_integer_token(tokens[2], lambda handler, val: handler.time(val))
         handle_integer_token(tokens[3], lambda handler, val: handler.nodes(val))
-        try:
-            pv.append(board.push_pacn(token))
-        except ValueError:
-            LOGGER.exception("exception parsing pv")
+        for token in tokens[4:]:
+            # Ignore move number(for example 1. Nf3 Nf6 -> Nf3 Nf6)
+            if '.' in token:
+                continue
+            try:
+                pv.append(board.push_pacn(token))
+            except ValueError:
+                try:
+                    pv.append(board.push_san(token))
+                except ValueError:
+                    LOGGER.exception("exception parsing pv")
+
         if pv is not None:
             for post_handler in self.post_handlers:
                 post_handler.pv(pv)
 
         # Notify post handlers of end.
         for post_handler in self.post_handlers:
-            post_handler.post_info(arg)
+            post_handler.post_info()
 
     def _queue_command(self, command, async_callback):
         try:
@@ -297,6 +310,41 @@ class Engine(object):
             self.send_line("ping " + str(num))
             self.pong_received.wait()
 
+    def pondering(self, ponder, async_callback=None):
+        """
+        Tell the engine whether to ponder or not.
+
+        :param ponder: set pondering to on or off
+        Defaults to off
+
+        :return: Nothing
+        """
+        if ponder:
+            self.send_line("hard")
+        else:
+            self.send_line("easy")
+
+    def easy(self, async_callback=None):
+        """
+        Tell the engine not to ponder.
+        """
+        self.pondering(False)
+
+    def hard(self, async_callback=None):
+        """
+        Tell the engine to ponder.
+        TODO: pondering not yet supported.
+        """
+        self.pondering(True)
+
+    def post(self, async_callback=None):
+        """
+        Command used to tell the engine to output it's analysis
+
+        :return: Nothing
+        """
+        self.send_line("post")
+
     def xboard(self, async_callback=None):
         """
         Tells the engine to use the XBoard interface.
@@ -311,6 +359,9 @@ class Engine(object):
         def command():
             with self.semaphore:
                 self.send_line("xboard")
+                self.send_line("protover 2") # TODO: Add option for this and parse input
+                self.post()
+                self.pondering(False)
                 self.ping(random.randint(0, 100))
 
                 if self.terminated.is_set():
