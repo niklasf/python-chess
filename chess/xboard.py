@@ -196,7 +196,7 @@ class Engine(object):
         try:
             pong_num = int(pong_arg)
         except ValueError:
-                LOGGER.exception("exception parsing pong")
+            LOGGER.exception("exception parsing pong")
 
         if self.ping_num == pong_num:
             self.pong.set()
@@ -339,7 +339,33 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    # def setboard here
+    def setboard(self, board, async_callback=None):
+        """
+        Set up a given board position.
+
+        :param board: A *chess.Board*.
+        :return: Nothing
+        :raises: :exc:`~chess.engine.EngineStateException` if the engine is still
+            calculating.
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("setboard command while engine is busy")
+
+        builder = []
+        builder.append("setboard")
+        builder.append(board.fen())
+
+        self.board = board.copy(stack=False)
+
+        def command():
+            with self.semaphore:
+                self.send_line(" ".join(builder))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def st(self, time, async_callback=None):
         """
@@ -426,7 +452,35 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    # def go() here
+    def go(self, async_callback=None):
+        """
+        Start calculating on the current position.
+
+        :return: the best move according to the engine.
+        :raises: :exc:`~chess.engine.EngineStateException` if the engine is
+            already calculating.
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("go command while engine is already busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("go")
+                self.search_started.set()
+
+            self.move_received.wait()
+
+            with self.state_changed:
+                self.idle = True
+                self.state_changed.notify_all()
+
+            if self.terminated.is_set():
+                raise EngineTerminatedException()
+
+            return self.move
+
+        return self._queue_command(command, async_callback)
 
     def quit(self, async_callback=None):
         """
