@@ -21,6 +21,7 @@ import chess
 import chess.polyglot
 import chess.pgn
 import chess.uci
+import chess.xboard
 import chess.syzygy
 import chess.gaviota
 import chess.variant

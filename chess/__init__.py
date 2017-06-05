@@ -19,7 +19,7 @@
 """
 A pure Python chess library with move generation and validation, Polyglot
 opening book probing, PGN reading and writing, Gaviota tablebase probing,
-Syzygy tablebase probing and UCI engine communication.
+Syzygy tablebase probing and XBoard/UCI engine communication.
 """
 
 __author__ = "Niklas Fiekas"
@@ -626,14 +626,15 @@ class Move(object):
         self.promotion = promotion
         self.drop = drop
 
-    def uci(self):
+    def pacn(self):
         """
-        Gets an UCI string for the move.
+        Gets an PACN string for the move.
 
         For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
         is a promotion to a queen.
 
-        The UCI representatin of null moves is ``0000``.
+        The PACN representatin of null moves is ``0000``.
+        Both XBoard and UCI use this format.
         """
         if self.drop:
             return PIECE_SYMBOLS[self.drop].upper() + "@" + SQUARE_NAMES[self.to_square]
@@ -643,6 +644,28 @@ class Move(object):
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square]
         else:
             return "0000"
+
+    def uci(self):
+        """
+        Gets an UCI string for the move.
+
+        For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
+        is a promotion to a queen.
+
+        The UCI representatin of null moves is ``0000``.
+        """
+        return self.pacn()
+
+    def xboard(self):
+        """
+        Gets an XBoard string for the move.
+
+        For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
+        is a promotion to a queen.
+
+        The XBoard representatin of null moves is ``0000``.
+        """
+        return self.pacn()
 
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
@@ -669,10 +692,10 @@ class Move(object):
             return NotImplemented
 
     def __repr__(self):
-        return "Move.from_uci('{0}')".format(self.uci())
+        return "Move.from_pacn('{0}')".format(self.pacn())
 
     def __str__(self):
-        return self.uci()
+        return self.pacn()
 
     def __hash__(self):
         return hash((self.to_square, self.from_square, self.promotion, self.drop))
@@ -686,25 +709,43 @@ class Move(object):
         return move
 
     @classmethod
+    def from_pacn(cls, pacn):
+        """
+        Parses a PACN string.
+
+        :raises: :exc:`ValueError` if the PACN string is invalid.
+        """
+        if pacn == "0000":
+            return cls.null()
+        elif "@" == pacn[1]:
+            drop = PIECE_SYMBOLS.index(pacn[0].lower())
+            square = SQUARE_NAMES.index(pacn[2:])
+            return cls(square, square, drop=drop)
+        elif len(pacn) == 4:
+            return cls(SQUARE_NAMES.index(pacn[0:2]), SQUARE_NAMES.index(pacn[2:4]))
+        elif len(pacn) == 5:
+            promotion = PIECE_SYMBOLS.index(pacn[4])
+            return cls(SQUARE_NAMES.index(pacn[0:2]), SQUARE_NAMES.index(pacn[2:4]), promotion=promotion)
+        else:
+            raise ValueError("expected pacn string to be of length 4 or 5: {0}".format(repr(pacn)))
+
+    @classmethod
     def from_uci(cls, uci):
         """
-        Parses an UCI string.
+        Parses a UCI string.
 
         :raises: :exc:`ValueError` if the UCI string is invalid.
         """
-        if uci == "0000":
-            return cls.null()
-        elif "@" == uci[1]:
-            drop = PIECE_SYMBOLS.index(uci[0].lower())
-            square = SQUARE_NAMES.index(uci[2:])
-            return cls(square, square, drop=drop)
-        elif len(uci) == 4:
-            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
-        elif len(uci) == 5:
-            promotion = PIECE_SYMBOLS.index(uci[4])
-            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion)
-        else:
-            raise ValueError("expected uci string to be of length 4 or 5: {0}".format(repr(uci)))
+        return cls.from_pacn(uci)
+
+    @classmethod
+    def from_xboard(cls, xb):
+        """
+        Parses an XBoard string.
+
+        :raises: :exc:`ValueError` if the XBoard string is invalid.
+        """
+        return cls.from_pacn(xb)
 
     @classmethod
     def null(cls):
@@ -1974,11 +2015,11 @@ class Board(BaseBoard):
         Updates the position with the given move and puts it onto the
         move stack.
 
-        >>> Nf3 = chess.Move.from_uci("g1f3")
+        >>> Nf3 = chess.Move.from_pacn("g1f3")
         >>> board.push(Nf3)  # Make the move
 
         >>> board.pop()  # Unmake the last move
-        Move.from_uci('g1f3')
+        Move.from_pacn('g1f3')
 
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
@@ -2751,12 +2792,12 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def uci(self, move, chess960=None):
+    def pacn(self, move, chess960=None):
         """
-        Gets the UCI notation of the move.
+        Gets the PACN notation of the move.
 
         *chess960* defaults to the mode of the board. Pass ``True`` to force
-        *UCI_Chess960* mode.
+        *Chess960* mode.
         """
         board_chess960 = self.chess960
         if chess960 is not None:
@@ -2766,7 +2807,49 @@ class Board(BaseBoard):
         move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
 
         self.chess960 = board_chess960
-        return move.uci()
+        return move.pacn()
+
+    def uci(self, move, chess960=None):
+        """
+        Gets the UCI notation of the move.
+
+        *chess960* defaults to the mode of the board. Pass ``True`` to force
+        *UCI_Chess960* mode.
+        """
+        return self.pacn(move, chess960)
+
+    def xboard(self, move, chess960=None):
+        """
+        Gets the XBoard notation of the move.
+
+        *chess960* defaults to the mode of the board. Pass ``True`` to force
+        *Chess960* mode.
+        """
+        return self.pacn(move, chess960)
+
+    def parse_pacn(self, pacn):
+        """
+        Parses the given move in PACN notation.
+
+        Supports both Chess960 and standard PACN notation.
+
+        The returned move is guaranteed to be either legal or a null move.
+
+        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+            current position (but not a null move).
+        """
+        move = Move.from_pacn(pacn)
+
+        if not move:
+            return move
+
+        move = self._to_chess960(move)
+        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
+
+        if not self.is_legal(move):
+            raise ValueError("illegal pacn: {0} in {1}".format(repr(pacn), self.fen()))
+
+        return move
 
     def parse_uci(self, uci):
         """
@@ -2779,17 +2862,32 @@ class Board(BaseBoard):
         :raises: :exc:`ValueError` if the move is invalid or illegal in the
             current position (but not a null move).
         """
-        move = Move.from_uci(uci)
+        return self.parse_pacn(uci)
 
-        if not move:
-            return move
+    def parse_xboard(self, xb):
+        """
+        Parses the given move in XBoard notation.
 
-        move = self._to_chess960(move)
-        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
+        Supports both Chess960 and standard XBoard notation.
 
-        if not self.is_legal(move):
-            raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
+        The returned move is guaranteed to be either legal or a null move.
 
+        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+            current position (but not a null move).
+        """
+        return self.parse_pacn(xb)
+
+    def push_pacn(self, pacn):
+        """
+        Parses a move in PACN notation and puts it on the move stack.
+
+        Returns the move.
+
+        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+            current position (but not a null move).
+        """
+        move = self.parse_pacn(pacn)
+        self.push(move)
         return move
 
     def push_uci(self, uci):
@@ -2801,9 +2899,7 @@ class Board(BaseBoard):
         :raises: :exc:`ValueError` if the move is invalid or illegal in the
             current position (but not a null move).
         """
-        move = self.parse_uci(uci)
-        self.push(move)
-        return move
+        return self.push_pacn(uci)
 
     def is_en_passant(self, move):
         """Checks if the given pseudo-legal move is an en passant capture."""
@@ -3461,7 +3557,7 @@ class PseudoLegalMoveGenerator(object):
             if self.board.is_legal(move):
                 builder.append(self.board.san(move))
             else:
-                builder.append(self.board.uci(move))
+                builder.append(self.board.pacn(move))
 
         sans = ", ".join(builder)
 
