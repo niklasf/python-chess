@@ -155,6 +155,8 @@ class Engine(object):
         self.pong = threading.Event()
         self.ping_num = None # TODO: Make this a pong Event local instead of data member
         self.pong_received = threading.Condition()
+        self.auto_force = False
+        self.in_force = False
 
         self.move = None
         self.move_received = threading.Event()
@@ -254,7 +256,7 @@ class Engine(object):
         handle_integer_token(tokens[3], lambda handler, val: handler.nodes(val))
         for token in tokens[4:]:
             # Ignore move number(for example 1. Nf3 Nf6 -> Nf3 Nf6)
-            if '.' in token:
+            if '.' in token or '<' in token:
                 continue
             try:
                 pv.append(board.push_pacn(token))
@@ -510,6 +512,34 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def set_auto_force(self, flag):
+        """
+        Set the XBoard engine to not start thinking immediately
+        after a call to usermove().
+
+        :param flag: Set to true to set this mode. Set to False
+            to resume normal XBoard function.
+
+        :return: Nothing
+        """
+        self.auto_force = flag
+
+    def force(self, async_callback=None):
+        """
+        Tell the XBoard engine to enter force mode. That means
+        the engine will not start thinking by itself unless a
+        go() command is sent.
+        """
+        self.in_force = True
+        def command():
+            with self.semaphore:
+                self.send_line("force")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
     def go(self, async_callback=None):
         """
         Set engine to move on the current side to play.
@@ -545,7 +575,90 @@ class Engine(object):
             if self.terminated.is_set():
                 raise EngineTerminatedException()
 
+            if self.auto_force:
+                self.force()
+
+            try:
+                self.board.push_pacn(str(self.move))
+            except ValueError:
+                try:
+                    self.board.push_san(str(self.move))
+                except ValueError:
+                    LOGGER.exception("exception parsing move")
+
             return self.move
+
+        return self._queue_command(command, async_callback)
+
+    def usermove(self, move, async_callback=None):
+        """
+        Tell the XBoard engine to make a move on it's internal
+        board.
+        If auto_force is set to True, the engine will not start
+        thinking about it's next move immediately after.
+
+        :param move: The move to play in PACN notation.
+
+        :return: Nothing
+        """
+        if self.auto_force:
+            self.force()
+        elif not self.in_force:
+            with self.state_changed:
+                if not self.idle:
+                    raise EngineStateException("usermove command while engine is already busy")
+
+                self.idle = False
+                self.search_started.clear()
+                self.move_received.clear()
+                self.state_changed.notify_all()
+
+            for post_handler in self.post_handlers:
+                post_handler.on_go()
+
+        try:
+            self.board.push_pacn(str(move))
+        except ValueError:
+            try:
+                self.board.push_san(str(move))
+            except ValueError:
+                LOGGER.exception("exception parsing move")
+
+        builder = []
+        builder.append("usermove")
+        builder.append(move)
+        def command():
+            # Use the join(builder) once we parse username=1 feature
+            move_str = str(move)#" ".join(builder)
+            if self.in_force:
+                with self.semaphore:
+                    self.send_line(move_str)
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+            else:
+                with self.semaphore:
+                    self.send_line(move_str)
+                    self.search_started.set()
+
+                self.move_received.wait()
+
+                with self.state_changed:
+                    self.idle = True
+                    self.state_changed.notify_all()
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+                try:
+                    self.board.push_pacn(str(self.move))
+                except ValueError:
+                    try:
+                        self.board.push_san(str(self.move))
+                    except ValueError:
+                        LOGGER.exception("exception parsing move")
+
+                return self.move
 
         return self._queue_command(command, async_callback)
 
