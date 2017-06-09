@@ -2493,11 +2493,11 @@ class Board(BaseBoard):
         promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
 
         # Filter by piece type.
-        if not match.group(1):
-            from_mask = self.pawns
-        else:
+        if match.group(1):
             piece_type = PIECE_SYMBOLS.index(match.group(1).lower())
             from_mask = self.pieces_mask(piece_type, self.turn)
+        else:
+            from_mask = self.pawns
 
         # Filter by source file.
         if match.group(2):
