@@ -2466,15 +2466,11 @@ class Board(BaseBoard):
 
         :raises: :exc:`ValueError` if the SAN is invalid or ambiguous.
         """
-        # Null moves.
-        if san == "--":
-            return Move.null()
-
         # Castling.
         try:
-            if san in ("O-O", "O-O+", "O-O#"):
+            if san in ["O-O", "O-O+", "O-O#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_kingside_castling(move))
-            elif san in ("O-O-O", "O-O-O+", "O-O-O#"):
+            elif san in ["O-O-O", "O-O-O+", "O-O-O#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
         except StopIteration:
             raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
@@ -2482,6 +2478,10 @@ class Board(BaseBoard):
         # Match normal moves.
         match = SAN_REGEX.match(san)
         if not match:
+            # Null moves.
+            if san == "--":
+                return Move.null()
+
             raise ValueError("invalid san: {0}".format(repr(san)))
 
         # Get target square.
@@ -2489,10 +2489,8 @@ class Board(BaseBoard):
         to_mask = BB_SQUARES[to_square]
 
         # Get the promotion type.
-        if not match.group(5):
-            promotion = None
-        else:
-            promotion = PIECE_SYMBOLS.index(match.group(5)[-1].lower())
+        p = match.group(5)
+        promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
 
         # Filter by piece type.
         if not match.group(1):
