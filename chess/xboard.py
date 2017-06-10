@@ -217,7 +217,7 @@ class Engine(object):
     def _move(self, arg):
         self.move = None
         try:
-            self.move = self.board.parse_pacn(arg)
+            self.move = self.board.parse_xboard(arg)
         except ValueError:
             try:
                 self.move = self.board.parse_san(arg)
@@ -259,7 +259,7 @@ class Engine(object):
             if '.' in token or '<' in token:
                 continue
             try:
-                pv.append(board.push_pacn(token))
+                pv.append(board.push_xboard(token))
             except ValueError:
                 try:
                     pv.append(board.push_san(token))
@@ -579,7 +579,7 @@ class Engine(object):
                 self.force()
 
             try:
-                self.board.push_pacn(str(self.move))
+                self.board.push_xboard(str(self.move))
             except ValueError:
                 try:
                     self.board.push_san(str(self.move))
@@ -597,7 +597,7 @@ class Engine(object):
         If auto_force is set to True, the engine will not start
         thinking about it's next move immediately after.
 
-        :param move: The move to play in PACN notation.
+        :param move: The move to play in XBoard notation.
 
         :return: Nothing
         """
@@ -617,7 +617,7 @@ class Engine(object):
                 post_handler.on_go()
 
         try:
-            self.board.push_pacn(str(move))
+            self.board.push_xboard(str(move))
         except ValueError:
             try:
                 self.board.push_san(str(move))
@@ -651,7 +651,7 @@ class Engine(object):
                     raise EngineTerminatedException()
 
                 try:
-                    self.board.push_pacn(str(self.move))
+                    self.board.push_xboard(str(self.move))
                 except ValueError:
                     try:
                         self.board.push_san(str(self.move))
