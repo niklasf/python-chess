@@ -3194,17 +3194,17 @@ class TestOpeningClassification(unittest.TestCase):
     '''Test the opening classification functions'''
     FEN = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
 
-    def test_getecocode(self):
+    def test_get_eco_code(self):
         '''Test getting the ECO code for the position.'''
-        self.assertEqual(chess.openingclassification.getecocode(self.FEN), 'C31')
+        self.assertEqual(chess.openingclassification.get_eco_code(self.FEN), 'C31')
 
-    def test_getopeningname(self):
+    def test_get_opening_name(self):
         '''Test getting the English name for the position.'''
-        self.assertEqual(chess.openingclassification.getopeningname(self.FEN),
+        self.assertEqual(chess.openingclassification.get_opening_name(self.FEN),
                          'KGD: Falkbeer counter-gambit')
-    def test_getniccode(self):
+    def test_get_nic_code(self):
         '''Test getting the NIC code for the position.'''
-        self.assertEqual(chess.openingclassification.getniccode(self.FEN), 'KG.04')
+        self.assertEqual(chess.openingclassification.get_nic_code(self.FEN), 'KG.04')
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))

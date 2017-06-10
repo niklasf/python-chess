@@ -6150,7 +6150,7 @@ LONG_NAME_DATA = {
     'rnbq1rk1/pppp1ppp/5n2/4p3/1b2P3/2NP1N2/PPP2PPP/R1BQKB1R b KQ -':"Ruy Lopez: Berlin defense, 4.O-O, d6 *",
 }
 
-def getopeningname(position):
+def get_opening_name(position):
     """
     Returns the opening name, or None, for the position.
     """
@@ -6159,7 +6159,7 @@ def getopeningname(position):
     except KeyError:
         return None
 
-def getniccode(position):
+def get_nic_code(position):
     """
     Returns the NicCode, or None, for the position.
     """
@@ -6168,7 +6168,7 @@ def getniccode(position):
     except KeyError:
         return None
 
-def getecocode(position):
+def get_eco_code(position):
     """
     Returns the ECO code, or None, for the position.
     """
@@ -6186,6 +6186,6 @@ if __name__ == '__main__':
     except IndexError:
         sys.exit(1)
 
-    print(getopeningname(EPD))
-    print(getecocode(EPD))
-    print(getniccode(EPD))
+    print(get_opening_name(EPD))
+    print(get_eco_code(EPD))
+    print(get_nic_code(EPD))
