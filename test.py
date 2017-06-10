@@ -3193,6 +3193,17 @@ class GiveawayTestCase(unittest.TestCase):
 class TestOpeningClassification(unittest.TestCase):
     '''Test the opening classification functions'''
     FEN = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
+    board = None
+
+    def setup(self):
+        '''
+        Sets up the initial position
+        '''
+        self.board = chess.Board()
+        self.board.push_san('e4')
+        self.board.push_san('e5')
+        self.board.push_san('f4')
+        self.board.push_san('d5')
 
     def test_get_eco_code(self):
         '''Test getting the ECO code for the position.'''
@@ -3205,6 +3216,22 @@ class TestOpeningClassification(unittest.TestCase):
     def test_get_nic_code(self):
         '''Test getting the NIC code for the position.'''
         self.assertEqual(chess.openingclassification.get_nic_code(self.FEN), 'KG.04')
+
+    def test_get_board_eco_code(self):
+        '''Test getting the ECO code of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_eco(), 'C31')
+
+    def test_get_board_opening_name(self):
+        '''Test getting the opening name of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_name(), 'KGD: Falkbeer counter-gambit')
+
+    def test_get_board_opening_nic(self):
+        '''Test getting the NIC code of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_nic(), 'KG.04')
+
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))
