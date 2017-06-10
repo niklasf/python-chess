@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import chess.openingclassification
 import chess.polyglot
 import chess.pgn
 import chess.uci
@@ -3189,6 +3190,21 @@ class GiveawayTestCase(unittest.TestCase):
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.end().board().fen(), "8/6k1/3K4/8/8/3k4/8/8 w - - 4 33")
 
+class TestOpeningClassification(unittest.TestCase):
+    '''Test the opening classification functions'''
+    FEN = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
+
+    def test_getecocode(self):
+        '''Test getting the ECO code for the position.'''
+        self.assertEqual(chess.openingclassification.getecocode(self.FEN), 'C31')
+
+    def test_getopeningname(self):
+        '''Test getting the English name for the position.'''
+        self.assertEqual(chess.openingclassification.getopeningname(self.FEN),
+                         'KGD: Falkbeer counter-gambit')
+    def test_getniccode(self):
+        '''Test getting the NIC code for the position.'''
+        self.assertEqual(chess.openingclassification.getniccode(self.FEN), 'KG.04')
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))
