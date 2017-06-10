@@ -3192,7 +3192,7 @@ class GiveawayTestCase(unittest.TestCase):
 
 class TestOpeningClassification(unittest.TestCase):
     '''Test the opening classification functions'''
-    FEN = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
+    EPD = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
     board = None
 
     def setup(self):
@@ -3207,15 +3207,15 @@ class TestOpeningClassification(unittest.TestCase):
 
     def test_get_eco_code(self):
         '''Test getting the ECO code for the position.'''
-        self.assertEqual(chess.openingclassification.get_eco_code(self.FEN), 'C31')
+        self.assertEqual(chess.openingclassification.get_eco_code(self.EPD), 'C31')
 
     def test_get_opening_name(self):
         '''Test getting the English name for the position.'''
-        self.assertEqual(chess.openingclassification.get_opening_name(self.FEN),
+        self.assertEqual(chess.openingclassification.get_opening_name(self.EPD),
                          'KGD: Falkbeer counter-gambit')
     def test_get_nic_code(self):
         '''Test getting the NIC code for the position.'''
-        self.assertEqual(chess.openingclassification.get_nic_code(self.FEN), 'KG.04')
+        self.assertEqual(chess.openingclassification.get_nic_code(self.EPD), 'KG.04')
 
     def test_get_board_eco_code(self):
         '''Test getting the ECO code of a board.'''
