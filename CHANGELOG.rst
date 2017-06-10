@@ -5,6 +5,22 @@ At the current stage of this project it is more important to get things right
 than to be consistent with previous versions. Use this changelog to see what
 changed in a new release, because this might include API breaking changes.
 
+New in v0.18.2
+--------------
+
+Bugfixes:
+
+* Fixed castling in atomic chess when there is a rank attack.
+* The halfmove clock in Crazyhouse is no longer incremented unconditionally.
+  `CrazyhouseBoard.is_zeroing(move)` now considers pawn moves and captures as
+  zeroing. Added `Board.is_irreversible(move)` that can be used instead.
+* Fixed an inconsistency where the `chess.pgn` tokenizer accepts long algebraic
+  notation but `Board.parse_san()` did not.
+
+Changes:
+
+* Added more NAG constants in `chess.pgn`.
+
 New in v0.18.1
 --------------
 

@@ -1094,7 +1094,7 @@ class Engine(object):
             move = board.pop()
             switchyard.append(move)
 
-            if board.is_zeroing(move):
+            if board.is_irreversible(move):
                 break
 
         # Validate castling rights.
@@ -1370,7 +1370,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock()):
+def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
     """
     Opens a local chess engine process.
 
@@ -1390,19 +1390,20 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     """
     engine = engine_cls()
 
-    kwargs = {}
+    popen_args = {}
     if setpgrp:
         try:
             # Windows
-            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
         except AttributeError:
             # Unix
-            kwargs["preexec_fn"] = os.setpgrp
+            popen_args["preexec_fn"] = os.setpgrp
+    popen_args.update(kwargs)
 
     # Work around possible race condition in Python 2 subprocess module,
     # that can occur when concurrently opening processes.
     with _popen_lock:
-        PopenProcess(engine, command, **kwargs)
+        PopenProcess(engine, command, **popen_args)
 
     return engine
 

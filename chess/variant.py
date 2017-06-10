@@ -41,7 +41,10 @@ class SuicideBoard(chess.Board):
     def pin_mask(self, color, square):
         return chess.BB_ALL
 
-    def _attacked_for_king(self, path):
+    def _attacked_for_king(self, path, occupied):
+        return False
+
+    def _castling_uncovers_rank_attack(self, rook_bb, king_to):
         return False
 
     def is_check(self):
@@ -240,14 +243,18 @@ class AtomicBoard(chess.Board):
 
         return False
 
-    def _attacked_for_king(self, path):
+    def _attacked_for_king(self, path, occupied):
         # Can castle onto attacked squares if they are connected to the
         # enemy king.
         enemy_kings = self.kings & self.occupied_co[not self.turn]
         for enemy_king in chess.scan_forward(enemy_kings):
             path &= ~chess.BB_KING_ATTACKS[enemy_king]
 
-        return super(AtomicBoard, self)._attacked_for_king(path)
+        return super(AtomicBoard, self)._attacked_for_king(path, occupied)
+
+    def _castling_uncovers_rank_attack(self, rook_bb, king_to):
+        return (not chess.BB_KING_ATTACKS[king_to] & self.kings & self.occupied_co[not self.turn] and
+                super(AtomicBoard, self)._castling_uncovers_rank_attack(rook_bb, king_to))
 
     def _kings_connected(self):
         white_kings = self.kings & self.occupied_co[chess.WHITE]
@@ -460,12 +467,6 @@ class HordeBoard(chess.Board):
         return status
 
 
-THREE_CHECK_POLYGLOT_RANDOM_ARRAY = [
-    0x1d6dc0ee61ce803e, 0xc6284b653d38e96a,
-    0x803f5fb0d2f97fae, 0xb183ccc9e73df9ed,
-    0xfdeef11602d6b443, 0x1b0ce4198b3801a6,
-]
-
 class ThreeCheckBoard(chess.Board):
 
     aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
@@ -503,22 +504,6 @@ class ThreeCheckBoard(chess.Board):
 
     def is_insufficient_material(self):
         return self.occupied == self.kings
-
-    def zobrist_hash(self, array=None, three_check_array=None):
-        zobrist_hash = super(ThreeCheckBoard, self).zobrist_hash(array)
-
-        if three_check_array is None:
-            three_check_array = THREE_CHECK_POLYGLOT_RANDOM_ARRAY
-
-        white_count = min(3, 3 - self.remaining_checks[chess.WHITE])
-        black_count = min(3, 3 - self.remaining_checks[chess.BLACK])
-
-        if white_count > 0:
-            zobrist_hash ^= three_check_array[black_count - 1]
-        if black_count > 0:
-            zobrist_hash ^= three_check_array[white_count + 2]
-
-        return zobrist_hash
 
     def set_epd(self, epd):
         # Split into 5 or 6 parts.
@@ -677,8 +662,12 @@ class CrazyhouseBoard(chess.Board):
     def is_seventyfive_moves(self):
         return False
 
-    def is_zeroing(self, move):
-        return False
+    def is_irreversible(self, move):
+        backrank = chess.BB_RANK_1 if self.turn == chess.WHITE else chess.BB_RANK_8
+        castling_rights = self.clean_castling_rights() & backrank
+        return (castling_rights and chess.BB_SQUARES[move.from_square] & self.kings & ~self.promoted or
+                castling_rights & chess.BB_SQUARES[move.from_square] or
+                castling_rights & chess.BB_SQUARES[move.to_square])
 
     def legal_drop_squares_mask(self):
         king = self.king(self.turn)
@@ -731,8 +720,6 @@ class CrazyhouseBoard(chess.Board):
         return itertools.chain(
             super(CrazyhouseBoard, self).generate_legal_moves(from_mask, to_mask),
             self.generate_legal_drops(from_mask & to_mask))
-
-    # TODO: zobrist_hash
 
     def parse_san(self, san):
         if "@" in san:

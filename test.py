@@ -51,8 +51,9 @@ except ImportError:
     from io import StringIO  # Python 3
 
 
-class RaiseLogHandler(logging.Handler):
+class RaiseLogHandler(logging.StreamHandler):
     def handle(self, record):
+        super(RaiseLogHandler, self).handle(record)
         raise RuntimeError("was expecting no log messages")
 
 
@@ -628,31 +629,31 @@ class BoardTestCase(unittest.TestCase):
 
         board = chess.Board()
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        self.assertEqual(board.zobrist_hash(), 0x463b96181691fc9c)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x463b96181691fc9c)
 
         board.push_san("e4")
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
-        self.assertEqual(board.zobrist_hash(), 0x823c9b50fd114196)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x823c9b50fd114196)
 
         board.push_san("d5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
-        self.assertEqual(board.zobrist_hash(), 0x0756b94461c50fb0)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x0756b94461c50fb0)
 
         board.push_san("e5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
-        self.assertEqual(board.zobrist_hash(), 0x662fafb965db29d4)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x662fafb965db29d4)
 
         board.push_san("f5")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3")
-        self.assertEqual(board.zobrist_hash(), 0x22a48b5a8e47ff78)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x22a48b5a8e47ff78)
 
         board.push_san("Ke2")
         self.assertEqual(board.fen(), "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 1 3")
-        self.assertEqual(board.zobrist_hash(), 0x652a607ca3f242c1)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x652a607ca3f242c1)
 
         board.push_san("Kf7")
         self.assertEqual(board.fen(), "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 2 4")
-        self.assertEqual(board.zobrist_hash(), 0x00fdd303c946bdd9)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x00fdd303c946bdd9)
 
         board = chess.Board()
         board.push_san("a4")
@@ -661,12 +662,12 @@ class BoardTestCase(unittest.TestCase):
         board.push_san("b4")
         board.push_san("c4")
         self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3")
-        self.assertEqual(board.zobrist_hash(), 0x3c8123ea7b067637)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x3c8123ea7b067637)
 
         board.push_san("bxc3")
         board.push_san("Ra3")
         self.assertEqual(board.fen(), "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 1 4")
-        self.assertEqual(board.zobrist_hash(), 0x5c3f9b829b279560)
+        self.assertEqual(chess.polyglot.zobrist_hash(board), 0x5c3f9b829b279560)
 
     def test_castling_move_generation_bug(self):
         # Specific test position right after castling.
@@ -2066,6 +2067,11 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertEqual(list(game.main_line()), moves)
 
+    def test_lan(self):
+        pgn = StringIO("1. e2-e4")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.end().move, chess.Move.from_uci("e2e4"))
+
     def test_variants(self):
         pgn = StringIO(textwrap.dedent("""\
             [Variant "Atomic"]
@@ -2960,6 +2966,14 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard("7k/3b4/8/8/8/3B4/2B5/K7 w - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
+    def test_castling_uncovered_rank_attack(self):
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/4k3/rR4KR w KQ - 0 1", chess960=True)
+        self.assertFalse(board.is_legal(chess.Move.from_uci("g1b1")))
+
+        # Kings are touching at the end.
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/2k5/rR4KR w KQ - 0 1", chess960=True)
+        self.assertTrue(board.is_legal(chess.Move.from_uci("g1b1")))
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
@@ -3088,13 +3102,6 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertEqual(board.epd(), "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3")
         self.assertEqual(extra["foo"], "bar")
 
-    def test_zobrist_hash(self):
-        board_a = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+3 0 1")
-        board_b = chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+2 0 1")
-
-        # Check count differs.
-        self.assertNotEqual(board_a.zobrist_hash(), board_b.zobrist_hash())
-
 
 class CrazyhouseTestCase(unittest.TestCase):
 
@@ -3110,7 +3117,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         with open("data/pgn/saturs-jannlee-zh-lichess.pgn") as pgn:
             game = chess.pgn.read_game(pgn)
             final_board = game.end().board()
-            self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 122 62")
+            self.assertEqual(final_board.fen(), "r4r2/ppp2ppk/pb1p1pNp/K2NpP2/3qn3/1B3b2/PP5P/8[QRRBNPP] w - - 8 62")
             self.assertTrue(final_board.is_valid())
 
         with open("data/pgn/knightvuillaume-jannlee-zh-lichess.pgn") as pgn:
@@ -3122,21 +3129,23 @@ class CrazyhouseTestCase(unittest.TestCase):
         board.push_san("d4")
         board.push_san("exd4")
         board.push_san("cxd4")
-        self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 25 13")
+        self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 0 13")
         board.push_san("@e6")
-        self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnpp2p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPn] w - - 26 14")
+        self.assertEqual(board.fen(), "r2q1rk1/ppp2pp1/1bnpp2p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPn] w - - 1 14")
 
     def test_capture(self):
         board = chess.variant.CrazyhouseBoard("4k3/8/8/1n6/8/3B4/8/4K3 w - - 0 1")
         board.push_san("Bxb5+")
-        self.assertEqual(board.fen(), "4k3/8/8/1B6/8/8/8/4K3[N] b - - 1 1")
+        self.assertEqual(board.fen(), "4k3/8/8/1B6/8/8/8/4K3[N] b - - 0 1")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/1n6/8/3B4/8/4K3[] w - - 0 1")
 
     def test_capture_with_promotion(self):
         board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/1p6/2R1K3 b - - 0 1")
-        board.push_san("bxc1=Q")
-        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2q~1K3[r] w - - 1 2")
+        move = board.parse_san("bxc1=Q")
+        self.assertFalse(board.is_irreversible(move))
+        board.push(move)
+        self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/2q~1K3[r] w - - 0 2")
         board.pop()
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/1p6/2R1K3[] b - - 0 1")
 
@@ -3175,7 +3184,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         fen = "rnbqkb1r/ppp1pppp/5n2/3pP3/8/8/PPPP1PPP/RNBQKBNR[] w KQkq d6 0 3"
         board = chess.variant.CrazyhouseBoard(fen)
         board.push_san("exd6")
-        self.assertEqual(board.fen(), "rnbqkb1r/ppp1pppp/3P1n2/8/8/8/PPPP1PPP/RNBQKBNR[P] b KQkq - 1 3")
+        self.assertEqual(board.fen(), "rnbqkb1r/ppp1pppp/3P1n2/8/8/8/PPPP1PPP/RNBQKBNR[P] b KQkq - 0 3")
         self.assertEqual(board.pop(), chess.Move.from_uci("e5d6"))
         self.assertEqual(board.fen(), fen)
 
