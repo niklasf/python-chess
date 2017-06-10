@@ -20,3 +20,6 @@ data/syzygy/suicide/*.stbz
 
 pythonhosted.zip
 release-v*.txt
+
+.idea/
+

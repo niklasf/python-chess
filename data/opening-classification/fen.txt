@@ -1,0 +1,130 @@
+
+Opening classification uses modified FEN notation, i.e. the halfmove and
+fullmove numbers are dropped since these are irrelvant for opening positions.
+
+---
+
+16.1.1: History
+
+FEN is based on a 19th century standard for position recording designed by the
+Scotsman David Forsyth, a newspaper journalist.  The original Forsyth standard
+has been slightly extended for use with chess software by Steven Edwards with
+assistance from commentators on the Internet.  This new standard, FEN, was
+first implemented in Edwards' SAN Kit.
+
+16.1.2: Uses for a position notation
+
+Having a standard position notation is particularly important for chess
+programmers as it allows them to share position databases.  For example,
+there exist standard position notation databases with many of the classical
+benchmark tests for chessplaying programs, and by using a common position
+notation format many hours of tedious data entry can be saved.  Additionally,
+a position notation can be useful for page layout programs and for confirming
+position status for e-mail competition.
+
+Many interesting chess problem sets represented using FEN can be found at the
+chess.uoknor.edu ftp site in the directory pub/chess/SAN_testsuites.
+
+
+16.1.3: Data fields
+
+FEN specifies the piece placement, the active color, the castling
+availability, the en passant target square, the halfmove clock, and the
+fullmove number.  These can all fit on a single text line in an easily
+read format.  The length of a FEN position description varies somewhat
+according to the position. In some cases, the description could be eighty
+or more characters in length and so may not fit conveniently on some
+displays.  However, these positions aren't too common.
+
+A FEN description has six fields.  Each field is composed only of non-blank
+printing ASCII characters.  Adjacent fields are separated by a single ASCII
+space character.
+
+
+16.1.3.1: Piece placement data
+
+The first field represents the placement of the pieces on the board.  The
+board contents are specified starting with the eighth rank and ending with
+the first rank.  For each rank, the squares are specified from file a to
+file h.  White pieces are identified by uppercase SAN piece letters
+("PNBRQK") and black pieces are identified by lowercase SAN piece letters
+("pnbrqk").  Empty squares are represented by the digits one through eight;
+the digit used represents the count of contiguous empty squares along a
+rank.  A solidus character "/" is used to separate data of adjacent ranks.
+
+
+16.1.3.2: Active color
+
+The second field represents the active color.  A lower case "w" is used if
+White is to move; a lower case "b" is used if Black is the active player.
+
+
+16.1.3.3: Castling availability
+
+The third field represents castling availability.  This indicates potential
+future castling that may of may not be possible at the moment due to blocking
+pieces or enemy attacks.  If there is no castling availability for either
+side, the single character symbol "-" is used.  Otherwise, a combination of
+from one to four characters are present.  If White has kingside castling
+availability, the uppercase letter "K" appears.  If White has queenside
+castling availability, the uppercase letter "Q" appears.  If Black has
+kingside castling availability, the lowercase letter "k" appears.  If
+Black has queenside castling availability, then the lowercase letter "q"
+appears.  Those letters which appear will be ordered first uppercase before
+lowercase and second kingside before queenside.  There is no white space
+between the letters.
+
+
+16.1.3.4: En passant target square
+
+The fourth field is the en passant target square.  If there is no en passant
+target square then the single character symbol "-" appears.  If there is an
+en passant target square then is represented by a lowercase file character
+immediately followed by a rank digit.  Obviously, the rank digit will be "3"
+following a white pawn double advance (Black is the active color) or else be
+the digit "6" after a black pawn double advance (White being the active
+color).
+
+An en passant target square is given if and only if the last move was a pawn
+advance of two squares.  Therefore, an en passant target square field may have
+a square name even if there is no pawn of the opposing side that may
+immediately execute the en passant capture.
+
+
+16.1.3.5: Halfmove clock
+
+The fifth field is a nonnegative integer representing the halfmove clock.
+This number is the count of halfmoves (or ply) since the last pawn advance
+or capturing move.  This value is used for the fifty move draw rule.
+
+
+16.1.3.6: Fullmove number
+
+The sixth and last field is a positive integer that gives the fullmove number.
+This will have the value "1" for the first move of a game for both White and
+Black.  It is incremented by one immediately after each move by Black.
+
+
+16.1.4: Examples
+
+Here's the FEN for the starting position:
+
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+And after the move 1. e4:
+
+rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
+
+And then after 1. ... c5:
+
+rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2
+
+And then after 2. Nf3:
+
+rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2
+
+For two kings on their home squares and a white pawn on e2 (White to move)
+with thirty eight full moves played with five halfmoves since the last pawn
+move or capture:
+
+4k3/8/8/8/8/8/4P3/4K3 w - - 5 39

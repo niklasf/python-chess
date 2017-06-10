@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import chess.openingclassification
 import chess.polyglot
 import chess.pgn
 import chess.uci
@@ -3198,6 +3199,48 @@ class GiveawayTestCase(unittest.TestCase):
 
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.end().board().fen(), "8/6k1/3K4/8/8/3k4/8/8 w - - 4 33")
+
+class TestOpeningClassification(unittest.TestCase):
+    '''Test the opening classification functions'''
+    EPD = 'rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq -'
+    board = None
+
+    def setup(self):
+        '''
+        Sets up the initial position
+        '''
+        self.board = chess.Board()
+        self.board.push_san('e4')
+        self.board.push_san('e5')
+        self.board.push_san('f4')
+        self.board.push_san('d5')
+
+    def test_get_eco_code(self):
+        '''Test getting the ECO code for the position.'''
+        self.assertEqual(chess.openingclassification.get_eco_code(self.EPD), 'C31')
+
+    def test_get_opening_name(self):
+        '''Test getting the English name for the position.'''
+        self.assertEqual(chess.openingclassification.get_opening_name(self.EPD),
+                         'KGD: Falkbeer counter-gambit')
+    def test_get_nic_code(self):
+        '''Test getting the NIC code for the position.'''
+        self.assertEqual(chess.openingclassification.get_nic_code(self.EPD), 'KG.04')
+
+    def test_get_board_eco_code(self):
+        '''Test getting the ECO code of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_eco(), 'C31')
+
+    def test_get_board_opening_name(self):
+        '''Test getting the opening name of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_name(), 'KGD: Falkbeer counter-gambit')
+
+    def test_get_board_opening_nic(self):
+        '''Test getting the NIC code of a board.'''
+        self.setup()
+        self.assertEqual(self.board.get_opening_nic(), 'KG.04')
 
 
 if __name__ == "__main__":

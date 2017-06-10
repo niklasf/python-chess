@@ -32,6 +32,8 @@ import copy
 import re
 import itertools
 
+import chess.openingclassification
+
 try:
     import backport_collections as collections
 except ImportError:
@@ -1988,6 +1990,25 @@ class Board(BaseBoard):
             str(self.halfmove_clock),
             str(self.fullmove_number)
         ])
+
+    def get_opening_name(self):
+        """
+        Gets the English name for the position, or None.
+        """
+        return chess.openingclassification.get_opening_name(self.epd())
+
+    def get_opening_eco(self):
+        """
+        Gets the ECO code for the position, or None.
+        """
+        return chess.openingclassification.get_eco_code(self.epd())
+
+
+    def get_opening_nic(self):
+        """
+        Gets the NIC code for the position, or None.
+        """
+        return chess.openingclassification.get_nic_code(self.epd())
 
     def shredder_fen(self, promoted=None):
         """
