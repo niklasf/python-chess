@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) Ari Makela 2003, 2017
+# Ari Makela <ari.makela@iki.fi> 2003, 2017
 # The classification data comes from Lasker chess server version 2.2.2
 # by Andrew Tridgell and others.
 #
