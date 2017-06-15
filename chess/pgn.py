@@ -85,8 +85,7 @@ NAG_NOVELTY = 146
 TAG_REGEX = re.compile(r"^\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 
 MOVETEXT_REGEX = re.compile(r"""
-    (%.*?[\n\r])
-    |(\{.*)
+    (\{.*)
     |(\$[0-9]+)
     |(\()
     |(\))
@@ -807,7 +806,7 @@ def read_game(handle, Visitor=GameModelCreator):
     # Parse game headers.
     while line:
         # Skip empty lines and comments.
-        if line.isspace() or line.lstrip().startswith("%"):
+        if line.isspace() or line.startswith("%"):
             line = handle.readline()
             continue
 
@@ -844,6 +843,11 @@ def read_game(handle, Visitor=GameModelCreator):
     while line:
         read_next_line = True
 
+        if line.startswith("%"):
+            # Ignore comments.
+            line = handle.readline()
+            continue
+
         # An empty line is the end of a game.
         if found_content and line.isspace():
             if found_game:
@@ -854,11 +858,6 @@ def read_game(handle, Visitor=GameModelCreator):
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
-
-            if token.startswith("%"):
-                # Ignore the rest of the line.
-                line = handle.readline()
-                continue
 
             if not found_game:
                 found_game = True
