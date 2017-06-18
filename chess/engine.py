@@ -240,3 +240,43 @@ class SpurProcess(object):
 
     def __repr__(self):
         return "<SpurProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
+
+
+def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
+    """
+    Opens a local chess engine process.
+
+    :param engine_cls: Engine class
+    :param setpgrp: Open the engine process in a new process group. This will
+        stop signals (such as keyboards interrupts) from propagating from the
+        parent process. Defaults to ``False``.
+    """
+    engine = engine_cls()
+
+    popen_args = {}
+    if setpgrp:
+        try:
+            # Windows
+            popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        except AttributeError:
+            # Unix
+            popen_args["preexec_fn"] = os.setpgrp
+    popen_args.update(kwargs)
+
+    # Work around possible race condition in Python 2 subprocess module,
+    # that can occur when concurrently opening processes.
+    with _popen_lock:
+        PopenProcess(engine, command, **popen_args)
+
+    return engine
+
+
+def _spur_spawn_engine(shell, command, engine_cls):
+    """
+    Spawns a remote engine using a `Spur`_ shell.
+
+    .. _Spur: https://pypi.python.org/pypi/spur
+    """
+    engine = engine_cls()
+    SpurProcess(engine, shell, command)
+    return engine
