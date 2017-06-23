@@ -570,7 +570,7 @@ class GameModelCreator(BaseVisitor):
     def __init__(self):
         self.game = Game()
 
-        self.variation_stack = collections.deque([self.game])
+        self.variation_stack = [self.game]
         self.starting_comment = ""
         self.in_variation = False
 
@@ -578,34 +578,34 @@ class GameModelCreator(BaseVisitor):
         self.game.headers[tagname] = tagvalue
 
     def visit_nag(self, nag):
-        self.variation_stack[0].nags.add(nag)
+        self.variation_stack[-1].nags.add(nag)
 
     def begin_variation(self):
-        self.variation_stack.appendleft(self.variation_stack[0].parent)
+        self.variation_stack.append(self.variation_stack[-1].parent)
         self.in_variation = False
 
     def end_variation(self):
-        self.variation_stack.popleft()
+        self.variation_stack.pop()
 
     def visit_result(self, result):
         if self.game.headers.get("Result", "*") == "*":
             self.game.headers["Result"] = result
 
     def visit_comment(self, comment):
-        if self.in_variation or (self.variation_stack[0].parent is None and self.variation_stack[0].is_end()):
+        if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game, if the comment
             # starts before any move.
-            new_comment = [self.variation_stack[0].comment, comment]
-            self.variation_stack[0].comment = "\n".join(new_comment).strip()
+            new_comment = [self.variation_stack[-1].comment, comment]
+            self.variation_stack[-1].comment = "\n".join(new_comment).strip()
         else:
             # Otherwise it is a starting comment.
             new_comment = [self.starting_comment, comment]
             self.starting_comment = "\n".join(new_comment).strip()
 
     def visit_move(self, board, move):
-        self.variation_stack[0] = self.variation_stack[0].add_variation(move)
-        self.variation_stack[0].starting_comment = self.starting_comment
+        self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
+        self.variation_stack[-1].starting_comment = self.starting_comment
         self.starting_comment = ""
         self.in_variation = True
 
@@ -844,10 +844,10 @@ def read_game(handle, Visitor=GameModelCreator):
 
     # Movetext parser state.
     try:
-        board_stack = collections.deque([dummy_game.board()])
+        board_stack = [dummy_game.board()]
     except ValueError as error:
         visitor.handle_error(error)
-        board_stack = collections.deque([chess.Board()])
+        board_stack = [chess.Board()]
 
     # Parse movetext.
     while line:
@@ -913,16 +913,16 @@ def read_game(handle, Visitor=GameModelCreator):
                 visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
-            elif token == "(" and board_stack[0].move_stack:
+            elif token == "(" and board_stack[-1].move_stack:
                 visitor.begin_variation()
 
-                board = board_stack[0].copy()
+                board = board_stack[-1].copy()
                 board.pop()
-                board_stack.appendleft(board)
+                board_stack.append(board)
             elif token == ")" and len(board_stack) > 1:
                 # Always leave at least the root node on the stack.
                 visitor.end_variation()
-                board_stack.popleft()
+                board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 # Found a result token.
                 found_content = True
@@ -939,12 +939,12 @@ def read_game(handle, Visitor=GameModelCreator):
 
                 # Parse the SAN.
                 try:
-                    move = board_stack[0].parse_san(token)
+                    move = board_stack[-1].parse_san(token)
                 except ValueError as error:
                     visitor.handle_error(error)
                 else:
-                    visitor.visit_move(board_stack[0], move)
-                    board_stack[0].push(move)
+                    visitor.visit_move(board_stack[-1], move)
+                    board_stack[-1].push(move)
 
         if read_next_line:
             line = handle.readline()
