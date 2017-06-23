@@ -779,7 +779,7 @@ def read_game(handle, Visitor=GameModelCreator):
     cover most relevant cases (ASCII, UTF-8 without BOM, UTF-8 with BOM,
     UTF-8 with encoding errors).
 
-    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig", errors="surrogateescape")
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
     Use `StringIO` to parse games from a string.
 
