@@ -578,34 +578,34 @@ class GameModelCreator(BaseVisitor):
         self.game.headers[tagname] = tagvalue
 
     def visit_nag(self, nag):
-        self.variation_stack[-1].nags.add(nag)
+        self.variation_stack[0].nags.add(nag)
 
     def begin_variation(self):
-        self.variation_stack.append(self.variation_stack[-1].parent)
+        self.variation_stack.appendleft(self.variation_stack[0].parent)
         self.in_variation = False
 
     def end_variation(self):
-        self.variation_stack.pop()
+        self.variation_stack.popleft()
 
     def visit_result(self, result):
         if self.game.headers.get("Result", "*") == "*":
             self.game.headers["Result"] = result
 
     def visit_comment(self, comment):
-        if self.in_variation or (not self.variation_stack[-1].parent and self.variation_stack[-1].is_end()):
+        if self.in_variation or (self.variation_stack[0].parent is None and self.variation_stack[0].is_end()):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game, if the comment
             # starts before any move.
-            new_comment = [self.variation_stack[-1].comment, comment]
-            self.variation_stack[-1].comment = "\n".join(new_comment).strip()
+            new_comment = [self.variation_stack[0].comment, comment]
+            self.variation_stack[0].comment = "\n".join(new_comment).strip()
         else:
             # Otherwise it is a starting comment.
             new_comment = [self.starting_comment, comment]
             self.starting_comment = "\n".join(new_comment).strip()
 
     def visit_move(self, board, move):
-        self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
-        self.variation_stack[-1].starting_comment = self.starting_comment
+        self.variation_stack[0] = self.variation_stack[0].add_variation(move)
+        self.variation_stack[0].starting_comment = self.starting_comment
         self.starting_comment = ""
         self.in_variation = True
 
