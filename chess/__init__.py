@@ -1235,8 +1235,8 @@ class Board(BaseBoard):
 
     def clear_stack(self):
         """Clears the move stack."""
-        self.move_stack.clear()
-        self.stack.clear()
+        del self.move_stack[:]
+        del self.stack[:]
 
     def remove_piece_at(self, square):
         piece = super(Board, self).remove_piece_at(square)
