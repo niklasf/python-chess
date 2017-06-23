@@ -913,19 +913,16 @@ def read_game(handle, Visitor=GameModelCreator):
                 visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
-            elif token == "(":
-                if board_stack[0].move_stack:
-                    visitor.begin_variation()
+            elif token == "(" and board_stack[0].move_stack:
+                visitor.begin_variation()
 
-                    board = board_stack[0].copy()
-                    board.pop()
-                    board_stack.appendleft(board)
-            elif token == ")":
-                # Found a close variation token. Always leave at least the
-                # root node on the stack.
-                if len(board_stack) > 1:
-                    visitor.end_variation()
-                    board_stack.popleft()
+                board = board_stack[0].copy()
+                board.pop()
+                board_stack.appendleft(board)
+            elif token == ")" and len(board_stack) > 1:
+                # Always leave at least the root node on the stack.
+                visitor.end_variation()
+                board_stack.popleft()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 # Found a result token.
                 found_content = True
