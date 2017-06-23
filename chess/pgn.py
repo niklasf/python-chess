@@ -134,10 +134,20 @@ class GameNode(object):
     def san(self):
         """
         Gets the standard algebraic notation of the move leading to this node.
+        See :func:`chess.Board.san()`.
 
         Do not call this on the root node.
         """
         return self.parent.board().san(self.move)
+
+    def uci(self, chess960=None):
+        """
+        Gets the UCI notation of the move leading to this node.
+        See :func:`chess.Board.uci()`.
+
+        Do not call this on the root node.
+        """
+        return self.parent.board().san(self.move, chess960=chess960)
 
     def root(self):
         """Gets the root node, i.e. the game."""
