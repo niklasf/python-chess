@@ -95,6 +95,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
+    python_requires=">=2.6,!=3.0.*,!=3.1.*,!=3.2.*",
     install_requires=dependencies(),
     extras_require=extra_dependencies(),
     tests_require=extra_dependencies().get("test"),
