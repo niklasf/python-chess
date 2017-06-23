@@ -1187,8 +1187,8 @@ class Board(BaseBoard):
         self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
         self.legal_moves = LegalMoveGenerator(self)
 
-        self.move_stack = collections.deque()
-        self.stack = collections.deque()
+        self.move_stack = []
+        self.stack = []
 
         if fen is None:
             self.clear()
