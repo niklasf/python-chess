@@ -914,18 +914,18 @@ def read_game(handle, Visitor=GameModelCreator):
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
             elif token == "(":
-                if board_stack[-1].move_stack:
+                if board_stack[0].move_stack:
                     visitor.begin_variation()
 
-                    board = board_stack[-1].copy()
+                    board = board_stack[0].copy()
                     board.pop()
-                    board_stack.append(board)
+                    board_stack.appendleft(board)
             elif token == ")":
                 # Found a close variation token. Always leave at least the
                 # root node on the stack.
                 if len(board_stack) > 1:
                     visitor.end_variation()
-                    board_stack.pop()
+                    board_stack.popleft()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 # Found a result token.
                 found_content = True
@@ -942,12 +942,12 @@ def read_game(handle, Visitor=GameModelCreator):
 
                 # Parse the SAN.
                 try:
-                    move = board_stack[-1].parse_san(token)
+                    move = board_stack[0].parse_san(token)
                 except ValueError as error:
                     visitor.handle_error(error)
                 else:
-                    visitor.visit_move(board_stack[-1], move)
-                    board_stack[-1].push(move)
+                    visitor.visit_move(board_stack[0], move)
+                    board_stack[0].push(move)
 
         if read_next_line:
             line = handle.readline()
