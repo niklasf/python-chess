@@ -128,6 +128,9 @@ def map24_b(s):
     s = s - 8
     return ((s & 3) + s) >> 1
 
+def map88(x):
+    return x + (x & 56)
+
 def in_queenside(x):
     return (x & (1 << 2)) == 0
 
@@ -395,74 +398,6 @@ def init_ppidx():
 
 PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
-
-def bb_isbiton(bb, bit):
-        return 0 != (bb >> bit) & 1
-
-def map88(x):
-        return x + (x & 56)
-
-def unmap88(x):
-        return x + (x & 7) >> 1
-
-def mapx88(x):
-        return ((x & 56) << 1) | (x & 7)
-
-BSTEP = [17, 15, -15, -17, 0]
-RSTEP = [1, 16, -1, -16, 0]
-NSTEP = [18, 33, 31, 14, -18, -33, -31, -14, 0]
-KSTEP = [1, 17, 16, 15, -1, -17, -16, -15, 0]
-
-PSTEPARR = [
-    None,  # No piece.
-    None,  # Pawn.
-    NSTEP,
-    BSTEP,
-    RSTEP,
-    KSTEP,  # Queen.
-    KSTEP,  # King.
-]
-
-PSLIDER = [
-    False,  # No piece.
-    False,  # Pawn.
-    False,
-    True,
-    True,
-    True,
-    False,
-]
-
-def gen_rev(occ, input_piece, sq):
-    # Get list of reversible piece moves. Yields squares.
-    from_ = map88(sq)
-
-    pc = input_piece & (PAWN | KNIGHT | BISHOP | ROOK | QUEEN | KING)
-
-    steparr = PSTEPARR[pc]
-    slider = PSLIDER[pc]
-
-    if slider:
-        for step in steparr:
-            if step == 0:
-                break
-            s = from_ + step
-            while 0 == (s & 0x88):
-                us = unmap88(s)
-                if 0 != (0x1 & (occ >> us)):
-                    break
-                yield us
-                s += step
-
-    else:
-        for step in steparr:
-            if step == 0:
-                break
-            s = from_ + step
-            if 0 == (s & 0x88):
-                us = unmap88(s)
-                if 0 == (0x1 & (occ >> us)):
-                    yield us
 
 def norm_kkindex(x, y):
     if getcol(x) > 3:
