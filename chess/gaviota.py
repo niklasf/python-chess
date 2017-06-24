@@ -505,67 +505,6 @@ def reach_init():
 
 REACH = reach_init()
 
-def attack_maps_init():
-    attmsk = [0] * 256
-    attmsk[wP] = 1 << 0
-    attmsk[bP] = 1 << 1
-
-    attmsk[KNIGHT] = 1 << 2
-    attmsk[wN] = 1 << 2
-    attmsk[bN] = 1 << 2
-
-    attmsk[BISHOP] = 1 << 3
-    attmsk[wB] = 1 << 3
-    attmsk[bB] = 1 << 3
-
-    attmsk[ROOK] = 1 << 4
-    attmsk[wR] = 1 << 4
-    attmsk[bR] = 1 << 4
-
-    attmsk[QUEEN] = 1 << 5
-    attmsk[wQ] = 1 << 5
-    attmsk[bQ] = 1 << 5
-
-    attmsk[KING] = 1 << 6
-    attmsk[wK] = 1 << 6
-    attmsk[bK] = 1 << 6
-
-    attmap = [[0] * 64 for i in range(64)]
-    for to_ in range(64):
-        for from_ in range(64):
-            m = 0
-            rook = REACH[ROOK][from_]
-            bishop = REACH[BISHOP][from_]
-            queen = REACH[QUEEN][from_]
-            knight = REACH[KNIGHT][from_]
-            king = REACH[KING][from_]
-
-            if bb_isbiton(knight, to_):
-                m |= attmsk[wN]
-            if bb_isbiton(king, to_):
-                m |= attmsk[wK]
-            if bb_isbiton(rook, to_):
-                m |= attmsk[wR]
-            if bb_isbiton(bishop, to_):
-                m |= attmsk[wB]
-            if bb_isbiton(queen, to_):
-                m |= attmsk[wQ]
-
-            to88 = mapx88(to_)
-            fr88 = mapx88(from_)
-            diff = to88 - fr88
-
-            if diff in [17, 15]:
-                m |= attmsk[wP]
-            elif diff in [-17, -15]:
-                m |= attmsk[bP]
-
-            attmap[to_][from_] = m
-
-    return attmsk, attmap
-
-ATTMSK, ATTMAP = attack_maps_init()
-
 def norm_kkindex(x, y):
     if getcol(x) > 3:
         x = flip_we(x)
