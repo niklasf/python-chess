@@ -464,47 +464,6 @@ def gen_rev(occ, input_piece, sq):
                 if 0 == (0x1 & (occ >> us)):
                     yield us
 
-def reach_init():
-    stp_a = [15, -15]
-    stp_b = [17, -17]
-    reach = [[-1] * 64 for _ in range(7)]
-
-    for pc in range(KNIGHT, KING + 1):
-        for sq in range(64):
-            bb = 0
-            for li in gen_rev(0, pc, sq):
-                bb |= 1 << li
-                reach[pc][sq] = bb
-
-    for side in range(2):
-        index = 1 ^ side
-        step_a = stp_a[side]
-        step_b = stp_b[side]
-        for sq in range(64):
-            sq88 = map88(sq)
-            bb = 0
-
-            thelist = []
-
-            s = sq88 + step_a
-            if 0 == (s & 0x88):
-                us = unmap88(s)
-                thelist.append(us)
-
-            s = sq88 + step_b
-            if 0 == (s & 0x88):
-                us = unmap88(s)
-                thelist.append(us)
-
-            for li in thelist:
-                bb |= 1 << li
-
-            reach[index][sq] = bb
-
-    return reach
-
-REACH = reach_init()
-
 def norm_kkindex(x, y):
     if getcol(x) > 3:
         x = flip_we(x)
