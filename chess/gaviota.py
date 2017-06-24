@@ -38,13 +38,6 @@ LOGGER = logging.getLogger(__name__)
 NOSQUARE = 64
 NOINDEX = -1
 
-PAWN = 1
-KNIGHT = 2
-BISHOP = 3
-ROOK = 4
-QUEEN = 5
-KING = 6
-
 MAX_KKINDEX = 462
 MAX_PPINDEX = 576
 MAX_PpINDEX = 24 * 48
@@ -1766,7 +1759,7 @@ class PythonTablebases(object):
             if (j > -1) and (ys[j] == xed):
                 # Find capturers (i).
                 for i in range(len(xs)):
-                    if xp[i] == PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
+                    if xp[i] == chess.PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
                         epscore = iFORBID
 
                         # Execute capture.
