@@ -566,9 +566,6 @@ def attack_maps_init():
 
 ATTMSK, ATTMAP = attack_maps_init()
 
-def possible_attack(from_, to_, piece):
-    return 0 != ATTMAP[to_][from_] & ATTMSK[piece]
-
 def norm_kkindex(x, y):
     if getcol(x) > 3:
         x = flip_we(x)
@@ -602,7 +599,7 @@ def init_kkidx():
     for x in range(64):
         for y in range(64):
             # Check if x to y is legal.
-            if not possible_attack(x, y, wK) and x != y:
+            if x != y and not chess.BB_KING_ATTACKS[x] & chess.BB_SQUARES[y]:
                 # Normalize.
                 i, j = norm_kkindex(x, y)
 
