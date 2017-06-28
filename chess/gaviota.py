@@ -1975,6 +1975,18 @@ class NativeTablebases(object):
     def probe_wdl(self, board):
         return self._probe_hard(board, wdl_only=True)
 
+    def get_dtm(self, board, default=None):
+        try:
+            return self.probe_dtm(board)
+        except KeyError:
+            return default
+
+    def get_wdl(self, board, default=None):
+        try:
+            return self.probe_wdl(board)
+        except KeyError:
+            return default
+
     def _probe_hard(self, board, wdl_only=False):
         if board.is_insufficient_material():
             return 0
