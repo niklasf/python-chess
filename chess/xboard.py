@@ -221,7 +221,7 @@ class Engine(object):
     def _move(self, arg):
         self.move = None
         try:
-            self.move = self.board.parse_xboard(arg)
+            self.move = self.board.parse_uci(arg)
         except ValueError:
             try:
                 self.move = self.board.parse_san(arg)
@@ -263,7 +263,7 @@ class Engine(object):
             if '.' in token or '<' in token:
                 continue
             try:
-                pv.append(board.push_xboard(token))
+                pv.append(board.push_uci(token))
             except ValueError:
                 try:
                     pv.append(board.push_san(token))
@@ -583,7 +583,7 @@ class Engine(object):
                 self.force()
 
             try:
-                self.board.push_xboard(str(self.move))
+                self.board.push_uci(str(self.move))
             except ValueError:
                 try:
                     self.board.push_san(str(self.move))
@@ -621,7 +621,7 @@ class Engine(object):
                 post_handler.on_go()
 
         try:
-            self.board.push_xboard(str(move))
+            self.board.push_uci(str(move))
         except ValueError:
             try:
                 self.board.push_san(str(move))
@@ -655,7 +655,7 @@ class Engine(object):
                     raise EngineTerminatedException()
 
                 try:
-                    self.board.push_xboard(str(self.move))
+                    self.board.push_uci(str(self.move))
                 except ValueError:
                     try:
                         self.board.push_san(str(self.move))

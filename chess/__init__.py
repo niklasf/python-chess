@@ -444,17 +444,6 @@ class Move(object):
         else:
             return "0000"
 
-    def xboard(self):
-        """
-        Gets an XBoard string for the move.
-
-        For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
-        is a promotion to a queen.
-
-        The XBoard representatin of null moves is ``0000``.
-        """
-        return self.uci()
-
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
@@ -516,15 +505,6 @@ class Move(object):
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion)
         else:
             raise ValueError("expected uci string to be of length 4 or 5: {0}".format(repr(uci)))
-
-    @classmethod
-    def from_xboard(cls, xb):
-        """
-        Parses an XBoard string.
-
-        :raises: :exc:`ValueError` if the XBoard string is invalid.
-        """
-        return cls.from_uci(xb)
 
     @classmethod
     def null(cls):
@@ -2570,15 +2550,6 @@ class Board(BaseBoard):
         move = self._from_chess960(chess960, move.from_square, move.to_square, move.promotion, move.drop)
         return move.uci()
 
-    def xboard(self, move, chess960=None):
-        """
-        Gets the XBoard notation of the move.
-
-        *chess960* defaults to the mode of the board. Pass ``True`` to force
-        *Chess960* mode.
-        """
-        return self.uci(move, chess960)
-
     def parse_uci(self, uci):
         """
         Parses the given move in UCI notation.
@@ -2603,19 +2574,6 @@ class Board(BaseBoard):
 
         return move
 
-    def parse_xboard(self, xb):
-        """
-        Parses the given move in XBoard notation.
-
-        Supports both Chess960 and standard XBoard notation.
-
-        The returned move is guaranteed to be either legal or a null move.
-
-        :raises: :exc:`ValueError` if the move is invalid or illegal in the
-            current position (but not a null move).
-        """
-        return self.parse_uci(xb)
-
     def push_uci(self, uci):
         """
         Parses a move in UCI notation and puts it on the move stack.
@@ -2628,17 +2586,6 @@ class Board(BaseBoard):
         move = self.parse_uci(uci)
         self.push(move)
         return move
-
-    def push_xboard(self, xb):
-        """
-        Parses a move in XBoard notation and puts it on the move stack.
-
-        Returns the move.
-
-        :raises: :exc:`ValueError` if the move is invalid or illegal in the
-            current position (but not a null move).
-        """
-        return self.push_uci(xb)
 
     def is_en_passant(self, move):
         """Checks if the given pseudo-legal move is an en passant capture."""
