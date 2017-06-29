@@ -2096,6 +2096,49 @@ class PgnTestCase(unittest.TestCase):
         self.assertNotIn("Variant", game.headers)
 
 
+class CraftyTestCase(unittest.TestCase):
+
+    def setUp(self):
+        try:
+            self.engine = chess.xboard.popen_engine("/home/mkchan/git/crafty-chess/crafty")
+        except OSError:
+            self.skipTest("need crafty")
+
+        self.engine.xboard()
+        self.engine.send_line("log off")
+
+    def tearDown(self):
+        self.engine.quit()
+
+    def testSt(self):
+        self.engine.new()
+        self.engine.st(1)
+        self.engine.go()
+
+    def testSd(self):
+        self.engine.new()
+        self.engine.sd(5)
+        self.engine.go()
+
+    def testLevel(self):
+        self.engine.new()
+        self.engine.level(1, 0, 1, 0)
+        self.engine.go()
+
+    def testTime(self):
+        self.engine.new()
+        self.engine.level(0, 1, 0, 0)
+        self.engine.time(100)
+        self.engine.go()
+
+    def testSetboard(self):
+        board = chess.Board()
+        board.set_fen("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+        self.engine.setboard(board)
+        self.engine.st(1)
+        self.engine.go()
+
+
 class StockfishTestCase(unittest.TestCase):
 
     def setUp(self):
