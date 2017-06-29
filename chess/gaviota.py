@@ -122,35 +122,29 @@ def idx_is_empty(x):
     return x == -1
 
 
-def getcol(x):
-    return x & 7
-
-def getrow(x):
-    return x >> 3
-
 def flip_type(x, y):
     ret = 0
 
-    if getcol(x) > 3:
+    if chess.square_file(x) > 3:
         x = flip_we(x)
         y = flip_we(y)
         ret |= 1
 
-    if getrow(x) > 3:
+    if chess.square_rank(x) > 3:
         x = flip_ns(x)
         y = flip_ns(y)
         ret |= 2
 
-    rowx = getrow(x)
-    colx = getcol(x)
+    rowx = chess.square_rank(x)
+    colx = chess.square_file(x)
 
     if rowx > colx:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
         ret |= 4
 
-    rowy = getrow(y)
-    coly = getcol(y)
+    rowy = chess.square_rank(y)
+    coly = chess.square_file(y)
     if rowx == colx and rowy > coly:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
@@ -375,23 +369,23 @@ PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
 def norm_kkindex(x, y):
-    if getcol(x) > 3:
+    if chess.square_file(x) > 3:
         x = flip_we(x)
         y = flip_we(y)
 
-    if getrow(x) > 3:
+    if chess.square_rank(x) > 3:
         x = flip_ns(x)
         y = flip_ns(y)
 
-    rowx = getrow(x)
-    colx = getcol(x)
+    rowx = chess.square_rank(x)
+    colx = chess.square_file(x)
 
     if (rowx > colx):
         x = flip_nw_se(x)
         y = flip_nw_se(y)
 
-    rowy = getrow(y)
-    coly = getcol(y)
+    rowy = chess.square_rank(y)
+    coly = chess.square_file(y)
 
     if rowx == colx and rowy > coly:
         x = flip_nw_se(x)
