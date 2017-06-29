@@ -40,9 +40,9 @@ Chess960 is orthogonal to all other variants.
 >>> chess.Board(chess960=True)
 Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', chess960=True)
 
-See :func:`chess.Board.set_chess960_pos()`,
-:func:`~chess.Board.chess960_pos()`, and
-:func:`~chess.Board.from_chess960_pos()` for dealing with Chess960 starting
+See :func:`chess.BaseBoard.set_chess960_pos()`,
+:func:`~chess.BaseBoard.chess960_pos()`, and
+:func:`~chess.BaseBoard.from_chess960_pos()` for dealing with Chess960 starting
 positions.
 
 UCI

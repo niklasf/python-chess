@@ -3163,10 +3163,6 @@ class Board(BaseBoard):
 
     @classmethod
     def from_chess960_pos(cls, sharnagl):
-        """
-        Creates a new board with a Chess960 starting position. See
-        :func:`~chess.Board.set_chess960_pos()`.
-        """
         board = cls.empty(chess960=True)
         board.set_chess960_pos(sharnagl)
         return board
