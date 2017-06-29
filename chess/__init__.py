@@ -2563,14 +2563,11 @@ class Board(BaseBoard):
         *chess960* defaults to the mode of the board. Pass ``True`` to force
         *Chess960* mode.
         """
-        board_chess960 = self.chess960
-        if chess960 is not None:
-            self.chess960 = chess960
+        if chess960 is None:
+            chess960 = self.chess960
 
         move = self._to_chess960(move)
-        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
-
-        self.chess960 = board_chess960
+        move = self._from_chess960(chess960, move.from_square, move.to_square, move.promotion, move.drop)
         return move.uci()
 
     def xboard(self, move, chess960=None):
@@ -2599,7 +2596,7 @@ class Board(BaseBoard):
             return move
 
         move = self._to_chess960(move)
-        move = self._from_chess960(move.from_square, move.to_square, move.promotion, move.drop)
+        move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
             raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
@@ -3114,10 +3111,10 @@ class Board(BaseBoard):
             if not ((self.occupied ^ king ^ rook) & (empty_for_king | empty_for_rook) or
                     self._attacked_for_king(empty_for_king, self.occupied ^ king) or
                     self._castling_uncovers_rank_attack(rook, king_to)):
-                yield self._from_chess960(msb(king), candidate)
+                yield self._from_chess960(self.chess960, msb(king), candidate)
 
-    def _from_chess960(self, from_square, to_square, promotion=None, drop=None):
-        if not self.chess960 and drop is None:
+    def _from_chess960(self, chess960, from_square, to_square, promotion=None, drop=None):
+        if not chess960 and drop is None:
             if from_square == E1 and self.kings & BB_E1:
                 if to_square == H1:
                     return Move(E1, G1)
