@@ -330,7 +330,7 @@ Download and install the latest release:
 
 ::
 
-    pip install python-chess[uci,gaviota]
+    pip install python-chess[engine,gaviota]
 
 Selected use cases
 ------------------

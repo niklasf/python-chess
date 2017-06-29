@@ -62,9 +62,9 @@ def extra_dependencies():
     extras = {}
 
     if sys.version_info < (3, 2):
-        extras["uci"] = ["futures"]
+        extras["engine"] = ["futures"]
     else:
-        extras["uci"] = []
+        extras["engine"] = []
 
     if platform.python_implementation() == "CPython":
         if sys.version_info < (3, 3):
@@ -72,7 +72,7 @@ def extra_dependencies():
         else:
             extras["gaviota"] = []
 
-    extras["test"] = extras["uci"] + extras.get("gaviota", [])
+    extras["test"] = extras["engine"] + extras.get("gaviota", [])
 
     if sys.version_info < (2, 7):
         extras["test"].append("unittest2")
@@ -91,7 +91,7 @@ setuptools.setup(
     description=chess.__doc__.replace("\n", " ").strip(),
     long_description=read_description(),
     license="GPL3",
-    keywords="chess fen pgn polyglot syzygy gaviota uci",
+    keywords="chess fen pgn polyglot syzygy gaviota uci xboard",
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
