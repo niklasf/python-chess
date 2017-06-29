@@ -187,7 +187,9 @@ class Engine(object):
         if not command_and_args:
             return
 
-        if len(command_and_args) == 2:
+        if command_and_args[0] == "#":
+            pass
+        elif len(command_and_args) == 2:
             if command_and_args[0] == "pong":
                 return self._pong(command_and_args[1])
             elif command_and_args[0] == "move":
@@ -472,6 +474,28 @@ class Engine(object):
                     raise EngineTerminatedException
 
         return self._queue_command(command, async_callback)
+
+    def time(self, time, async_callback=None):
+        """
+        Synchronize the engine's clock with the total amount of time left.
+
+        :param time: The total time left in centiseconds
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("time command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("time " + str(time))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
 
     def level(self, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
         """
