@@ -1,5 +1,5 @@
-Variants (experimental)
-=======================
+Variants
+========
 
 python-chess supports several chess variants.
 
@@ -39,6 +39,10 @@ Chess960 is orthogonal to all other variants.
 
 >>> chess.Board(chess960=True)
 Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', chess960=True)
+
+See :func:`chess.Board.set_chess960_pos()`,
+:func:`~chess.Board.chess960_pos()`, and `chess.Board.from_chess960_pos()` for
+handling of Chess960 starting positions.
 
 UCI
 ---
