@@ -1,10 +1,6 @@
 Changelog for python-chess
 ==========================
 
-At the current stage of this project it is more important to get things right
-than to be consistent with previous versions. Use this changelog to see what
-changed in a new release, because this might include API breaking changes.
-
 New in v0.18.3
 --------------
 
