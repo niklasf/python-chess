@@ -27,7 +27,9 @@ Polyglot opening book reading
 .. autoclass:: chess.polyglot.MemoryMappedReader
     :members:
 
-.. py:data:: chess.POLYGLOT_RANDOM_ARRAY
+.. py:data:: chess.polyglot.POLYGLOT_RANDOM_ARRAY
     :annotation: = [0x9D39247E33776D41, ..., 0xF8D626AAAF278509]
 
     Array of 781 polyglot compatible pseudo random values for Zobrist hashing.
+
+.. autofunction:: chess.polyglot.zobrist_hash
