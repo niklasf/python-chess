@@ -1371,9 +1371,7 @@ iFORBID = tb_FORBID
 iDRAWt = tb_DRAW | 4
 iWMATEt = tb_WMATE | 4
 iBMATEt = tb_BMATE | 4
-iUNKNOWN = tb_UNKNOWN
 
-iUNKNBIT = (1 << 2)
 
 def removepiece(ys, yp, j):
     del ys[j]
