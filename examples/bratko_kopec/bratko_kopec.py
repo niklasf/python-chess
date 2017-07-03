@@ -25,8 +25,10 @@ def test_epd(engine, epd, VariantBoard, threads, movetime):
         epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
-    engine.setoption({"UCI_Variant": VariantBoard.uci_variant})
-    engine.setoption({"Threads": threads})
+    engine.setoption({
+        "UCI_Variant": VariantBoard.uci_variant,
+        "Threads": threads
+    })
     engine.position(position)
 
     enginemove, pondermove = engine.go(movetime=movetime)
@@ -55,8 +57,10 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
         epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
-    engine.setoption({"UCI_Variant": VariantBoard.uci_variant})
-    engine.setoption({"Threads": threads})
+    engine.setoption({
+        "UCI_Variant": VariantBoard.uci_variant,
+        "Threads": threads
+    })
     engine.position(position)
 
     # Search in background
@@ -65,6 +69,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
     score = 0.0
 
     print("%s:" % epd_string, end=" ")
+    sys.stdout.flush()
 
     for step in range(0, 3):
         time.sleep(movetime / 4000.0)
@@ -74,6 +79,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
             if 1 in info["pv"] and len(info["pv"][1]) >= 1:
                 move = info["pv"][1][0]
                 print("(%s)" % position.san(move), end=" ")
+                sys.stdout.flush()
                 if "am" in epd_info and move in epd_info["am"]:
                     continue  # fail
                 elif "bm" in epd_info and move not in epd_info["bm"]:
@@ -82,6 +88,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
                     score = 1.0 / (4 - step)
             else:
                 print("(no pv)", end=" ")
+                sys.stdout.flush()
 
     # Assess the final best move by the engine.
     time.sleep(movetime / 4000.0)
