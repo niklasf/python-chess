@@ -2100,7 +2100,7 @@ class CraftyTestCase(unittest.TestCase):
 
     def setUp(self):
         try:
-            self.engine = chess.xboard.popen_engine("/home/mkchan/git/crafty-chess/crafty")
+            self.engine = chess.xboard.popen_engine("crafty")
         except OSError:
             self.skipTest("need crafty")
 

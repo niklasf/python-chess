@@ -313,10 +313,17 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.pong_received:
-            self.ping_num = num
-            self.send_line("ping " + str(num))
-            self.pong_received.wait()
+        def command():
+            with self.semaphore:
+                with self.pong_received:
+                    self.ping_num = num
+                    self.send_line("ping " + str(num))
+                    self.pong_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def pondering(self, ponder, async_callback=None):
         """
@@ -327,10 +334,17 @@ class Engine(object):
 
         :return: Nothing
         """
-        if ponder:
-            self.send_line("hard")
-        else:
-            self.send_line("easy")
+        def command():
+            with self.semaphore:
+                if ponder:
+                    self.send_line("hard")
+                else:
+                    self.send_line("easy")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def easy(self, async_callback=None):
         """
@@ -351,7 +365,14 @@ class Engine(object):
 
         :return: Nothing
         """
-        self.send_line("post")
+        def command():
+            with self.semaphore:
+                self.send_line("post")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def xboard(self, async_callback=None):
         """
@@ -368,12 +389,13 @@ class Engine(object):
             with self.semaphore:
                 self.send_line("xboard")
                 self.send_line("protover 2") # TODO: Add option for this and parse input
-                self.post()
-                self.pondering(False)
-                self.ping(random.randint(0, 100))
+                self.send_line("post")
+                self.send_line("easy")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
+
+            self.ping(random.randint(0, 100))
 
         return self._queue_command(command, async_callback)
 
@@ -417,6 +439,9 @@ class Engine(object):
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("setboard command while engine is busy")
+
+        # Setboard should be sent after force.
+        self.force()
 
         builder = []
         builder.append("setboard")
