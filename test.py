@@ -2110,28 +2110,28 @@ class CraftyTestCase(unittest.TestCase):
     def tearDown(self):
         self.engine.quit()
 
-    def testSt(self):
+    def test_st(self):
         self.engine.new()
         self.engine.st(1)
         self.engine.go()
 
-    def testSd(self):
+    def test_sd(self):
         self.engine.new()
         self.engine.sd(5)
         self.engine.go()
 
-    def testLevel(self):
+    def test_level(self):
         self.engine.new()
         self.engine.level(1, 0, 1, 0)
         self.engine.go()
 
-    def testTime(self):
+    def test_time(self):
         self.engine.new()
         self.engine.level(0, 1, 0, 0)
         self.engine.time(100)
         self.engine.go()
 
-    def testSetboard(self):
+    def test_setboard(self):
         board = chess.Board()
         board.set_fen("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
         self.engine.setboard(board)
