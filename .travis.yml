@@ -31,6 +31,12 @@ before_install:
  - cp stockfish-8-linux/Linux/stockfish_8_x64 bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
+ - # Crafty
+ - git clone https://github.com/lazydroid/crafty-chess
+ - cd crafty-chess
+ - make unix-gcc
+ - export PATH="`pwd`:${PATH}"
+ - cd ..
  - # Gaviota libgtb
  - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
  - cd Gaviota-Tablebases

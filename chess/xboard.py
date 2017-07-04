@@ -300,23 +300,26 @@ class Engine(object):
                 except concurrent.futures.TimeoutError:
                     pass
 
-    def ping(self, num, async_callback=None):
+    def ping(self, async_callback=None):
         """
         Command used to synchronize with the engine.
 
         The engine will respond as soon as it has handled all other queued
         commands.
 
-        The engine will respond with *pong <num>*.
-
-        :param options: A number to send along with ping.
-
         :return: Nothing
         """
-        with self.pong_received:
-            self.ping_num = num
-            self.send_line("ping " + str(num))
-            self.pong_received.wait()
+        def command():
+            with self.semaphore:
+                with self.pong_received:
+                    self.ping_num = random.randint(1, 100)
+                    self.send_line("ping " + str(self.ping_num))
+                    self.pong_received.wait()
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def pondering(self, ponder, async_callback=None):
         """
@@ -327,10 +330,17 @@ class Engine(object):
 
         :return: Nothing
         """
-        if ponder:
-            self.send_line("hard")
-        else:
-            self.send_line("easy")
+        def command():
+            with self.semaphore:
+                if ponder:
+                    self.send_line("hard")
+                else:
+                    self.send_line("easy")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def easy(self, async_callback=None):
         """
@@ -351,7 +361,14 @@ class Engine(object):
 
         :return: Nothing
         """
-        self.send_line("post")
+        def command():
+            with self.semaphore:
+                self.send_line("post")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
 
     def xboard(self, async_callback=None):
         """
@@ -368,12 +385,13 @@ class Engine(object):
             with self.semaphore:
                 self.send_line("xboard")
                 self.send_line("protover 2") # TODO: Add option for this and parse input
-                self.post()
-                self.pondering(False)
-                self.ping(random.randint(0, 100))
+                self.send_line("post")
+                self.send_line("easy")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
+
+            self.ping()
 
         return self._queue_command(command, async_callback)
 
@@ -417,6 +435,9 @@ class Engine(object):
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("setboard command while engine is busy")
+
+        # Setboard should be sent after force.
+        self.force()
 
         builder = []
         builder.append("setboard")

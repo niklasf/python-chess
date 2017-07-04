@@ -2096,6 +2096,54 @@ class PgnTestCase(unittest.TestCase):
         self.assertNotIn("Variant", game.headers)
 
 
+class CraftyTestCase(unittest.TestCase):
+
+    def setUp(self):
+        try:
+            self.engine = chess.xboard.popen_engine("crafty")
+        except OSError:
+            self.skipTest("need crafty")
+
+        self.engine.xboard()
+        self.engine.send_line("log off")
+
+    def tearDown(self):
+        self.engine.quit()
+
+    def test_st(self):
+        self.engine.new()
+        self.engine.st(1)
+        self.engine.go()
+
+    def test_sd(self):
+        self.engine.new()
+        self.engine.sd(5)
+        self.engine.go()
+
+    def test_level(self):
+        self.engine.new()
+        self.engine.level(1, 0, 1, 0)
+        self.engine.go()
+
+    def test_time(self):
+        self.engine.new()
+        self.engine.level(0, 1, 0, 0)
+        self.engine.time(100)
+        self.engine.go()
+
+    def test_mate_search(self):
+        board = chess.Board()
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
+        self.engine.setboard(board)
+        self.engine.sd(15) # Just to be safe
+        post_handler = chess.xboard.PostHandler()
+        self.engine.post_handlers.append(post_handler)
+        self.engine.go()
+        for move in post_handler.post["pv"]:
+            board.push(move)
+        self.assertTrue(board.is_checkmate(), True)
+
+
 class StockfishTestCase(unittest.TestCase):
 
     def setUp(self):
