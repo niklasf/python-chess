@@ -2131,12 +2131,17 @@ class CraftyTestCase(unittest.TestCase):
         self.engine.time(100)
         self.engine.go()
 
-    def test_setboard(self):
+    def test_mate_search(self):
         board = chess.Board()
-        board.set_fen("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
         self.engine.setboard(board)
-        self.engine.st(1)
+        self.engine.sd(15) # Just to be safe
+        post_handler = chess.xboard.PostHandler()
+        self.engine.post_handlers.append(post_handler)
         self.engine.go()
+        for move in post_handler.post["pv"]:
+            board.push(move)
+        self.assertTrue(board.is_checkmate(), True)
 
 
 class StockfishTestCase(unittest.TestCase):
