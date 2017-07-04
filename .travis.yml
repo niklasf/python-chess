@@ -35,7 +35,7 @@ before_install:
  - git clone https://github.com/lazydroid/crafty-chess
  - cd crafty-chess
  - make unix-gcc
- - export PATH="`pwd`/crafty-chess:${PATH}"
+ - export PATH="`pwd`:${PATH}"
  - cd ..
  - # Gaviota libgtb
  - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
