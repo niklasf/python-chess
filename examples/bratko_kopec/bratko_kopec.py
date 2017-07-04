@@ -15,7 +15,7 @@ import logging
 import sys
 
 
-def test_epd(engine, epd, VariantBoard, movetime):
+def test_epd(engine, epd, VariantBoard, threads, movetime):
     position = VariantBoard()
     epd_info = position.set_epd(epd)
     epd_string = "%s" % epd_info.get("id", position.fen())
@@ -25,7 +25,10 @@ def test_epd(engine, epd, VariantBoard, movetime):
         epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
-    engine.setoption({"UCI_Variant": VariantBoard.uci_variant})
+    engine.setoption({
+        "UCI_Variant": VariantBoard.uci_variant,
+        "Threads": threads
+    })
     engine.position(position)
 
     enginemove, pondermove = engine.go(movetime=movetime)
@@ -41,7 +44,7 @@ def test_epd(engine, epd, VariantBoard, movetime):
         return 1.0
 
 
-def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
+def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime):
     info_handler = chess.uci.InfoHandler()
     engine.info_handlers.append(info_handler)
 
@@ -54,7 +57,10 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
         epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
 
     engine.ucinewgame()
-    engine.setoption({"UCI_Variant": VariantBoard.uci_variant})
+    engine.setoption({
+        "UCI_Variant": VariantBoard.uci_variant,
+        "Threads": threads
+    })
     engine.position(position)
 
     # Search in background
@@ -110,7 +116,9 @@ if __name__ == "__main__":
         help="EPD test suite(s).")
     parser.add_argument("-v", "--variant", default="standard",
         help="Use a non-standard chess variant.")
-    parser.add_argument("-t", "--movetime", default=1000, type=int,
+    parser.add_argument("-t", "--threads", default=1, type=int,
+        help="Threads for use by the UCI engine.")
+    parser.add_argument("-m", "--movetime", default=1000, type=int,
         help="Time to move in milliseconds.")
     parser.add_argument("-s", "--simple", dest="test_epd", action="store_const",
         default=test_epd_with_fractional_scores,
@@ -142,7 +150,7 @@ if __name__ == "__main__":
             continue
 
         # Run the actual test.
-        score += args.test_epd(engine, epd, VariantBoard, args.movetime)
+        score += args.test_epd(engine, epd, VariantBoard, args.threads, args.movetime)
         count += 1
 
     engine.quit()
