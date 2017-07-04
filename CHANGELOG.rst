@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.18.4
+--------------
+
+Changes:
+
+* Support `[Variant "fischerrandom"]` in PGNs for Cutechess compability.
+  Thanks to Steve Maughan for reporting.
+
 New in v0.18.3
 --------------
 
