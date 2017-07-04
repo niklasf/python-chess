@@ -2088,6 +2088,13 @@ class PgnTestCase(unittest.TestCase):
         game.setup(chess.Board())
         self.assertNotIn("Variant", game.headers)
 
+    def test_cutechess_fischerrandom(self):
+        with open("data/pgn/cutechess-fischerrandom.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            board = game.board()
+            self.assertTrue(board.chess960)
+            self.assertEqual(board.fen(), "nbbrknrq/pppppppp/8/8/8/8/PPPPPPPP/NBBRKNRQ w KQkq - 0 1")
+
 
 class StockfishTestCase(unittest.TestCase):
 

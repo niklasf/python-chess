@@ -398,7 +398,10 @@ class Game(GameNode):
         Unless the `SetUp` and `FEN` header tags are set this is the default
         starting position.
         """
-        chess960 = self.headers.get("Variant", "").lower() == "chess960"
+        chess960 = self.headers.get("Variant", "").lower() in [
+            "chess960",
+            "fischerandom",  # Cutechess
+            "fischerrandom"]
 
         if chess960 or "Variant" not in self.headers:
             VariantBoard = chess.Board
