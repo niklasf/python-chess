@@ -159,8 +159,8 @@ def github_release(tagname):
 
 
 if __name__ == "__main__":
-    test()
     check_docs()
+    test()
     check_changelog()
     check_git()
     tagname = tag_and_push()

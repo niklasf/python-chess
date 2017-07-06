@@ -51,11 +51,8 @@ and handling of common formats. This is the scholars mate in python-chess:
     >>> board
     Board('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
 
-Documentation
--------------
-
-https://python-chess.readthedocs.io/en/latest/
-
+`Documentation <https://python-chess.readthedocs.io/en/latest/>`__
+-------------------------------------------------------------------
 
 * `Core <https://python-chess.readthedocs.io/en/latest/core.html>`_
 * `PGN parsing and writing <https://python-chess.readthedocs.io/en/latest/pgn.html>`_
