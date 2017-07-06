@@ -343,7 +343,6 @@ python-chess, for example:
 * a GUI to play against UCI chess engines - http://johncheetham.com/projects/jcchess/
 * an HTTP microservice to render board images - https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram - https://github.com/cxjdavin/tgchessbot
-* connecting Stockfish to the Novag Citrine - http://empiricalrabbit.blogspot.de/2016/05/integrating-with-python-chess-module.html
 * a tool to build `Anki <http://ankisrs.net/>`_ decks from a PGN opening repertoire - https://github.com/asdfjkl/pgn2anki
 
 Acknowledgements
@@ -354,13 +353,13 @@ approach to `avoid rotated bitboards with direct lookup (pdf) <http://arxiv.org/
 alongside his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_.
 Some move generation ideas are taken from these sources.
 
-Thanks to Ronald de Man for his Syzygy endgame tablebases
-(https://github.com/syzygy1/tb). The probing code in
-python-chess is very directly ported from his C probing code.
+Thanks to Ronald de Man for his
+`Syzygy endgame tablebases <https://github.com/syzygy1/tb>`_.
+The probing code in python-chess is very directly ported from his C probing code.
 
-Thanks to Miguel A. Ballicora for his Gaviota tablebases
-(https://github.com/michiguel/Gaviota-Tablebases). (I wish the generating code
-was free software).
+Thanks to Miguel A. Ballicora for his
+`Gaviota tablebases <https://github.com/michiguel/Gaviota-Tablebases>`_.
+(I wish the generating code was free software).
 
 License
 -------
