@@ -4,8 +4,8 @@ python-chess: a pure Python chess library
 .. image:: https://travis-ci.org/niklasf/python-chess.svg?branch=master
     :target: https://travis-ci.org/niklasf/python-chess
 
-.. image:: https://coveralls.io/repos/niklasf/python-chess/badge.png
-    :target: https://coveralls.io/r/niklasf/python-chess
+.. image:: https://coveralls.io/repos/github/niklasf/python-chess/badge.svg?branch=master
+   :target: https://coveralls.io/github/niklasf/python-chess?branch=master
 
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
