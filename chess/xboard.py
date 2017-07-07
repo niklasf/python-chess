@@ -454,6 +454,26 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def playother(self, async_callback=None):
+        """
+        Set the engine to play the side whose turn it is NOT to move.
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("playother command while engine is busy")
+
+        self.in_force = False
+        def command():
+            with self.semaphore:
+                self.send_line("playother")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
     def st(self, time, async_callback=None):
         """
         Set maximum time the engine is to search for.

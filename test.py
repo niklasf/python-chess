@@ -2166,7 +2166,23 @@ class CraftyTestCase(unittest.TestCase):
         board.push(chess.Move.from_uci("h1h2"))
         for move in post_handler.post["pv"]:
             board.push(move)
-        self.assertTrue(self.engine.board.is_checkmate(), True)
+        self.assertTrue(board.is_checkmate(), True)
+
+    def test_playother(self):
+        board = chess.Board()
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
+        self.engine.setboard(board)
+        board.push(chess.Move.from_uci("e5h2"))
+        self.engine.playother()
+
+        self.engine.sd(15)
+        post_handler = chess.xboard.PostHandler()
+        self.engine.post_handlers.append(post_handler)
+        self.engine.usermove(chess.Move.from_uci("e5h2"))
+
+        for move in post_handler.post["pv"]:
+            board.push(move)
+        self.assertTrue(board.is_checkmate(), True)
 
 
 class StockfishTestCase(unittest.TestCase):
