@@ -677,7 +677,7 @@ class Engine(object):
         builder.append("usermove")
         builder.append(move)
         def command():
-            # Use the join(builder) once we parse username=1 feature
+            # Use the join(builder) once we parse usermove=1 feature
             move_str = str(move)#" ".join(builder)
             if self.in_force:
                 with self.semaphore:
