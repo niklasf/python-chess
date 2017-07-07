@@ -385,12 +385,12 @@ class Engine(object):
             with self.semaphore:
                 self.send_line("xboard")
                 self.send_line("protover 2") # TODO: Add option for this and parse input
-                self.send_line("post")
-                self.send_line("easy")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
+            self.post()
+            self.easy()
             self.ping()
 
         return self._queue_command(command, async_callback)
