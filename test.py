@@ -2184,6 +2184,36 @@ class CraftyTestCase(unittest.TestCase):
             board.push(move)
         self.assertTrue(board.is_checkmate(), True)
 
+    def test_terminate(self):
+        try:
+            engine = chess.xboard.popen_engine("crafty")
+        except OSError:
+            self.skipTest("need crafty")
+        engine.xboard()
+        engine.st(100)
+        engine.sd(32)
+        engine.go(async_callback=True)
+
+        time.sleep(0.1)
+
+        engine.terminate()
+        self.assertFalse(engine.is_alive())
+
+    def test_kill(self):
+        try:
+            engine = chess.xboard.popen_engine("crafty")
+        except OSError:
+            self.skipTest("need crafty")
+        engine.xboard()
+        engine.st(100)
+        engine.sd(32)
+        engine.go(async_callback=True)
+
+        time.sleep(0.1)
+
+        engine.kill()
+        self.assertFalse(engine.is_alive())
+
 
 class StockfishTestCase(unittest.TestCase):
 
