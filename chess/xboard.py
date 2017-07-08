@@ -385,12 +385,12 @@ class Engine(object):
             with self.semaphore:
                 self.send_line("xboard")
                 self.send_line("protover 2") # TODO: Add option for this and parse input
-                self.send_line("post")
-                self.send_line("easy")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
+            self.post()
+            self.easy()
             self.ping()
 
         return self._queue_command(command, async_callback)
@@ -451,6 +451,26 @@ class Engine(object):
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
+
+    def playother(self, async_callback=None):
+        """
+        Set the engine to play the side whose turn it is NOT to move.
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("playother command while engine is busy")
+
+        self.in_force = False
+        def command():
+            with self.semaphore:
+                self.send_line("playother")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
 
         return self._queue_command(command, async_callback)
 
@@ -677,7 +697,7 @@ class Engine(object):
         builder.append("usermove")
         builder.append(move)
         def command():
-            # Use the join(builder) once we parse username=1 feature
+            # Use the join(builder) once we parse usermove=1 feature
             move_str = str(move)#" ".join(builder)
             if self.in_force:
                 with self.semaphore:
