@@ -1145,7 +1145,7 @@ class Board(BaseBoard):
     of the Chess960 starting positions.
     """
 
-    aliases = ["Standard", "Chess", "Classical"]
+    aliases = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant = "chess"
     starting_fen = STARTING_FEN
 
