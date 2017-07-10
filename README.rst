@@ -231,9 +231,8 @@ Features
 
       >>> import chess.pgn
 
-      >>> pgn = open("data/pgn/molinari-bordais-1979.pgn")
-      >>> first_game = chess.pgn.read_game(pgn)
-      >>> pgn.close()
+      >>> with open("data/pgn/molinari-bordais-1979.pgn") as pgn:
+      ...     first_game = chess.pgn.read_game(pgn)
 
       >>> first_game.headers["White"]
       'Molinari'
@@ -248,7 +247,7 @@ Features
       >>> # Iterate through the mainline of this embarrasingly short game.
       >>> node = first_game
       >>> while not node.is_end():
-      ...     next_node = node.variation(0)
+      ...     next_node = node.variations[0]
       ...     print(node.board().san(next_node.move))
       ...     node = next_node
       e4
