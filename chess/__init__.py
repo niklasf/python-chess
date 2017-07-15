@@ -1946,7 +1946,7 @@ class Board(BaseBoard):
 
     def has_legal_en_passant(self):
         """Checks if there is a legal en passant capture."""
-        return any(self.generate_legal_ep())
+        return self.ep_square is not None and any(self.generate_legal_ep())
 
     def fen(self, promoted=None):
         """
