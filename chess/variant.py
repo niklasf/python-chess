@@ -570,6 +570,15 @@ class ThreeCheckBoard(chess.Board):
     def is_variant_win(self):
         return self.remaining_checks[self.turn] <= 0 and self.remaining_checks[not self.turn] > 0
 
+    def is_irreversible(move):
+        if super(ThreeCheckBoard, self).is_irreversible(move):
+            return True
+
+        self.push(move)
+        gives_check = self.is_check()
+        self.pop()
+        return gives_check
+
     def _transposition_key(self):
         return (super(ThreeCheckBoard, self)._transposition_key(),
                 self.remaining_checks[WHITE], self.remaining_checks[BLACK])
