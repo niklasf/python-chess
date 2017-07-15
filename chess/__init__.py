@@ -1119,12 +1119,6 @@ class _BoardState(object):
         self.halfmove_clock = board.halfmove_clock
         self.fullmove_number = board.fullmove_number
 
-    def transposition_key(self):
-        return (self.pawns, self.knights, self.bishops, self.rooks,
-                self.queens, self.kings,
-                self.occupied_w, self.occupied_b, self.promoted,
-                self.turn, self.castling_rights, self.ep_square)
-
 
 class Board(BaseBoard):
     """
@@ -1680,9 +1674,9 @@ class Board(BaseBoard):
         a claim by one of the players) if a position occurs for the fifth time
         on consecutive alternating moves.
         """
-        transposition_key = _BoardState(self).transposition_key()
+        transposition_key = self._transposition_key()
 
-        if len(self.stack) < 16:
+        if len(self.move_stack) < 16:
             return False
 
         switchyard = collections.deque()
@@ -1690,18 +1684,17 @@ class Board(BaseBoard):
         for _ in range(4):
             # Go back two full moves, each.
             for _ in range(4):
-                board_state = self.stack.pop()
-                switchyard.append(board_state)
+                switchyard.append(self.pop())
 
             # Check the position was the same before.
-            if board_state.transposition_key() != transposition_key:
+            if self._transposition_key() != transposition_key:
                 while switchyard:
-                    self.stack.append(switchyard.pop())
+                    self.push(switchyard.pop())
 
                 return False
 
         while switchyard:
-            self.stack.append(switchyard.pop())
+            self.push(switchyard.pop())
 
         return True
 
@@ -1731,11 +1724,23 @@ class Board(BaseBoard):
         board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.
         """
-        # Count positions.
-        transposition_key = _BoardState(self).transposition_key()
+        transposition_key = self._transposition_key()
         transpositions = collections.Counter()
         transpositions.update((transposition_key, ))
-        transpositions.update(state.transposition_key() for state in self.stack)
+
+        # Count positions.
+        switchyard = collections.deque()
+        while self.move_stack:
+            move = self.pop()
+            switchyard.append(move)
+
+            if self.is_irreversible(move):
+                break
+
+            transpositions.update((self._transposition_key(), ))
+
+        while switchyard:
+            self.push(switchyard.pop())
 
         # Threefold repetition occured.
         if transpositions[transposition_key] >= 3:
@@ -1745,7 +1750,7 @@ class Board(BaseBoard):
         for move in self.generate_legal_moves():
             self.push(move)
 
-            if transpositions[_BoardState(self).transposition_key()] >= 2:
+            if transpositions[self._transposition_key()] >= 2:
                 self.pop()
                 return True
 
@@ -3088,6 +3093,13 @@ class Board(BaseBoard):
                 return Move(E8, A8)
 
         return move
+
+    def _transposition_key(self):
+        return (self.pawns, self.knights, self.bishops, self.rooks,
+                self.queens, self.kings,
+                self.occupied_co[WHITE], self.occupied_co[BLACK], self.promoted,
+                self.turn, self.clean_castling_rights(),
+                self.ep_square if self.has_legal_en_passant() else None)
 
     def __repr__(self):
         if not self.chess960:
