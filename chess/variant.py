@@ -570,6 +570,10 @@ class ThreeCheckBoard(chess.Board):
     def is_variant_win(self):
         return self.remaining_checks[self.turn] <= 0 and self.remaining_checks[not self.turn] > 0
 
+    def _transposition_key(self):
+        return (super(ThreeCheckBoard, self)._transposition_key(),
+                self.remaining_checks[WHITE], self.remaining_checks[BLACK])
+
     def copy(self, stack=True):
         board = super(ThreeCheckBoard, self).copy(stack=stack)
         board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.WHITE]
@@ -668,6 +672,10 @@ class CrazyhouseBoard(chess.Board):
         return (castling_rights and chess.BB_SQUARES[move.from_square] & self.kings & ~self.promoted or
                 castling_rights & chess.BB_SQUARES[move.from_square] or
                 castling_rights & chess.BB_SQUARES[move.to_square])
+
+    def _transposition_key(self):
+        return (super(CrazyhouseBoard, self)._transposition_key(),
+                str(self.pockets[chess.WHITE]), str(self.pockets[chess.BLACK]))
 
     def legal_drop_squares_mask(self):
         king = self.king(self.turn)
