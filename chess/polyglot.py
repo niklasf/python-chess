@@ -279,7 +279,7 @@ class ZobristHasher(object):
         # Hash in the turn.
         return self.array[780] if board.turn == chess.WHITE else 0
 
-    def hash(self, board):
+    def __call__(self, board):
         return (self.hash_board(board) ^ self.hash_castling(board) ^
                 self.hash_ep_square(board) ^ self.hash_turn(board))
 
@@ -293,7 +293,7 @@ def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     position, such as piece positions, castling rights and en passant
     squares. For this implementation an array of 781 values is required.
     """
-    return _hasher.hash(board)
+    return _hasher(board)
 
 
 class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
