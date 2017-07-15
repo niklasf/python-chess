@@ -3114,31 +3114,21 @@ class Board(BaseBoard):
         return chess.svg.board(board=self, lastmove=lastmove, check=check, size=400)
 
     def __ne__(self, board):
-        # Compare base board.
-        ne = super(Board, self).__ne__(board)
-        if ne is NotImplemented:
-            return NotImplemented
-        elif ne:
-            return True
-
-        # Compare additional information.
+        # Compare positions (including move counters), but excluding history.
         try:
-            if self.chess960 != board.chess960:
+            if self.halfmove_clock != board.halfmove_clock:
                 return True
-            elif self.ep_square != board.ep_square:
+            if self.fullmove_number != board.fullmove_number:
                 return True
-            elif self.castling_rights != board.castling_rights:
+
+            if type(self).uci_variant != type(board).uci_variant:
                 return True
-            elif self.turn != board.turn:
+            if self._transposition_key() != board._transposition_key():
                 return True
-            elif self.fullmove_number != board.fullmove_number:
-                return True
-            elif self.halfmove_clock != board.halfmove_clock:
-                return True
-            else:
-                return False
         except AttributeError:
             return NotImplemented
+        else:
+            return False
 
     def copy(self, stack=True):
         board = super(Board, self).copy()
