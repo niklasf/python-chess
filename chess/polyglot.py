@@ -230,18 +230,61 @@ POLYGLOT_RANDOM_ARRAY = [
 ]
 
 
-def board_zobrist_hash(board):
-    zobrist_hash = 0
+class ZobristHasher(object):
+    def __init__(self, array):
+        assert len(array) >= 781
+        self.array = array
 
-    for pivot, squares in enumerate(board.occupied_co):
-        for square in chess.scan_reversed(squares):
-            piece_index = (board.piece_type_at(square) - 1) * 2 + pivot
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[64 * piece_index + square]
+    def hash_board(self, board):
+        zobrist_hash = 0
 
-    return zobrist_hash
+        for pivot, squares in enumerate(board.occupied_co):
+            for square in chess.scan_reversed(squares):
+                piece_index = (board.piece_type_at(square) - 1) * 2 + pivot
+                zobrist_hash ^= self.array[64 * piece_index + square]
+
+        return zobrist_hash
+
+    def hash_castling(self, board):
+        zobrist_hash = 0
+
+        # Hash in the castling flags.
+        if board.has_kingside_castling_rights(chess.WHITE):
+            zobrist_hash ^= self.array[768]
+        if board.has_queenside_castling_rights(chess.WHITE):
+            zobrist_hash ^= self.array[768 + 1]
+        if board.has_kingside_castling_rights(chess.BLACK):
+            zobrist_hash ^= self.array[768 + 2]
+        if board.has_queenside_castling_rights(chess.BLACK):
+            zobrist_hash ^= self.array[768 + 3]
+
+        return zobrist_hash
+
+    def hash_ep_square(self, board):
+        # Hash in the en passant file.
+        if board.ep_square:
+            # But only if theres actually a pawn ready to capture it. Legality
+            # of the potential capture is irrelevant.
+            if board.turn == chess.WHITE:
+                ep_mask = chess.shift_down(chess.BB_SQUARES[board.ep_square])
+            else:
+                ep_mask = chess.shift_up(chess.BB_SQUARES[board.ep_square])
+            ep_mask = chess.shift_left(ep_mask) | chess.shift_right(ep_mask)
+
+            if ep_mask & board.pawns & board.occupied_co[board.turn]:
+                return self.array[772 + chess.square_file(board.ep_square)]
+        return 0
+
+    def hash_turn(self, board):
+        # Hash in the turn.
+        return self.array[780] if board.turn == chess.WHITE else 0
+
+    def hash(self, board):
+        return (self.hash_board(board) ^ self.hash_castling(board) ^
+                self.hash_ep_square(board) ^ self.hash_turn(board))
 
 
-def zobrist_hash(board):
+def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     """
     Calculates the Polyglot Zobrist hash of the position.
 
@@ -250,37 +293,7 @@ def zobrist_hash(board):
     position, such as piece positions, castling rights and en passant
     squares. For this implementation an array of 781 values is required.
     """
-    # Hash in the board setup.
-    zobrist_hash = board_zobrist_hash(board)
-
-    # Hash in the castling flags.
-    if board.has_kingside_castling_rights(chess.WHITE):
-        zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768]
-    if board.has_queenside_castling_rights(chess.WHITE):
-        zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 1]
-    if board.has_kingside_castling_rights(chess.BLACK):
-        zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 2]
-    if board.has_queenside_castling_rights(chess.BLACK):
-        zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[768 + 3]
-
-    # Hash in the en passant file.
-    if board.ep_square:
-        # But only if theres actually a pawn ready to capture it. Legality
-        # of the potential capture is irrelevant.
-        if board.turn == chess.WHITE:
-            ep_mask = chess.shift_down(chess.BB_SQUARES[board.ep_square])
-        else:
-            ep_mask = chess.shift_up(chess.BB_SQUARES[board.ep_square])
-        ep_mask = chess.shift_left(ep_mask) | chess.shift_right(ep_mask)
-
-        if ep_mask & board.pawns & board.occupied_co[board.turn]:
-            zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[772 + chess.square_file(board.ep_square)]
-
-    # Hash in the turn.
-    if board.turn == chess.WHITE:
-        zobrist_hash ^= POLYGLOT_RANDOM_ARRAY[780]
-
-    return zobrist_hash
+    return _hasher.hash(board)
 
 
 class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
