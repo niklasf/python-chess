@@ -400,11 +400,19 @@ class BoardTestCase(unittest.TestCase):
 
         board = chess.Board("4k2r/8/8/8/8/8/8/R1K5 w KQkq - 0 1", chess960=True)
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
-        self.assertEqual(board.fen(), "4k2r/8/8/8/8/8/8/R1K5 w k - 0 1")
+        self.assertEqual(board.fen(), "4k2r/8/8/8/8/8/8/R1K5 w Qk - 0 1")
 
         board = chess.Board("1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQkq - 0 1", chess960=True)
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
         self.assertEqual(board.fen(), "1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQq - 0 1")
+
+    def test_ninesixty_different_king_and_rook_file(self):
+        # Theoretically this position (with castling rights) can not be reached
+        # with a series of legal moves from one of the 960 starting positions.
+        # Decision: We don't care. Neither does Stockfish or lichess.org.
+        fen = "1r1k1r2/5p2/8/8/8/8/3N4/R5KR b KQkq - 0 1"
+        board = chess.Board(fen, chess960=True)
+        self.assertEqual(board.fen(), fen)
 
     def test_ninesixty_prevented_castle(self):
         board = chess.Board("4k3/8/8/1b6/8/8/8/5RKR w KQ - 0 1", chess960=True)

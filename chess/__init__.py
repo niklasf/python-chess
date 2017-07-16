@@ -2675,15 +2675,6 @@ class Board(BaseBoard):
             if not black_king_mask:
                 black_castling = 0
 
-            # Kings must be on the same file, giving preference to the e-file
-            # and then to white.
-            if white_castling and black_castling:
-                if square_file(msb(white_king_mask)) != square_file(msb(black_king_mask)):
-                    if black_king_mask == BB_E8:
-                        white_castling = 0
-                    else:
-                        black_castling = 0
-
             # There are only two ways of castling, a-side and h-side, and the
             # king must be between the rooks.
             white_a_side = white_castling & -white_castling
@@ -2701,20 +2692,6 @@ class Board(BaseBoard):
                 black_a_side = BB_VOID
             if black_h_side and msb(black_h_side) < msb(black_king_mask):
                 black_h_side = BB_VOID
-
-            # Rooks must be on the same file, giving preference to the a or h
-            # file and then to white.
-            if black_a_side and white_a_side and square_file(msb(black_a_side)) != square_file(msb(white_a_side)):
-                if black_a_side == BB_A8:
-                    white_a_side = BB_VOID
-                else:
-                    black_a_side = BB_VOID
-
-            if black_h_side and white_h_side and square_file(msb(black_h_side)) != square_file(msb(white_h_side)):
-                if black_h_side == BB_H8:
-                    white_h_side = BB_VOID
-                else:
-                    black_h_side = BB_VOID
 
             # Done.
             return black_a_side | black_h_side | white_a_side | white_h_side
