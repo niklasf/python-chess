@@ -1359,7 +1359,7 @@ class Board(BaseBoard):
         elif bb_square & self.kings:
             return BB_KING_ATTACKS[square]
         else:
-            attacks = BB_VOID
+            attacks = 0
             if bb_square & self.bishops or bb_square & self.queens:
                 attacks = BB_DIAG_ATTACKS[square][BB_DIAG_MASKS[square] & self.occupied]
             if bb_square & self.rooks or bb_square & self.queens:
@@ -2389,7 +2389,7 @@ class Board(BaseBoard):
             # Get ambiguous move candidates.
             # Relevant candidates: Not excatly the current move,
             # but to the same square.
-            others = BB_VOID
+            others = 0
             from_mask = self.pieces_mask(piece, self.turn)
             from_mask &= ~BB_SQUARES[move.from_square]
             to_mask = BB_SQUARES[move.to_square]
@@ -2678,20 +2678,20 @@ class Board(BaseBoard):
             # There are only two ways of castling, a-side and h-side, and the
             # king must be between the rooks.
             white_a_side = white_castling & -white_castling
-            white_h_side = BB_SQUARES[msb(white_castling)] if white_castling else BB_VOID
+            white_h_side = BB_SQUARES[msb(white_castling)] if white_castling else 0
 
             if white_a_side and msb(white_a_side) > msb(white_king_mask):
-                white_a_side = BB_VOID
+                white_a_side = 0
             if white_h_side and msb(white_h_side) < msb(white_king_mask):
-                white_h_side = BB_VOID
+                white_h_side = 0
 
             black_a_side = (black_castling & -black_castling)
             black_h_side = BB_SQUARES[msb(black_castling)] if black_castling else BB_VOID
 
             if black_a_side and msb(black_a_side) > msb(black_king_mask):
-                black_a_side = BB_VOID
+                black_a_side = 0
             if black_h_side and msb(black_h_side) < msb(black_king_mask):
-                black_h_side = BB_VOID
+                black_h_side = 0
 
             # Done.
             return black_a_side | black_h_side | white_a_side | white_h_side
@@ -3021,8 +3021,8 @@ class Board(BaseBoard):
 
             a_side = rook < king
 
-            empty_for_rook = BB_VOID
-            empty_for_king = BB_VOID
+            empty_for_rook = 0
+            empty_for_king = 0
 
             if a_side:
                 king_to = msb(bb_c)
