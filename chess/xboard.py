@@ -454,6 +454,49 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def memory(self, amount, async_callback=None):
+        """
+        Set the maximum memory of the engine's hash/pawn/bitbase/etc tables.
+
+        :param amount: Maximum amount of memory to use in MegaBytes
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("memory command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("memory " + str(amount))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
+    def cores(self, num, async_callback=None):
+        """
+        Set the maximum number of processors the engine is allowed to use.
+        That is, the number of search threads for an SMP engine.
+
+        :param num: The number of processors
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("cores command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("cores " + str(num))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
     def playother(self, async_callback=None):
         """
         Set the engine to play the side whose turn it is NOT to move.
