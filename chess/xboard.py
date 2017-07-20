@@ -355,20 +355,41 @@ class Engine(object):
         """
         self.pondering(True)
 
-    def post(self, async_callback=None):
+    def set_post(self, flag, async_callback=None):
         """
-        Command used to tell the engine to output it's analysis
+        Command used to tell the engine whether to output it's analysis or not.
+
+        :param flag: True or False to set post on or off.
 
         :return: Nothing
         """
         def command():
             with self.semaphore:
-                self.send_line("post")
+                if flag == True:
+                    self.send_line("post")
+                else:
+                    self.send_line("nopost")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
+
+    def post(self, async_callback=None):
+        """
+        Command used to tell the engine to output it's analysis.
+
+        :return: Nothing
+        """
+        self.set_post(True)
+
+    def nopost(self, async_callback=None):
+        """
+        Command used to tell the engine to not output it's analysis.
+
+        :return: Nothing
+        """
+        self.set_post(False)
 
     def xboard(self, async_callback=None):
         """
