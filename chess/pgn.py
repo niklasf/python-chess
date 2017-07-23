@@ -779,8 +779,7 @@ def read_game(handle, Visitor=GameModelCreator):
     By using text mode the parser does not need to handle encodings. It is the
     callers responsibility to open the file with the correct encoding.
     PGN files are ASCII or UTF-8 most of the time. So the following should
-    cover most relevant cases (ASCII, UTF-8 without BOM, UTF-8 with BOM,
-    UTF-8 with encoding errors).
+    cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
