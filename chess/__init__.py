@@ -2095,7 +2095,12 @@ class Board(BaseBoard):
                 self.castling_rights |= BB_FILES[FILE_NAMES.index(flag)] & backrank
 
     def set_castling_fen(self, castling_fen):
-        """Sets castling rights from a string in FEN notation like ``Qqk``."""
+        """
+        Sets castling rights from a string in FEN notation like ``Qqk``.
+
+        :raises: :exc:`ValueError` if the castling FEN is syntactically
+            invalid.
+        """
         self._set_castling_fen(castling_fen)
         self.clear_stack()
 
@@ -2443,12 +2448,12 @@ class Board(BaseBoard):
     def variation_san(self, variation):
         """
         Given a sequence of moves, return a string representing the sequence
-        in standard algebraic notation (e.g. "1. e4 e5 2. Nf3 Nc6" or "37...Bg6
-        38. fxg6").
-
-        ValueError will be thrown if any moves in the sequence are illegal.
+        in standard algebraic notation (e.g. ``1. e4 e5 2. Nf3 Nc6`` or
+        ``37...Bg6 38. fxg6``).
 
         This board will not be modified as a result of calling this.
+
+        :raises: :exc:`ValueError` if any moves in the sequence are illegal.
         """
         board = self.copy(stack=False)
         san = []
