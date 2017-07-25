@@ -1409,7 +1409,7 @@ class Board(BaseBoard):
         True
         >>> direction = board.pin(chess.WHITE, chess.C3)
         >>> direction
-        SquareSet(0b0000000000000000000000000000000100000010000001000000100000010000)
+        SquareSet(0x0000000102040810)
         >>> print(direction)
         . . . . . . . .
         . . . . . . . .
