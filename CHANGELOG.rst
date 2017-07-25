@@ -16,7 +16,7 @@ Bugfixes:
 * Fixed repetition detection in Three-Check and Crazyhouse. (Previously
   check counters and pockets were ignored.)
 * Checking moves in Three-Check are now considered as irreversible by
-  `chess.Board.is_irreversible()`.
+  `ThreeCheckBoard.is_irreversible()`.
 
 Changes:
 
