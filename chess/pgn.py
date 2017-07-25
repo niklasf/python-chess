@@ -404,8 +404,8 @@ class Game(GameNode):
         """
         Gets the starting position of the game.
 
-        Unless ``FEN`` header tag is set this is the default starting position
-        (for the ``Variant``).
+        Unless the ``FEN`` header tag is set this is the default starting
+        position (for the ``Variant``).
         """
         chess960 = self.headers.get("Variant", "").lower() in [
             "chess960",
