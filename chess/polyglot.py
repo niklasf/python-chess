@@ -346,16 +346,6 @@ class MemoryMappedReader(object):
     def __exit__(self, exc_type, exc_value, traceback):
         return self.close()
 
-    def close(self):
-        """Closes the reader."""
-        if self.mmap is not None:
-            self.mmap.close()
-
-        try:
-            os.close(self.fd)
-        except OSError:
-            pass
-
     def __len__(self):
         if self.mmap is None:
             return 0
@@ -488,6 +478,16 @@ class MemoryMappedReader(object):
                 return entry
 
         assert False
+
+    def close(self):
+        """Closes the reader."""
+        if self.mmap is not None:
+            self.mmap.close()
+
+        try:
+            os.close(self.fd)
+        except OSError:
+            pass
 
 
 def open_reader(path):
