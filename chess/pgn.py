@@ -783,7 +783,7 @@ def read_game(handle, Visitor=GameModelCreator):
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
-    Use `StringIO` to parse games from a string.
+    Use :class:`~io.StringIO` to parse games from a string.
 
     >>> pgn_string = "1. e4 e5 2. Nf3 *"
     >>>
@@ -1055,7 +1055,7 @@ def scan_offsets(handle):
     later. This is just like :func:`~chess.pgn.scan_headers()` but more
     efficient if you do not actually need the header information.
 
-    The PGN standard requires each game to start with an *Event*-tag. So does
+    The PGN standard requires each game to start with an ``Event`` tag. So does
     this scanner.
     """
     in_comment = False
