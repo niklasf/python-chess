@@ -404,8 +404,8 @@ class Game(GameNode):
         """
         Gets the starting position of the game.
 
-        Unless the `SetUp` and `FEN` header tags are set this is the default
-        starting position.
+        Unless ``FEN`` header tag is set this is the default starting position
+        (for the ``Variant``).
         """
         chess960 = self.headers.get("Variant", "").lower() in [
             "chess960",
@@ -418,15 +418,15 @@ class Game(GameNode):
             from chess.variant import find_variant
             VariantBoard = find_variant(self.headers["Variant"])
 
-        fen = self.headers.get("FEN") if self.headers.get("SetUp", "1") == "1" else None
-        board = VariantBoard(fen or VariantBoard.starting_fen, chess960=chess960)
+        fen = self.headers.get("FEN", VariantBoard.starting_fen)
+        board = VariantBoard(fen, chess960=chess960)
         board.chess960 = board.chess960 or board.has_chess960_castling_rights()
         return board
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the *SetUp*,
-        *FEN* and *Variant* header tags.
+        Setup a specific starting position. This sets (or resets) the
+        ``FEN``, ``SetUp``, and ``Variant`` header tags.
         """
         try:
             fen = board.fen()
