@@ -1172,7 +1172,7 @@ class BoardTestCase(unittest.TestCase):
             P P . . . . P P
             . . . . . . K ."""))
 
-        self.assertEqual(board.__unicode__(), textwrap.dedent(u"""\
+        self.assertEqual(board.unicode(), textwrap.dedent(u"""\
             . . . . . . . ♚
             . ♟ . ♛ ♞ . ♝ .
             ♟ ♗ . ♟ . ♞ . .

@@ -377,9 +377,6 @@ class Piece(object):
     def __str__(self):
         return self.symbol()
 
-    def __unicode__(self, invert_color=False):
-        return self.unicode_symbol(invert_color)
-
     def _repr_svg_(self):
         import chess.svg
         return chess.svg.piece(self, size=45)
@@ -981,7 +978,7 @@ class BaseBoard(object):
 
         return "".join(builder)
 
-    def __unicode__(self, invert_color=False, borders=False):
+    def unicode(self, invert_color=False, borders=False):
         builder = []
         for rank_index in range(7, -1, -1):
             if borders:

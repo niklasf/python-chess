@@ -26,6 +26,8 @@ Changes:
   not by exact match of the internal data structures or move history.
 * Relaxed castling right validation in Chess960: Kings/rooks of opposing sites
   are no longer required to be on the same file.
+* Removed misnamed `Piece.__unicode__()` and `BaseBoard.__unicode__()`. Use
+  `Piece.unicode_symbol()` and `BaseBoard.unicode()` instead.
 * Changed `chess.SquareSet.__repr__()`.
 * Support `[Variant "normal"]` in PGNs.
 * Mixed documentation fixes and improvements.
