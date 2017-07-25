@@ -2744,100 +2744,88 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_wdl_tablebase(self):
-        tablebases = chess.syzygy.Tablebases(max_fds=2)
-        self.assertGreaterEqual(tablebases.open_directory("data/syzygy/regular"), 70)
+        with chess.syzygy.Tablebases(max_fds=2) as tables:
+            self.assertGreaterEqual(tables.open_directory("data/syzygy/regular"), 70)
 
-        # Winning KRvKB.
-        board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
-        self.assertEqual(tablebases.probe_wdl_table(board), -2)
+            # Winning KRvKB.
+            board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
+            self.assertEqual(tables.probe_wdl_table(board), -2)
 
-        # Drawn KBBvK.
-        board = chess.Board("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
-        self.assertEqual(tablebases.probe_wdl_table(board), 0)
+            # Drawn KBBvK.
+            board = chess.Board("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
+            self.assertEqual(tables.probe_wdl_table(board), 0)
 
-        # Winning KBBvK.
-        board = chess.Board("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
-        self.assertEqual(tablebases.probe_wdl_table(board), 2)
-
-        tablebases.close()
+            # Winning KBBvK.
+            board = chess.Board("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
+            self.assertEqual(tables.probe_wdl_table(board), 2)
 
     def test_wdl_ep(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+            # Winning KPvKP because of en passant.
+            board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
-        # Winning KPvKP because of en passant.
-        board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
+            # If there was no en passant this would be a draw.
+            self.assertEqual(tables.probe_wdl_table(board), 0)
 
-        # If there was no en passant this would be a draw.
-        self.assertEqual(tablebases.probe_wdl_table(board), 0)
-
-        # But it is a win.
-        self.assertEqual(tablebases.probe_wdl(board), 2)
-
-        tablebases.close()
+            # But it is a win.
+            self.assertEqual(tables.probe_wdl(board), 2)
 
     def test_dtz_ep(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
-
-        board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
-        self.assertEqual(tablebases.probe_dtz_no_ep(board), -1)
-        self.assertEqual(tablebases.probe_dtz(board), 1)
-
-        tablebases.close()
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+            board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
+            self.assertEqual(tables.probe_dtz_no_ep(board), -1)
+            self.assertEqual(tables.probe_dtz(board), 1)
 
     def test_testsuite(self):
-        tablebases = chess.syzygy.Tablebases("data/syzygy/regular")
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables, open("data/endgame.epd") as epds:
+            board = chess.Board()
 
-        board = chess.Board()
-
-        with open("data/endgame.epd") as epds:
             for line, epd in enumerate(epds):
                 extra = board.set_epd(epd)
 
-                wdl_table = tablebases.probe_wdl_table(board)
+                wdl_table = tables.probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
                     "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
 
-                wdl = tablebases.probe_wdl(board)
+                wdl = tables.probe_wdl(board)
                 self.assertEqual(
                     wdl, extra["wdl"],
                     "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
 
-                dtz = tablebases.probe_dtz(board)
+                dtz = tables.probe_dtz(board)
                 self.assertEqual(
                     dtz, extra["dtz"],
                     "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
 
-        tablebases.close()
-
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
             board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
-            self.assertEqual(tablebases.probe_dtz(board), 15)
+            self.assertEqual(tables.probe_dtz(board), 15)
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_issue_93(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
             board = chess.Board("4r1K1/6PP/3k4/8/8/8/8/8 w - - 1 64")
-            self.assertEqual(tablebases.probe_wdl(board), 2)
-            self.assertEqual(tablebases.probe_dtz(board), 4)
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtz(board), 4)
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtm(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables:
             with open("data/suicide-dtm.epd") as epds:
                 for epd in epds:
                     epd = epd.strip()
 
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
-                    wdl = tablebases.probe_wdl(board)
+                    wdl = tables.probe_wdl(board)
 
                     expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
                     self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
 
-                    dtz = tablebases.probe_dtz(board)
+                    dtz = tables.probe_dtz(board)
 
                     if wdl > 0:
                         self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
@@ -2850,7 +2838,7 @@ class SyzygyTestCase(unittest.TestCase):
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtz(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables:
             with open("data/suicide-dtz.epd") as epds:
                 for epd in epds:
                     epd = epd.strip()
@@ -2859,7 +2847,7 @@ class SyzygyTestCase(unittest.TestCase):
 
                     board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
-                    dtz = tablebases.probe_dtz(board)
+                    dtz = tables.probe_dtz(board)
                     self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
     @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
@@ -2867,12 +2855,12 @@ class SyzygyTestCase(unittest.TestCase):
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
 
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tablebases:
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tables:
             with open("data/suicide-stats.epd") as epds:
                 for l, epd in enumerate(epds):
                     solution = board.set_epd(epd)
 
-                    dtz = tablebases.probe_dtz(board)
+                    dtz = tables.probe_dtz(board)
                     self.assertAlmostEqual(dtz, solution["dtz"], delta=1, msg="Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
 
 

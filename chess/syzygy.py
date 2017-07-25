@@ -1475,14 +1475,11 @@ class Tablebases(object):
     Syzygy tables come in files like ``KQvKN.rtbw`` or ``KRBvK.rtbz``, one WDL
     (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
 
-    Directly loads tables from *directory*. See
-    :func:`~chess.syzygy.Tablebases.open_directory`.
-
     If *max_fds* is not ``None``, will at most use *max_fds* open file
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
     """
-    def __init__(self, directory=None, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+    def __init__(self, max_fds=128, VariantBoard=chess.Board):
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1490,9 +1487,6 @@ class Tablebases(object):
 
         self.wdl = {}
         self.dtz = {}
-
-        if directory:
-            self.open_directory(directory, load_wdl, load_dtz)
 
     def _bump_lru(self, table):
         if self.max_fds is None:
@@ -1527,7 +1521,7 @@ class Tablebases(object):
         Loads tables from a directory.
 
         By default all available tables with the correct file names
-        (e.g. *KQvKN.rtbw* or *KRBvK.rtbz*) are loaded.
+        (e.g. ``KQvKN.rtbw`` or ``KRBvK.rtbz``) are loaded.
 
         Returns the number of successfully openened and loaded tablebase files.
         """
@@ -1927,7 +1921,7 @@ class Tablebases(object):
         self.close()
 
 
-def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+def open_tablebases(directory, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
     """
     Opens a collection of tablebases for probing. See
     :class:`~chess.syzygy.Tablebases`.
@@ -1941,4 +1935,6 @@ def open_tablebases(directory=None, load_wdl=True, load_dtz=True, max_fds=128, V
         Use :func:`~chess.syzygy.Tablebases.open_directory()` to load
         tablebases from additional directories.
     """
-    return Tablebases(directory, load_wdl, load_dtz, max_fds, VariantBoard)
+    tables = Tablebases(max_fds=max_fds, VariantBoard=VariantBoard)
+    tables.open_directory(directory, load_wdl=load_wdl, load_dtz=load_dtz)
+    return tables
