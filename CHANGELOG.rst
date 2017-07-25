@@ -1,12 +1,41 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+New features:
+
+* **Added XBoard engine support.** Thanks to Manik Charan and Cash Costello.
+* Added an undocumented `chess.polyglot.ZobristHasher` to make Zobrist hashing
+  easier to extend.
+
+Bugfixes:
+
+* Merely pseudo-legal en passant does no longer count for repetitions.
+* Fixed repetition detection in Three-Check and Crazyhouse. (Previously
+  check counters and pockets were ignored.)
+* Checking moves in Three-Check are now considered as irreversible by
+  `chess.Board.is_irreversible()`.
+
+Changes:
+
+* `chess.syzygy.Tablebases` constructor no longer supports directly opening
+  a directory. Use `chess.syzygy.open_tablebases()`.
+* `chess.Board` instances are now compared by the position they represent,
+  not by exact match of the internal data structures or move history.
+* Relaxed castling right validation in Chess960: Kings/rooks of opposing sites
+  are no longer required to be on the same file.
+* Changed `chess.SquareSet.__repr__()`.
+* Support `[Variant "normal"]` in PGNs.
+* Mixed documentation fixes and improvements.
+
 New in v0.18.4
 --------------
 
 Changes:
 
-* Support `[Variant "fischerrandom"]` in PGNs for Cutechess compability.
+* Support `[Variant "fischerandom"]` in PGNs for Cutechess compability.
   Thanks to Steve Maughan for reporting.
 
 New in v0.18.3
