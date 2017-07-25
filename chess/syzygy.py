@@ -1472,9 +1472,6 @@ class Tablebases(object):
     """
     Manages a collection of tablebase files for probing.
 
-    Syzygy tables come in files like ``KQvKN.rtbw`` or ``KRBvK.rtbz``, one WDL
-    (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
-
     If *max_fds* is not ``None``, will at most use *max_fds* open file
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
@@ -1521,7 +1518,8 @@ class Tablebases(object):
         Loads tables from a directory.
 
         By default all available tables with the correct file names
-        (e.g. ``KQvKN.rtbw`` or ``KRBvK.rtbz``) are loaded.
+        (e.g. WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
+        are loaded.
 
         Returns the number of successfully openened and loaded tablebase files.
         """
