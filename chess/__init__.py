@@ -1876,6 +1876,8 @@ class Board(BaseBoard):
     def pop(self):
         """
         Restores the previous position and returns the last move from the stack.
+
+        :raises: :exc:`IndexError` if the stack is empty.
         """
         move = self.move_stack.pop()
         state = self.stack.pop()
@@ -1902,7 +1904,11 @@ class Board(BaseBoard):
         return move
 
     def peek(self):
-        """Gets the last move from the move stack."""
+        """
+        Gets the last move from the move stack.
+
+        :raises: :exc:`IndexError` if the move stack is empty.
+        """
         return self.move_stack[-1]
 
     def castling_shredder_fen(self):
