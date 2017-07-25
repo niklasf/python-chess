@@ -288,10 +288,10 @@ def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     """
     Calculates the Polyglot Zobrist hash of the position.
 
-    A zobrist hash is an exclusive or of pseudo random values picked from
+    A zobrist hash is an XOR of pseudo random values picked from
     an array. Which values are picked is decided by features of the
     position, such as piece positions, castling rights and en passant
-    squares. For this implementation an array of 781 values is required.
+    squares.
     """
     return _hasher(board)
 
