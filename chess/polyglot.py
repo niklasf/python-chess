@@ -494,7 +494,7 @@ def open_reader(path):
     """
     Creates a reader for the file at the given path.
 
-    >>> with open_reader("data/polyglot/performance.bin") as reader:
+    >>> with chess.polyglot.open_reader("data/polyglot/performance.bin") as reader:
     ...    for entry in reader.find_all(board):
     ...        print(entry.move(), entry.weight, entry.learn)
     e2e4 1 0
