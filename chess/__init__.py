@@ -3221,7 +3221,7 @@ class SquareSet(object):
 
     >>> squares = chess.SquareSet(chess.BB_B1 | chess.BB_G1)
     >>> squares
-    SquareSet(0b0000000000000000000000000000000000000000000000000000000001000010)
+    SquareSet(0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_01000010)
 
     >>> print(squares)
     . . . . . . . .
@@ -3444,7 +3444,15 @@ class SquareSet(object):
         return self.mask
 
     def __repr__(self):
-        return "SquareSet({0:#066b})".format(self.mask)
+        binary = bin(self.mask).replace("0b", "").rjust(64, "0")
+        grouped = "_".join(binary[i:i+8] for i in range(0, 64, 8))
+        try:
+            # Test support for underscores in numeric literals.
+            int(grouped, 2)
+        except ValueError:
+            return "SquareSet(0b{0})".format(binary)
+        else:
+            return "SquareSet(0b{0})".format(grouped)
 
     def __str__(self):
         builder = []
