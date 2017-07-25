@@ -1472,7 +1472,7 @@ class Tablebases(object):
     """
     Manages a collection of tablebase files for probing.
 
-    Syzygy tables come in files like *KQvKN.rtbw* or *KRBvK.rtbz*, one WDL
+    Syzygy tables come in files like ``KQvKN.rtbw`` or ``KRBvK.rtbz``, one WDL
     (*.rtbw*) and DTZ (*.rtbz*) file for each material composition.
 
     Directly loads tables from *directory*. See
