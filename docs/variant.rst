@@ -26,7 +26,7 @@ Atomic           :class:`chess.variant.AtomicBoard`        atomic        .atbw, 
 King of the Hill :class:`chess.variant.KingOfTheHillBoard` kingofthehill
 Racing Kings     :class:`chess.variant.RacingKingsBoard`   racingkings
 Horde            :class:`chess.variant.HordeBoard`         horde
-Three-check      :class:`chess.variant.ThreeCheckBoard`    threecheck
+Three-check      :class:`chess.variant.ThreeCheckBoard`    3check
 Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
 ================ ========================================= ============= ============
 
