@@ -2777,26 +2777,30 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tables.probe_dtz(board), 1)
 
     def test_testsuite(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables, open("data/endgame.epd") as epds:
-            board = chess.Board()
+        tables = chess.syzygy.open_tablebases("data/syzygy/regular")
+        epds = open("data/endgame.epd")
 
-            for line, epd in enumerate(epds):
-                extra = board.set_epd(epd)
+        board = chess.Board()
 
-                wdl_table = tables.probe_wdl_table(board)
-                self.assertEqual(
-                    wdl_table, extra["wdl_table"],
-                    "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
+        for line, epd in enumerate(epds):
+            extra = board.set_epd(epd)
 
-                wdl = tables.probe_wdl(board)
-                self.assertEqual(
-                    wdl, extra["wdl"],
-                    "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
+            wdl_table = tables.probe_wdl_table(board)
+            self.assertEqual(
+                wdl_table, extra["wdl_table"],
+                "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
 
-                dtz = tables.probe_dtz(board)
-                self.assertEqual(
-                    dtz, extra["dtz"],
-                    "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
+            wdl = tables.probe_wdl(board)
+            self.assertEqual(
+                wdl, extra["wdl"],
+                "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
+
+            dtz = tables.probe_dtz(board)
+            self.assertEqual(
+                dtz, extra["dtz"],
+                "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
+        epds.close()
+        tables.close()
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
