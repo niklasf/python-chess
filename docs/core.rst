@@ -97,7 +97,11 @@ Moves
 
     .. py:attribute:: promotion
 
-        The promotion piece type.
+        The promotion piece type or ``Ǹone``.
+
+    .. py:attribute:: drop
+
+        The drop piece type or ``None``.
 
 Board
 -----
