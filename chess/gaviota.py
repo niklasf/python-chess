@@ -1984,7 +1984,6 @@ class NativeTablebases(object):
         if chess.popcount(board.occupied) > 5:
             raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
-
         stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
         ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
         castling = ctypes.c_uint(0)
@@ -2023,7 +2022,7 @@ class NativeTablebases(object):
 
         # Probe forbidden.
         if info.value == 3:
-            raise KeyError("gaviota table for {0} marked as forbidden".format(board.fen()))
+            raise MissingTableError("gaviota table for {0} not available".format(board.fen()))
 
         # Probe failed or unknown.
         if not ret or info.value == 7:
