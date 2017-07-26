@@ -36,6 +36,8 @@ Changes:
   `Piece.unicode_symbol()` and `BaseBoard.unicode()` instead.
 * Changed `chess.SquareSet.__repr__()`.
 * Support `[Variant "normal"]` in PGNs.
+* `pip install python-chess[engine]` instead of `python-chess[uci]` (since
+  the extra dependencies are required for both UCI and XBoard engines).
 * Mixed documentation fixes and improvements.
 
 New in v0.18.4
