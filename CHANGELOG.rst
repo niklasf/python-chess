@@ -6,7 +6,8 @@ Upcoming in the next release
 
 New features:
 
-* **Added XBoard engine support.** Thanks to Manik Charan and Cash Costello.
+* **Experimental XBoard engine support.** Thanks to Manik Charan and
+  Cash Costello. Expect breaking changes in future releases.
 * Added an undocumented `chess.polyglot.ZobristHasher` to make Zobrist hashing
   easier to extend.
 
