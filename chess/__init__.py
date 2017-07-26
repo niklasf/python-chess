@@ -3267,9 +3267,6 @@ class SquareSet(object):
     :func:`~chess.SquareSet.difference_update()`,
     :func:`~chess.SquareSet.symmetric_difference_update()` and
     :func:`~chess.SquareSet.clear()`.
-
-    :warning: Square sets can be used as dictionary keys, but do not modify
-        them when doing this.
     """
 
     def __init__(self, mask=BB_VOID):
