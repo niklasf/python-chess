@@ -491,7 +491,7 @@ class Move(object):
         """
         if uci == "0000":
             return cls.null()
-        elif "@" == uci[1]:
+        elif len(uci) == 4 and "@" == uci[1]:
             drop = PIECE_SYMBOLS.index(uci[0].lower())
             square = SQUARE_NAMES.index(uci[2:])
             return cls(square, square, drop=drop)

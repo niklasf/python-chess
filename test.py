@@ -124,6 +124,19 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
         self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
 
+    def test_invalid_uci(self):
+        with self.assertRaises(ValueError):
+            chess.Move.from_uci("")
+
+        with self.assertRaises(ValueError):
+            chess.Move.from_uci("N")
+
+        with self.assertRaises(ValueError):
+            chess.Move.from_uci("z1g3")
+
+        with self.assertRaises(ValueError):
+            chess.Move.from_uci("Q@g9")
+
     def test_copy(self):
         a = chess.Move.from_uci("N@f3")
         b = chess.Move.from_uci("a1h8")

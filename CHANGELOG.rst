@@ -17,6 +17,8 @@ Bugfixes:
   check counters and pockets were ignored.)
 * Checking moves in Three-Check are now considered as irreversible by
   `ThreeCheckBoard.is_irreversible()`.
+* `chess.Move.from_uci("")` was raising `IndexError` instead of `ValueError`.
+  Thanks Jonny Balls.
 
 Changes:
 
