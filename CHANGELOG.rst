@@ -25,6 +25,9 @@ Changes:
 
 * `chess.syzygy.Tablebases` constructor no longer supports directly opening
   a directory. Use `chess.syzygy.open_tablebases()`.
+* `chess.gaviota.PythonTablebases` and `NativeTablebases` constructors
+  no longer support directly opening a directory.
+  Use `chess.gaviota.open_tablebases()`.
 * `chess.Board` instances are now compared by the position they represent,
   not by exact match of the internal data structures or move history.
 * Relaxed castling right validation in Chess960: Kings/rooks of opposing sites

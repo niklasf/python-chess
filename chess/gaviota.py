@@ -1523,7 +1523,7 @@ Zipinfo = collections.namedtuple("Zipinfo", ["extraoffset", "totalblocks", "bloc
 class PythonTablebases(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
-    def __init__(self, directory, lzma):
+    def __init__(self, lzma):
         self.lzma = lzma
 
         self.available_tables = {}
@@ -1533,9 +1533,6 @@ class PythonTablebases(object):
 
         self.block_cache = {}
         self.block_age = 0
-
-        if directory is not None:
-            self.open_directory(directory)
 
     def open_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
@@ -1898,7 +1895,9 @@ class NativeTablebases(object):
     Has the same interface as :class:`~chess.gaviota.PythonTablebases`.
     """
 
-    def __init__(self, directory, libgtb):
+    def __init__(self, libgtb):
+        self.paths = []
+
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
         self.libgtb.tb_restart.restype = ctypes.c_char_p
@@ -1917,10 +1916,6 @@ class NativeTablebases(object):
 
         if self.libgtb.tb_is_initialized():
             raise RuntimeError("only one gaviota instance can be initialized at a time")
-
-        self.paths = []
-        if directory is not None:
-            self.open_directory(directory)
 
         self._tbcache_restart(1024 * 1024, 50)
 
@@ -2070,10 +2065,12 @@ def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     :raises: :exc:`RuntimeError` or :exc:`OSError` when libgtb can not be used.
     """
     libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
-    return NativeTablebases(directory, LibraryLoader.LoadLibrary(libgtb))
+    tables = NativeTablebases(LibraryLoader.LoadLibrary(libgtb))
+    tables.open_directory(directory)
+    return tables
 
 
-def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     Opens a collection of tablebases for probing.
 
@@ -2098,4 +2095,6 @@ def open_tablebases(directory=None, libgtb=None, LibraryLoader=ctypes.cdll):
         except ImportError:
             raise ImportError("chess.gaviota requires backports.lzma or libgtb")
 
-    return PythonTablebases(directory, lzma)
+    tables = PythonTablebases(lzma)
+    tables.open_directory(directory)
+    return tables
