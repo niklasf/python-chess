@@ -102,57 +102,6 @@ def pypi():
     system("python3 setup.py sdist upload")
 
 
-def pythonhosted(tagname):
-    print("--- PYTHONHOSTED -------------------------------------------------")
-
-    print("Creating pythonhosted.zip ...")
-    with zipfile.ZipFile("pythonhosted.zip", "w") as zip_file:
-        zip_file.writestr("index.html", textwrap.dedent("""\
-            <html>
-              <head>
-                <meta http-equiv="refresh" content="0;url=http://python-chess.readthedocs.io/en/{0}/">
-                <script>
-                  window.location.href = 'http://python-chess.readthedocs.io/en/{0}/';
-                </script>
-              </head>
-            </html>""".format(tagname)))
-
-    print("Getting credentials ...")
-    config = configparser.ConfigParser()
-    config.read(os.path.expanduser("~/.pypirc"))
-    username = config.get("pypi", "username")
-    password = config.get("pypi", "password")
-    auth = requests.auth.HTTPBasicAuth(username, password)
-    print("Username: {0}".format(username))
-
-    print("Getting CSRF token ...")
-    session = requests.Session()
-    res = session.get("https://pypi.python.org/pypi?:action=pkg_edit&name=python-chess", auth=auth)
-    if res.status_code != 200:
-        print(res.text)
-        print(res)
-        sys.exit(1)
-    soup = bs4.BeautifulSoup(res.text, "html.parser")
-    csrf = soup.find("input", {"name": "CSRFToken"})["value"]
-    print("CSRF: {0}".format(csrf))
-
-    print("Uploading ...")
-    with open("pythonhosted.zip", "rb") as zip_file:
-        res = session.post("https://pypi.python.org/pypi", auth=auth, data={
-            "CSRFToken": csrf,
-            ":action": "doc_upload",
-            "name": "python-chess",
-        }, files={
-            "content": zip_file,
-        })
-    if res.status_code != 200 or tagname not in res.text:
-        print(res.text)
-        print(res)
-        sys.exit(1)
-
-    print("Done.")
-
-
 def github_release(tagname):
     print("--- GITHUB RELEASE -----------------------------------------------")
     print("https://github.com/niklasf/python-chess/releases/new?tag={0}".format(tagname))
@@ -166,5 +115,4 @@ if __name__ == "__main__":
     tagname = tag_and_push()
     update_rtd()
     pypi()
-    pythonhosted(tagname)
     github_release(tagname)

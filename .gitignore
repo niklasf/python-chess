@@ -18,5 +18,4 @@ data/syzygy/regular/*.rtbz
 data/syzygy/suicide/*.stbw
 data/syzygy/suicide/*.stbz
 
-pythonhosted.zip
 release-v*.txt
