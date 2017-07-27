@@ -17,5 +17,7 @@ data/syzygy/regular/*.rtbw
 data/syzygy/regular/*.rtbz
 data/syzygy/suicide/*.stbw
 data/syzygy/suicide/*.stbz
+data/syzygy/atomic/*.atbw
+data/syzygy/atomic/*.atbz
 
 release-v*.txt
