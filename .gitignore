@@ -13,11 +13,9 @@ python_chess.egg-info/
 docs/_build/
 
 data/gaviota/*.gtb.cp4
-data/syzygy/regular/*.rtbw
-data/syzygy/regular/*.rtbz
-data/syzygy/suicide/*.stbw
-data/syzygy/suicide/*.stbz
-data/syzygy/atomic/*.atbw
-data/syzygy/atomic/*.atbz
+data/syzygy/regular/*.rtb[wz]
+data/syzygy/suicide/*.stb[wz]
+data/syzygy/atomic/*.atb[wz]
+data/syzygy/giveaway/*.[gs]tb[wz]
 
 release-v*.txt
