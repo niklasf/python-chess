@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in the next release
-----------------------------
+New in v0.19.0
+--------------
 
 New features:
 
@@ -29,7 +29,7 @@ Changes:
   no longer support directly opening a directory.
   Use `chess.gaviota.open_tablebases()`.
 * `chess.Board` instances are now compared by the position they represent,
-  not by exact match of the internal data structures or move history.
+  not by exact match of the internal data structures (or even move history).
 * Relaxed castling right validation in Chess960: Kings/rooks of opposing sites
   are no longer required to be on the same file.
 * Removed misnamed `Piece.__unicode__()` and `BaseBoard.__unicode__()`. Use
