@@ -346,14 +346,14 @@ class Engine(object):
         """
         Tell the engine not to ponder.
         """
-        self.pondering(False)
+        return self.pondering(False)
 
     def hard(self, async_callback=None):
         """
         Tell the engine to ponder.
         TODO: pondering not yet supported.
         """
-        self.pondering(True)
+        return self.pondering(True)
 
     def set_post(self, flag, async_callback=None):
         """
@@ -381,7 +381,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        self.set_post(True)
+        return self.set_post(True)
 
     def nopost(self, async_callback=None):
         """
@@ -389,7 +389,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        self.set_post(False)
+        return self.set_post(False)
 
     def xboard(self, async_callback=None):
         """
@@ -449,7 +449,9 @@ class Engine(object):
         Set up a given board position.
 
         :param board: A *chess.Board*.
+
         :return: Nothing
+
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is still
             calculating.
         """
@@ -662,6 +664,8 @@ class Engine(object):
         Tell the XBoard engine to enter force mode. That means
         the engine will not start thinking by itself unless a
         go() command is sent.
+
+        :return: Nothing
         """
         self.in_force = True
         def command():
@@ -679,6 +683,7 @@ class Engine(object):
         Start calculating on the current position.
 
         :return: the best move according to the engine.
+
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is
             already calculating.
         """
