@@ -346,29 +346,50 @@ class Engine(object):
         """
         Tell the engine not to ponder.
         """
-        self.pondering(False)
+        return self.pondering(False)
 
     def hard(self, async_callback=None):
         """
         Tell the engine to ponder.
         TODO: pondering not yet supported.
         """
-        self.pondering(True)
+        return self.pondering(True)
 
-    def post(self, async_callback=None):
+    def set_post(self, flag, async_callback=None):
         """
-        Command used to tell the engine to output it's analysis
+        Command used to tell the engine whether to output it's analysis or not.
+
+        :param flag: True or False to set post on or off.
 
         :return: Nothing
         """
         def command():
             with self.semaphore:
-                self.send_line("post")
+                if flag == True:
+                    self.send_line("post")
+                else:
+                    self.send_line("nopost")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
+
+    def post(self, async_callback=None):
+        """
+        Command used to tell the engine to output it's analysis.
+
+        :return: Nothing
+        """
+        return self.set_post(True)
+
+    def nopost(self, async_callback=None):
+        """
+        Command used to tell the engine to not output it's analysis.
+
+        :return: Nothing
+        """
+        return self.set_post(False)
 
     def xboard(self, async_callback=None):
         """
@@ -428,7 +449,9 @@ class Engine(object):
         Set up a given board position.
 
         :param board: A *chess.Board*.
+
         :return: Nothing
+
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is still
             calculating.
         """
@@ -451,6 +474,49 @@ class Engine(object):
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
+
+    def memory(self, amount, async_callback=None):
+        """
+        Set the maximum memory of the engine's hash/pawn/bitbase/etc tables.
+
+        :param amount: Maximum amount of memory to use in MegaBytes
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("memory command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("memory " + str(amount))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
+    def cores(self, num, async_callback=None):
+        """
+        Set the maximum number of processors the engine is allowed to use.
+        That is, the number of search threads for an SMP engine.
+
+        :param num: The number of processors
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("cores command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("cores " + str(num))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
 
         return self._queue_command(command, async_callback)
 
@@ -598,6 +664,8 @@ class Engine(object):
         Tell the XBoard engine to enter force mode. That means
         the engine will not start thinking by itself unless a
         go() command is sent.
+
+        :return: Nothing
         """
         self.in_force = True
         def command():
@@ -615,6 +683,7 @@ class Engine(object):
         Start calculating on the current position.
 
         :return: the best move according to the engine.
+
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is
             already calculating.
         """
