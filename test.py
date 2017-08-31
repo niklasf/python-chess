@@ -2122,6 +2122,12 @@ class PgnTestCase(unittest.TestCase):
             self.assertTrue(board.chess960)
             self.assertEqual(board.fen(), "nbbrknrq/pppppppp/8/8/8/8/PPPPPPPP/NBBRKNRQ w KQkq - 0 1")
 
+    def test_z0(self):
+        with open("data/pgn/anastasian-lewis.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            self.assertEqual(board.fen(), "5rk1/2p1R2p/p5pb/2PPR3/8/2Q2B2/5P2/4K2q w - - 3 43")
+
 
 class CraftyTestCase(unittest.TestCase):
 

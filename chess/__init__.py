@@ -2492,7 +2492,7 @@ class Board(BaseBoard):
         match = SAN_REGEX.match(san)
         if not match:
             # Null moves.
-            if san == "--":
+            if san in ["--", "Z0"]:
                 return Move.null()
 
             raise ValueError("invalid san: {0}".format(repr(san)))
