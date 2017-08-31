@@ -23,6 +23,8 @@ from chess.engine import EngineStateException
 from chess.engine import MockProcess
 from chess.engine import PopenProcess
 from chess.engine import SpurProcess
+from chess.engine import Option
+from chess.engine import OptionMap
 from chess.engine import LOGGER
 from chess.engine import FUTURE_POLL_TIMEOUT
 from chess.engine import _popen_engine
@@ -142,6 +144,49 @@ class PostHandler(object):
         self.release()
 
 
+class FeatureMap(object):
+    def __init__(self):
+        # Populated with defaults to begin with
+        self._features = {
+                "ping" : 0, # TODO: Remove dependency of xboard module on ping
+                "setboard" : 0,
+                "playother" : 0,
+                "san" : 0,
+                "usermove" : 0,
+                "time" : 1,
+                "draw" : 1,
+                "sigint" : 1,
+                "sigterm" : 1,
+                "reuse" : 1,
+                "analyze" : 1,
+                "myname" : None,
+                "variants" : None,
+                "colors" : 1,
+                "ics" : 0,
+                "name" : None,
+                "pause" : 0,
+                "nps" : 1,
+                "debug" : 0,
+                "memory" : 0,
+                "smp" : 0,
+                "egt" : 0,
+                "option" : OptionMap(),
+                "done" : None
+                }
+
+    def _set_feature(self, key, value):
+        try:
+            self._features[key] = value
+        except KeyError:
+            LOGGER.exception("exception looking up feature")
+
+    def get(self, key):
+        try:
+            return self._features[key]
+        except KeyError:
+            LOGGER.exception("exception looking up feature")
+
+
 class Engine(object):
     def __init__(self, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
@@ -155,7 +200,7 @@ class Engine(object):
 
         self.name = None
         self.author = None
-        #self.options = OptionMap()
+        self.features = FeatureMap()
         self.pong = threading.Event()
         self.ping_num = None # TODO: Make this a pong Event local instead of data member
         self.pong_received = threading.Condition()
@@ -183,6 +228,11 @@ class Engine(object):
     def on_line_received(self, buf):
         LOGGER.debug("%s >> %s", self.process, buf)
 
+        # Not too happy with this quasi-hack to prevent splitting within
+        # options' space-separated values
+        if buf.startswith("feature"):
+            return self._feature(buf[8:])
+
         command_and_args = buf.split()
         if not command_and_args:
             return
@@ -208,6 +258,33 @@ class Engine(object):
             self.pong_received.notify_all()
         with self.state_changed:
             self.state_changed.notify_all()
+
+    def _feature(self, features):
+        """
+        Does not conform to CECP spec regarding `done` and instead reads all
+        features atomically.
+        """
+        if features.startswith("option"):
+            features = features.replace("\"", "")
+            params = features.split("=")[1].split()
+            name = params[0]
+            type = params[1][1:]
+            default = int(params[2])
+            min = int(params[3])
+            max = int(params[4])
+            var = [] #TODO: Add support
+            option = Option(name, type, default, min, max, var)
+            self.features._features["option"][option.name] = option
+            return
+
+        features = features.split()
+        feature_map = [ feature.split("=") for feature in features ]
+        for (key, value) in feature_map:
+            value = value.strip("\"")
+            if key == "variant":
+                self.features._set_feature(key, value.split(","))
+            else:
+                self.features._set_feature(key, value)
 
     def _pong(self, pong_arg):
         try:
