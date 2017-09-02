@@ -836,8 +836,9 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("usermove"):
-            raise EngineStateException("engine does not support the 'usermove' feature")
+        builder = []
+        if self.features.supports("usermove"):
+            builder.append("usermove")
 
         if self.auto_force:
             self.force()
@@ -862,12 +863,10 @@ class Engine(object):
             except ValueError:
                 LOGGER.exception("exception parsing move")
 
-        builder = []
-        builder.append("usermove")
-        builder.append(move)
+        builder.append(str(move))
         def command():
             # Use the join(builder) once we parse usermove=1 feature
-            move_str = str(move)#" ".join(builder)
+            move_str = " ".join(builder)
             if self.in_force:
                 with self.semaphore:
                     self.send_line(move_str)
