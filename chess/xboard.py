@@ -176,6 +176,11 @@ class FeatureMap(object):
 
     def _set_feature(self, key, value):
         try:
+            value = int(value)
+        except ValueError:
+            pass
+
+        try:
             self._features[key] = value
         except KeyError:
             LOGGER.exception("exception looking up feature")
@@ -185,6 +190,9 @@ class FeatureMap(object):
             return self._features[key]
         except KeyError:
             LOGGER.exception("exception looking up feature")
+
+    def supports(self, key):
+        return self.get(key) == 1
 
 
 class Engine(object):
@@ -482,7 +490,7 @@ class Engine(object):
         def command():
             with self.semaphore:
                 self.send_line("xboard")
-                self.send_line("protover 2") # TODO: Add option for this and parse input
+                self.send_line("protover 2")
 
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
@@ -562,6 +570,9 @@ class Engine(object):
 
         :return: Nothing
         """
+        if not self.features.supports("memory"):
+            raise EngineStateException("engine does not support the 'memory' feature")
+
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("memory command while engine is busy")
@@ -584,6 +595,9 @@ class Engine(object):
 
         :return: Nothing
         """
+        if not self.features.supports("smp"):
+            raise EngineStateException("engine does not support the 'smp' feature")
+
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("cores command while engine is busy")
@@ -603,6 +617,9 @@ class Engine(object):
 
         :return: Nothing
         """
+        if not self.features.supports("playother"):
+            raise EngineStateException("engine does not support the 'playother' feature")
+
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("playother command while engine is busy")
@@ -667,6 +684,9 @@ class Engine(object):
 
         :return: Nothing
         """
+        if not self.features.supports("time"):
+            raise EngineStateException("engine does not support the 'time' feature")
+
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("time command while engine is busy")
@@ -816,6 +836,9 @@ class Engine(object):
 
         :return: Nothing
         """
+        if not self.features.supports("usermove"):
+            raise EngineStateException("engine does not support the 'usermove' feature")
+
         if self.auto_force:
             self.force()
         elif not self.in_force:
