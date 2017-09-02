@@ -2128,6 +2128,11 @@ class PgnTestCase(unittest.TestCase):
             board = game.end().board()
             self.assertEqual(board.fen(), "5rk1/2p1R2p/p5pb/2PPR3/8/2Q2B2/5P2/4K2q w - - 3 43")
 
+    def test_wierd_header(self):
+        pgn = StringIO(r"""[Black "[=0040.34h5a4]"]""")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.headers["Black"], "[=0040.34h5a4]")
+
 
 class CraftyTestCase(unittest.TestCase):
 
