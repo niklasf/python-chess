@@ -57,6 +57,11 @@ class EngineStateException(Exception):
     pass
 
 
+class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
+    """Information about an available option for an UCI engine."""
+    pass
+
+
 class MockProcess(object):
     def __init__(self, engine):
         self.engine = engine
@@ -240,6 +245,49 @@ class SpurProcess(object):
 
     def __repr__(self):
         return "<SpurProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
+
+
+class OptionMap(collections.MutableMapping):
+    def __init__(self, data=None, **kwargs):
+        self._store = dict()
+        if data is None:
+            data = {}
+        self.update(data, **kwargs)
+
+    def __setitem__(self, key, value):
+        self._store[key.lower()] = (key, value)
+
+    def __getitem__(self, key):
+        return self._store[key.lower()][1]
+
+    def __delitem__(self, key):
+        del self._store[key.lower()]
+
+    def __iter__(self):
+        return (casedkey for casedkey, mappedvalue in self._store.values())
+
+    def __len__(self):
+        return len(self._store)
+
+    def __eq__(self, other):
+        for key, value in self.items():
+            if key not in other or other[key] != value:
+                return False
+
+        for key, value in other.items():
+            if key not in self or self[key] != value:
+                return False
+
+        return True
+
+    def copy(self):
+        return type(self)(self._store.values())
+
+    def __copy__(self):
+        return self.copy()
+
+    def __repr__(self):
+        return "{0}({1})".format(type(self).__name__, dict(self.items()))
 
 
 def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):

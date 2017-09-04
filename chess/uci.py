@@ -21,6 +21,8 @@ from chess.engine import EngineStateException
 from chess.engine import MockProcess
 from chess.engine import PopenProcess
 from chess.engine import SpurProcess
+from chess.engine import Option
+from chess.engine import OptionMap
 from chess.engine import LOGGER
 from chess.engine import FUTURE_POLL_TIMEOUT
 from chess.engine import _popen_engine
@@ -37,11 +39,6 @@ except ImportError:
     import collections
 
 
-class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
-    """Information about an available option for an UCI engine."""
-    pass
-
-
 class Score(collections.namedtuple("Score", ["cp", "mate"])):
     """A centipawns or mate score sent by an UCI engine."""
     pass
@@ -50,49 +47,6 @@ class Score(collections.namedtuple("Score", ["cp", "mate"])):
 class BestMove(collections.namedtuple("BestMove", ["bestmove", "ponder"])):
     """A bestmove and ponder move sent by an UCI engine."""
     pass
-
-
-class OptionMap(collections.MutableMapping):
-    def __init__(self, data=None, **kwargs):
-        self._store = dict()
-        if data is None:
-            data = {}
-        self.update(data, **kwargs)
-
-    def __setitem__(self, key, value):
-        self._store[key.lower()] = (key, value)
-
-    def __getitem__(self, key):
-        return self._store[key.lower()][1]
-
-    def __delitem__(self, key):
-        del self._store[key.lower()]
-
-    def __iter__(self):
-        return (casedkey for casedkey, mappedvalue in self._store.values())
-
-    def __len__(self):
-        return len(self._store)
-
-    def __eq__(self, other):
-        for key, value in self.items():
-            if key not in other or other[key] != value:
-                return False
-
-        for key, value in other.items():
-            if key not in self or self[key] != value:
-                return False
-
-        return True
-
-    def copy(self):
-        return type(self)(self._store.values())
-
-    def __copy__(self):
-        return self.copy()
-
-    def __repr__(self):
-        return "{0}({1})".format(type(self).__name__, dict(self.items()))
 
 
 class InfoHandler(object):
