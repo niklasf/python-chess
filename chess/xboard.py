@@ -145,6 +145,7 @@ class PostHandler(object):
 
 
 class FeatureMap(object):
+
     def __init__(self):
         # Populated with defaults to begin with
         self._features = {
@@ -501,12 +502,47 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def option(self, options, async_callback=None):
+        """
+        Set values for the engines available options.
+
+        :param options: A dictionary with option names as keys.
+
+        :return: Nothing
+        """
+        option_lines = []
+
+        for name, value in options.items():
+            # Building string manually to avoid spaces
+            option_string = "option " + name
+            option = self.features._features["option"][name]
+            has_value = option.type in \
+                    ("spin", "check", "combo", "string")
+            if has_value and value is not None:
+                value = str(value)
+                option_string += "=" + value
+                option_lines.append(option_string)
+            elif not has_value and value is None:
+                option_lines.append(option_string)
+                pass
+
+        def command():
+            with self.semaphore:
+                with self.pong_received:
+                    for option_line in option_lines:
+                        self.send_line(option_line)
+
+                    if self.terminated.is_set():
+                        raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
+
     def new(self, async_callback=None):
         """
         Reset the board to the standard chess starting position.
         Set White on move.
         Leave force mode and set the engine to play Black.
-        Associate the engine's clock with Black and the opponent's clock
+        Associate the engines clock with Black and the opponent's clock
         with White.
         Reset clocks and time controls to the start of a new game.
         Use wall clock for time measurement.
@@ -564,7 +600,7 @@ class Engine(object):
 
     def memory(self, amount, async_callback=None):
         """
-        Set the maximum memory of the engine's hash/pawn/bitbase/etc tables.
+        Set the maximum memory of the engines hash/pawn/bitbase/etc tables.
 
         :param amount: Maximum amount of memory to use in MegaBytes
 
@@ -678,7 +714,7 @@ class Engine(object):
 
     def time(self, time, async_callback=None):
         """
-        Synchronize the engine's clock with the total amount of time left.
+        Synchronize the engines clock with the total amount of time left.
 
         :param time: The total time left in centiseconds
 
