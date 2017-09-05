@@ -280,6 +280,10 @@ BB_KING_ATTACKS = [_sliding_attacks(sq, BB_ALL, [9, 8, 7, 1, -9, -8, -7, -1]) fo
 BB_PAWN_ATTACKS = [[_sliding_attacks(sq, BB_ALL, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
 
 
+def _edges(square):
+    return (((BB_RANK_1 | BB_RANK_8) & ~BB_RANKS[square_rank(square)]) |
+            ((BB_FILE_A | BB_FILE_H) & ~BB_FILES[square_file(square)]))
+
 def _attack_table(deltas):
     mask_table = []
     attack_table = []
@@ -287,12 +291,8 @@ def _attack_table(deltas):
     for square, bb in enumerate(BB_SQUARES):
         attacks = {}
 
-        edges = (((BB_RANK_1 | BB_RANK_8) & ~BB_RANKS[square_rank(square)]) |
-                 ((BB_FILE_A | BB_FILE_H) & ~BB_FILES[square_file(square)]))
-
-        mask = _sliding_attacks(square, 0, deltas) & ~edges
-
         # Carry-Rippler trick to iterate subsets of mask.
+        mask = _sliding_attacks(square, 0, deltas) & ~_edges(square)
         subset = 0
         while True:
             attacks[subset] = _sliding_attacks(square, subset, deltas)
