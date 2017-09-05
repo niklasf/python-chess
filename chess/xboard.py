@@ -211,7 +211,7 @@ class Engine(object):
         self.author = None
         self.features = FeatureMap()
         self.pong = threading.Event()
-        self.ping_num = None # TODO: Make this a pong Event local instead of data member
+        self.ping_num = None
         self.pong_received = threading.Condition()
         self.auto_force = False
         self.in_force = False
@@ -278,10 +278,25 @@ class Engine(object):
             params = features.split("=")[1].split()
             name = params[0]
             type = params[1][1:]
-            default = int(params[2])
-            min = int(params[3])
-            max = int(params[4])
-            var = [] #TODO: Add support
+            min = None
+            max = None
+            var = []
+            if type == "combo":
+                choices = params[2:]
+                for choice in choices:
+                    if choice == "///":
+                        continue
+                    elif choice[0] == "*":
+                        default = choice[1:]
+                        var.append(choice[1:])
+                    else:
+                        var.append(choice)
+                print(var)
+                print(default)
+            else:
+                default = int(params[2])
+                min = int(params[3])
+                max = int(params[4])
             option = Option(name, type, default, min, max, var)
             self.features._features["option"][option.name] = option
             return
@@ -524,7 +539,6 @@ class Engine(object):
                 option_lines.append(option_string)
             elif not has_value and value is None:
                 option_lines.append(option_string)
-                pass
 
         def command():
             with self.semaphore:
