@@ -1155,6 +1155,10 @@ class Board(BaseBoard):
     by a king move to the corresponding rook square.
     Use :func:`chess.Board.from_chess960_pos()` to create a board with one
     of the Chess960 starting positions.
+
+    Its safe to set :data:`~Board.turn`, :data:`~Board.castling_rights`,
+    :data:`~Board.ep_square`, :data:`~Board.halfmove_clock` and
+    :data:`~Board.fullmove_number` directly.
     """
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
