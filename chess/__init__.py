@@ -1960,42 +1960,41 @@ class Board(BaseBoard):
         """Checks if there is a legal en passant capture."""
         return self.ep_square is not None and any(self.generate_legal_ep())
 
-    def fen(self, promoted=None):
+    def fen(self, shredder=False, en_passant="legal", promoted=None):
         """
-        Gets the FEN representation of the position.
+        Gets a FEN representation of the position.
 
         A FEN string (e.g.
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1``) consists
-        of the position part (:func:`~chess.Board.board_fen()`), the turn,
-        the castling part (:func:`~chess.Board.castling_xfen()`), a relevant
-        en passant square (:data:`~chess.Board.ep_square`,
-        :func:`~chess.Board.has_legal_en_passant()`), the halfmove clock
-        and the fullmove number.
+        of the position part :func:`~chess.Board.board_fen()`, the
+        :data:`~chess.Board.turn`, the castling part
+        (:data:`~chess.Board.castling_rights`),
+        the en passant square (:data:`~chess.Board.ep_square`),
+        the :data:`~chess.Board.halfmove_clock`
+        and the :data:`~chess.Board.fullmove_number`.
 
-        Optionally designates *promoted* pieces with a ``~`` before
-        their symbol.
+        :param shredder: Use :func:`~chess.Board.castling_shredder_fen()`
+            and encode castling rights by the file of the rook
+            (like ``HAha``) instead of the default
+            :func:`~chess.Board.castling_xfen()` (like ``KQkq``).
+        :param en_passant: By default only fully legal en passant squares
+            are included (:func:`~chess.Board.has_legal_en_passant()`).
+            Pass ``fen`` to strictly follow the FEN spec
+            (always include the en passant square after a double pawn move)
+            or ``xfen`` to follow the X-FEN spec
+            (:func:`~chess.Board.has_pseudo_legal_en_passant()`).
+        :param promoted: Mark promoted pieces like ``Q~``. By default this is
+            only enabled in chess variants where this is relevant.
         """
         return " ".join([
-            self.epd(promoted=promoted),
+            self.epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
             str(self.halfmove_clock),
             str(self.fullmove_number)
         ])
 
-    def shredder_fen(self, promoted=None):
-        """
-        Gets the Shredder FEN representation of the position.
-
-        Castling rights are encoded by the file of the rook. The starting
-        castling rights in normal chess are HAha.
-
-        Use :func:`~chess.Board.castling_shredder_fen()` to get just the
-        castling part.
-
-        Optionally designates *promoted* pieces with a ``~`` before
-        their symbol.
-        """
+    def shredder_fen(self, en_passant="legal", promoted=None):
         return " ".join([
-            self.epd(shredder_fen=True, promoted=promoted),
+            self.epd(shredder=True, en_passant=en_passant, promoted=promoted),
             str(self.halfmove_clock),
             str(self.fullmove_number)
         ])
@@ -2201,9 +2200,12 @@ class Board(BaseBoard):
 
         return "".join(epd)
 
-    def epd(self, shredder_fen=False, promoted=None, **operations):
+    def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
         """
         Gets an EPD representation of the current position.
+
+        See :func:`~chess.Board.fen()` for FEN formatting options (*shredder*,
+        *ep_square* and *promoted*).
 
         EPD operations can be given as keyword arguments. Supported operands
         are strings, integers, floats and moves and lists of moves and None.
@@ -2221,8 +2223,14 @@ class Board(BaseBoard):
 
         epd.append(self.board_fen(promoted=promoted))
         epd.append("w" if self.turn == WHITE else "b")
-        epd.append(self.castling_shredder_fen() if shredder_fen else self.castling_xfen())
-        epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
+        epd.append(self.castling_shredder_fen() if shredder else self.castling_xfen())
+
+        if en_passant == "fen":
+            epd.append(SQUARE_NAMES[self.ep_square] if self.ep_square is not None else "-")
+        elif en_passant == "xfen":
+            epd.append(SQUARE_NAMES[self.ep_square] if self.has_pseudo_legal_en_passant() else "-")
+        else:
+            epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
 
         if operations:
             epd.append(self._epd_operations(operations))

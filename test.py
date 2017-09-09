@@ -254,6 +254,12 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board(fen)
         self.assertEqual(board.fen(), "1r6/8/8/pP6/8/8/8/1K6 w - - 0 1")
 
+    def test_fen_en_passant(self):
+        board = chess.Board()
+        board.push_san("e4")
+        self.assertEqual(board.fen(en_passant="fen"), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+        self.assertEqual(board.fen(en_passant="xfen"), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+
     def test_get_set(self):
         board = chess.Board()
         self.assertEqual(board.piece_at(chess.B1), chess.Piece.from_symbol("N"))

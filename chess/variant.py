@@ -550,9 +550,9 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.WHITE] = wc
         self.remaining_checks[chess.BLACK] = bc
 
-    def epd(self, shredder_fen=False, promoted=None, **operations):
+    def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
         epd = []
-        epd.append(super(ThreeCheckBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted))
+        epd.append(super(ThreeCheckBoard, self).epd(shredder=shredder, en_passant=en_passant, promoted=promoted))
         epd.append("%d+%d" % (max(self.remaining_checks[chess.WHITE], 0), max(self.remaining_checks[chess.BLACK], 0)))
         if operations:
             epd.append(self._epd_operations(operations))
@@ -782,8 +782,8 @@ class CrazyhouseBoard(chess.Board):
             promoted = True
         return super(CrazyhouseBoard, self).board_fen(promoted=promoted)
 
-    def epd(self, shredder_fen=False, promoted=None, **operations):
-        epd = super(CrazyhouseBoard, self).epd(shredder_fen=shredder_fen, promoted=promoted)
+    def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
+        epd = super(CrazyhouseBoard, self).epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
         return "%s[%s%s] %s" % (board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
 
