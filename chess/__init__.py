@@ -798,6 +798,25 @@ class BaseBoard(object):
         """
         self._set_board_fen(fen)
 
+    def pieces(self):
+        """Gets a dictionary of :class:`~chess.Piece`s indexed by squares."""
+        result = {}
+        for square in scan_reversed(self.occupied):
+            result[square] = self.piece_at(square)
+        return result
+
+    def _set_pieces(self, pieces):
+        self._clear_board()
+        for square, piece in pieces.items():
+            self._set_piece_at(square, piece.piece_type, piece.color)
+
+    def set_pieces(self, pieces):
+        """
+        Sets up the board from a dictionary of :class:`~chess.Piece`s
+        indexed by squares.
+        """
+        self._set_pieces(pieces)
+
     def _set_chess960_pos(self, sharnagl):
         if not 0 <= sharnagl <= 959:
             raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(sharnagl)))
@@ -2104,6 +2123,10 @@ class Board(BaseBoard):
 
     def set_board_fen(self, fen):
         super(Board, self).set_board_fen(fen)
+        self.clear_stack()
+
+    def set_pieces(self, pieces):
+        super(Board, self).set_pieces(pieces)
         self.clear_stack()
 
     def set_chess960_pos(self, sharnagl):
