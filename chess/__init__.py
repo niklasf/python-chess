@@ -799,7 +799,9 @@ class BaseBoard(object):
         self._set_board_fen(fen)
 
     def pieces(self):
-        """Gets a dictionary of :class:`~chess.Piece`s indexed by squares."""
+        """
+        Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
+        """
         result = {}
         for square in scan_reversed(self.occupied):
             result[square] = self.piece_at(square)
@@ -812,8 +814,8 @@ class BaseBoard(object):
 
     def set_pieces(self, pieces):
         """
-        Sets up the board from a dictionary of :class:`~chess.Piece`s
-        indexed by squares.
+        Sets up the board from a dictionary of :class:`pieces <chess.Piece>`
+        by square index.
         """
         self._set_pieces(pieces)
 
