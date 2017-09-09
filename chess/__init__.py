@@ -1952,6 +1952,10 @@ class Board(BaseBoard):
         else:
             return "-"
 
+    def has_pseudo_legal_en_passant(self):
+        """Checks if there is a pseudo legal en passant capture."""
+        return self.ep_square is not None and any(self.generate_pseudo_legal_ep())
+
     def has_legal_en_passant(self):
         """Checks if there is a legal en passant capture."""
         return self.ep_square is not None and any(self.generate_legal_ep())
