@@ -2021,12 +2021,8 @@ class Board(BaseBoard):
 
         # Check that the en passant part is valid.
         if parts[3] != "-":
-            if parts[1] == "w":
-                if square_rank(SQUARE_NAMES.index(parts[3])) != 5:
-                    raise ValueError("expected ep square to be on sixth rank: {0}".format(repr(fen)))
-            else:
-                if square_rank(SQUARE_NAMES.index(parts[3])) != 2:
-                    raise ValueError("expected ep square to be on third rank: {0}".format(repr(fen)))
+            if parts[3] not in SQUARE_NAMES:
+                raise ValueError("invalid en passant part in fen: {0}".format(repr(fen)))
 
         # Check that the half move part is valid.
         if int(parts[4]) < 0:
