@@ -798,7 +798,7 @@ class BaseBoard(object):
         """
         self._set_board_fen(fen)
 
-    def pieces(self):
+    def piece_map(self):
         """
         Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
         """
@@ -807,17 +807,17 @@ class BaseBoard(object):
             result[square] = self.piece_at(square)
         return result
 
-    def _set_pieces(self, pieces):
+    def _set_piece_map(self, pieces):
         self._clear_board()
         for square, piece in pieces.items():
             self._set_piece_at(square, piece.piece_type, piece.color)
 
-    def set_pieces(self, pieces):
+    def set_piece_map(self, pieces):
         """
         Sets up the board from a dictionary of :class:`pieces <chess.Piece>`
         by square index.
         """
-        self._set_pieces(pieces)
+        self._set_piece_map(pieces)
 
     def _set_chess960_pos(self, sharnagl):
         if not 0 <= sharnagl <= 959:
@@ -2131,8 +2131,8 @@ class Board(BaseBoard):
         super(Board, self).set_board_fen(fen)
         self.clear_stack()
 
-    def set_pieces(self, pieces):
-        super(Board, self).set_pieces(pieces)
+    def set_piece_map(self, pieces):
+        super(Board, self).set_piece_map(pieces)
         self.clear_stack()
 
     def set_chess960_pos(self, sharnagl):

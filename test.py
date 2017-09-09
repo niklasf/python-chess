@@ -1392,12 +1392,12 @@ class BaseBoardTestCase(unittest.TestCase):
         self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
         self.assertEqual(board.chess960_pos(), 959)
 
-    def test_set_pieces(self):
+    def test_set_piece_map(self):
         a = chess.BaseBoard.empty()
         b = chess.BaseBoard()
-        a.set_pieces(b.pieces())
+        a.set_piece_map(b.piece_map())
         self.assertEqual(a, b)
-        a.set_pieces({})
+        a.set_piece_map({})
         self.assertNotEqual(a, b)
 
 
