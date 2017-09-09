@@ -121,14 +121,21 @@ Board
 
         Bitmask of the rooks with castling rights.
 
-        >>> white_castle_kingside = board.castling_rights & chess.BB_H1
+        To test for specific squares:
 
-        Also see :func:`~chess.Board.has_castling_rights()`,
+        >>> board.castling_rights & chess.BB_H1
+        True # White can castle kingside with the h1 rook
+
+        To add a specific square:
+
+        >>> board.castling_rights |= chess.BB_A1
+
+        Use :func:`~chess.Board.set_castling_fen()` to set multiple castling
+        rights. Also see :func:`~chess.Board.has_castling_rights()`,
         :func:`~chess.Board.has_kingside_castling_rights()`,
         :func:`~chess.Board.has_queenside_castling_rights()`,
         :func:`~chess.Board.has_chess960_castling_rights()`,
-        :func:`~chess.Board.clean_castling_rights()` and
-        :func:`~chess.Board.set_castling_fen()`.
+        :func:`~chess.Board.clean_castling_rights()`.
 
     .. py:attribute:: ep_square
 
