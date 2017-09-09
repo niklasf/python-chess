@@ -135,6 +135,8 @@ BB_SQUARES = [
     BB_A8, BB_B8, BB_C8, BB_D8, BB_E8, BB_F8, BB_G8, BB_H8
 ] = [1 << sq for sq in SQUARES]
 
+BB_CORNERS = BB_A1 | BB_H1 | BB_A8 | BB_H8
+
 BB_LIGHT_SQUARES = 0x55aa55aa55aa55aa
 BB_DARK_SQUARES = 0xaa55aa55aa55aa55
 
@@ -542,7 +544,7 @@ class BaseBoard(object):
         self.pawns = BB_RANK_2 | BB_RANK_7
         self.knights = BB_B1 | BB_G1 | BB_B8 | BB_G8
         self.bishops = BB_C1 | BB_F1 | BB_C8 | BB_F8
-        self.rooks = BB_A1 | BB_H1 | BB_A8 | BB_H8
+        self.rooks = BB_CORNERS
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
@@ -1171,7 +1173,7 @@ class Board(BaseBoard):
     def reset(self):
         """Restores the starting position."""
         self.turn = WHITE
-        self.castling_rights = BB_A1 | BB_H1 | BB_A8 | BB_H8
+        self.castling_rights = BB_CORNERS
         self.ep_square = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
@@ -2771,7 +2773,7 @@ class Board(BaseBoard):
 
         # Standard chess castling rights can only be on the standard
         # starting rook squares.
-        if castling_rights & ~(BB_A1 | BB_A8 | BB_H1 | BB_H8):
+        if castling_rights & ~BB_CORNERS:
             return True
 
         # If there are any castling rights in standard chess, the king must be
