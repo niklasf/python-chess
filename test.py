@@ -2134,6 +2134,30 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["Black"], "[=0040.34h5a4]")
 
 
+class WyldTestCase(unittest.TestCase):
+
+    def setUp(self):
+        try:
+            self.engine = chess.xboard.popen_engine("wyldchess")
+        except OSError:
+            self.skipTest("need wyldchess")
+
+        self.engine.xboard()
+
+    def tearDown(self):
+        self.engine.quit()
+
+    def test_options(self):
+        self.engine.new()
+        self.engine.st(2)
+        self.engine.sd(100)
+        option_dict = { "MoveOverhead" : 1900 };
+        self.engine.option(option_dict)
+        self.engine.go(async_callback=True)
+        time.sleep(0.2)
+        self.assertTrue(self.engine.idle, True)
+
+
 class CraftyTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -2147,16 +2171,6 @@ class CraftyTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.engine.quit()
-
-    def test_st(self):
-        self.engine.new()
-        self.engine.st(1)
-        self.engine.go()
-
-    def test_sd(self):
-        self.engine.new()
-        self.engine.sd(5)
-        self.engine.go()
 
     def test_level(self):
         self.engine.new()

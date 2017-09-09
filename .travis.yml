@@ -37,6 +37,12 @@ before_install:
  - make unix-gcc
  - export PATH="`pwd`:${PATH}"
  - cd ..
+ - # WyldChess
+ - git clone https://github.com/Mk-Chan/WyldChess
+ - cd WyldChess/src
+ - make
+ - export PATH="`pwd`:${PATH}"
+ - cd ../..
  - # Gaviota libgtb
  - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
  - cd Gaviota-Tablebases
