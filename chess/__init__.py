@@ -2840,6 +2840,16 @@ class Board(BaseBoard):
             errors |= STATUS_BAD_CASTLING_RIGHTS
 
         # En passant.
+        if self.ep_square != self._valid_ep_square():
+            errors |= STATUS_INVALID_EP_SQUARE
+
+        # Side to move giving check.
+        if self.was_into_check():
+            errors |= STATUS_OPPOSITE_CHECK
+
+        return errors
+
+    def _valid_ep_square(self):
         if self.ep_square:
             if self.turn == WHITE:
                 ep_rank = 5
@@ -2852,26 +2862,22 @@ class Board(BaseBoard):
 
             # The en passant square must be on the third or sixth rank.
             if square_rank(self.ep_square) != ep_rank:
-                errors |= STATUS_INVALID_EP_SQUARE
+                return
 
             # The last move must have been a double pawn push, so there must
             # be a pawn of the correct color on the fourth or fifth rank.
             if not self.pawns & self.occupied_co[not self.turn] & pawn_mask:
-                errors |= STATUS_INVALID_EP_SQUARE
+                return
 
             # And the en passant square must be empty.
             if self.occupied & BB_SQUARES[self.ep_square]:
-                errors |= STATUS_INVALID_EP_SQUARE
+                return
 
             # And the second rank must be empty.
             if self.occupied & seventh_rank_mask:
-                errors |= STATUS_INVALID_EP_SQUARE
+                return
 
-        # Side to move giving check.
-        if self.was_into_check():
-            errors |= STATUS_OPPOSITE_CHECK
-
-        return errors
+            return self.ep_square
 
     def is_valid(self):
         """
