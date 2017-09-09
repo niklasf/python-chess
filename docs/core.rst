@@ -146,6 +146,10 @@ Board
 
         The number of half moves since the last capture or pawn move.
 
+    .. py:attribute:: promoted
+
+        A bitmask of pieces that have been promoted.
+
     .. py:attribute:: chess960
 
         Whether the board is in Chess960 mode. In Chess960 castling moves are
