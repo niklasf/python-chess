@@ -1318,9 +1318,13 @@ class Board(BaseBoard):
         if not self.ep_square or not BB_SQUARES[self.ep_square] & to_mask:
             return
 
+        if BB_SQUARES[self.ep_square] & self.occupied:
+            return
+
         capturers = (
             self.pawns & self.occupied_co[self.turn] & from_mask &
-            BB_PAWN_ATTACKS[not self.turn][self.ep_square])
+            BB_PAWN_ATTACKS[not self.turn][self.ep_square] &
+            BB_RANKS[4 if self.turn else 3])
 
         for capturer in scan_reversed(capturers):
             yield Move(capturer, self.ep_square)
