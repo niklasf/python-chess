@@ -875,6 +875,36 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def stop(self, async_callback=None):
+        """
+        Stop calculating as soon as possible. The actual XBoard command is `?`.
+
+        :return: Nothing.
+        """
+        # Only send stop when the engine is actually searching.
+        def command():
+            with self.semaphore:
+                with self.state_changed:
+                    if not self.idle:
+                        self.search_started.wait()
+
+                    backoff = 0.5
+                    while not self.move_received.is_set() and not self.terminated.is_set():
+                        if self.idle:
+                            break
+                        else:
+                            self.send_line("?")
+                        self.bestmove_received.wait(backoff)
+                        backoff *= 2
+
+                    self.idle = True
+                    self.state_changed.notify_all()
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
+
     def usermove(self, move, async_callback=None):
         """
         Tell the XBoard engine to make a move on it's internal
