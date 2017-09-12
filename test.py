@@ -2191,6 +2191,13 @@ class CraftyTestCase(unittest.TestCase):
         self.engine.level(1, 0, 1, 0)
         self.engine.go()
 
+    def test_stop(self):
+        self.engine.new()
+        self.engine.time(1000000)
+        self.engine.go(async_callback=True)
+        time.sleep(0.1)
+        self.engine.stop()
+
     def test_time(self):
         self.engine.new()
         self.engine.level(0, 1, 0, 0)

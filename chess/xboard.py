@@ -894,7 +894,7 @@ class Engine(object):
                             break
                         else:
                             self.send_line("?")
-                        self.bestmove_received.wait(backoff)
+                        self.move_received.wait(backoff)
                         backoff *= 2
 
                     self.idle = True
