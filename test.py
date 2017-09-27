@@ -2147,6 +2147,13 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.headers["Black"], "[=0040.34h5a4]")
 
+    def test_semicolon_comment(self):
+        pgn = StringIO("1. e4 ; e5")
+        game = chess.pgn.read_game(pgn)
+        node = game.variations[0]
+        self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
+        self.assertTrue(node.is_end())
+
 
 class CraftyTestCase(unittest.TestCase):
 

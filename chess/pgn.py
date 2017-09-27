@@ -94,6 +94,7 @@ MOVETEXT_REGEX = re.compile(r"""
         |0-0(?:-0)?
     )
     |(\{.*)
+    |(;.*)
     |(\$[0-9]+)
     |(\()
     |(\))
@@ -895,6 +896,8 @@ def read_game(handle, Visitor=GameModelCreator):
                 # Continue with the current or the next line.
                 if line:
                     read_next_line = False
+                break
+            elif token.startswith(";"):
                 break
             elif token.startswith("$"):
                 # Found a NAG.
