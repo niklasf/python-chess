@@ -286,6 +286,15 @@ def _edges(square):
     return (((BB_RANK_1 | BB_RANK_8) & ~BB_RANKS[square_rank(square)]) |
             ((BB_FILE_A | BB_FILE_H) & ~BB_FILES[square_file(square)]))
 
+def _carry_rippler(mask):
+    # Carry-Rippler trick to iterate subsets of mask.
+    subset = 0
+    while True:
+        yield subset
+        subset = (subset - mask) & mask
+        if not subset:
+            break
+
 def _attack_table(deltas):
     mask_table = []
     attack_table = []
@@ -293,15 +302,9 @@ def _attack_table(deltas):
     for square, bb in enumerate(BB_SQUARES):
         attacks = {}
 
-        # Carry-Rippler trick to iterate subsets of mask.
         mask = _sliding_attacks(square, 0, deltas) & ~_edges(square)
-        subset = 0
-        while True:
+        for subset in _carry_rippler(mask):
             attacks[subset] = _sliding_attacks(square, subset, deltas)
-
-            subset = (subset - mask) & mask
-            if not subset:
-                break
 
         attack_table.append(attacks)
         mask_table.append(mask)
@@ -3389,6 +3392,9 @@ class SquareSet(object):
 
     def clear(self):
         self.mask = BB_VOID
+
+    def carry_rippler(self):
+        return _carry_rippler(self.mask)
 
     def __bool__(self):
         return bool(self.mask)

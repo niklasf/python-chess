@@ -1525,6 +1525,10 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(chess.SquareSet.from_square(chess.H5), chess.BB_H5)
         self.assertEqual(chess.SquareSet.from_square(chess.C2), chess.BB_C2)
 
+    def test_carry_rippler(self):
+        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_D1).carry_rippler()), 2 ** 1)
+        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_FILE_B).carry_rippler()), 2 ** 8)
+
 
 class PolyglotTestCase(unittest.TestCase):
 
