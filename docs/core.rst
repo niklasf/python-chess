@@ -241,3 +241,6 @@ Other masks:
 
 .. py:data:: chess.BB_BACKRANKS
     :annotation: = chess.BB_RANK_1 | chess.BB_RANK_8
+
+.. py:data:: chess.BB_CORNERS
+    :annotation: = 0x8100000000000081
