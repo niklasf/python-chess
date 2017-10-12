@@ -1,6 +1,34 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Bugfixes:
+
+* Some XBoard commands were not returning futures.
+* Support semicolon comments in PGNs.
+
+Changes:
+
+* Changed FEN and EPD formatting options. It is now possible to include en
+  passant squares in FEN and X-FEN style, or to include only strictly relevant
+  en passant squares.
+* Relax en passant square validation in `Board.set_fen()`.
+* Ensure `is_en_passant()`, `is_capture()`, `is_zeroing()` and
+  `is_irreversible()` strictly return bools.
+* Accept `Z0` as a null move in PGNs.
+
+New features:
+
+* XBoard: Add `memory`, `core`, `stop` and `movenow` commands.
+  Abstract `post`/`nopost`. Initial `FeatureMap` support. Support `usermove`.
+* Added `Board.has_pseudo_legal_en_passant()`.
+* Added `Board.piece_map()`.
+* Added `SquareSet.carry_rippler()`.
+* Factored out some (unstable) low level APIs: `BB_CORNERS`,
+  `_carry_rippler()`, `_edges()`.
+
 New in v0.19.0
 --------------
 
