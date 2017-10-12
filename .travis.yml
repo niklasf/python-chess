@@ -52,6 +52,8 @@ before_install:
  - wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
  - cd ../../..
 install:
+ - pip install --upgrade pip wheel
+ - pip install --upgrade setuptools
  - pip install coverage coveralls
  - pip install -e .[test]
 script:
