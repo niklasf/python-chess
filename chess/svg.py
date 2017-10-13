@@ -221,10 +221,10 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         tail_file = chess.square_file(arrow[0])
         tail_rank = chess.square_rank(arrow[0])
 
-        xhead = margin + (head_file + 0.5 if not flipped else 8 - head_file) * SQUARE_SIZE
-        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 1) * SQUARE_SIZE
-        xtail = margin + (tail_file + 0.5 if not flipped else 8 - tail_file) * SQUARE_SIZE
-        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 1) * SQUARE_SIZE
+        xhead = margin + (head_file + 0.5 if not flipped else 7.5 - head_file) * SQUARE_SIZE
+        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
+        xtail = margin + (tail_file + 0.5 if not flipped else 7.5 - tail_file) * SQUARE_SIZE
+        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
             ET.SubElement(svg, "circle", {
