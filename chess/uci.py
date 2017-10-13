@@ -78,8 +78,8 @@ class InfoHandler(object):
     >>> class MyHandler(chess.uci.InfoHandler):
     ...     def post_info(self):
     ...         # Called whenever a complete *info* line has been processed.
-    ...         super(MyHandler, self).post_info()
     ...         print(self.info)
+    ...         super(MyHandler, self).post_info() # release lock
     """
     def __init__(self):
         self.lock = threading.Lock()
