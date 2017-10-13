@@ -4,6 +4,7 @@ Variants
 python-chess supports several chess variants.
 
 >>> import chess.variant
+>>>
 >>> board = chess.variant.GiveawayBoard()
 
 >>> # General information about the variants
@@ -51,6 +52,10 @@ UCI
 Stockfish and other engines allow you to switch variants by setting the
 ``UCI_Variant`` option.
 
+>>> import chess.uci
+>>>
+>>> engine = chess.uci.popen_engine("stockfish")
+>>>
 >>> board = chess.variant.RacingKingsBoard()
 >>> engine.setoption({
 ...     "UCI_Variant": type(board).uci_variant,
@@ -63,4 +68,6 @@ Syzygy
 
 Syzygy tablebases are available for suicide, giveaway and atomic chess.
 
+>>> import chess.syzygy
+>>>
 >>> tables = chess.syzygy.open_tablebases("data/syzygy", VariantBoard=chess.variant.AtomicBoard)
