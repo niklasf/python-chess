@@ -494,6 +494,14 @@ def open_reader(path):
     """
     Creates a reader for the file at the given path.
 
+    The following example opens a book to find all entries for the start
+    position:
+
+    >>> import chess
+    >>> import chess.polyglot
+    >>>
+    >>> board = chess.Board()
+    >>>
     >>> with chess.polyglot.open_reader("data/polyglot/performance.bin") as reader:
     ...    for entry in reader.find_all(board):
     ...        print(entry.move(), entry.weight, entry.learn)
