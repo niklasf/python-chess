@@ -3522,7 +3522,7 @@ class SquareSet(object):
         """
         Creates a SquareSet from a single square.
 
-        >>> chess.SquareSet.from_square(chess.A1) == chess.BB_A1:
+        >>> chess.SquareSet.from_square(chess.A1) == chess.BB_A1
         True
         """
         return cls(BB_SQUARES[square])
