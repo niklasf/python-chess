@@ -52,7 +52,7 @@ PIECES = {
 
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
-ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" orient="auto"><polygon points="0 0, 3 2, 0 4" fill="#888"/></marker>"""
+ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" orient="auto"><path d="M0,0 V4 L3,2 Z" fill="#888"/></marker>"""
 
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
 
@@ -253,7 +253,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "x2": str(xhead),
                 "y2": str(yhead),
                 "stroke": "#888",
-                "stroke-width": "15",
+                "stroke-width": str(marker_length / 3),
                 "opacity": "0.5",
                 "stroke-linecap": "round",
                 "marker-end": "url(#arrowhead)",
