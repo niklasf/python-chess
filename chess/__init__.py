@@ -3268,21 +3268,24 @@ class SquareSet(object):
     """
     A set of squares.
 
-    >>> chess.SquareSet(chess.BB_A8 | chess.BB_RANK_1)
+    >>> import chess
+    >>>
+    >>> squares = chess.SquareSet(chess.BB_A8 | chess.BB_RANK_1)
+    >>> squares
     SquareSet(0x01000000000000ff)
 
     >>> print(squares)
+    1 . . . . . . .
     . . . . . . . .
     . . . . . . . .
     . . . . . . . .
     . . . . . . . .
     . . . . . . . .
     . . . . . . . .
-    . . . . . . . .
-    . 1 . . . . 1 .
+    1 1 1 1 1 1 1 1
 
     >>> len(squares)
-    2
+    9
 
     >>> bool(squares)
     True
@@ -3291,22 +3294,36 @@ class SquareSet(object):
     True
 
     >>> for square in squares:
+    ...     # 0 -- chess.A1
     ...     # 1 -- chess.B1
+    ...     # 2 -- chess.C1
+    ...     # 3 -- chess.D1
+    ...     # 4 -- chess.E1
+    ...     # 5 -- chess.F1
     ...     # 6 -- chess.G1
+    ...     # 7 -- chess.H1
+    ...     # 56 -- chess.A8
     ...     print(square)
     ...
+    0
     1
+    2
+    3
+    4
+    5
     6
+    7
+    56
 
     >>> list(squares)
-    [1, 6]
+    [0, 1, 2, 3, 4, 5, 6, 7, 56]
 
     Square sets are internally represented by 64 bit integer masks of the
     included squares. Bitwise operations can be used to compute unions,
     intersections and shifts.
 
     >>> int(squares)
-    66
+    72057594037928191
 
     Also supports common set operations like
     :func:`~chess.SquareSet.issubset()`, :func:`~chess.SquareSet.issuperset()`,
@@ -3522,6 +3539,8 @@ class SquareSet(object):
         """
         Creates a SquareSet from a single square.
 
+        >>> import chess
+        >>>
         >>> chess.SquareSet.from_square(chess.A1) == chess.BB_A1
         True
         """
