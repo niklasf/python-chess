@@ -1,6 +1,44 @@
 PGN parsing and writing
 =======================
 
+Parsing
+-------
+
+.. autofunction:: chess.pgn.read_game
+
+Writing
+-------
+
+If you want to export your game game with all headers, comments and variations
+you can use:
+
+>>> import chess
+>>> import chess.pgn
+>>>
+>>> game = chess.pgn.Game()
+>>> game.headers["Event"] = "Example"
+>>> node = game.add_variation(chess.Move.from_uci("e2e4"))
+>>> node = node.add_variation(chess.Move.from_uci("e7e5"))
+>>> node.comment = "Comment"
+>>>
+>>> print(game)
+[Event "Example"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+<BLANKLINE>
+1. e4 e5 { Comment } *
+
+Remember that games in files should be separated with extra blank lines.
+
+>>> print(game, file=open("/dev/null", "w"), end="\n\n")
+
+Use the :class:`~chess.pgn.StringExporter()` or
+:class:`~chess.pgn.FileExporter()` visitors if you need more control.
+
 Game model
 ----------
 
@@ -75,39 +113,6 @@ headers.
 
         A list of child nodes.
 
-Parsing
--------
-
-.. autofunction:: chess.pgn.read_game
-
-.. autofunction:: chess.pgn.scan_headers
-
-.. autofunction:: chess.pgn.scan_offsets
-
-Writing
--------
-
-If you want to export your game game with all headers, comments and variations
-you can use:
-
->>> print(game)
-[Event "?"]
-[Site "?"]
-[Date "????.??.??"]
-[Round "?"]
-[White "?"]
-[Black "?"]
-[Result "*"]
-<BLANKLINE>
-1. e4 e5 { Comment } *
-
-Remember that games in files should be separated with extra blank lines.
-
->>> print(game, file=handle, end="\n\n")
-
-Use the :class:`~chess.pgn.StringExporter()` or
-:class:`~chess.pgn.FileExporter()` visitors if you need more control.
-
 Visitors
 --------
 
@@ -140,3 +145,12 @@ like ``!``, ``?``, ``!!``, etc. are also converted to NAGs.
 .. autodata:: chess.pgn.NAG_BLUNDER
 .. autodata:: chess.pgn.NAG_SPECULATIVE_MOVE
 .. autodata:: chess.pgn.NAG_DUBIOUS_MOVE
+
+Skimming
+--------
+
+These functions allow quickly skimming games without fully parsing them.
+
+.. autofunction:: chess.pgn.scan_headers
+
+.. autofunction:: chess.pgn.scan_offsets
