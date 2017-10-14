@@ -517,6 +517,8 @@ class Move(object):
         forfeits en passant capturing). Null moves evaluate to ``False`` in
         boolean contexts.
 
+        >>> import chess
+        >>>
         >>> bool(chess.Move.null())
         False
         """
@@ -886,8 +888,7 @@ class BaseBoard(object):
     def set_chess960_pos(self, sharnagl):
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
-
-        >>> board.set_chess960_pos(random.randint(0, 959))
+        Also see :func:`~chess.BaseBoard.from_chess960_pos()`.
         """
         self._set_chess960_pos(sharnagl)
 
@@ -1113,7 +1114,11 @@ class BaseBoard(object):
     def from_chess960_pos(cls, sharnagl):
         """
         Creates a new board, initialized to a Chess960 starting position.
-        Also see :func:`~chess.BaseBoard.set_chess960_pos()`.
+
+        >>> import chess
+        >>> import random
+        >>>
+        >>> board = chess.Board.from_chess960_pos(random.randint(0, 959))
         """
         board = cls.empty()
         board.set_chess960_pos(sharnagl)
@@ -1435,6 +1440,8 @@ class Board(BaseBoard):
         Detects an absolute pin (and its direction) of the given square to
         the king of the given color.
 
+        >>> import chess
+        >>>
         >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
         >>> board.is_pinned(chess.WHITE, chess.C3)
         True
@@ -1797,6 +1804,10 @@ class Board(BaseBoard):
         Updates the position with the given move and puts it onto the
         move stack.
 
+        >>> import chess
+        >>>
+        >>> board = chess.Board()
+        >>>
         >>> Nf3 = chess.Move.from_uci("g1f3")
         >>> board.push(Nf3)  # Make the move
 
@@ -2254,6 +2265,9 @@ class Board(BaseBoard):
 
         *hmvc* and *fmvc* are not included by default. You can use:
 
+        >>> import chess
+        >>>
+        >>> board = chess.Board()
         >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
