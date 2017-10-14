@@ -613,6 +613,10 @@ class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
 
+    >>> import chess.pgn
+    >>>
+    >>> game = chess.pgn.Game()
+    >>>
     >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
     >>> pgn_string = game.accept(exporter)
 
@@ -717,7 +721,11 @@ class FileExporter(StringExporter):
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
 
-    >>> new_pgn = open("new.pgn", "w", encoding="utf-8")
+    >>> import chess.pgn
+    >>>
+    >>> game = chess.pgn.Game()
+    >>>
+    >>> new_pgn = open("/dev/null", "w", encoding="utf-8")
     >>> exporter = chess.pgn.FileExporter(new_pgn)
     >>> game.accept(exporter)
     """
@@ -761,12 +769,13 @@ def read_game(handle, Visitor=GameModelCreator):
     >>> first_game.headers["Event"]
     'IBM Man-Machine, New York USA'
     >>>
+    >>> # Iterate through all moves and play them on a board.
     >>> board = first_game.board()
     >>> for move in first_game.main_line():
     ...     board.push(move)
     ...
     >>> board
-    Board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+    Board('4r3/6P1/2p2P1k/1p6/pP2p1R1/P1B5/2P2K2/3r4 b - - 0 45')
 
     By using text mode the parser does not need to handle encodings. It is the
     callers responsibility to open the file with the correct encoding.
@@ -781,10 +790,10 @@ def read_game(handle, Visitor=GameModelCreator):
     >>> pgn_string = "1. e4 e5 2. Nf3 *"
     >>>
     >>> try:
-    >>>     from StringIO import StringIO  # Python 2
-    >>> except ImportError:
-    >>>     from io import StringIO  # Python 3
-    >>>
+    ...     from StringIO import StringIO  # Python 2
+    ... except ImportError:
+    ...     from io import StringIO  # Python 3
+    ...
     >>> pgn = StringIO(pgn_string)
     >>> game = chess.pgn.read_game(pgn)
 
@@ -964,7 +973,10 @@ def scan_headers(handle):
 
     This example scans for the first game with Kasparov as the white player.
 
-    >>> pgn = open("mega.pgn")
+    >>> import chess.pgn
+    >>>
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
+    >>>
     >>> for offset, headers in chess.pgn.scan_headers(pgn):
     ...     if "Kasparov" in headers["White"]:
     ...         kasparov_offset = offset
@@ -973,6 +985,7 @@ def scan_headers(handle):
     Then it can later be seeked an parsed.
 
     >>> pgn.seek(kasparov_offset)
+    0
     >>> game = chess.pgn.read_game(pgn)
 
     This also works nicely with generators, scanning lazily only when the next
