@@ -1553,8 +1553,12 @@ class PythonTablebases(object):
 
         In the example position white to move will get mated in 10 half moves:
 
+        >>> import chess
+        >>> import chess.gaviota
+        >>>
         >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_dtm(chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1"))
+        ...     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
+        ...     print(tablebases.probe_dtm(board))
         ...
         -10
 
@@ -1629,8 +1633,12 @@ class PythonTablebases(object):
         Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
         and ``-1`` if the side to move is losing.
 
+        >>> import chess
+        >>> import chess.gaviota
+        >>>
         >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
-        ...     tablebases.probe_wdl(chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1"))
+        ...     board = chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1")
+        ...     print(tablebases.probe_wdl(board))
         ...
         0
 
