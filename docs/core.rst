@@ -123,8 +123,11 @@ Board
 
         To test for specific squares:
 
-        >>> board.castling_rights & chess.BB_H1
-        True # White can castle kingside with the h1 rook
+        >>> import chess
+        >>>
+        >>> board = chess.Board()
+        >>> bool(board.castling_rights & chess.BB_H1) # White can castle with the h1 rook
+        True
 
         To add a specific square:
 
@@ -167,15 +170,14 @@ Board
 
         A dynamic list of legal moves.
 
-        The following operations do not just generate everything but map to
-        more efficient methods.
-
+        >>> import chess
+        >>>
+        >>> board = chess.Board()
         >>> len(board.legal_moves)
         20
-
         >>> bool(board.legal_moves)
         True
-
+        >>> move = chess.Move.from_uci("g1f3")
         >>> move in board.legal_moves
         True
 
