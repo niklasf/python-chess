@@ -364,27 +364,7 @@ class GameNode(object):
 class Game(GameNode):
     """
     The root node of a game with extra information such as headers and the
-    starting position.
-
-    By default the following 7 headers are provided in an ordered dictionary:
-
-    >>> game = chess.pgn.Game()
-    >>> game.headers["Event"]
-    '?'
-    >>> game.headers["Site"]
-    '?'
-    >>> game.headers["Date"]
-    '????.??.??'
-    >>> game.headers["Round"]
-    '?'
-    >>> game.headers["White"]
-    '?'
-    >>> game.headers["Black"]
-    '?'
-    >>> game.headers["Result"]
-    '*'
-
-    Also has all the other properties and methods of
+    starting position. Also has all the other properties and methods of
     :class:`~chess.pgn.GameNode`.
     """
 

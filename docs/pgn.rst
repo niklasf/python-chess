@@ -14,7 +14,26 @@ headers.
 
     .. py:attribute:: headers
 
-        A `collections.OrderedDict()` of game headers.
+        A :class:`collections.OrderedDict()` of game headers. By default the
+        following 7 headers are provided:
+
+        >>> import chess.pgn
+        >>>
+        >>> game = chess.pgn.Game()
+        >>> game.headers["Event"]
+        '?'
+        >>> game.headers["Site"]
+        '?'
+        >>> game.headers["Date"]
+        '????.??.??'
+        >>> game.headers["Round"]
+        '?'
+        >>> game.headers["White"]
+        '?'
+        >>> game.headers["Black"]
+        '?'
+        >>> game.headers["Result"]
+        '*'
 
     .. py:attribute:: errors
 
