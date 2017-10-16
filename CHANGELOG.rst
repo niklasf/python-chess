@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.20.1
+--------------
+
+Bugfixes:
+
+* Fix arrow positioning on SVG boards.
+* Documentation fixes and improvements, making most doctests runnable.
+
 New in v0.20.0
 --------------
 
