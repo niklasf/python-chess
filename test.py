@@ -3141,6 +3141,11 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard("8/8/8/8/8/8/2k5/rR4KR w KQ - 0 1", chess960=True)
         self.assertTrue(board.is_legal(chess.Move.from_uci("g1b1")))
 
+    def test_atomic_castle_with_kings_touching(self):
+        board = chess.variant.AtomicBoard("5b1r/1p5p/4ppp1/4Bn2/1PPP1PP1/4P2P/3k4/4K2R w K - 1 1")
+        board.push_san("O-O")
+        self.assertEqual(board.fen(), "5b1r/1p5p/4ppp1/4Bn2/1PPP1PP1/4P2P/3k4/5RK1 b - - 2 1")
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
