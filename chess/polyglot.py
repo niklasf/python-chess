@@ -296,8 +296,10 @@ def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     return _hasher(board)
 
 
-class Entry(collections.namedtuple("Entry", ["key", "raw_move", "weight", "learn"])):
+class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
     """An entry from a polyglot opening book."""
+
+    __slots__ = ()
 
     def move(self, chess960=False):
         """Gets the move (as a :class:`~chess.Move` object)."""

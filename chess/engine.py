@@ -57,9 +57,10 @@ class EngineStateException(Exception):
     pass
 
 
-class Option(collections.namedtuple("Option", ["name", "type", "default", "min", "max", "var"])):
+class Option(collections.namedtuple("Option", "name type default min max var")):
     """Information about an available option for an UCI engine."""
-    pass
+
+    __slots__ = ()
 
 
 class MockProcess(object):

@@ -70,8 +70,9 @@ DEFAULT_STYLE = """\
 """
 
 
-class Arrow(collections.namedtuple("Arrow", ["tail", "head"])):
+class Arrow(collections.namedtuple("Arrow", "tail head")):
     """Details of an arrow to be drawn."""
+
     __slots__ = ()
 
 

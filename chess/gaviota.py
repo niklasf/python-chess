@@ -1172,7 +1172,7 @@ def kpppk_pctoindex(c):
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 
-Endgamekey = collections.namedtuple("Endgamekey", ["maxindex", "slice_n", "pctoi"])
+Endgamekey = collections.namedtuple("Endgamekey", "maxindex slice_n pctoi")
 
 EGKEY = {
     "kqk": Endgamekey(MAX_KXK, 1, kxk_pctoindex),
@@ -1517,7 +1517,7 @@ class Request(object):
         self.white_piece_squares = None
 
 
-Zipinfo = collections.namedtuple("Zipinfo", ["extraoffset", "totalblocks", "blockindex"])
+Zipinfo = collections.namedtuple("Zipinfo", "extraoffset totalblocks blockindex")
 
 
 class PythonTablebases(object):
