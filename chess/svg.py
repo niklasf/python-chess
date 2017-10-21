@@ -72,7 +72,7 @@ DEFAULT_STYLE = """\
 
 class Arrow(collections.namedtuple("Arrow", ["tail", "head"])):
     """Details of an arrow to be drawn."""
-    pass
+    __slots__ = ()
 
 
 def _svg(viewbox, size):
