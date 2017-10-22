@@ -130,10 +130,13 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]``. Arrows from a square to the
-        same square are drawn as circles.
-    :param size: Limit the SVG size by setting width and height of the image.
-    :param style: CSS to use instead of the default stylesheet.
+        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
+        ``[(chess.E2, chess.E4)]``. An arrow from a square that is pointing to
+        the same square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param size: Adjust size of the SVG image by setting its width and
+        height, like ``(600, 600)``.
+    :param style: Add CSS markup to change the default style sheet of the SVG
+        image.
 
     >>> import chess
     >>> import chess.svg
