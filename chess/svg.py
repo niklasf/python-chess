@@ -129,8 +129,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects or tuples
-        like ``(chess.E2, chess.E4)``.
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects like ``[chess.svg.Arrow(chess.E2, chess.E4)]``.
     :param size: Limit the SVG size by setting width and height of the image.
     :param style: CSS to use instead of the default stylesheet.
 
