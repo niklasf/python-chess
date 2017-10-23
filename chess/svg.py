@@ -123,7 +123,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     """
     Renders a board with pieces and/or selected squares as an SVG.
 
-    :param board: A :class:`chess.Board` for a chessboard with pieces or
+    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
         ``None`` (the default) for a chessboard without pieces.
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param flipped: Pass ``True`` to flip the board.
