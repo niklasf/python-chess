@@ -63,11 +63,7 @@ DEFAULT_COLORS = {
     "square light lastmove": "#cdd16a",
 }
 
-DEFAULT_STYLE = """\
-.check {
-  fill: url(#check_gradient);
-}
-"""
+DEFAULT_STYLE = ".check {fill: url(#check_gradient);}"
 
 
 class Arrow(collections.namedtuple("Arrow", "tail head")):
