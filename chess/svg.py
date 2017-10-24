@@ -65,7 +65,7 @@ DEFAULT_COLORS = {
 
 DEFAULT_STYLE = """
 .check {
-  fill: url(#check_gradient);
+    fill: url(#check_gradient);
 }
 """
 
@@ -134,8 +134,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
-    :param size: The size of the image in pixels (e.g. ``400`` for a 400 by 400
-        board) or ``None`` (the default) for no size limit.
+    :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
+        400 board) or ``None`` (the default) for no size limit.
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
