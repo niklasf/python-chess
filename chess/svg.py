@@ -63,11 +63,7 @@ DEFAULT_COLORS = {
     "square light lastmove": "#cdd16a",
 }
 
-DEFAULT_STYLE = """\
-.check {
-  fill: url(#check_gradient);
-}
-"""
+DEFAULT_STYLE = ".check {fill: url(#check_gradient);}"
 
 
 class Arrow(collections.namedtuple("Arrow", "tail head")):
@@ -105,7 +101,7 @@ def _text(content, x, y, width, height):
 
 def piece(piece, size=None):
     """
-    Renders the given :class:`chess.Piece` as an SVG.
+    Renders the given :class:`chess.Piece` as an SVG image.
 
     >>> import chess
     >>> import chess.svg
@@ -121,7 +117,7 @@ def piece(piece, size=None):
 
 def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
     """
-    Renders a board with pieces and/or selected squares as an SVG.
+    Renders a board with pieces and/or selected squares as an SVG image.
 
     :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
         ``None`` (the default) for a chessboard without pieces.
@@ -131,10 +127,13 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]``. Arrows from a square to the
-        same square are drawn as circles.
-    :param size: Limit the SVG size by setting width and height of the image.
-    :param style: CSS to use instead of the default stylesheet.
+        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
+        ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
+        square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param size: Adjust size of the SVG image by passing in a number like
+        ``400`` which renders a board with 400 by 400 pixels.
+    :param style: Pass in a CSS style sheet to alter the default style sheet of
+        the SVG image.
 
     >>> import chess
     >>> import chess.svg
