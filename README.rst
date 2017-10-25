@@ -68,7 +68,7 @@ Features
 
 * Supports Python 2.6+, Python 3.3+ and PyPy.
 
-* IPython notebook integration.
+* Jupyter Notebook integration.
   `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
 
   .. code:: python
