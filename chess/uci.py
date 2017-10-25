@@ -39,14 +39,14 @@ except ImportError:
     import collections
 
 
-class Score(collections.namedtuple("Score", ["cp", "mate"])):
-    """A centipawns or mate score sent by an UCI engine."""
-    pass
+class Score(collections.namedtuple("Score", "cp mate")):
+    """A *cp* (centipawns) or *mate* score sent by an UCI engine."""
+    __slots__
 
 
-class BestMove(collections.namedtuple("BestMove", ["bestmove", "ponder"])):
+class BestMove(collections.namedtuple("BestMove", "bestmove ponder")):
     """A bestmove and ponder move sent by an UCI engine."""
-    pass
+    __slots__
 
 
 class InfoHandler(object):
@@ -72,8 +72,8 @@ class InfoHandler(object):
     See :attr:`~chess.uci.InfoHandler.info` for a way to access this dictionary
     in a thread-safe way during search.
 
-    If you want to be notified whenever new information is available
-    you would usually subclass the *InfoHandler* class:
+    If you want to be notified whenever new information is available,
+    you would usually subclass the :class:`~chess.uci.InfoHandler` class:
 
     >>> class MyHandler(chess.uci.InfoHandler):
     ...     def post_info(self):
@@ -110,33 +110,33 @@ class InfoHandler(object):
         """
         Received the principal variation as a list of moves.
 
-        In MultiPV mode this is related to the most recent *multipv* number
+        In *MultiPV* mode, this is related to the most recent *multipv* number
         sent by the engine.
         """
         self.info["pv"][self.info.get("multipv", 1)] = moves
 
     def multipv(self, num):
         """
-        Received a new multipv number, starting at 1.
+        Received a new *multipv* number, starting at 1.
 
-        If multipv occurs in an info line, this is guaranteed to be called
+        If *multipv* occurs in an info line, this is guaranteed to be called
         before *score* or *pv*.
         """
         self.info["multipv"] = num
 
     def score(self, cp, mate, lowerbound, upperbound):
         """
-        Received a new evaluation in centipawns or a mate score.
+        Received a new evaluation in *cp* (centipawns) or a *mate* score.
 
-        *cp* may be *None* if no score in centipawns is available.
+        *cp* may be ``None`` if no score in centipawns is available.
 
-        *mate* may be *None* if no forced mate has been found. A negative
-        numbers means the engine thinks it will get mated.
+        *mate* may be ``None`` if no forced mate has been found. A negative
+        number means the engine thinks it will get mated.
 
-        lowerbound and upperbound are usually *False*. If *True*, the sent
-        score are just a lowerbound or upperbound.
+        *lowerbound* and *upperbound* are usually ``False``. If ``True``,
+        the sent score is just a *lowerbound* or *upperbound*.
 
-        In MultiPV mode this is related to the most recent *multipv* number
+        In MultiPV mode, this is related to the most recent *multipv* number
         sent by the engine.
         """
         if not lowerbound and not upperbound:
@@ -146,20 +146,20 @@ class InfoHandler(object):
         """
         Received a move the engine is currently thinking about.
 
-        These moves come directly from the engine. So the castling move
-        representation depends on the UCI_Chess960 option of the engine.
+        These moves come directly from the engine, so the castling move
+        representation depends on the *UCI_Chess960* option of the engine.
         """
         self.info["currmove"] = move
 
     def currmovenumber(self, x):
-        """Received a new currmovenumber."""
+        """Received a new current move number."""
         self.info["currmovenumber"] = x
 
     def hashfull(self, x):
         """
         Received new information about the hashtable.
 
-        The hashtable is x permill full.
+        The hashtable is *x* permill full.
         """
         self.info["hashfull"] = x
 
@@ -168,7 +168,7 @@ class InfoHandler(object):
         self.info["nps"] = x
 
     def tbhits(self, x):
-        """Received new information about the number of table base hits."""
+        """Received new information about the number of tablebase hits."""
         self.info["tbhits"] = x
 
     def cpuload(self, x):
@@ -225,9 +225,9 @@ class InfoHandler(object):
 
     def on_go(self):
         """
-        A go command is being sent.
+        A *go* command is being sent.
 
-        Since information about the previous search is invalidated the
+        Since information about the previous search is invalidated, the
         dictionary with the current information will be cleared.
         """
         with self.lock:
@@ -687,12 +687,12 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def debug(self, on, async_callback=None):
+    def debug(self, on=False, async_callback=None):
         """
-        Switch the debug mode on or off.
+        Enable debug mode by changing the *on* argument to ``True``. Disabled by default.
 
-        In debug mode the engine should send additional infos to the GUI to
-        help debugging. This mode should be switched off by default.
+        In debug mode, the engine should sequentially send additional info to the GUI to
+        help with the debugging.
 
         :param on: bool
 
@@ -729,7 +729,7 @@ class Engine(object):
 
     def setoption(self, options, async_callback=None):
         """
-        Set values for the engines available options.
+        Set values for the engine's available options.
 
         :param options: A dictionary with option names as keys.
 
@@ -778,7 +778,7 @@ class Engine(object):
 
         This can be a new game the engine should play or if the engine should
         analyse a position from a different game. Using this command is
-        recommended but not required.
+        recommended, but not required.
 
         :return: Nothing
         """
@@ -808,7 +808,7 @@ class Engine(object):
         up to the position will be sent, so that the engine can detect
         repetitions.
 
-        If the position is from a new game it is recommended to use the
+        If the position is from a new game, it is recommended to use the
         *ucinewgame* command before the *position* command.
 
         :param board: A *chess.Board*.
@@ -889,7 +889,7 @@ class Engine(object):
         *depth*, *nodes*, *mate*, *infinite* or some time control settings,
         so that the engine knows how long to calculate.
 
-        Note that when using *infinite* or *ponder* the engine will not stop
+        Note that when using *infinite* or *ponder*, the engine will not stop
         until it is told to.
 
         :param searchmoves: Restrict search to moves in this list.
@@ -1030,7 +1030,7 @@ class Engine(object):
         """
         May be sent if the expected ponder move has been played.
 
-        The engine should continue searching but should switch from pondering
+        The engine should continue searching, but should switch from pondering
         to normal search.
 
         :return: Nothing.
@@ -1093,7 +1093,7 @@ class Engine(object):
         Terminate the engine.
 
         This is not an UCI command. It instead tries to terminate the engine
-        on operating system level, for example by sending SIGTERM on Unix
+        on operating system level, like sending SIGTERM on Unix
         systems. If possible, first try the *quit* command.
 
         :return: The return code of the engine process (or a Future).
@@ -1105,7 +1105,7 @@ class Engine(object):
         """
         Kill the engine.
 
-        Forcefully kill the engine process, for example by sending SIGKILL.
+        Forcefully kill the engine process, like by sending SIGKILL.
 
         :return: The return code of the engine process (or a Future).
         """
@@ -1132,7 +1132,7 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     'Tord Romstad, Marco Costalba and Joona Kiiski'
 
     :param setpgrp: Open the engine process in a new process group. This will
-        stop signals (such as keyboards interrupts) from propagating from the
+        stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
     """
     return _popen_engine(command, engine_cls, setpgrp, _popen_lock, **kwargs)
