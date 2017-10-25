@@ -41,12 +41,12 @@ except ImportError:
 
 class Score(collections.namedtuple("Score", "cp mate")):
     """A *cp* (centipawns) or *mate* score sent by an UCI engine."""
-    __slots__
+    __slots__ = ()
 
 
 class BestMove(collections.namedtuple("BestMove", "bestmove ponder")):
     """A bestmove and ponder move sent by an UCI engine."""
-    __slots__
+    __slots__ = ()
 
 
 class InfoHandler(object):
