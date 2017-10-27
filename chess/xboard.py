@@ -145,7 +145,6 @@ class PostHandler(object):
 
 
 class FeatureMap(object):
-
     def __init__(self):
         # Populated with defaults to begin with
         self._features = {
@@ -447,14 +446,14 @@ class Engine(object):
         """
         Tell the engine not to ponder.
         """
-        return self.pondering(False)
+        return self.pondering(False, async_callback)
 
     def hard(self, async_callback=None):
         """
         Tell the engine to ponder.
         TODO: pondering not yet supported.
         """
-        return self.pondering(True)
+        return self.pondering(True, async_callback)
 
     def set_post(self, flag, async_callback=None):
         """
@@ -482,7 +481,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.set_post(True)
+        return self.set_post(True, async_callback)
 
     def nopost(self, async_callback=None):
         """
@@ -490,7 +489,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        return self.set_post(False)
+        return self.set_post(False, async_callback)
 
     def xboard(self, async_callback=None):
         """
@@ -684,6 +683,99 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def set_side_to_move(self, color, async_callback=None):
+        """
+        Set the side to move, set the engine to move for the opposite side
+        and exit force mode.
+
+        :param color: The desired side to move.
+
+        :return: Nothing
+        """
+        if not self.features.supports("colors"):
+            raise EngineStateException("engine does not support the 'colors' feature")
+
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("{} command while engine is busy",
+                        chess.COLOR_NAMES[color])
+
+        self.in_force = False
+        def command():
+            with self.semaphore:
+                self.send_line(side)
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
+    def white(self, async_callback=None):
+        """
+        Set the side to move to be white, engine to play as black and
+        exit force mode.
+
+        :return: Nothing
+        """
+        set_side_to_move(chess.WHITE, async_callback)
+
+    def black(self, async_callback=None):
+        """
+        Set the side to move to be black, engine to play as white and
+        exit force mode.
+
+        :return: Nothing
+        """
+        set_side_to_move(chess.BLACK, async_callback)
+
+    def random(self, async_callback=None):
+        """
+        Toggles random mode.
+
+        In random mode, the engine may choose to add a random factor to it's
+        evaluation of any given position prompting variation in play or may
+        ignore it entirely.
+
+        :return: Nothing
+        """
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("random command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("random")
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
+    def nps(self, target_nps, async_callback=None):
+        """
+        Tell the engine to limit it's speed of search in terms of
+        Nodes Per Second to the provided value.
+
+        :param target_nps: The limiting Nodes Per Second value
+
+        :return: Nothing
+        """
+        if not self.features.supports("nps"):
+            raise EngineStateException("engine does not support the 'nps' feature")
+
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("nps command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("nps " + str(target_nps))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
+
     def st(self, time, async_callback=None):
         """
         Set maximum time the engine is to search for.
@@ -750,6 +842,29 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
+    def otim(self, time, async_callback=None):
+        """
+        Synchronize the engines clock with the total amount of time left.
+
+        :param time: The total time left in centiseconds
+
+        :return: Nothing
+        """
+        if not self.features.supports("time"):
+            raise EngineStateException("engine does not support the 'time' feature")
+
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("otim command while engine is busy")
+
+        def command():
+            with self.semaphore:
+                self.send_line("otim " + str(time))
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+
+        return self._queue_command(command, async_callback)
 
     def level(self, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
         """
