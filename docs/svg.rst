@@ -1,10 +1,10 @@
 SVG rendering
 =============
 
-This module renders SVGs (mostly for IPython integration). Piece images
-are copyright
-`Colin M.L. Burnett <https://en.wikipedia.org/wiki/User:Cburnett>`_ and
-triple licensed under GFDL & BSD & GPL.
+The :mod:`chess.svg` module renders SVG images (mostly for IPython/Jupyter
+notebook integration). The piece images by
+`Colin M.L. Burnett <https://en.wikipedia.org/wiki/User:Cburnett>`_ are triple
+licensed under the GFDL, BSD and GPL.
 
 
 .. autofunction:: chess.svg.piece
