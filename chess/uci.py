@@ -692,7 +692,7 @@ class Engine(object):
         Switch the debug mode on or off.
 
         In debug mode, the engine should send additional information to the
-        GUI to help with the debugging. Usually this mode is off by default.
+        GUI to help with the debugging. Usually, this mode is off by default.
 
         :param on: bool
 
@@ -854,7 +854,7 @@ class Engine(object):
                 while switchyard:
                     board.push(switchyard.pop())
 
-        # Send startposition.
+        # Send starting position.
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
         else:
