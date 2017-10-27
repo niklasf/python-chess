@@ -687,12 +687,12 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def debug(self, on=False, async_callback=None):
+    def debug(self, on, async_callback=None):
         """
-        Enable debug mode by changing the *on* argument to ``True``. Disabled by default.
+        Switch the debug mode on or off.
 
-        In debug mode, the engine should sequentially send additional info to the GUI to
-        help with the debugging.
+        In debug mode, the engine should send additional information to the
+        GUI to help with the debugging. Usually this mode is off by default.
 
         :param on: bool
 
