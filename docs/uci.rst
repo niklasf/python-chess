@@ -58,7 +58,7 @@ no longer alive.
 Asynchronous communication
 --------------------------
 
-By default all operations are executed synchronously and their result is
+By default, all operations are executed synchronously and their result is
 returned. For example
 
 >>> engine.go(movetime=2000)
@@ -76,7 +76,7 @@ BestMove(bestmove=Move.from_uci('e2e4'), ponder=None)
 >>> command.done()
 True
 
-Instead of just passing *async_callback=True* a callback function may be
+Instead of just passing *async_callback=True*, a callback function may be
 passed. It will be invoked **possibly on a different thread** as soon as the
 command is completed. It takes the command future as a single argument.
 
@@ -94,7 +94,7 @@ is ``e1g1`` for short castling. The same move would be ``e1h1`` in
 *UCI_Chess960* mode.
 
 This is abstracted away by the UCI module, but if the engine supports it, it
-is recommended to enable enable *UCI_Chess960* mode.
+is recommended to enable *UCI_Chess960* mode.
 
 >>> engine.setoption({"UCI_Chess960": True})
 
@@ -115,7 +115,7 @@ Info handler
 
     .. py:attribute:: lowerbound
 
-        If the score is not exact but only a lowerbound.
+        If the score is not exact, but only a lowerbound.
 
     .. py:attribute:: upperbound
 
@@ -127,7 +127,7 @@ Info handler
     .. py:attribute:: info
 
         The default implementation stores all received information in this
-        dictionary. To get a consistent snapshot use the object as if it were
+        dictionary. To get a consistent snapshot, use the object as if it were
         a :class:`threading.Lock()`.
 
         >>> # Start thinking.
