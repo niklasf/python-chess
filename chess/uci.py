@@ -119,7 +119,7 @@ class InfoHandler(object):
         """
         Received a new *multipv* number, starting at 1.
 
-        If *multipv* occurs in an info line, this is guaranteed to be called
+        If *multipv* occurs in an *info* line, this is guaranteed to be called
         before *score* or *pv*.
         """
         self.info["multipv"] = num
