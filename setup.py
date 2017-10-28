@@ -22,6 +22,7 @@ import os
 import setuptools
 import sys
 import platform
+import re
 
 
 def read_description():
@@ -45,6 +46,9 @@ def read_description():
     description = description.replace(
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
         "//travis-ci.org/niklasf/python-chess.svg?branch=v{0}".format(chess.__version__))
+
+    # Remove doctest comments.
+    description = re.sub("\s*# doctest:.*", "", description)
 
     return description
 
