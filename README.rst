@@ -17,7 +17,7 @@ Introduction
 ------------
 
 python-chess is a pure Python chess library with move generation and validation
-and handling of common formats. This is the scholars mate in python-chess:
+and handles common formats. This is the Scholar's mate in python-chess:
 
 .. code:: python
 
@@ -86,9 +86,9 @@ Features
   .. code:: python
 
       >>> Nf3 = chess.Move.from_uci("g1f3")
-      >>> board.push(Nf3)  # Make the move
+      >>> board.push(Nf3)  # Make the move.
 
-      >>> board.pop()  # Unmake the last move
+      >>> board.pop()  # Unmake the last move.
       Move.from_uci('g1f3')
 
 * Show a simple ASCII board.
@@ -117,7 +117,7 @@ Features
       >>> board.is_game_over()
       True
 
-* Detects repetitions. Has a half move clock.
+* Detects repetitions. Has a half-move clock.
 
   .. code:: python
 
@@ -130,8 +130,8 @@ Features
       >>> board.can_claim_draw()
       False
 
-  With the new rules from July 2014 a game ends drawn (even without a claim)
-  once a fivefold repetition occurs or if there are 75 moves without a pawn
+  With new rules from July 2014, a game ends as a draw (even without a claim)
+  if a fivefold repetition occurs or if there are 75 moves made without a pawn
   push or capture. Other ways of ending a game take precedence.
 
   .. code:: python
@@ -201,9 +201,9 @@ Features
       >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
       True
 
-* Detects absolute `pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin>`_.
+* Detects `absolute pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin>`_.
 
-* Read Polyglot opening books.
+* Reads Polyglot opening books.
   `Docs <https://python-chess.readthedocs.io/en/latest/polyglot.html>`__.
 
   .. code:: python
@@ -223,7 +223,7 @@ Features
 
       >>> book.close()
 
-* Read and write PGNs. Supports headers, comments, NAGs and a tree of
+* Reads and writes PGNs. Supports headers, comments, NAGs and a tree of
   variations.
   `Docs <https://python-chess.readthedocs.io/en/latest/pgn.html>`__.
 
@@ -244,7 +244,7 @@ Features
       >>> first_game.board().variation_san(moves)
       '1. e4 c5 2. c4 Nc6 3. Ne2 Nf6 4. Nbc3 Nb4 5. g3 Nd3#'
 
-      >>> # Iterate through the mainline of this embarrasingly short game.
+      >>> # Iterate through the mainline of this embarrassingly short game.
       >>> node = first_game
       >>> while not node.is_end():
       ...     next_node = node.variations[0]
@@ -334,18 +334,18 @@ Selected use cases
 If you like, let me know if you are creating something intresting with
 python-chess, for example:
 
-* a stand alone chess computer based on DGT board - http://www.picochess.org/
-* a website to probe Syzygy endgame tablebases - https://syzygy-tables.info/
-* a GUI to play against UCI chess engines - http://johncheetham.com/projects/jcchess/
-* an HTTP microservice to render board images - https://github.com/niklasf/web-boardimage
-* a bot to play chess on Telegram - https://github.com/cxjdavin/tgchessbot
-* a tool to build `Anki <http://ankisrs.net/>`_ decks from a PGN opening repertoire - https://github.com/asdfjkl/pgn2anki
+* a stand-alone chess computer based on DGT board – http://www.picochess.org/
+* a website to probe Syzygy endgame tablebases – https://syzygy-tables.info/
+* a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
+* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
+* a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
+* a tool to build `Anki <http://ankisrs.net/>`_ decks from a PGN opening repertoire – https://github.com/asdfjkl/pgn2anki
 
 Acknowledgements
 ----------------
 
 Thanks to the Stockfish authors and thanks to Sam Tannous for publishing his
-approach to `avoid rotated bitboards with direct lookup (pdf) <http://arxiv.org/pdf/0704.3773.pdf>`_
+approach to `avoid rotated bitboards with direct lookup (PDF) <http://arxiv.org/pdf/0704.3773.pdf>`_
 alongside his GPL2+ engine `Shatranj <https://github.com/stannous/shatranj>`_.
 Some move generation ideas are taken from these sources.
 
@@ -355,10 +355,10 @@ The probing code in python-chess is very directly ported from his C probing code
 
 Thanks to Miguel A. Ballicora for his
 `Gaviota tablebases <https://github.com/michiguel/Gaviota-Tablebases>`_.
-(I wish the generating code was free software).
+(I wish the generating code was free software.)
 
 License
 -------
 
-python-chess is licensed under the GPL 3 (or any later version at your option).
+python-chess is licensed under GPL 3 (or any later version at your option).
 Check out LICENSE.txt for the full text.
