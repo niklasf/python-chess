@@ -79,7 +79,7 @@ class InfoHandler(object):
     ...     def post_info(self):
     ...         # Called whenever a complete info line has been processed.
     ...         print(self.info)
-    ...         super(MyHandler, self).post_info()  # Release the lock.
+    ...         super(MyHandler, self).post_info()  # Release the lock
     """
     def __init__(self):
         self.lock = threading.Lock()
@@ -895,8 +895,8 @@ class Engine(object):
         :param searchmoves: Restrict search to moves in this list.
         :param ponder: Bool to enable pondering mode. The engine will not stop
             pondering in the background until a *stop* command is received.
-        :param wtime: Integer of milliseconds white has left on the clock.
-        :param btime: Integer of milliseconds black has left on the clock.
+        :param wtime: Integer of milliseconds White has left on the clock.
+        :param btime: Integer of milliseconds Black has left on the clock.
         :param winc: Integer of white Fisher increment.
         :param binc: Integer of black Fisher increment.
         :param movestogo: Number of moves to the next time control. If this is
@@ -910,7 +910,7 @@ class Engine(object):
 
         :return: A tuple of two elements. The first is the best move according
             to the engine. The second is the ponder move. This is the reply
-            as sent by the engine. Either of the elements may be *None*.
+            as sent by the engine. Either of the elements may be ``None``.
 
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is
             already calculating.
