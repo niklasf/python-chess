@@ -45,15 +45,15 @@ class Score(collections.namedtuple("Score", "cp mate")):
 
 
 class BestMove(collections.namedtuple("BestMove", "bestmove ponder")):
-    """A bestmove and ponder move sent by an UCI engine."""
+    """A *bestmove* and *ponder* move sent by an UCI engine."""
     __slots__ = ()
 
 
 class InfoHandler(object):
     """
     Chess engines may send information about their calculations with the
-    *info* command. Info handlers can be used to aggregate or react to this
-    information.
+    *info* command. An :class:`~chess.uci.InfoHandler` instance can be used
+    to aggregate or react to this information.
 
     >>> # Register a standard info handler.
     >>> info_handler = chess.uci.InfoHandler()
@@ -77,9 +77,9 @@ class InfoHandler(object):
 
     >>> class MyHandler(chess.uci.InfoHandler):
     ...     def post_info(self):
-    ...         # Called whenever a complete *info* line has been processed.
+    ...         # Called whenever a complete info line has been processed.
     ...         print(self.info)
-    ...         super(MyHandler, self).post_info() # release lock
+    ...         super(MyHandler, self).post_info()  # Release the lock.
     """
     def __init__(self):
         self.lock = threading.Lock()
@@ -184,7 +184,7 @@ class InfoHandler(object):
         Received a new refutation of a move.
 
         *refuted_by* may be a list of moves representing the mainline of the
-        refutation or *None* if no refutation has been found.
+        refutation or ``None`` if no refutation has been found.
 
         Engines should only send refutations if the *UCI_ShowRefutations*
         option has been enabled.
@@ -195,17 +195,17 @@ class InfoHandler(object):
         """
         Received a new snapshot of a line a specific CPU is calculating.
 
-        *cpunr* is an integer representing a specific CPU. *moves* is a list
+        *cpunr* is an integer representing a specific CPU and *moves* is a list
         of moves.
         """
         self.info["currline"][cpunr] = moves
 
     def pre_info(self, line):
         """
-        Received a new info line about to be processed.
+        Received a new info line to be processed.
 
-        When subclassing remember to call this method of the parent class in
-        order to keep the locking in tact.
+        When subclassing, remember to call this method on the parent class
+        to keep the locking intact.
         """
         self.lock.acquire()
         self.info.pop("multipv", None)
@@ -214,13 +214,13 @@ class InfoHandler(object):
         """
         Processing of a new info line has been finished.
 
-        When subclassing remember to call this method of the parent class in
-        order to keep the locking in tact.
+        When subclassing, remember to call this method on the parent class
+        to keep the locking intact.
         """
         self.lock.release()
 
     def on_bestmove(self, bestmove, ponder):
-        """A new bestmove and pondermove have been received."""
+        """A new *bestmove* and *ponder* move have been received."""
         pass
 
     def on_go(self):
@@ -374,7 +374,7 @@ class Engine(object):
 
         self.ponder = None
         if self.bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-            # The ponder move must be legal after the bestmove. Generally we
+            # The ponder move must be legal after the bestmove. Generally, we
             # trust the engine on this. But we still have to convert
             # non-UCI_Chess960 castling moves.
             try:
