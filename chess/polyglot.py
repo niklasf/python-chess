@@ -263,7 +263,7 @@ class ZobristHasher(object):
     def hash_ep_square(self, board):
         # Hash in the en passant file.
         if board.ep_square:
-            # But only if theres actually a pawn ready to capture it. Legality
+            # But only if there's actually a pawn ready to capture it. Legality
             # of the potential capture is irrelevant.
             if board.turn == chess.WHITE:
                 ep_mask = chess.shift_down(chess.BB_SQUARES[board.ep_square])
@@ -288,7 +288,7 @@ def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     """
     Calculates the Polyglot Zobrist hash of the position.
 
-    A zobrist hash is an XOR of pseudo random values picked from
+    A Zobrist hash is an XOR of pseudo-random values picked from
     an array. Which values are picked is decided by features of the
     position, such as piece positions, castling rights and en passant
     squares.
@@ -297,7 +297,7 @@ def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
 
 
 class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
-    """An entry from a polyglot opening book."""
+    """An entry from a Polyglot opening book."""
 
     __slots__ = ()
 
@@ -331,7 +331,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 
 
 class MemoryMappedReader(object):
-    """Maps a polyglot opening book to memory."""
+    """Maps a Polyglot opening book to memory."""
 
     def __init__(self, filename):
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
@@ -428,7 +428,7 @@ class MemoryMappedReader(object):
 
     def find(self, board, minimum_weight=1, exclude_moves=()):
         """
-        Finds the main entry for the given position or zobrist hash.
+        Finds the main entry for the given position or Zobrist hash.
 
         The main entry is the first entry with the highest weight.
 
