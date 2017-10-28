@@ -400,6 +400,15 @@ class Engine(object):
                 except concurrent.futures.TimeoutError:
                     pass
 
+    def _assert_supports_feature(self, feature_name):
+        if not self.features.supports(feature_name):
+            raise EngineStateException("engine does not support the '{}' feature", feature_name)
+
+    def _assert_not_busy(self, cmd):
+        with self.state_changed:
+            if not self.idle:
+                raise EngineStateException("{} command while engine is busy", cmd)
+
     def ping(self, async_callback=None):
         """
         Command used to synchronize with the engine.
@@ -565,9 +574,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("new command while engine is busy")
+        self._assert_not_busy("new")
 
         def command():
             with self.semaphore:
@@ -589,9 +596,7 @@ class Engine(object):
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is still
             calculating.
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("setboard command while engine is busy")
+        self._assert_not_busy("setboard")
 
         # Setboard should be sent after force.
         self.force()
@@ -619,12 +624,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("memory"):
-            raise EngineStateException("engine does not support the 'memory' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("memory command while engine is busy")
+        self._assert_supports_feature("memory")
+        self._assert_not_busy("memory")
 
         def command():
             with self.semaphore:
@@ -644,12 +645,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("smp"):
-            raise EngineStateException("engine does not support the 'smp' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("cores command while engine is busy")
+        self._assert_supports_feature("smp")
+        self._assert_not_busy("cores")
 
         def command():
             with self.semaphore:
@@ -666,12 +663,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("playother"):
-            raise EngineStateException("engine does not support the 'playother' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("playother command while engine is busy")
+        self._assert_supports_feature("playother")
+        self._assert_not_busy("playother")
 
         self.in_force = False
         def command():
@@ -692,13 +685,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("colors"):
-            raise EngineStateException("engine does not support the 'colors' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("{} command while engine is busy",
-                        chess.COLOR_NAMES[color])
+        self._assert_supports_feature("colors")
+        self._assert_not_busy(chess.COLOR_NAMES[color])
 
         self.in_force = False
         def command():
@@ -738,9 +726,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("random command while engine is busy")
+        self._assert_not_busy("random")
 
         def command():
             with self.semaphore:
@@ -760,12 +746,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("nps"):
-            raise EngineStateException("engine does not support the 'nps' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("nps command while engine is busy")
+        self._assert_supports_feature("nps")
+        self._assert_not_busy("nps")
 
         def command():
             with self.semaphore:
@@ -784,9 +766,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("st command while engine is busy")
+        self._assert_not_busy("st")
 
         def command():
             with self.semaphore:
@@ -805,9 +785,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("sd command while engine is busy")
+        self._assert_not_busy("sd")
 
         def command():
             with self.semaphore:
@@ -826,12 +804,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("time"):
-            raise EngineStateException("engine does not support the 'time' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("time command while engine is busy")
+        self._assert_supports_feature("time")
+        self._assert_not_busy("time")
 
         def command():
             with self.semaphore:
@@ -850,12 +824,8 @@ class Engine(object):
 
         :return: Nothing
         """
-        if not self.features.supports("time"):
-            raise EngineStateException("engine does not support the 'time' feature")
-
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("otim command while engine is busy")
+        self._assert_supports_feature("time")
+        self._assert_not_busy("otim")
 
         def command():
             with self.semaphore:
@@ -885,9 +855,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("level command while engine is busy")
+        self._assert_not_busy("level")
 
         builder = []
         builder.append("level")
@@ -949,10 +917,9 @@ class Engine(object):
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is
             already calculating.
         """
-        with self.state_changed:
-            if not self.idle:
-                raise EngineStateException("go command while engine is already busy")
+        self._assert_not_busy("go")
 
+        with self.state_changed:
             self.idle = False
             self.search_started.clear()
             self.move_received.clear()
