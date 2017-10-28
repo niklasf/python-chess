@@ -21,11 +21,12 @@ The `Universal Chess Interface`_ is a protocol for communicating with engines.
 
     .. py:attribute:: author
 
-        The author, as sent via *id author*. Just like the name.
+        The author of the engine. Conforming engines should send this as
+        *id author* after the initial *uci* command.
 
     .. py:attribute:: options
 
-        A case insensitive dictionary of :ref:`options`. The engine should send
+        A case-insensitive dictionary of :ref:`options`. The engine should send
         available options when it receives the initial *uci* command.
 
     .. py:attribute:: uciok
@@ -93,8 +94,8 @@ There are different ways castling moves may be encoded. The normal way to do it
 is ``e1g1`` for short castling. The same move would be ``e1h1`` in
 *UCI_Chess960* mode.
 
-This is abstracted away by the UCI module, but if the engine supports it, it
-is recommended to enable *UCI_Chess960* mode.
+This is abstracted away by the :mod:`chess.uci` module, but if the engine
+supports it, it is recommended to enable *UCI_Chess960* mode.
 
 >>> engine.setoption({"UCI_Chess960": True})
 
@@ -110,8 +111,8 @@ Info handler
 
     .. py:attribute:: mate
 
-        Mate in x or ``None``. Negative if the engine thinks it is going to be
-        mated.
+        Mate in x or ``None``. Negative number if the engine thinks it is going
+        to be mated.
 
     .. py:attribute:: lowerbound
 
@@ -160,7 +161,7 @@ Options
         Officially documented types are ``check`` for a boolean value, ``spin``
         for an integer value between a minimum and a maximum, ``combo`` for an
         enumeration of predefined string values (one of which can be selected),
-        ``button`` for an action and ``string`` for a textfield.
+        ``button`` for an action and ``string`` for a text field.
 
     .. py:attribute:: default
 
