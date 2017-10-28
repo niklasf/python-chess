@@ -25,7 +25,7 @@ and handling of common formats. This is the Scholar's mate in python-chess:
 
     >>> board = chess.Board()
 
-    >>> board.legal_moves  # doctest: +ELLIPSIS
+    >>> board.legal_moves
     <LegalMoveGenerator at ... (Nh3, Nf3, Nc3, Na3, h3, g3, f3, e3, d3, c3, ...)>
     >>> chess.Move.from_uci("a8a1") in board.legal_moves
     False
@@ -73,7 +73,7 @@ Features
 
   .. code:: python
 
-      >>> board  # doctest: +SKIP
+      >>> board
 
   .. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
 
