@@ -1547,11 +1547,11 @@ class PythonTablebases(object):
         """
         Probes for depth to mate information.
 
-        The absolute value is the number of half moves until forced mate
+        The absolute value is the number of half-moves until forced mate
         (or ``0`` in drawn positions). The value is positive if the
         side to move is winning, otherwise it is negative.
 
-        In the example position white to move will get mated in 10 half moves:
+        In the example position white to move will get mated in 10 half-moves:
 
         >>> import chess
         >>> import chess.gaviota

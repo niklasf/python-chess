@@ -154,7 +154,7 @@ Board
 
     .. py:attribute:: halfmove_clock
 
-        The number of half moves since the last capture or pawn move.
+        The number of half-moves since the last capture or pawn move.
 
     .. py:attribute:: promoted
 

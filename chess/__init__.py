@@ -1696,7 +1696,7 @@ class Board(BaseBoard):
     def is_seventyfive_moves(self):
         """
         Since the first of July 2014 a game is automatically drawn (without
-        a claim by one of the players) if the half move clock since a capture
+        a claim by one of the players) if the half-move clock since a capture
         or pawn move is equal to or grather than 150. Other means to end a game
         take precedence.
         """
@@ -1845,7 +1845,7 @@ class Board(BaseBoard):
             self.turn = not self.turn
             return
 
-        # Zero the half move clock.
+        # Zero the half-move clock.
         if self.is_zeroing(move):
             self.halfmove_clock = 0
 
@@ -2068,7 +2068,7 @@ class Board(BaseBoard):
             if parts[3] not in SQUARE_NAMES:
                 raise ValueError("invalid en passant part in fen: {0}".format(repr(fen)))
 
-        # Check that the half move part is valid.
+        # Check that the half-move part is valid.
         if int(parts[4]) < 0:
             raise ValueError("halfmove clock can not be negative: {0}".format(repr(fen)))
 
@@ -2381,7 +2381,7 @@ class Board(BaseBoard):
         """
         Parses the given EPD string and uses it to set the position.
 
-        If present the ``hmvc`` and the ``fmvn`` are used to set the half move
+        If present the ``hmvc`` and the ``fmvn`` are used to set the half-move
         clock and the fullmove number. Otherwise ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,

@@ -652,7 +652,7 @@ class BoardTestCase(unittest.TestCase):
     def test_polyglot(self):
         # Test polyglot compability using test data from
         # http://hardy.uhasselt.be/Toga/book_format.html. Forfeiting castling
-        # rights should not reset the half move counter, though.
+        # rights should not reset the half-move counter, though.
 
         board = chess.Board()
         self.assertEqual(board.fen(), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
