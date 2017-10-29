@@ -2381,7 +2381,7 @@ class Board(BaseBoard):
         """
         Parses the given EPD string and uses it to set the position.
 
-        If present, ``hmvc`` and the ``fmvn`` are used to set the half-move
+        If present, ``hmvc`` and ``fmvn`` are used to set the half-move
         clock and the full-move number. Otherwise, ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
