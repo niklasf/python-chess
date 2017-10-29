@@ -58,10 +58,10 @@ FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-"""The FEN of the standard chess starting position."""
+"""The FEN for the standard chess starting position."""
 
 STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-"""The board part of the FEN of the standard chess starting position."""
+"""The board part of the FEN for the standard chess starting position."""
 
 STATUS_VALID = 0
 STATUS_NO_WHITE_KING = 1
@@ -104,12 +104,12 @@ def square_rank(square):
     return square >> 3
 
 def square_name(square):
-    """Gets the name of the square, e.g. ``a3``."""
+    """Gets the name of the square, like ``a3``."""
     return FILE_NAMES[square_file(square)] + RANK_NAMES[square_rank(square)]
 
 def square_distance(a, b):
     """
-    Gets the distance (i.e. the number of king steps) from square *a* to *b*.
+    Gets the distance (i.e., the number of king steps) from square *a* to *b*.
     """
     return max(abs(square_file(a) - square_file(b)), abs(square_rank(a) - square_rank(b)))
 
@@ -166,7 +166,7 @@ BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
 
 try:
-    # Added in Python 2.7 and 3.1 respectively.
+    # Added in Python 2.7 and 3.1, respectively.
     int.bit_length
 except AttributeError:
     def _lsb_table():
@@ -366,7 +366,7 @@ class Piece(object):
 
     def unicode_symbol(self, invert_color=False):
         """
-        Gets the unicode character for the piece.
+        Gets the Unicode character for the piece.
         """
         if not invert_color:
             return UNICODE_PIECE_SYMBOLS[self.symbol()]
@@ -404,7 +404,7 @@ class Piece(object):
     @classmethod
     def from_symbol(cls, symbol):
         """
-        Creates a piece instance from a piece symbol.
+        Creates a :class:`~chess.Piece` instance from a piece symbol.
 
         :raises: :exc:`ValueError` if the symbol is invalid.
         """
@@ -430,12 +430,12 @@ class Move(object):
 
     def uci(self):
         """
-        Gets a UCI string for the move.
+        Gets an UCI string for the move.
 
-        For example a move from A7 to A8 would be ``a7a8`` or ``a7a8q`` if it
-        is a promotion to a queen.
+        For example, a move from a7 to a8 would be ``a7a8`` or ``a7a8q``
+        (if the latter is a promotion to a queen).
 
-        The UCI representatin of null moves is ``0000``.
+        The UCI representation of a null move is ``0000``.
         """
         if self.drop:
             return PIECE_SYMBOLS[self.drop].upper() + "@" + SQUARE_NAMES[self.to_square]
@@ -490,7 +490,7 @@ class Move(object):
     @classmethod
     def from_uci(cls, uci):
         """
-        Parses a UCI string.
+        Parses an UCI string.
 
         :raises: :exc:`ValueError` if the UCI string is invalid.
         """
@@ -530,9 +530,9 @@ class BaseBoard(object):
     A board representing the position of chess pieces. See
     :class:`~chess.Board` for a full board with move generation.
 
-    The board is initialized to the standard chess starting position, unless
+    The board is initialized with the standard chess starting position, unless
     otherwise specified in the optional *board_fen* argument. If *board_fen*
-    is ``None`` an empty board is created.
+    is ``None``, an empty board is created.
     """
 
     def __init__(self, board_fen=STARTING_BOARD_FEN):
@@ -636,7 +636,7 @@ class BaseBoard(object):
         Finds the king square of the given side. Returns ``None`` if there
         is no king of that color.
 
-        In variants with king promotions only non-promoted kings are
+        In variants with king promotions, only non-promoted kings are
         considered.
         """
         king_mask = self.occupied_co[color] & self.kings & ~self.promoted
@@ -939,7 +939,7 @@ class BaseBoard(object):
         bs2 = lsb(x) * 2
         cc_pos += bs2
 
-        # Algorithm from ChessX src/database/bitboard.cpp r2254.
+        # Algorithm from ChessX, src/database/bitboard.cpp, r2254.
         q = 0
         qf = False
         n0 = 0
@@ -1113,7 +1113,7 @@ class BaseBoard(object):
     @classmethod
     def from_chess960_pos(cls, sharnagl):
         """
-        Creates a new board, initialized to a Chess960 starting position.
+        Creates a new board, initialized with a Chess960 starting position.
 
         >>> import chess
         >>> import random
@@ -1159,14 +1159,14 @@ class Board(BaseBoard):
 
     The board is initialized to the standard chess starting position,
     unless otherwise specified in the optional *fen* argument.
-    If *fen* is ``None`` an empty board is created.
+    If *fen* is ``None``, an empty board is created.
 
     Optionally supports *chess960*. In Chess960 castling moves are encoded
     by a king move to the corresponding rook square.
     Use :func:`chess.Board.from_chess960_pos()` to create a board with one
     of the Chess960 starting positions.
 
-    Its safe to set :data:`~Board.turn`, :data:`~Board.castling_rights`,
+    It's safe to set :data:`~Board.turn`, :data:`~Board.castling_rights`,
     :data:`~Board.ep_square`, :data:`~Board.halfmove_clock` and
     :data:`~Board.fullmove_number` directly.
     """
@@ -1522,7 +1522,7 @@ class Board(BaseBoard):
         if not self.occupied_co[self.turn] & from_mask:
             return False
 
-        # Only pawns can promote and only on the backrank.
+        # Only pawns can promote and only on the back rank.
         if move.promotion:
             if piece != PAWN:
                 return False
@@ -1555,7 +1555,7 @@ class Board(BaseBoard):
         """
         Checks if the game is over due to a special variant end condition.
 
-        Note for example that stalemate is not considered a variant-specific
+        Note, for example, that stalemate is not considered a variant-specific
         end condition (this method will return ``False``), yet it can have a
         special **result** in suicide chess (any of
         :func:`~chess.Board.is_variant_loss()`,
@@ -1609,7 +1609,7 @@ class Board(BaseBoard):
         if self.is_fivefold_repetition():
             return True
 
-        # Draw claim.
+        # Claim draw.
         if claim_draw and self.can_claim_draw():
             return True
 
@@ -1620,10 +1620,10 @@ class Board(BaseBoard):
         Gets the game result.
 
         ``1-0``, ``0-1`` or ``1/2-1/2`` if the
-        :func:`game is over <chess.Board.is_game_over()>`. Otherwise the result
-        is undetermined: ``*``.
+        :func:`game is over <chess.Board.is_game_over()>`. Otherwise, the
+        result is undetermined: ``*``.
         """
-        # Chess variant support
+        # Chess variant support.
         if self.is_variant_loss():
             return "0-1" if self.turn == WHITE else "1-0"
         elif self.is_variant_win():
@@ -1695,7 +1695,7 @@ class Board(BaseBoard):
 
     def is_seventyfive_moves(self):
         """
-        Since the first of July 2014 a game is automatically drawn (without
+        Since the 1st of July 2014, a game is automatically drawn (without
         a claim by one of the players) if the half-move clock since a capture
         or pawn move is equal to or grather than 150. Other means to end a game
         take precedence.
@@ -1708,7 +1708,7 @@ class Board(BaseBoard):
 
     def is_fivefold_repetition(self):
         """
-        Since the first of July 2014 a game is automatically drawn (without
+        Since the 1st of July 2014 a game is automatically drawn (without
         a claim by one of the players) if a position occurs for the fifth time
         on consecutive alternating moves.
         """
@@ -1720,11 +1720,11 @@ class Board(BaseBoard):
         switchyard = collections.deque()
 
         for _ in range(4):
-            # Go back two full moves, each.
+            # Go back two full moves each.
             for _ in range(4):
                 switchyard.append(self.pop())
 
-            # Check the position was the same before.
+            # Check if the position was the same as before.
             if self._transposition_key() != transposition_key:
                 while switchyard:
                     self.push(switchyard.pop())
@@ -1825,7 +1825,7 @@ class Board(BaseBoard):
 
         move = self._to_chess960(move)
 
-        # Reset ep square.
+        # Reset en passant square.
         ep_square = self.ep_square
         self.ep_square = None
 
@@ -1834,7 +1834,7 @@ class Board(BaseBoard):
         if self.turn == BLACK:
             self.fullmove_number += 1
 
-        # On a null move simply swap turns and reset the en passant square.
+        # On a null move, simply swap turns and reset the en passant square.
         if not move:
             self.turn = not self.turn
             return
@@ -1904,7 +1904,7 @@ class Board(BaseBoard):
                 self._set_piece_at(G1 if self.turn == WHITE else G8, KING, self.turn)
                 self._set_piece_at(F1 if self.turn == WHITE else F8, ROOK, self.turn)
 
-        # Put piece on target square.
+        # Put the piece on the target square.
         if not castling and piece_type:
             was_promoted = self.promoted & to_bb
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
@@ -1998,7 +1998,7 @@ class Board(BaseBoard):
             return "-"
 
     def has_pseudo_legal_en_passant(self):
-        """Checks if there is a pseudo legal en passant capture."""
+        """Checks if there is a pseudo-legal en passant capture."""
         return self.ep_square is not None and any(self.generate_pseudo_legal_ep())
 
     def has_legal_en_passant(self):
@@ -2009,7 +2009,7 @@ class Board(BaseBoard):
         """
         Gets a FEN representation of the position.
 
-        A FEN string (e.g.
+        A FEN string (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1``) consists
         of the position part :func:`~chess.Board.board_fen()`, the
         :data:`~chess.Board.turn`, the castling part
@@ -2022,13 +2022,13 @@ class Board(BaseBoard):
             and encode castling rights by the file of the rook
             (like ``HAha``) instead of the default
             :func:`~chess.Board.castling_xfen()` (like ``KQkq``).
-        :param en_passant: By default only fully legal en passant squares
+        :param en_passant: By default, only fully legal en passant squares
             are included (:func:`~chess.Board.has_legal_en_passant()`).
-            Pass ``fen`` to strictly follow the FEN spec
+            Pass ``fen`` to strictly follow the FEN specification
             (always include the en passant square after a double pawn move)
-            or ``xfen`` to follow the X-FEN spec
+            or ``xfen`` to follow the X-FEN specification
             (:func:`~chess.Board.has_pseudo_legal_en_passant()`).
-        :param promoted: Mark promoted pieces like ``Q~``. By default this is
+        :param promoted: Mark promoted pieces like ``Q~``. By default, this is
             only enabled in chess variants where this is relevant.
         """
         return " ".join([
@@ -2070,12 +2070,12 @@ class Board(BaseBoard):
 
         # Check that the half-move part is valid.
         if int(parts[4]) < 0:
-            raise ValueError("halfmove clock can not be negative: {0}".format(repr(fen)))
+            raise ValueError("half-move clock can not be negative: {0}".format(repr(fen)))
 
-        # Check that the fullmove number part is valid.
-        # 0 is allowed for compability but later replaced with 1.
+        # Check that the full-move number part is valid.
+        # 0 is allowed for compability, but later replaced with 1.
         if int(parts[5]) < 0:
-            raise ValueError("fullmove number must be positive: {0}".format(repr(fen)))
+            raise ValueError("full-move number must be positive: {0}".format(repr(fen)))
 
         # Validate the board part and set it.
         self._set_board_fen(parts[0])
@@ -2257,7 +2257,7 @@ class Board(BaseBoard):
         *ep_square* and *promoted*).
 
         EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats and moves and lists of moves and None.
+        are strings, integers, floats, moves, lists of moves and ``None``.
         All other operands are converted to strings.
 
         A list of moves for *pv* will be interpreted as a variation. All other
@@ -2381,8 +2381,8 @@ class Board(BaseBoard):
         """
         Parses the given EPD string and uses it to set the position.
 
-        If present the ``hmvc`` and the ``fmvn`` are used to set the half-move
-        clock and the fullmove number. Otherwise ``0`` and ``1`` are used.
+        If present, ``hmvc`` and the ``fmvn`` are used to set the half-move
+        clock and the full-move number. Otherwise, ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
         integers, floats or move objects.
@@ -2455,7 +2455,7 @@ class Board(BaseBoard):
             san = PIECE_SYMBOLS[piece].upper()
 
             # Get ambiguous move candidates.
-            # Relevant candidates: Not excatly the current move,
+            # Relevant candidates: not excatly the current move,
             # but to the same square.
             others = 0
             from_mask = self.pieces_mask(piece, self.turn)
@@ -2494,7 +2494,7 @@ class Board(BaseBoard):
         if move.promotion:
             san += "=" + PIECE_SYMBOLS[move.promotion].upper()
 
-        # Add check or checkmate suffix
+        # Add check or checkmate suffix.
         if is_checkmate:
             san += "#"
         elif is_check:
@@ -2504,11 +2504,11 @@ class Board(BaseBoard):
 
     def variation_san(self, variation):
         """
-        Given a sequence of moves, return a string representing the sequence
-        in standard algebraic notation (e.g. ``1. e4 e5 2. Nf3 Nc6`` or
+        Given a sequence of moves, returns a string representing the sequence
+        in standard algebraic notation (e.g., ``1. e4 e5 2. Nf3 Nc6`` or
         ``37...Bg6 38. fxg6``).
 
-        This board will not be modified as a result of calling this.
+        The board will not be modified as a result of calling this.
 
         :raises: :exc:`ValueError` if any moves in the sequence are illegal.
         """
@@ -2533,7 +2533,7 @@ class Board(BaseBoard):
     def parse_san(self, san):
         """
         Uses the current position as the context to parse a move in standard
-        algebraic notation and return the corresponding move object.
+        algebraic notation and returns the corresponding move object.
 
         The returned move is guaranteed to be either legal or a null move.
 
@@ -2614,7 +2614,7 @@ class Board(BaseBoard):
         Gets the UCI notation of the move.
 
         *chess960* defaults to the mode of the board. Pass ``True`` to force
-        *Chess960* mode.
+        Chess960 mode.
         """
         if chess960 is None:
             chess960 = self.chess960
@@ -2679,7 +2679,7 @@ class Board(BaseBoard):
         """
         Checks if the given pseudo-legal move is irreversible.
 
-        In standard chess pawn moves, captures and moves that destroy castling
+        In standard chess, pawn moves, captures and moves that destroy castling
         rights are irreversible.
         """
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
@@ -2735,7 +2735,7 @@ class Board(BaseBoard):
 
             return white_castling | black_castling
         else:
-            # The kings must be on the backrank.
+            # The kings must be on the back rank.
             white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self.promoted
             black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self.promoted
             if not white_king_mask:
@@ -2844,7 +2844,7 @@ class Board(BaseBoard):
 
         :data:`~chess.STATUS_VALID` for a completely valid board.
 
-        Otherwise bitwise combinations of:
+        Otherwise, bitwise combinations of:
         :data:`~chess.STATUS_NO_WHITE_KING`,
         :data:`~chess.STATUS_NO_BLACK_KING`,
         :data:`~chess.STATUS_TOO_MANY_KINGS`,
@@ -2881,13 +2881,13 @@ class Board(BaseBoard):
         if popcount(self.occupied_co[BLACK]) > 16:
             errors |= STATUS_TOO_MANY_BLACK_PIECES
 
-        # There can not be more than eight pawns of any color.
+        # There can not be more than 8 pawns of any color.
         if popcount(self.occupied_co[WHITE] & self.pawns) > 8:
             errors |= STATUS_TOO_MANY_WHITE_PAWNS
         if popcount(self.occupied_co[BLACK] & self.pawns) > 8:
             errors |= STATUS_TOO_MANY_BLACK_PAWNS
 
-        # Pawns can not be on the backrank.
+        # Pawns can not be on the back rank.
         if self.pawns & BB_BACKRANKS:
             errors |= STATUS_PAWNS_ON_BACKRANK
 
@@ -2947,7 +2947,7 @@ class Board(BaseBoard):
         return self.status() == STATUS_VALID
 
     def _ep_skewered(self, king, capturer):
-        # Handle the special case where the king would be in check, if the
+        # Handle the special case where the king would be in check if the
         # pawn and its capturer disappear from the rank.
 
         # Vertical skewers of the captured pawn are not possible. (Pins on
@@ -2985,7 +2985,7 @@ class Board(BaseBoard):
         for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
             b = BB_BETWEEN[king][sniper] & self.occupied
 
-            # Add to blockers if exactly one piece in between.
+            # Add to blockers if exactly one piece in-between.
             if b and BB_SQUARES[msb(b)] == b:
                 blockers |= b
 
@@ -3251,7 +3251,7 @@ class PseudoLegalMoveGenerator(object):
 
         sans = ", ".join(builder)
 
-        return "<PeusdoLegalMoveGenerator at {0} ({1})>".format(hex(id(self)), sans)
+        return "<PseudoLegalMoveGenerator at {0} ({1})>".format(hex(id(self)), sans)
 
 
 class LegalMoveGenerator(object):
@@ -3332,7 +3332,7 @@ class SquareSet(object):
     >>> list(squares)
     [0, 1, 2, 3, 4, 5, 6, 7, 56]
 
-    Square sets are internally represented by 64 bit integer masks of the
+    Square sets are internally represented by 64-bit integer masks of the
     included squares. Bitwise operations can be used to compute unions,
     intersections and shifts.
 
@@ -3389,12 +3389,12 @@ class SquareSet(object):
         return type(self)(self.mask)
 
     def add(self, square):
-        """Add a square to the set."""
+        """Adds a square to the set."""
         self.mask |= BB_SQUARES[square]
 
     def remove(self, square):
         """
-        Remove a square from the set.
+        Removes a square from the set.
 
         :raises: :exc:`KeyError` if the given square was not in the set.
         """
@@ -3551,7 +3551,7 @@ class SquareSet(object):
     @classmethod
     def from_square(cls, square):
         """
-        Creates a SquareSet from a single square.
+        Creates a :class:`~chess.SquareSet` from a single square.
 
         >>> import chess
         >>>
