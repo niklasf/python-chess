@@ -2455,7 +2455,7 @@ class Board(BaseBoard):
             san = PIECE_SYMBOLS[piece].upper()
 
             # Get ambiguous move candidates.
-            # Relevant candidates: not excatly the current move,
+            # Relevant candidates: not exactly the current move,
             # but to the same square.
             others = 0
             from_mask = self.pieces_mask(piece, self.turn)
