@@ -38,11 +38,11 @@ except ImportError:
     import collections
 
 COLORS = [WHITE, BLACK] = [True, False]
-COLOR_NAMES = ["Black", "White"]
+COLOR_NAMES = ["black", "white"]
 
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
-PIECE_SYMBOLS = ["", "P", "N", "B", "R", "Q", "K"]
-PIECE_NAMES = ["", "Pawn", "Knight", "Bishop", "Rook", "Queen", "King"]
+PIECE_SYMBOLS = ["", "p", "n", "b", "b", "q", "k"]
+PIECE_NAMES = ["", "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
@@ -360,9 +360,9 @@ class Piece(object):
         pieces or the lower-case variants for the Black pieces.
         """
         if self.color == WHITE:
-            return PIECE_SYMBOLS[self.piece_type]
+            return PIECE_SYMBOLS[self.piece_type].upper()
         else:
-            return PIECE_SYMBOLS[self.piece_type].lower()
+            return PIECE_SYMBOLS[self.piece_type]
 
     def unicode_symbol(self, invert_color=False):
         """
