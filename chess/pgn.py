@@ -30,7 +30,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-# Reference of Numeric Annotation Glyphs:
+# Reference of Numeric Annotation Glyphs (NAGs):
 # https://en.wikipedia.org/wiki/Numeric_Annotation_Glyphs
 
 NAG_NULL = 0
@@ -201,7 +201,7 @@ class GameNode(object):
     def is_main_variation(self):
         """
         Checks if this node is the first variation from the point of view of its
-        parent. The root node also is in the main variation.
+        parent. The root node is also in the main variation.
         """
         if not self.parent:
             return True
@@ -210,7 +210,7 @@ class GameNode(object):
 
     def variation(self, move):
         """
-        Gets a child node by move or index.
+        Gets a child node by either the move or the variation index.
         """
         for index, variation in enumerate(self.variations):
             if move == variation.move or index == move or move == variation:
@@ -219,31 +219,31 @@ class GameNode(object):
         raise KeyError("variation not found")
 
     def has_variation(self, move):
-        """Checks if the given move appears as a variation."""
+        """Checks if the given *move* appears as a variation."""
         return move in (variation.move for variation in self.variations)
 
     def promote_to_main(self, move):
-        """Promotes the given move to the main variation."""
+        """Promotes the given *move* to the main variation."""
         variation = self.variation(move)
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
     def promote(self, move):
-        """Moves the given variation one up in the list of variations."""
+        """Moves a variation one up in the list of variations."""
         variation = self.variation(move)
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
     def demote(self, move):
-        """Moves the given variation one down in the list of variations."""
+        """Moves a variation one down in the list of variations."""
         variation = self.variation(move)
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
             self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
 
     def remove_variation(self, move):
-        """Removes a variation by move."""
+        """Removes a variation."""
         self.variations.remove(self.variation(move))
 
     def add_variation(self, move, comment="", starting_comment="", nags=()):
@@ -303,7 +303,7 @@ class GameNode(object):
         """
         board = self.board() if _board is None else _board
 
-        # The mainline move goes first.
+        # The first move of the main line goes first.
         if self.variations:
             main_variation = self.variations[0]
             visitor.visit_move(board, main_variation.move)
@@ -316,7 +316,7 @@ class GameNode(object):
             if main_variation.comment:
                 visitor.visit_comment(main_variation.comment)
 
-        # Then visit sidelines.
+        # Then visit side lines.
         for variation in itertools.islice(self.variations, 1, None):
             # Start variation.
             visitor.begin_variation()
@@ -344,7 +344,7 @@ class GameNode(object):
             # End variation.
             visitor.end_variation()
 
-        # The mainline is continued last.
+        # The main line is continued last.
         if self.variations:
             main_variation = self.variations[0]
 
@@ -386,12 +386,12 @@ class Game(GameNode):
         """
         Gets the starting position of the game.
 
-        Unless the ``FEN`` header tag is set this is the default starting
+        Unless the ``FEN`` header tag is set, this is the default starting
         position (for the ``Variant``).
         """
         chess960 = self.headers.get("Variant", "").lower() in [
             "chess960",
-            "fischerandom",  # Cutechess
+            "fischerandom",  # Cute Chess
             "fischerrandom"]
 
         if chess960 or "Variant" not in self.headers:
@@ -461,7 +461,7 @@ class Game(GameNode):
         while board.move_stack:
             switchyard.append(board.pop())
 
-        # Setup initial position.
+        # Setup the initial position.
         game = cls()
         game.setup(board)
         node = game
@@ -483,7 +483,7 @@ class BaseVisitor(object):
     Use with :func:`chess.pgn.Game.accept()` or
     :func:`chess.pgn.GameNode.accept()`.
 
-    Methods are called in PGN order.
+    The methods are called in PGN order.
     """
 
     def begin_game(self):
@@ -491,7 +491,7 @@ class BaseVisitor(object):
         pass
 
     def begin_headers(self):
-        """Called at the start of the game headers."""
+        """Called at the start of game headers."""
         pass
 
     def visit_header(self, tagname, tagvalue):
@@ -522,7 +522,7 @@ class BaseVisitor(object):
     def begin_variation(self):
         """
         Called at the start of a new variation. It is not called for the
-        mainline of the game.
+        main line of the game.
         """
         pass
 
@@ -531,7 +531,9 @@ class BaseVisitor(object):
         pass
 
     def visit_result(self, result):
-        """Called at the end of the game with the *Result*-header."""
+        """
+        Called at the end of a game with the value from the *Result*-header.
+        """
         pass
 
     def end_game(self):
@@ -543,7 +545,7 @@ class BaseVisitor(object):
         return True
 
     def handle_error(self, error):
-        """Called for errors encountered. Defaults to raising an exception."""
+        """Called for encountered errors. Defaults to raising an exception."""
         raise error
 
 
@@ -579,12 +581,12 @@ class GameModelCreator(BaseVisitor):
     def visit_comment(self, comment):
         if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
             # Add as a comment for the current node if in the middle of
-            # a variation. Add as a comment for the game, if the comment
+            # a variation. Add as a comment for the game if the comment
             # starts before any move.
             new_comment = [self.variation_stack[-1].comment, comment]
             self.variation_stack[-1].comment = "\n".join(new_comment).strip()
         else:
-            # Otherwise it is a starting comment.
+            # Otherwise, it is a starting comment.
             new_comment = [self.starting_comment, comment]
             self.starting_comment = "\n".join(new_comment).strip()
 
@@ -624,7 +626,7 @@ class StringExporter(BaseVisitor):
     then the entire movetext will be on a single line. This does not affect
     header tags and comments.
 
-    There will be no newlines at the end of the string.
+    There will be no newline characters at the end of the string.
     """
 
     def __init__(self, columns=80, headers=True, comments=True, variations=True):
@@ -715,8 +717,8 @@ class StringExporter(BaseVisitor):
 
 class FileExporter(StringExporter):
     """
-    Like a :class:`~chess.pgn.StringExporter`, but games are written directly
-    to a text file.
+    Acts like a :class:`~chess.pgn.StringExporter`, but games are written
+    directly into a text file.
 
     There will always be a blank line after each game. Handling encodings is up
     to the caller.
@@ -777,9 +779,9 @@ def read_game(handle, Visitor=GameModelCreator):
     >>> board
     Board('4r3/6P1/2p2P1k/1p6/pP2p1R1/P1B5/2P2K2/3r4 b - - 0 45')
 
-    By using text mode the parser does not need to handle encodings. It is the
-    callers responsibility to open the file with the correct encoding.
-    PGN files are ASCII or UTF-8 most of the time. So the following should
+    By using text mode, the parser does not need to handle encodings. It is the
+    caller's responsibility to open the file with the correct encoding.
+    PGN files are ASCII or UTF-8 most of the time. So, the following should
     cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
 
     >>> # Python 3
@@ -798,16 +800,16 @@ def read_game(handle, Visitor=GameModelCreator):
     >>> game = chess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of
-    the file. (Of course blank lines in comments are possible.)
+    the file. (Of course, blank lines in comments are possible.)
 
-    According to the standard at least the usual 7 header tags are required
-    for a valid game. This parser also handles games without any headers just
-    fine.
+    According to the PGN standard, at least the usual 7 header tags are
+    required for a valid game. This parser also handles games without any
+    headers just fine.
 
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. Any exceptions are logged.
 
-    Returns the parsed game or ``None`` if the EOF is reached.
+    Returns the parsed game or ``None`` if the end of file is reached.
     """
     visitor = Visitor()
 
@@ -862,7 +864,7 @@ def read_game(handle, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
-        # An empty line is the end of a game.
+        # An empty line means the end of a game.
         if found_content and line.isspace():
             if found_game:
                 visitor.end_game()
@@ -964,12 +966,12 @@ def scan_headers(handle):
     """
     Scan a PGN file opened in text mode for game offsets and headers.
 
-    Yields a tuple for each game. The first element is the offset. The second
-    element is an ordered dictionary of game headers.
+    Yields a tuple for each game. The first element is the offset and the
+    second element is an ordered dictionary of game headers.
 
     Since actually parsing many games from a big file is relatively expensive,
-    this is a better way to look only for specific games and seek and parse
-    them later.
+    this is a better way to look only for specific games and then seek and
+    parse them later.
 
     This example scans for the first game with Kasparov as the white player.
 
@@ -1008,7 +1010,7 @@ def scan_headers(handle):
     line = handle.readline()
 
     while line:
-        # Skip single line comments.
+        # Skip single-line comments.
         if line.startswith("%"):
             last_pos = handle.tell()
             line = handle.readline()
@@ -1036,12 +1038,12 @@ def scan_headers(handle):
                 line = handle.readline()
                 continue
 
-        # Reading movetext. Update parser state in_comment in order to skip
+        # Reading movetext. Update parser's in_comment state in order to skip
         # comments that look like header tags.
         if (not in_comment and "{" in line) or (in_comment and "}" in line):
             in_comment = line.rfind("{") > line.rfind("}")
 
-        # Reading movetext. If there were headers, previously, those are now
+        # Reading movetext. If there were headers previously, those are now
         # complete and can be yielded.
         if game_pos is not None:
             yield game_pos, game_headers
