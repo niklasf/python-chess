@@ -30,7 +30,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-# Reference to Numeric Annotation Glyphs:
+# Reference to numeric annotation glyphs (NAGs):
 # https://en.wikipedia.org/wiki/Numeric_Annotation_Glyphs
 
 NAG_NULL = 0
