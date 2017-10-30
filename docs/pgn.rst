@@ -9,8 +9,8 @@ Parsing
 Writing
 -------
 
-If you want to export your game game with all headers, comments and variations
-you can use:
+If you want to export your game with all headers, comments and variations,
+you can do it like this:
 
 >>> import chess
 >>> import chess.pgn
@@ -42,17 +42,17 @@ Use the :class:`~chess.pgn.StringExporter()` or
 Game model
 ----------
 
-Games are represented as a tree of moves. Each `GameNode` can have extra
-information such as comments. The root node of a game
-(`Game` extends `GameNode`) also holds general information, such as game
-headers.
+Games are represented as a tree of moves. Each :class:`~chess.pgn.GameNode` can have extra
+information, such as comments. The root node of a game
+(the :class:`~chess.pgn.Game` class extends the :chess:`~chess.pgn.GameNode` class) also
+holds general information, such as game headers.
 
 .. autoclass:: chess.pgn.Game
     :members:
 
     .. py:attribute:: headers
 
-        A :class:`collections.OrderedDict()` of game headers. By default the
+        A :class:`collections.OrderedDict` class of game headers. By default, the
         following 7 headers are provided:
 
         >>> import chess.pgn
@@ -76,7 +76,7 @@ headers.
     .. py:attribute:: errors
 
         A list of illegal or ambiguous move errors encountered while parsing
-        the game.
+        a game.
 
 .. autoclass:: chess.pgn.GameNode
     :members:
@@ -106,8 +106,9 @@ headers.
         :annotation: = ''
 
         A comment for the start of a variation. Only nodes that
-        actually start a variation (`starts_variation()`) can have a starting
-        comment. The root node can not have a starting comment.
+        actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
+        checks this) can have a starting comment. The root node can not have
+        a starting comment.
 
     .. py:attribute:: variations
 
@@ -116,7 +117,7 @@ headers.
 Visitors
 --------
 
-Visitors are an advanced concept for game tree traversal.
+Visitors are an advanced concept for game-tree traversal.
 
 .. autoclass:: chess.pgn.BaseVisitor
     :members:
@@ -137,7 +138,7 @@ NAGs
 
 Numeric anotation glyphs describe moves and positions using standardized codes
 that are understood by many chess programs. During PGN parsing, annotations
-like ``!``, ``?``, ``!!``, etc. are also converted to NAGs.
+like ``!``, ``?``, ``!!``, etc., are also converted to NAGs.
 
 .. autodata:: chess.pgn.NAG_GOOD_MOVE
 .. autodata:: chess.pgn.NAG_MISTAKE
@@ -149,7 +150,7 @@ like ``!``, ``?``, ``!!``, etc. are also converted to NAGs.
 Skimming
 --------
 
-These functions allow quickly skimming games without fully parsing them.
+These functions allow for quickly skimming games without fully parsing them.
 
 .. autofunction:: chess.pgn.scan_headers
 
