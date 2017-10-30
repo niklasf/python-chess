@@ -305,14 +305,14 @@ def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock
     popen_args = {}
     if setpgrp:
         try:
-            # Windows
+            # Windows.
             popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
         except AttributeError:
-            # Unix
+            # Unix.
             popen_args["preexec_fn"] = os.setpgrp
     popen_args.update(kwargs)
 
-    # Work around possible race condition in Python 2 subprocess module,
+    # Work around a possible race condition in Python 2 subprocess module
     # that can occur when concurrently opening processes.
     with _popen_lock:
         PopenProcess(engine, command, **popen_args)
