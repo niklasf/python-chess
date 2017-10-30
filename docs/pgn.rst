@@ -44,7 +44,7 @@ Game model
 
 Games are represented as a tree of moves. Each :class:`~chess.pgn.GameNode` can have extra
 information, such as comments. The root node of a game
-(the :class:`~chess.pgn.Game` class extends the :chess:`~chess.pgn.GameNode` class) also
+(:class:`~chess.pgn.Game` extends the :chess:`~chess.pgn.GameNode`) also
 holds general information, such as game headers.
 
 .. autoclass:: chess.pgn.Game
@@ -52,7 +52,7 @@ holds general information, such as game headers.
 
     .. py:attribute:: headers
 
-        A :class:`collections.OrderedDict` class of game headers. By default, the
+        A :class:`collections.OrderedDict` of game headers. By default, the
         following 7 headers are provided:
 
         >>> import chess.pgn
@@ -76,7 +76,7 @@ holds general information, such as game headers.
     .. py:attribute:: errors
 
         A list of illegal or ambiguous move errors encountered while parsing
-        a game.
+        the game.
 
 .. autoclass:: chess.pgn.GameNode
     :members:
@@ -117,7 +117,7 @@ holds general information, such as game headers.
 Visitors
 --------
 
-Visitors are an advanced concept for game-tree traversal.
+Visitors are an advanced concept for game tree traversal.
 
 .. autoclass:: chess.pgn.BaseVisitor
     :members:
