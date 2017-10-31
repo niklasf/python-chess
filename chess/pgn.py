@@ -532,7 +532,7 @@ class BaseVisitor(object):
 
     def visit_result(self, result):
         """
-        Called at the end of a game with the value from the *Result*-header.
+        Called at the end of a game with the value from the ``Result`` header.
         """
         pass
 
