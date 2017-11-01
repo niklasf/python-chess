@@ -2189,6 +2189,7 @@ class CraftyTestCase(unittest.TestCase):
         self.engine.new()
         self.engine.level(0, 1, 0, 0)
         self.engine.time(100)
+        self.engine.otim(100)
         self.engine.go()
 
     def test_mate_search(self):
