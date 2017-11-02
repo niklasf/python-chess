@@ -1812,7 +1812,7 @@ class Tablebases(object):
         +-----+------------------+--------------------------------------------+
         | WDL | DTZ              |                                            |
         +=====+==================+============================================+
-        |  -2 | -100 <= n < -1   | Unconditional loss (assuming 50-move       |
+        |  -2 | -100 <= n <= -1  | Unconditional loss (assuming 50-move       |
         |     |                  | counter is zero), where a zeroing move can |
         |     |                  | be forced in -n plies.                     |
         +-----+------------------+--------------------------------------------+
@@ -1828,7 +1828,7 @@ class Tablebases(object):
         |     |                  | n - 100 plies (if a later phase is         |
         |     |                  | responsible for the cursed win).           |
         +-----+------------------+--------------------------------------------+
-        |   2 |     1 < n <= 100 | Unconditional win (assuming 50-move        |
+        |   2 |    1 <= n <= 100 | Unconditional win (assuming 50-move        |
         |     |                  | counter is zero), where a zeroing move can |
         |     |                  | be forced in n plies.                      |
         +-----+------------------+--------------------------------------------+
