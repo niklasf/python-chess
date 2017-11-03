@@ -1249,8 +1249,8 @@ class Board(BaseBoard):
         self.clear_stack()
         return piece
 
-    def set_piece_at(self, square, piece):
-        super(Board, self).set_piece_at(square, piece)
+    def set_piece_at(self, square, piece, promoted=False):
+        super(Board, self).set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
     def generate_pseudo_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
