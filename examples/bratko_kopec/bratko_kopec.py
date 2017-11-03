@@ -31,7 +31,7 @@ def test_epd(engine, epd, VariantBoard, threads, movetime):
     })
     engine.position(position)
 
-    enginemove, pondermove = engine.go(movetime=movetime)
+    enginemove, _ = engine.go(movetime=movetime)
 
     if "am" in epd_info and enginemove in epd_info["am"]:
         print("%s: %s | +0" % (epd_string, position.san(enginemove)))
@@ -93,7 +93,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
     # Assess the final best move by the engine.
     time.sleep(movetime / 4000.0)
     engine.stop()
-    enginemove, pondermove = search.result()
+    enginemove, _ = search.result()
     if "am" in epd_info and enginemove in epd_info["am"]:
         pass  # fail
     elif "bm" in epd_info and enginemove not in epd_info["bm"]:

@@ -4,11 +4,6 @@
 import os
 import chess
 import sys
-import zipfile
-import textwrap
-import configparser
-import requests
-import bs4
 
 
 def system(command):

@@ -608,7 +608,7 @@ class Table(object):
                 self.enc_type = 2
             else:  # only for suicide
                 j = 16
-                for i in range(16):
+                for _ in range(16):
                     for piece_type in PCHR:
                         if 1 < black_part.count(piece_type) < j:
                             j = black_part.count(piece_type)
@@ -1574,7 +1574,7 @@ class Tablebases(object):
         for move in board.generate_legal_moves(to_mask=board.occupied_co[not board.turn]):
             board.push(move)
             try:
-                v_plus, success = self.probe_ab(board, -beta, -alpha)
+                v_plus, _ = self.probe_ab(board, -beta, -alpha)
                 v = -v_plus
             finally:
                 board.pop()
@@ -1631,7 +1631,7 @@ class Tablebases(object):
 
             board.push(move)
             try:
-                v_plus, success = self.sprobe_ab(board, -beta, -alpha)
+                v_plus, _ = self.sprobe_ab(board, -beta, -alpha)
                 v = -v_plus
             finally:
                 board.pop()
@@ -1680,7 +1680,7 @@ class Tablebases(object):
             raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
-        v, success = self.probe_ab(board, -2, 2)
+        v, _ = self.probe_ab(board, -2, 2)
 
         # If en passant is not possible, we are done.
         if not board.ep_square or self.variant.captures_compulsory:
@@ -1693,7 +1693,7 @@ class Tablebases(object):
         for move in board.generate_legal_ep():
             board.push(move)
             try:
-                v0_plus, success = self.probe_ab(board, -2, 2)
+                v0_plus, _ = self.probe_ab(board, -2, 2)
                 v0 = -v0_plus
             finally:
                 board.pop()
@@ -1872,7 +1872,7 @@ class Tablebases(object):
         for move in board.generate_legal_ep():
             board.push(move)
             try:
-                v0_plus, success = self.probe_ab(board, -2, 2)
+                v0_plus, _ = self.probe_ab(board, -2, 2)
                 v0 = -v0_plus
             finally:
                 board.pop()
