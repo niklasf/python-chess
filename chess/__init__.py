@@ -299,7 +299,7 @@ def _attack_table(deltas):
     mask_table = []
     attack_table = []
 
-    for square, bb in enumerate(BB_SQUARES):
+    for square in SQUARES:
         attacks = {}
 
         mask = _sliding_attacks(square, 0, deltas) & ~_edges(square)
