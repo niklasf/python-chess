@@ -409,6 +409,15 @@ class Engine(object):
             if not self.idle:
                 raise EngineStateException("{} command while engine is busy", cmd)
 
+    def command(self, msg):
+        def cmd():
+            with self.semaphore:
+                self.send_line(msg)
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException
+        return cmd
+
     def ping(self, async_callback=None):
         """
         Command used to synchronize with the engine.
@@ -439,16 +448,12 @@ class Engine(object):
 
         :return: Nothing
         """
-        def command():
-            with self.semaphore:
-                if ponder:
-                    self.send_line("hard")
-                else:
-                    self.send_line("easy")
+        if ponder:
+            msg = "hard"
+        else:
+            msg = "easy"
 
-                if self.terminated.is_set():
-                    raise EngineTerminatedException()
-
+        command = self.command(msg)
         return self._queue_command(command, async_callback)
 
     def easy(self, async_callback=None):
@@ -472,16 +477,12 @@ class Engine(object):
 
         :return: Nothing
         """
-        def command():
-            with self.semaphore:
-                if flag == True:
-                    self.send_line("post")
-                else:
-                    self.send_line("nopost")
+        if flag:
+            msg = "post"
+        else:
+            msg = "nopost"
 
-                if self.terminated.is_set():
-                    raise EngineTerminatedException()
-
+        command = self.command(msg)
         return self._queue_command(command, async_callback)
 
     def post(self, async_callback=None):
@@ -519,6 +520,7 @@ class Engine(object):
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
+            # TODO: Remove perhaps?
             self.post()
             self.easy()
             self.ping()
@@ -575,14 +577,7 @@ class Engine(object):
         :return: Nothing
         """
         self._assert_not_busy("new")
-
-        def command():
-            with self.semaphore:
-                self.send_line("new")
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException()
-
+        command = self.command("new")
         return self._queue_command(command, async_callback)
 
     def setboard(self, board, async_callback=None):
@@ -607,13 +602,7 @@ class Engine(object):
 
         self.board = board.copy(stack=False)
 
-        def command():
-            with self.semaphore:
-                self.send_line(" ".join(builder))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException()
-
+        command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
     def memory(self, amount, async_callback=None):
@@ -627,13 +616,7 @@ class Engine(object):
         self._assert_supports_feature("memory")
         self._assert_not_busy("memory")
 
-        def command():
-            with self.semaphore:
-                self.send_line("memory " + str(amount))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("memory " + str(amount))
         return self._queue_command(command, async_callback)
 
     def cores(self, num, async_callback=None):
@@ -648,13 +631,7 @@ class Engine(object):
         self._assert_supports_feature("smp")
         self._assert_not_busy("cores")
 
-        def command():
-            with self.semaphore:
-                self.send_line("cores " + str(num))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("cores " + str(num))
         return self._queue_command(command, async_callback)
 
     def playother(self, async_callback=None):
@@ -667,13 +644,7 @@ class Engine(object):
         self._assert_not_busy("playother")
 
         self.in_force = False
-        def command():
-            with self.semaphore:
-                self.send_line("playother")
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("playother")
         return self._queue_command(command, async_callback)
 
     def set_side_to_move(self, color, async_callback=None):
@@ -689,13 +660,7 @@ class Engine(object):
         self._assert_not_busy(chess.COLOR_NAMES[color])
 
         self.in_force = False
-        def command():
-            with self.semaphore:
-                self.send_line(side)
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command(side)
         return self._queue_command(command, async_callback)
 
     def white(self, async_callback=None):
@@ -728,13 +693,7 @@ class Engine(object):
         """
         self._assert_not_busy("random")
 
-        def command():
-            with self.semaphore:
-                self.send_line("random")
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("random")
         return self._queue_command(command, async_callback)
 
     def nps(self, target_nps, async_callback=None):
@@ -749,13 +708,7 @@ class Engine(object):
         self._assert_supports_feature("nps")
         self._assert_not_busy("nps")
 
-        def command():
-            with self.semaphore:
-                self.send_line("nps " + str(target_nps))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("nps " + str(target_nps))
         return self._queue_command(command, async_callback)
 
     def st(self, time, async_callback=None):
@@ -768,13 +721,7 @@ class Engine(object):
         """
         self._assert_not_busy("st")
 
-        def command():
-            with self.semaphore:
-                self.send_line("st " + str(time))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("st " + str(time))
         return self._queue_command(command, async_callback)
 
     def sd(self, depth, async_callback=None):
@@ -787,13 +734,7 @@ class Engine(object):
         """
         self._assert_not_busy("sd")
 
-        def command():
-            with self.semaphore:
-                self.send_line("sd " + str(depth))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("sd " + str(depth))
         return self._queue_command(command, async_callback)
 
     def time(self, time, async_callback=None):
@@ -807,13 +748,7 @@ class Engine(object):
         self._assert_supports_feature("time")
         self._assert_not_busy("time")
 
-        def command():
-            with self.semaphore:
-                self.send_line("time " + str(time))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("time " + str(time))
         return self._queue_command(command, async_callback)
 
     def otim(self, time, async_callback=None):
@@ -827,13 +762,7 @@ class Engine(object):
         self._assert_supports_feature("time")
         self._assert_not_busy("otim")
 
-        def command():
-            with self.semaphore:
-                self.send_line("otim " + str(time))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("otim " + str(time))
         return self._queue_command(command, async_callback)
 
     def level(self, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
@@ -860,21 +789,15 @@ class Engine(object):
         builder = []
         builder.append("level")
         builder.append(str(int(movestogo)))
-        builder.append(str(int(minutes)))
 
         if seconds is not None:
-            builder.append(":")
-            builder.append(str(int(seconds)))
+            builder.append(str(int(minutes)) + ":" + str(int(seconds)))
+        else:
+            builder.append(str(int(minutes)))
 
         builder.append(str(int(inc)))
 
-        def command():
-            with self.semaphore:
-                self.send_line(" ".join(builder))
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
     def set_auto_force(self, flag):
@@ -898,13 +821,7 @@ class Engine(object):
         :return: Nothing
         """
         self.in_force = True
-        def command():
-            with self.semaphore:
-                self.send_line("force")
-
-                if self.terminated.is_set():
-                    raise EngineTerminatedException
-
+        command = self.command("force")
         return self._queue_command(command, async_callback)
 
     def go(self, async_callback=None):
