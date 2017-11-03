@@ -570,7 +570,7 @@ class ThreeCheckBoard(chess.Board):
     def is_variant_win(self):
         return self.remaining_checks[self.turn] <= 0 and self.remaining_checks[not self.turn] > 0
 
-    def is_irreversible(move):
+    def is_irreversible(self, move):
         if super(ThreeCheckBoard, self).is_irreversible(move):
             return True
 

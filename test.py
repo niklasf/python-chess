@@ -3275,6 +3275,30 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertEqual(board.epd(), "4r3/ppk3p1/4b2p/2ppPp2/5P2/2P3P1/PP1N2P1/3R2K1 w - - 1+3")
         self.assertEqual(extra["foo"], "bar")
 
+    def test_check_is_irreversible(self):
+        board = chess.variant.ThreeCheckBoard()
+
+        move = board.parse_san("Nf3")
+        self.assertFalse(board.is_irreversible(move))
+        board.push(move)
+
+        move = board.parse_san("e5")
+        self.assertTrue(board.is_irreversible(move))
+        board.push(move)
+
+        move = board.parse_san("Nxe5")
+        self.assertTrue(board.is_irreversible(move))
+        board.push(move)
+
+        # Loses castling rights.
+        move = board.parse_san("Ke7")
+        self.assertTrue(board.is_irreversible(move))
+        board.push(move)
+
+        # Gives a check.
+        move = board.parse_san("Nc6+")
+        self.assertTrue(board.is_irreversible(move))
+
 
 class CrazyhouseTestCase(unittest.TestCase):
 
