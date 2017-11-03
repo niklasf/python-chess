@@ -581,7 +581,7 @@ class ThreeCheckBoard(chess.Board):
 
     def _transposition_key(self):
         return (super(ThreeCheckBoard, self)._transposition_key(),
-                self.remaining_checks[WHITE], self.remaining_checks[BLACK])
+                self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
 
     def copy(self, stack=True):
         board = super(ThreeCheckBoard, self).copy(stack=stack)

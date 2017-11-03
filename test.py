@@ -3299,6 +3299,17 @@ class ThreeCheckTestCase(unittest.TestCase):
         move = board.parse_san("Nc6+")
         self.assertTrue(board.is_irreversible(move))
 
+    def test_three_check_eq(self):
+        a = chess.variant.ThreeCheckBoard()
+        a.push_san("e4")
+
+        b = chess.variant.ThreeCheckBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1 +0+0")
+        c = chess.variant.ThreeCheckBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1 +0+1")
+
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(b, c)
+
 
 class CrazyhouseTestCase(unittest.TestCase):
 
