@@ -18,11 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import concurrent.futures
+import threading
+import random
+
 from chess.engine import EngineTerminatedException
 from chess.engine import EngineStateException
-from chess.engine import MockProcess
-from chess.engine import PopenProcess
-from chess.engine import SpurProcess
 from chess.engine import Option
 from chess.engine import OptionMap
 from chess.engine import LOGGER
@@ -31,15 +32,6 @@ from chess.engine import _popen_engine
 from chess.engine import _spur_spawn_engine
 
 import chess
-
-import concurrent.futures
-import threading
-import random
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 
 class PostHandler(object):
@@ -81,21 +73,21 @@ class PostHandler(object):
         self.post = {}
         self.post["pv"] = {}
 
-    def depth(self, x):
+    def depth(self, depth):
         """Received depth in plies."""
-        self.post["depth"] = x
+        self.post["depth"] = depth
 
-    def score(self, x):
+    def score(self, score):
         """Receieved score in centipawns."""
-        self.post["score"] = x
+        self.post["score"] = score
 
-    def time(self, x):
+    def time(self, time):
         """Received new time searched in centiseconds."""
-        self.post["time"] = x
+        self.post["time"] = time
 
-    def nodes(self, x):
+    def nodes(self, nodes):
         """Received number of nodes searched."""
-        self.post["nodes"] = x
+        self.post["nodes"] = nodes
 
     def pv(self, moves):
         """Received the principal variation as a list of moves."""
@@ -128,7 +120,6 @@ class PostHandler(object):
         with self.lock:
             self.post.clear()
             self.post["pv"] = {}
-        pass
 
     def acquire(self, blocking=True):
         return self.lock.acquire(blocking)
@@ -148,33 +139,33 @@ class FeatureMap(object):
     def __init__(self):
         # Populated with defaults to begin with
         self._features = {
-                "ping" : 0, # TODO: Remove dependency of xboard module on ping
-                "setboard" : 0,
-                "playother" : 0,
-                "san" : 0,
-                "usermove" : 0,
-                "time" : 1,
-                "draw" : 1,
-                "sigint" : 1,
-                "sigterm" : 1,
-                "reuse" : 1,
-                "analyze" : 1,
-                "myname" : None,
-                "variants" : None,
-                "colors" : 1,
-                "ics" : 0,
-                "name" : None,
-                "pause" : 0,
-                "nps" : 1,
-                "debug" : 0,
-                "memory" : 0,
-                "smp" : 0,
-                "egt" : 0,
-                "option" : OptionMap(),
-                "done" : None
-                }
+            "ping" : 0, # TODO: Remove dependency of xboard module on ping
+            "setboard" : 0,
+            "playother" : 0,
+            "san" : 0,
+            "usermove" : 0,
+            "time" : 1,
+            "draw" : 1,
+            "sigint" : 1,
+            "sigterm" : 1,
+            "reuse" : 1,
+            "analyze" : 1,
+            "myname" : None,
+            "variants" : None,
+            "colors" : 1,
+            "ics" : 0,
+            "name" : None,
+            "pause" : 0,
+            "nps" : 1,
+            "debug" : 0,
+            "memory" : 0,
+            "smp" : 0,
+            "egt" : 0,
+            "option" : OptionMap(),
+            "done" : None
+            }
 
-    def _set_feature(self, key, value):
+    def set_feature(self, key, value):
         try:
             value = int(value)
         except ValueError:
@@ -184,6 +175,18 @@ class FeatureMap(object):
             self._features[key] = value
         except KeyError:
             LOGGER.exception("exception looking up feature")
+
+    def get_option(self, key):
+        try:
+            return self._features["option"][key]
+        except KeyError:
+            LOGGER.exception("exception looking up option")
+
+    def set_option(self, key, value):
+        try:
+            self._features["option"][key] = value
+        except KeyError:
+            LOGGER.exception("exception looking up option")
 
     def get(self, key):
         try:
@@ -297,17 +300,17 @@ class Engine(object):
                 min = int(params[3])
                 max = int(params[4])
             option = Option(name, type, default, min, max, var)
-            self.features._features["option"][option.name] = option
+            self.features.set_option(option.name, option)
             return
 
         features = features.split()
-        feature_map = [ feature.split("=") for feature in features ]
+        feature_map = [feature.split("=") for feature in features]
         for (key, value) in feature_map:
             value = value.strip("\"")
             if key == "variant":
-                self.features._set_feature(key, value.split(","))
+                self.features.set_feature(key, value.split(","))
             else:
-                self.features._set_feature(key, value)
+                self.features.set_feature(key, value)
 
     def _pong(self, pong_arg):
         try:
@@ -540,7 +543,7 @@ class Engine(object):
         for name, value in options.items():
             # Building string manually to avoid spaces
             option_string = "option " + name
-            option = self.features._features["option"][name]
+            option = self.features.get_option(name)
             has_value = option.type in \
                     ("spin", "check", "combo", "string")
             if has_value and value is not None:
@@ -657,7 +660,8 @@ class Engine(object):
         :return: Nothing
         """
         self._assert_supports_feature("colors")
-        self._assert_not_busy(chess.COLOR_NAMES[color])
+        side = chess.COLOR_NAMES[color]
+        self._assert_not_busy(side)
 
         self.in_force = False
         command = self.command(side)
@@ -670,7 +674,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        set_side_to_move(chess.WHITE, async_callback)
+        self.set_side_to_move(chess.WHITE, async_callback)
 
     def black(self, async_callback=None):
         """
@@ -679,7 +683,7 @@ class Engine(object):
 
         :return: Nothing
         """
-        set_side_to_move(chess.BLACK, async_callback)
+        self.set_side_to_move(chess.BLACK, async_callback)
 
     def random(self, async_callback=None):
         """
