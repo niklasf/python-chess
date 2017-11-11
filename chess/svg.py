@@ -110,7 +110,9 @@ def piece(piece, size=None):
     >>> import chess
     >>> import chess.svg
     >>>
-    >>> chess.svg.piece(chess.Piece.from_symbol("R"))  # doctest: +SKIP
+    >>> from IPython.core.display import SVG
+    >>>
+    >>> SVG(chess.svg.piece(chess.Piece.from_symbol("R")))  # doctest: +SKIP
 
     .. image:: ../docs/wR.svg
     """
@@ -141,9 +143,11 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     >>> import chess
     >>> import chess.svg
     >>>
+    >>> from IPython.core.display import SVG
+    >>>
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
     >>> squares = board.attacks(chess.E4)
-    >>> chess.svg.board(board=board, squares=squares)  # doctest: +SKIP
+    >>> SVG(chess.svg.board(board=board, squares=squares))  # doctest: +SKIP
 
     .. image:: ../docs/Ne4.svg
     """
