@@ -1024,8 +1024,6 @@ def scan_headers(handle):
                     game_headers = collections.OrderedDict()
                     game_headers["Event"] = "?"
                     game_headers["Site"] = "?"
-                    game_headers["Date"] = "????.??.??"
-                    game_headers["Round"] = "?"
                     game_headers["White"] = "?"
                     game_headers["Black"] = "?"
                     game_headers["Result"] = "*"
