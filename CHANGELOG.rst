@@ -22,7 +22,8 @@ Changes:
 
 New features:
 
-* XBoard: `white`, `black`, `random`, `nps`, `optim`, `undo`, `remove`.
+* XBoard: `white`, `black`, `random`, `nps`, `optim`, `undo`, `remove`. Thanks
+  to Manik Charan.
 
 New in v0.20.1
 --------------
