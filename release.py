@@ -4,6 +4,7 @@
 import os
 import chess
 import sys
+import subprocess
 
 
 def system(command):
@@ -18,6 +19,11 @@ def check_git():
     system("git diff --exit-code")
     system("git diff --cached --exit-code")
 
+    system("git fetch origin")
+    behind = subprocess.check_output(["git", "rev-list", "--count", "master..origin/master"])
+    if int(behind) > 0:
+        print("master is {} commits behind origin/master".format(int(behind)))
+        sys.exit(1)
 
 def test():
     print("--- TEST ---------------------------------------------------------")
@@ -105,8 +111,8 @@ def github_release(tagname):
 if __name__ == "__main__":
     check_docs()
     test()
-    check_changelog()
     check_git()
+    check_changelog()
     tagname = tag_and_push()
     update_rtd()
     pypi()
