@@ -564,7 +564,7 @@ class GameModelCreator(BaseVisitor):
     """
 
     def __init__(self):
-        self.game = Game()
+        self.game = Game.without_tag_roster()
 
         self.variation_stack = [self.game]
         self.starting_comment = ""
@@ -828,7 +828,7 @@ def read_game(handle, Visitor=GameModelCreator):
     """
     visitor = Visitor()
 
-    dummy_game = Game()
+    dummy_game = Game.without_tag_roster()
     found_game = False
     found_content = False
 
@@ -1037,14 +1037,6 @@ def scan_headers(handle):
             if tag_match:
                 if game_pos is None:
                     game_headers = collections.OrderedDict()
-                    game_headers["Event"] = "?"
-                    game_headers["Site"] = "?"
-                    game_headers["Date"] = "????.??.??"
-                    game_headers["Round"] = "?"
-                    game_headers["White"] = "?"
-                    game_headers["Black"] = "?"
-                    game_headers["Result"] = "*"
-
                     game_pos = last_pos
 
                 game_headers[tag_match.group(1)] = tag_match.group(2)
