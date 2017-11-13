@@ -89,7 +89,7 @@ def tag_and_push():
         sys.exit(1)
 
     system("git tag {0} -s -F {1}".format(tagname, release_filename))
-    system("git push origin master {0}".format(tagname))
+    system("git push --atomic origin master {0}".format(tagname))
     return tagname
 
 
