@@ -608,6 +608,36 @@ class Engine(object):
         command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
+    def undo(self, async_callback=None):
+        """
+        Puts the engine in force mode and takes back one move.
+
+        :return: Nothing
+        """
+        self._assert_not_busy("undo")
+
+        # Undo should be sent after force.
+        self.force()
+
+        self.board.pop()
+
+        command = self.command("undo")
+        return self._queue_command(command, async_callback)
+
+    def remove(self, async_callback=None):
+        """
+        Tells the engine to retract two moves (one from each side).
+
+        :return: Nothing
+        """
+        self._assert_not_busy("remove")
+
+        self.board.pop()
+        self.board.pop()
+
+        command = self.command("remove")
+        return self._queue_command(command, async_callback)
+
     def memory(self, amount, async_callback=None):
         """
         Set the maximum memory of the engines hash/pawn/bitbase/etc tables.

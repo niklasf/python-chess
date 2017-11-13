@@ -2176,6 +2176,27 @@ class CraftyTestCase(unittest.TestCase):
     def tearDown(self):
         self.engine.quit()
 
+    def test_undo(self):
+        self.engine.new()
+        board = chess.Board()
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1")
+        self.engine.setboard(board)
+        self.engine.force()
+        self.engine.usermove(chess.Move.from_uci("e5h2"))
+        self.engine.undo()
+        self.assertEqual(board.fen(), self.engine.board.fen())
+
+    def test_remove(self):
+        self.engine.new()
+        board = chess.Board()
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1")
+        self.engine.setboard(board)
+        self.engine.force()
+        self.engine.usermove(chess.Move.from_uci("e5h2"))
+        self.engine.usermove(chess.Move.from_uci("h1h2"))
+        self.engine.remove()
+        self.assertEqual(board.fen(), self.engine.board.fen())
+
     def test_level(self):
         self.engine.new()
         self.engine.level(1, 0, 1, 0)
