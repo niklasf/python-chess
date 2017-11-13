@@ -1,6 +1,29 @@
 Changelog for python-chess
 ==========================
 
+New in v0.21.0
+--------------
+
+Bugfixes:
+
+* `Board.set_piece_at()` no longer shadows optional `promoted`
+  argument from `BaseBoard`.
+* Fixed `ThreeCheckBoard.is_irreversible()` and
+  `ThreeCheckBoard._transposition_key()`.
+
+Changes:
+
+* `chess.pgn.read_pgn()` **no longer adds the default 7 tag roster.**
+  For example `game.headers["White"]` may now raise `KeyError` instead of
+  providing the default value `?`. Use `game.headers.get("White", "?")` for
+  equivalent behavior.
+* Documentation fixes and tweaks by Boštjan Mejak.
+* Changed unicode character for empty squares in `Board.unicode()`.
+
+New features:
+
+* XBoard: `white`, `black`, `random`, `nps`, `optim`, `undo`, `remove`.
+
 New in v0.20.1
 --------------
 
