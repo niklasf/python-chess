@@ -475,6 +475,15 @@ class Game(GameNode):
         game.headers["Result"] = board.result()
         return game
 
+    @classmethod
+    def without_tag_roster(cls):
+        """Creates an empty game without the default 7 tag roster."""
+        game = cls.__new__(cls)
+        super(Game, game).__init__()
+        game.headers = collections.OrderedDict()
+        game.errors = []
+        return game
+
 
 class BaseVisitor(object):
     """
@@ -635,6 +644,8 @@ class StringExporter(BaseVisitor):
         self.comments = comments
         self.variations = variations
 
+        self.found_headers = False
+
         self.force_movenumber = True
 
         self.lines = []
@@ -658,12 +669,16 @@ class StringExporter(BaseVisitor):
     def end_game(self):
         self.write_line()
 
+    def begin_headers(self):
+        self.found_headers = False
+
     def visit_header(self, tagname, tagvalue):
         if self.headers:
+            self.found_headers = True
             self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
 
     def end_headers(self):
-        if self.headers:
+        if self.found_headers:
             self.write_line()
 
     def begin_variation(self):
