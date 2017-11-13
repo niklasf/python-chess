@@ -524,9 +524,9 @@ class Engine(object):
                     raise EngineTerminatedException()
 
             # TODO: Remove perhaps?
-            self.post()
-            self.easy()
-            self.ping()
+            self.post(async_callback)
+            self.easy(async_callback)
+            self.ping(async_callback)
 
         return self._queue_command(command, async_callback)
 
@@ -597,7 +597,7 @@ class Engine(object):
         self._assert_not_busy("setboard")
 
         # Setboard should be sent after force.
-        self.force()
+        self.force(async_callback)
 
         builder = []
         builder.append("setboard")
@@ -617,7 +617,7 @@ class Engine(object):
         self._assert_not_busy("undo")
 
         # Undo should be sent after force.
-        self.force()
+        self.force(async_callback)
 
         self.board.pop()
 
@@ -894,7 +894,7 @@ class Engine(object):
                 raise EngineTerminatedException()
 
             if self.auto_force:
-                self.force()
+                self.force(async_callback)
 
             try:
                 self.board.push_uci(str(self.move))
@@ -954,7 +954,7 @@ class Engine(object):
             builder.append("usermove")
 
         if self.auto_force:
-            self.force()
+            self.force(async_callback)
         elif not self.in_force:
             with self.state_changed:
                 if not self.idle:
