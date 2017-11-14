@@ -15,7 +15,7 @@ New features:
 
 * Added `Game.without_tag_roster()`. `chess.pgn.StringExporter()` can now
   handle games without any headers.
-* XBoard: `white`, `black`, `random`, `nps`, `optim`, `undo`, `remove`. Thanks
+* XBoard: `white`, `black`, `random`, `nps`, `otim`, `undo`, `remove`. Thanks
   to Manik Charan.
 
 Changes:
