@@ -564,7 +564,7 @@ class GameModelCreator(BaseVisitor):
     """
 
     def __init__(self):
-        self.game = Game.without_tag_roster()
+        self.game = Game()
 
         self.variation_stack = [self.game]
         self.starting_comment = ""
@@ -1036,7 +1036,7 @@ def scan_headers(handle):
             tag_match = TAG_REGEX.match(line)
             if tag_match:
                 if game_pos is None:
-                    game_headers = collections.OrderedDict()
+                    game_headers = Game().headers
                     game_pos = last_pos
 
                 game_headers[tag_match.group(1)] = tag_match.group(2)
