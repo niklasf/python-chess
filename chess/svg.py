@@ -246,26 +246,42 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "opacity": "0.5",
             })
         else:
-            adjacent = xhead - xtail
-            opposite = yhead - ytail
-            hypot = math.hypot(adjacent, opposite)
+            marker_size = 0.75 * SQUARE_SIZE
+            margin = 0.1 * SQUARE_SIZE
 
-            # Make the arrow shorter so the tip of the arrow is exactly in the
-            # center of the square.
-            marker_length = 3 / 4 * SQUARE_SIZE
-            yhead -= opposite * marker_length / hypot
-            xhead -= adjacent * marker_length / hypot
+            dx, dy = xhead - xtail, yhead - ytail
+            hypot = math.hypot(dx, dy)
+
+            shaft_x = xhead - dx * (marker_size + margin) / hypot
+            shaft_y = yhead - dy * (marker_size + margin) / hypot
+
+            xtip = xhead - dx * margin / hypot
+            ytip = yhead - dy * margin / hypot
 
             ET.SubElement(svg, "line", {
                 "x1": str(xtail),
                 "y1": str(ytail),
-                "x2": str(xhead),
-                "y2": str(yhead),
+                "x2": str(shaft_x),
+                "y2": str(shaft_y),
                 "stroke": "#888",
-                "stroke-width": str(marker_length / 3),
+                "stroke-width": str(SQUARE_SIZE * 0.2),
                 "opacity": "0.5",
-                "stroke-linecap": "round",
-                "marker-end": "url(#arrowhead)",
+                "stroke-linecap": "butt",
+                "class": "arrow",
+            })
+
+            marker = []
+            marker.append((xtip, ytip))
+            marker.append((shaft_x + dy * 0.5 * marker_size / hypot,
+                           shaft_y - dx * 0.5 * marker_size / hypot))
+            marker.append((shaft_x - dy * 0.5 * marker_size / hypot,
+                           shaft_y + dx * 0.5 * marker_size / hypot))
+
+            ET.SubElement(svg, "polygon", {
+                "points": " ".join(str(x) + "," + str(y) for x, y in marker),
+                "fill": "#888",
+                "opacity": "0.5",
+                "class": "arrow",
             })
 
     return ET.tostring(svg).decode("utf-8")
