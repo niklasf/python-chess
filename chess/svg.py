@@ -235,7 +235,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             ET.SubElement(svg, "circle", {
                 "cx": str(xhead),
                 "cy": str(yhead),
-                "r": str(SQUARE_SIZE * 0.95 / 2),
+                "r": str(SQUARE_SIZE * 0.9 / 2),
                 "stroke-width": str(SQUARE_SIZE * 0.1),
                 "stroke": "#888",
                 "fill": "none",
