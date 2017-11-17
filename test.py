@@ -1365,6 +1365,21 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertIn("e8d7", str(board.pseudo_legal_moves))
         self.assertIn("e8d7", repr(board.pseudo_legal_moves))
 
+    def test_traverse_once(self):
+        class MockBoard(object):
+            def __init__(self):
+                self.traversals = 0
+
+            def generate_legal_moves(self):
+                self.traversals += 1
+                return
+                yield
+
+        board = MockBoard()
+        gen = chess.LegalMoveGenerator(board)
+        _ = list(gen)
+        self.assertEqual(board.traversals, 1)
+
 
 class BaseBoardTestCase(unittest.TestCase):
 
