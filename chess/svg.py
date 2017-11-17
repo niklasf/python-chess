@@ -52,8 +52,6 @@ PIECES = {
 
 XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opacity:1; stroke-linecap:round;stroke-linejoin:round; stroke-miterlimit:4; stroke-dasharray:none;"><path d="M 30,30 L 15,15" /><path d="M 30,15 L 15,30" /></g>"""
 
-ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" orient="auto"><path d="M0,0 V4 L3,2 Z" fill="#888"/></marker>"""
-
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="#ff0000" stop-opacity="1.0" /><stop offset="50%" stop-color="#e70000" stop-opacity="1.0" /><stop offset="100%" stop-color="#9e0000" stop-opacity="0.0" /></radialGradient>"""
 
 DEFAULT_COLORS = {
@@ -159,8 +157,6 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                     defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, color).symbol()]))
     if squares:
         defs.append(ET.fromstring(XX))
-    if arrows:
-        defs.append(ET.fromstring(ARROWHEAD))
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
