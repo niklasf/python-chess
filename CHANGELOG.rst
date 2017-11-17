@@ -1,6 +1,13 @@
 Changelog for python-chess
 ==========================
 
+New in v0.21.2
+--------------
+
+Changes:
+
+* `chess.svg` is now fully SVG Tiny 1.2 compatible.
+
 New in v0.21.1
 --------------
 
@@ -22,6 +29,11 @@ Changes:
 
 * Documentation fixes and tweaks by Boštjan Mejak.
 * Changed unicode character for empty squares in `Board.unicode()`.
+
+New in v0.21.0
+--------------
+
+Release yanked.
 
 New in v0.20.1
 --------------
