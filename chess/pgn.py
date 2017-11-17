@@ -17,14 +17,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
+import collections
 import itertools
 import re
 import logging
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 
 LOGGER = logging.getLogger(__name__)

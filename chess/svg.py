@@ -23,14 +23,10 @@
 from __future__ import division
 
 import chess
+import collections
 import math
 
 import xml.etree.ElementTree as ET
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 
 SQUARE_SIZE = 45

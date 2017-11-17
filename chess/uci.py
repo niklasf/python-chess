@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import chess
+
 from chess.engine import EngineTerminatedException
 from chess.engine import EngineStateException
 from chess.engine import MockProcess
@@ -28,15 +30,9 @@ from chess.engine import FUTURE_POLL_TIMEOUT
 from chess.engine import _popen_engine
 from chess.engine import _spur_spawn_engine
 
-import chess
-
+import collections
 import concurrent.futures
 import threading
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 
 class Score(collections.namedtuple("Score", "cp mate")):

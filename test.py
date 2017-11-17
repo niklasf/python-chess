@@ -25,6 +25,7 @@ import chess.xboard
 import chess.syzygy
 import chess.gaviota
 import chess.variant
+import collections
 import copy
 import os
 import os.path
@@ -34,16 +35,7 @@ import time
 import threading
 import logging
 import platform
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from backport_collections import OrderedDict  # Python 2.6
-
-try:
-    import unittest2 as unittest  # Python 2.6
-except ImportError:
-    import unittest
+import unittest
 
 try:
     from StringIO import StringIO  # Python 2
@@ -2568,7 +2560,7 @@ class UciEngineTestCase(unittest.TestCase):
         self.mock.expect("setoption name Null option value none")
         self.mock.expect("setoption name String option value value value")
         self.mock.expect("isready", ("readyok", ))
-        self.engine.setoption(OrderedDict([
+        self.engine.setoption(collections.OrderedDict([
             ("Yes", True),
             ("No", False),
             ("Null option", None),
@@ -2851,27 +2843,26 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tables.probe_dtz(board), 1)
 
     def test_testsuite(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
-            with open("data/endgame.epd") as epds:
-                board = chess.Board()
+        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables, open("data/endgame.epd") as epds:
+            board = chess.Board()
 
-                for line, epd in enumerate(epds):
-                    extra = board.set_epd(epd)
+            for line, epd in enumerate(epds):
+                extra = board.set_epd(epd)
 
-                    wdl_table = tables.probe_wdl_table(board)
-                    self.assertEqual(
-                        wdl_table, extra["wdl_table"],
-                        "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
+                wdl_table = tables.probe_wdl_table(board)
+                self.assertEqual(
+                    wdl_table, extra["wdl_table"],
+                    "Expecting wdl_table {0} for {1}, got {2} (at line {3})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
 
-                    wdl = tables.probe_wdl(board)
-                    self.assertEqual(
-                        wdl, extra["wdl"],
-                        "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
+                wdl = tables.probe_wdl(board)
+                self.assertEqual(
+                    wdl, extra["wdl"],
+                    "Expecting wdl {0} for {1}, got {2} (at line {3})".format(extra["wdl"], board.fen(), wdl, line + 1))
 
-                    dtz = tables.probe_dtz(board)
-                    self.assertEqual(
-                        dtz, extra["dtz"],
-                        "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
+                dtz = tables.probe_dtz(board)
+                self.assertEqual(
+                    dtz, extra["dtz"],
+                    "Expecting dtz {0} for {1}, got {2} (at line {3})".format(extra["dtz"], board.fen(), dtz, line + 1))
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
@@ -2888,55 +2879,52 @@ class SyzygyTestCase(unittest.TestCase):
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtm(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables:
-            with open("data/suicide-dtm.epd") as epds:
-                for epd in epds:
-                    epd = epd.strip()
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtm.epd") as epds:
+            for epd in epds:
+                epd = epd.strip()
 
-                    board, solution = chess.variant.SuicideBoard.from_epd(epd)
+                board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
-                    wdl = tables.probe_wdl(board)
+                wdl = tables.probe_wdl(board)
 
-                    expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
-                    self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
+                expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
+                self.assertEqual(wdl, expected_wdl, "Expecting wdl {0}, got {1} (in {2})".format(expected_wdl, wdl, epd))
 
-                    dtz = tables.probe_dtz(board)
+                dtz = tables.probe_dtz(board)
 
-                    if wdl > 0:
-                        self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
-                        self.assertLessEqual(dtz, 2 * solution["max_dtm"])
-                    elif wdl == 0:
-                        self.assertEqual(dtz, 0)
-                    else:
-                        self.assertLessEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
-                        self.assertGreaterEqual(dtz, 2 * solution["max_dtm"])
+                if wdl > 0:
+                    self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                    self.assertLessEqual(dtz, 2 * solution["max_dtm"])
+                elif wdl == 0:
+                    self.assertEqual(dtz, 0)
+                else:
+                    self.assertLessEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                    self.assertGreaterEqual(dtz, 2 * solution["max_dtm"])
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtz(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables:
-            with open("data/suicide-dtz.epd") as epds:
-                for epd in epds:
-                    epd = epd.strip()
-                    if epd.startswith("%") or epd.startswith("#"):
-                        continue
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtz.epd") as epds:
+            for epd in epds:
+                epd = epd.strip()
+                if epd.startswith("%") or epd.startswith("#"):
+                    continue
 
-                    board, solution = chess.variant.SuicideBoard.from_epd(epd)
+                board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
-                    dtz = tables.probe_dtz(board)
-                    self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
+                dtz = tables.probe_dtz(board)
+                self.assertEqual(dtz, solution["dtz"], "Expecting dtz {0}, got {1} (in {2})".format(solution["dtz"], dtz, epd))
 
     @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
 
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tables:
-            with open("data/suicide-stats.epd") as epds:
-                for l, epd in enumerate(epds):
-                    solution = board.set_epd(epd)
+        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tables, open("data/suicide-stats.epd") as epds:
+            for l, epd in enumerate(epds):
+                solution = board.set_epd(epd)
 
-                    dtz = tables.probe_dtz(board)
-                    self.assertAlmostEqual(dtz, solution["dtz"], delta=1, msg="Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
+                dtz = tables.probe_dtz(board)
+                self.assertAlmostEqual(dtz, solution["dtz"], delta=1, msg="Expected dtz {0}, got {1} (in l. {2}, fen: {3})".format(solution["dtz"], dtz, l + 1, board.fen()))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):

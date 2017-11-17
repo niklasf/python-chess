@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import collections
 import ctypes
 import ctypes.util
 import fnmatch
@@ -25,11 +26,6 @@ import os.path
 import logging
 import struct
 import chess
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 
 LOGGER = logging.getLogger(__name__)

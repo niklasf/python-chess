@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import collections
 import logging
 import threading
 import os
@@ -23,15 +24,11 @@ import sys
 import signal
 import platform
 
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 try:
-    import queue
+    import queue  # Python 3
 except ImportError:
-    import Queue as queue
+    import Queue as queue  # Python 2
 
 if os.name == "posix" and sys.version_info[0] < 3:
     try:

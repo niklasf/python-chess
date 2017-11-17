@@ -28,14 +28,10 @@ __email__ = "niklas.fiekas@backscattering.de"
 
 __version__ = "0.21.2"
 
+import collections
 import copy
 import re
 import itertools
-
-try:
-    import backport_collections as collections
-except ImportError:
-    import collections
 
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
@@ -165,58 +161,23 @@ BB_RANKS = [
 BB_BACKRANKS = BB_RANK_1 | BB_RANK_8
 
 
-try:
-    # Added in Python 2.7 and 3.1, respectively.
-    int.bit_length
-except AttributeError:
-    def _lsb_table():
-        table = [0 for _ in range(64)]
-        for square, bb in enumerate(BB_SQUARES):
-            index = (((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58
-            table[index] = square
-        return table
+def lsb(bb):
+    return (bb & -bb).bit_length() - 1
 
-    def lsb(bb, _table=_lsb_table()):
-        return _table[(((bb ^ (bb - 1)) * 0x3f79d71b4cb0a89) & 0xffffffffffffffff) >> 58]
+def scan_forward(bb):
+    while bb:
+        r = bb & -bb
+        yield r.bit_length() - 1
+        bb ^= r
 
-    def scan_forward(bb, _bin=bin, _len=len):
-        string = _bin(bb)
-        l = _len(string)
-        r = string.rfind("1")
-        while r != -1:
-            yield l - r - 1
-            r = string.rfind("1", 0, r)
+def msb(bb):
+    return bb.bit_length() - 1
 
-    def msb(bb, _bin=bin, _len=len):
-        string = _bin(bb)
-        return _len(string) - 1 - string.find("1")
-
-    def scan_reversed(bb, _bin=bin, _len=len):
-        string = _bin(bb)
-        l = _len(string)
-        r = string.find("1")
-        while r != -1:
-            yield l - r - 1
-            r = string.find("1", r + 1)
-else:
-    def lsb(bb):
-        return (bb & -bb).bit_length() - 1
-
-    def scan_forward(bb):
-        while bb:
-            r = bb & -bb
-            yield r.bit_length() - 1
-            bb ^= r
-
-    def msb(bb):
-        return bb.bit_length() - 1
-
-    def scan_reversed(bb, _BB_SQUARES=BB_SQUARES):
-        while bb:
-            r = bb.bit_length() - 1
-            yield r
-            bb ^= _BB_SQUARES[r]
-
+def scan_reversed(bb, _BB_SQUARES=BB_SQUARES):
+    while bb:
+        r = bb.bit_length() - 1
+        yield r
+        bb ^= _BB_SQUARES[r]
 
 def popcount(b, _bin=bin):
     return _bin(b).count("1")

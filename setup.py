@@ -53,15 +53,6 @@ def read_description():
     return description
 
 
-def dependencies():
-    deps = []
-
-    if sys.version_info < (2, 7):
-        deps.append("backport_collections")
-
-    return deps
-
-
 def extra_dependencies():
     extras = {}
 
@@ -77,9 +68,6 @@ def extra_dependencies():
             extras["gaviota"] = []
 
     extras["test"] = extras["engine"] + extras.get("gaviota", [])
-
-    if sys.version_info < (2, 7):
-        extras["test"].append("unittest2")
 
     if platform.python_implementation() == "CPython":
         extras["test"].append("spur")
@@ -99,8 +87,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
-    python_requires=">=2.6,!=3.0.*,!=3.1.*,!=3.2.*",
-    install_requires=dependencies(),
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*",
     extras_require=extra_dependencies(),
     tests_require=extra_dependencies().get("test"),
     classifiers=[
@@ -111,7 +98,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
