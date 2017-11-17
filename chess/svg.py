@@ -239,24 +239,24 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             ET.SubElement(svg, "circle", {
                 "cx": str(xhead),
                 "cy": str(yhead),
-                "r": str((SQUARE_SIZE - 5) / 2),
-                "stroke-width": "5",
+                "r": str(SQUARE_SIZE * 0.95 / 2),
+                "stroke-width": str(SQUARE_SIZE * 0.1),
                 "stroke": "#888",
                 "fill": "none",
                 "opacity": "0.5",
             })
         else:
             marker_size = 0.75 * SQUARE_SIZE
-            margin = 0.1 * SQUARE_SIZE
+            marker_margin = 0.1 * SQUARE_SIZE
 
             dx, dy = xhead - xtail, yhead - ytail
             hypot = math.hypot(dx, dy)
 
-            shaft_x = xhead - dx * (marker_size + margin) / hypot
-            shaft_y = yhead - dy * (marker_size + margin) / hypot
+            shaft_x = xhead - dx * (marker_size + marker_margin) / hypot
+            shaft_y = yhead - dy * (marker_size + marker_margin) / hypot
 
-            xtip = xhead - dx * margin / hypot
-            ytip = yhead - dy * margin / hypot
+            xtip = xhead - dx * marker_margin / hypot
+            ytip = yhead - dy * marker_margin / hypot
 
             ET.SubElement(svg, "line", {
                 "x1": str(xtail),
