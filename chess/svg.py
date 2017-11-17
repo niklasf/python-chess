@@ -102,7 +102,7 @@ def piece(piece, size=None):
     >>> import chess
     >>> import chess.svg
     >>>
-    >>> from IPython.core.display import SVG
+    >>> from IPython.display import SVG
     >>>
     >>> SVG(chess.svg.piece(chess.Piece.from_symbol("R")))  # doctest: +SKIP
 
