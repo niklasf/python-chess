@@ -54,7 +54,7 @@ XX = """<g id="xx" style="fill:none; stroke:#000000; stroke-width:2; stroke-opac
 
 ARROWHEAD = """<marker id="arrowhead" refX="0" refY="2" markerWidth="3" markerHeight="4" orient="auto"><path d="M0,0 V4 L3,2 Z" fill="#888"/></marker>"""
 
-CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="rgba(255, 0, 0, 1)" /><stop offset="50%" stop-color="rgba(231, 0, 0, 1)" /><stop offset="100%" stop-color="rgba(158, 0, 0, 0)" /></radialGradient>"""
+CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="#ff0000" stop-opacity="1.0" /><stop offset="50%" stop-color="#e70000" stop-opacity="1.0" /><stop offset="100%" stop-color="#9e0000" stop-opacity="0.0" /></radialGradient>"""
 
 DEFAULT_COLORS = {
     "square light": "#ffce9e",
@@ -62,12 +62,6 @@ DEFAULT_COLORS = {
     "square dark lastmove": "#aaa23b",
     "square light lastmove": "#cdd16a",
 }
-
-DEFAULT_STYLE = """
-.check {
-    fill: url(#check_gradient);
-}
-"""
 
 
 class Arrow(collections.namedtuple("Arrow", "tail head")):
@@ -154,7 +148,8 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     margin = 20 if coordinates else 0
     svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
-    ET.SubElement(svg, "style").text = DEFAULT_STYLE if style is None else style
+    if style:
+        ET.SubElement(svg, "style").text = style
 
     defs = ET.SubElement(svg, "defs")
     if board:
@@ -182,8 +177,6 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
         fill_color = DEFAULT_COLORS[" ".join(cls)]
         cls.append(chess.SQUARE_NAMES[square])
 
-        # Fill color is required for renderers without <style> support
-        # (SVG Tiny only) as fallback.
         ET.SubElement(svg, "rect", {
             "x": str(x),
             "y": str(y),
@@ -201,6 +194,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "width": str(SQUARE_SIZE),
                 "height": str(SQUARE_SIZE),
                 "class": "check",
+                "fill": "url(#check_gradient)",
             })
 
         # Render pieces.
