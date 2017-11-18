@@ -315,6 +315,13 @@ class Piece(object):
         self.piece_type = piece_type
         self.color = color
 
+    def square(self, file, rank):
+        """
+        Gets the square on which the piece is located by passing *file* and
+        *rank* arguments.
+        """
+        return chess.square(file, rank)
+
     def symbol(self):
         """
         Gets the symbol ``P``, ``N``, ``B``, ``R``, ``Q`` or ``K`` for white
