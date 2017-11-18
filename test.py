@@ -642,7 +642,7 @@ class BoardTestCase(unittest.TestCase):
 
     def test_move_count(self):
         board = chess.Board("1N2k3/P7/8/8/3n4/8/2PP4/R3K2R w KQ - 0 1")
-        self.assertEqual(len(board.pseudo_legal_moves), 8 + 4 + 3 + 2 + 1 + 6 + 9)
+        self.assertEqual(board.pseudo_legal_moves.count(), 8 + 4 + 3 + 2 + 1 + 6 + 9)
 
     def test_polyglot(self):
         # Test polyglot compability using test data from
@@ -826,14 +826,14 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
         self.assertFalse(board.is_valid())
-        self.assertEqual(len(board.legal_moves), 3)
-        self.assertEqual(len(board.pseudo_legal_moves), 3)
+        self.assertEqual(board.legal_moves.count(), 3)
+        self.assertEqual(board.pseudo_legal_moves.count(), 3)
         board.push_san("Kb1")
-        self.assertEqual(len(board.legal_moves), 0)
-        self.assertEqual(len(board.pseudo_legal_moves), 0)
+        self.assertEqual(board.legal_moves.count(), 0)
+        self.assertEqual(board.pseudo_legal_moves.count(), 0)
         board.push_san("--")
-        self.assertEqual(len(board.legal_moves), 5)
-        self.assertEqual(len(board.pseudo_legal_moves), 5)
+        self.assertEqual(board.legal_moves.count(), 5)
+        self.assertEqual(board.pseudo_legal_moves.count(), 5)
 
     def test_epd(self):
         # Create an EPD with a move and a string.

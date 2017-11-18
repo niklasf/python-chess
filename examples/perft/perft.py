@@ -30,7 +30,7 @@ def perft(depth, board):
 
         return count
     elif depth == 1:
-        return len(board.legal_moves)
+        return board.legal_moves.count()
     else:
         return 1
 
@@ -47,7 +47,7 @@ def parallel_perft(pool, depth, board):
 
         return sum(pool.imap_unordered(functools.partial(perft, depth - 1), successors(board)))
     elif depth == 1:
-        return len(board.legal_moves)
+        return board.legal_moves.count()
     else:
         return 1
 

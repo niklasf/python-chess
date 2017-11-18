@@ -173,7 +173,7 @@ Board
         >>> import chess
         >>>
         >>> board = chess.Board()
-        >>> len(board.legal_moves)
+        >>> board.legal_moves.count()
         20
         >>> bool(board.legal_moves)
         True

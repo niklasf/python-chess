@@ -3192,8 +3192,9 @@ class PseudoLegalMoveGenerator(object):
 
     __nonzero__ = __bool__
 
-    def __len__(self):
-        return sum(1 for _ in self.board.generate_pseudo_legal_moves())
+    def count(self):
+        # List conversion is faster than iterating.
+        return len(list(self))
 
     def __iter__(self):
         return self.board.generate_pseudo_legal_moves()
@@ -3225,8 +3226,9 @@ class LegalMoveGenerator(object):
 
     __nonzero__ = __bool__
 
-    def __len__(self):
-        return sum(1 for _ in self.board.generate_legal_moves())
+    def count(self):
+        # List conversion is faster than iterating.
+        return len(list(self))
 
     def __iter__(self):
         return self.board.generate_legal_moves()
