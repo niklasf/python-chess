@@ -58,8 +58,8 @@ DEFAULT_COLORS = {
 }
 
 
-class Arrow(collections.namedtuple("Arrow", "tail head")):
-    """Details of an arrow to be drawn."""
+class Marking(collections.namedtuple("Marking", "tail head")):
+    """Details of a marking to be drawn."""
 
     __slots__ = ()
 
@@ -109,7 +109,7 @@ def piece(piece, size=None):
     return ET.tostring(svg).decode("utf-8")
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
+def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, markings=(), size=None, style=None):
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -120,10 +120,11 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
     :param coordinates: Pass ``False`` to disable coordinates in the margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
-        ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
-        square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param markings: A list of :class:`~chess.svg.Marking` objects like
+        ``[chess.svg.Marking(chess.E2, chess.E4)]`` or a list of tuples like
+        ``[(chess.E2, chess.E4)]`` is drawn as an arrow. A marking from a
+        square pointing to the same square is drawn as a circle, like
+        ``[(chess.E2, chess.E2)]``.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
     :param style: A CSS stylesheet to include in the SVG image.
@@ -177,6 +178,7 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             "class": " ".join(cls),
             "stroke": "none",
             "fill": fill_color,
+            "class": "square",
         })
 
         if square == check:
@@ -216,18 +218,18 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             svg.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
             svg.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
 
-    for arrow in arrows:
-        head_file = chess.square_file(arrow[1])
-        head_rank = chess.square_rank(arrow[1])
-        tail_file = chess.square_file(arrow[0])
-        tail_rank = chess.square_rank(arrow[0])
+    for (tail, head) in markings:
+        tail_file = chess.square_file(tail)
+        tail_rank = chess.square_rank(tail)
+        head_file = chess.square_file(head)
+        head_rank = chess.square_rank(head)
 
         xhead = margin + (head_file + 0.5 if not flipped else 7.5 - head_file) * SQUARE_SIZE
         yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
         xtail = margin + (tail_file + 0.5 if not flipped else 7.5 - tail_file) * SQUARE_SIZE
         ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 0.5) * SQUARE_SIZE
 
-        if (head_file, head_rank) == (tail_file, tail_rank):
+        if tail == head:
             ET.SubElement(svg, "circle", {
                 "cx": str(xhead),
                 "cy": str(yhead),
@@ -236,19 +238,20 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "stroke": "#888",
                 "fill": "none",
                 "opacity": "0.5",
+                "class": "circle",
             })
         else:
-            marker_size = 0.75 * SQUARE_SIZE
-            marker_margin = 0.1 * SQUARE_SIZE
+            marking_size = 0.75 * SQUARE_SIZE
+            marking_margin = 0.1 * SQUARE_SIZE
 
             dx, dy = xhead - xtail, yhead - ytail
             hypot = math.hypot(dx, dy)
 
-            shaft_x = xhead - dx * (marker_size + marker_margin) / hypot
-            shaft_y = yhead - dy * (marker_size + marker_margin) / hypot
+            shaft_x = xhead - dx * (marking_size + marking_margin) / hypot
+            shaft_y = yhead - dy * (marking_size + marking_margin) / hypot
 
-            xtip = xhead - dx * marker_margin / hypot
-            ytip = yhead - dy * marker_margin / hypot
+            xtip = xhead - dx * marking_margin / hypot
+            ytip = yhead - dy * marking_margin / hypot
 
             ET.SubElement(svg, "line", {
                 "x1": str(xtail),
@@ -259,21 +262,21 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "stroke-width": str(SQUARE_SIZE * 0.2),
                 "opacity": "0.5",
                 "stroke-linecap": "butt",
-                "class": "arrow",
+                "class": "tail",
             })
 
-            marker = []
-            marker.append((xtip, ytip))
-            marker.append((shaft_x + dy * 0.5 * marker_size / hypot,
-                           shaft_y - dx * 0.5 * marker_size / hypot))
-            marker.append((shaft_x - dy * 0.5 * marker_size / hypot,
-                           shaft_y + dx * 0.5 * marker_size / hypot))
+            head = []
+            head.append((xtip, ytip))
+            head.append((shaft_x + dy * 0.5 * marking_size / hypot,
+                         shaft_y - dx * 0.5 * marking_size / hypot))
+            head.append((shaft_x - dy * 0.5 * marking_size / hypot,
+                         shaft_y + dx * 0.5 * marking_size / hypot))
 
             ET.SubElement(svg, "polygon", {
-                "points": " ".join(str(x) + "," + str(y) for x, y in marker),
+                "points": " ".join(str(x) + "," + str(y) for (x, y) in head),
                 "fill": "#888",
                 "opacity": "0.5",
-                "class": "arrow",
+                "class": "head",
             })
 
     return ET.tostring(svg).decode("utf-8")
