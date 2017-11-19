@@ -43,7 +43,7 @@ class DrawHandler(object):
     one during an offer during it's calculations. A draw handler can be used to
     send, or react to, this information.
 
-    >>> # Register a standard post handler.
+    >>> # Register a standard draw handler.
     >>> draw_handler = chess.xboard.DrawHandler()
     >>> engine.draw_handler = draw_handler
 
@@ -66,9 +66,9 @@ class DrawHandler(object):
     you would usually subclass the *DrawHandler* class:
 
     >>> class MyHandler(chess.xboard.DrawHandler):
-    ...     def draw_offer(self):
-    ...         # Called whenever a complete *post* line has been processed.
-    ...         super(MyHandler, self).draw_offer()
+    ...     def offer_draw(self):
+    ...         # Called whenever `offer draw` has been processed.
+    ...         super(MyHandler, self).offer_draw()
     ...         print(self.pending_offer)
     """
     def __init__(self):
