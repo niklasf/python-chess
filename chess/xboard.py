@@ -34,6 +34,89 @@ from chess.engine import _spur_spawn_engine
 import chess
 
 
+RESULTS = [DRAW, WHITE_WIN, BLACK_WIN] = ["1/2-1/2", "1-0", "0-1"]
+
+
+class DrawHandler(object):
+    """
+    Chess engines may send a draw offer after playing it's move and may recieve
+    one during an offer during it's calculations. A draw handler can be used to
+    send, or react to, this information.
+
+    >>> # Register a standard post handler.
+    >>> draw_handler = chess.xboard.DrawHandler()
+    >>> engine.draw_handler = draw_handler
+
+    >>> # Start a search.
+    >>> engine.setboard(board)
+    >>> engine.st(1)
+    >>> engine.go()
+    e2e4
+    offer draw
+    >>>
+    >>> # Do some relevant work.
+    >>> # Check if a draw offer is pending at any given time.
+    >>> draw_handler.pending_offer
+    True
+
+    See :attr:`~chess.xboard.DrawHandler.pending_offer` for a way to access
+    this flag in a thread-safe way during search.
+
+    If you want to be notified whenever new information is available
+    you would usually subclass the *DrawHandler* class:
+
+    >>> class MyHandler(chess.xboard.DrawHandler):
+    ...     def draw_offer(self):
+    ...         # Called whenever a complete *post* line has been processed.
+    ...         super(MyHandler, self).draw_offer()
+    ...         print(self.pending_offer)
+    """
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.pending_offer = False
+
+    def pre_offer(self):
+        """
+        Received a new draw offer about to be processed.
+
+        When subclassing remember to call this method of the parent class in
+        order to keep the locking in tact.
+        """
+        self.lock.acquire()
+
+    def post_offer(self):
+        """
+        Processing of a draw offer has been finished.
+
+        When subclassing remember to call this method of the parent class in
+        order to keep the locking in tact.
+        """
+        self.lock.release()
+
+    def offer_draw(self):
+        """A draw has been offered."""
+        with self.lock:
+            self.pending_offer = True
+
+    def clear_offer(self):
+        """The draw offer has expired."""
+        with self.lock:
+            self.pending_offer = False
+
+    def acquire(self, blocking=True):
+        return self.lock.acquire(blocking)
+
+    def release(self):
+        return self.lock.release()
+
+    def __enter__(self):
+        self.acquire()
+        return self.pending_offer
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.release()
+
+
 class PostHandler(object):
     """
     Chess engines may send information about their calculations if enabled
@@ -217,6 +300,7 @@ class Engine(object):
         self.pong_received = threading.Condition()
         self.auto_force = False
         self.in_force = False
+        self.end_result = None
 
         self.move = None
         self.move_received = threading.Event()
@@ -225,6 +309,8 @@ class Engine(object):
         self.terminated = threading.Event()
 
         self.post_handlers = []
+        self.draw_handler = None
+        self.engine_offered_draw = False
 
         self.pool = Executor(max_workers=3)
         self.process = None
@@ -255,6 +341,8 @@ class Engine(object):
                 return self._pong(command_and_args[1])
             elif command_and_args[0] == "move":
                 return self._move(command_and_args[1])
+            elif command_and_args[0] == "offer" and command_and_args[1] == "draw":
+                return self._offer_draw()
         elif len(command_and_args) >= 5:
             return self._post(buf)
 
@@ -269,6 +357,14 @@ class Engine(object):
             self.pong_received.notify_all()
         with self.state_changed:
             self.state_changed.notify_all()
+
+    def _offer_draw(self):
+        if self.draw_handler:
+            if self.draw_handler.pending_offer and not self.engine_offered_draw:
+                self._end_game(DRAW)
+            else:
+                self.engine_offered_draw = True
+                self.draw_handler.offer_draw()
 
     def _feature(self, features):
         """
@@ -334,6 +430,9 @@ class Engine(object):
                 LOGGER.exception("exception parsing move")
 
         self.move_received.set()
+        if self.draw_handler:
+            self.draw_handler.clear_offer()
+            self.engine_offered_draw = False
         for post_handler in self.post_handlers:
             post_handler.on_move(self.move)
 
@@ -412,6 +511,10 @@ class Engine(object):
             if not self.idle:
                 raise EngineStateException("{} command while engine is busy", cmd)
 
+    def _end_game(self, result):
+        self.end_result = result
+        self.stop()
+
     def command(self, msg):
         def cmd():
             with self.semaphore:
@@ -441,6 +544,21 @@ class Engine(object):
                         raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
+
+    def offer_draw(self, async_callback=None):
+        """
+        Command used to offer the engine a draw.
+
+        The engine may respond with `offer draw` to agree and may ignore the
+        offer to disagree.
+
+        :return: Nothing
+        """
+        self._assert_supports_feature("draw")
+        if self.draw_handler:
+            self.draw_handler.offer_draw()
+            command = self.command("offer draw")
+            return self._queue_command(command, async_callback)
 
     def pondering(self, ponder, async_callback=None):
         """
@@ -952,6 +1070,10 @@ class Engine(object):
         builder = []
         if self.features.supports("usermove"):
             builder.append("usermove")
+
+        if self.draw_handler:
+            self.draw_handler.clear_offer()
+            self.engine_offered_draw = False
 
         if self.auto_force:
             self.force()
