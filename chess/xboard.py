@@ -296,7 +296,7 @@ class Engine(object):
         self.author = None
         self.features = FeatureMap()
         self.pong = threading.Event()
-        self.ping_num = None
+        self.ping_num = 123
         self.pong_received = threading.Condition()
         self.auto_force = False
         self.in_force = False
@@ -536,7 +536,6 @@ class Engine(object):
         def command():
             with self.semaphore:
                 with self.pong_received:
-                    self.ping_num = random.randint(1, 100)
                     self.send_line("ping " + str(self.ping_num))
                     self.pong_received.wait()
 
