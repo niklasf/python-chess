@@ -2411,6 +2411,87 @@ class SpurEngineTestCase(unittest.TestCase):
         self.assertTrue(command.done())
 
 
+class XboardEngineTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.engine = chess.xboard.Engine()
+        self.mock = chess.engine.MockProcess(self.engine)
+        self.mock.expect("xboard")
+        self.mock.expect("protover 2")
+        self.mock.expect("post")
+        self.mock.expect("easy")
+        self.mock.expect("ping 123", ("pong 123", ))
+        self.engine.xboard()
+        self.mock.assert_done()
+
+    def tearDown(self):
+        self.engine.terminate()
+        self.mock.assert_terminated()
+
+    def test_engine_offer_draw_during_engine_search(self):
+        draw_handler = chess.xboard.DrawHandler()
+        self.engine.draw_handler = draw_handler
+
+        self.mock.expect("nopost")
+        self.engine.nopost()
+        self.mock.expect("st 10")
+        self.engine.st(10)
+        self.mock.expect("go", ("offer draw", ))
+        self.engine.go(async_callback=True)
+
+        time.sleep(0.01)
+
+        self.assertEqual(draw_handler.pending_offer, True)
+        self.assertEqual(self.engine.engine_offered_draw, True)
+
+        self.mock.expect("?", ("move e2e4", ))
+        self.engine._end_game(chess.xboard.DRAW)
+
+        self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
+        self.mock.assert_done()
+
+    def test_engine_offer_draw_during_human_turn(self):
+        draw_handler = chess.xboard.DrawHandler()
+        self.engine.draw_handler = draw_handler
+
+        self.mock.expect("nopost")
+        self.engine.nopost()
+        self.mock.expect("st 1")
+        self.engine.st(1)
+        self.mock.expect("go", ("move e2e4", "offer draw", ))
+        self.engine.go()
+
+        time.sleep(0.01)
+
+        self.assertEqual(draw_handler.pending_offer, True)
+        self.assertEqual(self.engine.engine_offered_draw, True)
+
+        self.engine._end_game(chess.xboard.DRAW)
+
+        self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
+        self.mock.assert_done()
+
+    def test_human_offer_draw_during_engine_search(self):
+        draw_handler = chess.xboard.DrawHandler()
+        self.engine.draw_handler = draw_handler
+
+        self.mock.expect("nopost")
+        self.engine.nopost()
+        self.mock.expect("st 10")
+        self.engine.st(10)
+        self.mock.expect("go")
+        self.engine.go(async_callback=True)
+
+        self.mock.expect("offer draw", ("offer draw", ))
+        self.mock.expect("?")
+        self.engine.offer_draw()
+
+        time.sleep(0.01)
+
+        self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
+        self.mock.assert_done()
+
+
 class UciEngineTestCase(unittest.TestCase):
 
     def setUp(self):
