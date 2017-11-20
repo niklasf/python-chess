@@ -216,16 +216,16 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
             svg.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
             svg.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
 
-    for arrow in arrows:
-        head_file = chess.square_file(arrow[1])
-        head_rank = chess.square_rank(arrow[1])
-        tail_file = chess.square_file(arrow[0])
-        tail_rank = chess.square_rank(arrow[0])
+    for tail, head in arrows:
+        tail_file = chess.square_file(tail)
+        tail_rank = chess.square_rank(tail)
+        head_file = chess.square_file(head)
+        head_rank = chess.square_rank(head)
 
-        xhead = margin + (head_file + 0.5 if not flipped else 7.5 - head_file) * SQUARE_SIZE
-        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
         xtail = margin + (tail_file + 0.5 if not flipped else 7.5 - tail_file) * SQUARE_SIZE
         ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 0.5) * SQUARE_SIZE
+        xhead = margin + (head_file + 0.5 if not flipped else 7.5 - head_file) * SQUARE_SIZE
+        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
             ET.SubElement(svg, "circle", {
