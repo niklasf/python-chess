@@ -9,6 +9,7 @@ Changes:
 * `len(board.legal_moves)` **replaced by** `board.legal_moves.count()`.
   Previously `list(board.legal_moves)` was generating moves twice, resulting in
   a considerable slowdown. Thanks to Martin C. Doege for reporting.
+* **Dropped Python 2.6 support.**
 * XBoard: `offer_draw` renamed to `draw`.
 
 New features:
@@ -20,7 +21,8 @@ New in v0.21.2
 
 Changes:
 
-* `chess.svg` is now fully SVG Tiny 1.2 compatible.
+* `chess.svg` is now fully SVG Tiny 1.2 compatible. Removed
+  `chess.svg.DEFAULT_STYLE` which would from now on be always empty.
 
 New in v0.21.1
 --------------
