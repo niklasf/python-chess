@@ -967,6 +967,7 @@ class BaseBoard(object):
         return "".join(builder)
 
     def unicode(self, invert_color=False, borders=False):
+        """Creates a Unicode board representation."""
         builder = []
         for rank_index in range(7, -1, -1):
             if borders:
@@ -1007,6 +1008,7 @@ class BaseBoard(object):
         return "".join(builder)
 
     def _repr_svg_(self):
+        """Creates an SVG board representation."""
         import chess.svg
         return chess.svg.board(board=self, size=400)
 
