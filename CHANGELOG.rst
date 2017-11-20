@@ -1,6 +1,20 @@
 Changelog for python-chess
 ==========================
 
+New in v0.22.0
+--------------
+
+Changes:
+
+* `len(board.legal_moves)` **replaced by** `board.legal_moves.count()`.
+  Previously `list(board.legal_moves)` was generating moves twice, resulting in
+  a considerable slowdown. Thanks to Martin C. Doege for reporting.
+* XBoard: `offer_draw` renamed to `draw`.
+
+New features:
+
+* XBoard: Added `DrawHandler`.
+
 New in v0.21.2
 --------------
 
