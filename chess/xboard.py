@@ -544,7 +544,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def offer_draw(self, async_callback=None):
+    def draw(self, async_callback=None):
         """
         Command used to offer the engine a draw.
 
@@ -556,7 +556,7 @@ class Engine(object):
         self._assert_supports_feature("draw")
         if self.draw_handler:
             self.draw_handler.offer_draw()
-            command = self.command("offer draw")
+            command = self.command("draw")
             return self._queue_command(command, async_callback)
 
     def pondering(self, ponder, async_callback=None):

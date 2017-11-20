@@ -2482,9 +2482,9 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("go")
         self.engine.go(async_callback=True)
 
-        self.mock.expect("offer draw", ("offer draw", ))
+        self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("?")
-        self.engine.offer_draw()
+        self.engine.draw()
 
         time.sleep(0.01)
 
