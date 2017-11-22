@@ -33,7 +33,7 @@ from chess.engine import _spur_spawn_engine
 import chess
 
 
-API_RESPONSES = [ENGINE_RESIGN, GAME_DRAW] = [-1, -2]
+DUMMY_RESPONSES = [ENGINE_RESIGN, GAME_DRAW] = [-1, -2]
 RESULTS = [WHITE_WIN, BLACK_WIN, DRAW] = ["1-0", "0-1", "1/2-1/2"]
 
 
@@ -1030,7 +1030,7 @@ class Engine(object):
             if self.auto_force:
                 self.force()
 
-            if self.move in API_RESPONSES:
+            if self.move in DUMMY_RESPONSES:
                 return self.move
 
             try:
