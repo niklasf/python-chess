@@ -20,7 +20,6 @@
 
 import concurrent.futures
 import threading
-import random
 
 from chess.engine import EngineTerminatedException
 from chess.engine import EngineStateException
@@ -34,7 +33,8 @@ from chess.engine import _spur_spawn_engine
 import chess
 
 
-RESULTS = [DRAW, WHITE_WIN, BLACK_WIN] = ["1/2-1/2", "1-0", "0-1"]
+API_RESPONSES = [ENGINE_RESIGN, GAME_DRAW] = [-1, -2]
+RESULTS = [WHITE_WIN, BLACK_WIN, DRAW] = ["1-0", "0-1", "1/2-1/2"]
 
 
 class DrawHandler(object):
@@ -334,8 +334,11 @@ class Engine(object):
         if not command_and_args:
             return
 
-        if command_and_args[0] == "#":
-            pass
+        if len(command_and_args) == 1:
+            if command_and_args[0] == "#":
+                pass
+            elif command_and_args[0] == "resign":
+                return self._resign()
         elif len(command_and_args) == 2:
             if command_and_args[0] == "pong":
                 return self._pong(command_and_args[1])
@@ -358,10 +361,18 @@ class Engine(object):
         with self.state_changed:
             self.state_changed.notify_all()
 
+    def _resign(self):
+        # TODO: Logic is a bit hacky, need clearer code
+        self.end_result = RESULTS[int(self.idle) ^ int(self.board.turn)]
+        self.move = ENGINE_RESIGN
+        self.move_received.set()
+
     def _offer_draw(self):
         if self.draw_handler:
             if self.draw_handler.pending_offer and not self.engine_offered_draw:
-                self._end_game(DRAW)
+                self.end_result = DRAW
+                self.move = GAME_DRAW
+                self.move_received.set()
             else:
                 self.engine_offered_draw = True
                 self.draw_handler.offer_draw()
@@ -511,10 +522,6 @@ class Engine(object):
             if not self.idle:
                 raise EngineStateException("{} command while engine is busy", cmd)
 
-    def _end_game(self, result):
-        self.end_result = result
-        self.stop()
-
     def command(self, msg):
         def cmd():
             with self.semaphore:
@@ -523,6 +530,11 @@ class Engine(object):
                 if self.terminated.is_set():
                     raise EngineTerminatedException
         return cmd
+
+    def result(self, result, async_callback=None):
+        self.end_result = result
+        command = self.command("result " + str(result))
+        self._queue_command(command, async_callback)
 
     def ping(self, async_callback=None):
         """
@@ -556,8 +568,9 @@ class Engine(object):
         self._assert_supports_feature("draw")
         if self.draw_handler:
             self.draw_handler.offer_draw()
-            command = self.command("draw")
-            return self._queue_command(command, async_callback)
+
+        command = self.command("draw")
+        return self._queue_command(command, async_callback)
 
     def pondering(self, ponder, async_callback=None):
         """
@@ -698,6 +711,10 @@ class Engine(object):
         """
         self._assert_not_busy("new")
         command = self.command("new")
+        self.engine_offered_draw = False
+        if self.draw_handler:
+            self.draw_handler.pending_offer = False
+            self.end_result = None
         return self._queue_command(command, async_callback)
 
     def setboard(self, board, async_callback=None):
@@ -1012,6 +1029,9 @@ class Engine(object):
 
             if self.auto_force:
                 self.force()
+
+            if self.move in API_RESPONSES:
+                return self.move
 
             try:
                 self.board.push_uci(str(self.move))
