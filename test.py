@@ -2445,7 +2445,9 @@ class XboardEngineTestCase(unittest.TestCase):
         self.assertEqual(self.engine.engine_offered_draw, True)
 
         self.mock.expect("?", ("move e2e4", ))
-        self.engine._end_game(chess.xboard.DRAW)
+        self.engine.stop()
+        self.mock.expect("result 1/2-1/2")
+        self.engine.result(chess.xboard.DRAW)
 
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
         self.mock.assert_done()
@@ -2466,7 +2468,8 @@ class XboardEngineTestCase(unittest.TestCase):
         self.assertEqual(draw_handler.pending_offer, True)
         self.assertEqual(self.engine.engine_offered_draw, True)
 
-        self.engine._end_game(chess.xboard.DRAW)
+        self.mock.expect("result 1/2-1/2")
+        self.engine.result(chess.xboard.DRAW)
 
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
         self.mock.assert_done()
@@ -2483,12 +2486,47 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.go(async_callback=True)
 
         self.mock.expect("draw", ("offer draw", ))
-        self.mock.expect("?")
+        self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
         time.sleep(0.01)
 
+        self.assertEqual(self.engine.idle, True)
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
+        self.mock.assert_done()
+
+    def test_human_offer_draw_during_human_turn(self):
+        draw_handler = chess.xboard.DrawHandler()
+        self.engine.draw_handler = draw_handler
+
+        self.assertEqual(self.engine.idle, True)
+        self.mock.expect("draw", ("offer draw", ))
+        self.mock.expect("result 1/2-1/2")
+        self.engine.draw()
+
+        time.sleep(0.01)
+
+        self.assertEqual(self.engine.idle, True)
+        self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
+        self.mock.assert_done()
+
+    def test_resign_during_engine_turn(self):
+        self.mock.expect("nopost")
+        self.engine.nopost()
+        self.mock.expect("st 10")
+        self.engine.st(10)
+        self.mock.expect("go", ("resign", ))
+        self.mock.expect("result 0-1")
+        self.engine.go()
+        self.assertEqual(self.engine.end_result, chess.xboard.BLACK_WIN)
+        self.mock.assert_done()
+
+    def test_resign_during_human_turn(self):
+        self.mock.expect("nopost", ("resign", ))
+        self.mock.expect("result 1-0")
+        self.engine.nopost() # Command to make MockProcess expect a random `resign`
+        time.sleep(0.01)
+        self.assertEqual(self.engine.end_result, chess.xboard.WHITE_WIN)
         self.mock.assert_done()
 
 
