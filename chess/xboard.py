@@ -39,8 +39,8 @@ RESULTS = [WHITE_WIN, BLACK_WIN, DRAW] = ["1-0", "0-1", "1/2-1/2"]
 
 class DrawHandler(object):
     """
-    Chess engines may send a draw offer after playing it's move and may recieve
-    one during an offer during it's calculations. A draw handler can be used to
+    Chess engines may send a draw offer after playing its move and may receive
+    one during an offer during its calculations. A draw handler can be used to
     send, or react to, this information.
 
     >>> # Register a standard draw handler.
@@ -62,12 +62,12 @@ class DrawHandler(object):
     See :attr:`~chess.xboard.DrawHandler.pending_offer` for a way to access
     this flag in a thread-safe way during search.
 
-    If you want to be notified whenever new information is available
-    you would usually subclass the *DrawHandler* class:
+    If you want to be notified whenever new information is available,
+    you would usually subclass the :class:`~chess.xboard.DrawHandler` class:
 
     >>> class MyHandler(chess.xboard.DrawHandler):
     ...     def offer_draw(self):
-    ...         # Called whenever `offer draw` has been processed.
+    ...         # Called whenever offer draw has been processed.
     ...         super(MyHandler, self).offer_draw()
     ...         print(self.pending_offer)
     """
@@ -79,7 +79,7 @@ class DrawHandler(object):
         """
         Received a new draw offer about to be processed.
 
-        When subclassing remember to call this method of the parent class in
+        When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
         """
         self.lock.acquire()
@@ -88,7 +88,7 @@ class DrawHandler(object):
         """
         Processing of a draw offer has been finished.
 
-        When subclassing remember to call this method of the parent class in
+        When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
         """
         self.lock.release()
@@ -133,7 +133,7 @@ class PostHandler(object):
     >>> engine.go()
     e2e4
     >>>
-    >>> # Retrieve the score of the mainline (PV 1) after search is completed.
+    >>> # Retrieve the score of the mainline (PV1) after search is completed.
     >>> # Note that the score is relative to the side to move.
     >>> post_handler.post["score"]
     34
@@ -141,12 +141,12 @@ class PostHandler(object):
     See :attr:`~chess.xboard.PostHandler.post` for a way to access this dictionary
     in a thread-safe way during search.
 
-    If you want to be notified whenever new information is available
-    you would usually subclass the *InfoHandler* class:
+    If you want to be notified whenever new information is available,
+    you would usually subclass the :class:`~chess.xboard.InfoHandler` class:
 
     >>> class MyHandler(chess.xboard.PostHandler):
     ...     def post_info(self):
-    ...         # Called whenever a complete *post* line has been processed.
+    ...         # Called whenever a complete post line has been processed.
     ...         super(MyHandler, self).post_info()
     ...         print(self.post)
     """
@@ -161,15 +161,15 @@ class PostHandler(object):
         self.post["depth"] = depth
 
     def score(self, score):
-        """Receieved score in centipawns."""
+        """Received a score in centipawns."""
         self.post["score"] = score
 
     def time(self, time):
-        """Received new time searched in centiseconds."""
+        """Received a new time searched in centiseconds."""
         self.post["time"] = time
 
     def nodes(self, nodes):
-        """Received number of nodes searched."""
+        """Received a number of nodes searched."""
         self.post["nodes"] = nodes
 
     def pv(self, moves):
@@ -180,7 +180,7 @@ class PostHandler(object):
         """
         Received a new info line about to be processed.
 
-        When subclassing remember to call this method of the parent class in
+        When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
         """
         self.lock.acquire()
@@ -189,7 +189,7 @@ class PostHandler(object):
         """
         Processing of a new info line has been finished.
 
-        When subclassing remember to call this method of the parent class in
+        When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
         """
         self.lock.release()
@@ -199,7 +199,7 @@ class PostHandler(object):
         pass
 
     def on_go(self):
-        """A go command is being sent."""
+        """A *go* command is being sent."""
         with self.lock:
             self.post.clear()
             self.post["pv"] = {}
@@ -220,9 +220,9 @@ class PostHandler(object):
 
 class FeatureMap(object):
     def __init__(self):
-        # Populated with defaults to begin with
+        # Populated with defaults to begin with.
         self._features = {
-            "ping" : 0, # TODO: Remove dependency of xboard module on ping
+            "ping" : 0,  # TODO: Remove dependency of xboard module on ping
             "setboard" : 0,
             "playother" : 0,
             "san" : 0,
@@ -326,7 +326,7 @@ class Engine(object):
         LOGGER.debug("%s >> %s", self.process, buf)
 
         # Not too happy with this quasi-hack to prevent splitting within
-        # options' space-separated values
+        # options' space-separated values.
         if buf.startswith("feature"):
             return self._feature(buf[8:])
 
@@ -362,7 +362,7 @@ class Engine(object):
             self.state_changed.notify_all()
 
     def _resign(self):
-        # TODO: Logic is a bit hacky, need clearer code
+        # TODO: Logic is a bit hacky, needs clearer code.
         self.result(RESULTS[int(self.idle) ^ int(self.board.turn)])
         self.move = ENGINE_RESIGN
         self.move_received.set()
@@ -379,8 +379,8 @@ class Engine(object):
 
     def _feature(self, features):
         """
-        Does not conform to CECP spec regarding `done` and instead reads all
-        features atomically.
+        Does not conform to the CECP spec regarding `done` and instead reads all
+        the features atomically.
         """
         if features.startswith("option"):
             features = features.replace("\"", "")
@@ -468,13 +468,13 @@ class Engine(object):
         pv = []
         board = self.board.copy(stack=False)
         tokens = arg.split()
-        # Order: <score> <depth> <time> <nodes> <pv>
+        # Order: <score> <depth> <time> <nodes> <pv>.
         handle_integer_token(tokens[0], lambda handler, val: handler.depth(val))
         handle_integer_token(tokens[1], lambda handler, val: handler.score(val))
         handle_integer_token(tokens[2], lambda handler, val: handler.time(val))
         handle_integer_token(tokens[3], lambda handler, val: handler.nodes(val))
         for token in tokens[4:]:
-            # Ignore move number(for example 1. Nf3 Nf6 -> Nf3 Nf6)
+            # Ignore move number. For example, 1. Nf3 Nf6 -> Nf3 Nf6.
             if '.' in token or '<' in token:
                 continue
             try:
@@ -505,8 +505,8 @@ class Engine(object):
             future.add_done_callback(async_callback)
             return future
         else:
-            # Avoid calling future.result() without a timeout. In Python 2
-            # such a call cannot be interrupted.
+            # Avoid calling future.result() without a timeout.
+            # In Python 2, such a call cannot be interrupted.
             while True:
                 try:
                     return future.result(timeout=FUTURE_POLL_TIMEOUT)
@@ -543,7 +543,7 @@ class Engine(object):
         The engine will respond as soon as it has handled all other queued
         commands.
 
-        :return: Nothing
+        :return: Nothing.
         """
         def command():
             with self.semaphore:
@@ -563,7 +563,7 @@ class Engine(object):
         The engine may respond with `offer draw` to agree and may ignore the
         offer to disagree.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("draw")
         if self.draw_handler:
@@ -572,14 +572,14 @@ class Engine(object):
         command = self.command("draw")
         return self._queue_command(command, async_callback)
 
-    def pondering(self, ponder, async_callback=None):
+    def pondering(self, ponder=False, async_callback=None):
         """
-        Tell the engine whether to ponder or not.
+        Tells the engine whether to ponder or not.
 
-        :param ponder: set pondering to on or off
-        Defaults to off
+        :param ponder: ``True`` or ``False`` to set *pondering* on or off, respectively.
+            Defaults to ``False``.
 
-        :return: Nothing
+        :return: Nothing.
         """
         if ponder:
             msg = "hard"
@@ -591,24 +591,25 @@ class Engine(object):
 
     def easy(self, async_callback=None):
         """
-        Tell the engine not to ponder.
+        Tells the engine not to ponder.
         """
         return self.pondering(False, async_callback)
 
     def hard(self, async_callback=None):
         """
-        Tell the engine to ponder.
-        TODO: pondering not yet supported.
+        Tells the engine to ponder.
+
+        TODO: Pondering not yet supported.
         """
         return self.pondering(True, async_callback)
 
     def set_post(self, flag, async_callback=None):
         """
-        Command used to tell the engine whether to output it's analysis or not.
+        Command used to tell the engine whether to output its analysis or not.
 
-        :param flag: True or False to set post on or off.
+        :param flag: ``True`` or ``False`` to set *post* on or off, respectively.
 
-        :return: Nothing
+        :return: Nothing.
         """
         if flag:
             msg = "post"
@@ -620,17 +621,17 @@ class Engine(object):
 
     def post(self, async_callback=None):
         """
-        Command used to tell the engine to output it's analysis.
+        Command used to tell the engine to output its analysis.
 
-        :return: Nothing
+        :return: Nothing.
         """
         return self.set_post(True, async_callback)
 
     def nopost(self, async_callback=None):
         """
-        Command used to tell the engine to not output it's analysis.
+        Command used to tell the engine to not output its analysis.
 
-        :return: Nothing
+        :return: Nothing.
         """
         return self.set_post(False, async_callback)
 
@@ -641,9 +642,10 @@ class Engine(object):
         This is mandatory before any other command. A conforming engine may
         quietly enter the XBoard state or may send some output which
         is currently ignored.
-        TODO: Handle said output
+        
+        TODO: Handle said output.
 
-        :return: Nothing
+        :return: Nothing.
         """
         def command():
             with self.semaphore:
@@ -662,11 +664,11 @@ class Engine(object):
 
     def option(self, options, async_callback=None):
         """
-        Set values for the engines available options.
+        Sets values for the engine's available options.
 
         :param options: A dictionary with option names as keys.
 
-        :return: Nothing
+        :return: Nothing.
         """
         option_lines = []
 
@@ -696,18 +698,18 @@ class Engine(object):
 
     def new(self, async_callback=None):
         """
-        Reset the board to the standard chess starting position.
-        Set White on move.
-        Leave force mode and set the engine to play Black.
-        Associate the engines clock with Black and the opponent's clock
-        with White.
-        Reset clocks and time controls to the start of a new game.
-        Use wall clock for time measurement.
-        Stop clocks.
-        Do not ponder on this move, even if pondering is on.
-        Remove any search depth limit previously set by the sd command.
+        Resets the board to the standard chess starting position.
+        Sets white to move.
+        Leaves *force* mode and sets the engine to play as black.
+        Associates the engine's clock with black's and the opponent's clock
+        with white's.
+        Resets clocks and time controls to the start of a new game.
+        Uses wall clock for time measurement.
+        Stops clocks.
+        Does not ponder on this move, even if *pondering* is set to on.
+        Removes any search depth limit previously set by the *sd* command.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("new")
         command = self.command("new")
@@ -719,11 +721,11 @@ class Engine(object):
 
     def setboard(self, board, async_callback=None):
         """
-        Set up a given board position.
+        Sets up a given board position.
 
-        :param board: A *chess.Board*.
+        :param board: A :class:`~chess.Board` instance.
 
-        :return: Nothing
+        :return: Nothing.
 
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is still
             calculating.
@@ -744,9 +746,9 @@ class Engine(object):
 
     def undo(self, async_callback=None):
         """
-        Puts the engine in force mode and takes back one move.
+        Puts the engine in *force* mode and takes back one move.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("undo")
 
@@ -762,7 +764,7 @@ class Engine(object):
         """
         Tells the engine to retract two moves (one from each side).
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("remove")
 
@@ -774,11 +776,11 @@ class Engine(object):
 
     def memory(self, amount, async_callback=None):
         """
-        Set the maximum memory of the engines hash/pawn/bitbase/etc tables.
+        Sets the maximum memory of the engine's hash/pawn/bitbase/other tables.
 
-        :param amount: Maximum amount of memory to use in MegaBytes
+        :param amount: The maximum amount of memory to use in megabytes (MB).
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("memory")
         self._assert_not_busy("memory")
@@ -788,12 +790,12 @@ class Engine(object):
 
     def cores(self, num, async_callback=None):
         """
-        Set the maximum number of processors the engine is allowed to use.
-        That is, the number of search threads for an SMP engine.
+        Sets the maximum number of processor cores the engine is allowed to use.
+        For an SMP engine, this corresponds to search threads.
 
-        :param num: The number of processors
+        :param num: The number of processor cores or search threads allowed.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("smp")
         self._assert_not_busy("cores")
@@ -803,9 +805,9 @@ class Engine(object):
 
     def playother(self, async_callback=None):
         """
-        Set the engine to play the side whose turn it is NOT to move.
+        Sets the engine to play the side whose turn it is **not** to move.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("playother")
         self._assert_not_busy("playother")
@@ -816,12 +818,12 @@ class Engine(object):
 
     def set_side_to_move(self, color, async_callback=None):
         """
-        Set the side to move, set the engine to move for the opposite side
-        and exit force mode.
+        Sets the side to move, sets the engine to move for the opposite side
+        and exits *force* mode.
 
         :param color: The desired side to move.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("colors")
         side = chess.COLOR_NAMES[color]
@@ -833,31 +835,31 @@ class Engine(object):
 
     def white(self, async_callback=None):
         """
-        Set the side to move to be white, engine to play as black and
-        exit force mode.
+        Sets the side to move to be white, engine to play as black and
+        exits *force* mode.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self.set_side_to_move(chess.WHITE, async_callback)
 
     def black(self, async_callback=None):
         """
-        Set the side to move to be black, engine to play as white and
-        exit force mode.
+        Sets the side to move to be black, engine to play as white and
+        exits *force* mode.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self.set_side_to_move(chess.BLACK, async_callback)
 
     def random(self, async_callback=None):
         """
-        Toggles random mode.
+        Toggles *random* mode.
 
-        In random mode, the engine may choose to add a random factor to it's
-        evaluation of any given position prompting variation in play or may
+        In *random* mode, the engine may choose to add a random factor to its
+        evaluation of any given position, prompting variation in play, or may
         ignore it entirely.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("random")
 
@@ -866,12 +868,12 @@ class Engine(object):
 
     def nps(self, target_nps, async_callback=None):
         """
-        Tell the engine to limit it's speed of search in terms of
-        Nodes Per Second to the provided value.
+        Tells the engine to limit its speed of search in terms of
+        nodes per second (NPS) to the provided value.
 
-        :param target_nps: The limiting Nodes Per Second value
+        :param target_nps: The limiting nodes per second (NPS) value.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("nps")
         self._assert_not_busy("nps")
@@ -881,11 +883,11 @@ class Engine(object):
 
     def st(self, time, async_callback=None):
         """
-        Set maximum time the engine is to search for.
+        Sets the maximum time the engine is to search for.
 
-        :param time: Time to search for in seconds
+        :param time: The amount of time to search for in seconds.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("st")
 
@@ -894,11 +896,11 @@ class Engine(object):
 
     def sd(self, depth, async_callback=None):
         """
-        Set maximum depth the engine is to search for.
+        Sets the maximum depth the engine is to search for.
 
-        :param depth: Depth to search for
+        :param depth: The depth (plies) to search for.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("sd")
 
@@ -907,11 +909,11 @@ class Engine(object):
 
     def time(self, time, async_callback=None):
         """
-        Synchronize the engines clock with the total amount of time left.
+        Synchronizes the engine's clock with the total amount of time left.
 
-        :param time: The total time left in centiseconds
+        :param time: The total time left in centiseconds.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("time")
         self._assert_not_busy("time")
@@ -921,11 +923,11 @@ class Engine(object):
 
     def otim(self, time, async_callback=None):
         """
-        Synchronize the engines clock with the total amount of time left.
+        Synchronizes the engine's clock with the total amount of time left.
 
-        :param time: The total time left in centiseconds
+        :param time: The total time left in centiseconds.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_supports_feature("time")
         self._assert_not_busy("otim")
@@ -935,22 +937,23 @@ class Engine(object):
 
     def level(self, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
         """
-        Set the time controls for the game.
+        Sets the time controls for the game.
 
         :param movestogo: The number of moves to be played before the time
             control repeats.
-            Defaults to 0 (in order to play the whole game in the given time control).
+            Defaults to ``0`` (in order to play the whole game in the given
+            time control).
         :param minutes: The number of minutes for the whole game or until
-            *movestogo* moves are played. In addition to seconds.
-            Defaults to 5.
+            *movestogo* moves are played, in addition to *seconds*.
+            Defaults to ``5``.
         :param seconds: The number of seconds for the whole game or until
-            *movestogo* moves are played. In addition to minutes.
-            Defaults to 0.
-        :param inc: The amount of increment(in seconds) to be provided
+            *movestogo* moves are played, in addition to *minutes*.
+            Defaults to ``0``.
+        :param inc: The amount of increment (in seconds) to be provided
             after each move is played.
-            Defaults to 0.
+            Defaults to ``0``.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self._assert_not_busy("level")
 
@@ -970,23 +973,23 @@ class Engine(object):
 
     def set_auto_force(self, flag):
         """
-        Set the XBoard engine to not start thinking immediately
-        after a call to usermove().
+        Sets the XBoard engine to not start thinking immediately
+        after a *usermove* call.
 
-        :param flag: Set to true to set this mode. Set to False
-            to resume normal XBoard function.
+        :param flag: Set to ``True`` to set this mode. Set to
+            ``False`` to resume a normal XBoard state.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self.auto_force = flag
 
     def force(self, async_callback=None):
         """
-        Tell the XBoard engine to enter force mode. That means
+        Tells the XBoard engine to enter *force* mode. That means
         the engine will not start thinking by itself unless a
-        go() command is sent.
+        *go* command is sent.
 
-        :return: Nothing
+        :return: Nothing.
         """
         self.in_force = True
         command = self.command("force")
@@ -994,10 +997,10 @@ class Engine(object):
 
     def go(self, async_callback=None):
         """
-        Set engine to move on the current side to play.
-        Start calculating on the current position.
+        Sets the engine to move on the current side to play.
+        Starts calculating on the current position.
 
-        :return: the best move according to the engine.
+        :return: The best move according to the engine.
 
         :raises: :exc:`~chess.engine.EngineStateException` if the engine is
             already calculating.
@@ -1047,7 +1050,7 @@ class Engine(object):
 
     def stop(self, async_callback=None):
         """
-        Stop calculating as soon as possible. The actual XBoard command is `?`.
+        Stops calculating as soon as possible. The actual XBoard command is *?*.
 
         :return: Nothing.
         """
@@ -1077,14 +1080,15 @@ class Engine(object):
 
     def usermove(self, move, async_callback=None):
         """
-        Tell the XBoard engine to make a move on it's internal
+        Tells the XBoard engine to make a move on its internal
         board.
-        If auto_force is set to True, the engine will not start
-        thinking about it's next move immediately after.
+
+        If *auto_force* is set to ``True``, the engine will not start
+        thinking about its next move immediately after.
 
         :param move: The move to play in XBoard notation.
 
-        :return: Nothing
+        :return: Nothing.
         """
         builder = []
         if self.features.supports("usermove"):
@@ -1119,7 +1123,7 @@ class Engine(object):
 
         builder.append(str(move))
         def command():
-            # Use the join(builder) once we parse usermove=1 feature
+            # Use the join(builder) once we parse usermove=1 feature.
             move_str = " ".join(builder)
             if self.in_force:
                 with self.semaphore:
@@ -1155,7 +1159,7 @@ class Engine(object):
 
     def quit(self, async_callback=None):
         """
-        Quit the engine as soon as possible.
+        Quits the engine as soon as possible.
 
         :return: The return code of the engine process.
         """
@@ -1189,10 +1193,10 @@ class Engine(object):
 
     def terminate(self, async_callback=None):
         """
-        Terminate the engine.
+        Terminates the engine.
 
         This is not an XBoard command. It instead tries to terminate the engine
-        on operating system level, for example by sending SIGTERM on Unix
+        on the operating system level, for example, by sending SIGTERM on Unix
         systems. If possible, first try the *quit* command.
 
         :return: The return code of the engine process (or a Future).
@@ -1202,9 +1206,9 @@ class Engine(object):
 
     def kill(self, async_callback=None):
         """
-        Kill the engine.
+        Kills the engine.
 
-        Forcefully kill the engine process, for example by sending SIGKILL.
+        Forcefully kills the engine process, for example, by sending SIGKILL.
 
         :return: The return code of the engine process (or a Future).
         """
@@ -1212,7 +1216,7 @@ class Engine(object):
         return self._queue_termination(async_callback)
 
     def is_alive(self):
-        """Poll the engine process to check if it is alive."""
+        """Polls the engine process to check if it is alive."""
         return self.process.is_alive()
 
 
@@ -1226,8 +1230,8 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine = chess.xboard.popen_engine("/usr/games/crafty")
     >>> engine.xboard()
 
-    :param setpgrp: Open the engine process in a new process group. This will
-        stop signals (such as keyboards interrupts) from propagating from the
+    :param setpgrp: Opens the engine process in a new process group. This will
+        stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
     """
     return _popen_engine(command, engine_cls, setpgrp, _popen_lock, **kwargs)
