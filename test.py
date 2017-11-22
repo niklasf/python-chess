@@ -2486,6 +2486,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.go(async_callback=True)
 
         self.mock.expect("draw", ("offer draw", ))
+        self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
         time.sleep(0.01)
@@ -2500,6 +2501,7 @@ class XboardEngineTestCase(unittest.TestCase):
 
         self.assertEqual(self.engine.idle, True)
         self.mock.expect("draw", ("offer draw", ))
+        self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
         time.sleep(0.01)
@@ -2514,12 +2516,14 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("st 10")
         self.engine.st(10)
         self.mock.expect("go", ("resign", ))
+        self.mock.expect("result 0-1")
         self.engine.go()
         self.assertEqual(self.engine.end_result, chess.xboard.BLACK_WIN)
         self.mock.assert_done()
 
     def test_resign_during_human_turn(self):
         self.mock.expect("nopost", ("resign", ))
+        self.mock.expect("result 1-0")
         self.engine.nopost() # Command to make MockProcess expect a random `resign`
         time.sleep(0.01)
         self.assertEqual(self.engine.end_result, chess.xboard.WHITE_WIN)

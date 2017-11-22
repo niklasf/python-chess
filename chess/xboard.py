@@ -363,14 +363,14 @@ class Engine(object):
 
     def _resign(self):
         # TODO: Logic is a bit hacky, need clearer code
-        self.end_result = RESULTS[int(self.idle) ^ int(self.board.turn)]
+        self.result(RESULTS[int(self.idle) ^ int(self.board.turn)])
         self.move = ENGINE_RESIGN
         self.move_received.set()
 
     def _offer_draw(self):
         if self.draw_handler:
             if self.draw_handler.pending_offer and not self.engine_offered_draw:
-                self.end_result = DRAW
+                self.result(DRAW)
                 self.move = GAME_DRAW
                 self.move_received.set()
             else:
