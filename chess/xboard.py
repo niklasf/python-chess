@@ -77,7 +77,7 @@ class DrawHandler(object):
 
     def pre_offer(self):
         """
-        Received a new draw offer about to be processed.
+        Processes the newly received draw offer.
 
         When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
@@ -86,7 +86,7 @@ class DrawHandler(object):
 
     def post_offer(self):
         """
-        Processing of a draw offer has been finished.
+        Finishes processing of the newly received draw offer.
 
         When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
@@ -94,12 +94,12 @@ class DrawHandler(object):
         self.lock.release()
 
     def offer_draw(self):
-        """A draw has been offered."""
+        """Offers a draw."""
         with self.lock:
             self.pending_offer = True
 
     def clear_offer(self):
-        """The draw offer has expired."""
+        """Declines the draw offer."""
         with self.lock:
             self.pending_offer = False
 
@@ -157,28 +157,28 @@ class PostHandler(object):
         self.post["pv"] = {}
 
     def depth(self, depth):
-        """Received depth in plies."""
+        """Receives the depth in plies."""
         self.post["depth"] = depth
 
     def score(self, score):
-        """Received a score in centipawns."""
+        """Receives the score in centipawns."""
         self.post["score"] = score
 
     def time(self, time):
-        """Received a new time searched in centiseconds."""
+        """Receives the new time searched in centiseconds."""
         self.post["time"] = time
 
     def nodes(self, nodes):
-        """Received a number of nodes searched."""
+        """Receives the number of nodes searched."""
         self.post["nodes"] = nodes
 
     def pv(self, moves):
-        """Received the principal variation as a list of moves."""
+        """Receives the principal variation as a list of moves."""
         self.post["pv"] = moves
 
     def pre_info(self):
         """
-        Received a new info line about to be processed.
+        Processes the newly received info line.
 
         When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
@@ -187,7 +187,7 @@ class PostHandler(object):
 
     def post_info(self):
         """
-        Processing of a new info line has been finished.
+        Finishes processing the newly received info line.
 
         When subclassing, remember to call this method of the parent class in
         order to keep the locking in tact.
@@ -195,11 +195,11 @@ class PostHandler(object):
         self.lock.release()
 
     def on_move(self, move):
-        """A new move has been received."""
+        """Receives a new move."""
         pass
 
     def on_go(self):
-        """A *go* command is being sent."""
+        """Sends a *go* command."""
         with self.lock:
             self.post.clear()
             self.post["pv"] = {}
@@ -222,7 +222,7 @@ class FeatureMap(object):
     def __init__(self):
         # Populated with defaults to begin with.
         self._features = {
-            "ping" : 0,  # TODO: Remove dependency of xboard module on ping
+            "ping" : 0,  # TODO: Remove dependency of the xboard module on ping
             "setboard" : 0,
             "playother" : 0,
             "san" : 0,
