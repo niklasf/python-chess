@@ -142,7 +142,7 @@ class PostHandler(object):
     in a thread-safe way during search.
 
     If you want to be notified whenever new information is available,
-    you would usually subclass the :class:`~chess.xboard.InfoHandler` class:
+    you would usually subclass the :class:`~chess.xboard.PostHandler` class:
 
     >>> class MyHandler(chess.xboard.PostHandler):
     ...     def post_info(self):
@@ -506,7 +506,7 @@ class Engine(object):
             return future
         else:
             # Avoid calling future.result() without a timeout.
-            # In Python 2, such a call cannot be interrupted.
+            # In Python 2, such a call can not be interrupted.
             while True:
                 try:
                     return future.result(timeout=FUTURE_POLL_TIMEOUT)
@@ -572,12 +572,12 @@ class Engine(object):
         command = self.command("draw")
         return self._queue_command(command, async_callback)
 
-    def pondering(self, ponder=False, async_callback=None):
+    def ponder(self, ponder=True, async_callback=None):
         """
         Tells the engine whether to ponder or not.
 
-        :param ponder: ``True`` or ``False`` to set *pondering* on or off, respectively.
-            Defaults to ``False``.
+        :param ponder: ``True`` or ``False`` to set *ponder* on or off, respectively.
+            Defaults to ``True``.
 
         :return: Nothing.
         """
@@ -593,7 +593,7 @@ class Engine(object):
         """
         Tells the engine not to ponder.
         """
-        return self.pondering(False, async_callback)
+        return self.ponder(False, async_callback)
 
     def hard(self, async_callback=None):
         """
@@ -601,7 +601,7 @@ class Engine(object):
 
         TODO: Pondering not yet supported.
         """
-        return self.pondering(True, async_callback)
+        return self.ponder(True, async_callback)
 
     def set_post(self, flag, async_callback=None):
         """
