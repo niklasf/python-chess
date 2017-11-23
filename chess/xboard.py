@@ -506,7 +506,7 @@ class Engine(object):
             return future
         else:
             # Avoid calling future.result() without a timeout.
-            # In Python 2, such a call can not be interrupted.
+            # In Python 2, such a call can't be interrupted.
             while True:
                 try:
                     return future.result(timeout=FUTURE_POLL_TIMEOUT)
