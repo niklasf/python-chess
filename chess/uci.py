@@ -87,24 +87,24 @@ class InfoHandler(object):
         self.info["score"] = {}
 
     def depth(self, x):
-        """Received search depth in plies."""
+        """Receives the search depth in plies."""
         self.info["depth"] = x
 
     def seldepth(self, x):
-        """Received selective search depth in plies."""
+        """Receives the selective search depth in plies."""
         self.info["seldepth"] = x
 
     def time(self, x):
-        """Received new time searched in milliseconds."""
+        """Receives a new time searched in milliseconds."""
         self.info["time"] = x
 
     def nodes(self, x):
-        """Received number of nodes searched."""
+        """Receives the number of nodes searched."""
         self.info["nodes"] = x
 
     def pv(self, moves):
         """
-        Received the principal variation as a list of moves.
+        Receives the principal variation as a list of moves.
 
         In *MultiPV* mode, this is related to the most recent *multipv* number
         sent by the engine.
@@ -113,16 +113,16 @@ class InfoHandler(object):
 
     def multipv(self, num):
         """
-        Received a new *multipv* number, starting at 1.
+        Receives a new *multipv* number, starting at 1.
 
-        If *multipv* occurs in an *info* line, this is guaranteed to be called
+        If *multipv* occurs in an info line, this is guaranteed to be called
         before *score* or *pv*.
         """
         self.info["multipv"] = num
 
     def score(self, cp, mate, lowerbound, upperbound):
         """
-        Received a new evaluation in *cp* (centipawns) or a *mate* score.
+        Receives a new evaluation in *cp* (centipawns) or a *mate* score.
 
         *cp* may be ``None`` if no score in centipawns is available.
 
@@ -132,7 +132,7 @@ class InfoHandler(object):
         *lowerbound* and *upperbound* are usually ``False``. If ``True``,
         the sent score is just a *lowerbound* or *upperbound*.
 
-        In MultiPV mode, this is related to the most recent *multipv* number
+        In *MultiPV* mode, this is related to the most recent *multipv* number
         sent by the engine.
         """
         if not lowerbound and not upperbound:
@@ -140,46 +140,46 @@ class InfoHandler(object):
 
     def currmove(self, move):
         """
-        Received a move the engine is currently thinking about.
+        Receives a move the engine is currently thinking about.
 
-        These moves come directly from the engine, so the castling move
+        The move comes directly from the engine, so the castling move
         representation depends on the *UCI_Chess960* option of the engine.
         """
         self.info["currmove"] = move
 
     def currmovenumber(self, x):
-        """Received a new current move number."""
+        """Receives a new current move number."""
         self.info["currmovenumber"] = x
 
     def hashfull(self, x):
         """
-        Received new information about the hashtable.
+        Receives a new information about the hash table.
 
-        The hashtable is *x* permill full.
+        The hash table is *x* permill full.
         """
         self.info["hashfull"] = x
 
     def nps(self, x):
-        """Received new nodes per second statistic."""
+        """Receives a new nodes per second (NPS) statistic."""
         self.info["nps"] = x
 
     def tbhits(self, x):
-        """Received new information about the number of tablebase hits."""
+        """Receives a new information about the number of tablebase hits."""
         self.info["tbhits"] = x
 
     def cpuload(self, x):
-        """Received new cpuload information in permill."""
+        """Receives a new *cpuload* information in permill."""
         self.info["cpuload"] = x
 
     def string(self, string):
-        """Received a string the engine wants to display."""
+        """Receives a string the engine wants to display."""
         self.info["string"] = string
 
     def refutation(self, move, refuted_by):
         """
-        Received a new refutation of a move.
+        Receives a new refutation of a move.
 
-        *refuted_by* may be a list of moves representing the mainline of the
+        *refuted_by* may be a list of moves representing the main line of the
         refutation or ``None`` if no refutation has been found.
 
         Engines should only send refutations if the *UCI_ShowRefutations*
@@ -189,7 +189,7 @@ class InfoHandler(object):
 
     def currline(self, cpunr, moves):
         """
-        Received a new snapshot of a line a specific CPU is calculating.
+        Receives a new snapshot of a line when a specific CPU is calculating.
 
         *cpunr* is an integer representing a specific CPU and *moves* is a list
         of moves.
@@ -198,10 +198,10 @@ class InfoHandler(object):
 
     def pre_info(self, line):
         """
-        Received a new info line to be processed.
+        Receives a new info line to be processed.
 
         When subclassing, remember to call this method on the parent class
-        to keep the locking intact.
+        to keep the locking in tact.
         """
         self.lock.acquire()
         self.info.pop("multipv", None)
@@ -216,12 +216,12 @@ class InfoHandler(object):
         self.lock.release()
 
     def on_bestmove(self, bestmove, ponder):
-        """A new *bestmove* and *ponder* move have been received."""
+        """Receives a new *bestmove* and a new *ponder* move."""
         pass
 
     def on_go(self):
         """
-        A *go* command is being sent.
+        Sends a *go* command.
 
         Since information about the previous search is invalidated, the
         dictionary with the current information will be cleared.
