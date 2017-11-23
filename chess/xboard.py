@@ -157,7 +157,7 @@ class PostHandler(object):
         self.post["pv"] = {}
 
     def depth(self, depth):
-        """Receives the depth in plies."""
+        """Receives the search depth in plies."""
         self.post["depth"] = depth
 
     def score(self, score):
