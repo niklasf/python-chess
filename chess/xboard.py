@@ -222,31 +222,31 @@ class FeatureMap(object):
     def __init__(self):
         # Populated with defaults to begin with.
         self._features = {
-            "ping" : 0,  # TODO: Remove dependency of the xboard module on ping
-            "setboard" : 0,
-            "playother" : 0,
-            "san" : 0,
-            "usermove" : 0,
-            "time" : 1,
-            "draw" : 1,
-            "sigint" : 1,
-            "sigterm" : 1,
-            "reuse" : 1,
-            "analyze" : 1,
-            "myname" : None,
-            "variants" : None,
-            "colors" : 1,
-            "ics" : 0,
-            "name" : None,
-            "pause" : 0,
-            "nps" : 1,
-            "debug" : 0,
-            "memory" : 0,
-            "smp" : 0,
-            "egt" : 0,
-            "option" : OptionMap(),
-            "done" : None
-            }
+            "ping": 0,  # TODO: Remove dependency of the xboard module on ping
+            "setboard": 0,
+            "playother": 0,
+            "san": 0,
+            "usermove": 0,
+            "time": 1,
+            "draw": 1,
+            "sigint": 1,
+            "sigterm": 1,
+            "reuse": 1,
+            "analyze": 1,
+            "myname": None,
+            "variants": None,
+            "colors": 1,
+            "ics": 0,
+            "name": None,
+            "pause": 0,
+            "nps": 1,
+            "debug": 0,
+            "memory": 0,
+            "smp": 0,
+            "egt": 0,
+            "option": OptionMap(),
+            "done": None
+        }
 
     def set_feature(self, key, value):
         try:
@@ -642,7 +642,7 @@ class Engine(object):
         This is mandatory before any other command. A conforming engine may
         quietly enter the XBoard state or may send some output which
         is currently ignored.
-        
+
         TODO: Handle said output.
 
         :return: Nothing.
@@ -676,8 +676,7 @@ class Engine(object):
             # Building string manually to avoid spaces
             option_string = "option " + name
             option = self.features.get_option(name)
-            has_value = option.type in \
-                    ("spin", "check", "combo", "string")
+            has_value = option.type in ["spin", "check", "combo", "string"]
             if has_value and value is not None:
                 value = str(value)
                 option_string += "=" + value
@@ -1122,6 +1121,7 @@ class Engine(object):
                 LOGGER.exception("exception parsing move")
 
         builder.append(str(move))
+
         def command():
             # Use the join(builder) once we parse usermove=1 feature.
             move_str = " ".join(builder)
