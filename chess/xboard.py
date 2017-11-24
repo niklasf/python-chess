@@ -80,7 +80,7 @@ class DrawHandler(object):
         Processes the newly received draw offer.
 
         When subclassing, remember to call this method of the parent class in
-        order to keep the locking in tact.
+        order to keep the locking intact.
         """
         self.lock.acquire()
 
@@ -89,7 +89,7 @@ class DrawHandler(object):
         Finishes processing of the newly received draw offer.
 
         When subclassing, remember to call this method of the parent class in
-        order to keep the locking in tact.
+        order to keep the locking intact.
         """
         self.lock.release()
 
@@ -178,19 +178,19 @@ class PostHandler(object):
 
     def pre_info(self):
         """
-        Processes the newly received info line.
+        Receives new info lines before they are processed.
 
         When subclassing, remember to call this method of the parent class in
-        order to keep the locking in tact.
+        order to keep the locking intact.
         """
         self.lock.acquire()
 
     def post_info(self):
         """
-        Finishes processing the newly received info line.
+        Processing of a new info line has been finished.
 
         When subclassing, remember to call this method of the parent class in
-        order to keep the locking in tact.
+        order to keep the locking intact.
         """
         self.lock.release()
 
@@ -199,7 +199,7 @@ class PostHandler(object):
         pass
 
     def on_go(self):
-        """Sends a *go* command."""
+        """Notified when a *go* command is beeing sent."""
         with self.lock:
             self.post.clear()
             self.post["pv"] = {}

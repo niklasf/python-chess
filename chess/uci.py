@@ -153,14 +153,14 @@ class InfoHandler(object):
 
     def hashfull(self, x):
         """
-        Receives a new information about the hash table.
+        Receives new information about the hash table.
 
         The hash table is *x* permill full.
         """
         self.info["hashfull"] = x
 
     def nps(self, x):
-        """Receives a new nodes per second (NPS) statistic."""
+        """Receives a new nodes per second (nps) statistic."""
         self.info["nps"] = x
 
     def tbhits(self, x):
@@ -179,7 +179,7 @@ class InfoHandler(object):
         """
         Receives a new refutation of a move.
 
-        *refuted_by* may be a list of moves representing the main line of the
+        *refuted_by* may be a list of moves representing the mainline of the
         refutation or ``None`` if no refutation has been found.
 
         Engines should only send refutations if the *UCI_ShowRefutations*
@@ -189,7 +189,7 @@ class InfoHandler(object):
 
     def currline(self, cpunr, moves):
         """
-        Receives a new snapshot of a line when a specific CPU is calculating.
+        Receives a new snapshot of a line that a specific CPU is calculating.
 
         *cpunr* is an integer representing a specific CPU and *moves* is a list
         of moves.
@@ -198,10 +198,10 @@ class InfoHandler(object):
 
     def pre_info(self, line):
         """
-        Receives a new info line to be processed.
+        Receives new info lines before they are processed.
 
         When subclassing, remember to call this method on the parent class
-        to keep the locking in tact.
+        to keep the locking intact.
         """
         self.lock.acquire()
         self.info.pop("multipv", None)
@@ -221,7 +221,7 @@ class InfoHandler(object):
 
     def on_go(self):
         """
-        Sends a *go* command.
+        Notified when a *go* command is beeing sent.
 
         Since information about the previous search is invalidated, the
         dictionary with the current information will be cleared.
