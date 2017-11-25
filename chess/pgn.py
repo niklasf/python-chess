@@ -829,13 +829,13 @@ def read_game(handle, Visitor=GameModelCreator):
 
     # Skip leading empty lines and comments.
     line = handle.readline()
-    while line.isspace() or line.startswith("%"):
+    while line.isspace() or line.startswith("%") or line.startswith(";"):
         line = handle.readline()
 
     # Parse game headers.
     while line:
         # Skip comments.
-        if line.startswith("%"):
+        if line.startswith("%") or line.startswith(";"):
             line = handle.readline()
             continue
 
