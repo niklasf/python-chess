@@ -2172,6 +2172,26 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
         self.assertTrue(node.is_end())
 
+    def test_empty_game(self):
+        pgn = StringIO(" \n\n   ")
+        game = chess.pgn.read_game(pgn)
+        self.assertTrue(game is None)
+
+    def test_no_movetext(self):
+        pgn = StringIO(textwrap.dedent("""
+            [Event "A"]
+
+
+            [Event "B"]
+            """))
+
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.headers["Event"], "A")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.headers["Event"], "B")
+
+        self.assertTrue(chess.pgn.read_game(pgn) is None)
+
 
 class CraftyTestCase(unittest.TestCase):
 

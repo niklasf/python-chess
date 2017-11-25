@@ -826,25 +826,27 @@ def read_game(handle, Visitor=GameModelCreator):
 
     dummy_game = Game.without_tag_roster()
     found_game = False
-    found_content = False
 
+    # Skip leading empty lines and comments.
     line = handle.readline()
+    while line.isspace() or line.startswith("%"):
+        line = handle.readline()
 
     # Parse game headers.
     while line:
-        # Skip empty lines and comments.
-        if line.isspace() or line.startswith("%"):
+        # Skip comments.
+        if line.startswith("%"):
             line = handle.readline()
             continue
-
-        if not found_game:
-            visitor.begin_game()
-            visitor.begin_headers()
-            found_game = True
 
         # Read header tags.
         tag_match = TAG_REGEX.match(line)
         if tag_match:
+            if not found_game:
+                found_game = True
+                visitor.begin_game()
+                visitor.begin_headers()
+
             dummy_game.headers[tag_match.group(1)] = tag_match.group(2)
             visitor.visit_header(tag_match.group(1), tag_match.group(2))
         else:
@@ -855,8 +857,8 @@ def read_game(handle, Visitor=GameModelCreator):
     if found_game:
         visitor.end_headers()
 
-    # Get the next non-empty line.
-    while line.isspace():
+    # Skip a single empty line after headers.
+    if line.isspace():
         line = handle.readline()
 
     # Movetext parser state.
@@ -870,18 +872,16 @@ def read_game(handle, Visitor=GameModelCreator):
     while line:
         read_next_line = True
 
-        if line.startswith("%"):
+        if line.startswith("%") or line.startswith(";"):
             # Ignore comments.
             line = handle.readline()
             continue
 
-        # An empty line means the end of a game.
-        if found_content and line.isspace():
-            if found_game:
-                visitor.end_game()
-                return visitor.result()
-            else:
-                return
+        # An empty line means the end of a game. But gracefully try to find
+        # at least some content if we didn't even see headers so far.
+        if found_game and line.isspace():
+            visitor.end_game()
+            return visitor.result()
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
@@ -943,20 +943,15 @@ def read_game(handle, Visitor=GameModelCreator):
                 visitor.end_variation()
                 board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
-                # Found a result token.
-                found_content = True
                 visitor.visit_result(token)
             else:
-                # Found a SAN token.
-                found_content = True
-
                 # Replace zeros castling notation.
                 if token == "0-0":
                     token = "O-O"
                 elif token == "0-0-0":
                     token = "O-O-O"
 
-                # Parse the SAN.
+                # Parse SAN tokens.
                 try:
                     move = board_stack[-1].parse_san(token)
                 except ValueError as error:
