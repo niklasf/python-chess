@@ -877,8 +877,8 @@ def read_game(handle, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
-        # An empty line means the end of a game. But gracefully try to find
-        # at least some content if we didn't even see headers so far.
+        # An empty line means the end of a game. Try to gracefully find
+        # at least some content if the headers aren't seen so far.
         if found_game and line.isspace():
             visitor.end_game()
             return visitor.result()
