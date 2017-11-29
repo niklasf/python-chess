@@ -32,6 +32,7 @@ import collections
 import copy
 import re
 import itertools
+import struct
 
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
@@ -179,8 +180,11 @@ def scan_reversed(bb, _BB_SQUARES=BB_SQUARES):
         yield r
         bb ^= _BB_SQUARES[r]
 
-def popcount(b, _bin=bin):
-    return _bin(b).count("1")
+def popcount(bb, _bin=bin):
+    return _bin(bb).count("1")
+
+def bswap(bb, _be=struct.Struct(">Q"), _le=struct.Struct("<Q")):
+    return _be.unpack(_le.pack(bb))[0]
 
 
 def shift_down(b):
