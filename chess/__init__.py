@@ -1041,6 +1041,29 @@ class BaseBoard(object):
         except AttributeError:
             return NotImplemented
 
+    def mirror(self):
+        """
+        Returns a mirrored copy of the board.
+
+        The board is mirrored vertically and piece colors are swapped, so that
+        the position is equivalent modulo color.
+        """
+        board = type(self)(None)
+
+        board.pawns = bswap(self.pawns)
+        board.knights = bswap(self.knights)
+        board.bishops = bswap(self.bishops)
+        board.rooks = bswap(self.rooks)
+        board.queens = bswap(self.queens)
+        board.kings = bswap(self.kings)
+
+        board.occupied_co[WHITE] = bswap(self.occupied_co[BLACK])
+        board.occupied_co[BLACK] = bswap(self.occupied_co[WHITE])
+        board.occupied = bswap(self.occupied)
+        board.promoted = bswap(self.promoted)
+
+        return board
+
     def copy(self):
         """Creates a copy of the board."""
         board = type(self)(None)
@@ -3146,6 +3169,19 @@ class Board(BaseBoard):
         else:
             return False
 
+    def mirror(self):
+        board = super(Board, self).mirror()
+
+        board.chess960 = self.chess960
+
+        board.ep_square = self.ep_square and square_mirror(self.ep_square)
+        board.castling_rights = bswap(self.castling_rights)
+        board.turn = not self.turn
+        board.fullmove_number = self.fullmove_number
+        board.halfmove_clock = self.halfmove_clock
+
+        return board
+
     def copy(self, stack=True):
         board = super(Board, self).copy()
 
@@ -3393,6 +3429,9 @@ class SquareSet(object):
 
     def carry_rippler(self):
         return _carry_rippler(self.mask)
+
+    def mirror(self):
+        return SquareSet(bswap(self.mask))
 
     def __bool__(self):
         return bool(self.mask)

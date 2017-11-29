@@ -1342,6 +1342,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.chess960)
         self.assertEqual(board.fen(), "rkqbrnbn/pppppppp/8/8/8/8/PPPPPPPP/RKQBRNBN w KQkq - 0 1")
 
+    def test_mirror(self):
+        board = chess.Board("r1bq1r2/pp2n3/4N2k/3pPppP/1b1n2Q1/2N5/PP3PP1/R1B1K2R w KQ g6 0 15")
+        mirrored = chess.Board("r1b1k2r/pp3pp1/2n5/1B1N2q1/3PpPPp/4n2K/PP2N3/R1BQ1R2 b kq g3 0 15")
+        self.assertEqual(board.mirror(), mirrored)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -1538,6 +1543,9 @@ class SquareSetTestCase(unittest.TestCase):
     def test_carry_rippler(self):
         self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_D1).carry_rippler()), 2 ** 1)
         self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_FILE_B).carry_rippler()), 2 ** 8)
+
+    def test_mirror(self):
+        self.assertEqual(chess.SquareSet(0xa209000004a600).mirror(), 0xa604000009a200)
 
 
 class PolyglotTestCase(unittest.TestCase):
