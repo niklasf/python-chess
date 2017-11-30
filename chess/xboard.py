@@ -994,6 +994,63 @@ class Engine(object):
         command = self.command("force")
         return self._queue_command(command, async_callback)
 
+    def exit(self, async_callback=None):
+        """
+        Tells the engine to stop analyzing the position.
+
+        :return: Nothing.
+        """
+        def command():
+            with self.semaphore:
+                with self.state_changed:
+                    if not self.idle:
+                        self.search_started.wait()
+
+                    self.send_line("exit")
+                    self.move_received.set()
+
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
+
+        return self._queue_command(command, async_callback)
+
+    def analyze(self, async_callback=None):
+        """
+        Tells the engine to analyze the position.
+        This causes it to search until it is told to stop.
+
+        :return: Nothing.
+        """
+        self._assert_not_busy("go")
+
+        with self.state_changed:
+            self.idle = False
+            self.search_started.clear()
+            self.move_received.clear()
+            self.state_changed.notify_all()
+
+        for post_handler in self.post_handlers:
+            post_handler.on_go()
+
+        def command():
+            with self.semaphore:
+                self.send_line("analyze")
+                self.search_started.set()
+
+            self.move_received.wait()
+
+            with self.state_changed:
+                self.idle = True
+                self.state_changed.notify_all()
+
+            if self.terminated.is_set():
+                raise EngineTerminatedException()
+
+            if self.auto_force:
+                self.force()
+
+        return self._queue_command(command, async_callback)
+
     def go(self, async_callback=None):
         """
         Sets the engine to move on the current side to play.
