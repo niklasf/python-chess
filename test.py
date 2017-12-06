@@ -2445,7 +2445,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine = chess.xboard.Engine()
         self.mock = chess.engine.MockProcess(self.engine)
         self.mock.expect("xboard")
-        self.mock.expect("protover 2")
+        self.mock.expect("protover 2", ("feature egt=syzygy,gaviota", ))
         self.mock.expect("post")
         self.mock.expect("easy")
         self.mock.expect("ping 123", ("pong 123", ))
@@ -2555,6 +2555,15 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.nopost() # Command to make MockProcess expect a random `resign`
         time.sleep(0.01)
         self.assertEqual(self.engine.end_result, chess.xboard.WHITE_WIN)
+        self.mock.assert_done()
+
+    def test_egtpath(self):
+        self.mock.expect("egtpath syzygy /abc")
+        try:
+            self.engine.egtpath("non-existent", "random_path")
+        except chess.engine.EngineStateException:
+            pass
+        self.engine.egtpath("syzygy", "/abc")
         self.mock.assert_done()
 
 

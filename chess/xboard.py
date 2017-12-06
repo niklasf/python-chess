@@ -243,21 +243,25 @@ class FeatureMap(object):
             "debug": 0,
             "memory": 0,
             "smp": 0,
-            "egt": None,
+            "egt": [],
             "option": OptionMap(),
             "done": None
         }
 
     def set_feature(self, key, value):
-        try:
-            value = int(value)
-        except ValueError:
-            pass
+        if key == "egt":
+            for egt_type in value.split(","):
+                self._features["egt"].append(egt_type)
+        else:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
 
-        try:
-            self._features[key] = value
-        except KeyError:
-            LOGGER.exception("exception looking up feature")
+            try:
+                self._features[key] = value
+            except KeyError:
+                LOGGER.exception("exception looking up feature")
 
     def get_option(self, key):
         try:
@@ -515,12 +519,13 @@ class Engine(object):
 
     def _assert_supports_feature(self, feature_name):
         if not self.features.supports(feature_name):
-            raise EngineStateException("engine does not support the '{}' feature", feature_name)
+            raise EngineStateException("engine does not support the '{}' feature"
+                    .format(feature_name))
 
     def _assert_not_busy(self, cmd):
         with self.state_changed:
             if not self.idle:
-                raise EngineStateException("{} command while engine is busy", cmd)
+                raise EngineStateException("{} command while engine is busy".format(cmd))
 
     def command(self, msg):
         def cmd():
@@ -865,7 +870,7 @@ class Engine(object):
         command = self.command("random")
         return self._queue_command(command, async_callback)
 
-    def name(self, name_str, async_callback=None):
+    def opponent_name(self, name_str, async_callback=None):
         """
         Informs the engine of its opponent's name.
         The engine may choose to play differently based on this parameter.
@@ -915,7 +920,7 @@ class Engine(object):
         :return: Nothing.
         """
         if not (egt_type in self.features.get("egt")):
-            raise EngineStateException("engine does not support the '{}' egt", egt_type)
+            raise EngineStateException("engine does not support the '{}' egt".format(egt_type))
 
         builder = ["egtpath", egt_type, egt_path]
         command = self.command(" ".join(builder))
