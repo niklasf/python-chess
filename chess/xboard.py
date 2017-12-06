@@ -243,7 +243,7 @@ class FeatureMap(object):
             "debug": 0,
             "memory": 0,
             "smp": 0,
-            "egt": 0,
+            "egt": None,
             "option": OptionMap(),
             "done": None
         }
@@ -863,6 +863,62 @@ class Engine(object):
         self._assert_not_busy("random")
 
         command = self.command("random")
+        return self._queue_command(command, async_callback)
+
+    def name(self, name_str, async_callback=None):
+        """
+        Informs the engine of its opponent's name.
+        The engine may choose to play differently based on this parameter.
+
+        :param name_str: The name of the opponent.
+
+        :return: Nothing.
+        """
+        command = self.command("name " + str(name_str))
+        return self._queue_command(command, async_callback)
+
+    def rating(self, engine_rating, opponent_rating, async_callback=None):
+        """
+        Informs the engine of its own rating followed by the opponent's.
+        The engine may choose to play differently based on these parameters.
+
+        :param engine_rating: The rating of this engine.
+        :param opponent_rating: The rating of the opponent.
+
+        :return: Nothing
+        """
+        builder = ["rating", str(engine_rating), str(opponent_rating)]
+        command = self.command(" ".join(builder))
+        return self._queue_command(command, async_callback)
+
+    def computer(self, async_callback=None):
+        """
+        Informs the engine that the opponent is a computer as well.
+        The engine may choose to play differently upon receiving this command.
+
+        :return: Nothing.
+        """
+        command = self.command("computer")
+        return self._queue_command(command, async_callback)
+
+    def egtpath(self, egt_type, egt_path, async_callback=None):
+        """
+        Tells the engine to use the *egt_type* endgame tablebases at *egt_path*.
+
+        The engine must have this type specified in the feature egt. For example,
+        the engine may have *feature egt=syzygy*. Then it is legal to call
+        *egtpath("syzygy", "<path-to-syzygy>)*.
+
+        :param egt_type: The type of EGT pointed to(syzygy, gaviota, etc...).
+        :param egt_path: The path to the desired EGT.
+
+        :return: Nothing.
+        """
+        if not (egt_type in self.features.get("egt")):
+            raise EngineStateException("engine does not support the '{}' egt", egt_type)
+
+        builder = ["egtpath", egt_type, egt_path]
+        command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
     def nps(self, target_nps, async_callback=None):
