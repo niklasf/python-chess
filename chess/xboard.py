@@ -910,9 +910,9 @@ class Engine(object):
         """
         Tells the engine to use the *egt_type* endgame tablebases at *egt_path*.
 
-        The engine must have this type specified in the EGT feature. For example,
+        The engine must have this type specified in the *feature egt*. For example,
         the engine may have *feature egt=syzygy*, then it is legal to call
-        *egtpath("syzygy", "<path-to-syzygy>)*.
+        *egtpath("syzygy", "<path-to-syzygy>")*.
 
         :param egt_type: The type of EGT pointed to (syzygy, gaviota, etc.).
         :param egt_path: The path to the desired EGT.
