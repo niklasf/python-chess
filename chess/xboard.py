@@ -890,7 +890,7 @@ class Engine(object):
         :param engine_rating: The rating of this engine.
         :param opponent_rating: The rating of the opponent.
 
-        :return: Nothing
+        :return: Nothing.
         """
         builder = ["rating", str(engine_rating), str(opponent_rating)]
         command = self.command(" ".join(builder))
@@ -910,11 +910,11 @@ class Engine(object):
         """
         Tells the engine to use the *egt_type* endgame tablebases at *egt_path*.
 
-        The engine must have this type specified in the feature egt. For example,
-        the engine may have *feature egt=syzygy*. Then it is legal to call
-        *egtpath("syzygy", "<path-to-syzygy>)*.
+        The engine must have this type specified in the *feature egt*. For example,
+        the engine may have *feature egt=syzygy*, then it is legal to call
+        *egtpath("syzygy", "<path-to-syzygy>")*.
 
-        :param egt_type: The type of EGT pointed to(syzygy, gaviota, etc...).
+        :param egt_type: The type of EGT pointed to (syzygy, gaviota, etc.).
         :param egt_path: The path to the desired EGT.
 
         :return: Nothing.
