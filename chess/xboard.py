@@ -546,6 +546,12 @@ class Engine(object):
         return cmd
 
     def result(self, result, async_callback=None):
+        """
+        Command used to inform the engine of the final result of the game.
+        This command immediately ends the game.
+
+        :return: Nothing.
+        """
         self.end_result = result
         command = self.command("result " + str(result))
         self._queue_command(command, async_callback)
@@ -629,6 +635,8 @@ class Engine(object):
     def easy(self, async_callback=None):
         """
         Tells the engine not to ponder.
+
+        :return: Nothing.
         """
         return self.ponder(False, async_callback)
 
@@ -637,6 +645,7 @@ class Engine(object):
         Tells the engine to ponder.
 
         TODO: Pondering not yet supported.
+        :return: Nothing.
         """
         return self.ponder(True, async_callback)
 
