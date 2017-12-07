@@ -550,6 +550,29 @@ class Engine(object):
         command = self.command("result " + str(result))
         self._queue_command(command, async_callback)
 
+    def pause(self, async_callback=None):
+        """
+        Command used to tell the engine to stop thinking, pondering or otherwise
+        consuming any significant CPU time. The current state is suspended and
+        may be resumed with the *resume* command.
+
+        :return: Nothing.
+        """
+        self._assert_supports_feature("pause")
+        command = self.command("pause")
+        self._queue_command(command, async_callback)
+
+    def resume(self, async_callback=None):
+        """
+        Command used to tell the engine to resume it's original state before it
+        was paused.
+
+        :return: Nothing.
+        """
+        self._assert_supports_feature("pause")
+        command = self.command("resume")
+        self._queue_command(command, async_callback)
+
     def ping(self, async_callback=None):
         """
         Command used to synchronize with the engine.
