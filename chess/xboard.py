@@ -329,10 +329,19 @@ class Engine(object):
     def on_line_received(self, buf):
         LOGGER.debug("%s >> %s", self.process, buf)
 
-        # Not too happy with this quasi-hack to prevent splitting within
-        # options' space-separated values.
         if buf.startswith("feature"):
             return self._feature(buf[8:])
+        elif buf.startswith("Illegal"):
+            split_buf = buf.split()
+            illegal_move = split_buf[-1]
+            exception_msg = "Engine received an illegal move: {}".format(illegal_move)
+            if len(split_buf) == 4:
+                reason = split_buf[2][1:-2]
+                exception_msg = " ".join([exception_msg, reason])
+            raise EngineStateException(exception_msg)
+        elif buf.startswith("Error"):
+            err_msg = buf.split()[1][1:-2]
+            raise EngineStateException("Engine produced an error: {}".format(err_msg))
 
         command_and_args = buf.split()
         if not command_and_args:
@@ -520,7 +529,7 @@ class Engine(object):
     def _assert_supports_feature(self, feature_name):
         if not self.features.supports(feature_name):
             raise EngineStateException("engine does not support the '{}' feature"
-                    .format(feature_name))
+                                       .format(feature_name))
 
     def _assert_not_busy(self, cmd):
         with self.state_changed:
@@ -919,7 +928,7 @@ class Engine(object):
 
         :return: Nothing.
         """
-        if not (egt_type in self.features.get("egt")):
+        if not egt_type in self.features.get("egt"):
             raise EngineStateException("engine does not support the '{}' egt".format(egt_type))
 
         builder = ["egtpath", egt_type, egt_path]
