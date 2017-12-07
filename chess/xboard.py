@@ -329,10 +329,19 @@ class Engine(object):
     def on_line_received(self, buf):
         LOGGER.debug("%s >> %s", self.process, buf)
 
-        # Not too happy with this quasi-hack to prevent splitting within
-        # options' space-separated values.
         if buf.startswith("feature"):
             return self._feature(buf[8:])
+        elif buf.startswith("Illegal"):
+            split_buf = buf.split()
+            illegal_move = split_buf[-1]
+            exception_msg = "Engine received an illegal move: {}".format(illegal_move)
+            if len(split_buf) == 4:
+                reason = split_buf[2][1:-2]
+                exception_msg = " ".join([exception_msg, reason])
+            raise EngineStateException(exception_msg)
+        elif buf.startswith("Error"):
+            err_msg = buf.split()[1][1:-2]
+            raise EngineStateException("Engine produced an error: {}".format(err_msg))
 
         command_and_args = buf.split()
         if not command_and_args:
@@ -520,7 +529,7 @@ class Engine(object):
     def _assert_supports_feature(self, feature_name):
         if not self.features.supports(feature_name):
             raise EngineStateException("engine does not support the '{}' feature"
-                    .format(feature_name))
+                                       .format(feature_name))
 
     def _assert_not_busy(self, cmd):
         with self.state_changed:
@@ -537,8 +546,37 @@ class Engine(object):
         return cmd
 
     def result(self, result, async_callback=None):
+        """
+        Command used to inform the engine of the final result of the game.
+        This command immediately ends the game.
+
+        :return: Nothing.
+        """
         self.end_result = result
         command = self.command("result " + str(result))
+        self._queue_command(command, async_callback)
+
+    def pause(self, async_callback=None):
+        """
+        Command used to tell the engine to stop thinking, pondering or otherwise
+        consuming any significant CPU time. The current state is suspended and
+        may be resumed with the *resume* command.
+
+        :return: Nothing.
+        """
+        self._assert_supports_feature("pause")
+        command = self.command("pause")
+        self._queue_command(command, async_callback)
+
+    def resume(self, async_callback=None):
+        """
+        Command used to tell the engine to resume it's original state before it
+        was paused.
+
+        :return: Nothing.
+        """
+        self._assert_supports_feature("pause")
+        command = self.command("resume")
         self._queue_command(command, async_callback)
 
     def ping(self, async_callback=None):
@@ -597,6 +635,8 @@ class Engine(object):
     def easy(self, async_callback=None):
         """
         Tells the engine not to ponder.
+
+        :return: Nothing.
         """
         return self.ponder(False, async_callback)
 
@@ -605,6 +645,7 @@ class Engine(object):
         Tells the engine to ponder.
 
         TODO: Pondering not yet supported.
+        :return: Nothing.
         """
         return self.ponder(True, async_callback)
 
@@ -919,7 +960,7 @@ class Engine(object):
 
         :return: Nothing.
         """
-        if not (egt_type in self.features.get("egt")):
+        if not egt_type in self.features.get("egt"):
             raise EngineStateException("engine does not support the '{}' egt".format(egt_type))
 
         builder = ["egtpath", egt_type, egt_path]
