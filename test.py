@@ -2445,7 +2445,20 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine = chess.xboard.Engine()
         self.mock = chess.engine.MockProcess(self.engine)
         self.mock.expect("xboard")
-        self.mock.expect("protover 2", ("feature egt=syzygy,gaviota", ))
+        feature_list = (
+                "feature egt=syzygy,gaviota",
+                "feature option=\"spinvar -spin 50 0 100\"",
+                "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
+                "feature option=\"checkvar -check 0\"",
+                "feature option=\"stringvar -string \"\"\"",
+                "feature option=\"filevar -file \"\"\"",
+                "feature option=\"pathvar -path \"\"\"",
+                "feature option=\"buttonvar -button\"",
+                "feature option=\"resetvar -reset\"",
+                "feature option=\"savevar -save\"",
+
+                )
+        self.mock.expect("protover 2", feature_list)
         self.mock.expect("post")
         self.mock.expect("easy")
         self.mock.expect("ping 123", ("pong 123", ))
@@ -2564,6 +2577,30 @@ class XboardEngineTestCase(unittest.TestCase):
         except chess.engine.EngineStateException:
             pass
         self.engine.egtpath("syzygy", "/abc")
+        self.mock.assert_done()
+
+    def test_options(self):
+        option_map = {
+                "spinvar": 99,
+                "combovar": "BYE",
+                "checkvar": 1,
+                "stringvar": "teststring",
+                "filevar": "filename",
+                "pathvar": "path/to/some/dir",
+                "buttonvar": None,
+                "resetvar": None,
+                "savevar": None
+                }
+        self.mock.expect("option spinvar=99")
+        self.mock.expect("option combovar=BYE")
+        self.mock.expect("option checkvar=1")
+        self.mock.expect("option stringvar=\"teststring\"")
+        self.mock.expect("option filevar=\"filename\"")
+        self.mock.expect("option pathvar=\"path/to/some/dir\"")
+        self.mock.expect("option buttonvar")
+        self.mock.expect("option resetvar")
+        self.mock.expect("option savevar")
+        self.engine.option(option_map)
         self.mock.assert_done()
 
 
