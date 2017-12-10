@@ -2525,6 +2525,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.st(10)
         self.mock.expect("go")
         self.engine.go(async_callback=True)
+        time.sleep(0.01)
 
         self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("result 1/2-1/2")
@@ -2580,17 +2581,24 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.assert_done()
 
     def test_options(self):
-        option_map = {
-                "spinvar": 99,
-                "combovar": "BYE",
-                "checkvar": 1,
-                "stringvar": "teststring",
-                "filevar": "filename",
-                "pathvar": "path/to/some/dir",
-                "buttonvar": None,
-                "resetvar": None,
-                "savevar": None
-                }
+        """
+        Could do with dictionary instead, but that fails to preserve order
+        on some versions of Python.
+
+        Done with an *OrderedDict* just for testing purposes, the order is
+        not actually important.
+        """
+        option_map = collections.OrderedDict()
+        option_map["spinvar"] = 99
+        option_map["combovar"] = "BYE"
+        option_map["checkvar"] = 1
+        option_map["stringvar"] = "teststring"
+        option_map["filevar"] = "filename"
+        option_map["pathvar"] = "path/to/some/dir"
+        option_map["buttonvar"] = None
+        option_map["resetvar"] = None
+        option_map["savevar"] = None
+
         self.mock.expect("option spinvar=99")
         self.mock.expect("option combovar=BYE")
         self.mock.expect("option checkvar=1")
