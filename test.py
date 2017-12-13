@@ -2445,7 +2445,20 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine = chess.xboard.Engine()
         self.mock = chess.engine.MockProcess(self.engine)
         self.mock.expect("xboard")
-        self.mock.expect("protover 2", ("feature egt=syzygy,gaviota", ))
+        feature_list = (
+                "feature egt=syzygy,gaviota",
+                "feature option=\"spinvar -spin 50 0 100\"",
+                "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
+                "feature option=\"checkvar -check 0\"",
+                "feature option=\"stringvar -string \"\"\"",
+                "feature option=\"filevar -file \"\"\"",
+                "feature option=\"pathvar -path \"\"\"",
+                "feature option=\"buttonvar -button\"",
+                "feature option=\"resetvar -reset\"",
+                "feature option=\"savevar -save\"",
+
+                )
+        self.mock.expect("protover 2", feature_list)
         self.mock.expect("post")
         self.mock.expect("easy")
         self.mock.expect("ping 123", ("pong 123", ))
@@ -2512,6 +2525,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.st(10)
         self.mock.expect("go")
         self.engine.go(async_callback=True)
+        time.sleep(0.01)
 
         self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("result 1/2-1/2")
@@ -2564,6 +2578,37 @@ class XboardEngineTestCase(unittest.TestCase):
         except chess.engine.EngineStateException:
             pass
         self.engine.egtpath("syzygy", "/abc")
+        self.mock.assert_done()
+
+    def test_options(self):
+        """
+        Could do with dictionary instead, but that fails to preserve order
+        on some versions of Python.
+
+        Done with an *OrderedDict* just for testing purposes, the order is
+        not actually important.
+        """
+        option_map = collections.OrderedDict()
+        option_map["spinvar"] = 99
+        option_map["combovar"] = "BYE"
+        option_map["checkvar"] = 1
+        option_map["stringvar"] = "teststring"
+        option_map["filevar"] = "filename"
+        option_map["pathvar"] = "path/to/some/dir"
+        option_map["buttonvar"] = None
+        option_map["resetvar"] = None
+        option_map["savevar"] = None
+
+        self.mock.expect("option spinvar=99")
+        self.mock.expect("option combovar=BYE")
+        self.mock.expect("option checkvar=1")
+        self.mock.expect("option stringvar=\"teststring\"")
+        self.mock.expect("option filevar=\"filename\"")
+        self.mock.expect("option pathvar=\"path/to/some/dir\"")
+        self.mock.expect("option buttonvar")
+        self.mock.expect("option resetvar")
+        self.mock.expect("option savevar")
+        self.engine.option(option_map)
         self.mock.assert_done()
 
 

@@ -400,6 +400,7 @@ class Engine(object):
             params = features.split("=")[1].split()
             name = params[0]
             type = params[1][1:]
+            default = None
             min = None
             max = None
             var = []
@@ -413,9 +414,14 @@ class Engine(object):
                         var.append(choice[1:])
                     else:
                         var.append(choice)
-                print(var)
-                print(default)
-            else:
+            elif type == "check":
+                default = int(params[2])
+            elif type in ("string", "file", "path"):
+                if len(params) > 2:
+                    default = params[2]
+                else:
+                    default = ""
+            elif type == "spin":
                 default = int(params[2])
                 min = int(params[3])
                 max = int(params[4])
@@ -711,6 +717,7 @@ class Engine(object):
     def option(self, options, async_callback=None):
         """
         Sets values for the engine's available options.
+        For 'button', 'reset' and 'save', flips the engine's value.
 
         :param options: A dictionary with option names as keys.
 
@@ -722,22 +729,23 @@ class Engine(object):
             # Building string manually to avoid spaces
             option_string = "option " + name
             option = self.features.get_option(name)
-            has_value = option.type in ["spin", "check", "combo", "string"]
+            has_value = option.type in ["spin", "check", "combo", "string", "file", "path"]
             if has_value and value is not None:
                 value = str(value)
+                if option.type in ["string", "file", "path"]:
+                    value = "\"" + value + "\""
                 option_string += "=" + value
                 option_lines.append(option_string)
-            elif not has_value and value is None:
+            elif not has_value:
                 option_lines.append(option_string)
 
         def command():
             with self.semaphore:
-                with self.pong_received:
-                    for option_line in option_lines:
-                        self.send_line(option_line)
+                for option_line in option_lines:
+                    self.send_line(option_line)
 
-                    if self.terminated.is_set():
-                        raise EngineTerminatedException()
+                if self.terminated.is_set():
+                    raise EngineTerminatedException()
 
         return self._queue_command(command, async_callback)
 
@@ -960,7 +968,7 @@ class Engine(object):
 
         :return: Nothing.
         """
-        if not egt_type in self.features.get("egt"):
+        if egt_type not in self.features.get("egt"):
             raise EngineStateException("engine does not support the '{}' egt".format(egt_type))
 
         builder = ["egtpath", egt_type, egt_path]
