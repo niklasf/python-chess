@@ -353,6 +353,31 @@ class GameNode(object):
         if _board is None:
             return visitor.result()
 
+    def accept_subgame(self, visitor):
+        """
+        Traverses headers and game nodes in PGN order, as if the game was
+        starting from this node. Returns the visitor result.
+        """
+        game = self.root()
+        visitor.begin_game()
+
+        dummy_game = Game.without_tag_roster()
+        dummy_game.setup(self.board())
+
+        visitor.begin_headers()
+        for tagname, tagvalue in game.headers.items():
+            if tagname not in dummy_game.headers:
+                visitor.visit_header(tagname, tagvalue)
+        for tagname, tagvalue in dummy_game.headers.items():
+            visitor.visit_header(tagname, tagvalue)
+        visitor.end_headers()
+
+        self.accept(visitor)
+
+        visitor.visit_result(game.headers.get("Result", "*"))
+        visitor.end_game()
+        return visitor.result()
+
     def __str__(self):
         return self.accept(StringExporter(columns=None))
 

@@ -2200,6 +2200,15 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertTrue(chess.pgn.read_game(pgn) is None)
 
+    def test_subgame(self):
+        pgn = StringIO("1. d4 d5 (1... Nf6 2. c4 (2. Nf3 g6 3. g3))")
+        game = chess.pgn.read_game(pgn)
+        node = game.variations[0].variations[1]
+        subgame = node.accept_subgame(chess.pgn.GameModelCreator())
+        self.assertEqual(subgame.headers["FEN"], "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2")
+        self.assertEqual(subgame.variations[0].move, chess.Move.from_uci("c2c4"))
+        self.assertEqual(subgame.variations[1].move, chess.Move.from_uci("g1f3"))
+
 
 class CraftyTestCase(unittest.TestCase):
 
