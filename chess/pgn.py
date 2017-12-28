@@ -415,7 +415,12 @@ class Game(GameNode):
             "fischerandom",  # Cute Chess
             "fischerrandom"]
 
-        if chess960 or "Variant" not in self.headers:
+        # http://www.freechess.org/Help/HelpFiles/wild.html
+        wild = self.headers.get("Variant", "").lower() in [
+            "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
+            "wild/6", "wild/7", "wild/8", "wild/8a"]
+
+        if chess960 or wild or "Variant" not in self.headers:
             VariantBoard = chess.Board
         else:
             from chess.variant import find_variant
