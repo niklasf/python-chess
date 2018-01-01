@@ -1,6 +1,26 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+New features:
+
+* Added `Board.mirror()`, `SquareSet.mirror()` and `bswap()`.
+* Added `chess.pgn.GameNode.accept_subgame()`.
+* XBoard: Added `resign`, `analyze`, `exit`, `name`, `rating`, `computer`,
+  `egtpath`, `pause`, `resume`. Completed option parsing.
+
+Changes:
+
+* `chess.pgn`: Accept FICS wilds without warning.
+* XBoard: Inform engine about game results.
+
+Bugfixes:
+
+* `chess.pgn`: Allow games without movetext.
+* XBoard: Fixed draw handling.
+
 New in v0.22.0
 --------------
 
