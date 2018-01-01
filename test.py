@@ -2545,7 +2545,8 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
-        time.sleep(0.01)
+        self.mock.expect("ping 123", ("pong 123", ))
+        self.engine.ping()
 
         self.assertEqual(self.engine.idle, True)
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
@@ -2566,7 +2567,10 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("nopost", ("resign", ))
         self.mock.expect("result 1-0")
         self.engine.nopost() # Command to make MockProcess expect a random `resign`
-        time.sleep(0.01)
+
+        self.mock.expect("ping 123", ("pong 123", ))
+        self.engine.ping()
+
         self.assertEqual(self.engine.end_result, chess.xboard.WHITE_WIN)
         self.mock.assert_done()
 
