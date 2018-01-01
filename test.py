@@ -2524,15 +2524,14 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("st 10")
         self.engine.st(10)
         self.mock.expect("go")
-        self.engine.go(async_callback=True)
+        go = self.engine.go(async_callback=True)
         self.engine.search_started.wait()
 
         self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
-        time.sleep(0.01)
-
+        self.assertEqual(go.result(), chess.xboard.GAME_DRAW)
         self.assertEqual(self.engine.idle, True)
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
         self.mock.assert_done()

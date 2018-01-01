@@ -615,8 +615,11 @@ class Engine(object):
         :return: Nothing.
         """
         self._assert_supports_feature("draw")
-        if self.draw_handler:
-            self.draw_handler.offer_draw()
+
+        # Need a draw handler to record the offer, so that an "offer draw"
+        # response by the engine terminates search.
+        assert self.draw_handler
+        self.draw_handler.offer_draw()
 
         command = self.command("draw")
         return self._queue_command(command, async_callback)
