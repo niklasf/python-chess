@@ -73,6 +73,7 @@ class DrawHandler(object):
     """
     def __init__(self):
         self.lock = threading.Lock()
+        self.draw_offered = threading.Condition(self.lock)
         self.pending_offer = False
 
     def pre_offer(self):
@@ -97,6 +98,7 @@ class DrawHandler(object):
         """Offers a draw."""
         with self.lock:
             self.pending_offer = True
+            self.draw_offered.notify_all()
 
     def clear_offer(self):
         """Declines the draw offer."""

@@ -2478,9 +2478,10 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("st 10")
         self.engine.st(10)
         self.mock.expect("go", ("offer draw", ))
-        self.engine.go(async_callback=True)
 
-        self.engine.search_started.wait()
+        with draw_handler:
+            self.engine.go(async_callback=True)
+            draw_handler.draw_offered.wait()
 
         self.assertEqual(draw_handler.pending_offer, True)
         self.assertEqual(self.engine.engine_offered_draw, True)
@@ -2502,9 +2503,10 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("st 1")
         self.engine.st(1)
         self.mock.expect("go", ("move e2e4", "offer draw", ))
-        self.engine.go()
 
-        self.engine.search_started.wait()
+        with draw_handler:
+            self.engine.go()
+            draw_handler.draw_offered.wait()
 
         self.assertEqual(draw_handler.pending_offer, True)
         self.assertEqual(self.engine.engine_offered_draw, True)
@@ -2529,9 +2531,10 @@ class XboardEngineTestCase(unittest.TestCase):
 
         self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("result 1/2-1/2")
-        self.engine.draw()
 
+        self.engine.draw()
         self.assertEqual(go.result(), chess.xboard.GAME_DRAW)
+
         self.assertEqual(self.engine.idle, True)
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
         self.mock.assert_done()
@@ -2545,8 +2548,8 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("result 1/2-1/2")
         self.engine.draw()
 
-        self.mock.expect("ping 123", ("pong 123", ))
-        self.engine.ping()
+        # Set when handling "offer draw" from the engine.
+        self.engine.move_received.wait()
 
         self.assertEqual(self.engine.idle, True)
         self.assertEqual(self.engine.end_result, chess.xboard.DRAW)
@@ -2568,8 +2571,8 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("result 1-0")
         self.engine.nopost() # Command to make MockProcess expect a random `resign`
 
-        self.mock.expect("ping 123", ("pong 123", ))
-        self.engine.ping()
+        # Set when handling "offer draw" from the engine.
+        self.engine.move_received.wait()
 
         self.assertEqual(self.engine.end_result, chess.xboard.WHITE_WIN)
         self.mock.assert_done()
