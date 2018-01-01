@@ -2222,7 +2222,8 @@ class CraftyTestCase(unittest.TestCase):
         self.engine.send_line("log off")
 
     def tearDown(self):
-        self.engine.quit()
+        if self.engine.is_alive():
+            self.engine.quit()
 
     def test_undo(self):
         self.engine.new()
@@ -2254,7 +2255,7 @@ class CraftyTestCase(unittest.TestCase):
         self.engine.new()
         self.engine.time(1000000)
         self.engine.go(async_callback=True)
-        time.sleep(0.1)
+        self.engine.search_started.wait()
         self.engine.stop()
 
     def test_time(self):
@@ -2311,34 +2312,24 @@ class CraftyTestCase(unittest.TestCase):
         self.assertTrue(board.is_checkmate(), True)
 
     def test_terminate(self):
-        try:
-            engine = chess.xboard.popen_engine("crafty")
-        except OSError:
-            self.skipTest("need crafty")
-        engine.xboard()
-        engine.st(100)
-        engine.sd(32)
-        engine.go(async_callback=True)
+        self.engine.st(100)
+        self.engine.sd(32)
+        self.engine.go(async_callback=True)
 
-        time.sleep(0.1)
+        self.engine.search_started.wait()
 
-        engine.terminate()
-        self.assertFalse(engine.is_alive())
+        self.engine.terminate()
+        self.assertFalse(self.engine.is_alive())
 
     def test_kill(self):
-        try:
-            engine = chess.xboard.popen_engine("crafty")
-        except OSError:
-            self.skipTest("need crafty")
-        engine.xboard()
-        engine.st(100)
-        engine.sd(32)
-        engine.go(async_callback=True)
+        self.engine.st(100)
+        self.engine.sd(32)
+        self.engine.go(async_callback=True)
 
-        time.sleep(0.1)
+        self.engine.search_started.wait()
 
-        engine.kill()
-        self.assertFalse(engine.is_alive())
+        self.engine.kill()
+        self.assertFalse(self.engine.is_alive())
 
 
 class StockfishTestCase(unittest.TestCase):
@@ -2428,7 +2419,7 @@ class SpurEngineTestCase(unittest.TestCase):
         self.engine.uci()
         self.engine.go(infinite=True, async_callback=True)
 
-        time.sleep(0.1)
+        self.engine.search_started.wait()
 
         self.engine.terminate()
         self.assertFalse(self.engine.is_alive())
@@ -2437,7 +2428,7 @@ class SpurEngineTestCase(unittest.TestCase):
         self.engine.uci()
         self.engine.go(infinite=True, async_callback=True)
 
-        time.sleep(0.1)
+        self.engine.search_started.wait()
 
         self.engine.kill()
         self.assertFalse(self.engine.is_alive())
@@ -2489,7 +2480,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("go", ("offer draw", ))
         self.engine.go(async_callback=True)
 
-        time.sleep(0.01)
+        self.engine.search_started.wait()
 
         self.assertEqual(draw_handler.pending_offer, True)
         self.assertEqual(self.engine.engine_offered_draw, True)
@@ -2513,7 +2504,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("go", ("move e2e4", "offer draw", ))
         self.engine.go()
 
-        time.sleep(0.01)
+        self.engine.search_started.wait()
 
         self.assertEqual(draw_handler.pending_offer, True)
         self.assertEqual(self.engine.engine_offered_draw, True)
@@ -2534,7 +2525,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine.st(10)
         self.mock.expect("go")
         self.engine.go(async_callback=True)
-        time.sleep(0.01)
+        self.engine.search_started.wait()
 
         self.mock.expect("draw", ("offer draw", ))
         self.mock.expect("result 1/2-1/2")
