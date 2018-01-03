@@ -18,8 +18,8 @@ import sys
 
 
 def perft(depth, board):
-    if depth < 1:
-        return 1
+    if depth == 1:
+        return board.legal_moves.count()
     elif depth > 1:
         count = 0
 
@@ -29,15 +29,13 @@ def perft(depth, board):
             board.pop()
 
         return count
-    elif depth == 1:
-        return board.legal_moves.count()
     else:
         return 1
 
 
 def parallel_perft(pool, depth, board):
-    if depth < 1:
-        return 1
+    if depth == 1:
+        return board.legal_moves.count()
     elif depth > 1:
         def successors(board):
             for move in board.legal_moves:
@@ -46,8 +44,6 @@ def parallel_perft(pool, depth, board):
                 yield board_after
 
         return sum(pool.imap_unordered(functools.partial(perft, depth - 1), successors(board)))
-    elif depth == 1:
-        return board.legal_moves.count()
     else:
         return 1
 
