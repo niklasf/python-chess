@@ -2397,12 +2397,19 @@ class Board(BaseBoard):
 
     def san(self, move):
         """
-        Gets the standard algebraic notation of the given move in the context of
-        the current position.
-
-        There is no validation. It is only guaranteed to work if the move is
-        legal or a null move.
+        Gets the standard algebraic notation of the given move in the context
+        of the current position.
         """
+        return self._algebraic(move)
+
+    def lan(self, move):
+        """
+        Gets the long algebraic notation of the given move in the context of
+        the current position.
+        """
+        return self._algebraic(move, long=True)
+
+    def _algebraic(self, move, long=False):
         if not move:
             # Null move.
             return "--"
@@ -2436,12 +2443,16 @@ class Board(BaseBoard):
                 return san
 
         piece = self.piece_type_at(move.from_square)
+        capture = self.is_capture(move)
 
         if piece == PAWN:
             san = ""
         else:
             san = PIECE_SYMBOLS[piece].upper()
 
+        if long:
+            san += SQUARE_NAMES[move.from_square]
+        elif piece != PAWN:
             # Get ambiguous move candidates.
             # Relevant candidates: not exactly the current move,
             # but to the same square.
@@ -2468,12 +2479,14 @@ class Board(BaseBoard):
                     san += FILE_NAMES[square_file(move.from_square)]
                 if row:
                     san += RANK_NAMES[square_rank(move.from_square)]
+        elif capture:
+            san += FILE_NAMES[square_file(move.from_square)]
 
         # Captures.
-        if self.is_capture(move):
-            if piece == PAWN:
-                san += FILE_NAMES[square_file(move.from_square)]
+        if capture:
             san += "x"
+        elif long:
+            san += "-"
 
         # Destination square.
         san += SQUARE_NAMES[move.to_square]

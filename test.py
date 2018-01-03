@@ -541,7 +541,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(fxe6_mate_ep), "exd6#")
         self.assertEqual(board.fen(), fen)
 
-        # Test ambiguation.
+        # Test disambiguation.
         fen = "N3k2N/8/8/3N4/N4N1N/2R5/1R6/4K3 w - - 0 1"
         board = chess.Board(fen)
         self.assertEqual(board.san(chess.Move.from_uci("e1f1")), "Kf1")
@@ -563,6 +563,28 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board(fen)
         self.assertEqual(board.san(chess.Move.from_uci("f2f1q")), "f1=Q")
         self.assertEqual(board.san(chess.Move.from_uci("f2f1n")), "f1=N+")
+        self.assertEqual(board.fen(), fen)
+
+    def test_lan(self):
+        # Normal moves always with origin square.
+        fen = "N3k2N/8/8/3N4/N4N1N/2R5/1R6/4K3 w - - 0 1"
+        board = chess.Board(fen)
+        self.assertEqual(board.lan(chess.Move.from_uci("e1f1")), "Ke1-f1")
+        self.assertEqual(board.lan(chess.Move.from_uci("c3c2")), "Rc3-c2")
+        self.assertEqual(board.lan(chess.Move.from_uci("a4c5")), "Na4-c5")
+        self.assertEqual(board.fen(), fen)
+
+        # Normal capture.
+        fen = "rnbq1rk1/ppp1bpp1/4pn1p/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w KQ - 0 7"
+        board = chess.Board(fen)
+        self.assertEqual(board.lan(chess.Move.from_uci("g5f6")), "Bg5xf6")
+        self.assertEqual(board.fen(), fen)
+
+        # Pawn captures and moves.
+        fen = "6bk/7b/8/3pP3/8/8/8/Q3K3 w - d6 0 2"
+        board = chess.Board(fen)
+        self.assertEqual(board.lan(chess.Move.from_uci("e5d6")), "e5xd6#")
+        self.assertEqual(board.lan(chess.Move.from_uci("e5e6")), "e5-e6+")
         self.assertEqual(board.fen(), fen)
 
     def test_san_newline(self):
