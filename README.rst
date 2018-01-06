@@ -341,7 +341,7 @@ python-chess, for example:
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
-* an UCI chess engine - https://github.com/flok99/feeks
+* an UCI chess engine – https://github.com/flok99/feeks
 
 Acknowledgements
 ----------------
