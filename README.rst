@@ -340,7 +340,7 @@ python-chess, for example:
 * a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
-* a command line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
+* a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
 * an UCI chess engine - https://github.com/flok99/feeks
 
 Acknowledgements
