@@ -500,7 +500,7 @@ class Game(GameNode):
     @classmethod
     def without_tag_roster(cls):
         """Creates an empty game without the default 7 tag roster."""
-        return cls(headers=Headers({}))
+        return cls(headers={})
 
 
 class Headers(collections.MutableMapping):
