@@ -2071,8 +2071,8 @@ class PgnTestCase(unittest.TestCase):
             [White "?"]
             [Black "?"]
             [Result "*"]
-            [SetUp "1"]
             [FEN "8/8/4k3/8/4P3/4K3/8/8 b - - 0 17"]
+            [SetUp "1"]
 
             17... Kd6 18. Kd4 Ke6 *""")
 

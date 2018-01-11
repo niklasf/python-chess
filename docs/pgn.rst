@@ -52,8 +52,7 @@ holds general information, such as game headers.
 
     .. py:attribute:: headers
 
-        A :class:`collections.OrderedDict` of game headers. By default, the
-        following 7 headers are provided:
+        A mapping of headers. By default, the following 7 headers are provided:
 
         >>> import chess.pgn
         >>>

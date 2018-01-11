@@ -80,6 +80,8 @@ NAG_NOVELTY = 146
 
 TAG_REGEX = re.compile(r"^\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 
+TAG_NAME_REGEX = re.compile(r"^[A-Za-z9-9_]+\Z")
+
 MOVETEXT_REGEX = re.compile(r"""
     (
         [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
@@ -97,6 +99,9 @@ MOVETEXT_REGEX = re.compile(r"""
     |(\*|1-0|0-1|1/2-1/2)
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
+
+
+TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
 class GameNode(object):
@@ -389,18 +394,9 @@ class Game(GameNode):
     :class:`~chess.pgn.GameNode`.
     """
 
-    def __init__(self):
+    def __init__(self, headers=None):
         super(Game, self).__init__()
-
-        self.headers = collections.OrderedDict()
-        self.headers["Event"] = "?"
-        self.headers["Site"] = "?"
-        self.headers["Date"] = "????.??.??"
-        self.headers["Round"] = "?"
-        self.headers["White"] = "?"
-        self.headers["Black"] = "?"
-        self.headers["Result"] = "*"
-
+        self.headers = Headers(headers)
         self.errors = []
 
     def board(self, _cache=False):
@@ -504,11 +500,70 @@ class Game(GameNode):
     @classmethod
     def without_tag_roster(cls):
         """Creates an empty game without the default 7 tag roster."""
-        game = cls.__new__(cls)
-        super(Game, game).__init__()
-        game.headers = collections.OrderedDict()
-        game.errors = []
-        return game
+        return cls(headers=Headers({}))
+
+
+class Headers(collections.MutableMapping):
+    def __init__(self, data=None, **kwargs):
+        self._tag_roster = {}
+        self._others = {}
+
+        if data is None:
+            data = {
+                "Event": "?",
+                "Site": "?",
+                "Date": "????.??.??",
+                "Round": "?",
+                "White": "?",
+                "Black": "?",
+                "Result": "*"
+            }
+
+        self.update(data, **kwargs)
+
+    def __setitem__(self, key, value):
+        if key in TAG_ROSTER:
+            self._tag_roster[key] = value
+        elif not TAG_NAME_REGEX.match(key):
+            raise ValueError("non-alphanumeric pgn header tag: {0}".format(repr(key)))
+        elif "\n" in value or "\r" in value:
+            raise ValueError("line break in pgn header {0}: {1}".format(key, repr(value)))
+        else:
+            self._others[key] = value
+
+    def __getitem__(self, key):
+        if key in TAG_ROSTER:
+            return self._tag_roster[key]
+        else:
+            return self._others[key]
+
+    def __delitem__(self, key):
+        if key in TAG_ROSTER:
+            del self._tag_roster[key]
+        else:
+            del self._others[key]
+
+    def __iter__(self):
+        for key in TAG_ROSTER:
+            if key in self._tag_roster:
+                yield key
+
+        for key in sorted(self._others):
+            yield key
+
+    def __len__(self):
+        return len(self._tag_roster) + len(self._others)
+
+    def copy(self):
+        return type(self)(self)
+
+    def __copy__(self):
+        return self.copy()
+
+    def __repr__(self):
+        return "{0}({1})".format(
+            type(self).__name__,
+            ", ".join("{0}={1}".format(key, repr(value)) for key, value in self.items()))
 
 
 class BaseVisitor(object):
@@ -1003,7 +1058,7 @@ def scan_headers(handle):
     Scan a PGN file opened in text mode for game offsets and headers.
 
     Yields a tuple for each game. The first element is the offset and the
-    second element is an ordered dictionary of game headers.
+    second element is a mapping of game headers.
 
     Since actually parsing many games from a big file is relatively expensive,
     this is a better way to look only for specific games and then seek and
@@ -1057,7 +1112,7 @@ def scan_headers(handle):
             tag_match = TAG_REGEX.match(line)
             if tag_match:
                 if game_pos is None:
-                    game_headers = Game().headers
+                    game_headers = Headers()
                     game_pos = last_pos
 
                 game_headers[tag_match.group(1)] = tag_match.group(2)
