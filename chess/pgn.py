@@ -80,7 +80,7 @@ NAG_NOVELTY = 146
 
 TAG_REGEX = re.compile(r"^\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 
-TAG_NAME_REGEX = re.compile(r"^[A-Za-z9-9_]+\Z")
+TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9_]+\Z")
 
 MOVETEXT_REGEX = re.compile(r"""
     (
