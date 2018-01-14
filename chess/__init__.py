@@ -608,6 +608,134 @@ class BaseBoard(object):
         if king_mask:
             return msb(king_mask)
 
+    def attacks_mask(self, square):
+        bb_square = BB_SQUARES[square]
+
+        if bb_square & self.pawns:
+            if bb_square & self.occupied_co[WHITE]:
+                return BB_PAWN_ATTACKS[WHITE][square]
+            else:
+                return BB_PAWN_ATTACKS[BLACK][square]
+        elif bb_square & self.knights:
+            return BB_KNIGHT_ATTACKS[square]
+        elif bb_square & self.kings:
+            return BB_KING_ATTACKS[square]
+        else:
+            attacks = 0
+            if bb_square & self.bishops or bb_square & self.queens:
+                attacks = BB_DIAG_ATTACKS[square][BB_DIAG_MASKS[square] & self.occupied]
+            if bb_square & self.rooks or bb_square & self.queens:
+                attacks |= (BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied] |
+                            BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied])
+            return attacks
+
+    def attacks(self, square):
+        """
+        Gets a set of attacked squares from a given square.
+
+        There will be no attacks if the square is empty. Pinned pieces are
+        still attacking other squares.
+
+        Returns a :class:`set of squares <chess.SquareSet>`.
+        """
+        return SquareSet(self.attacks_mask(square))
+
+    def _attackers_mask(self, color, square, occupied):
+        rank_pieces = BB_RANK_MASKS[square] & occupied
+        file_pieces = BB_FILE_MASKS[square] & occupied
+        diag_pieces = BB_DIAG_MASKS[square] & occupied
+
+        queens_and_rooks = self.queens | self.rooks
+        queens_and_bishops = self.queens | self.bishops
+
+        attackers = (
+            (BB_KING_ATTACKS[square] & self.kings) |
+            (BB_KNIGHT_ATTACKS[square] & self.knights) |
+            (BB_RANK_ATTACKS[square][rank_pieces] & queens_and_rooks) |
+            (BB_FILE_ATTACKS[square][file_pieces] & queens_and_rooks) |
+            (BB_DIAG_ATTACKS[square][diag_pieces] & queens_and_bishops) |
+            (BB_PAWN_ATTACKS[not color][square] & self.pawns))
+
+        return attackers & self.occupied_co[color]
+
+    def attackers_mask(self, color, square):
+        return self._attackers_mask(color, square, self.occupied)
+
+    def is_attacked_by(self, color, square):
+        """
+        Checks if the given side attacks the given square.
+
+        Pinned pieces still count as attackers. Pawns that can be captured
+        en passant are **not** considered attacked.
+        """
+        return bool(self.attackers_mask(color, square))
+
+    def attackers(self, color, square):
+        """
+        Gets a set of attackers of the given color for the given square.
+
+        Pinned pieces still count as attackers.
+
+        Returns a :class:`set of squares <chess.SquareSet>`.
+        """
+        return SquareSet(self.attackers_mask(color, square))
+
+    def pin_mask(self, color, square):
+        king = self.king(color)
+        if king is None:
+            return BB_ALL
+
+        square_mask = BB_SQUARES[square]
+
+        for attacks, sliders in [(BB_FILE_ATTACKS, self.rooks | self.queens),
+                                 (BB_RANK_ATTACKS, self.rooks | self.queens),
+                                 (BB_DIAG_ATTACKS, self.bishops | self.queens)]:
+            rays = attacks[king][0]
+            if rays & square_mask:
+                snipers = rays & sliders & self.occupied_co[not color]
+                for sniper in scan_reversed(snipers):
+                    if BB_BETWEEN[sniper][king] & (self.occupied | square_mask) == square_mask:
+                        return BB_RAYS[king][sniper]
+
+                break
+
+        return BB_ALL
+
+    def pin(self, color, square):
+        """
+        Detects an absolute pin (and its direction) of the given square to
+        the king of the given color.
+
+        >>> import chess
+        >>>
+        >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
+        >>> board.is_pinned(chess.WHITE, chess.C3)
+        True
+        >>> direction = board.pin(chess.WHITE, chess.C3)
+        >>> direction
+        SquareSet(0x0000000102040810)
+        >>> print(direction)
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        1 . . . . . . .
+        . 1 . . . . . .
+        . . 1 . . . . .
+        . . . 1 . . . .
+        . . . . 1 . . .
+
+        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
+        file or diagonal of the pin. If there is no pin, then a mask of the
+        entire board is returned.
+        """
+        return SquareSet(self.pin_mask(color, square))
+
+    def is_pinned(self, color, square):
+        """
+        Detects if the given square is pinned to the king of the given color.
+        """
+        return self.pin_mask(color, square) != BB_ALL
+
     def _remove_piece_at(self, square):
         piece_type = self.piece_type_at(square)
         mask = BB_SQUARES[square]
@@ -1329,134 +1457,6 @@ class Board(BaseBoard):
         return itertools.chain(
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
-
-    def _attackers_mask(self, color, square, occupied):
-        rank_pieces = BB_RANK_MASKS[square] & occupied
-        file_pieces = BB_FILE_MASKS[square] & occupied
-        diag_pieces = BB_DIAG_MASKS[square] & occupied
-
-        queens_and_rooks = self.queens | self.rooks
-        queens_and_bishops = self.queens | self.bishops
-
-        attackers = (
-            (BB_KING_ATTACKS[square] & self.kings) |
-            (BB_KNIGHT_ATTACKS[square] & self.knights) |
-            (BB_RANK_ATTACKS[square][rank_pieces] & queens_and_rooks) |
-            (BB_FILE_ATTACKS[square][file_pieces] & queens_and_rooks) |
-            (BB_DIAG_ATTACKS[square][diag_pieces] & queens_and_bishops) |
-            (BB_PAWN_ATTACKS[not color][square] & self.pawns))
-
-        return attackers & self.occupied_co[color]
-
-    def attackers_mask(self, color, square):
-        return self._attackers_mask(color, square, self.occupied)
-
-    def is_attacked_by(self, color, square):
-        """
-        Checks if the given side attacks the given square.
-
-        Pinned pieces still count as attackers. Pawns that can be captured
-        en passant are **not** considered attacked.
-        """
-        return bool(self.attackers_mask(color, square))
-
-    def attackers(self, color, square):
-        """
-        Gets a set of attackers of the given color for the given square.
-
-        Pinned pieces still count as attackers.
-
-        Returns a :class:`set of squares <chess.SquareSet>`.
-        """
-        return SquareSet(self.attackers_mask(color, square))
-
-    def attacks_mask(self, square):
-        bb_square = BB_SQUARES[square]
-
-        if bb_square & self.pawns:
-            if bb_square & self.occupied_co[WHITE]:
-                return BB_PAWN_ATTACKS[WHITE][square]
-            else:
-                return BB_PAWN_ATTACKS[BLACK][square]
-        elif bb_square & self.knights:
-            return BB_KNIGHT_ATTACKS[square]
-        elif bb_square & self.kings:
-            return BB_KING_ATTACKS[square]
-        else:
-            attacks = 0
-            if bb_square & self.bishops or bb_square & self.queens:
-                attacks = BB_DIAG_ATTACKS[square][BB_DIAG_MASKS[square] & self.occupied]
-            if bb_square & self.rooks or bb_square & self.queens:
-                attacks |= (BB_RANK_ATTACKS[square][BB_RANK_MASKS[square] & self.occupied] |
-                            BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied])
-            return attacks
-
-    def attacks(self, square):
-        """
-        Gets a set of attacked squares from a given square.
-
-        There will be no attacks if the square is empty. Pinned pieces are
-        still attacking other squares.
-
-        Returns a :class:`set of squares <chess.SquareSet>`.
-        """
-        return SquareSet(self.attacks_mask(square))
-
-    def pin_mask(self, color, square):
-        king = self.king(color)
-        if king is None:
-            return BB_ALL
-
-        square_mask = BB_SQUARES[square]
-
-        for attacks, sliders in [(BB_FILE_ATTACKS, self.rooks | self.queens),
-                                 (BB_RANK_ATTACKS, self.rooks | self.queens),
-                                 (BB_DIAG_ATTACKS, self.bishops | self.queens)]:
-            rays = attacks[king][0]
-            if rays & square_mask:
-                snipers = rays & sliders & self.occupied_co[not color]
-                for sniper in scan_reversed(snipers):
-                    if BB_BETWEEN[sniper][king] & (self.occupied | square_mask) == square_mask:
-                        return BB_RAYS[king][sniper]
-
-                break
-
-        return BB_ALL
-
-    def pin(self, color, square):
-        """
-        Detects an absolute pin (and its direction) of the given square to
-        the king of the given color.
-
-        >>> import chess
-        >>>
-        >>> board = chess.Board("rnb1k2r/ppp2ppp/5n2/3q4/1b1P4/2N5/PP3PPP/R1BQKBNR w KQkq - 3 7")
-        >>> board.is_pinned(chess.WHITE, chess.C3)
-        True
-        >>> direction = board.pin(chess.WHITE, chess.C3)
-        >>> direction
-        SquareSet(0x0000000102040810)
-        >>> print(direction)
-        . . . . . . . .
-        . . . . . . . .
-        . . . . . . . .
-        1 . . . . . . .
-        . 1 . . . . . .
-        . . 1 . . . . .
-        . . . 1 . . . .
-        . . . . 1 . . .
-
-        Returns a :class:`set of squares <chess.SquareSet>` that mask the rank,
-        file or diagonal of the pin. If there is no pin, then a mask of the
-        entire board is returned.
-        """
-        return SquareSet(self.pin_mask(color, square))
-
-    def is_pinned(self, color, square):
-        """
-        Detects if the given square is pinned to the king of the given color.
-        """
-        return self.pin_mask(color, square) != BB_ALL
 
     def is_check(self):
         """Returns if the current side to move is in check."""
