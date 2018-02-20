@@ -30,7 +30,7 @@ def read_description():
     Reads the description from README.rst and substitutes mentions of the
     latest version with a concrete version number.
     """
-    description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
+    description = open(os.path.join(os.path.dirname(__file__), "README.rst"), encoding="utf-8").read()
 
     # Link to the documentation of the specific version.
     description = description.replace(
