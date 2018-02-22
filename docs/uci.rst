@@ -62,6 +62,10 @@ Asynchronous communication
 By default, all operations are executed synchronously and their result is
 returned. For example
 
+>>> import chess.uci
+>>>
+>>> engine = chess.uci.popen_engine("stockfish")
+>>>
 >>> engine.go(movetime=2000)
 BestMove(bestmove=Move.from_uci('e2e4'), ponder=None)
 
@@ -113,14 +117,6 @@ Info handler
 
         Mate in x or ``None``. Negative number if the engine thinks it is going
         to be mated.
-
-    .. py:attribute:: lowerbound
-
-        If the score is not exact, but only a lowerbound.
-
-    .. py:attribute:: upperbound
-
-        If the score is only an upperbound.
 
 .. autoclass:: chess.uci.InfoHandler
     :members:

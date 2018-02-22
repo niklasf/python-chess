@@ -51,19 +51,23 @@ class InfoHandler(object):
     *info* command. An :class:`~chess.uci.InfoHandler` instance can be used
     to aggregate or react to this information.
 
+    >>> import chess.uci
+    >>>
+    >>> engine = chess.uci.popen_engine("stockfish")
+    >>>
     >>> # Register a standard info handler.
     >>> info_handler = chess.uci.InfoHandler()
     >>> engine.info_handlers.append(info_handler)
-
+    >>>
     >>> # Start a search.
-    >>> engine.position(board)
+    >>> engine.position(chess.Board())
     >>> engine.go(movetime=1000)
     BestMove(bestmove=Move.from_uci('e2e4'), ponder=Move.from_uci('e7e6'))
     >>>
     >>> # Retrieve the score of the mainline (PV 1) after search is completed.
     >>> # Note that the score is relative to the side to move.
     >>> info_handler.info["score"][1]
-    Score(cp=34, mate=None, lowerbound=False, upperbound=False)
+    Score(cp=34, mate=None)
 
     See :attr:`~chess.uci.InfoHandler.info` for a way to access this dictionary
     in a thread-safe way during search.
@@ -1120,12 +1124,12 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     No initialization commands are sent, so do not forget to send the
     mandatory *uci* command.
 
-    >>> engine = chess.uci.popen_engine("/usr/games/stockfish")
+    >>> engine = chess.uci.popen_engine("/usr/bin/stockfish")
     >>> engine.uci()
     >>> engine.name
-    'Stockfish 230814 64'
+    'Stockfish 8 64 POPCNT'
     >>> engine.author
-    'Tord Romstad, Marco Costalba and Joona Kiiski'
+    'T. Romstad, M. Costalba, J. Kiiski, G. Linscott'
 
     :param setpgrp: Open the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
@@ -1139,8 +1143,9 @@ def spur_spawn_engine(shell, command, engine_cls=Engine):
     Spawns a remote engine using a `Spur`_ shell.
 
     >>> import spur
+    >>>
     >>> shell = spur.SshShell(hostname="localhost", username="username", password="pw")
-    >>> engine = chess.uci.spur_spawn_engine(shell, ["/usr/games/stockfish"])
+    >>> engine = chess.uci.spur_spawn_engine(shell, ["/usr/bin/stockfish"])
     >>> engine.uci()
 
     .. _Spur: https://pypi.python.org/pypi/spur
