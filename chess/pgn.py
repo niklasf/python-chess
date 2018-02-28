@@ -571,7 +571,7 @@ class BaseVisitor(object):
     Base class for visitors.
 
     Use with :func:`chess.pgn.Game.accept()` or
-    :func:`chess.pgn.GameNode.accept()`.
+    :func:`chess.pgn.GameNode.accept()` or :func:`chess.pgn.read_game()`.
 
     The methods are called in PGN order.
     """
@@ -903,7 +903,9 @@ def read_game(handle, Visitor=GameModelCreator):
     headers just fine.
 
     The parser is relatively forgiving when it comes to errors. It skips over
-    tokens it can not parse. Any exceptions are logged.
+    tokens it can not parse. Any exceptions are logged and collected in
+    :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
+    :func:`overriden <chess.pgn.GameModelCreator.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
