@@ -2373,7 +2373,7 @@ class Board(BaseBoard):
         clock and the full-move number. Otherwise, ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
-        integers, floats or move objects.
+        integers, floats, move objects, or lists of moves.
 
         :raises: :exc:`ValueError` if the EPD string is invalid.
         """
