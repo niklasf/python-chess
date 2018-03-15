@@ -1,6 +1,26 @@
 Changelog for python-chess
 ==========================
 
+New in v0.22.2
+--------------
+
+Bugfixes:
+
+* In standard chess promoted pieces were incorrectly considered as
+  distinguishable from normal pieces with regard to position equality
+  and threefold repetition. Thanks to kn-sq-tb for reporting.
+
+Changes:
+
+* The PGN `game.headers` are now a custom mutable mapping that validates the
+  validity of tag names.
+* Basic attack and pin methods moved to `BaseBoard`.
+* Documentation fixes and improvements.
+
+New features:
+
+* Added `Board.lan()` for long algebraic notation.
+
 New in v0.22.1
 --------------
 
