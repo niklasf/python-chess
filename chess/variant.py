@@ -152,6 +152,13 @@ class SuicideBoard(chess.Board):
         else:
             return not any(self.generate_pseudo_legal_captures())
 
+    def _transposition_key(self):
+        if self.has_chess960_castling_rights():
+            return (super(SuicideBoard, self)._transposition_key(),
+                    self.kings & self.promoted)
+        else:
+            return super(SuicideBoard, self)._transposition_key()
+
     def board_fen(self, promoted=None):
         if promoted is None:
             promoted = self.has_chess960_castling_rights()
@@ -684,6 +691,7 @@ class CrazyhouseBoard(chess.Board):
 
     def _transposition_key(self):
         return (super(CrazyhouseBoard, self)._transposition_key(),
+                self.promoted,
                 str(self.pockets[chess.WHITE]), str(self.pockets[chess.BLACK]))
 
     def legal_drop_squares_mask(self):

@@ -3149,7 +3149,7 @@ class Board(BaseBoard):
     def _transposition_key(self):
         return (self.pawns, self.knights, self.bishops, self.rooks,
                 self.queens, self.kings,
-                self.occupied_co[WHITE], self.occupied_co[BLACK], self.promoted,
+                self.occupied_co[WHITE], self.occupied_co[BLACK],
                 self.turn, self.clean_castling_rights(),
                 self.ep_square if self.has_legal_en_passant() else None)
 

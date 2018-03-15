@@ -1116,6 +1116,14 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.can_claim_fifty_moves())
         self.assertFalse(board.can_claim_draw())
 
+    def test_promoted_comparison(self):
+        board = chess.Board()
+        board.set_fen("5R2/3P4/8/8/7r/7r/7k/K7 w - - 0 1")
+        board.push_san("d8=R")
+
+        same_board = chess.Board(board.fen())
+        self.assertEqual(board, same_board)
+
     def test_ep_legality(self):
         move = chess.Move.from_uci("h5g6")
         board = chess.Board("rnbqkbnr/pppppp2/7p/6pP/8/8/PPPPPPP1/RNBQKBNR w KQkq g6 0 3")
