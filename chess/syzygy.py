@@ -368,50 +368,19 @@ WDL_TO_DTZ = [-1, -101, 0, 101, 1]
 PCHR = ["K", "Q", "R", "B", "N", "P"]
 
 
-def filenames(one_king=True):
-    if not one_king:
-        for filename in all_dependencies(["PPPPPvP", "PPPPvPP", "PPPvPPP"], one_king=False):
-            yield filename
-        return
+def filenames(one_king=True, piece_count=6):
+    first = "K" if one_king else "P"
 
-    for i in range(1, 6):
-        yield "K%cvK" % (PCHR[i], )
+    targets = []
 
-    for i in range(1, 6):
-        for j in range(i, 6):
-            yield "K%cvK%c" % (PCHR[i], PCHR[j])
+    white_pieces = piece_count - 2
+    black_pieces = 0
+    while white_pieces >= black_pieces:
+        targets.append(first + "P" * white_pieces + "v" + first + "P" * black_pieces)
+        white_pieces -= 1
+        black_pieces += 1
 
-    for i in range(1, 6):
-        for j in range(i, 6):
-            yield "K%c%cvK" % (PCHR[i], PCHR[j])
-
-    for i in range(1, 6):
-        for j in range(i, 6):
-            for k in range(1, 6):
-                yield "K%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k])
-
-    for i in range(1, 6):
-        for j in range(i, 6):
-            for k in range(j, 6):
-                yield "K%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k])
-
-    for i in range(1, 6):
-        for j in range(i, 6):
-            for k in range(i, 6):
-                for l in range(j if i == k else k, 6):
-                    yield "K%c%cvK%c%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
-
-    for i in range(1, 6):
-        for j in range(i, 6):
-            for k in range(j, 6):
-                for l in range(1, 6):
-                    yield "K%c%c%cvK%c" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
-
-    for i in range(1, 6):
-        for j in range(i, 6):
-            for k in range(j, 6):
-                for l in range(k, 6):
-                    yield "K%c%c%c%cvK" % (PCHR[i], PCHR[j], PCHR[k], PCHR[l])
+    return all_dependencies(targets, one_king=one_king)
 
 
 def normalize_filename(filename, mirror=False):
