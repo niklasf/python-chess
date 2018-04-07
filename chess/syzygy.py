@@ -23,6 +23,7 @@ import os
 import struct
 import sys
 import threading
+import re
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -366,6 +367,12 @@ PA_FLAGS = [8, 0, 0, 0, 4]
 WDL_TO_DTZ = [-1, -101, 0, 101, 1]
 
 PCHR = ["K", "Q", "R", "B", "N", "P"]
+
+TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
+
+
+def is_table_name(name):
+    return len(name) <= 7 + 1 and TABLENAME_REGEX.match(name) and normalize_filename(name) == name
 
 
 def filenames(one_king=True, piece_count=6):
@@ -1467,13 +1474,8 @@ class Tablebases(object):
             if len(self.lru) > self.max_fds:
                 self.lru.pop().close()
 
-    def _open_table(self, hashtable, directory, filename, Table, suffix, pawnless_suffix):
-        if os.path.isfile(os.path.join(directory, filename) + suffix):
-            table = Table(directory, filename, self.variant, suffix)
-        elif "P" not in filename and pawnless_suffix and os.path.isfile(os.path.join(directory, filename) + pawnless_suffix):
-            table = Table(directory, filename, self.variant, pawnless_suffix)
-        else:
-            return 0
+    def _open_table(self, hashtable, directory, filename, Table, suffix):
+        table = Table(directory, filename, self.variant, suffix)
 
         if table.key in hashtable:
             hashtable[table.key].close()
@@ -1495,14 +1497,21 @@ class Tablebases(object):
         num = 0
         directory = os.path.abspath(directory)
 
-        if not os.path.isdir(directory):
-            raise IOError("not a directory: {0}".format(repr(directory)))
+        for filename in os.listdir(directory):
+            tablename, ext = os.path.splitext(filename)
 
-        for filename in filenames(one_king=self.variant.one_king):
-            if load_wdl:
-                num += self._open_table(self.wdl, directory, filename, WdlTable, self.variant.tbw_suffix, self.variant.pawnless_tbw_suffix)
-            if load_dtz:
-                num += self._open_table(self.dtz, directory, filename, DtzTable, self.variant.tbz_suffix, self.variant.pawnless_tbz_suffix)
+            if is_table_name(tablename) and os.path.isfile(os.path.join(directory, filename)):
+                if load_wdl:
+                    if ext == self.variant.tbw_suffix:
+                        num += self._open_table(self.wdl, directory, tablename, WdlTable, ext)
+                    elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
+                        num += self._open_table(self.wdl, directory, tablename, WdlTable, ext)
+
+                if load_dtz:
+                    if ext == self.variant.tbz_suffix:
+                        num += self._open_table(self.dtz, directory, tablename, DtzTable, ext)
+                    elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
+                        num += self._open_table(self.dtz, directory, tablename, DtzTable, ext)
 
         return num
 
