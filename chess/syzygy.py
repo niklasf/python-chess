@@ -1654,8 +1654,8 @@ class Tablebases(object):
             raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
 
         # Validate piece count.
-        if chess.popcount(board.occupied) > 6:
-            raise KeyError("syzygy tables support up to 6 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
+        if chess.popcount(board.occupied) > 7:
+            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
