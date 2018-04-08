@@ -31,7 +31,7 @@ UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
-TBPIECES = 6
+TBPIECES = 7
 
 TRIANGLE = [
     6, 0, 1, 2, 2, 1, 0, 6,
