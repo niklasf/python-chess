@@ -1,6 +1,21 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.0
+--------------
+
+New features:
+
+* Experimental support for 7 piece Syzygy tablebases.
+
+Changes:
+
+* `chess.syzygy.filenames()` was renamed to `tablenames()` and
+  gained an optional `piece_count=6` argument.
+* `chess.syzygy.normalize_filename()` was renamed to `normalize_tablename()`.
+* The undocumented constructors of `chess.syzygy.WdlTable` and
+  `chess.syzygy.DtzTable` have been changed.
+
 New in v0.22.2
 --------------
 
