@@ -31,6 +31,8 @@ UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
 USHORT = struct.Struct("<H")
 
+TBPIECES = 6
+
 TRIANGLE = [
     6, 0, 1, 2, 2, 1, 0, 6,
     0, 7, 3, 4, 4, 3, 7, 0,
@@ -1053,8 +1055,8 @@ class WdlTable(Table):
             self.pieces = {}
 
             self.factor = {}
-            self.factor[0] = [0, 0, 0, 0, 0, 0]  # White
-            self.factor[1] = [0, 0, 0, 0, 0, 0]  # Black
+            self.factor[0] = [0 for _ in range(TBPIECES)]  # White
+            self.factor[1] = [0 for _ in range(TBPIECES)]  # Black
 
             self.norm = {}
             self.norm[0] = [0 for _ in range(self.num)]  # White
@@ -1154,7 +1156,7 @@ class WdlTable(Table):
         self.files[f].pieces[0] = [self.read_ubyte(p_data + i + j) & 0x0f for i in range(self.num)]
         self.files[f].norm[0] = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm[0], self.files[f].pieces[0])
-        self.files[f].factor[0] = [0, 0, 0, 0, 0, 0]
+        self.files[f].factor[0] = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[0], order, order2, self.files[f].norm[0], f)
 
         order = self.read_ubyte(p_data) >> 4
@@ -1162,7 +1164,7 @@ class WdlTable(Table):
         self.files[f].pieces[1] = [self.read_ubyte(p_data + i + j) >> 4 for i in range(self.num)]
         self.files[f].norm[1] = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm[1], self.files[f].pieces[1])
-        self.files[f].factor[1] = [0, 0, 0, 0, 0, 0]
+        self.files[f].factor[1] = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
     def setup_pieces_piece(self, p_data):
@@ -1195,7 +1197,7 @@ class WdlTable(Table):
             bside = 0
 
         if not self.has_pawns:
-            p = [0, 0, 0, 0, 0, 0]
+            p = [0 for _ in range(TBPIECES)]
             i = 0
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
@@ -1209,7 +1211,7 @@ class WdlTable(Table):
             idx = self.encode_piece(self.norm[bside], p, self.factor[bside])
             res = self.decompress_pairs(self.precomp[bside], idx)
         else:
-            p = [0, 0, 0, 0, 0, 0]
+            p = [0 for _ in range(TBPIECES)]
             i = 0
             k = self.files[0].pieces[0][0] ^ cmirror
             color = k >> 3
@@ -1254,7 +1256,7 @@ class DtzTable(Table):
                 not self.has_pawns and self.variant.pawnless_tbz_magic and
                 self.check_magic(self.variant.pawnless_tbz_magic))
 
-            self.factor = [0, 0, 0, 0, 0, 0]
+            self.factor = [0 for _ in range(TBPIECES)]
             self.norm = [0 for _ in range(self.num)]
             self.tb_size = [0, 0, 0, 0]
             self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -1354,7 +1356,7 @@ class DtzTable(Table):
                 return 0, -1
 
             pc = self.pieces
-            p = [0, 0, 0, 0, 0, 0]
+            p = [0 for _ in range(TBPIECES)]
             i = 0
             while i < self.num:
                 piece_type = pc[i] & 0x07
@@ -1380,7 +1382,7 @@ class DtzTable(Table):
             bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
 
             i = 0
-            p = [0, 0, 0, 0, 0, 0]
+            p = [0 for _ in range(TBPIECES)]
             for square in chess.scan_forward(bb):
                 p[i] = square ^ mirror
                 i += 1
@@ -1424,7 +1426,7 @@ class DtzTable(Table):
         self.files[f].norm = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm, self.files[f].pieces)
 
-        self.files[f].factor = [0, 0, 0, 0, 0, 0]
+        self.files[f].factor = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor, order, order2, self.files[f].norm, f)
 
     def close(self):
