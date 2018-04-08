@@ -372,10 +372,10 @@ TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
 
 
 def is_table_name(name):
-    return len(name) <= 7 + 1 and TABLENAME_REGEX.match(name) and normalize_filename(name) == name
+    return len(name) <= 7 + 1 and TABLENAME_REGEX.match(name) and normalize_tablename(name) == name
 
 
-def filenames(one_king=True, piece_count=6):
+def tablenames(one_king=True, piece_count=6):
     first = "K" if one_king else "P"
 
     targets = []
@@ -390,8 +390,8 @@ def filenames(one_king=True, piece_count=6):
     return all_dependencies(targets, one_king=one_king)
 
 
-def normalize_filename(filename, mirror=False):
-    w, b = filename.split("v", 1)
+def normalize_tablename(name, mirror=False):
+    w, b = name.split("v", 1)
     w = "".join(sorted(w, key=PCHR.index))
     b = "".join(sorted(b, key=PCHR.index))
     if mirror ^ ((len(w), [PCHR.index(c) for c in b]) < (len(b), [PCHR.index(c) for c in w])):
@@ -400,33 +400,32 @@ def normalize_filename(filename, mirror=False):
         return w + "v" + b
 
 
-def _dependencies(filename, one_king=True):
+def _dependencies(target, one_king=True):
+    w, b = target.split("v", 1)
+
     for p in PCHR:
         if p == "K" and one_king:
             continue
 
-        w, b = filename.split("v", 1)
-
         # Promotions.
         if p != "P" and "P" in w:
-            yield normalize_filename(w.replace("P", p, 1) + "v" + b)
+            yield normalize_tablename(w.replace("P", p, 1) + "v" + b)
         if p != "P" and "P" in b:
-            yield normalize_filename(w + "v" + b.replace("P", p, 1))
+            yield normalize_tablename(w + "v" + b.replace("P", p, 1))
 
         # Captures.
-        w, b = filename.split("v", 1)
         if p in w and len(w) > 1:
-            yield normalize_filename(w.replace(p, "", 1) + "v" + b)
+            yield normalize_tablename(w.replace(p, "", 1) + "v" + b)
         if p in b and len(b) > 1:
-            yield normalize_filename(w + "v" + b.replace(p, "", 1))
+            yield normalize_tablename(w + "v" + b.replace(p, "", 1))
 
 
-def dependencies(filename, one_king=True):
+def dependencies(target, one_king=True):
     closed = set()
     if one_king:
         closed.add("KvK")
 
-    for dependency in _dependencies(filename, one_king):
+    for dependency in _dependencies(target, one_king):
         if dependency not in closed and len(dependency) > 2:
             yield dependency
             closed.add(dependency)
@@ -437,17 +436,17 @@ def all_dependencies(targets, one_king=True):
     if one_king:
         closed.add("KvK")
 
-    open_list = [normalize_filename(filename) for filename in targets]
+    open_list = [normalize_tablename(target) for target in targets]
 
     while open_list:
-        filename = open_list.pop()
-        if filename in closed:
+        name = open_list.pop()
+        if name in closed:
             continue
 
-        yield filename
-        closed.add(filename)
+        yield name
+        closed.add(name)
 
-        open_list.extend(_dependencies(filename, one_king))
+        open_list.extend(_dependencies(name, one_king))
 
 
 def calc_key(board, mirror=False):
@@ -555,8 +554,8 @@ class Table(object):
         self.fd = None
         self.data = None
 
-        self.key = normalize_filename(filename)
-        self.mirrored_key = normalize_filename(filename, mirror=True)
+        self.key = normalize_tablename(filename)
+        self.mirrored_key = normalize_tablename(filename, mirror=True)
         self.symmetric = self.key == self.mirrored_key
 
         # Leave the v out of the filename to get the number of pieces.

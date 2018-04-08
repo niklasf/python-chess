@@ -2974,37 +2974,37 @@ class SyzygyTestCase(unittest.TestCase):
     def test_calc_key(self):
         board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
         key_from_board = chess.syzygy.calc_key(board)
-        key_from_filename = chess.syzygy.normalize_filename("KBNvK")
+        key_from_filename = chess.syzygy.normalize_tablename("KBNvK")
         self.assertEqual(key_from_board, key_from_filename)
 
-    def test_filenames(self):
-        self.assertIn("KPPvKN", chess.syzygy.filenames())
-        self.assertIn("KNNPvKN", chess.syzygy.filenames())
-        self.assertIn("KQRNvKR", chess.syzygy.filenames())
-        self.assertIn("KRRRvKR", chess.syzygy.filenames())
-        self.assertIn("KRRvKRR", chess.syzygy.filenames())
-        self.assertIn("KRNvKRP", chess.syzygy.filenames())
-        self.assertIn("KRPvKP", chess.syzygy.filenames())
+    def test_tablenames(self):
+        self.assertIn("KPPvKN", chess.syzygy.tablenames())
+        self.assertIn("KNNPvKN", chess.syzygy.tablenames())
+        self.assertIn("KQRNvKR", chess.syzygy.tablenames())
+        self.assertIn("KRRRvKR", chess.syzygy.tablenames())
+        self.assertIn("KRRvKRR", chess.syzygy.tablenames())
+        self.assertIn("KRNvKRP", chess.syzygy.tablenames())
+        self.assertIn("KRPvKP", chess.syzygy.tablenames())
 
-    def test_suicide_filenames(self):
-        # Test number of 6 piece filenames.
-        self.assertEqual(sum(1 for eg in chess.syzygy.filenames(one_king=False) if len(eg) == 7), 5754)
+    def test_suicide_tablenames(self):
+        # Test number of 6 piece tables.
+        self.assertEqual(sum(1 for eg in chess.syzygy.tablenames(one_king=False) if len(eg) == 7), 5754)
 
-    def test_normalize_filename(self):
-        names = set(chess.syzygy.filenames())
+    def test_normalize_tablename(self):
+        names = set(chess.syzygy.tablenames())
         for name in names:
             self.assertTrue(
-                chess.syzygy.normalize_filename(name) in names,
+                chess.syzygy.normalize_tablename(name) in names,
                 "Already normalized {0}".format(name))
 
             w, b = name.split("v", 1)
             swapped = b + "v" + w
             self.assertTrue(
-                chess.syzygy.normalize_filename(swapped) in names,
+                chess.syzygy.normalize_tablename(swapped) in names,
                 "Normalized {0}".format(swapped))
 
     def test_normalize_nnvbb(self):
-        self.assertEqual(chess.syzygy.normalize_filename("KNNvKBB"), "KBBvKNN")
+        self.assertEqual(chess.syzygy.normalize_tablename("KNNvKBB"), "KBBvKNN")
 
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy/regular", "KBNvK")
