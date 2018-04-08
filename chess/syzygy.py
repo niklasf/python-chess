@@ -546,24 +546,26 @@ class PawnFileDataDtz(object):
 
 class Table(object):
 
-    def __init__(self, directory, filename, variant):
-        self.directory = directory
-        self.filename = filename
+    def __init__(self, path, variant=chess.Board):
+        self.path = path
         self.variant = variant
 
+        self.initialized = False
+        self.lock = threading.Lock()
         self.fd = None
         self.data = None
 
-        self.key = normalize_tablename(filename)
-        self.mirrored_key = normalize_tablename(filename, mirror=True)
+        tablename, _ = os.path.splitext(os.path.basename(path))
+        self.key = normalize_tablename(tablename)
+        self.mirrored_key = normalize_tablename(tablename, mirror=True)
         self.symmetric = self.key == self.mirrored_key
 
-        # Leave the v out of the filename to get the number of pieces.
-        self.num = len(filename) - 1
+        # Leave the v out of the tablename to get the number of pieces.
+        self.num = len(tablename) - 1
 
-        self.has_pawns = "P" in filename
+        self.has_pawns = "P" in tablename
 
-        black_part, white_part = filename.split("v")
+        black_part, white_part = tablename.split("v")
         if self.has_pawns:
             self.pawns = {}
             self.pawns[0] = white_part.count("P")
@@ -594,8 +596,7 @@ class Table(object):
     def init_mmap(self):
         # Open fd.
         if self.fd is None:
-            path = os.path.join(self.directory, self.filename) + self.suffix
-            self.fd = os.open(path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+            self.fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         # Open mmap.
         if self.data is None:
@@ -1033,12 +1034,6 @@ class Table(object):
 
 class WdlTable(Table):
 
-    def __init__(self, directory, filename, variant=chess.Board, suffix=None):
-        super(WdlTable, self).__init__(directory, filename, variant)
-        self.suffix = suffix or variant.tbw_suffix
-        self.initialized = False
-        self.lock = threading.Lock()
-
     def init_table_wdl(self):
         with self.lock:
             self.init_mmap()
@@ -1247,12 +1242,6 @@ class WdlTable(Table):
 
 
 class DtzTable(Table):
-
-    def __init__(self, directory, filename, variant=chess.Board, suffix=None):
-        super(DtzTable, self).__init__(directory, filename, variant)
-        self.suffix = suffix or variant.tbz_suffix
-        self.initialized = False
-        self.lock = threading.Lock()
 
     def init_table_dtz(self):
         with self.lock:
@@ -1473,8 +1462,8 @@ class Tablebases(object):
             if len(self.lru) > self.max_fds:
                 self.lru.pop().close()
 
-    def _open_table(self, hashtable, directory, filename, Table, suffix):
-        table = Table(directory, filename, self.variant, suffix)
+    def _open_table(self, hashtable, Table, path):
+        table = Table(path, self.variant)
 
         if table.key in hashtable:
             hashtable[table.key].close()
@@ -1497,20 +1486,21 @@ class Tablebases(object):
         directory = os.path.abspath(directory)
 
         for filename in os.listdir(directory):
+            path = os.path.join(directory, filename)
             tablename, ext = os.path.splitext(filename)
 
-            if is_table_name(tablename) and os.path.isfile(os.path.join(directory, filename)):
+            if is_table_name(tablename) and os.path.isfile(path):
                 if load_wdl:
                     if ext == self.variant.tbw_suffix:
-                        num += self._open_table(self.wdl, directory, tablename, WdlTable, ext)
+                        num += self._open_table(self.wdl, WdlTable, path)
                     elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
-                        num += self._open_table(self.wdl, directory, tablename, WdlTable, ext)
+                        num += self._open_table(self.wdl, WdlTable, path)
 
                 if load_dtz:
                     if ext == self.variant.tbz_suffix:
-                        num += self._open_table(self.dtz, directory, tablename, DtzTable, ext)
+                        num += self._open_table(self.dtz, DtzTable, path)
                     elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
-                        num += self._open_table(self.dtz, directory, tablename, DtzTable, ext)
+                        num += self._open_table(self.dtz, DtzTable, path)
 
         return num
 

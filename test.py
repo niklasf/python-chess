@@ -3007,7 +3007,7 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertEqual(chess.syzygy.normalize_tablename("KNNvKBB"), "KBBvKNN")
 
     def test_probe_pawnless_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy/regular", "KBNvK")
+        wdl = chess.syzygy.WdlTable("data/syzygy/regular/KBNvK.rtbw")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
@@ -3028,7 +3028,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy/regular", "KRvKP")
+        wdl = chess.syzygy.WdlTable("data/syzygy/regular/KRvKP.rtbw")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
@@ -3040,7 +3040,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_dtz_table_piece(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy/regular", "KRvKN")
+        dtz = chess.syzygy.DtzTable("data/syzygy/regular/KRvKN.rtbz")
         dtz.init_table_dtz()
 
         # Pawnless position with white to move.
@@ -3054,7 +3054,7 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_dtz_table_pawn(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy/regular", "KNvKP")
+        dtz = chess.syzygy.DtzTable("data/syzygy/regular/KNvKP.rtbz")
         dtz.init_table_dtz()
 
         board = chess.Board("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
