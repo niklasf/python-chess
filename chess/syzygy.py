@@ -1480,7 +1480,7 @@ class Tablebases(object):
         (e.g. WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
         are loaded.
 
-        Returns the number of successfully openened and loaded tablebase files.
+        Returns the number of tablebases files that were found.
         """
         num = 0
         directory = os.path.abspath(directory)
