@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.1
+--------------
+
+Bugfixes:
+
+* Fix DTZ in case of mate in 1. This is a cosmetic fix, as the previous
+  behavior was only off by one (which is allowed by design).
+
 New in v0.23.0
 --------------
 
