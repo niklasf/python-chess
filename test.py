@@ -3425,6 +3425,12 @@ class AtomicTestCase(unittest.TestCase):
         board.push_san("O-O")
         self.assertEqual(board.fen(), "5b1r/1p5p/4ppp1/4Bn2/1PPP1PP1/4P2P/3k4/5RK1 b - - 2 1")
 
+    def test_lone_king_wdl(self):
+        tables = chess.syzygy.Tablebases(VariantBoard=chess.variant.AtomicBoard)
+        board = chess.variant.AtomicBoard.empty()
+        board.set_piece_at(chess.D1, chess.Piece.from_symbol("K"))
+        self.assertEqual(tables.probe_wdl(board), 2)
+
 
 class RacingKingsTestCase(unittest.TestCase):
 

@@ -1507,16 +1507,17 @@ class Tablebases(object):
         return num
 
     def probe_wdl_table(self, board):
-        if self.variant.one_king:
-            # Test for KvK.
-            if board.kings == board.occupied:
-                return 0
-        else:
-            # Test for suicide game end.
-            if board.is_variant_win():
-                return 2
-            elif board.is_variant_draw():
-                return 0
+        # Test for variant end.
+        if board.is_variant_win():
+            return 2
+        elif board.is_variant_draw():
+            return 0
+        elif board.is_variant_loss():
+            return -2
+
+        # Test for KvK.
+        if self.variant.one_king and board.kings == board.occupied:
+            return 0
 
         key = calc_key(board)
         try:
