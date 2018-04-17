@@ -3428,8 +3428,8 @@ class AtomicTestCase(unittest.TestCase):
     def test_lone_king_wdl(self):
         tables = chess.syzygy.Tablebases(VariantBoard=chess.variant.AtomicBoard)
         board = chess.variant.AtomicBoard.empty()
-        board.set_piece_at(chess.D1, chess.Piece.from_symbol("K"))
-        self.assertEqual(tables.probe_wdl(board), 2)
+        board.set_piece_at(chess.D1, chess.Piece.from_symbol("k"))
+        self.assertEqual(tables.probe_wdl(board), -2)
 
 
 class RacingKingsTestCase(unittest.TestCase):
