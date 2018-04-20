@@ -344,15 +344,15 @@ class Engine(object):
         elif buf.startswith("Error"):
             err_msg = buf.split()[1][1:-2]
             raise EngineStateException("Engine produced an error: {}".format(err_msg))
+        elif buf.startswith("#"):
+            return
 
         command_and_args = buf.split()
         if not command_and_args:
             return
 
         if len(command_and_args) == 1:
-            if command_and_args[0] == "#":
-                pass
-            elif command_and_args[0] == "resign":
+            if command_and_args[0] == "resign":
                 return self._resign()
         elif len(command_and_args) == 2:
             if command_and_args[0] == "pong":
