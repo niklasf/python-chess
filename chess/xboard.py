@@ -1398,7 +1398,7 @@ class Engine(object):
         Only used with variants that the engine announced it could play in the
         'feature variants="variant,variant,..."' command at startup.
 
-        :param variant: The move to play in XBoard notation.
+        :param variant: The variant name to play.
 
         :return: Nothing.
         """
