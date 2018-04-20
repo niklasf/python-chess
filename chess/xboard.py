@@ -349,7 +349,7 @@ class Engine(object):
             return
 
         command_and_args = buf.split()
-        if not command_and_args:
+        if command_and_args[0] == "#" or not command_and_args:
             return
 
         if len(command_and_args) == 1:
