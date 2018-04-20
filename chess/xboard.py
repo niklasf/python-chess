@@ -296,11 +296,10 @@ class Engine(object):
         self.search_started = threading.Event()
 
         self.board = chess.Board()
-        self.chess960 = None
-        self.variant = None
 
         self.name = None
         self.author = None
+        self.supported_variants = ""
         self.features = FeatureMap()
         self.pong = threading.Event()
         self.ping_num = 123
@@ -434,8 +433,8 @@ class Engine(object):
         features = shlex.split(features)
         feature_map = [feature.split("=") for feature in features]
         for (key, value) in feature_map:
-            if key == "variant":
-                self.features.set_feature(key, value.split(","))
+            if key == "variants":
+                self.supported_variants = value.split(",")
             elif key == "option":
                 _option(value)
             else:
@@ -796,7 +795,7 @@ class Engine(object):
 
         builder = []
         builder.append("setboard")
-        builder.append(board.fen())
+        builder.append(board.shredder_fen() if board.chess960 else board.fen())
 
         self.board = board.copy(stack=False)
 
@@ -1392,6 +1391,26 @@ class Engine(object):
         """Polls the engine process to check if it is alive."""
         return self.process.is_alive()
 
+    def send_variant(self, variant, async_callback=None):
+        """
+        Optionally sent to the engine immediately after 'new' for games that use
+        other than FIDE rules. Sets the engine to play mentioned variant.
+        Only used with variants that the engine announced it could play in the
+        'feature variants="variant,variant,..."' command at startup.
+
+        :param variant: The move to play in XBoard notation.
+
+        :return: Nothing.
+        """
+        self._assert_not_busy("variant")
+
+        print(variant, self.supported_variants)
+
+        if variant not in self.supported_variants:
+            raise EngineStateException("Engine does not support %s variant" % variant)
+
+        command = self.command("variant %s" % variant)
+        return self._queue_command(command, async_callback)
 
 def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
     """
