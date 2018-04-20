@@ -1404,8 +1404,6 @@ class Engine(object):
         """
         self._assert_not_busy("variant")
 
-        print(variant, self.supported_variants)
-
         if variant not in self.supported_variants:
             raise EngineStateException("Engine does not support %s variant" % variant)
 
