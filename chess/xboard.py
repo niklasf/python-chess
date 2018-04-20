@@ -299,7 +299,7 @@ class Engine(object):
 
         self.name = None
         self.author = None
-        self.supported_variants = ""
+        self.supported_variants = []
         self.features = FeatureMap()
         self.pong = threading.Event()
         self.ping_num = 123
