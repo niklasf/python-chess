@@ -19,6 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import concurrent.futures
+import shlex
 import threading
 
 from chess.engine import EngineTerminatedException
@@ -397,9 +398,8 @@ class Engine(object):
         Does not conform to the CECP spec regarding `done` and instead reads all
         the features atomically.
         """
-        if features.startswith("option"):
-            features = features.replace("\"", "")
-            params = features.split("=")[1].split()
+        def _option(feature):
+            params = feature.split()
             name = params[0]
             type = params[1][1:]
             default = None
@@ -431,12 +431,13 @@ class Engine(object):
             self.features.set_option(option.name, option)
             return
 
-        features = features.split()
+        features = shlex.split(features)
         feature_map = [feature.split("=") for feature in features]
         for (key, value) in feature_map:
-            value = value.strip("\"")
             if key == "variant":
                 self.features.set_feature(key, value.split(","))
+            elif key == "option":
+                _option(value)
             else:
                 self.features.set_feature(key, value)
 
