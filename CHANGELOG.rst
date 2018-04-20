@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.2
+--------------
+
+Bugfixes:
+
+* XBoard: Handle multiple features and features with spaces. Thanks gbtami.
+* XBoard: Ignore debug output prefixed with `#`. Thanks Dan Ravensloft and
+  Manik Charan.
+
 New in v0.23.1
 --------------
 
