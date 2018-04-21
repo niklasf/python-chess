@@ -1,6 +1,13 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.3
+--------------
+
+New features:
+
+* XBoard: Support `variant`. Thanks gbtami.
+
 New in v0.23.2
 --------------
 
