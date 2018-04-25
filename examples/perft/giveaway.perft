@@ -4,3 +4,28 @@ perft 1 20
 perft 2 400
 perft 3 8067
 perft 4 153299
+
+id a-pawn-vs-b-pawn
+epd 8/1p6/8/8/8/8/P7/8 w - -
+perft 1 2
+perft 2 4
+perft 3 4
+perft 4 3
+perft 5 1
+perft 6 0
+
+id a-pawn-vs-c-pawn
+epd 8/2p5/8/8/8/8/P7/8 w - -
+perft 1 2
+perft 2 4
+perft 3 4
+perft 4 4
+perft 5 4
+perft 6 4
+perft 7 4
+perft 8 4
+perft 9 12
+perft 10 36
+perft 11 312
+perft 12 2557
+perft 13 30873
