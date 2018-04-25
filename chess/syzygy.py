@@ -29,7 +29,7 @@ import re
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
-USHORT = struct.Struct("<H")
+UINT16 = struct.Struct("<H")
 
 TBPIECES = 7
 
@@ -641,7 +641,7 @@ class Table(object):
         max_len = self.read_ubyte(data_ptr + 8)
         min_len = self.read_ubyte(data_ptr + 9)
         h = max_len - min_len + 1
-        num_syms = self.read_ushort(data_ptr + 10 + 2 * h)
+        num_syms = self.read_uint16(data_ptr + 10 + 2 * h)
 
         d.offset = data_ptr + 10
         d.symlen = [0 for _ in range(h * 8 + num_syms)]
@@ -663,7 +663,7 @@ class Table(object):
         d.base = [0 for _ in range(h)]
         d.base[h - 1] = 0
         for i in range(h - 2, -1, -1):
-            d.base[i] = (d.base[i + 1] + self.read_ushort(d.offset + i * 2) - self.read_ushort(d.offset + i * 2 + 2)) // 2
+            d.base[i] = (d.base[i + 1] + self.read_uint16(d.offset + i * 2) - self.read_uint16(d.offset + i * 2 + 2)) // 2
         for i in range(h):
             d.base[i] <<= 64 - (min_len + i)
 
@@ -949,16 +949,16 @@ class Table(object):
         litidx = (idx & (1 << d.idxbits) - 1) - (1 << (d.idxbits - 1))
         block = self.read_uint32(d.indextable + 6 * mainidx)
 
-        idx_offset = self.read_ushort(d.indextable + 6 * mainidx + 4)
+        idx_offset = self.read_uint16(d.indextable + 6 * mainidx + 4)
         litidx += idx_offset
 
         if litidx < 0:
             while litidx < 0:
                 block -= 1
-                litidx += self.read_ushort(d.sizetable + 2 * block) + 1
+                litidx += self.read_uint16(d.sizetable + 2 * block) + 1
         else:
-            while litidx > self.read_ushort(d.sizetable + 2 * block):
-                litidx -= self.read_ushort(d.sizetable + 2 * block) + 1
+            while litidx > self.read_uint16(d.sizetable + 2 * block):
+                litidx -= self.read_uint16(d.sizetable + 2 * block) + 1
                 block += 1
 
         ptr = d.data + (block << d.blocksize)
@@ -975,7 +975,7 @@ class Table(object):
             l = m
             while code < d.base[base_idx + l]:
                 l += 1
-            sym = self.read_ushort(d.offset + l * 2)
+            sym = self.read_uint16(d.offset + l * 2)
             sym += (code - d.base[base_idx + l]) >> (64 - l)
             if litidx < d.symlen[symlen_idx + sym] + 1:
                 break
@@ -1011,8 +1011,8 @@ class Table(object):
     def read_uint32_be(self, data_ptr):
         return UINT32_BE.unpack_from(self.data, data_ptr)[0]
 
-    def read_ushort(self, data_ptr):
-        return USHORT.unpack_from(self.data, data_ptr)[0]
+    def read_uint16(self, data_ptr):
+        return UINT16.unpack_from(self.data, data_ptr)[0]
 
     def close(self):
         if self.data is not None:
