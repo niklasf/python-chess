@@ -2765,6 +2765,14 @@ class UciEngineTestCase(unittest.TestCase):
         with handler as info:
             self.assertEqual(info["currline"][1], [])
 
+    def test_info_ebf(self):
+        handler = chess.uci.InfoHandler()
+        self.engine.info_handlers.append(handler)
+
+        self.engine.on_line_received("info ebf 0.42")
+        with handler as info:
+            self.assertEqual(info["ebf"], 0.42)
+
     def test_mate_score(self):
         handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(handler)

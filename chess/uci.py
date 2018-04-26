@@ -200,6 +200,10 @@ class InfoHandler(object):
         """
         self.info["currline"][cpunr] = moves
 
+    def ebf(self, ebf):
+        """Receives the effective branching factor."""
+        self.info["ebf"] = ebf
+
     def pre_info(self, line):
         """
         Receives new info lines before they are processed.
@@ -455,6 +459,15 @@ class Engine(object):
             for info_handler in self.info_handlers:
                 fn(info_handler, intval)
 
+        def handle_float_token(token, fn):
+            try:
+                floatval = float(token)
+            except ValueError:
+                LOGGER.exception("exception parsing float token")
+
+            for info_handler in self.info_handlers:
+                fn(info_handler, floatval)
+
         def handle_move_token(token, fn):
             try:
                 move = chess.Move.from_uci(token)
@@ -486,7 +499,7 @@ class Engine(object):
                 # Ignore extra spaces. Those can not be directly discarded,
                 # because they may occur in the string parameter.
                 pass
-            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "string"]:
+            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
                 end_of_parameter()
                 current_parameter = token
 
@@ -567,6 +580,8 @@ class Engine(object):
                         currline_moves.append(board.push_uci(token))
                 except ValueError:
                     LOGGER.exception("exception parsing currline")
+            elif current_parameter == "ebf":
+                handle_float_token(token, lambda handler, val: handler.ebf(val))
 
         end_of_parameter()
 
