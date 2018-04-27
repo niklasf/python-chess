@@ -1000,7 +1000,8 @@ class Table(object):
                 litidx -= d.symlen[symlen_idx + s1] + 1
                 sym = (self.read_uint8(w + 2) << 4) | (self.read_uint8(w + 1) >> 4)
 
-        return self.read_uint8(sympat + 3 * sym)
+        w = sympat + 3 * sym
+        return (self.read_uint8(w + 1) & 0x0f) << 8 | self.read_uint8(w)
 
     def read_uint64_be(self, data_ptr):
         return UINT64_BE.unpack_from(self.data, data_ptr)[0]
@@ -1278,10 +1279,15 @@ class DtzTable(Table):
                 p_data = self._next
                 self.p_map = p_data
                 if self.flags & 2:
-                    for i in range(4):
-                        self.map_idx[i] = p_data + 1 - self.p_map
-                        p_data += 1 + self.read_uint8(p_data)
-                    p_data += p_data & 0x01
+                    if not self.flags & 16:
+                        for i in range(4):
+                            self.map_idx[i] = p_data + 1 - self.p_map
+                            p_data += 1 + self.read_uint8(p_data)
+                    else:
+                        for i in range(4):
+                            self.map_idx[i] = p_data + 2 - self.p_map
+                            p_data += 2 + 2 * self.read_uint16(p_data)
+                p_data += p_data & 0x01
 
                 self.precomp.indextable = p_data
                 p_data += self.size[0]
@@ -1313,9 +1319,15 @@ class DtzTable(Table):
                 for f in range(files):
                     self.map_idx.append([])
                     if self.flags[f] & 2:
-                        for i in range(4):
-                            self.map_idx[-1].append(p_data + 1 - self.p_map)
-                            p_data += 1 + self.read_uint8(p_data)
+                        if not self.flags[f] & 16:
+                            for _ in range(4):
+                                self.map_idx[-1].append(p_data + 1 - self.p_map)
+                                p_data += 1 + self.read_uint8(p_data)
+                        else:
+                            p_data += p_data & 0x01
+                            for _ in range(4):
+                                self.map_idx[-1].append(p_data + 2 - self.p_map)
+                                p_data += 2 * 2 + self.read_uint16(p_data)
                 p_data += p_data & 0x01
 
                 for f in range(files):
@@ -1371,7 +1383,10 @@ class DtzTable(Table):
             res = self.decompress_pairs(self.precomp, idx)
 
             if self.flags & 2:
-                res = self.read_uint8(self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res)
+                if not self.flags & 16:
+                    res = self.read_uint8(self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res)
+                else:
+                    res = self.read_uint16(self.p_map + 2 * (self.map_idx[WDL_TO_MAP[wdl + 2]] + res))
 
             if (not (self.flags & PA_FLAGS[wdl + 2])) or (wdl & 1):
                 res *= 2
@@ -1404,7 +1419,10 @@ class DtzTable(Table):
             res = self.decompress_pairs(self.files[f].precomp, idx)
 
             if self.flags[f] & 2:
-                res = self.read_uint8(self.p_map + self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res)
+                if not self.flags[f] & 16:
+                    res = self.read_uint8(self.p_map + self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res)
+                else:
+                    res = self.read_uint16(self.p_map + 2 * (self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res))
 
             if (not (self.flags[f] & PA_FLAGS[wdl + 2])) or (wdl & 1):
                 res *= 2
