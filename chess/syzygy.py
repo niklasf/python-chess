@@ -1326,7 +1326,7 @@ class DtzTable(Table):
                         else:
                             p_data += p_data & 0x01
                             for _ in range(4):
-                                self.map_idx[-1].append(p_data + 2 - self.p_map)
+                                self.map_idx[-1].append((p_data + 2 - self.p_map) // 2)
                                 p_data += 2 * 2 + self.read_uint16(p_data)
                 p_data += p_data & 0x01
 
