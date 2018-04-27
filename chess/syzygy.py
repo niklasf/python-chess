@@ -1001,7 +1001,10 @@ class Table(object):
                 sym = (self.read_uint8(w + 2) << 4) | (self.read_uint8(w + 1) >> 4)
 
         w = sympat + 3 * sym
-        return ((self.read_uint8(w + 1) & 0x0f) << 8) | self.read_uint8(w)
+        if isinstance(self, DtzTable):
+            return ((self.read_uint8(w + 1) & 0x0f) << 8) | self.read_uint8(w)
+        else:
+            return self.read_uint8(w)
 
     def read_uint64_be(self, data_ptr):
         return UINT64_BE.unpack_from(self.data, data_ptr)[0]
