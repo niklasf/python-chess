@@ -1001,7 +1001,7 @@ class Table(object):
                 sym = (self.read_uint8(w + 2) << 4) | (self.read_uint8(w + 1) >> 4)
 
         w = sympat + 3 * sym
-        return (self.read_uint8(w + 1) & 0x0f) << 8 | self.read_uint8(w)
+        return ((self.read_uint8(w + 1) & 0x0f) << 8) | self.read_uint8(w)
 
     def read_uint64_be(self, data_ptr):
         return UINT64_BE.unpack_from(self.data, data_ptr)[0]
@@ -1285,7 +1285,7 @@ class DtzTable(Table):
                             p_data += 1 + self.read_uint8(p_data)
                     else:
                         for i in range(4):
-                            self.map_idx[i] = p_data + 2 - self.p_map
+                            self.map_idx[i] = (p_data + 2 - self.p_map) // 2
                             p_data += 2 + 2 * self.read_uint16(p_data)
                 p_data += p_data & 0x01
 
