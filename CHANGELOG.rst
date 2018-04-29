@@ -1,6 +1,19 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.4
+--------------
+
+New features:
+
+* XBoard: Support pondering. Thanks Manik Charan.
+* UCI: Support unofficial `info ebf`.
+
+Bugfixes:
+
+* Implement 16 bit DTZ mapping, which is required for some of the longest
+  7 piece endgames.
+
 New in v0.23.3
 --------------
 
