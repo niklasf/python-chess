@@ -38,6 +38,18 @@ DUMMY_RESPONSES = [ENGINE_RESIGN, GAME_DRAW] = [-1, -2]
 RESULTS = [WHITE_WIN, BLACK_WIN, DRAW] = ["1-0", "0-1", "1/2-1/2"]
 
 
+def try_move(board, move):
+    try:
+        move = board.push_uci(move)
+    except ValueError:
+        try:
+            move = board.push_san(move)
+        except ValueError:
+            LOGGER.exception("exception parsing pv")
+            return None
+    return move
+
+
 class DrawHandler(object):
     """
     Chess engines may send a draw offer after playing its move and may receive
@@ -511,13 +523,7 @@ class Engine(object):
         making_pv_ponder = False # For the '(<move>)' variation
         hint_ponder_played = False # For the 'Hint: <move>' variation
         if self.ponder_move:
-            try:
-                board.push_uci(self.ponder_move)
-            except ValueError:
-                try:
-                    board.push_san(self.ponder_move)
-                except ValueError:
-                    LOGGER.exception("exception parsing pv")
+            try_move(board, self.ponder_move)
             hint_ponder_played = True
 
         tokens = arg.split()
@@ -540,14 +546,7 @@ class Engine(object):
                 self.ponder_move = token
                 making_pv_ponder = True
 
-            try:
-                pv_move = board.push_uci(token)
-            except ValueError:
-                try:
-                    pv_move = board.push_san(token)
-                except ValueError:
-                    LOGGER.exception("exception parsing pv")
-                    continue
+            pv_move = try_move(board, token)
 
             # Don't append to pv if this move was the ponder move
             if making_pv_ponder:
@@ -1259,13 +1258,7 @@ class Engine(object):
             if self.move in DUMMY_RESPONSES:
                 return self.move
 
-            try:
-                self.board.push_uci(str(self.move))
-            except ValueError:
-                try:
-                    self.board.push_san(str(self.move))
-                except ValueError:
-                    LOGGER.exception("exception parsing move")
+            try_move(self.board, str(self.move))
 
             return self.move
 
@@ -1336,13 +1329,7 @@ class Engine(object):
             for post_handler in self.post_handlers:
                 post_handler.on_go()
 
-        try:
-            self.board.push_uci(str(move))
-        except ValueError:
-            try:
-                self.board.push_san(str(move))
-            except ValueError:
-                LOGGER.exception("exception parsing move")
+        try_move(self.board, str(move))
 
         builder.append(str(move))
 
@@ -1369,13 +1356,7 @@ class Engine(object):
                 if self.terminated.is_set():
                     raise EngineTerminatedException()
 
-                try:
-                    self.board.push_uci(str(self.move))
-                except ValueError:
-                    try:
-                        self.board.push_san(str(self.move))
-                    except ValueError:
-                        LOGGER.exception("exception parsing move")
+                try_move(self.board, str(self.move))
 
                 return self.move
 
