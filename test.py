@@ -661,6 +661,12 @@ class BoardTestCase(unittest.TestCase):
         # Missing promotion.
         self.assertNotIn(chess.Move.from_uci("g7g8"), board.legal_moves)
 
+        # Promote to pawn or king.
+        self.assertFalse(board.is_legal(chess.Move.from_uci("g7g8p")))
+        self.assertFalse(board.is_pseudo_legal(chess.Move.from_uci("g7g8p")))
+        self.assertFalse(board.is_legal(chess.Move.from_uci("g7g8k")))
+        self.assertFalse(board.is_pseudo_legal(chess.Move.from_uci("g7g8k")))
+
         self.assertEqual(board.fen(), fen)
 
     def test_move_count(self):
