@@ -311,6 +311,9 @@ class Engine(object):
         self.move = None
         self.move_received = threading.Event()
 
+        self.ponder_on = None
+        self.ponder_move = None
+
         self.return_code = None
         self.terminated = threading.Event()
 
@@ -361,6 +364,8 @@ class Engine(object):
                 return self._move(command_and_args[1])
             elif command_and_args[0] == "offer" and command_and_args[1] == "draw":
                 return self._offer_draw()
+            elif command_and_args[0] == "Hint:":
+                return self._hint(command_and_args[1])
         elif len(command_and_args) >= 5:
             return self._post(buf)
 
@@ -468,6 +473,12 @@ class Engine(object):
         for post_handler in self.post_handlers:
             post_handler.on_move(self.move)
 
+    def _hint(self, arg):
+        # If we have finished search and received a best move,
+        # the Hint tells us the ponder move for supported engines
+        if self.move_received.is_set():
+            self.ponder_move = arg
+
     def _post(self, arg):
         if not self.post_handlers:
             return
@@ -488,6 +499,27 @@ class Engine(object):
 
         pv = []
         board = self.board.copy(stack=False)
+
+        # Ponder may be handled in one (or both) of two ways according to the
+        # spec. Either through a 'Hint: <move>' or through '5. ... (<move>) pv'.
+        # It is unclear whether the 'Hint: <move>' variation is persistent
+        # until changed or whether it must be given before each ponder post.
+
+        # Assumption: The hint ponder overrides the pv ponder.
+        #             They should be the same in a normal scenario.
+
+        making_pv_ponder = False # For the '(<move>)' variation
+        hint_ponder_played = False # For the 'Hint: <move>' variation
+        if self.ponder_move:
+            try:
+                board.push_uci(self.ponder_move)
+            except ValueError:
+                try:
+                    board.push_san(self.ponder_move)
+                except ValueError:
+                    LOGGER.exception("exception parsing pv")
+            hint_ponder_played = True
+
         tokens = arg.split()
         # Order: <score> <depth> <time> <nodes> <pv>.
         handle_integer_token(tokens[0], lambda handler, val: handler.depth(val))
@@ -498,13 +530,31 @@ class Engine(object):
             # Ignore move number. For example, 1. Nf3 Nf6 -> Nf3 Nf6.
             if '.' in token or '<' in token:
                 continue
+            # Handle ponder move only if we haven't already received a hint
+            elif token.startswith('(') and token.endswith(')'):
+                # If a Hint was given and the ponder move played,
+                # ignore the move in parantheses
+                if hint_ponder_played:
+                    continue
+                token = token[1:-1]
+                self.ponder_move = token
+                making_pv_ponder = True
+
             try:
-                pv.append(board.push_uci(token))
+                pv_move = board.push_uci(token)
             except ValueError:
                 try:
-                    pv.append(board.push_san(token))
+                    pv_move = board.push_san(token)
                 except ValueError:
                     LOGGER.exception("exception parsing pv")
+                    continue
+
+            # Don't append to pv if this move was the ponder move
+            if making_pv_ponder:
+                making_pv_ponder = False
+                continue
+
+            pv.append(pv_move)
 
         if pv is not None:
             for post_handler in self.post_handlers:
@@ -635,6 +685,8 @@ class Engine(object):
 
         :return: Nothing.
         """
+        self.ponder_on = ponder
+
         if ponder:
             msg = "hard"
         else:
@@ -1295,8 +1347,8 @@ class Engine(object):
         builder.append(str(move))
 
         def command():
-            # Use the join(builder) once we parse usermove=1 feature.
             move_str = " ".join(builder)
+            self.ponder_move = None
             if self.in_force:
                 with self.semaphore:
                     self.send_line(move_str)
