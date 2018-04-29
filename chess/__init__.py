@@ -841,6 +841,7 @@ class BaseBoard(object):
 
     def _set_board_fen(self, fen):
         # Ensure the FEN is valid.
+        fen = fen.split(' ', 1)[0]
         rows = fen.split("/")
         if len(rows) != 8:
             raise ValueError("expected 8 rows in position part of fen: {0}".format(repr(fen)))
