@@ -840,6 +840,11 @@ class BaseBoard(object):
         return "".join(builder)
 
     def _set_board_fen(self, fen):
+        # Compability with set_fen().
+        fen = fen.strip()
+        if " " in fen:
+            raise ValueError("expected position part of fen, got multiple parts: {0}".format(repr(fen)))
+
         # Ensure the FEN is valid.
         rows = fen.split("/")
         if len(rows) != 8:
