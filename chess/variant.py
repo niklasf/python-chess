@@ -759,7 +759,14 @@ class CrazyhouseBoard(chess.Board):
             return super(CrazyhouseBoard, self).parse_san(san)
 
     def is_insufficient_material(self):
-        return False
+        return (
+            chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
+            not self.pawns and
+            not self.rooks and
+            not self.queens and
+            not any(pocket.count(chess.PAWN) for pocket in self.pockets) and
+            not any(pocket.count(chess.ROOK) for pocket in self.pockets) and
+            not any(pocket.count(chess.QUEEN) for pocket in self.pockets))
 
     def set_fen(self, fen):
         position_part, info_part = fen.split(None, 1)

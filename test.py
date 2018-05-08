@@ -3702,6 +3702,16 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(board.pop(), chess.Move.from_uci("e5d6"))
         self.assertEqual(board.fen(), fen)
 
+    def test_crazyhouse_insufficient_material(self):
+        board = chess.variant.CrazyhouseBoard()
+        self.assertFalse(board.is_insufficient_material())
+
+        board = chess.variant.CrazyhouseBoard.empty()
+        self.assertTrue(board.is_insufficient_material())
+
+        board.pockets[chess.WHITE].add(chess.PAWN)
+        self.assertFalse(board.is_insufficient_material())
+
 
 class GiveawayTestCase(unittest.TestCase):
 
