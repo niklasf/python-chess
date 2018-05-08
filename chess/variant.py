@@ -238,7 +238,7 @@ class AtomicBoard(chess.Board):
 
         # Only knights.
         if self.occupied == (self.kings | self.knights):
-            return chess.popcount(self.knights) <= 2
+            return chess.popcount(self.knights) <= 2 and not all(occ & self.knights for occ in self.occupied_co)
 
         # Only bishops.
         if self.occupied == (self.kings | self.bishops):
