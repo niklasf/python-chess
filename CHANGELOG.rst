@@ -1,6 +1,20 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.5
+--------------
+
+Bugfixes:
+
+* Atomic chess: KNvKN is not insufficient material.
+* Crazyhouse: Detect insufficient material. This can not happen unless the
+  game was started with insufficient material.
+
+Changes:
+
+* Better error messages when parsing info from UCI engine fails.
+* Better error message for `b.set_board_fen(b.fen())`.
+
 New in v0.23.4
 --------------
 
