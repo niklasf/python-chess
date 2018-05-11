@@ -453,7 +453,7 @@ class Engine(object):
             try:
                 intval = int(token)
             except ValueError:
-                LOGGER.exception("exception parsing integer token")
+                LOGGER.exception("exception parsing integer token from info: %r", arg)
                 return
 
             for info_handler in self.info_handlers:
@@ -463,7 +463,7 @@ class Engine(object):
             try:
                 floatval = float(token)
             except ValueError:
-                LOGGER.exception("exception parsing float token")
+                LOGGER.exception("exception parsing float token from info: %r", arg)
 
             for info_handler in self.info_handlers:
                 fn(info_handler, floatval)
@@ -472,7 +472,7 @@ class Engine(object):
             try:
                 move = chess.Move.from_uci(token)
             except ValueError:
-                LOGGER.exception("exception parsing move token")
+                LOGGER.exception("exception parsing move token from info: %r", arg)
                 return
 
             for info_handler in self.info_handlers:
@@ -531,7 +531,7 @@ class Engine(object):
                 try:
                     pv.append(board.push_uci(token))
                 except ValueError:
-                    LOGGER.exception("exception parsing pv")
+                    LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, self.board.fen())
             elif current_parameter == "multipv":
                 # Ignore multipv. It was already parsed before anything else.
                 pass
@@ -546,12 +546,12 @@ class Engine(object):
                     try:
                         score_cp = int(token)
                     except ValueError:
-                        LOGGER.exception("exception parsing score cp value")
+                        LOGGER.exception("exception parsing score cp value from info: %r", arg)
                 elif score_kind == "mate":
                     try:
                         score_mate = int(token)
                     except ValueError:
-                        LOGGER.exception("exception parsing score mate value")
+                        LOGGER.exception("exception parsing score mate value from info: %r", arg)
             elif current_parameter == "currmove":
                 handle_move_token(token, lambda handler, val: handler.currmove(val))
             elif current_parameter == "currmovenumber":
@@ -571,7 +571,7 @@ class Engine(object):
                     else:
                         refuted_by.append(board.push_uci(token))
                 except ValueError:
-                    LOGGER.exception("exception parsing refutation")
+                    LOGGER.exception("exception parsing refutation from info: %r, position at root: %s", arg, self.board.fen())
             elif current_parameter == "currline":
                 try:
                     if currline_cpunr is None:
@@ -579,7 +579,7 @@ class Engine(object):
                     else:
                         currline_moves.append(board.push_uci(token))
                 except ValueError:
-                    LOGGER.exception("exception parsing currline")
+                    LOGGER.exception("exception parsing currline from info: %r, position at root: %s", arg, self.board.fen())
             elif current_parameter == "ebf":
                 handle_float_token(token, lambda handler, val: handler.ebf(val))
 
