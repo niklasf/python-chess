@@ -1732,7 +1732,7 @@ class Tablebases(object):
         if wdl > 0:
             # The position is a win or a cursed win by a threat move.
             if success == 3:
-                return 2 if wdl == 2 else 101
+                return 2 if wdl == 2 else 102
 
             # Generate all legal non-capturing pawn moves.
             for move in board.generate_legal_moves(board.pawns, ~board.occupied):
