@@ -1761,9 +1761,9 @@ class Tablebases(object):
                 try:
                     v = -self.probe_dtz(board)
 
-                    if v > 0 and v + 1 < best:
-                        if v == 1 and board.is_checkmate():
-                            v = 0
+                    if v == 1 and board.is_checkmate():
+                        best = 1
+                    elif v > 0 and v + 1 < best:
                         best = v + 1
                 finally:
                     board.pop()
