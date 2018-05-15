@@ -1826,10 +1826,12 @@ class Tablebases(object):
         |     |                  | be forced in n plies.                      |
         +-----+------------------+--------------------------------------------+
 
-        The return value can be off by one: a return value -n can mean a loss
-        in n + 1 plies and a return value +n can mean a win in n + 1 plies.
+        The return value can be off by one: a return value -n can mean a
+        losing zeroing move in in n + 1 plies and a return value +n can mean a
+        winning zeroing move in n + 1 plies.
         This is guaranteed not to happen for positions exactly on the edge of
-        the 50-move rule, so that this never impacts results of practical play.
+        the 50-move rule, so that (with some care) this never impacts the
+        result of practical play.
 
         Minmaxing the DTZ values guarantees winning a won position (and drawing
         a drawn position), because it makes progress keeping the win in hand.
