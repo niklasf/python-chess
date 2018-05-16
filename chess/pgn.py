@@ -179,6 +179,9 @@ class GameNode(object):
         Checks if this node starts a variation (and can thus have a starting
         comment). The root node does not start a variation and can have no
         starting comment.
+
+        For example in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3`` the node holding
+        1. c5 starts a variation.
         """
         if not self.parent or not self.parent.variations:
             return False
