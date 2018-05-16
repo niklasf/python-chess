@@ -181,7 +181,7 @@ class GameNode(object):
         starting comment.
 
         For example in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3`` the node holding
-        1. c5 starts a variation.
+        1... c5 starts a variation.
         """
         if not self.parent or not self.parent.variations:
             return False
