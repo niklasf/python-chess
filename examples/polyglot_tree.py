@@ -18,6 +18,8 @@ def print_tree(args, visited, level=0):
     if zobrist_hash in visited:
         return
 
+    visited.add(zobrist_hash)
+
     for entry in args.book.find_all(zobrist_hash):
         print("│ " * level + "├─", args.board.san(entry.move()))
 
