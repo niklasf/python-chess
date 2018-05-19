@@ -433,12 +433,20 @@ class MemoryMappedReader(object):
         to delete entries from an opening book without compacting it. Pass
         *minimum_weight* ``0`` to select all entries.
 
-        :raises: :exc:`IndexError` if no entries are found.
+        :raises: :exc:`IndexError` if no entries are found. Use
+            :func:`~chess.polyglot.MemoryMappedReader.get()` if you prefer to
+            get ``None`` instead of an exception.
         """
         try:
             return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
         except ValueError:
             raise IndexError()
+
+    def get(self, board, default=None, minimum_weight=1, exclude_moves=()):
+        try:
+            return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
+        except IndexError:
+            return default
 
     def choice(self, board, minimum_weight=1, exclude_moves=(), random=random):
         """

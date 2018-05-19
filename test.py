@@ -1604,12 +1604,11 @@ class PolyglotTestCase(unittest.TestCase):
             board = chess.Board()
 
             while True:
-                try:
-                    entry = book.find(board)
-                except IndexError:
+                entry = book.get(board)
+                if entry is None:
                     break
-                else:
-                    board.push(entry.move())
+
+                board.push(entry.move())
 
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
