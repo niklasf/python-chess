@@ -3,6 +3,8 @@
 
 """Print a polyglot opening book in tree form."""
 
+from __future__ import print_function
+
 import chess
 import chess.polyglot
 import argparse
@@ -27,7 +29,7 @@ def print_tree(args, visited, level=0):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("book", type=chess.polyglot.open_reader)
-    parser.add_argument("--depth", default=5)
+    parser.add_argument("--depth", type=int, default=5)
     parser.add_argument("--fen", type=chess.Board, default=chess.Board(), dest="board")
     args = parser.parse_args()
     print_tree(args, visited=set())
