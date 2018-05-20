@@ -33,6 +33,15 @@ import copy
 import re
 import itertools
 import struct
+import sys
+import warnings
+
+if sys.version_info < (3, ):
+    warnings.warn("You are using the master branch of python-chess with Python 2. "
+                  "Python 2 support will be dropped soon. Consider upgrading, "
+                  "or using the 0.23.x branch, which will be maintained until "
+                  "the end of 2018.",
+                  UserWarning)
 
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
