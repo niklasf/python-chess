@@ -845,9 +845,6 @@ class Engine(object):
             if not self.idle:
                 raise EngineStateException("position command while engine is busy")
 
-        builder = []
-        builder.append("position")
-
         # Take back moves to obtain the FEN at the latest pawn move or
         # capture. Later giving the moves explicitly allows for transposition
         # detection.
@@ -860,16 +857,18 @@ class Engine(object):
                 break
 
         # Validate castling rights.
-        if not self.uci_chess960 and board.chess960:
-            if board.has_chess960_castling_rights():
-                LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
+        if not self.uci_chess960 and board.chess960 and board.has_chess960_castling_rights():
+            LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
 
-                # Just send the final FEN without transpositions in hopes
-                # that this will work.
-                while switchyard:
-                    board.push(switchyard.pop())
+            # Just send the final FEN without transpositions in hopes
+            # that this will work.
+            while switchyard:
+                board.push(switchyard.pop())
 
         # Send starting position.
+        builder = []
+        builder.append("position")
+
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
         else:
