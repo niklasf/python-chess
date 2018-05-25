@@ -1,6 +1,30 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.6
+--------------
+
+Bugfixes:
+
+* Gaviota: Fix Python based Gaviota tablebase probing when there are multiple
+  en passant captures. Thanks @bjoernholzhauer.
+* Syzygy: Fix DTZ for some mate in 1 positions. Similarly to the fix from
+  v0.23.1 this is mostly cosmetic.
+* Syzygy: Fix DTZ off-by-one in some 6 piece antichess positions with moves
+  that threaten to force a capture. This is mostly cosmetic.
+
+Changes:
+
+* Let `uci.Engine.position()` send history of at least 8 moves if available.
+  Previously it sent only moves that were relevant for repetition detection.
+  This is mostly useful for Lc0. Once performance issues are solved, a future
+  version will always send the entire history. Thanks @SashaMN and @Mk-Chan.
+* Various documentation fixes and improvements.
+
+New features:
+
+* Added `polyglot.MemoryMappedReader.get(board, default=None)`.
+
 New in v0.23.5
 --------------
 

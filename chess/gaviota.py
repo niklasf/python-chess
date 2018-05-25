@@ -1755,17 +1755,23 @@ class PythonTablebases(object):
                     if xp[i] == chess.PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
                         epscore = iFORBID
 
+                        # Copy position.
+                        xs_after = xs[:]
+                        ys_after = ys[:]
+                        xp_after = xp[:]
+                        yp_after = yp[:]
+
                         # Execute capture.
-                        xs[i] = req.epsq
-                        removepiece(ys, yp, j)
+                        xs_after[i] = req.epsq
+                        removepiece(ys_after, yp_after, j)
 
                         # Flip back.
                         if req.side == 1:
-                            xs, ys = ys, xs
-                            xp, yp = yp, xp
+                            xs_after, ys_after = ys_after, xs_after
+                            xp_after, yp_after = yp_after, xp_after
 
                         # Make subrequest.
-                        subreq = Request(xs, xp, ys, yp, opp(req.side), NOSQUARE)
+                        subreq = Request(xs_after, xp_after, ys_after, yp_after, opp(req.side), NOSQUARE)
                         try:
                             epscore = self._tb_probe(subreq)
                             epscore = adjust_up(epscore)

@@ -3217,6 +3217,11 @@ class NativeGaviotaTestCase(unittest.TestCase):
         board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
         self.assertEqual(self.tablebases.get_wdl(board), 1)
 
+    @catchAndSkip(chess.gaviota.MissingTableError, "need KPPvKP.gtb.cp4")
+    def test_two_ep(self):
+        board = chess.Board("8/8/8/8/5pPp/8/5K1k/8 b - g3 0 61")
+        self.assertEqual(self.tablebases.probe_dtm(board), 19)
+
 
 class GaviotaTestCase(unittest.TestCase):
 
@@ -3283,6 +3288,14 @@ class GaviotaTestCase(unittest.TestCase):
             pass
 
         self.assertFalse(self.tablebases.available_tables)
+
+    @catchAndSkip(chess.gaviota.MissingTableError, "need KPPvKP.gtb.cp4")
+    def test_two_ep(self):
+        board = chess.Board("8/8/8/8/5pPp/8/5K1k/8 b - g3 0 61")
+        self.assertEqual(self.tablebases.probe_dtm(board), 19)
+
+        board = chess.Board("K7/8/8/6k1/5pPp/8/8/8 b - g3 0 61")
+        self.assertEqual(self.tablebases.probe_dtm(board), 17)
 
 
 class SvgTestCase(unittest.TestCase):

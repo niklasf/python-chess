@@ -819,9 +819,8 @@ class Engine(object):
         """
         Set up a given position.
 
-        Instead of just the final FEN, the initial FEN and all moves leading
-        up to the position will be sent, so that the engine can detect
-        repetitions.
+        Rather than just the final FEN, this will also send moves leading up to
+        position (at least as many as are relevant for repetition detection).
 
         If the position is from a new game, it is recommended to use the
         *ucinewgame* command before the *position* command.
@@ -845,12 +844,9 @@ class Engine(object):
             if not self.idle:
                 raise EngineStateException("position command while engine is busy")
 
-        builder = []
-        builder.append("position")
-
         # Take back moves to obtain the FEN at the latest pawn move or
-        # capture. Later giving the moves explicitly allows for transposition
-        # detection.
+        # capture. Sending the move history to the engine allows it to detect
+        # repetitions.
         switchyard = collections.deque()
         while board.move_stack:
             move = board.pop()
@@ -859,17 +855,24 @@ class Engine(object):
             if board.is_irreversible(move):
                 break
 
-        # Validate castling rights.
-        if not self.uci_chess960 and board.chess960:
-            if board.has_chess960_castling_rights():
-                LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
+        # Lc0 works best when at least the last 8 moves are sent, regardless
+        # if they are relevant for repetition detection.
+        while board.move_stack and len(switchyard) < 8:
+            switchyard.append(board.pop())
 
-                # Just send the final FEN without transpositions in hopes
-                # that this will work.
-                while switchyard:
-                    board.push(switchyard.pop())
+        # Validate castling rights.
+        if not self.uci_chess960 and board.chess960 and board.has_chess960_castling_rights():
+            LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
+
+            # Just send the final FEN without transpositions in hopes
+            # that this will work.
+            while switchyard and board.has_chess960_castling_rights():
+                board.push(switchyard.pop())
 
         # Send starting position.
+        builder = []
+        builder.append("position")
+
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
         else:
