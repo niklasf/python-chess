@@ -815,7 +815,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def position(self, board, async_callback=None):
+    def position(self, board, lookback=0, async_callback=None):
         """
         Set up a given position.
 
@@ -826,6 +826,9 @@ class Engine(object):
         *ucinewgame* command before the *position* command.
 
         :param board: A *chess.Board*.
+        :param lookback: An integer defining how many moves back should the
+                         initial FEN and the moves leading up to the current
+                         FEN be. This can override the repetition check.
 
         :return: Nothing
 
@@ -857,7 +860,8 @@ class Engine(object):
 
         # Lc0 works best when at least the last 8 moves are sent, regardless
         # if they are relevant for repetition detection.
-        while board.move_stack and len(switchyard) < 8:
+        # The lookback parameter can be specified to gain such information.
+        while board.move_stack and len(switchyard) < lookback:
             switchyard.append(board.pop())
 
         # Validate castling rights.
