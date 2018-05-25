@@ -3294,6 +3294,9 @@ class GaviotaTestCase(unittest.TestCase):
         board = chess.Board("8/8/8/8/5pPp/8/5K1k/8 b - g3 0 61")
         self.assertEqual(self.tablebases.probe_dtm(board), 19)
 
+        board = chess.Board("K7/8/8/6k1/5pPp/8/8/8 b - g3 0 61")
+        self.assertEqual(self.tablebases.probe_dtm(board), 17)
+
 
 class SvgTestCase(unittest.TestCase):
 
