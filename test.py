@@ -17,31 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
-import chess.polyglot
-import chess.pgn
-import chess.uci
-import chess.xboard
-import chess.syzygy
-import chess.gaviota
-import chess.variant
-import chess.svg
 import collections
 import copy
+import logging
 import os
 import os.path
-import textwrap
-import sys
-import time
-import threading
-import logging
 import platform
+import sys
+import textwrap
+import threading
+import time
 import unittest
+from io import StringIO
 
-try:
-    from StringIO import StringIO  # Python 2
-except ImportError:
-    from io import StringIO  # Python 3
+import chess
+import chess.gaviota
+import chess.pgn
+import chess.polyglot
+import chess.svg
+import chess.syzygy
+import chess.uci
+import chess.variant
+import chess.xboard
 
 
 class RaiseLogHandler(logging.StreamHandler):
