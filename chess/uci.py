@@ -705,6 +705,7 @@ class Engine(object):
         In debug mode, the engine should send additional information to the
         GUI to help with the debugging. Usually, this mode is off by default.
 
+        :param async_callback:
         :param on: bool
 
         :return: Nothing
@@ -742,6 +743,7 @@ class Engine(object):
         """
         Set values for the engine's available options.
 
+        :param async_callback:
         :param options: A dictionary with option names as keys.
 
         :return: Nothing
@@ -818,6 +820,7 @@ class Engine(object):
         If the position is from a new game, it is recommended to use the
         *ucinewgame* command before the *position* command.
 
+        :param async_callback:
         :param board: A *chess.Board*.
 
         :return: Nothing
@@ -902,6 +905,7 @@ class Engine(object):
         Note that when using *infinite* or *ponder*, the engine will not stop
         until it is told to.
 
+        :param async_callback:
         :param searchmoves: Restrict search to moves in this list.
         :param ponder: Bool to enable pondering mode. The engine will not stop
             pondering in the background until a *stop* command is received.
@@ -1140,6 +1144,9 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine.author
     'T. Romstad, M. Costalba, J. Kiiski, G. Linscott'
 
+    :param command:
+    :param engine_cls:
+    :param _popen_lock:
     :param setpgrp: Open the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
