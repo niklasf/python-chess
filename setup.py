@@ -90,7 +90,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
-    python_requires=">=3.3",
+    python_requires=">=3.4",
     extras_require=extra_dependencies(),
     tests_require=extra_dependencies().get("test"),
     classifiers=[
@@ -101,7 +101,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
