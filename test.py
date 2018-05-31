@@ -1772,7 +1772,7 @@ class PgnTestCase(unittest.TestCase):
         game.accept(exporter)
         self.assertEqual(virtual_file.getvalue(), pgn + "\n\n")
 
-    def test_empty_game(self):
+    def test_game_without_tag_roster(self):
         game = chess.pgn.Game.without_tag_roster()
         self.assertEqual(str(game), "*")
 
