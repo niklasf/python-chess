@@ -168,8 +168,7 @@ class PostHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.post = {}
-        self.post["pv"] = {}
+        self.post = {"pv": {}}
 
     def depth(self, depth):
         """Receives the search depth in plies."""

@@ -65,8 +65,7 @@ def read_description():
 
 
 def extra_dependencies():
-    extras = {}
-    extras["engine"] = []
+    extras = {"engine": []}
 
     if platform.python_implementation() == "CPython":
         extras["gaviota"] = []
