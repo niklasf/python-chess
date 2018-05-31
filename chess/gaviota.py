@@ -376,7 +376,7 @@ def norm_kkindex(x, y):
     rowx = chess.square_rank(x)
     colx = chess.square_file(x)
 
-    if (rowx > colx):
+    if rowx > colx:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
 
@@ -745,15 +745,15 @@ def kaabk_pctoindex(c):
     ws = c.white_piece_squares[:N_WHITE]
     bs = c.black_piece_squares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
@@ -1400,14 +1400,14 @@ def bestx(side, a, b):
 
     xorkey = [0, 3]
 
-    if (a == iFORBID):
+    if a == iFORBID:
         return b
-    if (b == iFORBID):
+    if b == iFORBID:
         return a
 
     retu = [a, a, b, b]
 
-    if (b < a):
+    if b < a:
         retu[1] = b
         retu[2] = a
 
