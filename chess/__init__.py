@@ -2273,11 +2273,9 @@ class Board(BaseBoard):
         >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
-        epd = []
-
-        epd.append(self.board_fen(promoted=promoted))
-        epd.append("w" if self.turn == WHITE else "b")
-        epd.append(self.castling_shredder_fen() if shredder else self.castling_xfen())
+        epd = [self.board_fen(promoted=promoted),
+               "w" if self.turn == WHITE else "b",
+               self.castling_shredder_fen() if shredder else self.castling_xfen()]
 
         if en_passant == "fen":
             epd.append(SQUARE_NAMES[self.ep_square] if self.ep_square is not None else "-")

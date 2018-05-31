@@ -844,9 +844,8 @@ class Engine(object):
         # Setboard should be sent after force.
         self.force()
 
-        builder = []
-        builder.append("setboard")
-        builder.append(board.shredder_fen() if board.chess960 else board.fen())
+        builder = ["setboard",
+                   board.shredder_fen() if board.chess960 else board.fen()]
 
         self.board = board.copy(stack=False)
 
@@ -1122,9 +1121,7 @@ class Engine(object):
         """
         self._assert_not_busy("level")
 
-        builder = []
-        builder.append("level")
-        builder.append(str(int(movestogo)))
+        builder = ["level", str(int(movestogo))]
 
         if seconds is not None:
             builder.append(str(int(minutes)) + ":" + str(int(seconds)))
