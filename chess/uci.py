@@ -84,11 +84,7 @@ class InfoHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.info = {}
-        self.info["refutation"] = {}
-        self.info["currline"] = {}
-        self.info["pv"] = {}
-        self.info["score"] = {}
+        self.info = {"refutation": {}, "currline": {}, "pv": {}, "score": {}}
 
     def depth(self, x):
         """Receives the search depth in plies."""
@@ -709,6 +705,7 @@ class Engine(object):
         In debug mode, the engine should send additional information to the
         GUI to help with the debugging. Usually, this mode is off by default.
 
+        :param async_callback:
         :param on: bool
 
         :return: Nothing
@@ -746,6 +743,7 @@ class Engine(object):
         """
         Set values for the engine's available options.
 
+        :param async_callback:
         :param options: A dictionary with option names as keys.
 
         :return: Nothing
@@ -758,10 +756,7 @@ class Engine(object):
             if name.lower() == "uci_variant":
                 self.uci_variant = value.lower()
 
-            builder = []
-            builder.append("setoption name")
-            builder.append(name)
-            builder.append("value")
+            builder = ["setoption name", name, "value"]
             if value is True:
                 builder.append("true")
             elif value is False:
@@ -825,6 +820,7 @@ class Engine(object):
         If the position is from a new game, it is recommended to use the
         *ucinewgame* command before the *position* command.
 
+        :param async_callback:
         :param board: A *chess.Board*.
 
         :return: Nothing
@@ -870,8 +866,7 @@ class Engine(object):
                 board.push(switchyard.pop())
 
         # Send starting position.
-        builder = []
-        builder.append("position")
+        builder = ["position"]
 
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
@@ -910,6 +905,7 @@ class Engine(object):
         Note that when using *infinite* or *ponder*, the engine will not stop
         until it is told to.
 
+        :param async_callback:
         :param searchmoves: Restrict search to moves in this list.
         :param ponder: Bool to enable pondering mode. The engine will not stop
             pondering in the background until a *stop* command is received.
@@ -946,8 +942,7 @@ class Engine(object):
         for info_handler in self.info_handlers:
             info_handler.on_go()
 
-        builder = []
-        builder.append("go")
+        builder = ["go"]
 
         if ponder:
             builder.append("ponder")
@@ -1149,6 +1144,9 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine.author
     'T. Romstad, M. Costalba, J. Kiiski, G. Linscott'
 
+    :param command:
+    :param engine_cls:
+    :param _popen_lock:
     :param setpgrp: Open the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
