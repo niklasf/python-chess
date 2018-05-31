@@ -84,11 +84,7 @@ class InfoHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.info = {}
-        self.info["refutation"] = {}
-        self.info["currline"] = {}
-        self.info["pv"] = {}
-        self.info["score"] = {}
+        self.info = {"refutation": {}, "currline": {}, "pv": {}, "score": {}}
 
     def depth(self, x):
         """Receives the search depth in plies."""
