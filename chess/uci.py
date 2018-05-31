@@ -758,10 +758,7 @@ class Engine(object):
             if name.lower() == "uci_variant":
                 self.uci_variant = value.lower()
 
-            builder = []
-            builder.append("setoption name")
-            builder.append(name)
-            builder.append("value")
+            builder = ["setoption name", name, "value"]
             if value is True:
                 builder.append("true")
             elif value is False:
@@ -870,8 +867,7 @@ class Engine(object):
                 board.push(switchyard.pop())
 
         # Send starting position.
-        builder = []
-        builder.append("position")
+        builder = ["position"]
 
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
@@ -946,8 +942,7 @@ class Engine(object):
         for info_handler in self.info_handlers:
             info_handler.on_go()
 
-        builder = []
-        builder.append("go")
+        builder = ["go"]
 
         if ponder:
             builder.append("ponder")

@@ -558,9 +558,11 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.BLACK] = bc
 
     def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
-        epd = []
-        epd.append(super(ThreeCheckBoard, self).epd(shredder=shredder, en_passant=en_passant, promoted=promoted))
-        epd.append("%d+%d" % (max(self.remaining_checks[chess.WHITE], 0), max(self.remaining_checks[chess.BLACK], 0)))
+        epd = [super(ThreeCheckBoard, self).epd(shredder=shredder,
+                                                en_passant=en_passant,
+                                                promoted=promoted), "%d+%d" % (
+               max(self.remaining_checks[chess.WHITE], 0),
+               max(self.remaining_checks[chess.BLACK], 0))]
         if operations:
             epd.append(self._epd_operations(operations))
         return " ".join(epd)
