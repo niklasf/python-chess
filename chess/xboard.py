@@ -168,8 +168,7 @@ class PostHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.post = {}
-        self.post["pv"] = {}
+        self.post = {"pv": {}}
 
     def depth(self, depth):
         """Receives the search depth in plies."""
@@ -679,6 +678,7 @@ class Engine(object):
         """
         Tells the engine whether to ponder or not.
 
+        :param async_callback:
         :param ponder: ``True`` or ``False`` to set *ponder* on or off, respectively.
             Defaults to ``True``.
 
@@ -715,6 +715,7 @@ class Engine(object):
         """
         Command used to tell the engine whether to output its analysis or not.
 
+        :param async_callback:
         :param flag: ``True`` or ``False`` to set *post* on or off, respectively.
 
         :return: Nothing.
@@ -775,6 +776,7 @@ class Engine(object):
         Sets values for the engine's available options.
         For 'button', 'reset' and 'save', flips the engine's value.
 
+        :param async_callback:
         :param options: A dictionary with option names as keys.
 
         :return: Nothing.
@@ -832,6 +834,7 @@ class Engine(object):
         """
         Sets up a given board position.
 
+        :param async_callback:
         :param board: A :class:`~chess.Board` instance.
 
         :return: Nothing.
@@ -844,9 +847,8 @@ class Engine(object):
         # Setboard should be sent after force.
         self.force()
 
-        builder = []
-        builder.append("setboard")
-        builder.append(board.shredder_fen() if board.chess960 else board.fen())
+        builder = ["setboard",
+                   board.shredder_fen() if board.chess960 else board.fen()]
 
         self.board = board.copy(stack=False)
 
@@ -887,6 +889,7 @@ class Engine(object):
         """
         Sets the maximum memory of the engine's hash/pawn/bitbase/other tables.
 
+        :param async_callback:
         :param amount: The maximum amount of memory to use in megabytes (MB).
 
         :return: Nothing.
@@ -902,6 +905,7 @@ class Engine(object):
         Sets the maximum number of processor cores the engine is allowed to use.
         For an SMP engine, this corresponds to search threads.
 
+        :param async_callback:
         :param num: The number of processor cores or search threads allowed.
 
         :return: Nothing.
@@ -930,6 +934,7 @@ class Engine(object):
         Sets the side to move, sets the engine to move for the opposite side
         and exits *force* mode.
 
+        :param async_callback:
         :param color: The desired side to move.
 
         :return: Nothing.
@@ -980,6 +985,7 @@ class Engine(object):
         Informs the engine of its opponent's name.
         The engine may choose to play differently based on this parameter.
 
+        :param async_callback:
         :param name_str: The name of the opponent.
 
         :return: Nothing.
@@ -992,6 +998,7 @@ class Engine(object):
         Informs the engine of its own rating followed by the opponent's.
         The engine may choose to play differently based on these parameters.
 
+        :param async_callback:
         :param engine_rating: The rating of this engine.
         :param opponent_rating: The rating of the opponent.
 
@@ -1019,6 +1026,7 @@ class Engine(object):
         the engine may have *feature egt=syzygy*, then it is legal to call
         *egtpath("syzygy", "<path-to-syzygy>")*.
 
+        :param async_callback:
         :param egt_type: The type of EGT pointed to (syzygy, gaviota, etc.).
         :param egt_path: The path to the desired EGT.
 
@@ -1036,6 +1044,7 @@ class Engine(object):
         Tells the engine to limit its speed of search in terms of
         nodes per second (NPS) to the provided value.
 
+        :param async_callback:
         :param target_nps: The limiting nodes per second (NPS) value.
 
         :return: Nothing.
@@ -1050,6 +1059,7 @@ class Engine(object):
         """
         Sets the maximum time the engine is to search for.
 
+        :param async_callback:
         :param time: The amount of time to search for in seconds.
 
         :return: Nothing.
@@ -1063,6 +1073,7 @@ class Engine(object):
         """
         Sets the maximum depth the engine is to search for.
 
+        :param async_callback:
         :param depth: The depth (plies) to search for.
 
         :return: Nothing.
@@ -1076,6 +1087,7 @@ class Engine(object):
         """
         Synchronizes the engine's clock with the total amount of time left.
 
+        :param async_callback:
         :param time: The total time left in centiseconds.
 
         :return: Nothing.
@@ -1090,6 +1102,7 @@ class Engine(object):
         """
         Synchronizes the engine's clock with the total amount of time left.
 
+        :param async_callback:
         :param time: The total time left in centiseconds.
 
         :return: Nothing.
@@ -1104,6 +1117,7 @@ class Engine(object):
         """
         Sets the time controls for the game.
 
+        :param async_callback:
         :param movestogo: The number of moves to be played before the time
             control repeats.
             Defaults to ``0`` (in order to play the whole game in the given
@@ -1122,9 +1136,7 @@ class Engine(object):
         """
         self._assert_not_busy("level")
 
-        builder = []
-        builder.append("level")
-        builder.append(str(int(movestogo)))
+        builder = ["level", str(int(movestogo))]
 
         if seconds is not None:
             builder.append(str(int(minutes)) + ":" + str(int(seconds)))
@@ -1302,6 +1314,7 @@ class Engine(object):
         If *auto_force* is set to ``True``, the engine will not start
         thinking about its next move immediately after.
 
+        :param async_callback:
         :param move: The move to play in XBoard notation.
 
         :return: Nothing.
@@ -1431,6 +1444,7 @@ class Engine(object):
         Only used with variants that the engine announced it could play in the
         'feature variants="variant,variant,..."' command at startup.
 
+        :param async_callback:
         :param variant: The variant name to play.
 
         :return: Nothing.
@@ -1453,6 +1467,9 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine = chess.xboard.popen_engine("/usr/games/crafty")
     >>> engine.xboard()
 
+    :param command:
+    :param engine_cls:
+    :param _popen_lock:
     :param setpgrp: Opens the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.

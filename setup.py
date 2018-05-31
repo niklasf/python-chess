@@ -17,13 +17,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
 import io
 import os
-import setuptools
-import sys
 import platform
 import re
+import sys
+
+import setuptools
+
+import chess
+
+if sys.version_info < (3, ):
+    raise ImportError(
+        """You are installing python-chess on Python 2.
+
+Python 2 support has been dropped. Consider upgrading to Python 3, or using
+the 0.23.x branch, which will be maintained until the end of 2018.
+""")
 
 
 def read_description():
@@ -36,17 +46,17 @@ def read_description():
     # Link to the documentation of the specific version.
     description = description.replace(
         "//python-chess.readthedocs.io/en/latest/",
-        "//python-chess.readthedocs.io/en/v{0}/".format(chess.__version__))
+        "//python-chess.readthedocs.io/en/v{}/".format(chess.__version__))
 
     # Use documentation badge for the specific version.
     description = description.replace(
         "//readthedocs.org/projects/python-chess/badge/?version=latest",
-        "//readthedocs.org/projects/python-chess/badge/?version=v{0}".format(chess.__version__))
+        "//readthedocs.org/projects/python-chess/badge/?version=v{}".format(chess.__version__))
 
     # Show Travis CI build status of the concrete version.
     description = description.replace(
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
-        "//travis-ci.org/niklasf/python-chess.svg?branch=v{0}".format(chess.__version__))
+        "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
     # Remove doctest comments.
     description = re.sub("\s*# doctest:.*", "", description)
@@ -55,18 +65,10 @@ def read_description():
 
 
 def extra_dependencies():
-    extras = {}
-
-    if sys.version_info < (3, 2):
-        extras["engine"] = ["futures"]
-    else:
-        extras["engine"] = []
+    extras = {"engine": []}
 
     if platform.python_implementation() == "CPython":
-        if sys.version_info < (3, 3):
-            extras["gaviota"] = ["backports.lzma"]
-        else:
-            extras["gaviota"] = []
+        extras["gaviota"] = []
 
     extras["test"] = extras["engine"] + extras.get("gaviota", [])
 
@@ -88,7 +90,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*",
+    python_requires=">=3.4",
     extras_require=extra_dependencies(),
     tests_require=extra_dependencies().get("test"),
     classifiers=[
@@ -98,13 +100,11 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3 :: Only",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

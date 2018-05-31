@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
 import collections
 import itertools
-import re
 import logging
+import re
 
+import chess
 
 LOGGER = logging.getLogger(__name__)
 
@@ -528,9 +528,9 @@ class Headers(collections.MutableMapping):
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
         elif not TAG_NAME_REGEX.match(key):
-            raise ValueError("non-alphanumeric pgn header tag: {0}".format(repr(key)))
+            raise ValueError("non-alphanumeric pgn header tag: {}".format(repr(key)))
         elif "\n" in value or "\r" in value:
-            raise ValueError("line break in pgn header {0}: {1}".format(key, repr(value)))
+            raise ValueError("line break in pgn header {}: {}".format(key, repr(value)))
         else:
             self._others[key] = value
 
@@ -564,9 +564,9 @@ class Headers(collections.MutableMapping):
         return self.copy()
 
     def __repr__(self):
-        return "{0}({1})".format(
+        return "{}({})".format(
             type(self).__name__,
-            ", ".join("{0}={1}".format(key, repr(value)) for key, value in self.items()))
+            ", ".join("{}={}".format(key, repr(value)) for key, value in self.items()))
 
 
 class BaseVisitor(object):
@@ -759,7 +759,7 @@ class StringExporter(BaseVisitor):
     def visit_header(self, tagname, tagvalue):
         if self.headers:
             self.found_headers = True
-            self.write_line("[{0} \"{1}\"]".format(tagname, tagvalue))
+            self.write_line("[{} \"{}\"]".format(tagname, tagvalue))
 
     def end_headers(self):
         if self.found_headers:
@@ -850,7 +850,7 @@ class FileExporter(StringExporter):
         return None
 
     def __repr__(self):
-        return "<FileExporter at {0}>".format(hex(id(self)))
+        return "<FileExporter at {}>".format(hex(id(self)))
 
     def __str__(self):
         return self.__repr__()
@@ -890,11 +890,7 @@ def read_game(handle, Visitor=GameModelCreator):
 
     >>> pgn_string = "1. e4 e5 2. Nf3 *"
     >>>
-    >>> try:
-    ...     from StringIO import StringIO  # Python 2
-    ... except ImportError:
-    ...     from io import StringIO  # Python 3
-    ...
+    >>> from io import StringIO
     >>> pgn = StringIO(pgn_string)
     >>> game = chess.pgn.read_game(pgn)
 
