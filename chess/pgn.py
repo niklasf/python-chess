@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
 import collections
 import itertools
-import re
 import logging
+import re
 
+import chess
 
 LOGGER = logging.getLogger(__name__)
 
@@ -890,11 +890,7 @@ def read_game(handle, Visitor=GameModelCreator):
 
     >>> pgn_string = "1. e4 e5 2. Nf3 *"
     >>>
-    >>> try:
-    ...     from StringIO import StringIO  # Python 2
-    ... except ImportError:
-    ...     from io import StringIO  # Python 3
-    ...
+    >>> from io import StringIO
     >>> pgn = StringIO(pgn_string)
     >>> game = chess.pgn.read_game(pgn)
 

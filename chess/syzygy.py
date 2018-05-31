@@ -16,15 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import chess
 import collections
 import mmap
 import os
+import re
 import struct
 import sys
 import threading
-import re
 
+import chess
 
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
@@ -604,13 +604,7 @@ class Table(object):
             self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
             # Micro optimizations for read_uint8.
-            if sys.version_info >= (3, ):
-                self.read_uint8 = self.data.__getitem__
-            else:
-                def read_uint8(data_ptr):
-                    return ord(self.data[data_ptr])
-
-                self.read_uint8 = read_uint8
+            self.read_uint8 = self.data.__getitem__
 
     def check_magic(self, magic):
         return all(self.read_uint8(i) == m for i, m in enumerate(magic))

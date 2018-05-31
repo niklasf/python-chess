@@ -18,26 +18,12 @@
 
 import collections
 import logging
-import threading
 import os
-import sys
-import signal
 import platform
-
-
-try:
-    import queue  # Python 3
-except ImportError:
-    import Queue as queue  # Python 2
-
-if os.name == "posix" and sys.version_info[0] < 3:
-    try:
-        import subprocess32 as subprocess
-    except ImportError:
-        import subprocess
-else:
-    import subprocess
-
+import queue
+import signal
+import subprocess
+import threading
 
 FUTURE_POLL_TIMEOUT = 0.1 if platform.system() == "Windows" else 60
 

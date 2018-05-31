@@ -21,12 +21,12 @@ import collections
 import ctypes
 import ctypes.util
 import fnmatch
+import logging
 import os
 import os.path
-import logging
 import struct
-import chess
 
+import chess
 
 LOGGER = logging.getLogger(__name__)
 
@@ -2097,14 +2097,7 @@ def open_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     except (OSError, RuntimeError) as err:
         LOGGER.info("Falling back to pure Python tablebases: %r", err)
 
-    try:
-        import lzma
-    except ImportError:
-        try:
-            from backports import lzma
-        except ImportError:
-            raise ImportError("chess.gaviota requires backports.lzma or libgtb")
-
+    import lzma
     tables = PythonTablebases(lzma)
     tables.open_directory(directory)
     return tables
