@@ -36,17 +36,17 @@ def read_description():
     # Link to the documentation of the specific version.
     description = description.replace(
         "//python-chess.readthedocs.io/en/latest/",
-        "//python-chess.readthedocs.io/en/v{0}/".format(chess.__version__))
+        "//python-chess.readthedocs.io/en/v{}/".format(chess.__version__))
 
     # Use documentation badge for the specific version.
     description = description.replace(
         "//readthedocs.org/projects/python-chess/badge/?version=latest",
-        "//readthedocs.org/projects/python-chess/badge/?version=v{0}".format(chess.__version__))
+        "//readthedocs.org/projects/python-chess/badge/?version=v{}".format(chess.__version__))
 
     # Show Travis CI build status of the concrete version.
     description = description.replace(
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
-        "//travis-ci.org/niklasf/python-chess.svg?branch=v{0}".format(chess.__version__))
+        "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
     # Remove doctest comments.
     description = re.sub("\s*# doctest:.*", "", description)

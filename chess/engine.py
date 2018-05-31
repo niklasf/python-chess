@@ -85,7 +85,7 @@ class MockProcess(object):
         self._expectations.append((expectation, responses))
 
     def assert_done(self):
-        assert not self._expectations, "pending expectations: {0}".format(self._expectations)
+        assert not self._expectations, "pending expectations: {}".format(self._expectations)
 
     def assert_terminated(self):
         self.assert_done()
@@ -107,9 +107,9 @@ class MockProcess(object):
     def send_line(self, string):
         assert self.is_alive()
 
-        assert self._expectations, "unexpected: {0}".format(string)
+        assert self._expectations, "unexpected: {}".format(string)
         expectation, responses = self._expectations.popleft()
-        assert expectation == string, "expected: {0}, got {1}".format(expectation, string)
+        assert expectation == string, "expected: {}, got {}".format(expectation, string)
 
         for response in responses:
             self._send_queue.put(response)
@@ -122,7 +122,7 @@ class MockProcess(object):
         return None
 
     def __repr__(self):
-        return "<MockProcess at {0}>".format(hex(id(self)))
+        return "<MockProcess at {}>".format(hex(id(self)))
 
 
 class PopenProcess(object):
@@ -189,7 +189,7 @@ class PopenProcess(object):
         return self.process.pid
 
     def __repr__(self):
-        return "<PopenProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
+        return "<PopenProcess at {} (pid={})>".format(hex(id(self)), self.pid())
 
 
 class SpurProcess(object):
@@ -242,7 +242,7 @@ class SpurProcess(object):
         return self.process.pid
 
     def __repr__(self):
-        return "<SpurProcess at {0} (pid={1})>".format(hex(id(self)), self.pid())
+        return "<SpurProcess at {} (pid={})>".format(hex(id(self)), self.pid())
 
 
 class OptionMap(collections.MutableMapping):
@@ -285,7 +285,7 @@ class OptionMap(collections.MutableMapping):
         return self.copy()
 
     def __repr__(self):
-        return "{0}({1})".format(type(self).__name__, dict(self.items()))
+        return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
 def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
