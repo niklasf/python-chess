@@ -351,7 +351,7 @@ class Piece(object):
         return hash(self.piece_type * (self.color + 1))
 
     def __repr__(self):
-        return "Piece.from_symbol('{0}')".format(self.symbol())
+        return "Piece.from_symbol('{}')".format(self.symbol())
 
     def __str__(self):
         return self.symbol()
@@ -445,7 +445,7 @@ class Move(object):
             return NotImplemented
 
     def __repr__(self):
-        return "Move.from_uci('{0}')".format(self.uci())
+        return "Move.from_uci('{}')".format(self.uci())
 
     def __str__(self):
         return self.uci()
@@ -480,7 +480,7 @@ class Move(object):
             promotion = PIECE_SYMBOLS.index(uci[4])
             return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion)
         else:
-            raise ValueError("expected uci string to be of length 4 or 5: {0}".format(repr(uci)))
+            raise ValueError("expected uci string to be of length 4 or 5: {}".format(repr(uci)))
 
     @classmethod
     def null(cls):
@@ -852,12 +852,12 @@ class BaseBoard(object):
         # Compability with set_fen().
         fen = fen.strip()
         if " " in fen:
-            raise ValueError("expected position part of fen, got multiple parts: {0}".format(repr(fen)))
+            raise ValueError("expected position part of fen, got multiple parts: {}".format(repr(fen)))
 
         # Ensure the FEN is valid.
         rows = fen.split("/")
         if len(rows) != 8:
-            raise ValueError("expected 8 rows in position part of fen: {0}".format(repr(fen)))
+            raise ValueError("expected 8 rows in position part of fen: {}".format(repr(fen)))
 
         # Validate each row.
         for row in rows:
@@ -868,13 +868,13 @@ class BaseBoard(object):
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                     if previous_was_digit:
-                        raise ValueError("two subsequent digits in position part of fen: {0}".format(repr(fen)))
+                        raise ValueError("two subsequent digits in position part of fen: {}".format(repr(fen)))
                     field_sum += int(c)
                     previous_was_digit = True
                     previous_was_piece = False
                 elif c == "~":
                     if not previous_was_piece:
-                        raise ValueError("~ not after piece in position part of fen: {0}".format(repr(fen)))
+                        raise ValueError("~ not after piece in position part of fen: {}".format(repr(fen)))
                     previous_was_digit = False
                     previous_was_piece = False
                 elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
@@ -882,10 +882,10 @@ class BaseBoard(object):
                     previous_was_digit = False
                     previous_was_piece = True
                 else:
-                    raise ValueError("invalid character in position part of fen: {0}".format(repr(fen)))
+                    raise ValueError("invalid character in position part of fen: {}".format(repr(fen)))
 
             if field_sum != 8:
-                raise ValueError("expected 8 columns per row in position part of fen: {0}".format(repr(fen)))
+                raise ValueError("expected 8 columns per row in position part of fen: {}".format(repr(fen)))
 
         # Clear the board.
         self._clear_board()
@@ -933,7 +933,7 @@ class BaseBoard(object):
 
     def _set_chess960_pos(self, sharnagl):
         if not 0 <= sharnagl <= 959:
-            raise ValueError("chess960 position index not 0 <= {0} <= 959".format(repr(sharnagl)))
+            raise ValueError("chess960 position index not 0 <= {} <= 959".format(repr(sharnagl)))
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
@@ -1091,7 +1091,7 @@ class BaseBoard(object):
             return None
 
     def __repr__(self):
-        return "{0}('{1}')".format(type(self).__name__, self.board_fen())
+        return "{}('{}')".format(type(self).__name__, self.board_fen())
 
     def __str__(self):
         builder = []
@@ -2055,29 +2055,29 @@ class Board(BaseBoard):
         # Ensure there are six parts.
         parts = fen.split()
         if len(parts) != 6:
-            raise ValueError("fen string should consist of 6 parts: {0}".format(repr(fen)))
+            raise ValueError("fen string should consist of 6 parts: {}".format(repr(fen)))
 
         # Check that the turn part is valid.
         if not parts[1] in ["w", "b"]:
-            raise ValueError("expected 'w' or 'b' for turn part of fen: {0}".format(repr(fen)))
+            raise ValueError("expected 'w' or 'b' for turn part of fen: {}".format(repr(fen)))
 
         # Check that the castling part is valid.
         if not FEN_CASTLING_REGEX.match(parts[2]):
-            raise ValueError("invalid castling part in fen: {0}".format(repr(fen)))
+            raise ValueError("invalid castling part in fen: {}".format(repr(fen)))
 
         # Check that the en passant part is valid.
         if parts[3] != "-":
             if parts[3] not in SQUARE_NAMES:
-                raise ValueError("invalid en passant part in fen: {0}".format(repr(fen)))
+                raise ValueError("invalid en passant part in fen: {}".format(repr(fen)))
 
         # Check that the half-move part is valid.
         if int(parts[4]) < 0:
-            raise ValueError("half-move clock can not be negative: {0}".format(repr(fen)))
+            raise ValueError("half-move clock can not be negative: {}".format(repr(fen)))
 
         # Check that the full-move number part is valid.
         # 0 is allowed for compability, but later replaced with 1.
         if int(parts[5]) < 0:
-            raise ValueError("full-move number must be positive: {0}".format(repr(fen)))
+            raise ValueError("full-move number must be positive: {}".format(repr(fen)))
 
         # Validate the board part and set it.
         self._set_board_fen(parts[0])
@@ -2110,7 +2110,7 @@ class Board(BaseBoard):
             return
 
         if not FEN_CASTLING_REGEX.match(castling_fen):
-            raise ValueError("invalid castling fen: {0}".format(repr(castling_fen)))
+            raise ValueError("invalid castling fen: {}".format(repr(castling_fen)))
 
         self.castling_rights = BB_VOID
 
@@ -2394,7 +2394,7 @@ class Board(BaseBoard):
         # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
         if len(parts) < 4:
-            raise ValueError("epd should consist of at least 4 parts: {0}".format(repr(epd)))
+            raise ValueError("epd should consist of at least 4 parts: {}".format(repr(epd)))
 
         # Parse ops.
         if len(parts) > 4:
@@ -2532,12 +2532,12 @@ class Board(BaseBoard):
 
         for move in variation:
             if not board.is_legal(move):
-                raise ValueError("illegal move {0} in position {1}".format(move, board.fen()))
+                raise ValueError("illegal move {} in position {}".format(move, board.fen()))
 
             if board.turn == WHITE:
-                san.append("{0}. {1}".format(board.fullmove_number, board.san(move)))
+                san.append("{}. {}".format(board.fullmove_number, board.san(move)))
             elif not san:
-                san.append("{0}...{1}".format(board.fullmove_number, board.san(move)))
+                san.append("{}...{}".format(board.fullmove_number, board.san(move)))
             else:
                 san.append(board.san(move))
 
@@ -2561,7 +2561,7 @@ class Board(BaseBoard):
             elif san in ["O-O-O", "O-O-O+", "O-O-O#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
         except StopIteration:
-            raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
+            raise ValueError("illegal san: {} in {}".format(repr(san), self.fen()))
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
@@ -2570,7 +2570,7 @@ class Board(BaseBoard):
             if san in ["--", "Z0"]:
                 return Move.null()
 
-            raise ValueError("invalid san: {0}".format(repr(san)))
+            raise ValueError("invalid san: {}".format(repr(san)))
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -2602,12 +2602,12 @@ class Board(BaseBoard):
                 continue
 
             if matched_move:
-                raise ValueError("ambiguous san: {0} in {1}".format(repr(san), self.fen()))
+                raise ValueError("ambiguous san: {} in {}".format(repr(san), self.fen()))
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError("illegal san: {0} in {1}".format(repr(san), self.fen()))
+            raise ValueError("illegal san: {} in {}".format(repr(san), self.fen()))
 
         return matched_move
 
@@ -2658,7 +2658,7 @@ class Board(BaseBoard):
         move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
-            raise ValueError("illegal uci: {0} in {1}".format(repr(uci), self.fen()))
+            raise ValueError("illegal uci: {} in {}".format(repr(uci), self.fen()))
 
         return move
 
@@ -3169,9 +3169,9 @@ class Board(BaseBoard):
 
     def __repr__(self):
         if not self.chess960:
-            return "{0}('{1}')".format(type(self).__name__, self.fen())
+            return "{}('{}')".format(type(self).__name__, self.fen())
         else:
-            return "{0}('{1}', chess960=True)".format(type(self).__name__, self.fen())
+            return "{}('{}', chess960=True)".format(type(self).__name__, self.fen())
 
     def _repr_svg_(self):
         import chess.svg
@@ -3280,7 +3280,7 @@ class PseudoLegalMoveGenerator(object):
 
         sans = ", ".join(builder)
 
-        return "<PseudoLegalMoveGenerator at {0} ({1})>".format(hex(id(self)), sans)
+        return "<PseudoLegalMoveGenerator at {} ({})>".format(hex(id(self)), sans)
 
 
 class LegalMoveGenerator(object):
@@ -3305,7 +3305,7 @@ class LegalMoveGenerator(object):
 
     def __repr__(self):
         sans = ", ".join(self.board.san(move) for move in self)
-        return "<LegalMoveGenerator at {0} ({1})>".format(hex(id(self)), sans)
+        return "<LegalMoveGenerator at {} ({})>".format(hex(id(self)), sans)
 
 
 class SquareSet(object):

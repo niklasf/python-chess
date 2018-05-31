@@ -39,9 +39,9 @@ def check_changelog():
         print("Found: Upcoming in the next release")
         sys.exit(1)
 
-    tagname = "v{0}".format(chess.__version__)
+    tagname = "v{}".format(chess.__version__)
     if tagname not in changelog:
-        print("Not found: {0}".format(tagname))
+        print("Not found: {}".format(tagname))
         sys.exit(1)
 
 
@@ -52,15 +52,15 @@ def check_docs():
 
 def tag_and_push():
     print("--- TAG AND PUSH -------------------------------------------------")
-    tagname = "v{0}".format(chess.__version__)
-    release_filename = "release-{0}.txt".format(tagname)
+    tagname = "v{}".format(chess.__version__)
+    release_filename = "release-{}.txt".format(tagname)
 
     if not os.path.exists(release_filename):
-        print(">>> Creating {0} ...".format(release_filename))
+        print(">>> Creating {} ...".format(release_filename))
         first_section = False
         prev_line = None
         with open(release_filename, "w") as release_txt, open("CHANGELOG.rst", "r") as changelog_file:
-            headline = "python-chess {0}".format(tagname)
+            headline = "python-chess {}".format(tagname)
             release_txt.write(headline + os.linesep)
 
             for line in changelog_file:
@@ -85,11 +85,11 @@ def tag_and_push():
 
     guessed_tagname = input(">>> Sure? Confirm tagname: ")
     if guessed_tagname != tagname:
-        print("Actual tagname is: {0}".format(tagname))
+        print("Actual tagname is: {}".format(tagname))
         sys.exit(1)
 
-    system("git tag {0} -s -F {1}".format(tagname, release_filename))
-    system("git push --atomic origin master {0}".format(tagname))
+    system("git tag {} -s -F {}".format(tagname, release_filename))
+    system("git push --atomic origin master {}".format(tagname))
     return tagname
 
 
@@ -105,7 +105,7 @@ def pypi():
 
 def github_release(tagname):
     print("--- GITHUB RELEASE -----------------------------------------------")
-    print("https://github.com/niklasf/python-chess/releases/new?tag={0}".format(tagname))
+    print("https://github.com/niklasf/python-chess/releases/new?tag={}".format(tagname))
 
 
 if __name__ == "__main__":

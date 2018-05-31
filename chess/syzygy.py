@@ -1538,7 +1538,7 @@ class Tablebases(object):
         try:
             table = self.wdl[key]
         except KeyError:
-            raise MissingTableError("did not find wdl table {0}".format(key))
+            raise MissingTableError("did not find wdl table {}".format(key))
 
         self._bump_lru(table)
 
@@ -1658,11 +1658,11 @@ class Tablebases(object):
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
-            raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
+            raise KeyError("syzygy tables do not contain positions with castling rights: {}".format(board.fen()))
 
         # Validate piece count.
         if chess.popcount(board.occupied) > 7:
-            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
@@ -1708,7 +1708,7 @@ class Tablebases(object):
         try:
             table = self.dtz[key]
         except KeyError:
-            raise MissingTableError("did not find dtz table {0}".format(key))
+            raise MissingTableError("did not find dtz table {}".format(key))
 
         self._bump_lru(table)
 
