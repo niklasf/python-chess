@@ -871,9 +871,8 @@ class Engine(object):
 
         def command():
             with self.semaphore:
-                if option_lines:
-                    for option_line in option_lines:
-                        self.send_line(option_line)
+                for option_line in option_lines:
+                    self.send_line(option_line)
 
                 self.send_line(" ".join(builder))
 
