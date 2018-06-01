@@ -1841,11 +1841,10 @@ class Board(BaseBoard):
 
         :warning: Moves are not checked for legality.
         """
-        # Remember game state.
-        self.stack.append(_BoardState(self))
-        self.move_stack.append(move)
-
+        # Push move and remember board state.
         move = self._to_chess960(move)
+        self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
+        self.stack.append(_BoardState(self))
 
         # Reset en passant square.
         ep_square = self.ep_square
