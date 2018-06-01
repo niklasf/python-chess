@@ -888,10 +888,9 @@ def read_game(handle, Visitor=GameModelCreator):
 
     Use :class:`~io.StringIO` to parse games from a string.
 
-    >>> pgn_string = "1. e4 e5 2. Nf3 *"
+    >>> import io
     >>>
-    >>> from io import StringIO
-    >>> pgn = StringIO(pgn_string)
+    >>> pgn = io.StringIO("1. e4 e5 2. Nf3 *")
     >>> game = chess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of

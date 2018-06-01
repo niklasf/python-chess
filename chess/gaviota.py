@@ -22,6 +22,7 @@ import ctypes
 import ctypes.util
 import fnmatch
 import logging
+import lzma
 import os
 import os.path
 import struct
@@ -1519,9 +1520,7 @@ Zipinfo = collections.namedtuple("Zipinfo", "extraoffset totalblocks blockindex"
 class PythonTablebases(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
-    def __init__(self, lzma):
-        self.lzma = lzma
-
+    def __init__(self):
         self.available_tables = {}
 
         self.streams = {}
@@ -1838,7 +1837,7 @@ class PythonTablebases(object):
                 # Concatenate the fake header with the true LZMA stream.
                 buffer_zipped = properties + buffer_zipped[15:]
 
-            buffer_packed = self.lzma.LZMADecompressor().decompress(buffer_zipped)
+            buffer_packed = lzma.LZMADecompressor().decompress(buffer_zipped)
 
             t.pcache = egtb_block_unpack(req.side, n, buffer_packed)
 
@@ -2097,7 +2096,6 @@ def open_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     except (OSError, RuntimeError) as err:
         LOGGER.info("Falling back to pure Python tablebases: %r", err)
 
-    import lzma
-    tables = PythonTablebases(lzma)
+    tables = PythonTablebases()
     tables.open_directory(directory)
     return tables

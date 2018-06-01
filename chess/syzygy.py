@@ -603,20 +603,17 @@ class Table(object):
         if self.data is None:
             self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
-            # Micro optimizations for read_uint8.
-            self.read_uint8 = self.data.__getitem__
-
     def check_magic(self, magic):
-        return all(self.read_uint8(i) == m for i, m in enumerate(magic))
+        return all(self.data[i] == m for i, m in enumerate(magic))
 
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
 
-        self._flags = self.read_uint8(data_ptr)
-        if self.read_uint8(data_ptr) & 0x80:
+        self._flags = self.data[data_ptr]
+        if self.data[data_ptr] & 0x80:
             d.idxbits = 0
             if wdl:
-                d.min_len = self.read_uint8(data_ptr + 1)
+                d.min_len = self.data[data_ptr + 1]
             else:
                 # http://www.talkchess.com/forum/viewtopic.php?p=698093#698093
                 d.min_len = 1 if self.variant.captures_compulsory else 0
@@ -626,13 +623,13 @@ class Table(object):
             self.size[size_idx + 2] = 0
             return d
 
-        d.blocksize = self.read_uint8(data_ptr + 1)
-        d.idxbits = self.read_uint8(data_ptr + 2)
+        d.blocksize = self.data[data_ptr + 1]
+        d.idxbits = self.data[data_ptr + 2]
 
         real_num_blocks = self.read_uint32(data_ptr + 4)
-        num_blocks = real_num_blocks + self.read_uint8(data_ptr + 3)
-        max_len = self.read_uint8(data_ptr + 8)
-        min_len = self.read_uint8(data_ptr + 9)
+        num_blocks = real_num_blocks + self.data[data_ptr + 3]
+        max_len = self.data[data_ptr + 8]
+        min_len = self.data[data_ptr + 9]
         h = max_len - min_len + 1
         num_syms = self.read_uint16(data_ptr + 10 + 2 * h)
 
@@ -746,11 +743,11 @@ class Table(object):
 
     def calc_symlen(self, d, s, tmp):
         w = d.sympat + 3 * s
-        s2 = (self.read_uint8(w + 2) << 4) | (self.read_uint8(w + 1) >> 4)
+        s2 = (self.data[w + 2] << 4) | (self.data[w + 1] >> 4)
         if s2 == 0x0fff:
             d.symlen[s] = 0
         else:
-            s1 = ((self.read_uint8(w + 1) & 0xf) << 8) | self.read_uint8(w)
+            s1 = ((self.data[w + 1] & 0xf) << 8) | self.data[w]
             if not tmp[s1]:
                 self.calc_symlen(d, s1, tmp)
             if not tmp[s2]:
@@ -986,18 +983,18 @@ class Table(object):
         sympat = d.sympat
         while d.symlen[symlen_idx + sym]:
             w = sympat + 3 * sym
-            s1 = ((self.read_uint8(w + 1) & 0xf) << 8) | self.read_uint8(w)
+            s1 = ((self.data[w + 1] & 0xf) << 8) | self.data[w]
             if litidx < d.symlen[symlen_idx + s1] + 1:
                 sym = s1
             else:
                 litidx -= d.symlen[symlen_idx + s1] + 1
-                sym = (self.read_uint8(w + 2) << 4) | (self.read_uint8(w + 1) >> 4)
+                sym = (self.data[w + 2] << 4) | (self.data[w + 1] >> 4)
 
         w = sympat + 3 * sym
         if isinstance(self, DtzTable):
-            return ((self.read_uint8(w + 1) & 0x0f) << 8) | self.read_uint8(w)
+            return ((self.data[w + 1] & 0x0f) << 8) | self.data[w]
         else:
-            return self.read_uint8(w)
+            return self.data[w]
 
     def read_uint64_be(self, data_ptr):
         return UINT64_BE.unpack_from(self.data, data_ptr)[0]
@@ -1064,8 +1061,8 @@ class WdlTable(Table):
             self._flags = None
             self.flags = None
 
-            split = self.read_uint8(4) & 0x01
-            files = 4 if self.read_uint8(4) & 0x02 else 1
+            split = self.data[4] & 0x01
+            files = 4 if self.data[4] & 0x02 else 1
 
             data_ptr = 5
 
@@ -1146,30 +1143,30 @@ class WdlTable(Table):
 
     def setup_pieces_pawn(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[1] > 0)
-        order = self.read_uint8(p_data) & 0x0f
-        order2 = self.read_uint8(p_data + 1) & 0x0f if self.pawns[1] else 0x0f
-        self.files[f].pieces[0] = [self.read_uint8(p_data + i + j) & 0x0f for i in range(self.num)]
+        order = self.data[p_data] & 0x0f
+        order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
+        self.files[f].pieces[0] = [self.data[p_data + i + j] & 0x0f for i in range(self.num)]
         self.files[f].norm[0] = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm[0], self.files[f].pieces[0])
         self.files[f].factor[0] = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor[0], order, order2, self.files[f].norm[0], f)
 
-        order = self.read_uint8(p_data) >> 4
-        order2 = self.read_uint8(p_data + 1) >> 4 if self.pawns[1] else 0x0f
-        self.files[f].pieces[1] = [self.read_uint8(p_data + i + j) >> 4 for i in range(self.num)]
+        order = self.data[p_data] >> 4
+        order2 = self.data[p_data + 1] >> 4 if self.pawns[1] else 0x0f
+        self.files[f].pieces[1] = [self.data[p_data + i + j] >> 4 for i in range(self.num)]
         self.files[f].norm[1] = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm[1], self.files[f].pieces[1])
         self.files[f].factor[1] = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
     def setup_pieces_piece(self, p_data):
-        self.pieces[0] = [self.read_uint8(p_data + i + 1) & 0x0f for i in range(self.num)]
-        order = self.read_uint8(p_data) & 0x0f
+        self.pieces[0] = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
+        order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm[0], self.pieces[0])
         self.tb_size[0] = self.calc_factors_piece(self.factor[0], order, self.norm[0])
 
-        self.pieces[1] = [self.read_uint8(p_data + i + 1) >> 4 for i in range(self.num)]
-        order = self.read_uint8(p_data) >> 4
+        self.pieces[1] = [self.data[p_data + i + 1] >> 4 for i in range(self.num)]
+        order = self.data[p_data] >> 4
         self.set_norm_piece(self.norm[1], self.pieces[1])
         self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
@@ -1257,7 +1254,7 @@ class DtzTable(Table):
             self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             self.files = [PawnFileDataDtz() for f in range(4)]
 
-            files = 4 if self.read_uint8(4) & 0x02 else 1
+            files = 4 if self.data[4] & 0x02 else 1
 
             p_data = 5
 
@@ -1276,7 +1273,7 @@ class DtzTable(Table):
                     if not self.flags & 16:
                         for i in range(4):
                             self.map_idx[i] = p_data + 1 - self.p_map
-                            p_data += 1 + self.read_uint8(p_data)
+                            p_data += 1 + self.data[p_data]
                     else:
                         for i in range(4):
                             self.map_idx[i] = (p_data + 2 - self.p_map) // 2
@@ -1316,7 +1313,7 @@ class DtzTable(Table):
                         if not self.flags[f] & 16:
                             for _ in range(4):
                                 self.map_idx[-1].append(p_data + 1 - self.p_map)
-                                p_data += 1 + self.read_uint8(p_data)
+                                p_data += 1 + self.data[p_data]
                         else:
                             p_data += p_data & 0x01
                             for _ in range(4):
@@ -1378,7 +1375,7 @@ class DtzTable(Table):
 
             if self.flags & 2:
                 if not self.flags & 16:
-                    res = self.read_uint8(self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res)
+                    res = self.data[self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res]
                 else:
                     res = self.read_uint16(self.p_map + 2 * (self.map_idx[WDL_TO_MAP[wdl + 2]] + res))
 
@@ -1414,7 +1411,7 @@ class DtzTable(Table):
 
             if self.flags[f] & 2:
                 if not self.flags[f] & 16:
-                    res = self.read_uint8(self.p_map + self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res)
+                    res = self.data[self.p_map + self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res]
                 else:
                     res = self.read_uint16(self.p_map + 2 * (self.map_idx[f][WDL_TO_MAP[wdl + 2]] + res))
 
@@ -1424,16 +1421,16 @@ class DtzTable(Table):
         return res, 1
 
     def setup_pieces_piece_dtz(self, p_data, p_tb_size):
-        self.pieces = [self.read_uint8(p_data + i + 1) & 0x0f for i in range(self.num)]
-        order = self.read_uint8(p_data) & 0x0f
+        self.pieces = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
+        order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm, self.pieces)
         self.tb_size[p_tb_size] = self.calc_factors_piece(self.factor, order, self.norm)
 
     def setup_pieces_pawn_dtz(self, p_data, p_tb_size, f):
         j = 1 + int(self.pawns[1] > 0)
-        order = self.read_uint8(p_data) & 0x0f
-        order2 = self.read_uint8(p_data + 1) & 0x0f if self.pawns[1] else 0x0f
-        self.files[f].pieces = [self.read_uint8(p_data + i + j) & 0x0f for i in range(self.num)]
+        order = self.data[p_data] & 0x0f
+        order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
+        self.files[f].pieces = [self.data[p_data + i + j] & 0x0f for i in range(self.num)]
 
         self.files[f].norm = [0 for _ in range(self.num)]
         self.set_norm_pawn(self.files[f].norm, self.files[f].pieces)
