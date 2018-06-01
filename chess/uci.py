@@ -84,11 +84,7 @@ class InfoHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.info = {}
-        self.info["refutation"] = {}
-        self.info["currline"] = {}
-        self.info["pv"] = {}
-        self.info["score"] = {}
+        self.info = {"refutation": {}, "currline": {}, "pv": {}, "score": {}}
 
     def depth(self, x):
         """Receives the search depth in plies."""
@@ -758,10 +754,7 @@ class Engine(object):
             if name.lower() == "uci_variant":
                 self.uci_variant = value.lower()
 
-            builder = []
-            builder.append("setoption name")
-            builder.append(name)
-            builder.append("value")
+            builder = ["setoption name", name, "value"]
             if value is True:
                 builder.append("true")
             elif value is False:
@@ -870,8 +863,7 @@ class Engine(object):
                 board.push(switchyard.pop())
 
         # Send starting position.
-        builder = []
-        builder.append("position")
+        builder = ["position"]
 
         if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
             builder.append("startpos")
@@ -946,8 +938,7 @@ class Engine(object):
         for info_handler in self.info_handlers:
             info_handler.on_go()
 
-        builder = []
-        builder.append("go")
+        builder = ["go"]
 
         if ponder:
             builder.append("ponder")
@@ -1149,6 +1140,8 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine.author
     'T. Romstad, M. Costalba, J. Kiiski, G. Linscott'
 
+    :param command:
+    :param engine_cls:
     :param setpgrp: Open the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.

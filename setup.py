@@ -36,17 +36,17 @@ def read_description():
     # Link to the documentation of the specific version.
     description = description.replace(
         "//python-chess.readthedocs.io/en/latest/",
-        "//python-chess.readthedocs.io/en/v{0}/".format(chess.__version__))
+        "//python-chess.readthedocs.io/en/v{}/".format(chess.__version__))
 
     # Use documentation badge for the specific version.
     description = description.replace(
         "//readthedocs.org/projects/python-chess/badge/?version=latest",
-        "//readthedocs.org/projects/python-chess/badge/?version=v{0}".format(chess.__version__))
+        "//readthedocs.org/projects/python-chess/badge/?version=v{}".format(chess.__version__))
 
     # Show Travis CI build status of the concrete version.
     description = description.replace(
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
-        "//travis-ci.org/niklasf/python-chess.svg?branch=v{0}".format(chess.__version__))
+        "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
     # Remove doctest comments.
     description = re.sub("\s*# doctest:.*", "", description)
@@ -88,7 +88,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*",
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
     extras_require=extra_dependencies(),
     tests_require=extra_dependencies().get("test"),
     classifiers=[
@@ -101,7 +101,6 @@ setuptools.setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

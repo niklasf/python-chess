@@ -569,9 +569,8 @@ class Table(object):
 
         black_part, white_part = tablename.split("v")
         if self.has_pawns:
-            self.pawns = {}
-            self.pawns[0] = white_part.count("P")
-            self.pawns[1] = black_part.count("P")
+            self.pawns = {0: white_part.count("P"),
+                          1: black_part.count("P")}
             if self.pawns[1] > 0 and (self.pawns[0] == 0 or self.pawns[1] < self.pawns[0]):
                 self.pawns[0], self.pawns[1] = self.pawns[1], self.pawns[0]
         else:
@@ -1058,13 +1057,11 @@ class WdlTable(Table):
             self.precomp = {}
             self.pieces = {}
 
-            self.factor = {}
-            self.factor[0] = [0 for _ in range(TBPIECES)]  # White
-            self.factor[1] = [0 for _ in range(TBPIECES)]  # Black
+            self.factor = {0: [0 for _ in range(TBPIECES)],
+                           1: [0 for _ in range(TBPIECES)]}
 
-            self.norm = {}
-            self.norm[0] = [0 for _ in range(self.num)]  # White
-            self.norm[1] = [0 for _ in range(self.num)]  # Black
+            self.norm = {0: [0 for _ in range(self.num)],
+                         1: [0 for _ in range(self.num)]}
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
@@ -1544,7 +1541,7 @@ class Tablebases(object):
         try:
             table = self.wdl[key]
         except KeyError:
-            raise MissingTableError("did not find wdl table {0}".format(key))
+            raise MissingTableError("did not find wdl table {}".format(key))
 
         self._bump_lru(table)
 
@@ -1664,11 +1661,11 @@ class Tablebases(object):
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
-            raise KeyError("syzygy tables do not contain positions with castling rights: {0}".format(board.fen()))
+            raise KeyError("syzygy tables do not contain positions with castling rights: {}".format(board.fen()))
 
         # Validate piece count.
         if chess.popcount(board.occupied) > 7:
-            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
@@ -1714,7 +1711,7 @@ class Tablebases(object):
         try:
             table = self.dtz[key]
         except KeyError:
-            raise MissingTableError("did not find dtz table {0}".format(key))
+            raise MissingTableError("did not find dtz table {}".format(key))
 
         self._bump_lru(table)
 

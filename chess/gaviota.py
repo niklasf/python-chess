@@ -376,7 +376,7 @@ def norm_kkindex(x, y):
     rowx = chess.square_rank(x)
     colx = chess.square_file(x)
 
-    if (rowx > colx):
+    if rowx > colx:
         x = flip_nw_se(x)
         y = flip_nw_se(y)
 
@@ -745,15 +745,15 @@ def kaabk_pctoindex(c):
     ws = c.white_piece_squares[:N_WHITE]
     bs = c.black_piece_squares[:N_BLACK]
 
-    if ((ft & WE_FLAG) != 0):
+    if (ft & WE_FLAG) != 0:
         ws = [flip_we(i) for i in ws]
         bs = [flip_we(i) for i in bs]
 
-    if ((ft & NS_FLAG) != 0):
+    if (ft & NS_FLAG) != 0:
         ws = [flip_ns(i) for i in ws]
         bs = [flip_ns(i) for i in bs]
 
-    if ((ft & NW_SE_FLAG) != 0):
+    if (ft & NW_SE_FLAG) != 0:
         ws = [flip_nw_se(i) for i in ws]
         bs = [flip_nw_se(i) for i in bs]
 
@@ -1400,14 +1400,14 @@ def bestx(side, a, b):
 
     xorkey = [0, 3]
 
-    if (a == iFORBID):
+    if a == iFORBID:
         return b
-    if (b == iFORBID):
+    if b == iFORBID:
         return a
 
     retu = [a, a, b, b]
 
-    if (b < a):
+    if b < a:
         retu[1] = b
         retu[2] = a
 
@@ -1534,7 +1534,7 @@ class PythonTablebases(object):
         """Loads *.gtb.cp4* tables from a directory."""
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {0}".format(repr(directory)))
+            raise IOError("not a directory: {}".format(repr(directory)))
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
@@ -1565,7 +1565,7 @@ class PythonTablebases(object):
         """
         # Can not probe positions with castling rights.
         if board.castling_rights:
-            raise KeyError("gaviota tables do not contain positions with castling rights: {0}".format(board.fen()))
+            raise KeyError("gaviota tables do not contain positions with castling rights: {}".format(board.fen()))
 
         # Prepare the tablebase request.
         white = [(square, board.piece_type_at(square)) for square in chess.SquareSet(board.occupied_co[chess.WHITE])]
@@ -1582,7 +1582,7 @@ class PythonTablebases(object):
 
         # Only up to 5-men tablebases.
         if len(white_squares) + len(black_squares) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
 
         # Probe.
         dtm = self.egtb_get_dtm(req)
@@ -1684,7 +1684,7 @@ class PythonTablebases(object):
             if req.epsq != NOSQUARE:
                 req.epsq = flip_ns(req.epsq)
         else:
-            raise MissingTableError("no gaviota table available for: {0}v{1}".format(white_letters.upper(), black_letters.upper()))
+            raise MissingTableError("no gaviota table available for: {}v{}".format(white_letters.upper(), black_letters.upper()))
 
         return self._open_tablebase(req)
 
@@ -1931,7 +1931,7 @@ class NativeTablebases(object):
 
     def open_directory(self, directory):
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {0}".format(repr(directory)))
+            raise IOError("not a directory: {}".format(repr(directory)))
 
         self.paths.append(directory)
         self._tb_restart()
@@ -1989,10 +1989,10 @@ class NativeTablebases(object):
             return 0
 
         if board.castling_rights:
-            raise KeyError("gaviota tables do not contain positions with castling rights: {0}".format(board.fen()))
+            raise KeyError("gaviota tables do not contain positions with castling rights: {}".format(board.fen()))
 
         if chess.popcount(board.occupied) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {0}: {1}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
 
         stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
         ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
@@ -2032,11 +2032,11 @@ class NativeTablebases(object):
 
         # Probe forbidden.
         if info.value == 3:
-            raise MissingTableError("gaviota table for {0} not available".format(board.fen()))
+            raise MissingTableError("gaviota table for {} not available".format(board.fen()))
 
         # Probe failed or unknown.
         if not ret or info.value == 7:
-            raise KeyError("gaviota probe failed for {0}".format(board.fen()))
+            raise KeyError("gaviota probe failed for {}".format(board.fen()))
 
         # Draw.
         if info.value == 0:

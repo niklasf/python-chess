@@ -168,8 +168,7 @@ class PostHandler(object):
     def __init__(self):
         self.lock = threading.Lock()
 
-        self.post = {}
-        self.post["pv"] = {}
+        self.post = {"pv": {}}
 
     def depth(self, depth):
         """Receives the search depth in plies."""
@@ -844,9 +843,8 @@ class Engine(object):
         # Setboard should be sent after force.
         self.force()
 
-        builder = []
-        builder.append("setboard")
-        builder.append(board.shredder_fen() if board.chess960 else board.fen())
+        builder = ["setboard",
+                   board.shredder_fen() if board.chess960 else board.fen()]
 
         self.board = board.copy(stack=False)
 
@@ -1122,9 +1120,7 @@ class Engine(object):
         """
         self._assert_not_busy("level")
 
-        builder = []
-        builder.append("level")
-        builder.append(str(int(movestogo)))
+        builder = ["level", str(int(movestogo))]
 
         if seconds is not None:
             builder.append(str(int(minutes)) + ":" + str(int(seconds)))
@@ -1453,6 +1449,8 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine = chess.xboard.popen_engine("/usr/games/crafty")
     >>> engine.xboard()
 
+    :param command:
+    :param engine_cls:
     :param setpgrp: Opens the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.

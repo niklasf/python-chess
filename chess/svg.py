@@ -262,12 +262,11 @@ def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=No
                 "class": "arrow",
             })
 
-            marker = []
-            marker.append((xtip, ytip))
-            marker.append((shaft_x + dy * 0.5 * marker_size / hypot,
-                           shaft_y - dx * 0.5 * marker_size / hypot))
-            marker.append((shaft_x - dy * 0.5 * marker_size / hypot,
-                           shaft_y + dx * 0.5 * marker_size / hypot))
+            marker = [(xtip, ytip),
+                      (shaft_x + dy * 0.5 * marker_size / hypot,
+                       shaft_y - dx * 0.5 * marker_size / hypot),
+                      (shaft_x - dy * 0.5 * marker_size / hypot,
+                       shaft_y + dx * 0.5 * marker_size / hypot)]
 
             ET.SubElement(svg, "polygon", {
                 "points": " ".join(str(x) + "," + str(y) for x, y in marker),
