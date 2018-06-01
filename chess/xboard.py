@@ -1449,6 +1449,8 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine = chess.xboard.popen_engine("/usr/games/crafty")
     >>> engine.xboard()
 
+    :param command:
+    :param engine_cls:
     :param setpgrp: Opens the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.

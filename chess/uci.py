@@ -1140,6 +1140,8 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     >>> engine.author
     'T. Romstad, M. Costalba, J. Kiiski, G. Linscott'
 
+    :param command:
+    :param engine_cls:
     :param setpgrp: Open the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
