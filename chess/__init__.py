@@ -1268,6 +1268,26 @@ class _BoardState(object):
         self.halfmove_clock = board.halfmove_clock
         self.fullmove_number = board.fullmove_number
 
+    def restore(self, board):
+        board.pawns = self.pawns
+        board.knights = self.knights
+        board.bishops = self.bishops
+        board.rooks = self.rooks
+        board.queens = self.queens
+        board.kings = self.kings
+
+        board.occupied_co[WHITE] = self.occupied_w
+        board.occupied_co[BLACK] = self.occupied_b
+        board.occupied = self.occupied
+
+        board.promoted = self.promoted
+
+        board.turn = self.turn
+        board.castling_rights = self.castling_rights
+        board.ep_square = self.ep_square
+        board.halfmove_clock = self.halfmove_clock
+        board.fullmove_number = self.fullmove_number
+
 
 class Board(BaseBoard):
     """
@@ -1364,6 +1384,15 @@ class Board(BaseBoard):
         """Clears the move stack."""
         del self.move_stack[:]
         del self.stack[:]
+
+    def root(self):
+        """Returns a copy of the root position."""
+        if self.stack:
+            board = type(self)(None, chess960=self.chess960)
+            self.stack[0].restore(board)
+            return board
+        else:
+            return board.copy(stack=False)
 
     def remove_piece_at(self, square):
         piece = super(Board, self).remove_piece_at(square)
@@ -1915,27 +1944,7 @@ class Board(BaseBoard):
         :raises: :exc:`IndexError` if the stack is empty.
         """
         move = self.move_stack.pop()
-        state = self.stack.pop()
-
-        self.pawns = state.pawns
-        self.knights = state.knights
-        self.bishops = state.bishops
-        self.rooks = state.rooks
-        self.queens = state.queens
-        self.kings = state.kings
-
-        self.occupied_co[WHITE] = state.occupied_w
-        self.occupied_co[BLACK] = state.occupied_b
-        self.occupied = state.occupied
-
-        self.promoted = state.promoted
-
-        self.turn = state.turn
-        self.castling_rights = state.castling_rights
-        self.ep_square = state.ep_square
-        self.halfmove_clock = state.halfmove_clock
-        self.fullmove_number = state.fullmove_number
-
+        self.stack.pop().restore(self)
         return move
 
     def peek(self):
