@@ -1392,7 +1392,7 @@ class Board(BaseBoard):
             self.stack[0].restore(board)
             return board
         else:
-            return board.copy(stack=False)
+            return self.copy(stack=False)
 
     def remove_piece_at(self, square):
         piece = super(Board, self).remove_piece_at(square)

@@ -2877,27 +2877,29 @@ class UciEngineTestCase(unittest.TestCase):
         self.assertTrue(self.engine.uci_chess960)
         self.mock.assert_done()
 
-        # Expect a Shredder FEN during for the position command.
-        self.mock.expect("position fen rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w HAha - 1 1")
+        # But UCI_Chess960 mode is automatically managed.
+        self.mock.expect("setoption name UCI_Chess960 value false")
+        self.mock.expect("position fen rnbqkbnr/pppppppp/8/8/8/4PN2/PPPPBPPP/RNBQK2R w KQkq - 1 1")
         self.engine.position(board)
         self.mock.assert_done()
 
         # Check that castling move conversion is now disabled.
-        self.mock.expect("go movetime 70 searchmoves a2a3 e1h1", (
-            "bestmove e1h1",
+        self.mock.expect("go movetime 70 searchmoves a2a3 e1g1", (
+            "bestmove e1g1",
         ))
         bestmove, pondermove = self.engine.go(movetime=70, searchmoves=[
             board.parse_san("a3"),
-            board.parse_san("O-O"),
+            chess.Move.from_uci("e1h1"),  # Needs conversion.
         ])
         self.assertTrue(bestmove.from_square, chess.E1)
-        self.assertTrue(bestmove.to_square, chess.H1)
+        self.assertTrue(bestmove.to_square, chess.G1)
         self.mock.assert_done()
 
     def test_castling_ponder(self):
         # Setup position.
-        fen = "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/5N2/PPPPBPPP/RNBQK2R b KQkq - 3 3"
+        fen = "rnbqkb1r/pp1ppppp/5n2/2p5/4P3/5N2/PPPPBPPP/RNBQK2R b HAha - 3 3"
         board = chess.Board(fen, chess960=True)
+        self.mock.expect("setoption name UCI_Chess960 value true")
         self.mock.expect("position fen " + fen)
         self.engine.position(board)
 
@@ -2907,30 +2909,6 @@ class UciEngineTestCase(unittest.TestCase):
         self.assertEqual(bestmove, chess.Move.from_uci("f6e4"))
         self.assertEqual(ponder, chess.Move.from_uci("e1h1"))
 
-        self.mock.assert_done()
-
-    def test_invalid_castling_rights(self):
-        fen = "3qk3/4pp2/5r2/8/8/8/3PP1P1/4K1R1 b G - 0 1"
-        board = chess.Board(fen, chess960=True)
-        board.push_san("Rf5")
-
-        # White can castle with the G-side rook, which is not possible in
-        # standard chess. The UCI module should just send the final FEN,
-        # show a warning and hope for the best.
-        self.mock.expect("position fen 3qk3/4pp2/8/5r2/8/8/3PP1P1/4K1R1 w K - 1 2")
-        logging.disable(logging.ERROR)
-        self.engine.position(board)
-        logging.disable(logging.NOTSET)
-        self.mock.assert_done()
-
-        # Activate Chess960 mode.
-        self.mock.expect("setoption name UCI_Chess960 value true")
-        self.mock.expect("isready", ("readyok", ))
-        self.engine.setoption({"UCI_Chess960": True})
-
-        # Then those castling rights should work fine.
-        self.mock.expect("position fen " + fen + " moves f6f5")
-        self.engine.position(board)
         self.mock.assert_done()
 
     def test_hakkapeliitta_double_spaces(self):
@@ -3686,9 +3664,6 @@ class CrazyhouseTestCase(unittest.TestCase):
         engine.info_handlers.append(info_handler)
 
         mock.expect("setoption name UCI_Variant value crazyhouse")
-        mock.expect("isready", ("readyok", ))
-        engine.setoption({"UCI_Variant": type(board).uci_variant})
-
         mock.expect("position fen %s" % fen)
         engine.position(board)
 

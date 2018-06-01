@@ -738,14 +738,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def setoption(self, options, async_callback=None):
-        """
-        Set values for the engine's available options.
-
-        :param options: A dictionary with option names as keys.
-
-        :return: Nothing
-        """
+    def _setoption(self, options):
         option_lines = []
 
         for name, value in options.items():
@@ -765,6 +758,18 @@ class Engine(object):
                 builder.append(str(value))
 
             option_lines.append(" ".join(builder))
+
+        return option_lines
+
+    def setoption(self, options, async_callback=None):
+        """
+        Set values for the engine's available options.
+
+        :param options: A dictionary with option names as keys.
+
+        :return: Nothing
+        """
+        option_lines = self._setoption(options)
 
         def command():
             with self.semaphore:
@@ -812,8 +817,9 @@ class Engine(object):
         """
         Set up a given position.
 
-        Rather than just the final FEN, this will also send moves leading up to
-        position (at least as many as are relevant for repetition detection).
+        Rather than sending just the final FEN, the initial FEN and all moves
+        leading up to the position will be sent. This will allow the engine
+        to use the move history (for example to detect repetitions).
 
         If the position is from a new game, it is recommended to use the
         *ucinewgame* command before the *position* command.
@@ -825,65 +831,50 @@ class Engine(object):
         :raises: :exc:`~chess.uci.EngineStateException` if the engine is still
             calculating.
         """
-        # Check UCI_Variant
-        uci_variant = type(board).uci_variant
-        if uci_variant == "chess" and self.uci_variant is None:
-            pass
-        elif uci_variant != self.uci_variant:
-            LOGGER.error("current UCI_Variant (%s) does not match position (%s)", self.uci_variant, uci_variant)
-
         # Raise if this is called while the engine is still calculating.
         with self.state_changed:
             if not self.idle:
                 raise EngineStateException("position command while engine is busy")
 
-        # Take back moves to obtain the FEN at the latest pawn move or
-        # capture. Sending the move history to the engine allows it to detect
-        # repetitions.
-        switchyard = collections.deque()
-        while board.move_stack:
-            move = board.pop()
-            switchyard.append(move)
+        # Set UCI_Variant and UCI_Chess960.
+        options = {}
 
-            if board.is_irreversible(move):
-                break
+        uci_variant = type(board).uci_variant
+        if uci_variant != (self.uci_variant or "chess"):
+            if self.uci_variant is None:
+                LOGGER.warning("engine may not support UCI_Variant or has not been initialized with 'uci' command")
+            options["UCI_Variant"] = type(board).uci_variant
 
-        # Lc0 works best when at least the last 8 moves are sent, regardless
-        # if they are relevant for repetition detection.
-        while board.move_stack and len(switchyard) < 8:
-            switchyard.append(board.pop())
+        if bool(self.uci_chess960) != board.chess960:
+            if self.uci_chess960 is None:
+                LOGGER.warning("engine may not support UCI_Chess960 or has not been initialized with 'uci' command")
+            options["UCI_Chess960"] = board.chess960
 
-        # Validate castling rights.
-        if not self.uci_chess960 and board.chess960 and board.has_chess960_castling_rights():
-            LOGGER.error("not in UCI_Chess960 mode but position has non-standard castling rights")
-
-            # Just send the final FEN without transpositions in hopes
-            # that this will work.
-            while switchyard and board.has_chess960_castling_rights():
-                board.push(switchyard.pop())
+        option_lines = self._setoption(options)
 
         # Send starting position.
         builder = ["position"]
-
-        if uci_variant == "chess" and board.fen() == chess.STARTING_FEN:
+        root = board.root()
+        fen = root.fen()
+        if uci_variant == "chess" and fen == chess.STARTING_FEN:
             builder.append("startpos")
         else:
             builder.append("fen")
-            builder.append(board.shredder_fen() if self.uci_chess960 else board.fen())
+            builder.append(root.shredder_fen() if self.uci_chess960 else fen)
 
         # Send moves.
-        if switchyard:
+        if board.move_stack:
             builder.append("moves")
-
-            while switchyard:
-                move = switchyard.pop()
-                builder.append(board.uci(move, chess960=self.uci_chess960))
-                board.push(move)
+            builder.extend(move.uci() for move in board.move_stack)
 
         self.board = board.copy(stack=False)
 
         def command():
             with self.semaphore:
+                if option_lines:
+                    for option_line in option_lines:
+                        self.send_line(option_line)
+
                 self.send_line(" ".join(builder))
 
                 if self.terminated.is_set():
@@ -985,7 +976,7 @@ class Engine(object):
         if searchmoves:
             builder.append("searchmoves")
             for move in searchmoves:
-                builder.append(self.board.uci(move, chess960=self.uci_chess960))
+                builder.append(self.board.uci(move))
 
         def command():
             with self.semaphore:
