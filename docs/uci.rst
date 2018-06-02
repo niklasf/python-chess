@@ -91,18 +91,6 @@ command is completed. It takes the command future as a single argument.
 ...
 >>> command = engine.go(movetime=2000, async_callback=on_go_finished)
 
-Note about castling moves
--------------------------
-
-There are different ways castling moves may be encoded. The normal way to do it
-is ``e1g1`` for short castling. The same move would be ``e1h1`` in
-*UCI_Chess960* mode.
-
-This is abstracted away by the :mod:`chess.uci` module, but if the engine
-supports it, it is recommended to enable *UCI_Chess960* mode.
-
->>> engine.setoption({"UCI_Chess960": True})
-
 Info handler
 ------------
 

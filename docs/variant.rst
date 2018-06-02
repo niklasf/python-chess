@@ -49,19 +49,16 @@ positions.
 UCI
 ---
 
-Stockfish and other engines allow you to switch variants by setting the
-``UCI_Variant`` option.
+`Multi-Variant Stockfish`_ and other engines have an ``UCI_Variant`` option.
+This is automatically managed.
 
 >>> import chess.uci
 >>> import chess.variant
 >>>
 >>> engine = chess.uci.popen_engine("stockfish")
+>>> engine.uci()
 >>>
 >>> board = chess.variant.RacingKingsBoard()
->>> engine.setoption({
-...     "UCI_Variant": type(board).uci_variant,
-...     "UCI_Chess960": board.chess960
-... })
 >>> engine.position(board)
 
 Syzygy
@@ -73,3 +70,6 @@ Syzygy tablebases are available for suicide, giveaway and atomic chess.
 >>> import chess.variant
 >>>
 >>> tables = chess.syzygy.open_tablebases("data/syzygy", VariantBoard=chess.variant.AtomicBoard)
+
+
+.. _Multi-Variant Stockfish: https://github.com/ddugovic/Stockfish
