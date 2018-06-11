@@ -601,7 +601,7 @@ class Engine(object):
                     raise EngineTerminatedException
         return cmd
 
-    def result(self, result, async_callback=None):
+    def result(self, result, *, async_callback=None):
         """
         Command used to inform the engine of the final result of the game.
         This command immediately ends the game.
@@ -612,7 +612,7 @@ class Engine(object):
         command = self.command("result " + str(result))
         self._queue_command(command, async_callback)
 
-    def pause(self, async_callback=None):
+    def pause(self, *, async_callback=None):
         """
         Command used to tell the engine to stop thinking, pondering or otherwise
         consuming any significant CPU time. The current state is suspended and
@@ -624,7 +624,7 @@ class Engine(object):
         command = self.command("pause")
         self._queue_command(command, async_callback)
 
-    def resume(self, async_callback=None):
+    def resume(self, *, async_callback=None):
         """
         Command used to tell the engine to resume it's original state before it
         was paused.
@@ -635,7 +635,7 @@ class Engine(object):
         command = self.command("resume")
         self._queue_command(command, async_callback)
 
-    def ping(self, async_callback=None):
+    def ping(self, *, async_callback=None):
         """
         Command used to synchronize with the engine.
 
@@ -655,7 +655,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def draw(self, async_callback=None):
+    def draw(self, *, async_callback=None):
         """
         Command used to offer the engine a draw.
 
@@ -674,7 +674,7 @@ class Engine(object):
         command = self.command("draw")
         return self._queue_command(command, async_callback)
 
-    def ponder(self, ponder=True, async_callback=None):
+    def ponder(self, ponder=True, *, async_callback=None):
         """
         Tells the engine whether to ponder or not.
 
@@ -693,24 +693,24 @@ class Engine(object):
         command = self.command(msg)
         return self._queue_command(command, async_callback)
 
-    def easy(self, async_callback=None):
+    def easy(self, *, async_callback=None):
         """
         Tells the engine not to ponder.
 
         :return: Nothing.
         """
-        return self.ponder(False, async_callback)
+        return self.ponder(False, async_callback=async_callback)
 
-    def hard(self, async_callback=None):
+    def hard(self, *, async_callback=None):
         """
         Tells the engine to ponder.
 
         TODO: Pondering not yet supported.
         :return: Nothing.
         """
-        return self.ponder(True, async_callback)
+        return self.ponder(True, async_callback=async_callback)
 
-    def set_post(self, flag, async_callback=None):
+    def set_post(self, flag, *, async_callback=None):
         """
         Command used to tell the engine whether to output its analysis or not.
 
@@ -726,23 +726,23 @@ class Engine(object):
         command = self.command(msg)
         return self._queue_command(command, async_callback)
 
-    def post(self, async_callback=None):
+    def post(self, *, async_callback=None):
         """
         Command used to tell the engine to output its analysis.
 
         :return: Nothing.
         """
-        return self.set_post(True, async_callback)
+        return self.set_post(True, async_callback=async_callback)
 
-    def nopost(self, async_callback=None):
+    def nopost(self, *, async_callback=None):
         """
         Command used to tell the engine to not output its analysis.
 
         :return: Nothing.
         """
-        return self.set_post(False, async_callback)
+        return self.set_post(False, async_callback=async_callback)
 
-    def xboard(self, async_callback=None):
+    def xboard(self, *, async_callback=None):
         """
         Tells the engine to use the XBoard interface.
 
@@ -769,7 +769,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def option(self, options, async_callback=None):
+    def option(self, options, *, async_callback=None):
         """
         Sets values for the engine's available options.
         For 'button', 'reset' and 'save', flips the engine's value.
@@ -804,7 +804,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def new(self, async_callback=None):
+    def new(self, *, async_callback=None):
         """
         Resets the board to the standard chess starting position.
         Sets white to move.
@@ -827,7 +827,7 @@ class Engine(object):
             self.end_result = None
         return self._queue_command(command, async_callback)
 
-    def setboard(self, board, async_callback=None):
+    def setboard(self, board, *, async_callback=None):
         """
         Sets up a given board position.
 
@@ -851,7 +851,7 @@ class Engine(object):
         command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
-    def undo(self, async_callback=None):
+    def undo(self, *, async_callback=None):
         """
         Puts the engine in *force* mode and takes back one move.
 
@@ -867,7 +867,7 @@ class Engine(object):
         command = self.command("undo")
         return self._queue_command(command, async_callback)
 
-    def remove(self, async_callback=None):
+    def remove(self, *, async_callback=None):
         """
         Tells the engine to retract two moves (one from each side).
 
@@ -881,7 +881,7 @@ class Engine(object):
         command = self.command("remove")
         return self._queue_command(command, async_callback)
 
-    def memory(self, amount, async_callback=None):
+    def memory(self, amount, *, async_callback=None):
         """
         Sets the maximum memory of the engine's hash/pawn/bitbase/other tables.
 
@@ -895,7 +895,7 @@ class Engine(object):
         command = self.command("memory " + str(amount))
         return self._queue_command(command, async_callback)
 
-    def cores(self, num, async_callback=None):
+    def cores(self, num, *, async_callback=None):
         """
         Sets the maximum number of processor cores the engine is allowed to use.
         For an SMP engine, this corresponds to search threads.
@@ -910,7 +910,7 @@ class Engine(object):
         command = self.command("cores " + str(num))
         return self._queue_command(command, async_callback)
 
-    def playother(self, async_callback=None):
+    def playother(self, *, async_callback=None):
         """
         Sets the engine to play the side whose turn it is **not** to move.
 
@@ -923,7 +923,7 @@ class Engine(object):
         command = self.command("playother")
         return self._queue_command(command, async_callback)
 
-    def set_side_to_move(self, color, async_callback=None):
+    def set_side_to_move(self, color, *, async_callback=None):
         """
         Sets the side to move, sets the engine to move for the opposite side
         and exits *force* mode.
@@ -940,7 +940,7 @@ class Engine(object):
         command = self.command(side)
         return self._queue_command(command, async_callback)
 
-    def white(self, async_callback=None):
+    def white(self, *, async_callback=None):
         """
         Sets the side to move to be white, engine to play as black and
         exits *force* mode.
@@ -949,7 +949,7 @@ class Engine(object):
         """
         self.set_side_to_move(chess.WHITE, async_callback)
 
-    def black(self, async_callback=None):
+    def black(self, *, async_callback=None):
         """
         Sets the side to move to be black, engine to play as white and
         exits *force* mode.
@@ -958,7 +958,7 @@ class Engine(object):
         """
         self.set_side_to_move(chess.BLACK, async_callback)
 
-    def random(self, async_callback=None):
+    def random(self, *, async_callback=None):
         """
         Toggles *random* mode.
 
@@ -973,7 +973,7 @@ class Engine(object):
         command = self.command("random")
         return self._queue_command(command, async_callback)
 
-    def opponent_name(self, name_str, async_callback=None):
+    def opponent_name(self, name_str, *, async_callback=None):
         """
         Informs the engine of its opponent's name.
         The engine may choose to play differently based on this parameter.
@@ -985,7 +985,7 @@ class Engine(object):
         command = self.command("name " + str(name_str))
         return self._queue_command(command, async_callback)
 
-    def rating(self, engine_rating, opponent_rating, async_callback=None):
+    def rating(self, engine_rating, opponent_rating, *, async_callback=None):
         """
         Informs the engine of its own rating followed by the opponent's.
         The engine may choose to play differently based on these parameters.
@@ -999,7 +999,7 @@ class Engine(object):
         command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
-    def computer(self, async_callback=None):
+    def computer(self, *, async_callback=None):
         """
         Informs the engine that the opponent is a computer as well.
         The engine may choose to play differently upon receiving this command.
@@ -1009,7 +1009,7 @@ class Engine(object):
         command = self.command("computer")
         return self._queue_command(command, async_callback)
 
-    def egtpath(self, egt_type, egt_path, async_callback=None):
+    def egtpath(self, egt_type, egt_path, *, async_callback=None):
         """
         Tells the engine to use the *egt_type* endgame tablebases at *egt_path*.
 
@@ -1029,7 +1029,7 @@ class Engine(object):
         command = self.command(" ".join(builder))
         return self._queue_command(command, async_callback)
 
-    def nps(self, target_nps, async_callback=None):
+    def nps(self, target_nps, *, async_callback=None):
         """
         Tells the engine to limit its speed of search in terms of
         nodes per second (NPS) to the provided value.
@@ -1044,7 +1044,7 @@ class Engine(object):
         command = self.command("nps " + str(target_nps))
         return self._queue_command(command, async_callback)
 
-    def st(self, time, async_callback=None):
+    def st(self, time, *, async_callback=None):
         """
         Sets the maximum time the engine is to search for.
 
@@ -1057,7 +1057,7 @@ class Engine(object):
         command = self.command("st " + str(time))
         return self._queue_command(command, async_callback)
 
-    def sd(self, depth, async_callback=None):
+    def sd(self, depth, *, async_callback=None):
         """
         Sets the maximum depth the engine is to search for.
 
@@ -1070,7 +1070,7 @@ class Engine(object):
         command = self.command("sd " + str(depth))
         return self._queue_command(command, async_callback)
 
-    def time(self, time, async_callback=None):
+    def time(self, time, *, async_callback=None):
         """
         Synchronizes the engine's clock with the total amount of time left.
 
@@ -1084,7 +1084,7 @@ class Engine(object):
         command = self.command("time " + str(time))
         return self._queue_command(command, async_callback)
 
-    def otim(self, time, async_callback=None):
+    def otim(self, time, *, async_callback=None):
         """
         Synchronizes the engine's clock with the total amount of time left.
 
@@ -1098,7 +1098,7 @@ class Engine(object):
         command = self.command("otim " + str(time))
         return self._queue_command(command, async_callback)
 
-    def level(self, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
+    def level(self, *, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
         """
         Sets the time controls for the game.
 
@@ -1144,7 +1144,7 @@ class Engine(object):
         """
         self.auto_force = flag
 
-    def force(self, async_callback=None):
+    def force(self, *, async_callback=None):
         """
         Tells the XBoard engine to enter *force* mode. That means
         the engine will not start thinking by itself unless a
@@ -1156,7 +1156,7 @@ class Engine(object):
         command = self.command("force")
         return self._queue_command(command, async_callback)
 
-    def exit(self, async_callback=None):
+    def exit(self, *, async_callback=None):
         """
         Tells the engine to stop analyzing the position.
 
@@ -1176,7 +1176,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def analyze(self, async_callback=None):
+    def analyze(self, *, async_callback=None):
         """
         Tells the engine to analyze the position.
         This causes it to search until it is told to stop.
@@ -1213,7 +1213,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def go(self, async_callback=None):
+    def go(self, *, async_callback=None):
         """
         Sets the engine to move on the current side to play.
         Starts calculating on the current position.
@@ -1260,7 +1260,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def stop(self, async_callback=None):
+    def stop(self, *, async_callback=None):
         """
         Stops calculating as soon as possible. The actual XBoard command is *?*.
 
@@ -1290,7 +1290,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def usermove(self, move, async_callback=None):
+    def usermove(self, move, *, async_callback=None):
         """
         Tells the XBoard engine to make a move on its internal
         board.
@@ -1358,7 +1358,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def quit(self, async_callback=None):
+    def quit(self, *, async_callback=None):
         """
         Quits the engine as soon as possible.
 
@@ -1392,7 +1392,7 @@ class Engine(object):
             else:
                 return future.result()
 
-    def terminate(self, async_callback=None):
+    def terminate(self, *, async_callback=None):
         """
         Terminates the engine.
 
@@ -1405,7 +1405,7 @@ class Engine(object):
         self.process.terminate()
         return self._queue_termination(async_callback)
 
-    def kill(self, async_callback=None):
+    def kill(self, *, async_callback=None):
         """
         Kills the engine.
 
@@ -1420,7 +1420,7 @@ class Engine(object):
         """Polls the engine process to check if it is alive."""
         return self.process.is_alive()
 
-    def send_variant(self, variant, async_callback=None):
+    def send_variant(self, variant, *, async_callback=None):
         """
         Optionally sent to the engine immediately after 'new' for games that use
         other than FIDE rules. Sets the engine to play mentioned variant.
@@ -1439,7 +1439,7 @@ class Engine(object):
         command = self.command("variant %s" % variant)
         return self._queue_command(command, async_callback)
 
-def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
+def popen_engine(command, *, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
     """
     Opens a local chess engine process.
 
@@ -1458,7 +1458,7 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     return _popen_engine(command, engine_cls, setpgrp, _popen_lock, **kwargs)
 
 
-def spur_spawn_engine(shell, command, engine_cls=Engine):
+def spur_spawn_engine(shell, command, *, engine_cls=Engine):
     """
     Spawns a remote engine using a `Spur`_ shell.
 

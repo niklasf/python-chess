@@ -252,7 +252,7 @@ class InfoHandler(object):
 
 
 class Engine(object):
-    def __init__(self, Executor=concurrent.futures.ThreadPoolExecutor):
+    def __init__(self, *, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.pondering = False
         self.state_changed = threading.Condition()
@@ -678,7 +678,7 @@ class Engine(object):
                 except concurrent.futures.TimeoutError:
                     pass
 
-    def uci(self, async_callback=None):
+    def uci(self, *, async_callback=None):
         """
         Tells the engine to use the UCI interface.
 
@@ -698,7 +698,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def debug(self, on, async_callback=None):
+    def debug(self, on, *, async_callback=None):
         """
         Switch the debug mode on or off.
 
@@ -718,7 +718,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def isready(self, async_callback=None):
+    def isready(self, *, async_callback=None):
         """
         Command used to synchronize with the engine.
 
@@ -761,7 +761,7 @@ class Engine(object):
 
         return option_lines
 
-    def setoption(self, options, async_callback=None):
+    def setoption(self, options, *, async_callback=None):
         """
         Set values for the engine's available options.
 
@@ -785,7 +785,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def ucinewgame(self, async_callback=None):
+    def ucinewgame(self, *, async_callback=None):
         """
         Tell the engine that the next search will be from a different game.
 
@@ -813,7 +813,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def position(self, board, async_callback=None):
+    def position(self, board, *, async_callback=None):
         """
         Set up a given position.
 
@@ -881,7 +881,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def go(self, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
+    def go(self, *, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False, async_callback=None):
         """
         Start calculating on the current position.
 
@@ -995,7 +995,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def stop(self, async_callback=None):
+    def stop(self, *, async_callback=None):
         """
         Stop calculating as soon as possible.
 
@@ -1025,7 +1025,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def ponderhit(self, async_callback=None):
+    def ponderhit(self, *, async_callback=None):
         """
         May be sent if the expected ponder move has been played.
 
@@ -1053,7 +1053,7 @@ class Engine(object):
 
         return self._queue_command(command, async_callback)
 
-    def quit(self, async_callback=None):
+    def quit(self, *, async_callback=None):
         """
         Quit the engine as soon as possible.
 
@@ -1087,7 +1087,7 @@ class Engine(object):
             else:
                 return future.result()
 
-    def terminate(self, async_callback=None):
+    def terminate(self, *, async_callback=None):
         """
         Terminate the engine.
 
@@ -1100,7 +1100,7 @@ class Engine(object):
         self.process.terminate()
         return self._queue_termination(async_callback)
 
-    def kill(self, async_callback=None):
+    def kill(self, *, async_callback=None):
         """
         Kill the engine.
 
@@ -1116,7 +1116,7 @@ class Engine(object):
         return self.process.is_alive()
 
 
-def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
+def popen_engine(command, *, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
     """
     Opens a local chess engine process.
 
@@ -1139,7 +1139,7 @@ def popen_engine(command, engine_cls=Engine, setpgrp=False, _popen_lock=threadin
     return _popen_engine(command, engine_cls, setpgrp, _popen_lock, **kwargs)
 
 
-def spur_spawn_engine(shell, command, engine_cls=Engine):
+def spur_spawn_engine(shell, command, *, engine_cls=Engine):
     """
     Spawns a remote engine using a `Spur`_ shell.
 

@@ -109,7 +109,7 @@ def piece(piece, size=None):
     return ET.tostring(svg).decode("utf-8")
 
 
-def board(board=None, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
+def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 

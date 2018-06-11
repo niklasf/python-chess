@@ -116,7 +116,7 @@ class GameNode(object):
 
         self.board_cached = None
 
-    def board(self, _cache=True):
+    def board(self, *, _cache=True):
         """
         Gets a board with the position of the node.
 
@@ -143,7 +143,7 @@ class GameNode(object):
         """
         return self.parent.board().san(self.move)
 
-    def uci(self, chess960=None):
+    def uci(self, *, chess960=None):
         """
         Gets the UCI notation of the move leading to this node.
         See :func:`chess.Board.uci()`.
@@ -250,7 +250,7 @@ class GameNode(object):
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move, comment="", starting_comment="", nags=()):
+    def add_variation(self, move, *, comment="", starting_comment="", nags=()):
         """Creates a child node with the given attributes."""
         node = GameNode()
         node.move = move
@@ -261,7 +261,7 @@ class GameNode(object):
         self.variations.append(node)
         return node
 
-    def add_main_variation(self, move, comment=""):
+    def add_main_variation(self, move, *, comment=""):
         """
         Creates a child node with the given attributes and promotes it to the
         main variation.
@@ -278,7 +278,7 @@ class GameNode(object):
             node = node.variations[0]
             yield node.move
 
-    def add_line(self, moves, comment="", starting_comment="", nags=()):
+    def add_line(self, moves, *, comment="", starting_comment="", nags=()):
         """
         Creates a sequence of child nodes for the given list of moves.
         Adds *comment* and *nags* to the last node of the line and returns it.
@@ -300,7 +300,7 @@ class GameNode(object):
 
         return node
 
-    def accept(self, visitor, _board=None):
+    def accept(self, visitor, *, _board=None):
         """
         Traverse game nodes in PGN order using the given *visitor*. Returns
         the visitor result.
@@ -402,7 +402,7 @@ class Game(GameNode):
         self.headers = Headers(headers)
         self.errors = []
 
-    def board(self, _cache=False):
+    def board(self, *, _cache=False):
         """
         Gets the starting position of the game.
 
@@ -722,7 +722,7 @@ class StringExporter(BaseVisitor):
     There will be no newline characters at the end of the string.
     """
 
-    def __init__(self, columns=80, headers=True, comments=True, variations=True):
+    def __init__(self, *, columns=80, headers=True, comments=True, variations=True):
         self.columns = columns
         self.headers = headers
         self.comments = comments
@@ -831,7 +831,7 @@ class FileExporter(StringExporter):
     >>> game.accept(exporter)
     """
 
-    def __init__(self, handle, columns=80, headers=True, comments=True, variations=True):
+    def __init__(self, handle, *, columns=80, headers=True, comments=True, variations=True):
         super(FileExporter, self).__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
@@ -856,7 +856,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle, Visitor=GameModelCreator):
+def read_game(handle, *, Visitor=GameModelCreator):
     """
     Reads a game from a file opened in text mode.
 

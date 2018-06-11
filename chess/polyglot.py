@@ -281,7 +281,7 @@ class ZobristHasher(object):
                 self.hash_ep_square(board) ^ self.hash_turn(board))
 
 
-def zobrist_hash(board, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
+def zobrist_hash(board, *, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
     """
     Calculates the Polyglot Zobrist hash of the position.
 
@@ -298,7 +298,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 
     __slots__ = ()
 
-    def move(self, chess960=False):
+    def move(self, *, chess960=False):
         """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
@@ -387,9 +387,9 @@ class MemoryMappedReader(object):
         return lo
 
     def __contains__(self, entry):
-        return any(current == entry for current in self.find_all(entry.key, entry.weight))
+        return any(current == entry for current in self.find_all(entry.key, minimum_weight=entry.weight))
 
-    def find_all(self, board, minimum_weight=1, exclude_moves=()):
+    def find_all(self, board, *, minimum_weight=1, exclude_moves=()):
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)
@@ -423,7 +423,7 @@ class MemoryMappedReader(object):
 
             yield entry
 
-    def find(self, board, minimum_weight=1, exclude_moves=()):
+    def find(self, board, *, minimum_weight=1, exclude_moves=()):
         """
         Finds the main entry for the given position or Zobrist hash.
 
@@ -438,17 +438,17 @@ class MemoryMappedReader(object):
             get ``None`` instead of an exception.
         """
         try:
-            return max(self.find_all(board, minimum_weight, exclude_moves), key=lambda entry: entry.weight)
+            return max(self.find_all(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves), key=lambda entry: entry.weight)
         except ValueError:
             raise IndexError()
 
-    def get(self, board, default=None, minimum_weight=1, exclude_moves=()):
+    def get(self, board, default=None, *, minimum_weight=1, exclude_moves=()):
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
         except IndexError:
             return default
 
-    def choice(self, board, minimum_weight=1, exclude_moves=(), random=random):
+    def choice(self, board, *, minimum_weight=1, exclude_moves=(), random=random):
         """
         Uniformly selects a random entry for the given position.
 
@@ -456,7 +456,7 @@ class MemoryMappedReader(object):
         """
         chosen_entry = None
 
-        for i, entry in enumerate(self.find_all(board, minimum_weight, exclude_moves)):
+        for i, entry in enumerate(self.find_all(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)):
             if chosen_entry is None or random.randint(0, i) == i:
                 chosen_entry = entry
 
@@ -465,7 +465,7 @@ class MemoryMappedReader(object):
 
         return chosen_entry
 
-    def weighted_choice(self, board, exclude_moves=(), random=random):
+    def weighted_choice(self, board, *, exclude_moves=(), random=random):
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.

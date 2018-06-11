@@ -183,16 +183,16 @@ def scan_forward(bb):
 def msb(bb):
     return bb.bit_length() - 1
 
-def scan_reversed(bb, _BB_SQUARES=BB_SQUARES):
+def scan_reversed(bb, *, _BB_SQUARES=BB_SQUARES):
     while bb:
         r = bb.bit_length() - 1
         yield r
         bb ^= _BB_SQUARES[r]
 
-def popcount(bb, _bin=bin):
+def popcount(bb, *, _bin=bin):
     return _bin(bb).count("1")
 
-def bswap(bb, _be=struct.Struct(">Q"), _le=struct.Struct("<Q")):
+def bswap(bb, *, _be=struct.Struct(">Q"), _le=struct.Struct("<Q")):
     return _be.unpack(_le.pack(bb))[0]
 
 
@@ -338,7 +338,7 @@ class Piece(object):
         else:
             return PIECE_SYMBOLS[self.piece_type]
 
-    def unicode_symbol(self, invert_color=False):
+    def unicode_symbol(self, *, invert_color=False):
         """
         Gets the Unicode character for the piece.
         """
@@ -818,7 +818,7 @@ class BaseBoard(object):
         else:
             self._set_piece_at(square, piece.piece_type, piece.color, promoted)
 
-    def board_fen(self, promoted=False):
+    def board_fen(self, *, promoted=False):
         """
         Gets the board FEN.
         """
@@ -1112,7 +1112,7 @@ class BaseBoard(object):
 
         return "".join(builder)
 
-    def unicode(self, invert_color=False, borders=False):
+    def unicode(self, *, invert_color=False, borders=False):
         builder = []
         for rank_index in range(7, -1, -1):
             if borders:
@@ -1335,7 +1335,7 @@ class Board(BaseBoard):
     one_king = True
     captures_compulsory = False
 
-    def __init__(self, fen=STARTING_FEN, chess960=False):
+    def __init__(self, fen=STARTING_FEN, *, chess960=False):
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
@@ -1609,7 +1609,7 @@ class Board(BaseBoard):
         """
         return False
 
-    def is_game_over(self, claim_draw=False):
+    def is_game_over(self, *, claim_draw=False):
         """
         Checks if the game is over due to
         :func:`checkmate <chess.Board.is_checkmate()>`,
@@ -1646,7 +1646,7 @@ class Board(BaseBoard):
 
         return False
 
-    def result(self, claim_draw=False):
+    def result(self, *, claim_draw=False):
         """
         Gets the game result.
 
@@ -2015,7 +2015,7 @@ class Board(BaseBoard):
         """Checks if there is a legal en passant capture."""
         return self.ep_square is not None and any(self.generate_legal_ep())
 
-    def fen(self, shredder=False, en_passant="legal", promoted=None):
+    def fen(self, *, shredder=False, en_passant="legal", promoted=None):
         """
         Gets a FEN representation of the position.
 
@@ -2047,7 +2047,7 @@ class Board(BaseBoard):
             str(self.fullmove_number)
         ])
 
-    def shredder_fen(self, en_passant="legal", promoted=None):
+    def shredder_fen(self, *, en_passant="legal", promoted=None):
         return " ".join([
             self.epd(shredder=True, en_passant=en_passant, promoted=promoted),
             str(self.halfmove_clock),
@@ -2174,7 +2174,7 @@ class Board(BaseBoard):
 
         self.clear_stack()
 
-    def chess960_pos(self, ignore_turn=False, ignore_castling=False, ignore_counters=True):
+    def chess960_pos(self, *, ignore_turn=False, ignore_castling=False, ignore_counters=True):
         """
         Gets the Chess960 starting position index between 0 and 956
         or ``None`` if the current position is not a Chess960 starting
@@ -2259,7 +2259,7 @@ class Board(BaseBoard):
 
         return "".join(epd)
 
-    def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
+    def epd(self, *, shredder=False, en_passant="legal", promoted=None, **operations):
         """
         Gets an EPD representation of the current position.
 
@@ -2630,7 +2630,7 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def uci(self, move, chess960=None):
+    def uci(self, move, *, chess960=None):
         """
         Gets the UCI notation of the move.
 
@@ -3215,7 +3215,7 @@ class Board(BaseBoard):
 
         return board
 
-    def copy(self, stack=True):
+    def copy(self, *, stack=True):
         board = super(Board, self).copy()
 
         board.chess960 = self.chess960
@@ -3233,12 +3233,12 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls, chess960=False):
+    def empty(cls, *, chess960=False):
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls, epd, chess960=False):
+    def from_epd(cls, epd, *, chess960=False):
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.

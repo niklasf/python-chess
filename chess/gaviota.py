@@ -2063,7 +2063,7 @@ class NativeTablebases(object):
         self.close()
 
 
-def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebases_native(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     Opens a collection of tablebases for probing using libgtb.
 
@@ -2079,7 +2079,7 @@ def open_tablebases_native(directory, libgtb=None, LibraryLoader=ctypes.cdll):
     return tables
 
 
-def open_tablebases(directory, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebases(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     Opens a collection of tablebases for probing.
 

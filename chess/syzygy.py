@@ -377,7 +377,7 @@ def is_table_name(name):
     return len(name) <= 7 + 1 and TABLENAME_REGEX.match(name) and normalize_tablename(name) == name
 
 
-def tablenames(one_king=True, piece_count=6):
+def tablenames(*, one_king=True, piece_count=6):
     first = "K" if one_king else "P"
 
     targets = []
@@ -392,7 +392,7 @@ def tablenames(one_king=True, piece_count=6):
     return all_dependencies(targets, one_king=one_king)
 
 
-def normalize_tablename(name, mirror=False):
+def normalize_tablename(name, *, mirror=False):
     w, b = name.split("v", 1)
     w = "".join(sorted(w, key=PCHR.index))
     b = "".join(sorted(b, key=PCHR.index))
@@ -402,7 +402,7 @@ def normalize_tablename(name, mirror=False):
         return w + "v" + b
 
 
-def _dependencies(target, one_king=True):
+def _dependencies(target, *, one_king=True):
     w, b = target.split("v", 1)
 
     for p in PCHR:
@@ -422,18 +422,18 @@ def _dependencies(target, one_king=True):
             yield normalize_tablename(w + "v" + b.replace(p, "", 1))
 
 
-def dependencies(target, one_king=True):
+def dependencies(target, *, one_king=True):
     closed = set()
     if one_king:
         closed.add("KvK")
 
-    for dependency in _dependencies(target, one_king):
+    for dependency in _dependencies(target, one_king=one_king):
         if dependency not in closed and len(dependency) > 2:
             yield dependency
             closed.add(dependency)
 
 
-def all_dependencies(targets, one_king=True):
+def all_dependencies(targets, *, one_king=True):
     closed = set()
     if one_king:
         closed.add("KvK")
@@ -448,10 +448,10 @@ def all_dependencies(targets, one_king=True):
         yield name
         closed.add(name)
 
-        open_list.extend(_dependencies(name, one_king))
+        open_list.extend(_dependencies(name, one_king=one_king))
 
 
-def calc_key(board, mirror=False):
+def calc_key(board, *, mirror=False):
     w = board.occupied_co[chess.WHITE ^ mirror]
     b = board.occupied_co[chess.BLACK ^ mirror]
 
@@ -472,7 +472,7 @@ def calc_key(board, mirror=False):
     ])
 
 
-def recalc_key(pieces, mirror=False):
+def recalc_key(pieces, *, mirror=False):
     # Some endgames are stored with a different key than their filename
     # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
 
@@ -548,7 +548,7 @@ class PawnFileDataDtz(object):
 
 class Table(object):
 
-    def __init__(self, path, variant=chess.Board):
+    def __init__(self, path, *, variant=chess.Board):
         self.path = path
         self.variant = variant
 
@@ -1451,7 +1451,7 @@ class Tablebases(object):
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
     """
-    def __init__(self, max_fds=128, VariantBoard=chess.Board):
+    def __init__(self, *, max_fds=128, VariantBoard=chess.Board):
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1474,7 +1474,7 @@ class Tablebases(object):
                 self.lru.pop().close()
 
     def _open_table(self, hashtable, Table, path):
-        table = Table(path, self.variant)
+        table = Table(path, variant=self.variant)
 
         if table.key in hashtable:
             hashtable[table.key].close()
@@ -1483,7 +1483,7 @@ class Tablebases(object):
         hashtable[table.mirrored_key] = table
         return 1
 
-    def open_directory(self, directory, load_wdl=True, load_dtz=True):
+    def open_directory(self, directory, *, load_wdl=True, load_dtz=True):
         """
         Loads tables from a directory.
 
@@ -1910,7 +1910,7 @@ class Tablebases(object):
         self.close()
 
 
-def open_tablebases(directory, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+def open_tablebases(directory, *, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
     """
     Opens a collection of tablebases for probing. See
     :class:`~chess.syzygy.Tablebases`.
