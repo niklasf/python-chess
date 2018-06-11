@@ -35,13 +35,6 @@ import itertools
 import struct
 import sys
 
-if sys.version_info < (3, ):
-    raise ImportError(
-        """You are using python-chess on Python 2.
-
-Python 2 support has been dropped. Consider upgrading to Python 3, or using
-the 0.23.x branch, which will be maintained until the end of 2018.
-""")
 
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
