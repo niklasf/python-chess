@@ -1098,7 +1098,7 @@ class Engine(object):
         command = self.command("otim " + str(time))
         return self._queue_command(command, async_callback)
 
-    def level(self, *, movestogo=0, minutes=5, seconds=None, inc=0, async_callback=None):
+    def level(self, movestogo=0, minutes=5, seconds=None, inc=0, *, async_callback=None):
         """
         Sets the time controls for the game.
 
