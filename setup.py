@@ -65,18 +65,9 @@ def read_description():
 
 
 def extra_dependencies():
-    extras = {}
-    extras["engine"] = []
-
-    if platform.python_implementation() == "CPython":
-        extras["gaviota"] = []
-
-    extras["test"] = extras["engine"] + extras.get("gaviota", [])
-
-    if platform.python_implementation() == "CPython":
-        extras["test"].append("spur")
-
-    return extras
+    return {
+        "test": ["spur"] if platform.python_implementation() == "CPython" else [],
+    }
 
 
 setuptools.setup(
