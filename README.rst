@@ -338,10 +338,10 @@ python-chess, for example:
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
 * a website to probe Syzygy endgame tablebases – https://syzygy-tables.info/
 * a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
-* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
-* a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
+* a JIT compiled chess engine - https://github.com/SamRagusa/Batch-First
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
-* an UCI chess engine – https://github.com/flok99/feeks
+* a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
+* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 
 Acknowledgements
 ----------------
