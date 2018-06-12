@@ -327,7 +327,7 @@ Download and install the latest release:
 
 ::
 
-    pip install python-chess[engine,gaviota]
+    pip install python-chess
 
 Selected use cases
 ------------------
