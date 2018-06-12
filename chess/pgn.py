@@ -551,7 +551,7 @@ class Headers(collections.MutableMapping):
             if key in self._tag_roster:
                 yield key
 
-        yield from sorted(self._others):
+        yield from sorted(self._others)
 
     def __len__(self):
         return len(self._tag_roster) + len(self._others)
