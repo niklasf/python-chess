@@ -1517,7 +1517,7 @@ class Request(object):
 Zipinfo = collections.namedtuple("Zipinfo", "extraoffset totalblocks blockindex")
 
 
-class PythonTablebases(object):
+class PythonTablebase(object):
     """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self):
@@ -1529,7 +1529,7 @@ class PythonTablebases(object):
         self.block_cache = {}
         self.block_age = 0
 
-    def open_directory(self, directory):
+    def add_directory(self, directory):
         """Loads *.gtb.cp4* tables from a directory."""
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
@@ -1537,6 +1537,9 @@ class PythonTablebases(object):
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
+
+    # TODO: Deprecated
+    open_directory = add_directory
 
     def probe_dtm(self, board):
         """
@@ -1551,15 +1554,15 @@ class PythonTablebases(object):
         >>> import chess
         >>> import chess.gaviota
         >>>
-        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
+        >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
         ...     board = chess.Board("8/8/8/8/8/8/8/K2kr3 w - - 0 1")
-        ...     print(tablebases.probe_dtm(board))
+        ...     print(tablebase.probe_dtm(board))
         ...
         -10
 
         :raises: :exc:`KeyError` (or specifically
             :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
-            :func:`~chess.gaviota.PythonTablebases.get_dtm()` if you prefer
+            :func:`~chess.gaviota.PythonTablebase.get_dtm()` if you prefer
             to get ``None`` instead of an exception.
         """
         # Can not probe positions with castling rights.
@@ -1579,7 +1582,7 @@ class PythonTablebases(object):
         if len(white_squares) == 1 and len(black_squares) == 1:
             return 0
 
-        # Only up to 5-men tablebases.
+        # Supports only up to 5 pieces.
         if len(white_squares) + len(black_squares) > 5:
             raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
 
@@ -1631,15 +1634,15 @@ class PythonTablebases(object):
         >>> import chess
         >>> import chess.gaviota
         >>>
-        >>> with chess.gaviota.open_tablebases("data/gaviota") as tablebases:
+        >>> with chess.gaviota.open_tablebase("data/gaviota") as tablebase:
         ...     board = chess.Board("8/4k3/8/B7/8/8/8/4K3 w - - 0 1")
-        ...     print(tablebases.probe_wdl(board))
+        ...     print(tablebase.probe_wdl(board))
         ...
         0
 
         :raises: :exc:`KeyError` (or specifically
             :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
-            :func:`~chess.gaviota.PythonTablebases.get_wdl()` if you prefer
+            :func:`~chess.gaviota.PythonTablebase.get_wdl()` if you prefer
             to get ``None`` instead of an exception.
         """
         dtm = self.probe_dtm(board)
@@ -1898,10 +1901,10 @@ class PythonTablebases(object):
         self.close()
 
 
-class NativeTablebases(object):
+class NativeTablebase(object):
     """
     Provides access to Gaviota tablebases via the shared library libgtb.
-    Has the same interface as :class:`~chess.gaviota.PythonTablebases`.
+    Has the same interface as :class:`~chess.gaviota.PythonTablebase`.
     """
 
     def __init__(self, libgtb):
@@ -1928,12 +1931,15 @@ class NativeTablebases(object):
 
         self._tbcache_restart(1024 * 1024, 50)
 
-    def open_directory(self, directory):
+    def add_directory(self, directory):
         if not os.path.isdir(directory):
             raise IOError("not a directory: {}".format(repr(directory)))
 
         self.paths.append(directory)
         self._tb_restart()
+
+    # TODO: Deprecated
+    open_directory = add_directory
 
     def _tb_restart(self):
         self.c_paths = (ctypes.c_char_p * len(self.paths))()
@@ -1950,17 +1956,17 @@ class NativeTablebases(object):
 
         av = self.libgtb.tb_availability()
         if av & 1:
-            LOGGER.debug("Some 3 piece tablebases available")
+            LOGGER.debug("Some 3 piece tables available")
         if av & 2:
-            LOGGER.debug("All 3 piece tablebases complete")
+            LOGGER.debug("All 3 piece tables complete")
         if av & 4:
-            LOGGER.debug("Some 4 piece tablebases available")
+            LOGGER.debug("Some 4 piece tables available")
         if av & 8:
-            LOGGER.debug("All 4 piece tablebases complete")
+            LOGGER.debug("All 4 piece tables complete")
         if av & 16:
-            LOGGER.debug("Some 5 piece tablebases available")
+            LOGGER.debug("Some 5 piece tables available")
         if av & 32:
-            LOGGER.debug("All 5 piece tablebases complete")
+            LOGGER.debug("All 5 piece tables complete")
 
     def _tbcache_restart(self, cache_mem, wdl_fraction):
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
@@ -2063,25 +2069,25 @@ class NativeTablebases(object):
         self.close()
 
 
-def open_tablebases_native(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebase_native(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     """
-    Opens a collection of tablebases for probing using libgtb.
+    Opens a collection of tables for probing using libgtb.
 
-    In most cases :func:`~chess.gaviota.open_tablebases()` should be used.
+    In most cases :func:`~chess.gaviota.open_tablebase()` should be used.
     Use this function only if you do not want to downgrade to pure Python
     tablebase probing.
 
     :raises: :exc:`RuntimeError` or :exc:`OSError` when libgtb can not be used.
     """
     libgtb = libgtb or ctypes.util.find_library("gtb") or "libgtb.so.1.0.1"
-    tables = NativeTablebases(LibraryLoader.LoadLibrary(libgtb))
-    tables.open_directory(directory)
+    tables = NativeTablebase(LibraryLoader.LoadLibrary(libgtb))
+    tables.add_directory(directory)
     return tables
 
 
-def open_tablebases(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
+def open_tablebase(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     """
-    Opens a collection of tablebases for probing.
+    Opens a collection of tables for probing.
 
     First native access via the shared library libgtb is tried. You can
     optionally provide a specific library name or a library loader.
@@ -2092,10 +2098,17 @@ def open_tablebases(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     """
     try:
         if LibraryLoader:
-            return open_tablebases_native(directory, libgtb, LibraryLoader)
+            return open_tablebase_native(directory, libgtb, LibraryLoader)
     except (OSError, RuntimeError) as err:
-        LOGGER.info("Falling back to pure Python tablebases: %r", err)
+        LOGGER.info("Falling back to pure Python tablebase: %r", err)
 
-    tables = PythonTablebases()
-    tables.open_directory(directory)
+    tables = PythonTablebase()
+    tables.add_directory(directory)
     return tables
+
+
+# TODO: Deprecated
+open_tablebases_native = open_tablebase_native
+open_tablebases = open_tablebase
+PythonTablebases = PythonTablebase
+NativeTablebases = NativeTablebase

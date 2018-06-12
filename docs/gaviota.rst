@@ -5,9 +5,9 @@ Gaviota tablebases provide **WDL** (win/draw/loss) and **DTM** (depth to mate)
 information for all endgame positions with up to 5 pieces. Positions with
 castling rights are not included.
 
-.. autofunction:: chess.gaviota.open_tablebases
+.. autofunction:: chess.gaviota.open_tablebase
 
-.. autoclass:: chess.gaviota.PythonTablebases
+.. autoclass:: chess.gaviota.PythonTablebase
     :members:
 
 libgtb
@@ -25,7 +25,7 @@ Otherwise the pure Python probing code is used.
     sudo make install
 
 
-.. autofunction:: chess.gaviota.open_tablebases_native
+.. autofunction:: chess.gaviota.open_tablebase_native
 
-.. autoclass:: chess.gaviota.NativeTablebases
+.. autoclass:: chess.gaviota.NativeTablebase
     :members:

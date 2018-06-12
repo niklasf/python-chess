@@ -3051,8 +3051,8 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_wdl_tablebase(self):
-        with chess.syzygy.Tablebases(max_fds=2) as tables:
-            self.assertGreaterEqual(tables.open_directory("data/syzygy/regular"), 70)
+        with chess.syzygy.Tablebase(max_fds=2) as tables:
+            self.assertGreaterEqual(tables.add_directory("data/syzygy/regular"), 70)
 
             # Winning KRvKB.
             board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
@@ -3067,7 +3067,7 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tables.probe_wdl_table(board), 2)
 
     def test_wdl_ep(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+        with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
             # Winning KPvKP because of en passant.
             board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
@@ -3078,13 +3078,13 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tables.probe_wdl(board), 2)
 
     def test_dtz_ep(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+        with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
             board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
             self.assertEqual(tables.probe_dtz_no_ep(board), -1)
             self.assertEqual(tables.probe_dtz(board), 1)
 
     def test_testsuite(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables, open("data/endgame.epd") as epds:
+        with chess.syzygy.open_tablebase("data/syzygy/regular") as tables, open("data/endgame.epd") as epds:
             board = chess.Board()
 
             for line, epd in enumerate(epds):
@@ -3107,20 +3107,20 @@ class SyzygyTestCase(unittest.TestCase):
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+        with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
             board = chess.Board("3K4/8/3k4/8/4p3/4B3/5P2/8 w - - 0 5")
             self.assertEqual(tables.probe_dtz(board), 15)
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_issue_93(self):
-        with chess.syzygy.open_tablebases("data/syzygy/regular") as tables:
+        with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
             board = chess.Board("4r1K1/6PP/3k4/8/8/8/8/8 w - - 1 64")
             self.assertEqual(tables.probe_wdl(board), 2)
             self.assertEqual(tables.probe_dtz(board), 4)
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtm(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtm.epd") as epds:
+        with chess.syzygy.open_tablebase("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtm.epd") as epds:
             for epd in epds:
                 epd = epd.strip()
 
@@ -3144,7 +3144,7 @@ class SyzygyTestCase(unittest.TestCase):
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_dtz(self):
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtz.epd") as epds:
+        with chess.syzygy.open_tablebase("data/syzygy/suicide", VariantBoard=chess.variant.SuicideBoard) as tables, open("data/suicide-dtz.epd") as epds:
             for epd in epds:
                 epd = epd.strip()
                 if epd.startswith("%") or epd.startswith("#"):
@@ -3160,7 +3160,7 @@ class SyzygyTestCase(unittest.TestCase):
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
 
-        with chess.syzygy.open_tablebases("data/syzygy/suicide", VariantBoard=type(board)) as tables, open("data/suicide-stats.epd") as epds:
+        with chess.syzygy.open_tablebase("data/syzygy/suicide", VariantBoard=type(board)) as tables, open("data/suicide-stats.epd") as epds:
             for l, epd in enumerate(epds):
                 solution = board.set_epd(epd)
 
@@ -3173,39 +3173,39 @@ class NativeGaviotaTestCase(unittest.TestCase):
     @unittest.skipUnless(platform.python_implementation() == "CPython", "need CPython for native Gaviota")
     @catchAndSkip((OSError, RuntimeError), "need libgtb")
     def setUp(self):
-        self.tablebases = chess.gaviota.open_tablebases_native("data/gaviota")
+        self.tablebase = chess.gaviota.open_tablebase_native("data/gaviota")
 
     def tearDown(self):
-        self.tablebases.close()
+        self.tablebase.close()
 
     def test_native_probe_dtm(self):
         board = chess.Board("6K1/8/8/8/4Q3/8/6k1/8 b - - 0 1")
-        self.assertEqual(self.tablebases.probe_dtm(board), -14)
+        self.assertEqual(self.tablebase.probe_dtm(board), -14)
 
         board = chess.Board("8/3K4/8/8/8/4r3/4k3/8 b - - 0 1")
-        self.assertEqual(self.tablebases.get_dtm(board), 21)
+        self.assertEqual(self.tablebase.get_dtm(board), 21)
 
     def test_native_probe_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
-        self.assertEqual(self.tablebases.probe_wdl(board), 0)
+        self.assertEqual(self.tablebase.probe_wdl(board), 0)
 
         board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
-        self.assertEqual(self.tablebases.get_wdl(board), 1)
+        self.assertEqual(self.tablebase.get_wdl(board), 1)
 
     @catchAndSkip(chess.gaviota.MissingTableError, "need KPPvKP.gtb.cp4")
     def test_two_ep(self):
         board = chess.Board("8/8/8/8/5pPp/8/5K1k/8 b - g3 0 61")
-        self.assertEqual(self.tablebases.probe_dtm(board), 19)
+        self.assertEqual(self.tablebase.probe_dtm(board), 19)
 
 
 class GaviotaTestCase(unittest.TestCase):
 
     @catchAndSkip(ImportError)
     def setUp(self):
-        self.tablebases = chess.gaviota.open_tablebases("data/gaviota", LibraryLoader=None)
+        self.tablebase = chess.gaviota.open_tablebase("data/gaviota", LibraryLoader=None)
 
     def tearDown(self):
-        self.tablebases.close()
+        self.tablebase.close()
 
     @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_4(self):
@@ -3224,7 +3224,7 @@ class GaviotaTestCase(unittest.TestCase):
                     expected = extra["dm"] * 2 - 1
                 else:
                     expected = extra["dm"] * 2
-                dtm = self.tablebases.probe_dtm(board)
+                dtm = self.tablebase.probe_dtm(board)
                 self.assertEqual(dtm, expected,
                     "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
 
@@ -3245,32 +3245,32 @@ class GaviotaTestCase(unittest.TestCase):
                     expected = extra["dm"] * 2 - 1
                 else:
                     expected = extra["dm"] * 2
-                dtm = self.tablebases.probe_dtm(board)
+                dtm = self.tablebase.probe_dtm(board)
                 self.assertEqual(dtm, expected,
                     "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
 
     def test_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
-        self.assertEqual(self.tablebases.probe_wdl(board), 0)
+        self.assertEqual(self.tablebase.probe_wdl(board), 0)
 
         board = chess.Board("8/8/1p2K3/8/8/3k4/8/8 b - - 0 1")
-        self.assertEqual(self.tablebases.probe_wdl(board), 1)
+        self.assertEqual(self.tablebase.probe_wdl(board), 1)
 
     def test_context_manager(self):
-        self.assertTrue(self.tablebases.available_tables)
+        self.assertTrue(self.tablebase.available_tables)
 
-        with self.tablebases:
+        with self.tablebase:
             pass
 
-        self.assertFalse(self.tablebases.available_tables)
+        self.assertFalse(self.tablebase.available_tables)
 
     @catchAndSkip(chess.gaviota.MissingTableError, "need KPPvKP.gtb.cp4")
     def test_two_ep(self):
         board = chess.Board("8/8/8/8/5pPp/8/5K1k/8 b - g3 0 61")
-        self.assertEqual(self.tablebases.probe_dtm(board), 19)
+        self.assertEqual(self.tablebase.probe_dtm(board), 19)
 
         board = chess.Board("K7/8/8/6k1/5pPp/8/8/8 b - g3 0 61")
-        self.assertEqual(self.tablebases.probe_dtm(board), 17)
+        self.assertEqual(self.tablebase.probe_dtm(board), 17)
 
 
 class SvgTestCase(unittest.TestCase):
@@ -3435,7 +3435,7 @@ class AtomicTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "5b1r/1p5p/4ppp1/4Bn2/1PPP1PP1/4P2P/3k4/5RK1 b - - 2 1")
 
     def test_lone_king_wdl(self):
-        tables = chess.syzygy.Tablebases(VariantBoard=chess.variant.AtomicBoard)
+        tables = chess.syzygy.Tablebase(VariantBoard=chess.variant.AtomicBoard)
         board = chess.variant.AtomicBoard.empty()
         board.set_piece_at(chess.D1, chess.Piece.from_symbol("k"))
         self.assertEqual(tables.probe_wdl(board), -2)

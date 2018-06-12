@@ -1443,7 +1443,7 @@ class DtzTable(Table):
             super(DtzTable, self).close()
 
 
-class Tablebases(object):
+class Tablebase(object):
     """
     Manages a collection of tablebase files for probing.
 
@@ -1483,7 +1483,7 @@ class Tablebases(object):
         hashtable[table.mirrored_key] = table
         return 1
 
-    def open_directory(self, directory, *, load_wdl=True, load_dtz=True):
+    def add_directory(self, directory, *, load_wdl=True, load_dtz=True):
         """
         Loads tables from a directory.
 
@@ -1491,7 +1491,7 @@ class Tablebases(object):
         (e.g. WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
         are loaded.
 
-        Returns the number of tablebases files that were found.
+        Returns the number of table files that were found.
         """
         num = 0
         directory = os.path.abspath(directory)
@@ -1514,6 +1514,9 @@ class Tablebases(object):
                         num += self._open_table(self.dtz, DtzTable, path)
 
         return num
+
+    # TODO: Deprecated
+    open_directory = add_directory
 
     def probe_wdl_table(self, board):
         # Test for variant end.
@@ -1639,15 +1642,15 @@ class Tablebases(object):
         >>> import chess
         >>> import chess.syzygy
         >>>
-        >>> with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
+        >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
         ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
-        ...     print(tablebases.probe_wdl(board))
+        ...     print(tablebase.probe_wdl(board))
         ...
         -2
 
         :raises: :exc:`KeyError` (or specifically
             :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
-            :func:`~chess.syzygy.Tablebases.get_wdl()` if you prefer to get
+            :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
             ``None`` instead of an exception.
         """
         # Positions with castling rights are not in the tablebase.
@@ -1830,9 +1833,9 @@ class Tablebases(object):
         >>> import chess
         >>> import chess.syzygy
         >>>
-        >>> with chess.syzygy.open_tablebases("data/syzygy/regular") as tablebases:
+        >>> with chess.syzygy.open_tablebase("data/syzygy/regular") as tablebase:
         ...     board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
-        ...     print(tablebases.probe_dtz(board))
+        ...     print(tablebase.probe_dtz(board))
         ...
         -53
 
@@ -1841,7 +1844,7 @@ class Tablebases(object):
 
         :raises: :exc:`KeyError` (or specifically
             :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
-            :func:`~chess.syzygy.Tablebases.get_dtz()` if you prefer to get
+            :func:`~chess.syzygy.Tablebase.get_dtz()` if you prefer to get
             ``None`` instead of an exception.
         """
         v = self.probe_dtz_no_ep(board)
@@ -1910,10 +1913,10 @@ class Tablebases(object):
         self.close()
 
 
-def open_tablebases(directory, *, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+def open_tablebase(directory, *, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
     """
-    Opens a collection of tablebases for probing. See
-    :class:`~chess.syzygy.Tablebases`.
+    Opens a collection of tables for probing. See
+    :class:`~chess.syzygy.Tablebase`.
 
     .. note::
 
@@ -1921,9 +1924,13 @@ def open_tablebases(directory, *, load_wdl=True, load_dtz=True, max_fds=128, Var
         material composition, **as well as** tablebase files with less pieces.
         This is important because 6-piece and 5-piece files are often
         distributed seperately, but are both required for 6-piece positions.
-        Use :func:`~chess.syzygy.Tablebases.open_directory()` to load
-        tablebases from additional directories.
+        Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
+        tables from additional directories.
     """
-    tables = Tablebases(max_fds=max_fds, VariantBoard=VariantBoard)
-    tables.open_directory(directory, load_wdl=load_wdl, load_dtz=load_dtz)
+    tables = Tablebase(max_fds=max_fds, VariantBoard=VariantBoard)
+    tables.add_directory(directory, load_wdl=load_wdl, load_dtz=load_dtz)
     return tables
+
+# TODO: Deprecated
+open_tablebases = open_tablebase
+Tablebases = Tablebase
