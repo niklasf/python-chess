@@ -3,8 +3,6 @@
 
 """Run an EPD test suite with an UCI engine."""
 
-from __future__ import print_function
-
 import chess
 import chess.uci
 import chess.variant
@@ -68,8 +66,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
 
     score = 0.0
 
-    print("%s:" % epd_string, end=" ")
-    sys.stdout.flush()
+    print("%s:" % epd_string, end=" ", flush=True)
 
     for step in range(0, 3):
         time.sleep(movetime / 4000.0)
@@ -78,8 +75,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
         with info_handler as info:
             if 1 in info["pv"] and len(info["pv"][1]) >= 1:
                 move = info["pv"][1][0]
-                print("(%s)" % position.san(move), end=" ")
-                sys.stdout.flush()
+                print("(%s)" % position.san(move), end=" ", flush=True)
                 if "am" in epd_info and move in epd_info["am"]:
                     continue  # fail
                 elif "bm" in epd_info and move not in epd_info["bm"]:
@@ -87,8 +83,7 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
                 else:
                     score = 1.0 / (4 - step)
             else:
-                print("(no pv)", end=" ")
-                sys.stdout.flush()
+                print("(no pv)", end=" ", flush=True)
 
     # Assess the final best move by the engine.
     time.sleep(movetime / 4000.0)

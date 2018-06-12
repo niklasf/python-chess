@@ -3,8 +3,6 @@
 
 """Print a polyglot opening book in tree form."""
 
-from __future__ import print_function
-
 import chess
 import chess.polyglot
 import argparse

@@ -3,8 +3,6 @@
 
 """Play the immortal game using push_san() from chess.Board()."""
 
-from __future__ import print_function
-
 import chess
 import timeit
 

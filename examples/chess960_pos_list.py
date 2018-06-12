@@ -3,8 +3,6 @@
 
 """List all Chess960 starting positions."""
 
-from __future__ import print_function
-
 import sys
 import timeit
 import chess

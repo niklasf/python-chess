@@ -5,9 +5,6 @@
 Run perft test to check correctness and speed of the legal move generator.
 """
 
-from __future__ import division
-from __future__ import print_function
-
 import chess
 import chess.variant
 import multiprocessing
@@ -95,8 +92,7 @@ def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
                 sys.exit(1)
 
             total_nodes += perft_nodes
-            sys.stdout.write(".")
-            sys.stdout.flush()
+            print(".", end="", flush=True)
             column += 1
 
             if column >= 40:
