@@ -11,10 +11,6 @@ matrix:
   include:
    - python: "3.7-dev"
      env: PERFT=1
-addons:
-  apt:
-    packages:
-     - liblzma-dev
 cache:
   directories:
     - data/gaviota
