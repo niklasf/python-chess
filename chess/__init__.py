@@ -1417,8 +1417,7 @@ class Board(BaseBoard):
 
         # Generate castling moves.
         if from_mask & self.kings:
-            for move in self.generate_castling_moves(from_mask, to_mask):
-                yield move
+            yield from self.generate_castling_moves(from_mask, to_mask)
 
         # The remaining moves are all pawn moves.
         pawns = self.pawns & self.occupied_co[self.turn] & from_mask
@@ -1471,8 +1470,7 @@ class Board(BaseBoard):
 
         # Generate en passant captures.
         if self.ep_square:
-            for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
-                yield move
+            yield from self.generate_pseudo_legal_ep(from_mask, to_mask)
 
     def generate_pseudo_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if not self.ep_square or not BB_SQUARES[self.ep_square] & to_mask:
@@ -3034,16 +3032,14 @@ class Board(BaseBoard):
             # Capture or block a single checker.
             target = BB_BETWEEN[king][checker] | checkers
 
-            for move in self.generate_pseudo_legal_moves(~self.kings & from_mask, target & to_mask):
-                yield move
+            yield from self.generate_pseudo_legal_moves(~self.kings & from_mask, target & to_mask)
 
             # Capture the checking pawn en passant (but avoid yielding
             # duplicate moves).
             if self.ep_square and not BB_SQUARES[self.ep_square] & target:
                 last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
                 if last_double == checker:
-                    for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
-                        yield move
+                    yield from self.generate_pseudo_legal_ep(from_mask, to_mask)
 
     def generate_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
@@ -3063,8 +3059,7 @@ class Board(BaseBoard):
                     if self._is_safe(king, blockers, move):
                         yield move
         else:
-            for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
-                yield move
+            yield from self.generate_pseudo_legal_moves(from_mask, to_mask)
 
     def generate_legal_ep(self, from_mask=BB_ALL, to_mask=BB_ALL):
         if self.is_variant_end():
