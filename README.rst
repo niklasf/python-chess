@@ -342,6 +342,7 @@ python-chess, for example:
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
 * a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
+* a bridge between Lichess API and chess engines - https://github.com/careless25/lichess-bot
 
 Acknowledgements
 ----------------
