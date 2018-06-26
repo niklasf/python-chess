@@ -1,6 +1,30 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.7
+--------------
+
+Bugfixes:
+
+* Fixed `ThreeCheckBoard.mirror()` and `CrazyhouseBoard.mirror()`, which
+  were previously resetting remaining checks and pockets respectively.
+  Thanks @QueensGambit.
+
+Changes:
+
+* `Board.move_stack` is now guaranteed to be UCI compatible with respect to
+  the representation of castling moves and `board.chess960`.
+* Drop support for Python 3.3, which is long past end of life.
+* `chess.uci`: The `position` command now manages `UCI_Chess960` and
+  `UCI_Variant` automatically.
+* `chess.uci`: The `position` command will now always send the entire history
+  of moves from the root position.
+* Various coding style fixes and improvements. Thanks @hugovk.
+
+New features:
+
+* Added `Board.root()`.
+
 New in v0.23.6
 --------------
 
