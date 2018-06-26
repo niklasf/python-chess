@@ -51,31 +51,31 @@ script:
  - # Unit tests
  - if [[ $PERFT -ne 1 ]]; then coverage erase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SquareTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv MoveTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv PieceTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv BoardTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv LegalMoveGeneratorTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv BaseBoardTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SquareSetTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv PolyglotTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv PgnTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SyzygyTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv NativeGaviotaTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv GaviotaTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SvgTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SuicideTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv AtomicTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv RacingKingsTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv HordeTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv ThreeCheckTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv CrazyhouseTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv GiveawayTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv UciOptionMapTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv UciEngineTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv CraftyTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv StockfishTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv SpurEngineTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess test.py -vv XboardEngineTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv MoveTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv PieceTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv BoardTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv LegalMoveGeneratorTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv BaseBoardTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv SquareSetTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv PolyglotTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv PgnTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv SyzygyTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv NativeGaviotaTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GaviotaTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv SvgTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv SuicideTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv AtomicTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv RacingKingsTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv HordeTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv ThreeCheckTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CrazyhouseTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GiveawayTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciOptionMapTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciEngineTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CraftyTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv StockfishTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv SpurEngineTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv XboardEngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append -m doctest README.rst --verbose; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
  - # Perft tests
