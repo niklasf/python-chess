@@ -69,7 +69,7 @@ Syzygy tablebases are available for suicide, giveaway and atomic chess.
 >>> import chess.syzygy
 >>> import chess.variant
 >>>
->>> tables = chess.syzygy.open_tablebases("data/syzygy", VariantBoard=chess.variant.AtomicBoard)
+>>> tables = chess.syzygy.open_tablebase("data/syzygy", VariantBoard=chess.variant.AtomicBoard)
 
 
 .. _Multi-Variant Stockfish: https://github.com/ddugovic/Stockfish

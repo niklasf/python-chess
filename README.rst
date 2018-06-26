@@ -275,15 +275,15 @@ Features
 
       >>> import chess.syzygy
 
-      >>> tablebases = chess.syzygy.open_tablebases("data/syzygy/regular")
+      >>> tablebase = chess.syzygy.open_tablebase("data/syzygy/regular")
 
       >>> # Black to move is losing in 53 half moves (distance to zero) in this
       >>> # KNBvK endgame.
       >>> board = chess.Board("8/2K5/4B3/3N4/8/8/4k3/8 b - - 0 1")
-      >>> tablebases.probe_dtz(board)
+      >>> tablebase.probe_dtz(board)
       -53
 
-      >>> tablebases.close()
+      >>> tablebase.close()
 
 * Communicate with an UCI engine.
   `Docs <https://python-chess.readthedocs.io/en/latest/uci.html>`__.
