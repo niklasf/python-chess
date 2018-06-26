@@ -596,6 +596,12 @@ class ThreeCheckBoard(chess.Board):
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.BLACK]
         return board
 
+    def mirror(self):
+        board = super(ThreeCheckBoard, self).mirror()
+        board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.BLACK]
+        board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
+        return board
+
 
 class CrazyhousePocket(object):
 
@@ -806,6 +812,12 @@ class CrazyhouseBoard(chess.Board):
         board = super(CrazyhouseBoard, self).copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
+        return board
+
+    def mirror(self):
+        board = super(CrazyhouseBoard, self).mirror()
+        board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
+        board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
         return board
 
     def status(self):

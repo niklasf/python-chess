@@ -3560,6 +3560,11 @@ class ThreeCheckTestCase(unittest.TestCase):
         board = chess.variant.ThreeCheckBoard(fen)
         self.assertEqual(board.copy().fen(), fen)
 
+    def test_mirror_checks(self):
+        fen = "3R4/1p3rpk/p4p1p/2B1n3/8/2P1PP2/bPN4P/6K1 w - - 5 29 +2+0"
+        board = chess.variant.ThreeCheckBoard(fen)
+        self.assertEqual(board, board.mirror().mirror())
+
     def test_lichess_fen(self):
         board = chess.variant.ThreeCheckBoard("8/8/1K2p3/3qP2k/8/8/8/8 b - - 3 57 +1+2")
         self.assertEqual(board.remaining_checks[chess.WHITE], 2)
@@ -3698,6 +3703,11 @@ class CrazyhouseTestCase(unittest.TestCase):
 
         board.pockets[chess.WHITE].add(chess.PAWN)
         self.assertFalse(board.is_insufficient_material())
+
+    def test_mirror_pockets(self):
+        fen = "r1b1k2r/p1pq1ppp/1bBbnp2/8/6N1/5P2/PPP2PPP/R4RK1/PQPPNn w kq - 30 16"
+        board = chess.variant.CrazyhouseBoard(fen)
+        self.assertEqual(board, board.mirror().mirror())
 
 
 class GiveawayTestCase(unittest.TestCase):
