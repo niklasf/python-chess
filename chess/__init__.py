@@ -33,7 +33,6 @@ import copy
 import re
 import itertools
 import struct
-import sys
 
 
 COLORS = [WHITE, BLACK] = [True, False]
