@@ -1635,7 +1635,7 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(len(moves), 1)
 
     def test_empty_book(self):
-        with chess.polyglot.open_reader("data/polyglot/empty.bin") as book:
+        with chess.polyglot.open_reader(os.devnull) as book:
             self.assertEqual(len(book), 0)
 
             entries = book.find_all(chess.Board())
