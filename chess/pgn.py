@@ -882,7 +882,6 @@ def read_game(handle, *, Visitor=GameModelCreator):
     PGN files are ASCII or UTF-8 most of the time. So, the following should
     cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
 
-    >>> # Python 3
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
     Use :class:`~io.StringIO` to parse games from a string.
