@@ -39,8 +39,8 @@ COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
 
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
-PIECE_SYMBOLS = ["", "p", "n", "b", "r", "q", "k"]
-PIECE_NAMES = ["", "pawn", "knight", "bishop", "rook", "queen", "king"]
+PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
+PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
