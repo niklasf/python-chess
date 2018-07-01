@@ -417,8 +417,6 @@ class Move(object):
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
-    __nonzero__ = __bool__
-
     def __eq__(self, other):
         ne = self.__ne__(other)
         return NotImplemented if ne is NotImplemented else not ne
@@ -3252,8 +3250,6 @@ class PseudoLegalMoveGenerator(object):
     def __bool__(self):
         return any(self.board.generate_pseudo_legal_moves())
 
-    __nonzero__ = __bool__
-
     def count(self):
         # List conversion is faster than iterating.
         return len(list(self))
@@ -3285,8 +3281,6 @@ class LegalMoveGenerator(object):
 
     def __bool__(self):
         return any(self.board.generate_legal_moves())
-
-    __nonzero__ = __bool__
 
     def count(self):
         # List conversion is faster than iterating.
@@ -3458,8 +3452,6 @@ class SquareSet(object):
     def __bool__(self):
         return bool(self.mask)
 
-    __nonzero__ = __bool__
-
     def __eq__(self, other):
         ne = self.__ne__(other)
         return NotImplemented if ne is NotImplemented else not ne
@@ -3537,12 +3529,6 @@ class SquareSet(object):
 
     def __invert__(self):
         return type(self)(~self.mask & BB_ALL)
-
-    def __oct__(self):
-        return oct(self.mask)
-
-    def __hex__(self):
-        return hex(self.mask)
 
     def __int__(self):
         return self.mask
