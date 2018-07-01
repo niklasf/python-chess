@@ -215,7 +215,7 @@ Square sets
 
 Common integer masks are:
 
-.. py:data:: chess.BB_VOID
+.. py:data:: chess.BB_EMPTY
     :annotation: = 0
 .. py:data:: chess.BB_ALL
     :annotation: = 0xFFFFFFFFFFFFFFFF

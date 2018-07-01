@@ -961,7 +961,7 @@ class BoardTestCase(unittest.TestCase):
 
         # Not attacking the pawn directly.
         attackers = board.attackers(chess.BLACK, chess.F4)
-        self.assertEqual(attackers, chess.BB_VOID)
+        self.assertEqual(attackers, chess.BB_EMPTY)
 
     def test_attacks(self):
         board = chess.Board("5rk1/p5pp/2p3p1/1p1pR3/3P2P1/2N5/PP3n2/2KB4 w - - 1 26")
@@ -984,7 +984,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.turn, chess.WHITE)
         self.assertEqual(board.fullmove_number, 1)
         self.assertEqual(board.halfmove_clock, 0)
-        self.assertEqual(board.castling_rights, chess.BB_VOID)
+        self.assertEqual(board.castling_rights, chess.BB_EMPTY)
         self.assertFalse(board.ep_square)
 
         self.assertFalse(board.piece_at(chess.E1))
@@ -1495,10 +1495,10 @@ class SquareSetTestCase(unittest.TestCase):
 
     def test_arithmetic(self):
         self.assertEqual(chess.SquareSet(chess.BB_RANK_2) & chess.BB_FILE_D, chess.BB_D2)
-        self.assertEqual(chess.SquareSet(chess.BB_ALL) ^ chess.BB_VOID, chess.BB_ALL)
+        self.assertEqual(chess.SquareSet(chess.BB_ALL) ^ chess.BB_EMPTY, chess.BB_ALL)
         self.assertEqual(chess.SquareSet(chess.BB_C1) | chess.BB_FILE_C, chess.BB_FILE_C)
 
-        bb = chess.SquareSet(chess.BB_VOID)
+        bb = chess.SquareSet(chess.BB_EMPTY)
         bb ^= chess.BB_ALL
         self.assertEqual(bb, chess.BB_ALL)
         bb &= chess.BB_E4
@@ -1524,7 +1524,7 @@ class SquareSetTestCase(unittest.TestCase):
 
         self.assertEqual(chess.SquareSet(chess.BB_A1).union(chess.BB_FILE_A), chess.BB_FILE_A)
 
-        self.assertEqual(chess.SquareSet(chess.BB_A1).intersection(chess.BB_A2), chess.BB_VOID)
+        self.assertEqual(chess.SquareSet(chess.BB_A1).intersection(chess.BB_A2), chess.BB_EMPTY)
 
         self.assertEqual(chess.SquareSet(chess.BB_A1).difference(chess.BB_A2), chess.BB_A1)
 
@@ -1561,14 +1561,14 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(squares, chess.BB_A3)
 
         squares.clear()
-        self.assertEqual(squares, chess.BB_VOID)
+        self.assertEqual(squares, chess.BB_EMPTY)
 
         with self.assertRaises(KeyError):
             squares.pop()
 
         squares.add(chess.C7)
         self.assertEqual(squares.pop(), chess.C7)
-        self.assertEqual(squares, chess.BB_VOID)
+        self.assertEqual(squares, chess.BB_EMPTY)
 
     def test_from_square(self):
         self.assertEqual(chess.SquareSet.from_square(chess.H5), chess.BB_H5)

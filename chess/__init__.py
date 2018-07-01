@@ -120,7 +120,7 @@ def square_mirror(square):
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 
-BB_VOID = 0
+BB_EMPTY = 0
 BB_ALL = 0xffffffffffffffff
 
 BB_SQUARES = [
@@ -504,7 +504,7 @@ class BaseBoard(object):
     """
 
     def __init__(self, board_fen=STARTING_BOARD_FEN):
-        self.occupied_co = [BB_VOID, BB_VOID]
+        self.occupied_co = [BB_EMPTY, BB_EMPTY]
 
         if board_fen is None:
             self._clear_board()
@@ -521,7 +521,7 @@ class BaseBoard(object):
         self.queens = BB_D1 | BB_D8
         self.kings = BB_E1 | BB_E8
 
-        self.promoted = BB_VOID
+        self.promoted = BB_EMPTY
 
         self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
@@ -531,18 +531,18 @@ class BaseBoard(object):
         self._reset_board()
 
     def _clear_board(self):
-        self.pawns = BB_VOID
-        self.knights = BB_VOID
-        self.bishops = BB_VOID
-        self.rooks = BB_VOID
-        self.queens = BB_VOID
-        self.kings = BB_VOID
+        self.pawns = BB_EMPTY
+        self.knights = BB_EMPTY
+        self.bishops = BB_EMPTY
+        self.rooks = BB_EMPTY
+        self.queens = BB_EMPTY
+        self.kings = BB_EMPTY
 
-        self.promoted = BB_VOID
+        self.promoted = BB_EMPTY
 
-        self.occupied_co[WHITE] = BB_VOID
-        self.occupied_co[BLACK] = BB_VOID
-        self.occupied = BB_VOID
+        self.occupied_co[WHITE] = BB_EMPTY
+        self.occupied_co[BLACK] = BB_EMPTY
+        self.occupied = BB_EMPTY
 
     def clear_board(self):
         """Clears the board."""
@@ -954,7 +954,7 @@ class BaseBoard(object):
         used = [bw_file, bb_file, q_file]
 
         # Knights.
-        self.knights = BB_VOID
+        self.knights = BB_EMPTY
         for i in range(0, 8):
             if i not in used:
                 if n1 == 0 or n2 == 0:
@@ -984,7 +984,7 @@ class BaseBoard(object):
         self.occupied_co[WHITE] = BB_RANK_1 | BB_RANK_2
         self.occupied_co[BLACK] = BB_RANK_7 | BB_RANK_8
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
-        self.promoted = BB_VOID
+        self.promoted = BB_EMPTY
 
     def set_chess960_pos(self, sharnagl):
         """
@@ -1372,7 +1372,7 @@ class Board(BaseBoard):
         need to be put on the board.
         """
         self.turn = WHITE
-        self.castling_rights = BB_VOID
+        self.castling_rights = BB_EMPTY
         self.ep_square = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
@@ -2106,13 +2106,13 @@ class Board(BaseBoard):
 
     def _set_castling_fen(self, castling_fen):
         if not castling_fen or castling_fen == "-":
-            self.castling_rights = BB_VOID
+            self.castling_rights = BB_EMPTY
             return
 
         if not FEN_CASTLING_REGEX.match(castling_fen):
             raise ValueError("invalid castling fen: {}".format(repr(castling_fen)))
 
-        self.castling_rights = BB_VOID
+        self.castling_rights = BB_EMPTY
 
         for flag in castling_fen:
             color = WHITE if flag.isupper() else BLACK
@@ -2767,7 +2767,7 @@ class Board(BaseBoard):
                 white_h_side = 0
 
             black_a_side = (black_castling & -black_castling)
-            black_h_side = BB_SQUARES[msb(black_castling)] if black_castling else BB_VOID
+            black_h_side = BB_SQUARES[msb(black_castling)] if black_castling else BB_EMPTY
 
             if black_a_side and msb(black_a_side) > msb(black_king_mask):
                 black_a_side = 0
@@ -3377,7 +3377,7 @@ class SquareSet(object):
     :func:`~chess.SquareSet.clear()`.
     """
 
-    def __init__(self, mask=BB_VOID):
+    def __init__(self, mask=BB_EMPTY):
         self.mask = mask
 
     def issubset(self, other):
@@ -3447,7 +3447,7 @@ class SquareSet(object):
         return square
 
     def clear(self):
-        self.mask = BB_VOID
+        self.mask = BB_EMPTY
 
     def carry_rippler(self):
         return _carry_rippler(self.mask)

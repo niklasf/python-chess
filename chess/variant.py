@@ -193,7 +193,7 @@ class GiveawayBoard(SuicideBoard):
 
     def reset(self):
         super(GiveawayBoard, self).reset()
-        self.castling_rights = chess.BB_VOID
+        self.castling_rights = chess.BB_EMPTY
 
     def is_variant_win(self):
         return not self.occupied_co[self.turn] or self.is_stalemate()
@@ -710,7 +710,7 @@ class CrazyhouseBoard(chess.Board):
         elif chess.popcount(king_attackers) == 1:
             return chess.BB_BETWEEN[king][chess.msb(king_attackers)] & ~self.occupied
         else:
-            return chess.BB_VOID
+            return chess.BB_EMPTY
 
     def legal_drop_squares(self):
         return chess.SquareSet(self.legal_drop_squares_mask())
