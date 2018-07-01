@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.8
+--------------
+
+Bugfixes:
+
+* `chess.syzygy`: Correctly initialize wide DTZ map for experimental 7 piece
+  table KRBBPvKQ.
+
 New in v0.23.7
 --------------
 
