@@ -246,3 +246,5 @@ Other masks:
 
 .. py:data:: chess.BB_CORNERS
     :annotation: = chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
+.. py:data:: chess.BB_CENTER
+    :annotation: = chess.BB_D4 | chess.BB_E4 | chess.BB_D5 | chess.BB_E5

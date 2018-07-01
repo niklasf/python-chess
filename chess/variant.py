@@ -323,8 +323,6 @@ class AtomicBoard(chess.Board):
         return status
 
 
-BB_HILL = chess.BB_E4 | chess.BB_D4 | chess.BB_E5 | chess.BB_D5
-
 class KingOfTheHillBoard(chess.Board):
 
     aliases = ["King of the Hill", "KOTH"]
@@ -334,13 +332,13 @@ class KingOfTheHillBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def is_variant_end(self):
-        return self.kings & BB_HILL
+        return self.kings & chess.BB_CENTER
 
     def is_variant_win(self):
-        return self.kings & self.occupied_co[self.turn] & BB_HILL
+        return self.kings & self.occupied_co[self.turn] & chess.BB_CENTER
 
     def is_variant_loss(self):
-        return self.kings & self.occupied_co[not self.turn] & BB_HILL
+        return self.kings & self.occupied_co[not self.turn] & chess.BB_CENTER
 
     def is_insufficient_material(self):
         return False
