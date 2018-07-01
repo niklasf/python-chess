@@ -89,6 +89,8 @@ SQUARES = [
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8] = range(64)
 
+SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
+
 def square(file_index, rank_index):
     """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
@@ -103,7 +105,7 @@ def square_rank(square):
 
 def square_name(square):
     """Gets the name of the square, like ``a3``."""
-    return FILE_NAMES[square_file(square)] + RANK_NAMES[square_rank(square)]
+    return SQUARE_NAMES[square]
 
 def square_distance(a, b):
     """
@@ -116,7 +118,6 @@ def square_mirror(square):
     return square ^ 0x38
 
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
-SQUARE_NAMES = [square_name(sq) for sq in SQUARES]
 
 
 BB_VOID = 0
