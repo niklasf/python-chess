@@ -3573,3 +3573,7 @@ class SquareSet(object):
         True
         """
         return cls(BB_SQUARES[square])
+
+
+# TODO: Deprecated
+BB_VOID = 0
