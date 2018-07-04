@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.9
+--------------
+
+Changes:
+
+* Updated `Board.is_fivefold_repetition()`. FIDE rules have changed and the
+  repetition no longer needs to occur on consecutive alternating moves.
+  Thanks @LegionMammal978.
+
 New in v0.23.8
 --------------
 
