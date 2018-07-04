@@ -1736,7 +1736,7 @@ class Board(BaseBoard):
         """
         transposition_key = self._transposition_key()
         repetitions = 1
-        switchyard = collections.deque()
+        switchyard = []
 
         while self.move_stack and repetitions < 5:
             move = self.pop()
@@ -1784,7 +1784,7 @@ class Board(BaseBoard):
         transpositions.update((transposition_key, ))
 
         # Count positions.
-        switchyard = collections.deque()
+        switchyard = []
         while self.move_stack:
             move = self.pop()
             switchyard.append(move)
