@@ -26,7 +26,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@backscattering.de"
 
-__version__ = "0.23.8"
+__version__ = "0.23.9"
 
 import collections
 import copy
@@ -1730,32 +1730,28 @@ class Board(BaseBoard):
     def is_fivefold_repetition(self):
         """
         Since the 1st of July 2014 a game is automatically drawn (without
-        a claim by one of the players) if a position occurs for the fifth time
-        on consecutive alternating moves.
+        a claim by one of the players) if a position occurs for the fifth time.
+        Originally this had to occur on consecutive alternating moves, but
+        this has since been revised.
         """
         transposition_key = self._transposition_key()
-
-        if len(self.move_stack) < 16:
-            return False
-
+        repetitions = 1
         switchyard = collections.deque()
 
-        for _ in range(4):
-            # Go back two full moves each.
-            for _ in range(4):
-                switchyard.append(self.pop())
+        while self.move_stack and repetitions < 5:
+            move = self.pop()
+            switchyard.append(move)
 
-            # Check if the position was the same as before.
-            if self._transposition_key() != transposition_key:
-                while switchyard:
-                    self.push(switchyard.pop())
+            if self.is_irreversible(move):
+                break
 
-                return False
+            if self._transposition_key() == transposition_key:
+                repetitions += 1
 
         while switchyard:
             self.push(switchyard.pop())
 
-        return True
+        return repetitions >= 5
 
     def can_claim_draw(self):
         """

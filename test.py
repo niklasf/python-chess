@@ -1086,10 +1086,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.is_fivefold_repetition())
         board.push_san("Qd8")
 
-        # This is a threefold repetition but not a fivefold repetition, because
-        # consecutive moves are required for that.
+        # This is a threefold repetition, and also a fivefold repetition since
+        # it no longer has to occur on consecutive moves.
         self.assertTrue(board.can_claim_threefold_repetition())
-        self.assertFalse(board.is_fivefold_repetition())
+        self.assertTrue(board.is_fivefold_repetition())
         self.assertEqual(board.fen().split()[0], fen.split()[0])
 
     def test_fifty_moves(self):
