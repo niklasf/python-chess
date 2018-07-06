@@ -1116,7 +1116,7 @@ class Engine:
         return self.process.is_alive()
 
 
-def popen_engine(command, *, engine_cls=Engine, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
+def popen_engine(command, *, engine_cls=Engine, setpgrp=False, **kwargs):
     """
     Opens a local chess engine process.
 
@@ -1136,7 +1136,7 @@ def popen_engine(command, *, engine_cls=Engine, setpgrp=False, _popen_lock=threa
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
     """
-    return _popen_engine(command, engine_cls, setpgrp, _popen_lock, **kwargs)
+    return _popen_engine(command, engine_cls, setpgrp, **kwargs)
 
 
 def spur_spawn_engine(shell, command, *, engine_cls=Engine):

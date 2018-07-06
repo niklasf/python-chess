@@ -274,7 +274,7 @@ class OptionMap(collections.MutableMapping):
         return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
-def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock(), **kwargs):
+def _popen_engine(command, engine_cls, setpgrp=False, **kwargs):
     """
     Opens a local chess engine process.
 
@@ -295,10 +295,7 @@ def _popen_engine(command, engine_cls, setpgrp=False, _popen_lock=threading.Lock
             popen_args["preexec_fn"] = os.setpgrp
     popen_args.update(kwargs)
 
-    # Work around a possible race condition in Python 2 subprocess module
-    # that can occur when concurrently opening processes.
-    with _popen_lock:
-        PopenProcess(engine, command, **popen_args)
+    PopenProcess(engine, command, **popen_args)
 
     return engine
 
