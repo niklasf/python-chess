@@ -1231,7 +1231,7 @@ class WdlTable(Table):
 
     def close(self):
         with self.lock:
-            super(WdlTable, self).close()
+            super().close()
 
 
 class DtzTable(Table):
@@ -1439,7 +1439,7 @@ class DtzTable(Table):
 
     def close(self):
         with self.lock:
-            super(DtzTable, self).close()
+            super().close()
 
 
 class Tablebase:

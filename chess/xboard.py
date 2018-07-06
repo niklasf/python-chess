@@ -81,7 +81,7 @@ class DrawHandler:
     >>> class MyHandler(chess.xboard.DrawHandler):
     ...     def offer_draw(self):
     ...         # Called whenever offer draw has been processed.
-    ...         super(MyHandler, self).offer_draw()
+    ...         super().offer_draw()
     ...         print(self.pending_offer)
     """
     def __init__(self):
@@ -162,7 +162,7 @@ class PostHandler:
     >>> class MyHandler(chess.xboard.PostHandler):
     ...     def post_info(self):
     ...         # Called whenever a complete post line has been processed.
-    ...         super(MyHandler, self).post_info()
+    ...         super().post_info()
     ...         print(self.post)
     """
     def __init__(self):

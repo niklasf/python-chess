@@ -43,7 +43,7 @@ import chess.xboard
 
 class RaiseLogHandler(logging.StreamHandler):
     def handle(self, record):
-        super(RaiseLogHandler, self).handle(record)
+        super().handle(record)
         raise RuntimeError("was expecting no log messages")
 
 

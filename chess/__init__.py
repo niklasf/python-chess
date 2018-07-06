@@ -1356,7 +1356,7 @@ class Board(BaseBoard):
         self.reset_board()
 
     def reset_board(self):
-        super(Board, self).reset_board()
+        super().reset_board()
         self.clear_stack()
 
     def clear(self):
@@ -1378,7 +1378,7 @@ class Board(BaseBoard):
         self.clear_board()
 
     def clear_board(self):
-        super(Board, self).clear_board()
+        super().clear_board()
         self.clear_stack()
 
     def clear_stack(self):
@@ -1396,12 +1396,12 @@ class Board(BaseBoard):
             return self.copy(stack=False)
 
     def remove_piece_at(self, square):
-        piece = super(Board, self).remove_piece_at(square)
+        piece = super().remove_piece_at(square)
         self.clear_stack()
         return piece
 
     def set_piece_at(self, square, piece, promoted=False):
-        super(Board, self).set_piece_at(square, piece, promoted=promoted)
+        super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
     def generate_pseudo_legal_moves(self, from_mask=BB_ALL, to_mask=BB_ALL):
@@ -2142,15 +2142,15 @@ class Board(BaseBoard):
         self.clear_stack()
 
     def set_board_fen(self, fen):
-        super(Board, self).set_board_fen(fen)
+        super().set_board_fen(fen)
         self.clear_stack()
 
     def set_piece_map(self, pieces):
-        super(Board, self).set_piece_map(pieces)
+        super().set_piece_map(pieces)
         self.clear_stack()
 
     def set_chess960_pos(self, sharnagl):
-        super(Board, self).set_chess960_pos(sharnagl)
+        super().set_chess960_pos(sharnagl)
         self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
@@ -2185,7 +2185,7 @@ class Board(BaseBoard):
             if self.fullmove_number != 1 or self.halfmove_clock != 0:
                 return None
 
-        return super(Board, self).chess960_pos()
+        return super().chess960_pos()
 
     def _epd_operations(self, operations):
         epd = []
@@ -3186,7 +3186,7 @@ class Board(BaseBoard):
             return False
 
     def mirror(self):
-        board = super(Board, self).mirror()
+        board = super().mirror()
 
         board.chess960 = self.chess960
 
@@ -3199,7 +3199,7 @@ class Board(BaseBoard):
         return board
 
     def copy(self, *, stack=True):
-        board = super(Board, self).copy()
+        board = super().copy()
 
         board.chess960 = self.chess960
 

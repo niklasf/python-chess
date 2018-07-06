@@ -118,7 +118,7 @@ class SuicideBoard(chess.Board):
             return False
 
     def generate_pseudo_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        for move in super(SuicideBoard, self).generate_pseudo_legal_moves(from_mask, to_mask):
+        for move in super().generate_pseudo_legal_moves(from_mask, to_mask):
             # Add king promotions.
             if move.promotion == chess.QUEEN:
                 yield chess.Move(move.from_square, move.to_square, chess.KING)
@@ -144,7 +144,7 @@ class SuicideBoard(chess.Board):
                     yield move
 
     def is_legal(self, move):
-        if not super(SuicideBoard, self).is_legal(move):
+        if not super().is_legal(move):
             return False
 
         if self.is_capture(move):
@@ -154,18 +154,17 @@ class SuicideBoard(chess.Board):
 
     def _transposition_key(self):
         if self.has_chess960_castling_rights():
-            return (super(SuicideBoard, self)._transposition_key(),
-                    self.kings & self.promoted)
+            return (super()._transposition_key(), self.kings & self.promoted)
         else:
-            return super(SuicideBoard, self)._transposition_key()
+            return super()._transposition_key()
 
     def board_fen(self, promoted=None):
         if promoted is None:
             promoted = self.has_chess960_castling_rights()
-        return super(SuicideBoard, self).board_fen(promoted=promoted)
+        return super().board_fen(promoted=promoted)
 
     def status(self):
-        status = super(SuicideBoard, self).status()
+        status = super().status()
         status &= ~chess.STATUS_NO_WHITE_KING
         status &= ~chess.STATUS_NO_BLACK_KING
         status &= ~chess.STATUS_TOO_MANY_KINGS
@@ -189,10 +188,10 @@ class GiveawayBoard(SuicideBoard):
     pawnless_tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(GiveawayBoard, self).__init__(fen, chess960=chess960)
+        super().__init__(fen, chess960=chess960)
 
     def reset(self):
-        super(GiveawayBoard, self).reset()
+        super().reset()
         self.castling_rights = chess.BB_EMPTY
 
     def is_variant_win(self):
@@ -257,11 +256,11 @@ class AtomicBoard(chess.Board):
         for enemy_king in chess.scan_forward(enemy_kings):
             path &= ~chess.BB_KING_ATTACKS[enemy_king]
 
-        return super(AtomicBoard, self)._attacked_for_king(path, occupied)
+        return super()._attacked_for_king(path, occupied)
 
     def _castling_uncovers_rank_attack(self, rook_bb, king_to):
         return (not chess.BB_KING_ATTACKS[king_to] & self.kings & self.occupied_co[not self.turn] and
-                super(AtomicBoard, self)._castling_uncovers_rank_attack(rook_bb, king_to))
+                super()._castling_uncovers_rank_attack(rook_bb, king_to))
 
     def _kings_connected(self):
         white_kings = self.kings & self.occupied_co[chess.WHITE]
@@ -281,10 +280,10 @@ class AtomicBoard(chess.Board):
         self.castling_rights &= ~explosion_radius
 
     def is_check(self):
-        return not self._kings_connected() and super(AtomicBoard, self).is_check()
+        return not self._kings_connected() and super().is_check()
 
     def was_into_check(self):
-        return not self._kings_connected() and super(AtomicBoard, self).was_into_check()
+        return not self._kings_connected() and super().was_into_check()
 
     def is_into_check(self, move):
         self.push(move)
@@ -306,7 +305,7 @@ class AtomicBoard(chess.Board):
         return legal
 
     def is_stalemate(self):
-        return not self.is_variant_loss() and super(AtomicBoard, self).is_stalemate()
+        return not self.is_variant_loss() and super().is_stalemate()
 
     def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         for move in self.generate_pseudo_legal_moves(from_mask, to_mask):
@@ -314,7 +313,7 @@ class AtomicBoard(chess.Board):
                 yield move
 
     def status(self):
-        status = super(AtomicBoard, self).status()
+        status = super().status()
         status &= ~chess.STATUS_OPPOSITE_CHECK
         if self.turn == chess.WHITE:
             status &= ~chess.STATUS_NO_WHITE_KING
@@ -354,7 +353,7 @@ class RacingKingsBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(RacingKingsBoard, self).__init__(fen, chess960=chess960)
+        super().__init__(fen, chess960=chess960)
 
     def reset(self):
         self.set_fen(type(self).starting_fen)
@@ -366,10 +365,10 @@ class RacingKingsBoard(chess.Board):
         return gives_check
 
     def is_legal(self, move):
-        return super(RacingKingsBoard, self).is_legal(move) and not self._gives_check(move)
+        return super().is_legal(move) and not self._gives_check(move)
 
     def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
-        for move in super(RacingKingsBoard, self).generate_legal_moves(from_mask, to_mask):
+        for move in super().generate_legal_moves(from_mask, to_mask):
             if not self._gives_check(move):
                 yield move
 
@@ -406,7 +405,7 @@ class RacingKingsBoard(chess.Board):
         return False
 
     def status(self):
-        status = super(RacingKingsBoard, self).status()
+        status = super().status()
         if self.is_check():
             status |= chess.STATUS_RACE_CHECK
         if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
@@ -435,7 +434,7 @@ class HordeBoard(chess.Board):
     tbw_magic = tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
-        super(HordeBoard, self).__init__(fen, chess960=chess960)
+        super().__init__(fen, chess960=chess960)
 
     def reset(self):
         self.set_fen(type(self).starting_fen)
@@ -456,7 +455,7 @@ class HordeBoard(chess.Board):
         return False
 
     def status(self):
-        status = super(HordeBoard, self).status()
+        status = super().status()
         status &= ~chess.STATUS_NO_WHITE_KING
 
         if chess.popcount(self.occupied_co[chess.WHITE]) <= 36:
@@ -483,26 +482,26 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.remaining_checks = [3, 3]
-        super(ThreeCheckBoard, self).__init__(fen, chess960=chess960)
+        super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
-        super(ThreeCheckBoard, self).reset_board()
+        super().reset_board()
         self.remaining_checks[chess.WHITE] = 3
         self.remaining_checks[chess.BLACK] = 3
 
     def clear_board(self):
-        super(ThreeCheckBoard, self).clear_board()
+        super().clear_board()
         self.remaining_checks[chess.WHITE] = 3
         self.remaining_checks[chess.BLACK] = 3
 
     def push(self, move):
-        super(ThreeCheckBoard, self).push(move)
+        super().push(move)
         if self.is_check():
             self.remaining_checks[not self.turn] -= 1
 
     def pop(self):
         was_in_check = self.is_check()
-        move = super(ThreeCheckBoard, self).pop()
+        move = super().pop()
         if was_in_check:
             self.remaining_checks[self.turn] += 1
         return move
@@ -551,12 +550,12 @@ class ThreeCheckBoard(chess.Board):
                 raise ValueError("invalid check part in three-check fen: {}".format(repr(check_part)))
 
         # Set fen.
-        super(ThreeCheckBoard, self).set_fen(" ".join(parts))
+        super().set_fen(" ".join(parts))
         self.remaining_checks[chess.WHITE] = wc
         self.remaining_checks[chess.BLACK] = bc
 
     def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
-        epd = [super(ThreeCheckBoard, self).epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
+        epd = [super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
                "%d+%d" % (max(self.remaining_checks[chess.WHITE], 0),
                           max(self.remaining_checks[chess.BLACK], 0))]
         if operations:
@@ -576,7 +575,7 @@ class ThreeCheckBoard(chess.Board):
         return self.remaining_checks[self.turn] <= 0 < self.remaining_checks[not self.turn]
 
     def is_irreversible(self, move):
-        if super(ThreeCheckBoard, self).is_irreversible(move):
+        if super().is_irreversible(move):
             return True
 
         self.push(move)
@@ -585,17 +584,17 @@ class ThreeCheckBoard(chess.Board):
         return gives_check
 
     def _transposition_key(self):
-        return (super(ThreeCheckBoard, self)._transposition_key(),
+        return (super()._transposition_key(),
                 self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
 
     def copy(self, stack=True):
-        board = super(ThreeCheckBoard, self).copy(stack=stack)
+        board = super().copy(stack=stack)
         board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.WHITE]
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.BLACK]
         return board
 
     def mirror(self):
-        board = super(ThreeCheckBoard, self).mirror()
+        board = super().mirror()
         board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.BLACK]
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
         return board
@@ -645,15 +644,15 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
-        super(CrazyhouseBoard, self).__init__(fen, chess960=chess960)
+        super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
-        super(CrazyhouseBoard, self).reset_board()
+        super().reset_board()
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
     def clear_board(self):
-        super(CrazyhouseBoard, self).clear_board()
+        super().clear_board()
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
@@ -661,10 +660,10 @@ class CrazyhouseBoard(chess.Board):
         if move.drop:
             self.pockets[self.turn].remove(move.drop)
 
-        super(CrazyhouseBoard, self).push(move)
+        super().push(move)
 
     def pop(self):
-        move = super(CrazyhouseBoard, self).pop()
+        move = super().pop()
         if move.drop:
             self.pockets[self.turn].add(move.drop)
         elif self.is_capture(move):
@@ -694,7 +693,7 @@ class CrazyhouseBoard(chess.Board):
                 castling_rights & chess.BB_SQUARES[move.to_square])
 
     def _transposition_key(self):
-        return (super(CrazyhouseBoard, self)._transposition_key(),
+        return (super()._transposition_key(),
                 self.promoted,
                 str(self.pockets[chess.WHITE]), str(self.pockets[chess.BLACK]))
 
@@ -728,13 +727,13 @@ class CrazyhouseBoard(chess.Board):
 
             return self.pockets[self.turn].count(move.drop) > 0
         else:
-            return super(CrazyhouseBoard, self).is_pseudo_legal(move)
+            return super().is_pseudo_legal(move)
 
     def is_legal(self, move):
         if move.drop:
             return self.is_pseudo_legal(move) and self.legal_drop_squares_mask() & chess.BB_SQUARES[move.to_square]
         else:
-            return super(CrazyhouseBoard, self).is_legal(move)
+            return super().is_legal(move)
 
     def generate_pseudo_legal_drops(self, to_mask=chess.BB_ALL):
         for to_square in chess.scan_forward(to_mask & ~self.occupied):
@@ -747,7 +746,7 @@ class CrazyhouseBoard(chess.Board):
 
     def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         return itertools.chain(
-            super(CrazyhouseBoard, self).generate_legal_moves(from_mask, to_mask),
+            super().generate_legal_moves(from_mask, to_mask),
             self.generate_legal_drops(from_mask & to_mask))
 
     def parse_san(self, san):
@@ -760,7 +759,7 @@ class CrazyhouseBoard(chess.Board):
                 raise ValueError("illegal drop san: {} in {}".format(repr(san), self.fen()))
             return move
         else:
-            return super(CrazyhouseBoard, self).parse_san(san)
+            return super().parse_san(san)
 
     def is_insufficient_material(self):
         return (
@@ -792,34 +791,34 @@ class CrazyhouseBoard(chess.Board):
         black_pocket = CrazyhousePocket(c for c in pocket_part if not c.isupper())
 
         # Set FEN and pockets.
-        super(CrazyhouseBoard, self).set_fen(position_part + " " + info_part)
+        super().set_fen(position_part + " " + info_part)
         self.pockets[chess.WHITE] = white_pocket
         self.pockets[chess.BLACK] = black_pocket
 
     def board_fen(self, promoted=None):
         if promoted is None:
             promoted = True
-        return super(CrazyhouseBoard, self).board_fen(promoted=promoted)
+        return super().board_fen(promoted=promoted)
 
     def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
-        epd = super(CrazyhouseBoard, self).epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
+        epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
         return "%s[%s%s] %s" % (board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
 
     def copy(self, stack=True):
-        board = super(CrazyhouseBoard, self).copy(stack=stack)
+        board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
         return board
 
     def mirror(self):
-        board = super(CrazyhouseBoard, self).mirror()
+        board = super().mirror()
         board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
         return board
 
     def status(self):
-        status = super(CrazyhouseBoard, self).status()
+        status = super().status()
 
         if chess.popcount(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
             status &= ~chess.STATUS_TOO_MANY_BLACK_PAWNS

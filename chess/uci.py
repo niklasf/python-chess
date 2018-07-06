@@ -79,7 +79,7 @@ class InfoHandler:
     ...     def post_info(self):
     ...         # Called whenever a complete info line has been processed.
     ...         print(self.info)
-    ...         super(MyHandler, self).post_info()  # Release the lock
+    ...         super().post_info()  # Release the lock
     """
     def __init__(self):
         self.lock = threading.Lock()

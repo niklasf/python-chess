@@ -397,7 +397,7 @@ class Game(GameNode):
     """
 
     def __init__(self, headers=None):
-        super(Game, self).__init__()
+        super().__init__()
         self.headers = Headers(headers)
         self.errors = []
 
@@ -471,7 +471,7 @@ class Game(GameNode):
         if self.comment:
             visitor.visit_comment(self.comment)
 
-        super(Game, self).accept(visitor, _board=self.board())
+        super().accept(visitor, _board=self.board())
 
         visitor.visit_result(self.headers.get("Result", "*"))
         visitor.end_game()
@@ -823,7 +823,7 @@ class FileExporter(StringExporter):
     """
 
     def __init__(self, handle, *, columns=80, headers=True, comments=True, variations=True):
-        super(FileExporter, self).__init__(columns=columns, headers=headers, comments=comments, variations=variations)
+        super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
     def flush_current_line(self):
