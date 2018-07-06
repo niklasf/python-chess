@@ -25,7 +25,6 @@ import sys
 
 import setuptools
 
-import chess
 
 if sys.version_info < (3, ):
     raise ImportError(
@@ -34,6 +33,8 @@ if sys.version_info < (3, ):
 Python 2 support has been dropped. Consider upgrading to Python 3, or using
 the 0.23.x branch, which will be maintained until the end of 2018.
 """)
+
+import chess
 
 
 def read_description():
