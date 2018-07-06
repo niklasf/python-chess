@@ -315,7 +315,7 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
 
-class Piece(object):
+class Piece:
     """A piece with type and color."""
 
     def __init__(self, piece_type, color):
@@ -382,7 +382,7 @@ class Piece(object):
             return cls(PIECE_SYMBOLS.index(symbol.lower()), WHITE)
 
 
-class Move(object):
+class Move:
     """
     Represents a move from a square to a square and possibly the promotion
     piece type.
@@ -491,7 +491,7 @@ class Move(object):
         return cls(0, 0)
 
 
-class BaseBoard(object):
+class BaseBoard:
     """
     A board representing the position of chess pieces. See
     :class:`~chess.Board` for a full board with move generation.
@@ -1247,7 +1247,7 @@ class BaseBoard(object):
         return board
 
 
-class _BoardState(object):
+class _BoardState:
 
     def __init__(self, board):
         self.pawns = board.pawns
@@ -3238,7 +3238,7 @@ class Board(BaseBoard):
         return board
 
 
-class PseudoLegalMoveGenerator(object):
+class PseudoLegalMoveGenerator:
 
     def __init__(self, board):
         self.board = board
@@ -3270,7 +3270,7 @@ class PseudoLegalMoveGenerator(object):
         return "<PseudoLegalMoveGenerator at {} ({})>".format(hex(id(self)), sans)
 
 
-class LegalMoveGenerator(object):
+class LegalMoveGenerator:
 
     def __init__(self, board):
         self.board = board
@@ -3293,7 +3293,7 @@ class LegalMoveGenerator(object):
         return "<LegalMoveGenerator at {} ({})>".format(hex(id(self)), sans)
 
 
-class SquareSet(object):
+class SquareSet:
     """
     A set of squares.
 

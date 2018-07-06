@@ -45,7 +45,7 @@ class BestMove(collections.namedtuple("BestMove", "bestmove ponder")):
     __slots__ = ()
 
 
-class InfoHandler(object):
+class InfoHandler:
     """
     Chess engines may send information about their calculations with the
     *info* command. An :class:`~chess.uci.InfoHandler` instance can be used
@@ -251,7 +251,7 @@ class InfoHandler(object):
         self.release()
 
 
-class Engine(object):
+class Engine:
     def __init__(self, *, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.pondering = False

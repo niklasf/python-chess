@@ -515,7 +515,7 @@ class MissingTableError(KeyError):
     pass
 
 
-class PairsData(object):
+class PairsData:
     def __init__(self):
         self.indextable = None
         self.sizetable = None
@@ -529,7 +529,7 @@ class PairsData(object):
         self.base = None
 
 
-class PawnFileData(object):
+class PawnFileData:
     def __init__(self):
         self.precomp = {}
         self.factor = {}
@@ -537,7 +537,7 @@ class PawnFileData(object):
         self.norm = {}
 
 
-class PawnFileDataDtz(object):
+class PawnFileDataDtz:
     def __init__(self):
         self.precomp = None
         self.factor = None
@@ -545,7 +545,7 @@ class PawnFileDataDtz(object):
         self.norm = None
 
 
-class Table(object):
+class Table:
 
     def __init__(self, path, *, variant=chess.Board):
         self.path = path
@@ -1442,7 +1442,7 @@ class DtzTable(Table):
             super(DtzTable, self).close()
 
 
-class Tablebase(object):
+class Tablebase:
     """
     Manages a collection of tablebase files for probing.
 

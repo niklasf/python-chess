@@ -50,7 +50,7 @@ def try_move(board, move):
     return move
 
 
-class DrawHandler(object):
+class DrawHandler:
     """
     Chess engines may send a draw offer after playing its move and may receive
     one during an offer during its calculations. A draw handler can be used to
@@ -132,7 +132,7 @@ class DrawHandler(object):
         self.release()
 
 
-class PostHandler(object):
+class PostHandler:
     """
     Chess engines may send information about their calculations if enabled
     via the *post* command. Post handlers can be used to aggregate or react
@@ -232,7 +232,7 @@ class PostHandler(object):
         self.release()
 
 
-class FeatureMap(object):
+class FeatureMap:
     def __init__(self):
         # Populated with defaults to begin with.
         self._features = {
@@ -299,7 +299,7 @@ class FeatureMap(object):
         return self.get(key) == 1
 
 
-class Engine(object):
+class Engine:
     def __init__(self, Executor=concurrent.futures.ThreadPoolExecutor):
         self.idle = True
         self.state_changed = threading.Condition()

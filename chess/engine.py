@@ -46,7 +46,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
     __slots__ = ()
 
 
-class MockProcess(object):
+class MockProcess:
     def __init__(self, engine):
         self.engine = engine
         self._expectations = collections.deque()
@@ -111,7 +111,7 @@ class MockProcess(object):
         return "<MockProcess at {}>".format(hex(id(self)))
 
 
-class PopenProcess(object):
+class PopenProcess:
     def __init__(self, engine, command, **kwargs):
         self.engine = engine
 
@@ -178,7 +178,7 @@ class PopenProcess(object):
         return "<PopenProcess at {} (pid={})>".format(hex(id(self)), self.pid())
 
 
-class SpurProcess(object):
+class SpurProcess:
     def __init__(self, engine, shell, command):
         self.engine = engine
         self.shell = shell

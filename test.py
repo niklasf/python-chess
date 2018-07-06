@@ -1405,7 +1405,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
         self.assertIn("e8d7", repr(board.pseudo_legal_moves))
 
     def test_traverse_once(self):
-        class MockBoard(object):
+        class MockBoard:
             def __init__(self):
                 self.traversals = 0
 
@@ -1652,13 +1652,13 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(book[0], last)
 
     def test_random_choice(self):
-        class FirstMockRandom(object):
+        class FirstMockRandom:
             @staticmethod
             def randint(first, last):
                 assert first <= last
                 return first
 
-        class LastMockRandom(object):
+        class LastMockRandom:
             @staticmethod
             def randint(first, last):
                 assert first <= last

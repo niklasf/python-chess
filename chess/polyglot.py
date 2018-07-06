@@ -227,7 +227,7 @@ POLYGLOT_RANDOM_ARRAY = [
 ]
 
 
-class ZobristHasher(object):
+class ZobristHasher:
     def __init__(self, array):
         assert len(array) >= 781
         self.array = array
@@ -327,7 +327,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
             return chess.Move(from_square, to_square, promotion)
 
 
-class MemoryMappedReader(object):
+class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
     def __init__(self, filename):

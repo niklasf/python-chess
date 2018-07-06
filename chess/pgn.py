@@ -104,8 +104,7 @@ MOVETEXT_REGEX = re.compile(r"""
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
-class GameNode(object):
-
+class GameNode:
     def __init__(self):
         self.parent = None
         self.move = None
@@ -561,7 +560,7 @@ class Headers(collections.MutableMapping):
             ", ".join("{}={}".format(key, repr(value)) for key, value in self.items()))
 
 
-class BaseVisitor(object):
+class BaseVisitor:
     """
     Base class for visitors.
 

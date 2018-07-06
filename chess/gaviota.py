@@ -1488,7 +1488,7 @@ class MissingTableError(KeyError):
     """Can not probe position because a required table is missing."""
 
 
-class TableBlock(object):
+class TableBlock:
     def __init__(self, egkey, side, offset, age):
         self.egkey = egkey
         self.side = side
@@ -1497,7 +1497,7 @@ class TableBlock(object):
         self.pcache = None
 
 
-class Request(object):
+class Request:
     def __init__(self, white_squares, white_types, black_squares, black_types, side, epsq):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
@@ -1517,7 +1517,7 @@ class Request(object):
 Zipinfo = collections.namedtuple("Zipinfo", "extraoffset totalblocks blockindex")
 
 
-class PythonTablebase(object):
+class PythonTablebase:
     """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self):
@@ -1901,7 +1901,7 @@ class PythonTablebase(object):
         self.close()
 
 
-class NativeTablebase(object):
+class NativeTablebase:
     """
     Provides access to Gaviota tablebases via the shared library libgtb.
     Has the same interface as :class:`~chess.gaviota.PythonTablebase`.

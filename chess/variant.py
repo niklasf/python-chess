@@ -601,7 +601,7 @@ class ThreeCheckBoard(chess.Board):
         return board
 
 
-class CrazyhousePocket(object):
+class CrazyhousePocket:
 
     def __init__(self, symbols=""):
         self.pieces = {}
