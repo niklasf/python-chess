@@ -1246,6 +1246,28 @@ class BaseBoard:
         board.set_chess960_pos(sharnagl)
         return board
 
+    def count_captured(self, piece, color):
+        """
+        Get the number of captured pieces on the current position.
+
+        :param piece: Type of the piece to count (chess.ROOK, ...)
+        :param color: Color of the piece to check (chess.WHITE or chess.BLACK)
+
+        :raises: :exc:`ValueError` if the piece type is invalid.
+        """
+        if piece == QUEEN:
+            piece_count = 1
+        elif piece in (ROOK, BISHOP, KNIGHT):
+            piece_count = 2
+        elif piece == PAWN:
+            piece_count = 8
+        else:
+            raise ValueError("Unknown piece type '%s'" % piece)
+
+        capture_count = piece_count - popcount(self.pieces_mask(piece, color))
+
+        return capture_count if capture_count >= 0 else 0
+
 
 class _BoardState:
 
