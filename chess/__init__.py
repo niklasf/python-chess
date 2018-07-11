@@ -3293,7 +3293,7 @@ class LegalMoveGenerator:
         return "<LegalMoveGenerator at {} ({})>".format(hex(id(self)), sans)
 
 
-class SquareSet:
+class SquareSet(collections.abc.MutableSet):
     """
     A set of squares.
 
@@ -3367,8 +3367,42 @@ class SquareSet:
     :func:`~chess.SquareSet.clear()`.
     """
 
-    def __init__(self, mask=BB_EMPTY):
-        self.mask = mask
+    def __init__(self, squares=BB_EMPTY):
+        try:
+            self.mask = int(squares) & BB_ALL
+        except TypeError:
+            self.mask = 0
+            for square in squares:
+                self.add(square)
+
+    # Set
+
+    def __contains__(self, square):
+        return bool(BB_SQUARES[square] & self.mask)
+
+    def __iter__(self):
+        return scan_forward(self.mask)
+
+    def __reversed__(self):
+        return scan_reversed(self.mask)
+
+    def __len__(self):
+        return popcount(self.mask)
+
+    # MutableSet
+
+    def add(self, square):
+        """Adds a square to the set."""
+        self.mask |= BB_SQUARES[square]
+
+    def discard(self, square):
+        """Discards a square from the set."""
+        self.mask &= ~BB_SQUARES[square]
+
+    # frozenset
+
+    def isdisjoint(self, other):
+        return not bool(self & other)
 
     def issubset(self, other):
         return not bool(~self & other)
@@ -3379,33 +3413,69 @@ class SquareSet:
     def union(self, other):
         return self | other
 
+    def __or__(self, other):
+        r = SquareSet(other)
+        r.mask |= self.mask
+        return r
+
     def intersection(self, other):
         return self & other
 
+    def __and__(self, other):
+        r = SquareSet(other)
+        r.mask &= self.mask
+        return r
+
     def difference(self, other):
-        return self & ~other
+        return self - other
+
+    def __sub__(self, other):
+        r = SquareSet(other)
+        r.mask = self.mask & ~r.mask
+        return r
 
     def symmetric_difference(self, other):
         return self ^ other
 
-    def update(self, other):
-        self |= other
+    def __xor__(self, other):
+        r = SquareSet(other)
+        r.mask ^= self.mask
+        return r
 
-    def intersection_update(self, other):
-        self &= other
+    def copy(self):
+        return SquareSet(self.mask)
+
+    # set
+
+    def update(self, *others):
+        for other in others:
+            self |= other
+
+    def __ior__(self, other):
+        self.mask |= SquareSet(other).mask
+        return self
+
+    def intersection_update(self, *others):
+        for other in others:
+            self &= other
+
+    def __iand__(self, other):
+        self.mask &= SquareSet(other).mask
+        return self
 
     def difference_update(self, other):
-        self &= ~other
+        self -= other
+
+    def __isub__(self, other):
+        self.mask &= ~SquareSet(other).mask
+        return self
 
     def symmetric_difference_update(self, other):
         self ^= other
 
-    def copy(self):
-        return type(self)(self.mask)
-
-    def add(self, square):
-        """Adds a square to the set."""
-        self.mask |= BB_SQUARES[square]
+    def __ixor__(self, other):
+        self.mask ^= SquareSet(other).mask
+        return self
 
     def remove(self, square):
         """
@@ -3419,10 +3489,6 @@ class SquareSet:
         else:
             raise KeyError(square)
 
-    def discard(self, square):
-        """Discards a square from the set."""
-        self.mask &= ~BB_SQUARES[square]
-
     def pop(self):
         """
         Removes a square from the set and returns it.
@@ -3430,7 +3496,7 @@ class SquareSet:
         :raises: :exc:`KeyError` on an empty set.
         """
         if not self.mask:
-            raise KeyError("pop from empty set")
+            raise KeyError("pop from empty SquareSet")
 
         square = lsb(self.mask)
         self.mask &= (self.mask - 1)
@@ -3438,6 +3504,8 @@ class SquareSet:
 
     def clear(self):
         self.mask = BB_EMPTY
+
+    # SquareSet
 
     def carry_rippler(self):
         return _carry_rippler(self.mask)
@@ -3454,77 +3522,26 @@ class SquareSet:
 
     def __ne__(self, other):
         try:
-            return self.mask != int(other)
-        except ValueError:
+            return self.mask != SquareSet(other).mask
+        except (TypeError, ValueError):
             return NotImplemented
 
-    def __len__(self):
-        return popcount(self.mask)
-
-    def __iter__(self):
-        return scan_forward(self.mask)
-
-    def __reversed__(self):
-        return scan_reversed(self.mask)
-
-    def __contains__(self, square):
-        return bool(BB_SQUARES[square] & self.mask)
-
     def __lshift__(self, shift):
-        return type(self)((self.mask << shift) & BB_ALL)
+        return SquareSet((self.mask << shift) & BB_ALL)
 
     def __rshift__(self, shift):
-        return type(self)(self.mask >> shift)
-
-    def __and__(self, other):
-        try:
-            return type(self)(self.mask & other.mask)
-        except AttributeError:
-            return type(self)(self.mask & other)
-
-    def __xor__(self, other):
-        try:
-            return type(self)((self.mask ^ other.mask) & BB_ALL)
-        except AttributeError:
-            return type(self)((self.mask ^ other) & BB_ALL)
-
-    def __or__(self, other):
-        try:
-            return type(self)((self.mask | other.mask) & BB_ALL)
-        except AttributeError:
-            return type(self)((self.mask | other) & BB_ALL)
+        return SquareSet(self.mask >> shift)
 
     def __ilshift__(self, shift):
-        self.mask = (self.mask << shift & BB_ALL)
+        self.mask = (self.mask << shift) & BB_ALL
         return self
 
     def __irshift__(self, shift):
         self.mask >>= shift
         return self
 
-    def __iand__(self, other):
-        try:
-            self.mask &= other.mask
-        except AttributeError:
-            self.mask &= other
-        return self
-
-    def __ixor__(self, other):
-        try:
-            self.mask = (self.mask ^ other.mask) & BB_ALL
-        except AttributeError:
-            self.mask = (self.mask ^ other) & BB_ALL
-        return self
-
-    def __ior__(self, other):
-        try:
-            self.mask = (self.mask | other.mask) & BB_ALL
-        except AttributeError:
-            self.mask = (self.mask | other) & BB_ALL
-        return self
-
     def __invert__(self):
-        return type(self)(~self.mask & BB_ALL)
+        return SquareSet(~self.mask & BB_ALL)
 
     def __int__(self):
         return self.mask
