@@ -149,8 +149,11 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
             for piece_type in chess.PIECE_TYPES:
                 if board.pieces_mask(piece_type, color):
                     defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, color).symbol()]))
+
+    squares = chess.SquareSet(squares) if squares else chess.SquareSet()
     if squares:
         defs.append(ET.fromstring(XX))
+
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
@@ -197,7 +200,7 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
                 })
 
         # Render selected squares.
-        if squares is not None and squares & bb:
+        if squares is not None and square in squares:
             ET.SubElement(svg, "use", {
                 "xlink:href": "#xx",
                 "x": str(x),
