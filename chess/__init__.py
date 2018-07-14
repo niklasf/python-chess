@@ -29,6 +29,7 @@ __email__ = "niklas.fiekas@backscattering.de"
 __version__ = "0.23.9"
 
 import collections
+import collections.abc
 import copy
 import re
 import itertools
