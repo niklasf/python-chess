@@ -62,6 +62,11 @@ class Arrow(collections.namedtuple("Arrow", "tail head")):
     __slots__ = ()
 
 
+class SvgWrapper(str):
+    def _repr_svg_(self):
+        return self
+
+
 def _svg(viewbox, size):
     svg = ET.Element("svg", {
         "xmlns": "http://www.w3.org/2000/svg",
@@ -104,7 +109,7 @@ def piece(piece, size=None):
     """
     svg = _svg(SQUARE_SIZE, size)
     svg.append(ET.fromstring(PIECES[piece.symbol()]))
-    return ET.tostring(svg).decode("utf-8")
+    return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
 def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
@@ -276,4 +281,4 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
                 "class": "arrow",
             })
 
-    return ET.tostring(svg).decode("utf-8")
+    return SvgWrapper(ET.tostring(svg).decode("utf-8"))
