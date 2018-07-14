@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 sudo: false
 python:
@@ -9,7 +10,7 @@ python:
  - "pypy3"
 matrix:
   include:
-   - python: "3.7-dev"
+   - python: "3.8-dev"
      env: PERFT=1
 cache:
   directories:
