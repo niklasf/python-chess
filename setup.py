@@ -72,7 +72,7 @@ def extra_dependencies():
 
 
 setuptools.setup(
-    name="python-chess",
+    name="pythonchess",
     version=chess.__version__,
     author=chess.__author__,
     author_email=chess.__email__,
