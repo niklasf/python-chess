@@ -43,7 +43,7 @@ def xray_bishop_attackers(board, color, square):
     # Now just ignore those blocking pieces.
     occupied ^= blockers
 
-    # And compute rook attacks.
+    # And compute bishop attacks.
     diag_pieces = chess.BB_DIAG_MASKS[square] & occupied
     return chess.SquareSet(board.occupied_co[color] & board.bishops & chess.BB_DIAG_ATTACKS[square][diag_pieces])
 
