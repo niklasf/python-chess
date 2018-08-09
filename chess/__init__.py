@@ -2001,11 +2001,11 @@ class Board(BaseBoard):
 
     def has_pseudo_legal_en_passant(self):
         """Checks if there is a pseudo-legal en passant capture."""
-        return self.ep_square is not None and any(self.generate_pseudo_legal_ep())
+        return self.ep_square and any(self.generate_pseudo_legal_ep())
 
     def has_legal_en_passant(self):
         """Checks if there is a legal en passant capture."""
-        return self.ep_square is not None and any(self.generate_legal_ep())
+        return self.ep_square and any(self.generate_legal_ep())
 
     def fen(self, *, shredder=False, en_passant="legal", promoted=None):
         """
@@ -3194,7 +3194,7 @@ class Board(BaseBoard):
     def transform(self, f):
         board = super().transform(f)
         board.chess960 = self.chess960
-        board.ep_square = self.ep_square and msb(f(BB_SQUARES[self.ep_square]))
+        board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         board.castling_rights = f(self.castling_rights)
         board.turn = self.turn
         board.fullmove_number = self.fullmove_number
