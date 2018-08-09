@@ -1176,6 +1176,23 @@ class BaseBoard:
         except AttributeError:
             return NotImplemented
 
+    def transform(self, f):
+        board = type(self)(None)
+
+        board.pawns = f(self.pawns)
+        board.knights = f(self.knights)
+        board.bishops = f(self.bishops)
+        board.rooks = f(self.rooks)
+        board.queens = f(self.queens)
+        board.kings = f(self.kings)
+
+        board.occupied_co[WHITE] = f(self.occupied_co[WHITE])
+        board.occupied_co[BLACK] = f(self.occupied_co[BLACK])
+        board.occupied = f(self.occupied)
+        board.promoted = f(self.promoted)
+
+        return board
+
     def mirror(self):
         """
         Returns a mirrored copy of the board.
@@ -1183,20 +1200,8 @@ class BaseBoard:
         The board is mirrored vertically and piece colors are swapped, so that
         the position is equivalent modulo color.
         """
-        board = type(self)(None)
-
-        board.pawns = bswap(self.pawns)
-        board.knights = bswap(self.knights)
-        board.bishops = bswap(self.bishops)
-        board.rooks = bswap(self.rooks)
-        board.queens = bswap(self.queens)
-        board.kings = bswap(self.kings)
-
-        board.occupied_co[WHITE] = bswap(self.occupied_co[BLACK])
-        board.occupied_co[BLACK] = bswap(self.occupied_co[WHITE])
-        board.occupied = bswap(self.occupied)
-        board.promoted = bswap(self.promoted)
-
+        board = self.transform(bswap)
+        board.occupied_co[WHITE], board.occupied_co[BLACK] = board.occupied_co[BLACK], board.occupied_co[WHITE]
         return board
 
     def copy(self):
@@ -3186,17 +3191,19 @@ class Board(BaseBoard):
         else:
             return False
 
-    def mirror(self):
-        board = super().mirror()
-
+    def transform(self, f):
+        board = super().transform(f)
         board.chess960 = self.chess960
-
-        board.ep_square = self.ep_square and square_mirror(self.ep_square)
-        board.castling_rights = bswap(self.castling_rights)
-        board.turn = not self.turn
+        board.ep_square = self.ep_square and msb(f(BB_SQUARES[self.ep_square]))
+        board.castling_rights = f(self.castling_rights)
+        board.turn = self.turn
         board.fullmove_number = self.fullmove_number
         board.halfmove_clock = self.halfmove_clock
+        return board
 
+    def mirror(self):
+        board = super().mirror()
+        board.turn = not self.turn
         return board
 
     def copy(self, *, stack=True):
