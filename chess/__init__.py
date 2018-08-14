@@ -3414,12 +3414,15 @@ class SquareSet(collections.abc.MutableSet):
     # frozenset
 
     def isdisjoint(self, other):
+        """Test if the square sets are disjoint."""
         return not bool(self & other)
 
     def issubset(self, other):
+        """Test if this square set is a subset of another."""
         return not bool(~self & other)
 
     def issuperset(self, other):
+        """Test if this square set is a superset of another."""
         return not bool(self & ~other)
 
     def union(self, other):
@@ -3515,14 +3518,17 @@ class SquareSet(collections.abc.MutableSet):
         return square
 
     def clear(self):
+        """Remove all elements from this set."""
         self.mask = BB_EMPTY
 
     # SquareSet
 
     def carry_rippler(self):
+        """Iterator over the subsets of this set."""
         return _carry_rippler(self.mask)
 
     def mirror(self):
+        """Returns a mirrored copy of this square set."""
         return SquareSet(bswap(self.mask))
 
     def tolist(self):
