@@ -3525,6 +3525,13 @@ class SquareSet(collections.abc.MutableSet):
     def mirror(self):
         return SquareSet(bswap(self.mask))
 
+    def tolist(self):
+        """Convert the set to a list of 64 bools."""
+        l = [False] * 64
+        for square in self:
+            l[square] = True
+        return l
+
     def __bool__(self):
         return bool(self.mask)
 
