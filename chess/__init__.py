@@ -610,16 +610,6 @@ class BaseBoard:
         if king_mask:
             return msb(king_mask)
 
-    def queen(self, color):
-        """
-        Finds the queen square of the given side. Returns ``None`` if there
-        is no queen of that color and picks and arbitrary square if there
-        are multiple queens.
-        """
-        queen_mask = self.occupied_co[color] & self.queens
-        if queen_mask:
-            return msb(queen_mask)
-
     def attacks_mask(self, square):
         bb_square = BB_SQUARES[square]
 
