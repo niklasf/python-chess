@@ -411,6 +411,7 @@ class Game(GameNode):
         """
         chess960 = self.headers.get("Variant", "").lower() in [
             "chess960",
+            "chess 960",
             "fischerandom",  # Cute Chess
             "fischerrandom"]
 
