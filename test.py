@@ -1381,6 +1381,23 @@ class BoardTestCase(unittest.TestCase):
         mirrored = chess.Board("r1b1k2r/pp3pp1/2n5/1B1N2q1/3PpPPp/4n2K/PP2N3/R1BQ1R2 b kq g3 0 15")
         self.assertEqual(board.mirror(), mirrored)
 
+    def test_count_captured_pieces(self):
+        # 1. e4 d5 2. exd5 e5 3. d4 exd4 4. d6 Qg5 5. Qh5 Qxc1+
+        # 6. Ke2 c5 7. d7+ Ke7 8. Qg6 Nf6 9. d8=Q+ Ke6 10. Qh6 *
+        board = chess.Board("rnbQ1b1r/pp3ppp/4kn1Q/2p5/3p4/8/PPP1KPPP/RNq2BNR b - - 2 10")
+
+        self.assertEqual(board.count_captured(chess.QUEEN, chess.WHITE), 0)
+        self.assertEqual(board.count_captured(chess.ROOK, chess.WHITE), 0)
+        self.assertEqual(board.count_captured(chess.BISHOP, chess.WHITE), 1)
+        self.assertEqual(board.count_captured(chess.KNIGHT, chess.WHITE), 0)
+        self.assertEqual(board.count_captured(chess.PAWN, chess.WHITE), 2)
+
+        self.assertEqual(board.count_captured(chess.QUEEN, chess.BLACK), 0)
+        self.assertEqual(board.count_captured(chess.ROOK, chess.BLACK), 0)
+        self.assertEqual(board.count_captured(chess.BISHOP, chess.BLACK), 0)
+        self.assertEqual(board.count_captured(chess.KNIGHT, chess.BLACK), 0)
+        self.assertEqual(board.count_captured(chess.PAWN, chess.BLACK), 1)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
