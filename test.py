@@ -383,6 +383,14 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.shredder_fen(), fen)
 
+    def test_hside_rook_blocks_aside_castling(self):
+        board = chess.Board("4rrk1/pbbp2p1/1ppnp3/3n1pqp/3N1PQP/1PPNP3/PBBP2P1/4RRK1 w Ff - 10 18", chess960=True)
+        self.assertNotIn(chess.Move.from_uci("g1f1"), board.legal_moves)
+        self.assertNotIn(chess.Move.from_uci("g1e1"), board.legal_moves)
+        self.assertNotIn(chess.Move.from_uci("g1c1"), board.legal_moves)
+        self.assertNotIn(chess.Move.from_uci("g1a1"), board.legal_moves)
+        self.assertIn(chess.Move.from_uci("g1h1"), board.legal_moves) # Kh1
+
     def test_selective_castling(self):
         board = chess.Board("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
 
