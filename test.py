@@ -3429,6 +3429,10 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard("8/1nn5/1k6/8/8/8/3K4/8 w - - 0 1")
         self.assertTrue(board.is_insufficient_material())
 
+        # KQN can win (even KQ could).
+        board = chess.variant.AtomicBoard("3Q4/5kKB/8/8/8/8/8/8 b - - 0 1")
+        self.assertFalse(board.is_insufficient_material())
+
     def test_castling_uncovered_rank_attack(self):
         board = chess.variant.AtomicBoard("8/8/8/8/8/8/4k3/rR4KR w KQ - 0 1", chess960=True)
         self.assertFalse(board.is_legal(chess.Move.from_uci("g1b1")))
