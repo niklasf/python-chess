@@ -408,27 +408,7 @@ class Game(GameNode):
         Unless the ``FEN`` header tag is set, this is the default starting
         position (for the ``Variant``).
         """
-        chess960 = self.headers.get("Variant", "").lower() in [
-            "chess960",
-            "chess 960",
-            "fischerandom",  # Cute Chess
-            "fischerrandom"]
-
-        # http://www.freechess.org/Help/HelpFiles/wild.html
-        wild = self.headers.get("Variant", "").lower() in [
-            "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
-            "wild/6", "wild/7", "wild/8", "wild/8a"]
-
-        if chess960 or wild or "Variant" not in self.headers:
-            VariantBoard = chess.Board
-        else:
-            from chess.variant import find_variant
-            VariantBoard = find_variant(self.headers["Variant"])
-
-        fen = self.headers.get("FEN", VariantBoard.starting_fen)
-        board = VariantBoard(fen, chess960=chess960)
-        board.chess960 = board.chess960 or board.has_chess960_castling_rights()
-        return board
+        return self.headers.board()
 
     def setup(self, board):
         """
@@ -516,6 +496,35 @@ class Headers(collections.MutableMapping):
             }
 
         self.update(data, **kwargs)
+
+    def is_chess960(self):
+        return self.get("Variant", "").lower() in [
+            "chess960",
+            "chess 960",
+            "fischerandom",  # Cute Chess
+            "fischerrandom",
+            "fischer random",
+        ]
+
+    def is_wild(self):
+        # http://www.freechess.org/Help/HelpFiles/wild.html
+        wild = self.get("Variant", "").lower() in [
+            "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
+            "wild/6", "wild/7", "wild/8", "wild/8a"]
+
+    def variant(self):
+        if "Variant" not in self or self.is_chess960() or self.is_wild():
+            return chess.Board
+        else:
+            from chess.variant import find_variant
+            return find_variant(self["Variant"])
+
+    def board(self):
+        VariantBoard = self.variant()
+        fen = self.get("FEN", VariantBoard.starting_fen)
+        board = VariantBoard(fen, chess960=self.is_chess960())
+        board.chess960 = board.chess960 or board.has_chess960_castling_rights()
+        return board
 
     def __setitem__(self, key, value):
         if key in TAG_ROSTER:
