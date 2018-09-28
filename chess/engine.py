@@ -133,12 +133,7 @@ class PopenProcess:
         self._receiving_thread.start()
 
     def _receiving_thread_target(self):
-        while True:
-            line = self.process.stdout.readline()
-            if not line:
-                # Stream closed.
-                break
-
+        for line in iter(self.process.stdout.readline, ""):
             self.engine.on_line_received(line.rstrip())
 
         # Close file descriptors.
