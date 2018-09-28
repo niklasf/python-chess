@@ -5,11 +5,13 @@ python:
  - "3.4"
  - "3.5"
  - "3.6"
- - "3.7-dev"
  - "pypy3"
 matrix:
   include:
-   - python: "3.7-dev"
+   - python: "3.7"
+     sudo: required  # required for Python 3.7 (travis-ci/travis-ci#9069)
+   - python: "3.7"
+     sudo: required  # required for Python 3.7 (travis-ci/travis-ci#9069)
      env: PERFT=1
 cache:
   directories:
