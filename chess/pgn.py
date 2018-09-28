@@ -909,7 +909,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     """
     visitor = Visitor()
 
-    dummy_game = Game.without_tag_roster()
+    headers = Headers({})
     found_game = False
 
     # Skip leading empty lines and comments.
@@ -932,7 +932,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
                 visitor.begin_game()
                 visitor.begin_headers()
 
-            dummy_game.headers[tag_match.group(1)] = tag_match.group(2)
+            headers[tag_match.group(1)] = tag_match.group(2)
             visitor.visit_header(tag_match.group(1), tag_match.group(2))
         else:
             break
@@ -946,12 +946,20 @@ def read_game(handle, *, Visitor=GameModelCreator):
     if line.isspace():
         line = handle.readline()
 
-    # Movetext parser state.
+    # Chess variant.
     try:
-        board_stack = [dummy_game.board()]
+        VariantBoard = headers.variant()
     except ValueError as error:
         visitor.handle_error(error)
-        board_stack = [chess.Board()]
+        VariantBoard = chess.Board
+
+    # Initial position.
+    fen = headers.get("FEN", VariantBoard.starting_fen)
+    try:
+        board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
+    except ValueError as error:
+        visitor.handle_error(error)
+        board_stack = [VariantBoard(chess960=headers.is_chess960())]
 
     # Parse movetext.
     while line:
