@@ -427,7 +427,7 @@ class MemoryMappedReader:
         """
         Finds the main entry for the given position or Zobrist hash.
 
-        The main entry is the first entry with the highest weight.
+        The main entry is the (first) entry with the highest weight.
 
         By default entries with weight ``0`` are excluded. This is a common way
         to delete entries from an opening book without compacting it. Pass
