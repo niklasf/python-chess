@@ -429,9 +429,9 @@ class MemoryMappedReader:
 
         The main entry is the (first) entry with the highest weight.
 
-        By default entries with weight ``0`` are excluded. This is a common way
+        By default, entries with weight ``0`` are excluded. This is a common way
         to delete entries from an opening book without compacting it. Pass
-        *minimum_weight* ``0`` to select all entries.
+        *minimum_weight*=``0`` to select all entries.
 
         :raises: :exc:`IndexError` if no entries are found. Use
             :func:`~chess.polyglot.MemoryMappedReader.get()` if you prefer to
