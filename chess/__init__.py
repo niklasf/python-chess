@@ -100,7 +100,7 @@ def square(file_index, rank_index):
     return rank_index * 8 + file_index
 
 def square_file(square):
-    """Gets the file index of the square where ``0`` is the a file."""
+    """Gets the file index of the square where ``0`` is the a-file."""
     return square & 7
 
 def square_rank(square):
