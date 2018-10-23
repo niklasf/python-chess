@@ -27,7 +27,7 @@ import math
 import xml.etree.ElementTree as ET
 
 
-SQUARE_SIZE = 45
+SQUARE_SIZE = 50
 MARGIN = 20
 
 PIECES = {
