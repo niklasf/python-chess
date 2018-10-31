@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.10
+---------------
+
+Bugfixes:
+
+* `chess.SquareSet` now correctly handles negative masks. Thanks @hasnul.
+* `chess.pgn` now accepts `[Variant "chess 960"]` (with the space).
+
 New in v0.23.9
 --------------
 

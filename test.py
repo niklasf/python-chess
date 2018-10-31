@@ -1589,6 +1589,13 @@ class SquareSetTestCase(unittest.TestCase):
     def test_mirror(self):
         self.assertEqual(chess.SquareSet(0xa209000004a600).mirror(), 0xa604000009a200)
 
+    def test_len_of_complenent(self):
+        squares = chess.SquareSet(~chess.BB_ALL)
+        self.assertEqual(len(squares), 0)
+
+        squares = ~chess.SquareSet(chess.BB_BACKRANKS)
+        self.assertEqual(len(squares), 48)
+
 
 class PolyglotTestCase(unittest.TestCase):
 
