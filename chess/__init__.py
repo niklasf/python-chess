@@ -3376,7 +3376,7 @@ class SquareSet(object):
     """
 
     def __init__(self, mask=BB_VOID):
-        self.mask = mask
+        self.mask = mask & BB_ALL
 
     def issubset(self, other):
         return not bool(~self & other)
