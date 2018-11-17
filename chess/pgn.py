@@ -18,6 +18,7 @@
 
 import chess
 import collections
+import collections.abc
 import itertools
 import re
 import logging
@@ -507,7 +508,7 @@ class Game(GameNode):
         return cls(headers={})
 
 
-class Headers(collections.MutableMapping):
+class Headers(collections.abc.MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._tag_roster = {}
         self._others = {}
