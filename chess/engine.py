@@ -31,6 +31,11 @@ try:
 except ImportError:
     import Queue as queue  # Python 2
 
+try:
+    from collections.abc import MutableMapping  # Python 3
+except ImportError:
+    from collections import MutableMapping  # Python 2
+
 if os.name == "posix" and sys.version_info[0] < 3:
     try:
         import subprocess32 as subprocess
@@ -246,7 +251,7 @@ class SpurProcess(object):
         return "<SpurProcess at {} (pid={})>".format(hex(id(self)), self.pid())
 
 
-class OptionMap(collections.abc.MutableMapping):
+class OptionMap(MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:

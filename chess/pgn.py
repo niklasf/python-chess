@@ -23,6 +23,11 @@ import itertools
 import re
 import logging
 
+try:
+    from collections.abc import MutableMapping  # Python 3
+except ImportError:
+    from collections import MutableMapping  # Python 2
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -508,7 +513,7 @@ class Game(GameNode):
         return cls(headers={})
 
 
-class Headers(collections.abc.MutableMapping):
+class Headers(MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._tag_roster = {}
         self._others = {}
