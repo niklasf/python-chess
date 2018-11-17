@@ -18,7 +18,6 @@
 
 import chess
 import collections
-import collections.abc
 import itertools
 import re
 import logging
