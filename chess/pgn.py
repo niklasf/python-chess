@@ -16,12 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import collections
+import collections.abc
 import itertools
 import logging
 import re
 
 import chess
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -479,7 +480,7 @@ class Game(GameNode):
         return cls(headers={})
 
 
-class Headers(collections.MutableMapping):
+class Headers(collections.abc.MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._tag_roster = {}
         self._others = {}

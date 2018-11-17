@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import collections
+import collections.abc
 import logging
 import os
 import platform
@@ -24,6 +25,7 @@ import queue
 import signal
 import subprocess
 import threading
+
 
 FUTURE_POLL_TIMEOUT = 0.1 if platform.system() == "Windows" else 60
 
@@ -226,7 +228,7 @@ class SpurProcess:
         return "<SpurProcess at {} (pid={})>".format(hex(id(self)), self.pid())
 
 
-class OptionMap(collections.MutableMapping):
+class OptionMap(collections.abc.MutableMapping):
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:
