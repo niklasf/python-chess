@@ -2284,6 +2284,21 @@ class PgnTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             first_game[0.5]
 
+    def test_reversed(self):
+        with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
+            first_game = chess.pgn.read_game(pgn)
+
+        reversed_game = reversed(first_game)
+
+        result = next(reversed_game)
+
+        self.assertEqual(result.san(), 'g7')
+        self.assertEqual(result, first_game.end())
+
+        with self.assertRaises(StopIteration):
+            while True:
+                next(reversed_game)
+
 
 class CraftyTestCase(unittest.TestCase):
 
