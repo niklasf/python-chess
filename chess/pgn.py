@@ -401,6 +401,32 @@ class GameNode:
 
         return length
 
+    def __getitem__(self, key):
+        """
+        Get the 'key'th child node of this GameNode
+
+        TODO: add support for slices
+        """
+        try:
+            assert type(key) is int
+        except AssertionError:
+            raise TypeError  # index must be integer type
+        try:
+            assert key >= 0
+        except AssertionError:
+            raise IndexError  # index must be positive
+
+        node = self
+
+        while key > 0:
+            if node.variations:
+                node = node.variations[0]
+                key -= 1
+            else:
+                raise IndexError
+
+        return node
+
 
 class Game(GameNode):
     """

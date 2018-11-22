@@ -2262,6 +2262,28 @@ class PgnTestCase(unittest.TestCase):
         result = len(first_game)
         self.assertEqual(result, 90)
 
+    def test_getitem(self):
+        with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
+            first_game = chess.pgn.read_game(pgn)
+
+        result = first_game[5].san()
+        self.assertEqual(result, 'b3')
+
+        result = first_game[0]
+        self.assertEqual(result, first_game.root())
+
+        # Out of bounds index must raise IndexError
+        with self.assertRaises(IndexError):
+            first_game[-1]
+        with self.assertRaises(IndexError):
+            first_game[500]
+
+        # Non-integer index must raise TypeError
+        with self.assertRaises(TypeError):
+            first_game['a']
+        with self.assertRaises(TypeError):
+            first_game[0.5]
+
 
 class CraftyTestCase(unittest.TestCase):
 
