@@ -2256,6 +2256,12 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(subgame.variations[0].move, chess.Move.from_uci("c2c4"))
         self.assertEqual(subgame.variations[1].move, chess.Move.from_uci("g1f3"))
 
+    def test_len(self):
+        with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
+            first_game = chess.pgn.read_game(pgn)
+        result = len(first_game)
+        self.assertEqual(result, 90)
+
 
 class CraftyTestCase(unittest.TestCase):
 

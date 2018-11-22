@@ -388,6 +388,19 @@ class GameNode:
     def __str__(self):
         return self.accept(StringExporter(columns=None))
 
+    def __len__(self):
+        """
+        Return the length of the main variation
+        """
+        node = self
+        length = 1
+
+        while node.variations:
+            node = node.variations[0]
+            length += 1
+
+        return length
+
 
 class Game(GameNode):
     """
