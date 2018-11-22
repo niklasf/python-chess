@@ -1090,13 +1090,19 @@ class BaseBoard:
         return "{}('{}')".format(type(self).__name__, self.board_fen())
 
     def __str__(self):
+        return self.stringify(pretty=False)
+   
+    def stringify(self, pretty=True)
         builder = []
 
         for square in SQUARES_180:
             piece = self.piece_at(square)
 
             if piece:
-                builder.append(piece.symbol())
+                if pretty:
+                    builder.append(piece.unicode_symbol())
+                else:
+                    builder.append(piece.symbol())
             else:
                 builder.append(".")
 
