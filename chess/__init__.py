@@ -1092,7 +1092,7 @@ class BaseBoard:
     def __str__(self):
         return self.stringify(pretty=False)
    
-    def stringify(self, pretty=True)
+    def stringify(self, pretty=True):
         builder = []
 
         for square in SQUARES_180:
