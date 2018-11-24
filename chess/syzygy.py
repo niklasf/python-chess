@@ -1647,7 +1647,8 @@ class Tablebase:
         -2
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
+            :exc:`chess.syzygy.MissingTableError`) if the position could not
+            be found in the tablebase. Use
             :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
             ``None`` instead of an exception.
         """
@@ -1841,7 +1842,8 @@ class Tablebase:
         if *board* objects are not modified during probing.
 
         :raises: :exc:`KeyError` (or specifically
-            :exc:`chess.syzygy.MissingTableError`) if the probe fails. Use
+            :exc:`chess.syzygy.MissingTableError`) if the position could not
+            be found in the tablebase. Use
             :func:`~chess.syzygy.Tablebase.get_dtz()` if you prefer to get
             ``None`` instead of an exception.
         """
