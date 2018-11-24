@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import collections
+import itertools
 import mmap
 import os
 import re
@@ -603,7 +604,7 @@ class Table:
             self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
     def check_magic(self, magic):
-        return all(self.data[i] == m for i, m in enumerate(magic))
+        return all(d[0] == m for d, m in itertools.islice(itertools.zip_longest(self.data, magic), len(magic)))
 
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
@@ -1036,9 +1037,8 @@ class WdlTable(Table):
             if self.initialized:
                 return
 
-            assert self.check_magic(self.variant.tbw_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbw_magic and
-                self.check_magic(self.variant.pawnless_tbw_magic))
+            if not self.check_magic(self.variant.tbw_magic) and (self.has_pawns or self.variant.pawnless_tbw_magic is None or not self.check_magic(self.variant.pawnless_tbw_magic)):
+                raise IOError("invalid magic header: ensure {} is a valid syzygy tablebase file".format(self.path))
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1243,9 +1243,8 @@ class DtzTable(Table):
             if self.initialized:
                 return
 
-            assert self.check_magic(self.variant.tbz_magic) or (
-                not self.has_pawns and self.variant.pawnless_tbz_magic and
-                self.check_magic(self.variant.pawnless_tbz_magic))
+            if not self.check_magic(self.variant.tbz_magic) and (self.has_pawns or self.variant.pawnless_tbz_magic is None or not self.check_magic(self.variant.pawnless_tbz_magic)):
+                raise IOError("invalid magic header: ensure {} is a valid syzygy tablebase file".format(self.path))
 
             self.factor = [0 for _ in range(TBPIECES)]
             self.norm = [0 for _ in range(self.num)]
