@@ -2255,6 +2255,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(subgame.variations[0].move, chess.Move.from_uci("c2c4"))
         self.assertEqual(subgame.variations[1].move, chess.Move.from_uci("g1f3"))
 
+    def test_is_wild(self):
+        headers = chess.pgn.Headers()
+        headers["Variant"] = "wild/1"
+        self.assertTrue(headers.is_wild())
+
 
 class CraftyTestCase(unittest.TestCase):
 
