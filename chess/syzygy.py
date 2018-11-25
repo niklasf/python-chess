@@ -604,7 +604,7 @@ class Table:
             self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
     def check_magic(self, magic):
-        return all(d[0] == m for d, m in itertools.islice(itertools.zip_longest(self.data, magic), len(magic)))
+        return self.data[:min(len(self.data), len(magic))] == magic
 
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()

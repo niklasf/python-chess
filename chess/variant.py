@@ -28,12 +28,12 @@ class SuicideBoard(chess.Board):
 
     tbw_suffix = ".stbw"
     tbz_suffix = ".stbz"
-    tbw_magic = [0x7b, 0xf6, 0x93, 0x15]
-    tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
+    tbw_magic = b"\x7b\xf6\x93\x15"
+    tbz_magic = b"\xe4\xcf\xe7\x23"
     pawnless_tbw_suffix = ".gtbw"
     pawnless_tbz_suffix = ".gtbz"
-    pawnless_tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
-    pawnless_tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
+    pawnless_tbw_magic = b"\xbc\x55\xbc\x21"
+    pawnless_tbz_magic = b"\xd6\xf5\x1b\x50"
     connected_kings = True
     one_king = False
     captures_compulsory = True
@@ -180,12 +180,12 @@ class GiveawayBoard(SuicideBoard):
 
     tbw_suffix = ".gtbw"
     tbz_suffix = ".gtbz"
-    tbw_magic = [0xBC, 0x55, 0xBC, 0x21]
-    tbz_magic = [0xD6, 0xF5, 0x1B, 0x50]
+    tbw_magic = b"\xbc\x55\xbc\x21"
+    tbz_magic = b"\xd6\xf5\x1b\x50"
     pawnless_tbw_suffix = ".stbw"
     pawnless_tbz_suffix = ".stbz"
-    pawnless_tbw_magic = [0x7b, 0xf6, 0x93, 0x15]
-    pawnless_tbz_magic = [0xe4, 0xcf, 0xe7, 0x23]
+    pawnless_tbw_magic = b"\x7b\xf6\x93\x15"
+    pawnless_tbz_magic = b"\xe4\xcf\xe7\x23"
 
     def __init__(self, fen=starting_fen, chess960=False):
         super().__init__(fen, chess960=chess960)
@@ -211,8 +211,8 @@ class AtomicBoard(chess.Board):
 
     tbw_suffix = ".atbw"
     tbz_suffix = ".atbz"
-    tbw_magic = [0x55, 0x8D, 0xA4, 0x49]
-    tbz_magic = [0x91, 0xA9, 0x5E, 0xEB]
+    tbw_magic = b"\x55\x8d\xa4\x49"
+    tbz_magic = b"\x91\xa9\x5e\xeb"
     connected_kings = True
     one_king = True
 
