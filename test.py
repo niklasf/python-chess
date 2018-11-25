@@ -26,7 +26,6 @@ import platform
 import sys
 import textwrap
 import threading
-import time
 import unittest
 from io import StringIO
 
@@ -389,7 +388,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(chess.Move.from_uci("g1e1"), board.legal_moves)
         self.assertNotIn(chess.Move.from_uci("g1c1"), board.legal_moves)
         self.assertNotIn(chess.Move.from_uci("g1a1"), board.legal_moves)
-        self.assertIn(chess.Move.from_uci("g1h1"), board.legal_moves) # Kh1
+        self.assertIn(chess.Move.from_uci("g1h1"), board.legal_moves)  # Kh1
 
     def test_selective_castling(self):
         board = chess.Board("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
@@ -1424,7 +1423,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
         board = MockBoard()
         gen = chess.LegalMoveGenerator(board)
-        _ = list(gen)
+        list(gen)
         self.assertEqual(board.traversals, 1)
 
 
@@ -1695,8 +1694,7 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
 
             # Weighted choice with excluded move.
-            entry = book.weighted_choice(chess.Board(),
-                exclude_moves=[chess.Move.from_uci("e2e4")], random=FirstMockRandom())
+            entry = book.weighted_choice(chess.Board(), exclude_moves=[chess.Move.from_uci("e2e4")], random=FirstMockRandom())
             self.assertEqual(entry.move(), chess.Move.from_uci("d2d4"))
 
     def test_find(self):
@@ -2315,9 +2313,9 @@ class CraftyTestCase(unittest.TestCase):
 
     def test_mate_search(self):
         board = chess.Board()
-        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1")  # Mate in 2
         self.engine.setboard(board)
-        self.engine.sd(15) # Just to be safe
+        self.engine.sd(15)  # Just to be safe
         post_handler = chess.xboard.PostHandler()
         self.engine.post_handlers.append(post_handler)
         self.engine.go()
@@ -2328,7 +2326,7 @@ class CraftyTestCase(unittest.TestCase):
 
     def test_usermove(self):
         board = chess.Board()
-        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1")  # Mate in 2
         self.engine.setboard(board)
         self.engine.usermove(chess.Move.from_uci("e5h2"))
         self.engine.usermove(chess.Move.from_uci("h1h2"))
@@ -2345,7 +2343,7 @@ class CraftyTestCase(unittest.TestCase):
 
     def test_playother(self):
         board = chess.Board()
-        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1") # Mate in 2
+        board.set_fen("4r1k1/pQ3pp1/7p/4q3/4r3/P7/1P2nPPP/2BR1R1K b - - 0 1")  # Mate in 2
         self.engine.setboard(board)
         board.push(chess.Move.from_uci("e5h2"))
         self.engine.playother()
@@ -2493,19 +2491,18 @@ class XboardEngineTestCase(unittest.TestCase):
         self.engine = chess.xboard.Engine()
         self.mock = chess.engine.MockProcess(self.engine)
         self.mock.expect("xboard")
-        feature_list = (
-                "feature egt=syzygy,gaviota",
-                "feature option=\"spinvar -spin 50 0 100\"",
-                "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
-                "feature option=\"checkvar -check 0\"",
-                "feature option=\"stringvar -string \"\"\"",
-                "feature option=\"filevar -file \"\"\"",
-                "feature option=\"pathvar -path \"\"\"",
-                "feature option=\"buttonvar -button\"",
-                "feature option=\"resetvar -reset\"",
-                "feature option=\"savevar -save\"",
-
-                )
+        feature_list = [
+            "feature egt=syzygy,gaviota",
+            "feature option=\"spinvar -spin 50 0 100\"",
+            "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
+            "feature option=\"checkvar -check 0\"",
+            "feature option=\"stringvar -string \"\"\"",
+            "feature option=\"filevar -file \"\"\"",
+            "feature option=\"pathvar -path \"\"\"",
+            "feature option=\"buttonvar -button\"",
+            "feature option=\"resetvar -reset\"",
+            "feature option=\"savevar -save\"",
+        ]
         self.mock.expect("protover 2", feature_list)
         self.mock.expect("post")
         self.mock.expect("easy")
@@ -2617,7 +2614,7 @@ class XboardEngineTestCase(unittest.TestCase):
     def test_resign_during_human_turn(self):
         self.mock.expect("nopost", ("resign", ))
         self.mock.expect("result 1-0")
-        self.engine.nopost() # Command to make MockProcess expect a random `resign`
+        self.engine.nopost()  # Command to make MockProcess expect a random `resign`
 
         # Set when handling "offer draw" from the engine.
         self.engine.move_received.wait()
@@ -3183,7 +3180,8 @@ class SyzygyTestCase(unittest.TestCase):
                 solution = board.set_epd(epd)
 
                 dtz = tables.probe_dtz(board)
-                self.assertAlmostEqual(dtz, solution["dtz"], delta=1, msg="Expected dtz {}, got {} (in l. {}, fen: {})".format(solution["dtz"], dtz, l + 1, board.fen()))
+                self.assertAlmostEqual(dtz, solution["dtz"], delta=1,
+                                       msg="Expected dtz {}, got {} (in l. {}, fen: {})".format(solution["dtz"], dtz, l + 1, board.fen()))
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
@@ -3243,8 +3241,7 @@ class GaviotaTestCase(unittest.TestCase):
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected,
-                    "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
+                self.assertEqual(dtm, expected, "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
 
     @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_5(self):
@@ -3264,8 +3261,7 @@ class GaviotaTestCase(unittest.TestCase):
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected,
-                    "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
+                self.assertEqual(dtm, expected, "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
 
     def test_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")

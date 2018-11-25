@@ -509,7 +509,7 @@ class Headers(collections.abc.MutableMapping):
 
     def is_wild(self):
         # http://www.freechess.org/Help/HelpFiles/wild.html
-        wild = self.get("Variant", "").lower() in [
+        return self.get("Variant", "").lower() in [
             "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
             "wild/6", "wild/7", "wild/8", "wild/8a"]
 
