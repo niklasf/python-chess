@@ -1108,6 +1108,13 @@ class BaseBoard:
 
         return "".join(builder)
 
+    """
+    String representation of the board with unicode pieces. Useful for pretty
+    printing to a terminal.
+
+    :param invert_color: Invert color of the unicode pieces.
+    :param borders: Show borders and a coordinate margin.
+    """
     def unicode(self, *, invert_color=False, borders=False):
         builder = []
         for rank_index in range(7, -1, -1):
