@@ -115,6 +115,9 @@ class GameNode:
         self.variations = []
 
         self.board_cached = None
+    
+    def __reversed__(self):
+        pass
 
     def board(self, *, _cache=True):
         """
