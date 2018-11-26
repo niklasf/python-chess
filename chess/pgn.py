@@ -1039,7 +1039,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
-                # Replace zeros castling notation.
+                # Replace zeros with PGN castling notation.
                 if token == "0-0":
                     token = "O-O"
                 elif token == "0-0-0":
