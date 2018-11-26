@@ -57,25 +57,16 @@ holds general information, such as game headers.
         >>> import chess.pgn
         >>>
         >>> game = chess.pgn.Game()
-        >>> game.headers["Event"]
-        '?'
-        >>> game.headers["Site"]
-        '?'
-        >>> game.headers["Date"]
-        '????.??.??'
-        >>> game.headers["Round"]
-        '?'
-        >>> game.headers["White"]
-        '?'
-        >>> game.headers["Black"]
-        '?'
-        >>> game.headers["Result"]
-        '*'
+        >>> game.headers
+        Headers(Event='?', Site='?', Date='????.??.??', Round='?', White='?', Black='?', Result='*')
 
     .. py:attribute:: errors
 
         A list of illegal or ambiguous move errors encountered while parsing
         the game.
+
+.. autoclass:: chess.pgn.Headers
+    :members:
 
 .. autoclass:: chess.pgn.GameNode
     :members:
