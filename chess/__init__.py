@@ -1108,14 +1108,14 @@ class BaseBoard:
 
         return "".join(builder)
 
-    """
-    String representation of the board with unicode pieces. Useful for pretty
-    printing to a terminal.
-
-    :param invert_color: Invert color of the unicode pieces.
-    :param borders: Show borders and a coordinate margin.
-    """
     def unicode(self, *, invert_color=False, borders=False):
+        """
+        Creates a string representation of the board with Unicode pieces.
+        This is useful for pretty-printing to a terminal.
+        
+        :param invert_color: Invert the color of the Unicode pieces.
+        :param borders: Show borders and the coordinate margin.
+        """
         builder = []
         for rank_index in range(7, -1, -1):
             if borders:
@@ -2034,11 +2034,11 @@ class Board(BaseBoard):
             and encode castling rights by the file of the rook
             (like ``HAha``) instead of the default
             :func:`~chess.Board.castling_xfen()` (like ``KQkq``).
-        :param en_passant: By default, only fully legal en passant squares
+        :param en_passant: By default, only fully-legal en passant squares
             are included (:func:`~chess.Board.has_legal_en_passant()`).
             Pass ``fen`` to strictly follow the FEN specification
-            (always include the en passant square after a double pawn move)
-            or ``xfen`` to follow the X-FEN specification
+            (always include the en passant square after a double-pawn move)
+            or ``xfen`` to follow the X-FEN specification.
             (:func:`~chess.Board.has_pseudo_legal_en_passant()`).
         :param promoted: Mark promoted pieces like ``Q~``. By default, this is
             only enabled in chess variants where this is relevant.
