@@ -153,7 +153,7 @@ class GameNode:
         return self.parent.board().san(self.move, chess960=chess960)
 
     def root(self):
-        """Gets the root node, i.e. the game."""
+        """Gets the root node, i.e., the game."""
         node = self
 
         while node.parent:
@@ -180,7 +180,7 @@ class GameNode:
         comment). The root node does not start a variation and can have no
         starting comment.
 
-        For example in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3`` the node holding
+        For example, in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3``, the node holding
         1... c5 starts a variation.
         """
         if not self.parent or not self.parent.variations:
@@ -320,7 +320,7 @@ class GameNode:
             if main_variation.comment:
                 visitor.visit_comment(main_variation.comment)
 
-        # Then visit side lines.
+        # Then visit sidelines.
         for variation in itertools.islice(self.variations, 1, None):
             # Start variation.
             visitor.begin_variation()
@@ -717,7 +717,7 @@ class StringExporter(BaseVisitor):
     >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
     >>> pgn_string = game.accept(exporter)
 
-    Only *columns* characters are written per line. If *columns* is ``None``
+    Only *columns* characters are written per line. If *columns* is ``None``,
     then the entire movetext will be on a single line. This does not affect
     header tags and comments.
 
@@ -1039,7 +1039,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
-                # Replace zeros castling notation.
+                # Replace zeros with correct castling notation.
                 if token == "0-0":
                     token = "O-O"
                 elif token == "0-0-0":
@@ -1064,7 +1064,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
 
 def scan_headers(handle):
     """
-    Scan a PGN file opened in text mode for game offsets and headers.
+    Scans a PGN file opened in text mode for game offsets and headers.
 
     Yields a tuple for each game. The first element is the offset and the
     second element is a mapping of game headers.
@@ -1144,7 +1144,7 @@ def scan_headers(handle):
         last_pos = handle.tell()
         line = handle.readline()
 
-    # Yield the headers of the last game.
+    # Yield headers of the last game.
     if game_pos is not None:
         yield game_pos, game_headers
 
