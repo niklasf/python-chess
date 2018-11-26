@@ -153,7 +153,7 @@ class GameNode:
         return self.parent.board().san(self.move, chess960=chess960)
 
     def root(self):
-        """Gets the root node, i.e. the game."""
+        """Gets the root node, i.e., the game."""
         node = self
 
         while node.parent:
@@ -180,7 +180,7 @@ class GameNode:
         comment). The root node does not start a variation and can have no
         starting comment.
 
-        For example in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3`` the node holding
+        For example, in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3``, the node holding
         1... c5 starts a variation.
         """
         if not self.parent or not self.parent.variations:
@@ -280,17 +280,17 @@ class GameNode:
 
     def add_line(self, moves, *, comment="", starting_comment="", nags=()):
         """
-        Creates a sequence of child nodes for the given list of moves.
-        Adds *comment* and *nags* to the last node of the line and returns it.
+        Creates a sequence of child nodes for the given list of moves. Merges a
+        *comment* with *NAGs* to the last node of the line and returns it.
         """
         node = self
 
-        # Add line.
+        # Add a line.
         for move in moves:
             node = node.add_variation(move, starting_comment=starting_comment)
             starting_comment = ""
 
-        # Merge comment and NAGs.
+        # Merge comments with NAGs.
         if node.comment:
             node.comment += " " + comment
         else:
@@ -316,43 +316,43 @@ class GameNode:
             for nag in sorted(main_variation.nags):
                 visitor.visit_nag(nag)
 
-            # Visit the comment.
+            # Visit a comment.
             if main_variation.comment:
                 visitor.visit_comment(main_variation.comment)
 
         # Then visit side lines.
         for variation in itertools.islice(self.variations, 1, None):
-            # Start variation.
+            # Start a variation.
             visitor.begin_variation()
 
-            # Append starting comment.
+            # Append the starting comment.
             if variation.starting_comment:
                 visitor.visit_comment(variation.starting_comment)
 
-            # Visit move.
+            # Visit a move.
             visitor.visit_move(board, variation.move)
 
             # Visit NAGs.
             for nag in sorted(variation.nags):
                 visitor.visit_nag(nag)
 
-            # Visit comment.
+            # Visit a comment.
             if variation.comment:
                 visitor.visit_comment(variation.comment)
 
-            # Recursively append the next moves.
+            # Recursively append next moves.
             board.push(variation.move)
             variation.accept(visitor, _board=board)
             board.pop()
 
-            # End variation.
+            # End a variation.
             visitor.end_variation()
 
         # The main line is continued last.
         if self.variations:
             main_variation = self.variations[0]
 
-            # Recursively append the next moves.
+            # Recursively append next moves.
             board.push(main_variation.move)
             main_variation.accept(visitor, _board=board)
             board.pop()
@@ -404,16 +404,16 @@ class Game(GameNode):
 
     def board(self, *, _cache=False):
         """
-        Gets the starting position of the game.
+        Gets the starting position of a game.
 
         Unless the ``FEN`` header tag is set, this is the default starting
-        position (for the ``Variant``).
+        position for the ``Variant``.
         """
         return self.headers.board()
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the
+        Setup a specific starting position. This sets or resets the
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
         """
         try:
@@ -440,7 +440,7 @@ class Game(GameNode):
 
     def accept(self, visitor):
         """
-        Traverses the game in PGN order using the given *visitor*. Returns
+        Traverses a game in PGN order using the given *visitor*. Returns
         the visitor result.
         """
         visitor.begin_game()
@@ -476,7 +476,7 @@ class Game(GameNode):
 
     @classmethod
     def without_tag_roster(cls):
-        """Creates an empty game without the default 7 tag roster."""
+        """Creates an empty game without the default 7-tag roster."""
         return cls(headers={})
 
 
@@ -696,7 +696,7 @@ class GameModelCreator(BaseVisitor):
         Populates :data:`chess.pgn.Game.errors` with encountered errors and
         logs them.
         """
-        LOGGER.exception("error during pgn parsing")
+        LOGGER.exception("error during PGN parsing")
         self.game.errors.append(error)
 
     def result(self):
@@ -870,9 +870,9 @@ def read_game(handle, *, Visitor=GameModelCreator):
     >>> second_game = chess.pgn.read_game(pgn)
     >>>
     >>> first_game.headers["Event"]
-    'IBM Man-Machine, New York USA'
+    'IBM: Man vs. Machine, New York, USA'
     >>>
-    >>> # Iterate through all moves and play them on a board.
+    >>> # Iterate through all the moves and play them on a board.
     >>> board = first_game.board()
     >>> for move in first_game.main_line():
     ...     board.push(move)
@@ -883,7 +883,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     By using text mode, the parser does not need to handle encodings. It is the
     caller's responsibility to open the file with the correct encoding.
     PGN files are ASCII or UTF-8 most of the time. So, the following should
-    cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
+    cover most relevant cases like ASCII, UTF-8, UTF-8 with BOM, etc.
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
@@ -897,7 +897,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     The end of a game is determined by a completely blank line or the end of
     the file. (Of course, blank lines in comments are possible.)
 
-    According to the PGN standard, at least the usual 7 header tags are
+    According to the PGN standard, at least the usual 7-header tags are
     required for a valid game. This parser also handles games without any
     headers just fine.
 
@@ -906,7 +906,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
     :func:`overriden <chess.pgn.GameModelCreator.handle_error>`.
 
-    Returns the parsed game or ``None`` if the end of file is reached.
+    Returns the parsed game or ``None`` if the end of the file is reached.
     """
     visitor = Visitor()
 
@@ -971,7 +971,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
-        # An empty line means the end of a game. But gracefully try to find
+        # An empty line means the end of a game, but gracefully try to find
         # at least some content if we didn't even see headers so far.
         if found_game and line.isspace():
             visitor.end_game()
@@ -1039,7 +1039,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
-                # Replace zeros castling notation.
+                # Replace zeros with correct castling notation.
                 if token == "0-0":
                     token = "O-O"
                 elif token == "0-0-0":
@@ -1064,7 +1064,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
 
 def scan_headers(handle):
     """
-    Scan a PGN file opened in text mode for game offsets and headers.
+    Scans a PGN file opened in text mode for game offsets and headers.
 
     Yields a tuple for each game. The first element is the offset and the
     second element is a mapping of game headers.
@@ -1144,7 +1144,7 @@ def scan_headers(handle):
         last_pos = handle.tell()
         line = handle.readline()
 
-    # Yield the headers of the last game.
+    # Yield headers of the last game.
     if game_pos is not None:
         yield game_pos, game_headers
 
