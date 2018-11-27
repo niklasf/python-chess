@@ -192,7 +192,7 @@ class SpurProcess:
         self._waiting_thread.start()
 
     def write(self, byte):
-        # Interally called whenever a byte is received.
+        # Internally called whenever a byte is received.
         if byte == b"\r":
             pass
         elif byte == b"\n":
