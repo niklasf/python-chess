@@ -57,10 +57,13 @@ DEFAULT_COLORS = {
 }
 
 
-class Arrow(collections.namedtuple("Arrow", "tail head")):
+class Arrow:
     """Details of an arrow to be drawn."""
 
-    __slots__ = ()
+    def __init__(self, tail, head, *, color="#888"):
+        self.tail = tail
+        self.head = head
+        self.color = color
 
 
 class SvgWrapper(str):
@@ -223,7 +226,13 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
             svg.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
             svg.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
 
-    for tail, head in arrows:
+    for arrow in arrows:
+        try:
+            tail, head, color = arrow.tail, arrow.head, arrow.color
+        except AttributeError:
+            tail, head = arrow
+            color = "#888"
+
         tail_file = chess.square_file(tail)
         tail_rank = chess.square_rank(tail)
         head_file = chess.square_file(head)
@@ -240,7 +249,7 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
                 "cy": str(yhead),
                 "r": str(SQUARE_SIZE * 0.9 / 2),
                 "stroke-width": str(SQUARE_SIZE * 0.1),
-                "stroke": "#888",
+                "stroke": color,
                 "fill": "none",
                 "opacity": "0.5",
             })
@@ -262,7 +271,7 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
                 "y1": str(ytail),
                 "x2": str(shaft_x),
                 "y2": str(shaft_y),
-                "stroke": "#888",
+                "stroke": color,
                 "stroke-width": str(SQUARE_SIZE * 0.2),
                 "opacity": "0.5",
                 "stroke-linecap": "butt",
@@ -277,7 +286,7 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
 
             ET.SubElement(svg, "polygon", {
                 "points": " ".join(str(x) + "," + str(y) for x, y in marker),
-                "fill": "#888",
+                "fill": color,
                 "opacity": "0.5",
                 "class": "arrow",
             })
