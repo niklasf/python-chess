@@ -67,9 +67,9 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 
 try:
-    _IntFlag = enum.IntFlag
+    _IntFlag = enum.IntFlag  # Since Python 3.6
 except AttributeError:
-    _IntFlag = enum.Enum
+    _IntFlag = enum.IntEnum
 
 class Status(_IntFlag):
     VALID = 0
