@@ -155,7 +155,7 @@ class GameNode(object):
 
         Do not call this on the root node.
         """
-        return self.parent.board().san(self.move, chess960=chess960)
+        return self.parent.board().uci(self.move, chess960=chess960)
 
     def root(self):
         """Gets the root node, i.e. the game."""
