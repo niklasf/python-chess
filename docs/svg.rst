@@ -10,3 +10,19 @@ licensed under the GFDL, BSD and GPL.
 .. autofunction:: chess.svg.piece
 
 .. autofunction:: chess.svg.board
+
+.. autoclass:: chess.svg.Arrow
+    :members:
+
+    .. py:attribute:: tail
+
+        Start square of the arrow.
+
+    .. py:attribute:: head
+
+        End square of the arrow.
+
+    .. py:attribute:: color
+        :annotation: = "#888"
+
+        Arrow color.
