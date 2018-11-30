@@ -940,7 +940,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     >>>
     >>> # Iterate through all moves and play them on a board.
     >>> board = first_game.board()
-    >>> for move in first_game.main_line():
+    >>> for move in first_game.mainline_moves():
     ...     board.push(move)
     ...
     >>> board
