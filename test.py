@@ -1949,7 +1949,9 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
         self.assertEqual(game.variation(0).san(), "e4")
+        self.assertEqual(game.variation(0).uci(), "e2e4")
         self.assertEqual(game.variation(1).san(), "d4")
+        self.assertEqual(game.variation(1).uci(), "d2d4")
         self.assertEqual(len(game.errors), 2)
 
         # Survive superfluous opening brackets.
