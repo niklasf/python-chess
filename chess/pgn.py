@@ -379,6 +379,13 @@ class GameNode:
     def __str__(self):
         return self.accept(StringExporter(columns=None))
 
+    def __repr__(self):
+        return "<GameNode at {} ({}{} {} ...)>".format(
+            hex(id(self)),
+            self.parent.board().fullmove_number,
+            "." if self.parent.board().turn == chess.WHITE else "...",
+            self.san())
+
 
 class Game(GameNode):
     """
@@ -469,6 +476,13 @@ class Game(GameNode):
     def without_tag_roster(cls):
         """Creates an empty game without the default 7 tag roster."""
         return cls(headers={})
+
+    def __repr__(self):
+        return "<Game at {} ({} vs. {}, {})>".format(
+            hex(id(self)),
+            repr(self.headers.get("White", "?")),
+            repr(self.headers.get("Black", "?")),
+            self.headers.get("Date", "????.??.??"))
 
 
 class Headers(collections.abc.MutableMapping):
@@ -592,7 +606,7 @@ class Mainline:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self):
-        return "<Mainline at {} ({})>".format(hex(id(self)), self.accept(StringEporter(column=None, comment=False)))
+        return "<Mainline at {} ({})>".format(hex(id(self)), self.accept(StringExporter(columns=None, comments=False)))
 
 
 class ReverseMainline:
