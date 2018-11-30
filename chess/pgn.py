@@ -225,6 +225,12 @@ class GameNode:
 
         raise KeyError(move)
 
+    def variation(self, move):
+        """
+        Gets a child node by either the move or the variation index.
+        """
+        return self[move]
+
     def has_variation(self, move):
         """Checks if the given *move* appears as a variation."""
         return move in (variation.move for variation in self.variations)

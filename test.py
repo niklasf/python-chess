@@ -1994,7 +1994,7 @@ class PgnTestCase(unittest.TestCase):
         pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
 
-        node = game[0]
+        node = game.variation(chess.Move.from_uci("b2b4"))
         self.assertIn(chess.pgn.NAG_DUBIOUS_MOVE, node.nags)
         self.assertEqual(len(node.nags), 1)
 
