@@ -106,6 +106,9 @@ MOVETEXT_REGEX = re.compile(r"""
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
+SKIP = object()
+
+
 class GameNode:
     def __init__(self):
         self.parent = None
@@ -335,8 +338,8 @@ class GameNode:
         # Then visit sidelines.
         if _parent_board is not None and self == self.parent.variations[0]:
             for variation in itertools.islice(self.parent.variations, 1, None):
-                visitor.begin_variation()
-                variation.accept(visitor, _parent_board=board)
+                if visitor.begin_variation() is not SKIP:
+                    variation.accept(visitor, _parent_board=board)
                 visitor.end_variation()
 
         # The mainline is continued last.
@@ -354,25 +357,27 @@ class GameNode:
         Traverses headers and game nodes in PGN order, as if the game was
         starting after this node. Returns the visitor result.
         """
-        game = self.root()
-        board = self.board()
-        visitor.begin_game()
+        if visitor.begin_game() is not SKIP:
+            game = self.root()
+            board = self.board()
 
-        dummy_game = Game.without_tag_roster()
-        dummy_game.setup(board)
+            dummy_game = Game.without_tag_roster()
+            dummy_game.setup(board)
 
-        visitor.begin_headers()
-        for tagname, tagvalue in game.headers.items():
-            if tagname not in dummy_game.headers:
+            visitor.begin_headers()
+
+            for tagname, tagvalue in game.headers.items():
+                if tagname not in dummy_game.headers:
+                    visitor.visit_header(tagname, tagvalue)
+            for tagname, tagvalue in dummy_game.headers.items():
                 visitor.visit_header(tagname, tagvalue)
-        for tagname, tagvalue in dummy_game.headers.items():
-            visitor.visit_header(tagname, tagvalue)
-        visitor.end_headers()
 
-        if self.variations:
-            self.variations[0].accept(visitor, _parent_board=board)
+            if visitor.end_headers() is not SKIP:
+                if self.variations:
+                    self.variations[0].accept(visitor, _parent_board=board)
 
-        visitor.visit_result(game.headers.get("Result", "*"))
+                visitor.visit_result(game.headers.get("Result", "*"))
+
         visitor.end_game()
         return visitor.result()
 
@@ -440,20 +445,18 @@ class Game(GameNode):
         Traverses the game in PGN order using the given *visitor*. Returns
         the visitor result.
         """
-        visitor.begin_game()
+        if visitor.begin_game() is not SKIP:
+            for tagname, tagvalue in self.headers.items():
+                visitor.visit_header(tagname, tagvalue)
+            if visitor.end_headers() is not SKIP:
+                if self.comment:
+                    visitor.visit_comment(self.comment)
 
-        visitor.begin_headers()
-        for tagname, tagvalue in self.headers.items():
-            visitor.visit_header(tagname, tagvalue)
-        visitor.end_headers()
+                if self.variations:
+                    self.variations[0].accept(visitor, _parent_board=self.board())
 
-        if self.comment:
-            visitor.visit_comment(self.comment)
+                visitor.visit_result(self.headers.get("Result", "*"))
 
-        if self.variations:
-            self.variations[0].accept(visitor, _parent_board=self.board())
-
-        visitor.visit_result(self.headers.get("Result", "*"))
         visitor.end_game()
         return visitor.result()
 
