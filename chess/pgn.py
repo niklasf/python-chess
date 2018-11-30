@@ -275,7 +275,7 @@ class GameNode:
         return node
 
     def main_line(self):
-        """Yields the moves of the main line starting in this node."""
+        """Yields the moves of the main line starting after this node."""
         node = self
         while node.variations:
             node = node.variations[0]
@@ -303,65 +303,40 @@ class GameNode:
 
         return node
 
-    def accept(self, visitor, *, _board=None):
+    def accept(self, visitor, *, _parent_board=None):
         """
         Traverse game nodes in PGN order using the given *visitor*. Returns
         the visitor result.
         """
-        board = self.board() if _board is None else _board
+        board = self.parent.board() if _parent_board is None else _parent_board
 
-        # The first move of the main line goes first.
-        if self.variations:
-            main_variation = self.variations[0]
-            visitor.visit_move(board, main_variation.move)
+        # First visit the move that leads to this node.
+        if self.starting_comment:
+            visitor.visit_comment(self.starting_comment)
 
-            # Visit NAGs.
-            for nag in sorted(main_variation.nags):
-                visitor.visit_nag(nag)
+        visitor.visit_move(board, self.move)
 
-            # Visit the comment.
-            if main_variation.comment:
-                visitor.visit_comment(main_variation.comment)
+        for nag in sorted(self.nags):
+            visitor.visit_nag(nag)
+
+        if self.comment:
+            visitor.visit_comment(self.comment)
 
         # Then visit sidelines.
-        for variation in itertools.islice(self.variations, 1, None):
-            # Start variation.
-            visitor.begin_variation()
-
-            # Append starting comment.
-            if variation.starting_comment:
-                visitor.visit_comment(variation.starting_comment)
-
-            # Visit move.
-            visitor.visit_move(board, variation.move)
-
-            # Visit NAGs.
-            for nag in sorted(variation.nags):
-                visitor.visit_nag(nag)
-
-            # Visit comment.
-            if variation.comment:
-                visitor.visit_comment(variation.comment)
-
-            # Recursively append the next moves.
-            board.push(variation.move)
-            variation.accept(visitor, _board=board)
-            board.pop()
-
-            # End variation.
-            visitor.end_variation()
+        if _parent_board is not None and self == self.parent.variations[0]:
+            for variation in itertools.islice(self.parent.variations, 1, None):
+                visitor.begin_variation()
+                variation.accept(visitor, _parent_board=board)
+                visitor.end_variation()
 
         # The main line is continued last.
         if self.variations:
-            main_variation = self.variations[0]
-
-            # Recursively append the next moves.
-            board.push(main_variation.move)
-            main_variation.accept(visitor, _board=board)
+            board.push(self.move)
+            self.variations[0].accept(visitor, _parent_board=board)
             board.pop()
 
         # Get the result if not called recursively.
-        if _board is None:
+        if _parent_board is None:
             return visitor.result()
 
     def accept_subgame(self, visitor):
@@ -370,10 +345,11 @@ class GameNode:
         starting from this node. Returns the visitor result.
         """
         game = self.root()
+        board = self.board()
         visitor.begin_game()
 
         dummy_game = Game.without_tag_roster()
-        dummy_game.setup(self.board())
+        dummy_game.setup(board)
 
         visitor.begin_headers()
         for tagname, tagvalue in game.headers.items():
@@ -383,7 +359,8 @@ class GameNode:
             visitor.visit_header(tagname, tagvalue)
         visitor.end_headers()
 
-        self.accept(visitor)
+        if self.variations:
+            self.variations[0].accept(visitor, _parent_board=board)
 
         visitor.visit_result(game.headers.get("Result", "*"))
         visitor.end_game()
@@ -456,7 +433,8 @@ class Game(GameNode):
         if self.comment:
             visitor.visit_comment(self.comment)
 
-        super().accept(visitor, _board=self.board())
+        if self.variations:
+            self.variations[0].accept(visitor, _parent_board=self.board())
 
         visitor.visit_result(self.headers.get("Result", "*"))
         visitor.end_game()
