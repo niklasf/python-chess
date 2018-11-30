@@ -191,8 +191,8 @@ class GameNode:
 
         return self.parent.variations[0] != self
 
-    def is_main_line(self):
-        """Checks if the node is in the main line of the game."""
+    def is_mainline(self):
+        """Checks if the node is in the mainline of the game."""
         node = self
 
         while node.parent:
@@ -215,15 +215,15 @@ class GameNode:
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def variation(self, move):
-        """
-        Gets a child node by either the move or the variation index.
-        """
-        for index, variation in enumerate(self.variations):
-            if move == variation.move or index == move or move == variation:
-                return variation
+    def __getitem__(self, move):
+        try:
+            return self.variations[move]
+        except TypeError:
+            for variation in self.variations:
+                if variation.move == move or variation == move:
+                    return variation
 
-        raise KeyError("variation not found")
+        raise KeyError(move)
 
     def has_variation(self, move):
         """Checks if the given *move* appears as a variation."""
@@ -231,20 +231,20 @@ class GameNode:
 
     def promote_to_main(self, move):
         """Promotes the given *move* to the main variation."""
-        variation = self.variation(move)
+        variation = self[move]
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
     def promote(self, move):
         """Moves a variation one up in the list of variations."""
-        variation = self.variation(move)
+        variation = self[move]
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
     def demote(self, move):
         """Moves a variation one down in the list of variations."""
-        variation = self.variation(move)
+        variation = self[move]
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
             self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
@@ -274,12 +274,13 @@ class GameNode:
         self.variations.insert(0, node)
         return node
 
-    def main_line(self):
-        """Yields the moves of the main line starting after this node."""
-        node = self
-        while node.variations:
-            node = node.variations[0]
-            yield node.move
+    def mainline(self):
+        """Returns an iterator over the mainline starting after this node."""
+        return Mainline(self)
+
+    def mainline_moves(self):
+        """Returns an iterator over the main moves after this node."""
+        return Mainline(self, lambda node: node.move)
 
     def add_line(self, moves, *, comment="", starting_comment="", nags=()):
         """
@@ -303,24 +304,27 @@ class GameNode:
 
         return node
 
-    def accept(self, visitor, *, _parent_board=None):
-        """
-        Traverse game nodes in PGN order using the given *visitor*. Returns
-        the visitor result.
-        """
-        board = self.parent.board() if _parent_board is None else _parent_board
-
-        # First visit the move that leads to this node.
+    def _accept_node(self, parent_board, visitor):
         if self.starting_comment:
             visitor.visit_comment(self.starting_comment)
 
-        visitor.visit_move(board, self.move)
+        visitor.visit_move(parent_board, self.move)
 
         for nag in sorted(self.nags):
             visitor.visit_nag(nag)
 
         if self.comment:
             visitor.visit_comment(self.comment)
+
+    def accept(self, visitor, *, _parent_board=None):
+        """
+        Traverse game nodes in PGN order using the given *visitor*. Starts with
+        the move leading to this node. Returns the visitor result.
+        """
+        board = self.parent.board() if _parent_board is None else _parent_board
+
+        # First visit the move that leads to this node.
+        self._accept_node(board, visitor)
 
         # Then visit sidelines.
         if _parent_board is not None and self == self.parent.variations[0]:
@@ -329,7 +333,7 @@ class GameNode:
                 variation.accept(visitor, _parent_board=board)
                 visitor.end_variation()
 
-        # The main line is continued last.
+        # The mainline is continued last.
         if self.variations:
             board.push(self.move)
             self.variations[0].accept(visitor, _parent_board=board)
@@ -342,7 +346,7 @@ class GameNode:
     def accept_subgame(self, visitor):
         """
         Traverses headers and game nodes in PGN order, as if the game was
-        starting from this node. Returns the visitor result.
+        starting after this node. Returns the visitor result.
         """
         game = self.root()
         board = self.board()
@@ -552,6 +556,67 @@ class Headers(collections.abc.MutableMapping):
             ", ".join("{}={}".format(key, repr(value)) for key, value in self.items()))
 
 
+class Mainline:
+    def __init__(self, start, f=lambda node: node):
+        self.start = start
+        self.f = f
+
+    def __bool__(self):
+        return bool(self.start.variations)
+
+    def __iter__(self):
+        node = self.start
+        while node.variations:
+            node = node.variations[0]
+            yield self.f(node)
+
+    def __reversed__(self):
+        return ReverseMainline(self.start, self.f)
+
+    def accept(self, visitor):
+        node = self.start
+        board = self.start.board()
+        while node.variations:
+            node = node.variations[0]
+            node._accept_node(board, visitor)
+            board.push(node.move)
+        return visitor.result()
+
+    def __str__(self):
+        return self.accept(StringExporter(columns=None))
+
+    def __repr__(self):
+        return "<Mainline at {} ({})>".format(hex(id(self)), self.accept(StringEporter(column=None, comment=False)))
+
+
+class ReverseMainline:
+    def __init__(self, stop, f=lambda node: node):
+        self.stop = stop
+        self.f = f
+
+        self.length = 0
+        node = stop
+        while node.variations:
+            node = node.variations[0]
+            self.length += 1
+        self.end = node
+
+    def __len__(self):
+        return self.length
+
+    def __iter__(self):
+        node = self.end
+        while node.parent and node != self.stop:
+            yield self.f(node)
+            node = node.parent
+
+    def __reversed__(self):
+        return Mainline(self.stop, self.f)
+
+    def __repr__(self):
+        return "<ReverseMainline at {} ({})>".format(hex(id(self)), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
+
+
 class BaseVisitor:
     """
     Base class for visitors.
@@ -598,7 +663,7 @@ class BaseVisitor:
     def begin_variation(self):
         """
         Called at the start of a new variation. It is not called for the
-        main line of the game.
+        mainline of the game.
         """
         pass
 

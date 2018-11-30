@@ -1889,11 +1889,11 @@ class PgnTestCase(unittest.TestCase):
         # Seek the node after 6.Nbd2 and before 6...a6.
         node = game
         while node.variations and not node.has_variation(chess.Move.from_uci("a7a6")):
-            node = node.variation(0)
+            node = node[0]
 
         # Make sure the comment for the second variation is there.
-        self.assertIn(5, node.variation(1).nags)
-        self.assertEqual(node.variation(1).comment, "/\\ Ne7, c6")
+        self.assertIn(5, node[1].nags)
+        self.assertEqual(node[1].comment, "/\\ Ne7, c6")
 
     def test_promotion_without_equals(self):
         # Example game from https://github.com/rozim/ChessData as originally
@@ -1940,7 +1940,7 @@ class PgnTestCase(unittest.TestCase):
             """))
 
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.variation(0).move, chess.Move.from_uci("e2e4"))
+        self.assertEqual(game[0].move, chess.Move.from_uci("e2e4"))
 
     def test_variation_stack(self):
         # Survive superfluous closing brackets.
@@ -1948,10 +1948,10 @@ class PgnTestCase(unittest.TestCase):
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
-        self.assertEqual(game.variation(0).san(), "e4")
-        self.assertEqual(game.variation(0).uci(), "e2e4")
-        self.assertEqual(game.variation(1).san(), "d4")
-        self.assertEqual(game.variation(1).uci(), "d2d4")
+        self.assertEqual(game[0].san(), "e4")
+        self.assertEqual(game[0].uci(), "e2e4")
+        self.assertEqual(game[1].san(), "d4")
+        self.assertEqual(game[1].uci(), "d2d4")
         self.assertEqual(len(game.errors), 2)
 
         # Survive superfluous opening brackets.
@@ -1959,14 +1959,14 @@ class PgnTestCase(unittest.TestCase):
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
-        self.assertEqual(game.variation(0).san(), "c4")
+        self.assertEqual(game[0].san(), "c4")
         self.assertEqual(len(game.errors), 3)
 
     def test_game_starting_comment(self):
         pgn = StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.comment, "Game starting comment")
-        self.assertEqual(game.variation(0).san(), "d3")
+        self.assertEqual(game[0].san(), "d3")
 
         pgn = StringIO("{ Empty game, but has a comment }")
         game = chess.pgn.read_game(pgn)
@@ -1980,12 +1980,12 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.comment, "Start of game")
 
-        node = game.variation(0)
+        node = game[0]
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
         self.assertFalse(node.comment)
         self.assertFalse(node.starting_comment)
 
-        node = game.variation(1)
+        node = game[1]
         self.assertEqual(node.move, chess.Move.from_uci("d2d4"))
         self.assertFalse(node.comment)
         self.assertEqual(node.starting_comment, "Start of variation")
@@ -1994,21 +1994,21 @@ class PgnTestCase(unittest.TestCase):
         pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
 
-        node = game.variation(0)
+        node = game[0]
         self.assertIn(chess.pgn.NAG_DUBIOUS_MOVE, node.nags)
         self.assertEqual(len(node.nags), 1)
 
-        node = node.variation(0)
+        node = node[0]
         self.assertEqual(len(node.nags), 0)
 
-        node = node.variation(0)
+        node = node[0]
         self.assertEqual(len(node.nags), 0)
 
-        node = node.variation(0)
+        node = node[0]
         self.assertIn(chess.pgn.NAG_MISTAKE, node.nags)
         self.assertEqual(len(node.nags), 1)
 
-        node = node.variation(0)
+        node = node[0]
         self.assertIn(chess.pgn.NAG_BRILLIANT_MOVE, node.nags)
         self.assertEqual(len(node.nags), 1)
 
@@ -2028,10 +2028,10 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(end_node.end(), end_node)
         self.assertEqual(alternative_node.end(), alternative_node)
 
-        self.assertTrue(game.is_main_line())
-        self.assertTrue(node.is_main_line())
-        self.assertTrue(end_node.is_main_line())
-        self.assertFalse(alternative_node.is_main_line())
+        self.assertTrue(game.is_mainline())
+        self.assertTrue(node.is_mainline())
+        self.assertTrue(end_node.is_mainline())
+        self.assertFalse(alternative_node.is_mainline())
 
         self.assertFalse(game.starts_variation())
         self.assertFalse(node.starts_variation())
@@ -2050,14 +2050,14 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertTrue(a.is_main_variation())
         self.assertFalse(b.is_main_variation())
-        self.assertEqual(game.variation(0), a)
-        self.assertEqual(game.variation(1), b)
+        self.assertEqual(game[0], a)
+        self.assertEqual(game[1], b)
 
         game.promote(b)
         self.assertTrue(b.is_main_variation())
         self.assertFalse(a.is_main_variation())
-        self.assertEqual(game.variation(0), b)
-        self.assertEqual(game.variation(1), a)
+        self.assertEqual(game[0], b)
+        self.assertEqual(game[1], a)
 
         game.demote(b)
         self.assertTrue(a.is_main_variation())
@@ -2066,9 +2066,9 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(c.is_main_variation())
         self.assertFalse(a.is_main_variation())
         self.assertFalse(b.is_main_variation())
-        self.assertEqual(game.variation(0), c)
-        self.assertEqual(game.variation(1), a)
-        self.assertEqual(game.variation(2), b)
+        self.assertEqual(game[0], c)
+        self.assertEqual(game[1], a)
+        self.assertEqual(game[2], b)
 
     def test_scan_offsets(self):
         with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
@@ -2094,7 +2094,7 @@ class PgnTestCase(unittest.TestCase):
             pgn.seek(first_drawn_game_offset)
             first_drawn_game = chess.pgn.read_game(pgn)
             self.assertEqual(first_drawn_game.headers["Site"], "03")
-            self.assertEqual(first_drawn_game.variation(0).move, chess.Move.from_uci("d2d3"))
+            self.assertEqual(first_drawn_game[0].move, chess.Move.from_uci("d2d3"))
 
     def test_black_to_move(self):
         game = chess.pgn.Game()
@@ -2189,13 +2189,17 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(tail.comment, "end")
         self.assertIn(42, tail.nags)
 
-    def test_main_line(self):
+    def test_mainline(self):
         moves = [chess.Move.from_uci(uci) for uci in ["d2d3", "g8f6", "e2e4"]]
 
         game = chess.pgn.Game()
         game.add_line(moves)
 
-        self.assertEqual(list(game.main_line()), moves)
+        self.assertEqual(list(game.mainline_moves()), moves)
+        self.assertTrue(game.mainline_moves())
+        self.assertEqual(list(reversed(game.mainline_moves())), list(reversed(moves)))
+        self.assertEqual(len(reversed(game.mainline_moves())), 3)
+        self.assertEqual(str(game.mainline_moves()), "1. d3 Nf6 2. e4")
 
     def test_lan(self):
         pgn = StringIO("1. e2-e4")
