@@ -240,27 +240,8 @@ Features
       >>> first_game.headers["Black"]
       'Bordais'
 
-      >>> # Get the main line as a list of moves.
-      >>> moves = first_game.main_line()
-      >>> first_game.board().variation_san(moves)
-      '1. e4 c5 2. c4 Nc6 3. Ne2 Nf6 4. Nbc3 Nb4 5. g3 Nd3#'
-
-      >>> # Iterate through the main line of this embarrassingly short game.
-      >>> node = first_game
-      >>> while not node.is_end():
-      ...     next_node = node.variations[0]
-      ...     print(node.board().san(next_node.move))
-      ...     node = next_node
-      e4
-      c5
-      c4
-      Nc6
-      Ne2
-      Nf6
-      Nbc3
-      Nb4
-      g3
-      Nd3#
+      >>> first_game.mainline()  # doctest: +ELLIPSIS
+      <Mainline at ... (1. e4 c5 2. c4 Nc6 3. Ne2 Nf6 4. Nbc3 Nb4 5. g3 Nd3#)>
 
       >>> first_game.headers["Result"]
       '0-1'
