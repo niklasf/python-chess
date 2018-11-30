@@ -20,6 +20,7 @@ import collections.abc
 import itertools
 import logging
 import re
+import weakref
 
 import chess
 
@@ -122,14 +123,16 @@ class GameNode:
 
         It's a copy, so modifying the board will not alter the game.
         """
-        if self.board_cached:
-            return self.board_cached.copy()
+        if self.board_cached is not None:
+            board = self.board_cached()
+            if board is not None:
+                return board.copy()
 
         board = self.parent.board(_cache=False)
         board.push(self.move)
 
         if _cache:
-            self.board_cached = board
+            self.board_cached = weakref.ref(board)
             return board.copy()
         else:
             return board
