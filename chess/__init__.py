@@ -3386,10 +3386,11 @@ class SquareSet(collections.abc.MutableSet):
     """
 
     def __init__(self, squares=BB_EMPTY):
+
         try:
-            self.mask = int(squares) & BB_ALL
+            self.mask = squares.__int__() & BB_ALL
             return
-        except TypeError:
+        except AttributeError:
             self.mask = 0
 
         # Try squares as an iterable. Not under except clause for nicer

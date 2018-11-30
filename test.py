@@ -1478,6 +1478,9 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(chess.SquareSet(chess.BB_ALL), chess.BB_ALL)
         self.assertEqual(chess.BB_ALL, chess.SquareSet(chess.BB_ALL))
 
+        self.assertEqual(int(chess.SquareSet(chess.SquareSet(999))), 999)
+        self.assertEqual(chess.SquareSet([chess.B8]), chess.BB_B8)
+
     def test_string_conversion(self):
         expected = textwrap.dedent("""\
             . . . . . . . 1
