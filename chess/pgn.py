@@ -715,7 +715,7 @@ class GameModelCreator(BaseVisitor):
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
-    def __init__(self):
+    def begin_game(self):
         self.game = Game()
 
         self.variation_stack = [self.game]
