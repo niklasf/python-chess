@@ -1189,21 +1189,22 @@ class BaseBoard:
         except AttributeError:
             return NotImplemented
 
+    def apply_transform(self, f):
+        self.pawns = f(self.pawns)
+        self.knights = f(self.knights)
+        self.bishops = f(self.bishops)
+        self.rooks = f(self.rooks)
+        self.queens = f(self.queens)
+        self.kings = f(self.kings)
+
+        self.occupied_co[WHITE] = f(self.occupied_co[WHITE])
+        self.occupied_co[BLACK] = f(self.occupied_co[BLACK])
+        self.occupied = f(self.occupied)
+        self.promoted = f(self.promoted)
+
     def transform(self, f):
-        board = type(self)(None)
-
-        board.pawns = f(self.pawns)
-        board.knights = f(self.knights)
-        board.bishops = f(self.bishops)
-        board.rooks = f(self.rooks)
-        board.queens = f(self.queens)
-        board.kings = f(self.kings)
-
-        board.occupied_co[WHITE] = f(self.occupied_co[WHITE])
-        board.occupied_co[BLACK] = f(self.occupied_co[BLACK])
-        board.occupied = f(self.occupied)
-        board.promoted = f(self.promoted)
-
+        board = self.copy()
+        board.apply_transform(f)
         return board
 
     def mirror(self):
@@ -3204,14 +3205,15 @@ class Board(BaseBoard):
         else:
             return False
 
+    def apply_transform(self, f):
+        super().apply_transform(f)
+        self.clear_stack()
+
     def transform(self, f):
-        board = super().transform(f)
-        board.chess960 = self.chess960
+        board = self.copy(stack=False)
+        board.apply_transform(f)
         board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         board.castling_rights = f(self.castling_rights)
-        board.turn = self.turn
-        board.fullmove_number = self.fullmove_number
-        board.halfmove_clock = self.halfmove_clock
         return board
 
     def mirror(self):
@@ -3542,7 +3544,7 @@ class SquareSet(collections.abc.MutableSet):
         return _carry_rippler(self.mask)
 
     def mirror(self):
-        """Returns a mirrored copy of this square set."""
+        """Returns a vertically mirrored copy of this square set."""
         return SquareSet(bswap(self.mask))
 
     def tolist(self):
