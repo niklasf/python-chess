@@ -190,8 +190,39 @@ def scan_reversed(bb, *, _BB_SQUARES=BB_SQUARES):
 def popcount(bb, *, _bin=bin):
     return _bin(bb).count("1")
 
-def bswap(bb, *, _be=struct.Struct(">Q"), _le=struct.Struct("<Q")):
-    return _be.unpack(_le.pack(bb))[0]
+def flip_vertical(bb):
+    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
+    bb = ((bb >> 8) & 0x00ff00ff00ff00ff) | ((bb & 0x00ff00ff00ff00ff) << 8)
+    bb = ((bb >> 16) & 0x0000ffff0000ffff) | ((bb & 0x0000ffff0000ffff) << 16)
+    bb = (bb >> 32) | ((bb & 0x00000000ffffffff) << 32)
+    return bb
+
+def flip_horizontal(bb):
+    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
+    bb = ((bb >> 1) & 0x5555555555555555) | ((bb & 0x5555555555555555) << 1)
+    bb = ((bb >> 2) & 0x3333333333333333) | ((bb & 0x3333333333333333) << 2)
+    bb = ((bb >> 4) & 0x0f0f0f0f0f0f0f0f) | ((bb & 0x0f0f0f0f0f0f0f0f) << 4)
+    return bb
+
+def flip_diag(bb):
+    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
+    t = (bb ^ (bb << 28)) & 0x0f0f0f0f00000000
+    bb = bb ^ (t ^ (t >> 28))
+    t = (bb ^ (bb << 14)) & 0x3333000033330000
+    bb = bb ^ (t ^ (t >> 14))
+    t = (bb ^ (bb << 7)) & 0x5500550055005500
+    bb = bb ^ (t ^ (t >> 7))
+    return bb
+
+def flip_anti_diag(bb):
+    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
+    t = bb ^ (bb << 36)
+    bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0f0f00f0f0f0f)
+    t = (bb ^ (bb << 18)) & 0xcccc0000cccc0000
+    bb = bb ^ (t ^ (t >> 18))
+    t = (bb ^ (bb << 9)) & 0xaa00aa00aa00aa00
+    bb = bb ^ (t ^ (t >> 9))
+    return bb
 
 
 def shift_down(b):
@@ -1214,7 +1245,7 @@ class BaseBoard:
         The board is mirrored vertically and piece colors are swapped, so that
         the position is equivalent modulo color.
         """
-        board = self.transform(bswap)
+        board = self.transform(flip_vertical)
         board.occupied_co[WHITE], board.occupied_co[BLACK] = board.occupied_co[BLACK], board.occupied_co[WHITE]
         return board
 
@@ -3545,7 +3576,7 @@ class SquareSet(collections.abc.MutableSet):
 
     def mirror(self):
         """Returns a vertically mirrored copy of this square set."""
-        return SquareSet(bswap(self.mask))
+        return SquareSet(flip_vertical(self.mask))
 
     def tolist(self):
         """Convert the set to a list of 64 bools."""
@@ -3631,3 +3662,4 @@ class SquareSet(collections.abc.MutableSet):
 
 # TODO: Deprecated
 BB_VOID = 0
+bswap = flip_vertical
