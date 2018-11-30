@@ -775,6 +775,27 @@ class GameModelCreator(BaseVisitor):
         return self.game
 
 
+class HeaderCreator(BaseVisitor):
+    """Collects headers into a dictionary."""
+    def begin_headers(self):
+        self.headers = Headers({})
+
+    def visit_header(self, tagname, tagvalue):
+        self.headers[tagname] = tagvalue
+
+    def end_headers(self):
+        return SKIP
+
+    def result(self):
+        return self.headers
+
+
+class SkipVisitor(BaseVisitor):
+    """Skips a game."""
+    def begin_game(self):
+        return SKIP
+
+
 class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
@@ -1131,12 +1152,9 @@ def read_game(handle, *, Visitor=GameModelCreator):
         return visitor.result()
 
 
-def scan_headers(handle):
+def read_headers(handle):
     """
-    Scans a PGN file opened in text mode for game offsets and headers.
-
-    Yields a tuple for each game. The first element is the offset and the
-    second element is a mapping of game headers.
+    Reads game headers from a PGN file opened in text mode.
 
     Since actually parsing many games from a big file is relatively expensive,
     this is a better way to look only for specific games and then seek and
@@ -1148,97 +1166,29 @@ def scan_headers(handle):
     >>>
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
     >>>
-    >>> for offset, headers in chess.pgn.scan_headers(pgn):
-    ...     if "Kasparov" in headers["White"]:
-    ...         kasparov_offset = offset
+    >>> kasparov_offsets = []
+    >>>
+    >>> while True:
+    ...     offset = pgn.tell()
+    ...
+    ...     headers = chess.pgn.read_headers(pgn)
+    ...     if headers is None:
     ...         break
+    ...
+    ...     if "Kasparov" in headers.get("White", "?"):
+    ...         kasparov_offsets.append(offset)
 
     Then it can later be seeked an parsed.
 
-    >>> pgn.seek(kasparov_offset)
-    0
-    >>> game = chess.pgn.read_game(pgn)
-
-    This also works nicely with generators, scanning lazily only when the next
-    offset is required.
-
-    >>> white_win_offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
-    ...                             if headers["Result"] == "1-0")
-    >>> first_white_win = next(white_win_offsets)
-    >>> second_white_win = next(white_win_offsets)
-
-    :warning: Be careful when seeking a game in the file while more offsets are
-        being generated.
+    >>> for offset in kasparov_offsets:
+    ...     pgn.seek(offset)
+    ...     game = chess.pgn.read_game(pgn)
     """
-    in_comment = False
-
-    game_headers = None
-    game_pos = None
-
-    last_pos = handle.tell()
-    line = handle.readline()
-
-    while line:
-        # Skip single-line comments.
-        if line.startswith("%"):
-            last_pos = handle.tell()
-            line = handle.readline()
-            continue
-
-        # Reading a header tag. Parse it and add it to the current headers.
-        if not in_comment and line.startswith("["):
-            tag_match = TAG_REGEX.match(line)
-            if tag_match:
-                if game_pos is None:
-                    game_headers = Headers()
-                    game_pos = last_pos
-
-                game_headers[tag_match.group(1)] = tag_match.group(2)
-
-                last_pos = handle.tell()
-                line = handle.readline()
-                continue
-
-        # Reading movetext. Update parser's in_comment state in order to skip
-        # comments that look like header tags.
-        if (not in_comment and "{" in line) or (in_comment and "}" in line):
-            in_comment = line.rfind("{") > line.rfind("}")
-
-        # Reading movetext. If there were headers previously, those are now
-        # complete and can be yielded.
-        if game_pos is not None:
-            yield game_pos, game_headers
-            game_pos = None
-
-        last_pos = handle.tell()
-        line = handle.readline()
-
-    # Yield headers of the last game.
-    if game_pos is not None:
-        yield game_pos, game_headers
+    return read_game(handle, Visitor=HeaderCreator)
 
 
-def scan_offsets(handle):
+def skip_game(handle):
     """
-    Scan a PGN file opened in text mode for game offsets.
-
-    Yields the starting offsets of all the games, so that they can be seeked
-    later. This is just like :func:`~chess.pgn.scan_headers()` but more
-    efficient if you do not actually need the header information.
-
-    The PGN standard requires each game to start with an ``Event`` tag. So does
-    this scanner.
+    Skip a game. Returns ``True`` if a game was found and skipped.
     """
-    in_comment = False
-
-    last_pos = handle.tell()
-    line = handle.readline()
-
-    while line:
-        if not in_comment and line.startswith("[Event \""):
-            yield last_pos
-        elif (not in_comment and "{" in line) or (in_comment and "}" in line):
-            in_comment = line.rfind("{") > line.rfind("}")
-
-        last_pos = handle.tell()
-        line = handle.readline()
+    return read_game(handle, Visitor=SkipVisitor)

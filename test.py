@@ -2070,9 +2070,15 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game[1], a)
         self.assertEqual(game[2], b)
 
-    def test_scan_offsets(self):
+    def test_skip_game(self):
         with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
-            offsets = list(chess.pgn.scan_offsets(pgn))
+            offsets = []
+            while True:
+                offset = pgn.tell()
+                if chess.pgn.skip_game(pgn):
+                    offsets.append(offset)
+                else:
+                    break
             self.assertEqual(len(offsets), 6)
 
             pgn.seek(offsets[0])
@@ -2085,13 +2091,19 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(sixth_game.headers["Event"], "IBM Man-Machine, New York USA")
             self.assertEqual(sixth_game.headers["Site"], "06")
 
-    def test_scan_headers(self):
+    def test_read_headers(self):
         with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
-            offsets = (offset for offset, headers in chess.pgn.scan_headers(pgn)
-                       if headers["Result"] == "1/2-1/2")
+            offsets = []
 
-            first_drawn_game_offset = next(offsets)
-            pgn.seek(first_drawn_game_offset)
+            while True:
+                offset = pgn.tell()
+                headers = chess.pgn.read_headers(pgn)
+                if headers is None:
+                    break
+                elif headers.get("Result", "*") == "1/2-1/2":
+                    offsets.append(offset)
+
+            pgn.seek(offsets[0])
             first_drawn_game = chess.pgn.read_game(pgn)
             self.assertEqual(first_drawn_game.headers["Site"], "03")
             self.assertEqual(first_drawn_game[0].move, chess.Move.from_uci("d2d3"))
