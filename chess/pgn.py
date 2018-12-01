@@ -1212,7 +1212,13 @@ def read_headers(handle):
 
     >>> for offset in kasparov_offsets:
     ...     pgn.seek(offset)
-    ...     game = chess.pgn.read_game(pgn)
+    ...     chess.pgn.read_game(pgn)  # doctest: +ELLIPSIS
+    0
+    <Game at ... ('Garry Kasparov' vs. 'Deep Blue (Computer)', 1997.??.??)>
+    1436
+    <Game at ... ('Garry Kasparov' vs. 'Deep Blue (Computer)', 1997.??.??)>
+    3067
+    <Game at ... ('Garry Kasparov' vs. 'Deep Blue (Computer)', 1997.??.??)>
     """
     return read_game(handle, Visitor=HeaderCreator)
 
