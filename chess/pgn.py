@@ -666,6 +666,20 @@ class BaseVisitor:
         """Called at the end of the game headers."""
         pass
 
+    def parse_san(self, board, san):
+        """
+        Called to parse a move in standard algebraic notation. You can override
+        the default implementation to work around specific quirks in your
+        input format.
+        """
+        # Replace zeros with correct castling notation.
+        if san == "0-0":
+            san = "O-O"
+        elif san == "0-0-0":
+            san = "O-O-O"
+
+        return board.parse_san(san)
+
     def visit_move(self, board, move):
         """
         Called for each move.
@@ -1160,15 +1174,9 @@ def read_game(handle, *, Visitor=GameModelCreator):
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
-                # Replace zeros with correct castling notation.
-                if token == "0-0":
-                    token = "O-O"
-                elif token == "0-0-0":
-                    token = "O-O-O"
-
                 # Parse SAN tokens.
                 try:
-                    move = board_stack[-1].parse_san(token)
+                    move = visitor.parse_san(board_stack[-1], token)
                 except ValueError as error:
                     visitor.handle_error(error)
                 else:
