@@ -894,6 +894,8 @@ class StringExporter(BaseVisitor):
         if self.variations:
             self.write_token(") ")
             self.force_movenumber = True
+        else:
+            return SKIP
 
     def visit_comment(self, comment):
         if self.comments and (self.variations or not self.variation_depth):
@@ -1104,6 +1106,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
         board_stack = [VariantBoard(chess960=headers.is_chess960())]
 
     # Parse movetext.
+    skip_variation_depth = 0
     while line:
         read_next_line = True
 
@@ -1112,8 +1115,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
-        # An empty line means the end of a game. But gracefully try to find
-        # at least some content if we didn't even see headers so far.
+        # An empty line means the end of a game.
         if line.isspace():
             visitor.end_game()
             return visitor.result()
@@ -1135,12 +1137,32 @@ def read_game(handle, *, Visitor=GameModelCreator):
                 else:
                     line = ""
 
-                visitor.visit_comment("\n".join(comment_lines).strip())
+                if not skip_variation_depth:
+                    visitor.visit_comment("\n".join(comment_lines).strip())
 
                 # Continue with the current or the next line.
                 if line:
                     read_next_line = False
                 break
+            elif token == "(" and board_stack[-1].move_stack:
+                if skip_variation_depth:
+                    skip_variation_depth += 1
+                elif visitor.begin_variation() is SKIP:
+                    skip_variation_depth = 1
+                else:
+                    board = board_stack[-1].copy()
+                    board.pop()
+                    board_stack.append(board)
+            elif token == ")" and skip_variation_depth:
+                skip_variation_depth -= 1
+                if not skip_variation_depth:
+                    visitor.end_variation()
+            elif token == ")" and len(board_stack) > 1:
+                # Always leave at least the root node on the stack.
+                visitor.end_variation()
+                board_stack.pop()
+            elif skip_variation_depth:
+                continue
             elif token.startswith(";"):
                 break
             elif token.startswith("$"):
@@ -1163,16 +1185,6 @@ def read_game(handle, *, Visitor=GameModelCreator):
                 visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
-            elif token == "(" and board_stack[-1].move_stack:
-                visitor.begin_variation()
-
-                board = board_stack[-1].copy()
-                board.pop()
-                board_stack.append(board)
-            elif token == ")" and len(board_stack) > 1:
-                # Always leave at least the root node on the stack.
-                visitor.end_variation()
-                board_stack.pop()
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
