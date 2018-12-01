@@ -777,6 +777,7 @@ class GameModelCreator(BaseVisitor):
 
 class HeaderCreator(BaseVisitor):
     """Collects headers into a dictionary."""
+
     def begin_headers(self):
         self.headers = Headers({})
 
@@ -792,7 +793,14 @@ class HeaderCreator(BaseVisitor):
 
 class SkipVisitor(BaseVisitor):
     """Skips a game."""
+
     def begin_game(self):
+        return SKIP
+
+    def end_headers(self):
+        return SKIP
+
+    def begin_variation(self):
         return SKIP
 
 
@@ -1000,8 +1008,9 @@ def read_game(handle, *, Visitor=GameModelCreator):
     """
     visitor = Visitor()
 
-    headers = Headers({})
     found_game = False
+    skipping_game = False
+    headers = None
 
     # Skip leading empty lines and comments.
     line = handle.readline()
@@ -1015,36 +1024,62 @@ def read_game(handle, *, Visitor=GameModelCreator):
             line = handle.readline()
             continue
 
-        # Read header tags.
-        tag_match = TAG_REGEX.match(line)
-        if tag_match:
-            if not found_game:
-                found_game = True
-                visitor.begin_game()
-                visitor.begin_headers()
+        if not found_game:
+            found_game = True
+            skipping_game = visitor.begin_game() is SKIP
 
-            headers[tag_match.group(1)] = tag_match.group(2)
-            visitor.visit_header(tag_match.group(1), tag_match.group(2))
-        else:
+        if not line.startswith("["):
             break
+
+        if not skipping_game:
+            tag_match = TAG_REGEX.match(line)
+            if tag_match:
+                if headers is None:
+                    headers = Headers({})
+                    visitor.begin_headers()
+
+                headers[tag_match.group(1)] = tag_match.group(2)
+                visitor.visit_header(tag_match.group(1), tag_match.group(2))
+            else:
+                break
 
         line = handle.readline()
 
-    if found_game:
-        visitor.end_headers()
+    if not found_game:
+        return None
+
+    if headers is not None:
+        skipping_game = visitor.end_headers() is SKIP
 
     # Skip a single empty line after headers.
     if line.isspace():
         line = handle.readline()
 
-    # Chess variant.
+    # Fast path: Skip entire game.
+    if skipping_game:
+        in_comment = False
+
+        while line:
+            if not in_comment and line.isspace():
+                break
+            elif (not in_comment and "{" in line) or (in_comment and "}" in line):
+                in_comment = line.rfind("{") > line.rfind("}")
+
+            line = handle.readline()
+
+        visitor.end_game()
+        return visitor.result()
+
+    # Chess variant and initial position.
+    if headers is None:
+        headers = Headers({})
+
     try:
         VariantBoard = headers.variant()
     except ValueError as error:
         visitor.handle_error(error)
         VariantBoard = chess.Board
 
-    # Initial position.
     fen = headers.get("FEN", VariantBoard.starting_fen)
     try:
         board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
@@ -1063,16 +1098,12 @@ def read_game(handle, *, Visitor=GameModelCreator):
 
         # An empty line means the end of a game. But gracefully try to find
         # at least some content if we didn't even see headers so far.
-        if found_game and line.isspace():
+        if line.isspace():
             visitor.end_game()
             return visitor.result()
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
-
-            if not found_game:
-                found_game = True
-                visitor.begin_game()
 
             if token.startswith("{"):
                 # Consume until the end of the comment.
@@ -1147,9 +1178,8 @@ def read_game(handle, *, Visitor=GameModelCreator):
         if read_next_line:
             line = handle.readline()
 
-    if found_game:
-        visitor.end_game()
-        return visitor.result()
+    visitor.end_game()
+    return visitor.result()
 
 
 def read_headers(handle):
