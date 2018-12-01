@@ -65,9 +65,6 @@ holds general information, such as game headers.
         A list of illegal or ambiguous move errors encountered while parsing
         the game.
 
-.. autoclass:: chess.pgn.Headers
-    :members:
-
 .. autoclass:: chess.pgn.GameNode
     :members:
 
@@ -115,13 +112,15 @@ Visitors are an advanced concept for game tree traversal.
 The following visitors are readily available.
 
 .. autoclass:: chess.pgn.GameModelCreator
-    :members:
+    :members: handle_error, result
+
+.. autoclass:: chess.pgn.HeaderCreator
+
+.. autoclass:: chess.pgn.SkipVisitor
 
 .. autoclass:: chess.pgn.StringExporter
-    :members:
 
 .. autoclass:: chess.pgn.FileExporter
-    :members:
 
 NAGs
 ----
@@ -142,6 +141,6 @@ Skimming
 
 These functions allow for quickly skimming games without fully parsing them.
 
-.. autofunction:: chess.pgn.scan_headers
+.. autofunction:: chess.pgn.read_headers
 
-.. autofunction:: chess.pgn.scan_offsets
+.. autofunction:: chess.pgn.skip_game

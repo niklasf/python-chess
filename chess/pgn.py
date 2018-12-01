@@ -668,9 +668,11 @@ class BaseVisitor:
 
     def parse_san(self, board, san):
         """
-        Called to parse a move in standard algebraic notation. You can override
-        the default implementation to work around specific quirks in your
-        input format.
+        When the visitor is used by a parser, this is called to parse a move
+        in standard algebraic notation.
+
+        You can override the default implementation to work around specific
+        quirks of your input format.
         """
         # Replace zeros with correct castling notation.
         if san == "0-0":
