@@ -63,39 +63,39 @@ holds general information, such as game headers.
     .. py:attribute:: errors
 
         A list of illegal or ambiguous move errors encountered while parsing
-        the game.
+        a game.
 
 .. autoclass:: chess.pgn.GameNode
     :members:
 
     .. py:attribute:: parent
 
-        The parent node or `None` if this is the root node of the game.
+        The parent node or `None` if this is the root node of a game.
 
     .. py:attribute:: move
 
-        The move leading to this node or `None` if this is the root node of the
+        The move leading to this node or `None` if this is the root node of a
         game.
 
     .. py:attribute:: nags
         :annotation: = set()
 
         A set of NAGs as integers. NAGs always go behind a move, so the root
-        node of the game can have none.
+        node of a game can have none.
 
     .. py:attribute:: comment
         :annotation: = ''
 
-        A comment that goes behind the move leading to this node. Comments
-        that occur before any move are assigned to the root node.
+        A comment that goes behind a move leading to this node. Comments
+        that occur before any moves are assigned to the root node.
 
     .. py:attribute:: starting_comment
         :annotation: = ''
 
         A comment for the start of a variation. Only nodes that
-        actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
-        checks this) can have a starting comment. The root node can not have
-        a starting comment.
+        actually start a variation can have a starting comment.
+        The method :func:`~chess.pgn.GameNode.starts_variation()`
+        checks this. The root node can not have a starting comment.
 
     .. py:attribute:: variations
 
