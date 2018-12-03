@@ -1,6 +1,82 @@
 Changelog for python-chess
 ==========================
 
+Upcoming changes
+----------------
+
+This is the first release that **drops support for Python 2**. The *0.23.x*
+branch will be maintained with critical bugfixes until the end of 2019.
+
+Changes:
+
+* **Require Python 3.4.** Thanks @hugovk.
+* No longer using extra pip features:
+  `pip install python-chess[engine,gaviota]` is now `pip install python-chess`.
+* Various keyword arguments can now be used as **keyword arguments only**.
+* `chess.pgn.GameNode.accept()` now
+  **also visits the move leading to that node**.
+* `chess.pgn.GameModelCreator` now requires that `begin_game()` be called.
+* `chess.pgn.scan_headers()` and `chess.pgn.scan_offsets()` have been removed.
+  Instead the new functions `chess.pgn.read_headers()` and
+  `chess.pgn.skip_game()` can be used for a similar purpose.
+* `chess.syzygy`: Invalid magic headers now raise `IOError`. Previously they
+  were only checked in an assertion.
+  `type(board).{tbw_magic,tbz_magic,pawnless_tbw_magic,pawnless_tbz_magic}`
+  are now byte literals.
+* `board.status()` constants (`STATUS_`) are now typed using `enum.IntFlag`.
+  Values remain unchanged.
+* `chess.svg.Arrow` is no longer a `namedtuple`.
+* `chess.PIECE_SYMBOLS[0]` and `chess.PIECE_NAMES[0]` are now `None` instead
+  of empty strings.
+* Performance optimizations:
+  - `chess.pgn.Game.from_board()`,
+  - `chess.square_name()`
+  - Replace `collections.deque` with lists almost everywhere.
+
+Deprecations:
+
+* Renamed methods (aliases will be removed in the next release):
+  - `chess.BB_VOID` -> `BB_EMPTY`
+  - `chess.bswap()` -> `flip_vertical()`
+  - `chess.pgn.GameNode.main_line()` -> `mainline_moves()`
+  - `chess.pgn.GameNode.is_main_line()` -> `is_mainline()`
+  - `chess.variant.BB_HILL` -> `chess.BB_CENTER`
+  - `chess.syzygy.open_tablebases()` -> `open_tablebase()`
+  - `chess.syzygy.Tablebases` -> `Tablebase`
+  - `chess.syzygy.Tablebase.open_directory()` -> `add_directory()`
+  - `chess.gaviota.open_tablebases()` -> `open_tablebase()`
+  - `chess.gaviota.open_tablebases_native()` -> `open_tablebase_native()`
+  - `chess.gaviota.NativeTablebases` -> `NativeTablebase`
+  - `chess.gaviota.PythonTablebases` -> `PythonTablebase`
+  - `chess.gaviota.NativeTablebase.open_directory()` -> `add_directory()`
+  - `chess.gaviota.PythonTablebase.open_directory()` -> `add_directory()`
+
+Bugfixes:
+
+* The PGN parser now gives the visitor a chance to handle unknown chess
+  variants and continue parsing.
+* `chess.pgn.GameNode.uci()` was always raising an exception.
+
+New features:
+
+* `chess.SquareSet` now extends `collections.abc.MutableSet` and can be
+  initialized from iterables.
+* `Board.apply_transform(f)` and `Board.transform(f)` can apply bitboard
+  transformations to a position. Examples:
+  `chess.flip_{vertical,horizontal,diagonal,anti_diagonal}`.
+* `chess.pgn.GameNode.mainline()` iterates over nodes of the mainline.
+  Can also be used with `reversed()`. Reversal is now also supported for
+  `chess.pgn.GameNode.mainline_moves()`.
+* `chess.svg.Arrow(tail, head, color="#888")` gained an optional *color*
+  argument.
+* `chess.pgn.BaseVisitor.parse_san(board, san)` is used by parsers and can
+  be overwritten to deal with non-standard input formats.
+* `chess.pgn`: Visitors can advise the parser to skip games or variations by
+  returning the special value `chess.pgn.SKIP` from `begin_game()`,
+  `end_headers()` or `begin_variation()`. This is treated as a hint.
+  The corresponding `end_game()` or `end_variation()` will still be called.
+* Added `chess.svg.MARGIN`.
+
 New in v0.23.10
 ---------------
 

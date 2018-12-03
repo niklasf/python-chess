@@ -208,6 +208,9 @@ class GameNode:
 
         return True
 
+    # TODO: Deprecated
+    is_main_line = is_mainline
+
     def is_main_variation(self):
         """
         Checks if this node is the first variation from the point of view of its
@@ -290,6 +293,9 @@ class GameNode:
     def mainline_moves(self):
         """Returns an iterator over the main moves after this node."""
         return Mainline(self, lambda node: node.move)
+
+    # TODO: Deprecated
+    main_line = mainline_moves
 
     def add_line(self, moves, *, comment="", starting_comment="", nags=()):
         """

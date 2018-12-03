@@ -1595,14 +1595,14 @@ class SquareSetTestCase(unittest.TestCase):
     def test_flip(self):
         self.assertEqual(chess.flip_vertical(chess.BB_ALL), chess.BB_ALL)
         self.assertEqual(chess.flip_horizontal(chess.BB_ALL), chess.BB_ALL)
-        self.assertEqual(chess.flip_diag(chess.BB_ALL), chess.BB_ALL)
-        self.assertEqual(chess.flip_anti_diag(chess.BB_ALL), chess.BB_ALL)
+        self.assertEqual(chess.flip_diagonal(chess.BB_ALL), chess.BB_ALL)
+        self.assertEqual(chess.flip_anti_diagonal(chess.BB_ALL), chess.BB_ALL)
 
         s = chess.SquareSet(0x1e2222120e0a1222)  # Letter R
         self.assertEqual(chess.flip_vertical(s), 0x22120a0e1222221e)
         self.assertEqual(chess.flip_horizontal(s), 0x7844444870504844)
-        self.assertEqual(chess.flip_diag(s), 0x000061928c88ff00)
-        self.assertEqual(chess.flip_anti_diag(s), 0x00ff113149860000)
+        self.assertEqual(chess.flip_diagonal(s), 0x000061928c88ff00)
+        self.assertEqual(chess.flip_anti_diagonal(s), 0x00ff113149860000)
 
     def test_len_of_complenent(self):
         squares = chess.SquareSet(~chess.BB_ALL)

@@ -229,7 +229,7 @@ def flip_horizontal(bb):
     bb = ((bb >> 4) & 0x0f0f0f0f0f0f0f0f) | ((bb & 0x0f0f0f0f0f0f0f0f) << 4)
     return bb
 
-def flip_diag(bb):
+def flip_diagonal(bb):
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
     t = (bb ^ (bb << 28)) & 0x0f0f0f0f00000000
     bb = bb ^ (t ^ (t >> 28))
@@ -239,7 +239,7 @@ def flip_diag(bb):
     bb = bb ^ (t ^ (t >> 7))
     return bb
 
-def flip_anti_diag(bb):
+def flip_anti_diagonal(bb):
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
     bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0f0f00f0f0f0f)
