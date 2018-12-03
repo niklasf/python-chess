@@ -29,13 +29,13 @@ Changes:
 * `chess.PIECE_SYMBOLS[0]` and `chess.PIECE_NAMES[0]` are now `None` instead
   of empty strings.
 * Performance optimizations:
+
   * `chess.pgn.Game.from_board()`,
   * `chess.square_name()`
   * Replace `collections.deque` with lists almost everywhere.
 
-Deprecations:
+* Renamed symbols (aliases will be removed in the next release):
 
-* Renamed methods (aliases will be removed in the next release):
   * `chess.BB_VOID` -> `BB_EMPTY`
   * `chess.bswap()` -> `flip_vertical()`
   * `chess.pgn.GameNode.main_line()` -> `mainline_moves()`
