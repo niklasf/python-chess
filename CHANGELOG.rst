@@ -4,8 +4,8 @@ Changelog for python-chess
 Upcoming changes
 ----------------
 
-This is the first release that **drops support for Python 2**. The *0.23.x*
-branch will be maintained with critical bugfixes until the end of 2019.
+This release **drops support for Python 2**. The *0.23.x* branch will be
+maintained for one more month.
 
 Changes:
 
@@ -29,27 +29,27 @@ Changes:
 * `chess.PIECE_SYMBOLS[0]` and `chess.PIECE_NAMES[0]` are now `None` instead
   of empty strings.
 * Performance optimizations:
-  - `chess.pgn.Game.from_board()`,
-  - `chess.square_name()`
-  - Replace `collections.deque` with lists almost everywhere.
+  * `chess.pgn.Game.from_board()`,
+  * `chess.square_name()`
+  * Replace `collections.deque` with lists almost everywhere.
 
 Deprecations:
 
 * Renamed methods (aliases will be removed in the next release):
-  - `chess.BB_VOID` -> `BB_EMPTY`
-  - `chess.bswap()` -> `flip_vertical()`
-  - `chess.pgn.GameNode.main_line()` -> `mainline_moves()`
-  - `chess.pgn.GameNode.is_main_line()` -> `is_mainline()`
-  - `chess.variant.BB_HILL` -> `chess.BB_CENTER`
-  - `chess.syzygy.open_tablebases()` -> `open_tablebase()`
-  - `chess.syzygy.Tablebases` -> `Tablebase`
-  - `chess.syzygy.Tablebase.open_directory()` -> `add_directory()`
-  - `chess.gaviota.open_tablebases()` -> `open_tablebase()`
-  - `chess.gaviota.open_tablebases_native()` -> `open_tablebase_native()`
-  - `chess.gaviota.NativeTablebases` -> `NativeTablebase`
-  - `chess.gaviota.PythonTablebases` -> `PythonTablebase`
-  - `chess.gaviota.NativeTablebase.open_directory()` -> `add_directory()`
-  - `chess.gaviota.PythonTablebase.open_directory()` -> `add_directory()`
+  * `chess.BB_VOID` -> `BB_EMPTY`
+  * `chess.bswap()` -> `flip_vertical()`
+  * `chess.pgn.GameNode.main_line()` -> `mainline_moves()`
+  * `chess.pgn.GameNode.is_main_line()` -> `is_mainline()`
+  * `chess.variant.BB_HILL` -> `chess.BB_CENTER`
+  * `chess.syzygy.open_tablebases()` -> `open_tablebase()`
+  * `chess.syzygy.Tablebases` -> `Tablebase`
+  * `chess.syzygy.Tablebase.open_directory()` -> `add_directory()`
+  * `chess.gaviota.open_tablebases()` -> `open_tablebase()`
+  * `chess.gaviota.open_tablebases_native()` -> `open_tablebase_native()`
+  * `chess.gaviota.NativeTablebases` -> `NativeTablebase`
+  * `chess.gaviota.PythonTablebases` -> `PythonTablebase`
+  * `chess.gaviota.NativeTablebase.open_directory()` -> `add_directory()`
+  * `chess.gaviota.PythonTablebase.open_directory()` -> `add_directory()`
 
 Bugfixes:
 
@@ -61,7 +61,7 @@ New features:
 
 * `chess.SquareSet` now extends `collections.abc.MutableSet` and can be
   initialized from iterables.
-* `Board.apply_transform(f)` and `Board.transform(f)` can apply bitboard
+* `board.apply_transform(f)` and `board.transform(f)` can apply bitboard
   transformations to a position. Examples:
   `chess.flip_{vertical,horizontal,diagonal,anti_diagonal}`.
 * `chess.pgn.GameNode.mainline()` iterates over nodes of the mainline.
@@ -73,7 +73,7 @@ New features:
   be overwritten to deal with non-standard input formats.
 * `chess.pgn`: Visitors can advise the parser to skip games or variations by
   returning the special value `chess.pgn.SKIP` from `begin_game()`,
-  `end_headers()` or `begin_variation()`. This is treated as a hint.
+  `end_headers()` or `begin_variation()`. This is only a hint.
   The corresponding `end_game()` or `end_variation()` will still be called.
 * Added `chess.svg.MARGIN`.
 
