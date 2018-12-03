@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming changes
-----------------
+New in v0.24.0
+--------------
 
 This release **drops support for Python 2**. The *0.23.x* branch will be
 maintained for one more month.
