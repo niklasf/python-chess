@@ -327,12 +327,12 @@ class GameNode:
 
     def accept(self, visitor, *, _parent_board=None):
         """
-        Traverse game nodes in PGN order using the given *visitor*. Starts with
-        the move leading to this node. Returns the visitor result.
+        Traverses game nodes in PGN order using the given *visitor*. Starts with
+        the move leading to this node. Returns the *visitor* result.
         """
         board = self.parent.board() if _parent_board is None else _parent_board
 
-        # First visit the move that leads to this node.
+        # First, visit the move that leads to this node.
         self._accept_node(board, visitor)
 
         # Then visit sidelines.
@@ -355,7 +355,7 @@ class GameNode:
     def accept_subgame(self, visitor):
         """
         Traverses headers and game nodes in PGN order, as if the game was
-        starting after this node. Returns the visitor result.
+        starting after this node. Returns the *visitor* result.
         """
         if visitor.begin_game() is not SKIP:
             game = self.root()
@@ -415,7 +415,7 @@ class Game(GameNode):
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the
+        Sets up a specific starting position. This sets (or resets) the
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
         """
         try:
@@ -443,7 +443,7 @@ class Game(GameNode):
     def accept(self, visitor):
         """
         Traverses the game in PGN order using the given *visitor*. Returns
-        the visitor result.
+        the *visitor* result.
         """
         if visitor.begin_game() is not SKIP:
             for tagname, tagvalue in self.headers.items():
@@ -655,7 +655,7 @@ class BaseVisitor:
         pass
 
     def begin_headers(self):
-        """Called at the start of game headers."""
+        """Called before visiting game headers."""
         pass
 
     def visit_header(self, tagname, tagvalue):
@@ -663,7 +663,7 @@ class BaseVisitor:
         pass
 
     def end_headers(self):
-        """Called at the end of the game headers."""
+        """Called after visiting game headers."""
         pass
 
     def parse_san(self, board, san):

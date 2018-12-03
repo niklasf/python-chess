@@ -87,7 +87,7 @@ holds general information, such as game headers.
         :annotation: = ''
 
         A comment that goes behind the move leading to this node. Comments
-        that occur before any move are assigned to the root node.
+        that occur before any moves are assigned to the root node.
 
     .. py:attribute:: starting_comment
         :annotation: = ''
