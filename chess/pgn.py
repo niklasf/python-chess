@@ -327,12 +327,12 @@ class GameNode:
 
     def accept(self, visitor, *, _parent_board=None):
         """
-        Traverse game nodes in PGN order using the given *visitor*. Starts with
-        the move leading to this node. Returns the visitor result.
+        Traverses game nodes in PGN order using the given *visitor*. Starts with
+        the move leading to this node. Returns the *visitor* result.
         """
         board = self.parent.board() if _parent_board is None else _parent_board
 
-        # First visit the move that leads to this node.
+        # First, visit the move that leads to this node.
         self._accept_node(board, visitor)
 
         # Then visit sidelines.
@@ -355,7 +355,7 @@ class GameNode:
     def accept_subgame(self, visitor):
         """
         Traverses headers and game nodes in PGN order, as if the game was
-        starting after this node. Returns the visitor result.
+        starting after this node. Returns the *visitor* result.
         """
         if visitor.begin_game() is not SKIP:
             game = self.root()
@@ -406,16 +406,16 @@ class Game(GameNode):
 
     def board(self, *, _cache=False):
         """
-        Gets the starting position of the game.
+        Gets the starting position of a game.
 
         Unless the ``FEN`` header tag is set, this is the default starting
-        position (for the ``Variant``).
+        position for the ``Variant``.
         """
         return self.headers.board()
 
     def setup(self, board):
         """
-        Setup a specific starting position. This sets (or resets) the
+        Sets up a specific starting position. This sets or resets the
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
         """
         try:
@@ -442,8 +442,8 @@ class Game(GameNode):
 
     def accept(self, visitor):
         """
-        Traverses the game in PGN order using the given *visitor*. Returns
-        the visitor result.
+        Traverses a game in PGN order using the given *visitor*. Returns
+        the *visitor* result.
         """
         if visitor.begin_game() is not SKIP:
             for tagname, tagvalue in self.headers.items():
@@ -477,7 +477,7 @@ class Game(GameNode):
 
     @classmethod
     def without_tag_roster(cls):
-        """Creates an empty game without the default 7 tag roster."""
+        """Creates an empty game without the default 7-tag roster."""
         return cls(headers={})
 
     def __repr__(self):
@@ -663,7 +663,7 @@ class BaseVisitor:
         pass
 
     def end_headers(self):
-        """Called at the end of the game headers."""
+        """Called at the end of game headers."""
         pass
 
     def parse_san(self, board, san):
@@ -686,8 +686,8 @@ class BaseVisitor:
         """
         Called for each move.
 
-        *board* is the board state before the move. The board state must be
-        restored before the traversal continues.
+        *board* is the board state before a move. The board state must be
+        restored before traversal continues.
         """
         pass
 
@@ -702,7 +702,7 @@ class BaseVisitor:
     def begin_variation(self):
         """
         Called at the start of a new variation. It is not called for the
-        mainline of the game.
+        mainline of a game.
         """
         pass
 
