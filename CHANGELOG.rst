@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+New in v0.23.11
+---------------
+
+Bugfixes:
+
+* `chess.pgn.GameNode.uci()` was always raising an exception.
+* Fix `chess.Board.set_epd()` and `chess.Board.from_epd()` with semicolon
+  in string operand. Thanks @jdart1.
+
 New in v0.23.10
 ---------------
 
