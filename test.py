@@ -928,6 +928,18 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["pv"][1], chess.Move.from_uci("g8f8"))
         self.assertEqual(operations["pv"][2], chess.Move.from_uci("h7f7"))
 
+        # Test EPD with semicolon.
+        board = chess.Board()
+        operations = board.set_epd("r2qk2r/ppp1b1pp/2n1p3/3pP1n1/3P2b1/2PB1NN1/PP4PP/R1BQK2R w KQkq - bm Nxg5; c0 \"ERET.095; Queen sacrifice\";")
+        self.assertEqual(operations["bm"], [chess.Move.from_uci("f3g5")])
+        self.assertEqual(operations["c0"], "ERET.095; Queen sacrifice")
+
+        # Test an EPD with string escaping.
+        board = chess.Board()
+        operations = board.set_epd(r"""4k3/8/8/8/8/8/8/4K3 w - - a "foo\"bar";; ; b "foo\\\\";""")
+        self.assertEqual(operations["a"], "foo\"bar")
+        self.assertEqual(operations["b"], "foo\\\\")
+
     def test_null_moves(self):
         self.assertEqual(str(chess.Move.null()), "0000")
         self.assertEqual(chess.Move.null().uci(), "0000")
