@@ -102,6 +102,7 @@ MOVETEXT_REGEX = re.compile(r"""
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
 
+SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
@@ -1084,10 +1085,21 @@ def read_game(handle, *, Visitor=GameModelCreator):
         in_comment = False
 
         while line:
-            if not in_comment and line.isspace():
-                break
-            elif (not in_comment and "{" in line) or (in_comment and "}" in line):
-                in_comment = line.rfind("{") > line.rfind("}")
+            if not in_comment:
+                if line.isspace():
+                    break
+                elif line.startswith("%"):
+                    line = handle.readline()
+                    continue
+
+            for match in SKIP_MOVETEXT_REGEX.finditer(line):
+                token = match.group(0)
+                if token == "{":
+                    in_comment = True
+                elif not in_comment and token == ";":
+                    break
+                elif token == "}":
+                    in_comment = False
 
             line = handle.readline()
 

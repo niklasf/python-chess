@@ -27,7 +27,7 @@ import sys
 import textwrap
 import threading
 import unittest
-from io import StringIO
+import io
 
 import chess
 import chess.gaviota
@@ -1805,7 +1805,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
-        virtual_file = StringIO()
+        virtual_file = io.StringIO()
         exporter = chess.pgn.FileExporter(virtual_file)
         game.accept(exporter)
         self.assertEqual(virtual_file.getvalue(), pgn + "\n\n")
@@ -1892,7 +1892,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(sixth_game.headers["Result"], "1-0")
 
     def test_comment_at_eol(self):
-        pgn = StringIO(textwrap.dedent(r"""\
+        pgn = io.StringIO(textwrap.dedent(r"""\
             1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
             /\ Ne7, c6}) *"""))
 
@@ -1910,7 +1910,7 @@ class PgnTestCase(unittest.TestCase):
     def test_promotion_without_equals(self):
         # Example game from https://github.com/rozim/ChessData as originally
         # reported.
-        pgn = StringIO(textwrap.dedent("""\
+        pgn = io.StringIO(textwrap.dedent("""\
             [Event "It (open)"]
             [Site "Aschach (Austria)"]
             [Date "2011.12.26"]
@@ -1945,7 +1945,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(last_node.move.uci(), "b2b1q")
 
     def test_chess960_without_fen(self):
-        pgn = StringIO(textwrap.dedent("""\
+        pgn = io.StringIO(textwrap.dedent("""\
             [Variant "Chess960"]
 
             1. e4 *
@@ -1956,7 +1956,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_variation_stack(self):
         # Survive superfluous closing brackets.
-        pgn = StringIO("1. e4 (1. d4))) !? *")
+        pgn = io.StringIO("1. e4 (1. d4))) !? *")
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
@@ -1967,7 +1967,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(len(game.errors), 2)
 
         # Survive superfluous opening brackets.
-        pgn = StringIO("((( 1. c4 *")
+        pgn = io.StringIO("((( 1. c4 *")
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
@@ -1975,17 +1975,17 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(len(game.errors), 3)
 
     def test_game_starting_comment(self):
-        pgn = StringIO("{ Game starting comment } 1. d3")
+        pgn = io.StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.comment, "Game starting comment")
         self.assertEqual(game[0].san(), "d3")
 
-        pgn = StringIO("{ Empty game, but has a comment }")
+        pgn = io.StringIO("{ Empty game, but has a comment }")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.comment, "Empty game, but has a comment")
 
     def test_game_starting_variation(self):
-        pgn = StringIO(textwrap.dedent("""\
+        pgn = io.StringIO(textwrap.dedent("""\
             {Start of game} 1. e4 ({Start of variation} 1. d4) 1... e5
             """))
 
@@ -2003,7 +2003,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(node.starting_comment, "Start of variation")
 
     def test_annotation_symbols(self):
-        pgn = StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
+        pgn = io.StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
 
         node = game.variation(chess.Move.from_uci("b2b4"))
@@ -2103,6 +2103,39 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(sixth_game.headers["Event"], "IBM Man-Machine, New York USA")
             self.assertEqual(sixth_game.headers["Site"], "06")
 
+    def test_tricky_skip_game(self):
+        raw_pgn = textwrap.dedent("""
+            1. a3 ; { ; }
+
+            1. b3 { ;
+            % {
+            1... g6 ; {
+
+            1. c3 { }
+            % {
+            1... f6 ; { } {{{
+
+            1. d3""")
+        pgn = io.StringIO(raw_pgn)
+
+        offsets = []
+        while True:
+            offset = pgn.tell()
+            if chess.pgn.skip_game(pgn):
+                offsets.append(offset)
+            else:
+                break
+
+        self.assertEqual(len(offsets), 3)
+
+        pgn.seek(offsets[0])
+        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("a2a3"))
+        pgn.seek(offsets[1])
+        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("b2b3"))
+        pgn.seek(offsets[2])
+        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("d2d3"))
+        self.assertEqual(chess.pgn.read_game(pgn), None)
+
     def test_read_headers(self):
         with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
             offsets = []
@@ -2144,12 +2177,12 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(str(game), expected)
 
     def test_result_termination_marker(self):
-        pgn = StringIO("1. d4 1-0")
+        pgn = io.StringIO("1. d4 1-0")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.headers["Result"], "1-0")
 
     def test_missing_setup_tag(self):
-        pgn = StringIO(textwrap.dedent("""\
+        pgn = io.StringIO(textwrap.dedent("""\
             [Event "Test position"]
             [Site "Black to move "]
             [Date "1997.10.26"]
@@ -2190,7 +2223,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["Result"], "1-0")
 
     def test_errors(self):
-        pgn = StringIO("1. e4 Qa1 e5 2. Qxf8")
+        pgn = io.StringIO("1. e4 Qa1 e5 2. Qxf8")
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
@@ -2226,12 +2259,12 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(str(game.mainline_moves()), "1. d3 Nf6 2. e4")
 
     def test_lan(self):
-        pgn = StringIO("1. e2-e4")
+        pgn = io.StringIO("1. e2-e4")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.end().move, chess.Move.from_uci("e2e4"))
 
     def test_variants(self):
-        pgn = StringIO(textwrap.dedent("""\
+        pgn = io.StringIO(textwrap.dedent("""\
             [Variant "Atomic"]
             [FEN "8/8/1b6/8/3Nk3/4K3/8/8 w - - 0 1"]
 
@@ -2261,24 +2294,24 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(board.fen(), "5rk1/2p1R2p/p5pb/2PPR3/8/2Q2B2/5P2/4K2q w - - 3 43")
 
     def test_wierd_header(self):
-        pgn = StringIO(r"""[Black "[=0040.34h5a4]"]""")
+        pgn = io.StringIO(r"""[Black "[=0040.34h5a4]"]""")
         game = chess.pgn.read_game(pgn)
         self.assertEqual(game.headers["Black"], "[=0040.34h5a4]")
 
     def test_semicolon_comment(self):
-        pgn = StringIO("1. e4 ; e5")
+        pgn = io.StringIO("1. e4 ; e5")
         game = chess.pgn.read_game(pgn)
         node = game.variations[0]
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
         self.assertTrue(node.is_end())
 
     def test_empty_game(self):
-        pgn = StringIO(" \n\n   ")
+        pgn = io.StringIO(" \n\n   ")
         game = chess.pgn.read_game(pgn)
         self.assertTrue(game is None)
 
     def test_no_movetext(self):
-        pgn = StringIO(textwrap.dedent("""
+        pgn = io.StringIO(textwrap.dedent("""
             [Event "A"]
 
 
@@ -2293,7 +2326,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(chess.pgn.read_game(pgn) is None)
 
     def test_subgame(self):
-        pgn = StringIO("1. d4 d5 (1... Nf6 2. c4 (2. Nf3 g6 3. g3))")
+        pgn = io.StringIO("1. d4 d5 (1... Nf6 2. c4 (2. Nf3 g6 3. g3))")
         game = chess.pgn.read_game(pgn)
         node = game.variations[0].variations[1]
         subgame = node.accept_subgame(chess.pgn.GameModelCreator())
