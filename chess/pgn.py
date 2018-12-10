@@ -1037,21 +1037,25 @@ def read_game(handle, *, Visitor=GameModelCreator):
     skipping_game = False
     headers = None
 
-    # Skip leading empty lines and comments.
+    # Ignore leading empty lines and comments.
     line = handle.readline()
     while line.isspace() or line.startswith("%") or line.startswith(";"):
         line = handle.readline()
 
     # Parse game headers.
     while line:
-        # Skip comments.
+        # Ignore comments.
         if line.startswith("%") or line.startswith(";"):
             line = handle.readline()
             continue
 
+        # First token of the game.
         if not found_game:
             found_game = True
             skipping_game = visitor.begin_game() is SKIP
+            if not skipping_game:
+                visitor.begin_headers()
+                headers = Headers({})
 
         if not line.startswith("["):
             break
@@ -1059,10 +1063,6 @@ def read_game(handle, *, Visitor=GameModelCreator):
         if not skipping_game:
             tag_match = TAG_REGEX.match(line)
             if tag_match:
-                if headers is None:
-                    headers = Headers({})
-                    visitor.begin_headers()
-
                 headers[tag_match.group(1)] = tag_match.group(2)
                 visitor.visit_header(tag_match.group(1), tag_match.group(2))
             else:
@@ -1073,10 +1073,10 @@ def read_game(handle, *, Visitor=GameModelCreator):
     if not found_game:
         return None
 
-    if headers is not None:
+    if not skipping_game:
         skipping_game = visitor.end_headers() is SKIP
 
-    # Skip a single empty line after headers.
+    # Ignore single empty line after headers.
     if line.isspace():
         line = handle.readline()
 
@@ -1106,16 +1106,14 @@ def read_game(handle, *, Visitor=GameModelCreator):
         visitor.end_game()
         return visitor.result()
 
-    # Chess variant and initial position.
-    if headers is None:
-        headers = Headers({})
-
+    # Chess variant.
     try:
         VariantBoard = headers.variant()
     except ValueError as error:
         visitor.handle_error(error)
         VariantBoard = chess.Board
 
+    # Initial position.
     fen = headers.get("FEN", VariantBoard.starting_fen)
     try:
         board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
@@ -1128,8 +1126,8 @@ def read_game(handle, *, Visitor=GameModelCreator):
     while line:
         read_next_line = True
 
+        # Ignore comments.
         if line.startswith("%") or line.startswith(";"):
-            # Ignore comments.
             line = handle.readline()
             continue
 
