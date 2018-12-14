@@ -1408,9 +1408,6 @@ class Board(BaseBoard):
 
         self.chess960 = chess960
 
-        self.pseudo_legal_moves = PseudoLegalMoveGenerator(self)
-        self.legal_moves = LegalMoveGenerator(self)
-
         self.move_stack = []
         self._stack = []
 
@@ -1420,6 +1417,14 @@ class Board(BaseBoard):
             self.reset()
         else:
             self.set_fen(fen)
+
+    @property
+    def pseudo_legal_moves(self):
+        return PseudoLegalMoveGenerator(self)
+
+    @property
+    def legal_moves(self):
+        return LegalMoveGenerator(self)
 
     def reset(self):
         """Restores the starting position."""
