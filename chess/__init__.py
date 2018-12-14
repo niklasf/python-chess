@@ -1412,7 +1412,7 @@ class Board(BaseBoard):
         self.legal_moves = LegalMoveGenerator(self)
 
         self.move_stack = []
-        self.stack = []
+        self._stack = []
 
         if fen is None:
             self.clear()
@@ -1460,13 +1460,13 @@ class Board(BaseBoard):
     def clear_stack(self):
         """Clears the move stack."""
         del self.move_stack[:]
-        del self.stack[:]
+        del self._stack[:]
 
     def root(self):
         """Returns a copy of the root position."""
-        if self.stack:
+        if self._stack:
             board = type(self)(None, chess960=self.chess960)
-            self.stack[0].restore(board)
+            self._stack[0].restore(board)
             return board
         else:
             return self.copy(stack=False)
@@ -1915,7 +1915,7 @@ class Board(BaseBoard):
         # Push move and remember board state.
         move = self._to_chess960(move)
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
-        self.stack.append(_BoardState(self))
+        self._stack.append(_BoardState(self))
 
         # Reset en passant square.
         ep_square = self.ep_square
@@ -2014,7 +2014,7 @@ class Board(BaseBoard):
         :raises: :exc:`IndexError` if the stack is empty.
         """
         move = self.move_stack.pop()
-        self.stack.pop().restore(self)
+        self._stack.pop().restore(self)
         return move
 
     def peek(self):
@@ -2805,7 +2805,7 @@ class Board(BaseBoard):
         Returns valid castling rights filtered from
         :data:`~chess.Board.castling_rights`.
         """
-        if self.stack:
+        if self._stack:
             # Castling rights do not change in a game, so we can assume them to
             # be filtered already.
             return self.castling_rights
@@ -3299,7 +3299,7 @@ class Board(BaseBoard):
 
         if stack:
             board.move_stack = copy.deepcopy(self.move_stack)
-            board.stack = copy.copy(self.stack)
+            board._stack = copy.copy(self._stack)
 
         return board
 
