@@ -62,26 +62,26 @@ holds general information, such as game headers.
 
     .. py:attribute:: errors
 
-        A list of illegal or ambiguous move errors encountered while parsing
-        the game.
+        A list of errors (such as illegal or ambiguous moves) encountered while
+        parsing the game.
 
 .. autoclass:: chess.pgn.GameNode
     :members:
 
     .. py:attribute:: parent
 
-        The parent node or `None` if this is the root node of the game.
+        The parent node or ``None`` if this is the root node of the game.
 
     .. py:attribute:: move
 
-        The move leading to this node or `None` if this is the root node of the
+        The move leading to this node or ``None`` if this is the root node of the
         game.
 
     .. py:attribute:: nags
         :annotation: = set()
 
         A set of NAGs as integers. NAGs always go behind a move, so the root
-        node of the game can have none.
+        node of the game will never have NAGs.
 
     .. py:attribute:: comment
         :annotation: = ''

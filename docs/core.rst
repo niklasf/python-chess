@@ -12,7 +12,7 @@ Constants for the side to move or the color of a piece.
 .. py:data:: chess.BLACK
     :annotation: = False
 
-You can get the opposite color using `not color`.
+You can get the opposite *color* using ``not color``.
 
 Piece types
 -----------
@@ -126,7 +126,7 @@ Board
         >>> import chess
         >>>
         >>> board = chess.Board()
-        >>> bool(board.castling_rights & chess.BB_H1) # White can castle with the h1 rook
+        >>> bool(board.castling_rights & chess.BB_H1)  # White can castle with the h1 rook
         True
 
         To add a specific square:

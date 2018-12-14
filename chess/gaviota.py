@@ -1530,7 +1530,10 @@ class PythonTablebase:
         self.block_age = 0
 
     def add_directory(self, directory):
-        """Loads *.gtb.cp4* tables from a directory."""
+        """
+        Adds *.gtb.cp4* tables from a directory. The relevant files are lazily
+        opened when the tablebase is actually probed.
+        """
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
             raise IOError("not a directory: {}".format(repr(directory)))
@@ -1564,6 +1567,8 @@ class PythonTablebase:
             :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
             :func:`~chess.gaviota.PythonTablebase.get_dtm()` if you prefer
             to get ``None`` instead of an exception.
+
+            Note that probing a corrupted table file is undefined behavior.
         """
         # Can not probe positions with castling rights.
         if board.castling_rights:
@@ -1644,6 +1649,8 @@ class PythonTablebase:
             :exc:`chess.gaviota.MissingTableError`) if the probe fails. Use
             :func:`~chess.gaviota.PythonTablebase.get_wdl()` if you prefer
             to get ``None`` instead of an exception.
+
+            Note that probing a corrupted table file is undefined behavior.
         """
         dtm = self.probe_dtm(board)
 
@@ -2094,7 +2101,7 @@ def open_tablebase(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     The shared library has global state and caches, so only one instance can
     be open at a time.
 
-    Second pure Python probing code is tried.
+    Second, pure Python probing code is tried.
     """
     try:
         if LibraryLoader:

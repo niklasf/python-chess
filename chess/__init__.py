@@ -1439,7 +1439,7 @@ class Board(BaseBoard):
         """
         Clears the board.
 
-        Resets move stacks and move counters. The side to move is white. There
+        Resets move stack and move counters. The side to move is white. There
         are no rooks or kings, so castling rights are removed.
 
         In order to be in a valid :func:`~chess.Board.status()` at least kings

@@ -1005,7 +1005,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
 
     By using text mode, the parser does not need to handle encodings. It is the
     caller's responsibility to open the file with the correct encoding.
-    PGN files are ASCII or UTF-8 most of the time. So, the following should
+    PGN files are usually ASCII or UTF-8 encoded. So, the following should
     cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
@@ -1018,7 +1018,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     >>> game = chess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of
-    the file. (Of course, blank lines in comments are possible.)
+    the file. (Of course, blank lines in comments are possible).
 
     According to the PGN standard, at least the usual 7 header tags are
     required for a valid game. This parser also handles games without any

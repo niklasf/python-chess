@@ -1483,11 +1483,14 @@ class Tablebase:
 
     def add_directory(self, directory, *, load_wdl=True, load_dtz=True):
         """
-        Loads tables from a directory.
+        Adds tables from a directory.
 
         By default all available tables with the correct file names
         (e.g. WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
-        are loaded.
+        are added.
+
+        The relevant files are lazily opened when the tablebase is actually
+        probed.
 
         Returns the number of table files that were found.
         """
@@ -1651,6 +1654,8 @@ class Tablebase:
             be found in the tablebase. Use
             :func:`~chess.syzygy.Tablebase.get_wdl()` if you prefer to get
             ``None`` instead of an exception.
+
+            Note that probing corrupted table files is undefined behavior.
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
@@ -1846,6 +1851,8 @@ class Tablebase:
             be found in the tablebase. Use
             :func:`~chess.syzygy.Tablebase.get_dtz()` if you prefer to get
             ``None`` instead of an exception.
+
+            Note that probing corrupted table files is undefined behavior.
         """
         v = self.probe_dtz_no_ep(board)
 
