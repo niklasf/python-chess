@@ -748,6 +748,9 @@ class GameModelCreator(BaseVisitor):
         self.starting_comment = ""
         self.in_variation = False
 
+    def begin_headers(self):
+        return self.game.headers
+
     def visit_header(self, tagname, tagvalue):
         self.game.headers[tagname] = tagvalue
 
@@ -803,6 +806,7 @@ class HeaderCreator(BaseVisitor):
 
     def begin_headers(self):
         self.headers = Headers({})
+        return self.headers
 
     def visit_header(self, tagname, tagvalue):
         self.headers[tagname] = tagvalue
@@ -1036,6 +1040,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     found_game = False
     skipping_game = False
     headers = None
+    managed_headers = None
 
     # Ignore leading empty lines and comments.
     line = handle.readline()
@@ -1054,8 +1059,10 @@ def read_game(handle, *, Visitor=GameModelCreator):
             found_game = True
             skipping_game = visitor.begin_game() is SKIP
             if not skipping_game:
-                visitor.begin_headers()
-                headers = Headers({})
+                managed_headers = visitor.begin_headers()
+                if not isinstance(managed_headers, Headers):
+                    managed_headers = None
+                    headers = Headers({})
 
         if not line.startswith("["):
             break
@@ -1063,8 +1070,9 @@ def read_game(handle, *, Visitor=GameModelCreator):
         if not skipping_game:
             tag_match = TAG_REGEX.match(line)
             if tag_match:
-                headers[tag_match.group(1)] = tag_match.group(2)
                 visitor.visit_header(tag_match.group(1), tag_match.group(2))
+                if headers is not None:
+                    headers[tag_match.group(1)] = tag_match.group(2)
             else:
                 break
 
@@ -1107,6 +1115,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
         return visitor.result()
 
     # Chess variant.
+    headers = managed_headers if headers is None else headers
     try:
         VariantBoard = headers.variant()
     except ValueError as error:
