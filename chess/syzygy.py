@@ -1516,9 +1516,6 @@ class Tablebase:
 
         return num
 
-    # TODO: Deprecated
-    open_directory = add_directory
-
     def probe_wdl_table(self, board):
         # Test for variant end.
         if board.is_variant_win():
@@ -1937,7 +1934,3 @@ def open_tablebase(directory, *, load_wdl=True, load_dtz=True, max_fds=128, Vari
     tables = Tablebase(max_fds=max_fds, VariantBoard=VariantBoard)
     tables.add_directory(directory, load_wdl=load_wdl, load_dtz=load_dtz)
     return tables
-
-# TODO: Deprecated
-open_tablebases = open_tablebase
-Tablebases = Tablebase

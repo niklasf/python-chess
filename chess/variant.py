@@ -849,7 +849,3 @@ def find_variant(name):
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
     raise ValueError("unsupported variant: {}".format(name))
-
-
-# TODO: Deprecated
-BB_HILL = chess.BB_CENTER

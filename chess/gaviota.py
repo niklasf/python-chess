@@ -1541,9 +1541,6 @@ class PythonTablebase:
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
 
-    # TODO: Deprecated
-    open_directory = add_directory
-
     def probe_dtm(self, board):
         """
         Probes for depth to mate information.
@@ -1945,9 +1942,6 @@ class NativeTablebase:
         self.paths.append(directory)
         self._tb_restart()
 
-    # TODO: Deprecated
-    open_directory = add_directory
-
     def _tb_restart(self):
         self.c_paths = (ctypes.c_char_p * len(self.paths))()
         self.c_paths[:] = [path.encode("utf-8") for path in self.paths]
@@ -2112,10 +2106,3 @@ def open_tablebase(directory, *, libgtb=None, LibraryLoader=ctypes.cdll):
     tables = PythonTablebase()
     tables.add_directory(directory)
     return tables
-
-
-# TODO: Deprecated
-open_tablebases_native = open_tablebase_native
-open_tablebases = open_tablebase
-PythonTablebases = PythonTablebase
-NativeTablebases = NativeTablebase
