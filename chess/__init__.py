@@ -1690,10 +1690,11 @@ class Board(BaseBoard):
         :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`
         or a :func:`variant end condition <chess.Board.is_variant_end()>`.
 
-        The game is not considered to be over by
-        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`
-        or the :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>`,
-        unless *claim_draw* is given.
+        The game is not considered to be over by the
+        :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>` or
+        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`,
+        unless *claim_draw* is given. Note that checking the latter can be
+        slow.
         """
         # Seventyfive-move rule.
         if self.is_seventyfive_moves():
@@ -1838,6 +1839,8 @@ class Board(BaseBoard):
         """
         Checks if the side to move can claim a draw by the fifty-move rule or
         by threefold repetition.
+
+        Note that checking the latter can be slow.
         """
         return self.can_claim_fifty_moves() or self.can_claim_threefold_repetition()
 
@@ -1859,6 +1862,10 @@ class Board(BaseBoard):
         Draw by threefold repetition can be claimed if the position on the
         board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.
+
+        Note that checking this can be slow: In the worst case
+        scenario every legal move has to be tested and the entire game has to
+        be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
         transpositions = collections.Counter()
