@@ -55,12 +55,12 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         LOGGER.debug("%s: >> %s", self, line)
 
         if self.command:
-            self.command.line_received(line)
+            self.command._line_received(self, line)
 
     async def communicate(self, command):
         previous_command = self.command
         self.command = command
-        self.command.prepare(self, previous_command)
+        self.command._prepare(self, previous_command)
         return await self.command.idle
 
     def __repr__(self):
@@ -68,32 +68,51 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         return "<{} at {} (pid={})>".format(type(self).__name__, hex(id(self)), pid)
 
 
-class Command:
+class BaseCommand:
     def __init__(self, loop=None):
+        self._previous_command = None
+
         self.loop = loop or asyncio.get_running_loop()
+        self.sent = self.loop.create_future()
+        self.result = self.loop.create_future()
         self.idle = self.loop.create_future()
-        self.previous_command = None
 
-    def prepare(self, engine, previous_command):
-        self.previous_command = previous_command
-        if self.previous_command:
-            self.previous_command.idle.add_done_callback(lambda _: self.start(engine))
-            self.previous_command.cancel()
+    def _prepare(self, engine, previous_command):
+        def after_previous_command(_):
+            assert self._previous_command is None or self._previous_command.idle.done()
+            self._previous_command = None
+            self.send(engine)
+
+        self._previous_command = previous_command
+        if self._previous_command:
+            self._previous_command.idle.add_done_callback(after_previous_command)
+            self._previous_command.cancel(engine)
         else:
-            self.start(engine)
+            after_previous_command(None)
 
-    def start(self, engine):
-        self.previous_command = None
-        engine.send_line("isready")
+    def _line_received(self, engine, line):
+        if self._previous_command:
+            self._previous_command._line_received(engine, line)
+        else:
+            self.line_received(engine, line)
 
-    def cancel(self):
+    def send(self, engine):
         pass
 
-    def line_received(self, line):
-        if self.previous_command:
-            return self.previous_command.line_received(line)
+    def cancel(self, engine):
+        pass
 
+    def line_received(self, engine, line):
+        pass
+
+
+class IsReady(BaseCommand):
+    def send(self, engine):
+        engine.send_line("isready")
+
+    def line_received(self, engine, line):
         if line == "readyok":
+            self.result.set_result(None)
             self.idle.set_result(None)
 
 
@@ -110,10 +129,10 @@ async def popen_uci(cmd):
 async def main():
     transport, engine = await popen_uci("stockfish")
 
-    result = await engine.communicate(Command())
+    result = await engine.communicate(IsReady())
     print("Command 1:", result)
 
-    result = await engine.communicate(Command())
+    result = await engine.communicate(IsReady())
     print("Command 2:", result)
 
     await engine.returncode
