@@ -49,7 +49,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
                 self.error_line_received(line)
 
     def error_line_received(self, line):
-        LOGGER.warn("%s: stderr >> %s", self, line)
+        LOGGER.warning("%s: stderr >> %s", self, line)
 
     def line_received(self, line):
         LOGGER.debug("%s: >> %s", self, line)
@@ -61,7 +61,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         previous_command = self.command
         self.command = command
         self.command._prepare(self, previous_command)
-        return await self.command.idle
+        return await self.command.result
 
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
@@ -71,9 +71,9 @@ class EngineProtocol(asyncio.SubprocessProtocol):
 class BaseCommand:
     def __init__(self, loop=None):
         self._previous_command = None
+        self._started = False
 
         self.loop = loop or asyncio.get_running_loop()
-        self.sent = self.loop.create_future()
         self.result = self.loop.create_future()
         self.idle = self.loop.create_future()
 
@@ -81,10 +81,11 @@ class BaseCommand:
         def after_previous_command(_):
             assert self._previous_command is None or self._previous_command.idle.done()
             self._previous_command = None
+            self._started = True
             self.send(engine)
 
-        self._previous_command = previous_command
-        if self._previous_command:
+        if previous_command and previous_command._started:
+            self._previous_command = previous_command
             self._previous_command.idle.add_done_callback(after_previous_command)
             self._previous_command.cancel(engine)
         else:
@@ -114,6 +115,8 @@ class IsReady(BaseCommand):
         if line == "readyok":
             self.result.set_result(None)
             self.idle.set_result(None)
+        else:
+            LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
 
 class UciProtocol(EngineProtocol):
@@ -129,11 +132,7 @@ async def popen_uci(cmd):
 async def main():
     transport, engine = await popen_uci("stockfish")
 
-    result = await engine.communicate(IsReady())
-    print("Command 1:", result)
-
-    result = await engine.communicate(IsReady())
-    print("Command 2:", result)
+    await engine.communicate(IsReady())
 
     await engine.returncode
 
