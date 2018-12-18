@@ -38,10 +38,10 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         if exc is None:
             exc = EngineTerminatedError("engine process died (exit code: {})".format(code))
         if self.command is not None:
-            self.command._terminate(exc)
+            self.command._engine_terminated(self, exc)
             self.command = None
         if self.next_command is not None:
-            self.next_command._terminate(exc)
+            self.next_command._engine_terminated(self, exc)
             self.next_command = None
 
         self.returncode.set_result(code)
@@ -128,7 +128,7 @@ class BaseCommand:
         self.result = self.loop.create_future()
         self.finished = self.loop.create_future()
 
-    def _terminate(self, exc):
+    def _engine_terminated(self, engine, exc):
         if not self.result.done():
             self.result.set_exception(exc)
         if not self.finished.done():
@@ -137,6 +137,13 @@ class BaseCommand:
                 self.finished.result()
             except:
                 pass
+
+        if self.state in [CommandState.Active, CommandState.Cancelling]:
+            self.engine_terminated(self, engine, exc)
+
+    def set_finished(self):
+        assert self.state in [CommandState.Active, CommandState.Cancelling]
+        self.finished.set_result(None)
 
     def _cancel(self, engine):
         assert self.state == CommandState.Active
@@ -156,10 +163,6 @@ class BaseCommand:
         assert self.state in [CommandState.Active, CommandState.Cancelling]
         self.line_received(engine, line)
 
-    def set_finished(self):
-        assert self.state in [CommandState.Active, CommandState.Cancelling]
-        self.finished.set_result(None)
-
     def cancel(self, engine):
         pass
 
@@ -167,6 +170,9 @@ class BaseCommand:
         pass
 
     def line_received(self, engine, line):
+        pass
+
+    def engine_terminated(self, engine, exc):
         pass
 
 
@@ -238,7 +244,7 @@ def main():
     engine = SimpleEngine.popen_uci("stockfish")
     engine.isready()
     print("all good")
-    engine.quit()
+    engine.close()
 
 
 # TODO: Add unit tests instead
