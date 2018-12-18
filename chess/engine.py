@@ -7,6 +7,10 @@ import collections
 LOGGER = logging.getLogger(__name__)
 
 
+class EngineTerminatedError(RuntimeError):
+    pass
+
+
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
@@ -31,6 +35,17 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
         self.returncode.set_result(code)
+
+        # Terminate commands.
+        if exc is None:
+            exc = EngineTerminatedError("engine process dead (exit code: {})".format(code))
+        if self.command is not None:
+            self.command._terminate(exc)
+            self.command = None
+        if self.next_command is not None:
+            self.next_command._terminate(exc)
+            self.next_command = None
+
 
     def process_exited(self):
         LOGGER.debug("%s: Process exited", self)
@@ -67,11 +82,15 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         if self.next_command is not None:
             self.next_command.result.cancel()
             self.next_command.finished.cancel()
+            self.next_command._done()
 
         self.next_command = command
 
         def previous_command_finished(_):
-            self.command = self.next_command
+            if self.command is not None:
+                self.command._done()
+
+            self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
                 cmd.result.add_done_callback(lambda result: cmd._cancel(self) if cmd.result.cancelled() else None)
@@ -82,7 +101,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             previous_command_finished(None)
         elif not self.command.result.done():
             self.command.result.cancel()
-        else:
+        elif not self.command.result.cancelled():
             self.command._cancel(self)
 
         return await command.result
@@ -95,7 +114,8 @@ class EngineProtocol(asyncio.SubprocessProtocol):
 class CommandState(enum.Enum):
     New = 1
     Active = 2
-    Cancelled = 3
+    Cancelling = 3
+    Done = 4
 
 
 class BaseCommand:
@@ -106,22 +126,36 @@ class BaseCommand:
         self.result = self.loop.create_future()
         self.finished = self.loop.create_future()
 
+    def _terminate(self, exc):
+        if not self.result.done():
+            self.result.set_exception(exc)
+        if not self.finished.done():
+            self.finished.set_exception(exc)
+            try:
+                self.finished.result()
+            except:
+                pass
+
     def _cancel(self, engine):
         assert self.state == CommandState.Active
+        self.state = CommandState.Cancelling
         self.cancel(engine)
-        self.state = CommandState.Cancelled
 
     def _start(self, engine):
         assert self.state == CommandState.New
         self.state = CommandState.Active
         self.start(engine)
 
+    def _done(self):
+        assert self.state != CommandState.Done
+        self.state = CommandState.Done
+
     def _line_received(self, engine, line):
-        assert self.state == CommandState.Active
+        assert self.state in [CommandState.Active, CommandState.Cancelling]
         self.line_received(engine, line)
 
     def set_finished(self):
-        assert self.state == CommandState.Active
+        assert self.state in [CommandState.Active, CommandState.Cancelling]
         self.finished.set_result(None)
 
     def cancel(self, engine):
@@ -135,7 +169,7 @@ class BaseCommand:
 
 
 class IsReady(BaseCommand):
-    def send(self, engine):
+    def start(self, engine):
         engine.send_line("isready")
 
     def line_received(self, engine, line):
@@ -159,11 +193,15 @@ async def popen_uci(cmd):
 # TODO: Add unit tests instead
 async def main():
     transport, engine = await popen_uci("./engine.sh")
+    #transport, engine = await popen_uci("stockfish")
 
+    isready = IsReady()
     try:
-        await asyncio.wait_for(engine.communicate(IsReady()), 2)
+        await asyncio.wait_for(engine.communicate(isready), 2)
     except asyncio.TimeoutError:
         print("timed out")
+
+    print(isready.state)
 
     await engine.communicate(IsReady())
     print("got second readyok")
