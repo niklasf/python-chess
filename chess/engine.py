@@ -35,13 +35,11 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
         # Terminate commands.
-        if exc is None:
-            exc = EngineTerminatedError("engine process died (exit code: {})".format(code))
         if self.command is not None:
-            self.command._engine_terminated(self, exc)
+            self.command._engine_terminated(self, code)
             self.command = None
         if self.next_command is not None:
-            self.next_command._engine_terminated(self, exc)
+            self.next_command._engine_terminated(self, code)
             self.next_command = None
 
         self.returncode.set_result(code)
@@ -128,7 +126,9 @@ class BaseCommand:
         self.result = self.loop.create_future()
         self.finished = self.loop.create_future()
 
-    def _engine_terminated(self, engine, exc):
+    def _engine_terminated(self, engine, code):
+        exc = EngineTerminatedError("engine process died while running {} (exit code: {})".format(repr(self), code))
+
         if not self.result.done():
             self.result.set_exception(exc)
         if not self.finished.done():
@@ -141,7 +141,7 @@ class BaseCommand:
                 pass
 
         if self.state in [CommandState.Active, CommandState.Cancelling]:
-            self.engine_terminated(self, engine, exc)
+            self.engine_terminated(engine, exc)
 
     def set_finished(self):
         assert self.state in [CommandState.Active, CommandState.Cancelling]
@@ -256,7 +256,7 @@ class SimpleEngine:
 
 
 def main():
-    engine = SimpleEngine.popen_uci("stockfish")
+    engine = SimpleEngine.popen_uci("./engine.sh")
     engine.isready()
     print("all good")
     engine.close()
