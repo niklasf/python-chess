@@ -33,12 +33,11 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def connection_lost(self, exc):
         code = self.transport.get_returncode()
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
-
         self.returncode.set_result(code)
 
         # Terminate commands.
         if exc is None:
-            exc = EngineTerminatedError("engine process dead (exit code: {})".format(code))
+            exc = EngineTerminatedError("engine process died (exit code: {})".format(code))
         if self.command is not None:
             self.command._terminate(exc)
             self.command = None
@@ -76,6 +75,9 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             self.command._line_received(self, line)
 
     async def communicate(self, command):
+        if self.returncode.done():
+            raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
+
         if command.state != CommandState.New:
             raise RuntimeError("command with invalid state passed to communicate")
 
@@ -201,12 +203,10 @@ async def main():
     except asyncio.TimeoutError:
         print("timed out")
 
-    print(isready.state)
+    await engine.returncode
 
     await engine.communicate(IsReady())
     print("got second readyok")
-
-    await engine.returncode
 
 
 if __name__ == "__main__":
