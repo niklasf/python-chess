@@ -133,6 +133,8 @@ class BaseCommand:
             self.result.set_exception(exc)
         if not self.finished.done():
             self.finished.set_exception(exc)
+
+            # Prevent warning when the exception is not retrieved.
             try:
                 self.finished.result()
             except:
@@ -143,6 +145,8 @@ class BaseCommand:
 
     def set_finished(self):
         assert self.state in [CommandState.Active, CommandState.Cancelling]
+        if not self.result.done():
+            self.result.set_result(None)
         self.finished.set_result(None)
 
     def _cancel(self, engine):
@@ -216,9 +220,20 @@ class Go(BaseCommand):
         engine.send_line("stop")
 
 
+class _Uci(BaseCommand):
+    def start(self, engine):
+        engine.send_line("uci")
+
+    def line_received(self, engine, line):
+        if line == "uciok":
+            self.set_finished()
+
+
 async def popen_uci(cmd):
     loop = asyncio.get_running_loop()
-    return await loop.subprocess_shell(UciProtocol, cmd)
+    transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
+    await protocol.communicate(_Uci())
+    return transport, protocol
 
 
 class SimpleEngine:
