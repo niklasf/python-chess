@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import enum
+import collections
 
 
 LOGGER = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         }
 
         self.command = None
+        self.next_command = None
 
         self.returncode = self.loop.create_future()
 
@@ -62,10 +64,24 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         if command.state != CommandState.New:
             raise RuntimeError("command with invalid state passed to communicate")
 
-        previous_command = self.command
-        self.command = command
-        self.command._prepare(self, previous_command)
-        return await self.command.result
+        if self.next_command is not None:
+            self.next_command.result.cancel()
+            self.next_command.finished.cancel()
+
+        self.next_command = command
+
+        def previous_command_finished(_):
+            self.command = self.next_command
+            if self.command is not None:
+                self.command.finished.add_done_callback(previous_command_finished)
+                self.command.start()
+
+        if self.command is None:
+            previous_command_finished(None)
+        else:
+            self.command.cancel()
+
+        return await command.result
 
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
@@ -75,33 +91,66 @@ class EngineProtocol(asyncio.SubprocessProtocol):
 class CommandState(enum.Enum):
     New = 1
     Started = 2
-    Finished = 3
+    Cancelling = 3
+    Finished = 4
 
 
 class BaseCommand:
     def __init__(self, loop=None):
-        self._previous_command = None
         self.state = CommandState.New
 
         self.loop = loop or asyncio.get_running_loop()
         self.result = self.loop.create_future()
-        self.idle = self.loop.create_future()
+        self.finished = self.loop.create_future()
+
+    def _cancel(self, engine):
+        if self.state != CommandState.Finished:
+            assert self.state != CommandState.New
+            if self.result.done():
+            else:
+                self.result.cancel()
+            self.finished.set_result(None)
 
     def _prepare(self, engine, previous_command):
         assert self.state == CommandState.New
+        self.state = CommandState.Prepared
 
-        def after_previous_command(_):
+        def on_result(result):
+            if result.cancelled():
+                if self.state == CommandState.Sending:
+                    self.state = CommandState.Cancelling
+                    self.cancel()
+
+        def on_idle(_):
+            self.state = CommandState.Finished
+
+        def on_previous_command_idle(_):
             assert self._previous_command is None or self._previous_command.state == CommandState.Finished
             self._previous_command = None
-            if self.state == CommandState.New:
+
+            assert self.state == CommandState.New
+
+            if self.result.cancelled():
+                self.idle.set_result(None)
+            else:
                 self.state = CommandState.Started
                 self.send(engine)
 
+        self.result.add_done_callback(on_result)
+        self.idle.add_done_callback(on_idle)
+
+        if not self._previous_command or self._previous_command.state == CommandState.Finished:
+            on_previous_command_idle(None)
+        else:
+            self._previous_command.idle.add_done_callback(on_previous_command_idle)
+            self._previous_command.result.cancel()
+
+
         if not previous_command or previous_command.state == CommandState.Finished:
-            after_previous_command(None)
+            on_previous_command_idle(None)
         elif previous_command.state == CommandState.New:
-            previous_command.state = CommandState.Finished
             previous_command.result.cancel()
+            previous_command.state = CommandState.Finished
             after_previous_command(None)
         elif previous_command.state == CommandState.Started:
             self._previous_command = previous_command
@@ -109,11 +158,8 @@ class BaseCommand:
             self._previous_command.cancel(engine)
 
     def _line_received(self, engine, line):
-        if self._previous_command:
-            self._previous_command._line_received(engine, line)
-        elif self.state != CommandState.Finished:
-            assert self.state == CommandState.Started
-            self.line_received(engine, line)
+        assert self.state in [CommandState.Sending, CommandState.Cancelling]
+        self.line_received(engine, line)
 
     def send(self, engine):
         pass
