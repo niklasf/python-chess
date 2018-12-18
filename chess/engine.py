@@ -33,7 +33,6 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def connection_lost(self, exc):
         code = self.transport.get_returncode()
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
-        self.returncode.set_result(code)
 
         # Terminate commands.
         if exc is None:
@@ -45,6 +44,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             self.next_command._terminate(exc)
             self.next_command = None
 
+        self.returncode.set_result(code)
 
     def process_exited(self):
         LOGGER.debug("%s: Process exited", self)
@@ -215,8 +215,34 @@ async def popen_uci(cmd):
     return await loop.subprocess_shell(UciProtocol, cmd)
 
 
+class SimpleEngine:
+    def __init__(self, transport, protocol):
+        self.transport = transport
+        self.protocol = protocol
+
+    def isready(self):
+        self.protocol.loop.run_until_complete(self.protocol.isready())
+
+    def close(self):
+        self.transport.close()
+        self.protocol.loop.run_until_complete(self.protocol.returncode)
+
+    @classmethod
+    def popen_uci(cls, cmd):
+        loop = asyncio.get_event_loop()
+        transport, protocol = loop.run_until_complete(popen_uci(cmd))
+        return cls(transport, protocol)
+
+
+def main():
+    engine = SimpleEngine.popen_uci("stockfish")
+    engine.isready()
+    print("all good")
+    engine.quit()
+
+
 # TODO: Add unit tests instead
-async def main():
+async def async_main():
     import chess
 
     #transport, engine = await popen_uci("./engine.sh")
@@ -236,10 +262,12 @@ async def main():
     await engine.returncode
 
 
+logging.basicConfig(level=logging.DEBUG)
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    main()
+elif __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(main())
+        loop.run_until_complete(async_main())
     finally:
         loop.close()
