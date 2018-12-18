@@ -174,6 +174,9 @@ class UciProtocol(EngineProtocol):
     async def isready(self):
         return await self.communicate(IsReady())
 
+    async def play(self, board):
+        return await self.communicate(Go(board))
+
 
 class IsReady(BaseCommand):
     def start(self, engine):
@@ -188,6 +191,23 @@ class IsReady(BaseCommand):
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
 
+class Go(BaseCommand):
+    def __init__(self, board):
+        super().__init__()
+        self.fen = board.fen()
+
+    def start(self, engine):
+        engine.send_line("position fen {}".format(self.fen))
+        engine.send_line("go movetime 1000")
+
+    def line_received(self, engine, line):
+        if line.startswith("bestmove "):
+            if not self.result.cancelled():
+                self.result.set_result(line)
+            self.set_finished()
+
+    def cancel(self, engine):
+        engine.send_line("stop")
 
 
 async def popen_uci(cmd):
@@ -197,6 +217,8 @@ async def popen_uci(cmd):
 
 # TODO: Add unit tests instead
 async def main():
+    import chess
+
     #transport, engine = await popen_uci("./engine.sh")
     transport, engine = await popen_uci("stockfish")
 
@@ -206,6 +228,10 @@ async def main():
         print("timed out")
     else:
         print("got readyok")
+
+    board = chess.Board()
+    move = await engine.play(board)
+    print("played", move)
 
     await engine.returncode
 
