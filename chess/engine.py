@@ -5,7 +5,7 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-class UciProtocol(asyncio.SubprocessProtocol):
+class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
         self.transport = None
@@ -14,6 +14,8 @@ class UciProtocol(asyncio.SubprocessProtocol):
             1: bytearray(),  # stdout
             2: bytearray(),  # stderr
         }
+
+        self.command = None
 
         self.returncode = self.loop.create_future()
 
@@ -52,9 +54,49 @@ class UciProtocol(asyncio.SubprocessProtocol):
     def line_received(self, line):
         LOGGER.debug("%s: >> %s", self, line)
 
+    async def communicate(self, command):
+        if self.command is None:
+            self.command = command
+        else:
+            # TODO
+            raise RuntimeError("engine is busy")
+
+        self.command.start(self)
+
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
         return "<{} at {} (pid={})>".format(type(self).__name__, hex(id(self)), pid)
+
+
+class Command:
+    def __init__(self, loop=None):
+        self.loop = loop or asyncio.get_running_loop()
+        self.idle = self.loop.create_future()
+        self.previous_command = None
+
+    def prepare(self, engine, previous_command):
+        self.previous_command = previous_command
+        if self.previous_command:
+            self.previous_command.idle.add_done_callback(lambda: self.start(engine))
+            self.previous_command.cancel()
+
+    def start(self, engine):
+        self.previous_command = None
+        engine.send_line("isready")
+
+    def cancel(self):
+        pass
+
+    def line_received(self, line):
+        if self.previous_command:
+            return self.previous_command.line_received(line)
+
+        if line == "readyok":
+            self.idle.set_result(None)
+
+
+class UciProtocol(EngineProtocol):
+    pass
 
 
 async def popen_uci(cmd):
@@ -65,6 +107,13 @@ async def popen_uci(cmd):
 # TODO: Add unit tests instead
 async def main():
     transport, engine = await popen_uci("stockfish")
+
+    result = await engine.communicate(Command())
+    print("Command 1:", result)
+
+    result = await engine.communicate(Command())
+    print("Command 2:", result)
+
     await engine.returncode
 
 
