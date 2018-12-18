@@ -54,14 +54,14 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def line_received(self, line):
         LOGGER.debug("%s: >> %s", self, line)
 
-    async def communicate(self, command):
-        if self.command is None:
-            self.command = command
-        else:
-            # TODO
-            raise RuntimeError("engine is busy")
+        if self.command:
+            self.command.line_received(line)
 
-        self.command.start(self)
+    async def communicate(self, command):
+        previous_command = self.command
+        self.command = command
+        self.command.prepare(self, previous_command)
+        return await self.command.idle
 
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
@@ -77,8 +77,10 @@ class Command:
     def prepare(self, engine, previous_command):
         self.previous_command = previous_command
         if self.previous_command:
-            self.previous_command.idle.add_done_callback(lambda: self.start(engine))
+            self.previous_command.idle.add_done_callback(lambda _: self.start(engine))
             self.previous_command.cancel()
+        else:
+            self.start(engine)
 
     def start(self, engine):
         self.previous_command = None
