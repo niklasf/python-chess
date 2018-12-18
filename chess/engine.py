@@ -15,6 +15,8 @@ class UciProtocol(asyncio.SubprocessProtocol):
             2: bytearray(),  # stderr
         }
 
+        self.returncode = self.loop.create_future()
+
     def connection_made(self, transport):
         self.transport = transport
         LOGGER.debug("%s: Connection made", self)
@@ -22,6 +24,8 @@ class UciProtocol(asyncio.SubprocessProtocol):
     def connection_lost(self, exc):
         code = self.transport.get_returncode()
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
+
+        self.returncode.set_result(code)
 
     def process_exited(self):
         LOGGER.debug("%s: Process exited", self)
@@ -61,7 +65,7 @@ async def popen_uci(cmd):
 # TODO: Add unit tests instead
 async def main():
     transport, engine = await popen_uci("stockfish")
-    await asyncio.sleep(1)
+    await engine.returncode
 
 
 if __name__ == "__main__":
