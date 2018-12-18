@@ -170,6 +170,11 @@ class BaseCommand:
         pass
 
 
+class UciProtocol(EngineProtocol):
+    async def isready(self):
+        return await self.communicate(IsReady())
+
+
 class IsReady(BaseCommand):
     def start(self, engine):
         engine.send_line("isready")
@@ -183,8 +188,6 @@ class IsReady(BaseCommand):
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
 
-class UciProtocol(EngineProtocol):
-    pass
 
 
 async def popen_uci(cmd):
@@ -194,19 +197,17 @@ async def popen_uci(cmd):
 
 # TODO: Add unit tests instead
 async def main():
-    transport, engine = await popen_uci("./engine.sh")
-    #transport, engine = await popen_uci("stockfish")
+    #transport, engine = await popen_uci("./engine.sh")
+    transport, engine = await popen_uci("stockfish")
 
-    isready = IsReady()
     try:
-        await asyncio.wait_for(engine.communicate(isready), 2)
+        await asyncio.wait_for(engine.isready(), 2)
     except asyncio.TimeoutError:
         print("timed out")
+    else:
+        print("got readyok")
 
     await engine.returncode
-
-    await engine.communicate(IsReady())
-    print("got second readyok")
 
 
 if __name__ == "__main__":
