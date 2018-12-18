@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import enum
 
 
 LOGGER = logging.getLogger(__name__)
@@ -58,6 +59,9 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             self.command._line_received(self, line)
 
     async def communicate(self, command):
+        if command.state != CommandState.New:
+            raise RuntimeError("command with invalid state passed to communicate")
+
         previous_command = self.command
         self.command = command
         self.command._prepare(self, previous_command)
@@ -68,33 +72,47 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         return "<{} at {} (pid={})>".format(type(self).__name__, hex(id(self)), pid)
 
 
+class CommandState(enum.Enum):
+    New = 1
+    Started = 2
+    Finished = 3
+
+
 class BaseCommand:
     def __init__(self, loop=None):
         self._previous_command = None
-        self._started = False
+        self.state = CommandState.New
 
         self.loop = loop or asyncio.get_running_loop()
         self.result = self.loop.create_future()
         self.idle = self.loop.create_future()
 
     def _prepare(self, engine, previous_command):
-        def after_previous_command(_):
-            assert self._previous_command is None or self._previous_command.idle.done()
-            self._previous_command = None
-            self._started = True
-            self.send(engine)
+        assert self.state == CommandState.New
 
-        if previous_command and previous_command._started:
+        def after_previous_command(_):
+            assert self._previous_command is None or self._previous_command.state == CommandState.Finished
+            self._previous_command = None
+            if self.state == CommandState.New:
+                self.state = CommandState.Started
+                self.send(engine)
+
+        if not previous_command or previous_command.state == CommandState.Finished:
+            after_previous_command(None)
+        elif previous_command.state == CommandState.New:
+            previous_command.state = CommandState.Finished
+            previous_command.result.cancel()
+            after_previous_command(None)
+        elif previous_command.state == CommandState.Started:
             self._previous_command = previous_command
             self._previous_command.idle.add_done_callback(after_previous_command)
             self._previous_command.cancel(engine)
-        else:
-            after_previous_command(None)
 
     def _line_received(self, engine, line):
         if self._previous_command:
             self._previous_command._line_received(engine, line)
-        else:
+        elif self.state != CommandState.Finished:
+            assert self.state == CommandState.Started
             self.line_received(engine, line)
 
     def send(self, engine):
@@ -113,7 +131,8 @@ class IsReady(BaseCommand):
 
     def line_received(self, engine, line):
         if line == "readyok":
-            self.result.set_result(None)
+            if not self.result.cancelled():
+                self.result.set_result(None)
             self.idle.set_result(None)
         else:
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
@@ -130,9 +149,15 @@ async def popen_uci(cmd):
 
 # TODO: Add unit tests instead
 async def main():
-    transport, engine = await popen_uci("stockfish")
+    transport, engine = await popen_uci("./engine.sh")
+
+    try:
+        await asyncio.wait_for(engine.communicate(IsReady()), 2)
+    except asyncio.TimeoutError:
+        print("timed out")
 
     await engine.communicate(IsReady())
+    print("got second readyok")
 
     await engine.returncode
 
