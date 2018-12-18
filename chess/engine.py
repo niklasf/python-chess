@@ -73,13 +73,17 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         def previous_command_finished(_):
             self.command = self.next_command
             if self.command is not None:
-                self.command.finished.add_done_callback(previous_command_finished)
-                self.command.start()
+                cmd = self.command
+                cmd.result.add_done_callback(lambda result: cmd._cancel(self) if cmd.result.cancelled() else None)
+                cmd.finished.add_done_callback(previous_command_finished)
+                cmd._start(self)
 
         if self.command is None:
             previous_command_finished(None)
+        elif not self.command.result.done():
+            self.command.result.cancel()
         else:
-            self.command.cancel()
+            self.command._cancel(self)
 
         return await command.result
 
@@ -90,9 +94,8 @@ class EngineProtocol(asyncio.SubprocessProtocol):
 
 class CommandState(enum.Enum):
     New = 1
-    Started = 2
-    Cancelling = 3
-    Finished = 4
+    Active = 2
+    Cancelled = 3
 
 
 class BaseCommand:
@@ -104,67 +107,27 @@ class BaseCommand:
         self.finished = self.loop.create_future()
 
     def _cancel(self, engine):
-        if self.state != CommandState.Finished:
-            assert self.state != CommandState.New
-            if self.result.done():
-            else:
-                self.result.cancel()
-            self.finished.set_result(None)
+        assert self.state == CommandState.Active
+        self.cancel(engine)
+        self.state = CommandState.Cancelled
 
-    def _prepare(self, engine, previous_command):
+    def _start(self, engine):
         assert self.state == CommandState.New
-        self.state = CommandState.Prepared
-
-        def on_result(result):
-            if result.cancelled():
-                if self.state == CommandState.Sending:
-                    self.state = CommandState.Cancelling
-                    self.cancel()
-
-        def on_idle(_):
-            self.state = CommandState.Finished
-
-        def on_previous_command_idle(_):
-            assert self._previous_command is None or self._previous_command.state == CommandState.Finished
-            self._previous_command = None
-
-            assert self.state == CommandState.New
-
-            if self.result.cancelled():
-                self.idle.set_result(None)
-            else:
-                self.state = CommandState.Started
-                self.send(engine)
-
-        self.result.add_done_callback(on_result)
-        self.idle.add_done_callback(on_idle)
-
-        if not self._previous_command or self._previous_command.state == CommandState.Finished:
-            on_previous_command_idle(None)
-        else:
-            self._previous_command.idle.add_done_callback(on_previous_command_idle)
-            self._previous_command.result.cancel()
-
-
-        if not previous_command or previous_command.state == CommandState.Finished:
-            on_previous_command_idle(None)
-        elif previous_command.state == CommandState.New:
-            previous_command.result.cancel()
-            previous_command.state = CommandState.Finished
-            after_previous_command(None)
-        elif previous_command.state == CommandState.Started:
-            self._previous_command = previous_command
-            self._previous_command.idle.add_done_callback(after_previous_command)
-            self._previous_command.cancel(engine)
+        self.state = CommandState.Active
+        self.start(engine)
 
     def _line_received(self, engine, line):
-        assert self.state in [CommandState.Sending, CommandState.Cancelling]
+        assert self.state == CommandState.Active
         self.line_received(engine, line)
 
-    def send(self, engine):
-        pass
+    def set_finished(self):
+        assert self.state == CommandState.Active
+        self.finished.set_result(None)
 
     def cancel(self, engine):
+        pass
+
+    def start(self, engine):
         pass
 
     def line_received(self, engine, line):
@@ -179,7 +142,7 @@ class IsReady(BaseCommand):
         if line == "readyok":
             if not self.result.cancelled():
                 self.result.set_result(None)
-            self.idle.set_result(None)
+            self.set_finished()
         else:
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
