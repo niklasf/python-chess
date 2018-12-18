@@ -22,14 +22,14 @@ import concurrent.futures
 import shlex
 import threading
 
-from chess.engine import EngineTerminatedException
-from chess.engine import EngineStateException
-from chess.engine import Option
-from chess.engine import OptionMap
-from chess.engine import LOGGER
-from chess.engine import FUTURE_POLL_TIMEOUT
-from chess.engine import _popen_engine
-from chess.engine import _spur_spawn_engine
+from chess._engine import EngineTerminatedException
+from chess._engine import EngineStateException
+from chess._engine import Option
+from chess._engine import OptionMap
+from chess._engine import LOGGER
+from chess._engine import FUTURE_POLL_TIMEOUT
+from chess._engine import _popen_engine
+from chess._engine import _spur_spawn_engine
 
 import chess
 

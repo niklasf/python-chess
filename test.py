@@ -2573,7 +2573,7 @@ class XboardEngineTestCase(unittest.TestCase):
 
     def setUp(self):
         self.engine = chess.xboard.Engine()
-        self.mock = chess.engine.MockProcess(self.engine)
+        self.mock = chess._engine.MockProcess(self.engine)
         self.mock.expect("xboard")
         feature_list = [
             "feature egt=syzygy,gaviota",
@@ -2710,7 +2710,7 @@ class XboardEngineTestCase(unittest.TestCase):
         self.mock.expect("egtpath syzygy /abc")
         try:
             self.engine.egtpath("non-existent", "random_path")
-        except chess.engine.EngineStateException:
+        except chess._engine.EngineStateException:
             pass
         self.engine.egtpath("syzygy", "/abc")
         self.mock.assert_done()
