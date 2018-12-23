@@ -2545,22 +2545,23 @@ class Board(BaseBoard):
             else:
                 return san
 
-        piece = self.piece_type_at(move.from_square)
+        piece_type = self.piece_type_at(move.from_square)
+        assert piece_type, "san() and lan() expect move to be legal or null, but got {} in {}".format(move, self.fen())
         capture = self.is_capture(move)
 
-        if piece == PAWN:
+        if piece_type == PAWN:
             san = ""
         else:
-            san = PIECE_SYMBOLS[piece].upper()
+            san = PIECE_SYMBOLS[piece_type].upper()
 
         if long:
             san += SQUARE_NAMES[move.from_square]
-        elif piece != PAWN:
+        elif piece_type != PAWN:
             # Get ambiguous move candidates.
             # Relevant candidates: not exactly the current move,
             # but to the same square.
             others = 0
-            from_mask = self.pieces_mask(piece, self.turn)
+            from_mask = self.pieces_mask(piece_type, self.turn)
             from_mask &= ~BB_SQUARES[move.from_square]
             to_mask = BB_SQUARES[move.to_square]
             for candidate in self.generate_legal_moves(from_mask, to_mask):
