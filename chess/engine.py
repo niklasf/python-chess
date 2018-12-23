@@ -182,13 +182,44 @@ class BaseCommand:
 
 class UciProtocol(EngineProtocol):
     async def isready(self):
-        return await self.communicate(IsReady())
+        return await self.communicate(_IsReady())
 
-    async def play(self, board):
-        return await self.communicate(Go(board))
+    async def configure(self, options):
+        return await self.communicate(UciConfigure(options))
 
 
-class IsReady(BaseCommand):
+class UciConfigure(BaseCommand):
+    def __init__(self, options):
+        super().__init__()
+
+        self.lines = []
+
+        for name, value in options.items():
+            if name.lower() == "uci_chess960":
+                raise ValueError("cannot set UCI_Chess960 which is automatically managed")
+            elif name.lower() == "uci_variant":
+                raise ValueError("cannot set UCI_Variant which is automatically managed")
+
+            builder = ["setoption name", name, "value"]
+            if value is True:
+                builder.append("true")
+            elif value is False:
+                builder.append("false")
+            elif value is None:
+                builder.append("none")
+            else:
+                builder.append(str(value))
+
+            self.lines.append(" ".join(builder))
+
+    def start(self, engine):
+        for line in self.lines:
+            engine.send_line(line)
+
+        self.set_finished()
+
+
+class _IsReady(BaseCommand):
     def start(self, engine):
         engine.send_line("isready")
 
@@ -201,7 +232,7 @@ class IsReady(BaseCommand):
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
 
-class Go(BaseCommand):
+class _Go(BaseCommand):
     def __init__(self, board):
         super().__init__()
         self.fen = board.fen()
@@ -255,40 +286,21 @@ class SimpleEngine:
         return cls(transport, protocol)
 
 
-def main():
-    engine = SimpleEngine.popen_uci("./engine.sh")
-    engine.isready()
-    print("all good")
-    engine.close()
-
-
-# TODO: Add unit tests instead
 async def async_main():
     import chess
 
     #transport, engine = await popen_uci("./engine.sh")
     transport, engine = await popen_uci("stockfish")
 
-    try:
-        await asyncio.wait_for(engine.isready(), 2)
-    except asyncio.TimeoutError:
-        print("timed out")
-    else:
-        print("got readyok")
+    await engine.configure({
+        "Contempt": 20,
+    })
 
-    board = chess.Board()
-    move = await engine.play(board)
-    print("played", move)
+    transport.close()
 
     await engine.returncode
 
 
-logging.basicConfig(level=logging.DEBUG)
 if __name__ == "__main__":
-    main()
-elif __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    try:
-        loop.run_until_complete(async_main())
-    finally:
-        loop.close()
+    logging.basicConfig(level=logging.DEBUG)
+    asyncio.run(async_main())
