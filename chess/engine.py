@@ -11,6 +11,10 @@ class EngineTerminatedError(RuntimeError):
     pass
 
 
+class Option(collections.namedtuple("Option", "name type default min max var")):
+    """Information about an available engine option."""
+
+
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
@@ -69,8 +73,13 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def line_received(self, line):
         LOGGER.debug("%s: >> %s", self, line)
 
+        self._line_received(line)
+
         if self.command:
             self.command._line_received(self, line)
+
+    def _line_received(self, line):
+        pass
 
     async def communicate(self, command):
         if self.returncode.done():
@@ -181,11 +190,143 @@ class BaseCommand:
 
 
 class UciProtocol(EngineProtocol):
+    def __init__(self):
+        super().__init__()
+        self.options = UciOptionMap()
+        self.config = UciOptionMap()
+
+    def _line_received(self, line):
+        command_and_args = line.split(None, 1)
+        if len(command_and_args) >= 2:
+            if command_and_args[0] == "option":
+                self._option(command_and_args[1])
+
+    def _option(self, arg):
+        current_parameter = None
+
+        name = []
+        type = []
+        default = []
+        min = None
+        max = None
+        current_var = None
+        var = []
+
+        for token in arg.split(" "):
+            if token == "name" and not name:
+                current_parameter = "name"
+            elif token == "type" and not type:
+                current_parameter = "type"
+            elif token == "default" and not default:
+                current_parameter = "default"
+            elif token == "min" and min is None:
+                current_parameter = "min"
+            elif token == "max" and max is None:
+                current_parameter = "max"
+            elif token == "var":
+                current_parameter = "var"
+                if current_var is not None:
+                    var.append(" ".join(current_var))
+                current_var = []
+            elif current_parameter == "name":
+                name.append(token)
+            elif current_parameter == "type":
+                type.append(token)
+            elif current_parameter == "default":
+                default.append(token)
+            elif current_parameter == "var":
+                current_var.append(token)
+            elif current_parameter == "min":
+                try:
+                    min = int(token)
+                except ValueError:
+                    LOGGER.exception("exception parsing option min")
+            elif current_parameter == "max":
+                try:
+                    max = int(token)
+                except ValueError:
+                    LOGGER.exception("exception parsing option max")
+
+        if current_var is not None:
+            var.append(" ".join(current_var))
+
+        type = " ".join(type)
+
+        default = " ".join(default)
+        if type == "check":
+            if default == "true":
+                default = True
+            elif default == "false":
+                default = False
+            else:
+                default = None
+        elif type == "spin":
+            try:
+                default = int(default)
+            except ValueError:
+                LOGGER.exception("exception parsing option spin default")
+                default = None
+
+        option = Option(" ".join(name), type, default, min, max, var)
+        self.options[option.name] = option
+
     async def isready(self):
         return await self.communicate(_IsReady())
 
-    async def configure(self, options):
-        return await self.communicate(UciConfigure(options))
+    async def configure(self, config):
+        return await self.communicate(UciConfigure(config))
+
+
+class UciOptionMap(collections.abc.MutableMapping):
+    def __init__(self, data=None, **kwargs):
+        self._store = dict()
+        if data is None:
+            data = {}
+        self.update(data, **kwargs)
+
+    def __setitem__(self, key, value):
+        self._store[key.lower()] = (key, value)
+
+    def __getitem__(self, key):
+        return self._store[key.lower()][1]
+
+    def __delitem__(self, key):
+        del self._store[key.lower()]
+
+    def __iter__(self):
+        return (casedkey for casedkey, mappedvalue in self._store.values())
+
+    def __len__(self):
+        return len(self._store)
+
+    def __eq__(self, other):
+        for key, value in self.items():
+            if key not in other or other[key] != value:
+                return False
+
+        for key, value in other.items():
+            if key not in self or self[key] != value:
+                return False
+
+        return True
+
+    def copy(self):
+        return type(self)(self._store.values())
+
+    def __copy__(self):
+        return self.copy()
+
+    def __repr__(self):
+        return "{}({})".format(type(self).__name__, dict(self.items()))
+
+
+class UciInit(BaseCommand):
+    def start(self, engine):
+        engine.send_line("uci")
+
+    def line_received(self, engine, line):
+        if line == "uciok":
+            self.set_finished()
 
 
 class UciConfigure(BaseCommand):
@@ -251,19 +392,10 @@ class _Go(BaseCommand):
         engine.send_line("stop")
 
 
-class _Uci(BaseCommand):
-    def start(self, engine):
-        engine.send_line("uci")
-
-    def line_received(self, engine, line):
-        if line == "uciok":
-            self.set_finished()
-
-
 async def popen_uci(cmd):
     loop = asyncio.get_running_loop()
     transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
-    await protocol.communicate(_Uci())
+    await protocol.communicate(UciInit())
     return transport, protocol
 
 
@@ -296,7 +428,7 @@ async def async_main():
         "Contempt": 20,
     })
 
-    transport.close()
+    print(engine.options)
 
     await engine.returncode
 
