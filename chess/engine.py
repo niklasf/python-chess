@@ -332,11 +332,13 @@ class UciInit(BaseCommand):
 class UciConfigure(BaseCommand):
     def __init__(self, options):
         super().__init__()
+        self.options = options
 
-        self.lines = []
-
-        for name, value in options.items():
-            if name.lower() == "uci_chess960":
+    def start(self, engine):
+        for name, value in self.options.items():
+            if name not in engine.options:
+                raise ValueError("engine does not support option: {}".format(name))
+            elif name.lower() == "uci_chess960":
                 raise ValueError("cannot set UCI_Chess960 which is automatically managed")
             elif name.lower() == "uci_variant":
                 raise ValueError("cannot set UCI_Variant which is automatically managed")
@@ -351,11 +353,7 @@ class UciConfigure(BaseCommand):
             else:
                 builder.append(str(value))
 
-            self.lines.append(" ".join(builder))
-
-    def start(self, engine):
-        for line in self.lines:
-            engine.send_line(line)
+            engine.send_line(" ".join(builder))
 
         self.set_finished()
 
@@ -426,6 +424,7 @@ async def async_main():
 
     await engine.configure({
         "Contempt": 20,
+        "ContemptA": 20,
     })
 
     print(engine.options)
