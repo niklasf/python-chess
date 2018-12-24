@@ -854,6 +854,8 @@ class BaseBoard:
             self.queens |= mask
         elif piece_type == KING:
             self.kings |= mask
+        else:
+            return
 
         self.occupied ^= mask
         self.occupied_co[color] ^= mask
@@ -2009,7 +2011,7 @@ class Board(BaseBoard):
                 self._set_piece_at(F1 if self.turn == WHITE else F8, ROOK, self.turn)
 
         # Put the piece on the target square.
-        if not castling and piece_type:
+        if not castling:
             was_promoted = self.promoted & to_bb
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
