@@ -77,7 +77,7 @@ def run_in_background(coroutine):
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
-    Returns the future result as soon as it is resolved. The coroutine
+    Returns the *future* result as soon as it is resolved. The coroutine
     continues running in the background until it is complete.
     """
     future = concurrent.futures.Future()
@@ -106,7 +106,7 @@ def run_in_background(coroutine):
 
                     if task.exception() is not None:
                         loop.call_exception_handler({
-                            "message": "unhandled exception during SimpleEngine shutdown",
+                            "message": "unhandled exception during background event loop shutdown",
                             "exception": task.exception(),
                             "task": task,
                         })
