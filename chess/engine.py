@@ -205,7 +205,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
 
         if command.state != CommandState.New:
-            raise EngineError("command with invalid state passed to communicate")
+            raise RuntimeError("command with invalid state passed to communicate")
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -256,7 +256,12 @@ class BaseCommand:
 
     def _engine_terminated(self, engine, code):
         exc = EngineTerminatedError("engine process died while running {} (exit code: {})".format(type(self).__name__, code))
+        self._handle_exception(exc)
 
+        if self.state in [CommandState.Active, CommandState.Cancelling]:
+            self.engine_terminated(engine, exc)
+
+    def _handle_exception(self, exc):
         if not self.result.done():
             self.result.set_exception(exc)
         if not self.finished.done():
@@ -267,9 +272,6 @@ class BaseCommand:
                 self.finished.result()
             except:
                 pass
-
-        if self.state in [CommandState.Active, CommandState.Cancelling]:
-            self.engine_terminated(engine, exc)
 
     def set_finished(self):
         assert self.state in [CommandState.Active, CommandState.Cancelling]
@@ -285,7 +287,10 @@ class BaseCommand:
     def _start(self, engine):
         assert self.state == CommandState.New
         self.state = CommandState.Active
-        self.start(engine)
+        try:
+            self.start(engine)
+        except EngineError as err:
+            self._handle_exception(err)
 
     def _done(self):
         assert self.state != CommandState.Done
@@ -456,11 +461,11 @@ class UciConfigure(BaseCommand):
     def start(self, engine):
         for name, value in self.options.items():
             if name not in engine.options:
-                raise ValueError("engine does not support option: {}".format(name))
+                raise EngineError("engine does not support option: {}".format(name))
             elif name.lower() == "uci_chess960":
-                raise ValueError("cannot set UCI_Chess960 which is automatically managed")
+                raise EngineError("cannot set UCI_Chess960 which is automatically managed")
             elif name.lower() == "uci_variant":
-                raise ValueError("cannot set UCI_Variant which is automatically managed")
+                raise EngineError("cannot set UCI_Variant which is automatically managed")
 
             builder = ["setoption name", name, "value"]
             if value is True:
@@ -520,6 +525,9 @@ class SimpleEngine:
         self.protocol = protocol
         self.timeout = timeout
 
+    def configure(self, config):
+        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(config), self.timeout), self.protocol.loop).result()
+
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
@@ -555,6 +563,12 @@ async def async_main():
 def main():
     engine = SimpleEngine.popen_uci(sys.argv[1])
     engine.ping()
+    try:
+        engine.configure({
+            "Contempt": 40,
+        })
+    except:
+        print("Flow ... !!!!!!!!!!!!!!!!!!!!!!!!!!")
     engine.close()
 
 
