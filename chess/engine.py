@@ -494,6 +494,9 @@ class SimpleEngine:
             try:
                 loop.run_until_complete(protocol.returncode)
             finally:
+                pending = asyncio.Task.all_tasks(loop)
+                loop.run_until_complete(asyncio.gather(*pending))
+
                 loop.close()
 
         threading.Thread(target=background_thread).start()
