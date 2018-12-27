@@ -247,10 +247,10 @@ class CommandState(enum.Enum):
 
 
 class BaseCommand:
-    def __init__(self, loop=None):
+    def __init__(self, loop):
         self.state = CommandState.New
 
-        self.loop = loop or get_running_loop()
+        self.loop = loop
         self.result = self.loop.create_future()
         self.finished = self.loop.create_future()
 
@@ -395,10 +395,10 @@ class UciProtocol(EngineProtocol):
         self.options[option.name] = option
 
     async def ping(self):
-        return await self.communicate(UciPing())
+        return await self.communicate(UciPing(self.loop))
 
-    async def configure(self, config):
-        return await self.communicate(UciConfigure(config))
+    def configure(self, config):
+        return self.communicate(UciConfigure(self.loop, config))
 
 
 class UciOptionMap(collections.abc.MutableMapping):
@@ -454,13 +454,13 @@ class UciInit(BaseCommand):
 
 
 class UciConfigure(BaseCommand):
-    def __init__(self, options):
-        super().__init__()
-        self.options = options
+    def __init__(self, loop, config):
+        super().__init__(loop)
+        self.config = config
 
     def start(self, engine):
-        for name, value in self.options.items():
-            if name not in engine.options:
+        for name, value in self.config.items():
+            if name not in engine.config:
                 raise EngineError("engine does not support option: {}".format(name))
             elif name.lower() == "uci_chess960":
                 raise EngineError("cannot set UCI_Chess960 which is automatically managed")
@@ -515,7 +515,7 @@ class _Go(BaseCommand):
 async def popen_uci(cmd):
     loop = get_running_loop()
     transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
-    await protocol.communicate(UciInit())
+    await protocol.communicate(UciInit(get_running_loop()))
     return transport, protocol
 
 
@@ -565,10 +565,10 @@ def main():
     engine.ping()
     try:
         engine.configure({
-            "Contempt": 40,
+            "ContemptB": 40,
         })
     except:
-        print("Flow ... !!!!!!!!!!!!!!!!!!!!!!!!!!")
+        engine.close()
     engine.close()
 
 
