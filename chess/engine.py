@@ -193,8 +193,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         if self.returncode.done():
             raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
 
-        if command.state != CommandState.New:
-            raise RuntimeError("command with invalid state passed to communicate")
+        assert command.state == CommandState.New
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -482,10 +481,11 @@ class UciPing(BaseCommand):
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
 
-class _Go(BaseCommand):
-    def __init__(self, board):
-        super().__init__()
+class UciPlay(BaseCommand):
+    def __init__(self, loop, board, movetime=None):
+        super().__init__(loop)
         self.fen = board.fen()
+        self.movetime = movetime
 
     def start(self, engine):
         engine.send_line("position fen {}".format(self.fen))
@@ -532,6 +532,12 @@ class SimpleEngine:
 
         return run_in_background(background)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, a, b, c):
+        self.close()
+
 
 async def async_main():
     transport, engine = await popen_uci(sys.argv[1])
@@ -549,17 +555,13 @@ async def async_main():
 
 
 def main():
-    engine = SimpleEngine.popen_uci(sys.argv[1])
-
-    try:
-        engine.configure({
-            "ContemptB": 40,
-        })
-    except EngineError:
-        print("exception in configure")
-
-    engine.ping()
-    engine.close()
+    with SimpleEngine.popen_uci(sys.argv[1]) as engine:
+        try:
+            engine.configure({
+                "ContemptB": 40,
+            })
+        except EngineError:
+            print("exception in configure")
 
 
 if __name__ == "__main__":
