@@ -474,20 +474,13 @@ class SimpleEngine:
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.isready(), self.timeout), self.protocol.loop).result()
 
     def close(self):
-        event = threading.Event()
-
-        def target():
-            self.protocol.loop.stop()
-            event.set()
-
-        self.protocol.loop.call_soon_threadsafe(target)
-        event.wait()
+        self.transport.close()
 
     @classmethod
     def popen_uci(cls, cmd, *, timeout=10.0):
         engine = concurrent.futures.Future()
 
-        def target():
+        def background_thread():
             loop = setup_loop()
 
             try:
@@ -499,11 +492,11 @@ class SimpleEngine:
             engine.set_result(cls(transport, protocol, timeout=timeout))
 
             try:
-                loop.run_forever()
+                loop.run_until_complete(protocol.returncode)
             finally:
                 loop.close()
 
-        threading.Thread(target=target).start()
+        threading.Thread(target=background_thread).start()
 
         return engine.result()
 
@@ -525,9 +518,13 @@ async def async_main():
 
 
 def main():
-    engine = SimpleEngine.popen_uci(sys.argv[1])
-    engine.isready()
-    engine.close()
+    engine_a = SimpleEngine.popen_uci(sys.argv[1])
+    engine_a.isready()
+
+    engine_b = SimpleEngine.popen_uci(sys.argv[1])
+    engine_b.isready()
+
+    engine_a.close()
 
 
 if __name__ == "__main__":
