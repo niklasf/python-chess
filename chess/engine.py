@@ -2,6 +2,9 @@ import asyncio
 import logging
 import enum
 import collections
+import warnings
+import sys
+import threading
 
 
 LOGGER = logging.getLogger(__name__)
@@ -395,6 +398,63 @@ async def popen_uci(cmd):
     transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
     await protocol.communicate(UciInit())
     return transport, protocol
+
+
+def setup_loop():
+    """
+    Creates and sets up a new asyncio event loop that is capable of spawning
+    and watching subprocesses.
+
+    Uses polling to watch subprocesses when not running in the main thread.
+
+    Note that this sets a global event loop policy.
+    """
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    else:
+        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+
+    if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop
+
+    class PollingChildWatcher(asyncio.SafeChildWatcher):
+        def __init__(self):
+            super().__init__()
+            self._poll_handle = None
+
+        def attach_loop(self, loop):
+            assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
+
+            if self._loop is not None and loop is None and self._callbacks:
+                warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
+
+            if self._poll_handle is not None:
+                self._poll_handle.cancel()
+
+            self._loop = loop
+            if loop is not None:
+                self._poll_handle = self._loop.call_soon(self._poll)
+
+                # Prevent a race condition in case a child terminated
+                # during the switch.
+                self._do_waitpid_all()
+
+        def _poll(self):
+            if self._loop:
+                self._do_waitpid_all()
+                self._poll_handle = self._loop.call_later(1.0, self._poll)
+
+    policy = asyncio.get_event_loop_policy()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    watcher = PollingChildWatcher()
+    watcher.attach_loop(loop)
+    policy.set_child_watcher(watcher)
+
+    return loop
 
 
 class SimpleEngine:
