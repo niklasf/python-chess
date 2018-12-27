@@ -77,9 +77,11 @@ def run_in_background(coroutine):
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
-    Returns the *future* result as soon as it is resolved. The coroutine
-    continues running in the background until it is complete.
+    Blocks and returns the *future* result as soon as it is resolved.
+    The coroutine continues running in the background until it is complete.
     """
+    assert asyncio.iscoroutinefunction(coroutine)
+
     future = concurrent.futures.Future()
 
     def background():
@@ -123,7 +125,11 @@ def run_in_background(coroutine):
     return future.result()
 
 
-class EngineTerminatedError(RuntimeError):
+class EngineError(RuntimeError):
+    pass
+
+
+class EngineTerminatedError(EngineError):
     pass
 
 
