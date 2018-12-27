@@ -494,10 +494,32 @@ class SimpleEngine:
             try:
                 loop.run_until_complete(protocol.returncode)
             finally:
-                pending = asyncio.Task.all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending))
+                try:
+                    # Cancel all remaining tasks.
+                    pending = asyncio.Task.all_tasks(loop)
+                    for task in pending:
+                        task.cancel()
 
-                loop.close()
+                    loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
+
+                    for task in pending:
+                        if task.cancelled():
+                            continue
+
+                        if task.exception() is not None:
+                            loop.call_exception_handler({
+                                "message": "unhandled exception during SimpleEngine shutdown",
+                                "exception": task.exception(),
+                                "task": task,
+                            })
+
+                    # Shutdown async generators.
+                    try:
+                        loop.run_until_complete(loop.shutdown_asyncgens())
+                    except NameError:
+                        pass  # < Python 3.6
+                finally:
+                    loop.close()
 
         threading.Thread(target=background_thread).start()
 
