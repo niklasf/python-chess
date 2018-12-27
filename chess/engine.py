@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import logging
 import enum
 import collections
@@ -457,6 +458,10 @@ def setup_loop():
     return loop
 
 
+def get_running_loop():
+    return asyncio._get_running_loop()
+
+
 class SimpleEngine:
     def __init__(self, transport, protocol):
         self.transport = transport
@@ -466,14 +471,37 @@ class SimpleEngine:
         self.protocol.loop.run_until_complete(self.protocol.isready())
 
     def close(self):
-        self.transport.close()
-        self.protocol.loop.run_until_complete(self.protocol.returncode)
+        event = threading.Event()
+
+        def target():
+            self.protocol.loop.stop()
+            event.set()
+
+        self.protocol.loop.call_soon_threadsafe(target)
+        event.wait()
 
     @classmethod
-    def popen_uci(cls, cmd):
-        loop = asyncio.get_event_loop()
-        transport, protocol = loop.run_until_complete(popen_uci(cmd))
-        return cls(transport, protocol)
+    def popen_uci(cls, cmd, *, timeout=10.0):
+        engine = concurrent.futures.Future()
+
+        def target():
+            loop = setup_loop()
+
+            try:
+                transport, protocol = loop.run_until_complete(asyncio.wait_for(popen_uci(cmd), timeout))
+            except Exception as exc:
+                engine.set_exception(exc)
+            else:
+                engine.set_result(cls(transport, protocol))
+
+                try:
+                    loop.run_forever()
+                finally:
+                    loop.close()
+
+        threading.Thread(target=target).start()
+
+        return engine.result()
 
 
 async def async_main():
@@ -492,6 +520,12 @@ async def async_main():
     await engine.returncode
 
 
+def main():
+    engine = SimpleEngine.popen_uci(sys.argv[1])
+    engine.close()
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    asyncio.run(async_main())
+    main()
+    #asyncio.run(async_main())
