@@ -16,7 +16,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-def setup_loop():
+def setup_event_loop():
     """
     Creates and sets up a new asyncio event loop that is capable of spawning
     and watching subprocesses.
@@ -85,7 +85,7 @@ def run_in_background(coroutine):
     future = concurrent.futures.Future()
 
     def background():
-        loop = setup_loop()
+        loop = setup_event_loop()
 
         try:
             loop.run_until_complete(coroutine(future))
