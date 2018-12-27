@@ -95,11 +95,8 @@ def run_in_background(coroutine):
             return
         finally:
             try:
-                # Cancel all remaining tasks.
+                # Complete all remaining tasks.
                 pending = asyncio.Task.all_tasks(loop)
-                for task in pending:
-                    task.cancel()
-
                 loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
 
                 for task in pending:
@@ -185,22 +182,22 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
             line = line.decode("utf-8")
             if fd == 1:
-                self.line_received(line)
+                self._line_received(line)
             else:
                 self.error_line_received(line)
 
     def error_line_received(self, line):
         LOGGER.warning("%s: stderr >> %s", self, line)
 
-    def line_received(self, line):
+    def _line_received(self, line):
         LOGGER.debug("%s: >> %s", self, line)
 
-        self._line_received(line)
+        self.line_received(line)
 
         if self.command:
             self.command._line_received(self, line)
 
-    def _line_received(self, line):
+    def line_received(self, line):
         pass
 
     async def communicate(self, command):
@@ -208,7 +205,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
             raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
 
         if command.state != CommandState.New:
-            raise RuntimeError("command with invalid state passed to communicate")
+            raise EngineError("command with invalid state passed to communicate")
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -258,7 +255,7 @@ class BaseCommand:
         self.finished = self.loop.create_future()
 
     def _engine_terminated(self, engine, code):
-        exc = EngineTerminatedError("engine process died while running {} (exit code: {})".format(repr(self), code))
+        exc = EngineTerminatedError("engine process died while running {} (exit code: {})".format(type(self).__name__, code))
 
         if not self.result.done():
             self.result.set_exception(exc)
@@ -317,7 +314,7 @@ class UciProtocol(EngineProtocol):
         self.options = UciOptionMap()
         self.config = UciOptionMap()
 
-    def _line_received(self, line):
+    def line_received(self, line):
         command_and_args = line.split(None, 1)
         if len(command_and_args) >= 2:
             if command_and_args[0] == "option":
@@ -392,8 +389,8 @@ class UciProtocol(EngineProtocol):
         option = Option(" ".join(name), type, default, min, max, var)
         self.options[option.name] = option
 
-    async def isready(self):
-        return await self.communicate(_IsReady())
+    async def ping(self):
+        return await self.communicate(UciPing())
 
     async def configure(self, config):
         return await self.communicate(UciConfigure(config))
@@ -480,14 +477,12 @@ class UciConfigure(BaseCommand):
         self.set_finished()
 
 
-class _IsReady(BaseCommand):
+class UciPing(BaseCommand):
     def start(self, engine):
         engine.send_line("isready")
 
     def line_received(self, engine, line):
         if line == "readyok":
-            if not self.result.cancelled():
-                self.result.set_result(None)
             self.set_finished()
         else:
             LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
@@ -525,8 +520,8 @@ class SimpleEngine:
         self.protocol = protocol
         self.timeout = timeout
 
-    def isready(self):
-        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.isready(), self.timeout), self.protocol.loop).result()
+    def ping(self):
+        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
     def close(self):
         self.transport.close()
@@ -558,13 +553,9 @@ async def async_main():
 
 
 def main():
-    engine_a = SimpleEngine.popen_uci(sys.argv[1])
-    engine_a.isready()
-
-    engine_b = SimpleEngine.popen_uci(sys.argv[1])
-    engine_b.isready()
-
-    engine_a.close()
+    engine = SimpleEngine.popen_uci(sys.argv[1])
+    engine.ping()
+    engine.close()
 
 
 if __name__ == "__main__":
