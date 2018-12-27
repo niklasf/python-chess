@@ -469,7 +469,7 @@ class SimpleEngine:
         self.timeout = timeout
 
     def isready(self):
-        self.protocol.loop.run_until_complete(self.protocol.isready())
+        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.isready(), self.timeout), self.protocol.loop).result()
 
     def close(self):
         event = threading.Event()
@@ -524,6 +524,7 @@ async def async_main():
 
 def main():
     engine = SimpleEngine.popen_uci(sys.argv[1])
+    engine.isready()
     engine.close()
 
 
