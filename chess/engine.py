@@ -21,7 +21,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
 
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
-        self.loop = asyncio.get_running_loop()
+        self.loop = get_running_loop()
         self.transport = None
 
         self.buffer = {
@@ -135,7 +135,7 @@ class BaseCommand:
     def __init__(self, loop=None):
         self.state = CommandState.New
 
-        self.loop = loop or asyncio.get_running_loop()
+        self.loop = loop or get_running_loop()
         self.result = self.loop.create_future()
         self.finished = self.loop.create_future()
 
@@ -395,7 +395,7 @@ class _Go(BaseCommand):
 
 
 async def popen_uci(cmd):
-    loop = asyncio.get_running_loop()
+    loop = get_running_loop()
     transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
     await protocol.communicate(UciInit())
     return transport, protocol
@@ -458,8 +458,10 @@ def setup_loop():
     return loop
 
 
-def get_running_loop():
-    return asyncio._get_running_loop()
+try:
+    from asyncio import get_running_loop
+except ImportError:
+    from asyncio import _get_running_loop as get_running_loop
 
 
 class SimpleEngine:
