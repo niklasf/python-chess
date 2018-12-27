@@ -7,8 +7,120 @@ import warnings
 import sys
 import threading
 
+try:
+    from asyncio import get_running_loop
+except ImportError:
+    from asyncio import _get_running_loop as get_running_loop
+
 
 LOGGER = logging.getLogger(__name__)
+
+
+def setup_loop():
+    """
+    Creates and sets up a new asyncio event loop that is capable of spawning
+    and watching subprocesses.
+
+    Uses polling to watch subprocesses when not running in the main thread.
+
+    Note that this sets a global event loop policy.
+    """
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    else:
+        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+
+    if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop
+
+    class PollingChildWatcher(asyncio.SafeChildWatcher):
+        def __init__(self):
+            super().__init__()
+            self._poll_handle = None
+
+        def attach_loop(self, loop):
+            assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
+
+            if self._loop is not None and loop is None and self._callbacks:
+                warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
+
+            if self._poll_handle is not None:
+                self._poll_handle.cancel()
+
+            self._loop = loop
+            if loop is not None:
+                self._poll_handle = self._loop.call_soon(self._poll)
+
+                # Prevent a race condition in case a child terminated
+                # during the switch.
+                self._do_waitpid_all()
+
+        def _poll(self):
+            if self._loop:
+                self._do_waitpid_all()
+                self._poll_handle = self._loop.call_later(1.0, self._poll)
+
+    policy = asyncio.get_event_loop_policy()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    watcher = PollingChildWatcher()
+    watcher.attach_loop(loop)
+    policy.set_child_watcher(watcher)
+
+    return loop
+
+
+def run_in_background(coroutine):
+    """
+    Runs ``coroutine(future)`` in a new event loop on a background thread.
+
+    Returns the future result as soon as it is resolved. The coroutine
+    continues running in the background until it is complete.
+    """
+    future = concurrent.futures.Future()
+
+    def background():
+        loop = setup_loop()
+
+        try:
+            loop.run_until_complete(coroutine(future))
+            future.cancel()
+        except Exception as exc:
+            future.set_exception(exc)
+            return
+        finally:
+            try:
+                # Cancel all remaining tasks.
+                pending = asyncio.Task.all_tasks(loop)
+                for task in pending:
+                    task.cancel()
+
+                loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
+
+                for task in pending:
+                    if task.cancelled():
+                        continue
+
+                    if task.exception() is not None:
+                        loop.call_exception_handler({
+                            "message": "unhandled exception during SimpleEngine shutdown",
+                            "exception": task.exception(),
+                            "task": task,
+                        })
+
+                # Shutdown async generators.
+                try:
+                    loop.run_until_complete(loop.shutdown_asyncgens())
+                except AttributeError:
+                    pass  # < Python 3.6
+            finally:
+                loop.close()
+
+    threading.Thread(target=background).start()
+    return future.result()
 
 
 class EngineTerminatedError(RuntimeError):
@@ -401,69 +513,6 @@ async def popen_uci(cmd):
     return transport, protocol
 
 
-def setup_loop():
-    """
-    Creates and sets up a new asyncio event loop that is capable of spawning
-    and watching subprocesses.
-
-    Uses polling to watch subprocesses when not running in the main thread.
-
-    Note that this sets a global event loop policy.
-    """
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-    else:
-        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
-
-    if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        return loop
-
-    class PollingChildWatcher(asyncio.SafeChildWatcher):
-        def __init__(self):
-            super().__init__()
-            self._poll_handle = None
-
-        def attach_loop(self, loop):
-            assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
-
-            if self._loop is not None and loop is None and self._callbacks:
-                warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
-
-            if self._poll_handle is not None:
-                self._poll_handle.cancel()
-
-            self._loop = loop
-            if loop is not None:
-                self._poll_handle = self._loop.call_soon(self._poll)
-
-                # Prevent a race condition in case a child terminated
-                # during the switch.
-                self._do_waitpid_all()
-
-        def _poll(self):
-            if self._loop:
-                self._do_waitpid_all()
-                self._poll_handle = self._loop.call_later(1.0, self._poll)
-
-    policy = asyncio.get_event_loop_policy()
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    watcher = PollingChildWatcher()
-    watcher.attach_loop(loop)
-    policy.set_child_watcher(watcher)
-
-    return loop
-
-
-try:
-    from asyncio import get_running_loop
-except ImportError:
-    from asyncio import _get_running_loop as get_running_loop
-
-
 class SimpleEngine:
     def __init__(self, transport, protocol, *, timeout=10.0):
         self.transport = transport
@@ -478,52 +527,12 @@ class SimpleEngine:
 
     @classmethod
     def popen_uci(cls, cmd, *, timeout=10.0):
-        engine = concurrent.futures.Future()
+        async def background(future):
+            transport, protocol = await asyncio.wait_for(popen_uci(cmd), timeout)
+            future.set_result(cls(transport, protocol, timeout=timeout))
+            await protocol.returncode
 
-        def background_thread():
-            loop = setup_loop()
-
-            try:
-                transport, protocol = loop.run_until_complete(asyncio.wait_for(popen_uci(cmd), timeout))
-            except Exception as exc:
-                engine.set_exception(exc)
-                return
-
-            engine.set_result(cls(transport, protocol, timeout=timeout))
-
-            try:
-                loop.run_until_complete(protocol.returncode)
-            finally:
-                try:
-                    # Cancel all remaining tasks.
-                    pending = asyncio.Task.all_tasks(loop)
-                    for task in pending:
-                        task.cancel()
-
-                    loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
-
-                    for task in pending:
-                        if task.cancelled():
-                            continue
-
-                        if task.exception() is not None:
-                            loop.call_exception_handler({
-                                "message": "unhandled exception during SimpleEngine shutdown",
-                                "exception": task.exception(),
-                                "task": task,
-                            })
-
-                    # Shutdown async generators.
-                    try:
-                        loop.run_until_complete(loop.shutdown_asyncgens())
-                    except NameError:
-                        pass  # < Python 3.6
-                finally:
-                    loop.close()
-
-        threading.Thread(target=background_thread).start()
-
-        return engine.result()
+        return run_in_background(background)
 
 
 async def async_main():
