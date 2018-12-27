@@ -463,9 +463,10 @@ def get_running_loop():
 
 
 class SimpleEngine:
-    def __init__(self, transport, protocol):
+    def __init__(self, transport, protocol, *, timeout=10.0):
         self.transport = transport
         self.protocol = protocol
+        self.timeout = timeout
 
     def isready(self):
         self.protocol.loop.run_until_complete(self.protocol.isready())
@@ -491,13 +492,14 @@ class SimpleEngine:
                 transport, protocol = loop.run_until_complete(asyncio.wait_for(popen_uci(cmd), timeout))
             except Exception as exc:
                 engine.set_exception(exc)
-            else:
-                engine.set_result(cls(transport, protocol))
+                return
 
-                try:
-                    loop.run_forever()
-                finally:
-                    loop.close()
+            engine.set_result(cls(transport, protocol, timeout=timeout))
+
+            try:
+                loop.run_forever()
+            finally:
+                loop.close()
 
         threading.Thread(target=target).start()
 
