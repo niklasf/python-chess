@@ -95,20 +95,9 @@ def run_in_background(coroutine):
             return
         finally:
             try:
-                # Complete all remaining tasks.
+                # Finish all remaining tasks.
                 pending = asyncio.Task.all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
-
-                for task in pending:
-                    if task.cancelled():
-                        continue
-
-                    if task.exception() is not None:
-                        loop.call_exception_handler({
-                            "message": "unhandled exception during background event loop shutdown",
-                            "exception": task.exception(),
-                            "task": task,
-                        })
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
                 # Shutdown async generators.
                 try:
@@ -397,8 +386,8 @@ class UciProtocol(EngineProtocol):
     async def ping(self):
         return await self.communicate(UciPing(self.loop))
 
-    def configure(self, config):
-        return self.communicate(UciConfigure(self.loop, config))
+    async def configure(self, config):
+        return await self.communicate(UciConfigure(self.loop, config))
 
 
 class UciOptionMap(collections.abc.MutableMapping):
@@ -545,30 +534,31 @@ class SimpleEngine:
 
 
 async def async_main():
-    import chess
+    transport, engine = await popen_uci(sys.argv[1])
+    await engine.ping()
+    try:
+        await engine.configure({
+            "ContemptB": 40,
+        })
+    except EngineError:
+        print("exception")
+    await engine.ping()
 
-    #transport, engine = await popen_uci("./engine.sh")
-    transport, engine = await popen_uci("stockfish")
-
-    await engine.configure({
-        "Contempt": 20,
-        "ContemptA": 20,
-    })
-
-    print(engine.options)
-
+    transport.close()
     await engine.returncode
 
 
 def main():
     engine = SimpleEngine.popen_uci(sys.argv[1])
-    engine.ping()
+
     try:
         engine.configure({
             "ContemptB": 40,
         })
-    except:
-        engine.close()
+    except EngineError:
+        print("exception in configure")
+
+    engine.ping()
     engine.close()
 
 
