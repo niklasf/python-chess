@@ -191,7 +191,9 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def line_received(self, line):
         pass
 
-    async def communicate(self, command):
+    async def communicate(self, command_factory):
+        command = command_factory(self.loop)
+
         if self.returncode.done():
             raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
 
@@ -385,10 +387,67 @@ class UciProtocol(EngineProtocol):
         self.options[option.name] = option
 
     async def ping(self):
-        return await self.communicate(UciPing(self.loop))
+        class Command(BaseCommand):
+            def start(self, engine):
+                engine.send_line("isready")
+
+            def line_received(self, engine, line):
+                if line == "readyok":
+                    self.set_finished()
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+        return await self.communicate(Command)
+
 
     async def configure(self, config):
-        return await self.communicate(UciConfigure(self.loop, config))
+        class Command(BaseCommand):
+            def start(self, engine):
+                for name, value in config.items():
+                    if name not in engine.config:
+                        raise EngineError("engine does not support option: {}".format(name))
+                    elif name.lower() == "uci_chess960":
+                        raise EngineError("cannot set UCI_Chess960 which is automatically managed")
+                    elif name.lower() == "uci_variant":
+                        raise EngineError("cannot set UCI_Variant which is automatically managed")
+
+                    builder = ["setoption name", name, "value"]
+                    if value is True:
+                        builder.append("true")
+                    elif value is False:
+                        builder.append("false")
+                    elif value is None:
+                        builder.append("none")
+                    else:
+                        builder.append(str(value))
+
+                    engine.send_line(" ".join(builder))
+
+                self.set_finished()
+
+        return await self.communicate(Command)
+
+    async def play(self):
+        class Command(BaseCommand):
+            def __init__(self, loop, board, movetime=None):
+                super().__init__(loop)
+                self.fen = board.fen()
+                self.movetime = movetime
+
+            def start(self, engine):
+                engine.send_line("position fen {}".format(self.fen))
+                engine.send_line("go movetime 1000")
+
+            def line_received(self, engine, line):
+                if line.startswith("bestmove "):
+                    if not self.result.cancelled():
+                        self.result.set_result(line)
+                    self.set_finished()
+
+            def cancel(self, engine):
+                engine.send_line("stop")
+
+        return await self.communicate(Command)
 
 
 class UciOptionMap(collections.abc.MutableMapping):
@@ -434,75 +493,6 @@ class UciOptionMap(collections.abc.MutableMapping):
         return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
-class UciInit(BaseCommand):
-    def start(self, engine):
-        engine.send_line("uci")
-
-    def line_received(self, engine, line):
-        if line == "uciok":
-            self.set_finished()
-
-
-class UciConfigure(BaseCommand):
-    def __init__(self, loop, config):
-        super().__init__(loop)
-        self.config = config
-
-    def start(self, engine):
-        for name, value in self.config.items():
-            if name not in engine.config:
-                raise EngineError("engine does not support option: {}".format(name))
-            elif name.lower() == "uci_chess960":
-                raise EngineError("cannot set UCI_Chess960 which is automatically managed")
-            elif name.lower() == "uci_variant":
-                raise EngineError("cannot set UCI_Variant which is automatically managed")
-
-            builder = ["setoption name", name, "value"]
-            if value is True:
-                builder.append("true")
-            elif value is False:
-                builder.append("false")
-            elif value is None:
-                builder.append("none")
-            else:
-                builder.append(str(value))
-
-            engine.send_line(" ".join(builder))
-
-        self.set_finished()
-
-
-class UciPing(BaseCommand):
-    def start(self, engine):
-        engine.send_line("isready")
-
-    def line_received(self, engine, line):
-        if line == "readyok":
-            self.set_finished()
-        else:
-            LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
-
-
-class UciPlay(BaseCommand):
-    def __init__(self, loop, board, movetime=None):
-        super().__init__(loop)
-        self.fen = board.fen()
-        self.movetime = movetime
-
-    def start(self, engine):
-        engine.send_line("position fen {}".format(self.fen))
-        engine.send_line("go movetime 1000")
-
-    def line_received(self, engine, line):
-        if line.startswith("bestmove "):
-            if not self.result.cancelled():
-                self.result.set_result(line)
-            self.set_finished()
-
-    def cancel(self, engine):
-        engine.send_line("stop")
-
-
 async def popen_uci(command, *, setpgrp=False, **kwargs):
     """
     Opens an UCI engine.
@@ -524,9 +514,17 @@ async def popen_uci(command, *, setpgrp=False, **kwargs):
             popen_args["preexec_fn"] = os.setpgrp
     popen_args.update(kwargs)
 
+    class InitCommand(BaseCommand):
+        def start(self, engine):
+            engine.send_line("uci")
+
+        def line_received(self, engine, line):
+            if line == "uciok":
+                self.set_finished()
+
     loop = get_running_loop()
     transport, protocol = await loop.subprocess_exec(UciProtocol, *command, **popen_args)
-    await protocol.communicate(UciInit(get_running_loop()))
+    await protocol.communicate(InitCommand)
     return transport, protocol
 
 
@@ -580,7 +578,7 @@ def main():
     with SimpleEngine.popen_uci(sys.argv[1], setpgrp=True) as engine:
         try:
             engine.configure({
-                "ContemptB": 40,
+                "Contempt": 40,
             })
         except EngineError:
             print("exception in configure")
