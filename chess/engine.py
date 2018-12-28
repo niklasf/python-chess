@@ -4,8 +4,10 @@ import logging
 import enum
 import collections
 import warnings
+import subprocess
 import sys
 import threading
+import os
 
 try:
     from asyncio import get_running_loop
@@ -501,9 +503,29 @@ class UciPlay(BaseCommand):
         engine.send_line("stop")
 
 
-async def popen_uci(cmd):
+async def popen_uci(command, *, setpgrp=False, **kwargs):
+    """
+    Opens an UCI engine.
+
+    :param setpgrp: Open the engine process in a new process group. This will
+        stop signals (such as keyboard interrupts) from propagating from the
+        parent process. Defaults to ``False``.
+    """
+    if not isinstance(command, list):
+        command = [command]
+
+    popen_args = {}
+    if setpgrp:
+        try:
+            # Windows.
+            popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+        except AttributeError:
+            # Unix.
+            popen_args["preexec_fn"] = os.setpgrp
+    popen_args.update(kwargs)
+
     loop = get_running_loop()
-    transport, protocol = await loop.subprocess_shell(UciProtocol, cmd)
+    transport, protocol = await loop.subprocess_exec(UciProtocol, *command, **popen_args)
     await protocol.communicate(UciInit(get_running_loop()))
     return transport, protocol
 
@@ -524,9 +546,9 @@ class SimpleEngine:
         self.transport.close()
 
     @classmethod
-    def popen_uci(cls, cmd, *, timeout=10.0):
+    def popen_uci(cls, command, *, timeout=10.0, **popen_args):
         async def background(future):
-            transport, protocol = await asyncio.wait_for(popen_uci(cmd), timeout)
+            transport, protocol = await asyncio.wait_for(popen_uci(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
             await protocol.returncode
 
@@ -555,7 +577,7 @@ async def async_main():
 
 
 def main():
-    with SimpleEngine.popen_uci(sys.argv[1]) as engine:
+    with SimpleEngine.popen_uci(sys.argv[1], setpgrp=True) as engine:
         try:
             engine.configure({
                 "ContemptB": 40,
