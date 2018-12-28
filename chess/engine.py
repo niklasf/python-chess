@@ -105,7 +105,8 @@ def run_in_background(coroutine):
                 try:
                     loop.run_until_complete(loop.shutdown_asyncgens())
                 except AttributeError:
-                    pass  # < Python 3.6
+                    # Before Python 3.6.
+                    pass
             finally:
                 loop.close()
 
@@ -230,6 +231,26 @@ class EngineProtocol(asyncio.SubprocessProtocol):
         pid = self.transport.get_pid() if self.transport is not None else None
         return "<{} at {} (pid={})>".format(type(self).__name__, hex(id(self)), pid)
 
+    @classmethod
+    async def popen(cls, command, *, setpgrp=False, **kwargs):
+        if not isinstance(command, list):
+            command = [command]
+
+        popen_args = {}
+        if setpgrp:
+            try:
+                # Windows.
+                popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            except AttributeError:
+                # Unix.
+                popen_args["preexec_fn"] = os.setpgrp
+        popen_args.update(kwargs)
+
+        loop = get_running_loop()
+        transport, protocol = await loop.subprocess_exec(cls, *command, **popen_args)
+        await protocol._initialize()
+        return transport, protocol
+
 
 class CommandState(enum.Enum):
     New = 1
@@ -296,7 +317,7 @@ class BaseCommand:
         pass
 
     def start(self, engine):
-        pass
+        raise NotImplementedError
 
     def line_received(self, engine, line):
         pass
@@ -408,8 +429,9 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-
     async def configure(self, config):
+        protocol = self
+
         class Command(BaseCommand):
             def start(self, engine):
                 for name, value in config.items():
@@ -431,6 +453,7 @@ class UciProtocol(EngineProtocol):
                         builder.append(str(value))
 
                     engine.send_line(" ".join(builder))
+                    protocol.config[name] = value
 
                 self.set_finished()
 
@@ -502,31 +525,6 @@ class UciOptionMap(collections.abc.MutableMapping):
         return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
-async def popen_uci(command, *, setpgrp=False, **kwargs):
-    """
-    Opens an UCI engine.
-
-    :param setpgrp: Open the engine process in a new process group. This will
-        stop signals (such as keyboard interrupts) from propagating from the
-        parent process. Defaults to ``False``.
-    """
-    if not isinstance(command, list):
-        command = [command]
-
-    popen_args = {}
-    if setpgrp:
-        try:
-            # Windows.
-            popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
-        except AttributeError:
-            # Unix.
-            popen_args["preexec_fn"] = os.setpgrp
-    popen_args.update(kwargs)
-
-    loop = get_running_loop()
-    transport, protocol = await loop.subprocess_exec(UciProtocol, *command, **popen_args)
-    await protocol._initialize()
-    return transport, protocol
 
 
 class SimpleEngine:
@@ -547,7 +545,7 @@ class SimpleEngine:
     @classmethod
     def popen_uci(cls, command, *, timeout=10.0, **popen_args):
         async def background(future):
-            transport, protocol = await asyncio.wait_for(popen_uci(command, **popen_args), timeout)
+            transport, protocol = await asyncio.wait_for(UciProtocol.popen(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
             await protocol.returncode
 
@@ -561,7 +559,7 @@ class SimpleEngine:
 
 
 async def async_main():
-    transport, engine = await popen_uci(sys.argv[1])
+    transport, engine = await UciProtocol.popen(sys.argv[1])
     await engine.ping()
     try:
         await engine.configure({
