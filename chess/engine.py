@@ -114,11 +114,11 @@ def run_in_background(coroutine):
 
 
 class EngineError(RuntimeError):
-    pass
+    """Runtime error caused by a misbehaving engine or incorrect usage."""
 
 
 class EngineTerminatedError(EngineError):
-    pass
+    """The engine process exited unexpectedly."""
 
 
 class Option(collections.namedtuple("Option", "name type default min max var")):
@@ -311,80 +311,89 @@ class UciProtocol(EngineProtocol):
         self.options = UciOptionMap()
         self.config = UciOptionMap()
 
-    def line_received(self, line):
-        command_and_args = line.split(None, 1)
-        if len(command_and_args) >= 2:
-            if command_and_args[0] == "option":
-                self._option(command_and_args[1])
+    async def _initialize(self):
+        protocol = self
 
-    def _option(self, arg):
-        current_parameter = None
+        class Command(BaseCommand):
+            def start(self, engine):
+                engine.send_line("uci")
 
-        name = []
-        type = []
-        default = []
-        min = None
-        max = None
-        current_var = None
-        var = []
+            def line_received(self, engine, line):
+                if line == "uciok":
+                    self.set_finished()
+                elif line.startswith("option "):
+                    self._option(line.split(" ", 1)[1])
 
-        for token in arg.split(" "):
-            if token == "name" and not name:
-                current_parameter = "name"
-            elif token == "type" and not type:
-                current_parameter = "type"
-            elif token == "default" and not default:
-                current_parameter = "default"
-            elif token == "min" and min is None:
-                current_parameter = "min"
-            elif token == "max" and max is None:
-                current_parameter = "max"
-            elif token == "var":
-                current_parameter = "var"
+            def _option(self, arg):
+                current_parameter = None
+
+                name = []
+                type = []
+                default = []
+                min = None
+                max = None
+                current_var = None
+                var = []
+
+                for token in arg.split(" "):
+                    if token == "name" and not name:
+                        current_parameter = "name"
+                    elif token == "type" and not type:
+                        current_parameter = "type"
+                    elif token == "default" and not default:
+                        current_parameter = "default"
+                    elif token == "min" and min is None:
+                        current_parameter = "min"
+                    elif token == "max" and max is None:
+                        current_parameter = "max"
+                    elif token == "var":
+                        current_parameter = "var"
+                        if current_var is not None:
+                            var.append(" ".join(current_var))
+                        current_var = []
+                    elif current_parameter == "name":
+                        name.append(token)
+                    elif current_parameter == "type":
+                        type.append(token)
+                    elif current_parameter == "default":
+                        default.append(token)
+                    elif current_parameter == "var":
+                        current_var.append(token)
+                    elif current_parameter == "min":
+                        try:
+                            min = int(token)
+                        except ValueError:
+                            LOGGER.exception("exception parsing option min")
+                    elif current_parameter == "max":
+                        try:
+                            max = int(token)
+                        except ValueError:
+                            LOGGER.exception("exception parsing option max")
+
                 if current_var is not None:
                     var.append(" ".join(current_var))
-                current_var = []
-            elif current_parameter == "name":
-                name.append(token)
-            elif current_parameter == "type":
-                type.append(token)
-            elif current_parameter == "default":
-                default.append(token)
-            elif current_parameter == "var":
-                current_var.append(token)
-            elif current_parameter == "min":
-                try:
-                    min = int(token)
-                except ValueError:
-                    LOGGER.exception("exception parsing option min")
-            elif current_parameter == "max":
-                try:
-                    max = int(token)
-                except ValueError:
-                    LOGGER.exception("exception parsing option max")
 
-        if current_var is not None:
-            var.append(" ".join(current_var))
+                type = " ".join(type)
 
-        type = " ".join(type)
+                default = " ".join(default)
+                if type == "check":
+                    if default == "true":
+                        default = True
+                    elif default == "false":
+                        default = False
+                    else:
+                        default = None
+                elif type == "spin":
+                    try:
+                        default = int(default)
+                    except ValueError:
+                        LOGGER.exception("exception parsing option spin default")
+                        default = None
 
-        default = " ".join(default)
-        if type == "check":
-            if default == "true":
-                default = True
-            elif default == "false":
-                default = False
-            else:
-                default = None
-        elif type == "spin":
-            try:
-                default = int(default)
-            except ValueError:
-                LOGGER.exception("exception parsing option spin default")
-                default = None
+                option = Option(" ".join(name), type, default, min, max, var)
+                protocol.options[option.name] = option
 
-        option = Option(" ".join(name), type, default, min, max, var)
-        self.options[option.name] = option
+        return await self.communicate(Command)
 
     async def ping(self):
         class Command(BaseCommand):
@@ -514,17 +523,9 @@ async def popen_uci(command, *, setpgrp=False, **kwargs):
             popen_args["preexec_fn"] = os.setpgrp
     popen_args.update(kwargs)
 
-    class InitCommand(BaseCommand):
-        def start(self, engine):
-            engine.send_line("uci")
-
-        def line_received(self, engine, line):
-            if line == "uciok":
-                self.set_finished()
-
     loop = get_running_loop()
     transport, protocol = await loop.subprocess_exec(UciProtocol, *command, **popen_args)
-    await protocol.communicate(InitCommand)
+    await protocol._initialize()
     return transport, protocol
 
 
@@ -576,6 +577,7 @@ async def async_main():
 
 def main():
     with SimpleEngine.popen_uci(sys.argv[1], setpgrp=True) as engine:
+        print(engine.protocol.options)
         try:
             engine.configure({
                 "Contempt": 40,
