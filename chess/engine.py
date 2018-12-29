@@ -14,6 +14,8 @@ try:
 except ImportError:
     from asyncio import _get_running_loop as get_running_loop
 
+import chess
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -448,7 +450,7 @@ class UciProtocol(EngineProtocol):
         class Command(BaseCommand):
             def start(self, engine):
                 for name, value in config.items():
-                    if name not in engine.config:
+                    if name not in engine.options:
                         raise EngineError("engine does not support option: {}".format(name))
                     elif name.lower() == "uci_chess960":
                         raise EngineError("cannot set UCI_Chess960 which is automatically managed")
@@ -498,15 +500,10 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self):
+    async def play(self, board):
         class Command(BaseCommand):
-            def __init__(self, loop, board, movetime=None):
-                super().__init__(loop)
-                self.fen = board.fen()
-                self.movetime = movetime
-
             def start(self, engine):
-                engine.send_line("position fen {}".format(self.fen))
+                engine._position(board)
                 engine.send_line("go movetime 1000")
 
             def line_received(self, engine, line):
@@ -578,6 +575,9 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
+    def play(self, board):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board), self.protocol.loop).result()
+
     def close(self):
         self.transport.close()
 
@@ -615,12 +615,18 @@ async def async_main():
 def main():
     with SimpleEngine.popen_uci(sys.argv[1], setpgrp=True) as engine:
         print(engine.protocol.options)
-        try:
-            engine.configure({
-                "Contempt": 40,
-            })
-        except EngineError:
-            print("exception in configure")
+
+        print("PING")
+        engine.ping()
+        print("PONG")
+
+        engine.configure({
+            "Contempt": 40,
+        })
+
+        board = chess.Board()
+        play_result = engine.play(board)
+        print("PLAYED", play_result)
 
 
 if __name__ == "__main__":
