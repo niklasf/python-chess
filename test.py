@@ -31,6 +31,7 @@ import io
 
 import chess
 import chess.gaviota
+import chess.engine
 import chess.pgn
 import chess.polyglot
 import chess.svg
@@ -3027,9 +3028,9 @@ class UciEngineTestCase(unittest.TestCase):
 class UciOptionMapTestCase(unittest.TestCase):
 
     def test_equality(self):
-        a = chess.uci.OptionMap()
-        b = chess.uci.OptionMap()
-        c = chess.uci.OptionMap()
+        a = chess.engine.UciOptionMap()
+        b = chess.engine.UciOptionMap()
+        c = chess.engine.UciOptionMap()
         self.assertEqual(a, b)
 
         a["fOO"] = "bAr"

@@ -483,6 +483,8 @@ class UciProtocol(EngineProtocol):
 
 
 class UciOptionMap(collections.abc.MutableMapping):
+    """Dictionary with case-insensitive keys."""
+
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:
@@ -523,8 +525,6 @@ class UciOptionMap(collections.abc.MutableMapping):
 
     def __repr__(self):
         return "{}({})".format(type(self).__name__, dict(self.items()))
-
-
 
 
 class SimpleEngine:
