@@ -240,7 +240,7 @@ class EngineProtocol(asyncio.SubprocessProtocol):
 
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
-        return "<{} at {} (pid={})>".format(type(self).__name__, hex(id(self)), pid)
+        return "<{} (pid={})>".format(type(self).__name__, pid)
 
     @classmethod
     async def popen(cls, command, *, setpgrp=False, **kwargs):
