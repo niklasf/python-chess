@@ -517,6 +517,10 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
+    async def quit(self):
+        self.send_line("quit")
+        await self.returncode
+
 
 class UciOptionMap(collections.abc.MutableMapping):
     """Dictionary with case-insensitive keys."""
@@ -578,6 +582,9 @@ class SimpleEngine:
     def play(self, board):
         return asyncio.run_coroutine_threadsafe(self.protocol.play(board), self.protocol.loop).result()
 
+    def quit(self):
+        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
+
     def close(self):
         self.transport.close()
 
@@ -611,7 +618,7 @@ async def async_main():
     play_result = await engine.play(board)
     print("PLAYED ASYNC", play_result)
 
-    await engine.returncode
+    await engine.quit()
 
 
 def main():
@@ -630,8 +637,11 @@ def main():
         play_result = engine.play(board)
         print("PLAYED", play_result)
 
+        engine.quit()
+        print("QUIT")
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    #main()
-    asyncio.run(async_main())
+    main()
+    #asyncio.run(async_main())
