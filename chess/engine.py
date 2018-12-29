@@ -459,11 +459,13 @@ class UciProtocol(EngineProtocol):
     def _configure(self, config):
         for name, value in config.items():
             if name not in self.options:
-                raise EngineError("engine does not support option: {}".format(name))
+                raise EngineError("engine does not support option: {} (available options: {})".format(name, ", ".join(self.options)))
             elif name.lower() == "uci_chess960":
                 raise EngineError("cannot set UCI_Chess960 which is automatically managed")
             elif name.lower() == "uci_variant":
                 raise EngineError("cannot set UCI_Variant which is automatically managed")
+            elif name.lower() == "uci_analysemode":
+                raise EngineError("cannot set UCI_AnalyseMode which is automatically managed")
             else:
                 self._setoption(name, value)
 
@@ -568,6 +570,9 @@ class UciProtocol(EngineProtocol):
     async def play(self, board, *, config={}):
         class Command(BaseCommand):
             def start(self, engine):
+                if "UCI_AnalyseMode" in engine.options:
+                    engine._setoption("UCI_AnalyseMode", False)
+
                 engine._configure(config)
                 engine._position(board)
                 engine._go(nodes=10000)
