@@ -599,16 +599,18 @@ class SimpleEngine:
 
 async def async_main():
     transport, engine = await UciProtocol.popen(sys.argv[1])
-    await engine.ping()
-    try:
-        await engine.configure({
-            "ContemptB": 40,
-        })
-    except EngineError:
-        print("exception")
+    print(engine.options)
+
     await engine.ping()
 
-    transport.close()
+    await engine.configure({
+        "Contempt": 40,
+    })
+
+    board = chess.Board()
+    play_result = await engine.play(board)
+    print("PLAYED ASYNC", play_result)
+
     await engine.returncode
 
 
@@ -631,5 +633,5 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    main()
-    #asyncio.run(async_main())
+    #main()
+    asyncio.run(async_main())
