@@ -606,7 +606,7 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self, board, *, config={}):
+    async def play(self, board, *, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -614,7 +614,7 @@ class UciProtocol(EngineProtocol):
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", False)
 
-                engine._configure(config)
+                engine._configure(options)
                 engine._position(board)
                 engine._go(nodes=10000)
 
@@ -715,14 +715,14 @@ class SimpleEngine:
         self.protocol = protocol
         self.timeout = timeout
 
-    def configure(self, config):
-        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(config), self.timeout), self.protocol.loop).result()
+    def configure(self, options):
+        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(options), self.timeout), self.protocol.loop).result()
 
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, *, config={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, config=config), self.protocol.loop).result()
+    def play(self, board, *, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, options=options), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
@@ -764,20 +764,23 @@ async def async_main():
 
 
 def main():
-    with SimpleEngine.popen_uci(sys.argv[1], setpgrp=True) as engine:
+    with SimpleEngine.popen_uci(sys.argv[1:], setpgrp=True) as engine:
         print(engine.protocol.options)
 
-        print("PING")
-        engine.ping()
-        print("PONG")
+        #print("PING")
+        #try:
+        #    engine.ping()
+        #except asyncio.TimeoutError:
+        #    print("timeout !!!!!")
+        #print("PONG")
 
-        engine.configure({
-            "Contempt": 40,
-        })
+        #engine.configure({
+        #    "Contempt": 40,
+        #})
 
         board = chess.Board()
         while not board.is_game_over():
-            play_result = engine.play(board, config={"Contempt": 20})
+            play_result = engine.play(board) # , config={"Contempt": 20})
             print("PLAYED", play_result)
             board.push(play_result.move)
             break
