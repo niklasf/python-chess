@@ -133,6 +133,9 @@ class PlayResult:
         self.move = move
         self.ponder = ponder
 
+    def __repr__(self):
+        return "<{} at {} (move={}, ponder={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder)
+
 
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
@@ -339,6 +342,7 @@ class UciProtocol(EngineProtocol):
         super().__init__()
         self.options = UciOptionMap()
         self.config = UciOptionMap()
+        self.board = chess.Board()
 
     async def _initialize(self):
         class Command(BaseCommand):
@@ -505,6 +509,7 @@ class UciProtocol(EngineProtocol):
             builder.extend(move.uci() for move in board.move_stack)
 
         self.send_line(" ".join(builder))
+        self.board = board.copy(stack=False)
 
     def _go(self, *, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False):
         builder = ["go"]
@@ -554,7 +559,7 @@ class UciProtocol(EngineProtocol):
         if searchmoves:
             builder.append("searchmoves")
             for move in searchmoves:
-                builder.append(move.uci())
+                builder.append(self.board.uci(move))
 
         self.send_line(" ".join(builder))
 
@@ -566,8 +571,35 @@ class UciProtocol(EngineProtocol):
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
+                    self._bestmove(engine, line.split(" ", 1)[1])
+                elif not line.startswith("info "):
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _bestmove(self, engine, arg):
+                try:
                     if not self.result.cancelled():
-                        self.result.set_result(line)
+                        tokens = arg.split(None, 2)
+
+                        bestmove = None
+                        if tokens[0] != "(none)":
+                            try:
+                                bestmove = engine.board.parse_uci(tokens[0])
+                            except ValueError as err:
+                                self.result.set_exception(EngineError(err))
+                                return
+
+                        ponder = None
+                        if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+                            board.push(bestmove)
+                            try:
+                                ponder = board.parse_uci(tokens[2])
+                            except ValueError as err:
+                                LOGGER.exception("engine sent invalid ponder move")
+                            finally:
+                                board.pop()
+
+                        self.result.set_result(PlayResult(bestmove, ponder))
+                finally:
                     self.set_finished()
 
             def cancel(self, engine):
