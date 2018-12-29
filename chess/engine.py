@@ -128,6 +128,12 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
     """Information about an available engine option."""
 
 
+class PlayResult:
+    def __init__(self, move, ponder):
+        self.move = move
+        self.ponder = ponder
+
+
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
         self.loop = get_running_loop()
@@ -500,11 +506,63 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
+    def _go(self, *, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False):
+        builder = ["go"]
+
+        if ponder:
+            builder.append("ponder")
+
+        if wtime is not None:
+            builder.append("wtime")
+            builder.append(str(int(wtime)))
+
+        if btime is not None:
+            builder.append("btime")
+            builder.append(str(int(btime)))
+
+        if winc is not None:
+            builder.append("winc")
+            builder.append(str(int(winc)))
+
+        if binc is not None:
+            builder.append("binc")
+            builder.append(str(int(binc)))
+
+        if movestogo is not None and movestogo > 0:
+            builder.append("movestogo")
+            builder.append(str(int(movestogo)))
+
+        if depth is not None:
+            builder.append("depth")
+            builder.append(str(int(depth)))
+
+        if nodes is not None:
+            builder.append("nodes")
+            builder.append(str(int(nodes)))
+
+        if mate is not None:
+            builder.append("mate")
+            builder.append(str(int(mate)))
+
+        if movetime is not None:
+            builder.append("movetime")
+            builder.append(str(int(movetime)))
+
+        if infinite:
+            builder.append("infinite")
+
+        if searchmoves:
+            builder.append("searchmoves")
+            for move in searchmoves:
+                builder.append(move.uci())
+
+        self.send_line(" ".join(builder))
+
     async def play(self, board):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._position(board)
-                engine.send_line("go movetime 1000")
+                engine._go(movetime=1000)
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
