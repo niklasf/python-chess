@@ -127,6 +127,42 @@ class EngineTerminatedError(EngineError):
 class Option(collections.namedtuple("Option", "name type default min max var")):
     """Information about an available engine option."""
 
+    def parse(self, value):
+        if self.type == "check":
+            return value and value != "false"
+        elif self.type == "spin":
+            try:
+                value = int(value)
+            except ValueError:
+                raise EngineError("expected integer for spin option {}, got: {}".format(self.name, repr(value)))
+            if self.min is not None and value < self.min:
+                raise EngineError("expected value for option {} to be at least {}, got: {}".format(self.name, self.min, value))
+            if self.max is not None and self.max < value:
+                raise EngineError("expected value for option {} to be at most {}, got: {}".format(self.name, self.max, value))
+            return value
+        elif self.type == "combo":
+            value = str(value)
+            if value not in (self.var or []):
+                raise EngineError("invalid value for combo option {}, got: {} (available: {})".format(self.name, value, ", ".join(self.var)))
+            return value
+        elif self.type == "button":
+            return None
+        elif self.type == "string":
+            value = str(value)
+            if "\n" in value or "\r" in value:
+                raise EngineError("invalid line-break in string option {}".format(self.name))
+            return value
+        else:
+            # Unknown option type.
+            if value is True:
+                return "true"
+            elif value is False:
+                return "false"
+            elif value is None:
+                return None
+            else:
+                return str(value)
+
 
 class PlayResult:
     def __init__(self, move, ponder):
@@ -279,7 +315,7 @@ class BaseCommand:
         self.finished = self.loop.create_future()
 
     def _engine_terminated(self, engine, code):
-        exc = EngineTerminatedError("engine process died while running {} (exit code: {})".format(type(self).__name__, code))
+        exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(type(self).__name__, code))
         self._handle_exception(exc)
 
         if self.state in [CommandState.Active, CommandState.Cancelling]:
@@ -442,25 +478,35 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
+    def _getoption(self, option, default=None):
+        if option in self.config:
+            return self.config[option]
+        if option in self.options:
+            return self.options[option].default
+        return default
+
     def _setoption(self, name, value):
-        builder = ["setoption name", name, "value"]
-        if value is True:
-            builder.append("true")
-        elif value is False:
-            builder.append("false")
-        elif value is None:
-            builder.append("none")
-        else:
-            builder.append(str(value))
+        try:
+            value = self.options[name].parse(value)
+        except KeyError:
+            raise EngineError("engine does not support option {} (available options: {})".format(name, ", ".join(self.options)))
 
-        self.send_line(" ".join(builder))
-        self.config[name] = value
+        if value is None or value != self._getoption(name):
+            builder = ["setoption name", name]
+            if value is False:
+                builder.append("value false")
+            elif value is True:
+                builder.append("value true")
+            elif value is not None:
+                builder.append("value")
+                builder.append(str(value))
 
-    def _configure(self, config):
-        for name, value in config.items():
-            if name not in self.options:
-                raise EngineError("engine does not support option: {} (available options: {})".format(name, ", ".join(self.options)))
-            elif name.lower() == "uci_chess960":
+            self.send_line(" ".join(builder))
+            self.config[name] = value
+
+    def _configure(self, options):
+        for name, value in options.items():
+            if name.lower() == "uci_chess960":
                 raise EngineError("cannot set UCI_Chess960 which is automatically managed")
             elif name.lower() == "uci_variant":
                 raise EngineError("cannot set UCI_Variant which is automatically managed")
@@ -469,30 +515,23 @@ class UciProtocol(EngineProtocol):
             else:
                 self._setoption(name, value)
 
-    async def configure(self, config):
+    async def configure(self, options):
         class Command(BaseCommand):
             def start(self, engine):
-                engine._configure(config)
+                engine._configure(options)
                 self.set_finished()
 
         return await self.communicate(Command)
 
-    def _get_config(self, option, default=None):
-        if option in self.config:
-            return self.config[option]
-        if option in self.options:
-            return self.options[option].default
-        return default
-
     def _position(self, board):
         # Select UCI_Variant and UCI_Chess960.
         uci_variant = type(board).uci_variant
-        if uci_variant != self._get_config("UCI_Variant", "chess"):
+        if uci_variant != self._getoption("UCI_Variant", "chess"):
             if "UCI_Variant" not in self.options:
                 raise EngineError("engine does not support UCI_Variant")
             self._setoption("UCI_Variant", uci_variant)
 
-        if board.chess960 != self._get_config("UCI_Chess960", False):
+        if board.chess960 != self._getoption("UCI_Chess960", False):
             if "UCI_Chess960" not in self.options:
                 raise EngineError("engine does not support UCI_Chess960")
             self._setoption("UCI_Chess960", board.chess960)
@@ -568,6 +607,8 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board, *, config={}):
+        previous_config = self.config.copy()
+
         class Command(BaseCommand):
             def start(self, engine):
                 if "UCI_AnalyseMode" in engine.options:
@@ -608,6 +649,9 @@ class UciProtocol(EngineProtocol):
 
                         self.result.set_result(PlayResult(bestmove, ponder))
                 finally:
+                    for name, value in previous_config.items():
+                        engine._setoption(name, value)
+
                     self.set_finished()
 
             def cancel(self, engine):
