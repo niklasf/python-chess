@@ -333,8 +333,6 @@ class UciProtocol(EngineProtocol):
         self.config = UciOptionMap()
 
     async def _initialize(self):
-        protocol = self
-
         class Command(BaseCommand):
             def start(self, engine):
                 engine.send_line("uci")
@@ -343,9 +341,9 @@ class UciProtocol(EngineProtocol):
                 if line == "uciok":
                     self.set_finished()
                 elif line.startswith("option "):
-                    self._option(line.split(" ", 1)[1])
+                    self._option(engine, line.split(" ", 1)[1])
 
-            def _option(self, arg):
+            def _option(self, engine, arg):
                 current_parameter = None
 
                 name = []
@@ -412,14 +410,17 @@ class UciProtocol(EngineProtocol):
                         default = None
 
                 option = Option(" ".join(name), type, default, min, max, var)
-                protocol.options[option.name] = option
+                engine.options[option.name] = option
 
         return await self.communicate(Command)
+
+    def _isready(self):
+        self.send_line("isready")
 
     async def ping(self):
         class Command(BaseCommand):
             def start(self, engine):
-                engine.send_line("isready")
+                engine._isready()
 
             def line_received(self, engine, line):
                 if line == "readyok":
@@ -429,9 +430,21 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def configure(self, config):
-        protocol = self
+    def _setoption(self, name, value):
+        builder = ["setoption name", name, "value"]
+        if value is True:
+            builder.append("true")
+        elif value is False:
+            builder.append("false")
+        elif value is None:
+            builder.append("none")
+        else:
+            builder.append(str(value))
 
+        self.send_line(" ".join(builder))
+        self.config[name] = value
+
+    async def configure(self, config):
         class Command(BaseCommand):
             def start(self, engine):
                 for name, value in config.items():
@@ -441,23 +454,49 @@ class UciProtocol(EngineProtocol):
                         raise EngineError("cannot set UCI_Chess960 which is automatically managed")
                     elif name.lower() == "uci_variant":
                         raise EngineError("cannot set UCI_Variant which is automatically managed")
-
-                    builder = ["setoption name", name, "value"]
-                    if value is True:
-                        builder.append("true")
-                    elif value is False:
-                        builder.append("false")
-                    elif value is None:
-                        builder.append("none")
                     else:
-                        builder.append(str(value))
-
-                    engine.send_line(" ".join(builder))
-                    protocol.config[name] = value
+                        engine._setoption(name, value)
 
                 self.set_finished()
 
         return await self.communicate(Command)
+
+    def _get_config(self, option, default=None):
+        if option in self.config:
+            return self.config[option]
+        if option in self.options:
+            return self.options[option].default
+        return default
+
+    def _position(self, board):
+        # Select UCI_Variant and UCI_Chess960.
+        uci_variant = type(board).uci_variant
+        if uci_variant != self._get_config("UCI_Variant", "chess"):
+            if "UCI_Variant" not in self.options:
+                raise EngineError("engine does not support UCI_Variant")
+            self._setoption("UCI_Variant", uci_variant)
+
+        if board.chess960 != self._get_config("UCI_Chess960", False):
+            if "UCI_Chess960" not in self.options:
+                raise EngineError("engine does not support UCI_Chess960")
+            self._setoption("UCI_Chess960", board.chess960)
+
+        # Send starting position.
+        builder = ["position"]
+        root = board.root()
+        fen = root.fen()
+        if uci_variant == "chess" and fen == chess.STARTING_FEN:
+            builder.append("startpos")
+        else:
+            builder.append("fen")
+            builder.append(root.shredder_fen() if board.chess960 else fen)
+
+        # Send moves.
+        if board.move_stack:
+            builder.append("moves")
+            builder.extend(move.uci() for move in board.move_stack)
+
+        self.send_line(" ".join(builder))
 
     async def play(self):
         class Command(BaseCommand):
