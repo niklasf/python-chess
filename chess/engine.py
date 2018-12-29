@@ -567,7 +567,7 @@ class UciProtocol(EngineProtocol):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._position(board)
-                engine._go(movetime=1000)
+                engine._go(nodes=10000)
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
@@ -724,8 +724,12 @@ def main():
         })
 
         board = chess.Board()
-        play_result = engine.play(board)
-        print("PLAYED", play_result)
+        while not board.is_game_over():
+            play_result = engine.play(board)
+            print("PLAYED", play_result)
+            board.push(play_result.move)
+
+        engine.protocol.send_line("d")
 
         engine.quit()
         print("QUIT")
