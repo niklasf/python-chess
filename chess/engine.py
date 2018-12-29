@@ -456,19 +456,21 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
         self.config[name] = value
 
+    def _configure(self, config):
+        for name, value in config.items():
+            if name not in self.options:
+                raise EngineError("engine does not support option: {}".format(name))
+            elif name.lower() == "uci_chess960":
+                raise EngineError("cannot set UCI_Chess960 which is automatically managed")
+            elif name.lower() == "uci_variant":
+                raise EngineError("cannot set UCI_Variant which is automatically managed")
+            else:
+                self._setoption(name, value)
+
     async def configure(self, config):
         class Command(BaseCommand):
             def start(self, engine):
-                for name, value in config.items():
-                    if name not in engine.options:
-                        raise EngineError("engine does not support option: {}".format(name))
-                    elif name.lower() == "uci_chess960":
-                        raise EngineError("cannot set UCI_Chess960 which is automatically managed")
-                    elif name.lower() == "uci_variant":
-                        raise EngineError("cannot set UCI_Variant which is automatically managed")
-                    else:
-                        engine._setoption(name, value)
-
+                engine._configure(config)
                 self.set_finished()
 
         return await self.communicate(Command)
@@ -563,9 +565,10 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self, board):
+    async def play(self, board, *, config={}):
         class Command(BaseCommand):
             def start(self, engine):
+                engine._configure(config)
                 engine._position(board)
                 engine._go(nodes=10000)
 
@@ -669,8 +672,8 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board), self.protocol.loop).result()
+    def play(self, board, *, config={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, config=config), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
@@ -725,9 +728,10 @@ def main():
 
         board = chess.Board()
         while not board.is_game_over():
-            play_result = engine.play(board)
+            play_result = engine.play(board, config={"Contempt": 20})
             print("PLAYED", play_result)
             board.push(play_result.move)
+            break
 
         engine.protocol.send_line("d")
 
