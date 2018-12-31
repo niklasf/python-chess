@@ -182,6 +182,9 @@ class Cp:
     def is_mate(self):
         return False
 
+    def score(self, mate_score=None):
+        return self.cp
+
     def __repr__(self):
         return "Cp({})".format(self.cp)
 
@@ -271,6 +274,14 @@ class Mate:
 
     def is_mate(self):
         return True
+
+    def score(self, mate_score=None):
+        if mate_score is None:
+            return None
+        elif self.winning:
+            return mate_score - self.moves
+        else:
+            return -mate_score + self.moves
 
     @classmethod
     def from_moves(cls, moves):
