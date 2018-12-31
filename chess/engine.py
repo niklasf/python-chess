@@ -510,12 +510,8 @@ class UciProtocol(EngineProtocol):
 
     def _configure(self, options):
         for name, value in options.items():
-            if name.lower() == "uci_chess960":
-                raise EngineError("cannot set UCI_Chess960 which is automatically managed")
-            elif name.lower() == "uci_variant":
-                raise EngineError("cannot set UCI_Variant which is automatically managed")
-            elif name.lower() == "uci_analysemode":
-                raise EngineError("cannot set UCI_AnalyseMode which is automatically managed")
+            if name.lower() in ["uci_chess960", "uci_variant", "uci_analysemode", "multipv"]:
+                raise EngineError("cannot set {} which is automatically managed".format(name))
             else:
                 self._setoption(name, value)
 
@@ -769,7 +765,8 @@ async def async_main():
         "Contempt": 40,
     })
 
-    board = chess.Board()
+    import chess.variant
+    board = chess.variant.ThreeCheckBoard()
     play_result = await engine.play(board)
     print("PLAYED ASYNC", play_result)
 
