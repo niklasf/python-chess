@@ -173,6 +173,44 @@ class PlayResult:
         return "<{} at {} (move={}, ponder={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder)
 
 
+class Cp:
+    def __init__(self, cp):
+        self.cp = cp
+
+    def __repr__(self):
+        return "Cp({})".format(self.cp)
+
+    def __str__(self):
+        return "+{}".format(self.cp) if self.cp > 0 else str(self.cp)
+
+
+class Mate:
+    def __init__(self, moves, winning):
+        self.moves = abs(moves)
+        self.winning = winning ^ (moves < 0)
+
+    @classmethod
+    def from_moves(cls, moves):
+        return Mate(abs(moves), moves > 0)
+
+    @classmethod
+    def plus(self, moves):
+        return Mate(moves, True)
+
+    @classmethod
+    def minus(self, moves):
+        return Mate(moves, False)
+
+    def __repr__(self):
+        if self.winning:
+            return "Mate.plus({})".format(self.moves)
+        else:
+            return "Mate.minus({})".format(self.moves)
+
+    def __str__(self):
+        return "#{}".format(self.moves) if self.winning else "#-{}".format(self.moves)
+
+
 class EngineProtocol(asyncio.SubprocessProtocol):
     def __init__(self):
         self.loop = get_running_loop()
