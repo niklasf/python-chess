@@ -183,6 +183,53 @@ class Cp:
     def __str__(self):
         return "+{}".format(self.cp) if self.cp > 0 else str(self.cp)
 
+    def __add__(self, other):
+        try:
+            return Cp(self.cp + other.cp)
+        except AttributeError:
+            return NotImplemented
+
+    def __sub__(self, other):
+        try:
+            return Cp(self.cp - other.cp)
+        except AttributeError:
+            return NotImplemented
+
+    def __mul__(self, scalar):
+        try:
+            return Cp(self.cp * scalar)
+        except TypeError:
+            return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, scalar):
+        try:
+            return Cp(self.cp / scalar)
+        except TypeError:
+            return NotImplemented
+
+    def __floordiv__(self, scalar):
+        try:
+            return Cp(self.cp // scalar)
+        except TypeError:
+            return NotImplemented
+
+    def __neg__(self):
+        return Cp(-self.cp)
+
+    def __pos__(self):
+        return Cp(self.cp)
+
+    def __int__(self):
+        return self.cp
+
+    def __abs__(self):
+        return Cp(abs(self.cp))
+
+    def __float__(self):
+        return float(self.cp)
+
 
 class Mate:
     def __init__(self, moves, winning):
@@ -209,6 +256,19 @@ class Mate:
 
     def __str__(self):
         return "#{}".format(self.moves) if self.winning else "#-{}".format(self.moves)
+
+    def __neg__(self):
+        return Mate(self.moves, not self.winning)
+
+    def __pos__(self):
+        return Mate(self.moves, self.winning)
+
+    def __int__(self):
+        # Careful: Conflates Mate.plus(0) and Mate.minus(0)!
+        return self.moves
+
+    def __float__(self):
+        return float(int(self))
 
 
 class EngineProtocol(asyncio.SubprocessProtocol):
