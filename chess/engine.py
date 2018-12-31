@@ -718,6 +718,10 @@ class UciOptionMap(collections.abc.MutableMapping):
         return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
+async def popen_uci(command, **kwargs):
+    return await UciProtocol.popen(command, **kwargs)
+
+
 class SimpleEngine:
     def __init__(self, transport, protocol, *, timeout=10.0):
         self.transport = transport
@@ -756,7 +760,7 @@ class SimpleEngine:
 
 
 async def async_main():
-    transport, engine = await UciProtocol.popen(sys.argv[1])
+    transport, engine = await popen_uci(sys.argv[1:])
     print(engine.options)
 
     await engine.ping()
@@ -802,5 +806,5 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    main()
-    #asyncio.run(async_main())
+    #main()
+    asyncio.run(async_main())
