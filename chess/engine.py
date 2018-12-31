@@ -379,6 +379,7 @@ class UciProtocol(EngineProtocol):
         self.options = UciOptionMap()
         self.config = UciOptionMap()
         self.board = chess.Board()
+        self.game = None
 
     async def _initialize(self):
         class Command(BaseCommand):
@@ -464,6 +465,9 @@ class UciProtocol(EngineProtocol):
 
     def _isready(self):
         self.send_line("isready")
+
+    def _ucinewgame(self):
+        self.send_line("ucinewgame")
 
     async def ping(self):
         class Command(BaseCommand):
@@ -606,7 +610,7 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self, board, *, options={}):
+    async def play(self, board, *, game=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -615,8 +619,13 @@ class UciProtocol(EngineProtocol):
                     engine._setoption("UCI_AnalyseMode", False)
 
                 engine._configure(options)
+
+                if engine.game != game:
+                    engine._ucinewgame()
+                engine.game = game
+
                 engine._position(board)
-                engine._go(nodes=10000)
+                engine._go(nodes=10000, movetime=1000)
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
@@ -721,8 +730,8 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, *, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, options=options), self.protocol.loop).result()
+    def play(self, board, *, game=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, game=game, options=options), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
@@ -780,7 +789,7 @@ def main():
 
         board = chess.Board()
         while not board.is_game_over():
-            play_result = engine.play(board) # , config={"Contempt": 20})
+            play_result = engine.play(board, game="foo") # , config={"Contempt": 20})
             print("PLAYED", play_result)
             board.push(play_result.move)
             break
