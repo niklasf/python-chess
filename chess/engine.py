@@ -179,6 +179,9 @@ class Cp:
     def __init__(self, cp):
         self.cp = cp
 
+    def is_mate(self):
+        return False
+
     def __repr__(self):
         return "Cp({})".format(self.cp)
 
@@ -265,6 +268,9 @@ class Mate:
     def __init__(self, moves, winning):
         self.moves = abs(moves)
         self.winning = winning ^ (moves < 0)
+
+    def is_mate(self):
+        return True
 
     @classmethod
     def from_moves(cls, moves):
