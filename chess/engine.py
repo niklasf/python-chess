@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import functools
 import logging
 import enum
 import collections
@@ -173,6 +174,7 @@ class PlayResult:
         return "<{} at {} (move={}, ponder={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder)
 
 
+@functools.total_ordering
 class Cp:
     def __init__(self, cp):
         self.cp = cp
@@ -230,7 +232,35 @@ class Cp:
     def __float__(self):
         return float(self.cp)
 
+    def __eq__(self, other):
+        try:
+            return self.cp == other.cp
+        except AttributeError:
+            pass
 
+        try:
+            other.winning
+            return False
+        except AttributeError:
+            pass
+
+        return NotImplemented
+
+    def __lt__(self, other):
+        try:
+            return other.winning
+        except AttributeError:
+            pass
+
+        try:
+            return self.cp < other.cp
+        except AttributeError:
+            pass
+
+        return NotImplemented
+
+
+@functools.total_ordering
 class Mate:
     def __init__(self, moves, winning):
         self.moves = abs(moves)
@@ -269,6 +299,34 @@ class Mate:
 
     def __float__(self):
         return float(int(self))
+
+    def __eq__(self, other):
+        try:
+            return self.moves == other.moves and self.winning == other.winning
+        except AttributeError:
+            pass
+
+        try:
+            other.cp
+            return False
+        except AttributeError:
+            pass
+
+        return NotImplemented
+
+    def __lt__(self, other):
+        try:
+            if self.winning != other.winning:
+                return self.winning < other.winning
+
+            if self.winning:
+                return self.moves > other.moves
+            else:
+                return self.moves < other.moves
+        except AttributeError:
+            pass
+
+        return other > self
 
 
 class EngineProtocol(asyncio.SubprocessProtocol):

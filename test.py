@@ -3025,9 +3025,9 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["tbhits"], 0)
 
 
-class UciOptionMapTestCase(unittest.TestCase):
+class EngineTestCase(unittest.TestCase):
 
-    def test_equality(self):
+    def test_uci_option_map_equality(self):
         a = chess.engine.UciOptionMap()
         b = chess.engine.UciOptionMap()
         c = chess.engine.UciOptionMap()
@@ -3046,7 +3046,7 @@ class UciOptionMapTestCase(unittest.TestCase):
         self.assertNotEqual(a, b)
         self.assertNotEqual(b, a)
 
-    def test_len(self):
+    def test_uci_option_map_len(self):
         a = chess.uci.OptionMap()
         self.assertEqual(len(a), 0)
 
@@ -3055,6 +3055,30 @@ class UciOptionMapTestCase(unittest.TestCase):
 
         del a["key"]
         self.assertEqual(len(a), 0)
+
+    def test_score_ordering(self):
+        order = [
+            chess.engine.Mate.minus(0),
+            chess.engine.Mate.minus(1),
+            chess.engine.Mate.minus(99),
+            chess.engine.Cp(-123),
+            chess.engine.Cp(-50),
+            chess.engine.Cp(0),
+            chess.engine.Cp(30),
+            chess.engine.Cp(800),
+            chess.engine.Mate.plus(77),
+            chess.engine.Mate.plus(1),
+            chess.engine.Mate.plus(0),
+        ]
+
+        for i, a in enumerate(order):
+            for j, b in enumerate(order):
+                self.assertEqual(i < j, a < b)
+                self.assertEqual(i <= j, a <= b)
+                self.assertEqual(i == j, a == b)
+                self.assertEqual(i != j, a != b)
+                self.assertEqual(i > j, a > b)
+                self.assertEqual(i >= j, a >= b)
 
 
 class SyzygyTestCase(unittest.TestCase):
