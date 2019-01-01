@@ -2153,6 +2153,50 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(first_drawn_game.headers["Site"], "03")
             self.assertEqual(first_drawn_game[0].move, chess.Move.from_uci("d2d3"))
 
+    def test_visit_board(self):
+        class TraceVisitor(chess.pgn.BaseVisitor):
+            def __init__(self):
+                self.trace = []
+
+            def visit_board(self, board):
+                self.trace.append(board.fen())
+
+            def visit_move(self, board, move):
+                self.trace.append(board.san(move))
+
+            def result(self):
+                return self.trace
+
+        pgn = io.StringIO(textwrap.dedent("""\
+            [FEN "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"]
+
+            1... e5 (1... d5 2. exd5) (1... c5) 2. Nf3 Nc6
+            """))
+
+        trace = [
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+            "e5",
+            "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "d5",
+            "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "exd5",
+            "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+            "c5",
+            "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "Nf3",
+            "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+            "Nc6",
+            "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+        ]
+
+        self.assertEqual(trace, chess.pgn.read_game(pgn, Visitor=TraceVisitor))
+
+        pgn.seek(0)
+        self.assertEqual(trace, chess.pgn.read_game(pgn).accept(TraceVisitor()))
+
+        pgn.seek(0)
+        self.assertEqual(chess.Board(trace[-1]), chess.pgn.read_game(pgn, Visitor=chess.pgn.BoardCreator))
+
     def test_black_to_move(self):
         game = chess.pgn.Game()
         game.setup("8/8/4k3/8/4P3/4K3/8/8 b - - 0 17")

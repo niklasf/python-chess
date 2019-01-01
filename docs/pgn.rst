@@ -116,6 +116,8 @@ The following visitors are readily available.
 
 .. autoclass:: chess.pgn.HeaderCreator
 
+.. autoclass:: chess.pgn.BoardCreator
+
 .. autoclass:: chess.pgn.SkipVisitor
 
 .. autoclass:: chess.pgn.StringExporter

@@ -320,6 +320,10 @@ class GameNode:
 
         visitor.visit_move(parent_board, self.move)
 
+        parent_board.push(self.move)
+        visitor.visit_board(parent_board)
+        parent_board.pop()
+
         for nag in sorted(self.nags):
             visitor.visit_nag(nag)
 
@@ -374,6 +378,8 @@ class GameNode:
                 visitor.visit_header(tagname, tagvalue)
 
             if visitor.end_headers() is not SKIP:
+                visitor.visit_board(board)
+
                 if self.variations:
                     self.variations[0].accept(visitor, _parent_board=board)
 
@@ -450,11 +456,14 @@ class Game(GameNode):
             for tagname, tagvalue in self.headers.items():
                 visitor.visit_header(tagname, tagvalue)
             if visitor.end_headers() is not SKIP:
+                board = self.board()
+                visitor.visit_board(board)
+
                 if self.comment:
                     visitor.visit_comment(self.comment)
 
                 if self.variations:
-                    self.variations[0].accept(visitor, _parent_board=self.board())
+                    self.variations[0].accept(visitor, _parent_board=board)
 
                 visitor.visit_result(self.headers.get("Result", "*"))
 
@@ -692,6 +701,13 @@ class BaseVisitor:
         """
         pass
 
+    def visit_board(self, board):
+        """
+        Called for the starting position of the game and after each move.
+
+        The board state must be restored before the traversal continues.
+        """
+
     def visit_comment(self, comment):
         """Called for each comment."""
         pass
@@ -810,6 +826,30 @@ class HeaderCreator(BaseVisitor):
 
     def result(self):
         return self.headers
+
+
+class BoardCreator(BaseVisitor):
+    """
+    Returns the final position of the game. The mainline of the game is
+    on the move stack.
+    """
+
+    def begin_game(self):
+        self.skip_variation_depth = 0
+
+    def begin_variation(self):
+        self.skip_variation_depth += 1
+        return SKIP
+
+    def end_variation(self):
+        self.skip_variation_depth = max(self.skip_variation_depth - 1, 0)
+
+    def visit_board(self, board):
+        if not self.skip_variation_depth:
+            self.board = board
+
+    def result(self):
+        return self.board
 
 
 class SkipVisitor(BaseVisitor):
@@ -1123,6 +1163,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     except ValueError as error:
         visitor.handle_error(error)
         board_stack = [VariantBoard(chess960=headers.is_chess960())]
+    visitor.visit_board(board_stack[0])
 
     # Parse movetext.
     skip_variation_depth = 0
@@ -1215,6 +1256,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
                 else:
                     visitor.visit_move(board_stack[-1], move)
                     board_stack[-1].push(move)
+                visitor.visit_board(board_stack[-1])
 
         if read_next_line:
             line = handle.readline()
