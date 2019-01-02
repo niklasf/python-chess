@@ -25,6 +25,9 @@ LOGGER = logging.getLogger(__name__)
 KORK = object()
 
 
+MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
+
+
 def setup_event_loop():
     """
     Creates and sets up a new asyncio event loop that is capable of spawning
@@ -32,7 +35,7 @@ def setup_event_loop():
 
     Uses polling to watch subprocesses when not running in the main thread.
 
-    Note that this sets a global event loop policy.
+    Note that this sets a global event loop policy for the entire process.
     """
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -87,7 +90,8 @@ def run_in_background(coroutine):
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
     Blocks and returns the *future* result as soon as it is resolved.
-    The coroutine continues running in the background until it is complete.
+    The coroutine and all remaining tasks continue running in the background
+    until it is complete.
     """
     assert asyncio.iscoroutinefunction(coroutine)
 
@@ -150,15 +154,18 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
             if value not in (self.var or []):
                 raise EngineError("invalid value for combo option {}, got: {} (available: {})".format(self.name, value, ", ".join(self.var)))
             return value
-        elif self.type == "button":
+        elif self.type in ["button", "reset", "save"]:
             return None
-        elif self.type == "string":
+        elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
                 raise EngineError("invalid line-break in string option {}".format(self.name))
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
+
+    def is_managed_uci(self):
+        return self.name.lower() in MANAGED_UCI_OPTIONS
 
 
 class Limit:
@@ -175,8 +182,13 @@ class Limit:
         self.mate = mate
         self.movetime = movetime
 
+    def __repr__(self):
+        return "{}({})".format(type(self).__name__, ", ".join("{}={}".format(attr, repr(getattr(self, attr))) for attr in ["wtime", "btime", "winc", "binc", "movestogo", "depth", "nodes", "mate", "movetime" if getattr(self, attr) is not None]))
+
 
 class PlayResult:
+    """Best move according to the engine."""
+
     def __init__(self, move, ponder):
         self.move = move
         self.ponder = ponder
@@ -763,7 +775,7 @@ class UciProtocol(EngineProtocol):
 
     def _configure(self, options):
         for name, value in options.items():
-            if name.lower() in ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]:
+            if name.lower() in MANAGED_UCI_OPTIONS:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             else:
                 self._setoption(name, value)
