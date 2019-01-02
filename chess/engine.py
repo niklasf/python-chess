@@ -732,24 +732,12 @@ class UciProtocol(EngineProtocol):
                 if current_var is not None:
                     var.append(" ".join(current_var))
 
+                name = " ".join(name)
                 type = " ".join(type)
-
                 default = " ".join(default)
-                if type == "check":
-                    if default == "true":
-                        default = True
-                    elif default == "false":
-                        default = False
-                    else:
-                        default = None
-                elif type == "spin":
-                    try:
-                        default = int(default)
-                    except ValueError:
-                        LOGGER.exception("exception parsing option spin default")
-                        default = None
 
-                option = Option(" ".join(name), type, default, min, max, var)
+                without_default = Option(name, type, None, min, max, var)
+                option = Option(name, type, without_default.parse(default), min, max, var)
                 engine.options[option.name] = option
 
         return await self.communicate(Command)
