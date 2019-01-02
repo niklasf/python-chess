@@ -8,10 +8,13 @@ Evaluate a position
 >>>
 >>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 >>>
->>> board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
->>> limit = chess.engine.Limit(depth=20)
+>>> board = chess.Board()
+>>> info = engine.analyse(board, chess.engine.Limit(movetime=100))
+>>> info["score"]
+Cp(20)
 >>>
->>> info = engine.analyse(board, limit)
+>>> board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
+>>> info = engine.analyse(board, chess.engine.Limit(depth=20))
 >>> info["score"]
 Mate.plus(1)
 
