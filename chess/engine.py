@@ -699,7 +699,7 @@ class UciProtocol(EngineProtocol):
 
     def _configure(self, options):
         for name, value in options.items():
-            if name.lower() in ["uci_chess960", "uci_variant", "uci_analysemode", "multipv"]:
+            if name.lower() in ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             else:
                 self._setoption(name, value)
@@ -853,7 +853,7 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def analysis(self, board, limit=None, *, game=None, options={}):
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -862,6 +862,9 @@ class UciProtocol(EngineProtocol):
 
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", True)
+
+                if multipv and multipv > 1:
+                    engine._setoption("MultiPV", multipv)
 
                 engine._configure(options)
 
@@ -1024,8 +1027,8 @@ class SimpleEngine:
     def play(self, board, limit, *, game=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, options=options), self.protocol.loop).result()
 
-    def analyse(self, board, limit, *, game=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, game=game, options=options), self.protocol.loop).result()
+    def analyse(self, board, limit, *, multipv=None, game=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, options=options), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
