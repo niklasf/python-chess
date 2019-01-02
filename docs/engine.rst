@@ -14,6 +14,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 >>> while not board.is_game_over():
 ...     result = engine.play(board, chess.engine.Limit(movetime=100))
 ...     board.push(result.move)
+...
+>>> engine.quit()
 
 .. code:: python
 
@@ -27,6 +29,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
         while not board.is_game_over():
             result = await engine.play(board, chess.engine.Limit(movetime=100))
             board.push(result.move)
+
+        await engine.quit()
 
     chess.engine.setup_event_loop()
     asyncio.run(main())
@@ -63,6 +67,23 @@ Cp(20)
 >>> info = engine.analyse(board, chess.engine.Limit(depth=20))
 >>> info["score"]
 Mate.plus(1)
+
+.. code:: python
+
+    import asyncio
+    import chess.engine
+
+    async def main():
+        transport, engine = await chess.engine.popen_uci("stockfish")
+
+        board = chess.Board()
+        info = await engine.analyse(board, chess.engine.Limit(movetime=100))
+        print(info["score"])
+
+        await engine.quit()
+
+    chess.engine.setup_event_loop()
+    asyncio.run(main())
 
 .. autoclass:: chess.engine.EngineProtocol
     :members: analyse
