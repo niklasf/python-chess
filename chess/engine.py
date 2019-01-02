@@ -165,6 +165,19 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
                 return str(value)
 
 
+class Limit:
+    def __init__(self, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None):
+        self.wtime = wtime
+        self.btime = btime
+        self.winc = winc
+        self.binc = binc
+        self.movestogo = movestogo
+        self.depth = depth
+        self.nodes = nodes
+        self.mate = mate
+        self.movetime = movetime
+
+
 class PlayResult:
     def __init__(self, move, ponder):
         self.move = move
@@ -727,47 +740,47 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
         self.board = board.copy(stack=False)
 
-    def _go(self, *, searchmoves=None, ponder=False, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None, infinite=False):
+    def _go(self, limit, *, searchmoves=None, ponder=False, infinite=False):
         builder = ["go"]
 
         if ponder:
             builder.append("ponder")
 
-        if wtime is not None:
+        if limit.wtime is not None:
             builder.append("wtime")
-            builder.append(str(int(wtime)))
+            builder.append(str(int(limit.wtime)))
 
-        if btime is not None:
+        if limit.btime is not None:
             builder.append("btime")
-            builder.append(str(int(btime)))
+            builder.append(str(int(limit.btime)))
 
-        if winc is not None:
+        if limit.winc is not None:
             builder.append("winc")
-            builder.append(str(int(winc)))
+            builder.append(str(int(limit.winc)))
 
-        if binc is not None:
+        if limit.binc is not None:
             builder.append("binc")
-            builder.append(str(int(binc)))
+            builder.append(str(int(limit.binc)))
 
-        if movestogo is not None and movestogo > 0:
+        if limit.movestogo is not None and int(limit.movestogo) > 0:
             builder.append("movestogo")
-            builder.append(str(int(movestogo)))
+            builder.append(str(int(limit.movestogo)))
 
-        if depth is not None:
+        if limit.depth is not None:
             builder.append("depth")
-            builder.append(str(int(depth)))
+            builder.append(str(int(limit.depth)))
 
-        if nodes is not None:
+        if limit.nodes is not None:
             builder.append("nodes")
-            builder.append(str(int(nodes)))
+            builder.append(str(int(limit.nodes)))
 
-        if mate is not None:
+        if limit.mate is not None:
             builder.append("mate")
-            builder.append(str(int(mate)))
+            builder.append(str(int(limit.mate)))
 
-        if movetime is not None:
+        if limit.movetime is not None:
             builder.append("movetime")
-            builder.append(str(int(movetime)))
+            builder.append(str(int(limit.movetime)))
 
         if infinite:
             builder.append("infinite")
@@ -779,7 +792,7 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self, board, *, game=None, options={}):
+    async def play(self, board, limit, *, game=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -794,7 +807,7 @@ class UciProtocol(EngineProtocol):
                 engine.game = game
 
                 engine._position(board)
-                engine._go(nodes=10000, movetime=1000)
+                engine._go(limit)
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
@@ -903,8 +916,8 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, *, game=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, game=game, options=options), self.protocol.loop).result()
+    def play(self, board, limit, *, game=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, options=options), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
@@ -939,8 +952,9 @@ async def async_main():
     })
 
     import chess.variant
-    board = chess.variant.ThreeCheckBoard()
-    play_result = await engine.play(board)
+    #board = chess.variant.ThreeCheckBoard()
+    board = chess.Board()
+    play_result = await engine.play(board, Limit(movetime=1000))
     print("PLAYED ASYNC", play_result)
 
     await engine.quit()
@@ -961,9 +975,11 @@ def main():
         #    "Contempt": 40,
         #})
 
+        limit = Limit(movetime=1000)
+
         board = chess.Board()
         while not board.is_game_over():
-            play_result = engine.play(board, game="foo") # , config={"Contempt": 20})
+            play_result = engine.play(board, limit, game="foo") # , config={"Contempt": 20})
             print("PLAYED", play_result)
             board.push(play_result.move)
             break
