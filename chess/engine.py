@@ -21,6 +21,9 @@ import chess
 LOGGER = logging.getLogger(__name__)
 
 
+KORK = object()
+
+
 def setup_event_loop():
     """
     Creates and sets up a new asyncio event loop that is capable of spawning
@@ -888,6 +891,50 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
+    async def analysis(self, board, limit=None, *, game=None, options={}):
+        previous_config = self.config.copy()
+
+        class Command(BaseCommand):
+            def start(self, engine):
+                self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+
+                if "UCI_AnalyseMode" in engine.options:
+                    engine._setoption("UCI_AnalyseMode", True)
+
+                engine._configure(options)
+
+                if engine.game != game:
+                    engine._ucinewgame()
+                engine.game = game
+
+                engine._position(board)
+                engine._go(limit)
+
+                self.result.set_result(self.analysis)
+
+            def line_received(self, engine, line):
+                if line.startswith("info "):
+                    self._info(engine, line.split(" ", 1)[1])
+                elif line.startswith("bestmove "):
+                    self._bestmove(engine, line.split(" ", 1)[1])
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _info(self, engine, arg):
+                self.analysis.post(arg)
+
+            def _bestmove(self, engine, arg):
+                for name, value in previous_config.items():
+                    engine._setoption(name, value)
+
+                self.analysis.set_finished()
+                self.set_finished()
+
+            def cancel(self, engine):
+                engine.send_line("stop")
+
+        return await self.communicate(Command)
+
     async def quit(self):
         self.send_line("quit")
         await self.returncode
@@ -936,6 +983,54 @@ class UciOptionMap(collections.abc.MutableMapping):
 
     def __repr__(self):
         return "{}({})".format(type(self).__name__, dict(self.items()))
+
+
+class AnalysisResult:
+    def __init__(self, stop=None):
+        self._stop = stop
+        self._queue = asyncio.Queue()
+        self._seen_kork = False
+        self._finished = asyncio.Event()
+        self.multipv = [{}]
+
+    def post(self, info):
+        self._queue.put_nowait(info)
+
+    def set_finished(self):
+        self._queue.put_nowait(KORK)
+        self._finished.set()
+
+    @property
+    def info(self):
+        return self.multipv[0]
+
+    def stop(self):
+        if self._stop and not self._finished.is_set():
+            self._stop()
+            self._stop = None
+
+    async def wait(self):
+        return await self._finished.wait()
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self._seen_kork:
+            raise StopAsyncIteration
+
+        info = await self._queue.get()
+        if info is KORK:
+            self._seen_kork = True
+            raise StopAsyncIteration
+
+        return info
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, a, b, c):
+        self.stop()
 
 
 async def popen_uci(command, **kwargs):
@@ -995,8 +1090,14 @@ async def async_main():
     import chess.variant
 
     board = chess.Board()
-    play_result = await asyncio.wait_for(engine.play(board, Limit(movetime=30000)), 2.000)
-    print("PLAYED ASYNC", play_result)
+    limit = Limit(depth=20)
+    with await engine.analysis(board, limit) as analysis:
+        async for info in analysis:
+            print("!", info)
+            if "depth 14" in info:
+                break
+
+    await analysis.wait()
 
     await engine.quit()
 
