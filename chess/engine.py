@@ -183,7 +183,11 @@ class Limit:
         self.movetime = movetime
 
     def __repr__(self):
-        return "{}({})".format(type(self).__name__, ", ".join("{}={}".format(attr, repr(getattr(self, attr))) for attr in ["wtime", "btime", "winc", "binc", "movestogo", "depth", "nodes", "mate", "movetime" if getattr(self, attr) is not None]))
+        return "{}({})".format(
+            type(self).__name__,
+            ", ".join("{}={}".format(attr, repr(getattr(self, attr)))
+                      for attr in ["wtime", "btime", "winc", "binc", "movestogo", "depth", "nodes", "mate", "movetime"]
+                      if getattr(self, attr) is not None))
 
 
 class PlayResult:
