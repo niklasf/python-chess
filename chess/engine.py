@@ -384,6 +384,9 @@ class Mate(Score):
     def __pos__(self):
         return Mate(self.moves, self.winning)
 
+    def __abs__(self):
+        return Mate(self.moves, True)
+
     def __eq__(self, other):
         try:
             return other.is_mate() and self.moves == other.moves and self.winning == other.winning
