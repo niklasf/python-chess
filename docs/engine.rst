@@ -1,6 +1,25 @@
 Experimental Engine API
 =======================
 
+Options
+-------
+
+:func:`~chess.EngineProtocol.configure()`,
+:func:`~chess.EngineProtocol.play()`,
+:func:`~chess.EngineProtocol.analyse()` and
+:func:`~chess.EngineProtocol.analysis()` accept a dictionary of options.
+
+>>> import chess.engine
+>>>
+>>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+>>>
+>>> # Check available options.
+>>> engine.options["Hash"]
+Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
+>>>
+>>> # Set an option.
+>>> engine.configure({"Hash": 32})
+
 .. autoclass:: chess.engine.Option
     :members:
 
@@ -52,16 +71,24 @@ Experimental Engine API
 Reference
 ---------
 
-http://hgm.nubati.net/CECP.html
-https://www.chessprogramming.org/UCI
-
 .. autofunction:: chess.engine.popen_uci
 
+.. autofunction:: chess.engine.popen_xboard
+
 .. autoclass:: chess.engine.EngineProtocol
-    :members:
+    :members: configure, play, analyse, analysis, ping
+
+    .. py:attribute:: options
+
+        Dictionary of available options.
+
+    .. py:attribute:: returncode
+
+        Exit code of the process. Future.
 
 .. autoclass:: chess.engine.UciProtocol
-    :members:
+
+.. autoclass:: chess.engine.XBoardProtocol
 
 .. autoclass:: chess.engine.PlayResult
     :members:

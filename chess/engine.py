@@ -643,6 +643,12 @@ class BaseCommand:
 
 
 class UciProtocol(EngineProtocol):
+    """
+    An implementation of the
+    `Universal Chess Interface <https://www.chessprogramming.org/UCI>`_
+    protocol.
+    """
+
     def __init__(self):
         super().__init__()
         self.options = UciOptionMap()
@@ -1034,6 +1040,14 @@ class UciOptionMap(collections.abc.MutableMapping):
         return "{}({})".format(type(self).__name__, dict(self.items()))
 
 
+class XBoardProtocol(EngineProtocol):
+    """
+    An implementation of the
+    `XBoard protocol <http://hgm.nubati.net/CECP.html>`_ (CECP).
+    """
+    pass
+
+
 class AnalysisResult:
     def __init__(self, stop=None):
         self._stop = stop
@@ -1086,11 +1100,21 @@ async def popen_uci(command, **kwargs):
     return await UciProtocol.popen(command, **kwargs)
 
 
+async def popen_xboard(command, **kwargs):
+    return await XBoardProtocol.popen(command, **kwargs)
+
+
 class SimpleEngine:
     def __init__(self, transport, protocol, *, timeout=10.0):
         self.transport = transport
         self.protocol = protocol
         self.timeout = timeout
+
+    @property
+    def options(self):
+        async def _get():
+            return self.protocol.options.copy()
+        return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
 
     def configure(self, options):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(options), self.timeout), self.protocol.loop).result()
@@ -1120,6 +1144,16 @@ class SimpleEngine:
         """Spawn an UCI engine."""
         async def background(future):
             transport, protocol = await asyncio.wait_for(UciProtocol.popen(command, **popen_args), timeout)
+            future.set_result(cls(transport, protocol, timeout=timeout))
+            await protocol.returncode
+
+        return run_in_background(background)
+
+    @classmethod
+    def popen_xboard(cls, command, *, timeout=10.0, **popen_args):
+        """Spawn an XBoard engine."""
+        async def background(future):
+            transport, protocol = await asyncio.wait_for(XBoardProtocol.popen(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
             await protocol.returncode
 
