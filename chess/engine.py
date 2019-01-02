@@ -1,3 +1,4 @@
+import abc
 import asyncio
 import concurrent.futures
 import functools
@@ -157,18 +158,12 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
                 raise EngineError("invalid line-break in string option {}".format(self.name))
             return value
         else:
-            # Unknown option type.
-            if value is True:
-                return "true"
-            elif value is False:
-                return "false"
-            elif value is None:
-                return None
-            else:
-                return str(value)
+            raise EngineError("unknown option type: {}", self.type)
 
 
 class Limit:
+    """Search termination condition."""
+
     def __init__(self, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None):
         self.wtime = wtime
         self.btime = btime
@@ -190,13 +185,99 @@ class PlayResult:
         return "<{} at {} (move={}, ponder={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder)
 
 
+class Score(abc.ABC):
+    """
+    Evaluation of a position.
+
+    The score can be Cp (centi-pawns) or Mate. A positive value indicates an
+    advantage.
+
+    >>> cp = Cp(20)
+    >>> cp.score()
+    20
+    >>> cp.mate() is None
+    True
+    >>> cp.is_mate()
+    False
+
+    >>> mate = Mate.from_moves(-3)
+    >>> mate.score() is None
+    True
+    >>> mate.mate()
+    -3
+    >>> mate.is_mate()
+    True
+
+    There is a total order defined on centi-pawn and mate scores.
+
+    >>> from chess.engine import Cp, Mate
+    >>>
+    >>> Mate.minus(0) < Mate.minus(1) < Cp(-50) < Cp(200) < Mate.plus(4) < Mate.plus(0)
+    True
+
+    Scores are usually given from the point of view of the side to move. They
+    can be negated to change the point of view:
+
+    >>> -Cp(20)
+    Cp(-20)
+
+    >>> -Mate.from_moves(4)
+    Mate.minus(4)
+
+    >>> # Careful with Mate.from_moves(0)!
+    >>> Mate.minus(0) != Mate.plus(0)
+    True
+    >>> Mate.from_moves(0)
+    Mate.minus(0)
+    >>> -Mate.from_moves(0)
+    Mate.plus(0)
+    """
+
+    @abc.abstractmethod
+    def score(self, mate_score=None):
+        """
+        Returns a centi-pawn score or ``None``.
+
+        You can optionally pass a large value to convert mate scores to
+        centi-pawn scores.
+
+        >>> from chess.engine import Cp, Mate
+        >>>
+        >>> cp = Cp(-300)
+        >>> cp.score()
+        -300
+        >>>
+        >>> mate = Mate.from_moves(5)
+        >>> mate.score() is None
+        True
+        >>> mate.score(100000)
+        99995
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def mate(self):
+        """Returns a mate score or ``None``."""
+        raise NotImplementedError
+
+    def is_mate(self):
+        """Tests if this is a mate score."""
+        return self.mate() is not None
+
+    @abc.abstractmethod
+    def __neg__(self):
+        raise NotImplementedError
+
+
 @functools.total_ordering
-class Cp:
+class Cp(Score):
+    """Centi-pawn score."""
+
     def __init__(self, cp):
         self.cp = cp
 
-    def is_mate(self):
-        return False
+    def mate(self):
+        return None
 
     def score(self, mate_score=None):
         return self.cp
@@ -227,46 +308,20 @@ class Cp:
 
     __rmul__ = __mul__
 
-    def __truediv__(self, scalar):
-        try:
-            return Cp(self.cp / scalar)
-        except TypeError:
-            return NotImplemented
-
-    def __floordiv__(self, scalar):
-        try:
-            return Cp(self.cp // scalar)
-        except TypeError:
-            return NotImplemented
-
     def __neg__(self):
         return Cp(-self.cp)
 
     def __pos__(self):
         return Cp(self.cp)
 
-    def __int__(self):
-        return self.cp
-
     def __abs__(self):
         return Cp(abs(self.cp))
 
-    def __float__(self):
-        return float(self.cp)
-
     def __eq__(self, other):
         try:
-            return self.cp == other.cp
+            return self.cp == other.score()
         except AttributeError:
-            pass
-
-        try:
-            other.winning
-            return False
-        except AttributeError:
-            pass
-
-        return NotImplemented
+            return NotImplemented
 
     def __lt__(self, other):
         try:
@@ -283,13 +338,12 @@ class Cp:
 
 
 @functools.total_ordering
-class Mate:
+class Mate(Score):
+    """Mate score."""
+
     def __init__(self, moves, winning):
         self.moves = abs(moves)
         self.winning = winning ^ (moves < 0)
-
-    def is_mate(self):
-        return True
 
     def score(self, mate_score=None):
         if mate_score is None:
@@ -298,6 +352,10 @@ class Mate:
             return mate_score - self.moves
         else:
             return -mate_score + self.moves
+
+    def mate(self):
+        # Careful: Conflates Mate.plus(0) and Mate.minus(0)!
+        return self.moves if self.winning else -self.moves
 
     @classmethod
     def from_moves(cls, moves):
@@ -326,26 +384,11 @@ class Mate:
     def __pos__(self):
         return Mate(self.moves, self.winning)
 
-    def __int__(self):
-        # Careful: Conflates Mate.plus(0) and Mate.minus(0)!
-        return self.moves
-
-    def __float__(self):
-        return float(int(self))
-
     def __eq__(self, other):
         try:
-            return self.moves == other.moves and self.winning == other.winning
+            return other.is_mate() and self.moves == other.moves and self.winning == other.winning
         except AttributeError:
-            pass
-
-        try:
-            other.cp
-            return False
-        except AttributeError:
-            pass
-
-        return NotImplemented
+            return NotImplemented
 
     def __lt__(self, other):
         try:
@@ -1137,8 +1180,9 @@ def main():
         print(engine.protocol.options)
 
         board = chess.Board()
-        with engine.analysis(board) as analysis:
+        with engine.analysis(board, Limit(movetime=3000)) as analysis:
             for info in analysis:
+                print("!!!", analysis.multipv)
                 if "123" in info:
                     break
 
