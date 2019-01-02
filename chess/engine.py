@@ -903,10 +903,8 @@ class UciProtocol(EngineProtocol):
     async def analyse(self, board, limit, *, multipv=None, game=None, options={}):
         analysis = await self.analysis(board, limit, game=game, options=options)
 
-        try:
+        with analysis:
             await analysis.wait()
-        except asyncio.CancelledError:
-            analysis.stop()
 
         return analysis.info if multipv is None else analysis.multipv
 
