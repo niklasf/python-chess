@@ -850,6 +850,44 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
+    async def analyse(self, board, limit, *, game=None, options={}):
+        previous_config = self.config.copy()
+
+        class Command(BaseCommand):
+            def start(self, engine):
+                self.info = {}
+
+                if "UCI_AnalyseMode" in engine.options:
+                    engine._setoption("UCI_AnalyseMode", True)
+
+                engine._configure(options)
+
+                if engine.game != game:
+                    engine._ucinewgame()
+                engine.game = game
+
+                engine._position(board)
+                engine._go(limit)
+
+            def line_received(self, engine, line):
+                if line.startswith("bestmove "):
+                    self._bestmove(engine, line.split(" ", 1)[1])
+                elif not line.startswith("info "):
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _bestmove(self, engine, arg):
+                self.result.set_result(self.info)
+
+                for name, value in previous_config.items():
+                    engine._setoption(name, value)
+
+                self.set_finished()
+
+            def cancel(self, engine):
+                engine.send_line("stop")
+
+        return await self.communicate(Command)
+
     async def quit(self):
         self.send_line("quit")
         await self.returncode
@@ -919,6 +957,9 @@ class SimpleEngine:
     def play(self, board, limit, *, game=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, options=options), self.protocol.loop).result()
 
+    def analyse(self, board, limit, *, game=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, game=game, options=options), self.protocol.loop).result()
+
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
 
@@ -952,9 +993,9 @@ async def async_main():
     })
 
     import chess.variant
-    #board = chess.variant.ThreeCheckBoard()
+
     board = chess.Board()
-    play_result = await engine.play(board, Limit(movetime=1000))
+    play_result = await asyncio.wait_for(engine.play(board, Limit(movetime=30000)), 2.000)
     print("PLAYED ASYNC", play_result)
 
     await engine.quit()
