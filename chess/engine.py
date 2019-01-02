@@ -795,7 +795,7 @@ class UciProtocol(EngineProtocol):
 
         self.send_line(" ".join(builder))
 
-    async def play(self, board, limit, *, game=None, options={}):
+    async def play(self, board, limit, *, game=None, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -810,7 +810,7 @@ class UciProtocol(EngineProtocol):
                 engine.game = game
 
                 engine._position(board)
-                engine._go(limit)
+                engine._go(limit, searchmoves=searchmoves)
 
             def line_received(self, engine, line):
                 if line.startswith("bestmove "):
@@ -853,7 +853,7 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def analysis(self, board, limit=None, *, multipv=None, game=None, options={}):
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -875,9 +875,9 @@ class UciProtocol(EngineProtocol):
                 engine._position(board)
 
                 if limit:
-                    engine._go(limit)
+                    engine._go(limit, searchmoves=searchmoves)
                 else:
-                    engine._go(Limit(), infinite=True)
+                    engine._go(Limit(), searchmoves=searchmoves, infinite=True)
 
                 self.result.set_result(self.analysis)
 
@@ -904,8 +904,8 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def analyse(self, board, limit, *, multipv=None, game=None, options={}):
-        analysis = await self.analysis(board, limit, game=game, options=options)
+    async def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
+        analysis = await self.analysis(board, limit, game=game, searchmoves=searchmoves, options=options)
 
         with analysis:
             await analysis.wait()
@@ -1026,11 +1026,11 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, options=options), self.protocol.loop).result()
+    def play(self, board, limit, *, game=None, searchmoves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
-    def analyse(self, board, limit, *, multipv=None, game=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, options=options), self.protocol.loop).result()
+    def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
