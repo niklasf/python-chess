@@ -934,7 +934,7 @@ class BaseBoard:
                         raise ValueError("~ not after piece in position part of fen: {}".format(repr(fen)))
                     previous_was_digit = False
                     previous_was_piece = False
-                elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+                elif c.lower() in PIECE_SYMBOLS[1:]:
                     field_sum += 1
                     previous_was_digit = False
                     previous_was_piece = True
@@ -952,7 +952,7 @@ class BaseBoard:
         for c in fen:
             if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                 square_index += int(c)
-            elif c.lower() in ["p", "n", "b", "r", "q", "k"]:
+            elif c.lower() in PIECE_SYMBOLS[1:]:
                 piece = Piece.from_symbol(c)
                 self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
                 square_index += 1
