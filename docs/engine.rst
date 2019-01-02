@@ -15,7 +15,8 @@ with both kinds of engines.
 
    The XBoard implementation is currently only a skeleton.
 
-The preferred way to use the API is in an ``asyncio`` event loop.
+The preferred way to use the API is with an
+`asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop.
 The examples also show a simple synchronous wrapper
 :class:`~chess.engine.SimpleEngine` that automatically spawns an event loop
 in the background.
@@ -25,20 +26,24 @@ Playing
 
 Example: Let Stockfish play against itself, 100 milliseconds per move.
 
->>> import chess.engine
->>>
->>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
->>>
->>> board = chess.Board()
->>> while not board.is_game_over():
-...     result = engine.play(board, chess.engine.Limit(movetime=100))
-...     board.push(result.move)
-...
->>> engine.quit()
+.. code:: python
+
+    import chess
+    import chess.engine
+
+    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+
+    board = chess.Board()
+    while not board.is_game_over():
+        result = engine.play(board, chess.engine.Limit(movetime=100))
+        board.push(result.move)
+
+    engine.quit()
 
 .. code:: python
 
     import asyncio
+    import chess
     import chess.engine
 
     async def main():
@@ -80,25 +85,29 @@ Analysing and evaluating a position
 
 Example:
 
->>> import chess.engine
->>>
->>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
->>>
->>> board = chess.Board()
->>> info = engine.analyse(board, chess.engine.Limit(movetime=100))
->>> info["score"]
-Cp(20)
->>>
->>> board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
->>> info = engine.analyse(board, chess.engine.Limit(depth=20))
->>> info["score"]
-Mate.plus(1)
->>>
->>> engine.quit()
+.. code:: python
+
+    import chess
+    import chess.engine
+
+    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+
+    board = chess.Board()
+    info = engine.analyse(board, chess.engine.Limit(movetime=100))
+    print("Score:", info["score"])
+    # Score: +20
+
+    board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
+    info = engine.analyse(board, chess.engine.Limit(depth=20))
+    print("Score:", info["score"])
+    # Score: #1
+
+    engine.quit()
 
 .. code:: python
 
     import asyncio
+    import chess
     import chess.engine
 
     async def main():
@@ -107,10 +116,12 @@ Mate.plus(1)
         board = chess.Board()
         info = await engine.analyse(board, chess.engine.Limit(movetime=100))
         print(info["score"])
+        # Score: +20
 
         board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
         info = await engine.analyse(board, chess.engine.Limit(depth=20))
         print(info["score"])
+        # Score: #1
 
         await engine.quit()
 
@@ -122,6 +133,67 @@ Mate.plus(1)
 
 .. autoclass:: chess.engine.Score
     :members:
+
+Indefinite or infinite analysis
+-------------------------------
+
+Example: Stream information from the engine and stop on an arbitrary condition.
+
+.. code:: python
+
+    import chess
+    import chess.engine
+
+    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+
+    with engine.analysis(chess.Board()) as analysis:
+        for info in analysis:
+            print(info.get("score"), info.get("pv"))
+
+            # Unusual stop condition.
+            if info.get("hashfull", 0) > 900:
+                break
+
+    engine.quit()
+
+.. code:: python
+
+    import asyncio
+    import chess
+    import chess.engine
+
+    async def main():
+        transport, engine = chess.engine.popen_uci("stockfish")
+
+        analysis = await engine.analysis(chess.Board())
+        with analysis:
+            async for info in analysis:
+                print(info.get("score"), info.get("pv"))
+
+                # Unusual stop condition.
+                if info.get("hashfull", 0) > 900:
+                    break
+
+        await engine.quit()
+
+    chess.engine.setup_event_loop()
+    asyncio.run(main())
+
+.. autoclass:: chess.engine.EngineProtocol
+    :members: analysis
+
+.. autoclass:: chess.engine.AnalysisResult
+    :members:
+
+    .. py:attribute:: info
+
+        A dictionary of aggregated information sent by the engine. This is
+        actually an alias for ``multipv[0]``.
+
+    .. py:attribute:: multipv
+
+        A list of dictionaries with aggregated information sent by the engine.
+        One item for each root move.
 
 Options
 -------
@@ -152,6 +224,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 
         # Check available options.
         print(engine.options["Hash"])
+        # Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 
         # Set an option.
         await engine.configure({"Hash": 32})
@@ -211,6 +284,19 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 
         A list of allowed string values for a *combo* option.
 
+Logging
+-------
+
+Communication is logged with debug level on a logger named ``chess.engine``.
+Debug logs are useful while troubleshooting or in bug reports.
+
+.. code:: python
+
+    import logging
+
+    # Enable debug logging.
+    logging.basicConfig(level=logging.DEBUG)
+
 Reference
 ---------
 
@@ -228,19 +314,6 @@ Reference
 .. autoclass:: chess.engine.UciProtocol
 
 .. autoclass:: chess.engine.XBoardProtocol
-
-.. autoclass:: chess.engine.AnalysisResult
-    :members:
-
-    .. py:attribute:: info
-
-        A dictionary of aggregated information sent by the engine. This is
-        actually an alias for ``multipv[0]``.
-
-    .. py:attribute:: multipv
-
-        A list of dictionaries with aggregated information sent by the engine.
-        One item for each root move.
 
 .. autoclass:: chess.engine.SimpleEngine
     :members:

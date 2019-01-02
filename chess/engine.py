@@ -575,6 +575,25 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     async def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
         """
         Start analysing a position.
+
+        :param board: The position to analyse. The entire move stack will be
+            sent to the engine.
+        :param limit: Optional. An instance of :class:`~chess.engine.Limit`
+            that determines when to stop the analysis. Analysis is infinite
+            by default.
+        :param multipv: Optional. Analyse multiple root moves.
+        :param game: Optional. An arbitrary object that identifies the game.
+            Will automatically clear hashtables if the object is not equal
+            to the previous game.
+        :param searchmoves: Optional. Limit analysis to a list of root moves.
+        :param options: Optional. A dictionary of engine options for the
+            analysis. The previous configuration will be restored after the
+            analysis is complete. You can permanently apply a configuration
+            with :func:`~chess.engine.EngineProtocol.configure()`.
+
+        Returns :class:`~chess.engine.AnalysisResult`, a handle that allows
+        asynchronously iterating over the information sent by the engine
+        and stopping the the analysis at any time.
         """
         raise NotImplementedError
 
