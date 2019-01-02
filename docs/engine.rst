@@ -9,6 +9,9 @@ Reference
 
 .. autofunction:: chess.engine.popen_uci
 
+.. autoclass:: chess.engine.EngineProtocol
+    :members:
+
 .. autoclass:: chess.engine.UciProtocol
     :members:
 

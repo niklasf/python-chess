@@ -389,7 +389,7 @@ class Mate(Score):
         return other > self
 
 
-class EngineProtocol(asyncio.SubprocessProtocol):
+class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def __init__(self):
         self.loop = get_running_loop()
         self.transport = None
@@ -493,6 +493,43 @@ class EngineProtocol(asyncio.SubprocessProtocol):
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else None
         return "<{} (pid={})>".format(type(self).__name__, pid)
+
+    @abc.abstractmethod
+    async def ping(self):
+        """
+        Ping the engine and wait for a response. Used to ensure the engine
+        is still alive and idle.
+        """
+        raise NotImplementedError
+
+    async def configure(self, options):
+        """Configure global engine options."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def play(self, board, limit, *, game=None, searchmoves=None, options={}):
+        """
+        Search for the best move in a position.
+        """
+        raise NotImplementedError
+
+    async def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
+        """
+        Analyse a position.
+        """
+        analysis = await self.analysis(board, limit, game=game, searchmoves=searchmoves, options=options)
+
+        with analysis:
+            await analysis.wait()
+
+        return analysis.info if multipv is None else analysis.multipv
+
+    @abc.abstractmethod
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
+        """
+        Start analysing a position.
+        """
+        raise NotImplementedError
 
     @classmethod
     async def popen(cls, command, *, setpgrp=False, **kwargs):
@@ -931,14 +968,6 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
-        analysis = await self.analysis(board, limit, game=game, searchmoves=searchmoves, options=options)
-
-        with analysis:
-            await analysis.wait()
-
-        return analysis.info if multipv is None else analysis.multipv
-
     async def quit(self):
         self.send_line("quit")
         await self.returncode
@@ -1072,6 +1101,7 @@ class SimpleEngine:
 
     @classmethod
     def popen_uci(cls, command, *, timeout=10.0, **popen_args):
+        """Spawn an UCI engine."""
         async def background(future):
             transport, protocol = await asyncio.wait_for(UciProtocol.popen(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
