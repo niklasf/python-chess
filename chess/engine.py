@@ -189,24 +189,8 @@ class Score(abc.ABC):
     """
     Evaluation of a position.
 
-    The score can be Cp (centi-pawns) or Mate. A positive value indicates an
-    advantage.
-
-    >>> cp = Cp(20)
-    >>> cp.score()
-    20
-    >>> cp.mate() is None
-    True
-    >>> cp.is_mate()
-    False
-
-    >>> mate = Mate.from_moves(-3)
-    >>> mate.score() is None
-    True
-    >>> mate.mate()
-    -3
-    >>> mate.is_mate()
-    True
+    The score can be :class:`~chess.engine.Cp` (centi-pawns) or
+    :class:`~chess.engine.Mate`. A positive value indicates an advantage.
 
     There is a total order defined on centi-pawn and mate scores.
 
@@ -223,14 +207,6 @@ class Score(abc.ABC):
 
     >>> -Mate.from_moves(4)
     Mate.minus(4)
-
-    >>> # Careful with Mate.from_moves(0)!
-    >>> Mate.minus(0) != Mate.plus(0)
-    True
-    >>> Mate.from_moves(0)
-    Mate.minus(0)
-    >>> -Mate.from_moves(0)
-    Mate.plus(0)
     """
 
     @abc.abstractmethod
@@ -257,7 +233,12 @@ class Score(abc.ABC):
 
     @abc.abstractmethod
     def mate(self):
-        """Returns a mate score or ``None``."""
+        """
+        Returns a mate score or ``None``.
+
+        :warning: This conflates ``Mate.minus(0)`` (we are mated) and
+            ``Mate.plus(0)`` (we have given mate) to ``0``.
+        """
         raise NotImplementedError
 
     def is_mate(self):
