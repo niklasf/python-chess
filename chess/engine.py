@@ -191,7 +191,7 @@ class Limit:
 
 
 class PlayResult:
-    """Result of :func:`chess.engine.EngineProtocol.play()`."""
+    """Returned by :func:`chess.engine.EngineProtocol.play()`."""
 
     def __init__(self, move, ponder):
         self.move = move
@@ -406,6 +406,8 @@ class Mate(Score):
 
 
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
+    """Protocol for communicating with a chess engine process."""
+
     def __init__(self):
         self.loop = get_running_loop()
         self.transport = None
@@ -527,7 +529,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
         Play a position.
 
-        :param board: The position.
+        :param board: The position. The entire move stack will be sent to the
+            engine.
         :param limit: An instance of :class:`~chess.engine.Limit` that
             determines when to stop thinking.
         :param game: Optional. An arbitrary object that identifies the game.
@@ -573,6 +576,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
         Start analysing a position.
         """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def quit(self):
+        """Ask the engine to shut down."""
         raise NotImplementedError
 
     @classmethod
@@ -1065,6 +1073,15 @@ class XBoardProtocol(EngineProtocol):
 
 
 class AnalysisResult:
+    """
+    Handle to ongoing engine analysis.
+
+    Can be used to asynchronously iterate over information sent by the engine.
+
+    Automatically stops the analysis when used as a context manager.
+
+    Returned by :func:`chess.engine.EngineProtocol.analysis()`.
+    """
     def __init__(self, stop=None):
         self._stop = stop
         self._queue = asyncio.Queue()
@@ -1084,11 +1101,13 @@ class AnalysisResult:
         return self.multipv[0]
 
     def stop(self):
+        """Stop the analysis as soon as possible."""
         if self._stop and not self._finished.is_set():
             self._stop()
             self._stop = None
 
     async def wait(self):
+        """Waits until the analysis is complete (or stopped)."""
         return await self._finished.wait()
 
     def __aiter__(self):
@@ -1113,14 +1132,33 @@ class AnalysisResult:
 
 
 async def popen_uci(command, **kwargs):
+    """
+    Spawns and initializes an UCI engine. Returns a subprocess transport
+    and engine protocol pair.
+    """
     return await UciProtocol.popen(command, **kwargs)
 
 
 async def popen_xboard(command, **kwargs):
+    """
+    Swpans and initializes an XBoard engine. Returns a subprocess transport
+    and engine protocol pair.
+    """
     return await XBoardProtocol.popen(command, **kwargs)
 
 
 class SimpleEngine:
+    """
+    Synchronous wrapper around a transport and engine protocol pair. Provides
+    the same methods and attributes as :class:`~chess.engine.EngineProtocol`,
+    with blocking functions instead of coroutines.
+
+    If *timeout* is specified, methods will raise :class:`asyncio.TimeoutError`
+    if an operation takes *timeout* seconds longer than expected.
+
+    Automatically closes the transport when used as a context manager.
+    """
+
     def __init__(self, transport, protocol, *, timeout=10.0):
         self.transport = transport
         self.protocol = protocol
@@ -1153,11 +1191,12 @@ class SimpleEngine:
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
 
     def close(self):
+        """Close the transport."""
         self.transport.close()
 
     @classmethod
     def popen_uci(cls, command, *, timeout=10.0, **popen_args):
-        """Spawn an UCI engine."""
+        """Spawn and initialize an UCI engine."""
         async def background(future):
             transport, protocol = await asyncio.wait_for(UciProtocol.popen(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
@@ -1167,7 +1206,7 @@ class SimpleEngine:
 
     @classmethod
     def popen_xboard(cls, command, *, timeout=10.0, **popen_args):
-        """Spawn an XBoard engine."""
+        """Spawn and initialize an XBoard engine."""
         async def background(future):
             transport, protocol = await asyncio.wait_for(XBoardProtocol.popen(command, **popen_args), timeout)
             future.set_result(cls(transport, protocol, timeout=timeout))
@@ -1183,6 +1222,11 @@ class SimpleEngine:
 
 
 class SimpleAnalysisResult:
+    """
+    Synchronous wrapper around :class:`~chess.engine.AnalysisResult`. Returned
+    by :func:`chess.engine.SimpleEngine.analysis()`.
+    """
+
     def __init__(self, inner, loop):
         self.inner = inner
         self.loop = loop

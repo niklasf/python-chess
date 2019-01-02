@@ -1,6 +1,21 @@
 Experimental Engine API
 =======================
 
+UCI and XBoard are protocols for communicating with chess engines. This module
+implements a thin abstraction for playing moves and analysing positions
+with both kinds of engines.
+
+:warning: The XBoard implementation is currently incomplete.
+
+:warning: This is an experimental module that may change in semver incompatible
+   ways. Please weigh in on the design if the provided APIs do not cover
+   your use case.
+
+The preferred way to use the API is in an ``asyncio`` event loop.
+The examples also show a simple synchronous wrapper
+:class:`~chess.engine.SimpleEngine` that automatically spawns an event loop
+in the background.
+
 Playing
 -------
 
@@ -38,6 +53,13 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 .. autoclass:: chess.engine.EngineProtocol
     :members: play
 
+.. autoclass:: chess.engine.Limit
+    :members:
+
+    .. py:attribute:: depth
+
+        Maximum search depth.
+
 .. autoclass:: chess.engine.PlayResult
     :members:
 
@@ -49,10 +71,10 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
         The response that the engine expects after *move*, or ``None``.
 
-Analyse
--------
+Analysing and evaluating a position
+-----------------------------------
 
-Example: Analyse and evaluate positions.
+Example:
 
 >>> import chess.engine
 >>>
@@ -67,6 +89,8 @@ Cp(20)
 >>> info = engine.analyse(board, chess.engine.Limit(depth=20))
 >>> info["score"]
 Mate.plus(1)
+>>>
+>>> engine.quit()
 
 .. code:: python
 
@@ -80,6 +104,10 @@ Mate.plus(1)
         info = await engine.analyse(board, chess.engine.Limit(movetime=100))
         print(info["score"])
 
+        board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
+        info = await engine.analyse(board, chess.engine.Limit(depth=20))
+        print(info["score"])
+
         await engine.quit()
 
     chess.engine.setup_event_loop()
@@ -91,8 +119,8 @@ Mate.plus(1)
 .. autoclass:: chess.engine.Score
     :members:
 
-Configure
----------
+Options
+-------
 
 :func:`~chess.EngineProtocol.configure()`,
 :func:`~chess.EngineProtocol.play()`,
@@ -109,6 +137,29 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 >>>
 >>> # Set an option.
 >>> engine.configure({"Hash": 32})
+
+.. code:: python
+
+    import asyncio
+    import chess.engine
+
+    async def main():
+        transport, protocol = await chess.engine.popen_uci("stockfish")
+
+        # Check available options.
+        print(engine.options["Hash"])
+
+        # Set an option.
+        await engine.configure({"Hash": 32})
+
+    chess.engine.setup_event_loop()
+    asyncio.run(main())
+
+.. autoclass:: chess.engine.EngineProtocol
+
+    .. py:attribute:: options
+
+        Dictionary of available options.
 
 .. autoclass:: chess.engine.Option
     :members:
@@ -163,11 +214,7 @@ Reference
 .. autofunction:: chess.engine.popen_xboard
 
 .. autoclass:: chess.engine.EngineProtocol
-    :members: configure, play, analyse, analysis, ping
-
-    .. py:attribute:: options
-
-        Dictionary of available options.
+    :members: ping, quit
 
     .. py:attribute:: returncode
 
@@ -177,11 +224,18 @@ Reference
 
 .. autoclass:: chess.engine.XBoardProtocol
 
-.. autoclass:: chess.engine.PlayResult
-    :members:
-
 .. autoclass:: chess.engine.AnalysisResult
     :members:
+
+    .. py:attribute:: info
+
+        A dictionary of aggregated information sent by the engine. This is
+        actually an alias for ``multipv[0]``.
+
+    .. py:attribute:: multipv
+
+        A list of dictionaries with aggregated information sent by the engine.
+        One item for each root move.
 
 .. autoclass:: chess.engine.SimpleEngine
     :members:
