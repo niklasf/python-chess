@@ -873,7 +873,11 @@ class UciProtocol(EngineProtocol):
                 engine.game = game
 
                 engine._position(board)
-                engine._go(limit)
+
+                if limit:
+                    engine._go(limit)
+                else:
+                    engine._go(Limit(), infinite=True)
 
                 self.result.set_result(self.analysis)
 
@@ -1065,18 +1069,18 @@ async def async_main():
     board = chess.Board()
     limit = Limit(depth=20)
 
-    #with await engine.analysis(board, limit) as analysis:
-    #    async for info in analysis:
-    #        print("!", info)
-    #        if "depth 14" in info:
-    #            break
-    #await analysis.wait()
+    with await engine.analysis(board) as analysis:
+        async for info in analysis:
+            print("!", info)
+            if "123" in info:
+                break
+    await analysis.wait()
 
-    try:
-        analysis = await asyncio.wait_for(engine.analyse(board, limit), 0.1)
-        print("ANALYSIS", analysis)
-    except asyncio.TimeoutError:
-        print("TIMEOUT ERROR")
+    #try:
+    #    analysis = await asyncio.wait_for(engine.analyse(board, limit), 0.1)
+    #    print("ANALYSIS", analysis)
+    #except asyncio.TimeoutError:
+    #    print("TIMEOUT ERROR")
 
     #move = await engine.play(board, limit)
     #print("PLAY", move)
