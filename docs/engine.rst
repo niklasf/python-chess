@@ -1,15 +1,19 @@
-Experimental Engine API
-=======================
+Engine communication [experimental]
+===================================
 
 UCI and XBoard are protocols for communicating with chess engines. This module
 implements a thin abstraction for playing moves and analysing positions
 with both kinds of engines.
 
-:warning: The XBoard implementation is currently incomplete.
-
 :warning: This is an experimental module that may change in semver incompatible
    ways. Please weigh in on the design if the provided APIs do not cover
    your use case.
+
+   The module will eventually replace ``chess.uci`` and ``chess.xboard``,
+   but not before things have settled down and there has been a transition
+   period.
+
+   The XBoard implementation is currently only a skeleton.
 
 The preferred way to use the API is in an ``asyncio`` event loop.
 The examples also show a simple synchronous wrapper
@@ -156,6 +160,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     asyncio.run(main())
 
 .. autoclass:: chess.engine.EngineProtocol
+    :members: configure
 
     .. py:attribute:: options
 
