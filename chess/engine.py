@@ -853,44 +853,6 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    async def analyse(self, board, limit, *, game=None, options={}):
-        previous_config = self.config.copy()
-
-        class Command(BaseCommand):
-            def start(self, engine):
-                self.info = {}
-
-                if "UCI_AnalyseMode" in engine.options:
-                    engine._setoption("UCI_AnalyseMode", True)
-
-                engine._configure(options)
-
-                if engine.game != game:
-                    engine._ucinewgame()
-                engine.game = game
-
-                engine._position(board)
-                engine._go(limit)
-
-            def line_received(self, engine, line):
-                if line.startswith("bestmove "):
-                    self._bestmove(engine, line.split(" ", 1)[1])
-                elif not line.startswith("info "):
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
-
-            def _bestmove(self, engine, arg):
-                self.result.set_result(self.info)
-
-                for name, value in previous_config.items():
-                    engine._setoption(name, value)
-
-                self.set_finished()
-
-            def cancel(self, engine):
-                engine.send_line("stop")
-
-        return await self.communicate(Command)
-
     async def analysis(self, board, limit=None, *, game=None, options={}):
         previous_config = self.config.copy()
 
@@ -934,6 +896,16 @@ class UciProtocol(EngineProtocol):
                 engine.send_line("stop")
 
         return await self.communicate(Command)
+
+    async def analyse(self, board, limit, *, multipv=None, game=None, options={}):
+        analysis = await self.analysis(board, limit, game=game, options=options)
+
+        try:
+            await analysis.wait()
+        except asyncio.CancelledError:
+            analysis.stop()
+
+        return analysis.info if multipv is None else analysis.multipv
 
     async def quit(self):
         self.send_line("quit")
@@ -1091,13 +1063,22 @@ async def async_main():
 
     board = chess.Board()
     limit = Limit(depth=20)
-    with await engine.analysis(board, limit) as analysis:
-        async for info in analysis:
-            print("!", info)
-            if "depth 14" in info:
-                break
 
-    await analysis.wait()
+    #with await engine.analysis(board, limit) as analysis:
+    #    async for info in analysis:
+    #        print("!", info)
+    #        if "depth 14" in info:
+    #            break
+    #await analysis.wait()
+
+    try:
+        analysis = await asyncio.wait_for(engine.analyse(board, limit), 0.1)
+        print("ANALYSIS", analysis)
+    except asyncio.TimeoutError:
+        print("TIMEOUT ERROR")
+
+    #move = await engine.play(board, limit)
+    #print("PLAY", move)
 
     await engine.quit()
 
