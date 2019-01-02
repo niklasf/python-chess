@@ -1,8 +1,54 @@
 Experimental Engine API
 =======================
 
-Evaluate a position
--------------------
+Playing
+-------
+
+Example: Let Stockfish play against itself, 100 milliseconds per move.
+
+>>> import chess.engine
+>>>
+>>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+>>>
+>>> board = chess.Board()
+>>> while not board.is_game_over():
+...     result = engine.play(board, chess.engine.Limit(movetime=100))
+...     board.push(result.move)
+
+.. code:: python
+
+    import asyncio
+    import chess.engine
+
+    async def main():
+        transport, engine = await chess.engine.popen_uci("stockfish")
+
+        board = chess.Board()
+        while not board.is_game_over():
+            result = await engine.play(board, chess.engine.Limit(movetime=100))
+            board.push(result.move)
+
+    chess.engine.setup_event_loop()
+    asyncio.run(main())
+
+.. autoclass:: chess.engine.EngineProtocol
+    :members: play
+
+.. autoclass:: chess.engine.PlayResult
+    :members:
+
+    .. py:attribute:: move
+
+        The best move accordig to the engine.
+
+    .. py:attribute:: ponder
+
+        The response that the engine expects after *move*, or ``None``.
+
+Analyse
+-------
+
+Example: Analyse and evaluate positions.
 
 >>> import chess.engine
 >>>
@@ -24,8 +70,8 @@ Mate.plus(1)
 .. autoclass:: chess.engine.Score
     :members:
 
-Options
--------
+Configure
+---------
 
 :func:`~chess.EngineProtocol.configure()`,
 :func:`~chess.EngineProtocol.play()`,

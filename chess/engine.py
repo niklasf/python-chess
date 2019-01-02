@@ -191,7 +191,7 @@ class Limit:
 
 
 class PlayResult:
-    """Best move according to the engine."""
+    """Result of :func:`chess.engine.EngineProtocol.play()`."""
 
     def __init__(self, move, ponder):
         self.move = move
@@ -525,7 +525,19 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def play(self, board, limit, *, game=None, searchmoves=None, options={}):
         """
-        Search for the best move in a position.
+        Play a position.
+
+        :param board: The position.
+        :param limit: An instance of :class:`~chess.engine.Limit` that
+            determines when to stop thinking.
+        :param game: Optional. An arbitrary object that identifies the game.
+            Will automatically clear hashtables if the object is not equal
+            to the previous game.
+        :param searchmoves: Optional. Consider only root moves from this list.
+        :param options: Optional. A dictionary of engine options for the
+            analysis. The previous configuration will be restored after the
+            analysis is complete. You can permanently apply a configuration
+            with :func:`~chess.engine.EngineProtocol.configure()`.
         """
         raise NotImplementedError
 
