@@ -1,6 +1,23 @@
 Experimental Engine API
 =======================
 
+Evaluate a position
+-------------------
+
+>>> import chess.engine
+>>>
+>>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+>>>
+>>> board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
+>>> limit = chess.engine.Limit(depth=20)
+>>>
+>>> info = engine.analyse(board, limit)
+>>> info["score"]
+Mate.plus(1)
+
+.. autoclass:: chess.engine.Score
+    :members:
+
 Options
 -------
 
@@ -64,9 +81,6 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     .. py:attribute:: var
 
         A list of allowed string values for a *combo* option.
-
-.. autoclass:: chess.engine.Score
-    :members:
 
 Reference
 ---------
