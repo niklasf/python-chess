@@ -1032,6 +1032,11 @@ class SimpleEngine:
     def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
+    def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
+        return SimpleAnalysisResult(
+            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result(),
+            self.protocol.loop)
+
     def quit(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
 
@@ -1052,6 +1057,45 @@ class SimpleEngine:
 
     def __exit__(self, a, b, c):
         self.close()
+
+
+class SimpleAnalysisResult:
+    def __init__(self, inner, loop):
+        self.inner = inner
+        self.loop = loop
+
+    @property
+    def info(self):
+        async def _get():
+            return self.inner.info.copy()
+        return asyncio.run_coroutine_threadsafe(_get(), self.loop).result()
+
+    @property
+    def multipv(self):
+        async def _get():
+            return [info.copy() for info in self.inner.multipv]
+        return asyncio.run_coroutine_threadsafe(_get(), self.loop).result()
+
+    def stop(self):
+        self.loop.call_soon_threadsafe(self.inner.stop)
+
+    def wait(self):
+        return asyncio.run_coroutine_threadsafe(self.inner.wait(), self.loop).result()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return asyncio.run_coroutine_threadsafe(self.inner.__anext__(), self.loop).result()
+        except StopAsyncIteration:
+            raise StopIteration
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, a, b, c):
+        self.stop()
 
 
 async def async_main():
@@ -1092,33 +1136,16 @@ def main():
     with SimpleEngine.popen_uci(sys.argv[1:], setpgrp=True) as engine:
         print(engine.protocol.options)
 
-        #print("PING")
-        #try:
-        #    engine.ping()
-        #except asyncio.TimeoutError:
-        #    print("timeout !!!!!")
-        #print("PONG")
-
-        #engine.configure({
-        #    "Contempt": 40,
-        #})
-
-        limit = Limit(movetime=1000)
-
         board = chess.Board()
-        while not board.is_game_over():
-            play_result = engine.play(board, limit, game="foo") # , config={"Contempt": 20})
-            print("PLAYED", play_result)
-            board.push(play_result.move)
-            break
-
-        engine.protocol.send_line("d")
+        with engine.analysis(board) as analysis:
+            for info in analysis:
+                if "123" in info:
+                    break
 
         engine.quit()
-        print("QUIT")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    #main()
-    asyncio.run(async_main())
+    main()
+    #asyncio.run(async_main())
