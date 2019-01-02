@@ -15,6 +15,9 @@ Evaluate a position
 >>> info["score"]
 Mate.plus(1)
 
+.. autoclass:: chess.engine.EngineProtocol
+    :members: analyse
+
 .. autoclass:: chess.engine.Score
     :members:
 
