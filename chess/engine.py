@@ -23,6 +23,7 @@
 
 import abc
 import asyncio
+import collections
 import concurrent.futures
 import functools
 import logging
@@ -442,6 +443,40 @@ class Mate(Score):
             pass
 
         return other > self
+
+
+class MockTransport:
+    def __init__(self, protocol):
+        self.protocol = protocol
+        self.expectations = collections.deque()
+        self.stdin_buffer = bytearray()
+
+    def expect(self, expectation, responses=[]):
+        self.expectations.append((expectation, responses))
+
+    def assert_done(self):
+        assert not self.expectations, "pending expectations: {}".format(self.expectations)
+
+    def get_pipe_transport(self, fd):
+        assert fd == 0, "expected 0 for stdin, got {}".format(fd)
+        return self
+
+    def write(self, data):
+        self.stdin_buffer.extend(data)
+        while b"\n" in self.stdin_buffer:
+            line, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)
+            line = line.decode("utf-8")
+
+            assert self.expectations, "unexpected: {}".format(line)
+            expectation, responses = self.expectations.popleft()
+            assert expectation == line, "expected {}, got: {}".format(expectation, line)
+            self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n"))
+
+    def get_pid(self):
+        return id(self)
+
+    def get_returncode(self):
+        return 0
 
 
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
