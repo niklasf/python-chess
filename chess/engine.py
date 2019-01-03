@@ -37,30 +37,28 @@ import os
 
 try:
     # Python 3.7
-    from asyncio import get_running_loop
+    from asyncio import get_running_loop as _get_running_loop
 except ImportError:
     try:
-        from asyncio import _get_running_loop as get_running_loop
+        from asyncio import _get_running_loop
     except:
-        def get_running_loop():
-            # TODO: Check
+        # Python 3.4
+        def _get_running_loop():
             return asyncio.get_event_loop()
 
 try:
     StopAsyncIteration
 except NameError:
+    # Python 3.4
     class StopAsyncIteration(Exception):
         pass
-
 
 import chess
 
 
 LOGGER = logging.getLogger(__name__)
 
-
 KORK = object()
-
 
 MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
 
@@ -445,7 +443,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
     def __init__(self):
-        self.loop = get_running_loop()
+        self.loop = _get_running_loop()
         self.transport = None
 
         self.buffer = {
@@ -662,7 +660,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp
         popen_args.update(kwargs)
 
-        loop = get_running_loop()
+        loop = _get_running_loop()
         transport, protocol = yield from loop.subprocess_exec(cls, *command, **popen_args)
         yield from protocol._initialize()
         return transport, protocol
