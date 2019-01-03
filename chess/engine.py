@@ -872,6 +872,16 @@ class UciProtocol(EngineProtocol):
     def _ucinewgame(self):
         self.send_line("ucinewgame")
 
+    def debug(self, on=True):
+        """
+        Switches debug move of the engine on or off. This does not interrupt
+        other ongoing operations.
+        """
+        if on:
+            self.send_line("debug on")
+        else:
+            self.send_line("debug off")
+
     @asyncio.coroutine
     def ping(self):
         class Command(BaseCommand):
