@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: Info parsing
 # TODO: XBoard support
 # TODO: Check naming. Is it too UCI specific?
 # TODO: Pondering
@@ -1067,7 +1066,115 @@ class UciProtocol(EngineProtocol):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _info(self, engine, arg):
-                self.analysis.post(arg)
+                # Initialize parser state.
+                info = {}
+                board = None
+                pv = None
+                score_kind = None
+                refutation_move = None
+                refuted_by = []
+                currline_cpunr = None
+                currline_moves = []
+                string = []
+
+                # Parameters with variable length can only be handled when the
+                # next parameter starts or at the end of the line.
+                def end_of_parameter():
+                    if pv is not None:
+                        info["pv"] = pv
+
+                    if refutation_move is not None:
+                        if not "refutation" in info:
+                            info["refutation"] = {}
+                        info["refutation"][refutation_move] = refuted_by
+
+                    if currline_cpunr is not None:
+                        if not "currline" in info:
+                            info["currline"] = {}
+                        info["currline"][currline_cpunr] = currline_moves
+
+                # Parse all other parameters.
+                current_parameter = None
+                for token in arg.split(" "):
+                    if current_parameter == "string":
+                        string.append(token)
+                    elif not token:
+                        # Ignore extra spaces. Those can not be directly discarded,
+                        # because they may occur in the string parameter.
+                        pass
+                    elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
+                        end_of_parameter()
+                        current_parameter = token
+
+                        pv = None
+                        score_kind = None
+                        refutation_move = None
+                        refuted_by = []
+                        currline_cpunr = None
+                        currline_moves = []
+
+                        if current_parameter == "pv":
+                            pv = []
+
+                        if current_parameter in ["refutation", "pv", "currline"]:
+                            board = engine.board.copy(stack=False)
+                    elif current_parameter in ["depth", "seldepth", "time", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
+                        try:
+                            info[current_parameter] = int(token)
+                        except ValueError:
+                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+                    elif current_parameter == "pv":
+                        try:
+                            pv.append(board.push_uci(token))
+                        except ValueError:
+                            LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, engine.board.fen())
+                    elif current_parameter == "score":
+                        try:
+                            if token in ["cp", "mate"]:
+                                score_kind = token
+                            elif token == "lowerbound":
+                                info["lowerbound"] = True
+                            elif token == "upperbound":
+                                info["upperbound"] = True
+                            elif score_kind == "cp":
+                                info["score"] = Cp(int(token))
+                            elif score_kind == "mate":
+                                info["mate"] = Mate.from_moves(int(token))
+                        except ValueError:
+                            LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
+                    elif current_parameter == "currmove":
+                        try:
+                            info[current_parameter] = chess.Move.from_uci(token)
+                        except ValueError:
+                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+                    elif current_parameter == "refutation":
+                        try:
+                            if refutation_move is None:
+                                refutation_move = board.push_uci(token)
+                            else:
+                                refuted_by.append(board.push_uci(token))
+                        except ValueError:
+                            LOGGER.exception("exception parsing refutation from info: %r, position at root: %s", arg, engine.fen())
+                    elif current_parameter == "currline":
+                        try:
+                            if currline_cpunr is None:
+                                currline_cpunr = int(token)
+                            else:
+                                currline_moves.append(board.push_uci(token))
+                        except ValueError:
+                            LOGGER.exception("exception parsing currline from info: %r, position at root: %s", arg, engine.fen())
+                    elif current_parameter == "ebf":
+                        try:
+                            info[current_parameter] = float(token)
+                        except ValueError:
+                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+
+                end_of_parameter()
+
+                if string:
+                    info["string"] = " ".join(string)
+
+                self.analysis.post(info)
 
             def _bestmove(self, engine, arg):
                 for name, value in previous_config.items():
