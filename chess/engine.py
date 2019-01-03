@@ -1160,6 +1160,11 @@ class AnalysisResult:
         self.multipv = [{}]
 
     def post(self, info):
+        multipv = info.get("multipv", 1)
+        while len(self.multipv) < multipv:
+            self.multipv.append({})
+        self.multipv[multipv - 1].update(info)
+
         self._queue.put_nowait(info)
 
     def set_finished(self):
