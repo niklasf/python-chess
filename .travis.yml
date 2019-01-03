@@ -72,7 +72,7 @@ script:
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv ThreeCheckTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CrazyhouseTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GiveawayTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciOptionMapTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv EngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciEngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CraftyTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv StockfishTestCase; fi
