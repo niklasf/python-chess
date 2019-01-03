@@ -1476,15 +1476,8 @@ class SimpleEngine:
 
     def close(self):
         """Closes the transport."""
-        if self.protocol.loop.is_running():
-            @asyncio.coroutine
-            def close():
-                LOGGER.debug("%s: Closing transport ...", self.protocol)
-                self.transport.close()
-                yield from self.protocol.returncode
-            return asyncio.run_coroutine_threadsafe(close(), self.protocol.loop).result()
-        else:
-            self.transport.close()
+        # This happens to be threadsafe.
+        self.transport.close()
 
     @classmethod
     def popen_uci(cls, command, *, timeout=10.0, setpgrp=False, **popen_args):
