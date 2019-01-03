@@ -1186,6 +1186,24 @@ class AnalysisResult:
         return self
 
     @asyncio.coroutine
+    def next(self):
+        """
+        Waits for the next dictionary of information from the engine and
+        returns it. Returns ``None`` if the analysis has been stopped and
+        all information has been consumed.
+
+        It might be more convenient to use async for (requires at least
+        Python 3.5):
+
+        >>> async for info in analysis:
+        ...     print(info)
+        """
+        try:
+            return (yield from self.__anext__())
+        except StopAsyncIteration:
+            return None
+
+    @asyncio.coroutine
     def __anext__(self):
         if self._seen_kork:
             raise StopAsyncIteration
