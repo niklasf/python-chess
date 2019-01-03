@@ -196,10 +196,9 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     import chess.engine
 
     async def main():
-        transport, engine = chess.engine.popen_uci("stockfish")
+        transport, engine = await chess.engine.popen_uci("stockfish")
 
-        analysis = await engine.analysis(chess.Board())
-        with analysis:
+        with await engine.analysis(chess.Board()) as analysis:
             async for info in analysis:
                 print(info.get("score"), info.get("pv"))
 
@@ -321,7 +320,8 @@ Logging
 -------
 
 Communication is logged with debug level on a logger named ``chess.engine``.
-Debug logs are useful while troubleshooting or in bug reports.
+Debug logs are useful while troubleshooting. Please also provide them
+when submitting bug reports.
 
 .. code:: python
 
@@ -342,7 +342,7 @@ Reference
 
     .. py:attribute:: returncode
 
-        Exit code of the process. Future.
+        Future: Exit code of the process.
 
 .. autoclass:: chess.engine.UciProtocol
 
