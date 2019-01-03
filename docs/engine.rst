@@ -65,9 +65,42 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 .. autoclass:: chess.engine.Limit
     :members:
 
+    .. py:attribute:: movetime
+
+        Search exactly *movetime* milliseconds.
+
     .. py:attribute:: depth
 
-        Maximum search depth.
+        Search *depth* ply only.
+
+    .. py:attribute:: nodes
+
+        Search only a limited number of *nodes*.
+
+    .. py:attribute:: mate
+
+        Search for a mate in *mate* moves.
+
+    .. py:attribute:: wtime
+
+        Integer of milliseconds remaining for White.
+
+    .. py:attribute:: btime
+
+        Integer of milliseconds remaining for Black.
+
+    .. py:attribute:: winc
+
+        Fisher increment for White.
+
+    .. py:attribute:: binc
+
+        Fisher increment for Black.
+
+    .. py:attribute:: movestogo
+
+        Number of moves to the next time control. If this is not set, but wtime
+        and btime are, then it is sudden death.
 
 .. autoclass:: chess.engine.PlayResult
     :members:

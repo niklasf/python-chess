@@ -171,16 +171,16 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
 class Limit:
     """Search termination condition."""
 
-    def __init__(self, wtime=None, btime=None, winc=None, binc=None, movestogo=None, depth=None, nodes=None, mate=None, movetime=None):
+    def __init__(self, *, movetime=None, depth=None, nodes=None, mate=None, wtime=None, btime=None, winc=None, binc=None, movestogo=None):
+        self.movetime = movetime
+        self.depth = depth
+        self.nodes = nodes
+        self.mate = mate
         self.wtime = wtime
         self.btime = btime
         self.winc = winc
         self.binc = binc
         self.movestogo = movestogo
-        self.depth = depth
-        self.nodes = nodes
-        self.mate = mate
-        self.movetime = movetime
 
     def __repr__(self):
         return "{}({})".format(
