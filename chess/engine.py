@@ -46,6 +46,12 @@ except ImportError:
             return asyncio.get_event_loop()
 
 try:
+    # Python 3.7
+    from asyncio import all_tasks as _all_tasks
+except ImportError:
+    _all_tasks = asyncio.Task.all_tasks
+
+try:
     StopAsyncIteration
 except NameError:
     # Python 3.4
@@ -142,7 +148,7 @@ def run_in_background(coroutine):
         finally:
             try:
                 # Finish all remaining tasks.
-                pending = asyncio.Task.all_tasks(loop)
+                pending = _all_tasks(loop)
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
                 # Shutdown async generators.

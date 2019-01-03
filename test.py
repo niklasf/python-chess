@@ -3080,6 +3080,33 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i > j, a > b)
                 self.assertEqual(i >= j, a >= b)
 
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_forced_mates(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            epds = [
+                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
+                "6k1/N1p3pp/2p5/3n1P2/4K3/1P5P/P1Pr1r2/R1R5 b - - bm Rf4+; id \"Clausthal 2014\";",
+            ]
+
+            board = chess.Board()
+
+            for epd in epds:
+                operations = board.set_epd(epd)
+                result = engine.play(board, chess.engine.Limit(mate=5), game=object())
+                self.assertIn(result.move, operations["bm"], operations["id"])
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_options(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            self.assertEqual(engine.options["UCI_Chess960"].name, "UCI_Chess960")
+            self.assertEqual(engine.options["uci_Chess960"].type, "check")
+            self.assertEqual(engine.options["UCI_CHESS960"].default, False)
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_quit(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            engine.quit()
+
 
 class SyzygyTestCase(unittest.TestCase):
 
