@@ -117,7 +117,7 @@ def setup_event_loop():
             # instead getting the global child watcher from the event loop
             # policy.
             with self.child_watcher as watcher:
-                waiter = self.create_future()
+                waiter = asyncio.Future(loop=self)
                 transp = asyncio.unix_events._UnixSubprocessTransport(self, protocol, args, shell, stdin, stdout, stderr, bufsize, waiter=waiter, extra=extra, **kwargs)
                 watcher.add_child_handler(transp.get_pid(), self._child_watcher_callback, transp)
 
