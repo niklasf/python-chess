@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 import collections
 import copy
+import contextlib
 import logging
 import os
 import os.path
@@ -3106,6 +3108,23 @@ class EngineTestCase(unittest.TestCase):
     def test_sf_quit(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
             engine.quit()
+
+    def test_uci_ping(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["uciok"])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            mock.expect("isready", ["readyok"])
+            yield from protocol.ping()
+            mock.assert_done()
+
+        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
+            loop.run_until_complete(main())
 
 
 class SyzygyTestCase(unittest.TestCase):

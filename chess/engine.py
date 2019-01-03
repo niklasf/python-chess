@@ -450,6 +450,7 @@ class MockTransport:
         self.protocol = protocol
         self.expectations = collections.deque()
         self.stdin_buffer = bytearray()
+        self.protocol.connection_made(self)
 
     def expect(self, expectation, responses=[]):
         self.expectations.append((expectation, responses))
@@ -476,7 +477,7 @@ class MockTransport:
         return id(self)
 
     def get_returncode(self):
-        return 0
+        return None if self.expectations else 0
 
 
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
