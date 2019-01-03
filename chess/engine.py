@@ -70,14 +70,13 @@ def setup_event_loop():
     Creates and sets up a new asyncio event loop that is capable of spawning
     and watching subprocesses.
 
-    Uses polling to watch subprocesses when not running in the main thread.
+    On Windows: Globally sets a proactor event loop policy.
 
-    Note that this sets a global event loop policy for the entire process.
+    On Unix systems: Does nothing, except when not running on the main thread.
+    Then it installs a child watcher that uses polling.
     """
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-    else:
-        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
 
     if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
         loop = asyncio.new_event_loop()
@@ -1346,6 +1345,9 @@ class SimpleAnalysisResult:
 
     def wait(self):
         return asyncio.run_coroutine_threadsafe(self.inner.wait(), self.loop).result()
+
+    def next(self):
+        return asyncio.run_coroutine_threadsafe(self.inner.next(), self.loop).result()
 
     def __iter__(self):
         return self

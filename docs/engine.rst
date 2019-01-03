@@ -355,5 +355,3 @@ Reference
     :members:
 
 .. autofunction:: chess.engine.setup_event_loop
-
-.. autofunction:: chess.engine.run_in_background
