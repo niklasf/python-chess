@@ -74,16 +74,10 @@ def setup_event_loop():
     Creates and sets up a new asyncio event loop that is capable of spawning
     and watching subprocesses.
 
-    On Windows: Globally sets a proactor event loop policy.
-
-    On Unix systems: Does nothing, except when not running on the main thread.
-    Then it installs a child watcher that uses polling.
+    Unix: Uses slow polling when not running on the main thread.
     """
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
     if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
-        loop = asyncio.new_event_loop()
+        loop = asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
         asyncio.set_event_loop(loop)
         return loop
 
@@ -104,9 +98,6 @@ def setup_event_loop():
             self._loop = loop
             if loop is not None:
                 self._poll_handle = self._loop.call_soon(self._poll)
-
-                # Prevent a race condition in case a child terminated
-                # during the switch.
                 self._do_waitpid_all()
 
         def _poll(self):
@@ -114,14 +105,33 @@ def setup_event_loop():
                 self._do_waitpid_all()
                 self._poll_handle = self._loop.call_later(1.0, self._poll)
 
-    policy = asyncio.get_event_loop_policy()
-    loop = asyncio.new_event_loop()
+    class StandaloneSelectorEventLoop(asyncio.SelectorEventLoop):
+        def __init__(self, child_watcher, selector=None):
+            super().__init__(selector=selector)
+            self.child_watcher = child_watcher
+            self.child_watcher.attach_loop(self)
+
+        @asyncio.coroutine
+        def _make_subprocess_transport(self, protocol, args, shell, stdin, stdout, stderr, bufsize, extra=None, **kwargs):
+            # Implementation is exactly the same, but uses local child watcher
+            # instead getting the global child watcher from the event loop
+            # policy.
+            with self.child_watcher as watcher:
+                waiter = self.create_future()
+                transp = asyncio.unix_events._UnixSubprocessTransport(self, protocol, args, shell, stdin, stdout, stderr, bufsize, waiter=waiter, extra=extra, **kwargs)
+                watcher.add_child_handler(transp.get_pid(), self._child_watcher_callback, transp)
+
+                try:
+                    yield from waiter
+                except Exception:
+                    transp.close()
+                    yield from transp._wait()
+                    raise
+
+            return transp
+
+    loop = StandaloneSelectorEventLoop(PollingChildWatcher())
     asyncio.set_event_loop(loop)
-
-    watcher = PollingChildWatcher()
-    watcher.attach_loop(loop)
-    policy.set_child_watcher(watcher)
-
     return loop
 
 
