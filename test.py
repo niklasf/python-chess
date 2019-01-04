@@ -3175,36 +3175,36 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_uci_info(self):
-        ALL = chess.engine.Info.ALL
+        from chess.engine import INFO_ALL
 
         # Info: refutation.
         board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")
-        info = chess.engine._parse_uci_info("refutation d1h5 g6h5", board, ALL)
+        info = chess.engine._parse_uci_info("refutation d1h5 g6h5", board, INFO_ALL)
         self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [chess.Move.from_uci("g6h5")])
 
-        info = chess.engine._parse_uci_info("refutation d1h5", board, ALL)
+        info = chess.engine._parse_uci_info("refutation d1h5", board, INFO_ALL)
         self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [])
 
         # Info: string.
-        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", None, ALL)
+        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", None, INFO_ALL)
         self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
 
         # Info: currline.
-        info = chess.engine._parse_uci_info("currline 0 e2e4 e7e5", chess.Board(), ALL)
+        info = chess.engine._parse_uci_info("currline 0 e2e4 e7e5", chess.Board(), INFO_ALL)
         self.assertEqual(info["currline"][0], [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")])
 
         # Info: ebf.
-        info = chess.engine._parse_uci_info("ebf 0.42", None, ALL)
+        info = chess.engine._parse_uci_info("ebf 0.42", None, INFO_ALL)
         self.assertEqual(info["ebf"], 0.42)
 
         # Info: depth, seldepth, score mate.
-        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", None, ALL)
+        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", None, INFO_ALL)
         self.assertEqual(info["depth"], 7)
         self.assertEqual(info["seldepth"], 8)
         self.assertEqual(info["score"], chess.engine.Mate.plus(3))
 
         # Info: tbhits, cpuload, hashfull, time, nodes, nps.
-        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", None, ALL)
+        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", None, INFO_ALL)
         self.assertEqual(info["tbhits"], 123)
         self.assertEqual(info["cpuload"], 456)
         self.assertEqual(info["hashfull"], 789)

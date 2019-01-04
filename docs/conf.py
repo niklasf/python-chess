@@ -57,7 +57,6 @@ class PyCoroutineMixin:
     def handle_signature(self, sig, signode):
         ret = super().handle_signature(sig, signode)
         signode.insert(0, sphinx.addnodes.desc_annotation("coroutine ", "coroutine "))
-        print("inserted async!")
         return ret
 
 class PyCoroutineFunction(PyCoroutineMixin, sphinx.domains.python.PyModulelevel):

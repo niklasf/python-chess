@@ -79,7 +79,9 @@ def setup_event_loop():
     Creates and sets up a new asyncio event loop that is capable of spawning
     and watching subprocesses.
 
-    Unix: Uses slow polling when not running on the main thread.
+    Unix: Uses relatively slow polling to watch child processes, when not
+    running on the main thread. This only affects detection of process
+    termination, not communication.
     """
     if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
         loop = asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
@@ -267,6 +269,14 @@ class Info(_IntFlag):
     REFUTATION = 4
     CURRLINE = 8
     ALL = 15
+
+
+INFO_NONE = 0
+INFO_SCORE = 1
+INFO_PV = 2
+INFO_REFUTATION = 4
+INFO_CURRLINE = 8
+INFO_ALL = INFO_SCORE | INFO_PV | INFO_REFUTATION | INFO_CURRLINE
 
 
 class Score(abc.ABC):
@@ -633,7 +643,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=Info.SCORE, ponder=False, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
         """
         Play a position.
 
@@ -645,10 +655,10 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which additional information to retrieve from the
-            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
-            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
-            these.
+            extra information.
         :param ponder: Whether the engine should keep analysing in the
             background even after the result has been returned.
         :param searchmoves: Optional. Consider only root moves from this list.
@@ -660,7 +670,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @asyncio.coroutine
-    def analyse(self, board, limit, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
         """
         Analyses a position and returns an info dictionary.
 
@@ -675,10 +685,10 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which information to retrieve from the
-            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
-            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
-            these.
+            extra information.
         :param searchmoves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
@@ -694,7 +704,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
         """
         Starts analysing a position.
 
@@ -708,10 +718,10 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which information to retrieve from the
-            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
-            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
-            these.
+            extra information.
         :param searchmoves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
@@ -1067,7 +1077,7 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=Info.SCORE, ponder=False, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1143,7 +1153,7 @@ class UciProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1200,7 +1210,7 @@ class UciProtocol(EngineProtocol):
         yield from self.returncode
 
 
-def _parse_uci_info(arg, root_board, selector=Info.ALL):
+def _parse_uci_info(arg, root_board, selector=INFO_ALL):
     info = {}
     if not selector:
         return info
@@ -1252,12 +1262,12 @@ def _parse_uci_info(arg, root_board, selector=Info.ALL):
             currline_cpunr = None
             currline_moves = []
 
-            if current_parameter == "pv" and selector & Info.PV:
+            if current_parameter == "pv" and selector & INFO_PV:
                 pv = []
                 board = root_board.copy(stack=False)
-            elif current_parameter == "refutation" and selector & Info.REFUTATION:
+            elif current_parameter == "refutation" and selector & INFO_REFUTATION:
                 board = root_board.copy(stack=False)
-            elif current_parameter == "currline" and selector & Info.CURRLINE:
+            elif current_parameter == "currline" and selector & INFO_CURRLINE:
                 board = root_board.copy(stack=False)
         elif current_parameter in ["depth", "seldepth", "time", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
             try:
@@ -1269,7 +1279,7 @@ def _parse_uci_info(arg, root_board, selector=Info.ALL):
                 pv.append(board.push_uci(token))
             except ValueError:
                 LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
-        elif current_parameter == "score" and selector & Info.SCORE:
+        elif current_parameter == "score" and selector & INFO_SCORE:
             try:
                 if token in ["cp", "mate"]:
                     score_kind = token
@@ -1522,13 +1532,13 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, searchmoves=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
-    def analyse(self, board, limit, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
         return SimpleAnalysisResult(
             asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result(),
             self.protocol.loop)

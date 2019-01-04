@@ -2,8 +2,8 @@ Engine communication [experimental]
 ===================================
 
 UCI and XBoard are protocols for communicating with chess engines. This module
-implements a thin abstraction for playing moves and analysing positions
-with both kinds of engines.
+implements an abstraction for playing moves and analysing positions with
+both kinds of engines.
 
 :warning: This is an experimental module that may change in semver incompatible
    ways. Please weigh in on the design if the provided APIs do not cover
@@ -112,6 +112,14 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: ponder
 
         The response that the engine expects after *move*, or ``None``.
+
+    .. py:attribute:: info
+
+        A dictionary of extra information sent by the engine. Known keys are
+        ``score``, ``depth``, ``seldepth``, ``time``, ``nodes``, ``pv``,
+        ``multipv``, ``currmove``, ``currmovenumber``, ``hashfull``, ``nps``,
+        ``tbhits``, ``cpuload``, ``refutation``, ``currline``, ``ebf`` and
+        ``string``.
 
 Analysing and evaluating a position
 -----------------------------------
