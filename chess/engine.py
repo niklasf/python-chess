@@ -1559,7 +1559,9 @@ class SimpleEngine:
         self.close()
 
     def __repr__(self):
-        return "<{} (pid={}>".format(type(self).__name__, self.transport.get_pid())
+        # This happens to be threadsafe.
+        pid = self.transport.get_pid()
+        return "<{} (pid={}>".format(type(self).__name__, pid)
 
 
 class SimpleAnalysisResult:
@@ -1609,58 +1611,3 @@ class SimpleAnalysisResult:
 
     def __exit__(self, a, b, c):
         self.stop()
-
-
-@asyncio.coroutine
-def async_main():
-    transport, engine = yield from popen_uci(sys.argv[1:])
-    print(engine.options)
-
-    yield from engine.ping()
-
-    yield from engine.configure({
-        "Contempt": 40,
-    })
-
-    import chess.variant
-
-    board = chess.Board()
-    limit = Limit(depth=20)
-
-    #with yield from engine.analysis(board) as analysis:
-    #    async for info in analysis:
-    #        print("!", info)
-    #        if "123" in info:
-    #            break
-    yield from analysis.wait()
-
-    #try:
-    #    analysis = await asyncio.wait_for(engine.analyse(board, limit), 0.1)
-    #    print("ANALYSIS", analysis)
-    #except asyncio.TimeoutError:
-    #    print("TIMEOUT ERROR")
-
-    #move = await engine.play(board, limit)
-    #print("PLAY", move)
-
-    yield from engine.quit()
-
-
-def main():
-    with SimpleEngine.popen_uci(sys.argv[1:], setpgrp=True) as engine:
-        print(engine.protocol.options)
-
-        board = chess.Board()
-        with engine.analysis(board, Limit(movetime=3000)) as analysis:
-            for info in analysis:
-                print("!!!", analysis.multipv)
-                if "123" in info:
-                    break
-
-        engine.quit()
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    main()
-    #asyncio.run(async_main())
