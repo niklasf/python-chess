@@ -260,6 +260,7 @@ class PlayResult:
 
 
 class Info(_IntFlag):
+    """Select information sent by the chess engine."""
     NONE = 0
     SCORE = 1
     PV = 2
@@ -1054,6 +1055,8 @@ class UciProtocol(EngineProtocol):
 
         class Command(BaseCommand):
             def start(self, engine):
+                self.info = {}
+
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", False)
 
@@ -1067,10 +1070,15 @@ class UciProtocol(EngineProtocol):
                 engine._go(limit, searchmoves=searchmoves)
 
             def line_received(self, engine, line):
-                if line.startswith("bestmove "):
+                if line.startswith("info "):
+                    self._info(engine, line.split(" ", 1)[1])
+                elif line.startswith("bestmove "):
                     self._bestmove(engine, line.split(" ", 1)[1])
-                elif not line.startswith("info "):
+                else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _info(self, engine, arg):
+                self.info.update(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine, arg):
                 try:
@@ -1095,7 +1103,7 @@ class UciProtocol(EngineProtocol):
                             finally:
                                 board.pop()
 
-                        self.result.set_result(PlayResult(bestmove, ponder))
+                        self.result.set_result(PlayResult(bestmove, ponder, self.info))
                 finally:
                     for name, value in previous_config.items():
                         engine._setoption(name, value)
