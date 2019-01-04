@@ -642,6 +642,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically clear hashtables if the object is not equal
             to the previous game.
+        :param info: Selects which additional information to retrieve from the
+            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
+            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            bitwise combination. Some overhead is associated with parsing
+            these.
         :param ponder: Whether the engine should keep analysing in the
             background even after the result has been returned.
         :param searchmoves: Optional. Consider only root moves from this list.
@@ -667,6 +672,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically clear hashtables if the object is not equal
             to the previous game.
+        :param info: Selects which information to retrieve from the
+            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
+            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            bitwise combination. Some overhead is associated with parsing
+            these.
         :param searchmoves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
@@ -695,6 +705,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically clear hashtables if the object is not equal
             to the previous game.
+        :param info: Selects which information to retrieve from the
+            engine. ``Info.NONE``, ``Info.SCORE``, ``Info.PV``,
+            ``Info.REFUTATION``, ``Info.CURRLINE``, ``Info.ALL`` or any
+            bitwise combination. Some overhead is associated with parsing
+            these.
         :param searchmoves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
