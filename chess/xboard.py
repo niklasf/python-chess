@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of the python-chess library.
-# Copyright (C) 2017-2018 Manik Charan <mkchan2951@gmail.com>
-# Copyright (C) 2017-2018 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2017-2019 Manik Charan <mkchan2951@gmail.com>
+# Copyright (C) 2017-2019 Niklas Fiekas <niklas.fiekas@backscattering.de>
 # Copyright (C) 2017 Cash Costello <cash.costello@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
