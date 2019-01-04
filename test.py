@@ -3149,6 +3149,7 @@ class EngineTestCase(unittest.TestCase):
             protocol = chess.engine.UciProtocol()
             mock = chess.engine.MockTransport(protocol)
 
+            # Pondering.
             mock.expect("position startpos")
             mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching ...", "bestmove d2d4 ponder d7d5"])
             mock.expect("position startpos moves d2d4 d7d5")
@@ -3161,6 +3162,8 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
             mock.expect("stop", ["bestmove c2c4"])
+
+            # Limits.
             mock.expect("position startpos")
             mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", ["bestmove d2d4"])
             result = yield from protocol.play(board, chess.engine.Limit(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9))
@@ -3170,6 +3173,44 @@ class EngineTestCase(unittest.TestCase):
 
         with contextlib.closing(chess.engine.setup_event_loop()) as loop:
             loop.run_until_complete(main())
+
+    def test_uci_info(self):
+        ALL = chess.engine.Info.ALL
+
+        # Info: refutation.
+        board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")
+        info = chess.engine._parse_uci_info("refutation d1h5 g6h5", board, ALL)
+        self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [chess.Move.from_uci("g6h5")])
+
+        info = chess.engine._parse_uci_info("refutation d1h5", board, ALL)
+        self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [])
+
+        # Info: string.
+        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", None, ALL)
+        self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
+
+        # Info: currline.
+        info = chess.engine._parse_uci_info("currline 0 e2e4 e7e5", chess.Board(), ALL)
+        self.assertEqual(info["currline"][0], [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")])
+
+        # Info: ebf.
+        info = chess.engine._parse_uci_info("ebf 0.42", None, ALL)
+        self.assertEqual(info["ebf"], 0.42)
+
+        # Info: depth, seldepth, score mate.
+        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", None, ALL)
+        self.assertEqual(info["depth"], 7)
+        self.assertEqual(info["seldepth"], 8)
+        self.assertEqual(info["score"], chess.engine.Mate.plus(3))
+
+        # Info: tbhits, cpuload, hashfull, time, nodes, nps.
+        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", None, ALL)
+        self.assertEqual(info["tbhits"], 123)
+        self.assertEqual(info["cpuload"], 456)
+        self.assertEqual(info["hashfull"], 789)
+        self.assertEqual(info["time"], 987)
+        self.assertEqual(info["nodes"], 654)
+        self.assertEqual(info["nps"], 321)
 
 
 class SyzygyTestCase(unittest.TestCase):

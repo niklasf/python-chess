@@ -1280,7 +1280,7 @@ def _parse_uci_info(arg, root_board, selector=Info.ALL):
                 elif score_kind == "cp":
                     info["score"] = Cp(int(token))
                 elif score_kind == "mate":
-                    info["mate"] = Mate.from_moves(int(token))
+                    info["score"] = Mate.from_moves(int(token))
             except ValueError:
                 LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
         elif current_parameter == "currmove":
