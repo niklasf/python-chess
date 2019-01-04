@@ -3143,6 +3143,34 @@ class EngineTestCase(unittest.TestCase):
         with contextlib.closing(chess.engine.setup_event_loop()) as loop:
             loop.run_until_complete(main())
 
+    def test_uci_go(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("position startpos")
+            mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching ...", "bestmove d2d4 ponder d7d5"])
+            mock.expect("position startpos moves d2d4 d7d5")
+            mock.expect("go ponder movetime 123")
+            board = chess.Board()
+            result = yield from protocol.play(board, chess.engine.Limit(movetime=123), searchmoves=[board.parse_san("e4"), board.parse_san("d4")], ponder=True)
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
+            self.assertEqual(result.info["string"], "searching ...")
+            mock.assert_done()
+
+            mock.expect("stop", ["bestmove c2c4"])
+            mock.expect("position startpos")
+            mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", ["bestmove d2d4"])
+            result = yield from protocol.play(board, chess.engine.Limit(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9))
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
+            self.assertEqual(result.ponder, None)
+            mock.assert_done()
+
+        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
+            loop.run_until_complete(main())
+
 
 class SyzygyTestCase(unittest.TestCase):
 
