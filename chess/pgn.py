@@ -746,7 +746,7 @@ class BaseVisitor:
         raise error
 
 
-class GameModelCreator(BaseVisitor):
+class GameCreator(BaseVisitor):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
@@ -1019,7 +1019,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle, *, Visitor=GameModelCreator):
+def read_game(handle, *, Visitor=GameCreator):
     """
     Reads a game from a file opened in text mode.
 
@@ -1065,7 +1065,7 @@ def read_game(handle, *, Visitor=GameModelCreator):
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. Any exceptions are logged and collected in
     :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
-    :func:`overriden <chess.pgn.GameModelCreator.handle_error>`.
+    :func:`overriden <chess.pgn.GameCreator.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
@@ -1311,3 +1311,7 @@ def skip_game(handle):
     Skip a game. Returns ``True`` if a game was found and skipped.
     """
     return read_game(handle, Visitor=SkipVisitor)
+
+
+# TODO: Deprecated
+GameModelCreator = GameCreator

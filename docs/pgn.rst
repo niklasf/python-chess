@@ -111,7 +111,7 @@ Visitors are an advanced concept for game tree traversal.
 
 The following visitors are readily available.
 
-.. autoclass:: chess.pgn.GameModelCreator
+.. autoclass:: chess.pgn.GameCreator
     :members: handle_error, result
 
 .. autoclass:: chess.pgn.HeaderCreator
