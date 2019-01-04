@@ -1542,18 +1542,22 @@ class SimpleEngine:
         self.transport.close()
 
     @classmethod
+    def popen(cls, Protocol, command, *, timeout=10.0, setpgrp=False, **popen_args):
+        @asyncio.coroutine
+        def background(future):
+            transport, protocol = yield from asyncio.wait_for(Protocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
+            future.set_result(cls(transport, protocol, timeout=timeout))
+            yield from protocol.returncode
+
+        return run_in_background(background)
+
+    @classmethod
     def popen_uci(cls, command, *, timeout=10.0, setpgrp=False, **popen_args):
         """
         Spawns and initializes an UCI engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
         """
-        @asyncio.coroutine
-        def background(future):
-            transport, protocol = yield from asyncio.wait_for(UciProtocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
-            future.set_result(cls(transport, protocol, timeout=timeout))
-            yield from protocol.returncode
-
-        return run_in_background(background)
+        return cls.popen(UciProtocol, command, timeout=timeout, setpgrp=setpgrp, **popen_args)
 
     @classmethod
     def popen_xboard(cls, command, *, timeout=10.0, setpgrp=False, **popen_args):
@@ -1561,13 +1565,7 @@ class SimpleEngine:
         Spawns and initializes an XBoard engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
         """
-        @asyncio.coroutine
-        def background(future):
-            transport, protocol = yield from asyncio.wait_for(XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
-            future.set_result(cls(transport, protocol, timeout=timeout))
-            yield from protocol.returncode
-
-        return run_in_background(background)
+        return cls.popen(XBoardProtocol, command, timeout=timeout, setpgrp=setpgrp, **popen_args)
 
     def __enter__(self):
         return self
