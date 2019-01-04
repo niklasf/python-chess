@@ -1548,6 +1548,9 @@ class SimpleEngine:
     def __exit__(self, a, b, c):
         self.close()
 
+    def __repr__(self):
+        return "<{} (pid={}>".format(type(self).__name__, self.transport.get_pid())
+
 
 class SimpleAnalysisResult:
     """
