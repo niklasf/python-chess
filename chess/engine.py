@@ -90,6 +90,7 @@ def setup_event_loop():
         def __init__(self):
             super().__init__()
             self._poll_handle = None
+            self._poll_delay = 0.001
 
         def attach_loop(self, loop):
             assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
@@ -108,7 +109,8 @@ def setup_event_loop():
         def _poll(self):
             if self._loop:
                 self._do_waitpid_all()
-                self._poll_handle = self._loop.call_later(1.0, self._poll)
+                self._poll_delay = min(self._poll_delay * 2, 1.0)
+                self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
 
     class StandaloneSelectorEventLoop(asyncio.SelectorEventLoop):
         def __init__(self, child_watcher, selector=None):
