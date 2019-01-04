@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: XBoard support
-# TODO: Check naming. Is it too UCI specific?
-# TODO: Pondering
+# TODO: XBoard support. Check naming: Is it too UCI specific?
 # TODO: Test coverage
 
 import abc
@@ -633,7 +631,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=Info.SCORE, ponder=False, searchmoves=None, options={}):
         """
         Play a position.
 
@@ -644,6 +642,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically clear hashtables if the object is not equal
             to the previous game.
+        :param ponder: Whether the engine should keep analysing in the
+            background even after the result has been returned.
         :param searchmoves: Optional. Consider only root moves from this list.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
@@ -1050,15 +1050,18 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=Info.SCORE, ponder=False, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
             def start(self, engine):
                 self.info = {}
+                self.pondering = False
 
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", False)
+                if "Ponder" in engine.options:
+                    engine._setoption("Ponder", ponder)
 
                 engine._configure(options)
 
@@ -1078,11 +1081,14 @@ class UciProtocol(EngineProtocol):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _info(self, engine, arg):
-                self.info.update(_parse_uci_info(arg, engine.board, info))
+                if not self.pondering:
+                    self.info.update(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine, arg):
                 try:
-                    if not self.result.cancelled():
+                    if self.pondering:
+                        self.pondering = False
+                    elif not self.result.cancelled():
                         tokens = arg.split(None, 2)
 
                         bestmove = None
@@ -1093,22 +1099,26 @@ class UciProtocol(EngineProtocol):
                                 self.result.set_exception(EngineError(err))
                                 return
 
-                        ponder = None
+                        pondermove = None
                         if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-                            board.push(bestmove)
+                            engine.board.push(bestmove)
                             try:
-                                ponder = board.parse_uci(tokens[2])
+                                pondermove = engine.board.push_uci(tokens[2])
                             except ValueError as err:
                                 LOGGER.exception("engine sent invalid ponder move")
-                            finally:
-                                board.pop()
 
-                        self.result.set_result(PlayResult(bestmove, ponder, self.info))
+                        self.result.set_result(PlayResult(bestmove, pondermove, self.info))
+
+                        if ponder and pondermove:
+                            self.pondering = True
+                            engine._position(engine.board)
+                            engine._go(limit, ponder=True)
                 finally:
-                    for name, value in previous_config.items():
-                        engine._setoption(name, value)
+                    if not self.pondering:
+                        for name, value in previous_config.items():
+                            engine._setoption(name, value)
 
-                    self.set_finished()
+                        self.set_finished()
 
             def cancel(self, engine):
                 engine.send_line("stop")
