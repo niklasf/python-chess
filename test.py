@@ -3123,6 +3123,15 @@ class EngineTestCase(unittest.TestCase):
             yield from protocol.ping()
             mock.assert_done()
 
+        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_uci_debug(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
             mock.expect("debug on", [])
             protocol.debug()
             mock.assert_done()
