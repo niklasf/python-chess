@@ -25,6 +25,7 @@ import abc
 import asyncio
 import collections
 import concurrent.futures
+import enum
 import functools
 import logging
 import enum
@@ -51,6 +52,12 @@ try:
     from asyncio import all_tasks as _all_tasks
 except ImportError:
     _all_tasks = asyncio.Task.all_tasks
+
+try:
+    # Python 3.6
+    _IntFlag = enum.IntFlag
+except AttributeError:
+    _IntFlag = enum.IntEnum
 
 try:
     StopAsyncIteration
@@ -243,12 +250,22 @@ class Limit:
 class PlayResult:
     """Returned by :func:`chess.engine.EngineProtocol.play()`."""
 
-    def __init__(self, move, ponder):
+    def __init__(self, move, ponder, info=None):
         self.move = move
         self.ponder = ponder
+        self.info = info or {}
 
     def __repr__(self):
-        return "<{} at {} (move={}, ponder={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder)
+        return "<{} at {} (move={}, ponder={}, info={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder, self.info)
+
+
+class Info(_IntFlag):
+    NONE = 0
+    SCORE = 1
+    PV = 2
+    REFUTATION = 4
+    CURRLINE = 8
+    ALL = 15
 
 
 class Score(abc.ABC):
@@ -615,7 +632,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
         """
         Play a position.
 
@@ -635,7 +652,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @asyncio.coroutine
-    def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
+    def analyse(self, board, limit, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
         """
         Analyses a position and returns an info dictionary.
 
@@ -655,7 +672,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
-        analysis = yield from self.analysis(board, limit, game=game, searchmoves=searchmoves, options=options)
+        analysis = yield from self.analysis(board, limit, game=game, info=info, searchmoves=searchmoves, options=options)
 
         with analysis:
             yield from analysis.wait()
@@ -664,7 +681,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
         """
         Starts analysing a position.
 
@@ -1032,7 +1049,7 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1091,7 +1108,7 @@ class UciProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1128,115 +1145,7 @@ class UciProtocol(EngineProtocol):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _info(self, engine, arg):
-                # Initialize parser state.
-                info = {}
-                board = None
-                pv = None
-                score_kind = None
-                refutation_move = None
-                refuted_by = []
-                currline_cpunr = None
-                currline_moves = []
-                string = []
-
-                # Parameters with variable length can only be handled when the
-                # next parameter starts or at the end of the line.
-                def end_of_parameter():
-                    if pv is not None:
-                        info["pv"] = pv
-
-                    if refutation_move is not None:
-                        if not "refutation" in info:
-                            info["refutation"] = {}
-                        info["refutation"][refutation_move] = refuted_by
-
-                    if currline_cpunr is not None:
-                        if not "currline" in info:
-                            info["currline"] = {}
-                        info["currline"][currline_cpunr] = currline_moves
-
-                # Parse all other parameters.
-                current_parameter = None
-                for token in arg.split(" "):
-                    if current_parameter == "string":
-                        string.append(token)
-                    elif not token:
-                        # Ignore extra spaces. Those can not be directly discarded,
-                        # because they may occur in the string parameter.
-                        pass
-                    elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
-                        end_of_parameter()
-                        current_parameter = token
-
-                        pv = None
-                        score_kind = None
-                        refutation_move = None
-                        refuted_by = []
-                        currline_cpunr = None
-                        currline_moves = []
-
-                        if current_parameter == "pv":
-                            pv = []
-
-                        if current_parameter in ["refutation", "pv", "currline"]:
-                            board = engine.board.copy(stack=False)
-                    elif current_parameter in ["depth", "seldepth", "time", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
-                        try:
-                            info[current_parameter] = int(token)
-                        except ValueError:
-                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-                    elif current_parameter == "pv":
-                        try:
-                            pv.append(board.push_uci(token))
-                        except ValueError:
-                            LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, engine.board.fen())
-                    elif current_parameter == "score":
-                        try:
-                            if token in ["cp", "mate"]:
-                                score_kind = token
-                            elif token == "lowerbound":
-                                info["lowerbound"] = True
-                            elif token == "upperbound":
-                                info["upperbound"] = True
-                            elif score_kind == "cp":
-                                info["score"] = Cp(int(token))
-                            elif score_kind == "mate":
-                                info["mate"] = Mate.from_moves(int(token))
-                        except ValueError:
-                            LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
-                    elif current_parameter == "currmove":
-                        try:
-                            info[current_parameter] = chess.Move.from_uci(token)
-                        except ValueError:
-                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-                    elif current_parameter == "refutation":
-                        try:
-                            if refutation_move is None:
-                                refutation_move = board.push_uci(token)
-                            else:
-                                refuted_by.append(board.push_uci(token))
-                        except ValueError:
-                            LOGGER.exception("exception parsing refutation from info: %r, position at root: %s", arg, engine.fen())
-                    elif current_parameter == "currline":
-                        try:
-                            if currline_cpunr is None:
-                                currline_cpunr = int(token)
-                            else:
-                                currline_moves.append(board.push_uci(token))
-                        except ValueError:
-                            LOGGER.exception("exception parsing currline from info: %r, position at root: %s", arg, engine.fen())
-                    elif current_parameter == "ebf":
-                        try:
-                            info[current_parameter] = float(token)
-                        except ValueError:
-                            LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-
-                end_of_parameter()
-
-                if string:
-                    info["string"] = " ".join(string)
-
-                self.analysis.post(info)
+                self.analysis.post(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine, arg):
                 for name, value in previous_config.items():
@@ -1254,6 +1163,124 @@ class UciProtocol(EngineProtocol):
     def quit(self):
         self.send_line("quit")
         yield from self.returncode
+
+
+def _parse_uci_info(arg, root_board, selector=Info.ALL):
+    info = {}
+    if not selector:
+        return info
+
+    # Initialize parser state.
+    board = None
+    pv = None
+    score_kind = None
+    refutation_move = None
+    refuted_by = []
+    currline_cpunr = None
+    currline_moves = []
+    string = []
+
+    # Parameters with variable length can only be handled when the
+    # next parameter starts or at the end of the line.
+    def end_of_parameter():
+        if pv is not None:
+            info["pv"] = pv
+
+        if refutation_move is not None:
+            if not "refutation" in info:
+                info["refutation"] = {}
+            info["refutation"][refutation_move] = refuted_by
+
+        if currline_cpunr is not None:
+            if not "currline" in info:
+                info["currline"] = {}
+            info["currline"][currline_cpunr] = currline_moves
+
+    # Parse all other parameters.
+    current_parameter = None
+    for token in arg.split(" "):
+        if current_parameter == "string":
+            string.append(token)
+        elif not token:
+            # Ignore extra spaces. Those can not be directly discarded,
+            # because they may occur in the string parameter.
+            pass
+        elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
+            end_of_parameter()
+            current_parameter = token
+
+            board = None
+            pv = None
+            score_kind = None
+            refutation_move = None
+            refuted_by = []
+            currline_cpunr = None
+            currline_moves = []
+
+            if current_parameter == "pv" and selector & Info.PV:
+                pv = []
+                board = root_board.copy(stack=False)
+            elif current_parameter == "refutation" and selector & Info.REFUTATION:
+                board = root_board.copy(stack=False)
+            elif current_parameter == "currline" and selector & Info.CURRLINE:
+                board = root_board.copy(stack=False)
+        elif current_parameter in ["depth", "seldepth", "time", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
+            try:
+                info[current_parameter] = int(token)
+            except ValueError:
+                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+        elif current_parameter == "pv" and pv is not None:
+            try:
+                pv.append(board.push_uci(token))
+            except ValueError:
+                LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
+        elif current_parameter == "score" and selector & Info.SCORE:
+            try:
+                if token in ["cp", "mate"]:
+                    score_kind = token
+                elif token == "lowerbound":
+                    info["lowerbound"] = True
+                elif token == "upperbound":
+                    info["upperbound"] = True
+                elif score_kind == "cp":
+                    info["score"] = Cp(int(token))
+                elif score_kind == "mate":
+                    info["mate"] = Mate.from_moves(int(token))
+            except ValueError:
+                LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
+        elif current_parameter == "currmove":
+            try:
+                info[current_parameter] = chess.Move.from_uci(token)
+            except ValueError:
+                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+        elif current_parameter == "refutation" and board is not None:
+            try:
+                if refutation_move is None:
+                    refutation_move = board.push_uci(token)
+                else:
+                    refuted_by.append(board.push_uci(token))
+            except ValueError:
+                LOGGER.exception("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
+        elif current_parameter == "currline" and board is not None:
+            try:
+                if currline_cpunr is None:
+                    currline_cpunr = int(token)
+                else:
+                    currline_moves.append(board.push_uci(token))
+            except ValueError:
+                LOGGER.exception("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
+        elif current_parameter == "ebf":
+            try:
+                info[current_parameter] = float(token)
+            except ValueError:
+                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+
+    end_of_parameter()
+
+    if string:
+        info["string"] = " ".join(string)
+
+    return info
 
 
 class UciOptionMap(collections.abc.MutableMapping):
@@ -1460,15 +1487,15 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, searchmoves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result()
+    def play(self, board, limit, *, game=None, info=Info.SCORE, searchmoves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
-    def analyse(self, board, limit, *, multipv=None, game=None, searchmoves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result()
+    def analyse(self, board, limit, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
 
-    def analysis(self, board, limit=None, *, multipv=None, game=None, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=Info.ALL, searchmoves=None, options={}):
         return SimpleAnalysisResult(
-            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, searchmoves=searchmoves, options=options), self.protocol.loop).result(),
+            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result(),
             self.protocol.loop)
 
     def quit(self):
