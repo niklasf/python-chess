@@ -482,6 +482,7 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.remaining_checks = [3, 3]
+        self._root_remaining_checks = None
         super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
@@ -495,6 +496,9 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.BLACK] = 3
 
     def push(self, move):
+        if not self._stack:
+            self._root_remaining_checks = self.remaining_checks.copy()
+
         super().push(move)
         if self.is_check():
             self.remaining_checks[not self.turn] -= 1
@@ -599,6 +603,13 @@ class ThreeCheckBoard(chess.Board):
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
         return board
 
+    def root(self):
+        board = super().root()
+        if self._stack:
+            board.remaining_checks[chess.WHITE] = self._root_remaining_checks[chess.WHITE]
+            board.remaining_checks[chess.BLACK] = self._root_remaining_checks[chess.BLACK]
+        return board
+
 
 class CrazyhousePocket:
 
@@ -644,6 +655,7 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
+        self._root_pockets = None
         super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
@@ -657,6 +669,9 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.BLACK].reset()
 
     def push(self, move):
+        if not self._stack:
+            self._root_pockets = [pocket.copy() for pocket in self.pockets]
+
         if move.drop:
             self.pockets[self.turn].remove(move.drop)
 
@@ -815,6 +830,13 @@ class CrazyhouseBoard(chess.Board):
         board = super().mirror()
         board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
+        return board
+
+    def root(self):
+        board = super().root()
+        if self._stack:
+            board.pockets[chess.WHITE] = self._root_pockets[chess.WHITE].copy()
+            board.pockets[chess.BLACK] = self._root_pockets[chess.BLACK].copy()
         return board
 
     def status(self):

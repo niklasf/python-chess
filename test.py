@@ -3754,6 +3754,19 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertNotEqual(a, c)
         self.assertNotEqual(b, c)
 
+    def test_three_check_root(self):
+        board = chess.variant.ThreeCheckBoard("r1bq1bnr/pppp1kpp/2n5/4p3/4P3/8/PPPP1PPP/RNBQK1NR w KQ - 2+3 0 4")
+        root = board.root()
+        self.assertEqual(root.remaining_checks[chess.WHITE], 2)
+        self.assertEqual(root.remaining_checks[chess.BLACK], 3)
+
+        board.push_san("Qf3+")
+        board.push_san("Ke6")
+        board.push_san("Qb3+")
+        root = board.root()
+        self.assertEqual(root.remaining_checks[chess.WHITE], 2)
+        self.assertEqual(root.remaining_checks[chess.BLACK], 3)
+
 
 class CrazyhouseTestCase(unittest.TestCase):
 
@@ -3851,6 +3864,21 @@ class CrazyhouseTestCase(unittest.TestCase):
         fen = "r1b1k2r/p1pq1ppp/1bBbnp2/8/6N1/5P2/PPP2PPP/R4RK1/PQPPNn w kq - 30 16"
         board = chess.variant.CrazyhouseBoard(fen)
         self.assertEqual(board, board.mirror().mirror())
+
+    def test_root_pockets(self):
+        board = chess.variant.CrazyhouseBoard("r2B1rk1/ppp2ppp/3p4/4p3/2B5/2NP1R1P/PPPn2K1/8/QPBQPRNNbp w - - 40 21")
+        white_pocket = "qqrbnnpp"
+        black_pocket = "bp"
+        self.assertEqual(str(board.root().pockets[chess.WHITE]), white_pocket)
+        self.assertEqual(str(board.root().pockets[chess.BLACK]), black_pocket)
+
+        board.push_san("N@h6+")
+        board.push_san("Kh8")
+        board.push_san("R@g8+")
+        board.push_san("Rxg8")
+        board.push_san("Nxf7#")
+        self.assertEqual(str(board.root().pockets[chess.WHITE]), white_pocket)
+        self.assertEqual(str(board.root().pockets[chess.BLACK]), black_pocket)
 
 
 class GiveawayTestCase(unittest.TestCase):
