@@ -1,6 +1,32 @@
 Changelog for python-chess
 ==========================
 
+New in v0.24.2
+--------------
+
+Bugfixes:
+
+* `CrazyhouseBoard.root()` and `ThreeCheckBoard.root()` were not returning the
+  correct pockets and number of remaining checks, respectively. Thanks @gbtami.
+* `chess.pgn.skip_game()` now correctly skips PGN comments that contain
+  line-breaks and PGN header tag notation.
+
+Changes:
+
+* Renamed `chess.pgn.GameModelCreator` to `GameCreator`. Alias kept in place
+  and will be removed in a future release.
+* Renamed `chess.engine` to `chess._engine`. Use re-exports from `chess.uci`
+  or `chess.xboard`.
+* Renamed `Board.stack` to `Board._stack`. Do not use this directly.
+* Improved memory usage: `Board.legal_moves` and `Board.pseudo_legal_moves`
+  no longer create reference cycles. PGN visitors can manage headers
+  themselves.
+* Removed previously deprecated items.
+
+Features:
+
+* Added `chess.pgn.BaseVisitor.visit_board()` and `chess.pgn.BoardCreator`.
+
 New in v0.24.1, v0.23.11
 ------------------------
 
