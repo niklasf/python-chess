@@ -1408,6 +1408,7 @@ class Board(BaseBoard):
     def __init__(self, fen=STARTING_FEN, *, chess960=False):
         BaseBoard.__init__(self, None)
 
+        self.initial_fen = fen
         self.chess960 = chess960
 
         self.move_stack = []
@@ -1471,12 +1472,7 @@ class Board(BaseBoard):
 
     def root(self):
         """Returns a copy of the root position."""
-        if self._stack:
-            board = type(self)(None, chess960=self.chess960)
-            self._stack[0].restore(board)
-            return board
-        else:
-            return self.copy(stack=False)
+        return type(self)(self.initial_fen, chess960=self.chess960)
 
     def remove_piece_at(self, square):
         piece = super().remove_piece_at(square)
