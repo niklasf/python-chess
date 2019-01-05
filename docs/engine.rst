@@ -9,7 +9,7 @@ both kinds of engines.
    ways. Please weigh in on the design if the provided APIs do not cover
    your use case.
 
-   The module will eventually replace ``chess.uci`` and ``chess.xboard``,
+   The intention is to eventually replace ``chess.uci`` and ``chess.xboard``,
    but not before things have settled down and there has been a transition
    period.
 
