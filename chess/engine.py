@@ -18,6 +18,7 @@
 
 # TODO: XBoard support. Check naming: Is it too UCI specific?
 # TODO: Test coverage
+# TODO: Options restore
 
 import abc
 import asyncio
