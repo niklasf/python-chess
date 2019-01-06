@@ -93,11 +93,6 @@ def tag_and_push():
     return tagname
 
 
-def update_rtd():
-    print("--- UPDATE RTD ---------------------------------------------------")
-    system("curl -X POST http://readthedocs.org/build/python-chess")
-
-
 def pypi():
     print("--- PYPI ---------------------------------------------------------")
     system("python3 setup.py sdist bdist_wheel")
@@ -116,6 +111,5 @@ if __name__ == "__main__":
     check_git()
     check_changelog()
     tagname = tag_and_push()
-    update_rtd()
     pypi()
     github_release(tagname)
