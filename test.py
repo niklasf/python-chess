@@ -3124,7 +3124,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.new_event_loop()) as loop:
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
             loop.run_until_complete(main())
 
     def test_uci_debug(self):
@@ -3142,7 +3142,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.new_event_loop()) as loop:
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
             loop.run_until_complete(main())
 
     def test_uci_go(self):
@@ -3174,7 +3174,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.new_event_loop()) as loop:
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
             loop.run_until_complete(main())
 
     def test_uci_info(self):
