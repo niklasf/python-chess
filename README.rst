@@ -60,7 +60,7 @@ python-chess:
 * `Polyglot opening book reading <https://python-chess.readthedocs.io/en/latest/polyglot.html>`_
 * `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/gaviota.html>`_
 * `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/syzygy.html>`_
-* `UCI engine communication <https://python-chess.readthedocs.io/en/latest/uci.html>`_
+* `UCI/XBoard engine communication <https://python-chess.readthedocs.io/en/latest/engine.html>`_
 * `Variants <https://python-chess.readthedocs.io/en/latest/variant.html>`_
 * `Changelog <https://python-chess.readthedocs.io/en/latest/changelog.html>`_
 
@@ -266,40 +266,21 @@ Features
 
       >>> tablebase.close()
 
-* Communicate with an UCI engine.
-  `Docs <https://python-chess.readthedocs.io/en/latest/uci.html>`__.
+* Communicate with UCI/XBoard engines. Based on ``asyncio``.
+  `Docs <https://python-chess.readthedocs.io/en/latest/engine.html>`__.
 
   .. code:: python
 
-      >>> import chess.uci
+      >>> import chess.engine
 
-      >>> engine = chess.uci.popen_engine("stockfish")
-      >>> engine.uci()
-      >>> engine.author  # doctest: +SKIP
-      'Tord Romstad, Marco Costalba and Joona Kiiski'
+      >>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 
-      >>> # Synchronous mode.
       >>> board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
-      >>> engine.position(board)
-      >>> engine.go(movetime=2000)  # Gets a tuple of bestmove and ponder move
-      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
+      >>> limit = chess.engine.Limit(movetime=2000)
+      >>> engine.play(board, limit)  # doctest: +ELLIPSIS
+      <PlayResult at ... (move=d6d1, ponder=c1d1, info={...})>
 
-      >>> # Asynchronous mode.
-      >>> def callback(command):
-      ...    bestmove, ponder = command.result()
-      ...    assert bestmove == chess.Move.from_uci('d6d1')
-      ...
-      >>> command = engine.go(movetime=2000, async_callback=callback)
-      >>> command.done()
-      False
-      >>> command.result()
-      BestMove(bestmove=Move.from_uci('d6d1'), ponder=Move.from_uci('c1d1'))
-      >>> command.done()
-      True
-
-      >>> # Quit.
       >>> engine.quit()
-      0
 
 Installing
 ----------
