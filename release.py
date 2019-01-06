@@ -100,7 +100,9 @@ def update_rtd():
 
 def pypi():
     print("--- PYPI ---------------------------------------------------------")
-    system("python3 setup.py sdist upload")
+    system("python3 setup.py sdist bdist_wheel")
+    system("twine check dist/*")
+    system("twine upload --skip-existing --sign dist/*")
 
 
 def github_release(tagname):
