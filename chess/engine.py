@@ -80,9 +80,12 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
     An event loop policy that ensures the event loop is capable of spawning
     and watching subprocesses, even when not running in the main thread.
 
-    Unix: Child watchers are thread local. Uses relatively slow polling to
-    watch child processes, when not running on the main thread. This only
-    affects detection of process termination, not communication.
+    Windows: Creates a :class:`~asyncio.ProactorEventLoop`.
+
+    Unix: Creates a :class:`~asyncio.SelectorEventLoop`. Child watchers are
+    thread local. When not running on the main thread, the default child
+    watchers use relatively slow polling to detect process termination.
+    This does not affect communication.
     """
     class _ThreadLocal(threading.local):
         _watcher = None
@@ -153,15 +156,16 @@ def run_in_background(coroutine, _policy_lock=threading.Lock()):
     The coroutine and all remaining tasks continue running in the background
     until it is complete.
 
-    Note: This installs an event loop policy for the entire process.
+    Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
+    process.
     """
     assert asyncio.iscoroutinefunction(coroutine)
-
-    future = concurrent.futures.Future()
 
     with _policy_lock:
         if not isinstance(asyncio.get_event_loop_policy(), EventLoopPolicy):
             asyncio.set_event_loop_policy(EventLoopPolicy())
+
+    future = concurrent.futures.Future()
 
     def background():
         loop = asyncio.new_event_loop()
