@@ -77,12 +77,12 @@ MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multip
 
 class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
     """
-    Creates and sets up a new asyncio event loop that is capable of spawning
-    and watching subprocesses.
+    An event loop policy that ensures the event loop is capable of spawning
+    and watching subprocesses, even when not running in the main thread.
 
-    Unix: Uses relatively slow polling to watch child processes, when not
-    running on the main thread. This only affects detection of process
-    termination, not communication.
+    Unix: Child watchers are thread local. Uses relatively slow polling to
+    watch child processes, when not running on the main thread. This only
+    affects detection of process termination, not communication.
     """
     class _ThreadLocal(threading.local):
         _watcher = None
@@ -128,42 +128,40 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
     def set_child_watcher(self, watcher):
         if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
             return super().set_child_watcher(watcher)
-        else:
-            assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
 
-            if self._thread_local._watcher:
-                self._thread_local._watcher.close()
-            self._thread_local._watcher = watcher
+        assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
+
+        if self._thread_local._watcher:
+            self._thread_local._watcher.close()
+        self._thread_local._watcher = watcher
 
     def new_event_loop(self):
         return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
 
-    def get_event_loop(self):
-        print("GET EVENT LOOP")
-        return super().get_event_loop()
-
     def set_event_loop(self, loop):
-        print("SET EVENT LOOP", threading.current_thread())
         super().set_event_loop(loop)
 
         if sys.platform != "win32" and threading.current_thread() != threading.main_thread():
-            print("ATTACHING EVENT LOOP")
             self.get_child_watcher().attach_loop(loop)
 
 
-def run_in_background(coroutine):
+def run_in_background(coroutine, _policy_lock=threading.Lock()):
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
     Blocks and returns the *future* result as soon as it is resolved.
     The coroutine and all remaining tasks continue running in the background
     until it is complete.
+
+    Note: This installs an event loop policy for the entire process.
     """
     assert asyncio.iscoroutinefunction(coroutine)
 
     future = concurrent.futures.Future()
 
-    asyncio.set_event_loop_policy(EventLoopPolicy())
+    with _policy_lock:
+        if not isinstance(asyncio.get_event_loop_policy(), EventLoopPolicy):
+            asyncio.set_event_loop_policy(EventLoopPolicy())
 
     def background():
         loop = asyncio.new_event_loop()
