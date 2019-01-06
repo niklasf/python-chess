@@ -75,7 +75,7 @@ KORK = object()
 MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
 
 
-def setup_event_loop():
+class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
     """
     Creates and sets up a new asyncio event loop that is capable of spawning
     and watching subprocesses.
@@ -84,65 +84,71 @@ def setup_event_loop():
     running on the main thread. This only affects detection of process
     termination, not communication.
     """
-    if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
-        loop = asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
-        asyncio.set_event_loop(loop)
-        return loop
+    class _ThreadLocal(threading.local):
+        _watcher = None
 
-    class PollingChildWatcher(asyncio.SafeChildWatcher):
-        def __init__(self):
-            super().__init__()
-            self._poll_handle = None
-            self._poll_delay = 0.001
+    def __init__(self):
+        super().__init__()
+        self._thread_local = self._ThreadLocal()
 
-        def attach_loop(self, loop):
-            assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
+    def get_child_watcher(self):
+        if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
+            return super().get_child_watcher()
 
-            if self._loop is not None and loop is None and self._callbacks:
-                warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
+        class PollingChildWatcher(asyncio.SafeChildWatcher):
+            def __init__(self):
+                super().__init__()
+                self._poll_handle = None
+                self._poll_delay = 0.001
 
-            if self._poll_handle is not None:
-                self._poll_handle.cancel()
+            def attach_loop(self, loop):
+                assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
 
-            self._loop = loop
-            if loop is not None:
-                self._poll_handle = self._loop.call_soon(self._poll)
-                self._do_waitpid_all()
+                if self._loop is not None and loop is None and self._callbacks:
+                    warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
 
-        def _poll(self):
-            if self._loop:
-                self._do_waitpid_all()
-                self._poll_delay = min(self._poll_delay * 2, 1.0)
-                self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
+                if self._poll_handle is not None:
+                    self._poll_handle.cancel()
 
-    class StandaloneSelectorEventLoop(asyncio.SelectorEventLoop):
-        def __init__(self, child_watcher, selector=None):
-            super().__init__(selector=selector)
-            self.child_watcher = child_watcher
-            self.child_watcher.attach_loop(self)
+                self._loop = loop
+                if loop is not None:
+                    self._poll_handle = self._loop.call_soon(self._poll)
+                    self._do_waitpid_all()
 
-        @asyncio.coroutine
-        def _make_subprocess_transport(self, protocol, args, shell, stdin, stdout, stderr, bufsize, extra=None, **kwargs):
-            # Implementation is exactly the same, but uses local child watcher
-            # instead getting the global child watcher from the event loop
-            # policy.
-            with self.child_watcher as watcher:
-                waiter = asyncio.Future(loop=self)
-                transp = asyncio.unix_events._UnixSubprocessTransport(self, protocol, args, shell, stdin, stdout, stderr, bufsize, waiter=waiter, extra=extra, **kwargs)
-                watcher.add_child_handler(transp.get_pid(), self._child_watcher_callback, transp)
+            def _poll(self):
+                if self._loop:
+                    self._do_waitpid_all()
+                    self._poll_delay = min(self._poll_delay * 2, 1.0)
+                    self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
 
-                try:
-                    yield from waiter
-                except Exception:
-                    transp.close()
-                    yield from transp._wait()
-                    raise
+        if self._thread_local._watcher is None:
+            self._thread_local._watcher = PollingChildWatcher()
+        return self._thread_local._watcher
 
-            return transp
+    def set_child_watcher(self, watcher):
+        if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
+            return super().set_child_watcher(watcher)
+        else:
+            assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
 
-    loop = StandaloneSelectorEventLoop(PollingChildWatcher())
-    asyncio.set_event_loop(loop)
-    return loop
+            if self._thread_local._watcher:
+                self._thread_local._watcher.close()
+            self._thread_local._watcher = watcher
+
+    def new_event_loop(self):
+        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
+
+    def get_event_loop(self):
+        print("GET EVENT LOOP")
+        return super().get_event_loop()
+
+    def set_event_loop(self, loop):
+        print("SET EVENT LOOP", threading.current_thread())
+        super().set_event_loop(loop)
+
+        if sys.platform != "win32" and threading.current_thread() != threading.main_thread():
+            print("ATTACHING EVENT LOOP")
+            self.get_child_watcher().attach_loop(loop)
 
 
 def run_in_background(coroutine):
@@ -157,8 +163,11 @@ def run_in_background(coroutine):
 
     future = concurrent.futures.Future()
 
+    asyncio.set_event_loop_policy(EventLoopPolicy())
+
     def background():
-        loop = setup_event_loop()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
         try:
             loop.run_until_complete(coroutine(future))
@@ -170,7 +179,7 @@ def run_in_background(coroutine):
             try:
                 # Finish all remaining tasks.
                 pending = _all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
 
                 # Shutdown async generators.
                 try:

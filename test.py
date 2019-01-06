@@ -3123,8 +3123,8 @@ class EngineTestCase(unittest.TestCase):
             yield from protocol.ping()
             mock.assert_done()
 
-        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
-            loop.run_until_complete(main())
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
 
     def test_uci_debug(self):
         @asyncio.coroutine
@@ -3140,8 +3140,8 @@ class EngineTestCase(unittest.TestCase):
             protocol.debug(False)
             mock.assert_done()
 
-        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
-            loop.run_until_complete(main())
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
 
     def test_uci_go(self):
         @asyncio.coroutine
@@ -3171,8 +3171,8 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.ponder, None)
             mock.assert_done()
 
-        with contextlib.closing(chess.engine.setup_event_loop()) as loop:
-            loop.run_until_complete(main())
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
 
     def test_uci_info(self):
         from chess.engine import INFO_ALL
