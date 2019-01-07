@@ -17,7 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-import itertools
 import mmap
 import os
 import re

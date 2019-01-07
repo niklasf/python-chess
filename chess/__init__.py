@@ -34,7 +34,6 @@ import copy
 import enum
 import re
 import itertools
-import struct
 
 
 COLORS = [WHITE, BLACK] = [True, False]
@@ -2412,7 +2411,7 @@ class Board(BaseBoard):
                     operations[opcode] = float(operand)
                     try:
                         operations[opcode] = int(operand)
-                    except:
+                    except ValueError:
                         pass
                     opcode = ""
                     operand = ""
@@ -3629,10 +3628,10 @@ class SquareSet(collections.abc.MutableSet):
 
     def tolist(self):
         """Convert the set to a list of 64 bools."""
-        l = [False] * 64
+        result = [False] * 64
         for square in self:
-            l[square] = True
-        return l
+            result[square] = True
+        return result
 
     def __bool__(self):
         return bool(self.mask)

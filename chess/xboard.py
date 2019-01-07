@@ -519,8 +519,8 @@ class Engine:
         # Assumption: The hint ponder overrides the pv ponder.
         #             They should be the same in a normal scenario.
 
-        making_pv_ponder = False # For the '(<move>)' variation
-        hint_ponder_played = False # For the 'Hint: <move>' variation
+        making_pv_ponder = False  # For the '(<move>)' variation
+        hint_ponder_played = False  # For the 'Hint: <move>' variation
         if self.ponder_move:
             try_move(board, self.ponder_move)
             hint_ponder_played = True

@@ -21,7 +21,6 @@
 # GNU General Public License.
 
 import chess
-import collections
 import math
 
 import xml.etree.ElementTree as ET
