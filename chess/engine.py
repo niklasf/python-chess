@@ -18,7 +18,6 @@
 
 # TODO: XBoard support. Check naming: Is it too UCI specific?
 # TODO: Test coverage
-# TODO: Options restore
 
 import abc
 import asyncio
@@ -1390,15 +1389,32 @@ class XBoardProtocol(EngineProtocol):
     `XBoard protocol <http://hgm.nubati.net/CECP.html>`_ (CECP).
     """
 
+    def __init__(self):
+        super().__init__()
+        self.options = {
+            "random": False,
+            "nps": None,
+        }
+        self.config = {}
+        self.board = chess.Board()
+        self.game = None
+
     @asyncio.coroutine
     def _initialize(self):
         class Command(BaseCommand):
             def start(self, engine):
                 engine.send_line("xboard")
                 engine.send_line("protover 2")
-                self.set_finished()
+                engine.send_line("ping 1")
+
+            def line_received(self, engine, line):
+                if line == "pong 1":
+                    self.set_finished()
 
         yield from self.communicate(Command)
+
+    def _new(self):
+        self.send_line("new")
 
     def _ping(self, n):
         self.send_line("ping {}".format(n))
@@ -1419,16 +1435,75 @@ class XBoardProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def play(self):
-        raise NotImplementedError  # TODO
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
+        previous_config = self.config.copy()
+
+        if searchmoves is not None:
+            raise NotImplementedError("xboard searchmoves not implemented yet")
+
+        raise NotImplementedError("xboard play not supported yet")  # TODO
 
     @asyncio.coroutine
-    def analysis(self):
-        raise NotImplementedError  # TODO
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+        previous_config = self.config.copy()
+
+        if searchmoves is not None:
+            raise NotImplementedError("xboard searchmoves not implemented yet")
+
+        class Command(BaseCommand):
+            def start(self, engine):
+                self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+
+                if engine.game != game:
+                    engine._new()
+                engine.game = game
+
+                engine.send_line("post" if info else "nopost")
+                engine.send_line("analyze")
+
+                self.result.set_result(self.analysis)
+
+        return (yield from self.communicate(Command))
+
+    def _configure(self, options):
+        for name, value in options.items():
+            if value is not None and self.config.get(name) == value:
+                continue
+
+            if name == "nps":
+                self.send_line("nps {}".format(value))
+                self.config[name] = value
+            elif name == "memory":
+                # TODO: Requires feature memory=1
+                self.send_line("memory {}".format(value))
+                self.config[name] = memory
+            elif name == "cores":
+                # TODO: Requires feature smp=1
+                self.send_line("cores {}".format(value))
+                self.config[name] = value
+            elif name.startswith("egtpath "):
+                # TODO: Requires feature egt
+                self.send_line("{} {}".format(name, value))
+                self.config[name] = value
+            elif name == "random":
+                if value is None or value != self.config.get("random", False):
+                    self.config["random"] = not self.config.get("random", False)
+                    self.send_line("random")
+            else:
+                # TODO: Validate option
+                if value is None:
+                    self.send_line("option {}".format(name))
+                else:
+                    self.send_line("option {}={}".format(name, value))
 
     @asyncio.coroutine
-    def configure(self):
-        raise NotImplementedError  # TODO
+    def configure(self, options):
+        class Command(BaseCommand):
+            def start(self, engine):
+                engine._configure(options)
+                self.set_finished()
+
+        return (yield from self.communicate(Command))
 
     @asyncio.coroutine
     def quit(self):
