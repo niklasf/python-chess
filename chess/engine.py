@@ -27,8 +27,6 @@ import concurrent.futures
 import enum
 import functools
 import logging
-import enum
-import collections
 import warnings
 import subprocess
 import sys
@@ -41,7 +39,7 @@ try:
 except ImportError:
     try:
         from asyncio import _get_running_loop
-    except:
+    except ImportError:
         # Python 3.4
         def _get_running_loop():
             return asyncio.get_event_loop()
@@ -805,7 +803,7 @@ class BaseCommand:
             # Prevent warning when the exception is not retrieved.
             try:
                 self.finished.result()
-            except:
+            except Exception:
                 pass
 
     def set_finished(self):
@@ -1143,7 +1141,7 @@ class UciProtocol(EngineProtocol):
                             engine.board.push(bestmove)
                             try:
                                 pondermove = engine.board.push_uci(tokens[2])
-                            except ValueError as err:
+                            except ValueError:
                                 LOGGER.exception("engine sent invalid ponder move")
 
                         self.result.set_result(PlayResult(bestmove, pondermove, self.info))
@@ -1244,12 +1242,12 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
             info["pv"] = pv
 
         if refutation_move is not None:
-            if not "refutation" in info:
+            if "refutation" not in info:
                 info["refutation"] = {}
             info["refutation"][refutation_move] = refuted_by
 
         if currline_cpunr is not None:
-            if not "currline" in info:
+            if "currline" not in info:
                 info["currline"] = {}
             info["currline"][currline_cpunr] = currline_moves
 
