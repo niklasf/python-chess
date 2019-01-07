@@ -333,7 +333,6 @@ class Score(abc.ABC):
         >>> mate.score(100000)
         99995
         """
-        raise NotImplementedError
 
     @abc.abstractmethod
     def mate(self):
@@ -343,7 +342,6 @@ class Score(abc.ABC):
         :warning: This conflates ``Mate.minus(0)`` (we are mated) and
             ``Mate.plus(0)`` (we have given mate) to ``0``.
         """
-        raise NotImplementedError
 
     def is_mate(self):
         """Tests if this is a mate score."""
@@ -351,7 +349,7 @@ class Score(abc.ABC):
 
     @abc.abstractmethod
     def __neg__(self):
-        raise NotImplementedError
+        pass
 
 
 @functools.total_ordering
@@ -638,18 +636,21 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
+    def _initialize(self):
+        pass
+
+    @abc.abstractmethod
+    @asyncio.coroutine
     def ping(self):
         """
         Pings the engine and waits for a response. Used to ensure the engine
         is still alive and idle.
         """
-        raise NotImplementedError
 
     @abc.abstractmethod
     @asyncio.coroutine
     def configure(self, options):
         """Configures global engine options."""
-        raise NotImplementedError
 
     @abc.abstractmethod
     @asyncio.coroutine
@@ -1388,7 +1389,51 @@ class XBoardProtocol(EngineProtocol):
     An implementation of the
     `XBoard protocol <http://hgm.nubati.net/CECP.html>`_ (CECP).
     """
-    pass
+
+    @asyncio.coroutine
+    def _initialize(self):
+        class Command(BaseCommand):
+            def start(self, engine):
+                engine.send_line("xboard")
+                engine.send_line("protover 2")
+                self.set_finished()
+
+        yield from self.communicate(Command)
+
+    def _ping(self, n):
+        self.send_line("ping {}".format(n))
+
+    @asyncio.coroutine
+    def ping(self):
+        class Command(BaseCommand):
+            def start(self, engine):
+                self.n = id(self) & 0xffff
+                engine._ping(self.n)
+
+            def line_received(self, engine, line):
+                if line == "pong {}".format(self.n):
+                    self.set_finished()
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+        return (yield from self.communicate(Command))
+
+    @asyncio.coroutine
+    def play(self):
+        raise NotImplementedError  # TODO
+
+    @asyncio.coroutine
+    def analysis(self):
+        raise NotImplementedError  # TODO
+
+    @asyncio.coroutine
+    def configure(self):
+        raise NotImplementedError  # TODO
+
+    @asyncio.coroutine
+    def quit(self):
+        self.send_line("quit")
+        yield from self.returncode
 
 
 class AnalysisResult:
