@@ -244,22 +244,22 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
 class Limit:
     """Search termination condition."""
 
-    def __init__(self, *, movetime=None, depth=None, nodes=None, mate=None, wtime=None, btime=None, winc=None, binc=None, movestogo=None):
-        self.movetime = movetime
+    def __init__(self, *, time=None, depth=None, nodes=None, mate=None, white_clock=None, black_clock=None, white_inc=None, black_inc=None, remaining_moves=None):
+        self.time = time
         self.depth = depth
         self.nodes = nodes
         self.mate = mate
-        self.wtime = wtime
-        self.btime = btime
-        self.winc = winc
-        self.binc = binc
-        self.movestogo = movestogo
+        self.white_clock = white_clock
+        self.black_clock = black_clock
+        self.white_inc = white_inc
+        self.black_inc = black_inc
+        self.remaining_moves = remaining_moves
 
     def __repr__(self):
         return "{}({})".format(
             type(self).__name__,
             ", ".join("{}={}".format(attr, repr(getattr(self, attr)))
-                      for attr in ["wtime", "btime", "winc", "binc", "movestogo", "depth", "nodes", "mate", "movetime"]
+                      for attr in ["time", "depth", "nodes", "mate", "white_clock", "black_clock", "white_inc", "black_inc", "remaining_moves"]
                       if getattr(self, attr) is not None))
 
 
@@ -1046,25 +1046,25 @@ class UciProtocol(EngineProtocol):
         if ponder:
             builder.append("ponder")
 
-        if limit.wtime is not None:
+        if limit.white_clock is not None:
             builder.append("wtime")
-            builder.append(str(int(limit.wtime)))
+            builder.append(str(int(limit.white_clock * 1000)))
 
-        if limit.btime is not None:
+        if limit.black_clock is not None:
             builder.append("btime")
-            builder.append(str(int(limit.btime)))
+            builder.append(str(int(limit.black_clock * 1000)))
 
-        if limit.winc is not None:
+        if limit.white_inc is not None:
             builder.append("winc")
-            builder.append(str(int(limit.winc)))
+            builder.append(str(int(limit.white_inc * 1000)))
 
-        if limit.binc is not None:
+        if limit.black_inc is not None:
             builder.append("binc")
-            builder.append(str(int(limit.binc)))
+            builder.append(str(int(limit.black_inc * 1000)))
 
-        if limit.movestogo is not None and int(limit.movestogo) > 0:
+        if limit.remaining_moves is not None and int(limit.remaining_moves) > 0:
             builder.append("movestogo")
-            builder.append(str(int(limit.movestogo)))
+            builder.append(str(int(limit.remaining_moves)))
 
         if limit.depth is not None:
             builder.append("depth")
@@ -1078,9 +1078,9 @@ class UciProtocol(EngineProtocol):
             builder.append("mate")
             builder.append(str(int(limit.mate)))
 
-        if limit.movetime is not None:
+        if limit.time is not None:
             builder.append("movetime")
-            builder.append(str(int(limit.movetime)))
+            builder.append(str(int(limit.time * 1000)))
 
         if infinite:
             builder.append("infinite")
@@ -1490,8 +1490,8 @@ class XBoardProtocol(EngineProtocol):
                 # Limit or time control.
                 if limit.depth is not None:
                     engine.send_line("sd {}".format(limit.depth))
-                if limit.movetime is not None:
-                    engine.send_line("st {}".format(limit.movetime))  # TODO: Check unit
+                if limit.time is not None:
+                    engine.send_line("st {}".format(int(limit.movetime * 100)))
 
                 # Start thinking.
                 engine.send_line("go")

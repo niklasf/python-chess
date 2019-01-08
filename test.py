@@ -3157,7 +3157,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("position startpos moves d2d4 d7d5")
             mock.expect("go ponder movetime 123")
             board = chess.Board()
-            result = yield from protocol.play(board, chess.engine.Limit(movetime=123), searchmoves=[board.parse_san("e4"), board.parse_san("d4")], ponder=True)
+            result = yield from protocol.play(board, chess.engine.Limit(time=0.123), searchmoves=[board.parse_san("e4"), board.parse_san("d4")], ponder=True)
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
             self.assertEqual(result.info["string"], "searching ...")
@@ -3168,7 +3168,7 @@ class EngineTestCase(unittest.TestCase):
             # Limits.
             mock.expect("position startpos")
             mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", ["bestmove d2d4"])
-            result = yield from protocol.play(board, chess.engine.Limit(wtime=1, btime=2, winc=3, binc=4, movestogo=5, depth=6, nodes=7, mate=8, movetime=9))
+            result = yield from protocol.play(board, chess.engine.Limit(white_clock=0.001, black_clock=0.002, white_inc=0.003, black_inc=0.004, remaining_moves=5, depth=6, nodes=7, mate=8, time=0.009))
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             self.assertEqual(result.ponder, None)
             mock.assert_done()
