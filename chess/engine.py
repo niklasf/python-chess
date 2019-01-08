@@ -747,13 +747,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         asynchronously iterating over the information sent by the engine
         and stopping the the analysis at any time.
         """
-        raise NotImplementedError
 
     @abc.abstractmethod
     @asyncio.coroutine
     def quit(self):
         """Asks the engine to shut down."""
-        raise NotImplementedError
 
     @classmethod
     @asyncio.coroutine
@@ -849,6 +847,9 @@ class BaseCommand:
 
     def engine_terminated(self, engine, exc):
         pass
+
+    def __repr__(self):
+        return "<{} at {} (state={}, result={}, finished={}>".format(type(self).__name__, hex(id(self)), self.state, self.result, self.finished)
 
 
 class UciProtocol(EngineProtocol):
