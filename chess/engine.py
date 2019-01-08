@@ -1103,6 +1103,8 @@ class UciProtocol(EngineProtocol):
                     engine._setoption("UCI_AnalyseMode", False)
                 if "Ponder" in engine.options:
                     engine._setoption("Ponder", ponder)
+                if "MultiPV" in engine.options:
+                    engine._setoption("MultiPV", engine.options["MultiPV"].default)
 
                 engine._configure(options)
 
@@ -1158,6 +1160,9 @@ class UciProtocol(EngineProtocol):
                     if not self.pondering:
                         for name, value in previous_config.items():
                             engine._setoption(name, value)
+                        for name, option in engine.options.items():
+                            if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config:
+                                engine._setoption(name, option.default)
 
                         self.set_finished()
 
@@ -1177,7 +1182,7 @@ class UciProtocol(EngineProtocol):
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", True)
 
-                if multipv and multipv > 1:
+                if "MultiPV" in engine.options or (multipv and multipv > 1):
                     engine._setoption("MultiPV", multipv)
 
                 engine._configure(options)
@@ -1209,6 +1214,9 @@ class UciProtocol(EngineProtocol):
             def _bestmove(self, engine, arg):
                 for name, value in previous_config.items():
                     engine._setoption(name, value)
+                for name, option in engine.options.items():
+                    if name not in ["UCI_AnalyseMode", "Ponder", "MultiPV"] and name not in previous_config:
+                        engine._setoption(name, option.default)
 
                 self.analysis.set_finished()
                 self.set_finished()
