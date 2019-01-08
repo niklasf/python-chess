@@ -657,7 +657,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         """
         Play a position.
 
@@ -1091,7 +1091,7 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1439,7 +1439,7 @@ class XBoardProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         previous_config = self.config.copy()
 
         if root_moves is not None:
@@ -1486,12 +1486,22 @@ class XBoardProtocol(EngineProtocol):
                     engine.board.push(move)
 
                 # Limit or time control.
+                increment = limit.white_inc if board.turn else limit.black_inc
+                if limit.remaining_moves or increment:
+                    base_mins, base_secs = divmod(int(limit.white_clock if board.turn else limit.black_clock), 60)
+                    engine.send_line("level {} {}:{02d} {}".format(limit.remaining_moves or 0, base_mins, base_secs, increment))
+
                 if limit.depth is not None:
                     engine.send_line("sd {}".format(limit.depth))
                 if limit.time is not None:
                     engine.send_line("st {}".format(int(limit.movetime * 100)))
+                if limit.white_clock is not None:
+                    engine.send_line("{} {}".format("time" if board.turn else "otim", int(limit.white_clock * 100)))
+                if limit.black_clock is not None:
+                    engine.send_line("{} {}".format("otim" if board.turn else "time", int(limit.black_clock * 100)))
 
                 # Start thinking.
+                engine.send_line("post" if info else "nopost")
                 engine.send_line("go")
 
             def line_received(self, engine, line):
@@ -1730,7 +1740,7 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, root_moves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_NONE, root_moves=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
 
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
