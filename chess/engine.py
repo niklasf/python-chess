@@ -1447,7 +1447,36 @@ class XBoardProtocol(EngineProtocol):
         if searchmoves is not None:
             raise NotImplementedError("xboard searchmoves not implemented yet")
 
-        raise NotImplementedError("xboard play not supported yet")  # TODO
+        class Command(BaseCommand):
+            def start(self, engine):
+                engine.send_line("new")
+
+                # TODO: Variant
+                variant = type(board).uci_variant
+                if variant != "chess":
+                    raise NotImplementedError("xboard variants not yet supported")
+
+                if board.chess960:
+                    raise NotImplementedError("xboard: chess960 not yet supported")
+
+                engine.send_line("force")
+
+                if limit.depth is not None:
+                    engine.send_line("sd {}".format(limit.depth))
+                if limit.movetime is not None:
+                    engine.send_line("st {}".format(limit.movetime))  # TODO: Check unit
+
+                root = board.root()
+                fen = root.fen()
+                if variant != "chess" or fen != chess.STARTING_FEN:
+                    raise NotImplementedError("xboard: non-standard starting position not yet supported")
+
+                for move in board.move_stack:
+                    engine.send_line(move.uci())
+
+                engine.send_line("go")
+
+        return (yield from self.communicate(Command))
 
     @asyncio.coroutine
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
