@@ -277,19 +277,21 @@ class PlayResult:
 class Info(_IntFlag):
     """Select information sent by the chess engine."""
     NONE = 0
-    SCORE = 1
-    PV = 2
-    REFUTATION = 4
-    CURRLINE = 8
-    ALL = 15
+    BASIC = 1
+    SCORE = 2
+    PV = 4
+    REFUTATION = 8
+    CURRLINE = 16
+    ALL = BASIC | SCORE | PV | REFUTATION | CURRLINE
 
 
-INFO_NONE = 0
-INFO_SCORE = 1
-INFO_PV = 2
-INFO_REFUTATION = 4
-INFO_CURRLINE = 8
-INFO_ALL = INFO_SCORE | INFO_PV | INFO_REFUTATION | INFO_CURRLINE
+INFO_NONE = Info.NONE
+INFO_BASIC = Info.BASIC
+INFO_SCORE = Info.SCORE
+INFO_PV = Info.PV
+INFO_REFUTATION = Info.REFUTATION
+INFO_CURRLINE = Info.CURRLINE
+INFO_ALL = Info.ALL
 
 
 class Score(abc.ABC):
