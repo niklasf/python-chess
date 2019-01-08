@@ -71,6 +71,8 @@ KORK = object()
 
 MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
 
+MANAGED_XBOARD_OPTIONS = ["MultiPV"]  # Case sensitive
+
 
 class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
     """
@@ -234,6 +236,9 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
 
     def is_managed_uci(self):
         return self.name.lower() in MANAGED_UCI_OPTIONS
+
+    def is_managed_xboard(self):
+        return self.name in MANAGED_XBOARD_OPTIONS
 
 
 class Limit:
