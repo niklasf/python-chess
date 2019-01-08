@@ -1427,15 +1427,18 @@ class XBoardProtocol(EngineProtocol):
 
         yield from self.communicate(Command)
 
-    def _new(self):
-        self.send_line("new")
-
     def _ping(self, n):
         self.send_line("ping {}".format(n))
 
     def _variant(self, variant):
         # TODO: Validate
         self.send_line("variant {}", variant)
+
+    def _new(self):
+        self.send_line("new")
+
+        if "random" in self.config:
+            del self.config["random"]
 
     @asyncio.coroutine
     def ping(self):
@@ -1466,7 +1469,7 @@ class XBoardProtocol(EngineProtocol):
                 new_game = engine.game != game or root != engine.board.root()
                 if new_game:
                     engine.board = root
-                    engine.send_line("new")
+                    engine._new()
 
                     variant = type(board).uci_variant
                     if variant == "chess" and board.chess960:
