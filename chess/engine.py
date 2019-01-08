@@ -1449,31 +1449,51 @@ class XBoardProtocol(EngineProtocol):
 
         class Command(BaseCommand):
             def start(self, engine):
-                engine.send_line("new")
+                # Setup start position.
+                root = board.root()
+                new_game = engine.game != game or root != engine.board.root()
+                if new_game:
+                    engine.board = root
+                    engine.send_line("new")
 
-                # TODO: Variant
-                variant = type(board).uci_variant
-                if variant != "chess":
-                    raise NotImplementedError("xboard variants not yet supported")
-
-                if board.chess960:
-                    raise NotImplementedError("xboard: chess960 not yet supported")
+                    variant = type(board).uci_variant
+                    if variant != "chess" or root.fen() != chess.STARTING_FEN:
+                        raise NotImplementedError("xboard: non-standard starting position not yet supported")
+                    if board.chess960:
+                        raise NotImplementedError("xboard: chess960 not yet supported")
 
                 engine.send_line("force")
 
+                # Undo moves until common position.
+                common_stack_len = 0
+                if not new_game:
+                    for left, right in zip(engine.board.move_stack, board.move_stack):
+                        if left == right:
+                            common_stack_len += 1
+                        else:
+                            break
+
+                    while len(engine.board.move_stack) > common_stack_len + 1:
+                        self.send_line("remove")
+                        engine.board.pop()
+                        engine.board.pop()
+
+                    while len(engine.board.move_stack) > common_stack_len:
+                        self.send_line("undo")
+                        engine.board.pop()
+
+                # Play moves from board stack.
+                for move in board.move_stack[common_stack_len:]:
+                    engine.send_line(move.uci())
+                    engine.board.push(move)
+
+                # Limit or time control.
                 if limit.depth is not None:
                     engine.send_line("sd {}".format(limit.depth))
                 if limit.movetime is not None:
                     engine.send_line("st {}".format(limit.movetime))  # TODO: Check unit
 
-                root = board.root()
-                fen = root.fen()
-                if variant != "chess" or fen != chess.STARTING_FEN:
-                    raise NotImplementedError("xboard: non-standard starting position not yet supported")
-
-                for move in board.move_stack:
-                    engine.send_line(move.uci())
-
+                # Start thinking.
                 engine.send_line("go")
 
             def line_received(self, engine, line):
