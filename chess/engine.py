@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: XBoard support. Check naming: Is it too UCI specific?
 # TODO: Test coverage
 
 import abc
@@ -658,7 +657,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
         """
         Play a position.
 
@@ -676,7 +675,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             extra information.
         :param ponder: Whether the engine should keep analysing in the
             background even after the result has been returned.
-        :param searchmoves: Optional. Consider only root moves from this list.
+        :param root_moves: Optional. Consider only root moves from this list.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
@@ -685,7 +684,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @asyncio.coroutine
-    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         """
         Analyses a position and returns an info dictionary.
 
@@ -704,13 +703,13 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
-        :param searchmoves: Optional. Limit analysis to a list of root moves.
+        :param root_moves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
-        analysis = yield from self.analysis(board, limit, game=game, info=info, searchmoves=searchmoves, options=options)
+        analysis = yield from self.analysis(board, limit, game=game, info=info, root_moves=root_moves, options=options)
 
         with analysis:
             yield from analysis.wait()
@@ -719,7 +718,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         """
         Starts analysing a position.
 
@@ -737,7 +736,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
-        :param searchmoves: Optional. Limit analysis to a list of root moves.
+        :param root_moves: Optional. Limit analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
@@ -1040,7 +1039,7 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
         self.board = board.copy(stack=False)
 
-    def _go(self, limit, *, searchmoves=None, ponder=False, infinite=False):
+    def _go(self, limit, *, root_moves=None, ponder=False, infinite=False):
         builder = ["go"]
 
         if ponder:
@@ -1085,15 +1084,14 @@ class UciProtocol(EngineProtocol):
         if infinite:
             builder.append("infinite")
 
-        if searchmoves:
+        if root_moves:
             builder.append("searchmoves")
-            for move in searchmoves:
-                builder.append(self.board.uci(move))
+            builder.extend(move.uci() for move in root_moves)
 
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1113,7 +1111,7 @@ class UciProtocol(EngineProtocol):
                 engine.game = game
 
                 engine._position(board)
-                engine._go(limit, searchmoves=searchmoves)
+                engine._go(limit, root_moves=root_moves)
 
             def line_received(self, engine, line):
                 if line.startswith("info "):
@@ -1169,7 +1167,7 @@ class UciProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         previous_config = self.config.copy()
 
         class Command(BaseCommand):
@@ -1191,9 +1189,9 @@ class UciProtocol(EngineProtocol):
                 engine._position(board)
 
                 if limit:
-                    engine._go(limit, searchmoves=searchmoves)
+                    engine._go(limit, root_moves=root_moves)
                 else:
-                    engine._go(Limit(), searchmoves=searchmoves, infinite=True)
+                    engine._go(Limit(), root_moves=root_moves, infinite=True)
 
                 self.result.set_result(self.analysis)
 
@@ -1441,11 +1439,11 @@ class XBoardProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, searchmoves=None, options={}):
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, ponder=False, root_moves=None, options={}):
         previous_config = self.config.copy()
 
-        if searchmoves is not None:
-            raise NotImplementedError("xboard searchmoves not implemented yet")
+        if root_moves is not None:
+            raise NotImplementedError("xboard include not implemented yet")
 
         class Command(BaseCommand):
             def start(self, engine):
@@ -1514,11 +1512,11 @@ class XBoardProtocol(EngineProtocol):
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         previous_config = self.config.copy()
 
-        if searchmoves is not None:
-            raise NotImplementedError("xboard searchmoves not implemented yet")
+        if root_moves is not None:
+            raise NotImplementedError("xboard root_moves not implemented yet")
 
         class Command(BaseCommand):
             def start(self, engine):
@@ -1732,15 +1730,15 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, info=INFO_SCORE, searchmoves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
+    def play(self, board, limit, *, game=None, info=INFO_SCORE, root_moves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
 
-    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result()
+    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
 
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, searchmoves=None, options={}):
+    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         return SimpleAnalysisResult(
-            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, searchmoves=searchmoves, options=options), self.protocol.loop).result(),
+            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result(),
             self.protocol.loop)
 
     def quit(self):
