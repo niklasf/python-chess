@@ -1476,6 +1476,21 @@ class XBoardProtocol(EngineProtocol):
 
                 engine.send_line("go")
 
+            def line_received(self, engine, line):
+                if line.startswith("move "):
+                    self._move(engine, line.split(" ", 1)[1])
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _move(self, engine, arg):
+                try:
+                    move = engine.board.push_uci(arg)
+                except ValueError:
+                    move = engine.board.push_san(arg)
+
+                self.result.set_result(PlayResult(move, None, {}))
+                self.set_finished()
+
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
