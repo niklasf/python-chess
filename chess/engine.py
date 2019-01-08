@@ -1423,6 +1423,10 @@ class XBoardProtocol(EngineProtocol):
     def _ping(self, n):
         self.send_line("ping {}".format(n))
 
+    def _variant(self, variant):
+        # TODO: Validate
+        self.send_line("variant {}", variant)
+
     @asyncio.coroutine
     def ping(self):
         class Command(BaseCommand):
@@ -1443,7 +1447,7 @@ class XBoardProtocol(EngineProtocol):
         previous_config = self.config.copy()
 
         if root_moves is not None:
-            raise NotImplementedError("xboard include not implemented yet")
+            raise EngineError("play with root_move, but xboard supports include only in analysis mode")
 
         class Command(BaseCommand):
             def start(self, engine):
@@ -1455,14 +1459,17 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("new")
 
                     variant = type(board).uci_variant
-                    if variant != "chess" or root.fen() != chess.STARTING_FEN:
-                        raise NotImplementedError("xboard: non-standard starting position not yet supported")
-                    if board.chess960:
-                        raise NotImplementedError("xboard: chess960 not yet supported")
+                    if variant == "chess" and board.chess960:
+                        engine._variant("fischerandom")
+                    elif variant != "chess":
+                        engine._variant(variant)
 
-                engine.send_line("force")
+                    fen = root.fen()
+                    if variant != "chess" or fen != chess.STARTING_FEN or board.chess960:
+                        engine.end_line("setboard {}".format(root.shredder_fen() if board.chess960 else fen))
 
                 # Undo moves until common position.
+                engine.send_line("force")
                 common_stack_len = 0
                 if not new_game:
                     for left, right in zip(engine.board.move_stack, board.move_stack):
