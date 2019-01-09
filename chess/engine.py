@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: Test coverage
-
 import abc
 import asyncio
 import collections
@@ -1444,6 +1442,7 @@ class XBoardProtocol(EngineProtocol):
                 for feature in shlex.split(arg):
                     key, value = feature.split("=", 1)
                     if key == "option":
+                        # TODO: Implement xboard option parsing
                         pass
                     else:
                         try:
@@ -1499,16 +1498,60 @@ class XBoardProtocol(EngineProtocol):
 
     def _variant(self, variant):
         supported_variants = self.features.get("variant", "").split(",")
-        if variant not in supported_variants:
+        if not variant or variant not in supported_variants:
             raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(supported_variants)))
 
         self.send_line("variant {}", variant)
 
-    def _new(self):
-        self.send_line("new")
+    def _new(self, board, game, options):
+        self._configure(options)
 
-        if "random" in self.config:
-            del self.config["random"]
+        # Setup start position.
+        root = board.root()
+        new_options = "random" in options or "computer" in options
+        new_game = self.game != game or new_options or root != self.board.root()
+        if new_game:
+            self.board = root
+            self.send_line("new")
+
+            variant = type(board).xboard_variant
+            if variant == "normal" and board.chess960:
+                self._variant("fischerandom")
+            elif variant != "normal":
+                self._variant(variant)
+
+            if self.config.get("random"):
+                self.send_line("random")
+            if self.config.get("computer"):
+                self.send_line("computer")
+
+            fen = root.fen()
+            if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
+                self.send_line("setboard {}".format(root.shredder_fen() if board.chess960 else fen))
+
+        # Undo moves until common position.
+        self.send_line("force")
+        common_stack_len = 0
+        if not new_game:
+            for left, right in zip(self.board.move_stack, board.move_stack):
+                if left == right:
+                    common_stack_len += 1
+                else:
+                    break
+
+            while len(self.board.move_stack) > common_stack_len + 1:
+                self.send_line("remove")
+                self.board.pop()
+                self.board.pop()
+
+            while len(self.board.move_stack) > common_stack_len:
+                self.send_line("undo")
+                self.board.pop()
+
+        # Play moves from board stack.
+        for move in board.move_stack[common_stack_len:]:
+            self.send_line(self.board.xboard(move))
+            self.board.push(move)
 
     @asyncio.coroutine
     def ping(self):
@@ -1537,46 +1580,7 @@ class XBoardProtocol(EngineProtocol):
             def start(self, engine):
                 self.stopped = False
 
-                # Setup start position.
-                root = board.root()
-                new_game = engine.game != game or root != engine.board.root()
-                if new_game:
-                    engine.board = root
-                    engine._new()
-
-                    variant = type(board).uci_variant
-                    if variant == "chess" and board.chess960:
-                        engine._variant("fischerandom")
-                    elif variant != "chess":
-                        engine._variant(variant)
-
-                    fen = root.fen()
-                    if variant != "chess" or fen != chess.STARTING_FEN or board.chess960:
-                        engine.end_line("setboard {}".format(root.shredder_fen() if board.chess960 else fen))
-
-                # Undo moves until common position.
-                engine.send_line("force")
-                common_stack_len = 0
-                if not new_game:
-                    for left, right in zip(engine.board.move_stack, board.move_stack):
-                        if left == right:
-                            common_stack_len += 1
-                        else:
-                            break
-
-                    while len(engine.board.move_stack) > common_stack_len + 1:
-                        self.send_line("remove")
-                        engine.board.pop()
-                        engine.board.pop()
-
-                    while len(engine.board.move_stack) > common_stack_len:
-                        self.send_line("undo")
-                        engine.board.pop()
-
-                # Play moves from board stack.
-                for move in board.move_stack[common_stack_len:]:
-                    engine.send_line(move.uci())
-                    engine.board.push(move)
+                engine._new(board, game, options)
 
                 # Limit or time control.
                 increment = limit.white_inc if board.turn else limit.black_inc
@@ -1672,11 +1676,13 @@ class XBoardProtocol(EngineProtocol):
             try:
                 option = self.options[name]
             except KeyError:
-                raise EngineError("unsupported xboard option: {}".format(name))
+                raise EngineError("unsupported xboard option or command: {}".format(name))
 
             self.config[name] = value = option.parse(value)
 
-            if name in ["memory", "cores"] or name.startswith("egtpath "):
+            if name in ["random", "computer"]:
+                pass
+            elif name in ["memory", "cores"] or name.startswith("egtpath "):
                 self.send_line("{} {}".format(name, value))
             elif value is None:
                 self.send_line("option {}".format(name))
