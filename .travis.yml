@@ -22,6 +22,7 @@ before_install:
  - unzip stockfish-10-linux.zip
  - mkdir -p bin
  - cp stockfish-10-linux/Linux/stockfish_10_x64_modern bin/stockfish
+ - chmod +x bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
  - # Crafty
