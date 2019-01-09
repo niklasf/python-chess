@@ -376,26 +376,6 @@ class Cp(Score):
     def __str__(self):
         return "+{}".format(self.cp) if self.cp > 0 else str(self.cp)
 
-    def __add__(self, other):
-        try:
-            return Cp(self.cp + other.cp)
-        except AttributeError:
-            return NotImplemented
-
-    def __sub__(self, other):
-        try:
-            return Cp(self.cp - other.cp)
-        except AttributeError:
-            return NotImplemented
-
-    def __mul__(self, scalar):
-        try:
-            return Cp(self.cp * scalar)
-        except TypeError:
-            return NotImplemented
-
-    __rmul__ = __mul__
-
     def __neg__(self):
         return Cp(-self.cp)
 
