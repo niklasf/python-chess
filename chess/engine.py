@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: Timeouts on synchronous wrapper
-
 import abc
 import asyncio
 import collections
@@ -2040,7 +2038,7 @@ class SimpleEngine:
 
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         return SimpleAnalysisResult(
-            asyncio.run_coroutine_threadsafe(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result(),
+            asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout), self.protocol.loop).result(),
             self.protocol.loop)
 
     def quit(self):
