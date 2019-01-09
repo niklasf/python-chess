@@ -1762,9 +1762,17 @@ def _parse_xboard_post(line, root_board, selector=INFO_ALL):
 
     # Required integer tokens.
     info["depth"] = integer_tokens.pop(0)
-    info["score"] = Cp(integer_tokens.pop(0))
+    cp = integer_tokens.pop(0)
     info["time"] = float(integer_tokens.pop(0)) / 100
     info["nodes"] = int(integer_tokens.pop(0))
+
+    # Score.
+    if cp <= -100000:
+        info["score"] = Mate.minus(abs(cp) - 100000)
+    elif cp >= 100000:
+        info["score"] = Mate.plus(cp - 100000)
+    else:
+        info["score"] = Cp(cp)
 
     # Optional integer tokens.
     if integer_tokens:
