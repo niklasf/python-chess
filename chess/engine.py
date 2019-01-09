@@ -26,6 +26,7 @@ import enum
 import functools
 import logging
 import warnings
+import shlex
 import subprocess
 import sys
 import threading
@@ -1404,6 +1405,8 @@ class XBoardProtocol(EngineProtocol):
 
     def __init__(self):
         super().__init__()
+        self.features = {}
+        self.id = {}
         self.options = {
             "random": False,
             "nps": None,
@@ -1418,11 +1421,59 @@ class XBoardProtocol(EngineProtocol):
             def start(self, engine):
                 engine.send_line("xboard")
                 engine.send_line("protover 2")
-                engine.send_line("ping 1")
+                self.timeout_handle = engine.loop.call_later(2.0, lambda: self.timeout(engine))
+
+            def timeout(self, engine):
+                LOGGER.error("%s: Timeout during initialization", engine)
+                self.end(engine)
 
             def line_received(self, engine, line):
-                if line == "pong 1":
-                    self.set_finished()
+                if line.startswith("#"):
+                    pass
+                elif line.startswith("feature "):
+                    self._feature(engine, line.split(" ", 1)[1])
+
+            def _feature(self, engine, arg):
+                for feature in shlex.split(arg):
+                    key, value = feature.split("=", 1)
+                    if key == "option":
+                        pass
+                    else:
+                        try:
+                            engine.features[key] = int(value)
+                        except ValueError:
+                            engine.features[key] = value
+
+                if "done" in engine.features:
+                    self.timeout_handle.cancel()
+                if engine.features.get("done"):
+                    self.end(engine)
+
+            def end(self, engine):
+                if not engine.features.get("ping", 0):
+                    self.result.set_exception(EngineError("xboard engine did not declare required feature: ping"))
+                if not engine.features.get("setboard", 0):
+                    self.result.set_exception(EngineError("xboard engine did not declare required feature: setboard"))
+
+                if not engine.features.get("reuse", 1):
+                    LOGGER.warning("%s: Rejecting feature reuse=0", engine)
+                    engine.send_line("reject reuse")
+                if not engine.features.get("sigterm", 1):
+                    LOGGER.warning("%s: Rejecting feature sigterm=0", engine)
+                    engine.send_line("reject sigterm")
+                if engine.features.get("usermove", 0):
+                    LOGGER.warning("%s: Rejecting feature usermove=1", engine)
+                    engine.send_line("reject usermove")
+                if engine.features.get("san", 0):
+                    LOGGER.warning("%s: Rejecting feature san=1", engine)
+                    engine.send_line("reject san")
+
+                try:
+                    engine.id["name"] = engine.features["myname"]
+                except KeyError:
+                    pass
+
+                self.set_finished()
 
         yield from self.communicate(Command)
 
