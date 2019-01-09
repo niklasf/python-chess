@@ -2054,13 +2054,6 @@ class SimpleEngine:
             return self.protocol.id.copy()
         return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
 
-    @property
-    def config(self):
-        @asyncio.coroutine
-        def _get():
-            return self.protocol.config.copy()
-        return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
-
     def configure(self, options):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(options), self.timeout), self.protocol.loop).result()
 
