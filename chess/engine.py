@@ -1504,6 +1504,7 @@ class XBoardProtocol(EngineProtocol):
         root = board.root()
         new_options = "random" in options or "computer" in options
         new_game = self.game != game or new_options or root != self.board.root()
+        self.game = game
         if new_game:
             self.board = root
             self.send_line("new")

@@ -3339,6 +3339,67 @@ class EngineTestCase(unittest.TestCase):
         with contextlib.closing(asyncio.get_event_loop()) as loop:
             loop.run_until_complete(main())
 
+    def test_xboard_replay(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=1.5, depth=17)
+            board = chess.Board()
+            board.push_san("d4")
+            board.push_san("Nf6")
+            board.push_san("c4")
+
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("d2d4")
+            mock.expect("g8f6")
+            mock.expect("c2c4")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e7e6"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("e6"))
+            mock.assert_done()
+
+            board.pop()
+            mock.expect("force")
+            mock.expect("remove")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move c2c4"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("c4"))
+            mock.assert_done()
+
+            board.pop()
+            board.pop()
+            mock.expect("force")
+            mock.expect("remove")
+            mock.expect("undo")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move d2d4"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("d4"))
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass
