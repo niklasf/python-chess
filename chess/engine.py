@@ -1480,12 +1480,15 @@ class XBoardProtocol(EngineProtocol):
 
                 if engine.features.get("memory", 0):
                     engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
+                    engine.send_line("accept memory")
                 if engine.features.get("smp", 0):
                     engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
-                for egt in engine.features.get("egt", "").split(","):
-                    if egt:
+                    engine.send_line("accept smp")
+                if engine.features.get("egt"):
+                    for egt in engine.features["egt"].split(","):
                         name = "egtpath {}".format(egt)
                         engine.options[name] = Option(name, "path", None, None, None, None)
+                    engine.send_line("accept egt")
 
                 self.set_finished()
 
@@ -1666,31 +1669,23 @@ class XBoardProtocol(EngineProtocol):
             if value is not None and self.config.get(name) == value:
                 continue
 
-            if name == "nps":
-                self.send_line("nps {}".format(value))
-                self.config[name] = value
-            elif name == "memory":
-                # TODO: Requires feature memory=1
-                self.send_line("memory {}".format(value))
-                self.config[name] = memory
-            elif name == "cores":
-                # TODO: Requires feature smp=1
-                self.send_line("cores {}".format(value))
-                self.config[name] = value
-            elif name.startswith("egtpath "):
-                # TODO: Requires feature egt
+            try:
+                option = self.options[name]
+            except KeyError:
+                raise EngineError("unsupported xboard option: {}".format(name))
+
+            self.config[name] = value = option.parse(value)
+
+            if name in ["memory", "cores"] or name.startswith("egtpath "):
                 self.send_line("{} {}".format(name, value))
-                self.config[name] = value
-            elif name == "random":
-                if value is None or value != self.config.get("random", False):
-                    self.config["random"] = not self.config.get("random", False)
-                    self.send_line("random")
+            elif value is None:
+                self.send_line("option {}".format(name))
+            elif value is True:
+                self.send_line("option {}=1".format(name))
+            elif value is False:
+                self.send_line("option {}=0".format(name))
             else:
-                # TODO: Validate option
-                if value is None:
-                    self.send_line("option {}".format(name))
-                else:
-                    self.send_line("option {}={}".format(name, value))
+                self.send_line("option {}={}".format(name, value))
 
     @asyncio.coroutine
     def configure(self, options):
