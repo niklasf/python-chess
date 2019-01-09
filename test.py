@@ -3141,7 +3141,7 @@ class EngineTestCase(unittest.TestCase):
                 board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
                 limit = chess.engine.Limit(depth=10)
                 while not board.is_game_over() and len(board.move_stack) < 5:
-                    result = engine.play(board, limit)
+                    result = engine.play(board, limit, ponder=True)
                     board.push(result.move)
                 self.assertTrue(board.is_checkmate())
                 engine.quit()
