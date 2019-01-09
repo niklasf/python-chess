@@ -3270,6 +3270,71 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["nodes"], 654)
         self.assertEqual(info["nps"], 321)
 
+    def test_xboard_options(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", [
+                "feature egt=syzygy,gaviota",
+                "feature option=\"spinvar -spin 50 0 100\"",
+                "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
+                "feature option=\"checkvar -check 0\"",
+                "feature option=\"stringvar -string \"\"\"",
+                "feature option=\"filevar -file \"\"\"",
+                "feature option=\"pathvar -path \"\"\"",
+                "feature option=\"buttonvar -button\"",
+                "feature option=\"resetvar -reset\"",
+                "feature option=\"savevar -save\"",
+                "feature ping=1 setboard=1 done=1",
+            ])
+            mock.expect("accept egt")
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            self.assertEqual(protocol.options["egtpath syzygy"].type, "path")
+            self.assertEqual(protocol.options["egtpath gaviota"].name, "egtpath gaviota")
+            self.assertEqual(protocol.options["spinvar"].type, "spin")
+            self.assertEqual(protocol.options["spinvar"].default, 50)
+            self.assertEqual(protocol.options["spinvar"].min, 0)
+            self.assertEqual(protocol.options["spinvar"].max, 100)
+            self.assertEqual(protocol.options["combovar"].type, "combo")
+            self.assertEqual(protocol.options["combovar"].var, ["HI", "HELLO", "BYE"])
+            self.assertEqual(protocol.options["checkvar"].type, "check")
+            self.assertEqual(protocol.options["checkvar"].default, False)
+            self.assertEqual(protocol.options["stringvar"].type, "string")
+            self.assertEqual(protocol.options["filevar"].type, "file")
+            self.assertEqual(protocol.options["pathvar"].type, "path")
+            self.assertEqual(protocol.options["buttonvar"].type, "button")
+            self.assertEqual(protocol.options["resetvar"].type, "reset")
+            self.assertEqual(protocol.options["savevar"].type, "save")
+
+            mock.expect("option combovar=HI")
+            yield from protocol.configure({"combovar": "HI"})
+            mock.assert_done()
+
+            mock.expect("option spinvar=42")
+            yield from protocol.configure({"spinvar": 42})
+            mock.assert_done()
+
+            mock.expect("option checkvar=1")
+            yield from protocol.configure({"checkvar": True})
+            mock.assert_done()
+
+            mock.expect("option pathvar=.")
+            yield from protocol.configure({"pathvar": "."})
+            mock.assert_done()
+
+            mock.expect("option buttonvar")
+            yield from protocol.configure({"buttonvar": None})
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass

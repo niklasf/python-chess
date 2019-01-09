@@ -1435,8 +1435,9 @@ class XBoardProtocol(EngineProtocol):
                 for feature in shlex.split(arg):
                     key, value = feature.split("=", 1)
                     if key == "option":
-                        # TODO: Implement xboard option parsing
-                        pass
+                        option = _parse_xboard_option(value)
+                        if option.name not in ["random", "computer", "cores", "memory"]:
+                            engine.options[option.name] = option
                     else:
                         try:
                             engine.features[key] = int(value)
@@ -1800,6 +1801,42 @@ class XBoardProtocol(EngineProtocol):
     def quit(self):
         self.send_line("quit")
         yield from self.returncode
+
+
+def _parse_xboard_option(feature):
+    params = feature.split()
+
+    name = params[0]
+    type = params[1][1:]
+    default = None
+    min = None
+    max = None
+    var = None
+
+    if type == "combo":
+        var = []
+        choices = params[2:]
+        for choice in choices:
+            if choice == "///":
+                continue
+            elif choice[0] == "*":
+                default = choice[1:]
+                var.append(choice[1:])
+            else:
+                var.append(choice)
+    elif type == "check":
+        default = int(params[2])
+    elif type in ["string", "file", "path"]:
+        if len(params) > 2:
+            default = params[2]
+        else:
+            default = ""
+    elif type == "spin":
+        default = int(params[2])
+        min = int(params[3])
+        max = int(params[4])
+
+    return Option(name, type, default, min, max, var)
 
 
 def _parse_xboard_post(line, root_board, selector=INFO_ALL):
