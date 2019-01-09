@@ -3121,6 +3121,11 @@ class EngineTestCase(unittest.TestCase):
         with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
             engine.quit()
 
+    @catchAndSkip(FileNotFoundError, "need crafty")
+    def test_crafty_quit(self):
+        with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
+            engine.quit()
+
     def test_uci_ping(self):
         @asyncio.coroutine
         def main():
