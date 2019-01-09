@@ -1660,7 +1660,7 @@ class XBoardProtocol(EngineProtocol):
                 if not self.result.cancelled():
                     try:
                         move = engine.board.push_xboard(arg)
-                    except ValueError:
+                    except ValueError as err:
                         self.result.set_exception(EngineError(err))
 
                     self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
@@ -1690,7 +1690,6 @@ class XBoardProtocol(EngineProtocol):
                         engine._configure({name: option.default})
 
                 self.set_finished()
-
 
         return (yield from self.communicate(Command))
 
