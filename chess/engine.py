@@ -1165,13 +1165,16 @@ class UciProtocol(EngineProtocol):
                             engine._go(limit, ponder=True)
                 finally:
                     if not self.pondering:
-                        for name, value in previous_config.items():
-                            engine._setoption(name, value)
-                        for name, option in engine.options.items():
-                            if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config:
-                                engine._setoption(name, option.default)
+                        self.end(engine)
 
-                        self.set_finished()
+            def end(self, engine):
+                for name, value in previous_config.items():
+                    engine._setoption(name, value)
+                for name, option in engine.options.items():
+                    if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config:
+                        engine._setoption(name, option.default)
+
+                self.set_finished()
 
             def cancel(self, engine):
                 engine.send_line("stop")
