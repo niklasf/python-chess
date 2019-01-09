@@ -1,5 +1,5 @@
-Engine communication (experimental)
-===================================
+UCI/XBoard engine communication (experimental)
+==============================================
 
 UCI and XBoard are protocols for communicating with chess engines. This module
 implements an abstraction for playing moves and analysing positions with
