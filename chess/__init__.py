@@ -478,12 +478,6 @@ class Move:
             return "0000"
 
     def xboard(self):
-        """
-        Gets an XBoard string for the move.
-
-        Same as :func:`~chess.Move.uci()`, except that the notation for null
-        moves is ``@@@@``.
-        """
         return self.uci() if self else "@@@@"
 
     def __bool__(self):
