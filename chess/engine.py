@@ -1644,7 +1644,8 @@ class XBoardProtocol(EngineProtocol):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _post(self, engine, line):
-                print(line)
+                if not self.result.done():
+                    self.info = _parse_xboard_post(line, engine.board, info)
 
             def _move(self, engine, arg):
                 if not self.result.cancelled():
@@ -1739,6 +1740,61 @@ class XBoardProtocol(EngineProtocol):
     def quit(self):
         self.send_line("quit")
         yield from self.returncode
+
+
+def _parse_xboard_post(line, root_board, selector=INFO_ALL):
+    # Format: depth score time nodes [seldepth [nps [tbhits]]] pv
+    info = {}
+
+    # Split leading integer tokens from pv.
+    pv_tokens = line.split()
+    integer_tokens = []
+    while pv_tokens:
+        token = pv_tokens.pop(0)
+        try:
+            integer_tokens.append(int(token))
+        except ValueError:
+            pv_tokens.insert(0, token)
+            break
+
+    if len(integer_tokens) < 4 or not selector:
+        return info
+
+    # Required integer tokens.
+    info["depth"] = integer_tokens.pop(0)
+    info["score"] = Cp(integer_tokens.pop(0))
+    info["time"] = float(integer_tokens.pop(0)) / 100
+    info["nodes"] = int(integer_tokens.pop(0))
+
+    # Optional integer tokens.
+    if integer_tokens:
+        info["seldepth"] = integer_tokens.pop(0)
+    if integer_tokens:
+        info["nps"] = integer_tokens.pop(0)
+
+    while len(integer_tokens) > 1:
+        # Reserved for future extensions.
+        integer_tokens.pop(0)
+
+    if integer_tokens:
+        info["tbhits"] = integer_tokens.pop(0)
+
+    # Principal variation.
+    if not (selector & INFO_PV):
+        return info
+
+    info["pv"] = []
+    board = root_board.copy(stack=False)
+    for token in pv_tokens:
+        if token.rstrip(".").isdigit():
+            continue
+
+        try:
+            info["pv"].append(board.push_xboard(token))
+        except ValueError:
+            break
+
+    return info
 
 
 class AnalysisResult:
