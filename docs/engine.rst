@@ -1,4 +1,4 @@
-Engine communication [experimental]
+Engine communication (experimental)
 ===================================
 
 UCI and XBoard are protocols for communicating with chess engines. This module
@@ -6,14 +6,12 @@ implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
 :warning: This is an experimental module that may change in semver incompatible
-   ways. Please weigh in on the design if the provided APIs do not cover
-   your use case.
+   ways. Please `weigh in <https://github.com/niklasf/python-chess/issues/new>`_
+   on the design if the provided APIs do not cover your use case.
 
    The intention is to eventually replace ``chess.uci`` and ``chess.xboard``,
    but not before things have settled down and there has been a transition
    period.
-
-   The XBoard implementation is currently only a skeleton.
 
 The preferred way to use the API is with an
 `asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop.
@@ -35,7 +33,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     board = chess.Board()
     while not board.is_game_over():
-        result = engine.play(board, chess.engine.Limit(movetime=100))
+        result = engine.play(board, chess.engine.Limit(time=0.100))
         board.push(result.move)
 
     engine.quit()
@@ -51,7 +49,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
         board = chess.Board()
         while not board.is_game_over():
-            result = await engine.play(board, chess.engine.Limit(movetime=100))
+            result = await engine.play(board, chess.engine.Limit(time=0.100))
             board.push(result.move)
 
         await engine.quit()
@@ -115,11 +113,16 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     .. py:attribute:: info
 
-        A dictionary of extra information sent by the engine. Known keys are
-        ``score``, ``depth``, ``seldepth``, ``time``, ``nodes``, ``pv``,
-        ``multipv``, ``currmove``, ``currmovenumber``, ``hashfull``, ``nps``,
-        ``tbhits``, ``cpuload``, ``refutation``, ``currline``, ``ebf`` and
-        ``string``.
+        A dictionary of extra information sent by the engine. Commonly used
+        keys are: ``score``, ``pv``, ``depth``, ``seldepth``, ``time``
+        (in seconds), ``nodes``, ``nps``, ``tbhits``, ``multipv``.
+
+        Others: ``currmove``, ``currmovenumber``, ``hashfull``
+        ``cpuload``, ``refutation``, ``currline``, ``ebf`` and ``string``.
+
+    .. py:attribute:: draw_offered
+
+        Whether the engine offered a draw before moving.
 
 Analysing and evaluating a position
 -----------------------------------
@@ -134,7 +137,7 @@ Example:
     engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 
     board = chess.Board()
-    info = engine.analyse(board, chess.engine.Limit(movetime=100))
+    info = engine.analyse(board, chess.engine.Limit(time=0.100))
     print("Score:", info["score"])
     # Score: +20
 
@@ -155,7 +158,7 @@ Example:
         transport, engine = await chess.engine.popen_uci("stockfish")
 
         board = chess.Board()
-        info = await engine.analyse(board, chess.engine.Limit(movetime=100))
+        info = await engine.analyse(board, chess.engine.Limit(time=0.100))
         print(info["score"])
         # Score: +20
 

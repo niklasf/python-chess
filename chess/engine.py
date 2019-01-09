@@ -665,13 +665,14 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         :param board: The position. The entire move stack will be sent to the
             engine.
-        :param limit: An instance of :class:`~chess.engine.Limit` that
+        :param limit: An instance of :class:`chess.engine.Limit` that
             determines when to stop thinking.
         :param game: Optional. An arbitrary object that identifies the game.
-            Will automatically clear hashtables if the object is not equal
-            to the previous game.
+            Will automatically inform the engine if the object is not equal
+            to the previous game (e.g. ``ucinewgame``, ``new``).
         :param info: Selects which additional information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
@@ -687,20 +688,22 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     @asyncio.coroutine
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         """
-        Analyses a position and returns an info dictionary.
+        Analyses a position and returns a dictionary of
+        `information <#chess.engine.PlayResult.info>`_.
 
         :param board: The position to analyse. The entire move stack will be
             sent to the engine.
-        :param limit: An instance of :class:`~chess.engine.Limit` that
+        :param limit: An instance of :class:`chess.engine.Limit` that
             determines when to stop the analysis.
         :param multipv: Optional. Analyse multiple root moves. Will return a list of
             at most *multipv* dictionaries rather than just a single
             info dictionary.
         :param game: Optional. An arbitrary object that identifies the game.
-            Will automatically clear hashtables if the object is not equal
-            to the previous game.
+            Will automatically inform the engine if the object is not equal
+            to the previous game (e.g. ``ucinewgame``, ``new``).
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
@@ -725,7 +728,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         :param board: The position to analyse. The entire move stack will be
             sent to the engine.
-        :param limit: Optional. An instance of :class:`~chess.engine.Limit`
+        :param limit: Optional. An instance of :class:`chess.engine.Limit`
             that determines when to stop the analysis. Analysis is infinite
             by default.
         :param multipv: Optional. Analyse multiple root moves.
@@ -733,7 +736,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
