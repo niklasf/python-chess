@@ -671,7 +671,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which additional information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
@@ -683,7 +683,6 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
-        raise NotImplementedError
 
     @asyncio.coroutine
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
@@ -701,7 +700,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
@@ -734,7 +733,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically clear hashtables if the object is not equal
             to the previous game.
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_SCORE``, ``INFO_PV``,
+            engine. ``INFO_NONE``, ``INFO_BASE``, ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
