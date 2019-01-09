@@ -308,7 +308,7 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
         # Let white castle short.
-        move = board.parse_san("O-O")
+        move = board.parse_xboard("O-O")
         self.assertEqual(move, chess.Move.from_uci("e1g1"))
         self.assertEqual(board.san(move), "O-O")
         self.assertEqual(board.xboard(move), "e1g1")
@@ -316,7 +316,7 @@ class BoardTestCase(unittest.TestCase):
         board.push(move)
 
         # Let black castle long.
-        move = board.parse_san("O-O-O")
+        move = board.parse_xboard("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
         self.assertEqual(board.xboard(move), "e8c8")
         self.assertIn(move, board.legal_moves)
@@ -1267,25 +1267,25 @@ class BoardTestCase(unittest.TestCase):
     def test_move_info(self):
         board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
 
-        self.assertTrue(board.is_capture(board.parse_san("Qxf7+")))
-        self.assertFalse(board.is_en_passant(board.parse_san("Qxf7+")))
-        self.assertFalse(board.is_castling(board.parse_san("Qxf7+")))
+        self.assertTrue(board.is_capture(board.parse_xboard("Qxf7+")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("Qxf7+")))
+        self.assertFalse(board.is_castling(board.parse_xboard("Qxf7+")))
 
-        self.assertTrue(board.is_capture(board.parse_san("hxg6")))
-        self.assertTrue(board.is_en_passant(board.parse_san("hxg6")))
-        self.assertFalse(board.is_castling(board.parse_san("hxg6")))
+        self.assertTrue(board.is_capture(board.parse_xboard("hxg6")))
+        self.assertTrue(board.is_en_passant(board.parse_xboard("hxg6")))
+        self.assertFalse(board.is_castling(board.parse_xboard("hxg6")))
 
-        self.assertFalse(board.is_capture(board.parse_san("b3")))
-        self.assertFalse(board.is_en_passant(board.parse_san("b3")))
-        self.assertFalse(board.is_castling(board.parse_san("b3")))
+        self.assertFalse(board.is_capture(board.parse_xboard("b3")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("b3")))
+        self.assertFalse(board.is_castling(board.parse_xboard("b3")))
 
-        self.assertFalse(board.is_capture(board.parse_san("Ra6")))
-        self.assertFalse(board.is_en_passant(board.parse_san("Ra6")))
-        self.assertFalse(board.is_castling(board.parse_san("Ra6")))
+        self.assertFalse(board.is_capture(board.parse_xboard("Ra6")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("Ra6")))
+        self.assertFalse(board.is_castling(board.parse_xboard("Ra6")))
 
-        self.assertFalse(board.is_capture(board.parse_san("O-O")))
-        self.assertFalse(board.is_en_passant(board.parse_san("O-O")))
-        self.assertTrue(board.is_castling(board.parse_san("O-O")))
+        self.assertFalse(board.is_capture(board.parse_xboard("O-O")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("O-O")))
+        self.assertTrue(board.is_castling(board.parse_xboard("O-O")))
 
     def test_pin(self):
         board = chess.Board("rnb1k1nr/2pppppp/3P4/8/1b5q/8/PPPNPBPP/RNBQKB1R w KQkq - 0 1")

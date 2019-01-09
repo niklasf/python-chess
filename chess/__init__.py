@@ -2802,7 +2802,7 @@ class Board(BaseBoard):
             pass
 
         try:
-            return board.parse_san(xboard)
+            return self.parse_san(xboard)
         except ValueError:
             raise ValueError("invalid or illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
 
