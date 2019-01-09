@@ -3163,8 +3163,9 @@ class EngineTestCase(unittest.TestCase):
             logging.disable(logging.NOTSET)
 
     @catchAndSkip(FileNotFoundError, "need crafty")
-    def test_crafty_quit(self):
+    def test_crafty_ping(self):
         with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
+            engine.ping()
             engine.quit()
 
     def test_uci_ping(self):
