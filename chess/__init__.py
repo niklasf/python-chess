@@ -1391,6 +1391,7 @@ class Board(BaseBoard):
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant = "chess"
+    xboard_variant = "normal"
     starting_fen = STARTING_FEN
 
     tbw_suffix = ".rtbw"
