@@ -2786,35 +2786,25 @@ class Board(BaseBoard):
             return "O-O-O"
 
     def parse_xboard(self, xboard):
-        # Special notation.
         if xboard == "@@@@":
             return Move.null()
         elif "," in xboard:
             raise ValueError("unsupported multi-leg xboard move: {}".format(repr(xboard)))
 
-        # Castling.
-        try:
-            if xboard == "O-O":
-                return next(move for move in self.generate_castling_moves() if self.is_kingside_castling(move))
-            elif xboard == "O-O-O":
-                return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
-        except StopIteration:
-            raise ValueError("illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
-
-        # Normal moves.
         try:
             move = Move.from_uci(xboard)
+            move = self._to_chess960(move)
+            move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
+            if not self.is_legal(move):
+                raise ValueError("illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
+            return move
         except ValueError:
-            raise ValueError("invalid xboard move: {}".format(repr(xboard)))
+            pass
 
-        # Normalize.
-        move = self._to_chess960(move)
-        move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
-
-        if not self.is_legal(move):
-            raise ValueError("illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
-
-        return move
+        try:
+            return board.parse_san(xboard)
+        except ValueError:
+            raise ValueError("invalid or illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
 
     def push_xboard(self, xboard):
         move = self.parse_xboard(xboard)
