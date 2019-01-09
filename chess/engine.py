@@ -264,13 +264,14 @@ class Limit:
 class PlayResult:
     """Returned by :func:`chess.engine.EngineProtocol.play()`."""
 
-    def __init__(self, move, ponder, info=None):
+    def __init__(self, move, ponder, info=None, draw_offered=False):
         self.move = move
         self.ponder = ponder
         self.info = info or {}
+        self.draw_offered = draw_offered
 
     def __repr__(self):
-        return "<{} at {} (move={}, ponder={}, info={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder, self.info)
+        return "<{} at {} (move={}, ponder={}, info={}, draw_offered={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder, self.info, self.draw_offered)
 
 
 class Info(_IntFlag):
@@ -1157,7 +1158,7 @@ class UciProtocol(EngineProtocol):
                             except ValueError:
                                 LOGGER.exception("engine sent invalid ponder move")
 
-                        self.result.set_result(PlayResult(bestmove, pondermove, self.info))
+                        self.result.set_result(PlayResult(bestmove, pondermove, self.info, False))
 
                         if ponder and pondermove:
                             self.pondering = True
@@ -1581,8 +1582,10 @@ class XBoardProtocol(EngineProtocol):
 
         class Command(BaseCommand):
             def start(self, engine):
+                self.info = {}
                 self.stopped = False
                 self.final_pong = None
+                self.draw_offered = False
 
                 # Set game, position and configure.
                 engine._new(board, game, options)
@@ -1625,6 +1628,14 @@ class XBoardProtocol(EngineProtocol):
                     if not self.result.done():
                         self.result.set_exception(EngineError("xboard engine answered final pong before sending move"))
                     self.set_finished()
+                elif line == "offer draw":
+                    self.draw_offered = True
+                elif line == "resign":
+                    self.result.set_result(EngineError("xboard engine resigned"))
+                    self.set_finished()
+                elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
+                    self.result.set_result(PlayResult(None, None, self.info, self.draw_offered))
+                    self.set_finished()
                 elif line.startswith("#") or line.startswith("Hint:"):
                     pass
                 else:
@@ -1633,11 +1644,11 @@ class XBoardProtocol(EngineProtocol):
             def _move(self, engine, arg):
                 if not self.result.cancelled():
                     try:
-                        move = engine.board.push_uci(arg)
+                        move = engine.board.push_xboard(arg)
                     except ValueError:
-                        move = engine.board.push_san(arg)
+                        self.result.set_exception(EngineError(err))
 
-                    self.result.set_result(PlayResult(move, None, {}))
+                    self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
 
                 if not ponder:
                     self.set_finished()
