@@ -1599,7 +1599,7 @@ class XBoardProtocol(EngineProtocol):
                 if limit.depth is not None:
                     engine.send_line("sd {}".format(limit.depth))
                 if limit.time is not None:
-                    engine.send_line("st {}".format(int(limit.movetime * 100)))
+                    engine.send_line("st {}".format(int(limit.time * 100)))
                 if limit.white_clock is not None:
                     engine.send_line("{} {}".format("time" if board.turn else "otim", int(limit.white_clock * 100)))
                 if limit.black_clock is not None:
@@ -1620,10 +1620,11 @@ class XBoardProtocol(EngineProtocol):
                 elif line == "offer draw":
                     self.draw_offered = True
                 elif line == "resign":
-                    self.result.set_result(EngineError("xboard engine resigned"))
+                    self.result.set_exception(EngineError("xboard engine resigned"))
                     self.end(engine)
                 elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
-                    self.result.set_result(PlayResult(None, None, self.info, self.draw_offered))
+                    if not self.result.done():
+                        self.result.set_result(PlayResult(None, None, self.info, self.draw_offered))
                     self.end(engine)
                 elif line.startswith("#") or line.startswith("Hint:"):
                     pass
@@ -1664,12 +1665,13 @@ class XBoardProtocol(EngineProtocol):
                     engine._ping(n)
 
             def end(self, engine):
-                engine._configure(previous_config)
-                for name, option in engine.options.items():
-                    if name not in previous_config and option.default is not None:
-                        engine._configure({name: option.default})
+                if not self.finished.done():
+                    engine._configure(previous_config)
+                    for name, option in engine.options.items():
+                        if name not in previous_config and option.default is not None:
+                            engine._configure({name: option.default})
 
-                self.set_finished()
+                    self.set_finished()
 
         return (yield from self.communicate(Command))
 
