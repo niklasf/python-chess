@@ -1485,7 +1485,10 @@ class XBoardProtocol(EngineProtocol):
         self.send_line("ping {}".format(n))
 
     def _variant(self, variant):
-        # TODO: Validate
+        supported_variants = self.features.get("variant", "").split(",")
+        if variant not in supported_variants:
+            raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(supported_variants))
+
         self.send_line("variant {}", variant)
 
     def _new(self):
