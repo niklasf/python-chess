@@ -3117,6 +3117,18 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(engine.options["UCI_CHESS960"].default, False)
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_analysis(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
+            limit = chess.engine.Limit(depth=20)
+            with engine.analysis(board, limit) as analysis:
+                for info in analysis:
+                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(3):
+                        break
+                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(3))
+            engine.quit()
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
             engine.quit()
