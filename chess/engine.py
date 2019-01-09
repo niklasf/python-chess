@@ -1662,8 +1662,12 @@ class XBoardProtocol(EngineProtocol):
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         previous_config = self.config.copy()
 
+        if multipv is not None:
+            raise NotImplementedError("TODO: xboard multipv not implemented yet")
         if root_moves is not None:
-            raise NotImplementedError("xboard root_moves not implemented yet")
+            raise NotImplementedError("TODO: xboard root_moves not implemented yet")
+
+        # TODO: Implement analysis
 
         class Command(BaseCommand):
             def start(self, engine):
