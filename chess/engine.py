@@ -1707,16 +1707,53 @@ class XBoardProtocol(EngineProtocol):
 
         class Command(BaseCommand):
             def start(self, engine):
+                self.stopped = False
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+                self.final_pong = None
+
+                engine._new(board, game, options)
 
                 if engine.game != game:
                     engine._new()
                 engine.game = game
 
-                engine.send_line("post" if info else "nopost")
+                engine.send_line("post")
                 engine.send_line("analyze")
 
                 self.result.set_result(self.analysis)
+
+            def line_received(self, engine, line):
+                if line.startswith("#"):
+                    pass
+                elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
+                    self._post(engine, line)
+                elif line == self.final_pong:
+                    self.end(engine)
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _post(self, engine, line):
+                post_info = _parse_xboard_post(line, engine.board, info | INFO_BASIC)
+                self.analysis.post(post_info)
+
+            def end(self, engine):
+                engine._configure(previous_config)
+                for name, option in engine.options.items():
+                    if name not in previous_config and option.default is not None:
+                        engine._configure({name: option.default})
+
+                self.set_finished()
+
+            def cancel(self, engine):
+                if self.stopped:
+                    return
+                self.stopped = True
+
+                engine.send_line("exit")
+
+                n = id(self) & 0xffff
+                self.final_pong = "pong {}".format(n)
+                engine._ping(n)
 
         return (yield from self.communicate(Command))
 
