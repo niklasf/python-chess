@@ -1638,8 +1638,13 @@ class XBoardProtocol(EngineProtocol):
                     self.set_finished()
                 elif line.startswith("#") or line.startswith("Hint:"):
                     pass
+                elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
+                    self._post(engine, line)
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _post(self, engine, line):
+                print(line)
 
             def _move(self, engine, arg):
                 if not self.result.cancelled():
