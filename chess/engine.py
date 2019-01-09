@@ -1746,6 +1746,8 @@ class XBoardProtocol(EngineProtocol):
                         self.cancel(engine)
                     elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
                         self.cancel(engine)
+                    elif limit.mate is not None and post_info.get("score", Cp(0)) >= Mate.plus(limit.mate):
+                        self.cancel(engine)
 
             def end(self, engine):
                 engine._configure(previous_config)
