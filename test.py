@@ -115,6 +115,7 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
         self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
+        self.assertEqual(chess.Move.from_uci("0000").uci(), "0000")
 
     def test_invalid_uci(self):
         with self.assertRaises(ValueError):
@@ -128,6 +129,13 @@ class MoveTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             chess.Move.from_uci("Q@g9")
+
+    def test_xboard_move(self):
+        self.assertEqual(chess.Move.from_uci("b5c7").xboard(), "b5c7")
+        self.assertEqual(chess.Move.from_uci("e7e8q").xboard(), "e7e8q")
+        self.assertEqual(chess.Move.from_uci("P@e4").xboard(), "P@e4")
+        self.assertEqual(chess.Move.from_uci("B@f4").xboard(), "B@f4")
+        self.assertEqual(chess.Move.from_uci("0000").xboard(), "@@@@")
 
     def test_copy(self):
         a = chess.Move.from_uci("N@f3")
@@ -303,12 +311,14 @@ class BoardTestCase(unittest.TestCase):
         move = board.parse_san("O-O")
         self.assertEqual(move, chess.Move.from_uci("e1g1"))
         self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(board.xboard(move), "e1g1")
         self.assertIn(move, board.legal_moves)
         board.push(move)
 
         # Let black castle long.
         move = board.parse_san("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
+        self.assertEqual(board.xboard(move), "e8c8")
         self.assertIn(move, board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
@@ -343,6 +353,7 @@ class BoardTestCase(unittest.TestCase):
         # Let white do the king side swap.
         move = board.parse_san("O-O")
         self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(board.xboard(move), "O-O")
         self.assertEqual(move.from_square, chess.F1)
         self.assertEqual(move.to_square, chess.G1)
         self.assertIn(move, board.legal_moves)
@@ -355,6 +366,7 @@ class BoardTestCase(unittest.TestCase):
         # Let black castle queenside.
         move = board.parse_san("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
+        self.assertEqual(board.xboard(move), "O-O-O")
         self.assertEqual(move.from_square, chess.F8)
         self.assertEqual(move.to_square, chess.D8)
         self.assertIn(move, board.legal_moves)

@@ -477,6 +477,15 @@ class Move:
         else:
             return "0000"
 
+    def xboard(self):
+        """
+        Gets an XBoard string for the move.
+
+        Same as :func:`~chess.Move.uci()`, except that the notation for null
+        moves is ``@@@@``.
+        """
+        return self.uci() if self else "@@@@"
+
     def __bool__(self):
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
@@ -2762,6 +2771,53 @@ class Board(BaseBoard):
             current position (but not a null move).
         """
         move = self.parse_uci(uci)
+        self.push(move)
+        return move
+
+    def xboard(self, move, chess960=None):
+        if chess960 is None:
+            chess960 = self.chess960
+
+        if not chess960 or not self.is_castling(move):
+            return move.xboard()
+        elif self.is_kingside_castling(move):
+            return "O-O"
+        else:
+            return "O-O-O"
+
+    def parse_xboard(self, xboard):
+        # Special notation.
+        if xboard == "@@@@":
+            return Move.null()
+        elif "," in xboard:
+            raise ValueError("unsupported multi-leg xboard move: {}".format(repr(xboard)))
+
+        # Castling.
+        try:
+            if xboard == "O-O":
+                return next(move for move in self.generate_castling_moves() if self.is_kingside_castling(move))
+            elif xboard == "O-O-O":
+                return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
+        except StopIteration:
+            raise ValueError("illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
+
+        # Normal moves.
+        try:
+            move = Move.from_uci(xboard)
+        except ValueError:
+            raise ValueError("invalid xboard move: {}".format(repr(xboard)))
+
+        # Normalize.
+        move = self._to_chess960(move)
+        move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
+
+        if not self.is_legal(move):
+            raise ValueError("illegal xboard move: {} in {}".format(repr(xboard), self.fen()))
+
+        return move
+
+    def push_xboard(self, xboard):
+        move = self.parse_xboard(xboard)
         self.push(move)
         return move
 

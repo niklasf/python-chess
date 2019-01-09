@@ -351,7 +351,7 @@ class RacingKingsBoard(chess.Board):
 
     aliases = ["Racing Kings", "Racing", "Race", "racingkings"]
     uci_variant = "racingkings"
-    xboard_variant "racingkings"  # Unofficial
+    xboard_variant = "racingkings"  # Unofficial
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
 
     tbw_suffix = tbz_suffix = None
