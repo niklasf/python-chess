@@ -1415,8 +1415,8 @@ class XBoardProtocol(EngineProtocol):
         self.features = {}
         self.id = {}
         self.options = {
-            "random": False,
-            "nps": None,
+            "random": Option("random", "check", False, None, None, None),
+            "computer": Option("computer", "check", False, None, None, None),
         }
         self.config = {}
         self.board = chess.Board()
@@ -1451,8 +1451,6 @@ class XBoardProtocol(EngineProtocol):
                         except ValueError:
                             engine.features[key] = value
 
-                if "myname" in engine.features:
-                    engine.id["name"] = engine.features["myname"]
                 if "done" in engine.features:
                     self.timeout_handle.cancel()
                 if engine.features.get("done"):
@@ -1476,6 +1474,18 @@ class XBoardProtocol(EngineProtocol):
                 if engine.features.get("san", 0):
                     LOGGER.warning("%s: Rejecting feature san=1", engine)
                     engine.send_line("reject san")
+
+                if "myname" in engine.features:
+                    engine.id["name"] = engine.features["myname"]
+
+                if engine.features.get("memory", 0):
+                    engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
+                if engine.features.get("smp", 0):
+                    engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
+                for egt in engine.features.get("egt", "").split(","):
+                    if egt:
+                        name = "egtpath {}".format(egt)
+                        engine.options[name] = Option(name, "path", None, None, None, None)
 
                 self.set_finished()
 
