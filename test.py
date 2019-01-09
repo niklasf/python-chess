@@ -3097,6 +3097,8 @@ class EngineTestCase(unittest.TestCase):
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            engine.configure({"Contempt": 23})
+
             epds = [
                 "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
                 "6k1/N1p3pp/2p5/3n1P2/4K3/1P5P/P1Pr1r2/R1R5 b - - bm Rf4+; id \"Clausthal 2014\";",
