@@ -1178,7 +1178,7 @@ class UciProtocol(EngineProtocol):
                     engine._setoption("UCI_AnalyseMode", True)
 
                 if "MultiPV" in engine.options or (multipv and multipv > 1):
-                    engine._setoption("MultiPV", multipv)
+                    engine._setoption("MultiPV", 1 if multipv is None else multipv)
 
                 engine._configure(options)
 
@@ -1704,6 +1704,11 @@ class XBoardProtocol(EngineProtocol):
 
                 self.result.set_result(self.analysis)
 
+                if limit is not None and limit.time is not None:
+                    self.time_limit_handle = engine.loop.call_later(limit.time, lambda: self.cancel(engine))
+                else:
+                    self.time_limit_handle = None
+
             def line_received(self, engine, line):
                 if line.startswith("#"):
                     pass
@@ -1729,6 +1734,11 @@ class XBoardProtocol(EngineProtocol):
                         self.cancel(engine)
 
             def end(self, engine):
+                if self.time_limit_handle:
+                    self.time_limit_handle.cancel()
+
+                self.analysis.set_finished()
+
                 engine._configure(previous_config)
                 for name, option in engine.options.items():
                     if name not in previous_config and option.default is not None:
@@ -1741,6 +1751,7 @@ class XBoardProtocol(EngineProtocol):
                     return
                 self.stopped = True
 
+                engine.send_line(".")
                 engine.send_line("exit")
 
                 n = id(self) & 0xffff
