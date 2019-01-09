@@ -1582,6 +1582,7 @@ class XBoardProtocol(EngineProtocol):
         class Command(BaseCommand):
             def start(self, engine):
                 self.stopped = False
+                self.final_pong = None
 
                 # Set game, position and configure.
                 engine._new(board, game, options)
@@ -1620,44 +1621,41 @@ class XBoardProtocol(EngineProtocol):
             def line_received(self, engine, line):
                 if line.startswith("move "):
                     self._move(engine, line.split(" ", 1)[1])
-                elif line.startswith("pong "):
-                    self._pong(engine, line.split(" ", 1)[1])
+                elif line == self.final_pong:
+                    if not self.result.done():
+                        self.result.set_exception(EngineError("xboard engine answered final pong before sending move"))
+                    self.set_finished()
+                elif line.startswith("#") or line.startswith("Hint:"):
+                    pass
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
-            def _pong(self, engine, n):
-                try:
-                    n = int(n)
-                except ValueError:
-                    LOGGER.error("%s: Invalid pong: %s", self, n)
-
-                if n == id(self) & 0xffff:
-                    self.set_finished()
-
             def _move(self, engine, arg):
-                if self.result.cancelled():
-                    return
-                else:
+                if not self.result.cancelled():
                     try:
                         move = engine.board.push_uci(arg)
                     except ValueError:
                         move = engine.board.push_san(arg)
 
                     self.result.set_result(PlayResult(move, None, {}))
-                    engine._ping(id(self) & 0xffff)
+
+                if not ponder:
+                    self.set_finished()
 
             def cancel(self, engine):
                 if self.stopped:
                     return
                 self.stopped = True
 
+                if self.result.cancelled():
+                    engine.send_line("?")
+
                 if ponder:
                     engine.send_line("easy")
 
-                if self.result.cancelled():
-                    engine._ping(id(self) & 0xffff)
-                else:
-                    engine.send_line("?")
+                    n = id(self) & 0xffff
+                    self.final_pong = "pong {}".format(n)
+                    engine._ping(n)
 
         return (yield from self.communicate(Command))
 
