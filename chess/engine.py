@@ -1699,11 +1699,10 @@ class XBoardProtocol(EngineProtocol):
         previous_config = self.config.copy()
 
         if multipv is not None:
-            raise NotImplementedError("TODO: xboard multipv not implemented yet")
-        if root_moves is not None:
-            raise NotImplementedError("TODO: xboard root_moves not implemented yet")
+            raise EngineError("xboard engine does not support multipv")
 
-        # TODO: Implement analysis
+        if limit is not None and (limit.white_clock is not None or limit.black_clock is not None):
+            raise EngineError("xboard analysis does not support clock limits")
 
         class Command(BaseCommand):
             def start(self, engine):
@@ -1713,9 +1712,13 @@ class XBoardProtocol(EngineProtocol):
 
                 engine._new(board, game, options)
 
-                if engine.game != game:
-                    engine._new()
-                engine.game = game
+                if root_moves is not None:
+                    if not engine.features.get("exclude", 0):
+                        raise EngineError("xboard engine does not support root_moves (feature exclude=0)")
+
+                    engine.send_line("exclude all")
+                    for move in root_moves:
+                        engine.send_line("include {}".format(engine.board.xboard(move)))
 
                 engine.send_line("post")
                 engine.send_line("analyze")
@@ -1735,6 +1738,14 @@ class XBoardProtocol(EngineProtocol):
             def _post(self, engine, line):
                 post_info = _parse_xboard_post(line, engine.board, info | INFO_BASIC)
                 self.analysis.post(post_info)
+
+                if limit is not None:
+                    if limit.time is not None and post_info.get("time", 0) >= limit.time:
+                        self.cancel(engine)
+                    elif limit.nodes is not None and post_info.get("nodes", 0) >= limit.nodes:
+                        self.cancel(engine)
+                    elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
+                        self.cancel(engine)
 
             def end(self, engine):
                 engine._configure(previous_config)
