@@ -1487,7 +1487,7 @@ class XBoardProtocol(EngineProtocol):
     def _variant(self, variant):
         supported_variants = self.features.get("variant", "").split(",")
         if variant not in supported_variants:
-            raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(supported_variants))
+            raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(supported_variants)))
 
         self.send_line("variant {}", variant)
 
@@ -1501,11 +1501,12 @@ class XBoardProtocol(EngineProtocol):
     def ping(self):
         class Command(BaseCommand):
             def start(self, engine):
-                self.n = id(self) & 0xffff
-                engine._ping(self.n)
+                n = id(self) & 0xffff
+                self.pong = "pong {}".format(n)
+                engine._ping(n)
 
             def line_received(self, engine, line):
-                if line == "pong {}".format(self.n):
+                if line == self.pong:
                     self.set_finished()
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
