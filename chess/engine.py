@@ -1460,10 +1460,12 @@ class XBoardProtocol(EngineProtocol):
         previous_config = self.config.copy()
 
         if root_moves is not None:
-            raise EngineError("play with root_move, but xboard supports include only in analysis mode")
+            raise EngineError("play with root_moves, but xboard supports include only in analysis mode")
 
         class Command(BaseCommand):
             def start(self, engine):
+                self.stopped = False
+
                 # Setup start position.
                 root = board.root()
                 new_game = engine.game != game or root != engine.board.root()
@@ -1522,22 +1524,50 @@ class XBoardProtocol(EngineProtocol):
 
                 # Start thinking.
                 engine.send_line("post" if info else "nopost")
+                engine.send_line("hard" if ponder else "easy")
                 engine.send_line("go")
 
             def line_received(self, engine, line):
                 if line.startswith("move "):
                     self._move(engine, line.split(" ", 1)[1])
+                elif line.startswith("pong "):
+                    self._pong(engine, line.split(" ", 1)[1])
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
-            def _move(self, engine, arg):
+            def _pong(self, engine, n):
                 try:
-                    move = engine.board.push_uci(arg)
+                    n = int(n)
                 except ValueError:
-                    move = engine.board.push_san(arg)
+                    LOGGER.error("%s: Invalid pong: %s", self, n)
 
-                self.result.set_result(PlayResult(move, None, {}))
-                self.set_finished()
+                if n == id(self) & 0xffff:
+                    self.set_finished()
+
+            def _move(self, engine, arg):
+                if self.result.cancelled():
+                    return
+                else:
+                    try:
+                        move = engine.board.push_uci(arg)
+                    except ValueError:
+                        move = engine.board.push_san(arg)
+
+                    self.result.set_result(PlayResult(move, None, {}))
+                    engine._ping(id(self) & 0xffff)
+
+            def cancel(self, engine):
+                if self.stopped:
+                    return
+                self.stopped = True
+
+                if ponder:
+                    engine.send_line("easy")
+
+                if self.result.cancelled():
+                    engine._ping(id(self) & 0xffff)
+                else:
+                    engine.send_line("?")
 
         return (yield from self.communicate(Command))
 
