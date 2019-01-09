@@ -3125,6 +3125,7 @@ class EngineTestCase(unittest.TestCase):
                 for info in analysis:
                     if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(3):
                         break
+                self.assertEqual(analysis.info["score"], chess.engine.Mate.plus(3))
                 self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(3))
             engine.quit()
 
