@@ -3427,9 +3427,13 @@ class SvgTestCase(unittest.TestCase):
         self.assertIn("<circle", svg)
         self.assertNotIn("<line", svg)
 
-        svg = chess.svg.board(arrows=[(chess.A1, chess.H8)])
+        svg = chess.svg.board(arrows=[chess.svg.Arrow(chess.A1, chess.H8)])
         self.assertNotIn("<circle", svg)
         self.assertIn("<line", svg)
+
+    def test_svg_piece(self):
+        svg = chess.svg.piece(chess.Piece.from_symbol("K"))
+        self.assertIn("id=\"white-king\"", svg)
 
 
 class SuicideTestCase(unittest.TestCase):
