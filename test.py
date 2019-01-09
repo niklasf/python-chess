@@ -3225,6 +3225,27 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["nodes"], 654)
         self.assertEqual(info["nps"], 321)
 
+    def test_run_in_background(self):
+        class ExpectedError(Exception):
+            pass
+
+        @asyncio.coroutine
+        def raise_expected_error(future):
+            yield from asyncio.sleep(0.001)
+            raise ExpectedError
+
+        with self.assertRaises(ExpectedError):
+            chess.engine.run_in_background(raise_expected_error)
+
+        @asyncio.coroutine
+        def resolve(future):
+            yield from asyncio.sleep(0.001)
+            future.set_result("resolved")
+            yield from asyncio.sleep(0.001)
+
+        result = chess.engine.run_in_background(resolve)
+        self.assertEqual(result, "resolved")
+
 
 class SyzygyTestCase(unittest.TestCase):
 
