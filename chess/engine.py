@@ -733,8 +733,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             by default.
         :param multipv: Optional. Analyse multiple root moves.
         :param game: Optional. An arbitrary object that identifies the game.
-            Will automatically clear hashtables if the object is not equal
-            to the previous game.
+            Will automatically inform the engine if the object is not equal
+            to the previous game (e.g. ``ucinewgame``, ``new``).
         :param info: Selects which information to retrieve from the
             engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
