@@ -2032,8 +2032,8 @@ class SimpleEngine:
     def ping(self):
         return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
 
-    def play(self, board, limit, *, game=None, info=INFO_NONE, root_moves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
+    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
+        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self.protocol.loop).result()
 
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
