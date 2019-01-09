@@ -1400,6 +1400,25 @@ class BoardTestCase(unittest.TestCase):
         mirrored = chess.Board("r1b1k2r/pp3pp1/2n5/1B1N2q1/3PpPPp/4n2K/PP2N3/R1BQ1R2 b kq g3 0 15")
         self.assertEqual(board.mirror(), mirrored)
 
+    def test_chess960_pos(self):
+        board = chess.Board()
+
+        board.set_chess960_pos(0)
+        self.assertEqual(board.board_fen(), "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR")
+        self.assertEqual(board.chess960_pos(), 0)
+
+        board.set_chess960_pos(631)
+        self.assertEqual(board.board_fen(), "rnbkqrnb/pppppppp/8/8/8/8/PPPPPPPP/RNBKQRNB")
+        self.assertEqual(board.chess960_pos(), 631)
+
+        board.set_chess960_pos(518)
+        self.assertEqual(board.board_fen(), chess.STARTING_BOARD_FEN)
+        self.assertEqual(board.chess960_pos(), 518)
+
+        board.set_chess960_pos(959)
+        self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
+        self.assertEqual(board.chess960_pos(), 959)
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -1440,25 +1459,6 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
 
 class BaseBoardTestCase(unittest.TestCase):
-
-    def test_set_chess960_pos(self):
-        board = chess.BaseBoard()
-
-        board.set_chess960_pos(0)
-        self.assertEqual(board.board_fen(), "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR")
-        self.assertEqual(board.chess960_pos(), 0)
-
-        board.set_chess960_pos(631)
-        self.assertEqual(board.board_fen(), "rnbkqrnb/pppppppp/8/8/8/8/PPPPPPPP/RNBKQRNB")
-        self.assertEqual(board.chess960_pos(), 631)
-
-        board.set_chess960_pos(518)
-        self.assertEqual(board.board_fen(), chess.STARTING_BOARD_FEN)
-        self.assertEqual(board.chess960_pos(), 518)
-
-        board.set_chess960_pos(959)
-        self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
-        self.assertEqual(board.chess960_pos(), 959)
 
     def test_set_piece_map(self):
         a = chess.BaseBoard.empty()
