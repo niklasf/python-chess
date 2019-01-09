@@ -1302,9 +1302,14 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
                 board = root_board.copy(stack=False)
             elif current_parameter == "currline" and selector & INFO_CURRLINE:
                 board = root_board.copy(stack=False)
-        elif current_parameter in ["depth", "seldepth", "time", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
+        elif current_parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
             try:
                 info[current_parameter] = int(token)
+            except ValueError:
+                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+        elif current_parameter == "time":
+            try:
+                info[current_parameter] = int(token) / 1000.0
             except ValueError:
                 LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
         elif current_parameter == "pv" and pv is not None:
