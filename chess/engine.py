@@ -1172,7 +1172,7 @@ class UciProtocol(EngineProtocol):
                 for name, value in previous_config.items():
                     engine._setoption(name, value)
                 for name, option in engine.options.items():
-                    if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config:
+                    if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config and option.default is not None:
                         engine._setoption(name, option.default)
 
                 self.set_finished()
@@ -1226,7 +1226,7 @@ class UciProtocol(EngineProtocol):
                 for name, value in previous_config.items():
                     engine._setoption(name, value)
                 for name, option in engine.options.items():
-                    if name not in ["UCI_AnalyseMode", "Ponder", "MultiPV"] and name not in previous_config:
+                    if name not in ["UCI_AnalyseMode", "Ponder", "MultiPV"] and name not in previous_config and option.default is not None:
                         engine._setoption(name, option.default)
 
                 self.analysis.set_finished()
@@ -1632,15 +1632,15 @@ class XBoardProtocol(EngineProtocol):
                 elif line == self.final_pong:
                     if not self.result.done():
                         self.result.set_exception(EngineError("xboard engine answered final pong before sending move"))
-                    self.set_finished()
+                    self.end(engine)
                 elif line == "offer draw":
                     self.draw_offered = True
                 elif line == "resign":
                     self.result.set_result(EngineError("xboard engine resigned"))
-                    self.set_finished()
+                    self.end(engine)
                 elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
                     self.result.set_result(PlayResult(None, None, self.info, self.draw_offered))
-                    self.set_finished()
+                    self.end(engine)
                 elif line.startswith("#") or line.startswith("Hint:"):
                     pass
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
@@ -1662,7 +1662,7 @@ class XBoardProtocol(EngineProtocol):
                     self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
 
                 if not ponder:
-                    self.set_finished()
+                    self.end(engine)
 
             def cancel(self, engine):
                 if self.stopped:
@@ -1678,6 +1678,15 @@ class XBoardProtocol(EngineProtocol):
                     n = id(self) & 0xffff
                     self.final_pong = "pong {}".format(n)
                     engine._ping(n)
+
+            def end(self, engine):
+                engine._configure(previous_config)
+                for name, option in engine.options.items():
+                    if name not in previous_config and option.default is not None:
+                        engine._configure({name: option.default})
+
+                self.set_finished()
+
 
         return (yield from self.communicate(Command))
 
