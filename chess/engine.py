@@ -864,6 +864,7 @@ class UciProtocol(EngineProtocol):
         super().__init__()
         self.options = UciOptionMap()
         self.config = UciOptionMap()
+        self.id = {}
         self.board = chess.Board()
         self.game = None
 
@@ -878,6 +879,8 @@ class UciProtocol(EngineProtocol):
                     self.set_finished()
                 elif line.startswith("option "):
                     self._option(engine, line.split(" ", 1)[1])
+                elif line.startswith("id "):
+                    self._id(engine, line.split(" ", 1)[1])
 
             def _option(self, engine, arg):
                 current_parameter = None
@@ -935,6 +938,10 @@ class UciProtocol(EngineProtocol):
                 without_default = Option(name, type, None, min, max, var)
                 option = Option(name, type, without_default.parse(default), min, max, var)
                 engine.options[option.name] = option
+
+            def _id(self, engine, arg):
+                key, value = arg.split(" ", 1)
+                engine.id[key] = value
 
         return (yield from self.communicate(Command))
 
@@ -1444,6 +1451,8 @@ class XBoardProtocol(EngineProtocol):
                         except ValueError:
                             engine.features[key] = value
 
+                if "myname" in engine.features:
+                    engine.id["name"] = engine.features["myname"]
                 if "done" in engine.features:
                     self.timeout_handle.cancel()
                 if engine.features.get("done"):
@@ -1467,11 +1476,6 @@ class XBoardProtocol(EngineProtocol):
                 if engine.features.get("san", 0):
                     LOGGER.warning("%s: Rejecting feature san=1", engine)
                     engine.send_line("reject san")
-
-                try:
-                    engine.id["name"] = engine.features["myname"]
-                except KeyError:
-                    pass
 
                 self.set_finished()
 
@@ -1832,6 +1836,13 @@ class SimpleEngine:
         @asyncio.coroutine
         def _get():
             return self.protocol.options.copy()
+        return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
+
+    @property
+    def id(self):
+        @asyncio.coroutine
+        def _get():
+            return self.protocol.id.copy()
         return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
 
     def configure(self, options):
