@@ -480,11 +480,15 @@ class MockTransport:
     def __init__(self, protocol):
         self.protocol = protocol
         self.expectations = collections.deque()
+        self.expected_pings = 0
         self.stdin_buffer = bytearray()
         self.protocol.connection_made(self)
 
     def expect(self, expectation, responses=[]):
         self.expectations.append((expectation, responses))
+
+    def expect_ping(self):
+        self.expected_pings += 1
 
     def assert_done(self):
         assert not self.expectations, "pending expectations: {}".format(self.expectations)
@@ -499,10 +503,14 @@ class MockTransport:
             line, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)
             line = line.decode("utf-8")
 
-            assert self.expectations, "unexpected: {}".format(line)
-            expectation, responses = self.expectations.popleft()
-            assert expectation == line, "expected {}, got: {}".format(expectation, line)
-            self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n"))
+            if line.startswith("ping ") and self.expected_pings:
+                self.expected_pings -= 1
+                self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n"))
+            else:
+                assert self.expectations, "unexpected: {}".format(line)
+                expectation, responses = self.expectations.popleft()
+                assert expectation == line, "expected {}, got: {}".format(expectation, line)
+                self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n"))
 
     def get_pid(self):
         return id(self)
@@ -1491,11 +1499,11 @@ class XBoardProtocol(EngineProtocol):
         self.send_line("ping {}".format(n))
 
     def _variant(self, variant):
-        supported_variants = self.features.get("variant", "").split(",")
-        if not variant or variant not in supported_variants:
-            raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(supported_variants)))
+        variants = self.features.get("variants", "").split(",")
+        if not variant or variant not in variants:
+            raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(variants)))
 
-        self.send_line("variant {}", variant)
+        self.send_line("variant {}".format(variant))
 
     def _new(self, board, game, options):
         self._configure(options)
@@ -1520,12 +1528,14 @@ class XBoardProtocol(EngineProtocol):
             if self.config.get("computer"):
                 self.send_line("computer")
 
+        self.send_line("force")
+
+        if new_game:
             fen = root.fen()
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
                 self.send_line("setboard {}".format(root.shredder_fen() if board.chess960 else fen))
 
         # Undo moves until common position.
-        self.send_line("force")
         common_stack_len = 0
         if not new_game:
             for left, right in zip(self.board.move_stack, board.move_stack):

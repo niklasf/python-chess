@@ -3410,6 +3410,46 @@ class EngineTestCase(unittest.TestCase):
         with contextlib.closing(asyncio.get_event_loop()) as loop:
             loop.run_until_complete(main())
 
+    def test_xboard_analyse(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", [
+                "feature done=0 ping=1 setboard=1",
+                "feature exclude=1",
+                "feature variants=\"normal,atomic\" done=1",
+            ])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            board = chess.variant.AtomicBoard("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
+            limit = chess.engine.Limit(depth=1)
+            mock.expect("new")
+            mock.expect("variant atomic")
+            mock.expect("force")
+            mock.expect("setboard rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
+            mock.expect("exclude all")
+            mock.expect("include f7f6")
+            mock.expect("post")
+            mock.expect("analyze", ["4    116      23   2252  1... f6 2. e4 e6"])
+            mock.expect(".")
+            mock.expect("exit")
+            mock.expect_ping()
+            info = yield from protocol.analyse(board, limit, root_moves=[board.parse_san("f6")])
+            self.assertEqual(info["depth"], 4)
+            self.assertEqual(info["score"], chess.engine.Cp(116))
+            self.assertEqual(info["time"], 0.23)
+            self.assertEqual(info["nodes"], 2252)
+            self.assertEqual(info["pv"], [chess.Move.from_uci(move) for move in ["f7f6", "e2e4", "e7e6"]])
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass
