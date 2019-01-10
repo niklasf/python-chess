@@ -3274,6 +3274,16 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["nodes"], 654)
         self.assertEqual(info["nps"], 321)
 
+        # Hakkapeliitta double spaces.
+        info = chess.engine._parse_uci_info("depth 10 seldepth 9 score cp 22  time 17 nodes 48299 nps 2683000 tbhits 0", None)
+        self.assertEqual(info["depth"], 10)
+        self.assertEqual(info["seldepth"], 9)
+        self.assertEqual(info["score"], chess.engine.Cp(22))
+        self.assertEqual(info["time"], 0.017)
+        self.assertEqual(info["nodes"], 48299)
+        self.assertEqual(info["nps"], 2683000)
+        self.assertEqual(info["tbhits"], 0)
+
     def test_xboard_options(self):
         @asyncio.coroutine
         def main():
