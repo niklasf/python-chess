@@ -2170,8 +2170,9 @@ class SimpleEngine:
             transport, protocol = yield from asyncio.wait_for(Protocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
             simple_engine = cls(transport, protocol, timeout=timeout)
             future.set_result(simple_engine)
-            yield from simple_engine._shutdown_event.wait()
             yield from protocol.returncode
+            simple_engine.close()
+            yield from simple_engine._shutdown_event.wait()
 
         return run_in_background(background, debug=debug)
 
