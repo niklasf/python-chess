@@ -3204,7 +3204,7 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             engine.configure({"Contempt": 23})
 
             epds = [
@@ -3221,14 +3221,14 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_options(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             self.assertEqual(engine.options["UCI_Chess960"].name, "UCI_Chess960")
             self.assertEqual(engine.options["uci_Chess960"].type, "check")
             self.assertEqual(engine.options["UCI_CHESS960"].default, False)
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_analysis(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
             limit = chess.engine.Limit(depth=20)
             with engine.analysis(board, limit) as analysis:
@@ -3241,7 +3241,7 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             engine.quit()
 
     @catchAndSkip(FileNotFoundError, "need crafty")
@@ -3249,7 +3249,7 @@ class EngineTestCase(unittest.TestCase):
         logging.disable(logging.WARNING)
         try:
             with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
-                with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+                with chess.engine.SimpleEngine.popen_xboard("crafty", debug=True, cwd=tmpdir) as engine:
                     board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
                     limit = chess.engine.Limit(depth=10)
                     while not board.is_game_over() and len(board.move_stack) < 5:
@@ -3265,7 +3265,7 @@ class EngineTestCase(unittest.TestCase):
         logging.disable(logging.WARNING)
         try:
             with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
-                with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+                with chess.engine.SimpleEngine.popen_xboard("crafty", debug=True, cwd=tmpdir) as engine:
                     board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
                     limit = chess.engine.Limit(depth=7, time=2.0)
                     info = engine.analyse(board, limit)
@@ -3277,7 +3277,7 @@ class EngineTestCase(unittest.TestCase):
     @catchAndSkip(FileNotFoundError, "need crafty")
     def test_crafty_ping(self):
         with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
-            with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+            with chess.engine.SimpleEngine.popen_xboard("crafty", debug=True, cwd=tmpdir) as engine:
                 engine.ping()
                 engine.quit()
 
@@ -3297,6 +3297,7 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
             loop.run_until_complete(main())
 
     def test_uci_debug(self):
@@ -3315,6 +3316,7 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
             loop.run_until_complete(main())
 
     def test_uci_go(self):
@@ -3347,6 +3349,7 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
             loop.run_until_complete(main())
 
     def test_uci_info(self):
@@ -3458,6 +3461,7 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
             loop.run_until_complete(main())
 
     def test_xboard_replay(self):
@@ -3559,6 +3563,7 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
             loop.run_until_complete(main())
 
     def test_run_in_background(self):

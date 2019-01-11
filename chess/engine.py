@@ -20,6 +20,7 @@ import abc
 import asyncio
 import collections
 import concurrent.futures
+import contextlib
 import enum
 import functools
 import logging
@@ -145,7 +146,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
             self.get_child_watcher().attach_loop(loop)
 
 
-def run_in_background(coroutine, _policy_lock=threading.Lock()):
+def run_in_background(coroutine, *, debug=False, _policy_lock=threading.Lock()):
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
@@ -167,6 +168,7 @@ def run_in_background(coroutine, _policy_lock=threading.Lock()):
     def background():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        loop.set_debug(debug)
 
         try:
             loop.run_until_complete(coroutine(future))
@@ -2059,79 +2061,118 @@ class SimpleEngine:
         self.protocol = protocol
         self.timeout = timeout
 
-    @property
-    def options(self):
-        @asyncio.coroutine
-        def _get():
-            return self.protocol.options.copy()
-        return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
-
-    @property
-    def id(self):
-        @asyncio.coroutine
-        def _get():
-            return self.protocol.id.copy()
-        return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
+        self._shutdown_lock = threading.Lock()
+        self._shutdown = False
+        self._shutdown_event = asyncio.Event()
 
     def _timeout_for(self, limit):
         if self.timeout is None or limit is None or limit.time is None:
             return None
         return self.timeout + limit.time
 
+    @contextlib.contextmanager
+    def _not_shut_down(self):
+        with self._shutdown_lock:
+            if self._shutdown:
+                raise EngineTerminatedError("engine event loop dead")
+            yield
+
+    def _await(self, future):
+        if isinstance(future.exception(), EngineTerminatedError):
+            self.close()
+        return future.result()
+
+    @property
+    def options(self):
+        @asyncio.coroutine
+        def _get():
+            return self.protocol.options.copy()
+
+        with self._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
+        return self._await(future)
+
+    @property
+    def id(self):
+        @asyncio.coroutine
+        def _get():
+            return self.protocol.id.copy()
+
+        with self._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
+        return self._await(future)
+
+
     def configure(self, options):
-        coro = asyncio.wait_for(self.protocol.configure(options), self.timeout)
-        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.configure(options), self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return self._await(future)
 
     def ping(self):
-        coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
-        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return self._await(future)
 
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
-        coro = asyncio.wait_for(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self._timeout_for(limit))
-        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self._timeout_for(limit))
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return self._await(future)
 
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        coro = asyncio.wait_for(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self._timeout_for(limit))
-        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self._timeout_for(limit))
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return self._await(future)
 
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        coro = asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout)
-        return SimpleAnalysisResult(asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result(), self.protocol.loop)
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return SimpleAnalysisResult(self, self._await(future))
 
     def quit(self):
-        coro = asyncio.wait_for(self.protocol.quit(), self.timeout)
-        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.quit(), self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return self._await(future)
 
     def close(self):
-        """Closes the transport."""
-        # This happens to be threadsafe.
-        self.transport.close()
+        """Closes the transport and the background event loop."""
+        with self._shutdown_lock:
+            if not self._shutdown:
+                self._shutdown = True
+                self.protocol.loop.call_soon_threadsafe(lambda: (self.transport.close(), self._shutdown_event.set()))
 
     @classmethod
-    def popen(cls, Protocol, command, *, timeout=10.0, setpgrp=False, **popen_args):
+    def popen(cls, Protocol, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
         @asyncio.coroutine
         def background(future):
             transport, protocol = yield from asyncio.wait_for(Protocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
-            future.set_result(cls(transport, protocol, timeout=timeout))
+            simple_engine = cls(transport, protocol, timeout=timeout)
+            future.set_result(simple_engine)
+            yield from simple_engine._shutdown_event.wait()
             yield from protocol.returncode
 
-        return run_in_background(background)
+        return run_in_background(background, debug=debug)
 
     @classmethod
-    def popen_uci(cls, command, *, timeout=10.0, setpgrp=False, **popen_args):
+    def popen_uci(cls, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
         """
         Spawns and initializes an UCI engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
         """
-        return cls.popen(UciProtocol, command, timeout=timeout, setpgrp=setpgrp, **popen_args)
+        return cls.popen(UciProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
 
     @classmethod
-    def popen_xboard(cls, command, *, timeout=10.0, setpgrp=False, **popen_args):
+    def popen_xboard(cls, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
         """
         Spawns and initializes an XBoard engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
         """
-        return cls.popen(XBoardProtocol, command, timeout=timeout, setpgrp=setpgrp, **popen_args)
+        return cls.popen(XBoardProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
 
     def __enter__(self):
         return self
@@ -2151,39 +2192,52 @@ class SimpleAnalysisResult:
     by :func:`chess.engine.SimpleEngine.analysis()`.
     """
 
-    def __init__(self, inner, loop):
+    def __init__(self, simple_engine, inner):
+        self.simple_engine = simple_engine
         self.inner = inner
-        self.loop = loop
 
     @property
     def info(self):
         @asyncio.coroutine
         def _get():
             return self.inner.info.copy()
-        return asyncio.run_coroutine_threadsafe(_get(), self.loop).result()
+
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
+        return self.simple_engine._await(future)
 
     @property
     def multipv(self):
         @asyncio.coroutine
         def _get():
             return [info.copy() for info in self.inner.multipv]
-        return asyncio.run_coroutine_threadsafe(_get(), self.loop).result()
+
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
+        return self.simple_engine._await(future)
 
     def stop(self):
-        self.loop.call_soon_threadsafe(self.inner.stop)
+        with self.simple_engine._not_shut_down():
+            self.simple_engine.protocol.loop.call_soon_threadsafe(self.inner.stop)
 
     def wait(self):
-        return asyncio.run_coroutine_threadsafe(self.inner.wait(), self.loop).result()
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(self.inner.wait(), self.simple_engine.protocol.loop)
+        return self.simple_engine._await(future)
 
     def next(self):
-        return asyncio.run_coroutine_threadsafe(self.inner.next(), self.loop).result()
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(self.inner.next(), self.simple_engine.protocol.loop)
+        return self.simple_engine._await(future)
 
     def __iter__(self):
         return self
 
     def __next__(self):
         try:
-            return asyncio.run_coroutine_threadsafe(self.inner.__anext__(), self.loop).result()
+            with self.simple_engine._not_shut_down():
+                future = asyncio.run_coroutine_threadsafe(self.inner.__anext__(), self.simple_engine.protocol.loop)
+            return self.simple_engine._await(future)
         except StopAsyncIteration:
             raise StopIteration
 
