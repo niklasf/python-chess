@@ -1232,6 +1232,10 @@ class UciProtocol(EngineProtocol):
             def cancel(self, engine):
                 engine.send_line("stop")
 
+            def engine_terminated(self, engine, exc):
+                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+                self.analysis.set_exception(exc)
+
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
@@ -1777,6 +1781,14 @@ class XBoardProtocol(EngineProtocol):
                 self.final_pong = "pong {}".format(n)
                 engine._ping(n)
 
+            def engine_terminated(self, engine, exc):
+                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+
+                if self.time_limit_handle:
+                    self.time_limit_handle.cancel()
+
+                self.analysis.set_exception(exc)
+
         return (yield from self.communicate(Command))
 
     def _configure(self, options):
@@ -1932,7 +1944,7 @@ class AnalysisResult:
         self._stop = stop
         self._queue = asyncio.Queue()
         self._seen_kork = False
-        self._finished = asyncio.Event()
+        self._finished = asyncio.Future()
         self.multipv = [{}]
 
     def post(self, info):
@@ -1945,7 +1957,11 @@ class AnalysisResult:
 
     def set_finished(self):
         self._queue.put_nowait(KORK)
-        self._finished.set()
+        self._finished.set_result(None)
+
+    def set_exception(self, exc):
+        self._queue.put_nowait(KORK)
+        self._finished.set_exception(exc)
 
     @property
     def info(self):
@@ -1953,14 +1969,14 @@ class AnalysisResult:
 
     def stop(self):
         """Stops the analysis as soon as possible."""
-        if self._stop and not self._finished.is_set():
+        if self._stop and not self._finished.done():
             self._stop()
             self._stop = None
 
     @asyncio.coroutine
     def wait(self):
         """Waits until the analysis is complete (or stopped)."""
-        return (yield from self._finished.wait())
+        yield from self._finished
 
     def __aiter__(self):
         return self
@@ -1988,6 +2004,7 @@ class AnalysisResult:
         info = yield from self._queue.get()
         if info is KORK:
             self._seen_kork = True
+            yield from self._finished
             raise StopAsyncIteration
 
         return info
