@@ -348,9 +348,9 @@ when submitting bug reports.
 Reference
 ---------
 
-.. autoclass:: EngineError
+.. autoclass:: chess.engine.EngineError
 
-.. autoclass:: EngineTerminatedError
+.. autoclass:: chess.engine.EngineTerminatedError
 
 .. autofunction:: chess.engine.popen_uci
 
