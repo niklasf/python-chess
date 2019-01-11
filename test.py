@@ -3233,10 +3233,10 @@ class EngineTestCase(unittest.TestCase):
             limit = chess.engine.Limit(depth=20)
             with engine.analysis(board, limit) as analysis:
                 for info in analysis:
-                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(3):
+                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(2):
                         break
-                self.assertEqual(analysis.info["score"], chess.engine.Mate.plus(3))
-                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(3))
+                self.assertEqual(analysis.info["score"], chess.engine.Mate.plus(2))
+                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(2))
             engine.quit()
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
@@ -3362,7 +3362,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [])
 
         # Info: string.
-        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", None)
+        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", board)
         self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
 
         # Info: currline.
@@ -3370,17 +3370,17 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["currline"][0], [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")])
 
         # Info: ebf.
-        info = chess.engine._parse_uci_info("ebf 0.42", None)
+        info = chess.engine._parse_uci_info("ebf 0.42", board)
         self.assertEqual(info["ebf"], 0.42)
 
         # Info: depth, seldepth, score mate.
-        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", None)
+        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", board)
         self.assertEqual(info["depth"], 7)
         self.assertEqual(info["seldepth"], 8)
         self.assertEqual(info["score"], chess.engine.Mate.plus(3))
 
         # Info: tbhits, cpuload, hashfull, time, nodes, nps.
-        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", None)
+        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", board)
         self.assertEqual(info["tbhits"], 123)
         self.assertEqual(info["cpuload"], 456)
         self.assertEqual(info["hashfull"], 789)
@@ -3389,7 +3389,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["nps"], 321)
 
         # Hakkapeliitta double spaces.
-        info = chess.engine._parse_uci_info("depth 10 seldepth 9 score cp 22  time 17 nodes 48299 nps 2683000 tbhits 0", None)
+        info = chess.engine._parse_uci_info("depth 10 seldepth 9 score cp 22  time 17 nodes 48299 nps 2683000 tbhits 0", board)
         self.assertEqual(info["depth"], 10)
         self.assertEqual(info["seldepth"], 9)
         self.assertEqual(info["score"], chess.engine.Cp(22))
@@ -3555,7 +3555,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect_ping()
             info = yield from protocol.analyse(board, limit, root_moves=[board.parse_san("f6")])
             self.assertEqual(info["depth"], 4)
-            self.assertEqual(info["score"], chess.engine.Cp(116))
+            self.assertEqual(info["score"], chess.engine.Cp(-116))
             self.assertEqual(info["time"], 0.23)
             self.assertEqual(info["nodes"], 2252)
             self.assertEqual(info["pv"], [chess.Move.from_uci(move) for move in ["f7f6", "e2e4", "e7e6"]])

@@ -310,8 +310,8 @@ class Score(abc.ABC):
     >>> Mate.minus(0) < Mate.minus(1) < Cp(-50) < Cp(200) < Mate.plus(4) < Mate.plus(0)
     True
 
-    Scores are usually given from the point of view of the side to move. They
-    can be negated to change the point of view:
+    Scores are usually given from White's point of view. They can be negated to
+    change the point of view:
 
     >>> -Cp(20)
     Cp(-20)
@@ -1327,9 +1327,9 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
                 elif token == "upperbound":
                     info["upperbound"] = True
                 elif score_kind == "cp":
-                    info["score"] = Cp(int(token))
+                    info["score"] = Cp(int(token)) if root_board.turn else -Cp(int(token))
                 elif score_kind == "mate":
-                    info["score"] = Mate.from_moves(int(token))
+                    info["score"] = Mate.from_moves(int(token)) if root_board.turn else -Mate.from_moves(int(token))
             except ValueError:
                 LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
         elif current_parameter == "currmove":
@@ -1753,7 +1753,10 @@ class XBoardProtocol(EngineProtocol):
                         self.cancel(engine)
                     elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
                         self.cancel(engine)
-                    elif limit.mate is not None and post_info.get("score", Cp(0)) >= Mate.plus(limit.mate):
+                    elif limit.mate is not None:
+                        score = post_info.get("score", Cp(0))
+                        pov_score = score if engine.board.turn else -score
+                    elif limit.mate is not None and pov_score >= Mate.plus(limit.mate):
                         self.cancel(engine)
 
             def end(self, engine):
@@ -1893,11 +1896,12 @@ def _parse_xboard_post(line, root_board, selector=INFO_ALL):
 
     # Score.
     if cp <= -100000:
-        info["score"] = Mate.minus(abs(cp) - 100000)
+        score = Mate.minus(abs(cp) - 100000)
     elif cp >= 100000:
-        info["score"] = Mate.plus(cp - 100000)
+        score = Mate.plus(cp - 100000)
     else:
-        info["score"] = Cp(cp)
+        score = Cp(cp)
+    info["score"] = score if root_board.turn else -score
 
     # Optional integer tokens.
     if integer_tokens:

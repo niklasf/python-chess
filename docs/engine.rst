@@ -114,8 +114,9 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: info
 
         A dictionary of extra information sent by the engine. Commonly used
-        keys are: ``score``, ``pv``, ``depth``, ``seldepth``, ``time``
-        (in seconds), ``nodes``, ``nps``, ``tbhits``, ``multipv``.
+        keys are: ``score`` (from White's point of view), ``pv``, ``depth``,
+        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``tbhits``,
+        ``multipv``.
 
         Others: ``currmove``, ``currmovenumber``, ``hashfull``
         ``cpuload``, ``refutation``, ``currline``, ``ebf`` and ``string``.
