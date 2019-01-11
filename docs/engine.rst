@@ -83,7 +83,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
         Time in seconds remaining for White.
 
-    .. py:attribute:: black_time
+    .. py:attribute:: black_clock
 
         Time in seconds remaining for Black.
 
