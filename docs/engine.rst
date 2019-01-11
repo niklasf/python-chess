@@ -256,6 +256,8 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 >>>
 >>> # Set an option.
 >>> engine.configure({"Hash": 32})
+>>>
+>>> # [...]
 
 .. code:: python
 
@@ -271,6 +273,8 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
 
         # Set an option.
         await engine.configure({"Hash": 32})
+
+        # [...]
 
     asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
