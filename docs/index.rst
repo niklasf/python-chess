@@ -11,6 +11,7 @@ Contents
     polyglot
     gaviota
     syzygy
+    engine
     uci
     svg
     variant

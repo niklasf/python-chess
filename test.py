@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 import collections
 import copy
+import contextlib
 import logging
 import os
 import os.path
@@ -31,6 +33,7 @@ import io
 
 import chess
 import chess.gaviota
+import chess.engine
 import chess.pgn
 import chess.polyglot
 import chess.svg
@@ -112,6 +115,7 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("e7e8q").uci(), "e7e8q")
         self.assertEqual(chess.Move.from_uci("P@e4").uci(), "P@e4")
         self.assertEqual(chess.Move.from_uci("B@f4").uci(), "B@f4")
+        self.assertEqual(chess.Move.from_uci("0000").uci(), "0000")
 
     def test_invalid_uci(self):
         with self.assertRaises(ValueError):
@@ -125,6 +129,13 @@ class MoveTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             chess.Move.from_uci("Q@g9")
+
+    def test_xboard_move(self):
+        self.assertEqual(chess.Move.from_uci("b5c7").xboard(), "b5c7")
+        self.assertEqual(chess.Move.from_uci("e7e8q").xboard(), "e7e8q")
+        self.assertEqual(chess.Move.from_uci("P@e4").xboard(), "P@e4")
+        self.assertEqual(chess.Move.from_uci("B@f4").xboard(), "B@f4")
+        self.assertEqual(chess.Move.from_uci("0000").xboard(), "@@@@")
 
     def test_copy(self):
         a = chess.Move.from_uci("N@f3")
@@ -297,15 +308,17 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
         # Let white castle short.
-        move = board.parse_san("O-O")
+        move = board.parse_xboard("O-O")
         self.assertEqual(move, chess.Move.from_uci("e1g1"))
         self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(board.xboard(move), "e1g1")
         self.assertIn(move, board.legal_moves)
         board.push(move)
 
         # Let black castle long.
-        move = board.parse_san("O-O-O")
+        move = board.parse_xboard("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
+        self.assertEqual(board.xboard(move), "e8c8")
         self.assertIn(move, board.legal_moves)
         board.push(move)
         self.assertEqual(board.fen(), "2kr3r/8/8/8/8/8/8/R4RK1 w - - 3 2")
@@ -340,6 +353,7 @@ class BoardTestCase(unittest.TestCase):
         # Let white do the king side swap.
         move = board.parse_san("O-O")
         self.assertEqual(board.san(move), "O-O")
+        self.assertEqual(board.xboard(move), "O-O")
         self.assertEqual(move.from_square, chess.F1)
         self.assertEqual(move.to_square, chess.G1)
         self.assertIn(move, board.legal_moves)
@@ -352,6 +366,7 @@ class BoardTestCase(unittest.TestCase):
         # Let black castle queenside.
         move = board.parse_san("O-O-O")
         self.assertEqual(board.san(move), "O-O-O")
+        self.assertEqual(board.xboard(move), "O-O-O")
         self.assertEqual(move.from_square, chess.F8)
         self.assertEqual(move.to_square, chess.D8)
         self.assertIn(move, board.legal_moves)
@@ -1252,25 +1267,25 @@ class BoardTestCase(unittest.TestCase):
     def test_move_info(self):
         board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
 
-        self.assertTrue(board.is_capture(board.parse_san("Qxf7+")))
-        self.assertFalse(board.is_en_passant(board.parse_san("Qxf7+")))
-        self.assertFalse(board.is_castling(board.parse_san("Qxf7+")))
+        self.assertTrue(board.is_capture(board.parse_xboard("Qxf7+")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("Qxf7+")))
+        self.assertFalse(board.is_castling(board.parse_xboard("Qxf7+")))
 
-        self.assertTrue(board.is_capture(board.parse_san("hxg6")))
-        self.assertTrue(board.is_en_passant(board.parse_san("hxg6")))
-        self.assertFalse(board.is_castling(board.parse_san("hxg6")))
+        self.assertTrue(board.is_capture(board.parse_xboard("hxg6")))
+        self.assertTrue(board.is_en_passant(board.parse_xboard("hxg6")))
+        self.assertFalse(board.is_castling(board.parse_xboard("hxg6")))
 
-        self.assertFalse(board.is_capture(board.parse_san("b3")))
-        self.assertFalse(board.is_en_passant(board.parse_san("b3")))
-        self.assertFalse(board.is_castling(board.parse_san("b3")))
+        self.assertFalse(board.is_capture(board.parse_xboard("b3")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("b3")))
+        self.assertFalse(board.is_castling(board.parse_xboard("b3")))
 
-        self.assertFalse(board.is_capture(board.parse_san("Ra6")))
-        self.assertFalse(board.is_en_passant(board.parse_san("Ra6")))
-        self.assertFalse(board.is_castling(board.parse_san("Ra6")))
+        self.assertFalse(board.is_capture(board.parse_xboard("Ra6")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("Ra6")))
+        self.assertFalse(board.is_castling(board.parse_xboard("Ra6")))
 
-        self.assertFalse(board.is_capture(board.parse_san("O-O")))
-        self.assertFalse(board.is_en_passant(board.parse_san("O-O")))
-        self.assertTrue(board.is_castling(board.parse_san("O-O")))
+        self.assertFalse(board.is_capture(board.parse_xboard("O-O")))
+        self.assertFalse(board.is_en_passant(board.parse_xboard("O-O")))
+        self.assertTrue(board.is_castling(board.parse_xboard("O-O")))
 
     def test_pin(self):
         board = chess.Board("rnb1k1nr/2pppppp/3P4/8/1b5q/8/PPPNPBPP/RNBQKB1R w KQkq - 0 1")
@@ -3068,12 +3083,12 @@ class UciEngineTestCase(unittest.TestCase):
             self.assertEqual(info["tbhits"], 0)
 
 
-class UciOptionMapTestCase(unittest.TestCase):
+class EngineTestCase(unittest.TestCase):
 
-    def test_equality(self):
-        a = chess.uci.OptionMap()
-        b = chess.uci.OptionMap()
-        c = chess.uci.OptionMap()
+    def test_uci_option_map_equality(self):
+        a = chess.engine.UciOptionMap()
+        b = chess.engine.UciOptionMap()
+        c = chess.engine.UciOptionMap()
         self.assertEqual(a, b)
 
         a["fOO"] = "bAr"
@@ -3089,7 +3104,7 @@ class UciOptionMapTestCase(unittest.TestCase):
         self.assertNotEqual(a, b)
         self.assertNotEqual(b, a)
 
-    def test_len(self):
+    def test_uci_option_map_len(self):
         a = chess.uci.OptionMap()
         self.assertEqual(len(a), 0)
 
@@ -3098,6 +3113,407 @@ class UciOptionMapTestCase(unittest.TestCase):
 
         del a["key"]
         self.assertEqual(len(a), 0)
+
+    def test_score_ordering(self):
+        order = [
+            chess.engine.Mate.minus(0),
+            chess.engine.Mate.minus(1),
+            chess.engine.Mate.minus(99),
+            chess.engine.Cp(-123),
+            chess.engine.Cp(-50),
+            chess.engine.Cp(0),
+            chess.engine.Cp(30),
+            chess.engine.Cp(800),
+            chess.engine.Mate.plus(77),
+            chess.engine.Mate.plus(1),
+            chess.engine.Mate.plus(0),
+        ]
+
+        for i, a in enumerate(order):
+            for j, b in enumerate(order):
+                self.assertEqual(i < j, a < b)
+                self.assertEqual(i <= j, a <= b)
+                self.assertEqual(i == j, a == b)
+                self.assertEqual(i != j, a != b)
+                self.assertEqual(i > j, a > b)
+                self.assertEqual(i >= j, a >= b)
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_forced_mates(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            engine.configure({"Contempt": 23})
+
+            epds = [
+                "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"BK.01\";",
+                "6k1/N1p3pp/2p5/3n1P2/4K3/1P5P/P1Pr1r2/R1R5 b - - bm Rf4+; id \"Clausthal 2014\";",
+            ]
+
+            board = chess.Board()
+
+            for epd in epds:
+                operations = board.set_epd(epd)
+                result = engine.play(board, chess.engine.Limit(mate=5), game=object())
+                self.assertIn(result.move, operations["bm"], operations["id"])
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_options(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            self.assertEqual(engine.options["UCI_Chess960"].name, "UCI_Chess960")
+            self.assertEqual(engine.options["uci_Chess960"].type, "check")
+            self.assertEqual(engine.options["UCI_CHESS960"].default, False)
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_analysis(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
+            limit = chess.engine.Limit(depth=20)
+            with engine.analysis(board, limit) as analysis:
+                for info in analysis:
+                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(3):
+                        break
+                self.assertEqual(analysis.info["score"], chess.engine.Mate.plus(3))
+                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(3))
+            engine.quit()
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_quit(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:
+            engine.quit()
+
+    @catchAndSkip(FileNotFoundError, "need crafty")
+    def test_crafty_play_to_mate(self):
+        logging.disable(logging.WARNING)
+        try:
+            with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
+                board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
+                limit = chess.engine.Limit(depth=10)
+                while not board.is_game_over() and len(board.move_stack) < 5:
+                    result = engine.play(board, limit, ponder=True)
+                    board.push(result.move)
+                self.assertTrue(board.is_checkmate())
+                engine.quit()
+        finally:
+            logging.disable(logging.NOTSET)
+
+    @catchAndSkip(FileNotFoundError, "need crafty")
+    def test_crafty_analyse(self):
+        logging.disable(logging.WARNING)
+        try:
+            with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
+                board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
+                limit = chess.engine.Limit(depth=7, time=2.0)
+                info = engine.analyse(board, limit)
+                self.assertTrue(info["score"] > chess.engine.Cp(1000))
+                engine.quit()
+        finally:
+            logging.disable(logging.NOTSET)
+
+    @catchAndSkip(FileNotFoundError, "need crafty")
+    def test_crafty_ping(self):
+        with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
+            engine.ping()
+            engine.quit()
+
+    def test_uci_ping(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["uciok"])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            mock.expect("isready", ["readyok"])
+            yield from protocol.ping()
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_uci_debug(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("debug on", [])
+            protocol.debug()
+            mock.assert_done()
+
+            mock.expect("debug off", [])
+            protocol.debug(False)
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_uci_go(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Pondering.
+            mock.expect("position startpos")
+            mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching ...", "bestmove d2d4 ponder d7d5"])
+            mock.expect("position startpos moves d2d4 d7d5")
+            mock.expect("go ponder movetime 123")
+            board = chess.Board()
+            result = yield from protocol.play(board, chess.engine.Limit(time=0.123), root_moves=[board.parse_san("e4"), board.parse_san("d4")], ponder=True, info=chess.engine.INFO_ALL)
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
+            self.assertEqual(result.info["string"], "searching ...")
+            mock.assert_done()
+
+            mock.expect("stop", ["bestmove c2c4"])
+
+            # Limits.
+            mock.expect("position startpos")
+            mock.expect("go wtime 1 btime 2 winc 3 binc 4 movestogo 5 depth 6 nodes 7 mate 8 movetime 9", ["bestmove d2d4"])
+            result = yield from protocol.play(board, chess.engine.Limit(white_clock=0.001, black_clock=0.002, white_inc=0.003, black_inc=0.004, remaining_moves=5, depth=6, nodes=7, mate=8, time=0.009))
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
+            self.assertEqual(result.ponder, None)
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_uci_info(self):
+        # Info: refutation.
+        board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")
+        info = chess.engine._parse_uci_info("refutation d1h5 g6h5", board)
+        self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [chess.Move.from_uci("g6h5")])
+
+        info = chess.engine._parse_uci_info("refutation d1h5", board)
+        self.assertEqual(info["refutation"][chess.Move.from_uci("d1h5")], [])
+
+        # Info: string.
+        info = chess.engine._parse_uci_info("string goes to end no matter score cp 4 what", None)
+        self.assertEqual(info["string"], "goes to end no matter score cp 4 what")
+
+        # Info: currline.
+        info = chess.engine._parse_uci_info("currline 0 e2e4 e7e5", chess.Board())
+        self.assertEqual(info["currline"][0], [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")])
+
+        # Info: ebf.
+        info = chess.engine._parse_uci_info("ebf 0.42", None)
+        self.assertEqual(info["ebf"], 0.42)
+
+        # Info: depth, seldepth, score mate.
+        info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", None)
+        self.assertEqual(info["depth"], 7)
+        self.assertEqual(info["seldepth"], 8)
+        self.assertEqual(info["score"], chess.engine.Mate.plus(3))
+
+        # Info: tbhits, cpuload, hashfull, time, nodes, nps.
+        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", None)
+        self.assertEqual(info["tbhits"], 123)
+        self.assertEqual(info["cpuload"], 456)
+        self.assertEqual(info["hashfull"], 789)
+        self.assertEqual(info["time"], 0.987)
+        self.assertEqual(info["nodes"], 654)
+        self.assertEqual(info["nps"], 321)
+
+        # Hakkapeliitta double spaces.
+        info = chess.engine._parse_uci_info("depth 10 seldepth 9 score cp 22  time 17 nodes 48299 nps 2683000 tbhits 0", None)
+        self.assertEqual(info["depth"], 10)
+        self.assertEqual(info["seldepth"], 9)
+        self.assertEqual(info["score"], chess.engine.Cp(22))
+        self.assertEqual(info["time"], 0.017)
+        self.assertEqual(info["nodes"], 48299)
+        self.assertEqual(info["nps"], 2683000)
+        self.assertEqual(info["tbhits"], 0)
+
+    def test_xboard_options(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", [
+                "feature egt=syzygy,gaviota",
+                "feature option=\"spinvar -spin 50 0 100\"",
+                "feature option=\"combovar -combo HI /// HELLO /// BYE\"",
+                "feature option=\"checkvar -check 0\"",
+                "feature option=\"stringvar -string \"\"\"",
+                "feature option=\"filevar -file \"\"\"",
+                "feature option=\"pathvar -path \"\"\"",
+                "feature option=\"buttonvar -button\"",
+                "feature option=\"resetvar -reset\"",
+                "feature option=\"savevar -save\"",
+                "feature ping=1 setboard=1 done=1",
+            ])
+            mock.expect("accept egt")
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            self.assertEqual(protocol.options["egtpath syzygy"].type, "path")
+            self.assertEqual(protocol.options["egtpath gaviota"].name, "egtpath gaviota")
+            self.assertEqual(protocol.options["spinvar"].type, "spin")
+            self.assertEqual(protocol.options["spinvar"].default, 50)
+            self.assertEqual(protocol.options["spinvar"].min, 0)
+            self.assertEqual(protocol.options["spinvar"].max, 100)
+            self.assertEqual(protocol.options["combovar"].type, "combo")
+            self.assertEqual(protocol.options["combovar"].var, ["HI", "HELLO", "BYE"])
+            self.assertEqual(protocol.options["checkvar"].type, "check")
+            self.assertEqual(protocol.options["checkvar"].default, False)
+            self.assertEqual(protocol.options["stringvar"].type, "string")
+            self.assertEqual(protocol.options["filevar"].type, "file")
+            self.assertEqual(protocol.options["pathvar"].type, "path")
+            self.assertEqual(protocol.options["buttonvar"].type, "button")
+            self.assertEqual(protocol.options["resetvar"].type, "reset")
+            self.assertEqual(protocol.options["savevar"].type, "save")
+
+            mock.expect("option combovar=HI")
+            yield from protocol.configure({"combovar": "HI"})
+            mock.assert_done()
+
+            mock.expect("option spinvar=42")
+            yield from protocol.configure({"spinvar": 42})
+            mock.assert_done()
+
+            mock.expect("option checkvar=1")
+            yield from protocol.configure({"checkvar": True})
+            mock.assert_done()
+
+            mock.expect("option pathvar=.")
+            yield from protocol.configure({"pathvar": "."})
+            mock.assert_done()
+
+            mock.expect("option buttonvar")
+            yield from protocol.configure({"buttonvar": None})
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_xboard_replay(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=1.5, depth=17)
+            board = chess.Board()
+            board.push_san("d4")
+            board.push_san("Nf6")
+            board.push_san("c4")
+
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("d2d4")
+            mock.expect("g8f6")
+            mock.expect("c2c4")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e7e6"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("e6"))
+            mock.assert_done()
+
+            board.pop()
+            mock.expect("force")
+            mock.expect("remove")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move c2c4"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("c4"))
+            mock.assert_done()
+
+            board.pop()
+            board.pop()
+            mock.expect("force")
+            mock.expect("remove")
+            mock.expect("undo")
+            mock.expect("sd 17")
+            mock.expect("st 150")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move d2d4"])
+            result = yield from protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("d4"))
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_xboard_analyse(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", [
+                "feature done=0 ping=1 setboard=1",
+                "feature exclude=1",
+                "feature variants=\"normal,atomic\" done=1",
+            ])
+            yield from protocol._initialize()
+            mock.assert_done()
+
+            board = chess.variant.AtomicBoard("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
+            limit = chess.engine.Limit(depth=1)
+            mock.expect("new")
+            mock.expect("variant atomic")
+            mock.expect("force")
+            mock.expect("setboard rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
+            mock.expect("exclude all")
+            mock.expect("include f7f6")
+            mock.expect("post")
+            mock.expect("analyze", ["4    116      23   2252  1... f6 2. e4 e6"])
+            mock.expect(".")
+            mock.expect("exit")
+            mock.expect_ping()
+            info = yield from protocol.analyse(board, limit, root_moves=[board.parse_san("f6")])
+            self.assertEqual(info["depth"], 4)
+            self.assertEqual(info["score"], chess.engine.Cp(116))
+            self.assertEqual(info["time"], 0.23)
+            self.assertEqual(info["nodes"], 2252)
+            self.assertEqual(info["pv"], [chess.Move.from_uci(move) for move in ["f7f6", "e2e4", "e7e6"]])
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.run_until_complete(main())
+
+    def test_run_in_background(self):
+        class ExpectedError(Exception):
+            pass
+
+        @asyncio.coroutine
+        def raise_expected_error(future):
+            yield from asyncio.sleep(0.001)
+            raise ExpectedError
+
+        with self.assertRaises(ExpectedError):
+            chess.engine.run_in_background(raise_expected_error)
+
+        @asyncio.coroutine
+        def resolve(future):
+            yield from asyncio.sleep(0.001)
+            future.set_result("resolved")
+            yield from asyncio.sleep(0.001)
+
+        result = chess.engine.run_in_background(resolve)
+        self.assertEqual(result, "resolved")
 
 
 class SyzygyTestCase(unittest.TestCase):

@@ -18,10 +18,11 @@ cache:
     - data/syzygy/suicide
 before_install:
  - # Stockfish
- - wget https://stockfish.s3.amazonaws.com/stockfish-8-linux.zip
- - unzip stockfish-8-linux.zip
+ - wget https://stockfish.s3.amazonaws.com/stockfish-10-linux.zip
+ - unzip stockfish-10-linux.zip
  - mkdir -p bin
- - cp stockfish-8-linux/Linux/stockfish_8_x64 bin/stockfish
+ - cp stockfish-10-linux/Linux/stockfish_10_x64_modern bin/stockfish
+ - chmod +x bin/stockfish
  - export PATH="`pwd`/bin:${PATH}"
  - which stockfish || (echo $PATH && false)
  - # Crafty
@@ -72,7 +73,7 @@ script:
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv ThreeCheckTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CrazyhouseTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GiveawayTestCase; fi
- - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciOptionMapTestCase; fi
+ - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv EngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv UciEngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv CraftyTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv StockfishTestCase; fi
