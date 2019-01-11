@@ -66,7 +66,7 @@ class SquareTestCase(unittest.TestCase):
         for square in chess.SQUARES:
             file_index = chess.square_file(square)
             rank_index = chess.square_rank(square)
-            self.assertEqual(chess.square(file_index, rank_index), square, chess.SQUARE_NAMES[square])
+            self.assertEqual(chess.square(file_index, rank_index), square, chess.square_name(square))
 
     def test_shifts(self):
         shifts = [
@@ -870,6 +870,18 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=False)
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
 
+        # Opposite check.
+        board = chess.Board("4k3/8/8/8/8/8/4Q3/4K3 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_OPPOSITE_CHECK)
+
+        # Empty board.
+        board = chess.Board(None)
+        self.assertEqual(board.status(), chess.STATUS_EMPTY | chess.STATUS_NO_WHITE_KING | chess.STATUS_NO_BLACK_KING)
+
+        # Too many kings.
+        board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS)
+
     def test_one_king_movegen(self):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
@@ -1264,6 +1276,26 @@ class BoardTestCase(unittest.TestCase):
             ♙ ♙ · · · · ♙ ♙
             · · · · · · ♔ ·"""))
 
+        self.assertEqual(board.unicode(invert_color=True, borders=True), textwrap.dedent(u"""\
+              -----------------
+            8 |·|·|·|·|·|·|·|♔|
+              -----------------
+            7 |·|♙|·|♕|♘|·|♗|·|
+              -----------------
+            6 |♙|♝|·|♙|·|♘|·|·|
+              -----------------
+            5 |·|·|·|♟|♙|·|·|·|
+              -----------------
+            4 |·|·|·|·|♟|♙|·|♙|
+              -----------------
+            3 |·|·|♛|♞|·|♝|·|·|
+              -----------------
+            2 |♟|♟|·|·|·|·|♟|♟|
+              -----------------
+            1 |·|·|·|·|·|·|♚|·|
+              -----------------
+               a b c d e f g h"""))
+
     def test_move_info(self):
         board = chess.Board("r1bqkb1r/p3np2/2n1p2p/1p4pP/2pP4/4PQ1N/1P2BPP1/RNB1K2R w KQkq g6 0 11")
 
@@ -1442,9 +1474,11 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
     def test_nonzero(self):
         self.assertTrue(chess.Board().legal_moves)
+        self.assertTrue(chess.Board().pseudo_legal_moves)
 
         caro_kann_mate = chess.Board("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
         self.assertFalse(caro_kann_mate.legal_moves)
+        self.assertTrue(chess.Board().pseudo_legal_moves)
 
     def test_string_conversion(self):
         board = chess.Board("r3k1nr/ppq1pp1p/2p3p1/8/1PPR4/2N5/P3QPPP/5RK1 b kq b3 0 16")
@@ -1553,6 +1587,9 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(bb, chess.BB_C1)
 
     def test_immutable_set_operations(self):
+        self.assertTrue(chess.SquareSet(chess.BB_RANK_1).isdisjoint(chess.BB_RANK_2))
+        self.assertFalse(chess.SquareSet(chess.BB_RANK_2).isdisjoint(chess.BB_FILE_E))
+
         self.assertFalse(chess.SquareSet(chess.BB_A1).issubset(chess.BB_RANK_1))
         self.assertTrue(chess.SquareSet(chess.BB_RANK_1).issubset(chess.BB_A1))
 
@@ -1637,6 +1674,14 @@ class SquareSetTestCase(unittest.TestCase):
 
         squares = ~chess.SquareSet(chess.BB_BACKRANKS)
         self.assertEqual(len(squares), 48)
+
+    def test_int_conversion(self):
+        self.assertEqual(int(chess.SquareSet(chess.BB_CENTER)), 0x1818000000)
+        self.assertEqual(hex(chess.SquareSet(chess.BB_CENTER)), "0x1818000000")
+        self.assertEqual(bin(chess.SquareSet(chess.BB_CENTER)), "0b1100000011000000000000000000000000000")
+
+    def test_tolist(self):
+        self.assertEqual(chess.SquareSet(chess.BB_LIGHT_SQUARES).tolist().count(True), 32)
 
 
 class PolyglotTestCase(unittest.TestCase):
