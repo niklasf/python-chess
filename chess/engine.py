@@ -2071,25 +2071,34 @@ class SimpleEngine:
             return self.protocol.id.copy()
         return asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop).result()
 
+    def _timeout_for(self, limit):
+        if self.timeout is None or limit is None or limit.time is None:
+            return None
+        return self.timeout + limit.time
+
     def configure(self, options):
-        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.configure(options), self.timeout), self.protocol.loop).result()
+        coro = asyncio.wait_for(self.protocol.configure(options), self.timeout)
+        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
 
     def ping(self):
-        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.ping(), self.timeout), self.protocol.loop).result()
+        coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
+        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
 
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self.protocol.loop).result()
+        coro = asyncio.wait_for(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self._timeout_for(limit))
+        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
 
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        return asyncio.run_coroutine_threadsafe(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.protocol.loop).result()
+        coro = asyncio.wait_for(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self._timeout_for(limit))
+        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
 
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        return SimpleAnalysisResult(
-            asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout), self.protocol.loop).result(),
-            self.protocol.loop)
+        coro = asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout)
+        return SimpleAnalysisResult(asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result(), self.protocol.loop)
 
     def quit(self):
-        return asyncio.run_coroutine_threadsafe(asyncio.wait_for(self.protocol.quit(), self.timeout), self.protocol.loop).result()
+        coro = asyncio.wait_for(self.protocol.quit(), self.timeout)
+        return asyncio.run_coroutine_threadsafe(coro, self.protocol.loop).result()
 
     def close(self):
         """Closes the transport."""
