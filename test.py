@@ -26,6 +26,7 @@ import os
 import os.path
 import platform
 import sys
+import tempfile
 import textwrap
 import threading
 import unittest
@@ -2447,9 +2448,11 @@ class PgnTestCase(unittest.TestCase):
 class CraftyTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory(prefix="crafty")
         try:
-            self.engine = chess.xboard.popen_engine("crafty")
+            self.engine = chess.xboard.popen_engine("crafty", cwd=self.tmpdir.name)
         except OSError:
+            self.tmpdir.cleanup()
             self.skipTest("need crafty")
 
         self.engine.xboard()
@@ -2458,6 +2461,8 @@ class CraftyTestCase(unittest.TestCase):
     def tearDown(self):
         if self.engine.is_alive():
             self.engine.quit()
+
+        self.tmpdir.cleanup()
 
     def test_undo(self):
         self.engine.new()
@@ -3243,14 +3248,15 @@ class EngineTestCase(unittest.TestCase):
     def test_crafty_play_to_mate(self):
         logging.disable(logging.WARNING)
         try:
-            with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
-                board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
-                limit = chess.engine.Limit(depth=10)
-                while not board.is_game_over() and len(board.move_stack) < 5:
-                    result = engine.play(board, limit, ponder=True)
-                    board.push(result.move)
-                self.assertTrue(board.is_checkmate())
-                engine.quit()
+            with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
+                with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+                    board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
+                    limit = chess.engine.Limit(depth=10)
+                    while not board.is_game_over() and len(board.move_stack) < 5:
+                        result = engine.play(board, limit, ponder=True)
+                        board.push(result.move)
+                    self.assertTrue(board.is_checkmate())
+                    engine.quit()
         finally:
             logging.disable(logging.NOTSET)
 
@@ -3258,20 +3264,22 @@ class EngineTestCase(unittest.TestCase):
     def test_crafty_analyse(self):
         logging.disable(logging.WARNING)
         try:
-            with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
-                board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
-                limit = chess.engine.Limit(depth=7, time=2.0)
-                info = engine.analyse(board, limit)
-                self.assertTrue(info["score"] > chess.engine.Cp(1000))
-                engine.quit()
+            with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
+                with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+                    board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
+                    limit = chess.engine.Limit(depth=7, time=2.0)
+                    info = engine.analyse(board, limit)
+                    self.assertTrue(info["score"] > chess.engine.Cp(1000))
+                    engine.quit()
         finally:
             logging.disable(logging.NOTSET)
 
     @catchAndSkip(FileNotFoundError, "need crafty")
     def test_crafty_ping(self):
-        with chess.engine.SimpleEngine.popen_xboard("crafty") as engine:
-            engine.ping()
-            engine.quit()
+        with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
+            with chess.engine.SimpleEngine.popen_xboard("crafty", cwd=tmpdir) as engine:
+                engine.ping()
+                engine.quit()
 
     def test_uci_ping(self):
         @asyncio.coroutine
