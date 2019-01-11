@@ -3183,6 +3183,20 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i > j, a > b)
                 self.assertEqual(i >= j, a >= b)
 
+    def test_score(self):
+        # Negation.
+        self.assertEqual(-chess.engine.Cp(20), chess.engine.Cp(-20))
+        self.assertEqual(-chess.engine.Mate.from_moves(4), chess.engine.Mate.minus(4))
+
+        # Score.
+        self.assertEqual(chess.engine.Cp(-300).score(), -300)
+        self.assertEqual(chess.engine.Mate.from_moves(5).score(), None)
+        self.assertEqual(chess.engine.Mate.from_moves(5).score(100000), 99995)
+
+        # Mate.
+        self.assertEqual(chess.engine.Cp(-300).mate(), None)
+        self.assertEqual(chess.engine.Mate.from_moves(5).mate(), 5)
+
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish") as engine:

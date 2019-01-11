@@ -319,9 +319,9 @@ class Score(abc.ABC):
     """
 
     @abc.abstractmethod
-    def score(self, mate_score=None):
+    def score(self, *, mate_score=None):
         """
-        Returns a centi-pawn score or ``None``.
+        Returns the centi-pawn score as an integer or ``None``.
 
         You can optionally pass a large value to convert mate scores to
         centi-pawn scores.
@@ -335,14 +335,15 @@ class Score(abc.ABC):
         >>> mate = Mate.from_moves(5)
         >>> mate.score() is None
         True
-        >>> mate.score(100000)
+        >>> mate.score(mate_score=100000)
         99995
         """
 
     @abc.abstractmethod
     def mate(self):
         """
-        Returns a mate score or ``None``.
+        Returns the number of plies to mate, negative if we are getting mated,
+        or ``None``.
 
         :warning: This conflates ``Mate.minus(0)`` (we are mated) and
             ``Mate.plus(0)`` (we have given mate) to ``0``.
@@ -2044,6 +2045,11 @@ class SimpleEngine:
     *timeout* seconds longer than expected (unless *timeout* is ``None``).
 
     Automatically closes the transport when used as a context manager.
+
+    You may not concurrently modify objects passed to any of the methods. Other
+    than that :class:`~chess.engine.SimpleEngine` is thread-safe. When sending
+    a new command to the engine, any previous running command will be cancelled
+    as soon as possible.
     """
 
     def __init__(self, transport, protocol, *, timeout=10.0):
