@@ -3269,7 +3269,7 @@ class EngineTestCase(unittest.TestCase):
                     board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
                     limit = chess.engine.Limit(depth=7, time=2.0)
                     info = engine.analyse(board, limit)
-                    self.assertTrue(info["score"] > chess.engine.Cp(1000))
+                    self.assertTrue(info["score"].relative > chess.engine.Cp(1000))
                     engine.quit()
         finally:
             logging.disable(logging.NOTSET)
