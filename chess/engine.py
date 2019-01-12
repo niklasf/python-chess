@@ -303,10 +303,16 @@ class PovScore:
         self.turn = turn
 
     def white(self):
+        """Get the score from White's point of view."""
         return self.relative if self.turn else -self.relative
 
     def black(self):
+        """Get the score from Black's point of view."""
         return -self.relative if self.turn else self.relative
+
+    def pov(self, color):
+        """Get the score from the point of view of the given *color*."""
+        return self.relative if self.turn == color else -self.relative
 
     def __repr__(self):
         return "PovScore({}, {})".format(repr(self.relative), "WHITE" if self.turn else "BLACK")
