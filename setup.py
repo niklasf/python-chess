@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import io
 import os
 import platform
 import re
@@ -42,7 +41,7 @@ def read_description():
     Reads the description from README.rst and substitutes mentions of the
     latest version with a concrete version number.
     """
-    with io.open(os.path.join(os.path.dirname(__file__), "README.rst"), encoding="utf-8") as f:
+    with open(os.path.join(os.path.dirname(__file__), "README.rst"), encoding="utf-8") as f:
         description = f.read()
 
     # Link to the documentation of the specific version.
