@@ -426,7 +426,7 @@ class Cp(Score):
     def mate(self):
         return None
 
-    def score(self, mate_score=None):
+    def score(self, *, mate_score=None):
         return self.cp
 
     def __str__(self):
@@ -454,7 +454,7 @@ class Mate(Score):
     def mate(self):
         return self.moves
 
-    def score(self, mate_score=None):
+    def score(self, *, mate_score=None):
         if mate_score is None:
             return None
         elif self.moves > 0:

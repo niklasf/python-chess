@@ -3196,7 +3196,7 @@ class EngineTestCase(unittest.TestCase):
         # Score.
         self.assertEqual(chess.engine.Cp(-300).score(), -300)
         self.assertEqual(chess.engine.Mate(+5).score(), None)
-        self.assertEqual(chess.engine.Mate(+5).score(100000), 99995)
+        self.assertEqual(chess.engine.Mate(+5).score(mate_score=100000), 99995)
 
         # Mate.
         self.assertEqual(chess.engine.Cp(-300).mate(), None)
