@@ -354,10 +354,10 @@ class Score(abc.ABC):
     >>> -Cp(20)
     Cp(-20)
 
-    >>> Mate(-4)
+    >>> -Mate(-4)
     Mate(+4)
 
-    >>> Mate(0)
+    >>> -Mate(0)
     MateGiven
     """
 
