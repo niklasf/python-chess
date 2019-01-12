@@ -60,7 +60,7 @@ def read_description():
         "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
     # Remove doctest comments.
-    description = re.sub("\s*# doctest:.*", "", description)
+    description = re.sub(r"\s*# doctest:.*", "", description)
 
     return description
 
