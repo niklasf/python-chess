@@ -3166,22 +3166,22 @@ class EngineTestCase(unittest.TestCase):
 
     def test_score_ordering(self):
         order = [
-            chess.engine.Mate.minus(0),
-            chess.engine.Mate.minus(1),
-            chess.engine.Mate.minus(99),
+            chess.engine.Mate(-0),
+            chess.engine.Mate(-1),
+            chess.engine.Mate(-99),
             chess.engine.Cp(-123),
             chess.engine.Cp(-50),
             chess.engine.Cp(0),
-            chess.engine.Cp(30),
-            chess.engine.Cp(800),
-            chess.engine.Mate.plus(77),
-            chess.engine.Mate.plus(1),
-            chess.engine.Mate.plus(0),
+            chess.engine.Cp(+30),
+            chess.engine.Cp(+800),
+            chess.engine.Mate(+77),
+            chess.engine.Mate(+1),
+            chess.engine.MateGiven,
         ]
 
         for i, a in enumerate(order):
             for j, b in enumerate(order):
-                self.assertEqual(i < j, a < b)
+                self.assertEqual(i < j, a < b, "{} < {}".format(a, b))
                 self.assertEqual(i <= j, a <= b)
                 self.assertEqual(i == j, a == b)
                 self.assertEqual(i != j, a != b)
@@ -3190,17 +3190,17 @@ class EngineTestCase(unittest.TestCase):
 
     def test_score(self):
         # Negation.
-        self.assertEqual(-chess.engine.Cp(20), chess.engine.Cp(-20))
-        self.assertEqual(-chess.engine.Mate.from_moves(4), chess.engine.Mate.minus(4))
+        self.assertEqual(-chess.engine.Cp(+20), chess.engine.Cp(-20))
+        self.assertEqual(-chess.engine.Mate(+4), chess.engine.Mate(-4))
 
         # Score.
         self.assertEqual(chess.engine.Cp(-300).score(), -300)
-        self.assertEqual(chess.engine.Mate.from_moves(5).score(), None)
-        self.assertEqual(chess.engine.Mate.from_moves(5).score(100000), 99995)
+        self.assertEqual(chess.engine.Mate(+5).score(), None)
+        self.assertEqual(chess.engine.Mate(+5).score(100000), 99995)
 
         # Mate.
         self.assertEqual(chess.engine.Cp(-300).mate(), None)
-        self.assertEqual(chess.engine.Mate.from_moves(5).mate(), 5)
+        self.assertEqual(chess.engine.Mate(+5).mate(), 5)
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
@@ -3233,10 +3233,10 @@ class EngineTestCase(unittest.TestCase):
             limit = chess.engine.Limit(depth=20)
             with engine.analysis(board, limit) as analysis:
                 for info in analysis:
-                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate.plus(3):
+                    if info.get("score", chess.engine.Cp(0)) >= chess.engine.Mate(+3):
                         break
-                self.assertEqual(analysis.info["score"], chess.engine.Mate.plus(3))
-                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate.plus(3))
+                self.assertEqual(analysis.info["score"], chess.engine.Mate(+3))
+                self.assertEqual(analysis.multipv[0]["score"], chess.engine.Mate(+3))
             engine.quit()
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
@@ -3377,7 +3377,7 @@ class EngineTestCase(unittest.TestCase):
         info = chess.engine._parse_uci_info("depth 7 seldepth 8 score mate 3", board)
         self.assertEqual(info["depth"], 7)
         self.assertEqual(info["seldepth"], 8)
-        self.assertEqual(info["score"], chess.engine.Mate.plus(3))
+        self.assertEqual(info["score"], chess.engine.Mate(+3))
 
         # Info: tbhits, cpuload, hashfull, time, nodes, nps.
         info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", board)

@@ -286,7 +286,6 @@ class Info(_IntFlag):
     CURRLINE = 16
     ALL = BASIC | SCORE | PV | REFUTATION | CURRLINE
 
-
 INFO_NONE = Info.NONE
 INFO_BASIC = Info.BASIC
 INFO_SCORE = Info.SCORE
@@ -296,28 +295,32 @@ INFO_CURRLINE = Info.CURRLINE
 INFO_ALL = Info.ALL
 
 
+@functools.total_ordering
 class Score(abc.ABC):
     """
     Evaluation of a position.
 
-    The score can be :class:`~chess.engine.Cp` (centi-pawns) or
-    :class:`~chess.engine.Mate`. A positive value indicates an advantage.
+    The score can be :class:`~chess.engine.Cp` (centi-pawns),
+    :class:`~chess.engine.Mate` or ``MateGiven``. A positive value indicates
+    an advantage.
 
     There is a total order defined on centi-pawn and mate scores.
 
-    >>> from chess.engine import Cp, Mate
+    >>> from chess.engine import Cp, Mate, MateGiven
     >>>
-    >>> Mate.minus(0) < Mate.minus(1) < Cp(-50) < Cp(200) < Mate.plus(4) < Mate.plus(0)
+    >>> Mate(-0) < Mate(-1) < Cp(-50) < Cp(200) < Mate(4) < Mate(1) < MateGiven
     True
 
-    Scores are usually given from White's point of view. They can be negated to
-    change the point of view:
+    Scores can be negated to change the point of view:
 
     >>> -Cp(20)
     Cp(-20)
 
-    >>> -Mate.from_moves(4)
-    Mate.minus(4)
+    >>> Mate(-4)
+    Mate(+4)
+
+    >>> Mate(0)
+    MateGiven
     """
 
     @abc.abstractmethod
@@ -328,27 +331,22 @@ class Score(abc.ABC):
         You can optionally pass a large value to convert mate scores to
         centi-pawn scores.
 
-        >>> from chess.engine import Cp, Mate
-        >>>
-        >>> cp = Cp(-300)
-        >>> cp.score()
+        >>> Cp(-300).score()
         -300
-        >>>
-        >>> mate = Mate.from_moves(5)
-        >>> mate.score() is None
+        >>> Mate(5).score() is None
         True
-        >>> mate.score(mate_score=100000)
+        >>> Mate(5).score(mate_score=100000)
         99995
         """
 
     @abc.abstractmethod
     def mate(self):
         """
-        Returns the number of plies to mate, negative if we are getting mated,
-        or ``None``.
+        Returns the number of plies to mate, negative if we are getting
+        mated, or ``None``.
 
-        :warning: This conflates ``Mate.minus(0)`` (we are mated) and
-            ``Mate.plus(0)`` (we have given mate) to ``0``.
+        :warning: This conflates ``Mate(0)`` (we lost) and ``MateGiven``
+            (we won) to ``0``.
         """
 
     def is_mate(self):
@@ -359,8 +357,28 @@ class Score(abc.ABC):
     def __neg__(self):
         pass
 
+    def _score_tuple(self):
+        return (
+            isinstance(self, _MateGiven),
+            self.is_mate() and self.mate() > 0,
+            not self.is_mate(),
+            -(self.mate() or 0),
+            self.score(),
+        )
 
-@functools.total_ordering
+    def __eq__(self, other):
+        try:
+            return self._score_tuple() == other._score_tuple()
+        except AttributeError:
+            return NotImplemented
+
+    def __lt__(self, other):
+        try:
+            return self._score_tuple() < other._score_tuple()
+        except AttributeError:
+            return NotImplemented
+
+
 class Cp(Score):
     """Centi-pawn score."""
 
@@ -373,11 +391,11 @@ class Cp(Score):
     def score(self, mate_score=None):
         return self.cp
 
-    def __repr__(self):
-        return "Cp({})".format(self.cp)
-
     def __str__(self):
         return "+{}".format(self.cp) if self.cp > 0 else str(self.cp)
+
+    def __repr__(self):
+        return "Cp({})".format(str(self))
 
     def __neg__(self):
         return Cp(-self.cp)
@@ -388,95 +406,65 @@ class Cp(Score):
     def __abs__(self):
         return Cp(abs(self.cp))
 
-    def __eq__(self, other):
-        try:
-            return self.cp == other.score()
-        except AttributeError:
-            return NotImplemented
 
-    def __lt__(self, other):
-        try:
-            return other.winning
-        except AttributeError:
-            pass
-
-        try:
-            return self.cp < other.cp
-        except AttributeError:
-            pass
-
-        return NotImplemented
-
-
-@functools.total_ordering
 class Mate(Score):
     """Mate score."""
 
-    def __init__(self, moves, winning):
-        self.moves = abs(moves)
-        self.winning = winning ^ (moves < 0)
+    def __init__(self, moves):
+        self.moves = moves
+
+    def mate(self):
+        return self.moves
 
     def score(self, mate_score=None):
         if mate_score is None:
             return None
-        elif self.winning:
+        elif self.moves > 0:
             return mate_score - self.moves
         else:
             return -mate_score + self.moves
 
-    def mate(self):
-        # Careful: Conflates Mate.plus(0) and Mate.minus(0)!
-        return self.moves if self.winning else -self.moves
-
-    @classmethod
-    def from_moves(cls, moves):
-        return Mate(abs(moves), moves > 0)
-
-    @classmethod
-    def plus(self, moves):
-        return Mate(moves, True)
-
-    @classmethod
-    def minus(self, moves):
-        return Mate(moves, False)
+    def __str__(self):
+        return "#+{}".format(self.moves) if self.moves > 0 else "#-{}".format(abs(self.moves))
 
     def __repr__(self):
-        if self.winning:
-            return "Mate.plus({})".format(self.moves)
-        else:
-            return "Mate.minus({})".format(self.moves)
-
-    def __str__(self):
-        return "#{}".format(self.moves) if self.winning else "#-{}".format(self.moves)
+        return ("Mate(+{})" if self.moves > 0 else "Mate(-{})").format(abs(self.moves))
 
     def __neg__(self):
-        return Mate(self.moves, not self.winning)
+        return MateGiven if not self.moves else Mate(-self.moves)
 
     def __pos__(self):
-        return Mate(self.moves, self.winning)
+        return Mate(self.moves)
 
     def __abs__(self):
-        return Mate(self.moves, True)
+        return MateGiven if not self.moves else Mate(abs(self.moves))
 
-    def __eq__(self, other):
-        try:
-            return other.is_mate() and self.moves == other.moves and self.winning == other.winning
-        except AttributeError:
-            return NotImplemented
+class _MateGiven(Score):
+    """Winning mate score, equivalent to ``-Mate(0)``."""
 
-    def __lt__(self, other):
-        try:
-            if self.winning != other.winning:
-                return self.winning < other.winning
+    def mate(self):
+        return 0
 
-            if self.winning:
-                return self.moves > other.moves
-            else:
-                return self.moves < other.moves
-        except AttributeError:
-            pass
+    def score(self, *, mate_score=None):
+        return mate_score
 
-        return other > self
+    def __neg__(self):
+        return Mate(0)
+
+    def __pos__(self):
+        return self
+
+    def __abs__(self):
+        return self
+
+    def __repr__(self):
+        return "MateGiven"
+
+    def __str__(self):
+        return "#+0"
+
+
+MateGiven = _MateGiven()
 
 
 class MockTransport:
@@ -1329,7 +1317,7 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
                 elif score_kind == "cp":
                     info["score"] = Cp(int(token)) if root_board.turn else -Cp(int(token))
                 elif score_kind == "mate":
-                    info["score"] = Mate.from_moves(int(token)) if root_board.turn else -Mate.from_moves(int(token))
+                    info["score"] = Mate(int(token)) if root_board.turn else -Mate(int(token))
             except ValueError:
                 LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
         elif current_parameter == "currmove":
@@ -1756,7 +1744,7 @@ class XBoardProtocol(EngineProtocol):
                     elif limit.mate is not None:
                         score = post_info.get("score", Cp(0))
                         pov_score = score if engine.board.turn else -score
-                    elif limit.mate is not None and pov_score >= Mate.plus(limit.mate):
+                    elif limit.mate is not None and pov_score >= Mate(limit.mate):
                         self.cancel(engine)
 
             def end(self, engine):
@@ -1896,9 +1884,11 @@ def _parse_xboard_post(line, root_board, selector=INFO_ALL):
 
     # Score.
     if cp <= -100000:
-        score = Mate.minus(abs(cp) - 100000)
+        score = Mate(cp + 100000)
+    elif cp == 100000:
+        score = MateGiven
     elif cp >= 100000:
-        score = Mate.plus(cp - 100000)
+        score = Mate(cp - 100000)
     else:
         score = Cp(cp)
     info["score"] = score if root_board.turn else -score
