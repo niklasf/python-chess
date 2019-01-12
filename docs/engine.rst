@@ -186,7 +186,7 @@ Example:
 
     .. py:attribute:: turn
 
-        The point of view (`chess.WHITE` or `chess.BLACK`).
+        The point of view (``chess.WHITE`` or ``chess.BLACK``).
 
 .. autoclass:: chess.engine.Score
     :members:
