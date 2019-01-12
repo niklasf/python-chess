@@ -114,9 +114,10 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: info
 
         A dictionary of extra information sent by the engine. Commonly used
-        keys are: ``score`` (from White's point of view), ``pv``, ``depth``,
-        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``tbhits``,
-        ``multipv``.
+        keys are: ``score`` (a :class:`~chess.engine.PovScore`),
+        ``pv`` (a list of :class:`~chess.Move` objects),
+        ``depth``, ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``,
+        ``tbhits``, ``multipv``.
 
         Others: ``currmove``, ``currmovenumber``, ``hashfull``
         ``cpuload``, ``refutation``, ``currline``, ``ebf`` and ``string``.
@@ -175,6 +176,17 @@ Example:
 
 .. autoclass:: chess.engine.EngineProtocol
     :members: analyse
+
+.. autoclass:: chess.engine.PovScore
+    :members:
+
+    .. py:attribute:: relative
+
+        The relative :class:`~chess.engine.Score`.
+
+    .. py:attribute:: turn
+
+        The point of view (`chess.WHITE` or `chess.BLACK`).
 
 .. autoclass:: chess.engine.Score
     :members:

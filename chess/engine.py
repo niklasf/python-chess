@@ -295,6 +295,38 @@ INFO_CURRLINE = Info.CURRLINE
 INFO_ALL = Info.ALL
 
 
+class PovScore:
+    """A relative :class:`~chess.engine.Score` and the point of view."""
+
+    def __init__(self, relative, turn):
+        self.relative = relative
+        self.turn = turn
+
+    def white(self):
+        return self.relative if self.turn else -self.relative
+
+    def black(self):
+        return -self.relative if self.turn else self.relative
+
+    def __repr__(self):
+        return "PovScore({}, {})".format(repr(self.relative), "WHITE" if self.turn else "BLACK")
+
+    def __str__(self):
+        return str(self.relative)
+
+    def __eq__(self, other):
+        try:
+            return self.relative == other.relative and self.turn == other.turn
+        except AttributeError:
+            return NotImplemented
+
+    def __ne__(self, other):
+        try:
+            return self.relative != other.relative or self.turn != other.turn
+        except AttributeError:
+            return NotImplemented
+
+
 @functools.total_ordering
 class Score(abc.ABC):
     """
@@ -1315,9 +1347,9 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
                 elif token == "upperbound":
                     info["upperbound"] = True
                 elif score_kind == "cp":
-                    info["score"] = Cp(int(token)) if root_board.turn else -Cp(int(token))
+                    info["score"] = PovScore(Cp(int(token)), root_board.turn)
                 elif score_kind == "mate":
-                    info["score"] = Mate(int(token)) if root_board.turn else -Mate(int(token))
+                    info["score"] = PovScore(Mate(int(token)), root_board.turn)
             except ValueError:
                 LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
         elif current_parameter == "currmove":
@@ -1741,11 +1773,9 @@ class XBoardProtocol(EngineProtocol):
                         self.cancel(engine)
                     elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
                         self.cancel(engine)
-                    elif limit.mate is not None:
-                        score = post_info.get("score", Cp(0))
-                        pov_score = score if engine.board.turn else -score
-                    elif limit.mate is not None and pov_score >= Mate(limit.mate):
-                        self.cancel(engine)
+                    elif limit.mate is not None and "score" in post_info:
+                        if post_info["score"].relative >= limit.mate:
+                            self.cancel(engine)
 
             def end(self, engine):
                 if self.time_limit_handle:
@@ -1891,7 +1921,7 @@ def _parse_xboard_post(line, root_board, selector=INFO_ALL):
         score = Mate(cp - 100000)
     else:
         score = Cp(cp)
-    info["score"] = score if root_board.turn else -score
+    info["score"] = PovScore(score, root_board.turn)
 
     # Optional integer tokens.
     if integer_tokens:
