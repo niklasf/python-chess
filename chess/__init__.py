@@ -3704,17 +3704,12 @@ class SquareSet(collections.abc.MutableSet):
 
         for square in SQUARES_180:
             mask = BB_SQUARES[square]
+            builder.append("1" if self.mask & mask else ".")
 
-            if self.mask & mask:
-                builder.append("1")
-            else:
-                builder.append(".")
-
-            if mask & BB_FILE_H:
-                if square != H1:
-                    builder.append("\n")
-            else:
+            if not mask & BB_FILE_H:
                 builder.append(" ")
+            elif square != H1:
+                builder.append("\n")
 
         return "".join(builder)
 
