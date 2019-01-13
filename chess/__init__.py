@@ -1058,28 +1058,16 @@ class BaseBoard:
         if self.promoted:
             return None
 
-        if popcount(self.bishops) != 4:
-            return None
-        if popcount(self.rooks) != 4:
-            return None
-        if popcount(self.knights) != 4:
-            return None
-        if popcount(self.queens) != 2:
-            return None
-        if popcount(self.kings) != 2:
+        # Piece counts.
+        brnqk = [self.bishops, self.rooks, self.knights, self.queens, self.kings]
+        if [popcount(pieces) for pieces in brnqk] != [4, 4, 4, 2, 2]:
             return None
 
-        if (BB_RANK_1 & self.knights) << 56 != BB_RANK_8 & self.knights:
-            return None
-        if (BB_RANK_1 & self.bishops) << 56 != BB_RANK_8 & self.bishops:
-            return None
-        if (BB_RANK_1 & self.rooks) << 56 != BB_RANK_8 & self.rooks:
-            return None
-        if (BB_RANK_1 & self.queens) << 56 != BB_RANK_8 & self.queens:
-            return None
-        if (BB_RANK_1 & self.kings) << 56 != BB_RANK_8 & self.kings:
+        # Symmetry.
+        if any((BB_RANK_1 & pieces) << 56 != BB_RANK_8 & pieces for pieces in brnqk):
             return None
 
+        # Algorithm from ChessX, src/database/bitboard.cpp, r2254.
         x = self.bishops & (2 + 8 + 32 + 128)
         if not x:
             return None
@@ -1091,7 +1079,6 @@ class BaseBoard:
         bs2 = lsb(x) * 2
         cc_pos += bs2
 
-        # Algorithm from ChessX, src/database/bitboard.cpp, r2254.
         q = 0
         qf = False
         n0 = 0
