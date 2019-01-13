@@ -666,10 +666,8 @@ class BaseBoard:
         bb_square = BB_SQUARES[square]
 
         if bb_square & self.pawns:
-            if bb_square & self.occupied_co[WHITE]:
-                return BB_PAWN_ATTACKS[WHITE][square]
-            else:
-                return BB_PAWN_ATTACKS[BLACK][square]
+            color = bool(bb_square & self.occupied_co[WHITE])
+            return BB_PAWN_ATTACKS[color][square]
         elif bb_square & self.knights:
             return BB_KNIGHT_ATTACKS[square]
         elif bb_square & self.kings:

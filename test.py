@@ -1026,6 +1026,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(chess.C5, attacks)
         self.assertNotIn(chess.F4, attacks)
 
+        pawn_attacks = board.attacks(chess.B2)
+        self.assertIn(chess.A3, pawn_attacks)
+        self.assertNotIn(chess.B3, pawn_attacks)
+
         self.assertFalse(board.attacks(chess.G1))
 
     def test_clear(self):
