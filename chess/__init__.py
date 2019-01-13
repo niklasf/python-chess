@@ -389,19 +389,15 @@ class Piece:
         Gets the symbol ``P``, ``N``, ``B``, ``R``, ``Q`` or ``K`` for white
         pieces or the lower-case variants for the black pieces.
         """
-        if self.color == WHITE:
-            return PIECE_SYMBOLS[self.piece_type].upper()
-        else:
-            return PIECE_SYMBOLS[self.piece_type]
+        symbol = PIECE_SYMBOLS[self.piece_type]
+        return symbol.upper() if self.color else symbol
 
     def unicode_symbol(self, *, invert_color=False):
         """
         Gets the Unicode character for the piece.
         """
-        if not invert_color:
-            return UNICODE_PIECE_SYMBOLS[self.symbol()]
-        else:
-            return UNICODE_PIECE_SYMBOLS[self.symbol().swapcase()]
+        symbol = self.symbol().swapcase() if invert_color else self.symbol()
+        return UNICODE_PIECE_SYMBOLS[symbol]
 
     def __hash__(self):
         return hash(self.piece_type * (self.color + 1))
@@ -422,12 +418,7 @@ class Piece:
 
     def __ne__(self, other):
         try:
-            if self.piece_type != other.piece_type:
-                return True
-            elif self.color != other.color:
-                return True
-            else:
-                return False
+            return self.piece_type != other.piece_type or self.color != other.color
         except AttributeError:
             return NotImplemented
 
@@ -438,10 +429,7 @@ class Piece:
 
         :raises: :exc:`ValueError` if the symbol is invalid.
         """
-        if symbol.islower():
-            return cls(PIECE_SYMBOLS.index(symbol), BLACK)
-        else:
-            return cls(PIECE_SYMBOLS.index(symbol.lower()), WHITE)
+        return cls(PIECE_SYMBOLS.index(symbol.lower()), symbol.isupper())
 
 
 class Move:

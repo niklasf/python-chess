@@ -156,6 +156,8 @@ class PieceTestCase(unittest.TestCase):
         d1 = chess.Piece(chess.BISHOP, chess.WHITE)
         d2 = chess.Piece(chess.BISHOP, chess.WHITE)
 
+        self.assertEqual(len(set([a, b, c, d1, d2])), 3)
+
         self.assertEqual(a, d1)
         self.assertEqual(d1, a)
         self.assertEqual(d1, d2)
@@ -179,12 +181,14 @@ class PieceTestCase(unittest.TestCase):
         self.assertEqual(white_knight.color, chess.WHITE)
         self.assertEqual(white_knight.piece_type, chess.KNIGHT)
         self.assertEqual(white_knight.symbol(), "N")
+        self.assertEqual(str(white_knight), "N")
 
         black_queen = chess.Piece.from_symbol("q")
 
         self.assertEqual(black_queen.color, chess.BLACK)
         self.assertEqual(black_queen.piece_type, chess.QUEEN)
         self.assertEqual(black_queen.symbol(), "q")
+        self.assertEqual(str(black_queen), "q")
 
 
 class BoardTestCase(unittest.TestCase):
