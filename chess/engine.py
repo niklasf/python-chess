@@ -2276,6 +2276,8 @@ class SimpleAnalysisResult:
         return future.result()
 
     def __iter__(self):
+        with self.simple_engine._not_shut_down():
+            self.simple_engine.protocol.loop.call_soon_threadsafe(self.inner.__aiter__)
         return self
 
     def __next__(self):
