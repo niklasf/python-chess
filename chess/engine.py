@@ -304,11 +304,11 @@ class PovScore:
 
     def white(self):
         """Get the score from White's point of view."""
-        return self.relative if self.turn else -self.relative
+        return self.pov(chess.WHITE)
 
     def black(self):
         """Get the score from Black's point of view."""
-        return -self.relative if self.turn else self.relative
+        return self.pov(chess.BLACK)
 
     def pov(self, color):
         """Get the score from the point of view of the given *color*."""
@@ -464,7 +464,7 @@ class Mate(Score):
         elif self.moves > 0:
             return mate_score - self.moves
         else:
-            return -mate_score + self.moves
+            return -mate_score - self.moves
 
     def __str__(self):
         return "#+{}".format(self.moves) if self.moves > 0 else "#-{}".format(abs(self.moves))

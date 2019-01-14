@@ -3191,22 +3191,26 @@ class EngineTestCase(unittest.TestCase):
 
         for i, a in enumerate(order):
             for j, b in enumerate(order):
-                self.assertEqual(i < j, a < b, "{} < {}".format(a, b))
+                self.assertEqual(i < j, a < b, "{!r} < {!r}".format(a, b))
+                self.assertEqual(i == j, a == b, "{!r} == {!r}".format(a, b))
                 self.assertEqual(i <= j, a <= b)
-                self.assertEqual(i == j, a == b)
                 self.assertEqual(i != j, a != b)
                 self.assertEqual(i > j, a > b)
                 self.assertEqual(i >= j, a >= b)
+                self.assertEqual(i < j, a.score(mate_score=100000) < b.score(mate_score=100000))
 
     def test_score(self):
         # Negation.
         self.assertEqual(-chess.engine.Cp(+20), chess.engine.Cp(-20))
         self.assertEqual(-chess.engine.Mate(+4), chess.engine.Mate(-4))
+        self.assertEqual(-chess.engine.Mate(-0), chess.engine.MateGiven)
+        self.assertEqual(-chess.engine.MateGiven, chess.engine.Mate(-0))
 
         # Score.
         self.assertEqual(chess.engine.Cp(-300).score(), -300)
         self.assertEqual(chess.engine.Mate(+5).score(), None)
         self.assertEqual(chess.engine.Mate(+5).score(mate_score=100000), 99995)
+        self.assertEqual(chess.engine.Mate(-7).score(mate_score=100000), -99993)
 
         # Mate.
         self.assertEqual(chess.engine.Cp(-300).mate(), None)
