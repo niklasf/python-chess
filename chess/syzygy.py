@@ -1043,7 +1043,7 @@ class WdlTable(Table):
                 return
 
             if not self.check_magic(self.variant.tbw_magic) and (self.has_pawns or self.variant.pawnless_tbw_magic is None or not self.check_magic(self.variant.pawnless_tbw_magic)):
-                raise IOError("invalid magic header: ensure {} is a valid syzygy tablebase file".format(self.path))
+                raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1255,7 +1255,7 @@ class DtzTable(Table):
                 return
 
             if not self.check_magic(self.variant.tbz_magic) and (self.has_pawns or self.variant.pawnless_tbz_magic is None or not self.check_magic(self.variant.pawnless_tbz_magic)):
-                raise IOError("invalid magic header: ensure {} is a valid syzygy tablebase file".format(self.path))
+                raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
 
             self.factor = [0 for _ in range(TBPIECES)]
             self.norm = [0 for _ in range(self.num)]

@@ -567,8 +567,8 @@ class ThreeCheckBoard(chess.Board):
 
     def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
         epd = [super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
-               "%d+%d" % (max(self.remaining_checks[chess.WHITE], 0),
-                          max(self.remaining_checks[chess.BLACK], 0))]
+               "{:d}+{:d}".format(max(self.remaining_checks[chess.WHITE], 0),
+                                  max(self.remaining_checks[chess.BLACK], 0))]
         if operations:
             epd.append(self._epd_operations(operations))
         return " ".join(epd)
@@ -826,7 +826,7 @@ class CrazyhouseBoard(chess.Board):
     def epd(self, shredder=False, en_passant="legal", promoted=None, **operations):
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
-        return "%s[%s%s] %s" % (board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
+        return "{}[{}{}] {}".format(board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
 
     def copy(self, stack=True):
         board = super().copy(stack=stack)

@@ -213,23 +213,23 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
             try:
                 value = int(value)
             except ValueError:
-                raise EngineError("expected integer for spin option {}, got: {}".format(self.name, repr(value)))
+                raise EngineError("expected integer for spin option {!r}, got: {!r}".format(self.name, value))
             if self.min is not None and value < self.min:
-                raise EngineError("expected value for option {} to be at least {}, got: {}".format(self.name, self.min, value))
+                raise EngineError("expected value for option {!r} to be at least {}, got: {}".format(self.name, self.min, value))
             if self.max is not None and self.max < value:
-                raise EngineError("expected value for option {} to be at most {}, got: {}".format(self.name, self.max, value))
+                raise EngineError("expected value for option {!r} to be at most {}, got: {}".format(self.name, self.max, value))
             return value
         elif self.type == "combo":
             value = str(value)
             if value not in (self.var or []):
-                raise EngineError("invalid value for combo option {}, got: {} (available: {})".format(self.name, value, ", ".join(self.var)))
+                raise EngineError("invalid value for combo option {!r}, got: {} (available: {})".format(self.name, value, ", ".join(self.var)))
             return value
         elif self.type in ["button", "reset", "save"]:
             return None
         elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
-                raise EngineError("invalid line-break in string option {}".format(self.name))
+                raise EngineError("invalid line-break in string option {!r}".format(self.name))
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
@@ -258,7 +258,7 @@ class Limit:
     def __repr__(self):
         return "{}({})".format(
             type(self).__name__,
-            ", ".join("{}={}".format(attr, repr(getattr(self, attr)))
+            ", ".join("{}={!r}".format(attr, getattr(self, attr))
                       for attr in ["time", "depth", "nodes", "mate", "white_clock", "black_clock", "white_inc", "black_inc", "remaining_moves"]
                       if getattr(self, attr) is not None))
 
@@ -273,7 +273,7 @@ class PlayResult:
         self.draw_offered = draw_offered
 
     def __repr__(self):
-        return "<{} at {} (move={}, ponder={}, info={}, draw_offered={})>".format(type(self).__name__, hex(id(self)), self.move, self.ponder, self.info, self.draw_offered)
+        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={})>".format(type(self).__name__, id(self), self.move, self.ponder, self.info, self.draw_offered)
 
 
 class Info(_IntFlag):
@@ -319,7 +319,7 @@ class PovScore:
         return self.relative.is_mate()
 
     def __repr__(self):
-        return "PovScore({}, {})".format(repr(self.relative), "WHITE" if self.turn else "BLACK")
+        return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
     def __str__(self):
         return str(self.relative)
@@ -434,10 +434,10 @@ class Cp(Score):
         return self.cp
 
     def __str__(self):
-        return "+{}".format(self.cp) if self.cp > 0 else str(self.cp)
+        return "+{:d}".format(self.cp) if self.cp > 0 else str(self.cp)
 
     def __repr__(self):
-        return "Cp({})".format(str(self))
+        return "Cp({})".format(self)
 
     def __neg__(self):
         return Cp(-self.cp)
@@ -470,7 +470,7 @@ class Mate(Score):
         return "#+{}".format(self.moves) if self.moves > 0 else "#-{}".format(abs(self.moves))
 
     def __repr__(self):
-        return ("Mate(+{})" if self.moves > 0 else "Mate(-{})").format(abs(self.moves))
+        return "Mate({})".format(str(self).lstrip("#"))
 
     def __neg__(self):
         return MateGiven if not self.moves else Mate(-self.moves)
@@ -657,7 +657,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         return (yield from command.result)
 
     def __repr__(self):
-        pid = self.transport.get_pid() if self.transport is not None else None
+        pid = self.transport.get_pid() if self.transport is not None else "?"
         return "<{} (pid={})>".format(type(self).__name__, pid)
 
     @abc.abstractmethod
@@ -876,7 +876,7 @@ class BaseCommand:
         pass
 
     def __repr__(self):
-        return "<{} at {} (state={}, result={}, finished={}>".format(type(self).__name__, hex(id(self)), self.state, self.result, self.finished)
+        return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
 
 
 class UciProtocol(EngineProtocol):
@@ -1439,7 +1439,7 @@ class UciOptionMap(collections.abc.MutableMapping):
         return self.copy()
 
     def __repr__(self):
-        return "{}({})".format(type(self).__name__, dict(self.items()))
+        return "{}({!r})".format(type(self).__name__, dict(self.items()))
 
 
 class XBoardProtocol(EngineProtocol):
@@ -2227,9 +2227,8 @@ class SimpleEngine:
         self.close()
 
     def __repr__(self):
-        # This happens to be threadsafe.
-        pid = self.transport.get_pid()
-        return "<{} (pid={}>".format(type(self).__name__, pid)
+        pid = self.transport.get_pid()  # This happens to be thread-safe.
+        return "<{} (pid={})>".format(type(self).__name__, pid)
 
 
 class SimpleAnalysisResult:

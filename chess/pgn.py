@@ -392,8 +392,8 @@ class GameNode:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self):
-        return "<GameNode at {} ({}{} {} ...)>".format(
-            hex(id(self)),
+        return "<GameNode at {:#x} ({}{} {} ...)>".format(
+            id(self),
             self.parent.board().fullmove_number,
             "." if self.parent.board().turn == chess.WHITE else "...",
             self.san())
@@ -491,10 +491,10 @@ class Game(GameNode):
         return cls(headers={})
 
     def __repr__(self):
-        return "<Game at {} ({} vs. {}, {})>".format(
-            hex(id(self)),
-            repr(self.headers.get("White", "?")),
-            repr(self.headers.get("Black", "?")),
+        return "<Game at {:#x} ({!r} vs. {!r}, {!r})>".format(
+            id(self),
+            self.headers.get("White", "?"),
+            self.headers.get("Black", "?"),
             self.headers.get("Date", "????.??.??"))
 
 
@@ -549,9 +549,9 @@ class Headers(collections.abc.MutableMapping):
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
         elif not TAG_NAME_REGEX.match(key):
-            raise ValueError("non-alphanumeric pgn header tag: {}".format(repr(key)))
+            raise ValueError("non-alphanumeric pgn header tag: {!r}".format(key))
         elif "\n" in value or "\r" in value:
-            raise ValueError("line break in pgn header {}: {}".format(key, repr(value)))
+            raise ValueError("line break in pgn header {}: {!r}".format(key, value))
         else:
             self._others[key] = value
 
@@ -586,7 +586,7 @@ class Headers(collections.abc.MutableMapping):
     def __repr__(self):
         return "{}({})".format(
             type(self).__name__,
-            ", ".join("{}={}".format(key, repr(value)) for key, value in self.items()))
+            ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
 
 class Mainline:
@@ -619,7 +619,7 @@ class Mainline:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self):
-        return "<Mainline at {} ({})>".format(hex(id(self)), self.accept(StringExporter(columns=None, comments=False)))
+        return "<Mainline at {:#x} ({})>".format(id(self), self.accept(StringExporter(columns=None, comments=False)))
 
 
 class ReverseMainline:
@@ -647,7 +647,7 @@ class ReverseMainline:
         return Mainline(self.stop, self.f)
 
     def __repr__(self):
-        return "<ReverseMainline at {} ({})>".format(hex(id(self)), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
+        return "<ReverseMainline at {:#x} ({})>".format(id(self), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
 
 
 class BaseVisitor:
@@ -1013,7 +1013,7 @@ class FileExporter(StringExporter):
         return None
 
     def __repr__(self):
-        return "<FileExporter at {}>".format(hex(id(self)))
+        return "<FileExporter at {:#x}>".format(id(self))
 
     def __str__(self):
         return self.__repr__()

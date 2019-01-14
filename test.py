@@ -4342,7 +4342,7 @@ class CrazyhouseTestCase(unittest.TestCase):
         engine.info_handlers.append(info_handler)
 
         mock.expect("setoption name UCI_Variant value crazyhouse")
-        mock.expect("position fen %s" % fen)
+        mock.expect("position fen {}".format(fen))
         engine.position(board)
 
         mock.expect("go", ("info pv B@f4 P@g3", "bestmove B@f4"))

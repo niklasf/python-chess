@@ -1536,7 +1536,7 @@ class PythonTablebase:
         """
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {}".format(repr(directory)))
+            raise IOError("not a directory: {!r}".format(directory))
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
@@ -1937,7 +1937,7 @@ class NativeTablebase:
 
     def add_directory(self, directory):
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {}".format(repr(directory)))
+            raise IOError("not a directory: {!r}".format(directory))
 
         self.paths.append(directory)
         self._tb_restart()
