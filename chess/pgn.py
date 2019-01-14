@@ -1077,7 +1077,7 @@ def read_game(handle, *, Visitor=GameCreator):
     managed_headers = None
 
     # Ignore leading empty lines and comments.
-    line = handle.readline()
+    line = handle.readline().lstrip("\ufeff")
     while line.isspace() or line.startswith("%") or line.startswith(";"):
         line = handle.readline()
 
