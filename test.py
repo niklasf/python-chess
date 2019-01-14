@@ -3268,8 +3268,13 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
+        engine = chess.engine.SimpleEngine.popen_uci("stockfish", debug=True)
+
+        with engine:
             engine.quit()
+
+        with self.assertRaises(chess.engine.EngineTerminatedError), engine:
+            engine.ping()
 
     @catchAndSkip(FileNotFoundError, "need crafty")
     def test_crafty_play_to_mate(self):
