@@ -3260,6 +3260,12 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+3))
             self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-3))
 
+            # Exhaust remaining information.
+            for info in analysis:
+                pass
+            for info in analysis:
+                self.fail("all info should have been consumed")
+
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
