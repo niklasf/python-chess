@@ -314,6 +314,10 @@ class PovScore:
         """Get the score from the point of view of the given *color*."""
         return self.relative if self.turn == color else -self.relative
 
+    def is_mate(self):
+        """Tests if this is a mate score."""
+        return self.relative.is_mate()
+
     def __repr__(self):
         return "PovScore({}, {})".format(repr(self.relative), "WHITE" if self.turn else "BLACK")
 

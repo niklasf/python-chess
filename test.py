@@ -3241,13 +3241,20 @@ class EngineTestCase(unittest.TestCase):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
             limit = chess.engine.Limit(depth=20)
-            with engine.analysis(board, limit) as analysis:
+            analysis = engine.analysis(board, limit)
+            with analysis:
+                for info in iter(analysis.next, None):
+                    if "score" in info and info["score"].is_mate():
+                        break
+                else:
+                    self.fail("never found a mate score")
+
                 for info in analysis:
                     if "score" in info and info["score"].white() >= chess.engine.Mate(+3):
                         break
-                self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+3))
-                self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-3))
-            engine.quit()
+            analysis.wait()
+            self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+3))
+            self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-3))
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
