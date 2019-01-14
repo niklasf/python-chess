@@ -3635,6 +3635,9 @@ class SyzygyTestCase(unittest.TestCase):
     def test_normalize_nnvbb(self):
         self.assertEqual(chess.syzygy.normalize_tablename("KNNvKBB"), "KBBvKNN")
 
+    def test_dependencies(self):
+        self.assertEqual(set(chess.syzygy.dependencies("KBNvK")), set(["KBvK", "KNvK"]))
+
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy/regular/KBNvK.rtbw")
         wdl.init_table_wdl()
