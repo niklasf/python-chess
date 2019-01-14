@@ -25,6 +25,7 @@ import threading
 
 import chess
 
+
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
@@ -551,10 +552,13 @@ class Table:
         self.path = path
         self.variant = variant
 
+        self.write_lock = threading.RLock()
         self.initialized = False
-        self.lock = threading.Lock()
         self.fd = None
         self.data = None
+
+        self.read_condition = threading.Condition()
+        self.read_count = 0
 
         tablename, _ = os.path.splitext(os.path.basename(path))
         self.key = normalize_tablename(tablename)
@@ -594,13 +598,14 @@ class Table:
                         self.enc_type = 1 + j
 
     def init_mmap(self):
-        # Open fd.
-        if self.fd is None:
-            self.fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+        with self.write_lock:
+            # Open fd.
+            if self.fd is None:
+                self.fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
-        # Open mmap.
-        if self.data is None:
-            self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+            # Open mmap.
+            if self.data is None:
+                self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
     def check_magic(self, magic):
         return self.data[:min(len(self.data), len(magic))] == magic
@@ -1008,17 +1013,22 @@ class Table:
         return UINT16.unpack_from(self.data, data_ptr)[0]
 
     def close(self):
-        if self.data is not None:
-            self.data.close()
+        with self.write_lock:
+            with self.read_condition:
+                while self.read_count > 0:
+                    self.read_condition.wait()
 
-        if self.fd is not None:
-            try:
-                os.close(self.fd)
-            except OSError:
-                pass
+                if self.data is not None:
+                    self.data.close()
 
-        self.data = None
-        self.fd = None
+                if self.fd is not None:
+                    try:
+                        os.close(self.fd)
+                    except OSError:
+                        pass
+
+                self.data = None
+                self.fd = None
 
     def __enter__(self):
         return self
@@ -1030,7 +1040,7 @@ class Table:
 class WdlTable(Table):
 
     def init_table_wdl(self):
-        with self.lock:
+        with self.write_lock:
             self.init_mmap()
 
             if self.initialized:
@@ -1169,6 +1179,16 @@ class WdlTable(Table):
         self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
     def probe_wdl_table(self, board):
+        try:
+            with self.read_condition:
+                self.read_count += 1
+            return self._probe_wdl_table(board)
+        finally:
+            with self.read_condition:
+                self.read_count -= 1
+                self.read_condition.notify()
+
+    def _probe_wdl_table(self, board):
         self.init_table_wdl()
 
         key = calc_key(board)
@@ -1228,15 +1248,11 @@ class WdlTable(Table):
 
         return res - 2
 
-    def close(self):
-        with self.lock:
-            super().close()
-
 
 class DtzTable(Table):
 
     def init_table_dtz(self):
-        with self.lock:
+        with self.write_lock:
             self.init_mmap()
 
             if self.initialized:
@@ -1334,6 +1350,16 @@ class DtzTable(Table):
             self.initialized = True
 
     def probe_dtz_table(self, board, wdl):
+        try:
+            with self.read_condition:
+                self.read_count += 1
+            return self._probe_dtz_table(board, wdl)
+        finally:
+            with self.read_condition:
+                self.read_count -= 1
+                self.read_condition.notify()
+
+    def _probe_dtz_table(self, board, wdl):
         self.init_table_dtz()
 
         key = calc_key(board)
@@ -1435,10 +1461,6 @@ class DtzTable(Table):
         self.files[f].factor = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size] = self.calc_factors_pawn(self.files[f].factor, order, order2, self.files[f].norm, f)
 
-    def close(self):
-        with self.lock:
-            super().close()
-
 
 class Tablebase:
     """
@@ -1453,6 +1475,7 @@ class Tablebase:
 
         self.max_fds = max_fds
         self.lru = collections.deque()
+        self.lru_lock = threading.Lock()
 
         self.wdl = {}
         self.dtz = {}
@@ -1461,14 +1484,15 @@ class Tablebase:
         if self.max_fds is None:
             return
 
-        try:
-            self.lru.remove(table)
-            self.lru.appendleft(table)
-        except ValueError:
-            self.lru.appendleft(table)
+        with self.lru_lock:
+            try:
+                self.lru.remove(table)
+                self.lru.appendleft(table)
+            except ValueError:
+                self.lru.appendleft(table)
 
-            if len(self.lru) > self.max_fds:
-                self.lru.pop().close()
+                if len(self.lru) > self.max_fds:
+                    self.lru.pop().close()
 
     def _open_table(self, hashtable, Table, path):
         table = Table(path, variant=self.variant)
