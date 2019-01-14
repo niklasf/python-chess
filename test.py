@@ -3638,6 +3638,11 @@ class SyzygyTestCase(unittest.TestCase):
     def test_dependencies(self):
         self.assertEqual(set(chess.syzygy.dependencies("KBNvK")), set(["KBvK", "KNvK"]))
 
+    def test_get_wdl_get_dtz(self):
+        with chess.syzygy.Tablebase() as tables:
+            board = chess.Board()
+            self.assertEqual(tables.get_dtz(board, tables.get_wdl(board)), None)
+
     def test_probe_pawnless_wdl_table(self):
         wdl = chess.syzygy.WdlTable("data/syzygy/regular/KBNvK.rtbw")
         wdl.init_table_wdl()
