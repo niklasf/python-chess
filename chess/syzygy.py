@@ -1020,15 +1020,11 @@ class Table:
 
                 if self.data is not None:
                     self.data.close()
+                    self.data = None
 
                 if self.fd is not None:
-                    try:
-                        os.close(self.fd)
-                    except OSError:
-                        pass
-
-                self.data = None
-                self.fd = None
+                    os.close(self.fd)
+                    self.fd = None
 
     def __enter__(self):
         return self
