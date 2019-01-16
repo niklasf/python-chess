@@ -119,7 +119,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
         ``depth``, ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``,
         ``tbhits``, ``multipv``.
 
-        Others: ``currmove``, ``currmovenumber``, ``hashfull``
+        Others: ``currmove``, ``currmovenumber``, ``hashfull``,
         ``cpuload``, ``refutation``, ``currline``, ``ebf`` and ``string``.
 
     .. py:attribute:: draw_offered

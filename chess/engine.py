@@ -342,8 +342,8 @@ class Score(abc.ABC):
     Evaluation of a position.
 
     The score can be :class:`~chess.engine.Cp` (centi-pawns),
-    :class:`~chess.engine.Mate` or ``MateGiven``. A positive value indicates
-    an advantage.
+    :class:`~chess.engine.Mate` or :py:data:`~chess.engine.MateGiven`.
+    A positive value indicates an advantage.
 
     There is a total order defined on centi-pawn and mate scores.
 
@@ -1976,13 +1976,13 @@ def _parse_xboard_post(line, root_board, selector=INFO_ALL):
 class AnalysisResult:
     """
     Handle to ongoing engine analysis.
+    Returned by :func:`chess.engine.EngineProtocol.analysis()`.
 
     Can be used to asynchronously iterate over information sent by the engine.
 
     Automatically stops the analysis when used as a context manager.
-
-    Returned by :func:`chess.engine.EngineProtocol.analysis()`.
     """
+
     def __init__(self, stop=None):
         self._stop = stop
         self._queue = asyncio.Queue()
