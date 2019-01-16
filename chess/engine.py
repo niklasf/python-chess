@@ -2096,15 +2096,15 @@ class SimpleEngine:
     the same methods and attributes as :class:`~chess.engine.EngineProtocol`,
     with blocking functions instead of coroutines.
 
-    Methods will raise :class:`asyncio.TimeoutError` if an operation takes
-    *timeout* seconds longer than expected (unless *timeout* is ``None``).
-
-    Automatically closes the transport when used as a context manager.
-
     You may not concurrently modify objects passed to any of the methods. Other
     than that :class:`~chess.engine.SimpleEngine` is thread-safe. When sending
     a new command to the engine, any previous running command will be cancelled
     as soon as possible.
+
+    Methods will raise :class:`asyncio.TimeoutError` if an operation takes
+    *timeout* seconds longer than expected (unless *timeout* is ``None``).
+
+    Automatically closes the transport when used as a context manager.
     """
 
     def __init__(self, transport, protocol, *, timeout=10.0):
@@ -2115,6 +2115,8 @@ class SimpleEngine:
         self._shutdown_lock = threading.Lock()
         self._shutdown = False
         self.shutdown_event = asyncio.Event(loop=self.protocol.loop)
+
+        self.returncode = concurrent.futures.Future()
 
     def _timeout_for(self, limit):
         if self.timeout is None or limit is None or limit.time is None:
@@ -2200,7 +2202,8 @@ class SimpleEngine:
             transport, protocol = yield from asyncio.wait_for(Protocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
             simple_engine = cls(transport, protocol, timeout=timeout)
             future.set_result(simple_engine)
-            yield from protocol.returncode
+            returncode = yield from protocol.returncode
+            simple_engine.returncode.set_result(returncode)
             simple_engine.close()
             yield from simple_engine.shutdown_event.wait()
 
