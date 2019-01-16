@@ -2114,7 +2114,7 @@ class SimpleEngine:
 
         self._shutdown_lock = threading.Lock()
         self._shutdown = False
-        self._shutdown_event = asyncio.Event()
+        self.shutdown_event = asyncio.Event(loop=self.protocol.loop)
 
     def _timeout_for(self, limit):
         if self.timeout is None or limit is None or limit.time is None:
@@ -2185,11 +2185,13 @@ class SimpleEngine:
         return future.result()
 
     def close(self):
-        """Closes the transport and the background event loop."""
+        """
+        Closes the transport and the background event loop as soon as possible.
+        """
         with self._shutdown_lock:
             if not self._shutdown:
                 self._shutdown = True
-                self.protocol.loop.call_soon_threadsafe(lambda: (self.transport.close(), self._shutdown_event.set()))
+                self.protocol.loop.call_soon_threadsafe(lambda: (self.transport.close(), self.shutdown_event.set()))
 
     @classmethod
     def popen(cls, Protocol, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
@@ -2200,7 +2202,7 @@ class SimpleEngine:
             future.set_result(simple_engine)
             yield from protocol.returncode
             simple_engine.close()
-            yield from simple_engine._shutdown_event.wait()
+            yield from simple_engine.shutdown_event.wait()
 
         return run_in_background(background, debug=debug)
 
