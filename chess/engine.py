@@ -68,9 +68,7 @@ LOGGER = logging.getLogger(__name__)
 
 KORK = object()
 
-MANAGED_UCI_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
-
-MANAGED_XBOARD_OPTIONS = ["MultiPV"]  # Case sensitive
+MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
 
 
 class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
@@ -234,11 +232,12 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
         else:
             raise EngineError("unknown option type: {}", self.type)
 
-    def is_managed_uci(self):
-        return self.name.lower() in MANAGED_UCI_OPTIONS
-
-    def is_managed_xboard(self):
-        return self.name in MANAGED_XBOARD_OPTIONS
+    def is_managed(self):
+        """
+        Some options are managed automatically: ``UCI_Chess960``,
+        ``UCI_Variant``, ``UCI_AnalyseMode``, ``MultiPV``, ``Ponder``.
+        """
+        return self.name.lower() in MANAGED_OPTIONS
 
 
 class Limit:
@@ -676,7 +675,13 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     @asyncio.coroutine
     def configure(self, options):
-        """Configures global engine options."""
+        """
+        Configures global engine options.
+
+        :param options: A dictionary of engine options, where the keys are
+            names of :py:attr:`~options`. Do not set options that are
+            managed automatically (:func:`chess.engine.Option.is_managed()`).
+        """
 
     @abc.abstractmethod
     @asyncio.coroutine
@@ -1029,7 +1034,7 @@ class UciProtocol(EngineProtocol):
 
     def _configure(self, options):
         for name, value in options.items():
-            if name.lower() in MANAGED_UCI_OPTIONS:
+            if name.lower() in MANAGED_OPTIONS:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             else:
                 self._setoption(name, value)
@@ -1046,15 +1051,15 @@ class UciProtocol(EngineProtocol):
     def _position(self, board):
         # Select UCI_Variant and UCI_Chess960.
         uci_variant = type(board).uci_variant
-        if uci_variant != self._getoption("UCI_Variant", "chess"):
-            if "UCI_Variant" not in self.options:
-                raise EngineError("engine does not support UCI_Variant")
+        if "UCI_Variant" in self.options:
             self._setoption("UCI_Variant", uci_variant)
+        elif uci_variant != "chess":
+            raise EngineError("engine does not support UCI_Variant")
 
-        if board.chess960 != self._getoption("UCI_Chess960", False):
-            if "UCI_Chess960" not in self.options:
-                raise EngineError("engine does not support UCI_Chess960")
+        if "UCI_Chess960" in self.options:
             self._setoption("UCI_Chess960", board.chess960)
+        elif board.chess960:
+            raise EngineError("engine does not support UCI_Chess960")
 
         # Send starting position.
         builder = ["position"]
@@ -1196,10 +1201,12 @@ class UciProtocol(EngineProtocol):
                         self.end(engine)
 
             def end(self, engine):
+                # Restore options.
                 for name, value in previous_config.items():
-                    engine._setoption(name, value)
+                    if name.lower() not in MANAGED_OPTIONS:
+                        engine._setoption(name, value)
                 for name, option in engine.options.items():
-                    if name not in ["UCI_AnalyseMode", "Ponder"] and name not in previous_config and option.default is not None:
+                    if name.lower() not in MANAGED_OPTIONS and name not in previous_config and option.default is not None:
                         engine._setoption(name, option.default)
 
                 self.set_finished()
@@ -1250,10 +1257,12 @@ class UciProtocol(EngineProtocol):
                 self.analysis.post(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine, arg):
+                # Restore options.
                 for name, value in previous_config.items():
-                    engine._setoption(name, value)
+                    if name.lower() not in MANAGED_OPTIONS:
+                        engine._setoption(name, value)
                 for name, option in engine.options.items():
-                    if name not in ["UCI_AnalyseMode", "Ponder", "MultiPV"] and name not in previous_config and option.default is not None:
+                    if name.lower() not in MANAGED_OPTIONS and name not in previous_config and option.default is not None:
                         engine._setoption(name, option.default)
 
                 self.analysis.set_finished()
