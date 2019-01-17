@@ -21,6 +21,8 @@
 import concurrent.futures
 import shlex
 import threading
+import warnings
+import textwrap
 
 from chess._engine import EngineTerminatedException
 from chess._engine import EngineStateException
@@ -32,6 +34,15 @@ from chess._engine import _popen_engine
 from chess._engine import _spur_spawn_engine
 
 import chess
+
+
+warnings.warn(textwrap.dedent("""\
+    The chess.xboard module is deprecated in favor of
+    chess.engine <https://python-chess.readthedocs.io/en/latest/engine.html>.
+
+    Please consider updating and open an issue
+    <https://github.com/niklasf/python-chess/issues/new> if your use case
+    is not covered by the new API."""), DeprecationWarning, stacklevel=2)
 
 
 DUMMY_RESPONSES = [ENGINE_RESIGN, GAME_DRAW] = [-1, -2]

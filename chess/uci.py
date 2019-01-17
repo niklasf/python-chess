@@ -33,6 +33,17 @@ from chess._engine import _spur_spawn_engine
 import collections
 import concurrent.futures
 import threading
+import warnings
+import textwrap
+
+
+warnings.warn(textwrap.dedent("""\
+    The chess.uci module is deprecated in favor of
+    chess.engine <https://python-chess.readthedocs.io/en/latest/engine.html>.
+
+    Please consider updating and open an issue
+    <https://github.com/niklasf/python-chess/issues/new> if your use case
+    is not covered by the new API."""), DeprecationWarning, stacklevel=2)
 
 
 class Score(collections.namedtuple("Score", "cp mate")):
