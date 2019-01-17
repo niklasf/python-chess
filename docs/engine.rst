@@ -376,6 +376,11 @@ Reference
 
         Future: Exit code of the process.
 
+    .. py:attribute:: id
+
+        Dictionary of information about the engine. Common keys are ``name``
+        and ``author``.
+
 .. autoclass:: chess.engine.UciProtocol
 
 .. autoclass:: chess.engine.XBoardProtocol
