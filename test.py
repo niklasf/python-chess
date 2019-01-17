@@ -3364,6 +3364,8 @@ class EngineTestCase(unittest.TestCase):
             mock = chess.engine.MockTransport(protocol)
 
             # Pondering.
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
             mock.expect("position startpos")
             mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching ...", "bestmove d2d4 ponder d7d5"])
             mock.expect("position startpos moves d2d4 d7d5")

@@ -898,6 +898,7 @@ class UciProtocol(EngineProtocol):
         self.id = {}
         self.board = chess.Board()
         self.game = None
+        self.first_game = True
 
     @asyncio.coroutine
     def _initialize(self):
@@ -981,6 +982,7 @@ class UciProtocol(EngineProtocol):
 
     def _ucinewgame(self):
         self.send_line("ucinewgame")
+        self.first_game = False
 
     def debug(self, on=True):
         """
@@ -1138,6 +1140,7 @@ class UciProtocol(EngineProtocol):
             def start(self, engine):
                 self.info = {}
                 self.pondering = False
+                self.sent_isready = False
 
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", False)
@@ -1148,20 +1151,28 @@ class UciProtocol(EngineProtocol):
 
                 engine._configure(options)
 
-                if engine.game != game:
+                if engine.first_game or engine.game != game:
+                    engine.game = game
                     engine._ucinewgame()
-                engine.game = game
-
-                engine._position(board)
-                engine._go(limit, root_moves=root_moves)
+                    self.sent_isready = True
+                    engine._isready()
+                else:
+                    self._readyok(engine)
 
             def line_received(self, engine, line):
                 if line.startswith("info "):
                     self._info(engine, line.split(" ", 1)[1])
                 elif line.startswith("bestmove "):
                     self._bestmove(engine, line.split(" ", 1)[1])
+                elif line == "readyok" and self.sent_isready:
+                    self._readyok(engine)
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _readyok(self, engine):
+                self.sent_isready = False
+                engine._position(board)
+                engine._go(limit, root_moves=root_moves)
 
             def _info(self, engine, arg):
                 if not self.pondering:
@@ -1223,6 +1234,7 @@ class UciProtocol(EngineProtocol):
         class Command(BaseCommand):
             def start(self, engine):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+                self.sent_isready = False
 
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", True)
@@ -1232,10 +1244,26 @@ class UciProtocol(EngineProtocol):
 
                 engine._configure(options)
 
-                if engine.game != game:
+                if engine.first_game or engine.game != game:
+                    engine.game = game
                     engine._ucinewgame()
-                engine.game = game
+                    self.sent_isready = True
+                    engine._isready()
+                else:
+                    self._readyok(engine)
 
+            def line_received(self, engine, line):
+                if line.startswith("info "):
+                    self._info(engine, line.split(" ", 1)[1])
+                elif line.startswith("bestmove "):
+                    self._bestmove(engine, line.split(" ", 1)[1])
+                elif line == "readyok" and self.sent_isready:
+                    self._readyok(engine)
+                else:
+                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+
+            def _readyok(self, engine):
+                self.sent_isready = False
                 engine._position(board)
 
                 if limit:
@@ -1244,14 +1272,6 @@ class UciProtocol(EngineProtocol):
                     engine._go(Limit(), root_moves=root_moves, infinite=True)
 
                 self.result.set_result(self.analysis)
-
-            def line_received(self, engine, line):
-                if line.startswith("info "):
-                    self._info(engine, line.split(" ", 1)[1])
-                elif line.startswith("bestmove "):
-                    self._bestmove(engine, line.split(" ", 1)[1])
-                else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _info(self, engine, arg):
                 self.analysis.post(_parse_uci_info(arg, engine.board, info))
@@ -1468,6 +1488,7 @@ class XBoardProtocol(EngineProtocol):
         self.config = {}
         self.board = chess.Board()
         self.game = None
+        self.first_game = True
 
     @asyncio.coroutine
     def _initialize(self):
@@ -1559,8 +1580,9 @@ class XBoardProtocol(EngineProtocol):
         # Setup start position.
         root = board.root()
         new_options = "random" in options or "computer" in options
-        new_game = self.game != game or new_options or root != self.board.root()
+        new_game = self.first_game or self.game != game or new_options or root != self.board.root()
         self.game = game
+        self.first_game = False
         if new_game:
             self.board = root
             self.send_line("new")
