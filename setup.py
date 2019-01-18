@@ -21,17 +21,18 @@ import os
 import platform
 import re
 import sys
+import textwrap
 
 import setuptools
 
 
 if sys.version_info < (3, ):
-    raise ImportError(
-        """You are installing python-chess on Python 2.
+    raise ImportError(textwrap.dedent("""\
+        You are trying to install python-chess on Python 2.
 
-Python 2 support has been dropped. Consider upgrading to Python 3, or using
-the 0.23.x branch, which will be maintained until the end of 2018.
-""")
+        The last compatible branch was 0.23.x, which was supported until the
+        end of 2018. Consider upgrading to Python 3.
+        """))
 
 import chess
 
