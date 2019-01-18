@@ -1,6 +1,27 @@
 Changelog for python-chess
 ==========================
 
+New in v0.25.0
+--------------
+
+New features:
+
+* This release introduces a new **experimental API for chess engine
+  communication**, `chess.engine`, based on `asyncio`. It is intended to
+  eventually replace `chess.uci` and `chess.xboard`.
+
+Bugfixes:
+
+* Fixed race condition in LRU-cache of open Syzygy tables. The LRU-cache is
+  enabled by default (*max_fds*).
+* Fix deprecation warning and unclosed file in setup.py.
+  Thanks Mickaël Schoentgen.
+
+Changes:
+
+* `chess.pgn.read_game()` now ignores BOM at the start of the stream.
+* Removed deprecated items.
+
 New in v0.24.2
 --------------
 
