@@ -1311,7 +1311,3 @@ def skip_game(handle):
     Skip a game. Returns ``True`` if a game was found and skipped.
     """
     return read_game(handle, Visitor=SkipVisitor)
-
-
-# TODO: Deprecated
-GameModelCreator = GameCreator
