@@ -243,7 +243,9 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
 class Limit:
     """Search termination condition."""
 
-    def __init__(self, *, time=None, depth=None, nodes=None, mate=None, white_clock=None, black_clock=None, white_inc=None, black_inc=None, remaining_moves=None):
+    def __init__(self, *, time=None, depth=None, nodes=None, mate=None,
+                 white_clock=None, black_clock=None, white_inc=None,
+                 black_inc=None, remaining_moves=None):
         self.time = time
         self.depth = depth
         self.nodes = nodes

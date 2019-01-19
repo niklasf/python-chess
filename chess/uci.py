@@ -506,7 +506,10 @@ class Engine:
                 # Ignore extra spaces. Those can not be directly discarded,
                 # because they may occur in the string parameter.
                 pass
-            elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
+            elif token in ["depth", "seldepth", "time", "nodes", "pv",
+                           "multipv", "score", "currmove", "currmovenumber",
+                           "hashfull", "nps", "tbhits", "cpuload",
+                           "refutation", "currline", "ebf", "string"]:
                 end_of_parameter()
                 current_parameter = token
 
