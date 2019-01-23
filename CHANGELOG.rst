@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v0.25.1
+--------------
+
+Bugfixes:
+
+* `chess.engine` did not correctly handle Windows-style line endings.
+  Thanks @Bstylestuff.
+
 New in v0.25.0
 --------------
 
