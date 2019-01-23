@@ -598,7 +598,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         stdin.write(b"\n")
 
     def pipe_data_received(self, fd, data):
-        self.buffer[fd].extend(data)
+        self.buffer[fd].extend(data.replace(b"\r\n", b"\n"))
         while b"\n" in self.buffer[fd]:
             line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
             line = line.decode("utf-8")
