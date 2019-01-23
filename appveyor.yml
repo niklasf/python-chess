@@ -1,0 +1,18 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python37"
+
+build: off
+
+install:
+  # Stockfish
+  - ps: Start-FileDownload "https://stockfishchess.org/files/stockfish-10-win.zip"
+  - 7z e stockfish-10-win.zip stockfish-10-win/Windows/*.exe
+  - ren stockfish_10_x64_popcnt.exe stockfish.exe
+  - set PATH=%cd%;%PATH%
+
+test_script:
+  - "%PYTHON%\\python.exe test.py -vv"
