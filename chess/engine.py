@@ -532,7 +532,7 @@ class MockTransport:
         return self
 
     def write(self, data):
-        self.stdin_buffer.extend(data.replace(b"\r\n", b"\n"))
+        self.stdin_buffer.extend(data)
         while b"\n" in self.stdin_buffer:
             line, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)
             line = line.decode("utf-8")
