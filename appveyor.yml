@@ -1,0 +1,11 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python37"
+
+build: off
+
+test_script:
+  - "%PYTHON%\\python.exe test.py"
