@@ -60,6 +60,11 @@ def read_description():
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
         "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
+    # Show Appveyor build status of the concrete version.
+    description = description.replace(
+        "/y9k3hdbm0f0nbum9/branch/master",
+        "/y9k3hdbm0f0nbum9/branch/v{}".format(chess.__version__))
+
     # Remove doctest comments.
     description = re.sub(r"\s*# doctest:.*", "", description)
 
