@@ -36,14 +36,14 @@ import re
 import itertools
 
 
+Color = bool
 COLORS = [WHITE, BLACK] = [True, False]
 COLOR_NAMES = ["black", "white"]
-Color = bool
 
+PieceType = int
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
-PieceType = int
 
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
@@ -106,6 +106,7 @@ STATUS_RACE_OVER = Status.RACE_OVER
 STATUS_RACE_MATERIAL = Status.RACE_MATERIAL
 
 
+Square = int
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -115,7 +116,6 @@ SQUARES = [
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8] = range(64)
-Square = int
 
 SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
 
@@ -148,6 +148,7 @@ def square_mirror(square):
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 
+Bitboard = int
 BB_EMPTY = 0
 BB_ALL = 0xffffffffffffffff
 
@@ -287,7 +288,7 @@ def shift_down_right(b):
 
 
 def _sliding_attacks(square, occupied, deltas):
-    attacks = 0
+    attacks = BB_EMPTY
 
     for delta in deltas:
         sq = square
@@ -318,7 +319,7 @@ def _edges(square):
 
 def _carry_rippler(mask):
     # Carry-Rippler trick to iterate subsets of mask.
-    subset = 0
+    subset = BB_EMPTY
     while True:
         yield subset
         subset = (subset - mask) & mask
@@ -363,8 +364,8 @@ def _rays():
                 rays_row.append(BB_FILE_ATTACKS[a][0] | bb_a)
                 between_row.append(BB_FILE_ATTACKS[a][BB_FILE_MASKS[a] & bb_b] & BB_FILE_ATTACKS[b][BB_FILE_MASKS[b] & bb_a])
             else:
-                rays_row.append(0)
-                between_row.append(0)
+                rays_row.append(BB_EMPTY)
+                between_row.append(BB_EMPTY)
         rays.append(rays_row)
         between.append(between_row)
     return rays, between
