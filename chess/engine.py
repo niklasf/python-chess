@@ -868,7 +868,10 @@ class BaseCommand:
 
     def _line_received(self, engine, line):
         assert self.state in [CommandState.Active, CommandState.Cancelling]
-        self.line_received(engine, line)
+        try:
+            self.line_received(engine, line)
+        except EngineError as err:
+            self._handle_exception(engine, err)
 
     def cancel(self, engine):
         pass
