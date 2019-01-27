@@ -3,79 +3,59 @@
 
 """Run an EPD test suite with an UCI engine."""
 
-import chess
-import chess.uci
-import chess.variant
+import asyncio
 import time
 import argparse
 import itertools
 import logging
 import sys
 
+import chess
+import chess.engine
+import chess.variant
 
-def test_epd(engine, epd, VariantBoard, threads, movetime):
-    position = VariantBoard()
-    epd_info = position.set_epd(epd)
-    epd_string = "%s" % epd_info.get("id", position.fen())
+
+async def test_epd(engine, epd, VariantBoard, movetime):
+    board, epd_info = VariantBoard.from_epd(epd)
+    epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:
-        epd_string = "%s (avoid %s)" % (epd_string, " and ".join(position.san(am) for am in epd_info["am"]))
+        epd_string = "{} (avoid {})".format(epd_string, " and ".join(board.san(am) for am in epd_info["am"]))
     if "bm" in epd_info:
-        epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
+        epd_string = "{} (expect {})".format(epd_string, " or ".join(board.san(bm) for bm in epd_info["bm"]))
 
-    engine.ucinewgame()
-    engine.setoption({
-        "UCI_Variant": VariantBoard.uci_variant,
-        "Threads": threads
-    })
-    engine.position(position)
+    limit = chess.engine.Limit(time=movetime)
+    result = await engine.play(board, limit, game=object())
 
-    enginemove, _ = engine.go(movetime=movetime)
-
-    if "am" in epd_info and enginemove in epd_info["am"]:
-        print("%s: %s | +0" % (epd_string, position.san(enginemove)))
+    if "am" in epd_info and result.move in epd_info["am"]:
+        print("{}: {} | +0".format(epd_string, board.san(result.move)))
         return 0.0
-    elif "bm" in epd_info and enginemove not in epd_info["bm"]:
-        print("%s: %s | +0" % (epd_string, position.san(enginemove)))
+    elif "bm" in epd_info and result.move not in epd_info["bm"]:
+        print("{}: {} | +0".format(epd_string, board.san(result.move)))
         return 0.0
     else:
-        print("%s: %s | +1" % (epd_string, position.san(enginemove)))
+        print("{}: {} | +1".format(epd_string, board.san(result.move)))
         return 1.0
 
 
-def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime):
-    info_handler = chess.uci.InfoHandler()
-    engine.info_handlers.append(info_handler)
-
-    position = VariantBoard()
-    epd_info = position.set_epd(epd)
-    epd_string = "%s" % epd_info.get("id", position.fen())
+async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
+    board, epd_info = VariantBoard.from_epd(epd)
+    epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:
-        epd_string = "%s (avoid %s)" % (epd_string, " and ".join(position.san(am) for am in epd_info["am"]))
+        epd_string = "{} (avoid {})".format(epd_string, " and ".join(board.san(am) for am in epd_info["am"]))
     if "bm" in epd_info:
-        epd_string = "%s (expect %s)" % (epd_string, " or ".join(position.san(bm) for bm in epd_info["bm"]))
+        epd_string = "{} (expect {})".format(epd_string, " or ".join(board.san(bm) for bm in epd_info["bm"]))
 
-    engine.ucinewgame()
-    engine.setoption({
-        "UCI_Variant": VariantBoard.uci_variant,
-        "Threads": threads
-    })
-    engine.position(position)
-
-    # Search in background
-    search = engine.go(infinite=True, async_callback=True)
-
+    # Start analysis.
     score = 0.0
+    print("{}:".format(epd_string), end=" ", flush=True)
+    with await engine.analysis(board, game=object()) as analysis:
+        for step in range(0, 4):
+            await asyncio.sleep(movetime / 4)
 
-    print("%s:" % epd_string, end=" ", flush=True)
-
-    for step in range(0, 3):
-        time.sleep(movetime / 4000.0)
-
-        # Assess the current principal variation.
-        with info_handler as info:
-            if 1 in info["pv"] and len(info["pv"][1]) >= 1:
-                move = info["pv"][1][0]
-                print("(%s)" % position.san(move), end=" ", flush=True)
+            # Assess the current principal variation.
+            if "pv" in analysis.info and len(analysis.info["pv"]) >= 1:
+                move = analysis.info["pv"][0]
+                print(board.san(move), end=" ", flush=True)
                 if "am" in epd_info and move in epd_info["am"]:
                     continue  # fail
                 elif "bm" in epd_info and move not in epd_info["bm"]:
@@ -85,35 +65,28 @@ def test_epd_with_fractional_scores(engine, epd, VariantBoard, threads, movetime
             else:
                 print("(no pv)", end=" ", flush=True)
 
-    # Assess the final best move by the engine.
-    time.sleep(movetime / 4000.0)
-    engine.stop()
-    enginemove, _ = search.result()
-    if "am" in epd_info and enginemove in epd_info["am"]:
-        pass  # fail
-    elif "bm" in epd_info and enginemove not in epd_info["bm"]:
-        pass  # fail
-    else:
-        score = 1.0
-
-    print("%s | +%g" % (position.san(enginemove), score))
-
-    engine.info_handlers.remove(info_handler)
-    return score
+        # Done.
+        print("| +{}".format(score))
+        return score
 
 
-if __name__ == "__main__":
+async def main():
     # Parse command line arguments.
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-e", "--engine", required=True,
+
+    engine_group = parser.add_mutually_exclusive_group(required=True)
+    engine_group.add_argument("-u", "--uci",
         help="The UCI engine under test.")
+    engine_group.add_argument("-x", "--xboard",
+        help="The XBoard engine under test.")
+
     parser.add_argument("epd", nargs="+", type=argparse.FileType("r"),
         help="EPD test suite(s).")
     parser.add_argument("-v", "--variant", default="standard",
         help="Use a non-standard chess variant.")
     parser.add_argument("-t", "--threads", default=1, type=int,
         help="Threads for use by the UCI engine.")
-    parser.add_argument("-m", "--movetime", default=1000, type=int,
+    parser.add_argument("-m", "--movetime", default=1.0, type=float,
         help="Time to move in milliseconds.")
     parser.add_argument("-s", "--simple", dest="test_epd", action="store_const",
         default=test_epd_with_fractional_scores,
@@ -121,6 +94,7 @@ if __name__ == "__main__":
         help="Run in simple mode without fractional scores.")
     parser.add_argument("-d", "--debug", action="store_true",
         help="Show debug logs.")
+
     args = parser.parse_args()
 
     # Configure logger.
@@ -129,9 +103,15 @@ if __name__ == "__main__":
     # Find variant.
     VariantBoard = chess.variant.find_variant(args.variant)
 
-    # Open engine.
-    engine = chess.uci.popen_engine(args.engine)
-    engine.uci()
+    # Open and configure engine.
+    if args.uci:
+        _, engine = await chess.engine.popen_uci(args.uci)
+        if args.threads > 1:
+            await engine.configure({"Threads": args.threads})
+    else:
+        _, engine = await chess.engine.popen_xboard(args.xboard)
+        if args.threads > 1:
+            await engine.configure({"cores": args.threads})
 
     # Run each test line.
     score = 0.0
@@ -145,10 +125,15 @@ if __name__ == "__main__":
             continue
 
         # Run the actual test.
-        score += args.test_epd(engine, epd, VariantBoard, args.threads, args.movetime)
+        score += await args.test_epd(engine, epd, VariantBoard, args.movetime)
         count += 1
 
-    engine.quit()
+    await engine.quit()
 
     print("-------------------------------")
-    print("%g / %d" % (score, count))
+    print("{} / {}".format(score, count))
+
+
+if __name__ == "__main__":
+    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+    asyncio.run(main())
