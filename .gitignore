@@ -6,6 +6,7 @@ venv/
 .coveralls.yml
 nosetests.xml
 .tox
+.mypy_cache
 
 dist/
 build/
