@@ -48,7 +48,9 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
     # Start analysis.
     score = 0.0
     print("{}:".format(epd_string), end=" ", flush=True)
-    with await engine.analysis(board, game=object()) as analysis:
+    analysis = await engine.analysis(board, game=object())
+
+    with analysis:
         for step in range(0, 4):
             await asyncio.sleep(movetime / 4)
 
@@ -65,9 +67,9 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
             else:
                 print("(no pv)", end=" ", flush=True)
 
-        # Done.
-        print("| +{}".format(score))
-        return score
+    # Done.
+    print("| +{}".format(score))
+    return score
 
 
 async def main():
