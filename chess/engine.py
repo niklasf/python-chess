@@ -327,13 +327,7 @@ class PovScore:
 
     def __eq__(self, other):
         try:
-            return self.relative == other.relative and self.turn == other.turn
-        except AttributeError:
-            return NotImplemented
-
-    def __ne__(self, other):
-        try:
-            return self.relative != other.relative or self.turn != other.turn
+            return (self.relative, self.turn) == (other.relative, other.turn)
         except AttributeError:
             return NotImplemented
 

@@ -414,12 +414,8 @@ class Piece:
         return chess.svg.piece(self, size=45)
 
     def __eq__(self, other):
-        ne = self.__ne__(other)
-        return NotImplemented if ne is NotImplemented else not ne
-
-    def __ne__(self, other):
         try:
-            return self.piece_type != other.piece_type or self.color != other.color
+            return (self.piece_type, self.color) == (other.piece_type, other.color)
         except AttributeError:
             return NotImplemented
 
@@ -472,21 +468,12 @@ class Move:
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
     def __eq__(self, other):
-        ne = self.__ne__(other)
-        return NotImplemented if ne is NotImplemented else not ne
-
-    def __ne__(self, other):
         try:
-            if self.from_square != other.from_square:
-                return True
-            elif self.to_square != other.to_square:
-                return True
-            elif self.promotion != other.promotion:
-                return True
-            elif self.drop != other.drop:
-                return True
-            else:
-                return False
+            return (
+                self.from_square == other.from_square and
+                self.to_square == other.to_square and
+                self.promotion == other.promotion and
+                self.drop == other.drop)
         except AttributeError:
             return NotImplemented
 
@@ -1197,29 +1184,16 @@ class BaseBoard:
         return chess.svg.board(board=self, size=400)
 
     def __eq__(self, board):
-        ne = self.__ne__(board)
-        return NotImplemented if ne is NotImplemented else not ne
-
-    def __ne__(self, board):
         try:
-            if self.occupied != board.occupied:
-                return True
-            elif self.occupied_co[WHITE] != board.occupied_co[WHITE]:
-                return True
-            elif self.pawns != board.pawns:
-                return True
-            elif self.knights != board.knights:
-                return True
-            elif self.bishops != board.bishops:
-                return True
-            elif self.rooks != board.rooks:
-                return True
-            elif self.queens != board.queens:
-                return True
-            elif self.kings != board.kings:
-                return True
-            else:
-                return False
+            return (
+                self.occupied == board.occupied and
+                self.occupied_co[WHITE] == board.occupied_co[WHITE] and
+                self.pawns == board.pawns and
+                self.knights == board.knights and
+                self.bishops == board.bishops and
+                self.rooks == board.rooks and
+                self.queens == board.queens and
+                self.kings == board.kings)
         except AttributeError:
             return NotImplemented
 
@@ -3282,22 +3256,17 @@ class Board(BaseBoard):
         check = self.king(self.turn) if self.is_check() else None
         return chess.svg.board(board=self, lastmove=lastmove, check=check, size=400)
 
-    def __ne__(self, board):
-        # Compare positions (including move counters), but excluding history.
+    def __eq__(self, board):
         try:
-            if self.halfmove_clock != board.halfmove_clock:
-                return True
-            if self.fullmove_number != board.fullmove_number:
-                return True
-
-            if type(self).uci_variant != type(board).uci_variant:
-                return True
-            if self._transposition_key() != board._transposition_key():
-                return True
+            # Compare positions (including move counters), but excluding
+            # history.
+            return (
+                self.halfmove_clock == board.halfmove_clock and
+                self.fullmove_number == board.fullmove_number and
+                type(self).uci_variant == type(board).uci_variant and
+                self._transposition_key() == board._transposition_key())
         except AttributeError:
             return NotImplemented
-        else:
-            return False
 
     def apply_transform(self, f):
         super().apply_transform(f)
@@ -3651,12 +3620,8 @@ class SquareSet(collections.abc.MutableSet):
         return bool(self.mask)
 
     def __eq__(self, other):
-        ne = self.__ne__(other)
-        return NotImplemented if ne is NotImplemented else not ne
-
-    def __ne__(self, other):
         try:
-            return self.mask != SquareSet(other).mask
+            return self.mask == SquareSet(other).mask
         except (TypeError, ValueError):
             return NotImplemented
 
