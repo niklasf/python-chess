@@ -50,16 +50,15 @@ UCI
 ---
 
 `Multi-Variant Stockfish`_ and other engines have an ``UCI_Variant`` option.
+XBoard engines may declare support for ``variants``.
 This is automatically managed.
 
->>> import chess.uci
->>> import chess.variant
+>>> import chess.engine
 >>>
->>> engine = chess.uci.popen_engine("stockfish")
->>> engine.uci()
+>>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 >>>
 >>> board = chess.variant.RacingKingsBoard()
->>> engine.position(board)
+>>> result = engine.play(board, chess.engine.Limit(time=1.0))
 
 Syzygy
 ------

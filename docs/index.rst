@@ -12,7 +12,6 @@ Contents
     gaviota
     syzygy
     engine
-    uci
     svg
     variant
     changelog

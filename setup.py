@@ -71,12 +71,6 @@ def read_description():
     return description
 
 
-def extra_dependencies():
-    return {
-        "test": ["spur"] if platform.python_implementation() == "CPython" else [],
-    }
-
-
 setuptools.setup(
     name="python-chess",
     version=chess.__version__,
@@ -90,8 +84,6 @@ setuptools.setup(
     packages=["chess"],
     test_suite="test",
     python_requires=">=3.4",
-    extras_require=extra_dependencies(),
-    tests_require=extra_dependencies().get("test"),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

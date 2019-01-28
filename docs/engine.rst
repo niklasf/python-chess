@@ -5,14 +5,6 @@ UCI and XBoard are protocols for communicating with chess engines. This module
 implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
-:warning: This is an experimental module that may change in semver incompatible
-   ways. Please `weigh in <https://github.com/niklasf/python-chess/issues/new>`_
-   on the design if the provided APIs do not cover your use case.
-
-   The intention is to eventually replace ``chess.uci`` and ``chess.xboard``,
-   but not before things have settled down and there has been a transition
-   period.
-
 The preferred way to use the API is with an
 `asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop.
 The examples also show a synchronous wrapper
