@@ -274,7 +274,8 @@ class PlayResult:
         self.draw_offered = draw_offered
 
     def __repr__(self):
-        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={})>".format(type(self).__name__, id(self), self.move, self.ponder, self.info, self.draw_offered)
+        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={})>".format(
+            type(self).__name__, id(self), self.move, self.ponder, self.info, self.draw_offered)
 
 
 class Info(_IntFlag):
@@ -327,13 +328,7 @@ class PovScore:
 
     def __eq__(self, other):
         try:
-            return self.relative == other.relative and self.turn == other.turn
-        except AttributeError:
-            return NotImplemented
-
-    def __ne__(self, other):
-        try:
-            return self.relative != other.relative or self.turn != other.turn
+            return (self.relative, self.turn) == (other.relative, other.turn)
         except AttributeError:
             return NotImplemented
 
@@ -1348,7 +1343,10 @@ def _parse_uci_info(arg, root_board, selector=INFO_ALL):
             # Ignore extra spaces. Those can not be directly discarded,
             # because they may occur in the string parameter.
             pass
-        elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload", "refutation", "currline", "ebf", "string"]:
+        elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv",
+                       "score", "currmove", "currmovenumber", "hashfull",
+                       "nps", "tbhits", "cpuload", "refutation", "currline",
+                       "ebf", "string"]:
             end_of_parameter()
             current_parameter = token
 

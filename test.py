@@ -279,6 +279,10 @@ class BoardTestCase(unittest.TestCase):
         board.set_piece_at(chess.H7, chess.Piece.from_symbol("Q"), promoted=True)
         self.assertEqual(board.promoted, chess.BB_H7)
 
+        board.set_piece_at(chess.H7, None)
+        self.assertEqual(board.promoted, chess.BB_EMPTY)
+        self.assertEqual(board.piece_at(chess.H7), None)
+
     def test_pawn_captures(self):
         board = chess.Board()
 
