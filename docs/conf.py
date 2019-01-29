@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('..'))
 import chess
 
 # Autodoc.
-extensions = ["sphinx.ext.autodoc"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
 autodoc_member_order = 'bysource'
 
 # The suffix of source filenames.
