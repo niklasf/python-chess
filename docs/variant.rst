@@ -10,6 +10,8 @@ python-chess supports several chess variants.
 >>> # General information about the variants
 >>> type(board).uci_variant
 'giveaway'
+>>> type(board).xboard_variant
+'giveaway'
 >>> type(board).starting_fen
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 
@@ -18,9 +20,9 @@ See :func:`chess.Board.is_variant_end()`, :func:`~chess.Board.is_variant_win()`
 for special variant end conditions and results.
 
 ================ ========================================= ============= ============
-Variant          Board class                               UCI           Syzygy
+Variant          Board class                               UCI/XBoard    Syzygy
 ================ ========================================= ============= ============
-Standard         :class:`chess.Board`                      chess         .rtbw, .rtbz
+Standard         :class:`chess.Board`                      chess/normal  .rtbw, .rtbz
 Suicide          :class:`chess.variant.SuicideBoard`       suicide       .stbw, .stbz
 Giveaway         :class:`chess.variant.GiveawayBoard`      giveaway      .gtbw, .gtbz
 Atomic           :class:`chess.variant.AtomicBoard`        atomic        .atbw, .atbz
@@ -46,8 +48,8 @@ See :func:`chess.BaseBoard.set_chess960_pos()`,
 :func:`~chess.BaseBoard.from_chess960_pos()` for dealing with Chess960 starting
 positions.
 
-UCI
----
+UCI/XBoard
+----------
 
 `Multi-Variant Stockfish`_ and other engines have an ``UCI_Variant`` option.
 XBoard engines may declare support for ``variants``.
@@ -55,7 +57,7 @@ This is automatically managed.
 
 >>> import chess.engine
 >>>
->>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+>>> engine = chess.engine.SimpleEngine.popen_uci("stockfish-mv")
 >>>
 >>> board = chess.variant.RacingKingsBoard()
 >>> result = engine.play(board, chess.engine.Limit(time=1.0))
