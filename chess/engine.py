@@ -227,7 +227,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
         elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
-                raise EngineError("invalid line-break in string option {!r}".format(self.name))
+                raise EngineError("invalid line-break in string option {!r}: {!r}".format(self.name, value))
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
