@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import collections
+import math
 import mmap
 import os
 import re
@@ -305,16 +306,11 @@ MTWIST = [
     14, 60, 52, 44, 43, 51, 59, 13,
 ]
 
-BINOMIAL = []
-for i in range(5):
-    BINOMIAL.append([])
-    for j in range(64):
-        f = j
-        l = 1
-        for k in range(1, i + 1):
-            f *= j - k
-            l *= k + 1
-        BINOMIAL[i].append(f // l)
+def binom(x, y):
+    try:
+        return math.factorial(x) // math.factorial(y) // math.factorial(x - y)
+    except ValueError:
+        return 0
 
 PAWNIDX = [[0 for _ in range(24)] for _ in range(5)]
 
@@ -326,28 +322,28 @@ for i in range(5):
     s = 0
     while j < 6:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][0] = s
 
     s = 0
     while j < 12:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][1] = s
 
     s = 0
     while j < 18:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][2] = s
 
     s = 0
     while j < 24:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][PTWIST[INVFLAP[j]]]
+        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][3] = s
 
@@ -359,7 +355,7 @@ for i in range(5):
     s = 0
     for j in range(10):
         MULTIDX[i][j] = s
-        s += 1 if i == 0 else BINOMIAL[i - 1][MTWIST[INVTRIANGLE[j]]]
+        s += 1 if i == 0 else binom(MTWIST[INVTRIANGLE[j]], i)
     MFACTOR[i] = s
 
 WDL_TO_MAP = [1, 3, 0, 2, 0]
@@ -853,7 +849,7 @@ class Table:
             idx = MULTIDX[norm[0] - 1][TRIANGLE[pos[0]]]
             i = 1
             while i < norm[0]:
-                idx += BINOMIAL[i - 1][MTWIST[pos[i]]]
+                idx += binom(MTWIST[pos[i]], i)
                 i += 1
 
         idx *= factor[0]
@@ -874,7 +870,7 @@ class Table:
                 j = 0
                 for l in range(i):
                     j += int(p > pos[l])
-                s += BINOMIAL[m - i][p - j]
+                s += binom(p - j, m - i + 1)
 
             idx += s * factor[i]
             i += t
@@ -896,7 +892,7 @@ class Table:
         t = self.pawns[0] - 1
         idx = PAWNIDX[t][FLAP[pos[0]]]
         for i in range(t, 0, -1):
-            idx += BINOMIAL[t - i][PTWIST[pos[i]]]
+            idx += binom(PTWIST[pos[i]], t - i + 1)
         idx *= factor[0]
 
         # Remaining pawns.
@@ -913,7 +909,7 @@ class Table:
                 j = 0
                 for k in range(i):
                     j += int(p > pos[k])
-                s += BINOMIAL[m - i][p - j - 8]
+                s += binom(p - j - 8, m - i + 1)
             idx += s * factor[i]
             i = t
 
@@ -930,7 +926,7 @@ class Table:
                 j = 0
                 for k in range(i):
                     j += int(p > pos[k])
-                s += BINOMIAL[m - i][p - j]
+                s += binom(p - j, m - i + 1)
 
             idx += s * factor[i]
             i += t
