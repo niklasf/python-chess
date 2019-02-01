@@ -607,8 +607,10 @@ class Table:
             if self.data is None:
                 self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
-    def check_magic(self, magic):
-        return self.data[:min(len(self.data), len(magic))] == magic
+    def check_magic(self, magic, pawnless_magic):
+        valid_magics = [magic, self.has_pawns and pawnless_magic]
+        if self.data[:min(4, len(self.data))] not in valid_magics:
+            raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
 
     def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
         d = PairsData()
@@ -1042,8 +1044,7 @@ class WdlTable(Table):
             if self.initialized:
                 return
 
-            if not self.check_magic(self.variant.tbw_magic) and (self.has_pawns or self.variant.pawnless_tbw_magic is None or not self.check_magic(self.variant.pawnless_tbw_magic)):
-                raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
+            self.check_magic(self.variant.tbw_magic, self.variant.pawnless_tbw_magic)
 
             self.tb_size = [0 for _ in range(8)]
             self.size = [0 for _ in range(8 * 3)]
@@ -1254,8 +1255,7 @@ class DtzTable(Table):
             if self.initialized:
                 return
 
-            if not self.check_magic(self.variant.tbz_magic) and (self.has_pawns or self.variant.pawnless_tbz_magic is None or not self.check_magic(self.variant.pawnless_tbz_magic)):
-                raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
+            self.check_magic(self.variant.tbz_magic, self.variant.pawnless_tbz_magic)
 
             self.factor = [0 for _ in range(TBPIECES)]
             self.norm = [0 for _ in range(self.num)]
