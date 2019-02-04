@@ -227,7 +227,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
         elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
-                raise EngineError("invalid line-break in string option {!r}".format(self.name))
+                raise EngineError("invalid line-break in string option {!r}: {!r}".format(self.name, value))
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
@@ -2198,19 +2198,22 @@ class SimpleEngine:
 
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         with self._not_shut_down():
-            coro = asyncio.wait_for(self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options), self._timeout_for(limit))
+            coro = self.protocol.play(board, limit, game=game, info=info, ponder=ponder, root_moves=root_moves, options=options)
+            coro = asyncio.wait_for(coro, self._timeout_for(limit))
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
     def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         with self._not_shut_down():
-            coro = asyncio.wait_for(self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self._timeout_for(limit))
+            coro = self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
+            coro = asyncio.wait_for(coro, self._timeout_for(limit))
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         with self._not_shut_down():
-            coro = asyncio.wait_for(self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options), self.timeout)
+            coro = self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
+            coro = asyncio.wait_for(coro, self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return SimpleAnalysisResult(self, future.result())
 
