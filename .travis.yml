@@ -16,6 +16,9 @@ cache:
   directories:
     - data/gaviota
     - data/syzygy/suicide
+before_cache:
+ - rm -f data/gaviota/travis_wait_*.log || true
+ - rm -f data/syzygy/suicide/travis_wait_*.log || true
 before_install:
  - | # Stockfish
      if [[ $PERFT -ne 1 ]]; then
