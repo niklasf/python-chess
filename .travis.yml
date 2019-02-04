@@ -85,7 +85,7 @@ script:
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GiveawayTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv EngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append -m doctest README.rst --verbose; fi
- - if [[ $PERFT -ne 1 ]]; echo Unit tests complete; fi
+ - if [[ $PERFT -ne 1 ]]; then echo Unit tests complete; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
  - # Perft tests
  - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
