@@ -17,34 +17,44 @@ cache:
     - data/gaviota
     - data/syzygy/suicide
 before_install:
- - # Stockfish
- - wget https://stockfish.s3.amazonaws.com/stockfish-10-linux.zip
- - unzip stockfish-10-linux.zip
- - mkdir -p bin
- - cp stockfish-10-linux/Linux/stockfish_10_x64_modern bin/stockfish
- - chmod +x bin/stockfish
- - export PATH="`pwd`/bin:${PATH}"
- - which stockfish || (echo $PATH && false)
- - # Crafty
- - git clone https://github.com/lazydroid/crafty-chess
- - cd crafty-chess
- - make unix-gcc
- - export PATH="`pwd`:${PATH}"
- - cd ..
- - # Gaviota libgtb
- - git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
- - cd Gaviota-Tablebases
- - make
- - export LD_LIBRARY_PATH="`pwd`:${LD_LIBRARY_PATH}"
- - cd ..
- - # Gaviota tablebases
- - cd data/gaviota
- - wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
- - cd ../..
- - # Suicide syzygy bases
- - cd data/syzygy/suicide
- - wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
- - cd ../../..
+ - | # Stockfish
+     if [[ $PERFT -ne 1 ]]; then
+       wget https://stockfish.s3.amazonaws.com/stockfish-10-linux.zip
+       unzip stockfish-10-linux.zip
+       mkdir -p bin
+       cp stockfish-10-linux/Linux/stockfish_10_x64_modern bin/stockfish
+       chmod +x bin/stockfish
+       export PATH="`pwd`/bin:${PATH}"
+       which stockfish || (echo $PATH && false)
+     fi
+ - | # Crafty
+     if [[ $PERFT -ne 1 ]]; then
+       git clone https://github.com/lazydroid/crafty-chess
+       cd crafty-chess
+       make unix-gcc
+       export PATH="`pwd`:${PATH}"
+       cd ..
+     fi
+ - | # Gaviota libgtb
+     if [[ $PERFT -ne 1 ]]; then
+       git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
+       cd Gaviota-Tablebases
+       make
+       export LD_LIBRARY_PATH="`pwd`:${LD_LIBRARY_PATH}"
+       cd ..
+     fi
+ - | # Gaviota tablebases
+     if [[ $PERFT -ne 1 ]]; then
+       cd data/gaviota
+       travis_wait wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
+       cd ../..
+     fi
+ - | # Suicide syzygy bases
+     if [[ $PERFT -ne 1 ]]; then
+       cd data/syzygy/suicide
+       travis_wait wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
+       cd ../../..
+     fi
 install:
  - pip install --upgrade pip wheel
  - pip install --upgrade setuptools
@@ -75,7 +85,7 @@ script:
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv GiveawayTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append test.py -vv EngineTestCase; fi
  - if [[ $PERFT -ne 1 ]]; then coverage run --source chess --append -m doctest README.rst --verbose; fi
- - echo Unit tests complete
+ - if [[ $PERFT -ne 1 ]]; echo Unit tests complete; fi
  - if [[ $PERFT -ne 1 ]]; then coveralls || [[ $? -eq 139 ]]; fi
  - # Perft tests
  - if [[ $PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
