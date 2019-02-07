@@ -1730,25 +1730,30 @@ class Board(BaseBoard):
 
     def is_insufficient_material(self):
         """Checks for a draw due to insufficient mating material."""
-        # Enough material to mate.
-        if self.pawns or self.rooks or self.queens:
+        return all(self.has_insufficient_material(color) for color in COLORS)
+
+    def has_insufficient_material(self, color):
+        if self.occupied_co[color] & (self.pawns | self.rooks | self.queens):
             return False
 
-        # A single knight or a single bishop.
-        if popcount(self.occupied) <= 3:
-            return True
+        # Knights are only insufficient material if:
+        # (1) We do not have any other pieces, including more than one knight.
+        # (2) The opponent does not have pawns, knights, bishops or rooks.
+        #     These would allow self mate.
+        if self.occupied_co[color] & self.knights:
+            return (popcount(self.occupied_co[color]) <= 2 and
+                    not (self.occupied_co[not color] & ~self.kings & ~self.queens))
 
-        # More than a single knight.
-        if self.knights:
-            return False
+        # Bishops are only insufficient material if:
+        # (1) We no dot have any other pieces, including bishops of the
+        #     opposite color.
+        # (2) The opponent does not have bishops of the opposite color,
+        #     pawns or knights. These would allow self mate.
+        if self.occupied_co[color] & self.bishops:
+            same_color = (not self.bishops & BB_DARK_SQUARES) or (not self.bishops & BB_LIGHT_SQUARES)
+            return same_color and not (self.occupied_co[not color] & ~self.kings & ~self.rooks & ~self.queens)
 
-        # All bishops on the same color.
-        if self.bishops & BB_DARK_SQUARES == 0:
-            return True
-        elif self.bishops & BB_LIGHT_SQUARES == 0:
-            return True
-        else:
-            return False
+        return True
 
     def is_seventyfive_moves(self):
         """

@@ -459,7 +459,7 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/8/8/1b6/8/8/8/5RKR w KQ - 0 1", chess960=True)
         self.assertFalse(board.is_legal(chess.Move.from_uci("g1f1")))
 
-    def test_insufficient_material(self):
+    def test_is_insufficient_material(self):
         # Starting position.
         board = chess.Board()
         self.assertFalse(board.is_insufficient_material())
@@ -471,6 +471,44 @@ class BoardTestCase(unittest.TestCase):
         # Add bishop of opposite color for the weaker side.
         board.set_piece_at(chess.B8, chess.Piece.from_symbol("b"))
         self.assertFalse(board.is_insufficient_material())
+
+    def test_has_insufficient_material(self):
+        def _check(board, white, black):
+            self.assertEqual(board.has_insufficient_material(chess.WHITE), white)
+            self.assertEqual(board.has_insufficient_material(chess.BLACK), black)
+
+        _check(chess.Board("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
+        _check(chess.Board("8/3k4/8/8/2N5/8/3K4/8 b - - 0 1"), True, True)
+        _check(chess.Board("8/4rk2/8/8/8/8/3K4/8 w - - 0 1"), True, False)
+        _check(chess.Board("8/4qk2/8/8/8/8/3K4/8 w - - 0 1"), True, False)
+        _check(chess.Board("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        _check(chess.Board("8/8/3Q4/2bK4/B7/8/1k6/8 w - - 1 68"), False, False)
+
+        # TODO: Test variants
+        #_check(chess.variant.AtomicBoard("8/3k4/8/8/2N5/8/3K4/8 b - - 0 1"), True, True)
+        #_check(chess.variant.AtomicBoard("8/4rk2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
+        #_check(chess.variant.AtomicBoard("8/4qk2/8/8/8/8/3K4/8 w - - 0 1"), True, False)
+        #_check(chess.variant.AtomicBoard("8/1k6/8/2n5/8/3NK3/8/8 b - - 0 1"), False, False)
+        #_check(chess.variant.AtomicBoard("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), True, True)
+        #_check(chess.variant.AtomicBoard("4b3/5k2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        #_check(chess.variant.AtomicBoard("3Q4/5kKB/8/8/8/8/8/8 b - - 0 1"), False, True)
+
+        #_check(chess.variant.GiveawayBoard("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        #_check(chess.variant.GiveawayBoard("4b3/5k2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        #_check(chess.variant.GiveawayBoard("8/8/8/6b1/8/3B4/4B3/5B2 w - - 0 1"), True, True)
+        #_check(chess.variant.GiveawayBoard("8/8/5b2/8/8/3B4/3B4/8 w - - 0 1"), True, False)
+
+        #_check(chess.variant.KingOfTheHillBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
+
+        #_check(chess.variant.RacingKingsBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
+
+        #_check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
+        #_check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K2N1/8 w - - 0 1"), False, True)
+
+        #_check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/8/3K2N1/8 w - - 0 1"), True, True)
+        #_check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/5B2/3KB3/8 w - - 0 1"), False, False)
+
+        #_check(chess.variant.HordeBoard("8/5k2/8/8/8/4NN2/8/8 w - - 0 1"), True, False)
 
     def test_promotion_with_check(self):
         board = chess.Board("8/6P1/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 w - - 0 1")
