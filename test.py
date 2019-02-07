@@ -459,24 +459,15 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/8/8/1b6/8/8/8/5RKR w KQ - 0 1", chess960=True)
         self.assertFalse(board.is_legal(chess.Move.from_uci("g1f1")))
 
-    def test_is_insufficient_material(self):
-        # Starting position.
-        board = chess.Board()
-        self.assertFalse(board.is_insufficient_material())
-
-        # King vs. King + 2 bishops of the same color.
-        board = chess.Board("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32")
-        self.assertTrue(board.is_insufficient_material())
-
-        # Add bishop of opposite color for the weaker side.
-        board.set_piece_at(chess.B8, chess.Piece.from_symbol("b"))
-        self.assertFalse(board.is_insufficient_material())
-
-    def test_has_insufficient_material(self):
+    def test_insufficient_material(self):
         def _check(board, white, black):
             self.assertEqual(board.has_insufficient_material(chess.WHITE), white)
             self.assertEqual(board.has_insufficient_material(chess.BLACK), black)
+            self.assertEqual(board.is_insufficient_material(), white and black)
 
+        _check(chess.Board(), False, False)
+        _check(chess.Board("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32"), True, True)
+        _check(chess.Board("kbK1B1B1/8/8/8/8/8/8/8 w - - 7 32"), False, False)
         _check(chess.Board("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
         _check(chess.Board("8/3k4/8/8/2N5/8/3K4/8 b - - 0 1"), True, True)
         _check(chess.Board("8/4rk2/8/8/8/8/3K4/8 w - - 0 1"), True, False)
@@ -3351,7 +3342,7 @@ class SuicideTestCase(unittest.TestCase):
         self.assertFalse(board.is_legal(Rb4))
         self.assertNotIn(Rb4, board.generate_legal_moves())
 
-    def test_insufficient_material(self):
+    def test_suicide_insufficient_material(self):
         # Kings only.
         board = chess.variant.SuicideBoard("8/8/8/2k5/8/8/4K3/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
