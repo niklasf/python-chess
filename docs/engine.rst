@@ -358,6 +358,30 @@ when submitting bug reports.
     # Enable debug logging.
     logging.basicConfig(level=logging.DEBUG)
 
+AsyncSSH
+--------
+
+:class:`~chess.engine.EngineProtocol` can also be used with
+`AsyncSSH <https://asyncssh.readthedocs.io/en/latest/>`_ (currently requires
+``develop`` branch).
+
+.. code:: python
+
+    import asyncio
+    import asyncssh
+    import chess
+    import chess.engine
+
+    async def main():
+        async with asyncssh.connect("localhost") as conn:
+            channel, engine = await conn.create_subprocess(chess.engine.UciProtocol, "stockfish")
+            await engine.initialize()
+
+            # Play, analyse, ...
+            await engine.ping()
+
+    asyncio.run(main())
+
 Reference
 ---------
 
