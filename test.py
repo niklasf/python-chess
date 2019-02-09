@@ -2672,7 +2672,7 @@ class EngineTestCase(unittest.TestCase):
             mock = chess.engine.MockTransport(protocol)
 
             mock.expect("uci", ["uciok"])
-            yield from protocol._initialize()
+            yield from protocol.initialize()
             mock.assert_done()
 
             mock.expect("isready", ["readyok"])
@@ -2708,6 +2708,10 @@ class EngineTestCase(unittest.TestCase):
         def main():
             protocol = chess.engine.UciProtocol()
             mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", ["uciok"])
+            yield from protocol.initialize()
 
             # Pondering.
             mock.expect("ucinewgame")
@@ -2812,7 +2816,7 @@ class EngineTestCase(unittest.TestCase):
                 "feature ping=1 setboard=1 done=1",
             ])
             mock.expect("accept egt")
-            yield from protocol._initialize()
+            yield from protocol.initialize()
             mock.assert_done()
 
             self.assertEqual(protocol.options["egtpath syzygy"].type, "path")
@@ -2865,7 +2869,7 @@ class EngineTestCase(unittest.TestCase):
 
             mock.expect("xboard")
             mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
-            yield from protocol._initialize()
+            yield from protocol.initialize()
             mock.assert_done()
 
             limit = chess.engine.Limit(time=1.5, depth=17)
@@ -2930,7 +2934,7 @@ class EngineTestCase(unittest.TestCase):
                 "feature exclude=1",
                 "feature variants=\"normal,atomic\" done=1",
             ])
-            yield from protocol._initialize()
+            yield from protocol.initialize()
             mock.assert_done()
 
             board = chess.variant.AtomicBoard("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
