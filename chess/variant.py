@@ -82,41 +82,17 @@ class SuicideBoard(chess.Board):
         else:
             return self.is_stalemate() and self._material_balance() == 0
 
-    def is_insufficient_material(self):
-        # Enough material.
-        if self.knights or self.rooks or self.queens or self.kings:
+    def has_insufficient_material(self, color):
+        if self.occupied != self.bishops:
             return False
 
-        # Must have bishops.
-        if not (self.occupied_co[chess.WHITE] & self.bishops and self.occupied_co[chess.BLACK] & self.bishops):
-            return False
-
-        # All pawns must be blocked.
-        w_pawns = self.pawns & self.occupied_co[chess.WHITE]
-        b_pawns = self.pawns & self.occupied_co[chess.BLACK]
-
-        b_blocked_pawns = chess.shift_up(w_pawns) & b_pawns
-        w_blocked_pawns = chess.shift_down(b_pawns) & w_pawns
-
-        if (b_blocked_pawns | w_blocked_pawns) != self.pawns:
-            return False
-
-        turn = self.turn
-        turn = chess.WHITE
-        if any(self.generate_pseudo_legal_moves(self.pawns)):
-            return False
-        turn = chess.BLACK
-        if any(self.generate_pseudo_legal_moves(self.pawns)):
-            return False
-        self.turn = turn
-
-        # Bishop and pawns of each side are on distinct color complexes.
-        if self.occupied_co[chess.WHITE] & chess.BB_DARK_SQUARES == 0:
-            return self.occupied_co[chess.BLACK] & chess.BB_LIGHT_SQUARES == 0
-        elif self.occupied_co[chess.WHITE] & chess.BB_LIGHT_SQUARES == 0:
-            return self.occupied_co[chess.BLACK] & chess.BB_DARK_SQUARES == 0
-        else:
-            return False
+        # In a position with only bishops, check if all our bishops can be
+        # captured.
+        we_some_on_light = self.occupied_co[color] & chess.BB_LIGHT_SQUARES
+        we_some_on_dark = self.occupied_co[color] & chess.BB_DARK_SQUARES
+        they_all_on_dark = not (self.occupied_co[not color] & chess.BB_LIGHT_SQUARES)
+        they_all_on_light = not (self.occupied_co[not color] & chess.BB_DARK_SQUARES)
+        return (we_some_on_light and they_all_on_dark) or (we_some_on_dark and they_all_on_light)
 
     def generate_pseudo_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
         for move in super().generate_pseudo_legal_moves(from_mask, to_mask):

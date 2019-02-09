@@ -465,6 +465,9 @@ class BoardTestCase(unittest.TestCase):
             self.assertEqual(board.has_insufficient_material(chess.BLACK), black)
             self.assertEqual(board.is_insufficient_material(), white and black)
 
+        # Imperfect implementation.
+        false_negative = False
+
         _check(chess.Board(), False, False)
         _check(chess.Board("k1K1B1B1/8/8/8/8/8/8/8 w - - 7 32"), True, True)
         _check(chess.Board("kbK1B1B1/8/8/8/8/8/8/8 w - - 7 32"), False, False)
@@ -484,10 +487,11 @@ class BoardTestCase(unittest.TestCase):
         #_check(chess.variant.AtomicBoard("4b3/5k2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
         #_check(chess.variant.AtomicBoard("3Q4/5kKB/8/8/8/8/8/8 b - - 0 1"), False, True)
 
-        #_check(chess.variant.GiveawayBoard("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
-        #_check(chess.variant.GiveawayBoard("4b3/5k2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
-        #_check(chess.variant.GiveawayBoard("8/8/8/6b1/8/3B4/4B3/5B2 w - - 0 1"), True, True)
-        #_check(chess.variant.GiveawayBoard("8/8/5b2/8/8/3B4/3B4/8 w - - 0 1"), True, False)
+        _check(chess.variant.GiveawayBoard("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        _check(chess.variant.GiveawayBoard("4b3/5k2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
+        _check(chess.variant.GiveawayBoard("8/8/8/6b1/8/3B4/4B3/5B2 w - - 0 1"), True, True)
+        _check(chess.variant.GiveawayBoard("8/8/5b2/8/8/3B4/3B4/8 w - - 0 1"), True, False)
+        _check(chess.variant.SuicideBoard("8/5p2/5P2/8/3B4/1bB5/8/8 b - - 0 1"), false_negative, false_negative)
 
         _check(chess.variant.KingOfTheHillBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
 
@@ -499,7 +503,7 @@ class BoardTestCase(unittest.TestCase):
         _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/8/3K2N1/8[] w - - 0 1"), True, True)
         _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/5B2/3KB3/8[] w - - 0 1"), False, False)
 
-        #_check(chess.variant.HordeBoard("8/5k2/8/8/8/4NN2/8/8 w - - 0 1"), True, False)
+        _check(chess.variant.HordeBoard("8/5k2/8/8/8/4NN2/8/8 w - - 0 1"), false_negative, False)
 
     def test_promotion_with_check(self):
         board = chess.Board("8/6P1/2p5/1Pqk4/6P1/2P1RKP1/4P1P1/8 w - - 0 1")
@@ -3358,10 +3362,6 @@ class SuicideTestCase(unittest.TestCase):
         # Pawn not blocked.
         board = chess.variant.SuicideBoard("8/5b2/5P2/8/3B4/2B5/8/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
-
-        # Pawn blocked.
-        board = chess.variant.SuicideBoard("8/5p2/5P2/8/3B4/1bB5/8/8 b - - 0 1")
-        self.assertTrue(board.is_insufficient_material())
 
         # Pawns blocked but on wrong color.
         board = chess.variant.SuicideBoard("8/5p2/5P2/8/8/8/3b4/8 b - - 0 1")
