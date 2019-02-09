@@ -204,27 +204,38 @@ class AtomicBoard(chess.Board):
     def is_variant_loss(self):
         return self.kings and not self.kings & self.occupied_co[self.turn]
 
-    def is_insufficient_material(self):
-        if self.is_variant_loss() or self.is_variant_win():
+    def has_insufficient_material(self, color):
+        # Remaining material does not matter if opponents king is already
+        # exploded.
+        if not (self.occupied_co[not color] & self.kings):
             return False
 
-        if self.pawns or self.queens:
+        # Bare king can not mate.
+        if not (self.occupied_co[color] & ~self.kings):
+            return True
+
+        # As long as the opponent king is not alone there is always a chance
+        # their own pieces explode next to it.
+        if self.occupied_co[not color] & ~self.kings:
+            # Unless there are only bishops that cannot explode each other.
+            if self.occupied == self.bishops | self.kings:
+                if not (self.bishops & self.occupied_co[chess.WHITE] & chess.BB_DARK_SQUARES):
+                    return not (self.bishops & self.occupied_co[chess.BLACK] & chess.BB_LIGHT_SQUARES)
+                if not (self.bishops & self.occupied_co[chess.WHITE] & chess.BB_LIGHT_SQUARES):
+                    return not (self.bishops & self.occupied_co[chess.BLACK] & chess.BB_DARK_SQUARES)
             return False
 
+        # Queen or pawn (future queen) can give mate against bare king.
+        if self.queens or self.pawns:
+            return False
+
+        # Single knight, bishop or rook cannot mate against bare king.
         if chess.popcount(self.knights | self.bishops | self.rooks) == 1:
             return True
 
-        # Only knights.
-        if self.occupied == (self.kings | self.knights):
-            return chess.popcount(self.knights) <= 2 and not all(occ & self.knights for occ in self.occupied_co)
-
-        # Only bishops.
-        if self.occupied == (self.kings | self.bishops):
-            # All bishops on opposite colors.
-            if not self.pieces_mask(chess.BISHOP, chess.WHITE) & chess.BB_DARK_SQUARES:
-                return not self.pieces_mask(chess.BISHOP, chess.BLACK) & chess.BB_LIGHT_SQUARES
-            if not self.pieces_mask(chess.BISHOP, chess.WHITE) & chess.BB_LIGHT_SQUARES:
-                return not self.pieces_mask(chess.BISHOP, chess.BLACK) & chess.BB_DARK_SQUARES
+        # Two knights cannot mate against bare king.
+        if self.occupied == self.knights | self.kings:
+            return chess.popcount(self.knights) <= 2
 
         return False
 
