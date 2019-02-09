@@ -489,15 +489,15 @@ class BoardTestCase(unittest.TestCase):
         #_check(chess.variant.GiveawayBoard("8/8/8/6b1/8/3B4/4B3/5B2 w - - 0 1"), True, True)
         #_check(chess.variant.GiveawayBoard("8/8/5b2/8/8/3B4/3B4/8 w - - 0 1"), True, False)
 
-        #_check(chess.variant.KingOfTheHillBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
+        _check(chess.variant.KingOfTheHillBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
 
-        #_check(chess.variant.RacingKingsBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
+        _check(chess.variant.RacingKingsBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
 
-        #_check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
-        #_check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K2N1/8 w - - 0 1"), False, True)
+        _check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K4/8 w - - 3+3 0 1"), True, True)
+        _check(chess.variant.ThreeCheckBoard("8/5k2/8/8/8/8/3K2N1/8 w - - 3+3 0 1"), False, True)
 
-        #_check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/8/3K2N1/8 w - - 0 1"), True, True)
-        #_check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/5B2/3KB3/8 w - - 0 1"), False, False)
+        _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/8/3K2N1/8[] w - - 0 1"), True, True)
+        _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/5B2/3KB3/8[] w - - 0 1"), False, False)
 
         #_check(chess.variant.HordeBoard("8/5k2/8/8/8/4NN2/8/8 w - - 0 1"), True, False)
 

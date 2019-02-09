@@ -343,7 +343,7 @@ class KingOfTheHillBoard(chess.Board):
     def is_variant_loss(self):
         return self.kings & self.occupied_co[not self.turn] & chess.BB_CENTER
 
-    def is_insufficient_material(self):
+    def has_insufficient_material(self, color):
         return False
 
 
@@ -406,7 +406,7 @@ class RacingKingsBoard(chess.Board):
     def is_variant_win(self):
         return self.is_variant_end() and self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
-    def is_insufficient_material(self):
+    def has_insufficient_material(self, color):
         return False
 
     def status(self):
@@ -457,7 +457,8 @@ class HordeBoard(chess.Board):
     def is_variant_win(self):
         return self.occupied and not self.occupied_co[not self.turn]
 
-    def is_insufficient_material(self):
+    def has_insufficient_material(self, color):
+        # TODO: Could detect some cases where the Horde can no longer mate.
         return False
 
     def status(self):
@@ -517,8 +518,9 @@ class ThreeCheckBoard(chess.Board):
             self.remaining_checks[self.turn] += 1
         return move
 
-    def is_insufficient_material(self):
-        return self.occupied == self.kings
+    def has_insufficient_material(self, color):
+        # Any remaining piece can give check.
+        return not (self.occupied_co[color] & ~self.kings)
 
     def set_epd(self, epd):
         # Split into 5 or 6 parts.
@@ -784,7 +786,10 @@ class CrazyhouseBoard(chess.Board):
         else:
             return super().parse_san(san)
 
-    def is_insufficient_material(self):
+    def has_insufficient_material(self, color):
+        # In practise no material can leave the game, but this is easy to
+        # implement anyway. Note that bishops can be captured and put onto
+        # a different color complex.
         return (
             chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
             not self.pawns and
