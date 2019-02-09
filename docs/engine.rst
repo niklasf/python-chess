@@ -370,7 +370,7 @@ Reference
 .. autofunction:: chess.engine.popen_xboard
 
 .. autoclass:: chess.engine.EngineProtocol
-    :members: ping, quit
+    :members: initialize, ping, quit
 
     .. py:attribute:: returncode
 

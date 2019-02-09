@@ -563,6 +563,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.command = None
         self.next_command = None
 
+        self.initialized = False
         self.returncode = asyncio.Future(loop=self.loop)
 
     def connection_made(self, transport):
@@ -658,8 +659,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @asyncio.coroutine
-    def _initialize(self):
-        pass
+    def initialize(self):
+        """Initializes the engine."""
 
     @abc.abstractmethod
     @asyncio.coroutine
@@ -798,7 +799,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         loop = _get_running_loop()
         transport, protocol = yield from loop.subprocess_exec(cls, *command, **popen_args)
-        yield from protocol._initialize()
+        yield from protocol.initialize()
         return transport, protocol
 
 
@@ -853,6 +854,7 @@ class BaseCommand:
         assert self.state == CommandState.New
         self.state = CommandState.Active
         try:
+            self.check_initialized(engine)
             self.start(engine)
         except EngineError as err:
             self._handle_exception(engine, err)
@@ -870,6 +872,10 @@ class BaseCommand:
 
     def cancel(self, engine):
         pass
+
+    def check_initialized(self, engine):
+        if not engine.initialized:
+            raise EngineError("tried to run command, but engine is not initialized")
 
     def start(self, engine):
         raise NotImplementedError
@@ -901,13 +907,18 @@ class UciProtocol(EngineProtocol):
         self.first_game = True
 
     @asyncio.coroutine
-    def _initialize(self):
+    def initialize(self):
         class Command(BaseCommand):
+            def check_initialized(self, engine):
+                if engine.initialized:
+                    raise EngineError("engine already initialized")
+
             def start(self, engine):
                 engine.send_line("uci")
 
             def line_received(self, engine, line):
                 if line == "uciok":
+                    engine.initialized = True
                     self.set_finished()
                 elif line.startswith("option "):
                     self._option(engine, line.split(" ", 1)[1])
@@ -1494,8 +1505,12 @@ class XBoardProtocol(EngineProtocol):
         self.first_game = True
 
     @asyncio.coroutine
-    def _initialize(self):
+    def initialize(self):
         class Command(BaseCommand):
+            def check_initialized(self, engine):
+                if engine.initialized:
+                    raise EngineError("engine already initialized")
+
             def start(self, engine):
                 engine.send_line("xboard")
                 engine.send_line("protover 2")
@@ -1563,6 +1578,7 @@ class XBoardProtocol(EngineProtocol):
                         engine.options[name] = Option(name, "path", None, None, None, None)
                     engine.send_line("accept egt")
 
+                engine.initialized = True
                 self.set_finished()
 
         yield from self.communicate(Command)
