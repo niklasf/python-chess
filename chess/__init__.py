@@ -1729,10 +1729,25 @@ class Board(BaseBoard):
         return not any(self.generate_legal_moves())
 
     def is_insufficient_material(self):
-        """Checks for a draw due to insufficient mating material."""
+        """
+        Checks if neither side has sufficient winning material
+        (:func:`~chess.Board.has_insufficient_material()`).
+        """
         return all(self.has_insufficient_material(color) for color in COLORS)
 
     def has_insufficient_material(self, color):
+        """
+        Checks if *color* has insufficient winning material.
+
+        This is guaranteed to return ``False`` if *color* can still win the
+        game.
+
+        The converse does not necessarily hold:
+        The implementation only looks at the material, including the colors
+        of bishops, but not considering piece positions. So fortress
+        positions or positions with forced lines may return ``False``, even
+        though there is no possible winning line.
+        """
         if self.occupied_co[color] & (self.pawns | self.rooks | self.queens):
             return False
 
