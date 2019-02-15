@@ -3317,8 +3317,9 @@ class Board(BaseBoard):
         board.halfmove_clock = self.halfmove_clock
 
         if stack:
-            board.move_stack = copy.deepcopy(self.move_stack)
-            board._stack = copy.copy(self._stack)
+            stack = len(self.move_stack) if stack is True else stack
+            board.move_stack = [copy.copy(move) for move in self.move_stack[-stack:]]
+            board._stack = self._stack[-stack:]
 
         return board
 
