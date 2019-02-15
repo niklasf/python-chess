@@ -3649,16 +3649,18 @@ class ThreeCheckTestCase(unittest.TestCase):
 
     def test_three_check_root(self):
         board = chess.variant.ThreeCheckBoard("r1bq1bnr/pppp1kpp/2n5/4p3/4P3/8/PPPP1PPP/RNBQK1NR w KQ - 2+3 0 4")
-        root = board.root()
-        self.assertEqual(root.remaining_checks[chess.WHITE], 2)
-        self.assertEqual(root.remaining_checks[chess.BLACK], 3)
+        self.assertEqual(board.root().remaining_checks[chess.WHITE], 2)
+        self.assertEqual(board.root().remaining_checks[chess.BLACK], 3)
+        self.assertEqual(board.copy().root().remaining_checks[chess.WHITE], 2)
+        self.assertEqual(board.copy().root().remaining_checks[chess.BLACK], 3)
 
         board.push_san("Qf3+")
         board.push_san("Ke6")
         board.push_san("Qb3+")
-        root = board.root()
-        self.assertEqual(root.remaining_checks[chess.WHITE], 2)
-        self.assertEqual(root.remaining_checks[chess.BLACK], 3)
+        self.assertEqual(board.root().remaining_checks[chess.WHITE], 2)
+        self.assertEqual(board.root().remaining_checks[chess.BLACK], 3)
+        self.assertEqual(board.copy().root().remaining_checks[chess.WHITE], 2)
+        self.assertEqual(board.copy().root().remaining_checks[chess.BLACK], 3)
 
 
 class CrazyhouseTestCase(unittest.TestCase):
@@ -3746,6 +3748,8 @@ class CrazyhouseTestCase(unittest.TestCase):
         black_pocket = "bp"
         self.assertEqual(str(board.root().pockets[chess.WHITE]), white_pocket)
         self.assertEqual(str(board.root().pockets[chess.BLACK]), black_pocket)
+        self.assertEqual(str(board.copy().root().pockets[chess.WHITE]), white_pocket)
+        self.assertEqual(str(board.copy().root().pockets[chess.BLACK]), black_pocket)
 
         board.push_san("N@h6+")
         board.push_san("Kh8")
@@ -3754,6 +3758,8 @@ class CrazyhouseTestCase(unittest.TestCase):
         board.push_san("Nxf7#")
         self.assertEqual(str(board.root().pockets[chess.WHITE]), white_pocket)
         self.assertEqual(str(board.root().pockets[chess.BLACK]), black_pocket)
+        self.assertEqual(str(board.copy().root().pockets[chess.WHITE]), white_pocket)
+        self.assertEqual(str(board.copy().root().pockets[chess.BLACK]), black_pocket)
 
 
 class GiveawayTestCase(unittest.TestCase):

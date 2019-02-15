@@ -589,8 +589,9 @@ class ThreeCheckBoard(chess.Board):
 
     def copy(self, stack=True):
         board = super().copy(stack=stack)
-        board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.WHITE]
-        board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.BLACK]
+        board.remaining_checks = self.remaining_checks.copy()
+        if board._stack:
+            board._root_remaining_checks = self._root_remaining_checks.copy()
         return board
 
     def mirror(self):
@@ -602,8 +603,7 @@ class ThreeCheckBoard(chess.Board):
     def root(self):
         board = super().root()
         if self._stack:
-            board.remaining_checks[chess.WHITE] = self._root_remaining_checks[chess.WHITE]
-            board.remaining_checks[chess.BLACK] = self._root_remaining_checks[chess.BLACK]
+            board.remaining_checks = self._root_remaining_checks.copy()
         return board
 
 
@@ -824,6 +824,8 @@ class CrazyhouseBoard(chess.Board):
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
+        if self._stack:
+            board._root_pockets = [pocket.copy() for pocket in self._root_pockets]
         return board
 
     def mirror(self):

@@ -3309,8 +3309,7 @@ class Board(BaseBoard):
         """
         Creates a copy of the board.
 
-        Defaults to copying the entire move stack. Alternatively, *stack* can
-        be ``False``, or an integer to copy a limited number of moves.
+        Defaults to copying the entire move stack.
         """
         board = super().copy()
 
