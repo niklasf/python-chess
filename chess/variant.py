@@ -465,6 +465,17 @@ class HordeBoard(chess.Board):
         return status
 
 
+class _ThreeCheckBoardState:
+    def __init__(self, board):
+        self.board_state = chess._BoardState(board)
+        self.remaining_checks_w = board.remaining_checks[chess.WHITE]
+        self.remaining_checks_b = board.remaining_checks[chess.BLACK]
+
+    def restore(self, board):
+        self.board_state.restore(board)
+        board.remaining_checks[chess.WHITE] = self.remaining_checks_w
+        board.remaining_checks[chess.BLACK] = self.remaining_checks_b
+
 class ThreeCheckBoard(chess.Board):
 
     aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
@@ -477,7 +488,6 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.remaining_checks = [3, 3]
-        self._root_remaining_checks = None
         super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
@@ -490,20 +500,13 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.WHITE] = 3
         self.remaining_checks[chess.BLACK] = 3
 
-    def push(self, move):
-        if not self._stack:
-            self._root_remaining_checks = self.remaining_checks.copy()
+    def _board_state(self):
+        return _ThreeCheckBoardState(self)
 
+    def push(self, move):
         super().push(move)
         if self.is_check():
             self.remaining_checks[not self.turn] -= 1
-
-    def pop(self):
-        was_in_check = self.is_check()
-        move = super().pop()
-        if was_in_check:
-            self.remaining_checks[self.turn] += 1
-        return move
 
     def has_insufficient_material(self, color):
         # Any remaining piece can give check.
@@ -590,8 +593,6 @@ class ThreeCheckBoard(chess.Board):
     def copy(self, stack=True):
         board = super().copy(stack=stack)
         board.remaining_checks = self.remaining_checks.copy()
-        if board._stack:
-            board._root_remaining_checks = self._root_remaining_checks.copy()
         return board
 
     def mirror(self):
@@ -600,12 +601,17 @@ class ThreeCheckBoard(chess.Board):
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
         return board
 
-    def root(self):
-        board = super().root()
-        if self._stack:
-            board.remaining_checks = self._root_remaining_checks.copy()
-        return board
 
+class _CrazyhouseBoardState:
+    def __init__(self, board):
+        self.board_state = chess._BoardState(board)
+        self.pockets_w = board.pockets[chess.WHITE].copy()
+        self.pockets_b = board.pockets[chess.BLACK].copy()
+
+    def restore(self, board):
+        self.board_state.restore(board)
+        board.pockets[chess.WHITE] = self.pockets_w.copy()
+        board.pockets[chess.BLACK] = self.pockets_b.copy()
 
 class CrazyhousePocket:
 
@@ -652,7 +658,6 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
-        self._root_pockets = None
         super().__init__(fen, chess960=chess960)
 
     def reset_board(self):
@@ -665,25 +670,13 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
+    def _board_state(self):
+        return _CrazyhouseBoardState(self)
+
     def push(self, move):
-        if not self._stack:
-            self._root_pockets = [pocket.copy() for pocket in self.pockets]
-
-        if move.drop:
-            self.pockets[self.turn].remove(move.drop)
-
         super().push(move)
-
-    def pop(self):
-        move = super().pop()
         if move.drop:
-            self.pockets[self.turn].add(move.drop)
-        elif self.is_capture(move):
-            if self.is_en_passant(move) or chess.BB_SQUARES[move.to_square] & self.promoted:
-                self.pockets[self.turn].remove(chess.PAWN)
-            else:
-                self.pockets[self.turn].remove(self.piece_type_at(move.to_square))
-        return move
+            self.pockets[not self.turn].remove(move.drop)
 
     def _push_capture(self, move, capture_square, piece_type, was_promoted):
         if was_promoted:
@@ -824,21 +817,12 @@ class CrazyhouseBoard(chess.Board):
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
-        if self._stack:
-            board._root_pockets = [pocket.copy() for pocket in self._root_pockets]
         return board
 
     def mirror(self):
         board = super().mirror()
         board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
-        return board
-
-    def root(self):
-        board = super().root()
-        if self._stack:
-            board.pockets[chess.WHITE] = self._root_pockets[chess.WHITE].copy()
-            board.pockets[chess.BLACK] = self._root_pockets[chess.BLACK].copy()
         return board
 
     def status(self):

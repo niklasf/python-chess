@@ -1875,6 +1875,9 @@ class Board(BaseBoard):
 
         return False
 
+    def _board_state(self):
+        return _BoardState(self)
+
     def _push_capture(self, move, capture_square, piece_type, was_promoted):
         pass
 
@@ -1901,7 +1904,7 @@ class Board(BaseBoard):
         # Push move and remember board state.
         move = self._to_chess960(move)
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
-        self._stack.append(_BoardState(self))
+        self._stack.append(self._board_state())
 
         # Reset en passant square.
         ep_square = self.ep_square
@@ -3309,7 +3312,8 @@ class Board(BaseBoard):
         """
         Creates a copy of the board.
 
-        Defaults to copying the entire move stack.
+        Defaults to copying the entire move stack. Alternatively, *stack* can
+        be ``False``, or an integer to copy a limited number of moves.
         """
         board = super().copy()
 
