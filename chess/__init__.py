@@ -3306,6 +3306,12 @@ class Board(BaseBoard):
         return board
 
     def copy(self, *, stack=True):
+        """
+        Creates a copy of the board.
+
+        Defaults to copying the entire move stack. Alternatively, *stack* can
+        be ``False``, or an integer to copy a limited number of moves.
+        """
         board = super().copy()
 
         board.chess960 = self.chess960
