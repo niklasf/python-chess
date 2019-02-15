@@ -205,7 +205,7 @@ class AtomicBoard(chess.Board):
         return self.kings and not self.kings & self.occupied_co[self.turn]
 
     def has_insufficient_material(self, color):
-        # Remaining material does not matter if opponents king is already
+        # Remaining material does not matter if opponent's king is already
         # exploded.
         if not (self.occupied_co[not color] & self.kings):
             return False
@@ -214,7 +214,7 @@ class AtomicBoard(chess.Board):
         if not (self.occupied_co[color] & ~self.kings):
             return True
 
-        # As long as the opponent king is not alone there is always a chance
+        # As long as the opponent's king is not alone, there is always a chance
         # their own pieces explode next to it.
         if self.occupied_co[not color] & ~self.kings:
             # Unless there are only bishops that cannot explode each other.
