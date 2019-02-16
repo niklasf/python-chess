@@ -721,16 +721,11 @@ class CrazyhouseBoard(chess.Board):
 
     def is_pseudo_legal(self, move):
         if move.drop and move.from_square == move.to_square:
-            if move.drop == chess.KING:
-                return False
-
-            if chess.BB_SQUARES[move.to_square] & self.occupied:
-                return False
-
-            if move.drop == chess.PAWN and chess.BB_SQUARES[move.to_square] & chess.BB_BACKRANKS:
-                return False
-
-            return self.pockets[self.turn].count(move.drop) > 0
+            return (
+                move.drop != chess.KING and
+                not chess.BB_SQUARES[move.to_square] & self.occupied and
+                not (move.drop == chess.PAWN and chess.BB_SQUARES[move.to_square] & chess.BB_BACKRANKS) and
+                self.pockets[self.turn].count(move.drop) > 0)
         else:
             return super().is_pseudo_legal(move)
 
