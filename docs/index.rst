@@ -14,6 +14,10 @@ Contents
     engine
     svg
     variant
+
+.. toctree::
+    :maxdepth: 1
+
     changelog
 
 Indices and tables
