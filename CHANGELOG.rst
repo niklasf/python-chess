@@ -1,6 +1,31 @@
 Changelog for python-chess
 ==========================
 
+Upcoming changes
+----------------
+
+This is the first **release candidate for python-chess 1.0**. If you see the
+need for breaking changes, please speak up now!
+
+Changes:
+
+* `chess.engine` **is now stable and replaces**
+  `chess.uci` **and** `chess.xboard`.
+* Advanced: `EngineProtocol.initialize()` is now public for use with custom
+  transports.
+* Removed `__ne__` implementations (not required since Python 3).
+* Assorted documentation and coding-style improvements.
+
+New features:
+
+* Check insufficient material for a specific side:
+  `board.has_insufficient_material(color)`.
+* Copy boards with limited stack depth: `board.copy(stack=depth)`.
+
+Bugfixes:
+
+* Properly handle delayed engine errors, for example unsupported options.
+
 New in v0.25.1
 --------------
 
