@@ -304,13 +304,12 @@ python-chess, for example:
 
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
 * a website to probe Syzygy endgame tablebases – https://syzygy-tables.info/
-* a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
 * deep learning for Crazyhouse – https://github.com/QueensGambit/CrazyAra
-* a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
-* a bot to play chess on Telegram – https://github.com/cxjdavin/tgchessbot
-* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a bridge between Lichess API and chess engines – https://github.com/careless25/lichess-bot
+* a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
+* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a JIT compiled chess engine – https://github.com/SamRagusa/Batch-First
+* a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
 
 Acknowledgements
 ----------------
@@ -323,10 +322,6 @@ Some move generation ideas are taken from these sources.
 Thanks to Ronald de Man for his
 `Syzygy endgame tablebases <https://github.com/syzygy1/tb>`_.
 The probing code in python-chess is very directly ported from his C probing code.
-
-Thanks to Miguel A. Ballicora for his
-`Gaviota tablebases <https://github.com/michiguel/Gaviota-Tablebases>`_.
-(I wish the generating code was free software.)
 
 License
 -------
