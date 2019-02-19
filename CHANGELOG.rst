@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming changes
-----------------
+New in v0.26.0
+--------------
 
 This is the first **release candidate for python-chess 1.0**. If you see the
 need for breaking changes, please speak up now!
