@@ -1122,6 +1122,25 @@ def read_game(handle, *, Visitor=GameCreator):
     if line.isspace():
         line = handle.readline()
 
+    if not skipping_game:
+        # Chess variant.
+        headers = managed_headers if headers is None else headers
+        try:
+            VariantBoard = headers.variant()
+        except ValueError as error:
+            visitor.handle_error(error)
+            VariantBoard = chess.Board
+
+        # Initial position.
+        fen = headers.get("FEN", VariantBoard.starting_fen)
+        try:
+            board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
+        except ValueError as error:
+            visitor.handle_error(error)
+            skipping_game = True
+        else:
+            visitor.visit_board(board_stack[0])
+
     # Fast path: Skip entire game.
     if skipping_game:
         in_comment = False
@@ -1147,23 +1166,6 @@ def read_game(handle, *, Visitor=GameCreator):
 
         visitor.end_game()
         return visitor.result()
-
-    # Chess variant.
-    headers = managed_headers if headers is None else headers
-    try:
-        VariantBoard = headers.variant()
-    except ValueError as error:
-        visitor.handle_error(error)
-        VariantBoard = chess.Board
-
-    # Initial position.
-    fen = headers.get("FEN", VariantBoard.starting_fen)
-    try:
-        board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
-    except ValueError as error:
-        visitor.handle_error(error)
-        board_stack = [VariantBoard(chess960=headers.is_chess960())]
-    visitor.visit_board(board_stack[0])
 
     # Parse movetext.
     skip_variation_depth = 0
