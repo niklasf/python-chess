@@ -2075,7 +2075,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game[0].uci(), "e2e4")
         self.assertEqual(game[1].san(), "d4")
         self.assertEqual(game[1].uci(), "d2d4")
-        self.assertEqual(len(game.errors), 2)
+        self.assertEqual(len(game.errors), 0)
 
         # Survive superfluous opening brackets.
         pgn = io.StringIO("((( 1. c4 *")
@@ -2083,7 +2083,7 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
         self.assertEqual(game[0].san(), "c4")
-        self.assertEqual(len(game.errors), 3)
+        self.assertEqual(len(game.errors), 0)
 
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
@@ -2378,11 +2378,18 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["Result"], "1-0")
 
     def test_errors(self):
-        pgn = io.StringIO("1. e4 Qa1 e5 2. Qxf8")
+        pgn = io.StringIO("""
+            1. e4 Qa1 e5 2. Qxf8
+
+            1. a3""")
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
-        self.assertEqual(len(game.errors), 2)
+        self.assertEqual(len(game.errors), 1)
+        self.assertEqual(game.end().board().fen(), "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.end().board().fen(), "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1")
 
     def test_add_line(self):
         game = chess.pgn.Game()

@@ -1206,23 +1206,22 @@ def read_game(handle, *, Visitor=GameCreator):
                 if line:
                     read_next_line = False
                 break
-            elif token == "(" and board_stack[-1].move_stack:
+            elif token == "(":
                 if skip_variation_depth:
                     skip_variation_depth += 1
-                elif visitor.begin_variation() is SKIP:
-                    skip_variation_depth = 1
-                else:
-                    board = board_stack[-1].copy()
-                    board.pop()
-                    board_stack.append(board)
-            elif token == ")" and skip_variation_depth:
-                skip_variation_depth -= 1
-                if not skip_variation_depth:
+                elif board_stack[-1].move_stack:
+                    if visitor.begin_variation() is SKIP:
+                        skip_variation_depth = 1
+                    else:
+                        board = board_stack[-1].copy()
+                        board.pop()
+                        board_stack.append(board)
+            elif token == ")":
+                if skip_variation_depth:
+                    skip_variation_depth -= 1
+                if len(board_stack) > 1:
                     visitor.end_variation()
-            elif token == ")" and len(board_stack) > 1:
-                # Always leave at least the root node on the stack.
-                visitor.end_variation()
-                board_stack.pop()
+                    board_stack.pop()
             elif skip_variation_depth:
                 continue
             elif token.startswith(";"):
@@ -1250,6 +1249,7 @@ def read_game(handle, *, Visitor=GameCreator):
                     move = visitor.parse_san(board_stack[-1], token)
                 except ValueError as error:
                     visitor.handle_error(error)
+                    skip_variation_depth = 1
                 else:
                     visitor.visit_move(board_stack[-1], move)
                     board_stack[-1].push(move)
