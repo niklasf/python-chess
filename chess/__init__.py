@@ -2111,56 +2111,91 @@ class Board(BaseBoard):
 
         :raises: :exc:`ValueError` if the FEN string is invalid.
         """
-        # Ensure there are six parts.
         parts = fen.split()
-        if len(parts) != 6:
-            raise ValueError("fen string should consist of 6 parts: {!r}".format(fen))
 
-        # Check that the turn part is valid.
-        if not parts[1] in ["w", "b"]:
-            raise ValueError("expected 'w' or 'b' for turn part of fen: {!r}".format(fen))
+        # Board part.
+        try:
+            board_part = parts.pop(0)
+        except IndexError:
+            raise ValueError("empty fen")
 
-        # Check that the castling part is valid.
-        if not FEN_CASTLING_REGEX.match(parts[2]):
-            raise ValueError("invalid castling part in fen: {!r}".format(fen))
+        # Turn.
+        try:
+            turn_part = parts.pop(0)
+        except IndexError:
+            turn = WHITE
+        else:
+            if turn_part == "w":
+                turn = WHITE
+            elif turn_part == "b":
+                turn = BLACK
+            else:
+                raise ValueError("expected 'w' or 'b' for turn part of fen: {!r}".format(fen))
 
-        # Check that the en passant part is valid.
-        if parts[3] != "-":
-            if parts[3] not in SQUARE_NAMES:
+        # Validate castling part.
+        try:
+            castling_part = parts.pop(0)
+        except IndexError:
+            castling_part = "-"
+        else:
+            if not FEN_CASTLING_REGEX.match(castling_part):
+                raise ValueError("invalid castling part in fen: {!r}".format(fen))
+
+        # En passant square.
+        try:
+            ep_part = parts.pop(0)
+        except IndexError:
+            ep_square = None
+        else:
+            try:
+                ep_square = None if ep_part == "-" else SQUARE_NAMES.index(ep_part)
+            except ValueError:
                 raise ValueError("invalid en passant part in fen: {!r}".format(fen))
 
         # Check that the half-move part is valid.
-        if int(parts[4]) < 0:
-            raise ValueError("half-move clock can not be negative: {!r}".format(fen))
+        try:
+            halfmove_part = parts.pop(0)
+        except IndexError:
+            halfmove_clock = 0
+        else:
+            try:
+                halfmove_clock = int(halfmove_part)
+            except ValueError:
+                raise ValueError("invalid half-move clock in fen: {!r}".format(fen))
+
+            if halfmove_clock < 0:
+                raise ValueError("half-move clock cannot be negative: {!r}".format(fen))
 
         # Check that the full-move number part is valid.
         # 0 is allowed for compability, but later replaced with 1.
-        if int(parts[5]) < 0:
-            raise ValueError("full-move number must be positive: {!r}".format(fen))
+        try:
+            fullmove_part = parts.pop(0)
+        except IndexError:
+            fullmove_number = 1
+        else:
+            try:
+                fullmove_number = int(fullmove_part)
+            except ValueError:
+                raise ValueError("invalid fullmove number in fen: {!r}".format(fen))
+
+            if fullmove_number < 0:
+                raise ValueError("fullmove number cannot be negative: {!r}".format(fen))
+
+            fullmove_number = max(fullmove_number, 1)
+
+        # All parts should be consumed now.
+        if parts:
+            raise ValueError("fen string has more parts than expected: {!r}".format(fen))
 
         # Validate the board part and set it.
-        self._set_board_fen(parts[0])
+        self._set_board_fen(board_part)
 
-        # Set the turn.
-        if parts[1] == "w":
-            self.turn = WHITE
-        else:
-            self.turn = BLACK
-
-        # Set castling flags.
-        self._set_castling_fen(parts[2])
-
-        # Set the en passant square.
-        if parts[3] == "-":
-            self.ep_square = None
-        else:
-            self.ep_square = SQUARE_NAMES.index(parts[3])
-
-        # Set the mover counters.
-        self.halfmove_clock = int(parts[4])
-        self.fullmove_number = int(parts[5]) or 1
-
-        # Clear move stack.
+        # Apply.
+        self.turn = turn
+        self._set_castling_fen(castling_part)
+        self.ep_square = ep_square
+        self.halfmove_clock = halfmove_clock
+        self.fullmove_number = fullmove_number
         self.clear_stack()
 
     def _set_castling_fen(self, castling_fen):
@@ -2457,23 +2492,18 @@ class Board(BaseBoard):
 
         :raises: :exc:`ValueError` if the EPD string is invalid.
         """
-        # Split into 4 or 5 parts.
         parts = epd.strip().rstrip(";").split(None, 4)
-        if len(parts) < 4:
-            raise ValueError("epd should consist of at least 4 parts: {!r}".format(epd))
 
         # Parse ops.
         if len(parts) > 4:
             operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts) + " 0 1"))
+            parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
+            parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
+            self.set_fen(" ".join(parts))
+            return operations
         else:
-            operations = {}
-
-        # Create a full FEN and parse it.
-        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
-        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
-        self.set_fen(" ".join(parts))
-
-        return operations
+            self.set_fen(epd)
+            return {}
 
     def san(self, move):
         """

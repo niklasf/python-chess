@@ -513,44 +513,39 @@ class ThreeCheckBoard(chess.Board):
         return not (self.occupied_co[color] & ~self.kings)
 
     def set_epd(self, epd):
-        # Split into 5 or 6 parts.
         parts = epd.strip().rstrip(";").split(None, 5)
-        if len(parts) < 5:
-            raise ValueError("three-check epd should consist of at least 5 parts: {}".format(repr(epd)))
 
         # Parse ops.
         if len(parts) > 5:
             operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts + " 0 1")))
+            parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
+            parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
+            self.set_fen(" ".join(parts))
+            return operations
         else:
-            operations = {}
-
-        # Create a full FEN an parse it.
-        parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
-        parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
-        self.set_fen(" ".join(parts))
-
-        return operations
+            self.set_fen(epd)
+            return {}
 
     def set_fen(self, fen):
         parts = fen.split()
-        if len(parts) != 7:
-            raise ValueError("three-check fen should consist of 7 parts: {}".format(repr(fen)))
 
         # Extract check part.
-        if parts[6][0] == "+":
-            check_part = parts.pop()[1:]
+        if len(parts) >= 7 and parts[6][0] == "+":
+            check_part = parts.pop(6)
             try:
-                w, b = check_part.split("+", 1)
+                w, b = check_part[1:].split("+", 1)
                 wc, bc = 3 - int(w), 3 - int(b)
             except ValueError:
                 raise ValueError("invalid check part in lichess three-check fen: {}".format(repr(check_part)))
-        else:
+        elif len(parts) >= 5 and "+" in parts[4]:
             check_part = parts.pop(4)
             try:
                 w, b = check_part.split("+", 1)
                 wc, bc = int(w), int(b)
             except ValueError:
                 raise ValueError("invalid check part in three-check fen: {}".format(repr(check_part)))
+        else:
+            wc, bc = 3, 3
 
         # Set fen.
         super().set_fen(" ".join(parts))
