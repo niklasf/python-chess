@@ -1229,12 +1229,7 @@ def read_game(handle, *, Visitor=GameCreator):
                 break
             elif token.startswith("$"):
                 # Found a NAG.
-                try:
-                    nag = int(token[1:])
-                except ValueError as error:
-                    visitor.handle_error(error)
-                else:
-                    visitor.visit_nag(nag)
+                visitor.visit_nag(int(token[1:]))
             elif token == "?":
                 visitor.visit_nag(NAG_MISTAKE)
             elif token == "??":
