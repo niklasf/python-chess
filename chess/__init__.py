@@ -2457,7 +2457,7 @@ class Board(BaseBoard):
                         # A variation.
                         operations[opcode] = []
                         for token in operand.split():
-                            move = position.parse_san(token)
+                            move = position.parse_xboard(token)
                             operations[opcode].append(move)
                             position.push(move)
 
@@ -2466,10 +2466,10 @@ class Board(BaseBoard):
                             position.pop()
                     elif opcode in ["bm", "am"]:
                         # A set of moves.
-                        operations[opcode] = [position.parse_san(token) for token in operand.split()]
+                        operations[opcode] = [position.parse_xboard(token) for token in operand.split()]
                     else:
                         # A single move.
-                        operations[opcode] = position.parse_san(operand)
+                        operations[opcode] = position.parse_xboard(operand)
 
                     opcode = ""
                     operand = ""
