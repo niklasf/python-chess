@@ -3445,6 +3445,10 @@ class SquareSet(collections.abc.MutableSet):
 
     >>> import chess
     >>>
+    >>> squares = chess.SquareSet([chess.A8, chess.A1])
+    >>> squares
+    SquareSet(0x0100000000000001)
+
     >>> squares = chess.SquareSet(chess.BB_A8 | chess.BB_RANK_1)
     >>> squares
     SquareSet(0x01000000000000ff)
