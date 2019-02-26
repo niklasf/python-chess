@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
-import collections
 import copy
 import contextlib
 import logging
@@ -28,7 +27,6 @@ import platform
 import sys
 import tempfile
 import textwrap
-import threading
 import unittest
 import io
 
