@@ -310,6 +310,7 @@ python-chess, for example:
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a JIT compiled chess engine – https://github.com/SamRagusa/Batch-First
 * a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
+* teaching Cognitive Science – `https://jupyter.brynmawr.edu <https://jupyter.brynmawr.edu/services/public/dblank/CS371%20Cognitive%20Science/2016-Fall/Programming%20a%20Chess%20Player.ipynb>`_
 
 Acknowledgements
 ----------------
