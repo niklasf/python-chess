@@ -21,7 +21,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     import chess
     import chess.engine
 
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
 
     board = chess.Board()
     while not board.is_game_over():
@@ -37,7 +37,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     import chess.engine
 
     async def main():
-        transport, engine = await chess.engine.popen_uci("stockfish")
+        transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         board = chess.Board()
         while not board.is_game_over():
@@ -128,7 +128,7 @@ Example:
     import chess
     import chess.engine
 
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
 
     board = chess.Board()
     info = engine.analyse(board, chess.engine.Limit(time=0.100))
@@ -149,7 +149,7 @@ Example:
     import chess.engine
 
     async def main():
-        transport, engine = await chess.engine.popen_uci("stockfish")
+        transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         board = chess.Board()
         info = await engine.analyse(board, chess.engine.Limit(time=0.100))
@@ -193,7 +193,7 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     import chess
     import chess.engine
 
-    engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
 
     with engine.analysis(chess.Board()) as analysis:
         for info in analysis:
@@ -212,7 +212,7 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     import chess.engine
 
     async def main():
-        transport, engine = await chess.engine.popen_uci("stockfish")
+        transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         with await engine.analysis(chess.Board()) as analysis:
             async for info in analysis:
@@ -253,7 +253,7 @@ Options
 
 >>> import chess.engine
 >>>
->>> engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+>>> engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
 >>>
 >>> # Check available options.
 >>> engine.options["Hash"]
@@ -270,7 +270,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     import chess.engine
 
     async def main():
-        transport, protocol = await chess.engine.popen_uci("stockfish")
+        transport, protocol = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         # Check available options.
         print(engine.options["Hash"])
@@ -366,7 +366,7 @@ to communicate with an engine on a remote computer.
 
     async def main():
         async with asyncssh.connect("localhost") as conn:
-            channel, engine = await conn.create_subprocess(chess.engine.UciProtocol, "stockfish")
+            channel, engine = await conn.create_subprocess(chess.engine.UciProtocol, "/usr/bin/stockfish")
             await engine.initialize()
 
             # Play, analyse, ...
