@@ -354,8 +354,8 @@ AsyncSSH
 --------
 
 :class:`~chess.engine.EngineProtocol` can also be used with
-`AsyncSSH <https://asyncssh.readthedocs.io/en/latest/>`_ (currently requires
-``develop`` branch).
+`AsyncSSH <https://asyncssh.readthedocs.io/en/latest/>`_ (since 1.16.0)
+to communicate with an engine on a remote computer.
 
 .. code:: python
 
