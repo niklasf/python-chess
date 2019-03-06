@@ -161,6 +161,12 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
+    if lastmove:
+        try:
+            lastmove = chess.SquareSet([lastmove.from_square, lastmove.to_square])
+        except AttributeError:
+            lastmove = chess.SquareSet(lastmove)
+
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
@@ -169,9 +175,10 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
         y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
-        if lastmove and square in [lastmove.from_square, lastmove.to_square]:
+        if lastmove and square in lastmove:
             cls.append("lastmove")
         fill_color = DEFAULT_COLORS[" ".join(cls)]
+
         cls.append(chess.SQUARE_NAMES[square])
 
         ET.SubElement(svg, "rect", {
