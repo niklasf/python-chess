@@ -2624,6 +2624,15 @@ class EngineTestCase(unittest.TestCase):
                 self.fail("all info should have been consumed")
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_multipv(self):
+        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
+            board = chess.Board("r2qr1k1/pb2npp1/1pn1p2p/8/3P4/P1PQ1N2/B4PPP/R1B1R1K1 w - - 2 15")
+            result = engine.analyse(board, chess.engine.Limit(depth=1), multipv=3)
+            self.assertEqual(len(result), 3)
+            self.assertTrue(result[0]["score"].relative >= result[1]["score"].relative)
+            self.assertTrue(result[1]["score"].relative >= result[2]["score"].relative)
+
+    @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
         engine = chess.engine.SimpleEngine.popen_uci("stockfish", debug=True)
 

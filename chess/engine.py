@@ -737,7 +737,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
-        analysis = yield from self.analysis(board, limit, game=game, info=info, root_moves=root_moves, options=options)
+        analysis = yield from self.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
 
         with analysis:
             yield from analysis.wait()
