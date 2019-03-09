@@ -1876,7 +1876,7 @@ class Board(BaseBoard):
 
     def is_repetition(self, count=3):
         """
-        Check if the current position has repeated 3 (or a given number) of
+        Checks if the current position has repeated 3 (or a given number of)
         times.
 
         Unlike :func:`~chess.Board.can_claim_threefold_repetition()`,
