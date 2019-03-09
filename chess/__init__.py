@@ -1866,12 +1866,11 @@ class Board(BaseBoard):
         # The next legal move is a threefold repetition.
         for move in self.generate_legal_moves():
             self.push(move)
-
-            if transpositions[self._transposition_key()] >= 2:
+            try:
+                if transpositions[self._transposition_key()] >= 2:
+                    return True
+            finally:
                 self.pop()
-                return True
-
-            self.pop()
 
         return False
 
