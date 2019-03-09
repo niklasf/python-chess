@@ -1083,33 +1083,43 @@ class BoardTestCase(unittest.TestCase):
         # Go back and forth with the nights to reach the starting position
         # for a second time.
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Nf3")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Nf6")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Ng1")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Ng8")
 
         # Once more.
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Nf3")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Nf6")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Ng1")
 
         # Now black can go back to the starting position (thus reaching it a
         # third time.)
         self.assertTrue(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
         board.push_san("Ng8")
 
-        # They indee do it. Also white can now claim.
+        # They indeed do it. Also white can now claim.
         self.assertTrue(board.can_claim_threefold_repetition())
+        self.assertTrue(board.is_repetition())
 
         # But not after a different move.
         board.push_san("e4")
         self.assertFalse(board.can_claim_threefold_repetition())
+        self.assertFalse(board.is_repetition())
 
         # Undo moves and check if everything works backwards.
         board.pop()  # e4

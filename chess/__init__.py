@@ -1874,6 +1874,44 @@ class Board(BaseBoard):
 
         return False
 
+    def is_repetition(self, count=3):
+        """
+        Check if the current position has repeated 3 (or a given number) of
+        times.
+
+        Unlike :func:`~chess.Board.can_claim_threefold_repetition()`,
+        this does not consider a repetition that can be played on the next
+        move.
+
+        Note that checking this can be slow: In the worst case the entire
+        game has to be replayed because there is no incremental transposition
+        table.
+        """
+        transposition_key = self._transposition_key()
+        switchyard = []
+
+        try:
+            while True:
+                if count <= 1:
+                    return True
+
+                if not self.move_stack:
+                    break
+
+                move = self.pop()
+                switchyard.append(move)
+
+                if self.is_irreversible(move):
+                    break
+
+                if self._transposition_key() == transposition_key:
+                    count -= 1
+        finally:
+            while switchyard:
+                self.push(switchyard.pop())
+
+        return False
+
     def _board_state(self):
         return _BoardState(self)
 
