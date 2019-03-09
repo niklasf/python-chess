@@ -1,6 +1,31 @@
 Changelog for python-chess
 ==========================
 
+New in v0.27.0
+--------------
+
+This is the second **release candidate for python-chess 1.0**. If you see the
+need for breaking changes, please speak up now!
+
+Bugfixes:
+
+* `EngineProtocol.analyse(*, multipv)` was not passing this argument to the
+  engine and therefore only returned the first principal variation.
+  Thanks @svangordon.
+* `chess.svg.board(*, squares)`: The X symbol on selected squares is now more
+  visible when it overlaps pieces.
+
+Changes:
+
+* **FEN/EPD parsing is now more relaxed**: Incomplete FENs and EPDs are
+  completed with reasonable defaults (`w - - 0 1`). The EPD parser accepts
+  fields with moves in UCI notation (for example the technically invalid
+  `bm g1f3` instead of `bm Nf3`).
+* The PGN parser now skips games with invalid FEN headers and variations after
+  an illegal move (after handling the error as usual).
+* Document that `chess.engine.EngineProtocol` is compatible with
+  AsyncSSH 1.16.0.
+
 New in v0.26.0
 --------------
 
