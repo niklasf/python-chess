@@ -23,6 +23,10 @@ Changes:
   `bm g1f3` instead of `bm Nf3`).
 * The PGN parser now skips games with invalid FEN headers and variations after
   an illegal move (after handling the error as usual).
+
+New features:
+
+* Added `Board.is_repetition(count=3)`.
 * Document that `chess.engine.EngineProtocol` is compatible with
   AsyncSSH 1.16.0.
 
