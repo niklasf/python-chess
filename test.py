@@ -2987,6 +2987,36 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    def test_xboard_level(self):
+        @asyncio.coroutine
+        def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
+            yield from protocol.initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(black_clock=65, white_clock=100,
+                                       black_inc=4, white_inc=8)
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("level 0 1:40 8")
+            mock.expect("time 10000")
+            mock.expect("otim 6500")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            result = yield from protocol.play(chess.Board(), limit)
+            self.assertEqual(result.move, chess.Move.from_uci("e2e4"))
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
+            loop.run_until_complete(main())
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass
