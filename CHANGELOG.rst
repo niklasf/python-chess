@@ -7,7 +7,7 @@ New in v0.27.1
 Bugfixes:
 
 * `chess.engine.XBoardProtocol.play()` was raising `KeyError` when using time
-  controls with increment or remaining moves.
+  controls with increment or remaining moves. Thanks @pascalgeo.
 
 New in v0.27.0
 --------------
