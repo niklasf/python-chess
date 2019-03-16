@@ -1745,8 +1745,8 @@ class XBoardProtocol(EngineProtocol):
                         move = engine.board.push_xboard(arg)
                     except ValueError as err:
                         self.result.set_exception(EngineError(err))
-
-                    self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
+                    else:
+                        self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
 
                 if not ponder:
                     self.end(engine)
