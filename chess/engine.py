@@ -1201,8 +1201,7 @@ class UciProtocol(EngineProtocol):
                             try:
                                 bestmove = engine.board.parse_uci(tokens[0])
                             except ValueError as err:
-                                self.result.set_exception(EngineError(err))
-                                return
+                                raise EngineError(err)
 
                         pondermove = None
                         if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
@@ -1547,8 +1546,12 @@ class XBoardProtocol(EngineProtocol):
             def end(self, engine):
                 if not engine.features.get("ping", 0):
                     self.result.set_exception(EngineError("xboard engine did not declare required feature: ping"))
+                    self.set_finished()
+                    return
                 if not engine.features.get("setboard", 0):
                     self.result.set_exception(EngineError("xboard engine did not declare required feature: setboard"))
+                    self.set_finished()
+                    return
 
                 if not engine.features.get("reuse", 1):
                     LOGGER.warning("%s: Rejecting feature reuse=0", engine)
