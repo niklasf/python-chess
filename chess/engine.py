@@ -1695,12 +1695,12 @@ class XBoardProtocol(EngineProtocol):
                     elif not engine.features["nps"]:
                         raise EngineError("xboard engine does not support node limits (feature nps=0)")
 
-                    engine.send_line("nps 100")
+                    engine.send_line("nps 1")
                     engine.send_line("st {}".format(int(limit.nodes)))
                 if limit.depth is not None:
                     engine.send_line("sd {}".format(limit.depth))
                 if limit.time is not None:
-                    engine.send_line("st {}".format(int(limit.time * 100)))
+                    engine.send_line("st {:0.3f}".format(limit.time))
                 if limit.white_clock is not None:
                     engine.send_line("{} {}".format("time" if board.turn else "otim", int(limit.white_clock * 100)))
                 if limit.black_clock is not None:
