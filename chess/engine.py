@@ -798,9 +798,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         popen_args.update(kwargs)
 
         loop = _get_running_loop()
-        transport, protocol = yield from loop.subprocess_exec(cls, *command, **popen_args)
-        yield from protocol.initialize()
-        return transport, protocol
+        return (yield from loop.subprocess_exec(cls, *command, **popen_args))
 
 
 class CommandState(enum.Enum):
@@ -2120,7 +2118,12 @@ def popen_uci(command, *, setpgrp=False, **popen_args):
 
     Returns a subprocess transport and engine protocol pair.
     """
-    return (yield from UciProtocol.popen(command, setpgrp=setpgrp, **popen_args))
+    transport, protocol = yield from UciProtocol.popen(command, setpgrp=setpgrp, **popen_args)
+    try:
+        yield from protocol.initialize()
+    finally:
+        transport.close()
+    return transport, protocol
 
 
 @asyncio.coroutine
@@ -2140,7 +2143,12 @@ def popen_xboard(command, *, setpgrp=False, **popen_args):
 
     Returns a subprocess transport and engine protocol pair.
     """
-    return (yield from XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args))
+    transport, protocol = yield from XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args)
+    try:
+        yield from protocol.initialize()
+    finally:
+        transport.close()
+    return transport, protocol
 
 
 class SimpleEngine:
@@ -2255,12 +2263,15 @@ class SimpleEngine:
     def popen(cls, Protocol, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
         @asyncio.coroutine
         def background(future):
-            transport, protocol = yield from asyncio.wait_for(Protocol.popen(command, setpgrp=setpgrp, **popen_args), timeout)
+            transport, protocol = yield from Protocol.popen(command, setpgrp=setpgrp, **popen_args)
             simple_engine = cls(transport, protocol, timeout=timeout)
-            future.set_result(simple_engine)
-            returncode = yield from protocol.returncode
-            simple_engine.returncode.set_result(returncode)
-            simple_engine.close()
+            try:
+                yield from asyncio.wait_for(protocol.initialize(), timeout)
+                future.set_result(simple_engine)
+                returncode = yield from protocol.returncode
+                simple_engine.returncode.set_result(returncode)
+            finally:
+                simple_engine.close()
             yield from simple_engine.shutdown_event.wait()
 
         return run_in_background(background, debug=debug)
