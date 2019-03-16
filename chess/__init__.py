@@ -3343,9 +3343,11 @@ class Board(BaseBoard):
 
     def _repr_svg_(self):
         import chess.svg
-        lastmove = self.peek() if self.move_stack else None
-        check = self.king(self.turn) if self.is_check() else None
-        return chess.svg.board(board=self, lastmove=lastmove, check=check, size=400)
+        return chess.svg.board(
+            board=self,
+            size=400,
+            lastmove=self.peek() if self.move_stack else None,
+            check=self.king(self.turn) if self.is_check() else None)
 
     def __eq__(self, board):
         try:
