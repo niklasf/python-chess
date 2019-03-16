@@ -1873,9 +1873,16 @@ class XBoardProtocol(EngineProtocol):
 
         return (yield from self.communicate(Command))
 
+    def _getoption(self, option, default=None):
+        if option in self.config:
+            return self.config[option]
+        if option in self.options:
+            return self.options[option].default
+        return default
+
     def _configure(self, options):
         for name, value in options.items():
-            if value is not None and self.config.get(name) == value:
+            if value is not None and value == self._getoption(name):
                 continue
 
             try:
