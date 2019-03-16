@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+New in v0.27.2
+--------------
+
+Bugfixes:
+
+* `chess.engine.XBoardProtocol.play()` was searching 100 times longer than
+  intended when using `chess.engine.Limit.time`, and searching 100 times more
+  nodes than intended when using `chess.engine.Limit.nodes`. Thanks @pascalgeo.
+
 New in v0.27.1
 --------------
 
