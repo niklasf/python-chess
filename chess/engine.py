@@ -1001,7 +1001,7 @@ class UciProtocol(EngineProtocol):
 
     def debug(self, on=True):
         """
-        Switches debug move of the engine on or off. This does not interrupt
+        Switches debug mode of the engine on or off. This does not interrupt
         other ongoing operations.
         """
         if on:
