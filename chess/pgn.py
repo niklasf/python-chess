@@ -497,6 +497,10 @@ class Game(GameNode):
         """Creates an empty game without the default 7 tag roster."""
         return cls(headers={})
 
+    @classmethod
+    def creator(cls):
+        return GameCreator(game_factory=cls)
+
     def __repr__(self):
         return "<{} at {:#x} ({!r} vs. {!r}, {!r})>".format(
             type(self).__name__,
@@ -595,6 +599,10 @@ class Headers(collections.abc.MutableMapping):
         return "{}({})".format(
             type(self).__name__,
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
+
+    @classmethod
+    def creator(cls):
+        return HeaderCreator(header_factory=lambda: cls({}))
 
 
 class Mainline:
@@ -759,8 +767,11 @@ class GameCreator(BaseVisitor):
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
+    def __init__(self, *, game_factory=Game):
+        self.game_factory = game_factory
+
     def begin_game(self):
-        self.game = Game()
+        self.game = self.game_factory()
 
         self.variation_stack = [self.game]
         self.starting_comment = ""
@@ -822,8 +833,11 @@ class GameCreator(BaseVisitor):
 class HeaderCreator(BaseVisitor):
     """Collects headers into a dictionary."""
 
+    def __init__(self, *, header_factory=lambda: Headers({})):
+        self.header_factory = header_factory
+
     def begin_headers(self):
-        self.headers = Headers({})
+        self.headers = self.header_factory()
         return self.headers
 
     def visit_header(self, tagname, tagvalue):
@@ -1027,7 +1041,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle, *, Visitor=GameCreator):
+def read_game(handle, *, Visitor=Game.creator):
     """
     Reads a game from a file opened in text mode.
 
