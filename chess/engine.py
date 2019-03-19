@@ -536,12 +536,12 @@ class MockTransport:
 
             if line.startswith("ping ") and self.expected_pings:
                 self.expected_pings -= 1
-                self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n"))
+                self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n")
             else:
                 assert self.expectations, "unexpected: {}".format(line)
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, "expected {}, got: {}".format(expectation, line)
-                self.protocol.loop.call_soon(lambda: self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n"))
+                self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
 
     def get_pid(self):
         return id(self)
@@ -601,9 +601,9 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
             line = line.decode("utf-8")
             if fd == 1:
-                self._line_received(line)
+                self.loop.call_soon(self._line_received, line)
             else:
-                self.error_line_received(line)
+                self.loop.call_soon(self.error_line_received, line)
 
     def error_line_received(self, line):
         LOGGER.warning("%s: stderr >> %s", self, line)
