@@ -398,7 +398,8 @@ class GameNode:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self):
-        return "<GameNode at {:#x} ({}{} {} ...)>".format(
+        return "<{} at {:#x} ({}{} {} ...)>".format(
+            type(self).__name__,
             id(self),
             self.parent.board().fullmove_number,
             "." if self.parent.board().turn == chess.WHITE else "...",
@@ -497,7 +498,8 @@ class Game(GameNode):
         return cls(headers={})
 
     def __repr__(self):
-        return "<Game at {:#x} ({!r} vs. {!r}, {!r})>".format(
+        return "<{} at {:#x} ({!r} vs. {!r}, {!r})>".format(
+            type(self).__name__,
             id(self),
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
