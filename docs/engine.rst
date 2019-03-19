@@ -97,7 +97,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     .. py:attribute:: move
 
-        The best move accordig to the engine.
+        The best move accordig to the engine, or ``None``.
 
     .. py:attribute:: ponder
 
@@ -117,6 +117,10 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: draw_offered
 
         Whether the engine offered a draw before moving.
+
+    .. py:attribute:: resigned
+
+        Whether the engine resigned.
 
 Analysing and evaluating a position
 -----------------------------------
