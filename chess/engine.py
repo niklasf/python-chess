@@ -901,6 +901,7 @@ class UciProtocol(EngineProtocol):
         super().__init__()
         self.options = UciOptionMap()
         self.config = UciOptionMap()
+        self.target_config = UciOptionMap()
         self.id = {}
         self.board = chess.Board()
         self.game = None
@@ -982,6 +983,9 @@ class UciProtocol(EngineProtocol):
                 option = Option(name, type, without_default.parse(default), min, max, var)
                 engine.options[option.name] = option
 
+                if option.default is not None and not option.is_managed():
+                    engine.target_config[option.name] = option.default
+
             def _id(self, engine, arg):
                 key, value = arg.split(" ", 1)
                 engine.id[key] = value
@@ -1045,18 +1049,18 @@ class UciProtocol(EngineProtocol):
             self.send_line(" ".join(builder))
             self.config[name] = value
 
-    def _configure(self, options):
-        for name, value in options.items():
+    def _configure(self, options, allow_managed=False):
+        for name, value in collections.ChainMap(options, self.target_config).items():
             if name.lower() in MANAGED_OPTIONS:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
-            else:
-                self._setoption(name, value)
+            self._setoption(name, value)
 
     @asyncio.coroutine
     def configure(self, options):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._configure(options)
+                engine.target_config.update(options)
                 self.set_finished()
 
         return (yield from self.communicate(Command))
@@ -1145,8 +1149,6 @@ class UciProtocol(EngineProtocol):
 
     @asyncio.coroutine
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
-        previous_config = self.config.copy()
-
         class Command(BaseCommand):
             def start(self, engine):
                 self.info = {}
@@ -1222,14 +1224,6 @@ class UciProtocol(EngineProtocol):
                         self.end(engine)
 
             def end(self, engine):
-                # Restore options.
-                for name, value in previous_config.items():
-                    if name.lower() not in MANAGED_OPTIONS:
-                        engine._setoption(name, value)
-                for name, option in engine.options.items():
-                    if name.lower() not in MANAGED_OPTIONS and name not in previous_config and option.default is not None:
-                        engine._setoption(name, option.default)
-
                 self.set_finished()
 
             def cancel(self, engine):
@@ -1239,8 +1233,6 @@ class UciProtocol(EngineProtocol):
 
     @asyncio.coroutine
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        previous_config = self.config.copy()
-
         class Command(BaseCommand):
             def start(self, engine):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1248,7 +1240,6 @@ class UciProtocol(EngineProtocol):
 
                 if "UCI_AnalyseMode" in engine.options:
                     engine._setoption("UCI_AnalyseMode", True)
-
                 if "MultiPV" in engine.options or (multipv and multipv > 1):
                     engine._setoption("MultiPV", 1 if multipv is None else multipv)
 
@@ -1287,14 +1278,6 @@ class UciProtocol(EngineProtocol):
                 self.analysis.post(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine, arg):
-                # Restore options.
-                for name, value in previous_config.items():
-                    if name.lower() not in MANAGED_OPTIONS:
-                        engine._setoption(name, value)
-                for name, option in engine.options.items():
-                    if name.lower() not in MANAGED_OPTIONS and name not in previous_config and option.default is not None:
-                        engine._setoption(name, option.default)
-
                 self.analysis.set_finished()
                 self.set_finished()
 
