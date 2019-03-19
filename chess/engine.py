@@ -1213,7 +1213,7 @@ class UciProtocol(EngineProtocol):
                             except ValueError:
                                 LOGGER.exception("engine sent invalid ponder move")
 
-                        self.result.set_result(PlayResult(bestmove, pondermove, self.info, False))
+                        self.result.set_result(PlayResult(bestmove, pondermove, self.info))
 
                         if ponder and pondermove:
                             self.pondering = True
