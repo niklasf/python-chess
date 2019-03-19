@@ -2130,6 +2130,7 @@ def popen_uci(command, *, setpgrp=False, **popen_args):
         yield from protocol.initialize()
     except:
         transport.close()
+        raise
     return transport, protocol
 
 
@@ -2155,6 +2156,7 @@ def popen_xboard(command, *, setpgrp=False, **popen_args):
         yield from protocol.initialize()
     except:
         transport.close()
+        raise
     return transport, protocol
 
 
