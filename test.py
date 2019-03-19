@@ -3611,6 +3611,10 @@ class HordeTestCase(unittest.TestCase):
         board = chess.variant.HordeBoard()
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
+        # Black (non-horde) piece on first rank.
+        board = chess.variant.HordeBoard("rnb1kbnr/ppp1pppp/2Pp2PP/1P3PPP/PPP1PPPP/PPP1PPPP/PPP1PPP1/PPPqPP2 w kq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
     def test_double_pawn_push(self):
         board = chess.variant.HordeBoard("8/8/8/8/8/3k1p2/8/PPPPPPPP w - - 0 1")
 
