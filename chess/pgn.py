@@ -113,13 +113,18 @@ SKIP = object()
 class GameNode:
     def __init__(self):
         self.parent = None
+        self.variations = []
+
         self.move = None
         self.nags = set()
         self.starting_comment = ""
         self.comment = ""
-        self.variations = []
 
         self.board_cached = None
+
+    @classmethod
+    def dangling_node(cls):
+        return GameNode()
 
     def board(self, *, _cache=True):
         """
@@ -265,12 +270,13 @@ class GameNode:
 
     def add_variation(self, move, *, comment="", starting_comment="", nags=()):
         """Creates a child node with the given attributes."""
-        node = GameNode()
+        node = type(self).dangling_node()
         node.move = move
         node.nags = set(nags)
-        node.parent = self
         node.comment = comment
         node.starting_comment = starting_comment
+
+        node.parent = self
         self.variations.append(node)
         return node
 
