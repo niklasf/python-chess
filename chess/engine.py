@@ -1060,7 +1060,7 @@ class UciProtocol(EngineProtocol):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._configure(options)
-                engine.target_config.update(options)
+                engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
         return (yield from self.communicate(Command))
