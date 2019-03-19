@@ -267,15 +267,17 @@ class Limit:
 class PlayResult:
     """Returned by :func:`chess.engine.EngineProtocol.play()`."""
 
-    def __init__(self, move, ponder, info=None, draw_offered=False):
+    def __init__(self, move, ponder, info=None, draw_offered=False, resigned=False):
         self.move = move
         self.ponder = ponder
         self.info = info or {}
         self.draw_offered = draw_offered
+        self.resigned = resigned
 
     def __repr__(self):
-        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={})>".format(
-            type(self).__name__, id(self), self.move, self.ponder, self.info, self.draw_offered)
+        return "<{} at {:#x} (move={}, ponder={}, info={}, draw_offered={}, resigned={})>".format(
+            type(self).__name__, id(self), self.move, self.ponder, self.info,
+            self.draw_offered, self.resigned)
 
 
 class Info(_IntFlag):
@@ -1722,7 +1724,7 @@ class XBoardProtocol(EngineProtocol):
                 elif line == "offer draw":
                     self.draw_offered = True
                 elif line == "resign":
-                    self.result.set_exception(EngineError("xboard engine resigned"))
+                    self.result.set_result(PlayResult(None, None, self.info, self.draw_offered, resigned=True))
                     self.end(engine)
                 elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
                     if not self.result.done():
