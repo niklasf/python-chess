@@ -1871,6 +1871,7 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.Game()
         game.comment = "Test game:"
         game.headers["Result"] = "*"
+        game.headers["VeryLongHeader"] = "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
         e4.comment = "Scandinavian defense:"
@@ -1911,6 +1912,7 @@ class PgnTestCase(unittest.TestCase):
             [White "?"]
             [Black "?"]
             [Result "*"]
+            [VeryLongHeader "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"]
 
             { Test game: } 1. e4 { Scandinavian defense: } 1... d5 ( { This } 1... h5 $2
             { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
