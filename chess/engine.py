@@ -1644,14 +1644,14 @@ class XBoardProtocol(EngineProtocol):
     @asyncio.coroutine
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         if root_moves is not None:
-            raise EngineError("play with root_moves, but xboard supports include only in analysis mode")
+            raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
         class Command(BaseCommand):
             def start(self, engine):
-                self.info = {}
+                self.play_result = PlayResult(None, None)
                 self.stopped = False
-                self.final_pong = None
-                self.draw_offered = False
+                self.pong_after_move = None
+                self.pong_after_ponder = None
 
                 # Set game, position and configure.
                 engine._new(board, game, options)
@@ -1690,20 +1690,28 @@ class XBoardProtocol(EngineProtocol):
             def line_received(self, engine, line):
                 if line.startswith("move "):
                     self._move(engine, line.split(" ", 1)[1])
-                elif line == self.final_pong:
+                elif line.startswith("Hint: "):
+                    self._hint(engine, line.split(" ", 1)[1])
+                elif line == self.pong_after_move:
                     if not self.result.done():
-                        self.result.set_exception(EngineError("xboard engine answered final pong before sending move"))
-                    self.end(engine)
+                        self.result.set_result(self.play_result)
+                    if not ponder:
+                        self.set_finished()
+                elif line == self.pong_after_ponder:
+                    if not self.result.done():
+                        self.result.set_result(self.play_result)
+                    self.set_finished()
                 elif line == "offer draw":
-                    self.draw_offered = True
-                elif line == "resign":
-                    self.result.set_result(PlayResult(None, None, self.info, draw_offered=self.draw_offered, resigned=True))
-                    self.end(engine)
-                elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
                     if not self.result.done():
-                        self.result.set_result(PlayResult(None, None, self.info, draw_offered=self.draw_offered))
-                    self.end(engine)
-                elif line.startswith("#") or line.startswith("Hint:"):
+                        self.play_result.draw_offered = True
+                    self._ping_after_move(engine)
+                elif line == "resign":
+                    if not self.result.done():
+                        self.play_result.resigned = True
+                    self._ping_after_move(engine)
+                elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
+                    self._ping_after_move(engine)
+                elif line.startswith("#"):
                     pass
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
                     self._post(engine, line)
@@ -1712,19 +1720,36 @@ class XBoardProtocol(EngineProtocol):
 
             def _post(self, engine, line):
                 if not self.result.done():
-                    self.info = _parse_xboard_post(line, engine.board, info)
+                    self.play_result.info = _parse_xboard_post(line, engine.board, info)
 
             def _move(self, engine, arg):
-                if not self.result.cancelled():
+                if not self.result.done() and self.play_result.move is None:
                     try:
-                        move = engine.board.push_xboard(arg)
+                        self.play_result.move = engine.board.push_xboard(arg)
                     except ValueError as err:
                         self.result.set_exception(EngineError(err))
                     else:
-                        self.result.set_result(PlayResult(move, None, self.info, draw_offered=self.draw_offered))
+                        self._ping_after_move(engine)
+                else:
+                    try:
+                        engine.board.push_xboard(arg)
+                    except ValueError:
+                        LOGGER.exception("exception playing unexpected move")
 
-                if not ponder:
-                    self.end(engine)
+            def _hint(self, engine, arg):
+                if not self.result.done() and self.play_result.move is not None and self.play_result.ponder is None:
+                    try:
+                        self.play_result.ponder = engine.board.parse_xboard(arg)
+                    except ValueError:
+                        LOGGER.exception("exception parsing hint")
+                else:
+                    LOGGER.warning("unexpected hint: %r", arg)
+
+            def _ping_after_move(self, engine):
+                if self.pong_after_move is None:
+                    n = id(self) & 0xffff
+                    self.pong_after_move = "pong {}".format(n)
+                    engine._ping(n)
 
             def cancel(self, engine):
                 if self.stopped:
@@ -1737,12 +1762,9 @@ class XBoardProtocol(EngineProtocol):
                 if ponder:
                     engine.send_line("easy")
 
-                    n = id(self) & 0xffff
-                    self.final_pong = "pong {}".format(n)
+                    n = (id(self) + 1) & 0xffff
+                    self.pong_after_ponder = "pong {}".format(n)
                     engine._ping(n)
-
-            def end(self, engine):
-                self.set_finished()
 
         return (yield from self.communicate(Command))
 
