@@ -819,10 +819,8 @@ class BaseCommand:
         self.finished = asyncio.Future(loop=loop)
 
     def _engine_terminated(self, engine, code):
-        exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
-        self._handle_exception(engine, exc)
-
         if self.state in [CommandState.Active, CommandState.Cancelling]:
+            exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
             self.engine_terminated(engine, exc)
 
     def _handle_exception(self, engine, exc):
@@ -884,7 +882,7 @@ class BaseCommand:
         pass
 
     def engine_terminated(self, engine, exc):
-        pass
+        self._handle_exception(engine, exc)
 
     def __repr__(self):
         return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
@@ -1215,6 +1213,11 @@ class UciProtocol(EngineProtocol):
 
             def cancel(self, engine):
                 engine.send_line("stop")
+
+            def engine_terminated(self, engine, exc):
+                # Allow terminating engine while pondering.
+                if not self.result.done():
+                    super().engine_terminated(engine, exc)
 
         return (yield from self.communicate(Command))
 
@@ -1765,6 +1768,11 @@ class XBoardProtocol(EngineProtocol):
                     n = (id(self) + 1) & 0xffff
                     self.pong_after_ponder = "pong {}".format(n)
                     engine._ping(n)
+
+            def engine_terminated(self, engine, exc):
+                # Allow terminating engine while pondering.
+                if not self.result.done():
+                    super().engine_terminated(engine, exc)
 
         return (yield from self.communicate(Command))
 
