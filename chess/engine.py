@@ -267,7 +267,7 @@ class Limit:
 class PlayResult:
     """Returned by :func:`chess.engine.EngineProtocol.play()`."""
 
-    def __init__(self, move, ponder, info=None, draw_offered=False, resigned=False):
+    def __init__(self, move, ponder, info=None, *, draw_offered=False, resigned=False):
         self.move = move
         self.ponder = ponder
         self.info = info or {}
@@ -1707,11 +1707,11 @@ class XBoardProtocol(EngineProtocol):
                 elif line == "offer draw":
                     self.draw_offered = True
                 elif line == "resign":
-                    self.result.set_result(PlayResult(None, None, self.info, self.draw_offered, resigned=True))
+                    self.result.set_result(PlayResult(None, None, self.info, draw_offered=self.draw_offered, resigned=True))
                     self.end(engine)
                 elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
                     if not self.result.done():
-                        self.result.set_result(PlayResult(None, None, self.info, self.draw_offered))
+                        self.result.set_result(PlayResult(None, None, self.info, draw_offered=self.draw_offered))
                     self.end(engine)
                 elif line.startswith("#") or line.startswith("Hint:"):
                     pass
@@ -1731,7 +1731,7 @@ class XBoardProtocol(EngineProtocol):
                     except ValueError as err:
                         self.result.set_exception(EngineError(err))
                     else:
-                        self.result.set_result(PlayResult(move, None, self.info, self.draw_offered))
+                        self.result.set_result(PlayResult(move, None, self.info, draw_offered=self.draw_offered))
 
                 if not ponder:
                     self.end(engine)
