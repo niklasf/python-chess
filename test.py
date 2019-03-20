@@ -2509,6 +2509,21 @@ class PgnTestCase(unittest.TestCase):
         headers["Variant"] = "wild/1"
         self.assertTrue(headers.is_wild())
 
+    def test_my_game_node(self):
+        class MyGameNode(chess.pgn.GameNode):
+            @classmethod
+            def dangling_node(cls):
+                return MyGameNode()
+
+        class MyGame(chess.pgn.Game, MyGameNode):
+            pass
+
+        pgn = io.StringIO("1. e4")
+        game = chess.pgn.read_game(pgn, Visitor=MyGame.builder)
+        self.assertTrue(isinstance(game, MyGame))
+        node = game.variation(chess.Move.from_uci("e2e4"))
+        self.assertTrue(isinstance(node, MyGameNode))
+
 
 class EngineTestCase(unittest.TestCase):
 
