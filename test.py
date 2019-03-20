@@ -3043,7 +3043,7 @@ class EngineTestCase(unittest.TestCase):
         @asyncio.coroutine
         def main():
             transport, protocol = yield from chess.engine.popen_uci(["/bin/sh", "-c", "echo uciok && sleep 86400"])
-            protocol.loop.call_later(1.0, transport.close)
+            protocol.loop.call_later(0.01, transport.close)
             results = yield from asyncio.gather(protocol.ping(), protocol.ping(), return_exceptions=True)
             self.assertNotEqual(results[0], None)
             self.assertNotEqual(results[1], None)
