@@ -498,8 +498,8 @@ class Game(GameNode):
         return cls(headers={})
 
     @classmethod
-    def creator(cls):
-        return GameCreator(game_factory=cls)
+    def builder(cls):
+        return GameBuilder(Game=cls)
 
     def __repr__(self):
         return "<{} at {:#x} ({!r} vs. {!r}, {!r})>".format(
@@ -601,8 +601,8 @@ class Headers(collections.abc.MutableMapping):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def creator(cls):
-        return HeaderCreator(header_factory=lambda: cls({}))
+    def builder(cls):
+        return HeadersBuilder(Headers=lambda: cls({}))
 
 
 class Mainline:
@@ -762,16 +762,16 @@ class BaseVisitor:
         raise error
 
 
-class GameCreator(BaseVisitor):
+class GameBuilder(BaseVisitor):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
-    def __init__(self, *, game_factory=Game):
-        self.game_factory = game_factory
+    def __init__(self, *, Game=Game):
+        self.Game = Game
 
     def begin_game(self):
-        self.game = self.game_factory()
+        self.game = self.Game()
 
         self.variation_stack = [self.game]
         self.starting_comment = ""
@@ -830,14 +830,14 @@ class GameCreator(BaseVisitor):
         return self.game
 
 
-class HeaderCreator(BaseVisitor):
+class HeadersBuilder(BaseVisitor):
     """Collects headers into a dictionary."""
 
-    def __init__(self, *, header_factory=lambda: Headers({})):
-        self.header_factory = header_factory
+    def __init__(self, *, Headers=lambda: Headers({})):
+        self.Headers = Headers
 
     def begin_headers(self):
-        self.headers = self.header_factory()
+        self.headers = self.Headers()
         return self.headers
 
     def visit_header(self, tagname, tagvalue):
@@ -850,7 +850,7 @@ class HeaderCreator(BaseVisitor):
         return self.headers
 
 
-class BoardCreator(BaseVisitor):
+class BoardBuilder(BaseVisitor):
     """
     Returns the final position of the game. The mainline of the game is
     on the move stack.
@@ -1041,7 +1041,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle, *, Visitor=Game.creator):
+def read_game(handle, *, Visitor=GameBuilder):
     """
     Reads a game from a file opened in text mode.
 
@@ -1087,7 +1087,7 @@ def read_game(handle, *, Visitor=Game.creator):
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. Any exceptions are logged and collected in
     :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
-    :func:`overriden <chess.pgn.GameCreator.handle_error>`.
+    :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
@@ -1322,7 +1322,7 @@ def read_headers(handle):
     3067
     <Game at ... ('Garry Kasparov' vs. 'Deep Blue (Computer)', 1997.??.??)>
     """
-    return read_game(handle, Visitor=HeaderCreator)
+    return read_game(handle, Visitor=HeadersBuilder)
 
 
 def skip_game(handle):
@@ -1330,3 +1330,9 @@ def skip_game(handle):
     Skip a game. Returns ``True`` if a game was found and skipped.
     """
     return read_game(handle, Visitor=SkipVisitor)
+
+
+# TODO: Remove aliases
+GameCreator = GameBuilder
+HeaderCreator = HeadersBuilder
+BoardCreator = BoardBuilder
