@@ -1049,7 +1049,7 @@ class UciProtocol(EngineProtocol):
             self.send_line(" ".join(builder))
             self.config[name] = value
 
-    def _configure(self, options, allow_managed=False):
+    def _configure(self, options):
         for name, value in collections.ChainMap(options, self.target_config).items():
             if name.lower() in MANAGED_OPTIONS:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
@@ -1469,6 +1469,7 @@ class XBoardProtocol(EngineProtocol):
             "computer": Option("computer", "check", False, None, None, None),
         }
         self.config = {}
+        self.target_config = {}
         self.board = chess.Board()
         self.game = None
         self.first_game = True
@@ -1550,6 +1551,10 @@ class XBoardProtocol(EngineProtocol):
                         name = "egtpath {}".format(egt)
                         engine.options[name] = Option(name, "path", None, None, None, None)
                     engine.send_line("accept egt")
+
+                for option in engine.options.values():
+                    if option.default is not None and not option.is_managed():
+                        engine.target_config[option.name] = option.default
 
                 engine.initialized = True
                 self.set_finished()
@@ -1638,8 +1643,6 @@ class XBoardProtocol(EngineProtocol):
 
     @asyncio.coroutine
     def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
-        previous_config = self.config.copy()
-
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports include only in analysis mode")
 
@@ -1739,20 +1742,12 @@ class XBoardProtocol(EngineProtocol):
                     engine._ping(n)
 
             def end(self, engine):
-                if not self.finished.done():
-                    engine._configure(previous_config)
-                    for name, option in engine.options.items():
-                        if name not in previous_config and option.default is not None:
-                            engine._configure({name: option.default})
-
-                    self.set_finished()
+                self.set_finished()
 
         return (yield from self.communicate(Command))
 
     @asyncio.coroutine
     def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
-        previous_config = self.config.copy()
-
         if multipv is not None:
             raise EngineError("xboard engine does not support multipv")
 
@@ -1815,12 +1810,6 @@ class XBoardProtocol(EngineProtocol):
                     self.time_limit_handle.cancel()
 
                 self.analysis.set_finished()
-
-                engine._configure(previous_config)
-                for name, option in engine.options.items():
-                    if name not in previous_config and option.default is not None:
-                        engine._configure({name: option.default})
-
                 self.set_finished()
 
             def cancel(self, engine):
@@ -1852,36 +1841,43 @@ class XBoardProtocol(EngineProtocol):
             return self.options[option].default
         return default
 
+    def _setoption(self, name, value):
+        if value is not None and value == self._getoption(name):
+            return
+
+        try:
+            option = self.options[name]
+        except KeyError:
+            raise EngineError("unsupported xboard option or command: {}".format(name))
+
+        self.config[name] = value = option.parse(value)
+
+        if name in ["random", "computer"]:
+            # Applied in _new.
+            pass
+        elif name in ["memory", "cores"] or name.startswith("egtpath "):
+            self.send_line("{} {}".format(name, value))
+        elif value is None:
+            self.send_line("option {}".format(name))
+        elif value is True:
+            self.send_line("option {}=1".format(name))
+        elif value is False:
+            self.send_line("option {}=0".format(name))
+        else:
+            self.send_line("option {}={}".format(name, value))
+
     def _configure(self, options):
-        for name, value in options.items():
-            if value is not None and value == self._getoption(name):
-                continue
-
-            try:
-                option = self.options[name]
-            except KeyError:
-                raise EngineError("unsupported xboard option or command: {}".format(name))
-
-            self.config[name] = value = option.parse(value)
-
-            if name in ["random", "computer"]:
-                pass
-            elif name in ["memory", "cores"] or name.startswith("egtpath "):
-                self.send_line("{} {}".format(name, value))
-            elif value is None:
-                self.send_line("option {}".format(name))
-            elif value is True:
-                self.send_line("option {}=1".format(name))
-            elif value is False:
-                self.send_line("option {}=0".format(name))
-            else:
-                self.send_line("option {}={}".format(name, value))
+        for name, value in collections.ChainMap(options, self.target_config).items():
+            if name.lower() in MANAGED_OPTIONS:
+                raise EngineError("cannot set {} which is automatically managed".format(name))
+            self._setoption(name, value)
 
     @asyncio.coroutine
     def configure(self, options):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._configure(options)
+                engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
         return (yield from self.communicate(Command))
