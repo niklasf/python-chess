@@ -1098,53 +1098,40 @@ class UciProtocol(EngineProtocol):
 
     def _go(self, limit, *, root_moves=None, ponder=False, infinite=False):
         builder = ["go"]
-
         if ponder:
             builder.append("ponder")
-
         if limit.white_clock is not None:
             builder.append("wtime")
             builder.append(str(int(limit.white_clock * 1000)))
-
         if limit.black_clock is not None:
             builder.append("btime")
             builder.append(str(int(limit.black_clock * 1000)))
-
         if limit.white_inc is not None:
             builder.append("winc")
             builder.append(str(int(limit.white_inc * 1000)))
-
         if limit.black_inc is not None:
             builder.append("binc")
             builder.append(str(int(limit.black_inc * 1000)))
-
         if limit.remaining_moves is not None and int(limit.remaining_moves) > 0:
             builder.append("movestogo")
             builder.append(str(int(limit.remaining_moves)))
-
         if limit.depth is not None:
             builder.append("depth")
             builder.append(str(int(limit.depth)))
-
         if limit.nodes is not None:
             builder.append("nodes")
             builder.append(str(int(limit.nodes)))
-
         if limit.mate is not None:
             builder.append("mate")
             builder.append(str(int(limit.mate)))
-
         if limit.time is not None:
             builder.append("movetime")
             builder.append(str(int(limit.time * 1000)))
-
         if infinite:
             builder.append("infinite")
-
         if root_moves:
             builder.append("searchmoves")
             builder.extend(move.uci() for move in root_moves)
-
         self.send_line(" ".join(builder))
 
     @asyncio.coroutine
