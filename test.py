@@ -3038,6 +3038,7 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    @catchAndSkip(FileNotFoundError, "need /bin/sh")
     def test_transport_close_with_pending(self):
         @asyncio.coroutine
         def main():
