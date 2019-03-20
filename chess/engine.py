@@ -819,16 +819,20 @@ class BaseCommand:
         self.finished = asyncio.Future(loop=loop)
 
     def _engine_terminated(self, engine, code):
-        if self.state in [CommandState.Active, CommandState.Cancelling]:
-            exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
+        exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
+        if self.state == CommandState.Active:
             self.engine_terminated(engine, exc)
+        elif self.state == CommandState.Cancelling:
+            self.finished.set_result(None)
+        elif self.state == CommandState.New:
+            self._handle_exception(engine, exc)
 
     def _handle_exception(self, engine, exc):
         if not self.result.done():
             self.result.set_exception(exc)
         else:
             self.loop.call_exception_handler({
-                "message": "engine command failed after returning preliminary result",
+                "message": "engine command failed after returning preliminary result ({!r})".format(self.result),
                 "exception": exc,
                 "protocol": engine,
                 "transport": engine.transport,

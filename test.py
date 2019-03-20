@@ -3038,6 +3038,20 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    def test_transport_close_with_pending(self):
+        @asyncio.coroutine
+        def main():
+            transport, protocol = yield from chess.engine.popen_uci(["/bin/sh", "-c", "echo uciok && sleep 86400"])
+            protocol.loop.call_later(1.0, transport.close)
+            results = yield from asyncio.gather(protocol.ping(), protocol.ping(), return_exceptions=True)
+            self.assertNotEqual(results[0], None)
+            self.assertNotEqual(results[1], None)
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
+            loop.run_until_complete(main())
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass
