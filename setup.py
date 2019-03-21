@@ -78,6 +78,7 @@ setuptools.setup(
     author_email=chess.__email__,
     description=chess.__doc__.replace("\n", " ").strip(),
     long_description=read_description(),
+    long_description_content_type="text/x-rst",
     license="GPL-3.0+",
     keywords="chess fen epd pgn polyglot syzygy gaviota uci xboard",
     url="https://github.com/niklasf/python-chess",
