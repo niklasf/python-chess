@@ -1,6 +1,35 @@
 Changelog for python-chess
 ==========================
 
+New in v0.27.3
+--------------
+
+Changes:
+
+* `XBoardProtocol` will no longer raise an exception when the engine resigned.
+  Instead it sets a new flag `PlayResult.resigned`. `resigned` and
+  `draw_offered` are keyword-only arguments.
+* Renamed `chess.pgn.{Game,Header,Board}Creator` to
+  `{Game,Headers,Board}Builder`. Aliases kept in place.
+
+Bugfixes:
+
+* Make `XBoardProtocol` robust against engines that send a move after claiming
+  a draw or resigning. Thanks @pascalgeo.
+* `XBoardProtocol` no longer ignores `Hint:` sent by the engine.
+* Fix handling of illegal moves in `XBoardProtocol`.
+* Fix exception when engine is shut down while pondering.
+* Fix unhandled internal exception and file descriptor leak when engine
+  initialization fails.
+* Fix `HordeBoard.status()` when black pieces are on the first rank.
+  Thanks @Wisling.
+
+New features:
+
+* Added `chess.pgn.Game.builder()`, `chess.pgn.Headers.builder()` and
+  `chess.pgn.GameNode.dangling_node()` to simplify subclassing `GameNode`.
+* `EngineProtocol.communicate()` is now also available in the synchronous API.
+
 New in v0.27.2
 --------------
 
