@@ -2222,6 +2222,12 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
         return future.result()
 
+    def communicate(self, command_factory):
+        with self._not_shut_down():
+            coro = self.protocol.communicate(command_factory)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return future.result()
+
     def configure(self, options):
         with self._not_shut_down():
             coro = asyncio.wait_for(self.protocol.configure(options), self.timeout)
