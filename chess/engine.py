@@ -35,31 +35,13 @@ try:
     # Python 3.7
     from asyncio import get_running_loop as _get_running_loop
 except ImportError:
-    try:
-        from asyncio import _get_running_loop
-    except ImportError:
-        # Python 3.4
-        def _get_running_loop():
-            return asyncio.get_event_loop()
+    from asyncio import _get_running_loop
 
 try:
     # Python 3.7
     from asyncio import all_tasks as _all_tasks
 except ImportError:
     _all_tasks = asyncio.Task.all_tasks
-
-try:
-    # Python 3.6
-    _IntFlag = enum.IntFlag
-except AttributeError:
-    _IntFlag = enum.IntEnum
-
-try:
-    StopAsyncIteration
-except NameError:
-    # Python 3.4
-    class StopAsyncIteration(Exception):
-        pass
 
 import chess
 
@@ -279,6 +261,11 @@ class PlayResult:
             type(self).__name__, id(self), self.move, self.ponder, self.info,
             self.draw_offered, self.resigned)
 
+
+try:
+    _IntFlag = enum.IntFlag  # Since Python 3.6
+except AttributeError:
+    _IntFlag = enum.IntEnum
 
 class Info(_IntFlag):
     """Select information sent by the chess engine."""
