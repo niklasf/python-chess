@@ -35,7 +35,7 @@ import enum
 import re
 import itertools
 
-from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable
+from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable, Type, TypeVar
 
 
 Color = bool
@@ -534,6 +534,8 @@ class Move:
         """
         return cls(0, 0)
 
+
+T = TypeVar("T", bound="BaseBoard")
 
 class BaseBoard:
     """
@@ -1213,12 +1215,12 @@ class BaseBoard:
         self.occupied = f(self.occupied)
         self.promoted = f(self.promoted)
 
-    def transform(self, f: Callable[[Bitboard], Bitboard]) -> "BaseBoard":
+    def transform(self: T, f: Callable[[Bitboard], Bitboard]) -> T:
         board = self.copy()
         board.apply_transform(f)
         return board
 
-    def mirror(self) -> "BaseBoard":
+    def mirror(self: T) -> T:
         """
         Returns a mirrored copy of the board.
 
@@ -1229,7 +1231,7 @@ class BaseBoard:
         board.occupied_co[WHITE], board.occupied_co[BLACK] = board.occupied_co[BLACK], board.occupied_co[WHITE]
         return board
 
-    def copy(self) -> "BaseBoard":
+    def copy(self: T) -> T:
         """Creates a copy of the board."""
         board = type(self)(None)
 
@@ -1256,7 +1258,7 @@ class BaseBoard:
         return board
 
     @classmethod
-    def empty(cls) -> "BaseBoard":
+    def empty(cls: Type[T]) -> T:
         """
         Creates a new empty board. Also see
         :func:`~chess.BaseBoard.clear_board()`.
@@ -1264,7 +1266,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls, sharnagl: int) -> "BaseBoard":
+    def from_chess960_pos(cls: Type[T], sharnagl: int) -> T:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1320,6 +1322,8 @@ class _BoardState:
         board.halfmove_clock = self.halfmove_clock
         board.fullmove_number = self.fullmove_number
 
+
+T = TypeVar("T", bound="Board")
 
 class Board(BaseBoard):
     """
@@ -1423,7 +1427,7 @@ class Board(BaseBoard):
         del self.move_stack[:]
         del self._stack[:]
 
-    def root(self) -> "Board":
+    def root(self: T) -> T:
         """Returns a copy of the root position."""
         if self._stack:
             board = type(self)(None, chess960=self.chess960)
@@ -2422,7 +2426,7 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
-    def _parse_epd_ops(self, operation_part: str, make_board: Callable[[], "Board"]) -> Dict[str, Union[None, Move, int, float, List[Move], str]]:
+    def _parse_epd_ops(self: T, operation_part: str, make_board: Callable[[], T]) -> Dict[str, Union[None, Move, int, float, List[Move], str]]:
         operations = {}
         state = "opcode"
         opcode = ""
@@ -3369,19 +3373,19 @@ class Board(BaseBoard):
         super().apply_transform(f)
         self.clear_stack()
 
-    def transform(self, f: Callable[[Bitboard], Bitboard]) -> "Board":
+    def transform(self: T, f: Callable[[Bitboard], Bitboard]) -> T:
         board = self.copy(stack=False)
         board.apply_transform(f)
         board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         board.castling_rights = f(self.castling_rights)
         return board
 
-    def mirror(self) -> "Board":
+    def mirror(self: T) -> T:
         board = super().mirror()
         board.turn = not self.turn
         return board
 
-    def copy(self, *, stack: Union[bool, int] = True) -> "Board":
+    def copy(self: T, *, stack: Union[bool, int] = True) -> T:
         """
         Creates a copy of the board.
 
@@ -3406,12 +3410,12 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls, *, chess960: bool = False) -> "Board":
+    def empty(cls: Type[T], *, chess960: bool = False) -> T:
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls, epd: str, *, chess960: bool = False) -> Tuple["Board", Dict[str, Union[None, Move, int, float, List[Move], str]]]:
+    def from_epd(cls: Type[T], epd: str, *, chess960: bool = False) -> Tuple[T, Dict[str, Union[None, Move, int, float, List[Move], str]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
@@ -3422,7 +3426,7 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls, sharnagl: int) -> "Board":
+    def from_chess960_pos(cls: Type[T], sharnagl: int) -> T:
         board = cls.empty(chess960=True)
         board.set_chess960_pos(sharnagl)
         return board
