@@ -812,8 +812,7 @@ class BaseBoard:
         """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)
-        if piece_type:
-            return Piece(piece_type, color)
+        return Piece(piece_type, color) if piece_type else None
 
     def _set_piece_at(self, square, piece_type, color, promoted=False):
         self._remove_piece_at(square)
