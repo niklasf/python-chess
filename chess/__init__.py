@@ -3607,7 +3607,7 @@ class SquareSet(collections.abc.MutableSet):
 
     def issuperset(self, other):
         """Test if this square set is a superset of another."""
-        return not bool(self & ~other)
+        return not bool(self & ~SquareSet(other))
 
     def union(self, other):
         return self | other
