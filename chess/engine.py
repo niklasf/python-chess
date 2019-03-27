@@ -2046,13 +2046,10 @@ class AnalysisResult:
         returns it. Returns ``None`` if the analysis has been stopped and
         all information has been consumed.
 
-        It might be more convenient to use ``async for info in analysis``
-        (requires at least Python 3.5).
+        It might be more convenient to use ``async for info in analysis: ...``.
         """
-        try:
-            return await self.__anext__()
-        except StopAsyncIteration:
-            return None
+        async for info in self:
+            return info
 
     async def __anext__(self):
         if self._seen_kork:
