@@ -619,13 +619,15 @@ class BaseBoard:
             mask = BB_SQUARES[square]
             color = bool(self.occupied_co[WHITE] & mask)
             return Piece(piece_type, color)
+        else:
+            return None
 
     def piece_type_at(self, square):
         """Gets the piece type at the given square."""
         mask = BB_SQUARES[square]
 
         if not self.occupied & mask:
-            return None
+            return None  # Early return
         elif self.pawns & mask:
             return PAWN
         elif self.knights & mask:
@@ -648,8 +650,7 @@ class BaseBoard:
         considered.
         """
         king_mask = self.occupied_co[color] & self.kings & ~self.promoted
-        if king_mask:
-            return msb(king_mask)
+        return msb(king_mask) if king_mask else None
 
     def attacks_mask(self, square):
         bb_square = BB_SQUARES[square]
@@ -794,7 +795,7 @@ class BaseBoard:
         elif piece_type == KING:
             self.kings ^= mask
         else:
-            return
+            return None
 
         self.occupied ^= mask
         self.occupied_co[WHITE] &= ~mask
@@ -3092,34 +3093,36 @@ class Board(BaseBoard):
         return errors
 
     def _valid_ep_square(self):
-        if self.ep_square:
-            if self.turn == WHITE:
-                ep_rank = 5
-                pawn_mask = shift_down(BB_SQUARES[self.ep_square])
-                seventh_rank_mask = shift_up(BB_SQUARES[self.ep_square])
-            else:
-                ep_rank = 2
-                pawn_mask = shift_up(BB_SQUARES[self.ep_square])
-                seventh_rank_mask = shift_down(BB_SQUARES[self.ep_square])
+        if not self.ep_square:
+            return None
 
-            # The en passant square must be on the third or sixth rank.
-            if square_rank(self.ep_square) != ep_rank:
-                return
+        if self.turn == WHITE:
+            ep_rank = 5
+            pawn_mask = shift_down(BB_SQUARES[self.ep_square])
+            seventh_rank_mask = shift_up(BB_SQUARES[self.ep_square])
+        else:
+            ep_rank = 2
+            pawn_mask = shift_up(BB_SQUARES[self.ep_square])
+            seventh_rank_mask = shift_down(BB_SQUARES[self.ep_square])
 
-            # The last move must have been a double pawn push, so there must
-            # be a pawn of the correct color on the fourth or fifth rank.
-            if not self.pawns & self.occupied_co[not self.turn] & pawn_mask:
-                return
+        # The en passant square must be on the third or sixth rank.
+        if square_rank(self.ep_square) != ep_rank:
+            return None
 
-            # And the en passant square must be empty.
-            if self.occupied & BB_SQUARES[self.ep_square]:
-                return
+        # The last move must have been a double pawn push, so there must
+        # be a pawn of the correct color on the fourth or fifth rank.
+        if not self.pawns & self.occupied_co[not self.turn] & pawn_mask:
+            return None
 
-            # And the second rank must be empty.
-            if self.occupied & seventh_rank_mask:
-                return
+        # And the en passant square must be empty.
+        if self.occupied & BB_SQUARES[self.ep_square]:
+            return None
 
-            return self.ep_square
+        # And the second rank must be empty.
+        if self.occupied & seventh_rank_mask:
+            return None
+
+        return self.ep_square
 
     def is_valid(self):
         """
