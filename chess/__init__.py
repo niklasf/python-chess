@@ -382,11 +382,11 @@ FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 class Piece:
     """A piece with type and color."""
 
-    def __init__(self, piece_type, color):
+    def __init__(self, piece_type: PieceType, color: Color):
         self.piece_type = piece_type
         self.color = color
 
-    def symbol(self):
+    def symbol(self) -> str:
         """
         Gets the symbol ``P``, ``N``, ``B``, ``R``, ``Q`` or ``K`` for white
         pieces or the lower-case variants for the black pieces.
@@ -394,7 +394,7 @@ class Piece:
         symbol = PIECE_SYMBOLS[self.piece_type]
         return symbol.upper() if self.color else symbol
 
-    def unicode_symbol(self, *, invert_color=False):
+    def unicode_symbol(self, *, invert_color: bool = False) -> str:
         """
         Gets the Unicode character for the piece.
         """
@@ -421,7 +421,7 @@ class Piece:
             return NotImplemented
 
     @classmethod
-    def from_symbol(cls, symbol):
+    def from_symbol(cls, symbol: str) -> "Piece":
         """
         Creates a :class:`~chess.Piece` instance from a piece symbol.
 
