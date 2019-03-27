@@ -114,7 +114,7 @@ The following visitors are readily available.
 .. autoclass:: chess.pgn.GameBuilder
     :members: handle_error, result
 
-.. autoclass:: chess.pgn.HeaderBuilder
+.. autoclass:: chess.pgn.HeadersBuilder
 
 .. autoclass:: chess.pgn.BoardBuilder
 
