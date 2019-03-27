@@ -606,8 +606,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def line_received(self, line):
         pass
 
-    @asyncio.coroutine
-    def communicate(self, command_factory):
+    async def communicate(self, command_factory):
         command = command_factory(self.loop)
 
         if self.returncode.done():
@@ -640,28 +639,25 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         elif not self.command.result.cancelled():
             self.command._cancel(self)
 
-        return (yield from command.result)
+        return await command.result
 
     def __repr__(self):
         pid = self.transport.get_pid() if self.transport is not None else "?"
         return "<{} (pid={})>".format(type(self).__name__, pid)
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def initialize(self):
+    async def initialize(self):
         """Initializes the engine."""
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def ping(self):
+    async def ping(self):
         """
         Pings the engine and waits for a response. Used to ensure the engine
         is still alive and idle.
         """
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def configure(self, options):
+    async def configure(self, options):
         """
         Configures global engine options.
 
@@ -671,8 +667,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
+    async def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         """
         Play a position.
 
@@ -698,8 +693,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
 
-    @asyncio.coroutine
-    def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
+    async def analyse(self, board, limit, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         """
         Analyses a position and returns a dictionary of
         `information <#chess.engine.PlayResult.info>`_.
@@ -726,16 +720,15 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
-        analysis = yield from self.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
+        analysis = await self.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
 
         with analysis:
-            yield from analysis.wait()
+            await analysis.wait()
 
         return analysis.info if multipv is None else analysis.multipv
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         """
         Starts analysing a position.
 
@@ -766,13 +759,11 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    @asyncio.coroutine
-    def quit(self):
+    async def quit(self):
         """Asks the engine to shut down."""
 
     @classmethod
-    @asyncio.coroutine
-    def popen(cls, command, *, setpgrp=False, **kwargs):
+    async def popen(cls, command, *, setpgrp=False, **kwargs):
         if not isinstance(command, list):
             command = [command]
 
@@ -787,7 +778,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         popen_args.update(kwargs)
 
         loop = _get_running_loop()
-        return (yield from loop.subprocess_exec(cls, *command, **popen_args))
+        return await loop.subprocess_exec(cls, *command, **popen_args)
 
 
 class CommandState(enum.Enum):
@@ -896,8 +887,7 @@ class UciProtocol(EngineProtocol):
         self.game = None
         self.first_game = True
 
-    @asyncio.coroutine
-    def initialize(self):
+    async def initialize(self):
         class Command(BaseCommand):
             def check_initialized(self, engine):
                 if engine.initialized:
@@ -979,7 +969,7 @@ class UciProtocol(EngineProtocol):
                 key, value = arg.split(" ", 1)
                 engine.id[key] = value
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
     def _isready(self):
         self.send_line("isready")
@@ -998,8 +988,7 @@ class UciProtocol(EngineProtocol):
         else:
             self.send_line("debug off")
 
-    @asyncio.coroutine
-    def ping(self):
+    async def ping(self):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._isready()
@@ -1010,7 +999,7 @@ class UciProtocol(EngineProtocol):
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
     def _getoption(self, option, default=None):
         if option in self.config:
@@ -1044,15 +1033,14 @@ class UciProtocol(EngineProtocol):
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             self._setoption(name, value)
 
-    @asyncio.coroutine
-    def configure(self, options):
+    async def configure(self, options):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
     def _position(self, board):
         # Select UCI_Variant and UCI_Chess960.
@@ -1123,8 +1111,7 @@ class UciProtocol(EngineProtocol):
             builder.extend(move.uci() for move in root_moves)
         self.send_line(" ".join(builder))
 
-    @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
+    async def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         class Command(BaseCommand):
             def start(self, engine):
                 self.info = {}
@@ -1210,10 +1197,9 @@ class UciProtocol(EngineProtocol):
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
-    @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         class Command(BaseCommand):
             def start(self, engine):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1269,12 +1255,11 @@ class UciProtocol(EngineProtocol):
                 LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
                 self.analysis.set_exception(exc)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
-    @asyncio.coroutine
-    def quit(self):
+    async def quit(self):
         self.send_line("quit")
-        yield from self.returncode
+        await self.returncode
 
 
 def _parse_uci_info(arg, root_board, selector=INFO_ALL):
@@ -1468,8 +1453,7 @@ class XBoardProtocol(EngineProtocol):
         self.game = None
         self.first_game = True
 
-    @asyncio.coroutine
-    def initialize(self):
+    async def initialize(self):
         class Command(BaseCommand):
             def check_initialized(self, engine):
                 if engine.initialized:
@@ -1553,7 +1537,7 @@ class XBoardProtocol(EngineProtocol):
                 engine.initialized = True
                 self.set_finished()
 
-        yield from self.communicate(Command)
+        return await self.communicate(Command)
 
     def _ping(self, n):
         self.send_line("ping {}".format(n))
@@ -1619,8 +1603,7 @@ class XBoardProtocol(EngineProtocol):
             self.send_line(self.board.xboard(move))
             self.board.push(move)
 
-    @asyncio.coroutine
-    def ping(self):
+    async def ping(self):
         class Command(BaseCommand):
             def start(self, engine):
                 n = id(self) & 0xffff
@@ -1633,10 +1616,9 @@ class XBoardProtocol(EngineProtocol):
                 elif not line.startswith("#"):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
-    @asyncio.coroutine
-    def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
+    async def play(self, board, limit, *, game=None, info=INFO_NONE, ponder=False, root_moves=None, options={}):
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
@@ -1765,10 +1747,9 @@ class XBoardProtocol(EngineProtocol):
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
-    @asyncio.coroutine
-    def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
+    async def analysis(self, board, limit=None, *, multipv=None, game=None, info=INFO_ALL, root_moves=None, options={}):
         if multipv is not None:
             raise EngineError("xboard engine does not support multipv")
 
@@ -1853,7 +1834,7 @@ class XBoardProtocol(EngineProtocol):
 
                 self.analysis.set_exception(exc)
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
     def _getoption(self, option, default=None):
         if option in self.config:
@@ -1893,20 +1874,18 @@ class XBoardProtocol(EngineProtocol):
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             self._setoption(name, value)
 
-    @asyncio.coroutine
-    def configure(self, options):
+    async def configure(self, options):
         class Command(BaseCommand):
             def start(self, engine):
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
-        return (yield from self.communicate(Command))
+        return await self.communicate(Command)
 
-    @asyncio.coroutine
-    def quit(self):
+    async def quit(self):
         self.send_line("quit")
-        yield from self.returncode
+        await self.returncode
 
 
 def _parse_xboard_option(feature):
@@ -2054,16 +2033,14 @@ class AnalysisResult:
             self._stop()
             self._stop = None
 
-    @asyncio.coroutine
-    def wait(self):
+    async def wait(self):
         """Waits until the analysis is complete (or stopped)."""
-        yield from self._finished
+        await self._finished
 
     def __aiter__(self):
         return self
 
-    @asyncio.coroutine
-    def next(self):
+    async def next(self):
         """
         Waits for the next dictionary of information from the engine and
         returns it. Returns ``None`` if the analysis has been stopped and
@@ -2073,19 +2050,18 @@ class AnalysisResult:
         (requires at least Python 3.5).
         """
         try:
-            return (yield from self.__anext__())
+            return await self.__anext__()
         except StopAsyncIteration:
             return None
 
-    @asyncio.coroutine
-    def __anext__(self):
+    async def __anext__(self):
         if self._seen_kork:
             raise StopAsyncIteration
 
-        info = yield from self._queue.get()
+        info = await self._queue.get()
         if info is KORK:
             self._seen_kork = True
-            yield from self._finished
+            await self._finished
             raise StopAsyncIteration
 
         return info
@@ -2097,8 +2073,7 @@ class AnalysisResult:
         self.stop()
 
 
-@asyncio.coroutine
-def popen_uci(command, *, setpgrp=False, **popen_args):
+async def popen_uci(command, *, setpgrp=False, **popen_args):
     """
     Spawns and initializes an UCI engine.
 
@@ -2114,17 +2089,16 @@ def popen_uci(command, *, setpgrp=False, **popen_args):
 
     Returns a subprocess transport and engine protocol pair.
     """
-    transport, protocol = yield from UciProtocol.popen(command, setpgrp=setpgrp, **popen_args)
+    transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, **popen_args)
     try:
-        yield from protocol.initialize()
+        await protocol.initialize()
     except:
         transport.close()
         raise
     return transport, protocol
 
 
-@asyncio.coroutine
-def popen_xboard(command, *, setpgrp=False, **popen_args):
+async def popen_xboard(command, *, setpgrp=False, **popen_args):
     """
     Spawns and initializes an XBoard engine.
 
@@ -2140,9 +2114,9 @@ def popen_xboard(command, *, setpgrp=False, **popen_args):
 
     Returns a subprocess transport and engine protocol pair.
     """
-    transport, protocol = yield from XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args)
+    transport, protocol = await XBoardProtocol.popen(command, setpgrp=setpgrp, **popen_args)
     try:
-        yield from protocol.initialize()
+        await protocol.initialize()
     except:
         transport.close()
         raise
@@ -2191,8 +2165,7 @@ class SimpleEngine:
 
     @property
     def options(self):
-        @asyncio.coroutine
-        def _get():
+        async def _get():
             return self.protocol.options.copy()
 
         with self._not_shut_down():
@@ -2201,8 +2174,7 @@ class SimpleEngine:
 
     @property
     def id(self):
-        @asyncio.coroutine
-        def _get():
+        async def _get():
             return self.protocol.id.copy()
 
         with self._not_shut_down():
@@ -2265,18 +2237,17 @@ class SimpleEngine:
 
     @classmethod
     def popen(cls, Protocol, command, *, timeout=10.0, debug=False, setpgrp=False, **popen_args):
-        @asyncio.coroutine
-        def background(future):
-            transport, protocol = yield from Protocol.popen(command, setpgrp=setpgrp, **popen_args)
+        async def background(future):
+            transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
             simple_engine = cls(transport, protocol, timeout=timeout)
             try:
-                yield from asyncio.wait_for(protocol.initialize(), timeout)
+                await asyncio.wait_for(protocol.initialize(), timeout)
                 future.set_result(simple_engine)
-                returncode = yield from protocol.returncode
+                returncode = await protocol.returncode
                 simple_engine.returncode.set_result(returncode)
             finally:
                 simple_engine.close()
-            yield from simple_engine.shutdown_event.wait()
+            await simple_engine.shutdown_event.wait()
 
         return run_in_background(background, debug=debug)
 
@@ -2319,8 +2290,7 @@ class SimpleAnalysisResult:
 
     @property
     def info(self):
-        @asyncio.coroutine
-        def _get():
+        async def _get():
             return self.inner.info.copy()
 
         with self.simple_engine._not_shut_down():
@@ -2329,8 +2299,7 @@ class SimpleAnalysisResult:
 
     @property
     def multipv(self):
-        @asyncio.coroutine
-        def _get():
+        async def _get():
             return [info.copy() for info in self.inner.multipv]
 
         with self.simple_engine._not_shut_down():

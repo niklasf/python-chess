@@ -2707,17 +2707,16 @@ class EngineTestCase(unittest.TestCase):
                 engine.quit()
 
     def test_uci_ping(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.UciProtocol()
             mock = chess.engine.MockTransport(protocol)
 
             mock.expect("uci", ["uciok"])
-            yield from protocol.initialize()
+            await protocol.initialize()
             mock.assert_done()
 
             mock.expect("isready", ["readyok"])
-            yield from protocol.ping()
+            await protocol.ping()
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
@@ -2726,8 +2725,7 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_uci_debug(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.UciProtocol()
             mock = chess.engine.MockTransport(protocol)
 
@@ -2745,14 +2743,13 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_uci_go(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.UciProtocol()
             mock = chess.engine.MockTransport(protocol)
 
             # Initialize.
             mock.expect("uci", ["uciok"])
-            yield from protocol.initialize()
+            await protocol.initialize()
 
             # Pondering.
             mock.expect("ucinewgame")
@@ -2762,10 +2759,10 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("position startpos moves d2d4 d7d5")
             mock.expect("go ponder movetime 123")
             board = chess.Board()
-            result = yield from protocol.play(board, chess.engine.Limit(time=0.123),
-                                              root_moves=[board.parse_san("e4"), board.parse_san("d4")],
-                                              ponder=True,
-                                              info=chess.engine.INFO_ALL)
+            result = await protocol.play(board, chess.engine.Limit(time=0.123),
+                                         root_moves=[board.parse_san("e4"), board.parse_san("d4")],
+                                         ponder=True,
+                                         info=chess.engine.INFO_ALL)
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
             self.assertEqual(result.info["string"], "searching ...")
@@ -2780,7 +2777,7 @@ class EngineTestCase(unittest.TestCase):
                                        white_inc=0.003, black_inc=0.004,
                                        remaining_moves=5, depth=6, nodes=7,
                                        mate=8, time=0.009)
-            result = yield from protocol.play(board, limit)
+            result = await protocol.play(board, limit)
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             self.assertEqual(result.ponder, None)
             mock.assert_done()
@@ -2837,8 +2834,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["tbhits"], 0)
 
     def test_xboard_options(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.XBoardProtocol()
             mock = chess.engine.MockTransport(protocol)
 
@@ -2857,7 +2853,7 @@ class EngineTestCase(unittest.TestCase):
                 "feature ping=1 setboard=1 done=1",
             ])
             mock.expect("accept egt")
-            yield from protocol.initialize()
+            await protocol.initialize()
             mock.assert_done()
 
             self.assertEqual(protocol.options["egtpath syzygy"].type, "path")
@@ -2878,23 +2874,23 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(protocol.options["savevar"].type, "save")
 
             mock.expect("option combovar=HI")
-            yield from protocol.configure({"combovar": "HI"})
+            await protocol.configure({"combovar": "HI"})
             mock.assert_done()
 
             mock.expect("option spinvar=42")
-            yield from protocol.configure({"spinvar": 42})
+            await protocol.configure({"spinvar": 42})
             mock.assert_done()
 
             mock.expect("option checkvar=1")
-            yield from protocol.configure({"checkvar": True})
+            await protocol.configure({"checkvar": True})
             mock.assert_done()
 
             mock.expect("option pathvar=.")
-            yield from protocol.configure({"pathvar": "."})
+            await protocol.configure({"pathvar": "."})
             mock.assert_done()
 
             mock.expect("option buttonvar")
-            yield from protocol.configure({"buttonvar": None})
+            await protocol.configure({"buttonvar": None})
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
@@ -2903,14 +2899,13 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_xboard_replay(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.XBoardProtocol()
             mock = chess.engine.MockTransport(protocol)
 
             mock.expect("xboard")
             mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
-            yield from protocol.initialize()
+            await protocol.initialize()
             mock.assert_done()
 
             limit = chess.engine.Limit(time=1.5, depth=17)
@@ -2930,7 +2925,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("easy")
             mock.expect("go", ["move e7e6"])
             mock.expect_ping()
-            result = yield from protocol.play(board, limit, game="game")
+            result = await protocol.play(board, limit, game="game")
             self.assertEqual(result.move, board.parse_san("e6"))
             mock.assert_done()
 
@@ -2943,7 +2938,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("easy")
             mock.expect("go", ["move c2c4"])
             mock.expect_ping()
-            result = yield from protocol.play(board, limit, game="game")
+            result = await protocol.play(board, limit, game="game")
             self.assertEqual(result.move, board.parse_san("c4"))
             mock.assert_done()
 
@@ -2958,7 +2953,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("easy")
             mock.expect("go", ["move d2d4"])
             mock.expect_ping()
-            result = yield from protocol.play(board, limit, game="game")
+            result = await protocol.play(board, limit, game="game")
             self.assertEqual(result.move, board.parse_san("d4"))
             mock.assert_done()
 
@@ -2967,8 +2962,7 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_xboard_analyse(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.XBoardProtocol()
             mock = chess.engine.MockTransport(protocol)
 
@@ -2978,7 +2972,7 @@ class EngineTestCase(unittest.TestCase):
                 "feature exclude=1",
                 "feature variants=\"normal,atomic\" done=1",
             ])
-            yield from protocol.initialize()
+            await protocol.initialize()
             mock.assert_done()
 
             board = chess.variant.AtomicBoard("rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1")
@@ -2994,7 +2988,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect(".")
             mock.expect("exit")
             mock.expect_ping()
-            info = yield from protocol.analyse(board, limit, root_moves=[board.parse_san("f6")])
+            info = await protocol.analyse(board, limit, root_moves=[board.parse_san("f6")])
             self.assertEqual(info["depth"], 4)
             self.assertEqual(info["score"], chess.engine.PovScore(chess.engine.Cp(116), chess.BLACK))
             self.assertEqual(info["time"], 0.23)
@@ -3008,14 +3002,13 @@ class EngineTestCase(unittest.TestCase):
             loop.run_until_complete(main())
 
     def test_xboard_level(self):
-        @asyncio.coroutine
-        def main():
+        async def main():
             protocol = chess.engine.XBoardProtocol()
             mock = chess.engine.MockTransport(protocol)
 
             mock.expect("xboard")
             mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
-            yield from protocol.initialize()
+            await protocol.initialize()
             mock.assert_done()
 
             limit = chess.engine.Limit(black_clock=65, white_clock=100,
@@ -3029,7 +3022,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("easy")
             mock.expect("go", ["move e2e4"])
             mock.expect_ping()
-            result = yield from protocol.play(chess.Board(), limit)
+            result = await protocol.play(chess.Board(), limit)
             self.assertEqual(result.move, chess.Move.from_uci("e2e4"))
             mock.assert_done()
 
@@ -3040,11 +3033,10 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need /bin/sh")
     def test_transport_close_with_pending(self):
-        @asyncio.coroutine
-        def main():
-            transport, protocol = yield from chess.engine.popen_uci(["/bin/sh", "-c", "echo uciok && sleep 86400"])
+        async def main():
+            transport, protocol = await chess.engine.popen_uci(["/bin/sh", "-c", "echo uciok && sleep 86400"])
             protocol.loop.call_later(0.01, transport.close)
-            results = yield from asyncio.gather(protocol.ping(), protocol.ping(), return_exceptions=True)
+            results = await asyncio.gather(protocol.ping(), protocol.ping(), return_exceptions=True)
             self.assertNotEqual(results[0], None)
             self.assertNotEqual(results[1], None)
 
@@ -3057,19 +3049,17 @@ class EngineTestCase(unittest.TestCase):
         class ExpectedError(Exception):
             pass
 
-        @asyncio.coroutine
-        def raise_expected_error(future):
-            yield from asyncio.sleep(0.001)
+        async def raise_expected_error(future):
+            await asyncio.sleep(0.001)
             raise ExpectedError
 
         with self.assertRaises(ExpectedError):
             chess.engine.run_in_background(raise_expected_error)
 
-        @asyncio.coroutine
-        def resolve(future):
-            yield from asyncio.sleep(0.001)
+        async def resolve(future):
+            await asyncio.sleep(0.001)
             future.set_result("resolved")
-            yield from asyncio.sleep(0.001)
+            await asyncio.sleep(0.001)
 
         result = chess.engine.run_in_background(resolve)
         self.assertEqual(result, "resolved")
