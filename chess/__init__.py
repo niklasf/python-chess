@@ -36,7 +36,7 @@ import re
 import itertools
 import typing
 
-from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable, Type, TypeVar, ClassVar
+from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable, Type, TypeVar, ClassVar, Counter
 
 
 Color = bool
@@ -68,10 +68,13 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 """The board part of the FEN for the standard chess starting position."""
 
 
-try:
-    _IntFlag = enum.IntFlag  # Since Python 3.6
-except AttributeError:
-    _IntFlag = enum.IntEnum
+if typing.TYPE_CHECKING:
+    _IntFlag = int
+else:
+    try:
+        _IntFlag = enum.IntFlag  # Since Python 3.6
+    except AttributeError:
+        _IntFlag = enum.IntEnum
 
 class Status(_IntFlag):
     VALID = 0
@@ -864,7 +867,7 @@ class BaseBoard:
         else:
             self._set_piece_at(square, piece.piece_type, piece.color, promoted)
 
-    def board_fen(self, *, promoted: bool = False) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = False) -> str:
         """
         Gets the board FEN.
         """
@@ -1864,7 +1867,7 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions = collections.Counter()
+        transpositions = collections.Counter()  # type: Counter[Hashable]
         transpositions.update((transposition_key, ))
 
         # Count positions.
@@ -2363,7 +2366,7 @@ class Board(BaseBoard):
                 continue
 
             # Value is a move.
-            if hasattr(operand, "from_square") and hasattr(operand, "to_square") and hasattr(operand, "promotion"):
+            if isinstance(operand, Move):
                 # Append SAN for moves.
                 epd.append(" ")
                 epd.append(self.san(operand))
@@ -2383,13 +2386,14 @@ class Board(BaseBoard):
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
                 iterator = operand.__iter__()
                 first_move = next(iterator)
-                if hasattr(first_move, "from_square") and hasattr(first_move, "to_square") and hasattr(first_move, "promotion"):
+                if isinstance(first_move, Move):
                     epd.append(" ")
                     epd.append(position.san(first_move))
                     if opcode == "pv":
                         position.push(first_move)
 
                     for move in iterator:
+                        assert isinstance(move, Move)
                         epd.append(" ")
                         epd.append(position.san(move))
                         if opcode == "pv":
@@ -2443,8 +2447,8 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
-    def _parse_epd_ops(self: T, operation_part: str, make_board: Callable[[], T]) -> Dict[str, Union[None, Move, int, float, List[Move], str]]:
-        operations = {}
+    def _parse_epd_ops(self: U, operation_part: str, make_board: Callable[[], U]) -> Dict[str, Union[None, Move, int, float, List[Move], str]]:
+        operations = {}  # type: Dict[str, Union[None, Move, int, float, List[Move], str]]
         state = "opcode"
         opcode = ""
         operand = ""
@@ -2460,11 +2464,13 @@ class Board(BaseBoard):
                         operations[opcode] = None
                         opcode = ""
                 else:
+                    assert ch is not None
                     opcode += ch
             elif state == "after_opcode":
                 if ch == " ":
                     pass
                 elif ch in "+-.0123456789":
+                    assert ch is not None
                     operand = ch
                     state = "numeric"
                 elif ch == "\"":
@@ -2475,6 +2481,7 @@ class Board(BaseBoard):
                         opcode = ""
                     state = "opcode"
                 else:
+                    assert ch is not None
                     operand = ch
                     state = "san"
             elif state == "numeric":
@@ -2488,6 +2495,7 @@ class Board(BaseBoard):
                     operand = ""
                     state = "opcode"
                 else:
+                    assert ch is not None
                     operand += ch
             elif state == "string":
                 if ch in ["\"", None]:
@@ -2498,6 +2506,7 @@ class Board(BaseBoard):
                 elif ch == "\\":
                     state = "string_escape"
                 else:
+                    assert ch is not None
                     operand += ch
             elif state == "string_escape":
                 if ch is None:
@@ -2515,11 +2524,12 @@ class Board(BaseBoard):
 
                     if opcode == "pv":
                         # A variation.
-                        operations[opcode] = []
+                        variation = []
                         for token in operand.split():
                             move = position.parse_xboard(token)
-                            operations[opcode].append(move)
+                            variation.append(move)
                             position.push(move)
+                        operations[opcode] = variation
 
                         # Reset the position.
                         while position.move_stack:
@@ -2535,6 +2545,7 @@ class Board(BaseBoard):
                     operand = ""
                     state = "opcode"
                 else:
+                    assert ch is not None
                     operand += ch
 
         assert state == "opcode"
@@ -2621,7 +2632,9 @@ class Board(BaseBoard):
         if piece_type == PAWN:
             san = ""
         else:
-            san = PIECE_SYMBOLS[piece_type].upper()
+            symbol = PIECE_SYMBOLS[piece_type]
+            assert symbol is not None
+            san = symbol.upper()
 
         if long:
             san += SQUARE_NAMES[move.from_square]
@@ -2666,7 +2679,9 @@ class Board(BaseBoard):
 
         # Promotion.
         if move.promotion:
-            san += "=" + PIECE_SYMBOLS[move.promotion].upper()
+            symbol = PIECE_SYMBOLS[move.promotion]
+            assert symbol is not None
+            san += "=" + symbol.upper()
 
         # Add check or checkmate suffix.
         if is_checkmate:
@@ -3114,7 +3129,7 @@ class Board(BaseBoard):
         if self.was_into_check():
             errors |= STATUS_OPPOSITE_CHECK
 
-        return errors
+        return errors  # type: ignore
 
     def _valid_ep_square(self) -> Optional[Square]:
         if not self.ep_square:
@@ -3211,11 +3226,11 @@ class Board(BaseBoard):
             else:
                 return not self.is_attacked_by(not self.turn, move.to_square)
         elif self.is_en_passant(move):
-            return (self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and
-                    not self._ep_skewered(king, move.from_square))
+            return bool(self.pin_mask(self.turn, move.from_square) & BB_SQUARES[move.to_square] and
+                        not self._ep_skewered(king, move.from_square))
         else:
-            return (not blockers & BB_SQUARES[move.from_square] or
-                    BB_RAYS[move.from_square][move.to_square] & BB_SQUARES[king])
+            return bool(not blockers & BB_SQUARES[move.from_square] or
+                        BB_RAYS[move.from_square][move.to_square] & BB_SQUARES[king])
 
     def _generate_evasions(self, king: Square, checkers: Bitboard, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         sliders = checkers & (self.bishops | self.rooks | self.queens)
@@ -3584,16 +3599,15 @@ class SquareSet(collections.abc.MutableSet):
     """
 
     def __init__(self, squares: Union[Bitboard, Iterable[Square]] = BB_EMPTY):
-
         try:
-            self.mask = squares.__int__() & BB_ALL
+            self.mask = squares.__int__() & BB_ALL  # type: ignore
             return
         except AttributeError:
             self.mask = 0
 
         # Try squares as an iterable. Not under except clause for nicer
         # backtraces.
-        for square in squares:
+        for square in squares:  # type: ignore
             self.add(square)
 
     # Set
