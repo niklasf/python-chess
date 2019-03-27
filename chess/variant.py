@@ -20,6 +20,8 @@ import chess
 import copy
 import itertools
 
+from typing import List, Type
+
 
 class SuicideBoard(chess.Board):
 
@@ -318,8 +320,10 @@ class KingOfTheHillBoard(chess.Board):
     uci_variant = "kingofthehill"
     xboard_variant = "kingofthehill"  # Unofficial
 
-    tbw_suffix = tbz_suffix = None
-    tbw_magic = tbz_magic = None
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
 
     def is_variant_end(self):
         return self.kings & chess.BB_CENTER
@@ -341,8 +345,10 @@ class RacingKingsBoard(chess.Board):
     xboard_variant = "racingkings"  # Unofficial
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
 
-    tbw_suffix = tbz_suffix = None
-    tbw_magic = tbz_magic = None
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
         super().__init__(fen, chess960=chess960)
@@ -423,8 +429,10 @@ class HordeBoard(chess.Board):
     xboard_variant = "horde"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
 
-    tbw_suffix = tbz_suffix = None
-    tbw_magic = tbz_magic = None
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
         super().__init__(fen, chess960=chess960)
@@ -483,8 +491,10 @@ class ThreeCheckBoard(chess.Board):
     xboard_variant = "3check"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
 
-    tbw_suffix = tbz_suffix = None
-    tbw_magic = tbz_magic = None
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.remaining_checks = [3, 3]
@@ -648,8 +658,10 @@ class CrazyhouseBoard(chess.Board):
     xboard_variant = "crazyhouse"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 
-    tbw_suffix = tbz_suffix = None
-    tbw_magic = tbz_magic = None
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
 
     def __init__(self, fen=starting_fen, chess960=False):
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
@@ -838,7 +850,7 @@ VARIANTS = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
-]
+]  # type: List[Type[chess.Board]]
 
 
 def find_variant(name):

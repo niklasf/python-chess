@@ -34,8 +34,9 @@ import copy
 import enum
 import re
 import itertools
+import typing
 
-from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable, Type, TypeVar
+from typing import Iterator, Iterable, Tuple, List, Dict, Optional, Mapping, Union, Hashable, Callable, Type, TypeVar, ClassVar
 
 
 Color = bool
@@ -394,6 +395,7 @@ class Piece:
         pieces or the lower-case variants for the black pieces.
         """
         symbol = PIECE_SYMBOLS[self.piece_type]
+        assert symbol is not None
         return symbol.upper() if self.color else symbol
 
     def unicode_symbol(self, *, invert_color: bool = False) -> str:
@@ -456,9 +458,13 @@ class Move:
         The UCI representation of a null move is ``0000``.
         """
         if self.drop:
-            return PIECE_SYMBOLS[self.drop].upper() + "@" + SQUARE_NAMES[self.to_square]
+            symbol = PIECE_SYMBOLS[self.drop]
+            assert symbol is not None
+            return symbol.upper() + "@" + SQUARE_NAMES[self.to_square]
         elif self.promotion:
-            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+            symbol = PIECE_SYMBOLS[self.promotion]
+            assert symbol is not None
+            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + symbol
         elif self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square]
         else:
@@ -644,6 +650,8 @@ class BaseBoard:
             return QUEEN
         elif self.kings & mask:
             return KING
+        else:
+            assert False
 
     def king(self, color: Color) -> Optional[Square]:
         """
@@ -954,7 +962,9 @@ class BaseBoard:
         """
         result = {}
         for square in scan_reversed(self.occupied):
-            result[square] = self.piece_at(square)
+            piece = self.piece_at(square)
+            assert piece is not None
+            result[square] = piece
         return result
 
     def _set_piece_map(self, pieces: Mapping[Square, Piece]):
@@ -1323,7 +1333,7 @@ class _BoardState:
         board.fullmove_number = self.fullmove_number
 
 
-T = TypeVar("T", bound="Board")
+U = TypeVar("U", bound="Board")
 
 class Board(BaseBoard):
     """
@@ -1349,19 +1359,25 @@ class Board(BaseBoard):
     """
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
-    uci_variant = "chess"
-    xboard_variant = "normal"
+    uci_variant = "chess"  # type: ClassVar[Optional[str]]
+    xboard_variant = "normal"  # type: ClassVar[Optional[str]]
     starting_fen = STARTING_FEN
 
-    tbw_suffix = ".rtbw"
-    tbz_suffix = ".rtbz"
-    tbw_magic = b"\x71\xe8\x23\x5d"
-    tbz_magic = b"\xd7\x66\x0c\xa5"
-    pawnless_tbw_suffix = pawnless_tbz_suffix = None
-    pawnless_tbw_magic = pawnless_tbz_magic = None
+    tbw_suffix = ".rtbw"  # type: ClassVar[Optional[str]]
+    tbz_suffix = ".rtbz"  # type: ClassVar[Optional[str]]
+    tbw_magic = b"\x71\xe8\x23\x5d"  # type: ClassVar[Optional[bytes]]
+    tbz_magic = b"\xd7\x66\x0c\xa5"  # type: ClassVar[Optional[bytes]]
+    pawnless_tbw_suffix = None  # type: ClassVar[Optional[str]]
+    pawnless_tbz_suffix = None  # type: ClassVar[Optional[str]]
+    pawnless_tbw_magic = None  # type: ClassVar[Optional[bytes]]
+    pawnless_tbz_magic = None  # type: ClassVar[Optional[bytes]]
     connected_kings = False
     one_king = True
     captures_compulsory = False
+
+    if typing.TYPE_CHECKING:
+        move_stack = typing.cast(List[Move], None)
+        _stack = typing.cast(List[_BoardState], None)
 
     def __init__(self, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False):
         BaseBoard.__init__(self, None)
@@ -1427,7 +1443,7 @@ class Board(BaseBoard):
         del self.move_stack[:]
         del self._stack[:]
 
-    def root(self: T) -> T:
+    def root(self: U) -> U:
         """Returns a copy of the root position."""
         if self._stack:
             board = type(self)(None, chess960=self.chess960)
@@ -1978,6 +1994,7 @@ class Board(BaseBoard):
 
         promoted = self.promoted & from_bb
         piece_type = self._remove_piece_at(move.from_square)
+        assert piece_type is not None
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
 
@@ -2577,7 +2594,9 @@ class Board(BaseBoard):
         if move.drop:
             san = ""
             if move.drop != PAWN:
-                san = PIECE_SYMBOLS[move.drop].upper()
+                symbol = PIECE_SYMBOLS[move.drop]
+                assert symbol is not None
+                san = symbol.upper()
             san += "@" + SQUARE_NAMES[move.to_square]
 
         # Castling.
@@ -3373,19 +3392,19 @@ class Board(BaseBoard):
         super().apply_transform(f)
         self.clear_stack()
 
-    def transform(self: T, f: Callable[[Bitboard], Bitboard]) -> T:
+    def transform(self: U, f: Callable[[Bitboard], Bitboard]) -> U:
         board = self.copy(stack=False)
         board.apply_transform(f)
         board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         board.castling_rights = f(self.castling_rights)
         return board
 
-    def mirror(self: T) -> T:
+    def mirror(self: U) -> U:
         board = super().mirror()
         board.turn = not self.turn
         return board
 
-    def copy(self: T, *, stack: Union[bool, int] = True) -> T:
+    def copy(self: U, *, stack: Union[bool, int] = True) -> U:
         """
         Creates a copy of the board.
 
@@ -3410,12 +3429,12 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls: Type[T], *, chess960: bool = False) -> T:
+    def empty(cls: Type[U], *, chess960: bool = False) -> U:
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls: Type[T], epd: str, *, chess960: bool = False) -> Tuple[T, Dict[str, Union[None, Move, int, float, List[Move], str]]]:
+    def from_epd(cls: Type[U], epd: str, *, chess960: bool = False) -> Tuple[U, Dict[str, Union[None, Move, int, float, List[Move], str]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
@@ -3426,7 +3445,7 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[T], sharnagl: int) -> T:
+    def from_chess960_pos(cls: Type[U], sharnagl: int) -> U:
         board = cls.empty(chess960=True)
         board.set_chess960_pos(sharnagl)
         return board

@@ -30,6 +30,7 @@ import subprocess
 import sys
 import threading
 import os
+import typing
 
 try:
     # Python 3.7
@@ -53,7 +54,7 @@ KORK = object()
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
 
 
-class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):
+class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
     """
     An event loop policy that ensures the event loop is capable of spawning
     and watching subprocesses, even when not running in the main thread.
@@ -262,10 +263,13 @@ class PlayResult:
             self.draw_offered, self.resigned)
 
 
-try:
-    _IntFlag = enum.IntFlag  # Since Python 3.6
-except AttributeError:
-    _IntFlag = enum.IntEnum
+if typing.TYPE_CHECKING:
+    _IntFlag = int
+else:
+    try:
+        _IntFlag = enum.IntFlag  # Since Python 3.6
+    except AttributeError:
+        _IntFlag = enum.IntEnum
 
 class Info(_IntFlag):
     """Select information sent by the chess engine."""
