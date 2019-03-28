@@ -20,7 +20,7 @@ import chess
 import copy
 import itertools
 
-from typing import Dict, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 
 class SuicideBoard(chess.Board):
@@ -475,7 +475,7 @@ class HordeBoard(chess.Board):
 
 ThreeCheckBoardT = TypeVar("ThreeCheckBoardT", bound="ThreeCheckBoard")
 
-class _ThreeCheckBoardState(chess._BoardState["ThreeCheckBoardT"]):
+class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], chess._BoardState["ThreeCheckBoardT"]):
     def __init__(self, board: "ThreeCheckBoardT") -> None:
         super().__init__(board)
         self.remaining_checks_w = board.remaining_checks[chess.WHITE]
@@ -611,7 +611,7 @@ class ThreeCheckBoard(chess.Board):
 
 CrazyhouseBoardT = TypeVar("CrazyhouseBoardT", bound="CrazyhouseBoard")
 
-class _CrazyhouseBoardState(chess._BoardState["CrazyhouseBoardT"]):
+class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState["CrazyhouseBoardT"]):
     def __init__(self, board: "CrazyhouseBoardT") -> None:
         super().__init__(board)
         self.pockets_w = board.pockets[chess.WHITE].copy()

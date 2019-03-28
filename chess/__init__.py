@@ -35,7 +35,7 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Callable, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -1285,7 +1285,7 @@ class BaseBoard:
 
 BoardT = TypeVar("BoardT", bound="Board")
 
-class _BoardState(typing.Generic[BoardT]):
+class _BoardState(Generic[BoardT]):
 
     def __init__(self, board: BoardT) -> None:
         self.pawns = board.pawns
