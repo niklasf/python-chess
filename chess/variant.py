@@ -20,7 +20,7 @@ import chess
 import copy
 import itertools
 
-from typing import Type
+from typing import List, Type
 
 
 class SuicideBoard(chess.Board):
@@ -850,7 +850,7 @@ VARIANTS = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
-]  # type: Type[chess.Board]
+]  # type: List[Type[chess.Board]]
 
 
 def find_variant(name: str) -> Type[chess.Board]:
