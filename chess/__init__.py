@@ -34,8 +34,9 @@ import copy
 import enum
 import re
 import itertools
+import typing
 
-from typing import Callable, Dict, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import Callable, Counter, Dict, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -1349,6 +1350,10 @@ class Board(BaseBoard):
     :data:`~Board.fullmove_number` directly.
     """
 
+    if typing.TYPE_CHECKING:  # Python 3.5 compatible member annotations
+        move_stack = []  # type: List[Move]
+        _stack = []  # type: List[_BoardState]
+
     aliases = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant = "chess"
     xboard_variant = "normal"
@@ -1849,7 +1854,7 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions = collections.Counter()
+        transpositions = collections.Counter()  # type: Counter[Hashable]
         transpositions.update((transposition_key, ))
 
         # Count positions.
@@ -2428,7 +2433,7 @@ class Board(BaseBoard):
         return " ".join(epd)
 
     def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, List[Move]]]:
-        operations = {}
+        operations = {}  # type: Dict[str, Union[None, str, int, float, List[Move]]]
         state = "opcode"
         opcode = ""
         operand = ""
