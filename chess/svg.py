@@ -25,6 +25,8 @@ import math
 
 import xml.etree.ElementTree as ET
 
+from typing import Iterable, Optional, Tuple, Union
+
 
 SQUARE_SIZE = 45
 MARGIN = 20
@@ -59,18 +61,18 @@ DEFAULT_COLORS = {
 class Arrow:
     """Details of an arrow to be drawn."""
 
-    def __init__(self, tail, head, *, color="#888"):
+    def __init__(self, tail: chess.Square, head: chess.Square, *, color: str = "#888") -> None:
         self.tail = tail
         self.head = head
         self.color = color
 
 
 class SvgWrapper(str):
-    def _repr_svg_(self):
+    def _repr_svg_(self) -> "SvgWrapper":
         return self
 
 
-def _svg(viewbox, size):
+def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     svg = ET.Element("svg", {
         "xmlns": "http://www.w3.org/2000/svg",
         "version": "1.1",
@@ -85,7 +87,7 @@ def _svg(viewbox, size):
     return svg
 
 
-def _text(content, x, y, width, height):
+def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
     t = ET.Element("text", {
         "x": str(x + width // 2),
         "y": str(y + height // 2),
@@ -97,7 +99,7 @@ def _text(content, x, y, width, height):
     return t
 
 
-def piece(piece, size=None) -> str:
+def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     """
     Renders the given :class:`chess.Piece` as an SVG image.
 
@@ -113,7 +115,15 @@ def piece(piece, size=None) -> str:
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None) -> str:
+def board(board: Optional[chess.BaseBoard] = None, *,
+          squares: Optional[chess.IntoSquareSet] = None,
+          flipped: bool = False,
+          coordinates: bool = True,
+          lastmove: Optional[Union[chess.Move, chess.IntoSquareSet]] = None,
+          check: Optional[chess.Square] = None,
+          arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+          size: Optional[int] = None,
+          style: Optional[str] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -149,10 +159,10 @@ def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove
 
     defs = ET.SubElement(svg, "defs")
     if board:
-        for color in chess.COLORS:
+        for piece_color in chess.COLORS:
             for piece_type in chess.PIECE_TYPES:
-                if board.pieces_mask(piece_type, color):
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, color).symbol()]))
+                if board.pieces_mask(piece_type, piece_color):
+                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
 
     squares = chess.SquareSet(squares) if squares else chess.SquareSet()
     if squares:
