@@ -2435,8 +2435,8 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
-    def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, List[Move]]]:
-        operations = {}  # type: Dict[str, Union[None, str, int, float, List[Move]]]
+    def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
+        operations = {}  # type: Dict[str, Union[None, str, int, float, Move, List[Move]]]
         state = "opcode"
         opcode = ""
         operand = ""
@@ -2447,7 +2447,7 @@ class Board(BaseBoard):
                 if ch == " ":
                     if opcode:
                         state = "after_opcode"
-                elif ch in [";", None]:
+                elif ch is None or ch == ";":
                     if opcode:
                         operations[opcode] = None
                         opcode = ""
@@ -2456,21 +2456,21 @@ class Board(BaseBoard):
             elif state == "after_opcode":
                 if ch == " ":
                     pass
-                elif ch in "+-.0123456789":
-                    operand = ch
-                    state = "numeric"
                 elif ch == "\"":
                     state = "string"
-                elif ch in [";", None]:
+                elif ch is None or ch == ";":
                     if opcode:
                         operations[opcode] = None
                         opcode = ""
                     state = "opcode"
+                elif ch in "+-.0123456789":
+                    operand = ch
+                    state = "numeric"
                 else:
                     operand = ch
                     state = "san"
             elif state == "numeric":
-                if ch in [";", None]:
+                if ch is None or ch == ";":
                     operations[opcode] = float(operand)
                     try:
                         operations[opcode] = int(operand)
@@ -2482,7 +2482,7 @@ class Board(BaseBoard):
                 else:
                     operand += ch
             elif state == "string":
-                if ch in ["\"", None]:
+                if ch is None or ch == "\"":
                     operations[opcode] = operand
                     opcode = ""
                     operand = ""
@@ -2501,21 +2501,23 @@ class Board(BaseBoard):
                     operand += ch
                     state = "string"
             elif state == "san":
-                if ch in [";", None]:
+                if ch is None or ch == ";":
                     if position is None:
                         position = make_board()
 
                     if opcode == "pv":
                         # A variation.
-                        operations[opcode] = []
+                        variation = []
                         for token in operand.split():
                             move = position.parse_xboard(token)
-                            operations[opcode].append(move)
+                            variation.append(move)
                             position.push(move)
 
                         # Reset the position.
                         while position.move_stack:
                             position.pop()
+
+                        operations[opcode] = variation
                     elif opcode in ["bm", "am"]:
                         # A set of moves.
                         operations[opcode] = [position.parse_xboard(token) for token in operand.split()]
@@ -2532,7 +2534,7 @@ class Board(BaseBoard):
         assert state == "opcode"
         return operations
 
-    def set_epd(self, epd: str) -> Dict[str, Union[None, str, int, float, List[Move]]]:
+    def set_epd(self, epd: str) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
         """
         Parses the given EPD string and uses it to set the position.
 
@@ -3423,7 +3425,7 @@ class Board(BaseBoard):
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls: Type[BoardT], epd: str, *, chess960: bool = False) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, List[Move]]]]:
+    def from_epd(cls: Type[BoardT], epd: str, *, chess960: bool = False) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, Move, List[Move]]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
