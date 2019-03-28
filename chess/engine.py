@@ -86,7 +86,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
         super().__init__()
         self._thread_local = self._ThreadLocal()
 
-    def get_child_watcher(self) -> asyncio.AbstractChildWatcher:
+    def get_child_watcher(self) -> "asyncio.AbstractChildWatcher":
         if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
             return super().get_child_watcher()
 
@@ -120,7 +120,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
             self._thread_local._watcher = PollingChildWatcher()
         return self._thread_local._watcher
 
-    def set_child_watcher(self, watcher: asyncio.AbstractChildWatcher) -> None:
+    def set_child_watcher(self, watcher: "asyncio.AbstractChildWatcher") -> None:
         if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
             return super().set_child_watcher(watcher)
 
