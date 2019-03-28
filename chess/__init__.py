@@ -2355,7 +2355,7 @@ class Board(BaseBoard):
                 continue
 
             # Value is a move.
-            if hasattr(operand, "from_square") and hasattr(operand, "to_square") and hasattr(operand, "promotion"):
+            if isinstance(operand, Move):
                 # Append SAN for moves.
                 epd.append(" ")
                 epd.append(self.san(operand))
@@ -2375,13 +2375,14 @@ class Board(BaseBoard):
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
                 iterator = operand.__iter__()
                 first_move = next(iterator)
-                if hasattr(first_move, "from_square") and hasattr(first_move, "to_square") and hasattr(first_move, "promotion"):
+                if isinstance(first_move, Move):
                     epd.append(" ")
                     epd.append(position.san(first_move))
                     if opcode == "pv":
                         position.push(first_move)
 
                     for move in iterator:
+                        assert isinstance(move, Move), "expected homogeneous list of moves, got: {}, ..., {!r}".format(first_move, move)
                         epd.append(" ")
                         epd.append(position.san(move))
                         if opcode == "pv":
