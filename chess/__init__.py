@@ -35,7 +35,7 @@ import re
 import itertools
 import typing
 
-from typing import Callable, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -1357,16 +1357,18 @@ class Board(BaseBoard):
         ep_square = None  # type: Optional[Square]
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
-    uci_variant = "chess"
-    xboard_variant = "normal"
+    uci_variant = "chess"  # type: ClassVar[Optional[str]]
+    xboard_variant = "normal"  # type: ClassVar[Optional[str]]
     starting_fen = STARTING_FEN
 
-    tbw_suffix = ".rtbw"
-    tbz_suffix = ".rtbz"
-    tbw_magic = b"\x71\xe8\x23\x5d"
-    tbz_magic = b"\xd7\x66\x0c\xa5"
-    pawnless_tbw_suffix = pawnless_tbz_suffix = None
-    pawnless_tbw_magic = pawnless_tbz_magic = None
+    tbw_suffix = ".rtbw"  # type: ClassVar[Optional[str]]
+    tbz_suffix = ".rtbz"  # type: ClassVar[Optional[str]]
+    tbw_magic = b"\x71\xe8\x23\x5d"  # type: ClassVar[Optional[bytes]]
+    tbz_magic = b"\xd7\x66\x0c\xa5"  # type: ClassVar[Optional[bytes]]
+    pawnless_tbw_suffix = None  # type: ClassVar[Optional[str]]
+    pawnless_tbz_suffix = None  # type: ClassVar[Optional[str]]
+    pawnless_tbw_magic = None  # type: ClassVar[Optional[bytes]]
+    pawnless_tbz_magic = None  # type: ClassVar[Optional[bytes]]
     connected_kings = False
     one_king = True
     captures_compulsory = False
