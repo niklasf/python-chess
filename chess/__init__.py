@@ -643,7 +643,7 @@ class BaseBoard:
             return ROOK
         elif self.queens & mask:
             return QUEEN
-        elif self.kings & mask:
+        else:
             return KING
 
     def king(self, color: Color) -> Optional[Square]:
