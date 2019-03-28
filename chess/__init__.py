@@ -1283,9 +1283,11 @@ class BaseBoard:
         return board
 
 
-class _BoardState:
+BoardT = TypeVar("BoardT", bound="Board")
 
-    def __init__(self, board: "Board") -> None:
+class _BoardState(typing.Generic[BoardT]):
+
+    def __init__(self, board: BoardT) -> None:
         self.pawns = board.pawns
         self.knights = board.knights
         self.bishops = board.bishops
@@ -1305,7 +1307,7 @@ class _BoardState:
         self.halfmove_clock = board.halfmove_clock
         self.fullmove_number = board.fullmove_number
 
-    def restore(self, board: "Board") -> None:
+    def restore(self, board: BoardT) -> None:
         board.pawns = self.pawns
         board.knights = self.knights
         board.bishops = self.bishops
@@ -1324,9 +1326,6 @@ class _BoardState:
         board.ep_square = self.ep_square
         board.halfmove_clock = self.halfmove_clock
         board.fullmove_number = self.fullmove_number
-
-
-BoardT = TypeVar("BoardT", bound="Board")
 
 class Board(BaseBoard):
     """
@@ -1351,11 +1350,6 @@ class Board(BaseBoard):
     :data:`~Board.fullmove_number` directly.
     """
 
-    if typing.TYPE_CHECKING:  # Python 3.5 compatible member annotations
-        move_stack = []  # type: List[Move]
-        _stack = []  # type: List[_BoardState]
-        ep_square = None  # type: Optional[Square]
-
     aliases = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant = "chess"  # type: ClassVar[Optional[str]]
     xboard_variant = "normal"  # type: ClassVar[Optional[str]]
@@ -1373,13 +1367,14 @@ class Board(BaseBoard):
     one_king = True
     captures_compulsory = False
 
-    def __init__(self, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
+    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
 
-        self.move_stack = []
-        self._stack = []
+        self.ep_square = None  # type: Optional[Square]
+        self.move_stack = []  # type: List[Move]
+        self._stack = []  # type: List[_BoardState[BoardT]]
 
         if fen is None:
             self.clear()
@@ -1928,13 +1923,13 @@ class Board(BaseBoard):
 
         return False
 
-    def _board_state(self) -> _BoardState:
+    def _board_state(self: BoardT) -> _BoardState[BoardT]:
         return _BoardState(self)
 
     def _push_capture(self, move: Move, capture_square: Square, piece_type: PieceType, was_promoted: bool) -> None:
         pass
 
-    def push(self, move: Move) -> None:
+    def push(self: BoardT, move: Move) -> None:
         """
         Updates the position with the given move and puts it onto the
         move stack.
@@ -2050,7 +2045,7 @@ class Board(BaseBoard):
         # Swap turn.
         self.turn = not self.turn
 
-    def pop(self) -> Move:
+    def pop(self: BoardT) -> Move:
         """
         Restores the previous position and returns the last move from the stack.
 
