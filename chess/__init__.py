@@ -2039,7 +2039,7 @@ class Board(BaseBoard):
 
         # Put the piece on the target square.
         if not castling:
-            was_promoted = self.promoted & to_bb
+            was_promoted = bool(self.promoted & to_bb)
             self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
 
             if captured_piece_type:
@@ -2112,11 +2112,11 @@ class Board(BaseBoard):
 
     def has_pseudo_legal_en_passant(self) -> bool:
         """Checks if there is a pseudo-legal en passant capture."""
-        return self.ep_square and any(self.generate_pseudo_legal_ep())
+        return self.ep_square is not None and any(self.generate_pseudo_legal_ep())
 
     def has_legal_en_passant(self) -> bool:
         """Checks if there is a legal en passant capture."""
-        return self.ep_square and any(self.generate_legal_ep())
+        return self.ep_square is not None and any(self.generate_legal_ep())
 
     def fen(self, *, shredder: bool = False, en_passant: str = "legal", promoted: Optional[bool] = None) -> str:
         """
