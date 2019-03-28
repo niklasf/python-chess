@@ -3275,12 +3275,12 @@ class Board(BaseBoard):
     def _attacked_for_king(self, path: Bitboard, occupied: Bitboard) -> bool:
         return any(self._attackers_mask(not self.turn, sq, occupied) for sq in scan_reversed(path))
 
-    def _castling_uncovers_rank_attack(self, rook_bb: Bitboard, king_to: Square) -> Bitboard:
+    def _castling_uncovers_rank_attack(self, rook_bb: Bitboard, king_to: Square) -> bool:
         # Test the special case where we castle and our rook shielded us from
         # an attack, so castling would be into check.
         rank_pieces = BB_RANK_MASKS[king_to] & (self.occupied ^ rook_bb)
         sliders = (self.queens | self.rooks) & self.occupied_co[not self.turn]
-        return BB_RANK_ATTACKS[king_to][rank_pieces] & sliders
+        return bool(BB_RANK_ATTACKS[king_to][rank_pieces] & sliders)
 
     def generate_castling_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():

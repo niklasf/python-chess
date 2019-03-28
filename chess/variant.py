@@ -259,7 +259,7 @@ class AtomicBoard(chess.Board):
         black_kings = self.kings & self.occupied_co[chess.BLACK]
         return any(chess.BB_KING_ATTACKS[sq] & black_kings for sq in chess.scan_forward(white_kings))
 
-    def _push_capture(self, move: chess.Move, capture_square: chess.Square, piece_type: chess.PieceType, was_promoted: bool):
+    def _push_capture(self, move: chess.Move, capture_square: chess.Square, piece_type: chess.PieceType, was_promoted: bool) -> None:
         # Explode the capturing piece.
         self._remove_piece_at(move.to_square)
 
@@ -291,7 +291,7 @@ class AtomicBoard(chess.Board):
             return False
 
         self.push(move)
-        legal = self.kings and not self.is_variant_win() and (self.is_variant_loss() or not self.was_into_check())
+        legal = bool(self.kings) and not self.is_variant_win() and (self.is_variant_loss() or not self.was_into_check())
         self.pop()
 
         return legal
@@ -326,13 +326,13 @@ class KingOfTheHillBoard(chess.Board):
     tbz_magic = None
 
     def is_variant_end(self) -> bool:
-        return self.kings & chess.BB_CENTER
+        return bool(self.kings & chess.BB_CENTER)
 
     def is_variant_win(self) -> bool:
-        return self.kings & self.occupied_co[self.turn] & chess.BB_CENTER
+        return bool(self.kings & self.occupied_co[self.turn] & chess.BB_CENTER)
 
     def is_variant_loss(self) -> bool:
-        return self.kings & self.occupied_co[not self.turn] & chess.BB_CENTER
+        return bool(self.kings & self.occupied_co[not self.turn] & chess.BB_CENTER)
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
         return False
@@ -397,7 +397,7 @@ class RacingKingsBoard(chess.Board):
         return self.is_variant_end() and not self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
     def is_variant_win(self) -> bool:
-        return self.is_variant_end() and self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
+        return self.is_variant_end() and bool(self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8)
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
         return False
@@ -447,10 +447,10 @@ class HordeBoard(chess.Board):
         return not self.occupied
 
     def is_variant_loss(self) -> bool:
-        return self.occupied and not self.occupied_co[self.turn]
+        return bool(self.occupied) and not self.occupied_co[self.turn]
 
     def is_variant_win(self) -> bool:
-        return self.occupied and not self.occupied_co[not self.turn]
+        return bool(self.occupied) and not self.occupied_co[not self.turn]
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
         # TODO: Could detect some cases where the Horde can no longer mate.
