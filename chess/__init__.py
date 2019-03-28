@@ -2427,7 +2427,7 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
-    def _parse_epd_ops(self, operation_part: str, make_board: Callable[[], Board]) -> Dict[str, Union[None, str, int, float, List[Move]]]:
+    def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, List[Move]]]:
         operations = {}
         state = "opcode"
         opcode = ""
