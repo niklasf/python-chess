@@ -97,7 +97,7 @@ def _text(content, x, y, width, height):
     return t
 
 
-def piece(piece, size=None):
+def piece(piece, size=None) -> str:
     """
     Renders the given :class:`chess.Piece` as an SVG image.
 
@@ -113,7 +113,7 @@ def piece(piece, size=None):
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None):
+def board(board=None, *, squares=None, flipped=False, coordinates=True, lastmove=None, check=None, arrows=(), size=None, style=None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
