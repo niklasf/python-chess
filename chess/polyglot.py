@@ -22,6 +22,9 @@ import struct
 import os
 import mmap
 import random
+import typing
+
+from typing import Callable, Container, Iterator, List, Optional, Union
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -228,11 +231,11 @@ POLYGLOT_RANDOM_ARRAY = [
 
 
 class ZobristHasher:
-    def __init__(self, array):
+    def __init__(self, array: List[int]) -> None:
         assert len(array) >= 781
         self.array = array
 
-    def hash_board(self, board):
+    def hash_board(self, board: chess.BaseBoard) -> int:
         zobrist_hash = 0
 
         for pivot, squares in enumerate(board.occupied_co):
@@ -242,7 +245,7 @@ class ZobristHasher:
 
         return zobrist_hash
 
-    def hash_castling(self, board):
+    def hash_castling(self, board: chess.Board) -> int:
         zobrist_hash = 0
 
         # Hash in the castling flags.
@@ -257,7 +260,7 @@ class ZobristHasher:
 
         return zobrist_hash
 
-    def hash_ep_square(self, board):
+    def hash_ep_square(self, board: chess.Board) -> int:
         # Hash in the en passant file.
         if board.ep_square:
             # But only if there's actually a pawn ready to capture it. Legality
@@ -272,16 +275,16 @@ class ZobristHasher:
                 return self.array[772 + chess.square_file(board.ep_square)]
         return 0
 
-    def hash_turn(self, board):
+    def hash_turn(self, board: chess.Board) -> int:
         # Hash in the turn.
         return self.array[780] if board.turn == chess.WHITE else 0
 
-    def __call__(self, board):
+    def __call__(self, board: chess.Board) -> int:
         return (self.hash_board(board) ^ self.hash_castling(board) ^
                 self.hash_ep_square(board) ^ self.hash_turn(board))
 
 
-def zobrist_hash(board, *, _hasher=ZobristHasher(POLYGLOT_RANDOM_ARRAY)):
+def zobrist_hash(board: chess.Board, *, _hasher: Callable[[chess.Board], int] = ZobristHasher(POLYGLOT_RANDOM_ARRAY)) -> int:
     """
     Calculates the Polyglot Zobrist hash of the position.
 
@@ -298,7 +301,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 
     __slots__ = ()
 
-    def move(self, *, chess960=False):
+    def move(self, *, chess960: bool = False) -> chess.Move:
         """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
@@ -330,7 +333,10 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
-    def __init__(self, filename):
+    if typing.TYPE_CHECKING:  # Python 3.5 compatible member annotations
+        mmap = None  # type Optional[mmap.mmap]
+
+    def __init__(self, filename: str) -> None:
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         try:
@@ -339,19 +345,19 @@ class MemoryMappedReader:
             # Can not memory map empty opening books.
             self.mmap = None
 
-    def __enter__(self):
+    def __enter__(self) -> "MemoryMappedReader":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         return self.close()
 
-    def __len__(self):
+    def __len__(self) -> int:
         if self.mmap is None:
             return 0
         else:
             return self.mmap.size() // ENTRY_STRUCT.size
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int) -> Entry:
         if self.mmap is None:
             raise IndexError()
 
@@ -365,14 +371,14 @@ class MemoryMappedReader:
 
         return Entry(key, raw_move, weight, learn)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Entry]:
         i = 0
         size = len(self)
         while i < size:
             yield self[i]
             i += 1
 
-    def bisect_key_left(self, key):
+    def bisect_key_left(self, key: int) -> int:
         lo = 0
         hi = len(self)
 
@@ -386,10 +392,10 @@ class MemoryMappedReader:
 
         return lo
 
-    def __contains__(self, entry):
+    def __contains__(self, entry: Entry) -> bool:
         return any(current == entry for current in self.find_all(entry.key, minimum_weight=entry.weight))
 
-    def find_all(self, board, *, minimum_weight=1, exclude_moves=()):
+    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = ()) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)
@@ -423,7 +429,7 @@ class MemoryMappedReader:
 
             yield entry
 
-    def find(self, board, *, minimum_weight=1, exclude_moves=()):
+    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = ()) -> Entry:
         """
         Finds the main entry for the given position or Zobrist hash.
 
@@ -442,13 +448,13 @@ class MemoryMappedReader:
         except ValueError:
             raise IndexError()
 
-    def get(self, board, default=None, *, minimum_weight=1, exclude_moves=()):
+    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = ()) -> Optional[Entry]:
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
         except IndexError:
             return default
 
-    def choice(self, board, *, minimum_weight=1, exclude_moves=(), random=random):
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = (), random=random) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -465,7 +471,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board, *, exclude_moves=(), random=random):
+    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Optional[Container[chess.Move]] = (), random=random) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
@@ -486,7 +492,7 @@ class MemoryMappedReader:
 
         assert False
 
-    def close(self):
+    def close(self) -> None:
         """Closes the reader."""
         if self.mmap is not None:
             self.mmap.close()
@@ -497,7 +503,7 @@ class MemoryMappedReader:
             pass
 
 
-def open_reader(path):
+def open_reader(path: str) -> MemoryMappedReader:
     """
     Creates a reader for the file at the given path.
 
