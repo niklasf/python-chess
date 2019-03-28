@@ -1984,7 +1984,7 @@ class Board(BaseBoard):
         from_bb = BB_SQUARES[move.from_square]
         to_bb = BB_SQUARES[move.to_square]
 
-        promoted = self.promoted & from_bb
+        promoted = bool(self.promoted & from_bb)
         piece_type = self._remove_piece_at(move.from_square)
         assert piece_type is not None, "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.fen())
         capture_square = move.to_square
@@ -2419,16 +2419,17 @@ class Board(BaseBoard):
         >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
         """
+        if en_passant == "fen":
+            ep_square = self.ep_square
+        elif en_passant == "xfen":
+            ep_square = self.ep_square if self.has_pseudo_legal_en_passant() else None
+        else:
+            ep_square = self.ep_square if self.has_legal_en_passant() else None
+
         epd = [self.board_fen(promoted=promoted),
                "w" if self.turn == WHITE else "b",
-               self.castling_shredder_fen() if shredder else self.castling_xfen()]
-
-        if en_passant == "fen":
-            epd.append(SQUARE_NAMES[self.ep_square] if self.ep_square is not None else "-")
-        elif en_passant == "xfen":
-            epd.append(SQUARE_NAMES[self.ep_square] if self.has_pseudo_legal_en_passant() else "-")
-        else:
-            epd.append(SQUARE_NAMES[self.ep_square] if self.has_legal_en_passant() else "-")
+               self.castling_shredder_fen() if shredder else self.castling_xfen(),
+               SQUARE_NAMES[ep_square] if ep_square is not None else "-"]
 
         if operations:
             epd.append(self._epd_operations(operations))
