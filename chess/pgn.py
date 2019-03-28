@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import collections.abc
 import itertools
 import logging
 import re
@@ -25,7 +24,7 @@ import typing
 
 import chess
 
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -465,7 +464,7 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
-    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
+    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         """
         Traverses the game in PGN order using the given *visitor*. Returns
         the *visitor* result.
@@ -523,7 +522,7 @@ class Game(GameNode):
 
 HeadersT = TypeVar("HeadersT", bound="Headers")
 
-class Headers(collections.abc.MutableMapping[str, str]):
+class Headers(MutableMapping[str, str]):
     def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None, **kwargs: str) -> None:
         self._tag_roster = {}  # type: Dict[str, str]
         self._others = {}  # type: Dict[str, str]
@@ -614,7 +613,7 @@ class Headers(collections.abc.MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls) -> HeadersBuilder:
+    def builder(cls) -> "HeadersBuilder":
         return HeadersBuilder(Headers=lambda: cls({}))
 
 
@@ -634,10 +633,10 @@ class Mainline(Generic[MainlineMapT]):
             node = node.variations[0]
             yield self.f(node)
 
-    def __reversed__(self) -> ReverseMainline[MainlineMapT]:
+    def __reversed__(self) -> "ReverseMainline[MainlineMapT]":
         return ReverseMainline(self.start, self.f)
 
-    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
+    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         node = self.start
         board = self.start.board()
         while node.variations:
@@ -1058,7 +1057,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder[Game]) -> Optional[ResultT]:
+def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder) -> Optional[ResultT]:
     """
     Reads a game from a file opened in text mode.
 

@@ -29,14 +29,13 @@ __email__ = "niklas.fiekas@backscattering.de"
 __version__ = "0.27.3"
 
 import collections
-import collections.abc
 import copy
 import enum
 import re
 import itertools
 import typing
 
-from typing import Callable, Counter, Dict, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import Callable, Counter, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -3492,7 +3491,7 @@ class LegalMoveGenerator:
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
 
-class SquareSet(collections.abc.MutableSet):
+class SquareSet(MutableSet[Square]):
     """
     A set of squares.
 
