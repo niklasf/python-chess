@@ -418,9 +418,9 @@ class Piece:
         return chess.svg.piece(self, size=45)
 
     def __eq__(self, other: object) -> bool:
-        try:
+        if isinstance(other, Piece):
             return (self.piece_type, self.color) == (other.piece_type, other.color)
-        except AttributeError:
+        else:
             return NotImplemented
 
     @classmethod
@@ -472,13 +472,13 @@ class Move:
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
     def __eq__(self, other: object) -> bool:
-        try:
+        if isinstance(other, Move):
             return (
                 self.from_square == other.from_square and
                 self.to_square == other.to_square and
                 self.promotion == other.promotion and
                 self.drop == other.drop)
-        except AttributeError:
+        else:
             return NotImplemented
 
     def __repr__(self) -> str:
@@ -1190,7 +1190,7 @@ class BaseBoard:
         return chess.svg.board(board=self, size=400)
 
     def __eq__(self, board: object) -> bool:
-        try:
+        if isinstance(board, BaseBoard):
             return (
                 self.occupied == board.occupied and
                 self.occupied_co[WHITE] == board.occupied_co[WHITE] and
@@ -1200,7 +1200,7 @@ class BaseBoard:
                 self.rooks == board.rooks and
                 self.queens == board.queens and
                 self.kings == board.kings)
-        except AttributeError:
+        else:
             return NotImplemented
 
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
@@ -3359,15 +3359,13 @@ class Board(BaseBoard):
             check=self.king(self.turn) if self.is_check() else None)
 
     def __eq__(self, board: object) -> bool:
-        try:
-            # Compare positions (including move counters), but excluding
-            # history.
+        if isinstance(board, Board):
             return (
                 self.halfmove_clock == board.halfmove_clock and
                 self.fullmove_number == board.fullmove_number and
                 type(self).uci_variant == type(board).uci_variant and
                 self._transposition_key() == board._transposition_key())
-        except AttributeError:
+        else:
             return NotImplemented
 
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
