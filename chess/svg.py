@@ -119,7 +119,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           squares: Optional[chess.IntoSquareSet] = None,
           flipped: bool = False,
           coordinates: bool = True,
-          lastmove: Optional[Union[chess.Move, chess.IntoSquareSet]] = None,
+          lastmove: Optional[chess.Move] = None,
           check: Optional[chess.Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
           size: Optional[int] = None,
@@ -171,12 +171,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
-    if lastmove:
-        try:
-            lastmove = chess.SquareSet([lastmove.from_square, lastmove.to_square])
-        except AttributeError:
-            lastmove = chess.SquareSet(lastmove)
-
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
@@ -185,7 +179,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
-        if lastmove and square in lastmove:
+        if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
         fill_color = DEFAULT_COLORS[" ".join(cls)]
 
@@ -240,9 +234,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     for arrow in arrows:
         try:
-            tail, head, color = arrow.tail, arrow.head, arrow.color
+            tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
         except AttributeError:
-            tail, head = arrow
+            tail, head = arrow  # type: ignore
             color = "#888"
 
         tail_file = chess.square_file(tail)

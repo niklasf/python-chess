@@ -20,6 +20,8 @@ import chess
 import copy
 import itertools
 
+from typing import Type
+
 
 class SuicideBoard(chess.Board):
 
@@ -815,7 +817,7 @@ class CrazyhouseBoard(chess.Board):
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
         return board
 
-    def status(self):
+    def status(self) -> chess.Status:
         status = super().status()
 
         if chess.popcount(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
@@ -838,10 +840,10 @@ VARIANTS = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
-]
+]  # type: Type[chess.Board]
 
 
-def find_variant(name):
+def find_variant(name: str) -> Type[chess.Board]:
     """Looks for a variant board class by variant name."""
     for variant in VARIANTS:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
