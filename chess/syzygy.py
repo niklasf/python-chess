@@ -26,6 +26,9 @@ import threading
 
 import chess
 
+from types import TracebackType
+from typing import Deque, Dict, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type
+
 
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
@@ -47,10 +50,10 @@ TRIANGLE = [
 
 INVTRIANGLE = [1, 2, 3, 10, 11, 19, 0, 9, 18, 27]
 
-def offdiag(square):
+def offdiag(square: chess.Square) -> int:
     return chess.square_rank(square) - chess.square_file(square)
 
-def flipdiag(square):
+def flipdiag(square: chess.Square) -> chess.Square:
     return ((square >> 3) | (square << 3)) & 63
 
 LOWER = [
@@ -290,10 +293,10 @@ PP_IDX = [[
      -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1
 ]]
 
-def test45(sq):
-    return chess.BB_SQUARES[sq] & (chess.BB_A5 | chess.BB_A6 | chess.BB_A7 |
-                                   chess.BB_B5 | chess.BB_B6 |
-                                   chess.BB_C5)
+def test45(sq: chess.Square) -> bool:
+    return bool(chess.BB_SQUARES[sq] & (chess.BB_A5 | chess.BB_A6 | chess.BB_A7 |
+                                        chess.BB_B5 | chess.BB_B6 |
+                                        chess.BB_C5))
 
 MTWIST = [
     15, 63, 55, 47, 40, 48, 56, 12,
@@ -306,7 +309,7 @@ MTWIST = [
     14, 60, 52, 44, 43, 51, 59, 13,
 ]
 
-def binom(x, y):
+def binom(x: int, y: int) -> int:
     try:
         return math.factorial(x) // math.factorial(y) // math.factorial(x - y)
     except ValueError:
@@ -369,11 +372,11 @@ PCHR = ["K", "Q", "R", "B", "N", "P"]
 TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
 
 
-def is_table_name(name):
-    return len(name) <= 7 + 1 and TABLENAME_REGEX.match(name) and normalize_tablename(name) == name
+def is_table_name(name: str) -> bool:
+    return len(name) <= 7 + 1 and bool(TABLENAME_REGEX.match(name)) and normalize_tablename(name) == name
 
 
-def tablenames(*, one_king=True, piece_count=6):
+def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
     first = "K" if one_king else "P"
 
     targets = []
@@ -388,7 +391,7 @@ def tablenames(*, one_king=True, piece_count=6):
     return all_dependencies(targets, one_king=one_king)
 
 
-def normalize_tablename(name, *, mirror=False):
+def normalize_tablename(name: str, *, mirror: bool = False) -> str:
     w, b = name.split("v", 1)
     w = "".join(sorted(w, key=PCHR.index))
     b = "".join(sorted(b, key=PCHR.index))
@@ -398,7 +401,7 @@ def normalize_tablename(name, *, mirror=False):
         return w + "v" + b
 
 
-def _dependencies(target, *, one_king=True):
+def _dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
     w, b = target.split("v", 1)
 
     for p in PCHR:
@@ -418,7 +421,7 @@ def _dependencies(target, *, one_king=True):
             yield normalize_tablename(w + "v" + b.replace(p, "", 1))
 
 
-def dependencies(target, *, one_king=True):
+def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
     closed = set()
     if one_king:
         closed.add("KvK")
@@ -429,7 +432,7 @@ def dependencies(target, *, one_king=True):
             closed.add(dependency)
 
 
-def all_dependencies(targets, *, one_king=True):
+def all_dependencies(targets: str, *, one_king: bool = True) -> Iterator[str]:
     closed = set()
     if one_king:
         closed.add("KvK")
@@ -447,7 +450,7 @@ def all_dependencies(targets, *, one_king=True):
         open_list.extend(_dependencies(name, one_king=one_king))
 
 
-def calc_key(board, *, mirror=False):
+def calc_key(board: chess.BaseBoard, *, mirror: bool = False) -> str:
     w = board.occupied_co[chess.WHITE ^ mirror]
     b = board.occupied_co[chess.BLACK ^ mirror]
 
@@ -468,7 +471,7 @@ def calc_key(board, *, mirror=False):
     ])
 
 
-def recalc_key(pieces, *, mirror=False):
+def recalc_key(pieces: List[chess.PieceType], *, mirror: bool = False) -> str:
     # Some endgames are stored with a different key than their filename
     # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
 
@@ -492,7 +495,7 @@ def recalc_key(pieces, *, mirror=False):
     ])
 
 
-def subfactor(k, n):
+def subfactor(k: int, n: int) -> int:
     f = n
     l = 1
 
@@ -503,7 +506,7 @@ def subfactor(k, n):
     return f // l
 
 
-def dtz_before_zeroing(wdl):
+def dtz_before_zeroing(wdl: int) -> int:
     return ((wdl > 0) - (wdl < 0)) * (1 if abs(wdl) == 2 else 101)
 
 
@@ -513,13 +516,13 @@ class MissingTableError(KeyError):
 
 
 class PairsData:
-    def __init__(self):
+    def __init__(self) -> None:
         self.indextable = None
         self.sizetable = None
         self.data = None
         self.offset = None
         self.symlen = None
-        self.sympat = None
+        self.sympat = None  # type: int
         self.blocksize = None
         self.idxbits = None
         self.min_len = None
@@ -527,7 +530,7 @@ class PairsData:
 
 
 class PawnFileData:
-    def __init__(self):
+    def __init__(self) -> None:
         self.precomp = {}
         self.factor = {}
         self.pieces = {}
@@ -535,7 +538,7 @@ class PawnFileData:
 
 
 class PawnFileDataDtz:
-    def __init__(self):
+    def __init__(self) -> None:
         self.precomp = None
         self.factor = None
         self.pieces = None
@@ -544,7 +547,7 @@ class PawnFileDataDtz:
 
 class Table:
 
-    def __init__(self, path, *, variant=chess.Board):
+    def __init__(self, path: str, *, variant: Type[chess.Board] = chess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -593,7 +596,7 @@ class Table:
                             j = white_part.count(piece_type)
                         self.enc_type = 1 + j
 
-    def init_mmap(self):
+    def init_mmap(self) -> None:
         with self.write_lock:
             # Open fd.
             if self.fd is None:
@@ -603,12 +606,12 @@ class Table:
             if self.data is None:
                 self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
-    def check_magic(self, magic, pawnless_magic):
+    def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> bool:
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[:min(4, len(self.data))] not in valid_magics:
             raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
 
-    def setup_pairs(self, data_ptr, tb_size, size_idx, wdl):
+    def setup_pairs(self, data_ptr: int, tb_size: int, size_idx: int, wdl: int) -> PairsData:
         d = PairsData()
 
         self._flags = self.data[data_ptr]
@@ -663,7 +666,7 @@ class Table:
 
         return d
 
-    def set_norm_piece(self, norm, pieces):
+    def set_norm_piece(self, norm: List[int], pieces) -> None:
         if self.enc_type == 0:
             norm[0] = 3
         elif self.enc_type == 2:
@@ -679,7 +682,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_factors_piece(self, factor, order, norm):
+    def calc_factors_piece(self, factor: List[int], order: int, norm: List[int]) -> int:
         if not self.variant.connected_kings:
             PIVFAC = [31332, 28056, 462]
         else:
@@ -706,7 +709,7 @@ class Table:
 
         return f
 
-    def calc_factors_pawn(self, factor, order, order2, norm, f):
+    def calc_factors_pawn(self, factor: int, order: int, order2: int, norm: List[int], f: int) -> int:
         i = norm[0]
         if order2 < 0x0f:
             i += norm[i]
@@ -730,7 +733,7 @@ class Table:
 
         return fac
 
-    def set_norm_pawn(self, norm, pieces):
+    def set_norm_pawn(self, norm: List[int], pieces) -> None:
         norm[0] = self.pawns[0]
         if self.pawns[1]:
             norm[self.pawns[0]] = self.pawns[1]
@@ -743,7 +746,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_symlen(self, d, s, tmp):
+    def calc_symlen(self, d: PairsData, s: int, tmp: List[int]) -> None:
         w = d.sympat + 3 * s
         s2 = (self.data[w + 2] << 4) | (self.data[w + 1] >> 4)
         if s2 == 0x0fff:
@@ -757,14 +760,14 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos):
+    def pawn_file(self, pos: chess.Square) -> int:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm, pos, factor):
+    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: int) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -877,7 +880,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm, pos, factor):
+    def encode_pawn(self, norm: List[int], pos: chess.Square, factor: int) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -933,7 +936,7 @@ class Table:
 
         return idx
 
-    def decompress_pairs(self, d, idx):
+    def decompress_pairs(self, d: PairsData, idx: int) -> int:
         if not d.idxbits:
             return d.min_len
 
@@ -998,19 +1001,19 @@ class Table:
         else:
             return self.data[w]
 
-    def read_uint64_be(self, data_ptr):
+    def read_uint64_be(self, data_ptr: int) -> int:
         return UINT64_BE.unpack_from(self.data, data_ptr)[0]
 
-    def read_uint32(self, data_ptr):
+    def read_uint32(self, data_ptr: int) -> int:
         return UINT32.unpack_from(self.data, data_ptr)[0]
 
-    def read_uint32_be(self, data_ptr):
+    def read_uint32_be(self, data_ptr: int) -> int:
         return UINT32_BE.unpack_from(self.data, data_ptr)[0]
 
-    def read_uint16(self, data_ptr):
+    def read_uint16(self, data_ptr: int) -> int:
         return UINT16.unpack_from(self.data, data_ptr)[0]
 
-    def close(self):
+    def close(self) -> None:
         with self.write_lock:
             with self.read_condition:
                 while self.read_count > 0:
@@ -1024,16 +1027,16 @@ class Table:
                     os.close(self.fd)
                     self.fd = None
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 
 class WdlTable(Table):
 
-    def init_table_wdl(self):
+    def init_table_wdl(self) -> None:
         with self.write_lock:
             self.init_mmap()
 
@@ -1142,7 +1145,7 @@ class WdlTable(Table):
 
             self.initialized = True
 
-    def setup_pieces_pawn(self, p_data, p_tb_size, f):
+    def setup_pieces_pawn(self, p_data: int, p_tb_size: int, f: int) -> None:
         j = 1 + int(self.pawns[1] > 0)
         order = self.data[p_data] & 0x0f
         order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
@@ -1160,7 +1163,7 @@ class WdlTable(Table):
         self.files[f].factor[1] = [0 for _ in range(TBPIECES)]
         self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
-    def setup_pieces_piece(self, p_data):
+    def setup_pieces_piece(self, p_data: int) -> None:
         self.pieces[0] = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
         order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm[0], self.pieces[0])
@@ -1171,7 +1174,7 @@ class WdlTable(Table):
         self.set_norm_piece(self.norm[1], self.pieces[1])
         self.tb_size[1] = self.calc_factors_piece(self.factor[1], order, self.norm[1])
 
-    def probe_wdl_table(self, board):
+    def probe_wdl_table(self, board: chess.Board) -> int:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -1181,7 +1184,7 @@ class WdlTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_wdl_table(self, board):
+    def _probe_wdl_table(self, board: chess.Board) -> int:
         self.init_table_wdl()
 
         key = calc_key(board)
@@ -1244,7 +1247,7 @@ class WdlTable(Table):
 
 class DtzTable(Table):
 
-    def init_table_dtz(self):
+    def init_table_dtz(self) -> None:
         with self.write_lock:
             self.init_mmap()
 
@@ -1341,7 +1344,7 @@ class DtzTable(Table):
 
             self.initialized = True
 
-    def probe_dtz_table(self, board, wdl):
+    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -1351,7 +1354,7 @@ class DtzTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_dtz_table(self, board, wdl):
+    def _probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
         self.init_table_dtz()
 
         key = calc_key(board)
@@ -1435,13 +1438,13 @@ class DtzTable(Table):
 
         return res, 1
 
-    def setup_pieces_piece_dtz(self, p_data, p_tb_size):
+    def setup_pieces_piece_dtz(self, p_data: int, p_tb_size: int) -> None:
         self.pieces = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
         order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm, self.pieces)
         self.tb_size[p_tb_size] = self.calc_factors_piece(self.factor, order, self.norm)
 
-    def setup_pieces_pawn_dtz(self, p_data, p_tb_size, f):
+    def setup_pieces_pawn_dtz(self, p_data: int, p_tb_size: int, f: int) -> None:
         j = 1 + int(self.pawns[1] > 0)
         order = self.data[p_data] & 0x0f
         order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
@@ -1462,17 +1465,17 @@ class Tablebase:
     descriptors at any given time. The least recently used tables are closed,
     if nescessary.
     """
-    def __init__(self, *, max_fds=128, VariantBoard=chess.Board):
+    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
-        self.lru = collections.deque()
+        self.lru = collections.deque()  # type: Deque[Table]
         self.lru_lock = threading.Lock()
 
-        self.wdl = {}
-        self.dtz = {}
+        self.wdl = {}  # type: MutableMapping[str, WdlTable]
+        self.dtz = {}  # type: MutableMapping[str, DtzTable]
 
-    def _bump_lru(self, table):
+    def _bump_lru(self, table: Table) -> None:
         if self.max_fds is None:
             return
 
@@ -1486,7 +1489,7 @@ class Tablebase:
                 if len(self.lru) > self.max_fds:
                     self.lru.pop().close()
 
-    def _open_table(self, hashtable, Table, path):
+    def _open_table(self, hashtable: MutableMapping[str, Table], Table: Type[Table], path: str) -> int:
         table = Table(path, variant=self.variant)
 
         if table.key in hashtable:
@@ -1496,7 +1499,7 @@ class Tablebase:
         hashtable[table.mirrored_key] = table
         return 1
 
-    def add_directory(self, directory, *, load_wdl=True, load_dtz=True):
+    def add_directory(self, directory: str, *, load_wdl: bool = True, load_dtz: bool = True) -> int:
         """
         Adds tables from a directory.
 
@@ -1531,7 +1534,7 @@ class Tablebase:
 
         return num
 
-    def probe_wdl_table(self, board):
+    def probe_wdl_table(self, board: chess.Board) -> int:
         # Test for variant end.
         if board.is_variant_win():
             return 2
@@ -1554,7 +1557,7 @@ class Tablebase:
 
         return table.probe_wdl_table(board)
 
-    def probe_ab(self, board, alpha, beta, threats=False):
+    def probe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
         if self.variant.captures_compulsory:
             if board.is_variant_win():
                 return 2, 2
@@ -1586,7 +1589,7 @@ class Tablebase:
         else:
             return v, 1
 
-    def sprobe_ab(self, board, alpha, beta, threats=False):
+    def sprobe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
         if chess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
@@ -1618,7 +1621,7 @@ class Tablebase:
         else:
             return alpha, 3 if threats_found else 1
 
-    def sprobe_capts(self, board, alpha, beta):
+    def sprobe_capts(self, board: chess.Board, alpha: int, beta: int) -> Tuple[int, int]:
         captures_found = False
 
         for move in board.generate_legal_captures():
@@ -1638,7 +1641,7 @@ class Tablebase:
 
         return alpha, captures_found
 
-    def probe_wdl(self, board):
+    def probe_wdl(self, board: chess.Board) -> int:
         """
         Probes WDL tables for win/draw/loss-information.
 
@@ -1710,13 +1713,13 @@ class Tablebase:
 
         return v
 
-    def get_wdl(self, board, default=None):
+    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_wdl(board)
         except KeyError:
             return default
 
-    def probe_dtz_table(self, board, wdl):
+    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
         key = calc_key(board)
         try:
             table = self.dtz[key]
@@ -1727,7 +1730,7 @@ class Tablebase:
 
         return table.probe_dtz_table(board, wdl)
 
-    def probe_dtz_no_ep(self, board):
+    def probe_dtz_no_ep(self, board: chess.Board) -> int:
         wdl, success = self.probe_ab(board, -2, 2, threats=True)
 
         if wdl == 0:
@@ -1799,7 +1802,7 @@ class Tablebase:
 
             return best
 
-    def probe_dtz(self, board):
+    def probe_dtz(self, board: chess.Board) -> int:
         """
         Probes DTZ tables for distance to zero information.
 
@@ -1907,13 +1910,13 @@ class Tablebase:
 
         return v
 
-    def get_dtz(self, board, default=None):
+    def get_dtz(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
             return self.probe_dtz(board)
         except KeyError:
             return default
 
-    def close(self):
+    def close(self) -> None:
         """Closes all loaded tables."""
         while self.wdl:
             _, wdl = self.wdl.popitem()
@@ -1925,14 +1928,14 @@ class Tablebase:
 
         self.lru.clear()
 
-    def __enter__(self):
+    def __enter__(self) -> "Tablebase":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 
-def open_tablebase(directory, *, load_wdl=True, load_dtz=True, max_fds=128, VariantBoard=chess.Board):
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.
