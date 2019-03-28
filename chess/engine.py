@@ -2261,7 +2261,7 @@ class SimpleEngine:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options),
-                self._timeout_for(limit))
+                self.timeout)  # Analyis should start immediately
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return SimpleAnalysisResult(self, future.result())
 
