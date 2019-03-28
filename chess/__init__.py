@@ -3491,7 +3491,7 @@ class LegalMoveGenerator:
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
 
-class SquareSet(MutableSet[Square]):
+class SquareSet:
     """
     A set of squares.
 
@@ -3571,14 +3571,14 @@ class SquareSet(MutableSet[Square]):
 
     def __init__(self, squares: IntoSquareSet = BB_EMPTY) -> None:
         try:
-            self.mask = squares.__int__() & BB_ALL
+            self.mask = squares.__int__() & BB_ALL  # type: ignore
             return
         except AttributeError:
             self.mask = 0
 
         # Try squares as an iterable. Not under except clause for nicer
         # backtraces.
-        for square in squares:
+        for square in squares:  # type: ignore
             self.add(square)
 
     # Set
@@ -3737,7 +3737,7 @@ class SquareSet(MutableSet[Square]):
 
     def __eq__(self, other: object) -> bool:
         try:
-            return self.mask == SquareSet(other).mask
+            return self.mask == SquareSet(other).mask  # type: ignore
         except (TypeError, ValueError):
             return NotImplemented
 
