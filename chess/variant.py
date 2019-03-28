@@ -529,7 +529,7 @@ class ThreeCheckBoard(chess.Board):
 
         # Parse ops.
         if len(parts) > 5:
-            operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts + " 0 1")))
+            operations = self._parse_epd_ops(parts.pop(), lambda: type(self)(" ".join(parts) + " 0 1"))
             parts.append(str(operations["hmvc"]) if "hmvc" in operations else "0")
             parts.append(str(operations["fmvn"]) if "fmvn" in operations else "1")
             self.set_fen(" ".join(parts))

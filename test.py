@@ -3746,6 +3746,14 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertEqual(board.copy().root().remaining_checks[chess.WHITE], 2)
         self.assertEqual(board.copy().root().remaining_checks[chess.BLACK], 3)
 
+    def test_three_check_epd(self):
+        board, ops = chess.variant.ThreeCheckBoard.from_epd("rnb1kbnr/pppp1ppp/8/8/2B1Pp1q/8/PPPP2PP/RNBQ1KNR b kq - 3+2 hmvc 3; fmvn 4; bm Qf2+")
+        self.assertEqual(board.remaining_checks[chess.WHITE], 3)
+        self.assertEqual(board.remaining_checks[chess.BLACK], 2)
+        self.assertEqual(board.halfmove_clock, 3)
+        self.assertEqual(board.fullmove_number, 4)
+        self.assertEqual(ops["bm"], [chess.Move.from_uci("h4f2")])
+
 
 class CrazyhouseTestCase(unittest.TestCase):
 
