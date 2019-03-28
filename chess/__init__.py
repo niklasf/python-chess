@@ -1446,7 +1446,7 @@ class Board(BaseBoard):
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
-    def generate_pseudo_legal_moves(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Generator[Move, None, None]:
+    def generate_pseudo_legal_moves(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
         our_pieces = self.occupied_co[self.turn]
 
         # Generate piece moves.
