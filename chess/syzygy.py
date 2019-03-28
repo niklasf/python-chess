@@ -23,11 +23,12 @@ import os
 import re
 import struct
 import threading
+import typing
 
 import chess
 
 from types import TracebackType
-from typing import Deque, Dict, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type
+from typing import Dict, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -1469,7 +1470,7 @@ class Tablebase:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
-        self.lru = collections.deque()  # type: Deque[Table]
+        self.lru = collections.deque()  # type: typing.Deque[Table]
         self.lru_lock = threading.Lock()
 
         self.wdl = {}  # type: MutableMapping[str, WdlTable]

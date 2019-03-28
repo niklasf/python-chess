@@ -47,7 +47,7 @@ except ImportError:
 import chess
 
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -537,7 +537,7 @@ MateGiven = MateGivenType()
 class MockTransport:
     def __init__(self, protocol: "EngineProtocol") -> None:
         self.protocol = protocol
-        self.expectations = collections.deque()  # type: Deque[Tuple[str, List[str]]]
+        self.expectations = collections.deque()  # type: typing.Deque[Tuple[str, List[str]]]
         self.expected_pings = 0
         self.stdin_buffer = bytearray()
         self.protocol.connection_made(self)
