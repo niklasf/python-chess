@@ -417,7 +417,7 @@ class Piece:
         import chess.svg
         return chess.svg.piece(self, size=45)
 
-    def __eq__(self, other: object) -> Union[bool, NotImplemented]:
+    def __eq__(self, other: object) -> bool:
         try:
             return (self.piece_type, self.color) == (other.piece_type, other.color)
         except AttributeError:
@@ -471,7 +471,7 @@ class Move:
     def __bool__(self) -> bool:
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
-    def __eq__(self, other: object) -> Union[bool, NotImplemented]:
+    def __eq__(self, other: object) -> bool:
         try:
             return (
                 self.from_square == other.from_square and
@@ -1189,7 +1189,7 @@ class BaseBoard:
         import chess.svg
         return chess.svg.board(board=self, size=400)
 
-    def __eq__(self, board: object) -> Union[bool, NotImplemented]:
+    def __eq__(self, board: object) -> bool:
         try:
             return (
                 self.occupied == board.occupied and
@@ -3358,7 +3358,7 @@ class Board(BaseBoard):
             lastmove=self.peek() if self.move_stack else None,
             check=self.king(self.turn) if self.is_check() else None)
 
-    def __eq__(self, board: object) -> Union[bool, NotImplemented]:
+    def __eq__(self, board: object) -> bool:
         try:
             # Compare positions (including move counters), but excluding
             # history.
@@ -3733,7 +3733,7 @@ class SquareSet(collections.abc.MutableSet):
     def __bool__(self) -> bool:
         return bool(self.mask)
 
-    def __eq__(self, other: object) -> Union[bool, NotImplemented]:
+    def __eq__(self, other: object) -> bool:
         try:
             return self.mask == SquareSet(other).mask
         except (TypeError, ValueError):
