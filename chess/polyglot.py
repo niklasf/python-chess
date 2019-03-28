@@ -24,7 +24,8 @@ import mmap
 import random
 import typing
 
-from typing import Callable, Container, Iterator, List, Optional, Union
+from types import TracebackType
+from typing import Callable, Container, Iterator, List, Optional, Type, Union
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -240,7 +241,7 @@ class ZobristHasher:
 
         for pivot, squares in enumerate(board.occupied_co):
             for square in chess.scan_reversed(squares):
-                piece_index = (board.piece_type_at(square) - 1) * 2 + pivot
+                piece_index = (typing.cast(chess.PieceType, board.piece_type_at(square)) - 1) * 2 + pivot
                 zobrist_hash ^= self.array[64 * piece_index + square]
 
         return zobrist_hash
@@ -333,22 +334,19 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
-    if typing.TYPE_CHECKING:  # Python 3.5 compatible member annotations
-        mmap = None  # type Optional[mmap.mmap]
-
     def __init__(self, filename: str) -> None:
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         try:
-            self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except (ValueError, mmap.error):
+            self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)  # type: Optional[mmap.mmap]
+        except (ValueError, mmap.error):  # type: ignore
             # Can not memory map empty opening books.
             self.mmap = None
 
     def __enter__(self) -> "MemoryMappedReader":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         return self.close()
 
     def __len__(self) -> int:
@@ -365,7 +363,7 @@ class MemoryMappedReader:
             key = len(self) + key
 
         try:
-            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)  # type: ignore
         except struct.error:
             raise IndexError()
 
@@ -384,7 +382,7 @@ class MemoryMappedReader:
 
         while lo < hi:
             mid = (lo + hi) // 2
-            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)
+            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)  # type: ignore
             if mid_key < key:
                 lo = mid + 1
             else:
@@ -398,10 +396,11 @@ class MemoryMappedReader:
     def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = ()) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
-            key = int(board)
-            board = None
+            key = int(board)  # type: ignore
+            context = None  # type: Optional[chess.Board]
         except (TypeError, ValueError):
-            key = zobrist_hash(board)
+            context = typing.cast(chess.Board, board)
+            key = zobrist_hash(context)
 
         i = self.bisect_key_left(key)
         size = len(self)
@@ -416,15 +415,15 @@ class MemoryMappedReader:
             if entry.weight < minimum_weight:
                 continue
 
-            if board:
-                move = entry.move(chess960=board.chess960)
+            if context:
+                move = entry.move(chess960=context.chess960)
             elif exclude_moves:
                 move = entry.move()
 
             if exclude_moves and move in exclude_moves:
                 continue
 
-            if board and not board.is_legal(move):
+            if context and not context.is_legal(move):
                 continue
 
             yield entry
@@ -454,7 +453,7 @@ class MemoryMappedReader:
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = (), random=random) -> Entry:
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Optional[Container[chess.Move]] = (), random: random.Random = random.SystemRandom()) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -471,7 +470,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Optional[Container[chess.Move]] = (), random=random) -> Entry:
+    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Optional[Container[chess.Move]] = (), random: random.Random = random.SystemRandom()) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
