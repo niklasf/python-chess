@@ -35,7 +35,7 @@ import re
 import itertools
 import typing
 
-from typing import Callable, Counter, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import Callable, Dict, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -1856,7 +1856,7 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions = collections.Counter()  # type: Counter[Hashable]
+        transpositions = collections.Counter()  # type: typing.Counter[Hashable]
         transpositions.update((transposition_key, ))
 
         # Count positions.
