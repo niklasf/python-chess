@@ -152,7 +152,6 @@ SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 
 Bitboard = int
-SupportsBitboard = Union[Bitboard, "SquareSet"]
 BB_EMPTY = 0
 BB_ALL = 0xffffffffffffffff
 
@@ -1450,7 +1449,7 @@ class Board(BaseBoard):
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
-    def generate_pseudo_legal_moves(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_pseudo_legal_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         our_pieces = self.occupied_co[self.turn]
 
         # Generate piece moves.
@@ -1517,7 +1516,7 @@ class Board(BaseBoard):
         if self.ep_square:
             yield from self.generate_pseudo_legal_ep(from_mask, to_mask)
 
-    def generate_pseudo_legal_ep(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_pseudo_legal_ep(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if not self.ep_square or not BB_SQUARES[self.ep_square] & to_mask:
             return
 
@@ -1532,7 +1531,7 @@ class Board(BaseBoard):
         for capturer in scan_reversed(capturers):
             yield Move(capturer, self.ep_square)
 
-    def generate_pseudo_legal_captures(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_pseudo_legal_captures(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         return itertools.chain(
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
@@ -3203,7 +3202,7 @@ class Board(BaseBoard):
             return bool(not blockers & BB_SQUARES[move.from_square] or
                         BB_RAYS[move.from_square][move.to_square] & BB_SQUARES[king])
 
-    def _generate_evasions(self, king: Square, checkers: Bitboard, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def _generate_evasions(self, king: Square, checkers: Bitboard, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         sliders = checkers & (self.bishops | self.rooks | self.queens)
 
         attacked = 0
@@ -3228,7 +3227,7 @@ class Board(BaseBoard):
                 if last_double == checker:
                     yield from self.generate_pseudo_legal_ep(from_mask, to_mask)
 
-    def generate_legal_moves(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_legal_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():
             return
 
@@ -3248,7 +3247,7 @@ class Board(BaseBoard):
         else:
             yield from self.generate_pseudo_legal_moves(from_mask, to_mask)
 
-    def generate_legal_ep(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_legal_ep(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():
             return
 
@@ -3256,7 +3255,7 @@ class Board(BaseBoard):
             if not self.is_into_check(move):
                 yield move
 
-    def generate_legal_captures(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_legal_captures(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         return itertools.chain(
             self.generate_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_legal_ep(from_mask, to_mask))
@@ -3271,7 +3270,7 @@ class Board(BaseBoard):
         sliders = (self.queens | self.rooks) & self.occupied_co[not self.turn]
         return BB_RANK_ATTACKS[king_to][rank_pieces] & sliders
 
-    def generate_castling_moves(self, from_mask: SupportsBitboard = BB_ALL, to_mask: SupportsBitboard = BB_ALL) -> Iterator[Move]:
+    def generate_castling_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():
             return
 
