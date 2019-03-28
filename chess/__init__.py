@@ -47,6 +47,9 @@ PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
+def piece_symbol(piece_type: PieceType, _PIECE_SYMBOLS: List[Optional[str]] = PIECE_SYMBOLS) -> str:
+    return typing.cast(str, _PIECE_SYMBOLS[piece_type])
+
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
     "N": u"♘", "n": u"♞",
@@ -393,7 +396,7 @@ class Piece:
         Gets the symbol ``P``, ``N``, ``B``, ``R``, ``Q`` or ``K`` for white
         pieces or the lower-case variants for the black pieces.
         """
-        symbol = PIECE_SYMBOLS[self.piece_type]
+        symbol = piece_symbol(self.piece_type)
         return symbol.upper() if self.color else symbol
 
     def unicode_symbol(self, *, invert_color: bool = False) -> str:
@@ -456,9 +459,9 @@ class Move:
         The UCI representation of a null move is ``0000``.
         """
         if self.drop:
-            return PIECE_SYMBOLS[self.drop].upper() + "@" + SQUARE_NAMES[self.to_square]
+            return piece_symbol(self.drop).upper() + "@" + SQUARE_NAMES[self.to_square]
         elif self.promotion:
-            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + PIECE_SYMBOLS[self.promotion]
+            return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square] + piece_symbol(self.promotion)
         elif self:
             return SQUARE_NAMES[self.from_square] + SQUARE_NAMES[self.to_square]
         else:
@@ -954,7 +957,7 @@ class BaseBoard:
         """
         result = {}
         for square in scan_reversed(self.occupied):
-            result[square] = self.piece_at(square)
+            result[square] = typing.cast(Piece, self.piece_at(square))
         return result
 
     def _set_piece_map(self, pieces: Mapping[Square, Piece]) -> None:
@@ -1351,6 +1354,7 @@ class Board(BaseBoard):
     if typing.TYPE_CHECKING:  # Python 3.5 compatible member annotations
         move_stack = []  # type: List[Move]
         _stack = []  # type: List[_BoardState]
+        ep_square = None  # type: Optional[Square]
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
     uci_variant = "chess"
@@ -1982,6 +1986,7 @@ class Board(BaseBoard):
 
         promoted = self.promoted & from_bb
         piece_type = self._remove_piece_at(move.from_square)
+        assert piece_type is not None, "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.fen())
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
 
@@ -2581,7 +2586,7 @@ class Board(BaseBoard):
         if move.drop:
             san = ""
             if move.drop != PAWN:
-                san = PIECE_SYMBOLS[move.drop].upper()
+                san = piece_symbol(move.drop).upper()
             san += "@" + SQUARE_NAMES[move.to_square]
 
         # Castling.
@@ -2606,7 +2611,7 @@ class Board(BaseBoard):
         if piece_type == PAWN:
             san = ""
         else:
-            san = PIECE_SYMBOLS[piece_type].upper()
+            san = piece_symbol(piece_type).upper()
 
         if long:
             san += SQUARE_NAMES[move.from_square]
@@ -2651,7 +2656,7 @@ class Board(BaseBoard):
 
         # Promotion.
         if move.promotion:
-            san += "=" + PIECE_SYMBOLS[move.promotion].upper()
+            san += "=" + piece_symbol(move.promotion).upper()
 
         # Add check or checkmate suffix.
         if is_checkmate:
@@ -3150,6 +3155,7 @@ class Board(BaseBoard):
 
         # Vertical skewers of the captured pawn are not possible. (Pins on
         # the capturer are not handled here.)
+        assert self.ep_square is not None
 
         last_double = self.ep_square + (-8 if self.turn == WHITE else 8)
 
