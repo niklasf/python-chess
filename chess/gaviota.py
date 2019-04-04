@@ -1580,6 +1580,14 @@ class PythonTablebase:
         if board.castling_rights:
             raise KeyError("gaviota tables do not contain positions with castling rights: {}".format(board.fen()))
 
+        # Supports only up to 5 pieces.
+        if chess.popcount(board.occupied) > 5:
+            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
+
+        # KvK is a draw.
+        if board.occupied == board.kings:
+            return 0
+
         # Prepare the tablebase request.
         white_squares = list(chess.SquareSet(board.occupied_co[chess.WHITE]))
         white_types = [typing.cast(chess.PieceType, board.piece_type_at(sq)) for sq in white_squares]
@@ -1589,22 +1597,11 @@ class PythonTablebase:
         epsq = board.ep_square if board.ep_square else NOSQUARE
         req = Request(white_squares, white_types, black_squares, black_types, side, epsq)
 
-        # KvK is a draw.
-        if len(white_squares) == 1 and len(black_squares) == 1:
-            return 0
-
-        # Supports only up to 5 pieces.
-        if len(white_squares) + len(black_squares) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
-
         # Probe.
         dtm = self.egtb_get_dtm(req)
         ply, res = unpackdist(dtm)
 
-        if res == iDRAW:
-            # Draw.
-            return 0
-        elif res == iWMATE:
+        if res == iWMATE:
             # White mates in the stored position.
             if req.realside == 1:
                 if req.is_reversed:
@@ -1628,6 +1625,9 @@ class PythonTablebase:
                     return -ply
                 else:
                     return ply
+        else:
+            # Draw.
+            return 0
 
     def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
