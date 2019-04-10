@@ -2645,8 +2645,12 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-3))
 
             # Exhaust remaining information.
+            was_empty = analysis.empty()
+            was_really_empty = True
             for info in analysis:
-                pass
+                was_really_empty = False
+            self.assertEqual(was_really_empty, was_empty)
+            self.assertTrue(analysis.empty())
             for info in analysis:
                 self.fail("all info should have been consumed")
 

@@ -2067,12 +2067,12 @@ class AnalysisResult:
         self._queue.put_nowait(info)
 
     def set_finished(self) -> None:
-        self._queue.put_nowait(KORK)
         self._finished.set_result(None)
+        self._queue.put_nowait(KORK)
 
     def set_exception(self, exc: Exception) -> None:
-        self._queue.put_nowait(KORK)
         self._finished.set_exception(exc)
+        self._queue.put_nowait(KORK)
 
     @property
     def info(self) -> InfoDict:
@@ -2088,7 +2088,7 @@ class AnalysisResult:
         """Waits until the analysis is complete (or stopped)."""
         await self._finished
 
-    async def get(self) -> Optional[InfoDict]:
+    async def get(self) -> InfoDict:
         """
         Waits for the next dictionary of information from the engine and
         returns it.
@@ -2110,6 +2110,18 @@ class AnalysisResult:
             raise AnalysisComplete()
 
         return info
+
+    def empty(self) -> bool:
+        """
+        Checks if all information has been consumed.
+
+        If the queue is empty, but the analysis is still ongoing, then further
+        information can become available in the future.
+
+        If the queue is not empty, then the next call to
+        :func:`~chess.engine.AnalysisResult.get()` will return instantly.
+        """
+        return self._seen_kork or self._queue.qsize() <= int(self._finished.done())
 
     async def next(self) -> Optional[InfoDict]:
         try:
@@ -2382,7 +2394,15 @@ class SimpleAnalysisResult:
             future = asyncio.run_coroutine_threadsafe(self.inner.wait(), self.simple_engine.protocol.loop)
         return future.result()
 
-    def get(self) -> Optional[InfoDict]:
+    def empty(self) -> bool:
+        async def _empty() -> bool:
+            return self.inner.empty()
+
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_empty(), self.simple_engine.protocol.loop)
+        return future.result()
+
+    def get(self) -> InfoDict:
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(self.inner.get(), self.simple_engine.protocol.loop)
         return future.result()
