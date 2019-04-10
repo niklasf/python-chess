@@ -385,6 +385,8 @@ Reference
 
 .. autoclass:: chess.engine.EngineTerminatedError
 
+.. autoclass:: chess.engine.AnalysisComplete
+
 .. autofunction:: chess.engine.popen_uci
 
 .. autofunction:: chess.engine.popen_xboard

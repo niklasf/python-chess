@@ -197,6 +197,13 @@ class EngineTerminatedError(EngineError):
     """The engine process exited unexpectedly."""
 
 
+class AnalysisComplete(Exception):
+    """
+    Raised when analysis is complete, all information has been consumed, but
+    further information was requested.
+    """
+
+
 ConfigValue = Union[str, int, bool, None]
 ConfigMapping = Mapping[str, ConfigValue]
 
@@ -2081,32 +2088,43 @@ class AnalysisResult:
         """Waits until the analysis is complete (or stopped)."""
         await self._finished
 
-    def __aiter__(self) -> "AnalysisResult":
-        return self
-
-    async def next(self) -> Optional[InfoDict]:
+    async def get(self) -> Optional[InfoDict]:
         """
         Waits for the next dictionary of information from the engine and
-        returns it. Returns ``None`` if the analysis has been stopped and
-        all information has been consumed.
+        returns it.
 
         It might be more convenient to use ``async for info in analysis: ...``.
-        """
-        async for info in self:
-            return info
-        return None
 
-    async def __anext__(self) -> InfoDict:
+        :raises: :exc:`chess.engine.AnalysisComplete` if the analysis is
+            complete (or has been stopped) and all information has been
+            consumed. Use :func:`~chess.engine.AnalysisResult.next()` if you
+            prefer to get ``None`` instead of an exception.
+        """
         if self._seen_kork:
-            raise StopAsyncIteration
+            raise AnalysisComplete()
 
         info = await self._queue.get()
         if info is KORK:
             self._seen_kork = True
             await self._finished
-            raise StopAsyncIteration
+            raise AnalysisComplete()
 
-        return typing.cast(InfoDict, info)
+        return info
+
+    async def next(self) -> Optional[InfoDict]:
+        try:
+            return await self.get()
+        except AnalysisComplete:
+            return None
+
+    def __aiter__(self) -> "AnalysisResult":
+        return self
+
+    async def __anext__(self) -> InfoDict:
+        try:
+            return await self.get()
+        except AnalysisComplete:
+            raise StopAsyncIteration
 
     def __enter__(self) -> "AnalysisResult":
         return self
@@ -2362,6 +2380,11 @@ class SimpleAnalysisResult:
     def wait(self) -> None:
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(self.inner.wait(), self.simple_engine.protocol.loop)
+        return future.result()
+
+    def get(self) -> Optional[InfoDict]:
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(self.inner.get(), self.simple_engine.protocol.loop)
         return future.result()
 
     def next(self) -> Optional[InfoDict]:
