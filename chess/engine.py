@@ -58,10 +58,7 @@ T = TypeVar("T")
 EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
 
 
-class KorkType:
-    pass
-
-KORK = KorkType()
+KORK = object()
 
 
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
@@ -2053,7 +2050,7 @@ class AnalysisResult:
 
     def __init__(self, stop: Optional[Callable[[], None]] = None):
         self._stop = stop
-        self._queue = asyncio.Queue()  # type: asyncio.Queue[Union[InfoDict, KorkType]]
+        self._queue = asyncio.Queue()  # type: asyncio.Queue[Union[InfoDict, object]]
         self._seen_kork = False
         self._finished = asyncio.Future()  # type: asyncio.Future[None]
         self.multipv = [{}]  # type: List[InfoDict]
