@@ -28,6 +28,9 @@ from types import TracebackType
 from typing import Any, Callable, Container, Iterator, List, Optional, Type, Union
 
 
+PathLike = Union[str, bytes]
+
+
 ENTRY_STRUCT = struct.Struct(">QHHI")
 
 
@@ -334,7 +337,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
-    def __init__(self, filename: str) -> None:
+    def __init__(self, filename: PathLike) -> None:
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         try:
@@ -453,7 +456,7 @@ class MemoryMappedReader:
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = (), random: Any = random) -> Entry:
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = (), random=random) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -470,7 +473,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = (), random: Any = random) -> Entry:
+    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = (), random=random) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
@@ -502,7 +505,7 @@ class MemoryMappedReader:
             pass
 
 
-def open_reader(path: str) -> MemoryMappedReader:
+def open_reader(path: PathLike) -> MemoryMappedReader:
     """
     Creates a reader for the file at the given path.
 

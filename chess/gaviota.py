@@ -34,6 +34,9 @@ from types import TracebackType
 from typing import Any, BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
 
 
+PathLike = Union[str, bytes]
+
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -1538,7 +1541,7 @@ class PythonTablebase:
         self.block_cache = {}  # type: Dict[Tuple[str, int, int], TableBlock]
         self.block_age = 0
 
-    def add_directory(self, directory: str) -> None:
+    def add_directory(self, directory: PathLike) -> None:
         """
         Adds *.gtb.cp4* tables from a directory. The relevant files are lazily
         opened when the tablebase is actually probed.
@@ -1944,7 +1947,7 @@ class NativeTablebase:
 
         self._tbcache_restart(1024 * 1024, 50)
 
-    def add_directory(self, directory: str) -> None:
+    def add_directory(self, directory: PathLike) -> None:
         if not os.path.isdir(directory):
             raise IOError("not a directory: {!r}".format(directory))
 
@@ -2077,7 +2080,7 @@ class NativeTablebase:
         self.close()
 
 
-def open_tablebase_native(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> NativeTablebase:
+def open_tablebase_native(directory: PathLike, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> NativeTablebase:
     """
     Opens a collection of tables for probing using libgtb.
 
@@ -2093,7 +2096,7 @@ def open_tablebase_native(directory: str, *, libgtb: Any = None, LibraryLoader: 
     return tables
 
 
-def open_tablebase(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
+def open_tablebase(directory: PathLike, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
     """
     Opens a collection of tables for probing.
 
