@@ -1924,7 +1924,7 @@ class NativeTablebase:
     """
 
     def __init__(self, libgtb: Any) -> None:
-        self.paths = []  # type: List[str]
+        self.paths = []  # type: List[PathLike]
 
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
