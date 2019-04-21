@@ -50,15 +50,12 @@ from types import TracebackType
 from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
 
 
-LOGGER = logging.getLogger(__name__)
-
-
 T = TypeVar("T")
 
 EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
 
 
-KORK = object()
+LOGGER = logging.getLogger(__name__)
 
 
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
@@ -2056,6 +2053,9 @@ class AnalysisResult:
         self.multipv = [{}]  # type: List[InfoDict]
 
     def post(self, info: InfoDict) -> None:
+        if not info:
+            return
+
         multipv = typing.cast(int, info.get("multipv", 1))
         while len(self.multipv) < multipv:
             self.multipv.append({})
@@ -2065,11 +2065,11 @@ class AnalysisResult:
 
     def set_finished(self) -> None:
         self._finished.set_result(None)
-        self._queue.put_nowait(KORK)
+        self._queue.put_nowait({})
 
     def set_exception(self, exc: Exception) -> None:
         self._finished.set_exception(exc)
-        self._queue.put_nowait(KORK)
+        self._queue.put_nowait({})
 
     @property
     def info(self) -> InfoDict:
@@ -2101,7 +2101,8 @@ class AnalysisResult:
             raise AnalysisComplete()
 
         info = await self._queue.get()
-        if info is KORK:
+        if not info:
+            # Empty dictionary marks end.
             self._seen_kork = True
             await self._finished
             raise AnalysisComplete()
