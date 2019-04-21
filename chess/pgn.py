@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import enum
 import itertools
 import logging
 import re
@@ -109,10 +110,10 @@ SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
-class SkipType:
-    pass
+class SkipType(enum.Enum):
+    SKIP = None
 
-SKIP = SkipType()
+SKIP = SkipType.SKIP
 
 
 ResultT = TypeVar("ResultT")
