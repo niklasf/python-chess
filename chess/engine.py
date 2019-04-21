@@ -584,8 +584,8 @@ class MockTransport:
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
-    def __init__(self) -> None:
-        self.loop = _get_running_loop()
+    def __init__(self, *, loop=None) -> None:
+        self.loop = loop or _get_running_loop()
         self.transport = None  # type: Optional[asyncio.SubprocessTransport]
 
         self.buffer = {
@@ -807,7 +807,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: Type[EngineProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
+    async def popen(cls: Type[EngineProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, loop=None, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
         if not isinstance(command, list):
             command = [command]
 
@@ -821,7 +821,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp  # type: ignore
         popen_args.update(kwargs)
 
-        loop = _get_running_loop()
+        loop = loop or _get_running_loop()
         return await loop.subprocess_exec(cls, *command, **popen_args)
 
 
@@ -2142,7 +2142,7 @@ class AnalysisResult:
         self.stop()
 
 
-async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
+async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, loop=None, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
     """
     Spawns and initializes an UCI engine.
 
@@ -2158,7 +2158,7 @@ async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **
 
     Returns a subprocess transport and engine protocol pair.
     """
-    transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, **popen_args)
+    transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, loop=loop, **popen_args)
     try:
         await protocol.initialize()
     except:
