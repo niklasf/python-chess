@@ -222,8 +222,6 @@ Features
       Move.from_uci('e2e4')
       >>> main_entry.weight
       1
-      >>> main_entry.learn
-      0
 
       >>> book.close()
 
