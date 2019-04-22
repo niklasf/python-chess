@@ -218,7 +218,7 @@ Features
 
       >>> board = chess.Board()
       >>> main_entry = book.find(board)
-      >>> main_entry.move()
+      >>> main_entry.move
       Move.from_uci('e2e4')
       >>> main_entry.weight
       1
