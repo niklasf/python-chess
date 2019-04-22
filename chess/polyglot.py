@@ -305,7 +305,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
 
     __slots__ = ()
 
-    def move(self, *, chess960: bool = False) -> chess.Move:
+    def move(self, *, board: chess.Board = None) -> chess.Move:
         """Gets the move (as a :class:`~chess.Move` object)."""
         # Extract source and target square.
         to_square = self.raw_move & 0x3f
@@ -315,8 +315,18 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
         promotion_part = (self.raw_move >> 12) & 0x7
         promotion = promotion_part + 1 if promotion_part else None
 
-        # Convert castling moves.
-        if not chess960 and not promotion:
+        # Piece drop.
+        if from_square == to_square:
+            drop, promotion = promotion, None
+        else:
+            drop = None
+
+        # Normalize castling moves if we have a board as context.
+        if board is not None:
+            return board._from_chess960(board.chess960, from_square, to_square, promotion, drop)
+
+        # Best effort to normalize castling moves without context.
+        if not promotion and not drop:
             if from_square == chess.E1:
                 if to_square == chess.H1:
                     return chess.Move(chess.E1, chess.G1)
@@ -328,10 +338,7 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
                 elif to_square == chess.A8:
                     return chess.Move(chess.E8, chess.C8)
 
-        if promotion and from_square == to_square:
-            return chess.Move(from_square, to_square, drop=promotion)
-        else:
-            return chess.Move(from_square, to_square, promotion)
+        return chess.Move(from_square, to_square, promotion, drop)
 
 
 class MemoryMappedReader:
@@ -419,7 +426,7 @@ class MemoryMappedReader:
                 continue
 
             if context:
-                move = entry.move(chess960=context.chess960)
+                move = entry.move(board=context)
             elif exclude_moves:
                 move = entry.move()
 

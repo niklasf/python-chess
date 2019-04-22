@@ -3319,7 +3319,7 @@ class Board(BaseBoard):
                 yield self._from_chess960(self.chess960, msb(king), candidate)
 
     def _from_chess960(self, chess960: bool, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> Move:
-        if not chess960 and drop is None:
+        if not chess960 and promotion is None and drop is None:
             if from_square == E1 and self.kings & BB_E1:
                 if to_square == H1:
                     return Move(E1, G1)

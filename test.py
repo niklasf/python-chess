@@ -1789,6 +1789,12 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertIn(pos.parse_san("O-O-O"), moves)
             self.assertEqual(len(moves), 1)
 
+            # Not a castling move.
+            pos = chess.Board("1r1qr1k1/1b2bp1n/p2p2pB/1pnPp2p/P1p1P3/R1P2NNP/1PBQ1PP1/4R1K1 w - - 0 1")
+            entry = book.find(pos)
+            self.assertEqual(entry.move(), chess.Move.from_uci("e1c1"))
+            self.assertEqual(entry.move(board=pos), chess.Move.from_uci("e1a1"))
+
     def test_empty_book(self):
         with chess.polyglot.open_reader(os.devnull) as book:
             self.assertEqual(len(book), 0)
