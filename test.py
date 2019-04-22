@@ -1744,12 +1744,12 @@ class PolyglotTestCase(unittest.TestCase):
             pos = chess.Board()
 
             e4 = next(book.find_all(pos))
-            self.assertEqual(e4.move(), pos.parse_san("e4"))
-            pos.push(e4.move())
+            self.assertEqual(e4.move, pos.parse_san("e4"))
+            pos.push(e4.move)
 
             e5 = next(book.find_all(pos))
-            self.assertEqual(e5.move(), pos.parse_san("e5"))
-            pos.push(e5.move())
+            self.assertEqual(e5.move, pos.parse_san("e5"))
+            pos.push(e5.move)
 
     def test_mainline(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
@@ -1760,7 +1760,7 @@ class PolyglotTestCase(unittest.TestCase):
                 if entry is None:
                     break
 
-                board.push(entry.move())
+                board.push(entry.move)
 
             self.assertEqual(board.fen(), "r2q1rk1/4bppp/p2p1n2/np5b/3BP1P1/5N1P/PPB2P2/RN1QR1K1 b - - 0 15")
 
@@ -1768,7 +1768,7 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/polyglot/lasker-trap.bin") as book:
             board = chess.Board("rnbqk1nr/ppp2ppp/8/4P3/1BP5/8/PP2KpPP/RN1Q1BNR b kq - 1 7")
             entry = book.find(board)
-            cute_underpromotion = entry.move()
+            cute_underpromotion = entry.move
             self.assertEqual(cute_underpromotion, board.parse_san("fxg1=N+"))
 
     def test_castling(self):
@@ -1776,7 +1776,7 @@ class PolyglotTestCase(unittest.TestCase):
             # White decides between short castling and long castling at this
             # turning point in the Queens Gambit Exchange.
             pos = chess.Board("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
-            moves = set(entry.move() for entry in book.find_all(pos))
+            moves = set(entry.move for entry in book.find_all(pos))
             self.assertIn(pos.parse_san("O-O"), moves)
             self.assertIn(pos.parse_san("O-O-O"), moves)
             self.assertIn(pos.parse_san("h3"), moves)
@@ -1785,15 +1785,14 @@ class PolyglotTestCase(unittest.TestCase):
             # Black usually castles long at this point in the Ruy Lopez
             # Exchange.
             pos = chess.Board("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
-            moves = set(entry.move() for entry in book.find_all(pos))
+            moves = set(entry.move for entry in book.find_all(pos))
             self.assertIn(pos.parse_san("O-O-O"), moves)
             self.assertEqual(len(moves), 1)
 
             # Not a castling move.
             pos = chess.Board("1r1qr1k1/1b2bp1n/p2p2pB/1pnPp2p/P1p1P3/R1P2NNP/1PBQ1PP1/4R1K1 w - - 0 1")
             entry = book.find(pos)
-            self.assertEqual(entry.move(), chess.Move.from_uci("e1c1"))
-            self.assertEqual(entry.move(board=pos), chess.Move.from_uci("e1a1"))
+            self.assertEqual(entry.move, chess.Move.from_uci("e1a1"))
 
     def test_empty_book(self):
         with chess.polyglot.open_reader(os.devnull) as book:
@@ -1828,31 +1827,31 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             # Uniform choice.
             entry = book.choice(chess.Board(), random=FirstMockRandom())
-            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("e2e4"))
 
             entry = book.choice(chess.Board(), random=LastMockRandom())
-            self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("c2c4"))
 
             # Weighted choice.
             entry = book.weighted_choice(chess.Board(), random=FirstMockRandom())
-            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("e2e4"))
 
             entry = book.weighted_choice(chess.Board(), random=LastMockRandom())
-            self.assertEqual(entry.move(), chess.Move.from_uci("c2c4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("c2c4"))
 
             # Weighted choice with excluded move.
             entry = book.weighted_choice(chess.Board(), exclude_moves=[chess.Move.from_uci("e2e4")], random=FirstMockRandom())
-            self.assertEqual(entry.move(), chess.Move.from_uci("d2d4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("d2d4"))
 
     def test_find(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             entry = book.find(chess.Board())
-            self.assertEqual(entry.move(), chess.Move.from_uci("e2e4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("e2e4"))
 
     def test_exclude_moves(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             entry = book.find(chess.Board(), exclude_moves=[chess.Move.from_uci("e2e4")])
-            self.assertEqual(entry.move(), chess.Move.from_uci("d2d4"))
+            self.assertEqual(entry.move, chess.Move.from_uci("d2d4"))
 
     def test_contains(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:

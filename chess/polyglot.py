@@ -300,45 +300,10 @@ def zobrist_hash(board: chess.Board, *, _hasher: Callable[[chess.Board], int] = 
     return _hasher(board)
 
 
-class Entry(collections.namedtuple("Entry", "key raw_move weight learn")):
+class Entry(collections.namedtuple("Entry", "key raw_move weight learn move")):
     """An entry from a Polyglot opening book."""
 
     __slots__ = ()
-
-    def move(self, *, board: chess.Board = None) -> chess.Move:
-        """Gets the move (as a :class:`~chess.Move` object)."""
-        # Extract source and target square.
-        to_square = self.raw_move & 0x3f
-        from_square = (self.raw_move >> 6) & 0x3f
-
-        # Extract the promotion type.
-        promotion_part = (self.raw_move >> 12) & 0x7
-        promotion = promotion_part + 1 if promotion_part else None
-
-        # Piece drop.
-        if from_square == to_square:
-            drop, promotion = promotion, None
-        else:
-            drop = None
-
-        # Normalize castling moves if we have a board as context.
-        if board is not None:
-            return board._from_chess960(board.chess960, from_square, to_square, promotion, drop)
-
-        # Best effort to normalize castling moves without context.
-        if not promotion and not drop:
-            if from_square == chess.E1:
-                if to_square == chess.H1:
-                    return chess.Move(chess.E1, chess.G1)
-                elif to_square == chess.A1:
-                    return chess.Move(chess.E1, chess.C1)
-            elif from_square == chess.E8:
-                if to_square == chess.H8:
-                    return chess.Move(chess.E8, chess.G8)
-                elif to_square == chess.A8:
-                    return chess.Move(chess.E8, chess.C8)
-
-        return chess.Move(from_square, to_square, promotion, drop)
 
 
 class MemoryMappedReader:
@@ -365,19 +330,35 @@ class MemoryMappedReader:
         else:
             return self.mmap.size() // ENTRY_STRUCT.size
 
-    def __getitem__(self, key: int) -> Entry:
+    def __getitem__(self, index: int) -> Entry:
         if self.mmap is None:
             raise IndexError()
 
-        if key < 0:
-            key = len(self) + key
+        if index < 0:
+            index = len(self) + index
 
         try:
-            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, key * ENTRY_STRUCT.size)  # type: ignore
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, index * ENTRY_STRUCT.size)  # type: ignore
         except struct.error:
             raise IndexError()
 
-        return Entry(key, raw_move, weight, learn)
+        # Extract source and target square.
+        to_square = raw_move & 0x3f
+        from_square = (raw_move >> 6) & 0x3f
+
+        # Extract the promotion type.
+        promotion_part = (raw_move >> 12) & 0x7
+        promotion = promotion_part + 1 if promotion_part else None
+
+        # Piece drop.
+        if from_square == to_square:
+            promotion, drop = None, promotion
+        else:
+            drop = None
+
+        # Entry with move (not normalized).
+        move = chess.Move(from_square, to_square, promotion, drop)
+        return Entry(key, raw_move, weight, learn, move)
 
     def __iter__(self) -> Iterator[Entry]:
         i = 0
@@ -426,14 +407,13 @@ class MemoryMappedReader:
                 continue
 
             if context:
-                move = entry.move(board=context)
-            elif exclude_moves:
-                move = entry.move()
+                move = context._from_chess960(context.chess960, entry.move.from_square, entry.move.to_square, entry.move.promotion, entry.move.drop)
+                entry = Entry(entry.key, entry.raw_move, entry.weight, entry.learn, move)
 
-            if exclude_moves and move in exclude_moves:
+            if exclude_moves and entry.move in exclude_moves:
                 continue
 
-            if context and not context.is_legal(move):
+            if context and not context.is_legal(entry.move):
                 continue
 
             yield entry
