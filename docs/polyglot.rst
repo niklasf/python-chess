@@ -12,9 +12,8 @@ Polyglot opening book reading
 
     .. py:attribute:: raw_move
 
-        The raw binary representation of the move. Use the
-        :func:`~chess.polyglot.Entry.move()` method to extract a move object
-        from this.
+        The raw binary representation of the move. Use
+        :data:`~chess.polyglot.Entry.move` instead.
 
     .. py:attribute:: weight
 
@@ -23,6 +22,10 @@ Polyglot opening book reading
     .. py:attribute:: learn
 
         Another integer value that can be used for extra information.
+
+    .. py:attribute:: move
+
+        The :class:`~chess.Move`.
 
 .. autoclass:: chess.polyglot.MemoryMappedReader
     :members:

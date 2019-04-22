@@ -506,7 +506,7 @@ def open_reader(path: PathLike) -> MemoryMappedReader:
     >>>
     >>> with chess.polyglot.open_reader("data/polyglot/performance.bin") as reader:
     ...    for entry in reader.find_all(board):
-    ...        print(entry.move(), entry.weight, entry.learn)
+    ...        print(entry.move, entry.weight, entry.learn)
     e2e4 1 0
     d2d4 1 0
     c2c4 1 0
