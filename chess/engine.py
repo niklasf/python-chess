@@ -1099,12 +1099,12 @@ class UciProtocol(EngineProtocol):
         # Send starting position.
         builder = ["position"]
         root = board.root()
-        fen = root.fen()
+        fen = root.fen(shredder=board.chess960, en_passant="fen")
         if uci_variant == "chess" and fen == chess.STARTING_FEN:
             builder.append("startpos")
         else:
             builder.append("fen")
-            builder.append(root.shredder_fen() if board.chess960 else fen)
+            builder.append(fen)
 
         # Send moves.
         if board.move_stack:
@@ -1620,9 +1620,9 @@ class XBoardProtocol(EngineProtocol):
         self.send_line("force")
 
         if new_game:
-            fen = root.fen()
+            fen = root.fen(shredder=board.chess960, en_passant="fen")
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
-                self.send_line("setboard {}".format(root.shredder_fen() if board.chess960 else fen))
+                self.send_line("setboard {}".format(fen))
 
         # Undo moves until common position.
         common_stack_len = 0
