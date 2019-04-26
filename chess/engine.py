@@ -2052,11 +2052,13 @@ class AnalysisResult:
     def __init__(self, stop: Optional[Callable[[], None]] = None):
         self._stop = stop
         self._queue = asyncio.Queue()  # type: asyncio.Queue[Union[InfoDict, object]]
+        self._posted_kork = False
         self._seen_kork = False
         self._finished = asyncio.Future()  # type: asyncio.Future[None]
         self.multipv = [{}]  # type: List[InfoDict]
 
     def post(self, info: InfoDict) -> None:
+        # Empty dictionary reserved for kork.
         if not info:
             return
 
@@ -2067,13 +2069,19 @@ class AnalysisResult:
 
         self._queue.put_nowait(info)
 
+    def _kork(self):
+        if not self._posted_kork:
+            self._posted_kork = True
+            self._queue.put_nowait({})
+
     def set_finished(self) -> None:
-        self._finished.set_result(None)
-        self._queue.put_nowait({})
+        if not self._finished.done():
+            self._finished.set_result(None)
+        self._kork()
 
     def set_exception(self, exc: Exception) -> None:
         self._finished.set_exception(exc)
-        self._queue.put_nowait({})
+        self._kork()
 
     @property
     def info(self) -> InfoDict:
@@ -2081,7 +2089,7 @@ class AnalysisResult:
 
     def stop(self) -> None:
         """Stops the analysis as soon as possible."""
-        if self._stop and not self._finished.done():
+        if self._stop and not self._posted_kork:
             self._stop()
             self._stop = None
 
@@ -2123,7 +2131,7 @@ class AnalysisResult:
         If the queue is not empty, then the next call to
         :func:`~chess.engine.AnalysisResult.get()` will return instantly.
         """
-        return self._seen_kork or self._queue.qsize() <= int(self._finished.done())
+        return self._seen_kork or self._queue.qsize() <= self._posted_kork
 
     async def next(self) -> Optional[InfoDict]:
         try:
