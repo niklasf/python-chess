@@ -1288,6 +1288,8 @@ class UciProtocol(EngineProtocol):
                 self.analysis.post(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine: UciProtocol, arg: str) -> None:
+                if not self.result.done():
+                    raise EngineError("was not searching, but engine sent bestmove")
                 self.analysis.set_finished()
                 self.set_finished()
 
