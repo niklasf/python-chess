@@ -351,6 +351,14 @@ class BoardTestCase(unittest.TestCase):
         board.pop()
         self.assertEqual(board.fen(), "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 1 1")
 
+    def test_castling_san(self):
+        board = chess.Board("4k3/8/8/8/8/8/8/4K2R w K - 0 1")
+        self.assertEqual(board.parse_san("O-O"), chess.Move.from_uci("e1g1"))
+        with self.assertRaises(ValueError):
+            board.parse_san("Kg1")
+        with self.assertRaises(ValueError):
+            board.parse_san("Kh1")
+
     def test_ninesixty_castling(self):
         fen = "3r1k1r/4pp2/8/8/8/8/8/4RKR1 w Gd - 1 1"
         board = chess.Board(fen, chess960=True)

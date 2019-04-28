@@ -2724,7 +2724,7 @@ class Board(BaseBoard):
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
-        to_mask = BB_SQUARES[to_square]
+        to_mask = BB_SQUARES[to_square] & ~self.occupied_co[self.turn]
 
         # Get the promotion type.
         p = match.group(5)
