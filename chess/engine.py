@@ -58,7 +58,7 @@ EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
 LOGGER = logging.getLogger(__name__)
 
 
-MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "uci_analysemode", "multipv", "ponder"]
+MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 
 
 class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
@@ -922,14 +922,9 @@ class UciProtocol(EngineProtocol):
 
     def __init__(self) -> None:
         super().__init__()
-
-        # Available options.
         self.options = UciOptionMap()  # type: UciOptionMap[Option]
-        # Current options.
         self.config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
-
         self.target_config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
-
         self.id = {}  # type: Dict[str, str]
         self.board = chess.Board()
         self.game = None  # type: object
@@ -1012,8 +1007,7 @@ class UciProtocol(EngineProtocol):
 
                 if option.default is not None:
                     engine.config[option.name] = option.default
-
-                if option.default is not None and not option.is_managed():
+                if option.default is not None and not option.is_managed() and option.name.lower() != "uci_analysemode":
                     engine.target_config[option.name] = option.default
 
             def _id(self, engine: UciProtocol, arg: str) -> None:
@@ -1162,7 +1156,7 @@ class UciProtocol(EngineProtocol):
                 self.pondering = False
                 self.sent_isready = False
 
-                if "UCI_AnalyseMode" in engine.options:
+                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", False)
                 if "Ponder" in engine.options:
                     engine._setoption("Ponder", ponder)
@@ -1249,7 +1243,7 @@ class UciProtocol(EngineProtocol):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.sent_isready = False
 
-                if "UCI_AnalyseMode" in engine.options:
+                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", True)
                 if "MultiPV" in engine.options or (multipv and multipv > 1):
                     engine._setoption("MultiPV", 1 if multipv is None else multipv)

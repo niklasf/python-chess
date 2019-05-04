@@ -2804,6 +2804,49 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    def test_uci_analyse_mode(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", [
+                "option name UCI_AnalyseMode type check default false",
+                "uciok",
+            ])
+            await protocol.initialize()
+
+            # Analyse.
+            mock.expect("setoption name UCI_AnalyseMode value true")
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go infinite")
+            mock.expect("stop", ["bestmove e2e4"])
+            result = await protocol.analysis(chess.Board())
+            result.stop()
+            await result.wait()
+            mock.assert_done()
+
+            # Disable explicitly.
+            mock.expect("setoption name UCI_AnalyseMode value false")
+            await protocol.configure({"UCI_AnalyseMode": False})
+            mock.assert_done()
+
+            # Analyse again.
+            mock.expect("position startpos")
+            mock.expect("go infinite")
+            mock.expect("stop", ["bestmove e2e4"])
+            result = await protocol.analysis(chess.Board())
+            result.stop()
+            await result.wait()
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
+            loop.run_until_complete(main())
+
     def test_uci_info(self):
         # Info: refutation.
         board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")
