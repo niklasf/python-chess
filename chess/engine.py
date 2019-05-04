@@ -1286,8 +1286,8 @@ class UciProtocol(EngineProtocol):
             def _bestmove(self, engine: UciProtocol, arg: str) -> None:
                 if not self.result.done():
                     raise EngineError("was not searching, but engine sent bestmove")
-                self.analysis.set_finished()
                 self.set_finished()
+                self.analysis.set_finished()
 
             def cancel(self, engine: UciProtocol) -> None:
                 engine.send_line("stop")
@@ -1857,8 +1857,8 @@ class XBoardProtocol(EngineProtocol):
                 if self.time_limit_handle:
                     self.time_limit_handle.cancel()
 
-                self.analysis.set_finished()
                 self.set_finished()
+                self.analysis.set_finished()
 
             def cancel(self, engine: XBoardProtocol) -> None:
                 if self.stopped:
