@@ -47,12 +47,16 @@ except ImportError:
 import chess
 
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NewType, Optional, Text, Tuple, Type, TypeVar, Union
 
 
 T = TypeVar("T")
-
 EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
+
+InfoDict = NewType("InfoDict", Dict[str, Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]]]])
+
+ConfigValue = Union[str, int, bool, None]
+ConfigMapping = Mapping[str, ConfigValue]
 
 
 LOGGER = logging.getLogger(__name__)
@@ -198,9 +202,6 @@ class AnalysisComplete(Exception):
     """
 
 
-ConfigValue = Union[str, int, bool, None]
-ConfigMapping = Mapping[str, ConfigValue]
-
 class Option(collections.namedtuple("Option", "name type default min max var")):
     """Information about an available engine option."""
 
@@ -279,7 +280,6 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-InfoDict = Dict[str, Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]]]]
 
 class PlayResult:
     """Returned by :func:`chess.engine.EngineProtocol.play()`."""
@@ -1153,7 +1153,7 @@ class UciProtocol(EngineProtocol):
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         class Command(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
-                self.info = {}  # type: InfoDict
+                self.info = InfoDict({})  # type: InfoDict
                 self.pondering = False
                 self.sent_isready = False
 
@@ -1304,7 +1304,7 @@ class UciProtocol(EngineProtocol):
 
 
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
-    info = {}  # type: InfoDict
+    info = InfoDict({})  # type: InfoDict
     if not selector:
         return info
 
@@ -1965,7 +1965,7 @@ def _parse_xboard_option(feature: str) -> Option:
 
 def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     # Format: depth score time nodes [seldepth [nps [tbhits]]] pv
-    info = {}  # type: InfoDict
+    info = InfoDict({})  # type: InfoDict
 
     # Split leading integer tokens from pv.
     pv_tokens = line.split()
@@ -2042,11 +2042,11 @@ class AnalysisResult:
 
     def __init__(self, stop: Optional[Callable[[], None]] = None):
         self._stop = stop
-        self._queue = asyncio.Queue()  # type: asyncio.Queue[Union[InfoDict, object]]
+        self._queue = asyncio.Queue()  # type: asyncio.Queue[InfoDict]
         self._posted_kork = False
         self._seen_kork = False
         self._finished = asyncio.Future()  # type: asyncio.Future[None]
-        self.multipv = [{}]  # type: List[InfoDict]
+        self.multipv = [InfoDict({})]  # type: List[InfoDict]
 
     def post(self, info: InfoDict) -> None:
         # Empty dictionary reserved for kork.
@@ -2055,7 +2055,7 @@ class AnalysisResult:
 
         multipv = typing.cast(int, info.get("multipv", 1))
         while len(self.multipv) < multipv:
-            self.multipv.append({})
+            self.multipv.append(InfoDict({}))
         self.multipv[multipv - 1].update(info)
 
         self._queue.put_nowait(info)
@@ -2371,7 +2371,7 @@ class SimpleAnalysisResult:
     @property
     def info(self) -> InfoDict:
         async def _get() -> InfoDict:
-            return self.inner.info.copy()
+            return InfoDict(self.inner.info.copy())
 
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
@@ -2380,7 +2380,7 @@ class SimpleAnalysisResult:
     @property
     def multipv(self) -> List[InfoDict]:
         async def _get() -> List[InfoDict]:
-            return [info.copy() for info in self.inner.multipv]
+            return [InfoDict(info.copy()) for info in self.inner.multipv]
 
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
