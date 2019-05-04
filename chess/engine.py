@@ -922,9 +922,14 @@ class UciProtocol(EngineProtocol):
 
     def __init__(self) -> None:
         super().__init__()
+
+        # Available options.
         self.options = UciOptionMap()  # type: UciOptionMap[Option]
+        # Current options.
         self.config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
+
         self.target_config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
+
         self.id = {}  # type: Dict[str, str]
         self.board = chess.Board()
         self.game = None  # type: object
@@ -1005,6 +1010,9 @@ class UciProtocol(EngineProtocol):
                 option = Option(name, type, without_default.parse(default), min, max, var)
                 engine.options[option.name] = option
 
+                if option.default is not None:
+                    engine.config[option.name] = option.default
+
                 if option.default is not None and not option.is_managed():
                     engine.target_config[option.name] = option.default
 
@@ -1044,20 +1052,13 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    def _getoption(self, option: str, default: Optional[str] = None) -> Optional[ConfigValue]:
-        if option in self.config:
-            return self.config[option]
-        if option in self.options:
-            return self.options[option].default
-        return default
-
     def _setoption(self, name: str, value: ConfigValue) -> None:
         try:
             value = self.options[name].parse(value)
         except KeyError:
             raise EngineError("engine does not support option {} (available options: {})".format(name, ", ".join(self.options)))
 
-        if value is None or value != self._getoption(name):
+        if value is None or value != self.config.get(name):
             builder = ["setoption name", name]
             if value is False:
                 builder.append("value false")
@@ -1579,6 +1580,8 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("accept egt")
 
                 for option in engine.options.values():
+                    if option.default is not None:
+                        engine.config[option.name] = option.default
                     if option.default is not None and not option.is_managed():
                         engine.target_config[option.name] = option.default
 
@@ -1884,15 +1887,8 @@ class XBoardProtocol(EngineProtocol):
 
         return await self.communicate(Command)
 
-    def _getoption(self, option: str, default: Optional[str] = None) -> Optional[ConfigValue]:
-        if option in self.config:
-            return self.config[option]
-        if option in self.options:
-            return self.options[option].default
-        return default
-
     def _setoption(self, name: str, value: ConfigValue) -> None:
-        if value is not None and value == self._getoption(name):
+        if value is not None and value == self.config.get(name):
             return
 
         try:
