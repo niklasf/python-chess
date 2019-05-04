@@ -569,7 +569,8 @@ class MockTransport:
                 assert self.expectations, "unexpected: {}".format(line)
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, "expected {}, got: {}".format(expectation, line)
-                self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
+                if responses:
+                    self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
 
     def get_pid(self) -> int:
         return id(self)
