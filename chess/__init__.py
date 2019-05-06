@@ -648,6 +648,16 @@ class BaseBoard:
         else:
             return KING
 
+    def color_at(self, square: Square) -> Optional[Color]:
+        """Gets the color of the piece at the given square."""
+        mask = BB_SQUARES[square]
+        if self.occupied_co[WHITE] & mask:
+            return WHITE
+        elif self.occupied_co[BLACK] & mask:
+            return BLACK
+        else:
+            return None
+
     def king(self, color: Color) -> Optional[Square]:
         """
         Finds the king square of the given side. Returns ``None`` if there

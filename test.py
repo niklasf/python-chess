@@ -281,6 +281,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.promoted, chess.BB_EMPTY)
         self.assertEqual(board.piece_at(chess.H7), None)
 
+    def test_color_at(self):
+        board = chess.Board()
+        self.assertEqual(board.color_at(chess.A1), chess.WHITE)
+        self.assertEqual(board.color_at(chess.G7), chess.BLACK)
+        self.assertEqual(board.color_at(chess.E4), None)
+
     def test_pawn_captures(self):
         board = chess.Board()
 
