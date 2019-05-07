@@ -258,6 +258,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "stroke": color,
                 "fill": "none",
                 "opacity": "0.5",
+                "class": "circle",
             })
         else:
             marker_size = 0.75 * SQUARE_SIZE
