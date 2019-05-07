@@ -172,8 +172,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if board:
         for piece_color in chess.COLORS:
             for piece_type in chess.PIECE_TYPES:
-                if board.pieces_mask(piece_type, piece_color):
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+                defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
 
     squares = chess.SquareSet(squares) if squares else chess.SquareSet()
     if squares:
