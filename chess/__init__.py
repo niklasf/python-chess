@@ -690,7 +690,7 @@ class BaseBoard:
 
     def attacks(self, square: Square) -> "SquareSet":
         """
-        Gets a set of attacked squares from the given square.
+        Gets the set of attacked squares from the given square.
 
         There will be no attacks if the square is empty. Pinned pieces are
         still attacking other squares.
@@ -731,7 +731,7 @@ class BaseBoard:
 
     def attackers(self, color: Color, square: Square) -> "SquareSet":
         """
-        Gets a set of attackers of the given color for the given square.
+        Gets the set of attackers of the given color for the given square.
 
         Pinned pieces still count as attackers.
 
