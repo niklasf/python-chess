@@ -27,6 +27,7 @@ import xml.etree.ElementTree as ET
 
 from typing import Iterable, Optional, Tuple, Union
 
+from chess import variant
 
 SQUARE_SIZE = 45
 MARGIN = 20
@@ -72,17 +73,23 @@ class SvgWrapper(str):
         return self
 
 
-def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
+def _svg(viewbox: Optional[Union[int, Tuple[int, int]]], size: Optional[Union[int, Tuple[int, int]]]) -> ET.Element:
+    if isinstance(viewbox, int):
+        viewbox = (viewbox, viewbox)
     svg = ET.Element("svg", {
         "xmlns": "http://www.w3.org/2000/svg",
         "version": "1.1",
         "xmlns:xlink": "http://www.w3.org/1999/xlink",
-        "viewBox": "0 0 {0:d} {0:d}".format(viewbox),
+        "viewBox": "0 0 {0:d} {1:d}".format(*viewbox),
     })
 
     if size is not None:
-        svg.set("width", str(size))
-        svg.set("height", str(size))
+        if isinstance(size, int):
+            svg.set("width", str(size))
+            svg.set("height", str(size))
+        else:
+            svg.set("width", str(size[0]))
+            svg.set("height", str(size[1]))
 
     return svg
 
@@ -152,7 +159,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. image:: ../docs/Ne4.svg
     """
     margin = MARGIN if coordinates else 0
-    svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
+    if isinstance(board, chess.variant.CrazyhouseBoard):
+        ratio = (12 * SQUARE_SIZE + 2 * margin) / (8 * SQUARE_SIZE + 2 * margin)
+        svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), (size, int(size * ratio)))
+    else:
+        svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
     if style:
         ET.SubElement(svg, "style").text = style
@@ -171,6 +182,40 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
+    if isinstance(board, chess.variant.CrazyhouseBoard):
+        svg_board = ET.SubElement(svg, "svg", {
+            "x": "0",
+            "y": str(2 * SQUARE_SIZE),
+            "width": str(8 * SQUARE_SIZE + 2 * margin),
+            "height": str(8 * SQUARE_SIZE + 2 * margin)
+        })
+        svg_pocket_top = ET.SubElement(svg, "svg", {
+            "x": str(margin),
+            "y": "0",
+            "width": str(5 * SQUARE_SIZE),
+            "height": str(2 * SQUARE_SIZE)
+        })
+        svg_pocket_bottom = ET.SubElement(svg, "svg", {
+            "x": str(margin),
+            "y": str(10 * SQUARE_SIZE + 2 * margin),
+            "width": str(5 * SQUARE_SIZE),
+            "height": str(2 * SQUARE_SIZE)
+        })
+
+        for s, p in zip([svg_pocket_top, svg_pocket_bottom],
+                        [board.pockets[chess.WHITE if flipped else chess.BLACK],
+                         board.pockets[chess.BLACK if flipped else chess.WHITE]]):
+            for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
+                # Render pieces.
+                ET.SubElement(s, "use", {
+                    "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[p.color], chess.PIECE_NAMES[piece_type]),
+                    "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, 0),
+                })
+                s.append(
+                    _text(str(p.count(piece_type)), i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+    else:
+        svg_board = svg
+
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
@@ -185,7 +230,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
         cls.append(chess.SQUARE_NAMES[square])
 
-        ET.SubElement(svg, "rect", {
+        ET.SubElement(svg_board, "rect", {
             "x": str(x),
             "y": str(y),
             "width": str(SQUARE_SIZE),
@@ -196,7 +241,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         })
 
         if square == check:
-            ET.SubElement(svg, "rect", {
+            ET.SubElement(svg_board, "rect", {
                 "x": str(x),
                 "y": str(y),
                 "width": str(SQUARE_SIZE),
@@ -209,14 +254,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                ET.SubElement(svg, "use", {
+                ET.SubElement(svg_board, "use", {
                     "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]),
                     "transform": "translate({:d}, {:d})".format(x, y),
                 })
 
         # Render selected squares.
         if squares is not None and square in squares:
-            ET.SubElement(svg, "use", {
+            ET.SubElement(svg_board, "use", {
                 "xlink:href": "#xx",
                 "x": str(x),
                 "y": str(y),
@@ -225,12 +270,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if coordinates:
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
-            svg.append(_text(file_name, x, 0, SQUARE_SIZE, margin))
-            svg.append(_text(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin))
+            svg_board.append(_text(file_name, x, 0, SQUARE_SIZE, margin))
+            svg_board.append(_text(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
             y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
-            svg.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
-            svg.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
+            svg_board.append(_text(rank_name, 0, y, margin, SQUARE_SIZE))
+            svg_board.append(_text(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE))
 
     for arrow in arrows:
         try:
@@ -250,7 +295,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
-            ET.SubElement(svg, "circle", {
+            ET.SubElement(svg_board, "circle", {
                 "cx": str(xhead),
                 "cy": str(yhead),
                 "r": str(SQUARE_SIZE * 0.9 / 2),
@@ -272,7 +317,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             xtip = xhead - dx * marker_margin / hypot
             ytip = yhead - dy * marker_margin / hypot
 
-            ET.SubElement(svg, "line", {
+            ET.SubElement(svg_board, "line", {
                 "x1": str(xtail),
                 "y1": str(ytail),
                 "x2": str(shaft_x),
@@ -290,11 +335,40 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                       (shaft_x - dy * 0.5 * marker_size / hypot,
                        shaft_y + dx * 0.5 * marker_size / hypot)]
 
-            ET.SubElement(svg, "polygon", {
+            ET.SubElement(svg_board, "polygon", {
                 "points": " ".join(str(x) + "," + str(y) for x, y in marker),
                 "fill": color,
                 "opacity": "0.5",
                 "class": "arrow",
             })
+
+    return SvgWrapper(ET.tostring(svg).decode("utf-8"))
+
+
+def pocket(pocket: variant.CrazyhousePocket,
+           numbers_top: bool = False,
+           width: Optional[int] = None) -> str:
+    """
+    Renders a Crazyhouse pocket as an SVG image.
+
+    :param pocket: Pocket to render
+    :param numbers_top: Whether the numbers shall be rendered above the pieces
+    :param width: The width of the image in pixels or ``None`` (the default) for no size limit.
+
+    """
+    svg = _svg((5 * SQUARE_SIZE, 2 * SQUARE_SIZE), (width, int(width / 5 * 2)))
+
+    pieces_y_pos = SQUARE_SIZE if numbers_top else 0
+    numbers_y_pos = 0 if numbers_top else SQUARE_SIZE
+
+    defs = ET.SubElement(svg, "defs")
+    for i, piece_type in enumerate(chess.PIECE_TYPES[:-1]):
+        defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, pocket.color).symbol()]))
+        # Render pieces.
+        ET.SubElement(svg, "use", {
+            "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[pocket.color], chess.PIECE_NAMES[piece_type]),
+            "transform": "translate({:d}, {:d})".format(i * SQUARE_SIZE, pieces_y_pos),
+        })
+        svg.append(_text(str(pocket.count(piece_type)), i * SQUARE_SIZE, numbers_y_pos, SQUARE_SIZE, SQUARE_SIZE))
 
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))

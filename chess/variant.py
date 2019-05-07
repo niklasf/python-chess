@@ -20,7 +20,7 @@ import chess
 import copy
 import itertools
 
-from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union, NamedTuple, Tuple
 
 
 class SuicideBoard(chess.Board):
@@ -622,12 +622,14 @@ class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState["Crazyh
         board.pockets[chess.WHITE] = self.pockets_w.copy()
         board.pockets[chess.BLACK] = self.pockets_b.copy()
 
+
 CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 
-class CrazyhousePocket:
 
-    def __init__(self, symbols: Iterable[str] = "") -> None:
+class CrazyhousePocket:
+    def __init__(self, color: bool, symbols: Iterable[str] = "") -> None:
         self.pieces = {}  # type: Dict[chess.PieceType, int]
+        self._color = color
         for symbol in symbols:
             self.add(chess.PIECE_SYMBOLS.index(symbol))
 
@@ -652,10 +654,18 @@ class CrazyhousePocket:
     def __repr__(self) -> str:
         return "CrazyhousePocket('{}')".format(str(self))
 
+    def _repr_svg_(self) -> str:
+        import chess.svg
+        return chess.svg.pocket(self, width=400)
+
     def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
-        pocket = type(self)()
+        pocket = type(self)(self.color)
         pocket.pieces = copy.copy(self.pieces)
         return pocket
+
+    @property
+    def color(self) -> bool:
+        return self._color
 
 class CrazyhouseBoard(chess.Board):
 
@@ -670,7 +680,7 @@ class CrazyhouseBoard(chess.Board):
     tbz_magic = None
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
-        self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
+        self.pockets = [CrazyhousePocket(chess.BLACK), CrazyhousePocket(chess.WHITE)]
         super().__init__(fen, chess960=chess960)
 
     def reset_board(self) -> None:
@@ -803,8 +813,8 @@ class CrazyhouseBoard(chess.Board):
             pocket_part = ""
 
         # Parse pocket.
-        white_pocket = CrazyhousePocket(c.lower() for c in pocket_part if c.isupper())
-        black_pocket = CrazyhousePocket(c for c in pocket_part if not c.isupper())
+        white_pocket = CrazyhousePocket(chess.WHITE, (c.lower() for c in pocket_part if c.isupper()))
+        black_pocket = CrazyhousePocket(chess.BLACK, (c for c in pocket_part if not c.isupper()))
 
         # Set FEN and pockets.
         super().set_fen(position_part + " " + info_part)
@@ -847,6 +857,115 @@ class CrazyhouseBoard(chess.Board):
         return status
 
 
+class SingleBughouseBoard(CrazyhouseBoard):
+    def __init__(self, fen: Optional[str] = CrazyhouseBoard.starting_fen) -> None:
+        self._linked_board = None
+        super().__init__(fen)
+        
+    def _push_capture(self, move: chess.Move, capture_square: chess.Square, piece_type: chess.PieceType,
+                      was_promoted: bool) -> None:
+        assert self._linked_board is not None, "Board not linked"
+        if was_promoted:
+            self._linked_board.pockets[self.turn].add(chess.PAWN)
+        else:
+            self._linked_board.pockets[self.turn].add(piece_type)
+
+    @property
+    def linked_board(self) -> Optional["SingleBughouseBoard"]:
+        return self._linked_board
+
+    @linked_board.setter
+    def linked_board(self, value: "SingleBughouseBoard"):
+        self._linked_board = value
+        if value.linked_board is not self:
+            value.linked_board = self
+
+
+class BughouseBoards:
+    aliases = ["Bughouse"]
+    uci_variant = "bughouse"
+    xboard_variant = "bughouse"
+    starting_bfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1 | " \
+                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1"
+
+    tbw_suffix = None
+    tbz_suffix = None
+    tbw_magic = None
+    tbz_magic = None
+
+    def __init__(self, bfen: Optional[str] = starting_bfen) -> None:
+        self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
+        self.bfen = bfen
+
+    def reset_boards(self) -> None:
+        for b in self._boards:
+            b.reset_board()
+
+    def clear_boards(self) -> None:
+        for b in self._boards:
+            b.clear_board()
+
+    @property
+    def bfen(self) -> str:
+        return "{} | {}".format(self._boards[0].board_fen(), self._boards[1].board_fen())
+
+    @bfen.setter
+    def bfen(self, value: str):
+        fen_split = value.split("|")
+        assert len(fen_split) == 2, "bfen corrupt"
+        self._boards = (SingleBughouseBoard(fen_split[0]), SingleBughouseBoard(fen_split[1]))
+        self._boards[0].linked_board = self._boards[1]
+
+    def __str__(self) -> str:
+        def vp(pocket: CrazyhousePocket, white: bool):
+            symbols = " ".join([chess.piece_symbol(p) for p in chess.PIECE_TYPES[:-1]])
+            if white:
+                symbols = symbols.upper()
+            counts = " ".join([str(pocket.pieces.get(p, 0)) for p in chess.PIECE_TYPES[:-1]])
+            return [symbols, counts]
+
+        def join(line1: str, line2: str):
+            return "{:<15}   {:<15}".format(line1, line2)
+
+        board1_str = str(self._boards[0])
+        board1_lines = board1_str.splitlines()
+        board2_str = str(self._boards[1])
+        # Flip board for convenience
+        board2_lines = board2_str.splitlines(keepends=False)
+        board2_lines_reversed = reversed(["".join(reversed(l)) for l in board2_lines])
+
+        board_lines_joint = map(join, board1_lines, board2_lines_reversed)
+        header = join("Board 1:", "Board 2:")
+        nl = join("", "")
+        # Visualize pockets
+        b1pb = vp(self._boards[0].pockets[0], False)
+        b2pw = vp(self._boards[1].pockets[0], True)
+        b1pw = vp(self._boards[0].pockets[1], True)
+        b2pb = vp(self._boards[1].pockets[1], False)
+
+        p_top = map(join, b1pb, b2pw)
+        p_bottom = map(join, b1pw, b2pb)
+        return "\n".join(itertools.chain([header, nl], p_top, [nl], board_lines_joint, [nl], p_bottom))
+
+    @property
+    def boards(self) -> Tuple[SingleBughouseBoard, SingleBughouseBoard]:
+        return self._boards
+
+    def __getitem__(self, value: int):
+        return self._boards[value]
+
+    def _repr_html_(self):
+        import chess.svg
+        board2 = chess.svg.board(
+            board=self.boards[1],
+            size=400,
+            flipped=True,
+            lastmove=self.boards[1].peek() if self.boards[1].move_stack else None,
+            check=self.boards[1].king(self.boards[1].turn) if self.boards[1].is_check() else None)
+
+        no_wrap_div = '<div style="white-space: nowrap">{}{}</div>'
+        return no_wrap_div.format(self.boards[0]._repr_svg_(), board2)
+
 VARIANTS = [
     chess.Board,
     SuicideBoard, GiveawayBoard,
@@ -856,6 +975,7 @@ VARIANTS = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
+    BughouseBoards
 ]  # type: List[Type[chess.Board]]
 
 
