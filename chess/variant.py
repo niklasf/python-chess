@@ -866,9 +866,9 @@ class SingleBughouseBoard(CrazyhouseBoard):
                       was_promoted: bool) -> None:
         assert self._linked_board is not None, "Board not linked"
         if was_promoted:
-            self._linked_board.pockets[self.turn].add(chess.PAWN)
+            self._linked_board.pockets[not self.turn].add(chess.PAWN)
         else:
-            self._linked_board.pockets[self.turn].add(piece_type)
+            self._linked_board.pockets[not self.turn].add(piece_type)
 
     @property
     def linked_board(self) -> Optional["SingleBughouseBoard"]:
@@ -880,6 +880,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
         if value.linked_board is not self:
             value.linked_board = self
 
+TEAMS = [TOP, BOTTOM] = [0, 1]
 
 class BughouseBoards:
     aliases = ["Bughouse"]
@@ -965,6 +966,27 @@ class BughouseBoards:
 
         no_wrap_div = '<div style="white-space: nowrap">{}{}</div>'
         return no_wrap_div.format(self.boards[0]._repr_svg_(), board2)
+
+    def is_checkmate(self) -> bool:
+        return self.boards[0].is_checkmate() or self.boards[1].is_checkmate()
+
+    def is_game_over(self, *, claim_draw_1: bool = False, claim_draw_2: bool = False) -> bool:
+        # Stalemate or checkmate.
+        if self.is_checkmate() or self.is_stalemate():
+            return True
+
+        # TODO: this is trouble, we need to have an own move stack to implement this
+        # Fivefold repetition.
+        # if self.boards[0].is_fivefold_repetition() or self.boards[1].is_fivefold_repetition():
+        #     return True
+
+        # Claim draw.
+        # if claim_draw_1 and self.boards[0].can_claim_draw() or \
+        #     claim_draw_2 and self.boards[1].can_claim_draw():
+        #     return True
+
+    def is_stalemate(self) -> bool:
+        return self.boards[0].is_stalemate() and self.boards[1].is_stalemate()
 
 VARIANTS = [
     chess.Board,
