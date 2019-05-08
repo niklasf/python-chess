@@ -21,6 +21,7 @@ A pure Python chess library with move generation and validation, Polyglot
 opening book probing, PGN reading and writing, Gaviota tablebase probing,
 Syzygy tablebase probing and XBoard/UCI engine communication.
 """
+from typing import Counter
 
 __author__ = "Niklas Fiekas"
 
@@ -72,6 +73,7 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 try:
     _IntFlag = enum.IntFlag  # Since Python 3.6
+
 except AttributeError:
     _IntFlag = enum.IntEnum  # type: ignore
 
@@ -1375,6 +1377,7 @@ class Board(BaseBoard):
         self.ep_square = None  # type: Optional[Square]
         self.move_stack = []  # type: List[Move]
         self._stack = []  # type: List[_BoardState[BoardT]]
+        self._transposition_counter = collections.Counter()  # type: Counter[Hashable]
 
         if fen is None:
             self.clear()
@@ -1431,6 +1434,7 @@ class Board(BaseBoard):
         """Clears the move stack."""
         del self.move_stack[:]
         del self._stack[:]
+        self._transposition_counter.clear()
 
     def root(self: BoardT) -> BoardT:
         """Returns a copy of the root position."""
@@ -1801,24 +1805,7 @@ class Board(BaseBoard):
         Originally this had to occur on consecutive alternating moves, but
         this has since been revised.
         """
-        transposition_key = self._transposition_key()
-        repetitions = 1
-        switchyard = []
-
-        while self.move_stack and repetitions < 5:
-            move = self.pop()
-            switchyard.append(move)
-
-            if self.is_irreversible(move):
-                break
-
-            if self._transposition_key() == transposition_key:
-                repetitions += 1
-
-        while switchyard:
-            self.push(switchyard.pop())
-
-        return repetitions >= 5
+        return self.is_repetition(5)
 
     def can_claim_draw(self) -> bool:
         """
@@ -1853,36 +1840,19 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions = collections.Counter()  # type: typing.Counter[Hashable]
-        transpositions.update((transposition_key, ))
-
-        # Count positions.
-        switchyard = []
-        while self.move_stack:
-            move = self.pop()
-            switchyard.append(move)
-
-            if self.is_irreversible(move):
-                break
-
-            transpositions.update((self._transposition_key(), ))
-
-        while switchyard:
-            self.push(switchyard.pop())
 
         # Threefold repetition occured.
-        if transpositions[transposition_key] >= 3:
+        if self.is_repetition(3):
             return True
 
         # The next legal move is a threefold repetition.
         for move in self.generate_legal_moves():
-            self.push(move)
-            try:
-                if transpositions[self._transposition_key()] >= 2:
-                    return True
-            finally:
-                self.pop()
-
+            board = self.copy()
+            board.push(move)
+            key = board._transposition_key()
+            del board
+            if self._transposition_counter[key] >= 2:
+                return True
         return False
 
     def is_repetition(self, count: int = 3) -> bool:
@@ -1898,30 +1868,9 @@ class Board(BaseBoard):
         game has to be replayed because there is no incremental transposition
         table.
         """
-        transposition_key = self._transposition_key()
-        switchyard = []
 
-        try:
-            while True:
-                if count <= 1:
-                    return True
-
-                if not self.move_stack:
-                    break
-
-                move = self.pop()
-                switchyard.append(move)
-
-                if self.is_irreversible(move):
-                    break
-
-                if self._transposition_key() == transposition_key:
-                    count -= 1
-        finally:
-            while switchyard:
-                self.push(switchyard.pop())
-
-        return False
+        current_repetitions = self._transposition_counter[self._transposition_key()] + 1
+        return current_repetitions >= count or any(v >= count for v in self._transposition_counter.values())
 
     def _board_state(self: BoardT) -> _BoardState[BoardT]:
         return _BoardState(self)
@@ -1953,6 +1902,7 @@ class Board(BaseBoard):
         move = self._to_chess960(move)
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
         self._stack.append(self._board_state())
+        self._transposition_counter[self._transposition_key()] += 1
 
         # Reset en passant square.
         ep_square = self.ep_square
@@ -2053,6 +2003,7 @@ class Board(BaseBoard):
         """
         move = self.move_stack.pop()
         self._stack.pop().restore(self)
+        self._transposition[self._transposition_key()] -= 1
         return move
 
     def peek(self) -> Move:
@@ -3415,6 +3366,7 @@ class Board(BaseBoard):
             stack = len(self.move_stack) if stack is True else stack
             board.move_stack = [copy.copy(move) for move in self.move_stack[-stack:]]
             board._stack = self._stack[-stack:]
+            board._transposition_counter = copy.copy(self._transposition_counter)
 
         return board
 

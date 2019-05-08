@@ -15,12 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+from collections import defaultdict
+from typing import DefaultDict
 
 import chess
 import copy
 import itertools
 
-from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union, NamedTuple, Tuple
+from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
 
 
 class SuicideBoard(chess.Board):
@@ -628,19 +630,19 @@ CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 
 class CrazyhousePocket:
     def __init__(self, color: bool, symbols: Iterable[str] = "") -> None:
-        self.pieces = {}  # type: Dict[chess.PieceType, int]
+        self.pieces = defaultdict(lambda: 0)  # type: DefaultDict[chess.PieceType, int]
         self._color = color
         for symbol in symbols:
             self.add(chess.PIECE_SYMBOLS.index(symbol))
 
     def add(self, pt: chess.PieceType) -> None:
-        self.pieces[pt] = self.pieces.get(pt, 0) + 1
+        self.pieces[pt] += 1
 
     def remove(self, pt: chess.PieceType) -> None:
         self.pieces[pt] -= 1
 
     def count(self, piece_type: chess.PieceType) -> int:
-        return self.pieces.get(piece_type, 0)
+        return self.pieces[piece_type]
 
     def reset(self) -> None:
         self.pieces.clear()
@@ -870,6 +872,9 @@ class SingleBughouseBoard(CrazyhouseBoard):
         else:
             self._linked_board.pockets[not self.turn].add(piece_type)
 
+    def pop(self: CrazyhouseBoardT) -> chess.Move:
+        return super().pop()
+
     @property
     def linked_board(self) -> Optional["SingleBughouseBoard"]:
         return self._linked_board
@@ -968,6 +973,7 @@ class BughouseBoards:
         return no_wrap_div.format(self.boards[0]._repr_svg_(), board2)
 
     def is_checkmate(self) -> bool:
+        # TODO: this is not right yet
         return self.boards[0].is_checkmate() or self.boards[1].is_checkmate()
 
     def is_game_over(self, *, claim_draw_1: bool = False, claim_draw_2: bool = False) -> bool:
@@ -975,15 +981,14 @@ class BughouseBoards:
         if self.is_checkmate() or self.is_stalemate():
             return True
 
-        # TODO: this is trouble, we need to have an own move stack to implement this
         # Fivefold repetition.
-        # if self.boards[0].is_fivefold_repetition() or self.boards[1].is_fivefold_repetition():
-        #     return True
+        if self.boards[0].is_fivefold_repetition() or self.boards[1].is_fivefold_repetition():
+            return True
 
         # Claim draw.
-        # if claim_draw_1 and self.boards[0].can_claim_draw() or \
-        #     claim_draw_2 and self.boards[1].can_claim_draw():
-        #     return True
+        if claim_draw_1 and self.boards[0].can_claim_draw() or \
+            claim_draw_2 and self.boards[1].can_claim_draw():
+            return True
 
     def is_stalemate(self) -> bool:
         return self.boards[0].is_stalemate() and self.boards[1].is_stalemate()
