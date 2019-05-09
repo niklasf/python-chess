@@ -760,14 +760,15 @@ class CrazyhouseBoard(chess.Board):
         else:
             return super().is_legal(move)
 
-    def generate_pseudo_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
+    def generate_pseudo_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL, virtual_pocket: Optional[CrazyhousePocket] = None) -> Iterator[chess.Move]:
+        pocket = self.pockets[self.turn] if virtual_pocket is None else virtual_pocket
         for to_square in chess.scan_forward(to_mask & ~self.occupied):
-            for pt, count in self.pockets[self.turn].pieces.items():
+            for pt, count in pocket.pieces.items():
                 if count and (pt != chess.PAWN or not chess.BB_BACKRANKS & chess.BB_SQUARES[to_square]):
                     yield chess.Move(to_square, to_square, drop=pt)
 
-    def generate_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
-        return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask)
+    def generate_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL, virtual_pocket: Optional[CrazyhousePocket] = None) -> Iterator[chess.Move]:
+        return self.generate_pseudo_legal_drops(to_mask=self.legal_drop_squares_mask() & to_mask, virtual_pocket=virtual_pocket)
 
     def generate_legal_moves(self, from_mask: chess.Bitboard = chess.BB_ALL, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
         return itertools.chain(
@@ -875,6 +876,26 @@ class SingleBughouseBoard(CrazyhouseBoard):
     def pop(self: CrazyhouseBoardT) -> chess.Move:
         return super().pop()
 
+    def is_checkmate(self) -> bool:
+        assert self._linked_board is not None, "Board not linked"
+        if super().is_checkmate():
+            if self.linked_board.turn != self.turn and self.linked_board.is_temporary_checkmate():
+                return True
+            potential_pocket = CrazyhousePocket(self.turn)
+            potential_pocket.pieces = {p: 1 for p in chess.PIECE_TYPES[:-1]}
+
+            return any(True for _ in self.generate_legal_drops(virtual_pocket=potential_pocket))
+        else:
+            return False
+
+    def is_temporary_checkmate(self) -> bool:
+        """
+        Checks whether a player is checkmated by crazyhouse rules and can thus only hope to get material from his
+        partner to avoid defeat.
+        :return:
+        """
+        return super().is_checkmate()
+
     @property
     def linked_board(self) -> Optional["SingleBughouseBoard"]:
         return self._linked_board
@@ -885,7 +906,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
         if value.linked_board is not self:
             value.linked_board = self
 
-TEAMS = [TOP, BOTTOM] = [0, 1]
+TEAMS = [BOTTOM, TOP] = [TEAM_A, TEAM_B] = [0, 1]
 
 class BughouseBoards:
     aliases = ["Bughouse"]
@@ -945,9 +966,9 @@ class BughouseBoards:
         nl = join("", "")
         # Visualize pockets
         b1pb = vp(self._boards[0].pockets[0], False)
-        b2pw = vp(self._boards[1].pockets[0], True)
+        b2pw = vp(self._boards[1].pockets[1], True)
         b1pw = vp(self._boards[0].pockets[1], True)
-        b2pb = vp(self._boards[1].pockets[1], False)
+        b2pb = vp(self._boards[1].pockets[0], False)
 
         p_top = map(join, b1pb, b2pw)
         p_bottom = map(join, b1pw, b2pb)
@@ -973,25 +994,55 @@ class BughouseBoards:
         return no_wrap_div.format(self.boards[0]._repr_svg_(), board2)
 
     def is_checkmate(self) -> bool:
-        # TODO: this is not right yet
         return self.boards[0].is_checkmate() or self.boards[1].is_checkmate()
 
-    def is_game_over(self, *, claim_draw_1: bool = False, claim_draw_2: bool = False) -> bool:
+    def is_game_over(self) -> bool:
         # Stalemate or checkmate.
         if self.is_checkmate() or self.is_stalemate():
             return True
 
-        # Fivefold repetition.
-        if self.boards[0].is_fivefold_repetition() or self.boards[1].is_fivefold_repetition():
+        # Threefold repetition.
+        if self.is_threefold_repetition():
             return True
 
-        # Claim draw.
-        if claim_draw_1 and self.boards[0].can_claim_draw() or \
-            claim_draw_2 and self.boards[1].can_claim_draw():
+        # Both boards in temporary checkmate or stalemate
+        if (self.boards[0].is_temporary_checkmate() or self.boards[0].is_stalemate()) and\
+            (self.boards[1].is_temporary_checkmate() or self.boards[1].is_stalemate()):
             return True
+
+        return False
+
+    def is_threefold_repetition(self):
+        return self.boards[0].is_repetition(3) or self.boards[1].is_repetition(3)
 
     def is_stalemate(self) -> bool:
         return self.boards[0].is_stalemate() and self.boards[1].is_stalemate()
+
+    def result(self) -> str:
+        """
+        Gets the game result.
+
+        ``1-0``, ``0-1`` or ``1/2-1/2`` if the
+        :func:`game is over <chess.Board.is_game_over()>`. Otherwise, the
+        result is undetermined: ``*``.
+        """
+
+        # Checkmate
+        if self.is_checkmate():
+            if self.boards[0].is_checkmate():
+                return "0-1" if self.boards[0].turn == chess.WHITE else "1-0"
+            else:
+                return "1-0" if self.boards[1].turn == chess.WHITE else "0-1"
+
+        # Stalemate
+        if self.is_stalemate():
+            return "1/2-1/2"
+
+        if self.is_threefold_repetition():
+            return "1/2-1/2"
+
+        # Undetermined.
+        return "*"
 
 VARIANTS = [
     chess.Board,
