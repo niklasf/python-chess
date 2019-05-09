@@ -884,7 +884,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
             potential_pocket = CrazyhousePocket(self.turn)
             potential_pocket.pieces = {p: 1 for p in chess.PIECE_TYPES[:-1]}
 
-            return any(True for _ in self.generate_legal_drops(virtual_pocket=potential_pocket))
+            return not any(True for _ in self.generate_legal_drops(virtual_pocket=potential_pocket))
         else:
             return False
 
