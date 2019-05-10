@@ -2003,7 +2003,7 @@ class Board(BaseBoard):
         """
         move = self.move_stack.pop()
         self._stack.pop().restore(self)
-        self._transposition[self._transposition_key()] -= 1
+        self._transposition_counter[self._transposition_key()] -= 1
         return move
 
     def peek(self) -> Move:
