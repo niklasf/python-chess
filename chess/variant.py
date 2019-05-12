@@ -1089,31 +1089,6 @@ class BughouseBoards:
         # Undetermined.
         return "*"
 
-    def result(self) -> str:
-        """
-        Gets the game result.
-
-        ``1-0``, ``0-1`` or ``1/2-1/2`` if the
-        :func:`game is over <chess.Board.is_game_over()>`. Otherwise, the
-        result is undetermined: ``*``.
-        """
-
-        # Checkmate
-        if self.is_checkmate():
-            if self.boards[0].is_checkmate():
-                return "0-1" if self.boards[0].turn == chess.WHITE else "1-0"
-            else:
-                return "1-0" if self.boards[1].turn == chess.WHITE else "0-1"
-
-        # Stalemate
-        if self.is_stalemate():
-            return "1/2-1/2"
-
-        if self.is_threefold_repetition():
-            return "1/2-1/2"
-
-        # Undetermined.
-        return "*"
 
 VARIANTS = [
     chess.Board,
