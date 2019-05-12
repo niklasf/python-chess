@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 from collections import defaultdict
-from typing import DefaultDict
+from typing import DefaultDict, NamedTuple
 
 import chess
 import copy
@@ -860,32 +860,71 @@ class CrazyhouseBoard(chess.Board):
 
 
 class SingleBughouseBoard(CrazyhouseBoard):
-    def __init__(self, fen: Optional[str] = CrazyhouseBoard.starting_fen) -> None:
-        self._linked_board = None
+    def __init__(self, bughouse_boards: "BughouseBoards", fen: Optional[str] = CrazyhouseBoard.starting_fen) -> None:
+        self._bughouse_boards = bughouse_boards
         super().__init__(fen)
-        
+
     def _push_capture(self, move: chess.Move, capture_square: chess.Square, piece_type: chess.PieceType,
                       was_promoted: bool) -> None:
-        assert self._linked_board is not None, "Board not linked"
         if was_promoted:
-            self._linked_board.pockets[not self.turn].add(chess.PAWN)
+            self._other_board.pockets[not self.turn].add(chess.PAWN)
         else:
-            self._linked_board.pockets[not self.turn].add(piece_type)
+            self._other_board.pockets[not self.turn].add(piece_type)
 
-    def pop(self: CrazyhouseBoardT) -> chess.Move:
-        return super().pop()
+    def _push(self, move: chess.Move):
+        super().push(move)
+
+    def push(self, move: chess.Move, move_time: Optional[float] = None):
+        self._bughouse_boards.push(self.board_index, move, move_time)
+
+    def pop(self) -> chess.Move:
+        return self._bughouse_boards.pop(self.board_index).move
+
+    def _pop(self) -> chess.Move:
+        pockets = self.pockets
+        move = super().pop()
+        captured_piece = self.piece_at(move.to_square)
+        if captured_piece is not None and captured_piece.color != self.turn:
+            if self._other_board.pockets[not self.turn] == 0:
+                raise ValueError("Cannot undo move, please undo move on other bord first.")
+            self._other_board.pockets[not self.turn] -= 1
+        if move.drop is not None:
+            pockets[self.turn][move.drop] += 1
+        return move
+
+    def is_checkmate(self) -> bool:
+        if super().is_checkmate():
+            if self._other_board.turn != self.turn and self._other_board.is_temporary_checkmate():
+                return True
+            potential_pocket = CrazyhousePocket(self.turn)
+            potential_pocket.pieces = {p: 1 for p in chess.PIECE_TYPES[:-1]}
+
+            return not any(True for _ in self.generate_legal_drops(virtual_pocket=potential_pocket))
+        else:
+            return False
+
+    def is_temporary_checkmate(self) -> bool:
+        """
+        Checks whether a player is checkmated by crazyhouse rules and can thus only hope to get material from his
+        partner to avoid defeat.
+        :return:
+        """
+        return super().is_checkmate()
 
     @property
-    def linked_board(self) -> Optional["SingleBughouseBoard"]:
-        return self._linked_board
+    def _other_board(self):
+        return self._bughouse_boards[int(self._bughouse_boards[0] is self)]
 
-    @linked_board.setter
-    def linked_board(self, value: "SingleBughouseBoard"):
-        self._linked_board = value
-        if value.linked_board is not self:
-            value.linked_board = self
+    @property
+    def board_index(self):
+        return int(self._bughouse_boards[1] is self)
 
-TEAMS = [TOP, BOTTOM] = [0, 1]
+
+TEAMS = [BOTTOM, TOP] = [TEAM_A, TEAM_B] = [0, 1]
+BOARDS = [LEFT, RIGHT] = [0, 1]
+
+BughouseMove = NamedTuple("BughouseMove", (("board_index", int), ("move", chess.Move), ("move_time", Optional[float])))
+
 
 class BughouseBoards:
     aliases = ["Bughouse"]
@@ -902,6 +941,7 @@ class BughouseBoards:
     def __init__(self, bfen: Optional[str] = starting_bfen) -> None:
         self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
         self.bfen = bfen
+        self._move_stack: List[BughouseMove] = []
 
     def reset_boards(self) -> None:
         for b in self._boards:
@@ -913,14 +953,34 @@ class BughouseBoards:
 
     @property
     def bfen(self) -> str:
-        return "{} | {}".format(self._boards[0].board_fen(), self._boards[1].board_fen())
+        return "{} | {}".format(self._boards[LEFT].board_fen(), self._boards[RIGHT].board_fen())
 
     @bfen.setter
     def bfen(self, value: str):
         fen_split = value.split("|")
         assert len(fen_split) == 2, "bfen corrupt"
-        self._boards = (SingleBughouseBoard(fen_split[0]), SingleBughouseBoard(fen_split[1]))
-        self._boards[0].linked_board = self._boards[1]
+        self._boards = (SingleBughouseBoard(self, fen_split[0]), SingleBughouseBoard(self, fen_split[1]))
+
+    def push(self, board_index: int, move: chess.Move, move_time: Optional[float] = None):
+        self._boards[board_index]._push(move)
+        self._move_stack.append(BughouseMove(board_index, move, move_time))
+
+    def pop(self, board_index: Optional[int] = None) -> BughouseMove:
+        if board_index is None:
+            move = self._move_stack.pop()
+        else:
+            # Latest move on the specified board
+            last_occurrence_index = next(
+                i for i, m in reversed(enumerate(self._move_stack)) if m.board_index == board_index)
+            move = self._move_stack[last_occurrence_index]
+            self._move_stack[last_occurrence_index:last_occurrence_index + 1] = []
+        self._boards[move.board_index].pop()
+        return move
+
+    def peek(self) -> Optional[BughouseMove]:
+        if len(self._move_stack) == 0:
+            return None
+        return self._move_stack[-1]
 
     def __str__(self) -> str:
         def vp(pocket: CrazyhousePocket, white: bool):
@@ -933,9 +993,9 @@ class BughouseBoards:
         def join(line1: str, line2: str):
             return "{:<15}   {:<15}".format(line1, line2)
 
-        board1_str = str(self._boards[0])
+        board1_str = str(self._boards[LEFT])
         board1_lines = board1_str.splitlines()
-        board2_str = str(self._boards[1])
+        board2_str = str(self._boards[RIGHT])
         # Flip board for convenience
         board2_lines = board2_str.splitlines(keepends=False)
         board2_lines_reversed = reversed(["".join(reversed(l)) for l in board2_lines])
@@ -944,10 +1004,10 @@ class BughouseBoards:
         header = join("Board 1:", "Board 2:")
         nl = join("", "")
         # Visualize pockets
-        b1pb = vp(self._boards[0].pockets[0], False)
-        b2pw = vp(self._boards[1].pockets[0], True)
-        b1pw = vp(self._boards[0].pockets[1], True)
-        b2pb = vp(self._boards[1].pockets[1], False)
+        b1pb = vp(self._boards[LEFT].pockets[chess.BLACK], False)
+        b2pw = vp(self._boards[RIGHT].pockets[chess.WHITE], True)
+        b1pw = vp(self._boards[LEFT].pockets[chess.WHITE], True)
+        b2pb = vp(self._boards[RIGHT].pockets[chess.BLACK], False)
 
         p_top = map(join, b1pb, b2pw)
         p_bottom = map(join, b1pw, b2pb)
@@ -963,18 +1023,17 @@ class BughouseBoards:
     def _repr_html_(self):
         import chess.svg
         board2 = chess.svg.board(
-            board=self.boards[1],
+            board=self.boards[RIGHT],
             size=400,
             flipped=True,
-            lastmove=self.boards[1].peek() if self.boards[1].move_stack else None,
-            check=self.boards[1].king(self.boards[1].turn) if self.boards[1].is_check() else None)
+            lastmove=self.boards[RIGHT].peek() if self.boards[RIGHT].move_stack else None,
+            check=self.boards[RIGHT].king(self.boards[RIGHT].turn) if self.boards[RIGHT].is_check() else None)
 
         no_wrap_div = '<div style="white-space: nowrap">{}{}</div>'
-        return no_wrap_div.format(self.boards[0]._repr_svg_(), board2)
+        return no_wrap_div.format(self.boards[LEFT]._repr_svg_(), board2)
 
     def is_checkmate(self) -> bool:
-        # TODO: this is not right yet
-        return self.boards[0].is_checkmate() or self.boards[1].is_checkmate()
+        return self.boards[LEFT].is_checkmate() or self.boards[RIGHT].is_checkmate()
 
     def is_game_over(self, *, claim_draw_1: bool = False, claim_draw_2: bool = False) -> bool:
         # Stalemate or checkmate.
@@ -990,8 +1049,45 @@ class BughouseBoards:
             claim_draw_2 and self.boards[1].can_claim_draw():
             return True
 
+        # Both boards in temporary checkmate or stalemate
+        if (self.boards[LEFT].is_temporary_checkmate() or self.boards[LEFT].is_stalemate()) and \
+                (self.boards[RIGHT].is_temporary_checkmate() or self.boards[RIGHT].is_stalemate()):
+            return True
+
+        return False
+
+    def is_threefold_repetition(self):
+        return self.boards[LEFT].is_repetition(3) or self.boards[RIGHT].is_repetition(3)
+
     def is_stalemate(self) -> bool:
-        return self.boards[0].is_stalemate() and self.boards[1].is_stalemate()
+        return self.boards[LEFT].is_stalemate() and self.boards[RIGHT].is_stalemate()
+
+    def result(self) -> str:
+        """
+        Gets the game result.
+
+        ``1-0``, ``0-1`` or ``1/2-1/2`` if the
+        :func:`game is over <chess.Board.is_game_over()>`. Otherwise, the
+        result is undetermined: ``*``.
+        """
+
+        # Checkmate
+        if self.is_checkmate():
+            if self.boards[LEFT].is_checkmate():
+                return "0-1" if self.boards[LEFT].turn == chess.WHITE else "1-0"
+            else:
+                return "1-0" if self.boards[RIGHT].turn == chess.WHITE else "0-1"
+
+        # Stalemate
+        if self.is_stalemate():
+            return "1/2-1/2"
+
+        if self.is_threefold_repetition():
+            return "1/2-1/2"
+
+        # Undetermined.
+        return "*"
+
 
 VARIANTS = [
     chess.Board,
