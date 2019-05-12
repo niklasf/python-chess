@@ -912,26 +912,6 @@ class SingleBughouseBoard(CrazyhouseBoard):
         """
         return super().is_checkmate()
 
-    def is_checkmate(self) -> bool:
-        assert self._linked_board is not None, "Board not linked"
-        if super().is_checkmate():
-            if self.linked_board.turn != self.turn and self.linked_board.is_temporary_checkmate():
-                return True
-            potential_pocket = CrazyhousePocket(self.turn)
-            potential_pocket.pieces = {p: 1 for p in chess.PIECE_TYPES[:-1]}
-
-            return not any(True for _ in self.generate_legal_drops(virtual_pocket=potential_pocket))
-        else:
-            return False
-
-    def is_temporary_checkmate(self) -> bool:
-        """
-        Checks whether a player is checkmated by crazyhouse rules and can thus only hope to get material from his
-        partner to avoid defeat.
-        :return:
-        """
-        return super().is_checkmate()
-
     @property
     def _other_board(self):
         return self._bughouse_boards[int(self._bughouse_boards[0] is self)]
