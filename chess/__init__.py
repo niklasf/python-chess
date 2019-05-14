@@ -2454,10 +2454,14 @@ class Board(BaseBoard):
         for ch in itertools.chain(operation_part, [None]):
             if state == "opcode":
                 if ch == " ":
-                    if opcode:
+                    if opcode == "-":
+                        opcode = ""
+                    elif opcode:
                         state = "after_opcode"
                 elif ch is None or ch == ";":
-                    if opcode:
+                    if opcode == "-":
+                        opcode = ""
+                    elif opcode:
                         operations[opcode] = None
                         opcode = ""
                 else:
