@@ -1022,6 +1022,12 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["a"], "foo\"bar")
         self.assertEqual(operations["b"], "foo\\\\")
 
+    def test_eret_epd(self):
+        epd = """r1bqk1r1/1p1p1n2/p1n2pN1/2p1b2Q/2P1Pp2/1PN5/PB4PP/R4RK1 w q - - bm Rxf4; id "ERET 001 - Entlastung";"""
+        board, ops = chess.Board.from_epd(epd)
+        self.assertEqual(ops["id"], "ERET 001 - Entlastung")
+        self.assertEqual(ops["bm"], [chess.Move.from_uci("f1f4")])
+
     def test_null_moves(self):
         self.assertEqual(str(chess.Move.null()), "0000")
         self.assertEqual(chess.Move.null().uci(), "0000")
