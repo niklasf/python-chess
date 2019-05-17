@@ -1035,7 +1035,7 @@ class BughouseBoards:
         return self.boards[LEFT].is_checkmate() or self.boards[RIGHT].is_checkmate()
 
     def is_game_over(self) -> bool:
-        return not (any(True for _ in self.boards[LEFT].legal_moves) and
+        return not (any(True for _ in self.boards[LEFT].legal_moves) or
                     any(True for _ in self.boards[RIGHT].legal_moves))
 
     def is_threefold_repetition(self):
