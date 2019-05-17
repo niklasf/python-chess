@@ -122,6 +122,89 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
+def bughouse_boards(boards: variant.BughouseBoards,
+                    squaresL: Optional[chess.IntoSquareSet] = None,
+                    squaresR: Optional[chess.IntoSquareSet] = None,
+                    flipped: bool = False,
+                    coordinates: bool = True,
+                    lastmoveL: Optional[chess.Move] = None,
+                    lastmoveR: Optional[chess.Move] = None,
+                    checkL: Optional[chess.Square] = None,
+                    checkR: Optional[chess.Square] = None,
+                    arrowsL: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+                    arrowsR: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+                    size: Optional[int] = None,
+                    style: Optional[str] = None):
+    single_board_size = size / 2 if size is not None else None
+    margin = MARGIN if coordinates else 0
+    single_board_height = 12 * SQUARE_SIZE + 2 * margin
+    single_board_width = 8 * SQUARE_SIZE + 2 * margin
+    ratio = (single_board_height) / (single_board_width * 2)
+    size_tuple = (size, int(size * ratio)) if size is not None else None
+    svg = _svg((single_board_width * 2, single_board_height), size_tuple)
+
+    defs = ET.SubElement(svg, "defs")
+    if board:
+        for piece_color in chess.COLORS:
+            for piece_type in chess.PIECE_TYPES:
+                defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+
+    if squaresL or squaresR:
+        defs.append(ET.fromstring(XX))
+
+    if checkL is not None or checkR is not None:
+        defs.append(ET.fromstring(CHECK_GRADIENT))
+
+    svgL = ET.SubElement(svg, "svg", {
+        "x": "0",
+        "y": "0",
+        "width": str(single_board_width),
+        "height": str(single_board_height)
+    })
+
+    svgR = ET.SubElement(svg, "svg", {
+        "x": str(single_board_width),
+        "y": "0",
+        "width": str(single_board_width),
+        "height": str(single_board_height)
+    })
+
+    if style:
+        ET.SubElement(svg, "style").text = style
+
+    # Board left
+    board(
+        board=boards[chess.variant.LEFT],
+        squares=squaresL,
+        flipped=flipped,
+        coordinates=coordinates,
+        lastmove=lastmoveL,
+        check=checkL,
+        arrows=arrowsL,
+        size=single_board_size,
+        style=None,
+        base_svg=svgL,
+        add_definitions=False
+    )
+
+    # Board right
+    board(
+        board=boards[chess.variant.RIGHT],
+        squares=squaresR,
+        flipped=not flipped,
+        coordinates=coordinates,
+        lastmove=lastmoveR,
+        check=checkR,
+        arrows=arrowsR,
+        size=single_board_size,
+        style=None,
+        base_svg=svgR,
+        add_definitions=False
+    )
+
+    return SvgWrapper(ET.tostring(svg).decode("utf-8"))
+
+
 def board(board: Optional[chess.BaseBoard] = None, *,
           squares: Optional[chess.IntoSquareSet] = None,
           flipped: bool = False,
@@ -130,7 +213,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           check: Optional[chess.Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
           size: Optional[int] = None,
-          style: Optional[str] = None) -> str:
+          style: Optional[str] = None,
+          base_svg: Optional[ET.Element] = None,
+          add_definitions: bool = True) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -148,6 +233,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
     :param style: A CSS stylesheet to include in the SVG image.
+    :param base_svg: A svg element to embed this into
+    :param add_definitions: Whether or not to add piece and board defintions. Is only considered when base_svg is
+                            not None.
 
     >>> import chess
     >>> import chess.svg
@@ -159,27 +247,31 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. image:: ../docs/Ne4.svg
     """
     margin = MARGIN if coordinates else 0
-    if isinstance(board, chess.variant.CrazyhouseBoard):
+    if base_svg is not None:
+        svg = base_svg
+    elif isinstance(board, chess.variant.CrazyhouseBoard):
         ratio = (12 * SQUARE_SIZE + 2 * margin) / (8 * SQUARE_SIZE + 2 * margin)
-        svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), (size, int(size * ratio)))
+        size_tuple = (size, int(size * ratio)) if size is not None else None
+        svg = _svg((8 * SQUARE_SIZE + 2 * margin, 12 * SQUARE_SIZE + 2 * margin), size_tuple)
     else:
         svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
     if style:
         ET.SubElement(svg, "style").text = style
 
-    defs = ET.SubElement(svg, "defs")
-    if board:
-        for piece_color in chess.COLORS:
-            for piece_type in chess.PIECE_TYPES:
-                defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+    if add_definitions or base_svg is None:
+        defs = ET.SubElement(svg, "defs")
+        if board:
+            for piece_color in chess.COLORS:
+                for piece_type in chess.PIECE_TYPES:
+                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
 
-    squares = chess.SquareSet(squares) if squares else chess.SquareSet()
-    if squares:
-        defs.append(ET.fromstring(XX))
+        squares = chess.SquareSet(squares) if squares else chess.SquareSet()
+        if squares:
+            defs.append(ET.fromstring(XX))
 
-    if check is not None:
-        defs.append(ET.fromstring(CHECK_GRADIENT))
+        if check is not None:
+            defs.append(ET.fromstring(CHECK_GRADIENT))
 
     if isinstance(board, chess.variant.CrazyhouseBoard):
         svg_board = ET.SubElement(svg, "svg", {
@@ -355,7 +447,8 @@ def pocket(pocket: variant.CrazyhousePocket,
     :param width: The width of the image in pixels or ``None`` (the default) for no size limit.
 
     """
-    svg = _svg((5 * SQUARE_SIZE, 2 * SQUARE_SIZE), (width, int(width / 5 * 2)))
+    width_tuple = (width, int(width / 5 * 2)) if width is not None else None
+    svg = _svg((5 * SQUARE_SIZE, 2 * SQUARE_SIZE), width_tuple)
 
     pieces_y_pos = SQUARE_SIZE if numbers_top else 0
     numbers_y_pos = 0 if numbers_top else SQUARE_SIZE

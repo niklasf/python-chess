@@ -1021,17 +1021,16 @@ class BughouseBoards:
     def __getitem__(self, value: int):
         return self._boards[value]
 
-    def _repr_html_(self):
+    def _repr_svg_(self):
         import chess.svg
-        board2 = chess.svg.board(
-            board=self.boards[RIGHT],
-            size=400,
-            flipped=True,
-            lastmove=self.boards[RIGHT].peek() if self.boards[RIGHT].move_stack else None,
-            check=self.boards[RIGHT].king(self.boards[RIGHT].turn) if self.boards[RIGHT].is_check() else None)
-
-        no_wrap_div = '<div style="white-space: nowrap">{}{}</div>'
-        return no_wrap_div.format(self.boards[LEFT]._repr_svg_(), board2)
+        return chess.svg.bughouse_boards(
+            boards=self,
+            size=800,
+            lastmoveL=self.boards[LEFT].peek() if self.boards[LEFT].move_stack else None,
+            lastmoveR=self.boards[RIGHT].peek() if self.boards[RIGHT].move_stack else None,
+            checkL=self.boards[LEFT].king(self.boards[LEFT].turn) if self.boards[LEFT].is_check() else None,
+            checkR=self.boards[RIGHT].king(self.boards[RIGHT].turn) if self.boards[RIGHT].is_check() else None
+        )
 
     def is_checkmate(self) -> bool:
         return self.boards[LEFT].is_checkmate() or self.boards[RIGHT].is_checkmate()
