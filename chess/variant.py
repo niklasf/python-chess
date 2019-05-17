@@ -1037,31 +1037,10 @@ class BughouseBoards:
         return self.boards[LEFT].is_checkmate() or self.boards[RIGHT].is_checkmate()
 
     def is_game_over(self) -> bool:
-        # Stalemate or checkmate.
-        if self.is_checkmate() or self.is_stalemate():
-            return True
-
-        # Threefold repetition.
-        if self.is_threefold_repetition():
-            return True
-
-        # Both boards in temporary checkmate or stalemate
-        if (self.boards[0].is_temporary_checkmate() or self.boards[0].is_stalemate()) and\
-            (self.boards[1].is_temporary_checkmate() or self.boards[1].is_stalemate()):
-            return True
-
-        # Both boards in temporary checkmate or stalemate
-        if (self.boards[LEFT].is_temporary_checkmate() or self.boards[LEFT].is_stalemate()) and \
-                (self.boards[RIGHT].is_temporary_checkmate() or self.boards[RIGHT].is_stalemate()):
-            return True
-
-        return False
+        return any(True for _ in self.boards[LEFT].legal_moves) and any(True for _ in self.boards[RIGHT].legal_moves)
 
     def is_threefold_repetition(self):
         return self.boards[LEFT].is_repetition(3) or self.boards[RIGHT].is_repetition(3)
-
-    def is_stalemate(self) -> bool:
-        return self.boards[LEFT].is_stalemate() and self.boards[RIGHT].is_stalemate()
 
     def result(self) -> str:
         """
@@ -1078,10 +1057,6 @@ class BughouseBoards:
                 return "0-1" if self.boards[LEFT].turn == chess.WHITE else "1-0"
             else:
                 return "1-0" if self.boards[RIGHT].turn == chess.WHITE else "0-1"
-
-        # Stalemate
-        if self.is_stalemate():
-            return "1/2-1/2"
 
         if self.is_threefold_repetition():
             return "1/2-1/2"
