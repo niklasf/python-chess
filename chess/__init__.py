@@ -445,11 +445,13 @@ class Move:
     Drops and null moves are supported.
     """
 
-    def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> None:
+    def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None,
+                 drop: Optional[PieceType] = None, board_id: Optional[int] = None) -> None:
         self.from_square = from_square
         self.to_square = to_square
         self.promotion = promotion
         self.drop = drop
+        self.board_id = board_id
 
     def uci(self) -> str:
         """

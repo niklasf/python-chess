@@ -876,7 +876,8 @@ class SingleBughouseBoard(CrazyhouseBoard):
         super().push(move)
 
     def push(self, move: chess.Move, move_time: Optional[float] = None):
-        self._bughouse_boards.push(self.board_index, move, move_time)
+        move.board_id = self.board_index
+        self._bughouse_boards.push(move, move_time)
 
     def pop(self) -> chess.Move:
         return self._bughouse_boards.pop(self.board_index).move
@@ -924,7 +925,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
 TEAMS = [BOTTOM, TOP] = [TEAM_A, TEAM_B] = [0, 1]
 BOARDS = [LEFT, RIGHT] = [0, 1]
 
-BughouseMove = NamedTuple("BughouseMove", (("board_index", int), ("move", chess.Move), ("move_time", Optional[float])))
+BughouseMove = NamedTuple("BughouseMove", (("move", chess.Move), ("move_time", Optional[float])))
 
 
 class BughouseBoards:
@@ -962,9 +963,9 @@ class BughouseBoards:
         assert len(fen_split) == 2, "bfen corrupt"
         self._boards = (SingleBughouseBoard(self, fen_split[0]), SingleBughouseBoard(self, fen_split[1]))
 
-    def push(self, board_index: int, move: chess.Move, move_time: Optional[float] = None):
-        self._boards[board_index]._push(move)
-        self._move_stack.append(BughouseMove(board_index, move, move_time))
+    def push(self, move: chess.Move, move_time: Optional[float] = None):
+        self._boards[move.board_id]._push(move)
+        self._move_stack.append(BughouseMove(move, move_time))
 
     def pop(self, board_index: Optional[int] = None) -> BughouseMove:
         if board_index is None:
@@ -975,7 +976,7 @@ class BughouseBoards:
                 i for i, m in reversed(enumerate(self._move_stack)) if m.board_index == board_index)
             move = self._move_stack[last_occurrence_index]
             self._move_stack[last_occurrence_index:last_occurrence_index + 1] = []
-        self._boards[move.board_index].pop()
+        self._boards[move.move.board_index].pop()
         return move
 
     def peek(self) -> Optional[BughouseMove]:
