@@ -923,7 +923,7 @@ class SingleBughouseBoard(CrazyhouseBoard):
 
 
 TEAMS = [BOTTOM, TOP] = [TEAM_A, TEAM_B] = [0, 1]
-BOARDS = [LEFT, RIGHT] = [0, 1]
+BOARDS = [LEFT, RIGHT] = [BOARD_A, BOARD_B] = [0, 1]
 
 
 class BughouseBoards:
