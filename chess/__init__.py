@@ -446,12 +446,14 @@ class Move:
     """
 
     def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None,
-                 drop: Optional[PieceType] = None, board_id: Optional[int] = None) -> None:
+                 drop: Optional[PieceType] = None, board_id: Optional[int] = None,
+                 move_time: Optional[float] = None) -> None:
         self.from_square = from_square
         self.to_square = to_square
         self.promotion = promotion
         self.drop = drop
         self.board_id = board_id
+        self.move_time = move_time
 
     def uci(self) -> str:
         """

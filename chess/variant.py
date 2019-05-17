@@ -875,12 +875,12 @@ class SingleBughouseBoard(CrazyhouseBoard):
     def _push(self, move: chess.Move):
         super().push(move)
 
-    def push(self, move: chess.Move, move_time: Optional[float] = None):
+    def push(self, move: chess.Move):
         move.board_id = self.board_index
-        self._bughouse_boards.push(move, move_time)
+        self._bughouse_boards.push(move)
 
     def pop(self) -> chess.Move:
-        return self._bughouse_boards.pop(self.board_index).move
+        return self._bughouse_boards.pop(self.board_index)
 
     def _pop(self) -> chess.Move:
         pockets = self.pockets
@@ -925,8 +925,6 @@ class SingleBughouseBoard(CrazyhouseBoard):
 TEAMS = [BOTTOM, TOP] = [TEAM_A, TEAM_B] = [0, 1]
 BOARDS = [LEFT, RIGHT] = [0, 1]
 
-BughouseMove = NamedTuple("BughouseMove", (("move", chess.Move), ("move_time", Optional[float])))
-
 
 class BughouseBoards:
     aliases = ["Bughouse"]
@@ -943,7 +941,7 @@ class BughouseBoards:
     def __init__(self, bfen: Optional[str] = starting_bfen) -> None:
         self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
         self.bfen = bfen
-        self._move_stack: List[BughouseMove] = []
+        self._move_stack: List[chess.Move] = []
 
     def reset_boards(self) -> None:
         for b in self._boards:
@@ -963,11 +961,11 @@ class BughouseBoards:
         assert len(fen_split) == 2, "bfen corrupt"
         self._boards = (SingleBughouseBoard(self, fen_split[0]), SingleBughouseBoard(self, fen_split[1]))
 
-    def push(self, move: chess.Move, move_time: Optional[float] = None):
+    def push(self, move: chess.Move):
         self._boards[move.board_id]._push(move)
-        self._move_stack.append(BughouseMove(move, move_time))
+        self._move_stack.append(move)
 
-    def pop(self, board_index: Optional[int] = None) -> BughouseMove:
+    def pop(self, board_index: Optional[int] = None) -> chess.Move:
         if board_index is None:
             move = self._move_stack.pop()
         else:
@@ -976,10 +974,10 @@ class BughouseBoards:
                 i for i, m in reversed(enumerate(self._move_stack)) if m.board_index == board_index)
             move = self._move_stack[last_occurrence_index]
             self._move_stack[last_occurrence_index:last_occurrence_index + 1] = []
-        self._boards[move.move.board_index].pop()
+        self._boards[move.board_id].pop()
         return move
 
-    def peek(self) -> Optional[BughouseMove]:
+    def peek(self) -> Optional[chess.Move]:
         if len(self._move_stack) == 0:
             return None
         return self._move_stack[-1]
