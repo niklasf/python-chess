@@ -155,18 +155,10 @@ def bughouse_boards(boards: variant.BughouseBoards,
     if checkL is not None or checkR is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
-    svgL = ET.SubElement(svg, "svg", {
-        "x": "0",
-        "y": "0",
-        "width": str(single_board_width),
-        "height": str(single_board_height)
-    })
+    svgL = ET.SubElement(svg, "g")
 
-    svgR = ET.SubElement(svg, "svg", {
-        "x": str(single_board_width),
-        "y": "0",
-        "width": str(single_board_width),
-        "height": str(single_board_height)
+    svgR = ET.SubElement(svg, "g", {
+        "transform": "translate({}, 0)".format(single_board_width)
     })
 
     if style:
@@ -274,23 +266,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             defs.append(ET.fromstring(CHECK_GRADIENT))
 
     if isinstance(board, chess.variant.CrazyhouseBoard):
-        svg_board = ET.SubElement(svg, "svg", {
-            "x": "0",
-            "y": str(2 * SQUARE_SIZE),
-            "width": str(8 * SQUARE_SIZE + 2 * margin),
-            "height": str(8 * SQUARE_SIZE + 2 * margin)
+        svg_board = ET.SubElement(svg, "g", {
+            "transform": "translate(0, {})".format(2 * SQUARE_SIZE)
         })
-        svg_pocket_top = ET.SubElement(svg, "svg", {
-            "x": str(margin),
-            "y": "0",
-            "width": str(5 * SQUARE_SIZE),
-            "height": str(2 * SQUARE_SIZE)
+        svg_pocket_top = ET.SubElement(svg, "g", {
+            "transform": "translate({}, 0)".format(margin)
         })
-        svg_pocket_bottom = ET.SubElement(svg, "svg", {
-            "x": str(margin),
-            "y": str(10 * SQUARE_SIZE + 2 * margin),
-            "width": str(5 * SQUARE_SIZE),
-            "height": str(2 * SQUARE_SIZE)
+        svg_pocket_bottom = ET.SubElement(svg, "g", {
+            "transform": "translate({}, {})".format(margin, 10 * SQUARE_SIZE + 2 * margin)
         })
 
         for s, p in zip([svg_pocket_top, svg_pocket_bottom],
