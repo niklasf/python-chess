@@ -779,7 +779,7 @@ class GameBuilder(BaseVisitor):
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
-    def __init__(self, *, Game: Callable[[], Game] = Game) -> None:
+    def __init__(self, *, Game) -> None:
         self.Game = Game
 
     def begin_game(self) -> None:
@@ -845,7 +845,7 @@ class GameBuilder(BaseVisitor):
 class HeadersBuilder(BaseVisitor):
     """Collects headers into a dictionary."""
 
-    def __init__(self, *, Headers: Callable[[], Headers] = lambda: Headers({})) -> None:
+    def __init__(self, *, Headers=lambda: Headers({})) -> None:
         self.Headers = Headers
 
     def begin_headers(self) -> Headers:

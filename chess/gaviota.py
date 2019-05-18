@@ -1923,7 +1923,7 @@ class NativeTablebase:
     Has the same interface as :class:`~chess.gaviota.PythonTablebase`.
     """
 
-    def __init__(self, libgtb: Any) -> None:
+    def __init__(self, libgtb) -> None:
         self.paths = []  # type: List[str]
 
         self.libgtb = libgtb
@@ -2080,7 +2080,7 @@ class NativeTablebase:
         self.close()
 
 
-def open_tablebase_native(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> NativeTablebase:
+def open_tablebase_native(directory: str, *, libgtb=None, LibraryLoader=ctypes.cdll) -> NativeTablebase:
     """
     Opens a collection of tables for probing using libgtb.
 
@@ -2096,7 +2096,7 @@ def open_tablebase_native(directory: str, *, libgtb: Any = None, LibraryLoader: 
     return tables
 
 
-def open_tablebase(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
+def open_tablebase(directory: str, *, libgtb=None, LibraryLoader=ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
     """
     Opens a collection of tables for probing.
 
