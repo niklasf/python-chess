@@ -1924,7 +1924,7 @@ class NativeTablebase:
     """
 
     def __init__(self, libgtb: Any) -> None:
-        self.paths = []  # type: List[PathLike]
+        self.paths = []  # type: List[str]
 
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
@@ -1947,7 +1947,7 @@ class NativeTablebase:
 
         self._tbcache_restart(1024 * 1024, 50)
 
-    def add_directory(self, directory: PathLike) -> None:
+    def add_directory(self, directory: str) -> None:
         if not os.path.isdir(directory):
             raise IOError("not a directory: {!r}".format(directory))
 
@@ -2080,7 +2080,7 @@ class NativeTablebase:
         self.close()
 
 
-def open_tablebase_native(directory: PathLike, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> NativeTablebase:
+def open_tablebase_native(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> NativeTablebase:
     """
     Opens a collection of tables for probing using libgtb.
 
@@ -2096,7 +2096,7 @@ def open_tablebase_native(directory: PathLike, *, libgtb: Any = None, LibraryLoa
     return tables
 
 
-def open_tablebase(directory: PathLike, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
+def open_tablebase(directory: str, *, libgtb: Any = None, LibraryLoader: Any = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
     """
     Opens a collection of tables for probing.
 
