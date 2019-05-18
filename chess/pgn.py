@@ -116,10 +116,6 @@ class SkipType(enum.Enum):
 SKIP = SkipType.SKIP
 
 
-ResultT = TypeVar("ResultT")
-GameBuilderResultT = TypeVar("GameBuilderResultT", bound="Game")
-
-
 class GameNode:
     def __init__(self) -> None:
         self.parent = None  # type: Optional[GameNode]
@@ -236,7 +232,7 @@ class GameNode:
 
     def __getitem__(self, move: Union[int, chess.Move]) -> "GameNode":
         try:
-            return self.variations[move]
+            return self.variations[move]  # type: ignore
         except TypeError:
             for variation in self.variations:
                 if variation.move == move or variation == move:
@@ -330,7 +326,7 @@ class GameNode:
 
         return node
 
-    def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
+    def _accept_node(self, parent_board: chess.Board, visitor) -> None:
         if self.starting_comment:
             visitor.visit_comment(self.starting_comment)
 
@@ -346,7 +342,7 @@ class GameNode:
         if self.comment:
             visitor.visit_comment(self.comment)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]", *, _parent_board: Optional[chess.Board] = None) -> ResultT:
+    def accept(self, visitor, *, _parent_board: Optional[chess.Board] = None):
         """
         Traverses game nodes in PGN order using the given *visitor*. Starts with
         the move leading to this node. Returns the *visitor* result.
@@ -372,7 +368,7 @@ class GameNode:
         # Get the result if not called recursively.
         return visitor.result() if _parent_board is None else None
 
-    def accept_subgame(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept_subgame(self, visitor):
         """
         Traverses headers and game nodes in PGN order, as if the game was
         starting after this node. Returns the *visitor* result.
@@ -465,7 +461,7 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept(self, visitor):
         """
         Traverses the game in PGN order using the given *visitor*. Returns
         the *visitor* result.
@@ -637,7 +633,7 @@ class Mainline(Generic[MainlineMapT]):
     def __reversed__(self) -> "ReverseMainline[MainlineMapT]":
         return ReverseMainline(self.start, self.f)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept(self, visitor):
         node = self.start
         board = self.start.board()
         while node.variations:
@@ -681,7 +677,7 @@ class ReverseMainline(Generic[MainlineMapT]):
         return "<ReverseMainline at {:#x} ({})>".format(id(self), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
 
 
-class BaseVisitor(Generic[ResultT]):
+class BaseVisitor:
     """
     Base class for visitors.
 
@@ -769,7 +765,7 @@ class BaseVisitor(Generic[ResultT]):
         """Called at the end of a game."""
         pass
 
-    def result(self) -> ResultT:
+    def result(self):
         """Called to get the result of the visitor. Defaults to ``True``."""
         return True
 
@@ -778,7 +774,7 @@ class BaseVisitor(Generic[ResultT]):
         raise error
 
 
-class GameBuilder(BaseVisitor[Game]):
+class GameBuilder(BaseVisitor):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
@@ -839,14 +835,14 @@ class GameBuilder(BaseVisitor[Game]):
         LOGGER.exception("error during pgn parsing")
         self.game.errors.append(error)
 
-    def result(self) -> Game:
+    def result(self):
         """
         Returns the visited :class:`~chess.pgn.Game()`.
         """
         return self.game
 
 
-class HeadersBuilder(BaseVisitor[Headers]):
+class HeadersBuilder(BaseVisitor):
     """Collects headers into a dictionary."""
 
     def __init__(self, *, Headers: Callable[[], Headers] = lambda: Headers({})) -> None:
@@ -862,11 +858,11 @@ class HeadersBuilder(BaseVisitor[Headers]):
     def end_headers(self) -> SkipType:
         return SKIP
 
-    def result(self) -> Headers:
+    def result(self):
         return self.headers
 
 
-class BoardBuilder(BaseVisitor[chess.Board]):
+class BoardBuilder(BaseVisitor):
     """
     Returns the final position of the game. The mainline of the game is
     on the move stack.
@@ -886,11 +882,11 @@ class BoardBuilder(BaseVisitor[chess.Board]):
         if not self.skip_variation_depth:
             self.board = board
 
-    def result(self) -> chess.Board:
+    def result(self):
         return self.board
 
 
-class SkipVisitor(BaseVisitor[bool]):
+class SkipVisitor(BaseVisitor):
     """Skips a game."""
 
     def begin_game(self) -> SkipType:
@@ -903,7 +899,7 @@ class SkipVisitor(BaseVisitor[bool]):
         return SKIP
 
 
-class StringExporter(BaseVisitor[str]):
+class StringExporter(BaseVisitor):
     """
     Allows exporting a game as a string.
 
@@ -1006,7 +1002,7 @@ class StringExporter(BaseVisitor[str]):
     def visit_result(self, result: str) -> None:
         self.write_token(result + " ")
 
-    def result(self) -> str:
+    def result(self):
         if self.current_line:
             return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
         else:
@@ -1048,7 +1044,7 @@ class FileExporter(StringExporter):
         self.handle.write(line.rstrip())
         self.handle.write("\n")
 
-    def result(self) -> None:
+    def result(self):
         return None
 
     def __repr__(self) -> str:
@@ -1058,7 +1054,7 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = GameBuilder) -> Optional[ResultT]:
+def read_game(handle: TextIO, *, Visitor=GameBuilder):
     """
     Reads a game from a file opened in text mode.
 
