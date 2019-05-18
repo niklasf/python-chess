@@ -1,6 +1,45 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Dropped support for Python 3.4 (end of life reached).
+* `chess.polyglot.Entry.move` **is now a property instead of a method**.
+  The raw move is now always decoded in the context of the position (relevant
+  for castling moves).
+* `Piece`, `Move`, `BaseBoard` and `Board` comparisons no longer support
+  ducktyping.
+* FENs sent to engines now always include potential en-passant squares, even if
+  no legal en-passat capture exists.
+* Circular SVG markers now have a `circle` CSS class.
+* Superfluous dashes (-) in EPDs are no longer treated as opcodes.
+
+Bugfixes:
+
+* Notation like `Kh1` is no longer accepted for castling moves.
+* Remove stale files from wheels published on PyPI.
+* Parsing Three-Check EPDs with moves was always failing.
+* Some methods in `chess.variant` were returning bool-ish integers, when they
+  should have returned `bool`.
+* `chess.engine`: Fix line decoding when `\r\n` arrives seperately in stdout
+  buffer.
+* `chess.engine`: Handle unexpected `bestmove` sent by misbehaving UCI engine.
+* `chess.engine`: Survive timeout in analysis.
+
+New features:
+
+* **Experimental type signatures (`typing`) for almost all public APIs.**
+  Some modules do not yet internally pass typechecking.
+* Added `chess.engine.AnalysisResult.get()` and `empty()`.
+* `chess.engine.EngineProtocol` and constructors optionally take explicit
+  event loop.
+* `chess.engine`: `UCI_AnalyseMode` is still automatically managed, but
+  can now be overwritten.
+* Added `Board.color_at(square)`.
+
 New in v0.27.3
 --------------
 
