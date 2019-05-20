@@ -930,7 +930,7 @@ class BughouseBoards:
     aliases = ["Bughouse"]
     uci_variant = "bughouse"
     xboard_variant = "bughouse"
-    starting_bfen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1 | " \
+    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1 | " \
                     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1"
 
     tbw_suffix = None
@@ -938,9 +938,14 @@ class BughouseBoards:
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, bfen: Optional[str] = starting_bfen) -> None:
+    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+        """
+
+        :param fen:
+        :param chess960: not yet implemented
+        """
         self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
-        self.bfen = bfen
+        self.fen = fen
         self._move_stack: List[chess.Move] = []
 
     def reset_boards(self) -> None:
@@ -952,13 +957,13 @@ class BughouseBoards:
             b.clear_board()
 
     @property
-    def bfen(self) -> str:
+    def fen(self) -> str:
         return "{} | {}".format(self._boards[LEFT].board_fen(), self._boards[RIGHT].board_fen())
 
-    @bfen.setter
-    def bfen(self, value: str):
+    @fen.setter
+    def fen(self, value: str):
         fen_split = value.split("|")
-        assert len(fen_split) == 2, "bfen corrupt"
+        assert len(fen_split) == 2, "fen corrupt"
         self._boards = (SingleBughouseBoard(self, fen_split[0]), SingleBughouseBoard(self, fen_split[1]))
 
     def push(self, move: chess.Move):
