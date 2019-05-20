@@ -16,6 +16,8 @@ Changes:
   no legal en-passant capture exists.
 * Circular SVG arrows now have a `circle` CSS class.
 * Superfluous dashes (-) in EPDs are no longer treated as opcodes.
+* Removed `GameCreator`, `HeaderCreator` and `BoardCreator` aliases for
+  `{Game,Headers,Board}Builder`.
 
 Bugfixes:
 

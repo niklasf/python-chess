@@ -1343,9 +1343,3 @@ def skip_game(handle: TextIO) -> bool:
     Skip a game. Returns ``True`` if a game was found and skipped.
     """
     return bool(read_game(handle, Visitor=SkipVisitor))
-
-
-# TODO: Remove aliases
-GameCreator = GameBuilder
-HeaderCreator = HeadersBuilder
-BoardCreator = BoardBuilder
