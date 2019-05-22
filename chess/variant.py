@@ -913,6 +913,11 @@ class SingleBughouseBoard(CrazyhouseBoard):
         """
         return super().is_checkmate()
 
+    def parse_san(self, san: str) -> chess.Move:
+        move = super().parse_san(san)
+        move.board_id = self.board_index
+        return move
+
     @property
     def _other_board(self):
         return self._bughouse_boards[int(self._bughouse_boards[0] is self)]
@@ -1067,6 +1072,12 @@ class BughouseBoards:
 
         # Undetermined.
         return "*"
+
+    def parse_san(self, san: str) -> chess.Move:
+        print(san)
+        if san[0].lower() == "a":
+            return self._boards[LEFT].parse_san(san[3:])
+        return self._boards[RIGHT].parse_san(san[3:])
 
 
 VARIANTS = [

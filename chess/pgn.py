@@ -86,13 +86,12 @@ TAG_REGEX = re.compile(r"^\[([A-Za-z0-9_]+)\s+\"(.*)\"\]\s*$")
 TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9_]+\Z")
 
 MOVETEXT_REGEX = re.compile(r"""
-    (
-        [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
-        |[PNBRQK]?@[a-h][1-8]
-        |--
-        |Z0
-        |O-O(?:-O)?
-        |0-0(?:-0)?
+        (([ABab]\.\s)?[NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
+        |([ABab]\.\s)?[PNBRQK]?@[a-h][1-8]
+        |([ABab]\.\s)?--
+        |([ABab]\.\s)?Z0
+        |([ABab]\.\s)?O-O(?:-O)?
+        |([ABab]\.\s)?0-0(?:-0)?
     )
     |(\{.*)
     |(;.*)
@@ -1235,7 +1234,6 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
         if line.isspace():
             visitor.end_game()
             return visitor.result()
-
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
 
