@@ -107,7 +107,6 @@ SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 TAG_ROSTER_BUG = ["Event", "Site", "Date", "Round", "Result", "WhiteA", "WhiteB", "BlackA", "BlackB", "WhiteAElo",
                   "WhiteBElo", "BlackAElo", "BlackBElo", "TimeControl", "Lag"]
-BUGHOUSE = False;
 
 class SkipType(enum.Enum):
     SKIP = None
@@ -561,8 +560,6 @@ class Headers(MutableMapping[str, str]):
             "wild/6", "wild/7", "wild/8", "wild/8a"]
 
     def variant(self) -> Type[Union[chess.Board, BughouseBoards]]:
-        if BUGHOUSE:
-            return BughouseBoards
         if "Variant" not in self or self.is_chess960() or self.is_wild():
             return chess.Board
         else:
@@ -827,6 +824,9 @@ class GameBuilder(BaseVisitor[Game]):
             # starts before any move.
             new_comment = [self.variation_stack[-1].comment, comment]
             self.variation_stack[-1].comment = "\n".join(new_comment).strip()
+        
+            if self.game.headers.variant() == BughouseBoards and self.variation_stack[-1].move is not None:
+                self.variation_stack[-1].move.move_time = float([c for c in new_comment if len(c) > 0][0].strip().split()[0])
         else:
             # Otherwise, it is a starting comment.
             new_comment = [self.starting_comment, comment]
@@ -1120,10 +1120,7 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
     visitor = Visitor()
     # checks if file is bughouse(.bgpn) file
     bgpnpattern = re.compile(r'/(.*)+(\.bpgn)$')
-
-    if re.match(bgpnpattern, handle.name):
-        global BUGHOUSE
-        BUGHOUSE = True
+    is_bughouse = re.match(bgpnpattern, handle.name)
     found_game = False
     skipping_game = False
     headers = None
@@ -1178,6 +1175,9 @@ def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]] = G
     if not skipping_game:
         # Chess variant.
         headers = managed_headers if headers is None else headers
+
+        if is_bughouse:
+            headers['Variant'] = 'Bughouse'
         try:
             VariantBoard = headers.variant()
         except ValueError as error:

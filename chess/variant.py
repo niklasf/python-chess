@@ -952,6 +952,7 @@ class BughouseBoards:
         self._boards: Optional[Tuple[SingleBughouseBoard, SingleBughouseBoard]] = None
         self.fen = fen
         self._move_stack: List[chess.Move] = []
+        self.chess960 = chess960
 
     def reset_boards(self) -> None:
         for b in self._boards:
@@ -1079,6 +1080,11 @@ class BughouseBoards:
             return self._boards[LEFT].parse_san(san[3:])
         return self._boards[RIGHT].parse_san(san[3:])
 
+    def is_chess960(self):
+        return self.chess960
+
+    def has_chess960_castling_rights(self):
+        return self.chess960
 
 VARIANTS = [
     chess.Board,
