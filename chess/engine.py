@@ -278,7 +278,7 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-class InfoDict(Dict[str, Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]]]]):
+class InfoDict(Dict[str, Union[str, int, float, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]]]]):
     """Dictionary of extra information sent by the engine."""
 
     @property
