@@ -47,13 +47,11 @@ except ImportError:
 import chess
 
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NewType, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
 
 
 T = TypeVar("T")
 EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
-
-InfoDict = NewType("InfoDict", Dict[str, Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]]]])
 
 ConfigValue = Union[str, int, bool, None]
 ConfigMapping = Mapping[str, ConfigValue]
@@ -279,6 +277,77 @@ class Limit:
                       for attr in ["time", "depth", "nodes", "mate", "white_clock", "black_clock", "white_inc", "black_inc", "remaining_moves"]
                       if getattr(self, attr) is not None))
 
+
+class InfoDict(Dict[str, Union[str, int, float, bool, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]]]]):
+    """Dictionary of extra information sent by the engine."""
+
+    @property
+    def score(self) -> Optional["PovScore"]:
+        return self.get("score")
+
+    @property
+    def pv(self) -> Optional[List[chess.Move]]:
+        return self.get("pv")
+
+    @property
+    def depth(self) -> Optional[int]:
+        return self.get("depth")
+
+    @property
+    def seldepth(self) -> Optional[int]:
+        return self.get("seldepth")
+
+    @property
+    def time(self) -> Optional[float]:
+        return self.get("time")
+
+    @property
+    def nodes(self) -> Optional[int]:
+        return self.get("nodes")
+
+    @property
+    def nps(self) -> Optional[int]:
+        return self.get("nps")
+
+    @property
+    def tbhits(self) -> Optional[int]:
+        return self.get("tbhits")
+
+    @property
+    def multipv(self) -> Optional[int]:
+        return self.get("multipv")
+
+    @property
+    def currmove(self) -> Optional[chess.Move]:
+        return self.get("currmove")
+
+    @property
+    def currmovenumber(self) -> Optional[int]:
+        return self.get("currmovenumber")
+
+    @property
+    def hashfull(self) -> Optional[int]:
+        return self.get("hashfull")
+
+    @property
+    def cpuload(self) -> Optional[int]:
+        return self.get("cpuload")
+
+    @property
+    def refutation(self) -> Optional[Dict[chess.Move, List[chess.Move]]]:
+        return self.get("refutation")
+
+    @property
+    def currline(self) -> Optional[Dict[int, List[chess.Move]]]:
+        return self.get("currline")
+
+    @property
+    def ebf(self) -> Optional[float]:
+        return self.get("ebf")
+
+    @property
+    def string(self) -> Optional[str]:
+        return self.get("string")
 
 
 class PlayResult:
