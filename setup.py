@@ -84,7 +84,7 @@ setuptools.setup(
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
     test_suite="test",
-    python_requires=">=3.5",
+    python_requires=">=3.5.3",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
