@@ -242,7 +242,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
     def is_managed(self) -> bool:
         """
         Some options are managed automatically: ``UCI_Chess960``,
-        ``UCI_Variant``, ``UCI_AnalyseMode``, ``MultiPV``, ``Ponder``.
+        ``UCI_Variant``, ``MultiPV``, ``Ponder``.
         """
         return self.name.lower() in MANAGED_OPTIONS
 
