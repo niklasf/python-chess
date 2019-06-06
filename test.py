@@ -3858,6 +3858,8 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertIn(P_at_e6, board.generate_legal_moves())
         self.assertTrue(board.is_pseudo_legal(P_at_e6))
         self.assertTrue(board.is_legal(P_at_e6))
+        self.assertEqual(board.uci(P_at_e6), "P@e6")
+        self.assertEqual(board.san(P_at_e6), "@e6")
 
     def test_lichess_pgn(self):
         with open("data/pgn/saturs-jannlee-zh-lichess.pgn") as pgn:
