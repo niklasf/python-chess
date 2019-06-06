@@ -1,6 +1,21 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Bugfixes:
+
+* The minimum Python version is 3.5.3 (instead of 3.5.0).
+* Fix `board.is_irreversible()` when capturing a rook that had castling rights.
+
+Changes:
+
+* `is_en_passant()`, `is_capture()`, `is_zeroing()`, `is_irreversible()`,
+  `is_castling()`, `is_kingside_castling()` and `is_queenside_castling()`
+  now consistently return `False` for null moves.
+* Added `chess.engine.InfoDict` class with typed shorthands for common keys.
+
 New in v0.28.0
 --------------
 
