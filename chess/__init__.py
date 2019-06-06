@@ -2885,15 +2885,17 @@ class Board(BaseBoard):
 
     def is_capture(self, move: Move) -> bool:
         """Checks if the given pseudo-legal move is a capture."""
-        return bool(BB_SQUARES[move.to_square] & self.occupied_co[not self.turn]) or self.is_en_passant(move)
+        touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
+        return bool(touched & self.occupied_co[not self.turn]) or self.is_en_passant(move)
 
     def is_zeroing(self, move: Move) -> bool:
         """Checks if the given pseudo-legal move is a capture or pawn move."""
-        return bool(BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn])
+        touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
+        return bool(touched & self.pawns or touched & self.occupied_co[not self.turn])
 
     def _reduces_castling_rights(self, move: Move) -> bool:
         cr = self.clean_castling_rights()
-        touched = BB_SQUARES[move.from_square] | BB_SQUARES[move.to_square]
+        touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
         return bool(cr and (touched & self.kings & ~self.promoted or touched & cr))
 
     def is_irreversible(self, move: Move) -> bool:
