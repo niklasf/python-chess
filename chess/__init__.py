@@ -492,14 +492,6 @@ class Move:
     def __hash__(self) -> int:
         return hash((self.to_square, self.from_square, self.promotion, self.drop))
 
-    def __copy__(self) -> "Move":
-        return type(self)(self.from_square, self.to_square, self.promotion, self.drop)
-
-    def __deepcopy__(self, memo: Dict[int, object]) -> "Move":
-        move = self.__copy__()
-        memo[id(self)] = move
-        return move
-
     @classmethod
     def from_uci(cls, uci: str) -> "Move":
         """
