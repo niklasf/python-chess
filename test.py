@@ -958,6 +958,9 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
         self.assertEqual(board.epd(noop=None), "4k3/8/8/8/8/8/8/4K3 w - - noop;")
 
+        # Create an EPD with numbers.
+        self.assertEqual(board.epd(pi=3.14), "4k3/8/8/8/8/8/8/4K3 w - - pi 3.14;")
+
         # Create an EPD with a variation.
         board = chess.Board("k7/8/8/8/8/8/4PPPP/4K1NR w K - 0 1")
         epd = board.epd(pv=[
