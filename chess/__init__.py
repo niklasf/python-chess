@@ -2892,11 +2892,9 @@ class Board(BaseBoard):
         return bool(BB_SQUARES[move.from_square] & self.pawns or BB_SQUARES[move.to_square] & self.occupied_co[not self.turn])
 
     def _reduces_castling_rights(self, move: Move) -> bool:
-        backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
-        cr = self.clean_castling_rights() & backrank
-        return bool(cr and (BB_SQUARES[move.from_square] | BB_SQUARES[move.to_square]) & self.kings & ~self.promoted or
-                    cr & BB_SQUARES[move.from_square] or
-                    cr & BB_SQUARES[move.to_square])
+        cr = self.clean_castling_rights()
+        touched = BB_SQUARES[move.from_square] | BB_SQUARES[move.to_square]
+        return bool(cr and (touched & self.kings & ~self.promoted or touched & cr))
 
     def is_irreversible(self, move: Move) -> bool:
         """

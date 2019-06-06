@@ -1540,6 +1540,15 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.board_fen(), "rkrnnqbb/pppppppp/8/8/8/8/PPPPPPPP/RKRNNQBB")
         self.assertEqual(board.chess960_pos(), 959)
 
+    def test_is_irreversible(self):
+        board = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1")
+        self.assertTrue(board.is_irreversible(board.parse_san("Ra2")))
+        self.assertTrue(board.is_irreversible(board.parse_san("O-O-O")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Kd1")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxa8")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxh8")))
+        self.assertFalse(board.is_irreversible(board.parse_san("Rf1")))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
@@ -3925,6 +3934,15 @@ class CrazyhouseTestCase(unittest.TestCase):
         self.assertEqual(str(board.root().pockets[chess.BLACK]), black_pocket)
         self.assertEqual(str(board.copy().root().pockets[chess.WHITE]), white_pocket)
         self.assertEqual(str(board.copy().root().pockets[chess.BLACK]), black_pocket)
+
+    def test_zh_is_irreversible(self):
+        board = chess.variant.CrazyhouseBoard("r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1")
+        self.assertTrue(board.is_irreversible(board.parse_san("Ra2")))
+        self.assertTrue(board.is_irreversible(board.parse_san("O-O-O")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Kd1")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxa8")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxh8")))
+        self.assertFalse(board.is_irreversible(board.parse_san("Rf1")))
 
 
 class GiveawayTestCase(unittest.TestCase):
