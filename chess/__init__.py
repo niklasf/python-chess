@@ -50,6 +50,9 @@ PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 def piece_symbol(piece_type: PieceType, _PIECE_SYMBOLS: List[Optional[str]] = PIECE_SYMBOLS) -> str:
     return typing.cast(str, _PIECE_SYMBOLS[piece_type])
 
+def piece_name(piece_type: PieceType) -> str:
+    return typing.cast(str, PIECE_NAMES[piece_type])
+
 UNICODE_PIECE_SYMBOLS = {
     "R": u"♖", "r": u"♜",
     "N": u"♘", "n": u"♞",
