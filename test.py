@@ -1550,6 +1550,14 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.is_irreversible(board.parse_san("Rf1")))
         self.assertFalse(board.is_irreversible(chess.Move.null()))
 
+        board.set_castling_fen("kq")
+        self.assertFalse(board.is_irreversible(board.parse_san("Ra2")))
+        self.assertFalse(board.is_irreversible(board.parse_san("Kd1")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxa8")))
+        self.assertTrue(board.is_irreversible(board.parse_san("Rxh8")))
+        self.assertFalse(board.is_irreversible(board.parse_san("Rf1")))
+        self.assertFalse(board.is_irreversible(chess.Move.null()))
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 

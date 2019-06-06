@@ -2896,7 +2896,9 @@ class Board(BaseBoard):
     def _reduces_castling_rights(self, move: Move) -> bool:
         cr = self.clean_castling_rights()
         touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
-        return bool(cr and (touched & self.kings & ~self.promoted or touched & cr))
+        return bool(touched & cr or
+                    cr & BB_RANK_1 and touched & self.kings & self.occupied_co[WHITE] & ~self.promoted or
+                    cr & BB_RANK_8 and touched & self.kings & self.occupied_co[BLACK] & ~self.promoted)
 
     def is_irreversible(self, move: Move) -> bool:
         """
