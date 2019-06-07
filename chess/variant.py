@@ -488,7 +488,7 @@ class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], chess._BoardState["ThreeC
 
 class ThreeCheckBoard(chess.Board):
 
-    aliases = ["Three-check", "Three check", "Threecheck", "Three check chess"]
+    aliases = ["Three-check", "Three check", "Threecheck", "Three check chess", "3-check"]
     uci_variant = "3check"
     xboard_variant = "3check"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
