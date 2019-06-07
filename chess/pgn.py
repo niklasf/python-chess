@@ -509,12 +509,13 @@ class Game(GameNode):
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
-        return "<{} at {:#x} ({!r} vs. {!r}, {!r})>".format(
+        return "<{} at {:#x} ({!r} vs. {!r}, {!r}{})>".format(
             type(self).__name__,
             id(self),
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
-            self.headers.get("Date", "????.??.??"))
+            self.headers.get("Date", "????.??.??"),
+            ", {} errors".format(len(self.errors)) if self.errors else "")
 
 
 HeadersT = TypeVar("HeadersT", bound="Headers")
