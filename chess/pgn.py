@@ -832,6 +832,31 @@ class GameBuilder(BaseVisitor):
         """
         Populates :data:`chess.pgn.Game.errors` with encountered errors and
         logs them.
+
+        You can silence the log and handle errors yourself, after parsing:
+
+        >>> import chess.pgn
+        >>> import logging
+        >>>
+        >>> logging.getLogger("chess.pgn").setLevel(logging.CRITICAL)
+        >>>
+        >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
+        >>>
+        >>> game = chess.pgn.read_game(pgn)
+        >>> game.errors  # List of exceptions
+        []
+
+        You can also override this method to hook into error handling:
+
+        >>> import chess.pgn
+        >>>
+        >>> class MyGameBuilder(chess.pgn.GameBuilder):
+        >>>     def handle_error(self, error):
+        >>>         pass  # Ignore error
+        >>>
+        >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
+        >>>
+        >>> game = chess.pgn.read_game(pgn, Visitor=MyGameBuilder)
         """
         LOGGER.exception("error during pgn parsing")
         self.game.errors.append(error)
@@ -1099,9 +1124,9 @@ def read_game(handle: TextIO, *, Visitor=GameBuilder):
     headers just fine.
 
     The parser is relatively forgiving when it comes to errors. It skips over
-    tokens it can not parse. Any exceptions are logged and collected in
-    :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can be
-    :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
+    tokens it can not parse. By default, any exceptions are logged and
+    collected in :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can
+    be :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
