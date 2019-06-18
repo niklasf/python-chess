@@ -88,15 +88,15 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
 
 
 def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
-    t = ET.Element("text", {
-        "x": str(x + width // 2),
-        "y": str(y + height // 2),
-        "font-size": str(max(1, int(min(width, height) * 0.7))),
-        "text-anchor": "middle",
-        "alignment-baseline": "middle",
+    coordinates = ET.Element("text",
+                             {"x": str(x + width // 2),
+                              "y": str(y + height // 2),
+                              "font-size": str(max(1, int(min(width, height) * 0.7))),
+                              "text-anchor": "middle",
+                              "alignment-baseline": "middle",
     })
-    t.text = content
-    return t
+    coordinates.text = content
+    return coordinates
 
 
 def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
