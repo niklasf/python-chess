@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in the next release
-----------------------------
+New in v0.28.1
+--------------
 
 Bugfixes:
 
@@ -15,6 +15,7 @@ Changes:
   `is_castling()`, `is_kingside_castling()` and `is_queenside_castling()`
   now consistently return `False` for null moves.
 * Added `chess.engine.InfoDict` class with typed shorthands for common keys.
+* Support `[Variant "3-check"]` (from chess.com PGNs).
 
 New in v0.28.0
 --------------
