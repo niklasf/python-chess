@@ -1345,7 +1345,7 @@ class Board(BaseBoard):
     unless otherwise specified in the optional *fen* argument.
     If *fen* is ``None``, an empty board is created.
 
-    Optionally supports *chess960*. In Chess960 castling moves are encoded
+    Optionally supports *chess960*. In Chess960, castling moves are encoded
     by a king move to the corresponding rook square.
     Use :func:`chess.Board.from_chess960_pos()` to create a board with one
     of the Chess960 starting positions.
