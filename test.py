@@ -2849,16 +2849,15 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("uci", ["uciok"])
             await protocol.initialize()
 
-            # Think.
+            # Iota writes invalid \0 character in old version.
             mock.expect("ucinewgame")
             mock.expect("isready", ["readyok"])
             mock.expect("position startpos moves d2d4")
             mock.expect("go movetime 5000", ["bestmove e7e6\0"])
             board = chess.Board()
             board.push_uci("d2d4")
-            result = await protocol.play(board, chess.engine.Limit(time=5.0))
-            self.assertEqual(result.move, chess.Move.from_uci("e7e6"))
-            self.assertEqual(result.ponder, None)
+            with self.assertRaises(chess.engine.EngineError):
+                await protocol.play(board, chess.engine.Limit(time=5.0))
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
