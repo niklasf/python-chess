@@ -2840,6 +2840,32 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    def test_iota_log(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+
+            # Think.
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos moves d2d4")
+            mock.expect("go movetime 5000", ["bestmove e7e6\0"])
+            board = chess.Board()
+            board.push_uci("d2d4")
+            result = await protocol.play(board, chess.engine.Limit(time=5.0))
+            self.assertEqual(result.move, chess.Move.from_uci("e7e6"))
+            self.assertEqual(result.ponder, None)
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
+            loop.run_until_complete(main())
+
     def test_uci_analyse_mode(self):
         async def main():
             protocol = chess.engine.UciProtocol()
@@ -3982,6 +4008,6 @@ if __name__ == "__main__":
 
     raise_log_handler = RaiseLogHandler()
     raise_log_handler.setLevel(logging.ERROR)
-    logging.getLogger().addHandler(raise_log_handler)
+    # XXX logging.getLogger().addHandler(raise_log_handler)
 
     unittest.main()
