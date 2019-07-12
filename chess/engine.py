@@ -1263,36 +1263,35 @@ class UciProtocol(EngineProtocol):
                     self.info.update(_parse_uci_info(arg, engine.board, info))
 
             def _bestmove(self, engine: UciProtocol, arg: str) -> None:
-                try:
-                    if self.pondering:
-                        self.pondering = False
-                    elif not self.result.cancelled():
-                        tokens = arg.split(None, 2)
+                if self.pondering:
+                    self.pondering = False
+                elif not self.result.cancelled():
+                    tokens = arg.split(None, 2)
 
-                        bestmove = None
-                        if tokens[0] != "(none)":
-                            try:
-                                bestmove = engine.board.parse_uci(tokens[0])
-                            except ValueError as err:
-                                raise EngineError(err)
+                    bestmove = None
+                    if tokens[0] != "(none)":
+                        try:
+                            bestmove = engine.board.parse_uci(tokens[0])
+                        except ValueError as err:
+                            raise EngineError(err)
 
-                        pondermove = None
-                        if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-                            engine.board.push(bestmove)
-                            try:
-                                pondermove = engine.board.push_uci(tokens[2])
-                            except ValueError:
-                                LOGGER.exception("engine sent invalid ponder move")
+                    pondermove = None
+                    if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+                        engine.board.push(bestmove)
+                        try:
+                            pondermove = engine.board.push_uci(tokens[2])
+                        except ValueError:
+                            LOGGER.exception("engine sent invalid ponder move")
 
-                        self.result.set_result(PlayResult(bestmove, pondermove, self.info))
+                    self.result.set_result(PlayResult(bestmove, pondermove, self.info))
 
-                        if ponder and pondermove:
-                            self.pondering = True
-                            engine._position(engine.board)
-                            engine._go(limit, ponder=True)
-                finally:
-                    if not self.pondering:
-                        self.end(engine)
+                    if ponder and pondermove:
+                        self.pondering = True
+                        engine._position(engine.board)
+                        engine._go(limit, ponder=True)
+
+                if not self.pondering:
+                    self.end(engine)
 
             def end(self, engine: UciProtocol) -> None:
                 self.set_finished()

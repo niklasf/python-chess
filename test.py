@@ -4008,6 +4008,6 @@ if __name__ == "__main__":
 
     raise_log_handler = RaiseLogHandler()
     raise_log_handler.setLevel(logging.ERROR)
-    # XXX logging.getLogger().addHandler(raise_log_handler)
+    logging.getLogger().addHandler(raise_log_handler)
 
     unittest.main()
