@@ -386,6 +386,21 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
+class Time:
+    """keeps time at the beginning of the game"""
+    Starting_Time = int(round(time.time()))
+    
+    """returns the current running time"""
+    def get_time(self) -> str:
+        playing_time = int(round(time.time())) - self.Starting_Time
+
+        hours = playing_time / 3600
+        less_than_an_hour = playing_time % 3600
+        minutes = less_than_an_hour / 60
+        seconds = less_than_an_hour % 60
+
+        Time = 'hours: %d minutes: %d seconds: %d' % (hours, minutes, seconds)
+        return Time
 
 class Piece:
     """A piece with type and color."""
