@@ -508,11 +508,13 @@ class Move:
             drop = PIECE_SYMBOLS.index(uci[0].lower())
             square = SQUARE_NAMES.index(uci[2:])
             return cls(square, square, drop=drop)
-        elif len(uci) == 4:
-            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]))
-        elif len(uci) == 5:
-            promotion = PIECE_SYMBOLS.index(uci[4])
-            return cls(SQUARE_NAMES.index(uci[0:2]), SQUARE_NAMES.index(uci[2:4]), promotion=promotion)
+        elif 4 <= len(uci) <= 5:
+            from_square = SQUARE_NAMES.index(uci[0:2])
+            to_square = SQUARE_NAMES.index(uci[2:4])
+            promotion = PIECE_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
+            if from_square == to_square:
+                raise ValueError("invalid uci (use 0000 for null moves): {!r}".format(uci))
+            return cls(from_square, to_square, promotion=promotion)
         else:
             raise ValueError("expected uci string to be of length 4 or 5: {!r}".format(uci))
 
