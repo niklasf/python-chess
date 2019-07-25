@@ -1,6 +1,19 @@
 Changelog for python-chess
 ==========================
 
+New in v0.28.2
+--------------
+
+Bugfixes:
+
+* Fixed exception propagation, when an UCI engine sends an invalid `bestmove`.
+  Thanks @fsmosca.
+
+Changes:
+
+* `chess.Move.from_uci()` no longer accepts moves from and to the same square,
+  for example `a1a1`. `0000` is now the only valid null move notation.
+
 New in v0.28.1
 --------------
 
