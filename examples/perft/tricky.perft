@@ -77,3 +77,21 @@ perft 1 19
 perft 2 628
 perft 3 12858
 perft 4 405636
+
+#
+# Source: http://talkchess.com/forum3/viewtopic.php?f=7&t=71379
+#
+
+id gotta-love-perft-1
+epd 8/ppp3p1/8/8/3p4/5Q2/1ppp2K1/brk4n w - -
+perft 1 27
+perft 2 390
+perft 3 9354
+perft 4 134167
+
+id gotta-love-perft-2
+epd 8/6kR/8/8/8/bq6/1rqqqqqq/K1nqnbrq b - -
+perft 1 7
+perft 2 52
+perft 3 4593
+perft 4 50268
