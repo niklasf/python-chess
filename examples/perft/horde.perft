@@ -4,3 +4,17 @@ perft 1 8
 perft 2 128
 perft 3 1274
 perft 4 23310
+
+id horde-open-flank
+epd 4k3/pp4q1/3P2p1/8/P3PP2/PPP2r2/PPP5/PPPP4 b - -
+perft 1 30
+perft 2 241
+perft 3 6633
+perft 4 56539
+
+id horde-en-passant
+epd k7/5p2/4p2P/3p2P1/2p2P2/1p2P2P/p2P2P1/2P2P2 w - -
+perft 1 13
+perft 2 172
+perft 3 2205
+perft 4 33781
