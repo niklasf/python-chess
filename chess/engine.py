@@ -31,6 +31,7 @@ import sys
 import threading
 import typing
 import os
+import re
 
 try:
     # Python 3.7
@@ -1545,6 +1546,9 @@ class UciOptionMap(MutableMapping[str, T]):
         return "{}({!r})".format(type(self).__name__, dict(self.items()))
 
 
+XBOARD_ERROR_REGEX = re.compile(r"^\s*(Error|Illegal move)(\s*\([^()]+\))?\s*:")
+
+
 class XBoardProtocol(EngineProtocol):
     """
     An implementation of the
@@ -1585,6 +1589,8 @@ class XBoardProtocol(EngineProtocol):
                     pass
                 elif line.startswith("feature "):
                     self._feature(engine, line.split(" ", 1)[1])
+                elif XBOARD_ERROR_REGEX.match(line):
+                    raise EngineError(line)
 
             def _feature(self, engine: XBoardProtocol, arg: str) -> None:
                 for feature in shlex.split(arg):
@@ -1729,6 +1735,8 @@ class XBoardProtocol(EngineProtocol):
                     self.set_finished()
                 elif not line.startswith("#"):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                elif XBOARD_ERROR_REGEX.match(line):
+                    raise EngineError(line)
 
         return await self.communicate(Command)
 
@@ -1803,6 +1811,8 @@ class XBoardProtocol(EngineProtocol):
                     self._ping_after_move(engine)
                 elif line.startswith("#"):
                     pass
+                elif XBOARD_ERROR_REGEX.match(line):
+                    raise EngineError(line)
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
                     self._post(engine, line)
                 else:
@@ -1903,6 +1913,8 @@ class XBoardProtocol(EngineProtocol):
                     self._post(engine, line)
                 elif line == self.final_pong:
                     self.end(engine)
+                elif XBOARD_ERROR_REGEX.match(line):
+                    raise EngineError(line)
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 

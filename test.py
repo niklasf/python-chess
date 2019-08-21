@@ -3152,6 +3152,27 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    def test_xboard_error(self):
+        async def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["Error (failed to initialize): Too bad ..."])
+            with self.assertRaises(chess.engine.EngineError):
+                await protocol.initialize()
+
+            with self.assertRaises(chess.engine.EngineError):
+                # Trying to use engine, but it was not successfully initialized.
+                await protocol.ping()
+
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        with contextlib.closing(asyncio.get_event_loop()) as loop:
+            loop.set_debug(True)
+            loop.run_until_complete(main())
+
     @catchAndSkip(FileNotFoundError, "need /bin/sh")
     def test_transport_close_with_pending(self):
         async def main():
