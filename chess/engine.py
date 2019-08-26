@@ -1812,7 +1812,7 @@ class XBoardProtocol(EngineProtocol):
                 elif line.startswith("#"):
                     pass
                 elif XBOARD_ERROR_REGEX.match(line):
-                    engine.first_game = True  # Board state might be no longer in sync
+                    engine.first_game = True  # Board state might no longer be in sync
                     raise EngineError(line)
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
                     self._post(engine, line)
@@ -1915,7 +1915,7 @@ class XBoardProtocol(EngineProtocol):
                 elif line == self.final_pong:
                     self.end(engine)
                 elif XBOARD_ERROR_REGEX.match(line):
-                    engine.first_game = True  # Board state might be no longer in sync
+                    engine.first_game = True  # Board state might no longer be in sync
                     raise EngineError(line)
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
