@@ -31,12 +31,17 @@ id atomic960-castle-2
 epd r3k1rR/5K2/8/8/8/8/8/8 b kq -
 perft 1 25
 perft 2 282
-perft 3 6746
-perft 4 98644
-perft 5 2585160
+perft 3 6753
+perft 4 98729
+perft 5 2587730
 
 id atomic960-castle-3
 epd Rr2k1rR/3K4/3p4/8/8/8/7P/8 w kq -
+perft 1 21
+perft 2 465
+perft 3 10631
+perft 4 241478
+perft 5 5800275
 
 id shakmaty-bench
 epd rn2kb1r/1pp1p2p/p2q1pp1/3P4/2P3b1/4PN2/PP3PPP/R2QKB1R b KQkq -
