@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+New in v0.28.3
+--------------
+
+Bugfixes:
+
+* Follow FICS rules in Atomic castling edge cases.
+* Handle self-reported errors by XBoard engines "Error: ..." or
+  "Illegal move: ...".
+
 New in v0.28.2
 --------------
 
