@@ -3695,6 +3695,22 @@ class AtomicTestCase(unittest.TestCase):
         board.push_san("O-O")
         self.assertEqual(board.fen(), "5b1r/1p5p/4ppp1/4Bn2/1PPP1PP1/4P2P/3k4/5RK1 b - - 2 1")
 
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/4k3/R3K2q w Q - 0 1")
+        board.push_san("O-O-O")
+        self.assertEqual(board.fen(), "8/8/8/8/8/8/4k3/2KR3q b - - 1 1")
+
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/5k2/R3K2r w Q - 0 1")
+        with self.assertRaises(ValueError):
+            board.push_san("O-O-O")
+
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/6k1/R5Kr w Q - 0 1", chess960=True)
+        with self.assertRaises(ValueError):
+            board.push_san("O-O-O")
+
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/4k3/r2RK2r w D - 0 1", chess960=True)
+        with self.assertRaises(ValueError):
+            board.push_san("O-O-O")
+
     def test_lone_king_wdl(self):
         tables = chess.syzygy.Tablebase(VariantBoard=chess.variant.AtomicBoard)
         board = chess.variant.AtomicBoard.empty()
