@@ -3285,13 +3285,6 @@ class Board(BaseBoard):
     def _attacked_for_king(self, path: Bitboard, occupied: Bitboard) -> bool:
         return any(self._attackers_mask(not self.turn, sq, occupied) for sq in scan_reversed(path))
 
-    def _castling_uncovers_rank_attack(self, rook_bb: Bitboard, king_to: Square) -> bool:
-        # Test the special case where we castle and our rook shielded us from
-        # an attack, so castling would be into check.
-        rank_pieces = BB_RANK_MASKS[king_to] & (self.occupied ^ rook_bb)
-        sliders = (self.queens | self.rooks) & self.occupied_co[not self.turn]
-        return bool(BB_RANK_ATTACKS[king_to][rank_pieces] & sliders)
-
     def generate_castling_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():
             return
@@ -3299,7 +3292,7 @@ class Board(BaseBoard):
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
         king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
         king = king & -king
-        if not king or self._attacked_for_king(king, self.occupied):
+        if not king:
             return
 
         bb_c = BB_FILE_C & backrank
@@ -3311,26 +3304,15 @@ class Board(BaseBoard):
             rook = BB_SQUARES[candidate]
 
             a_side = rook < king
+            king_to = bb_c if a_side else bb_g
+            rook_to = bb_d if a_side else bb_f
 
-            empty_for_rook = 0
-            empty_for_king = 0
+            king_path = BB_BETWEEN[msb(king)][msb(king_to)]
+            rook_path = BB_BETWEEN[candidate][msb(rook_to)]
 
-            if a_side:
-                king_to = msb(bb_c)
-                if not rook & bb_d:
-                    empty_for_rook = BB_BETWEEN[candidate][msb(bb_d)] | bb_d
-                if not king & bb_c:
-                    empty_for_king = BB_BETWEEN[msb(king)][king_to] | bb_c
-            else:
-                king_to = msb(bb_g)
-                if not rook & bb_f:
-                    empty_for_rook = BB_BETWEEN[candidate][msb(bb_f)] | bb_f
-                if not king & bb_g:
-                    empty_for_king = BB_BETWEEN[msb(king)][king_to] | bb_g
-
-            if not ((self.occupied ^ king ^ rook) & (empty_for_king | empty_for_rook) or
-                    self._attacked_for_king(empty_for_king, self.occupied ^ king) or
-                    self._castling_uncovers_rank_attack(rook, king_to)):
+            if not ((self.occupied ^ king ^ rook) & (king_path | rook_path | king_to | rook_to) or
+                    self._attacked_for_king(king_path | king, self.occupied ^ king) or
+                    self._attacked_for_king(king_to, self.occupied ^ king ^ rook ^ rook_to)):
                 yield self._from_chess960(self.chess960, msb(king), candidate)
 
     def _from_chess960(self, chess960: bool, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> Move:
