@@ -150,10 +150,9 @@ class SuicideBoard(chess.Board):
 
 class GiveawayBoard(SuicideBoard):
 
-    aliases = ["Giveaway", "Giveaway chess", "Anti", "Antichess", "Anti chess"]
+    aliases = ["Giveaway", "Giveaway chess", "Give away", "Give away chess"]
     uci_variant = "giveaway"
     xboard_variant = "giveaway"
-    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
     tbw_suffix = ".gtbw"
     tbz_suffix = ".gtbz"
@@ -164,13 +163,6 @@ class GiveawayBoard(SuicideBoard):
     pawnless_tbw_magic = b"\x7b\xf6\x93\x15"
     pawnless_tbz_magic = b"\xe4\xcf\xe7\x23"
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
-        super().__init__(fen, chess960=chess960)
-
-    def reset(self) -> None:
-        super().reset()
-        self.castling_rights = chess.BB_EMPTY
-
     def is_variant_win(self) -> bool:
         return not self.occupied_co[self.turn] or self.is_stalemate()
 
@@ -179,6 +171,19 @@ class GiveawayBoard(SuicideBoard):
 
     def is_variant_draw(self) -> bool:
         return False
+
+
+class AntichessBoard(GiveawayBoard):
+
+    aliases = ["Antichess", "Anti chess", "Anti"]
+    starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
+
+    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+        super().__init__(fen, chess960=chess960)
+
+    def reset(self) -> None:
+        super().reset()
+        self.castling_rights = chess.BB_EMPTY
 
 
 class AtomicBoard(chess.Board):
@@ -838,7 +843,7 @@ class CrazyhouseBoard(chess.Board):
 
 VARIANTS = [
     chess.Board,
-    SuicideBoard, GiveawayBoard,
+    SuicideBoard, GiveawayBoard, AntichessBoard,
     AtomicBoard,
     KingOfTheHillBoard,
     RacingKingsBoard,
