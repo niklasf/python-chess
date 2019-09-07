@@ -1904,7 +1904,7 @@ class Board(BaseBoard):
                 if count <= 1:
                     return True
 
-                if not self.move_stack:
+                if len(self.move_stack) < count - 1:
                     break
 
                 move = self.pop()
