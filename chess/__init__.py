@@ -1885,6 +1885,17 @@ class Board(BaseBoard):
         game has to be replayed because there is no incremental transposition
         table.
         """
+        # Fast check, based on occupancy only.
+        maybe_repetitions = 1
+        for state in reversed(self._stack):
+            if state.occupied == self.occupied:
+                maybe_repetitions += 1
+                if maybe_repetitions >= count:
+                    break
+        else:
+            return False
+
+        # Check full replay.
         transposition_key = self._transposition_key()
         switchyard = []
 
