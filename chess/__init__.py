@@ -1680,15 +1680,12 @@ class Board(BaseBoard):
         if not any(self.generate_legal_moves()):
             return True
 
-        # Fivefold repetition.
-        if self.is_fivefold_repetition():
-            return True
-
-        # Claim draw.
-        if claim_draw and self.can_claim_draw():
-            return True
-
-        return False
+        if claim_draw:
+            # Claim draw, including by three-fold repetition.
+            return self.can_claim_draw()
+        else:
+            # Five-fold repetition.
+            return self.is_fivefold_repetition()
 
     def result(self, *, claim_draw: bool = False) -> str:
         """
@@ -1808,24 +1805,7 @@ class Board(BaseBoard):
         Originally this had to occur on consecutive alternating moves, but
         this has since been revised.
         """
-        transposition_key = self._transposition_key()
-        repetitions = 1
-        switchyard = []
-
-        while self.move_stack and repetitions < 5:
-            move = self.pop()
-            switchyard.append(move)
-
-            if self.is_irreversible(move):
-                break
-
-            if self._transposition_key() == transposition_key:
-                repetitions += 1
-
-        while switchyard:
-            self.push(switchyard.pop())
-
-        return repetitions >= 5
+        return self.is_repetition(5)
 
     def can_claim_draw(self) -> bool:
         """
