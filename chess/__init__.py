@@ -1558,11 +1558,10 @@ class Board(BaseBoard):
         if king is None:
             return False
 
+        # If already in check, look if it is an evasion.
         checkers = self.attackers_mask(not self.turn, king)
-        if checkers:
-            # If already in check, look if it is an evasion.
-            if move not in self._generate_evasions(king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
-                return True
+        if checkers and move not in self._generate_evasions(king, checkers, BB_SQUARES[move.from_square], BB_SQUARES[move.to_square]):
+            return True
 
         return not self._is_safe(king, self._slider_blockers(king), move)
 
