@@ -1215,6 +1215,9 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.is_fivefold_repetition())
         self.assertEqual(board.fen().split()[0], fen.split()[0])
 
+    def test_trivial_is_repetition(self):
+        self.assertTrue(chess.Board().is_repetition(1))
+
     def test_fifty_moves(self):
         # Test positions from Timman - Lutz (1995).
         board = chess.Board()

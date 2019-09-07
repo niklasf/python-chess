@@ -1891,7 +1891,7 @@ class Board(BaseBoard):
                 maybe_repetitions += 1
                 if maybe_repetitions >= count:
                     break
-        else:
+        if maybe_repetitions < count:
             return False
 
         # Check full replay.
