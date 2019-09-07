@@ -176,6 +176,7 @@ class GiveawayBoard(SuicideBoard):
 class AntichessBoard(GiveawayBoard):
 
     aliases = ["Antichess", "Anti chess", "Anti"]
+    uci_variant = "antichess"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:

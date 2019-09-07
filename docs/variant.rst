@@ -25,6 +25,7 @@ Variant          Board class                               UCI/XBoard    Syzygy
 Standard         :class:`chess.Board`                      chess/normal  .rtbw, .rtbz
 Suicide          :class:`chess.variant.SuicideBoard`       suicide       .stbw, .stbz
 Giveaway         :class:`chess.variant.GiveawayBoard`      giveaway      .gtbw, .gtbz
+Antichess        :class:`chess.variant.AntichessBoard`     antichess     .gtbw, .gtbz
 Atomic           :class:`chess.variant.AtomicBoard`        atomic        .atbw, .atbz
 King of the Hill :class:`chess.variant.KingOfTheHillBoard` kingofthehill
 Racing Kings     :class:`chess.variant.RacingKingsBoard`   racingkings
