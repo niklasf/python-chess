@@ -203,8 +203,8 @@ Example: Stream information from the engine and stop on an arbitrary condition.
         for info in analysis:
             print(info.get("score"), info.get("pv"))
 
-            # Unusual stop condition.
-            if info.get("hashfull", 0) > 900:
+            # Arbitrary stop condition.
+            if info.get("seldepth", 0) > 20:
                 break
 
     engine.quit()
@@ -222,8 +222,8 @@ Example: Stream information from the engine and stop on an arbitrary condition.
             async for info in analysis:
                 print(info.get("score"), info.get("pv"))
 
-                # Unusual stop condition.
-                if info.get("hashfull", 0) > 900:
+                # Arbitrary stop condition.
+                if info.get("seldepth", 0) > 20:
                     break
 
         await engine.quit()
