@@ -325,6 +325,12 @@ class MemoryMappedReader:
         except (ValueError, mmap.error):  # type: ignore
             self.mmap = _EmptyMmap()  # Workaround for empty opening books.
 
+        try:
+            # Python 3.8
+            self.mmap.madvise(mmap.MADV_RANDOM)
+        except AttributeError:
+            pass
+
     def __enter__(self) -> "MemoryMappedReader":
         return self
 

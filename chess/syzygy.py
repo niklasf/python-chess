@@ -610,6 +610,12 @@ class Table:
             if self.data is None:
                 self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
 
+                try:
+                    # Python 3.8
+                    self.data.madvise(mmap.MADV_RANDOM)
+                except AttributeError:
+                    pass
+
     def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> bool:
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[:min(4, len(self.data))] not in valid_magics:
