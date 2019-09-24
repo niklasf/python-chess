@@ -306,6 +306,14 @@ class Entry(collections.namedtuple("Entry", "key raw_move weight learn move")):
     __slots__ = ()
 
 
+class _EmptyMmap(bytearray):
+    def size(self):
+        return 0
+
+    def close(self):
+        pass
+
+
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
@@ -315,8 +323,7 @@ class MemoryMappedReader:
         try:
             self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)  # type: Optional[mmap.mmap]
         except (ValueError, mmap.error):  # type: ignore
-            # Can not memory map empty opening books.
-            self.mmap = None
+            self.mmap = _EmptyMmap()  # Workaround for empty opening books.
 
     def __enter__(self) -> "MemoryMappedReader":
         return self
@@ -325,15 +332,9 @@ class MemoryMappedReader:
         return self.close()
 
     def __len__(self) -> int:
-        if self.mmap is None:
-            return 0
-        else:
-            return self.mmap.size() // ENTRY_STRUCT.size
+        return self.mmap.size() // ENTRY_STRUCT.size
 
     def __getitem__(self, index: int) -> Entry:
-        if self.mmap is None:
-            raise IndexError()
-
         if index < 0:
             index = len(self) + index
 
@@ -483,8 +484,7 @@ class MemoryMappedReader:
 
     def close(self) -> None:
         """Closes the reader."""
-        if self.mmap is not None:
-            self.mmap.close()
+        self.mmap.close()
 
         try:
             os.close(self.fd)
