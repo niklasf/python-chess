@@ -786,11 +786,26 @@ class BaseBoard:
         """
         return SquareSet(self.pin_mask(color, square))
 
+
     def is_pinned(self, color: Color, square: Square) -> bool:
         """
         Detects if the given square is pinned to the king of the given color.
         """
         return self.pin_mask(color, square) != BB_ALL
+
+    def pinners(self,color: Color, square: Square) -> "SquareSet":
+        """
+        Gets the set of pinners squares from the given square.
+
+        If the given square is empty or not pinned to the king of the given color it will return an empty set of squares.
+
+        Returns a :class:`set of squares <chess.SquareSet>`.
+        """
+        if self.is_pinned(color, square):
+            return SquareSet.intersection(self.attackers(not color,square),self.pin(color,square))
+        else:
+            return SquareSet(BB_EMPTY)
+
 
     def _remove_piece_at(self, square: Square) -> Optional[PieceType]:
         piece_type = self.piece_type_at(square)
@@ -3789,3 +3804,13 @@ class SquareSet:
         True
         """
         return cls(BB_SQUARES[square])
+
+
+
+
+
+
+
+
+
+
