@@ -1415,6 +1415,13 @@ class BoardTestCase(unittest.TestCase):
 
         self.assertEqual(chess.Board(None).pin(chess.WHITE, chess.F7), chess.BB_ALL)
 
+        self.assertEqual(board.pinners(chess.WHITE, chess.F2),chess.BB_H4)
+        self.assertEqual(board.pinners(chess.BLACK, chess.F2),chess.BB_EMPTY)
+
+        self.assertEqual(board.pinners(chess.WHITE, chess.D2),chess.BB_B4)
+        self.assertEqual(board.pinners(chess.WHITE, chess.H8),chess.BB_EMPTY)
+
+
     def test_pin_in_check(self):
         # The knight on the eighth rank is on the outer side of the rank attack.
         board = chess.Board("1n1R2k1/2b1qpp1/p3p2p/1p6/1P2Q2P/4PNP1/P4PB1/6K1 b - - 0 1")
