@@ -137,7 +137,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
             self.get_child_watcher().attach_loop(loop)
 
 
-def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
+def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
