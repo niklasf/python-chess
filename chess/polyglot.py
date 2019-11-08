@@ -25,7 +25,7 @@ import random
 import typing
 
 from types import TracebackType
-from typing import Any, Callable, Container, Iterator, List, Optional, Type, Union
+from typing import Callable, Container, Iterator, List, Optional, Type, Union
 
 
 PathLike = Union[str, bytes]

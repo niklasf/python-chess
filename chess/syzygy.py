@@ -28,7 +28,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Dict, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, Union
+from typing import Iterator, List, MutableMapping, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]

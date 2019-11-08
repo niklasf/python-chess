@@ -21,7 +21,6 @@ import itertools
 import logging
 import re
 import weakref
-import typing
 
 import chess
 

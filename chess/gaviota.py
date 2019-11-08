@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import collections
 import ctypes
 import ctypes.util
 import fnmatch
@@ -31,7 +30,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Any, BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]

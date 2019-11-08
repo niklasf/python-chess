@@ -35,7 +35,7 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, MutableSet, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
