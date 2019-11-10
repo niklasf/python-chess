@@ -25,7 +25,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     board = chess.Board()
     while not board.is_game_over():
-        result = engine.play(board, chess.engine.Limit(time=0.100))
+        result = engine.play(board, chess.engine.Limit(time=0.1))
         board.push(result.move)
 
     engine.quit()
@@ -41,7 +41,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
         board = chess.Board()
         while not board.is_game_over():
-            result = await engine.play(board, chess.engine.Limit(time=0.100))
+            result = await engine.play(board, chess.engine.Limit(time=0.1))
             board.push(result.move)
 
         await engine.quit()
@@ -135,14 +135,14 @@ Example:
     engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
 
     board = chess.Board()
-    info = engine.analyse(board, chess.engine.Limit(time=0.100))
+    info = engine.analyse(board, chess.engine.Limit(time=0.1))
     print("Score:", info["score"])
-    # Score: +20
+    # Score: +95
 
     board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
     info = engine.analyse(board, chess.engine.Limit(depth=20))
     print("Score:", info["score"])
-    # Score: #1
+    # Score: #+1
 
     engine.quit()
 
@@ -156,7 +156,7 @@ Example:
         transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         board = chess.Board()
-        info = await engine.analyse(board, chess.engine.Limit(time=0.100))
+        info = await engine.analyse(board, chess.engine.Limit(time=0.1))
         print(info["score"])
         # Score: +20
 
