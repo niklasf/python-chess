@@ -115,7 +115,7 @@ Board
 
     .. py:attribute:: turn
 
-        The side to move.
+        The side to move (``chess.WHITE`` or ``chess.BLACK``).
 
     .. py:attribute:: castling_rights
 
