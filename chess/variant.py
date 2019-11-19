@@ -775,6 +775,7 @@ class CrazyhouseBoard(chess.Board):
         # a different color complex.
         return (
             chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
+            not self.promoted and
             not self.pawns and
             not self.rooks and
             not self.queens and
