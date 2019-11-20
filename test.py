@@ -515,6 +515,7 @@ class BoardTestCase(unittest.TestCase):
 
         _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/8/3K2N1/8[] w - - 0 1"), True, True)
         _check(chess.variant.CrazyhouseBoard("8/5k2/8/8/8/5B2/3KB3/8[] w - - 0 1"), False, False)
+        _check(chess.variant.CrazyhouseBoard("8/8/8/8/3k4/3N~4/3K4/8 w - - 0 1"), False, False)
 
         _check(chess.variant.HordeBoard("8/5k2/8/8/8/4NN2/8/8 w - - 0 1"), false_negative, False)
 
