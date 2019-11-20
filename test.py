@@ -3714,6 +3714,12 @@ class AtomicTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             board.push_san("O-O-O")
 
+    def test_castling_rights_explode_with_king(self):
+        board = chess.variant.AtomicBoard("rnb1kbnr/pppppppp/8/4q3/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1")
+        board.push_san("Qxe2#")
+        self.assertEqual(board.fen(), "rnb1kbnr/pppppppp/8/8/8/8/PPPP1PPP/RNB3NR w kq - 0 2")
+        self.assertEqual(board.castling_rights, chess.BB_A8 | chess.BB_H8)
+
     def test_lone_king_wdl(self):
         tables = chess.syzygy.Tablebase(VariantBoard=chess.variant.AtomicBoard)
         board = chess.variant.AtomicBoard.empty()

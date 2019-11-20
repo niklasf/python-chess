@@ -259,16 +259,21 @@ class AtomicBoard(chess.Board):
         return any(chess.BB_KING_ATTACKS[sq] & black_kings for sq in chess.scan_forward(white_kings))
 
     def _push_capture(self, move: chess.Move, capture_square: chess.Square, piece_type: chess.PieceType, was_promoted: bool) -> None:
+        explosion_radius = chess.BB_KING_ATTACKS[move.to_square] & ~self.pawns
+
+        # Destroy castling rights.
+        self.castling_rights &= ~explosion_radius
+        if explosion_radius & self.kings & self.occupied_co[chess.WHITE] & ~self.promoted:
+            self.castling_rights &= ~chess.BB_RANK_1
+        if explosion_radius & self.kings & self.occupied_co[chess.BLACK] & ~self.promoted:
+            self.castling_rights &= ~chess.BB_RANK_8
+
         # Explode the capturing piece.
         self._remove_piece_at(move.to_square)
 
         # Explode all non pawns around.
-        explosion_radius = chess.BB_KING_ATTACKS[move.to_square] & ~self.pawns
         for explosion in chess.scan_forward(explosion_radius):
             self._remove_piece_at(explosion)
-
-        # Destroy castling rights.
-        self.castling_rights &= ~explosion_radius
 
     def is_check(self) -> bool:
         return not self._kings_connected() and super().is_check()

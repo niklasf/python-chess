@@ -2921,8 +2921,8 @@ class Board(BaseBoard):
         :data:`~chess.Board.castling_rights`.
         """
         if self._stack:
-            # Castling rights do not change in a game, so we can assume them to
-            # be filtered already.
+            # No new castling rights are assigned in a game, so we can assume
+            # they were filtered already.
             return self.castling_rights
 
         castling = self.castling_rights & self.rooks
