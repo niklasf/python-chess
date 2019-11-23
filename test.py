@@ -489,6 +489,7 @@ class BoardTestCase(unittest.TestCase):
         _check(chess.Board("8/4qk2/8/8/8/8/3K4/8 w - - 0 1"), True, False)
         _check(chess.Board("8/4bk2/8/8/8/8/3KB3/8 w - - 0 1"), False, False)
         _check(chess.Board("8/8/3Q4/2bK4/B7/8/1k6/8 w - - 1 68"), False, False)
+        _check(chess.Board("8/5k2/8/8/8/4B3/3K1B2/8 w - - 0 1"), True, True)
 
         _check(chess.variant.AtomicBoard("8/3k4/8/8/2N5/8/3K4/8 b - - 0 1"), True, True)
         _check(chess.variant.AtomicBoard("8/4rk2/8/8/8/8/3K4/8 w - - 0 1"), True, True)
