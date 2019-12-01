@@ -1454,6 +1454,11 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                     pv.append(board.push_uci(tokens.pop(0)))
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
+        elif parameter == "wdl":
+            try:
+                info["wdl"] = int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing wdl from info: %r", arg)
 
     return info
 
