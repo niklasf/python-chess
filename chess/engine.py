@@ -1372,128 +1372,88 @@ class UciProtocol(EngineProtocol):
         await self.returncode
 
 
+UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
+
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     info = InfoDict({})  # type: InfoDict
     if not selector:
         return info
 
-    # Initialize parser state.
-    board = None
-    pv = None  # type: Optional[List[chess.Move]]
-    score_kind = None
-    refutation_move = None
-    refuted_by = []  # type: List[chess.Move]
-    currline_cpunr = None
-    currline_moves = []  # type: List[chess.Move]
-    string = []  # type: List[str]
+    tokens = arg.split(" ")
+    while tokens:
+        parameter = tokens.pop(0)
 
-    # Parameters with variable length can only be handled when the
-    # next parameter starts or at the end of the line.
-    def end_of_parameter() -> None:
-        if pv is not None:
-            info["pv"] = pv
-
-        if refutation_move is not None:
-            if "refutation" not in info:
-                info["refutation"] = {}
-            info["refutation"][refutation_move] = refuted_by
-
-        if currline_cpunr is not None:
-            if "currline" not in info:
-                info["currline"] = {}
-            info["currline"][currline_cpunr] = currline_moves
-
-    # Parse all other parameters.
-    current_parameter = None
-    for token in arg.split(" "):
-        if current_parameter == "string":
-            string.append(token)
-        elif not token:
-            # Ignore extra spaces. Those can not be directly discarded,
-            # because they may occur in the string parameter.
-            pass
-        elif token in ["depth", "seldepth", "time", "nodes", "pv", "multipv",
-                       "score", "currmove", "currmovenumber", "hashfull",
-                       "nps", "tbhits", "cpuload", "refutation", "currline",
-                       "ebf", "string"]:
-            end_of_parameter()
-            current_parameter = token
-
-            board = None
-            pv = None
-            score_kind = None
-            refutation_move = None
-            refuted_by = []
-            currline_cpunr = None
-            currline_moves = []
-
-            if current_parameter == "pv" and selector & INFO_PV:
-                pv = []
-                board = root_board.copy(stack=False)
-            elif current_parameter == "refutation" and selector & INFO_REFUTATION:
-                board = root_board.copy(stack=False)
-            elif current_parameter == "currline" and selector & INFO_CURRLINE:
-                board = root_board.copy(stack=False)
-        elif current_parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
+        if parameter == "string":
+            info["string"] = " ".join(tokens)
+            break
+        elif parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
             try:
-                info[current_parameter] = int(token)
-            except ValueError:
-                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-        elif current_parameter == "time":
+                info[parameter] = int(tokens.pop(0))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+        elif parameter == "time":
             try:
-                info[current_parameter] = int(token) / 1000.0
-            except ValueError:
-                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-        elif current_parameter == "pv" and pv is not None:
+                info["time"] = int(tokens.pop(0)) / 1000.0
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+        elif parameter == "ebf":
             try:
-                pv.append(board.push_uci(token))
-            except ValueError:
-                LOGGER.exception("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
-        elif current_parameter == "score" and selector & INFO_SCORE:
+                info["ebf"] = float(tokens.pop(0))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+        elif parameter == "score" and selector & INFO_SCORE:
             try:
-                if token in ["cp", "mate"]:
-                    score_kind = token
-                elif token == "lowerbound":
-                    info["lowerbound"] = True
-                elif token == "upperbound":
-                    info["upperbound"] = True
-                elif score_kind == "cp":
-                    info["score"] = PovScore(Cp(int(token)), root_board.turn)
-                elif score_kind == "mate":
-                    info["score"] = PovScore(Mate(int(token)), root_board.turn)
-            except ValueError:
-                LOGGER.error("exception parsing score %s from info: %r", score_kind, arg)
-        elif current_parameter == "currmove":
-            try:
-                info[current_parameter] = chess.Move.from_uci(token)
-            except ValueError:
-                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
-        elif current_parameter == "refutation" and board is not None:
-            try:
-                if refutation_move is None:
-                    refutation_move = board.push_uci(token)
+                kind = tokens.pop(0)
+                value = tokens.pop(0)
+                if tokens and tokens[0] in ["lowerbound", "upperbound"]:
+                    info[tokens.pop(0)] = True
+                if kind == "cp":
+                    info["score"] = PovScore(Cp(int(value)), root_board.turn)
+                elif kind == "mate":
+                    info["score"] = PovScore(Mate(int(value)), root_board.turn)
                 else:
-                    refuted_by.append(board.push_uci(token))
-            except ValueError:
-                LOGGER.exception("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
-        elif current_parameter == "currline" and board is not None:
+                    LOGGER.error("unknown score kind %r in info (expected cp or mate): %r", kind, arg)
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing score from info: %r", arg)
+        elif parameter == "currmove":
             try:
-                if currline_cpunr is None:
-                    currline_cpunr = int(token)
-                else:
-                    currline_moves.append(board.push_uci(token))
-            except ValueError:
-                LOGGER.exception("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
-        elif current_parameter == "ebf":
+                info["currmove"] = chess.Move.from_uci(tokens.pop(0))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing currmove from info: %r", arg)
+        elif parameter == "currline" and selector & INFO_CURRLINE:
             try:
-                info[current_parameter] = float(token)
-            except ValueError:
-                LOGGER.error("exception parsing %s from info: %r", current_parameter, arg)
+                if "currline" not in info:
+                    info["currline"] = {}
 
-    end_of_parameter()
+                cpunr = int(tokens.pop(0))
+                info["currline"][cpunr] = currline = []
 
-    if string:
-        info["string"] = " ".join(string)
+                board = root_board.copy(stack=False)
+                while tokens and UCI_REGEX.match(tokens[0]):
+                    currline.append(board.push_uci(tokens.pop(0)))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
+        elif parameter == "refutation" and selector & INFO_REFUTATION:
+            try:
+                if "refutation" not in info:
+                    info["refutation"] = {}
+
+                board = root_board.copy(stack=False)
+                refuted = board.push_uci(tokens.pop(0))
+                info["refutation"][refuted] = refuted_by = []
+
+                while tokens and UCI_REGEX.match(tokens[0]):
+                    refuted_by.append(board.push_uci(tokens.pop(0)))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
+        elif parameter == "pv" and selector & INFO_PV:
+            try:
+                info["pv"] = pv = []
+                board = root_board.copy(stack=False)
+                while tokens and UCI_REGEX.match(tokens[0]):
+                    pv.append(board.push_uci(tokens.pop(0)))
+            except (ValueError, IndexError):
+                LOGGER.error("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
 
     return info
 

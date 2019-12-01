@@ -2959,6 +2959,17 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["nps"], 2683000)
         self.assertEqual(info["tbhits"], 0)
 
+        # Unknown tokens.
+        board = chess.Board()
+        info = chess.engine._parse_uci_info("depth 1 unkown1 seldepth 2 unknown2 time 16 nodes 1 score cp 72 unknown3 wdl 249 747 4 multipv 1 uknown4 pv g1f3 g8f6 unknown5", board)
+        self.assertEqual(info["depth"], 1)
+        self.assertEqual(info["seldepth"], 2)
+        self.assertEqual(info["time"], 0.016)
+        self.assertEqual(info["nodes"], 1)
+        self.assertEqual(info["score"], chess.engine.PovScore(chess.engine.Cp(72), chess.WHITE))
+        self.assertEqual(info["multipv"], 1)
+        self.assertEqual(info["pv"], [chess.Move.from_uci("g1f3"), chess.Move.from_uci("g8f6")])
+
     def test_xboard_options(self):
         async def main():
             protocol = chess.engine.XBoardProtocol()
