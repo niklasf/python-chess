@@ -6,7 +6,8 @@ implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
 The preferred way to use the API is with an
-`asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop.
+`asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop
+(examples show usage with Python 3.7 or later).
 The examples also show a synchronous wrapper
 :class:`~chess.engine.SimpleEngine` that automatically spawns an event loop
 in the background.
@@ -111,8 +112,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
         ``depth``, ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``,
         ``tbhits``, ``multipv``.
 
-        Others: ``currmove``, ``currmovenumber``, ``hashfull``,
-        ``cpuload``, ``refutation``, ``currline``, ``ebf`` and ``string``.
+        Others: ``currmove``, ``currmovenumber``, ``hashfull``, ``cpuload``,
+        ``refutation``, ``currline``, ``ebf``, ``wdl``, and ``string``.
 
     .. py:attribute:: draw_offered
 

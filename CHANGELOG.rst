@@ -1,6 +1,30 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* `chess.variant.GiveawayBoard` **now starts with castling rights**.
+  `chess.variant.AntichessBoard` is the same variant without castling rights.
+* UCI info parser no longer reports errors when encountering unknown tokens.
+* Performance improvements for repetition detection.
+* Since Python 3.8: `chess.syzygy`/`chess.polyglot` use `madvise(MADV_RANDOM)`
+  to prepare table/book files for random access.
+
+Bugfixes:
+
+* Fix syntax error in type annotation of `chess.engine.run_in_background()`.
+* Fix castling rights when king is exploded in Atomic. Mitigated by the fact
+  that the game is over and that it did not affect FEN.
+* Fix insufficient material with underpromoted pieces in Crazyhouse. Mitigated
+  by the fact that affected positions are unreachable in Crazyhouse.
+
+Features:
+
+* Support `wdl` in UCI info (usually activated with `UCI_ShowWDL`).
+
 New in v0.28.3
 --------------
 
