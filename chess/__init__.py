@@ -26,7 +26,7 @@ __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@backscattering.de"
 
-__version__ = "0.28.3"
+__version__ = "0.29.0"
 
 import collections
 import copy
