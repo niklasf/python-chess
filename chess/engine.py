@@ -171,7 +171,7 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
             try:
                 # Finish all remaining tasks.
                 pending = _all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending, loop=loop, return_exceptions=True))
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
                 # Shutdown async generators.
                 try:
@@ -652,8 +652,8 @@ class MockTransport:
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
-    def __init__(self, *, loop=None) -> None:
-        self.loop = loop or _get_running_loop()
+    def __init__(self) -> None:
+        self.loop = _get_running_loop()
         self.transport = None  # type: Optional[asyncio.SubprocessTransport]
 
         self.buffer = {
@@ -665,7 +665,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.next_command = None  # type: Optional[BaseCommand[EngineProtocol, Any]]
 
         self.initialized = False
-        self.returncode = asyncio.Future(loop=self.loop)  # type: asyncio.Future[int]
+        self.returncode = asyncio.Future()  # type: asyncio.Future[int]
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         self.transport = transport
@@ -720,8 +720,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def line_received(self, line: str) -> None:
         pass
 
-    async def communicate(self: EngineProtocolT, command_factory: Callable[[asyncio.AbstractEventLoop], "BaseCommand[EngineProtocolT, T]"]) -> T:
-        command = command_factory(self.loop)
+    async def communicate(self: EngineProtocolT, command_factory: Callable[[], "BaseCommand[EngineProtocolT, T]"]) -> T:
+        command = command_factory()
 
         if self.returncode.done():
             raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
@@ -877,7 +877,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: Type[EngineProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, loop=None, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
+    async def popen(cls: Type[EngineProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
         if not isinstance(command, list):
             command = [command]
 
@@ -891,8 +891,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp  # type: ignore
         popen_args.update(kwargs)
 
-        loop = loop or _get_running_loop()
-        return await loop.subprocess_exec(cls, *command, **popen_args)
+        return await _get_running_loop().subprocess_exec(cls, *command, **popen_args)
 
 
 class CommandState(enum.Enum):
@@ -903,12 +902,11 @@ class CommandState(enum.Enum):
 
 
 class BaseCommand(Generic[EngineProtocolT, T]):
-    def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
+    def __init__(self) -> None:
         self.state = CommandState.New
 
-        self.loop = loop
-        self.result = asyncio.Future(loop=loop)  # type: asyncio.Future[T]
-        self.finished = asyncio.Future(loop=loop)  # type: asyncio.Future[None]
+        self.result = asyncio.Future()  # type: asyncio.Future[T]
+        self.finished = asyncio.Future()  # type: asyncio.Future[None]
 
     def _engine_terminated(self, engine: EngineProtocolT, code: int) -> None:
         exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
@@ -923,7 +921,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         if not self.result.done():
             self.result.set_exception(exc)
         else:
-            self.loop.call_exception_handler({
+            engine.loop.call_exception_handler({
                 "message": "engine command failed after returning preliminary result ({!r})".format(self.result),
                 "exception": exc,
                 "protocol": engine,
@@ -2193,7 +2191,7 @@ class AnalysisResult:
         self.stop()
 
 
-async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, loop=None, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
+async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
     """
     Spawns and initializes an UCI engine.
 
@@ -2209,7 +2207,7 @@ async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, lo
 
     Returns a subprocess transport and engine protocol pair.
     """
-    transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, loop=loop, **popen_args)
+    transport, protocol = await UciProtocol.popen(command, setpgrp=setpgrp, **popen_args)
     try:
         await protocol.initialize()
     except:
@@ -2267,7 +2265,7 @@ class SimpleEngine:
 
         self._shutdown_lock = threading.Lock()
         self._shutdown = False
-        self.shutdown_event = asyncio.Event(loop=self.protocol.loop)
+        self.shutdown_event = asyncio.Event()
 
         self.returncode = concurrent.futures.Future()  # type: concurrent.futures.Future[int]
 
