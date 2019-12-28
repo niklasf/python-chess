@@ -137,7 +137,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
             self.get_child_watcher().attach_loop(loop)
 
 
-def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
+def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
@@ -182,7 +182,7 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
             finally:
                 loop.close()
 
-    threading.Thread(target=background).start()
+    threading.Thread(target=background, name=name).start()
     return future.result()
 
 
@@ -2364,6 +2364,7 @@ class SimpleEngine:
     def popen(cls, Protocol: Type[EngineProtocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
         async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
+            threading.current_thread().name = "{} (pid={})".format(cls.__name__, transport.get_pid())
             simple_engine = cls(transport, protocol, timeout=timeout)
             try:
                 await asyncio.wait_for(protocol.initialize(), timeout)
@@ -2374,7 +2375,7 @@ class SimpleEngine:
                 simple_engine.close()
             await simple_engine.shutdown_event.wait()
 
-        return run_in_background(background, debug=debug)
+        return run_in_background(background, name="{} (command={!r})".format(cls.__name__, command), debug=debug)
 
     @classmethod
     def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
