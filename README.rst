@@ -16,6 +16,9 @@ python-chess: a pure Python chess library
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
 
+.. image:: https://badges.gitter.im/python-chess/community.svg
+    :target: https://gitter.im/python-chess/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+
 Introduction
 ------------
 
