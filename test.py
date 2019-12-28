@@ -3207,6 +3207,13 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
+    @catchAndSkip(FileNotFoundError, "need /bin/sh")
+    def test_quit_timeout(self):
+        with chess.engine.SimpleEngine.popen_uci(["/bin/sh", "-c", "echo uciok && sleep 86400"], debug=True) as engine:
+            engine.timeout = 0.01
+            with self.assertRaises(asyncio.TimeoutError):
+                engine.quit()
+
     def test_run_in_background(self):
         class ExpectedError(Exception):
             pass
