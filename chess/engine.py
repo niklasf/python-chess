@@ -1367,7 +1367,7 @@ class UciProtocol(EngineProtocol):
 
     async def quit(self) -> None:
         self.send_line("quit")
-        await self.returncode
+        await asyncio.shield(self.returncode)
 
 
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
