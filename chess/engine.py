@@ -1969,7 +1969,7 @@ class XBoardProtocol(EngineProtocol):
 
     async def quit(self) -> None:
         self.send_line("quit")
-        await self.returncode
+        await asyncio.shield(self.returncode)
 
 
 def _parse_xboard_option(feature: str) -> Option:
