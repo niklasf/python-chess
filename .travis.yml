@@ -61,7 +61,7 @@ before_install:
 install:
  - pip install --upgrade pip wheel
  - pip install --upgrade setuptools
- - pip install coverage coveralls
+ - pip install --upgrade coveralls
  - pip install -e .
 script:
  - # Unit tests
