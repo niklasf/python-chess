@@ -205,7 +205,7 @@ class Option(NamedTuple):
     default: ConfigValue
     min: Optional[int]
     max: Optional[int]
-    var: List[str]
+    var: Optional[List[str]]
 
     def parse(self, value: ConfigValue) -> ConfigValue:
         if self.type == "check":
@@ -274,7 +274,7 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-class InfoDict(Dict[str, Union[str, int, float, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]]]]):
+class InfoDict(Dict[str, Union[str, int, float, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]], Tuple[int, int, int]]]):
     """Dictionary of extra information sent by the engine."""
 
     @property
@@ -642,6 +642,9 @@ class MockTransport:
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
+    id: Dict[str, str]
+    options: Mapping[str, Option]
+
     def __init__(self) -> None:
         self.loop = _get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
@@ -725,7 +728,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         self.next_command = command
 
-        def previous_command_finished(_: "asyncio.Future[None]") -> None:
+        def previous_command_finished(_: "Optional[asyncio.Future[None]]") -> None:
             if self.command is not None:
                 self.command._done()
 
@@ -984,7 +987,7 @@ class UciProtocol(EngineProtocol):
         self.options: UciOptionMap[Option] = UciOptionMap()
         self.config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.target_config: UciOptionMap[ConfigValue] = UciOptionMap()
-        self.id: Dict[str, str] = {}
+        self.id = {}
         self.board = chess.Board()
         self.game: object = None
         self.first_game = True
@@ -1511,7 +1514,7 @@ class XBoardProtocol(EngineProtocol):
     def __init__(self) -> None:
         super().__init__()
         self.features: Dict[str, Union[int, str]] = {}
-        self.id: Dict[str, str] = {}
+        self.id = {}
         self.options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
