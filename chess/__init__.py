@@ -1980,7 +1980,7 @@ class Board(BaseBoard):
 
         promoted = bool(self.promoted & from_bb)
         piece_type = self._remove_piece_at(move.from_square)
-        assert piece_type is not None, "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.fen())
+        assert piece_type is not None, "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.board_fen())
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
 
@@ -2376,7 +2376,7 @@ class Board(BaseBoard):
                         position.push(first_move)
 
                     for move in iterator:
-                        assert isinstance(move, Move), "expected homogeneous list of moves, got: {}, ..., {!r}".format(first_move, move)
+                        assert isinstance(move, Move), "expected homogeneous list of moves, got: {}, ..., {!r}, ...".format(first_move, move)
                         epd.append(" ")
                         epd.append(position.san(move))
                         if opcode == "pv":
