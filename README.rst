@@ -159,7 +159,7 @@ Features
 
       >>> attackers = board.attackers(chess.WHITE, chess.F3)
       >>> attackers
-      SquareSet(0x0000000000004040)
+      SquareSet(0x0000_0000_0000_4040)
       >>> chess.G2 in attackers
       True
       >>> print(attackers)
