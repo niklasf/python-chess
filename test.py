@@ -3196,7 +3196,7 @@ class EngineTestCase(unittest.TestCase):
     @catchAndSkip(FileNotFoundError, "need /bin/sh")
     def test_transport_close_with_pending(self):
         async def main():
-            transport, protocol = await chess.engine.popen_uci(["/bin/sh", "-c", "read && echo uciok && sleep 86400"])
+            transport, protocol = await chess.engine.popen_uci(["/bin/bash", "-c", "read && echo uciok && sleep 86400"])
             protocol.loop.call_later(0.01, transport.close)
             results = await asyncio.gather(protocol.ping(), protocol.ping(), return_exceptions=True)
             self.assertNotEqual(results[0], None)
@@ -3209,7 +3209,7 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need /bin/sh")
     def test_quit_timeout(self):
-        with chess.engine.SimpleEngine.popen_uci(["/bin/sh", "-c", "read && echo uciok && sleep 86400"], debug=True) as engine:
+        with chess.engine.SimpleEngine.popen_uci(["/bin/bash", "-c", "read && echo uciok && sleep 86400"], debug=True) as engine:
             engine.timeout = 0.01
             with self.assertRaises(asyncio.TimeoutError):
                 engine.quit()
