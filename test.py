@@ -702,9 +702,9 @@ class BoardTestCase(unittest.TestCase):
             board.variation_san([chess.Move.from_uci(m) for m in illegal_variation])
         message = str(err.exception)
         self.assertIn('illegal move', message.lower(),
-                      msg="Error [{}] mentions illegal move".format(message))
+                      msg=f"Error [{message}] mentions illegal move")
         self.assertIn('f3h6', message,
-                      msg="Illegal move f3h6 appears in message [{}]".format(message))
+                      msg=f"Illegal move f3h6 appears in message [{message}]")
 
     def test_move_stack_usage(self):
         board = chess.Board()
@@ -2629,8 +2629,8 @@ class EngineTestCase(unittest.TestCase):
 
         for i, a in enumerate(order):
             for j, b in enumerate(order):
-                self.assertEqual(i < j, a < b, "{!r} < {!r}".format(a, b))
-                self.assertEqual(i == j, a == b, "{!r} == {!r}".format(a, b))
+                self.assertEqual(i < j, a < b, f"{a!r} < {b!r}")
+                self.assertEqual(i == j, a == b, f"{a!r} == {b!r}")
                 self.assertEqual(i <= j, a <= b)
                 self.assertEqual(i != j, a != b)
                 self.assertEqual(i > j, a > b)
@@ -3260,13 +3260,13 @@ class SyzygyTestCase(unittest.TestCase):
         for name in names:
             self.assertTrue(
                 chess.syzygy.normalize_tablename(name) in names,
-                "Already normalized {}".format(name))
+                f"Already normalized {name}")
 
             w, b = name.split("v", 1)
             swapped = b + "v" + w
             self.assertTrue(
                 chess.syzygy.normalize_tablename(swapped) in names,
-                "Normalized {}".format(swapped))
+                f"Normalized {swapped}")
 
     def test_normalize_nnvbb(self):
         self.assertEqual(chess.syzygy.normalize_tablename("KNNvKBB"), "KBBvKNN")
@@ -3378,17 +3378,17 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl_table = tables.probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
-                    "Expecting wdl_table {} for {}, got {} (at line {})".format(extra["wdl_table"], board.fen(), wdl_table, line + 1))
+                    f"Expecting wdl_table {extra['wdl_table']} for {board.fen()}, got {wdl_table} (at line {line + 1})")
 
                 wdl = tables.probe_wdl(board)
                 self.assertEqual(
                     wdl, extra["wdl"],
-                    "Expecting wdl {} for {}, got {} (at line {})".format(extra["wdl"], board.fen(), wdl, line + 1))
+                    f"Expecting wdl {extra['wdl']} for {board.fen()}, got {wdl} (at line {line + 1})")
 
                 dtz = tables.probe_dtz(board)
                 self.assertEqual(
                     dtz, extra["dtz"],
-                    "Expecting dtz {} for {}, got {} (at line {})".format(extra["dtz"], board.fen(), dtz, line + 1))
+                    f"Expecting dtz {extra['dtz']} for {board.fen()}, got {dtz} (at line {line + 1})")
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
@@ -3414,7 +3414,7 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl = tables.probe_wdl(board)
 
                 expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
-                self.assertEqual(wdl, expected_wdl, "Expecting wdl {}, got {} (in {})".format(expected_wdl, wdl, epd))
+                self.assertEqual(wdl, expected_wdl, f"Expecting wdl {expected_wdl}, got {wdl} (in {epd})")
 
                 dtz = tables.probe_dtz(board)
 
@@ -3438,7 +3438,7 @@ class SyzygyTestCase(unittest.TestCase):
                 board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                 dtz = tables.probe_dtz(board)
-                self.assertEqual(dtz, solution["dtz"], "Expecting dtz {}, got {} (in {})".format(solution["dtz"], dtz, epd))
+                self.assertEqual(dtz, solution["dtz"], f"Expecting dtz {solution['dtz']}, got {dtz} (in {epd})")
 
     @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
     @catchAndSkip(chess.syzygy.MissingTableError)
@@ -3451,7 +3451,7 @@ class SyzygyTestCase(unittest.TestCase):
 
                 dtz = tables.probe_dtz(board)
                 self.assertAlmostEqual(dtz, solution["dtz"], delta=1,
-                                       msg="Expected dtz {}, got {} (in l. {}, fen: {})".format(solution["dtz"], dtz, l + 1, board.fen()))
+                                       msg=f"Expected dtz {solution['dtz']}, got {dtz} (in l. {l + 1}, fen: {board.fen()})")
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
@@ -3511,7 +3511,7 @@ class GaviotaTestCase(unittest.TestCase):
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected, "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
+                self.assertEqual(dtm, expected, f"Expecting dtm {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
 
     @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_5(self):
@@ -3531,7 +3531,7 @@ class GaviotaTestCase(unittest.TestCase):
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected, "Expecting dtm {} for {}, got {} (at line {})".format(expected, board.fen(), dtm, line + 1))
+                self.assertEqual(dtm, expected, f"Expecting dtm {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
 
     def test_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")

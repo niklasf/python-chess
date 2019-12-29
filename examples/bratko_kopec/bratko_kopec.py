@@ -27,13 +27,13 @@ async def test_epd(engine, epd, VariantBoard, movetime):
     result = await engine.play(board, limit, game=object())
 
     if "am" in epd_info and result.move in epd_info["am"]:
-        print("{}: {} | +0".format(epd_string, board.san(result.move)))
+        print(f"{epd_string}: {board.san(result.move)} | +0")
         return 0.0
     elif "bm" in epd_info and result.move not in epd_info["bm"]:
-        print("{}: {} | +0".format(epd_string, board.san(result.move)))
+        print(f"{epd_string}: {board.san(result.move)} | +0")
         return 0.0
     else:
-        print("{}: {} | +1".format(epd_string, board.san(result.move)))
+        print(f"{epd_string}: {board.san(result.move)} | +1")
         return 1.0
 
 
@@ -47,7 +47,7 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
 
     # Start analysis.
     score = 0.0
-    print("{}:".format(epd_string), end=" ", flush=True)
+    print(f"{epd_string}:", end=" ", flush=True)
     analysis = await engine.analysis(board, game=object())
 
     with analysis:
@@ -68,7 +68,7 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
                 print("(no pv)", end=" ", flush=True)
 
     # Done.
-    print("| +{}".format(score))
+    print(f"| +{score}")
     return score
 
 
@@ -133,7 +133,7 @@ async def main():
     await engine.quit()
 
     print("-------------------------------")
-    print("{} / {}".format(score, count))
+    print(f"{score} / {count}")
 
 
 if __name__ == "__main__":

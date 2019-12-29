@@ -619,7 +619,7 @@ class Table:
     def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> bool:
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[:min(4, len(self.data))] not in valid_magics:
-            raise IOError("invalid magic header: ensure {!r} is a valid syzygy tablebase file".format(self.path))
+            raise IOError(f"invalid magic header: ensure {self.path!r} is a valid syzygy tablebase file")
 
     def setup_pairs(self, data_ptr: int, tb_size: int, size_idx: int, wdl: int) -> PairsData:
         d = PairsData()
@@ -1561,7 +1561,7 @@ class Tablebase:
         try:
             table = self.wdl[key]
         except KeyError:
-            raise MissingTableError("did not find wdl table {}".format(key))
+            raise MissingTableError(f"did not find wdl table {key}")
 
         self._bump_lru(table)
 
@@ -1684,11 +1684,11 @@ class Tablebase:
         """
         # Positions with castling rights are not in the tablebase.
         if board.castling_rights:
-            raise KeyError("syzygy tables do not contain positions with castling rights: {}".format(board.fen()))
+            raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
 
         # Validate piece count.
         if chess.popcount(board.occupied) > 7:
-            raise KeyError("syzygy tables support up to 6 (and experimentally 7) pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError(f"syzygy tables support up to 6 (and experimentally 7) pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
@@ -1734,7 +1734,7 @@ class Tablebase:
         try:
             table = self.dtz[key]
         except KeyError:
-            raise MissingTableError("did not find dtz table {}".format(key))
+            raise MissingTableError(f"did not find dtz table {key}")
 
         self._bump_lru(table)
 

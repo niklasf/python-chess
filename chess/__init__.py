@@ -408,7 +408,7 @@ class Piece:
         return hash(self.piece_type * (self.color + 1))
 
     def __repr__(self) -> str:
-        return "Piece.from_symbol({!r})".format(self.symbol())
+        return f"Piece.from_symbol({self.symbol()!r})"
 
     def __str__(self) -> str:
         return self.symbol()
@@ -482,7 +482,7 @@ class Move:
             return NotImplemented
 
     def __repr__(self) -> str:
-        return "Move.from_uci({!r})".format(self.uci())
+        return f"Move.from_uci({self.uci()!r})"
 
     def __str__(self) -> str:
         return self.uci()
@@ -508,10 +508,10 @@ class Move:
             to_square = SQUARE_NAMES.index(uci[2:4])
             promotion = PIECE_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
             if from_square == to_square:
-                raise ValueError("invalid uci (use 0000 for null moves): {!r}".format(uci))
+                raise ValueError(f"invalid uci (use 0000 for null moves): {uci!r}")
             return cls(from_square, to_square, promotion=promotion)
         else:
-            raise ValueError("expected uci string to be of length 4 or 5: {!r}".format(uci))
+            raise ValueError(f"expected uci string to be of length 4 or 5: {uci!r}")
 
     @classmethod
     def null(cls) -> "Move":
@@ -895,12 +895,12 @@ class BaseBoard:
         # Compability with set_fen().
         fen = fen.strip()
         if " " in fen:
-            raise ValueError("expected position part of fen, got multiple parts: {!r}".format(fen))
+            raise ValueError(f"expected position part of fen, got multiple parts: {fen!r}")
 
         # Ensure the FEN is valid.
         rows = fen.split("/")
         if len(rows) != 8:
-            raise ValueError("expected 8 rows in position part of fen: {!r}".format(fen))
+            raise ValueError(f"expected 8 rows in position part of fen: {fen!r}")
 
         # Validate each row.
         for row in rows:
@@ -911,13 +911,13 @@ class BaseBoard:
             for c in row:
                 if c in ["1", "2", "3", "4", "5", "6", "7", "8"]:
                     if previous_was_digit:
-                        raise ValueError("two subsequent digits in position part of fen: {!r}".format(fen))
+                        raise ValueError(f"two subsequent digits in position part of fen: {fen!r}")
                     field_sum += int(c)
                     previous_was_digit = True
                     previous_was_piece = False
                 elif c == "~":
                     if not previous_was_piece:
-                        raise ValueError("'~' not after piece in position part of fen: {!r}".format(fen))
+                        raise ValueError(f"'~' not after piece in position part of fen: {fen!r}")
                     previous_was_digit = False
                     previous_was_piece = False
                 elif c.lower() in PIECE_SYMBOLS:
@@ -925,10 +925,10 @@ class BaseBoard:
                     previous_was_digit = False
                     previous_was_piece = True
                 else:
-                    raise ValueError("invalid character in position part of fen: {!r}".format(fen))
+                    raise ValueError(f"invalid character in position part of fen: {fen!r}")
 
             if field_sum != 8:
-                raise ValueError("expected 8 columns per row in position part of fen: {!r}".format(fen))
+                raise ValueError(f"expected 8 columns per row in position part of fen: {fen!r}")
 
         # Clear the board.
         self._clear_board()
@@ -976,7 +976,7 @@ class BaseBoard:
 
     def _set_chess960_pos(self, sharnagl: int) -> None:
         if not 0 <= sharnagl <= 959:
-            raise ValueError("chess960 position index not 0 <= {:d} <= 959".format(sharnagl))
+            raise ValueError(f"chess960 position index not 0 <= {sharnagl!r} <= 959")
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
@@ -1121,7 +1121,7 @@ class BaseBoard:
             return None
 
     def __repr__(self) -> str:
-        return "{}({!r})".format(type(self).__name__, self.board_fen())
+        return f"{type(self).__name__}({self.board_fen()!r})"
 
     def __str__(self) -> str:
         builder = []
@@ -1975,7 +1975,7 @@ class Board(BaseBoard):
 
         promoted = bool(self.promoted & from_bb)
         piece_type = self._remove_piece_at(move.from_square)
-        assert piece_type is not None, "push() expects move to be pseudo-legal, but got {} in {}".format(move, self.board_fen())
+        assert piece_type is not None, f"push() expects move to be pseudo-legal, but got {move} in {self.board_fen()}"
         capture_square = move.to_square
         captured_piece_type = self.piece_type_at(capture_square)
 
@@ -2171,7 +2171,7 @@ class Board(BaseBoard):
             elif turn_part == "b":
                 turn = BLACK
             else:
-                raise ValueError("expected 'w' or 'b' for turn part of fen: {!r}".format(fen))
+                raise ValueError(f"expected 'w' or 'b' for turn part of fen: {fen!r}")
 
         # Validate castling part.
         try:
@@ -2180,7 +2180,7 @@ class Board(BaseBoard):
             castling_part = "-"
         else:
             if not FEN_CASTLING_REGEX.match(castling_part):
-                raise ValueError("invalid castling part in fen: {!r}".format(fen))
+                raise ValueError(f"invalid castling part in fen: {fen!r}")
 
         # En passant square.
         try:
@@ -2191,7 +2191,7 @@ class Board(BaseBoard):
             try:
                 ep_square = None if ep_part == "-" else SQUARE_NAMES.index(ep_part)
             except ValueError:
-                raise ValueError("invalid en passant part in fen: {!r}".format(fen))
+                raise ValueError(f"invalid en passant part in fen: {fen!r}")
 
         # Check that the half-move part is valid.
         try:
@@ -2202,10 +2202,10 @@ class Board(BaseBoard):
             try:
                 halfmove_clock = int(halfmove_part)
             except ValueError:
-                raise ValueError("invalid half-move clock in fen: {!r}".format(fen))
+                raise ValueError(f"invalid half-move clock in fen: {fen!r}")
 
             if halfmove_clock < 0:
-                raise ValueError("half-move clock cannot be negative: {!r}".format(fen))
+                raise ValueError(f"half-move clock cannot be negative: {fen!r}")
 
         # Check that the full-move number part is valid.
         # 0 is allowed for compability, but later replaced with 1.
@@ -2217,16 +2217,16 @@ class Board(BaseBoard):
             try:
                 fullmove_number = int(fullmove_part)
             except ValueError:
-                raise ValueError("invalid fullmove number in fen: {!r}".format(fen))
+                raise ValueError(f"invalid fullmove number in fen: {fen!r}")
 
             if fullmove_number < 0:
-                raise ValueError("fullmove number cannot be negative: {!r}".format(fen))
+                raise ValueError(f"fullmove number cannot be negative: {fen!r}")
 
             fullmove_number = max(fullmove_number, 1)
 
         # All parts should be consumed now.
         if parts:
-            raise ValueError("fen string has more parts than expected: {!r}".format(fen))
+            raise ValueError(f"fen string has more parts than expected: {fen!r}")
 
         # Validate the board part and set it.
         self._set_board_fen(board_part)
@@ -2245,7 +2245,7 @@ class Board(BaseBoard):
             return
 
         if not FEN_CASTLING_REGEX.match(castling_fen):
-            raise ValueError("invalid castling fen: {!r}".format(castling_fen))
+            raise ValueError(f"invalid castling fen: {castling_fen!r}")
 
         self.castling_rights = BB_EMPTY
 
@@ -2371,7 +2371,7 @@ class Board(BaseBoard):
                         position.push(first_move)
 
                     for move in iterator:
-                        assert isinstance(move, Move), "expected homogeneous list of moves, got: {}, ..., {!r}, ...".format(first_move, move)
+                        assert isinstance(move, Move), f"expected homogeneous list of moves, got: {first_move}, ..., {move!r}, ..."
                         epd.append(" ")
                         epd.append(position.san(move))
                         if opcode == "pv":
@@ -2602,7 +2602,7 @@ class Board(BaseBoard):
                 return san
 
         piece_type = self.piece_type_at(move.from_square)
-        assert piece_type, "san() and lan() expect move to be legal or null, but got {} in {}".format(move, self.fen())
+        assert piece_type, f"san() and lan() expect move to be legal or null, but got {move} in {self.fen()}"
         capture = self.is_capture(move)
 
         if piece_type == PAWN:
@@ -2678,12 +2678,12 @@ class Board(BaseBoard):
 
         for move in variation:
             if not board.is_legal(move):
-                raise ValueError("illegal move {} in position {}".format(move, board.fen()))
+                raise ValueError(f"illegal move {move} in position {board.fen()}")
 
             if board.turn == WHITE:
-                san.append("{}. {}".format(board.fullmove_number, board.san(move)))
+                san.append(f"{board.fullmove_number}. {board.san(move)}")
             elif not san:
-                san.append("{}...{}".format(board.fullmove_number, board.san(move)))
+                san.append(f"{board.fullmove_number}...{board.san(move)}")
             else:
                 san.append(board.san(move))
 
@@ -2707,7 +2707,7 @@ class Board(BaseBoard):
             elif san in ["O-O-O", "O-O-O+", "O-O-O#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
         except StopIteration:
-            raise ValueError("illegal san: {!r} in {}".format(san, self.fen()))
+            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
@@ -2716,7 +2716,7 @@ class Board(BaseBoard):
             if san in ["--", "Z0"]:
                 return Move.null()
 
-            raise ValueError("invalid san: {!r}".format(san))
+            raise ValueError(f"invalid san: {san!r}")
 
         # Get target square.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -2748,12 +2748,12 @@ class Board(BaseBoard):
                 continue
 
             if matched_move:
-                raise ValueError("ambiguous san: {!r} in {}".format(san, self.fen()))
+                raise ValueError(f"ambiguous san: {san!r} in {self.fen()}")
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError("illegal san: {!r} in {}".format(san, self.fen()))
+            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
 
         return matched_move
 
@@ -2804,7 +2804,7 @@ class Board(BaseBoard):
         move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
-            raise ValueError("illegal uci: {!r} in {}".format(uci, self.fen()))
+            raise ValueError(f"illegal uci: {uci!r} in {self.fen()}")
 
         return move
 
@@ -2836,14 +2836,14 @@ class Board(BaseBoard):
         if xboard == "@@@@":
             return Move.null()
         elif "," in xboard:
-            raise ValueError("unsupported multi-leg xboard move: {!r}".format(xboard))
+            raise ValueError(f"unsupported multi-leg xboard move: {xboard!r}")
 
         try:
             move = Move.from_uci(xboard)
             move = self._to_chess960(move)
             move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
             if not self.is_legal(move):
-                raise ValueError("illegal xboard move: {!r} in {}".format(xboard, self.fen()))
+                raise ValueError(f"illegal xboard move: {xboard!r} in {self.fen()}")
             return move
         except ValueError:
             pass
@@ -2851,7 +2851,7 @@ class Board(BaseBoard):
         try:
             return self.parse_san(xboard)
         except ValueError:
-            raise ValueError("invalid or illegal xboard move: {!r} in {}".format(xboard, self.fen()))
+            raise ValueError(f"invalid or illegal xboard move: {xboard!r} in {self.fen()}")
 
     def push_xboard(self, xboard: str) -> Move:
         move = self.parse_xboard(xboard)
@@ -3338,9 +3338,9 @@ class Board(BaseBoard):
 
     def __repr__(self) -> str:
         if not self.chess960:
-            return "{}({!r})".format(type(self).__name__, self.fen())
+            return f"{type(self).__name__}({self.fen()!r})"
         else:
-            return "{}({!r}, chess960=True)".format(type(self).__name__, self.fen())
+            return f"{type(self).__name__}({self.fen()!r}, chess960=True)"
 
     def _repr_svg_(self) -> str:
         import chess.svg
@@ -3451,7 +3451,7 @@ class PseudoLegalMoveGenerator:
                 builder.append(self.board.uci(move))
 
         sans = ", ".join(builder)
-        return "<PseudoLegalMoveGenerator at {:#x} ({})>".format(id(self), sans)
+        return f"<PseudoLegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
 class LegalMoveGenerator:
@@ -3474,7 +3474,7 @@ class LegalMoveGenerator:
 
     def __repr__(self) -> str:
         sans = ", ".join(self.board.san(move) for move in self)
-        return "<LegalMoveGenerator at {:#x} ({})>".format(id(self), sans)
+        return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
@@ -3753,7 +3753,7 @@ class SquareSet:
         return self.mask
 
     def __repr__(self) -> str:
-        return "SquareSet({:#021_x})".format(self.mask)
+        return f"SquareSet({self.mask:#021_x})"
 
     def __str__(self) -> str:
         builder = []

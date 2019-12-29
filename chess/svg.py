@@ -77,7 +77,7 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
         "xmlns": "http://www.w3.org/2000/svg",
         "version": "1.1",
         "xmlns:xlink": "http://www.w3.org/1999/xlink",
-        "viewBox": "0 0 {0:d} {0:d}".format(viewbox),
+        "viewBox": f"0 0 {viewbox:d} {viewbox:d}",
     })
 
     if size is not None:
@@ -210,8 +210,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             piece = board.piece_at(square)
             if piece:
                 ET.SubElement(svg, "use", {
-                    "xlink:href": "#{}-{}".format(chess.COLOR_NAMES[piece.color], chess.PIECE_NAMES[piece.piece_type]),
-                    "transform": "translate({:d}, {:d})".format(x, y),
+                    "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
+                    "transform": f"translate({x:d}, {y:d})",
                 })
 
         # Render selected squares.

@@ -79,15 +79,15 @@ def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
             if nodes != perft_nodes:
                 print()
                 print()
-                print(" !!! Failure in", current_id or "<no-name>")
-                print("     epd", board.epd())
-                print("     perft", depth, nodes, "(got %d instead)" % perft_nodes)
+                print(f" !!! Failure in {current_id or '<no-name>'}")
+                print(f"     epd {board.epd()}")
+                print(f"     perft {depth} {nodes} (got {perft_nodes} instead)")
                 print()
                 print(board)
                 print()
                 for move in sorted(board.legal_moves, key=lambda m: m.uci()):
                     board.push(move)
-                    print("%s: %d" % (move, perft_f(depth - 1, board)))
+                    print(f"{move}: {perft_f(depth - 1, board)}")
                     board.pop()
                 sys.exit(1)
 
@@ -97,14 +97,14 @@ def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
 
             if column >= 40:
                 column = 0
-                sys.stdout.write(" nodes %d nps %.0f\n" % (total_nodes, sdiv(total_nodes, time.time() - start_time)))
+                sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.time() - start_time):.0f}\n")
         else:
             print()
             print("Unknown command:", cmd, arg)
             sys.exit(2)
 
     if column:
-        sys.stdout.write(" nodes %d nps %.0f\n" % (total_nodes, sdiv(total_nodes, time.time() - start_time)))
+        sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.time() - start_time):.0f}\n")
 
 
 if __name__ == "__main__":

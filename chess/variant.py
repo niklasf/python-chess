@@ -552,14 +552,14 @@ class ThreeCheckBoard(chess.Board):
                 w, b = check_part[1:].split("+", 1)
                 wc, bc = 3 - int(w), 3 - int(b)
             except ValueError:
-                raise ValueError("invalid check part in lichess three-check fen: {}".format(repr(check_part)))
+                raise ValueError(f"invalid check part in lichess three-check fen: {check_part!r}")
         elif len(parts) >= 5 and "+" in parts[4]:
             check_part = parts.pop(4)
             try:
                 w, b = check_part.split("+", 1)
                 wc, bc = int(w), int(b)
             except ValueError:
-                raise ValueError("invalid check part in three-check fen: {}".format(repr(check_part)))
+                raise ValueError(f"invalid check part in three-check fen: {check_part!r}")
         else:
             wc, bc = 3, 3
 
@@ -654,7 +654,7 @@ class CrazyhousePocket:
         return sum(self.pieces.values())
 
     def __repr__(self) -> str:
-        return "CrazyhousePocket('{}')".format(str(self))
+        return f"CrazyhousePocket('{self}')"
 
     def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
         pocket = type(self)()
@@ -769,7 +769,7 @@ class CrazyhouseBoard(chess.Board):
                 uci = "P" + uci
             move = chess.Move.from_uci(uci)
             if not self.is_legal(move):
-                raise ValueError("illegal drop san: {} in {}".format(repr(san), self.fen()))
+                raise ValueError(f"illegal drop san: {san!r} in {self.fen()}")
             return move
         else:
             return super().parse_san(san)
@@ -794,7 +794,7 @@ class CrazyhouseBoard(chess.Board):
         # Transform to lichess-style ZH FEN.
         if position_part.endswith("]"):
             if position_part.count("/") != 7:
-                raise ValueError("expected 8 rows in position part of zh fen: {}", format(repr(fen)))
+                raise ValueError(f"expected 8 rows in position part of zh fen: {fen!r}")
             position_part = position_part[:-1].replace("[", "/", 1)
 
         # Split off pocket part.
@@ -820,7 +820,7 @@ class CrazyhouseBoard(chess.Board):
     def epd(self, shredder: bool = False, en_passant: str = "legal", promoted: Optional[bool] = None, **operations: Union[None, str, int, float, chess.Move, Iterable[chess.Move]]) -> str:
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
-        return "{}[{}{}] {}".format(board_part, str(self.pockets[chess.WHITE]).upper(), str(self.pockets[chess.BLACK]), info_part)
+        return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
 
     def copy(self: CrazyhouseBoardT, stack: Union[bool, int] = True) -> CrazyhouseBoardT:
         board = super().copy(stack=stack)
@@ -865,4 +865,4 @@ def find_variant(name: str) -> Type[chess.Board]:
     for variant in VARIANTS:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
-    raise ValueError("unsupported variant: {}".format(name))
+    raise ValueError(f"unsupported variant: {name}")

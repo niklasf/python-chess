@@ -1547,7 +1547,7 @@ class PythonTablebase:
         """
         directory = os.path.abspath(directory)
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {!r}".format(directory))
+            raise IOError(f"not a directory: {directory!r}")
 
         for tbfile in fnmatch.filter(os.listdir(directory), "*.gtb.cp4"):
             self.available_tables[os.path.basename(tbfile).replace(".gtb.cp4", "")] = os.path.join(directory, tbfile)
@@ -1580,11 +1580,11 @@ class PythonTablebase:
         """
         # Can not probe positions with castling rights.
         if board.castling_rights:
-            raise KeyError("gaviota tables do not contain positions with castling rights: {}".format(board.fen()))
+            raise KeyError(f"gaviota tables do not contain positions with castling rights: {board.fen()}")
 
         # Supports only up to 5 pieces.
         if chess.popcount(board.occupied) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError(f"gaviota tables support up to 5 pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         # KvK is a draw.
         if board.occupied == board.kings:
@@ -1701,7 +1701,7 @@ class PythonTablebase:
             if req.epsq != NOSQUARE:
                 req.epsq = flip_ns(req.epsq)
         else:
-            raise MissingTableError("no gaviota table available for: {}v{}".format(white_letters.upper(), black_letters.upper()))
+            raise MissingTableError(f"no gaviota table available for: {white_letters.upper()}v{black_letters.upper()}")
 
         return self._open_tablebase(req)
 
@@ -1948,7 +1948,7 @@ class NativeTablebase:
 
     def add_directory(self, directory: str) -> None:
         if not os.path.isdir(directory):
-            raise IOError("not a directory: {!r}".format(directory))
+            raise IOError(f"not a directory: {directory!r}")
 
         self.paths.append(directory)
         self._tb_restart()
@@ -2006,10 +2006,10 @@ class NativeTablebase:
             return 0
 
         if board.castling_rights:
-            raise KeyError("gaviota tables do not contain positions with castling rights: {}".format(board.fen()))
+            raise KeyError(f"gaviota tables do not contain positions with castling rights: {board.fen()}")
 
         if chess.popcount(board.occupied) > 5:
-            raise KeyError("gaviota tables support up to 5 pieces, not {}: {}".format(chess.popcount(board.occupied), board.fen()))
+            raise KeyError(f"gaviota tables support up to 5 pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         stm = ctypes.c_uint(0 if board.turn == chess.WHITE else 1)
         ep_square = ctypes.c_uint(board.ep_square if board.ep_square else 64)
@@ -2049,7 +2049,7 @@ class NativeTablebase:
 
         # Probe forbidden.
         if info.value == 3:
-            raise MissingTableError("gaviota table for {} not available".format(board.fen()))
+            raise MissingTableError(f"gaviota table for {board.fen()} not available")
 
         # Draw.
         if ret and info.value == 0:
@@ -2063,7 +2063,7 @@ class NativeTablebase:
         if ret and info.value == 2:
             return dtm if board.turn == chess.BLACK else -dtm
 
-        raise KeyError("gaviota probe failed for {}".format(board.fen()))
+        raise KeyError(f"gaviota probe failed for {board.fen()}")
 
     def close(self) -> None:
         self.paths = []

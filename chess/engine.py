@@ -215,11 +215,11 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
             try:
                 value = int(value)
             except ValueError:
-                raise EngineError("expected integer for spin option {!r}, got: {!r}".format(self.name, value))
+                raise EngineError(f"expected integer for spin option {self.name!r}, got: {value!r}")
             if self.min is not None and value < self.min:
-                raise EngineError("expected value for option {!r} to be at least {}, got: {}".format(self.name, self.min, value))
+                raise EngineError(f"expected value for option {self.name!r} to be at least {self.min}, got: {value}")
             if self.max is not None and self.max < value:
-                raise EngineError("expected value for option {!r} to be at most {}, got: {}".format(self.name, self.max, value))
+                raise EngineError(f"expected value for option {self.name!r} to be at most {self.max}, got: {value}")
             return value
         elif self.type == "combo":
             value = str(value)
@@ -231,7 +231,7 @@ class Option(collections.namedtuple("Option", "name type default min max var")):
         elif self.type in ["string", "file", "path"]:
             value = str(value)
             if "\n" in value or "\r" in value:
-                raise EngineError("invalid line-break in string option {!r}: {!r}".format(self.name, value))
+                raise EngineError(f"invalid line-break in string option {self.name!r}: {value!r}")
             return value
         else:
             raise EngineError("unknown option type: {}", self.type)
@@ -521,10 +521,10 @@ class Cp(Score):
         return self.cp
 
     def __str__(self) -> str:
-        return "+{:d}".format(self.cp) if self.cp > 0 else str(self.cp)
+        return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
 
     def __repr__(self) -> str:
-        return "Cp({})".format(self)
+        return f"Cp({self})"
 
     def __neg__(self) -> "Cp":
         return Cp(-self.cp)
@@ -554,7 +554,7 @@ class Mate(Score):
             return -mate_score - self.moves
 
     def __str__(self) -> str:
-        return "#+{}".format(self.moves) if self.moves > 0 else "#-{}".format(abs(self.moves))
+        return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
 
     def __repr__(self) -> str:
         return "Mate({})".format(str(self).lstrip("#"))
@@ -611,10 +611,10 @@ class MockTransport:
         self.expected_pings += 1
 
     def assert_done(self) -> None:
-        assert not self.expectations, "pending expectations: {}".format(self.expectations)
+        assert not self.expectations, f"pending expectations: {self.expectations}"
 
     def get_pipe_transport(self, fd: int) -> "MockTransport":
-        assert fd == 0, "expected 0 for stdin, got {}".format(fd)
+        assert fd == 0, f"expected 0 for stdin, got {fd}"
         return self
 
     def write(self, data: bytes) -> None:
@@ -627,9 +627,9 @@ class MockTransport:
                 self.expected_pings -= 1
                 self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n")
             else:
-                assert self.expectations, "unexpected: {}".format(line)
+                assert self.expectations, f"unexpected: {line}"
                 expectation, responses = self.expectations.popleft()
-                assert expectation == line, "expected {}, got: {}".format(expectation, line)
+                assert expectation == line, f"expected {expectation}, got: {line}"
                 if responses:
                     self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
 
@@ -715,7 +715,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         command = command_factory()
 
         if self.returncode.done():
-            raise EngineTerminatedError("engine process dead (exit code: {})".format(self.returncode.result()))
+            raise EngineTerminatedError(f"engine process dead (exit code: {self.returncode.result()})")
 
         assert command.state == CommandState.New
 
@@ -748,7 +748,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         pid = self.transport.get_pid() if self.transport is not None else "?"
-        return "<{} (pid={})>".format(type(self).__name__, pid)
+        return f"<{type(self).__name__} (pid={pid})>"
 
     @abc.abstractmethod
     async def initialize(self) -> None:
@@ -900,7 +900,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         self.finished = asyncio.Future()  # type: asyncio.Future[None]
 
     def _engine_terminated(self, engine: EngineProtocolT, code: int) -> None:
-        exc = EngineTerminatedError("engine process died unexpectedly (exit code: {})".format(code))
+        exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
         if self.state == CommandState.Active:
             self.engine_terminated(engine, exc)
         elif self.state == CommandState.Cancelling:
@@ -913,7 +913,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
             self.result.set_exception(exc)
         else:
             engine.loop.call_exception_handler({
-                "message": "engine command failed after returning preliminary result ({!r})".format(self.result),
+                "message": f"engine command failed after returning preliminary result ({self.result!r})",
                 "exception": exc,
                 "protocol": engine,
                 "transport": engine.transport,
@@ -1497,7 +1497,7 @@ class UciOptionMap(MutableMapping[str, T]):
         return self.copy()
 
     def __repr__(self) -> str:
-        return "{}({!r})".format(type(self).__name__, dict(self.items()))
+        return f"{type(self).__name__}({dict(self.items())!r})"
 
 
 XBOARD_ERROR_REGEX = re.compile(r"^\s*(Error|Illegal move)(\s*\([^()]+\))?\s*:")
@@ -1598,7 +1598,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("accept smp")
                 if engine.features.get("egt"):
                     for egt in engine.features["egt"].split(","):
-                        name = "egtpath {}".format(egt)
+                        name = f"egtpath {egt}"
                         engine.options[name] = Option(name, "path", None, None, None, None)
                     engine.send_line("accept egt")
 
@@ -1614,14 +1614,14 @@ class XBoardProtocol(EngineProtocol):
         return await self.communicate(Command)
 
     def _ping(self, n: int) -> None:
-        self.send_line("ping {}".format(n))
+        self.send_line(f"ping {n}")
 
     def _variant(self, variant: Optional[str]) -> None:
         variants = self.features.get("variants", "").split(",")
         if not variant or variant not in variants:
             raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(variants)))
 
-        self.send_line("variant {}".format(variant))
+        self.send_line(f"variant {variant}")
 
     def _new(self, board: chess.Board, game: object, options: ConfigMapping) -> None:
         self._configure(options)
@@ -1652,7 +1652,7 @@ class XBoardProtocol(EngineProtocol):
         if new_game:
             fen = root.fen(shredder=board.chess960, en_passant="fen")
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
-                self.send_line("setboard {}".format(fen))
+                self.send_line(f"setboard {fen}")
 
         # Undo moves until common position.
         common_stack_len = 0
@@ -1681,7 +1681,7 @@ class XBoardProtocol(EngineProtocol):
         class Command(BaseCommand[XBoardProtocol, None]):
             def start(self, engine: XBoardProtocol) -> None:
                 n = id(self) & 0xffff
-                self.pong = "pong {}".format(n)
+                self.pong = f"pong {n}"
                 engine._ping(n)
 
             def line_received(self, engine: XBoardProtocol, line: str) -> None:
@@ -1712,7 +1712,7 @@ class XBoardProtocol(EngineProtocol):
                 increment = limit.white_inc if board.turn else limit.black_inc
                 if limit.remaining_moves or increment:
                     base_mins, base_secs = divmod(int(limit.white_clock if board.turn else limit.black_clock), 60)
-                    engine.send_line("level {} {}:{:02d} {}".format(limit.remaining_moves or 0, base_mins, base_secs, increment))
+                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment}")
 
                 if limit.nodes is not None:
                     if limit.time is not None or limit.white_clock is not None or limit.black_clock is not None or increment is not None:
@@ -1724,11 +1724,11 @@ class XBoardProtocol(EngineProtocol):
                         raise EngineError("xboard engine does not support node limits (feature nps=0)")
 
                     engine.send_line("nps 1")
-                    engine.send_line("st {}".format(int(limit.nodes)))
+                    engine.send_line(f"st {int(limit.nodes)}")
                 if limit.depth is not None:
-                    engine.send_line("sd {}".format(limit.depth))
+                    engine.send_line(f"sd {limit.depth}")
                 if limit.time is not None:
-                    engine.send_line("st {}".format(limit.time))
+                    engine.send_line(f"st {limit.time}")
                 if limit.white_clock is not None:
                     engine.send_line("{} {}".format("time" if board.turn else "otim", int(limit.white_clock * 100)))
                 if limit.black_clock is not None:
@@ -1803,7 +1803,7 @@ class XBoardProtocol(EngineProtocol):
             def _ping_after_move(self, engine: XBoardProtocol) -> None:
                 if self.pong_after_move is None:
                     n = id(self) & 0xffff
-                    self.pong_after_move = "pong {}".format(n)
+                    self.pong_after_move = f"pong {n}"
                     engine._ping(n)
 
             def cancel(self, engine: XBoardProtocol) -> None:
@@ -1818,7 +1818,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("easy")
 
                     n = (id(self) + 1) & 0xffff
-                    self.pong_after_ponder = "pong {}".format(n)
+                    self.pong_after_ponder = f"pong {n}"
                     engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
@@ -1849,7 +1849,7 @@ class XBoardProtocol(EngineProtocol):
 
                     engine.send_line("exclude all")
                     for move in root_moves:
-                        engine.send_line("include {}".format(engine.board.xboard(move)))
+                        engine.send_line(f"include {engine.board.xboard(move)}")
 
                 engine.send_line("post")
                 engine.send_line("analyze")
@@ -1905,7 +1905,7 @@ class XBoardProtocol(EngineProtocol):
                 engine.send_line("exit")
 
                 n = id(self) & 0xffff
-                self.final_pong = "pong {}".format(n)
+                self.final_pong = f"pong {n}"
                 engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
@@ -1925,7 +1925,7 @@ class XBoardProtocol(EngineProtocol):
         try:
             option = self.options[name]
         except KeyError:
-            raise EngineError("unsupported xboard option or command: {}".format(name))
+            raise EngineError(f"unsupported xboard option or command: {name}")
 
         self.config[name] = value = option.parse(value)
 
@@ -1933,20 +1933,20 @@ class XBoardProtocol(EngineProtocol):
             # Applied in _new.
             pass
         elif name in ["memory", "cores"] or name.startswith("egtpath "):
-            self.send_line("{} {}".format(name, value))
+            self.send_line(f"{name} {value}")
         elif value is None:
-            self.send_line("option {}".format(name))
+            self.send_line(f"option {name}")
         elif value is True:
-            self.send_line("option {}=1".format(name))
+            self.send_line(f"option {name}=1")
         elif value is False:
-            self.send_line("option {}=0".format(name))
+            self.send_line(f"option {name}=0")
         else:
-            self.send_line("option {}={}".format(name, value))
+            self.send_line(f"option {name}={value}")
 
     def _configure(self, options: ConfigMapping) -> None:
         for name, value in collections.ChainMap(options, self.target_config).items():
             if name.lower() in MANAGED_OPTIONS:
-                raise EngineError("cannot set {} which is automatically managed".format(name))
+                raise EngineError(f"cannot set {name} which is automatically managed")
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
@@ -2355,7 +2355,7 @@ class SimpleEngine:
     def popen(cls, Protocol: Type[EngineProtocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
         async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
-            threading.current_thread().name = "{} (pid={})".format(cls.__name__, transport.get_pid())
+            threading.current_thread().name = f"{cls.__name__} (pid={transport.get_pid()})"
             simple_engine = cls(transport, protocol, timeout=timeout)
             try:
                 await asyncio.wait_for(protocol.initialize(), timeout)
@@ -2366,7 +2366,7 @@ class SimpleEngine:
                 simple_engine.close()
             await simple_engine.shutdown_event.wait()
 
-        return run_in_background(background, name="{} (command={!r})".format(cls.__name__, command), debug=debug)
+        return run_in_background(background, name=f"{cls.__name__} (command={command!r})", debug=debug)
 
     @classmethod
     def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
@@ -2392,7 +2392,7 @@ class SimpleEngine:
 
     def __repr__(self) -> str:
         pid = self.transport.get_pid()  # This happens to be thread-safe.
-        return "<{} (pid={})>".format(type(self).__name__, pid)
+        return f"<{type(self).__name__} (pid={pid})>"
 
 
 class SimpleAnalysisResult:

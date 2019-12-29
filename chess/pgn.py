@@ -514,7 +514,7 @@ class Game(GameNode):
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
             self.headers.get("Date", "????.??.??"),
-            ", {} errors".format(len(self.errors)) if self.errors else "")
+            f", {len(errors)} errors" if self.errors else "")
 
 
 HeadersT = TypeVar("HeadersT", bound="Headers")
@@ -570,9 +570,9 @@ class Headers(MutableMapping[str, str]):
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
         elif not TAG_NAME_REGEX.match(key):
-            raise ValueError("non-alphanumeric pgn header tag: {!r}".format(key))
+            raise ValueError(f"non-alphanumeric pgn header tag: {key!r}")
         elif "\n" in value or "\r" in value:
-            raise ValueError("line break in pgn header {}: {!r}".format(key, value))
+            raise ValueError(f"line break in pgn header {key}: {value!r}")
         else:
             self._others[key] = value
 
@@ -646,7 +646,7 @@ class Mainline(Generic[MainlineMapT]):
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self) -> str:
-        return "<Mainline at {:#x} ({})>".format(id(self), self.accept(StringExporter(columns=None, comments=False)))
+        return "<Mainline at {id(self):#x} ({self.accept(StringExporter(columns=None, comments=False))})>"
 
 
 class ReverseMainline(Generic[MainlineMapT]):
@@ -674,7 +674,9 @@ class ReverseMainline(Generic[MainlineMapT]):
         return Mainline(self.stop, self.f)
 
     def __repr__(self) -> str:
-        return "<ReverseMainline at {:#x} ({})>".format(id(self), " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
+        return "<ReverseMainline at {:#x} ({})>".format(
+            id(self),
+            " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
 
 
 class BaseVisitor:
@@ -979,7 +981,7 @@ class StringExporter(BaseVisitor):
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line("[{} \"{}\"]".format(tagname, tagvalue))
+            self.write_line(f"[{tagname} \"{tagvalue}\"]")
 
     def end_headers(self) -> None:
         if self.found_headers:
@@ -1073,7 +1075,7 @@ class FileExporter(StringExporter):
         return None
 
     def __repr__(self) -> str:
-        return "<FileExporter at {:#x}>".format(id(self))
+        return f"<FileExporter at {id(self):#x}>"
 
     def __str__(self) -> str:
         return self.__repr__()
