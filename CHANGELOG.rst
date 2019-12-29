@@ -6,6 +6,7 @@ Upcoming in the next release
 
 Changes:
 
+* **Dropped support for Python 3.5.**
 * Remove explicit loop arguments in `chess.engine` module, following
   https://bugs.python.org/issue36373.
 
