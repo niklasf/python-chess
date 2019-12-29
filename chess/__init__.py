@@ -2568,16 +2568,34 @@ class Board(BaseBoard):
         """
         return self._algebraic(move, long=True)
 
-    def _algebraic(self, move: Move, long: bool = False) -> str:
-        if not move:
-            # Null move.
-            return "--"
+    def san_and_push(self, move: Move) -> str:
+        return self._algebraic_and_push(move)
+
+    def _algebraic(self, move: Move, *, long: bool = False) -> str:
+        san = self._algebraic_and_push(move, long=long)
+        self.pop()
+        return san
+
+    def _algebraic_and_push(self, move: Move, *, long: bool = False) -> str:
+        san = self._algebraic_without_suffix(move, long=long)
 
         # Look ahead for check or checkmate.
         self.push(move)
         is_check = self.is_check()
         is_checkmate = (is_check and self.is_checkmate()) or self.is_variant_loss() or self.is_variant_win()
-        self.pop()
+
+        # Add check or checkmate suffix.
+        if is_checkmate and move:
+            return san + "#"
+        elif is_check and move:
+            return san + "+"
+        else:
+            return san
+
+    def _algebraic_without_suffix(self, move: Move, *, long: bool = False) -> str:
+        # Null move.
+        if not move:
+            return "--"
 
         # Drops.
         if move.drop:
@@ -2585,21 +2603,14 @@ class Board(BaseBoard):
             if move.drop != PAWN:
                 san = piece_symbol(move.drop).upper()
             san += "@" + SQUARE_NAMES[move.to_square]
+            return san
 
         # Castling.
         if self.is_castling(move):
             if square_file(move.to_square) < square_file(move.from_square):
-                san = "O-O-O"
+                return "O-O-O"
             else:
-                san = "O-O"
-
-        if move.drop or self.is_castling(move):
-            if is_checkmate:
-                return san + "#"
-            elif is_check:
-                return san + "+"
-            else:
-                return san
+                return "O-O"
 
         piece_type = self.piece_type_at(move.from_square)
         assert piece_type, f"san() and lan() expect move to be legal or null, but got {move} in {self.fen()}"
@@ -2655,12 +2666,6 @@ class Board(BaseBoard):
         if move.promotion:
             san += "=" + piece_symbol(move.promotion).upper()
 
-        # Add check or checkmate suffix.
-        if is_checkmate:
-            san += "#"
-        elif is_check:
-            san += "+"
-
         return san
 
     def variation_san(self, variation: Iterable[Move]) -> str:
@@ -2681,13 +2686,11 @@ class Board(BaseBoard):
                 raise ValueError(f"illegal move {move} in position {board.fen()}")
 
             if board.turn == WHITE:
-                san.append(f"{board.fullmove_number}. {board.san(move)}")
+                san.append(f"{board.fullmove_number}. {board.san_and_push(move)}")
             elif not san:
-                san.append(f"{board.fullmove_number}...{board.san(move)}")
+                san.append(f"{board.fullmove_number}...{board.san_and_push(move)}")
             else:
-                san.append(board.san(move))
-
-            board.push(move)
+                san.append(board.san_and_push(move))
 
         return " ".join(san)
 

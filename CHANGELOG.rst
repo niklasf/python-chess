@@ -21,6 +21,7 @@ Features:
 
 * The background thread spawned by `chess.engine.SimpleEngine` is now named
   for improved debuggability, revealing the PID of the engine process.
+* Add `chess.Board.san_and_push()`.
 
 New in v0.29.0
 --------------
