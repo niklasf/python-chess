@@ -73,12 +73,7 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 """The board part of the FEN for the standard chess starting position."""
 
 
-try:
-    _IntFlag = enum.IntFlag  # Since Python 3.6
-except AttributeError:
-    _IntFlag = enum.IntEnum  # type: ignore
-
-class Status(_IntFlag):
+class Status(enum.IntFlag):
     VALID = 0
     NO_WHITE_KING = 1
     NO_BLACK_KING = 2

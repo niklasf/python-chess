@@ -373,12 +373,7 @@ class PlayResult:
             self.draw_offered, self.resigned)
 
 
-try:
-    _IntFlag = enum.IntFlag  # Since Python 3.6
-except AttributeError:
-    _IntFlag = enum.IntEnum  # type: ignore
-
-class Info(_IntFlag):
+class Info(enum.IntFlag):
     """Select information sent by the chess engine."""
     NONE = 0
     BASIC = 1
