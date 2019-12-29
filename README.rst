@@ -73,7 +73,7 @@ python-chess:
 Features
 --------
 
-* Supports Python 3.5.3+ and PyPy3.
+* Supports Python 3.6+ and PyPy3.
 
 * IPython/Jupyter Notebook integration.
   `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
