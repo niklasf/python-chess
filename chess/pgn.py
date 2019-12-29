@@ -514,7 +514,7 @@ class Game(GameNode):
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
             self.headers.get("Date", "????.??.??"),
-            f", {len(errors)} errors" if self.errors else "")
+            f", {len(self.errors)} errors" if self.errors else "")
 
 
 HeadersT = TypeVar("HeadersT", bound="Headers")
