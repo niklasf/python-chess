@@ -358,7 +358,7 @@ class PlayResult:
                  resigned: bool = False) -> None:
         self.move = move
         self.ponder = ponder
-        self.info = info or {}
+        self.info: InfoDict = info or InfoDict({})
         self.draw_offered = draw_offered
         self.resigned = resigned
 
@@ -655,7 +655,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.next_command: Optional[BaseCommand[EngineProtocol, Any]] = None
 
         self.initialized = False
-        self.returncode: asyncio.Future[Int] = asyncio.Future()
+        self.returncode: asyncio.Future[int] = asyncio.Future()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         self.transport = transport
@@ -878,7 +878,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
             except AttributeError:
                 # Unix.
-                popen_args["preexec_fn"] = os.setpgrp  # type: ignore
+                popen_args["preexec_fn"] = os.setpgrp
         popen_args.update(kwargs)
 
         return await _get_running_loop().subprocess_exec(cls, *command, **popen_args)
@@ -1056,9 +1056,9 @@ class UciProtocol(EngineProtocol):
                 if current_var is not None:
                     var.append(" ".join(current_var))
 
-                name = " ".join(name)
-                type = " ".join(type)
-                default = " ".join(default)
+                name: str = " ".join(name)
+                type: str = " ".join(type)
+                default: str = " ".join(default)
 
                 without_default = Option(name, type, None, min, max, var)
                 option = Option(name, type, without_default.parse(default), min, max, var)

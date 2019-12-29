@@ -11,8 +11,10 @@ Changes:
 
 Bugfixes:
 
-* `EngineProtocol.returncode` is no longer poisoned when
+* `chess.engine.EngineProtocol.returncode` is no longer poisoned when
   `EngineProtocol.quit()` times out.
+* `chess.engine.PlayResult.info` was not always of type
+  `chess.engine.InfoDict`.
 
 Features:
 

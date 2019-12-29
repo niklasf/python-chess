@@ -23,12 +23,11 @@ import os
 import re
 import struct
 import threading
-import typing
 
 import chess
 
 from types import TracebackType
-from typing import Deque, Iterator, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Deque, Iterable, Iterator, List, MutableMapping, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]
@@ -436,7 +435,7 @@ def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
             closed.add(dependency)
 
 
-def all_dependencies(targets: str, *, one_king: bool = True) -> Iterator[str]:
+def all_dependencies(targets: Iterable[str], *, one_king: bool = True) -> Iterator[str]:
     closed = set()
     if one_king:
         closed.add("KvK")
