@@ -154,7 +154,7 @@ SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 Bitboard = int
 BB_EMPTY = 0
-BB_ALL = 0xffffffffffffffff
+BB_ALL = 0xffff_ffff_ffff_ffff
 
 BB_SQUARES = [
     BB_A1, BB_B1, BB_C1, BB_D1, BB_E1, BB_F1, BB_G1, BB_H1,
@@ -170,8 +170,8 @@ BB_SQUARES = [
 BB_CORNERS = BB_A1 | BB_H1 | BB_A8 | BB_H8
 BB_CENTER = BB_D4 | BB_E4 | BB_D5 | BB_E5
 
-BB_LIGHT_SQUARES = 0x55aa55aa55aa55aa
-BB_DARK_SQUARES = 0xaa55aa55aa55aa55
+BB_LIGHT_SQUARES = 0x55aa_55aa_55aa_55aa
+BB_DARK_SQUARES = 0xaa55_aa55_aa55_aa55
 
 BB_FILES = [
     BB_FILE_A,
@@ -182,7 +182,7 @@ BB_FILES = [
     BB_FILE_F,
     BB_FILE_G,
     BB_FILE_H
-] = [0x0101010101010101 << i for i in range(8)]
+] = [0x0101_0101_0101_0101 << i for i in range(8)]
 
 BB_RANKS = [
     BB_RANK_1,
@@ -221,35 +221,35 @@ def popcount(bb: Bitboard, *, _bin: Callable[[int], str] = bin) -> int:
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
-    bb = ((bb >> 8) & 0x00ff00ff00ff00ff) | ((bb & 0x00ff00ff00ff00ff) << 8)
-    bb = ((bb >> 16) & 0x0000ffff0000ffff) | ((bb & 0x0000ffff0000ffff) << 16)
-    bb = (bb >> 32) | ((bb & 0x00000000ffffffff) << 32)
+    bb = ((bb >> 8) & 0x00ff_00ff_00ff_00ff) | ((bb & 0x00ff_00ff_00ff_00ff) << 8)
+    bb = ((bb >> 16) & 0x0000_ffff_0000_ffff) | ((bb & 0x0000_ffff_0000_ffff) << 16)
+    bb = (bb >> 32) | ((bb & 0x0000_0000_ffff_ffff) << 32)
     return bb
 
 def flip_horizontal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
-    bb = ((bb >> 1) & 0x5555555555555555) | ((bb & 0x5555555555555555) << 1)
-    bb = ((bb >> 2) & 0x3333333333333333) | ((bb & 0x3333333333333333) << 2)
-    bb = ((bb >> 4) & 0x0f0f0f0f0f0f0f0f) | ((bb & 0x0f0f0f0f0f0f0f0f) << 4)
+    bb = ((bb >> 1) & 0x5555_5555_5555_5555) | ((bb & 0x5555_5555_5555_5555) << 1)
+    bb = ((bb >> 2) & 0x3333_3333_3333_3333) | ((bb & 0x3333_3333_3333_3333) << 2)
+    bb = ((bb >> 4) & 0x0f0f_0f0f_0f0f_0f0f) | ((bb & 0x0f0f_0f0f_0f0f_0f0f) << 4)
     return bb
 
 def flip_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
-    t = (bb ^ (bb << 28)) & 0x0f0f0f0f00000000
+    t = (bb ^ (bb << 28)) & 0x0f0f_0f0f_0000_0000
     bb = bb ^ (t ^ (t >> 28))
-    t = (bb ^ (bb << 14)) & 0x3333000033330000
+    t = (bb ^ (bb << 14)) & 0x3333_0000_3333_0000
     bb = bb ^ (t ^ (t >> 14))
-    t = (bb ^ (bb << 7)) & 0x5500550055005500
+    t = (bb ^ (bb << 7)) & 0x5500_5500_5500_5500
     bb = bb ^ (t ^ (t >> 7))
     return bb
 
 def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
-    bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0f0f00f0f0f0f)
-    t = (bb ^ (bb << 18)) & 0xcccc0000cccc0000
+    bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f)
+    t = (bb ^ (bb << 18)) & 0xcccc_0000_cccc_0000
     bb = bb ^ (t ^ (t >> 18))
-    t = (bb ^ (bb << 9)) & 0xaa00aa00aa00aa00
+    t = (bb ^ (bb << 9)) & 0xaa00_aa00_aa00_aa00
     bb = bb ^ (t ^ (t >> 9))
     return bb
 
@@ -764,7 +764,7 @@ class BaseBoard:
         True
         >>> direction = board.pin(chess.WHITE, chess.C3)
         >>> direction
-        SquareSet(0x0000000102040810)
+        SquareSet(0x0000_0001_0204_0810)
         >>> print(direction)
         . . . . . . . .
         . . . . . . . .
@@ -3487,11 +3487,11 @@ class SquareSet:
     >>>
     >>> squares = chess.SquareSet([chess.A8, chess.A1])
     >>> squares
-    SquareSet(0x0100000000000001)
+    SquareSet(0x0100_0000_0000_0001)
 
     >>> squares = chess.SquareSet(chess.BB_A8 | chess.BB_RANK_1)
     >>> squares
-    SquareSet(0x01000000000000ff)
+    SquareSet(0x0100_0000_0000_00ff)
 
     >>> print(squares)
     1 . . . . . . .
@@ -3753,7 +3753,7 @@ class SquareSet:
         return self.mask
 
     def __repr__(self) -> str:
-        return "SquareSet({0:#018x})".format(self.mask)
+        return "SquareSet({:#021_x})".format(self.mask)
 
     def __str__(self) -> str:
         builder = []

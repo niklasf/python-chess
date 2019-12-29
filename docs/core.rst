@@ -218,7 +218,7 @@ Common integer masks are:
 .. py:data:: chess.BB_EMPTY
     :annotation: = 0
 .. py:data:: chess.BB_ALL
-    :annotation: = 0xFFFFFFFFFFFFFFFF
+    :annotation: = 0xFFFF_FFFF_FFFF_FFFF
 
 Single squares:
 
@@ -237,9 +237,9 @@ Ranks and files:
 Other masks:
 
 .. py:data:: chess.BB_LIGHT_SQUARES
-    :annotation: = 0x55AA55AA55AA55AA
+    :annotation: = 0x55AA_55AA_55AA_55AA
 .. py:data:: chess.BB_DARK_SQUARES
-    :annotation: = 0xAA55AA55AA55AA55
+    :annotation: = 0xAA55_AA55_AA55_AA55
 
 .. py:data:: chess.BB_BACKRANKS
     :annotation: = chess.BB_RANK_1 | chess.BB_RANK_8

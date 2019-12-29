@@ -1755,8 +1755,8 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_FILE_B).carry_rippler()), 2 ** 8)
 
     def test_mirror(self):
-        self.assertEqual(chess.SquareSet(0xa209000004a600).mirror(), 0xa604000009a200)
-        self.assertEqual(chess.SquareSet(0x1e2222120e0a1222).mirror(), 0x22120a0e1222221e)
+        self.assertEqual(chess.SquareSet(0x00a2_0900_0004_a600).mirror(), 0x00a6_0400_0009_a200)
+        self.assertEqual(chess.SquareSet(0x1e22_2212_0e0a_1222).mirror(), 0x2212_0a0e_1222_221e)
 
     def test_flip(self):
         self.assertEqual(chess.flip_vertical(chess.BB_ALL), chess.BB_ALL)
@@ -1764,11 +1764,11 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(chess.flip_diagonal(chess.BB_ALL), chess.BB_ALL)
         self.assertEqual(chess.flip_anti_diagonal(chess.BB_ALL), chess.BB_ALL)
 
-        s = chess.SquareSet(0x1e2222120e0a1222)  # Letter R
-        self.assertEqual(chess.flip_vertical(s), 0x22120a0e1222221e)
-        self.assertEqual(chess.flip_horizontal(s), 0x7844444870504844)
-        self.assertEqual(chess.flip_diagonal(s), 0x000061928c88ff00)
-        self.assertEqual(chess.flip_anti_diagonal(s), 0x00ff113149860000)
+        s = chess.SquareSet(0x1e22_2212_0e0a_1222)  # Letter R
+        self.assertEqual(chess.flip_vertical(s), 0x2212_0a0e_1222_221e)
+        self.assertEqual(chess.flip_horizontal(s), 0x7844_4448_7050_4844)
+        self.assertEqual(chess.flip_diagonal(s), 0x0000_6192_8c88_ff00)
+        self.assertEqual(chess.flip_anti_diagonal(s), 0x00ff_1131_4986_0000)
 
     def test_len_of_complenent(self):
         squares = chess.SquareSet(~chess.BB_ALL)
@@ -1778,7 +1778,7 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(len(squares), 48)
 
     def test_int_conversion(self):
-        self.assertEqual(int(chess.SquareSet(chess.BB_CENTER)), 0x1818000000)
+        self.assertEqual(int(chess.SquareSet(chess.BB_CENTER)), 0x0000_0018_1800_0000)
         self.assertEqual(hex(chess.SquareSet(chess.BB_CENTER)), "0x1818000000")
         self.assertEqual(bin(chess.SquareSet(chess.BB_CENTER)), "0b1100000011000000000000000000000000000")
 
