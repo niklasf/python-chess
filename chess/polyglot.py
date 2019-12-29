@@ -324,13 +324,13 @@ class MemoryMappedReader:
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         try:
-            self.mmap: Optional[mmap.mmap] = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-        except (ValueError, mmap.error):  # type: ignore
+            self.mmap: Union[mmap.mmap, _EmptyMmap] = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+        except (ValueError, OSError):
             self.mmap = _EmptyMmap()  # Workaround for empty opening books.
 
         try:
             # Python 3.8
-            self.mmap.madvise(mmap.MADV_RANDOM)
+            self.mmap.madvise(mmap.MADV_RANDOM)  # type: ignore
         except AttributeError:
             pass
 
@@ -348,7 +348,7 @@ class MemoryMappedReader:
             index = len(self) + index
 
         try:
-            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, index * ENTRY_STRUCT.size)  # type: ignore
+            key, raw_move, weight, learn = ENTRY_STRUCT.unpack_from(self.mmap, index * ENTRY_STRUCT.size)
         except struct.error:
             raise IndexError()
 
@@ -383,7 +383,7 @@ class MemoryMappedReader:
 
         while lo < hi:
             mid = (lo + hi) // 2
-            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)  # type: ignore
+            mid_key, _, _, _ = ENTRY_STRUCT.unpack_from(self.mmap, mid * ENTRY_STRUCT.size)
             if mid_key < key:
                 lo = mid + 1
             else:
