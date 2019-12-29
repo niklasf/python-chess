@@ -117,15 +117,15 @@ SKIP = SkipType.SKIP
 
 class GameNode:
     def __init__(self) -> None:
-        self.parent = None  # type: Optional[GameNode]
-        self.variations = []  # type: List[GameNode]
+        self.parent: Optional[GameNode] = None
+        self.variations: List[GameNode] = []
 
-        self.move = None  # type: Optional[chess.Move]
-        self.nags = set()  # type: Set[int]
+        self.move: Optional[chess.Move] = None
+        self.nags: Set[int] = set()
         self.starting_comment = ""
         self.comment = ""
 
-        self.board_cached = None  # type: Optional[weakref.ref[chess.Board]]
+        self.board_cached: Optional[weakref.ref[chess.Board]] = None
 
     @classmethod
     def dangling_node(cls) -> "GameNode":
@@ -422,7 +422,7 @@ class Game(GameNode):
     def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None) -> None:
         super().__init__()
         self.headers = Headers(headers)
-        self.errors = []  # type: List[Exception]
+        self.errors: List[Exception] = []
 
     def board(self, *, _cache: bool = False) -> chess.Board:
         """
@@ -489,7 +489,7 @@ class Game(GameNode):
         # Setup the initial position.
         game = cls()
         game.setup(board.root())
-        node = game  # type: GameNode
+        node: GameNode = game
 
         # Replay all moves.
         for move in board.move_stack:
@@ -521,8 +521,8 @@ HeadersT = TypeVar("HeadersT", bound="Headers")
 
 class Headers(MutableMapping[str, str]):
     def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None, **kwargs: str) -> None:
-        self._tag_roster = {}  # type: Dict[str, str]
-        self._others = {}  # type: Dict[str, str]
+        self._tag_roster: Dict[str, str] = {}
+        self._others: Dict[str, str] = {}
 
         if data is None:
             data = {
@@ -787,7 +787,7 @@ class GameBuilder(BaseVisitor):
     def begin_game(self) -> None:
         self.game = self.Game()
 
-        self.variation_stack = [self.game]  # type: List[GameNode]
+        self.variation_stack: List[GameNode] = [self.game]
         self.starting_comment = ""
         self.in_variation = False
 
@@ -954,7 +954,7 @@ class StringExporter(BaseVisitor):
 
         self.force_movenumber = True
 
-        self.lines = []  # type: List[str]
+        self.lines: List[str] = []
         self.current_line = ""
         self.variation_depth = 0
 

@@ -1502,7 +1502,7 @@ class TableBlock:
         self.side = side
         self.offset = offset
         self.age = age
-        self.pcache = None  # type: Optional[List[int]]
+        self.pcache: Optional[List[int]] = None
 
 
 class Request:
@@ -1513,12 +1513,12 @@ class Request:
         self.side = side
         self.epsq = epsq
 
-        self.egkey = None  # type: str
-        self.white_piece_squares = None  # type: List[int]
-        self.white_piece_types = None  # type: List[int]
-        self.black_piece_squares = None  # type: List[int]
-        self.black_piece_types = None  # type: List[int]
-        self.is_reversed = None  # type: bool
+        self.egkey: str = None
+        self.white_piece_squares: List[int] = None
+        self.white_piece_types: List[int] = None
+        self.black_piece_squares: List[int] = None
+        self.black_piece_types: List[int] = None
+        self.is_reversed: bool = None
 
 
 class Zipinfo:
@@ -1532,12 +1532,12 @@ class PythonTablebase:
     """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self) -> None:
-        self.available_tables = {}  # type: Dict[str, str]
+        self.available_tables: Dict[str, str] = {}
 
-        self.streams = {}  # type: Dict[str, BinaryIO]
-        self.zipinfo = {}  # type: Dict[str, Zipinfo]
+        self.streams: Dict[str, BinaryIO] = {}
+        self.zipinfo: Dict[str, Zipinfo] = {}
 
-        self.block_cache = {}  # type: Dict[Tuple[str, int, int], TableBlock]
+        self.block_cache: Dict[Tuple[str, int, int], TableBlock] = {}
         self.block_age = 0
 
     def add_directory(self, directory: PathLike) -> None:
@@ -1923,7 +1923,7 @@ class NativeTablebase:
     """
 
     def __init__(self, libgtb) -> None:
-        self.paths = []  # type: List[str]
+        self.paths: List[str] = []
 
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p

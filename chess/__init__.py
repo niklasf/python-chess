@@ -35,7 +35,7 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Callable, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Counter, Dict, Generic, Hashable, Iterable, Iterator, List, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 
 Color = bool
@@ -1353,18 +1353,18 @@ class Board(BaseBoard):
     """
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
-    uci_variant = "chess"  # type: ClassVar[Optional[str]]
-    xboard_variant = "normal"  # type: ClassVar[Optional[str]]
+    uci_variant: ClassVar[Optional[str]] = "chess"
+    xboard_variant: ClassVar[Optional[str]] = "normal"
     starting_fen = STARTING_FEN
 
-    tbw_suffix = ".rtbw"  # type: ClassVar[Optional[str]]
-    tbz_suffix = ".rtbz"  # type: ClassVar[Optional[str]]
-    tbw_magic = b"\x71\xe8\x23\x5d"  # type: ClassVar[Optional[bytes]]
-    tbz_magic = b"\xd7\x66\x0c\xa5"  # type: ClassVar[Optional[bytes]]
-    pawnless_tbw_suffix = None  # type: ClassVar[Optional[str]]
-    pawnless_tbz_suffix = None  # type: ClassVar[Optional[str]]
-    pawnless_tbw_magic = None  # type: ClassVar[Optional[bytes]]
-    pawnless_tbz_magic = None  # type: ClassVar[Optional[bytes]]
+    tbw_suffix: ClassVar[Optional[str]] = ".rtbw"
+    tbz_suffix: ClassVar[Optional[str]] = ".rtbz"
+    tbw_magic: ClassVar[Optional[bytes]] = b"\x71\xe8\x23\x5d"
+    tbz_magic: ClassVar[Optional[bytes]] = b"\xd7\x66\x0c\xa5"
+    pawnless_tbw_suffix: ClassVar[Optional[str]] = None
+    pawnless_tbz_suffix: ClassVar[Optional[str]] = None
+    pawnless_tbw_magic: ClassVar[Optional[bytes]] = None
+    pawnless_tbz_magic: ClassVar[Optional[bytes]] = None
     connected_kings = False
     one_king = True
     captures_compulsory = False
@@ -1374,9 +1374,9 @@ class Board(BaseBoard):
 
         self.chess960 = chess960
 
-        self.ep_square = None  # type: Optional[Square]
-        self.move_stack = []  # type: List[Move]
-        self._stack = []  # type: List[_BoardState[BoardT]]
+        self.ep_square: Optional[Square] = None
+        self.move_stack: List[Move] = []
+        self._stack: List[_BoardState[BoardT]] = []
 
         if fen is None:
             self.clear()
@@ -1834,7 +1834,7 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions = collections.Counter()  # type: typing.Counter[Hashable]
+        transpositions: Counter[Hashable] = collections.Counter()
         transpositions.update((transposition_key, ))
 
         # Count positions.
@@ -2427,7 +2427,7 @@ class Board(BaseBoard):
         return " ".join(epd)
 
     def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
-        operations = {}  # type: Dict[str, Union[None, str, int, float, Move, List[Move]]]
+        operations: Dict[str, Union[None, str, int, float, Move, List[Move]]] = {}
         state = "opcode"
         opcode = ""
         operand = ""

@@ -17,7 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import chess
-import collections
 import struct
 import os
 import mmap
@@ -25,7 +24,7 @@ import random
 import typing
 
 from types import TracebackType
-from typing import Callable, Container, Iterator, List, Optional, Type, Union
+from typing import Callable, Container, Iterator, List, NamedTuple, Optional, Type, Union
 
 
 PathLike = Union[str, bytes]
@@ -300,10 +299,14 @@ def zobrist_hash(board: chess.Board, *, _hasher: Callable[[chess.Board], int] = 
     return _hasher(board)
 
 
-class Entry(collections.namedtuple("Entry", "key raw_move weight learn move")):
+class Entry(NamedTuple):
     """An entry from a Polyglot opening book."""
 
-    __slots__ = ()
+    key: int
+    raw_move: int
+    weight: int
+    learn: int
+    move: chess.Move
 
 
 class _EmptyMmap(bytearray):
@@ -321,7 +324,7 @@ class MemoryMappedReader:
         self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
 
         try:
-            self.mmap = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)  # type: Optional[mmap.mmap]
+            self.mmap: Optional[mmap.mmap] = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
         except (ValueError, mmap.error):  # type: ignore
             self.mmap = _EmptyMmap()  # Workaround for empty opening books.
 
@@ -395,7 +398,7 @@ class MemoryMappedReader:
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)  # type: ignore
-            context = None  # type: Optional[chess.Board]
+            context: Optional[chess.Board] = None
         except (TypeError, ValueError):
             context = typing.cast(chess.Board, board)
             key = zobrist_hash(context)

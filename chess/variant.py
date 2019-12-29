@@ -631,7 +631,7 @@ CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 class CrazyhousePocket:
 
     def __init__(self, symbols: Iterable[str] = "") -> None:
-        self.pieces = {}  # type: Dict[chess.PieceType, int]
+        self.pieces: Dict[chess.PieceType, int] = {}
         for symbol in symbols:
             self.add(chess.PIECE_SYMBOLS.index(symbol))
 
@@ -848,7 +848,7 @@ class CrazyhouseBoard(chess.Board):
         return status
 
 
-VARIANTS = [
+VARIANTS: List[Type[chess.Board]] = [
     chess.Board,
     SuicideBoard, GiveawayBoard, AntichessBoard,
     AtomicBoard,
@@ -857,7 +857,7 @@ VARIANTS = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
-]  # type: List[Type[chess.Board]]
+]
 
 
 def find_variant(name: str) -> Type[chess.Board]:

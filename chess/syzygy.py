@@ -28,7 +28,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Iterator, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Deque, Iterator, List, MutableMapping, Optional, Tuple, Type, Union
 
 
 PathLike = Union[str, bytes]
@@ -526,7 +526,7 @@ class PairsData:
         self.data = None
         self.offset = None
         self.symlen = None
-        self.sympat = None  # type: int
+        self.sympat: int = None
         self.blocksize = None
         self.idxbits = None
         self.min_len = None
@@ -1479,11 +1479,11 @@ class Tablebase:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
-        self.lru = collections.deque()  # type: typing.Deque[Table]
+        self.lru: Deque[Table] = collections.deque()
         self.lru_lock = threading.Lock()
 
-        self.wdl = {}  # type: MutableMapping[str, WdlTable]
-        self.dtz = {}  # type: MutableMapping[str, DtzTable]
+        self.wdl: MutableMapping[str, WdlTable] = {}
+        self.dtz: MutableMapping[str, DtzTable] = {}
 
     def _bump_lru(self, table: Table) -> None:
         if self.max_fds is None:

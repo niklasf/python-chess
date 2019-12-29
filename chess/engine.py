@@ -48,7 +48,7 @@ except ImportError:
 import chess
 
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NamedTuple, Optional, Text, Tuple, Type, TypeVar, Union
 
 
 T = TypeVar("T")
@@ -77,7 +77,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
     This does not affect communication.
     """
     class _ThreadLocal(threading.local):
-        _watcher = None  # type: Optional[AbstractChildWatcher]
+        _watcher: "Optional[asyncio.AbstractChildWatcher]" = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -90,7 +90,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
         class PollingChildWatcher(asyncio.SafeChildWatcher):  # type: ignore
             def __init__(self) -> None:
                 super().__init__()
-                self._poll_handle = None  # type: Optional[asyncio.Handle]
+                self._poll_handle: Optional[asyncio.Handle] = None
                 self._poll_delay = 0.001
 
             def attach_loop(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -154,7 +154,7 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
         if not isinstance(asyncio.get_event_loop_policy(), EventLoopPolicy):
             asyncio.set_event_loop_policy(EventLoopPolicy())
 
-    future = concurrent.futures.Future()  # type: concurrent.futures.Future[T]
+    future: concurrent.futures.Future[T] = concurrent.futures.Future()
 
     def background() -> None:
         loop = asyncio.new_event_loop()
@@ -197,16 +197,15 @@ class AnalysisComplete(Exception):
     """
 
 
-class Option(collections.namedtuple("Option", "name type default min max var")):
+class Option(NamedTuple):
     """Information about an available engine option."""
 
-    if typing.TYPE_CHECKING:  # Python 3.5 compatible type annotation
-        name = ""
-        type = ""
-        default = None  # type: ConfigValue
-        min = None  # type: Optional[int]
-        max = None  # type: Optional[int]
-        var = []  # type: List[str]
+    name: str
+    type: str
+    default: ConfigValue
+    min: Optional[int]
+    max: Optional[int]
+    var: List[str]
 
     def parse(self, value: ConfigValue) -> ConfigValue:
         if self.type == "check":
@@ -392,7 +391,7 @@ class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
     def __init__(self, relative: "Score", turn: chess.Color) -> None:
-        self.relative = relative  # type: Score
+        self.relative = relative
         self.turn = turn
 
     def white(self) -> "Score":
@@ -599,7 +598,7 @@ MateGiven = MateGivenType()
 class MockTransport:
     def __init__(self, protocol: "EngineProtocol") -> None:
         self.protocol = protocol
-        self.expectations = collections.deque()  # type: typing.Deque[Tuple[str, List[str]]]
+        self.expectations: Deque[Tuple[str, List[str]]] = collections.deque()
         self.expected_pings = 0
         self.stdin_buffer = bytearray()
         self.protocol.connection_made(self)
@@ -645,18 +644,18 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     def __init__(self) -> None:
         self.loop = _get_running_loop()
-        self.transport = None  # type: Optional[asyncio.SubprocessTransport]
+        self.transport: Optional[asyncio.SubprocessTransport] = None
 
         self.buffer = {
             1: bytearray(),  # stdout
             2: bytearray(),  # stderr
         }
 
-        self.command = None  # type: Optional[BaseCommand[EngineProtocol, Any]]
-        self.next_command = None  # type: Optional[BaseCommand[EngineProtocol, Any]]
+        self.command: Optional[BaseCommand[EngineProtocol, Any]] = None
+        self.next_command: Optional[BaseCommand[EngineProtocol, Any]] = None
 
         self.initialized = False
-        self.returncode = asyncio.Future()  # type: asyncio.Future[int]
+        self.returncode: asyncio.Future[Int] = asyncio.Future()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         self.transport = transport
@@ -896,8 +895,8 @@ class BaseCommand(Generic[EngineProtocolT, T]):
     def __init__(self) -> None:
         self.state = CommandState.New
 
-        self.result = asyncio.Future()  # type: asyncio.Future[T]
-        self.finished = asyncio.Future()  # type: asyncio.Future[None]
+        self.result: asyncio.Future[T] = asyncio.Future()
+        self.finished: asyncio.Future[None] = asyncio.Future()
 
     def _engine_terminated(self, engine: EngineProtocolT, code: int) -> None:
         exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
@@ -982,12 +981,12 @@ class UciProtocol(EngineProtocol):
 
     def __init__(self) -> None:
         super().__init__()
-        self.options = UciOptionMap()  # type: UciOptionMap[Option]
-        self.config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
-        self.target_config = UciOptionMap()  # type: UciOptionMap[ConfigValue]
-        self.id = {}  # type: Dict[str, str]
+        self.options: UciOptionMap[Option] = UciOptionMap()
+        self.config: UciOptionMap[ConfigValue] = UciOptionMap()
+        self.target_config: UciOptionMap[ConfigValue] = UciOptionMap()
+        self.id: Dict[str, str] = {}
         self.board = chess.Board()
-        self.game = None  # type: object
+        self.game: object = None
         self.first_game = True
 
     async def initialize(self) -> None:
@@ -1011,9 +1010,9 @@ class UciProtocol(EngineProtocol):
             def _option(self, engine: UciProtocol, arg: str) -> None:
                 current_parameter = None
 
-                name = []  # type: List[str]
-                type = []  # type: List[str]
-                default = []  # type: List[str]
+                name: List[str] = []
+                type: List[str] = []
+                default: List[str] = []
                 min = None
                 max = None
                 current_var = None
@@ -1212,7 +1211,7 @@ class UciProtocol(EngineProtocol):
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         class Command(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
-                self.info = InfoDict({})  # type: InfoDict
+                self.info: InfoDict = InfoDict({})
                 self.pondering = False
                 self.sent_isready = False
 
@@ -1364,7 +1363,7 @@ class UciProtocol(EngineProtocol):
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
 
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
-    info = InfoDict({})  # type: InfoDict
+    info: InfoDict = InfoDict({})
     if not selector:
         return info
 
@@ -1456,7 +1455,7 @@ class UciOptionMap(MutableMapping[str, T]):
     """Dictionary with case-insensitive keys."""
 
     def __init__(self, data: Optional[Union[Iterable[Tuple[str, T]]]] = None, **kwargs: T) -> None:
-        self._store = {}  # type: Dict[str, Tuple[str, T]]
+        self._store: Dict[str, Tuple[str, T]] = {}
         if data is None:
             data = {}
         self.update(data, **kwargs)
@@ -1511,16 +1510,16 @@ class XBoardProtocol(EngineProtocol):
 
     def __init__(self) -> None:
         super().__init__()
-        self.features = {}  # type: Dict[str, Union[int, str]]
-        self.id = {}  # type: Dict[str, str]
+        self.features: Dict[str, Union[int, str]] = {}
+        self.id: Dict[str, str] = {}
         self.options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
         }
-        self.config = {}  # type: Dict[str, ConfigValue]
-        self.target_config = {}  # type: Dict[str, ConfigValue]
+        self.config: Dict[str, ConfigValue] = {}
+        self.target_config: Dict[str, ConfigValue] = {}
         self.board = chess.Board()
-        self.game = None  # type: object
+        self.game: object = None
         self.first_game = True
 
     async def initialize(self) -> None:
@@ -1702,8 +1701,8 @@ class XBoardProtocol(EngineProtocol):
             def start(self, engine: XBoardProtocol) -> None:
                 self.play_result = PlayResult(None, None)
                 self.stopped = False
-                self.pong_after_move = None  # type: Optional[str]
-                self.pong_after_ponder = None  # type: Optional[str]
+                self.pong_after_move: Optional[str] = None
+                self.pong_after_ponder: Optional[str] = None
 
                 # Set game, position and configure.
                 engine._new(board, game, options)
@@ -1839,7 +1838,7 @@ class XBoardProtocol(EngineProtocol):
             def start(self, engine: XBoardProtocol) -> None:
                 self.stopped = False
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
-                self.final_pong = None  # type: Optional[str]
+                self.final_pong: Optional[str] = None
 
                 engine._new(board, game, options)
 
@@ -1857,7 +1856,7 @@ class XBoardProtocol(EngineProtocol):
                 self.result.set_result(self.analysis)
 
                 if limit is not None and limit.time is not None:
-                    self.time_limit_handle = engine.loop.call_later(limit.time, lambda: self.cancel(engine))  # type: Optional[asyncio.Handle]
+                    self.time_limit_handle: Optional[asyncio.Handle] = engine.loop.call_later(limit.time, lambda: self.cancel(engine))
                 else:
                     self.time_limit_handle = None
 
@@ -1968,7 +1967,7 @@ def _parse_xboard_option(feature: str) -> Option:
 
     name = params[0]
     type = params[1][1:]
-    default = None  # type: Optional[ConfigValue]
+    default: Optional[ConfigValue] = None
     min = None
     max = None
     var = None
@@ -2001,7 +2000,7 @@ def _parse_xboard_option(feature: str) -> Option:
 
 def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     # Format: depth score time nodes [seldepth [nps [tbhits]]] pv
-    info = InfoDict({})  # type: InfoDict
+    info: InfoDict = InfoDict({})
 
     # Split leading integer tokens from pv.
     pv_tokens = line.split()
@@ -2025,7 +2024,7 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 
     # Score.
     if cp <= -100000:
-        score = Mate(cp + 100000)  # type: Score
+        score: Score = Mate(cp + 100000)
     elif cp == 100000:
         score = MateGiven
     elif cp >= 100000:
@@ -2078,11 +2077,11 @@ class AnalysisResult:
 
     def __init__(self, stop: Optional[Callable[[], None]] = None):
         self._stop = stop
-        self._queue = asyncio.Queue()  # type: asyncio.Queue[InfoDict]
+        self._queue: asyncio.Queue[InfoDict] = asyncio.Queue()
         self._posted_kork = False
         self._seen_kork = False
-        self._finished = asyncio.Future()  # type: asyncio.Future[None]
-        self.multipv = [InfoDict({})]  # type: List[InfoDict]
+        self._finished: asyncio.Future[None] = asyncio.Future()
+        self.multipv: List[InfoDict] = [InfoDict({})]
 
     def post(self, info: InfoDict) -> None:
         # Empty dictionary reserved for kork.
@@ -2258,7 +2257,7 @@ class SimpleEngine:
         self._shutdown = False
         self.shutdown_event = asyncio.Event()
 
-        self.returncode = concurrent.futures.Future()  # type: concurrent.futures.Future[int]
+        self.returncode: concurrent.futures.Future[int] = concurrent.futures.Future()
 
     def _timeout_for(self, limit: Optional[Limit]) -> Optional[float]:
         if self.timeout is None or limit is None or limit.time is None:
