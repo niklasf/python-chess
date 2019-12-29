@@ -1,6 +1,24 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Remove explicit loop arguments in `chess.engine` module, following
+  https://bugs.python.org/issue36373.
+
+Bugfixes:
+
+* `EngineProtocol.returncode` is no longer poisoned when
+  `EngineProtocol.quit()` times out.
+
+Features:
+
+* The background thread spawned by `chess.engine.SimpleEngine` is now named
+  for improved debuggability, revealing the PID of the engine process.
+
 New in v0.29.0
 --------------
 
