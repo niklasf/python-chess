@@ -3193,7 +3193,7 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
-    @catchAndSkip(FileNotFoundError, "need /bin/sh")
+    @catchAndSkip(FileNotFoundError, "need /bin/bash")
     def test_transport_close_with_pending(self):
         async def main():
             transport, protocol = await chess.engine.popen_uci(["/bin/bash", "-c", "read && echo uciok && sleep 86400"])
@@ -3207,7 +3207,7 @@ class EngineTestCase(unittest.TestCase):
             loop.set_debug(True)
             loop.run_until_complete(main())
 
-    @catchAndSkip(FileNotFoundError, "need /bin/sh")
+    @catchAndSkip(FileNotFoundError, "need /bin/bash")
     def test_quit_timeout(self):
         with chess.engine.SimpleEngine.popen_uci(["/bin/bash", "-c", "read && echo uciok && sleep 86400"], debug=True) as engine:
             engine.timeout = 0.01
