@@ -174,11 +174,7 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
                 loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
                 # Shutdown async generators.
-                try:
-                    loop.run_until_complete(loop.shutdown_asyncgens())
-                except AttributeError:
-                    # Before Python 3.6.
-                    pass
+                loop.run_until_complete(loop.shutdown_asyncgens())
             finally:
                 loop.close()
 
