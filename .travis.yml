@@ -7,8 +7,6 @@ python:
  - "3.8"
 matrix:
   include:
-   - python: "pypy3"
-     dist: trusty
    - python: "3.8"
      env: PERFT=1
 cache:
