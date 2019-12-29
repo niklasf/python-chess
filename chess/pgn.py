@@ -646,7 +646,7 @@ class Mainline(Generic[MainlineMapT]):
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self) -> str:
-        return "<Mainline at {id(self):#x} ({self.accept(StringExporter(columns=None, comments=False))})>"
+        return f"<Mainline at {id(self):#x} ({self.accept(StringExporter(columns=None, comments=False))})>"
 
 
 class ReverseMainline(Generic[MainlineMapT]):
