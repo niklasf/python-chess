@@ -21,6 +21,8 @@ Features:
 
 * The background thread spawned by `chess.engine.SimpleEngine` is now named
   for improved debuggability, revealing the PID of the engine process.
+* `chess.engine.EventLoopPolicy` now supports `asyncio.PidfdChildWatcher`
+  when running on Python 3.9+ and Linux 5.3+.
 * Add `chess.Board.san_and_push()`.
 
 New in v0.29.0

@@ -64,28 +64,75 @@ LOGGER = logging.getLogger(__name__)
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 
 
-class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
+class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
     """
-    An event loop policy that ensures the event loop is capable of spawning
-    and watching subprocesses, even when not running in the main thread.
+    An event loop policy for thread-local event loops and child watchers.
+    Ensures each event loop is capable of spawning and watching subprocesses,
+    even when not running on the main thread.
 
-    Windows: Creates a :class:`~asyncio.ProactorEventLoop`.
+    Windows: Uses :class:`~asyncio.ProactorEventLoop`.
 
-    Unix: Creates a :class:`~asyncio.SelectorEventLoop`. Child watchers are
-    thread local. When not running on the main thread, the default child
-    watchers use relatively slow polling to detect process termination.
-    This does not affect communication.
+    Unix: Uses :class:`~asyncio.SelectorEventLoop`. If available,
+    :class:`~asyncio.PidfdChildWatcher` is used to detect subproces
+    stermination (Python 3.9+ on Linux 5.3+). Otherwise the default child
+    watcher is used on the main thread and relatively slow eager polling
+    is used on all other threads.
     """
-    class _ThreadLocal(threading.local):
-        _watcher: "Optional[asyncio.AbstractChildWatcher]" = None
+    class _Local(threading.local):
+        loop: Optional[asyncio.AbstractEventLoop] = None
+        set_called = False
+        watcher: "Optional[asyncio.AbstractChildWatcher]" = None
 
     def __init__(self) -> None:
-        super().__init__()
-        self._thread_local = self._ThreadLocal()
+        self._local = self._Local()
 
-    def get_child_watcher(self) -> "asyncio.AbstractChildWatcher":
-        if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
-            return super().get_child_watcher()
+    def get_event_loop(self):
+        if self._local.loop is None and not self._local.set_called and threading.current_thread() is threading.main_thread():
+            self.set_event_loop(self.new_event_loop())
+        if self._local.loop is None:
+            raise RuntimeError(f"no current event loop in thread {threading.current_thread().name!r}")
+        return self._local.loop
+
+    def set_event_loop(self, loop):
+        assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
+        self._local.set_called = True
+        self._local.loop = loop
+        if self._local.watcher is not None:
+            self._local.watcher.attach_loop(loop)
+
+    def new_event_loop(self):
+        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
+
+    def get_child_watcher(self):
+        if self._local.watcher is None:
+            self._local.watcher = self._init_watcher()
+            self._local.watcher.attach_loop(self._local.loop)
+        return self._local.watcher
+
+    def set_child_watcher(self, watcher):
+        assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
+        if self._local.watcher is not None:
+            self._local.watcher.close()
+        self._local.watcher = watcher
+
+    def _init_watcher(self):
+        if sys.platform == "win32":
+            raise NotImplementedError
+
+        try:
+            os.close(os.pidfd_open(os.getpid()))
+            return asyncio.PidfdChildWatcher()
+        except (AttributeError, OSError):
+            # Before Python 3.9 or before Linux 5.3 or the syscall is not
+            # permitted.
+            pass
+
+        if threading.current_thread() is threading.main_thread():
+            try:
+                return asyncio.ThreadedChildWatcher()
+            except AttributeError:
+                # Before Python 3.8.
+                return asyncio.SafeChildWatcher()
 
         class PollingChildWatcher(asyncio.SafeChildWatcher):  # type: ignore
             def __init__(self) -> None:
@@ -113,28 +160,7 @@ class EventLoopPolicy(asyncio.DefaultEventLoopPolicy):  # type: ignore
                     self._poll_delay = min(self._poll_delay * 2, 1.0)
                     self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
 
-        if self._thread_local._watcher is None:
-            self._thread_local._watcher = PollingChildWatcher()
-        return self._thread_local._watcher
-
-    def set_child_watcher(self, watcher: "asyncio.AbstractChildWatcher") -> None:
-        if sys.platform == "win32" or threading.current_thread() == threading.main_thread():
-            return super().set_child_watcher(watcher)
-
-        assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
-
-        if self._thread_local._watcher:
-            self._thread_local._watcher.close()
-        self._thread_local._watcher = watcher
-
-    def new_event_loop(self) -> asyncio.AbstractEventLoop:
-        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
-
-    def set_event_loop(self, loop: asyncio.AbstractEventLoop) -> None:
-        super().set_event_loop(loop)
-
-        if sys.platform != "win32" and threading.current_thread() != threading.main_thread():
-            self.get_child_watcher().attach_loop(loop)
+        return PollingChildWatcher()
 
 
 def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
