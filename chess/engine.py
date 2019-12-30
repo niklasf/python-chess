@@ -45,6 +45,39 @@ try:
 except ImportError:
     _all_tasks = asyncio.Task.all_tasks
 
+try:
+    # Python 3.7
+    from asyncio import run as _run
+except ImportError:
+    def _run(main, *, debug=False):
+        assert _get_running_loop() is None
+        assert asyncio.iscoroutine(main)
+
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            loop.set_debug(debug)
+            return loop.run_until_complete(main)
+        finally:
+            try:
+                pending = _all_tasks(loop)
+                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                for task in pending:
+                    if task.cancelled():
+                        continue
+                    if task.exception() is not None:
+                        loop.call_exception_handler({
+                            "message": "unhandled exception during chess.engine._run() shutdown",
+                            "exception": task.exception(),
+                            "task": task,
+                        })
+
+                loop.run_until_complete(loop.shutdown_asyncgens())
+            finally:
+                asyncio.set_event_loop(None)
+                loop.close()
+
+
 import chess
 
 from types import TracebackType
@@ -183,26 +216,11 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
     future: concurrent.futures.Future[T] = concurrent.futures.Future()
 
     def background() -> None:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.set_debug(debug)
-
         try:
-            loop.run_until_complete(coroutine(future))
+            _run(coroutine(future))
             future.cancel()
         except Exception as exc:
             future.set_exception(exc)
-            return
-        finally:
-            try:
-                # Finish all remaining tasks.
-                pending = _all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-
-                # Shutdown async generators.
-                loop.run_until_complete(loop.shutdown_asyncgens())
-            finally:
-                loop.close()
 
     threading.Thread(target=background, name=name).start()
     return future.result()
