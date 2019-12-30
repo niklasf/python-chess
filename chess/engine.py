@@ -60,18 +60,7 @@ except ImportError:
             return loop.run_until_complete(main)
         finally:
             try:
-                pending = _all_tasks(loop)
-                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-                for task in pending:
-                    if task.cancelled():
-                        continue
-                    if task.exception() is not None:
-                        loop.call_exception_handler({
-                            "message": "unhandled exception during chess.engine._run() shutdown",
-                            "exception": task.exception(),
-                            "task": task,
-                        })
-
+                loop.run_until_complete(asyncio.gather(*_all_tasks(loop), return_exceptions=True))
                 loop.run_until_complete(loop.shutdown_asyncgens())
             finally:
                 asyncio.set_event_loop(None)
