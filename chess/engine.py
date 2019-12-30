@@ -73,8 +73,8 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
     Windows: Uses :class:`~asyncio.ProactorEventLoop`.
 
     Unix: Uses :class:`~asyncio.SelectorEventLoop`. If available,
-    :class:`~asyncio.PidfdChildWatcher` is used to detect subproces
-    stermination (Python 3.9+ on Linux 5.3+). Otherwise the default child
+    :class:`~asyncio.PidfdChildWatcher` is used to detect subprocess
+    termination (Python 3.9+ on Linux 5.3+). Otherwise the default child
     watcher is used on the main thread and relatively slow eager polling
     is used on all other threads.
     """
