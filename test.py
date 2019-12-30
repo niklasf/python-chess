@@ -3218,20 +3218,19 @@ class EngineTestCase(unittest.TestCase):
         class ExpectedError(Exception):
             pass
 
-        async def raise_expected_error(future):
+        async def raise_expected_error():
             await asyncio.sleep(0.001)
             raise ExpectedError
 
         with self.assertRaises(ExpectedError):
-            chess.engine.run_in_background(raise_expected_error)
+            chess.engine.run_in_background(raise_expected_error()).result()
 
-        async def resolve(future):
+        async def resolve():
             await asyncio.sleep(0.001)
-            future.set_result("resolved")
-            await asyncio.sleep(0.001)
+            return "resolved"
 
-        result = chess.engine.run_in_background(resolve)
-        self.assertEqual(result, "resolved")
+        future = chess.engine.run_in_background(resolve())
+        self.assertEqual(future.result(), "resolved")
 
 
 class SyzygyTestCase(unittest.TestCase):

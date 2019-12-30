@@ -196,18 +196,17 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
         return PollingChildWatcher()
 
 
-def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
+def run_in_background(main, *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> "concurrent.futures.Future[T]":
     """
-    Runs ``coroutine(future)`` in a new event loop on a background thread.
+    Similar to :func:`asyncio.run()`, but runs the coroutine in a new
+    event loop on a background thread.
 
-    Blocks and returns the *future* result as soon as it is resolved.
-    The coroutine and all remaining tasks continue running in the background
-    until it is complete.
+    Returns a :class:`concurrent.futures.Future` with the result of *main*.
 
     Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
     process.
     """
-    assert asyncio.iscoroutinefunction(coroutine)
+    assert asyncio.iscoroutine(main)
 
     with _policy_lock:
         if not isinstance(asyncio.get_event_loop_policy(), EventLoopPolicy):
@@ -217,13 +216,14 @@ def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Corouti
 
     def background() -> None:
         try:
-            _run(coroutine(future))
+            future.set_result(_run(main))
+        except asyncio.CancelledError:
             future.cancel()
         except Exception as exc:
             future.set_exception(exc)
 
     threading.Thread(target=background, name=name).start()
-    return future.result()
+    return future
 
 
 class EngineError(RuntimeError):
@@ -2304,7 +2304,7 @@ class SimpleEngine:
         self._shutdown = False
         self.shutdown_event = asyncio.Event()
 
-        self.returncode: concurrent.futures.Future[int] = concurrent.futures.Future()
+        self.returncode: concurrent.futures.Future[Optional[int]]
 
     def _timeout_for(self, limit: Optional[Limit]) -> Optional[float]:
         if self.timeout is None or limit is None or limit.time is None:
@@ -2399,20 +2399,36 @@ class SimpleEngine:
 
     @classmethod
     def popen(cls, Protocol: Type[EngineProtocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
-        async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
-            transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
-            threading.current_thread().name = f"{cls.__name__} (pid={transport.get_pid()})"
-            simple_engine = cls(transport, protocol, timeout=timeout)
-            try:
-                await asyncio.wait_for(protocol.initialize(), timeout)
-                future.set_result(simple_engine)
-                returncode = await protocol.returncode
-                simple_engine.returncode.set_result(returncode)
-            finally:
-                simple_engine.close()
-            await simple_engine.shutdown_event.wait()
+        future = concurrent.futures.Future()
 
-        return run_in_background(background, name=f"{cls.__name__} (command={command!r})", debug=debug)
+        async def background() -> Optional[int]:
+            try:
+                transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
+                threading.current_thread().name = f"{cls.__name__} (pid={transport.get_pid()})"
+                simple_engine = cls(transport, protocol, timeout=timeout)
+                try:
+                    await asyncio.wait_for(protocol.initialize(), timeout)
+                    future.set_result(simple_engine)
+
+                    return await protocol.returncode
+                finally:
+                    simple_engine.close()
+                    await simple_engine.shutdown_event.wait()
+            except asyncio.CancelledError:
+                if future.done():
+                    raise
+                else:
+                    future.cancel()
+            except Exception as exc:
+                if future.done():
+                    raise
+                else:
+                    future.set_exception(exc)
+
+        returncode = run_in_background(background(), name=f"{cls.__name__} (command={command!r})", debug=debug)
+        simple_engine = future.result()
+        simple_engine.returncode = returncode
+        return simple_engine
 
     @classmethod
     def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
