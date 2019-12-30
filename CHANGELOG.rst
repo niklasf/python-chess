@@ -9,8 +9,6 @@ Changes:
 * **Dropped support for Python 3.5.**
 * Remove explicit loop arguments in `chess.engine` module, following
   https://bugs.python.org/issue36373.
-* `chess.engine.run_in_background()` now runs arbitrary coroutines and
-  returns a `concurrent.futures.Future` with the result.
 
 Bugfixes:
 
