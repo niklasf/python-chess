@@ -47,8 +47,8 @@ class SuicideBoard(chess.Board):
     def _attacked_for_king(self, path: chess.Bitboard, occupied: chess.Bitboard) -> bool:
         return False
 
-    def is_check(self) -> bool:
-        return False
+    def checkers_mask(self) -> chess.Bitboard:
+        return chess.BB_EMPTY
 
     def is_into_check(self, move: chess.Move) -> bool:
         return False
@@ -275,8 +275,8 @@ class AtomicBoard(chess.Board):
         for explosion in chess.scan_forward(explosion_radius):
             self._remove_piece_at(explosion)
 
-    def is_check(self) -> bool:
-        return not self._kings_connected() and super().is_check()
+    def checkers_mask(self) -> chess.Bitboard:
+        return chess.BB_EMPTY if self._kings_connected() else super().checkers_mask()
 
     def was_into_check(self) -> bool:
         return not self._kings_connected() and super().was_into_check()

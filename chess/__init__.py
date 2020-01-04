@@ -1539,10 +1539,16 @@ class Board(BaseBoard):
             self.generate_pseudo_legal_moves(from_mask, to_mask & self.occupied_co[not self.turn]),
             self.generate_pseudo_legal_ep(from_mask, to_mask))
 
+    def checkers_mask(self) -> Bitboard:
+        king = self.king(self.turn)
+        return BB_EMPTY if king is None else self.attackers_mask(not self.turn, king)
+
+    def checkers(self) -> "SquareSet":
+        return SquareSet(self.checkers_mask())
+
     def is_check(self) -> bool:
         """Returns if the current side to move is in check."""
-        king = self.king(self.turn)
-        return king is not None and self.is_attacked_by(not self.turn, king)
+        return bool(self.checkers_mask())
 
     def is_into_check(self, move: Move) -> bool:
         """
