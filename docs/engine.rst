@@ -5,6 +5,12 @@ UCI and XBoard are protocols for communicating with chess engines. This module
 implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
+:warning: Many popular chess engines make no guarantees, not even memory
+    safety, when parameters and positions are not completely
+    :func:`valid <chess.Board.is_valid()>`. This module tries to deal with
+    benign misbehaving engines, but ultimately they are executables running
+    on your system.
+
 The preferred way to use the API is with an
 `asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop
 (examples show usage with Python 3.7 or later).
