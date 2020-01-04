@@ -315,6 +315,8 @@ class AtomicBoard(chess.Board):
             status &= ~chess.STATUS_NO_WHITE_KING
         else:
             status &= ~chess.STATUS_NO_BLACK_KING
+        if chess.popcount(self.checkers_mask()) <= 14:
+            status &= ~chess.STATUS_TOO_MANY_CHECKERS
         return status
 
 
@@ -409,7 +411,7 @@ class RacingKingsBoard(chess.Board):
     def status(self) -> chess.Status:
         status = super().status()
         if self.is_check():
-            status |= chess.STATUS_RACE_CHECK
+            status |= chess.STATUS_RACE_CHECK | STATUS_TOO_MANY_CHECKERS
         if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
             status |= chess.STATUS_RACE_OVER
         if self.pawns:

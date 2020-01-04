@@ -90,6 +90,7 @@ class Status(enum.IntFlag):
     RACE_CHECK = 4096
     RACE_OVER = 8192
     RACE_MATERIAL = 16384
+    TOO_MANY_CHECKERS = 32768
 
 STATUS_VALID = Status.VALID
 STATUS_NO_WHITE_KING = Status.NO_WHITE_KING
@@ -107,6 +108,7 @@ STATUS_EMPTY = Status.EMPTY
 STATUS_RACE_CHECK = Status.RACE_CHECK
 STATUS_RACE_OVER = Status.RACE_OVER
 STATUS_RACE_MATERIAL = Status.RACE_MATERIAL
+STATUS_TOO_MANY_CHECKERS = Status.TOO_MANY_CHECKERS
 
 
 Square = int
@@ -3070,7 +3072,8 @@ class Board(BaseBoard):
         :data:`~chess.STATUS_EMPTY`,
         :data:`~chess.STATUS_RACE_CHECK`,
         :data:`~chess.STATUS_RACE_OVER`,
-        :data:`~chess.STATUS_RACE_MATERIAL`.
+        :data:`~chess.STATUS_RACE_MATERIAL`,
+        :data:`~chess.STATUS_TOO_MANY_CHECKERS`.
         """
         errors = STATUS_VALID
 
@@ -3113,6 +3116,10 @@ class Board(BaseBoard):
         # Side to move giving check.
         if self.was_into_check():
             errors |= STATUS_OPPOSITE_CHECK
+
+        # More than the maximum number of possible checkers in the variant.
+        if popcount(self.checkers_mask()) > 2:
+            errors |= STATUS_TOO_MANY_CHECKERS
 
         return errors
 

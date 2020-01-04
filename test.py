@@ -937,6 +937,10 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1")
         self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS)
 
+        # Triple check.
+        board = chess.Board("4k3/5P2/3N4/8/8/8/4R3/4K3 b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_CHECKERS)
+
     def test_one_king_movegen(self):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
@@ -3750,6 +3754,11 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard.empty()
         board.set_piece_at(chess.D1, chess.Piece.from_symbol("k"))
         self.assertEqual(tables.probe_wdl(board), -2)
+
+    def test_atomic_validity(self):
+        # 14 checkers, the maximum in Atomic chess.
+        board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
 
 
 class RacingKingsTestCase(unittest.TestCase):
