@@ -392,7 +392,7 @@ class RacingKingsBoard(chess.Board):
         # White has reached the backrank. The game is over if black can not
         # also reach the backrank on the next move. Check if there are any
         # safe squares for the king.
-        targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8
+        targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8 & ~self.occupied_co[chess.BLACK]
         return all(self.attackers_mask(chess.WHITE, target) for target in chess.scan_forward(targets))
 
     def is_variant_draw(self) -> bool:

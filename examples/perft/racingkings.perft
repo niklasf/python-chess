@@ -4,3 +4,12 @@ perft 1 21
 perft 2 421
 perft 3 11264
 perft 4 296242
+
+id occupied-goal
+epd 4brn1/2K2k2/8/8/8/8/8/8 w - -
+perft 1 6
+perft 2 33
+perft 3 178
+perft 4 3151
+perft 5 12981
+perft 6 265932
