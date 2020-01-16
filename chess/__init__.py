@@ -2884,7 +2884,7 @@ class Board(BaseBoard):
     def is_zeroing(self, move: Move) -> bool:
         """Checks if the given pseudo-legal move is a capture or pawn move."""
         touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
-        return bool(touched & self.pawns or touched & self.occupied_co[not self.turn])
+        return bool(touched & self.pawns or touched & self.occupied_co[not self.turn] or move.drop == PAWN)
 
     def _reduces_castling_rights(self, move: Move) -> bool:
         cr = self.clean_castling_rights()
