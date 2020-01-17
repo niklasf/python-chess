@@ -33,6 +33,9 @@ import typing
 import os
 import re
 
+from types import TracebackType
+from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NamedTuple, Optional, Text, Tuple, Type, TypeVar, Union
+
 try:
     # Python 3.7
     from asyncio import get_running_loop as _get_running_loop
@@ -49,7 +52,9 @@ try:
     # Python 3.7
     from asyncio import run as _run
 except ImportError:
-    def _run(main, *, debug=False):
+    _T = TypeVar("_T")
+
+    def _run(main: Awaitable[_T], *, debug: bool = False) -> _T:
         assert _get_running_loop() is None
         assert asyncio.iscoroutine(main)
 
@@ -66,11 +71,7 @@ except ImportError:
                 asyncio.set_event_loop(None)
                 loop.close()
 
-
 import chess
-
-from types import TracebackType
-from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NamedTuple, Optional, Text, Tuple, Type, TypeVar, Union
 
 
 T = TypeVar("T")
@@ -123,7 +124,7 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
             self._local.watcher.attach_loop(loop)
 
     def new_event_loop(self):
-        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
+        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
 
     def get_child_watcher(self):
         if self._local.watcher is None:
@@ -156,7 +157,10 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
                 # Before Python 3.8.
                 return asyncio.SafeChildWatcher()
 
-        class PollingChildWatcher(asyncio.SafeChildWatcher):  # type: ignore
+        class PollingChildWatcher(asyncio.SafeChildWatcher):
+
+            _loop: asyncio.AbstractEventLoop
+
             def __init__(self) -> None:
                 super().__init__()
                 self._poll_handle: Optional[asyncio.Handle] = None
@@ -185,7 +189,7 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
         return PollingChildWatcher()
 
 
-def run_in_background(coroutine: "Callable[concurrent.futures.Future[T], Coroutine[Any, Any, None]]", *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
+def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]]", *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
