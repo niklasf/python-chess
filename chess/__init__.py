@@ -2357,7 +2357,7 @@ class Board(BaseBoard):
                 epd.append(f" {operand};")
             elif isinstance(operand, float):
                 assert math.isfinite(operand), f"expected numeric epd operand to be finite, got: {operand}"
-                epd.append(f" {operand:f};")
+                epd.append(f" {operand};")
             elif opcode in ["pv", "am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
                 # Value is a set of moves or a variation.
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
