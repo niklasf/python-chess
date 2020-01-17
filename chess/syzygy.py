@@ -607,7 +607,10 @@ class Table:
 
             # Open mmap.
             if self.data is None:
-                self.data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+                data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+                if data.size() % 64 != 16:
+                    raise IOError(f"invalid file size: ensure {self.path!r} is a valid syzygy tablebase file")
+                self.data = data
 
                 try:
                     # Python 3.8
