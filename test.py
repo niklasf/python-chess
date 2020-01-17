@@ -1033,6 +1033,13 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["a"], "foo\"bar")
         self.assertEqual(operations["b"], "foo\\\\")
 
+        # Test an EPD with unmatched trailing quotes.
+        board = chess.Board()
+        operations = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"")
+        self.assertEqual(operations["bm"], [chess.Move.from_uci("d6d1")])
+        self.assertEqual(operations["id"], "")
+        self.assertEqual(board.epd(**operations), "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"\";")
+
     def test_eret_epd(self):
         # Too many dashes.
         epd = """r1bqk1r1/1p1p1n2/p1n2pN1/2p1b2Q/2P1Pp2/1PN5/PB4PP/R4RK1 w q - - bm Rxf4; id "ERET 001 - Entlastung";"""

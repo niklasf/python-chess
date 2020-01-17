@@ -2368,7 +2368,7 @@ class Board(BaseBoard):
                 continue
 
             # Value is a set of moves or a variation.
-            if hasattr(operand, "__iter__"):
+            if not isinstance(operand, str) and hasattr(operand, "__iter__"):
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
                 iterator = operand.__iter__()
                 first_move = next(iterator)
