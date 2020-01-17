@@ -31,6 +31,7 @@ __version__ = "0.30.0"
 import collections
 import copy
 import enum
+import math
 import re
 import itertools
 import typing
@@ -2346,44 +2347,33 @@ class Board(BaseBoard):
             first_op = False
             epd.append(opcode)
 
-            # Value is empty.
             if operand is None:
                 epd.append(";")
-                continue
-
-            # Value is a move.
-            if isinstance(operand, Move):
-                # Append SAN for moves.
+            elif isinstance(operand, Move):
                 epd.append(" ")
                 epd.append(self.san(operand))
                 epd.append(";")
-                continue
-
-            # Value is numeric.
-            if isinstance(operand, (int, float)):
-                # Append integer or float.
-                epd.append(" ")
-                epd.append(str(operand))
-                epd.append(";")
-                continue
-
-            # Value is a set of moves or a variation.
-            if opcode in ["pv", "am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
+            elif isinstance(operand, int):
+                epd.append(f" {operand};")
+            elif isinstance(operand, float):
+                assert math.isfinite(operand), f"expected numeric epd operand to be finite, got: {operand}"
+                epd.append(f" {operand:f};")
+            elif opcode in ["pv", "am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
+                # Value is a set of moves or a variation.
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
                 for move in operand:
-                    assert isinstance(move, Move), f"expected epd operation {opcode} to yield moves, got: {move!r}"
+                    assert isinstance(move, Move), f"expected epd operand {opcode} to yield moves, got: {move!r}"
                     epd.append(" ")
                     epd.append(position.san(move))
                     if opcode == "pv":
                         position.push(move)
 
                 epd.append(";")
-                continue
-
-            # Append as escaped string.
-            epd.append(" \"")
-            epd.append(str(operand).replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n").replace("\"", "\\\""))
-            epd.append("\";")
+            else:
+                # Append as escaped string.
+                epd.append(" \"")
+                epd.append(str(operand).replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n").replace("\"", "\\\""))
+                epd.append("\";")
 
         return "".join(epd)
 
@@ -2395,10 +2385,10 @@ class Board(BaseBoard):
         *ep_square* and *promoted*).
 
         EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats, legal moves and ``None``. Aditionally,
-        the operation ``pv`` also accepts a legal variation as a list of moves.
-        The operations ``bm`` and ``bm`` also accept a list of legal moves in
-        the current position.
+        are strings, integers, finite floats, legal moves and ``None``.
+        Aditionally, the operation ``pv`` also accepts a legal variation as
+        a list of moves. The operations ``bm`` and ``bm`` also accept a list of
+        legal moves in the current position.
 
         *hmvc* and *fmvc* are not included by default. You can use:
 
@@ -2465,11 +2455,12 @@ class Board(BaseBoard):
                     state = "san"
             elif state == "numeric":
                 if ch is None or ch == ";":
-                    operations[opcode] = float(operand)
-                    try:
+                    if "." in operand or "e" in operand or "E" in operand:
+                        operations[opcode] = float(operand)
+                        if not math.isfinite(operations[opcode]):
+                            raise ValueError(f"invalid numeric operand for epd operation {opcode!r}: {operand!r}")
+                    else:
                         operations[opcode] = int(operand)
-                    except ValueError:
-                        pass
                     opcode = ""
                     operand = ""
                     state = "opcode"
