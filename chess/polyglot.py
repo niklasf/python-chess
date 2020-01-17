@@ -328,6 +328,9 @@ class MemoryMappedReader:
         except (ValueError, OSError):
             self.mmap = _EmptyMmap()  # Workaround for empty opening books.
 
+        if self.mmap.size() % ENTRY_STRUCT.size != 0:
+            raise IOError(f"invalid file size: ensure {filename!r} is a valid polyglot opening book")
+
         try:
             # Python 3.8
             self.mmap.madvise(mmap.MADV_RANDOM)  # type: ignore
