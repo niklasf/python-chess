@@ -2463,9 +2463,10 @@ class Board(BaseBoard):
             elif state == "numeric":
                 if ch is None or ch == ";":
                     if "." in operand or "e" in operand or "E" in operand:
-                        operations[opcode] = float(operand)
-                        if not math.isfinite(operations[opcode]):
+                        parsed = float(operand)
+                        if not math.isfinite(parsed):
                             raise ValueError(f"invalid numeric operand for epd operation {opcode!r}: {operand!r}")
+                        operations[opcode] = parsed
                     else:
                         operations[opcode] = int(operand)
                     opcode = ""
