@@ -19,4 +19,6 @@ data/syzygy/suicide/*.stb[wz]
 data/syzygy/atomic/*.atb[wz]
 data/syzygy/giveaway/*.[gs]tb[wz]
 
+fuzz/corpus
+
 release-v*.txt

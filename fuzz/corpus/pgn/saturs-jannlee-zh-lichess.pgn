@@ -1,0 +1,17 @@
+[Event "Rated game"]
+[Site "https://lichess.org/l95HJ3fQ"]
+[Date "2016.11.27"]
+[White "saturos"]
+[Black "JannLee"]
+[Result "0-1"]
+[WhiteElo "2612"]
+[BlackElo "2789"]
+[PlyCount "122"]
+[Variant "Crazyhouse"]
+[TimeControl "60+1"]
+[ECO "?"]
+[Opening "?"]
+[Termination "Normal"]
+[Annotator "lichess.org"]
+
+1. e4 e5 2. Nc3 Nc6 3. Nf3 Bc5 4. Bc4 Nf6 5. d3 O-O 6. O-O d6 7. Nd5 h6 8. Be3 Bg4 9. c3 Bxe3 10. fxe3 Nxd5 11. Bxd5 B@b6 12. d4 exd4 13. cxd4 P@e6 14. Bb3 Bxf3 15. Qxf3 Nxd4 16. exd4 Bxd4+ 17. Kh1 N@g5 18. Qh5 P@g6 19. Qe2 P@h3 20. gxh3 Nxh3 21. B@g3 P@h4 22. B@g2 hxg3 23. Bxh3 N@f2+ 24. Rxf2 gxf2 25. P@e3 R@g1+ 26. Rxg1 fxg1=Q+ 27. Kxg1 Bxe3+ 28. Qxe3 B@b6 29. P@d4 P@e5 30. P@c3 R@g5+ 31. B@g2 exd4 32. cxd4 e5 33. P@f2 Bxd4 34. Qd3 Qf6 35. R@f1 P@g4 36. N@d5 Qxf2+ 37. Rxf2 Bxf2+ 38. Kxf2 R@f4+ 39. Nxf4 exf4 40. B@d4 P@e5 41. N@e7+ Kh7 42. N@d5 P@f6 43. Bxg4 Rxg4 44. Qe2 B@h4+ 45. Kf1 Rxg2 46. Qxg2 N@g5 47. P@f5 B@h3 48. Qxh3 Nxh3 49. B@f2 Bxf2 50. Bxf2 B@d3+ 51. B@e2 Bxe2+ 52. Kxe2 f3+ 53. Kxf3 Ng5+ 54. Ke2 B@f3+ 55. Kd2 Q@e2+ 56. Kc3 Qxf2 57. Nxg6 Nxe4+ 58. Kd3 Qd2+ 59. Kc4 Qd4+ 60. Kb5 P@a6+ 61. Ka5 B@b6+ { White resigns } 0-1

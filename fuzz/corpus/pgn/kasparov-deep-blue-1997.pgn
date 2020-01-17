@@ -1,0 +1,135 @@
+[Event "IBM Man-Machine, New York USA"]
+[Site "01"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Garry Kasparov"]
+[Black "Deep Blue (Computer)"]
+[ECO "A06"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "89"]
+
+1.Nf3 d5 2.g3 Bg4 3.b3 Nd7 4.Bb2 e6 5.Bg2 Ngf6 6.O-O c6 7.d3
+Bd6 8.Nbd2 O-O 9.h3 Bh5 10.e3 h6 11.Qe1 Qa5 12.a3 Bc7 13.Nh4
+g5 14.Nhf3 e5 15.e4 Rfe8 16.Nh2 Qb6 17.Qc1 a5 18.Re1 Bd6
+19.Ndf1 dxe4 20.dxe4 Bc5 21.Ne3 Rad8 22.Nhf1 g4 23.hxg4 Nxg4
+24.f3 Nxe3 25.Nxe3 Be7 26.Kh1 Bg5 27.Re2 a4 28.b4 f5 29.exf5
+e4 30.f4 Bxe2 31.fxg5 Ne5 32.g6 Bf3 33.Bc3 Qb5 34.Qf1 Qxf1+
+35.Rxf1 h5 36.Kg1 Kf8 37.Bh3 b5 38.Kf2 Kg7 39.g4 Kh6 40.Rg1
+hxg4 41.Bxg4 Bxg4 42.Nxg4+ Nxg4+ 43.Rxg4 Rd5 44.f6 Rd1 45.g7
+1-0
+
+[Event "IBM Man-Machine, New York USA"]
+[Site "02"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Deep Blue (Computer)"]
+[Black "Garry Kasparov"]
+[ECO "C93"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "89"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3
+d6 8.c3 O-O 9.h3 h6 10.d4 Re8 11.Nbd2 Bf8 12.Nf1 Bd7 13.Ng3
+Na5 14.Bc2 c5 15.b3 Nc6 16.d5 Ne7 17.Be3 Ng6 18.Qd2 Nh7 19.a4
+Nh4 20.Nxh4 Qxh4 21.Qe2 Qd8 22.b4 Qc7 23.Rec1 c4 24.Ra3 Rec8
+25.Rca1 Qd8 26.f4 Nf6 27.fxe5 dxe5 28.Qf1 Ne8 29.Qf2 Nd6
+30.Bb6 Qe8 31.R3a2 Be7 32.Bc5 Bf8 33.Nf5 Bxf5 34.exf5 f6
+35.Bxd6 Bxd6 36.axb5 axb5 37.Be4 Rxa2 38.Qxa2 Qd7 39.Qa7 Rc7
+40.Qb6 Rb7 41.Ra8+ Kf7 42.Qa6 Qc7 43.Qc6 Qb6+ 44.Kf1 Rb8
+45.Ra6 1-0
+
+[Event "IBM Man-Machine, New York USA"]
+[Site "03"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1/2-1/2"]
+[White "Garry Kasparov"]
+[Black "Deep Blue (Computer)"]
+[ECO "A00"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "95"]
+
+1.d3 e5 2.Nf3 Nc6 3.c4 Nf6 4.a3 d6 5.Nc3 Be7 6.g3 O-O 7.Bg2
+Be6 8.O-O Qd7 9.Ng5 Bf5 10.e4 Bg4 11.f3 Bh5 12.Nh3 Nd4 13.Nf2
+h6 14.Be3 c5 15.b4 b6 16.Rb1 Kh8 17.Rb2 a6 18.bxc5 bxc5 19.Bh3
+Qc7 20.Bg4 Bg6 21.f4 exf4 22.gxf4 Qa5 23.Bd2 Qxa3 24.Ra2 Qb3
+25.f5 Qxd1 26.Bxd1 Bh7 27.Nh3 Rfb8 28.Nf4 Bd8 29.Nfd5 Nc6
+30.Bf4 Ne5 31.Ba4 Nxd5 32.Nxd5 a5 33.Bb5 Ra7 34.Kg2 g5
+35.Bxe5+ dxe5 36.f6 Bg6 37.h4 gxh4 38.Kh3 Kg8 39.Kxh4 Kh7
+40.Kg4 Bc7 41.Nxc7 Rxc7 42.Rxa5 Rd8 43.Rf3 Kh8 44.Kh4 Kg8
+45.Ra3 Kh8 46.Ra6 Kh7 47.Ra3 Kh8 48.Ra6 1/2-1/2
+
+[Event "IBM Man-Machine, New York USA"]
+[Site "04"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1/2-1/2"]
+[White "Deep Blue (Computer)"]
+[Black "Garry Kasparov"]
+[ECO "B10"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "111"]
+
+1.e4 c6 2.d4 d6 3.Nf3 Nf6 4.Nc3 Bg4 5.h3 Bh5 6.Bd3 e6 7.Qe2 d5
+8.Bg5 Be7 9.e5 Nfd7 10.Bxe7 Qxe7 11.g4 Bg6 12.Bxg6 hxg6 13.h4
+Na6 14.O-O-O O-O-O 15.Rdg1 Nc7 16.Kb1 f6 17.exf6 Qxf6 18.Rg3
+Rde8 19.Re1 Rhf8 20.Nd1 e5 21.dxe5 Qf4 22.a3 Ne6 23.Nc3 Ndc5
+24.b4 Nd7 25.Qd3 Qf7 26.b5 Ndc5 27.Qe3 Qf4 28.bxc6 bxc6 29.Rd1
+Kc7 30.Ka1 Qxe3 31.fxe3 Rf7 32.Rh3 Ref8 33.Nd4 Rf2 34.Rb1 Rg2
+35.Nce2 Rxg4 36.Nxe6+ Nxe6 37.Nd4 Nxd4 38.exd4 Rxd4 39.Rg1 Rc4
+40.Rxg6 Rxc2 41.Rxg7+ Kb6 42.Rb3+ Kc5 43.Rxa7 Rf1+ 44.Rb1 Rff2
+45.Rb4 Rc1+ 46.Rb1 Rcc2 47.Rb4 Rc1+ 48.Rb1 Rxb1+ 49.Kxb1 Re2
+50.Re7 Rh2 51.Rh7 Kc4 52.Rc7 c5 53.e6 Rxh4 54.e7 Re4 55.a4 Kb3
+56.Kc1 1/2-1/2
+
+[Event "IBM Man-Machine, New York USA"]
+[Site "05"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1/2-1/2"]
+[White "Garry Kasparov"]
+[Black "Deep Blue (Computer)"]
+[ECO "A07"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "98"]
+
+1.Nf3 d5 2.g3 Bg4 3.Bg2 Nd7 4.h3 Bxf3 5.Bxf3 c6 6.d3 e6 7.e4
+Ne5 8.Bg2 dxe4 9.Bxe4 Nf6 10.Bg2 Bb4+ 11.Nd2 h5 12.Qe2 Qc7
+13.c3 Be7 14.d4 Ng6 15.h4 e5 16.Nf3 exd4 17.Nxd4 O-O-O 18.Bg5
+Ng4 19.O-O-O Rhe8 20.Qc2 Kb8 21.Kb1 Bxg5 22.hxg5 N6e5 23.Rhe1
+c5 24.Nf3 Rxd1+ 25.Rxd1 Nc4 26.Qa4 Rd8 27.Re1 Nb6 28.Qc2 Qd6
+29.c4 Qg6 30.Qxg6 fxg6 31.b3 Nxf2 32.Re6 Kc7 33.Rxg6 Rd7
+34.Nh4 Nc8 35.Bd5 Nd6 36.Re6 Nb5 37.cxb5 Rxd5 38.Rg6 Rd7
+39.Nf5 Ne4 40.Nxg7 Rd1+ 41.Kc2 Rd2+ 42.Kc1 Rxa2 43.Nxh5 Nd2
+44.Nf4 Nxb3+ 45.Kb1 Rd2 46.Re6 c4 47.Re3 Kb6 48.g6 Kxb5 49.g7
+Kb4 1/2-1/2
+
+[Event "IBM Man-Machine, New York USA"]
+[Site "06"]
+[Date "1997.??.??"]
+[EventDate "?"]
+[Round "?"]
+[Result "1-0"]
+[White "Deep Blue (Computer)"]
+[Black "Garry Kasparov"]
+[ECO "B17"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "37"]
+
+1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nd7 5.Ng5 Ngf6 6.Bd3 e6
+7.N1f3 h6 8.Nxe6 Qe7 9.O-O fxe6 10.Bg6+ Kd8 11.Bf4 b5 12.a4
+Bb7 13.Re1 Nd5 14.Bg3 Kc8 15.axb5 cxb5 16.Qd3 Bc6 17.Bf5 exf5
+18.Rxe7 Bxe7 19.c4 1-0
