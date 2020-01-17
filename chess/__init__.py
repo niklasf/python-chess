@@ -2424,7 +2424,7 @@ class Board(BaseBoard):
 
         for ch in itertools.chain(operation_part, [None]):
             if state == "opcode":
-                if ch == " ":
+                if ch in [" ", "\t", "\r", "\n"]:
                     if opcode == "-":
                         opcode = ""
                     elif opcode:
@@ -2438,7 +2438,7 @@ class Board(BaseBoard):
                 else:
                     opcode += ch
             elif state == "after_opcode":
-                if ch == " ":
+                if ch in [" ", "\t", "\r", "\n"]:
                     pass
                 elif ch == "\"":
                     state = "string"
