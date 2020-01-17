@@ -411,7 +411,7 @@ class RacingKingsBoard(chess.Board):
     def status(self) -> chess.Status:
         status = super().status()
         if self.is_check():
-            status |= chess.STATUS_RACE_CHECK | STATUS_TOO_MANY_CHECKERS
+            status |= chess.STATUS_RACE_CHECK | chess.STATUS_TOO_MANY_CHECKERS
         if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
             status |= chess.STATUS_RACE_OVER
         if self.pawns:

@@ -3838,6 +3838,11 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_stalemate())
         self.assertFalse(any(board.generate_legal_moves()))
 
+    def test_racing_kings_status_with_check(self):
+        board = chess.variant.RacingKingsBoard("8/8/8/8/R7/8/krbnNB1K/qrbnNBRQ b - - 1 1")
+        self.assertFalse(board.is_valid())
+        self.assertEqual(board.status(), chess.STATUS_RACE_CHECK | chess.STATUS_TOO_MANY_CHECKERS)
+
 
 class HordeTestCase(unittest.TestCase):
 
