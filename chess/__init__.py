@@ -2368,25 +2368,17 @@ class Board(BaseBoard):
                 continue
 
             # Value is a set of moves or a variation.
-            if not isinstance(operand, str) and hasattr(operand, "__iter__"):
+            if opcode in ["pv", "am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
                 position = Board(self.shredder_fen()) if opcode == "pv" else self
-                iterator = operand.__iter__()
-                first_move = next(iterator)
-                if isinstance(first_move, Move):
+                for move in operand:
+                    assert isinstance(move, Move), f"expected epd operation {opcode} to yield moves, got: {move!r}"
                     epd.append(" ")
-                    epd.append(position.san(first_move))
+                    epd.append(position.san(move))
                     if opcode == "pv":
-                        position.push(first_move)
+                        position.push(move)
 
-                    for move in iterator:
-                        assert isinstance(move, Move), f"expected homogeneous list of moves, got: {first_move}, ..., {move!r}, ..."
-                        epd.append(" ")
-                        epd.append(position.san(move))
-                        if opcode == "pv":
-                            position.push(move)
-
-                    epd.append(";")
-                    continue
+                epd.append(";")
+                continue
 
             # Append as escaped string.
             epd.append(" \"")
@@ -2403,11 +2395,10 @@ class Board(BaseBoard):
         *ep_square* and *promoted*).
 
         EPD operations can be given as keyword arguments. Supported operands
-        are strings, integers, floats, moves, lists of moves and ``None``.
-        All other operands are converted to strings.
-
-        A list of moves for *pv* will be interpreted as a variation. All other
-        move lists are interpreted as a set of moves in the current position.
+        are strings, integers, floats, legal moves and ``None``. Aditionally,
+        the operation ``pv`` also accepts a legal variation as a list of moves.
+        The operations ``bm`` and ``bm`` also accept a list of legal moves in
+        the current position.
 
         *hmvc* and *fmvc* are not included by default. You can use:
 
@@ -2452,7 +2443,7 @@ class Board(BaseBoard):
                     if opcode == "-":
                         opcode = ""
                     elif opcode:
-                        operations[opcode] = None
+                        operations[opcode] = [] if opcode in ["pv", "am", "bm"] else None
                         opcode = ""
                 else:
                     opcode += ch
@@ -2463,7 +2454,7 @@ class Board(BaseBoard):
                     state = "string"
                 elif ch is None or ch == ";":
                     if opcode:
-                        operations[opcode] = None
+                        operations[opcode] = [] if opcode in ["pv", "am", "bm"] else None
                         opcode = ""
                     state = "opcode"
                 elif ch in "+-.0123456789":
