@@ -2390,7 +2390,7 @@ class Board(BaseBoard):
 
             # Append as escaped string.
             epd.append(" \"")
-            epd.append(str(operand).replace("\r", "").replace("\n", " ").replace("\\", "\\\\").replace("\"", "\\\""))
+            epd.append(str(operand).replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n").replace("\"", "\\\""))
             epd.append("\";")
 
         return "".join(epd)
@@ -2500,6 +2500,15 @@ class Board(BaseBoard):
                     opcode = ""
                     operand = ""
                     state = "opcode"
+                elif ch == "r":
+                    operand += "\r"
+                    state = "string"
+                elif ch == "n":
+                    operand += "\n"
+                    state = "string"
+                elif ch == "t":
+                    operand += "\t"
+                    state = "string"
                 else:
                     operand += ch
                     state = "string"
