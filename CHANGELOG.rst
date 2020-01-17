@@ -1,6 +1,33 @@
 Changelog for python-chess
 ==========================
 
+New in v0.30.1
+--------------
+
+Changes:
+
+* Positions with more than two checkers are considered invalid and
+  `board.status()` returns `chess.STATUS_TOO_MANY_CHECKERS`.
+* Pawns drops in Crazyhouse are considered zeroing and reset
+  `board.halfmove_clock` when played.
+* Now validating file sizes when opening Syzygy tables and Polyglot opening
+  books.
+* Explicitly warn about untrusted tablebase files and chess engines.
+
+Bugfixes:
+
+* Fix Racing Kings game end detection: Black cannot catch up if their own
+  pieces block the goal. White would win on the turn, so this did not
+  impact the game theoretical outcome of the game.
+* Fix bugs discovered by fuzzing the EPD parser: Fixed serialization of
+  empty strings, reparsability of empty move lists, handling of non-finite
+  floats, and handling of whitespace in opcodes.
+
+Features:
+
+* Added `board.checkers()`, returning a set of squares with the pieces giving
+  check.
+
 New in v0.30.0
 --------------
 
