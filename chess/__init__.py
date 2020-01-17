@@ -2342,6 +2342,10 @@ class Board(BaseBoard):
         first_op = True
 
         for opcode, operand in operations.items():
+            assert opcode != "-", "dash (-) is not a valid epd opcode"
+            for blacklisted in [" ", "\n", "\t", "\r"]:
+                assert blacklisted not in opcode, f"invalid character {blacklisted!r} in epd opcode: {opcode!r}"
+
             if not first_op:
                 epd.append(" ")
             first_op = False
@@ -2389,6 +2393,9 @@ class Board(BaseBoard):
         Aditionally, the operation ``pv`` also accepts a legal variation as
         a list of moves. The operations ``bm`` and ``bm`` also accept a list of
         legal moves in the current position.
+
+        The name of the field cannot be a lone dash and cannot contain spaces,
+        newlines, carriage returns or tabs.
 
         *hmvc* and *fmvc* are not included by default. You can use:
 
