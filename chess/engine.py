@@ -2055,7 +2055,7 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
     # Required integer tokens.
     info["depth"] = integer_tokens.pop(0)
     cp = integer_tokens.pop(0)
-    info["time"] = float(integer_tokens.pop(0)) / 100
+    info["time"] = int(integer_tokens.pop(0)) / 100
     info["nodes"] = int(integer_tokens.pop(0))
 
     # Score.
