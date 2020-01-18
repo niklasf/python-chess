@@ -30,9 +30,6 @@ from types import TracebackType
 from typing import Deque, Iterable, Iterator, List, MutableMapping, Optional, Tuple, Type, Union
 
 
-PathLike = Union[str, bytes]
-
-
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
 UINT32_BE = struct.Struct(">I")
@@ -550,7 +547,7 @@ class PawnFileDataDtz:
 
 class Table:
 
-    def __init__(self, path: PathLike, *, variant: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, path: str, *, variant: Type[chess.Board] = chess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -1501,7 +1498,7 @@ class Tablebase:
                 if len(self.lru) > self.max_fds:
                     self.lru.pop().close()
 
-    def _open_table(self, hashtable: MutableMapping[str, Table], Table: Type[Table], path: PathLike) -> int:
+    def _open_table(self, hashtable: MutableMapping[str, Table], Table: Type[Table], path: str) -> int:
         table = Table(path, variant=self.variant)
 
         if table.key in hashtable:
@@ -1511,7 +1508,7 @@ class Tablebase:
         hashtable[table.mirrored_key] = table
         return 1
 
-    def add_directory(self, directory: PathLike, *, load_wdl: bool = True, load_dtz: bool = True) -> int:
+    def add_directory(self, directory: str, *, load_wdl: bool = True, load_dtz: bool = True) -> int:
         """
         Adds tables from a directory.
 
@@ -1947,7 +1944,7 @@ class Tablebase:
         self.close()
 
 
-def open_tablebase(directory: PathLike, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.

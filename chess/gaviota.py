@@ -33,9 +33,6 @@ from types import TracebackType
 from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
 
 
-PathLike = Union[str, bytes]
-
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -1540,7 +1537,7 @@ class PythonTablebase:
         self.block_cache: Dict[Tuple[str, int, int], TableBlock] = {}
         self.block_age = 0
 
-    def add_directory(self, directory: PathLike) -> None:
+    def add_directory(self, directory: str) -> None:
         """
         Adds *.gtb.cp4* tables from a directory. The relevant files are lazily
         opened when the tablebase is actually probed.
