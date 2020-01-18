@@ -311,76 +311,29 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-class InfoDict(Dict[str, Union[str, int, float, "PovScore", List[chess.Move], Dict[chess.Move, List[chess.Move]], Dict[int, List[chess.Move]], Tuple[int, int, int]]]):
-    """Dictionary of extra information sent by the engine."""
-
-    @property
-    def score(self) -> Optional["PovScore"]:
-        return self.get("score")
-
-    @property
-    def pv(self) -> Optional[List[chess.Move]]:
-        return self.get("pv")
-
-    @property
-    def depth(self) -> Optional[int]:
-        return self.get("depth")
-
-    @property
-    def seldepth(self) -> Optional[int]:
-        return self.get("seldepth")
-
-    @property
-    def time(self) -> Optional[float]:
-        return self.get("time")
-
-    @property
-    def nodes(self) -> Optional[int]:
-        return self.get("nodes")
-
-    @property
-    def nps(self) -> Optional[int]:
-        return self.get("nps")
-
-    @property
-    def tbhits(self) -> Optional[int]:
-        return self.get("tbhits")
-
-    @property
-    def multipv(self) -> Optional[int]:
-        return self.get("multipv")
-
-    @property
-    def currmove(self) -> Optional[chess.Move]:
-        return self.get("currmove")
-
-    @property
-    def currmovenumber(self) -> Optional[int]:
-        return self.get("currmovenumber")
-
-    @property
-    def hashfull(self) -> Optional[int]:
-        return self.get("hashfull")
-
-    @property
-    def cpuload(self) -> Optional[int]:
-        return self.get("cpuload")
-
-    @property
-    def refutation(self) -> Optional[Dict[chess.Move, List[chess.Move]]]:
-        return self.get("refutation")
-
-    @property
-    def currline(self) -> Optional[Dict[int, List[chess.Move]]]:
-        return self.get("currline")
-
-    @property
-    def ebf(self) -> Optional[float]:
-        return self.get("ebf")
-
-    @property
-    def string(self) -> Optional[str]:
-        return self.get("string")
+try:
+    class InfoDict(typing.TypedDict, total=False):
+        """Dictionary of extra information sent by the engine."""
+        score: "PovScore"
+        pv: List[chess.Move]
+        depth: int
+        seldepth: int
+        time: float
+        nodes: int
+        nps: int
+        tbhits: int
+        multipv: int
+        currmove: chess.Move
+        currmovenumber: int
+        hashfull: int
+        cpuload: int
+        refutation: Dict[chess.Move, List[chess.Move]]
+        currline: Dict[int, List[chess.Move]]
+        ebf: float
+        wdl: Tuple[int, int, int]
+        string: str
+except AttributeError:
+    InfoDict = dict  # type: ignore
 
 
 class PlayResult:
@@ -395,7 +348,7 @@ class PlayResult:
                  resigned: bool = False) -> None:
         self.move = move
         self.ponder = ponder
-        self.info: InfoDict = info or InfoDict({})
+        self.info: InfoDict = info or {}
         self.draw_offered = draw_offered
         self.resigned = resigned
 
@@ -680,7 +633,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
     id: Dict[str, str]
-    options: Mapping[str, Option]
+    options: Dict[str, Option]
 
     def __init__(self) -> None:
         self.loop = _get_running_loop()
@@ -837,6 +790,12 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             with :func:`~chess.engine.EngineProtocol.configure()`.
         """
 
+    @typing.overload
+    async def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
+    @typing.overload
+    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
+    @typing.overload
+    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]: ...
     async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]:
         """
         Analyses a position and returns a dictionary of
@@ -1251,7 +1210,7 @@ class UciProtocol(EngineProtocol):
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         class Command(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
-                self.info: InfoDict = InfoDict({})
+                self.info: InfoDict = {}
                 self.pondering = False
                 self.sent_isready = False
 
@@ -1403,7 +1362,7 @@ class UciProtocol(EngineProtocol):
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
 
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
-    info: InfoDict = InfoDict({})
+    info: InfoDict = {}
     if not selector:
         return info
 
@@ -1454,11 +1413,12 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                     info["currline"] = {}
 
                 cpunr = int(tokens.pop(0))
-                info["currline"][cpunr] = currline = []
+                currline: List[chess.Move] = []
 
                 board = root_board.copy(stack=False)
                 while tokens and UCI_REGEX.match(tokens[0]):
                     currline.append(board.push_uci(tokens.pop(0)))
+                info["currline"][cpunr] = currline
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "refutation" and selector & INFO_REFUTATION:
@@ -1468,18 +1428,20 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 
                 board = root_board.copy(stack=False)
                 refuted = board.push_uci(tokens.pop(0))
-                info["refutation"][refuted] = refuted_by = []
+                refuted_by: List[chess.Move] = []
 
                 while tokens and UCI_REGEX.match(tokens[0]):
                     refuted_by.append(board.push_uci(tokens.pop(0)))
+                info["refutation"][refuted] = refuted_by
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "pv" and selector & INFO_PV:
             try:
-                info["pv"] = pv = []
+                pv: List[chess.Move] = []
                 board = root_board.copy(stack=False)
                 while tokens and UCI_REGEX.match(tokens[0]):
                     pv.append(board.push_uci(tokens.pop(0)))
+                info["pv"] = pv
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
@@ -1518,7 +1480,7 @@ class UciOptionMap(MutableMapping[str, T]):
     def __eq__(self, other: object) -> bool:
         try:
             for key, value in self.items():
-                if key not in other or other[key] != value:
+                if key not in other or other[key] != value:  # type: ignore
                     return False
 
             for key, value in other.items():  # type: ignore
@@ -2040,7 +2002,7 @@ def _parse_xboard_option(feature: str) -> Option:
 
 def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     # Format: depth score time nodes [seldepth [nps [tbhits]]] pv
-    info: InfoDict = InfoDict({})
+    info: InfoDict = {}
 
     # Split leading integer tokens from pv.
     pv_tokens = line.split()
@@ -2121,7 +2083,7 @@ class AnalysisResult:
         self._posted_kork = False
         self._seen_kork = False
         self._finished: asyncio.Future[None] = asyncio.Future()
-        self.multipv: List[InfoDict] = [InfoDict({})]
+        self.multipv: List[InfoDict] = [{}]
 
     def post(self, info: InfoDict) -> None:
         # Empty dictionary reserved for kork.
@@ -2130,7 +2092,7 @@ class AnalysisResult:
 
         multipv = typing.cast(int, info.get("multipv", 1))
         while len(self.multipv) < multipv:
-            self.multipv.append(InfoDict({}))
+            self.multipv.append({})
         self.multipv[multipv - 1].update(info)
 
         self._queue.put_nowait(info)
@@ -2312,8 +2274,8 @@ class SimpleEngine:
             yield
 
     @property
-    def options(self) -> Mapping[str, Option]:
-        async def _get() -> Mapping[str, Option]:
+    def options(self) -> Dict[str, Option]:
+        async def _get() -> Dict[str, Option]:
             return self.protocol.options.copy()
 
         with self._not_shut_down():
@@ -2329,7 +2291,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
         return future.result()
 
-    def communicate(self, command_factory: Callable[[asyncio.AbstractEventLoop], BaseCommand[EngineProtocol, T]]) -> T:
+    def communicate(self, command_factory: Callable[[], BaseCommand[EngineProtocol, T]]) -> T:
         with self._not_shut_down():
             coro = self.protocol.communicate(command_factory)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
@@ -2355,6 +2317,12 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
+    @typing.overload
+    def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
+    @typing.overload
+    def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
+    @typing.overload
+    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]: ...
     def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]:
         with self._not_shut_down():
             coro = asyncio.wait_for(
@@ -2447,7 +2415,7 @@ class SimpleAnalysisResult:
     @property
     def info(self) -> InfoDict:
         async def _get() -> InfoDict:
-            return InfoDict(self.inner.info.copy())
+            return self.inner.info.copy()
 
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
@@ -2456,7 +2424,7 @@ class SimpleAnalysisResult:
     @property
     def multipv(self) -> List[InfoDict]:
         async def _get() -> List[InfoDict]:
-            return [InfoDict(info.copy()) for info in self.inner.multipv]
+            return [info.copy() for info in self.inner.multipv]
 
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
