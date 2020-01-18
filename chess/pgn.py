@@ -21,6 +21,7 @@ import itertools
 import logging
 import re
 import weakref
+import typing
 
 import chess
 
@@ -137,6 +138,8 @@ class GameNode:
 
         It's a copy, so modifying the board will not alter the game.
         """
+        assert self.parent is not None and self.move is not None, "cannot get board of dangling GameNode"
+
         if self.board_cached is not None:
             board = self.board_cached()
             if board is not None:
@@ -151,6 +154,10 @@ class GameNode:
         else:
             return board
 
+    def _move(self) -> chess.Move:
+        assert self.move is not None, "cannot get move of dangling GameNode"
+        return self.move
+
     def san(self) -> str:
         """
         Gets the standard algebraic notation of the move leading to this node.
@@ -158,6 +165,7 @@ class GameNode:
 
         Do not call this on the root node.
         """
+        assert self.parent is not None and self.move is not None, "cannot get san of dangling GameNode"
         return self.parent.board().san(self.move)
 
     def uci(self, *, chess960: Optional[bool] = None) -> str:
@@ -167,6 +175,7 @@ class GameNode:
 
         Do not call this on the root node.
         """
+        assert self.parent is not None and self.move is not None, "cannot get uci of dangling GameNode"
         return self.parent.board().uci(self.move, chess960=chess960)
 
     def root(self) -> "GameNode":
@@ -301,7 +310,7 @@ class GameNode:
 
     def mainline_moves(self) -> "Mainline[chess.Move]":
         """Returns an iterator over the main moves after this node."""
-        return Mainline(self, lambda node: node.move)
+        return Mainline(self, lambda node: node._move())
 
     def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = ()) -> "GameNode":
         """
@@ -326,6 +335,8 @@ class GameNode:
         return node
 
     def _accept_node(self, parent_board: chess.Board, visitor) -> None:
+        assert self.move is not None, "cannot visit dangling GameNode"
+
         if self.starting_comment:
             visitor.visit_comment(self.starting_comment)
 
@@ -346,6 +357,8 @@ class GameNode:
         Traverses game nodes in PGN order using the given *visitor*. Starts with
         the move leading to this node. Returns the *visitor* result.
         """
+        assert self.parent is not None and self.move is not None, "cannot visit dangling GameNode"
+
         board = self.parent.board() if _parent_board is None else _parent_board
 
         # First, visit the move that leads to this node.
@@ -402,12 +415,16 @@ class GameNode:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self) -> str:
-        return "<{} at {:#x} ({}{} {} ...)>".format(
-            type(self).__name__,
-            id(self),
-            self.parent.board().fullmove_number,
-            "." if self.parent.board().turn == chess.WHITE else "...",
-            self.san())
+        if self.parent is None:
+            return f"<{type(self).__name__} at {id(self):#x} (dangling)>"
+        else:
+            parent_board = self.parent.board()
+            return "<{} at {:#x} ({}{} {} ...)>".format(
+                type(self).__name__,
+                id(self),
+                parent_board.fullmove_number,
+                "." if parent_board.turn == chess.WHITE else "...",
+                self.san())
 
 
 GameT = TypeVar("GameT", bound="Game")
@@ -439,24 +456,25 @@ class Game(GameNode):
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
         """
         try:
-            fen = board.fen()
+            fen = board.fen()  # type: ignore
+            setup = typing.cast(chess.Board, board)
         except AttributeError:
-            board = chess.Board(board)
-            board.chess960 = board.has_chess960_castling_rights()
-            fen = board.fen()
+            setup = chess.Board(board)  # type: ignore
+            setup.chess960 = setup.has_chess960_castling_rights()
+            fen = setup.fen()
 
-        if fen == type(board).starting_fen:
+        if fen == type(setup).starting_fen:
             self.headers.pop("SetUp", None)
             self.headers.pop("FEN", None)
         else:
             self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
 
-        if type(board).aliases[0] == "Standard" and board.chess960:
+        if type(setup).aliases[0] == "Standard" and setup.chess960:
             self.headers["Variant"] = "Chess960"
-        elif type(board).aliases[0] != "Standard":
-            self.headers["Variant"] = type(board).aliases[0]
-            self.headers["FEN"] = board.fen()
+        elif type(setup).aliases[0] != "Standard":
+            self.headers["Variant"] = type(setup).aliases[0]
+            self.headers["FEN"] = fen
         else:
             self.headers.pop("Variant", None)
 
@@ -676,7 +694,7 @@ class ReverseMainline(Generic[MainlineMapT]):
     def __repr__(self) -> str:
         return "<ReverseMainline at {:#x} ({})>".format(
             id(self),
-            " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
+            " ".join(ReverseMainline(self.stop, lambda node: node._move().uci())))
 
 
 class BaseVisitor:
@@ -781,7 +799,7 @@ class GameBuilder(BaseVisitor):
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
-    def __init__(self, *, Game=Game) -> None:
+    def __init__(self, *, Game: Type[Game] = Game) -> None:
         self.Game = Game
 
     def begin_game(self) -> None:
@@ -801,7 +819,9 @@ class GameBuilder(BaseVisitor):
         self.variation_stack[-1].nags.add(nag)
 
     def begin_variation(self) -> None:
-        self.variation_stack.append(self.variation_stack[-1].parent)
+        parent = self.variation_stack[-1].parent
+        assert parent is not None, "begin_variation called, but root node on top of stack"
+        self.variation_stack.append(parent)
         self.in_variation = False
 
     def end_variation(self) -> None:
@@ -862,7 +882,7 @@ class GameBuilder(BaseVisitor):
         LOGGER.exception("error during pgn parsing")
         self.game.errors.append(error)
 
-    def result(self):
+    def result(self) -> Game:
         """
         Returns the visited :class:`~chess.pgn.Game()`.
         """
@@ -1029,7 +1049,7 @@ class StringExporter(BaseVisitor):
     def visit_result(self, result: str) -> None:
         self.write_token(result + " ")
 
-    def result(self):
+    def result(self) -> str:
         if self.current_line:
             return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
         else:
