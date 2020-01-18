@@ -182,13 +182,16 @@ class GameNode:
         return self.parent.board().uci(self.move, chess960=chess960)
 
     def root(self) -> "GameNode":
-        """Gets the root node, i.e., the game."""
         node = self
-
         while node.parent:
             node = node.parent
-
         return node
+
+    def game(self) -> "Game":
+        """Gets the root node, i.e., the game."""
+        root = self.root()
+        assert isinstance(root, Game), "GameNode not rooted in Game"
+        return root
 
     def end(self) -> "GameNode":
         """Follows the main variation to the end and returns the last node."""
@@ -389,7 +392,7 @@ class GameNode:
         starting after this node. Returns the *visitor* result.
         """
         if visitor.begin_game() is not SKIP:
-            game = self.root()
+            game = self.game()
             board = self.board()
 
             dummy_game = Game.without_tag_roster()
@@ -397,10 +400,9 @@ class GameNode:
 
             visitor.begin_headers()
 
-            if isinstance(game, Game):
-                for tagname, tagvalue in game.headers.items():
-                    if tagname not in dummy_game.headers:
-                        visitor.visit_header(tagname, tagvalue)
+            for tagname, tagvalue in game.headers.items():
+                if tagname not in dummy_game.headers:
+                    visitor.visit_header(tagname, tagvalue)
             for tagname, tagvalue in dummy_game.headers.items():
                 visitor.visit_header(tagname, tagvalue)
 
@@ -410,8 +412,7 @@ class GameNode:
                 if self.variations:
                     self.variations[0]._accept(board, visitor)
 
-                if isinstance(game, Game):
-                    visitor.visit_result(game.headers.get("Result", "*"))
+                visitor.visit_result(game.headers.get("Result", "*"))
 
         visitor.end_game()
         return visitor.result()
