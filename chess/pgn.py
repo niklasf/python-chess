@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import abc
 import enum
 import itertools
 import logging
@@ -703,7 +704,7 @@ class ReverseMainline(Generic[MainlineMapT]):
             " ".join(ReverseMainline(self.stop, lambda node: node._move().uci())))
 
 
-class BaseVisitor(Generic[ResultT]):
+class BaseVisitor(abc.ABC, Generic[ResultT]):
     """
     Base class for visitors.
 
@@ -791,9 +792,9 @@ class BaseVisitor(Generic[ResultT]):
         """Called at the end of a game."""
         pass
 
+    @abc.abstractmethod
     def result(self) -> ResultT:
-        """Called to get the result of the visitor. Defaults to ``True``."""
-        return True
+        """Called to get the result of the visitor."""
 
     def handle_error(self, error: Exception) -> None:
         """Called for encountered errors. Defaults to raising an exception."""
@@ -959,6 +960,8 @@ class SkipVisitor(BaseVisitor[Literal[True]]):
     def begin_variation(self) -> SkipType:
         return SKIP
 
+    def result(self) -> Literal[True]:
+        return True
 
 
 class StringExporterMixin:
