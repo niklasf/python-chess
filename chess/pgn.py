@@ -960,7 +960,7 @@ class SkipVisitor(BaseVisitor["typing.Literal[True]"]):
     def begin_variation(self) -> SkipType:
         return SKIP
 
-    def result(self) -> Literal[True]:
+    def result(self) -> "typing.Literal[True]":
         return True
 
 
