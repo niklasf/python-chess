@@ -26,7 +26,7 @@ import typing
 
 import chess
 
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -948,7 +948,7 @@ class BoardBuilder(BaseVisitor[chess.Board]):
         return self.board
 
 
-class SkipVisitor(BaseVisitor[Literal[True]]):
+class SkipVisitor(BaseVisitor["typing.Literal[True]"]):
     """Skips a game."""
 
     def begin_game(self) -> SkipType:
