@@ -310,10 +310,10 @@ class Entry(NamedTuple):
 
 
 class _EmptyMmap(bytearray):
-    def size(self):
+    def size(self) -> int:
         return 0
 
-    def close(self):
+    def close(self) -> None:
         pass
 
 

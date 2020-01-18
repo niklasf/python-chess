@@ -484,7 +484,7 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
-    def accept(self, visitor):
+    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         """
         Traverses the game in PGN order using the given *visitor*. Returns
         the *visitor* result.
@@ -1114,7 +1114,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[None]):
 def read_game(handle: TextIO) -> Optional[Game]: ...
 @typing.overload
 def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]]) -> Optional[ResultT]: ...
-def read_game(handle, *, Visitor=GameBuilder):
+def read_game(handle: TextIO, *, Visitor = GameBuilder):
     """
     Reads a game from a file opened in text mode.
 
