@@ -1155,8 +1155,8 @@ def read_game(handle: TextIO, *, Visitor=GameBuilder):
 
     found_game = False
     skipping_game = False
-    headers = None
-    managed_headers = None
+    managed_headers: Optional[Headers] = None
+    unmanaged_headers: Optional[Headers] = None
 
     # Ignore leading empty lines and comments.
     line = handle.readline().lstrip("\ufeff")
@@ -1177,8 +1177,7 @@ def read_game(handle: TextIO, *, Visitor=GameBuilder):
             if not skipping_game:
                 managed_headers = visitor.begin_headers()
                 if not isinstance(managed_headers, Headers):
-                    managed_headers = None
-                    headers = Headers({})
+                    unmanaged_headers = Headers({})
 
         if not line.startswith("["):
             break
@@ -1187,8 +1186,8 @@ def read_game(handle: TextIO, *, Visitor=GameBuilder):
             tag_match = TAG_REGEX.match(line)
             if tag_match:
                 visitor.visit_header(tag_match.group(1), tag_match.group(2))
-                if headers is not None:
-                    headers[tag_match.group(1)] = tag_match.group(2)
+                if unmanaged_headers is not None:
+                    unmanaged_headers[tag_match.group(1)] = tag_match.group(2)
             else:
                 break
 
@@ -1206,7 +1205,8 @@ def read_game(handle: TextIO, *, Visitor=GameBuilder):
 
     if not skipping_game:
         # Chess variant.
-        headers = managed_headers if headers is None else headers
+        headers = managed_headers if unmanaged_headers is None else unmanaged_headers
+        assert headers is not None, "got neither managed nor unmanaged headers"
         try:
             VariantBoard = headers.variant()
         except ValueError as error:
