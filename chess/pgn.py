@@ -25,7 +25,7 @@ import typing
 
 import chess
 
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Callable, Dict, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -114,6 +114,9 @@ class SkipType(enum.Enum):
     SKIP = None
 
 SKIP = SkipType.SKIP
+
+
+ResultT = TypeVar("ResultT", covariant=True)
 
 
 class GameNode:
@@ -334,7 +337,7 @@ class GameNode:
 
         return node
 
-    def _accept_node(self, parent_board: chess.Board, visitor) -> None:
+    def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
 
         if self.starting_comment:
@@ -352,35 +355,35 @@ class GameNode:
         if self.comment:
             visitor.visit_comment(self.comment)
 
-    def accept(self, visitor, *, _parent_board: Optional[chess.Board] = None):
-        """
-        Traverses game nodes in PGN order using the given *visitor*. Starts with
-        the move leading to this node. Returns the *visitor* result.
-        """
+    def _accept(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]", *, sidelines: bool = True) -> None:
         assert self.parent is not None and self.move is not None, "cannot visit dangling GameNode"
 
-        board = self.parent.board() if _parent_board is None else _parent_board
-
         # First, visit the move that leads to this node.
-        self._accept_node(board, visitor)
+        self._accept_node(parent_board, visitor)
 
         # Then visit sidelines.
-        if _parent_board is not None and self == self.parent.variations[0]:
+        if sidelines and self == self.parent.variations[0]:
             for variation in itertools.islice(self.parent.variations, 1, None):
                 if visitor.begin_variation() is not SKIP:
-                    variation.accept(visitor, _parent_board=board)
+                    variation._accept(parent_board, visitor)
                 visitor.end_variation()
 
         # The mainline is continued last.
         if self.variations:
-            board.push(self.move)
-            self.variations[0].accept(visitor, _parent_board=board)
-            board.pop()
+            parent_board.push(self.move)
+            self.variations[0]._accept(parent_board, visitor)
+            parent_board.pop()
 
-        # Get the result if not called recursively.
-        return visitor.result() if _parent_board is None else None
+    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+        """
+        Traverses game nodes in PGN order using the given *visitor*. Starts with
+        the move leading to this node. Returns the *visitor* result.
+        """
+        assert self.parent is not None, "cannot visit dangling GameNode"
+        self._accept(self.parent.board(), visitor, sidelines=False)
+        return visitor.result()
 
-    def accept_subgame(self, visitor):
+    def accept_subgame(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         """
         Traverses headers and game nodes in PGN order, as if the game was
         starting after this node. Returns the *visitor* result.
@@ -394,9 +397,10 @@ class GameNode:
 
             visitor.begin_headers()
 
-            for tagname, tagvalue in game.headers.items():
-                if tagname not in dummy_game.headers:
-                    visitor.visit_header(tagname, tagvalue)
+            if isinstance(game, Game):
+                for tagname, tagvalue in game.headers.items():
+                    if tagname not in dummy_game.headers:
+                        visitor.visit_header(tagname, tagvalue)
             for tagname, tagvalue in dummy_game.headers.items():
                 visitor.visit_header(tagname, tagvalue)
 
@@ -404,9 +408,10 @@ class GameNode:
                 visitor.visit_board(board)
 
                 if self.variations:
-                    self.variations[0].accept(visitor, _parent_board=board)
+                    self.variations[0]._accept(board, visitor)
 
-                visitor.visit_result(game.headers.get("Result", "*"))
+                if isinstance(game, Game):
+                    visitor.visit_result(game.headers.get("Result", "*"))
 
         visitor.end_game()
         return visitor.result()
@@ -494,7 +499,7 @@ class Game(GameNode):
                     visitor.visit_comment(self.comment)
 
                 if self.variations:
-                    self.variations[0].accept(visitor, _parent_board=board)
+                    self.variations[0]._accept(board, visitor)
 
                 visitor.visit_result(self.headers.get("Result", "*"))
 
@@ -651,13 +656,13 @@ class Mainline(Generic[MainlineMapT]):
     def __reversed__(self) -> "ReverseMainline[MainlineMapT]":
         return ReverseMainline(self.start, self.f)
 
-    def accept(self, visitor):
+    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         node = self.start
         board = self.start.board()
         while node.variations:
             node = node.variations[0]
             node._accept_node(board, visitor)
-            board.push(node.move)
+            board.push(node._move())
         return visitor.result()
 
     def __str__(self) -> str:
@@ -697,7 +702,7 @@ class ReverseMainline(Generic[MainlineMapT]):
             " ".join(ReverseMainline(self.stop, lambda node: node._move().uci())))
 
 
-class BaseVisitor:
+class BaseVisitor(Generic[ResultT]):
     """
     Base class for visitors.
 
@@ -785,7 +790,7 @@ class BaseVisitor:
         """Called at the end of a game."""
         pass
 
-    def result(self):
+    def result(self) -> ResultT:
         """Called to get the result of the visitor. Defaults to ``True``."""
         return True
 
@@ -794,7 +799,7 @@ class BaseVisitor:
         raise error
 
 
-class GameBuilder(BaseVisitor):
+class GameBuilder(BaseVisitor[Game]):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
@@ -889,7 +894,7 @@ class GameBuilder(BaseVisitor):
         return self.game
 
 
-class HeadersBuilder(BaseVisitor):
+class HeadersBuilder(BaseVisitor[Headers]):
     """Collects headers into a dictionary."""
 
     def __init__(self, *, Headers: Type[Headers] = Headers) -> None:
@@ -905,11 +910,11 @@ class HeadersBuilder(BaseVisitor):
     def end_headers(self) -> SkipType:
         return SKIP
 
-    def result(self):
+    def result(self) -> Headers:
         return self.headers
 
 
-class BoardBuilder(BaseVisitor):
+class BoardBuilder(BaseVisitor[chess.Board]):
     """
     Returns the final position of the game. The mainline of the game is
     on the move stack.
@@ -933,7 +938,7 @@ class BoardBuilder(BaseVisitor):
         return self.board
 
 
-class SkipVisitor(BaseVisitor):
+class SkipVisitor(BaseVisitor[Literal[True]]):
     """Skips a game."""
 
     def begin_game(self) -> SkipType:
@@ -946,7 +951,7 @@ class SkipVisitor(BaseVisitor):
         return SKIP
 
 
-class StringExporter(BaseVisitor):
+class StringExporter(BaseVisitor[str]):
     """
     Allows exporting a game as a string.
 
@@ -1059,7 +1064,7 @@ class StringExporter(BaseVisitor):
         return self.result()
 
 
-class FileExporter(StringExporter):
+class FileExporter(StringExporter, BaseVisitor[None]):
     """
     Acts like a :class:`~chess.pgn.StringExporter`, but games are written
     directly into a text file.
@@ -1091,7 +1096,7 @@ class FileExporter(StringExporter):
         self.handle.write(line.rstrip())
         self.handle.write("\n")
 
-    def result(self):
+    def result(self) -> None:
         return None
 
     def __repr__(self) -> str:
@@ -1101,7 +1106,11 @@ class FileExporter(StringExporter):
         return self.__repr__()
 
 
-def read_game(handle: TextIO, *, Visitor=GameBuilder):
+@typing.overload
+def read_game(handle: TextIO) -> Optional[Game]: ...
+@typing.overload
+def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]]) -> Optional[ResultT]: ...
+def read_game(handle, *, Visitor=GameBuilder):
     """
     Reads a game from a file opened in text mode.
 
