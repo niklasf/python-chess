@@ -528,7 +528,7 @@ class Game(GameNode):
         return cls(headers={})
 
     @classmethod
-    def builder(cls) -> "GameBuilder":
+    def builder(cls: Type[GameT]) -> "GameBuilder[GameT]":
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
@@ -634,7 +634,7 @@ class Headers(MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls) -> "HeadersBuilder":
+    def builder(cls: Type[HeadersT]) -> "HeadersBuilder[HeadersT]":
         return HeadersBuilder(Headers=cls)
 
 
@@ -800,16 +800,20 @@ class BaseVisitor(Generic[ResultT]):
         raise error
 
 
-class GameBuilder(BaseVisitor[Game]):
+class GameBuilder(BaseVisitor[GameT]):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
     """
 
-    def __init__(self, *, Game: Type[Game] = Game) -> None:
+    @typing.overload
+    def __init__(self: "GameBuilder[Game]") -> None: ...
+    @typing.overload
+    def __init__(self: "GameBuilder[GameT]", *, Game: Type[GameT]) -> None: ...
+    def __init__(self, *, Game = Game) -> None:
         self.Game = Game
 
     def begin_game(self) -> None:
-        self.game = self.Game()
+        self.game: GameT = self.Game()
 
         self.variation_stack: List[GameNode] = [self.game]
         self.starting_comment = ""
@@ -888,21 +892,25 @@ class GameBuilder(BaseVisitor[Game]):
         LOGGER.exception("error during pgn parsing")
         self.game.errors.append(error)
 
-    def result(self) -> Game:
+    def result(self) -> GameT:
         """
         Returns the visited :class:`~chess.pgn.Game()`.
         """
         return self.game
 
 
-class HeadersBuilder(BaseVisitor[Headers]):
+class HeadersBuilder(BaseVisitor[HeadersT]):
     """Collects headers into a dictionary."""
 
-    def __init__(self, *, Headers: Type[Headers] = Headers) -> None:
+    @typing.overload
+    def __init__(self: "HeadersBuilder[Headers]") -> None: ...
+    @typing.overload
+    def __init__(self: "HeadersBuilder[HeadersT]", *, Headers: Type[Headers]) -> None: ...
+    def __init__(self, *, Headers = Headers) -> None:
         self.Headers = Headers
 
-    def begin_headers(self) -> Headers:
-        self.headers = self.Headers({})
+    def begin_headers(self) -> HeadersT:
+        self.headers: HeadersT = self.Headers({})
         return self.headers
 
     def visit_header(self, tagname: str, tagvalue: str) -> None:
@@ -911,7 +919,7 @@ class HeadersBuilder(BaseVisitor[Headers]):
     def end_headers(self) -> SkipType:
         return SKIP
 
-    def result(self) -> Headers:
+    def result(self) -> HeadersT:
         return self.headers
 
 
