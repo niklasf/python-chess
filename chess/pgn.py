@@ -952,24 +952,8 @@ class SkipVisitor(BaseVisitor[Literal[True]]):
         return SKIP
 
 
-class StringExporter(BaseVisitor[str]):
-    """
-    Allows exporting a game as a string.
 
-    >>> import chess.pgn
-    >>>
-    >>> game = chess.pgn.Game()
-    >>>
-    >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
-    >>> pgn_string = game.accept(exporter)
-
-    Only *columns* characters are written per line. If *columns* is ``None``,
-    then the entire movetext will be on a single line. This does not affect
-    header tags and comments.
-
-    There will be no newline characters at the end of the string.
-    """
-
+class StringExporterMixin:
     def __init__(self, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True, variations: bool = True):
         self.columns = columns
         self.headers = headers
@@ -1055,6 +1039,25 @@ class StringExporter(BaseVisitor[str]):
     def visit_result(self, result: str) -> None:
         self.write_token(result + " ")
 
+
+class StringExporter(StringExporterMixin, BaseVisitor[str]):
+    """
+    Allows exporting a game as a string.
+
+    >>> import chess.pgn
+    >>>
+    >>> game = chess.pgn.Game()
+    >>>
+    >>> exporter = chess.pgn.StringExporter(headers=True, variations=True, comments=True)
+    >>> pgn_string = game.accept(exporter)
+
+    Only *columns* characters are written per line. If *columns* is ``None``,
+    then the entire movetext will be on a single line. This does not affect
+    header tags and comments.
+
+    There will be no newline characters at the end of the string.
+    """
+
     def result(self) -> str:
         if self.current_line:
             return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
@@ -1065,7 +1068,7 @@ class StringExporter(BaseVisitor[str]):
         return self.result()
 
 
-class FileExporter(StringExporter, BaseVisitor[None]):
+class FileExporter(StringExporterMixin, BaseVisitor[None]):
     """
     Acts like a :class:`~chess.pgn.StringExporter`, but games are written
     directly into a text file.
