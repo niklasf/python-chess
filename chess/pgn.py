@@ -629,7 +629,7 @@ class Headers(MutableMapping[str, str]):
 
     @classmethod
     def builder(cls) -> "HeadersBuilder":
-        return HeadersBuilder(Headers=lambda: cls({}))
+        return HeadersBuilder(Headers=cls)
 
 
 MainlineMapT = TypeVar("MainlineMapT")
@@ -892,11 +892,11 @@ class GameBuilder(BaseVisitor):
 class HeadersBuilder(BaseVisitor):
     """Collects headers into a dictionary."""
 
-    def __init__(self, *, Headers=lambda: Headers({})) -> None:
+    def __init__(self, *, Headers: Type[Headers] = Headers) -> None:
         self.Headers = Headers
 
     def begin_headers(self) -> Headers:
-        self.headers = self.Headers()
+        self.headers = self.Headers({})
         return self.headers
 
     def visit_header(self, tagname: str, tagvalue: str) -> None:
