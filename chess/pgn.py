@@ -929,7 +929,7 @@ class BoardBuilder(BaseVisitor):
         if not self.skip_variation_depth:
             self.board = board
 
-    def result(self):
+    def result(self) -> chess.Board:
         return self.board
 
 
