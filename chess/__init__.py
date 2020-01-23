@@ -1792,7 +1792,7 @@ class Board(BaseBoard):
         """
         Since the 1st of July 2014, a game is automatically drawn (without
         a claim by one of the players) if the half-move clock since a capture
-        or pawn move is equal to or grather than 150. Other means to end a game
+        or pawn move is equal to or greater than 150. Other means to end a game
         take precedence.
         """
         if self.halfmove_clock >= 150:
