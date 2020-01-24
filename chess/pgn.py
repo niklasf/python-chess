@@ -423,9 +423,13 @@ class GameNode:
 
     def __repr__(self) -> str:
         if self.parent is None:
-            return f"<{type(self).__name__} at {id(self):#x} (dangling)>"
-        else:
+            return f"<{type(self).__name__} at {id(self):#x} (dangling: {self.move})>"
+
+        try:
             parent_board = self.parent.board()
+        except ValueError:
+            return f"<{type(self).__name__} at {id(self):#x} (dangling: {self.move})>"
+        else:
             return "<{} at {:#x} ({}{} {} ...)>".format(
                 type(self).__name__,
                 id(self),
