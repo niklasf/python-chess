@@ -17,7 +17,14 @@ def fuzz(buf):
     except UnicodeDecodeError:
         pass
     else:
-        str(chess.pgn.read_game(pgn))
+        while True:
+            game = chess.pgn.read_game(pgn)
+            if game is None:
+                break
+
+            repr(game)
+            if not game.errors:
+                str(game)
 
 
 if __name__ == "__main__":
