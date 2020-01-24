@@ -30,6 +30,10 @@ Piece types
 .. py:data:: chess.KING
     :annotation: = 6
 
+.. autofunction:: chess.piece_symbol
+
+.. autofunction:: chess.piece_name
+
 Squares
 -------
 

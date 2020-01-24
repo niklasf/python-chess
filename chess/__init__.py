@@ -570,6 +570,7 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
     def reset_board(self) -> None:
+        """Resets piece positions to the starting position."""
         self._reset_board()
 
     def _clear_board(self) -> None:
@@ -1224,6 +1225,19 @@ class BaseBoard:
         self.promoted = f(self.promoted)
 
     def transform(self: BaseBoardT, f: Callable[[Bitboard], Bitboard]) -> BaseBoardT:
+        """
+        Returns a transformed copy of the board by applying a bitboard
+        transformation function.
+
+        Available transformations include :func:`chess.flip_vertical()`,
+        :func:`chess.flip_horizontal()`, :func:`chess.flip_diagonal()`,
+        :func:`chess.flip_anti_diagonal()`, :func:`chess.shift_down()`,
+        :func:`chess.shift_up()`, :func:`chess.shift_left()`, and
+        :func:`chess.shift_right()`.
+
+        Alternatively, :func:`~chess.BaseBoard.apply_transform()` can be used
+        to apply the transformation in place.
+        """
         board = self.copy()
         board.apply_transform(f)
         return board
@@ -1547,6 +1561,11 @@ class Board(BaseBoard):
         return BB_EMPTY if king is None else self.attackers_mask(not self.turn, king)
 
     def checkers(self) -> "SquareSet":
+        """
+        Gets the pieces currently giving check.
+
+        Returns a :class:`set of squares <chess.SquareSet>`.
+        """
         return SquareSet(self.checkers_mask())
 
     def is_check(self) -> bool:

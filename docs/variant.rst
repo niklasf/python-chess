@@ -49,6 +49,25 @@ See :func:`chess.BaseBoard.set_chess960_pos()`,
 :func:`~chess.BaseBoard.from_chess960_pos()` for dealing with Chess960 starting
 positions.
 
+Crazyhouse
+----------
+
+.. autoclass:: chess.variant.CrazyhousePocket
+    :members:
+
+.. autoclass:: chess.variant.CrazyhouseBoard
+
+    .. py:attribute:: pockets
+       :annotation: = [chess.variant.CrazyhousePocket(), chess.variant.CrazyhousePocket()]
+
+Three-check
+-----------
+
+.. autoclass:: chess.variant.ThreeCheckBoard
+
+    .. py:attribute:: remaining_checks
+       :annotation: = [3, 3]
+
 UCI/XBoard
 ----------
 

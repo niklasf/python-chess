@@ -631,22 +631,27 @@ class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState["Crazyh
 CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 
 class CrazyhousePocket:
+    """A Crazyhouse pocket with a counter for each piece type."""
 
     def __init__(self, symbols: Iterable[str] = "") -> None:
         self.pieces: Dict[chess.PieceType, int] = {}
         for symbol in symbols:
             self.add(chess.PIECE_SYMBOLS.index(symbol))
 
-    def add(self, pt: chess.PieceType) -> None:
-        self.pieces[pt] = self.pieces.get(pt, 0) + 1
+    def add(self, piece_type: chess.PieceType) -> None:
+        """Adds a piece of the given type to this pocket."""
+        self.pieces[piece_type] = self.pieces.get(piece_type, 0) + 1
 
-    def remove(self, pt: chess.PieceType) -> None:
-        self.pieces[pt] -= 1
+    def remove(self, piece_type: chess.PieceType) -> None:
+        """Removes a piece of the given type from this pocket."""
+        self.pieces[piece_type] -= 1
 
     def count(self, piece_type: chess.PieceType) -> int:
+        """Returns the number of pieces of the given type in the pocket."""
         return self.pieces.get(piece_type, 0)
 
     def reset(self) -> None:
+        """Clears the pocket."""
         self.pieces.clear()
 
     def __str__(self) -> str:
@@ -659,6 +664,7 @@ class CrazyhousePocket:
         return f"CrazyhousePocket('{self}')"
 
     def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
+        """Returns a copy of this pocket."""
         pocket = type(self)()
         pocket.pieces = copy.copy(self.pieces)
         return pocket
