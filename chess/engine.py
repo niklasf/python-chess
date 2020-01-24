@@ -22,7 +22,6 @@ import collections
 import concurrent.futures
 import contextlib
 import enum
-import functools
 import logging
 import warnings
 import shlex
@@ -413,7 +412,6 @@ class PovScore:
             return NotImplemented
 
 
-@functools.total_ordering
 class Score(abc.ABC):
     """
     Evaluation of a position.
@@ -493,6 +491,24 @@ class Score(abc.ABC):
     def __lt__(self, other: object) -> bool:
         if isinstance(other, Score):
             return self._score_tuple() < other._score_tuple()
+        else:
+            return NotImplemented
+
+    def __le__(self, other: object) -> bool:
+        if isinstance(other, Score):
+            return self._score_tuple() <= other._score_tuple()
+        else:
+            return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if isinstance(other, Score):
+            return self._score_tuple() > other._score_tuple()
+        else:
+            return NotImplemented
+
+    def __ge__(self, other: object) -> bool:
+        if isinstance(other, Score):
+            return self._score_tuple() >= other._score_tuple()
         else:
             return NotImplemented
 
