@@ -1348,12 +1348,14 @@ class _BoardState(Generic[BoardT]):
 
 class Board(BaseBoard):
     """
-    A :class:`~chess.BaseBoard` and additional information representing
-    a chess position.
+    A :class:`~chess.BaseBoard`, additional information representing
+    a chess position, and a :data:`move stack <chess.Board.move_stack>`.
 
-    Provides move generation, validation, parsing, attack generation,
-    game end detection, move counters and the capability to make and unmake
-    moves.
+    Provides :data:`move generation <chess.Board.legal_moves>`, validation,
+    :func:`parsing <chess.Board.parse_san()>`, attack generation,
+    :func:`game end detection <chess.Board.is_game_over()>`,
+    and the capability to :func:`make <chess.Board.push()>` and
+    :func:`unmake <chess.Board.pop()>` moves.
 
     The board is initialized to the standard chess starting position,
     unless otherwise specified in the optional *fen* argument.
@@ -1367,6 +1369,11 @@ class Board(BaseBoard):
     It's safe to set :data:`~Board.turn`, :data:`~Board.castling_rights`,
     :data:`~Board.ep_square`, :data:`~Board.halfmove_clock` and
     :data:`~Board.fullmove_number` directly.
+
+    :warning: It is possible to set up and work with invalid positions. In this
+        case :class:`~chess.Board` implements a kind of "pseudo-chess"
+        (useful for implementing chess variants).
+        Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
 
     aliases = ["Standard", "Chess", "Classical", "Normal"]
@@ -1589,10 +1596,6 @@ class Board(BaseBoard):
         return not self._is_safe(king, self._slider_blockers(king), move)
 
     def was_into_check(self) -> bool:
-        """
-        Checks if the king of the other side is attacked. Such a position is not
-        valid and could only be reached by an illegal move.
-        """
         king = self.king(not self.turn)
         return king is not None and self.is_attacked_by(self.turn, king)
 
@@ -1967,7 +1970,9 @@ class Board(BaseBoard):
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
 
-        :warning: Moves are not checked for legality.
+        :warning: Moves are not checked for legality. It is the callers
+            responsibility to ensure the move is at least pseudo-legal or
+            a null move.
         """
         # Push move and remember board state.
         move = self._to_chess960(move)
