@@ -1005,7 +1005,7 @@ class UciProtocol(EngineProtocol):
         self.first_game = True
 
     async def initialize(self) -> None:
-        class Command(BaseCommand[UciProtocol, None]):
+        class UciInitializeCommand(BaseCommand[UciProtocol, None]):
             def check_initialized(self, engine: UciProtocol) -> None:
                 if engine.initialized:
                     raise EngineError("engine already initialized")
@@ -1088,7 +1088,7 @@ class UciProtocol(EngineProtocol):
                 key, value = arg.split(" ", 1)
                 engine.id[key] = value
 
-        return await self.communicate(Command)
+        return await self.communicate(UciInitializeCommand)
 
     def _isready(self) -> None:
         self.send_line("isready")
@@ -1108,7 +1108,7 @@ class UciProtocol(EngineProtocol):
             self.send_line("debug off")
 
     async def ping(self) -> None:
-        class Command(BaseCommand[UciProtocol, None]):
+        class UciPingCommand(BaseCommand[UciProtocol, None]):
             def start(self, engine: UciProtocol) -> None:
                 engine._isready()
 
@@ -1118,7 +1118,7 @@ class UciProtocol(EngineProtocol):
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
-        return await self.communicate(Command)
+        return await self.communicate(UciPingCommand)
 
     def _setoption(self, name: str, value: ConfigValue) -> None:
         try:
@@ -1146,13 +1146,13 @@ class UciProtocol(EngineProtocol):
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
-        class Command(BaseCommand[UciProtocol, None]):
+        class UciConfigureCommand(BaseCommand[UciProtocol, None]):
             def start(self, engine: UciProtocol) -> None:
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
-        return await self.communicate(Command)
+        return await self.communicate(UciConfigureCommand)
 
     def _position(self, board: chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
@@ -1224,7 +1224,7 @@ class UciProtocol(EngineProtocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
-        class Command(BaseCommand[UciProtocol, PlayResult]):
+        class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
                 self.pondering = False
@@ -1308,10 +1308,10 @@ class UciProtocol(EngineProtocol):
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
-        return await self.communicate(Command)
+        return await self.communicate(UciPlayCommand)
 
     async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: Mapping[str, Union[str]] = {}) -> "AnalysisResult":
-        class Command(BaseCommand[UciProtocol, AnalysisResult]):
+        class UciAnalysisCommand(BaseCommand[UciProtocol, AnalysisResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.sent_isready = False
@@ -1368,7 +1368,7 @@ class UciProtocol(EngineProtocol):
                 LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
                 self.analysis.set_exception(exc)
 
-        return await self.communicate(Command)
+        return await self.communicate(UciAnalysisCommand)
 
     async def quit(self) -> None:
         self.send_line("quit")
@@ -1541,7 +1541,7 @@ class XBoardProtocol(EngineProtocol):
         self.first_game = True
 
     async def initialize(self) -> None:
-        class Command(BaseCommand[XBoardProtocol, None]):
+        class XBoardInitializeCommand(BaseCommand[XBoardProtocol, None]):
             def check_initialized(self, engine: XBoardProtocol) -> None:
                 if engine.initialized:
                     raise EngineError("engine already initialized")
@@ -1628,7 +1628,7 @@ class XBoardProtocol(EngineProtocol):
                 engine.initialized = True
                 self.set_finished()
 
-        return await self.communicate(Command)
+        return await self.communicate(XBoardInitializeCommand)
 
     def _ping(self, n: int) -> None:
         self.send_line(f"ping {n}")
@@ -1695,7 +1695,7 @@ class XBoardProtocol(EngineProtocol):
             self.board.push(move)
 
     async def ping(self) -> None:
-        class Command(BaseCommand[XBoardProtocol, None]):
+        class XBoardPingCommand(BaseCommand[XBoardProtocol, None]):
             def start(self, engine: XBoardProtocol) -> None:
                 n = id(self) & 0xffff
                 self.pong = f"pong {n}"
@@ -1709,13 +1709,13 @@ class XBoardProtocol(EngineProtocol):
                 elif XBOARD_ERROR_REGEX.match(line):
                     raise EngineError(line)
 
-        return await self.communicate(Command)
+        return await self.communicate(XBoardPingCommand)
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
-        class Command(BaseCommand[XBoardProtocol, PlayResult]):
+        class XBoardPlayCommand(BaseCommand[XBoardProtocol, PlayResult]):
             def start(self, engine: XBoardProtocol) -> None:
                 self.play_result = PlayResult(None, None)
                 self.stopped = False
@@ -1843,7 +1843,7 @@ class XBoardProtocol(EngineProtocol):
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
-        return await self.communicate(Command)
+        return await self.communicate(XBoardPlayCommand)
 
     async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> "AnalysisResult":
         if multipv is not None:
@@ -1852,7 +1852,7 @@ class XBoardProtocol(EngineProtocol):
         if limit is not None and (limit.white_clock is not None or limit.black_clock is not None):
             raise EngineError("xboard analysis does not support clock limits")
 
-        class Command(BaseCommand[XBoardProtocol, AnalysisResult]):
+        class XBoardAnalysisCommand(BaseCommand[XBoardProtocol, AnalysisResult]):
             def start(self, engine: XBoardProtocol) -> None:
                 self.stopped = False
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1933,7 +1933,7 @@ class XBoardProtocol(EngineProtocol):
 
                 self.analysis.set_exception(exc)
 
-        return await self.communicate(Command)
+        return await self.communicate(XBoardAnalysisCommand)
 
     def _setoption(self, name: str, value: ConfigValue) -> None:
         if value is not None and value == self.config.get(name):
@@ -1967,13 +1967,13 @@ class XBoardProtocol(EngineProtocol):
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
-        class Command(BaseCommand[XBoardProtocol, None]):
+        class XBoardConfigureCommand(BaseCommand[XBoardProtocol, None]):
             def start(self, engine: XBoardProtocol) -> None:
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.set_finished()
 
-        return await self.communicate(Command)
+        return await self.communicate(XBoardConfigureCommand)
 
     async def quit(self) -> None:
         self.send_line("quit")
