@@ -936,10 +936,10 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         if not self.finished.done():
             self.finished.set_result(None)
 
-    def set_finished(self: "BaseCommand[EngineProtocolT, None]") -> None:
+    def set_finished(self) -> None:
         assert self.state in [CommandState.Active, CommandState.Cancelling]
         if not self.result.done():
-            self.result.set_result(None)
+            self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.finished.set_result(None)
 
     def _cancel(self, engine: EngineProtocolT) -> None:
@@ -1016,6 +1016,7 @@ class UciProtocol(EngineProtocol):
             def line_received(self, engine: UciProtocol, line: str) -> None:
                 if line == "uciok":
                     engine.initialized = True
+                    self.result.set_result(None)
                     self.set_finished()
                 elif line.startswith("option "):
                     self._option(engine, line.split(" ", 1)[1])
@@ -1114,6 +1115,7 @@ class UciProtocol(EngineProtocol):
 
             def line_received(self, engine: UciProtocol, line: str) -> None:
                 if line == "readyok":
+                    self.result.set_result(None)
                     self.set_finished()
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
@@ -1150,6 +1152,7 @@ class UciProtocol(EngineProtocol):
             def start(self, engine: UciProtocol) -> None:
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
+                self.result.set_result(None)
                 self.set_finished()
 
         return await self.communicate(UciConfigureCommand)
@@ -1626,6 +1629,7 @@ class XBoardProtocol(EngineProtocol):
                         engine.target_config[option.name] = option.default
 
                 engine.initialized = True
+                self.result.set_result(None)
                 self.set_finished()
 
         return await self.communicate(XBoardInitializeCommand)
@@ -1971,6 +1975,7 @@ class XBoardProtocol(EngineProtocol):
             def start(self, engine: XBoardProtocol) -> None:
                 engine._configure(options)
                 engine.target_config.update({name: value for name, value in options.items() if value is not None})
+                self.result.set_result(None)
                 self.set_finished()
 
         return await self.communicate(XBoardConfigureCommand)
