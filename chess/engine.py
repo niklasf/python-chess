@@ -248,7 +248,7 @@ class Option(NamedTuple):
             return value and value != "false"
         elif self.type == "spin":
             try:
-                value = int(value)
+                value = int(value)  # type: ignore
             except ValueError:
                 raise EngineError(f"expected integer for spin option {self.name!r}, got: {value!r}")
             if self.min is not None and value < self.min:
@@ -259,7 +259,7 @@ class Option(NamedTuple):
         elif self.type == "combo":
             value = str(value)
             if value not in (self.var or []):
-                raise EngineError("invalid value for combo option {!r}, got: {} (available: {})".format(self.name, value, ", ".join(self.var)))
+                raise EngineError("invalid value for combo option {!r}, got: {} (available: {})".format(self.name, value, ", ".join(self.var) if self.var else "-"))
             return value
         elif self.type in ["button", "reset", "save"]:
             return None
@@ -332,6 +332,7 @@ try:
         wdl: Tuple[int, int, int]
         string: str
 except AttributeError:
+    # Before Python 3.8.
     InfoDict = dict  # type: ignore
 
 
@@ -474,11 +475,12 @@ class Score(abc.ABC):
         pass
 
     def _score_tuple(self) -> Tuple[bool, bool, bool, int, Optional[int]]:
+        mate = self.mate()
         return (
             isinstance(self, MateGivenType),
-            self.is_mate() and self.mate() > 0,
-            not self.is_mate(),
-            -(self.mate() or 0),
+            mate is not None and mate > 0,
+            mate is None,
+            -(mate or 0),
             self.score(),
         )
 
@@ -601,8 +603,9 @@ class MateGivenType(Score):
 MateGiven = MateGivenType()
 
 
-class MockTransport:
+class MockTransport(asyncio.SubprocessTransport):
     def __init__(self, protocol: "EngineProtocol") -> None:
+        super().__init__()
         self.protocol = protocol
         self.expectations: Deque[Tuple[str, List[str]]] = collections.deque()
         self.expected_pings = 0
@@ -625,8 +628,8 @@ class MockTransport:
     def write(self, data: bytes) -> None:
         self.stdin_buffer.extend(data)
         while b"\n" in self.stdin_buffer:
-            line, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)
-            line = line.decode("utf-8")
+            line_bytes, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)
+            line = line_bytes.decode("utf-8")
 
             if line.startswith("ping ") and self.expected_pings:
                 self.expected_pings -= 1
@@ -667,10 +670,12 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.returncode: asyncio.Future[int] = asyncio.Future()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
-        self.transport = transport
+        # SubprocessTransport expected, but not checked to allow ducktyping.
+        self.transport = transport  # type: ignore
         LOGGER.debug("%s: Connection made", self)
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
+        assert self.transport is not None
         code = self.transport.get_returncode()
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
@@ -689,11 +694,12 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
     def send_line(self, line: str) -> None:
         LOGGER.debug("%s: << %s", self, line)
+        assert self.transport is not None, "cannot send line before connection is made"
         stdin = self.transport.get_pipe_transport(0)
         stdin.write(line.encode("utf-8"))
         stdin.write(b"\n")
 
-    def pipe_data_received(self, fd: int, data: Union[bytes, Text]) -> None:
+    def pipe_data_received(self, fd: int, data: Union[bytes, str]) -> None:
         self.buffer[fd].extend(data)
         while b"\n" in self.buffer[fd]:
             line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
@@ -741,7 +747,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
-                cmd.result.add_done_callback(lambda result: cmd._cancel(self) if cmd.result.cancelled() else None)
+                cmd.result.add_done_callback(lambda result: result.cancelled() and cmd._cancel(self))
                 cmd.finished.add_done_callback(previous_command_finished)
                 cmd._start(self)
 
@@ -1072,12 +1078,8 @@ class UciProtocol(EngineProtocol):
                 if current_var is not None:
                     var.append(" ".join(current_var))
 
-                name: str = " ".join(name)
-                type: str = " ".join(type)
-                default: str = " ".join(default)
-
-                without_default = Option(name, type, None, min, max, var)
-                option = Option(name, type, without_default.parse(default), min, max, var)
+                without_default = Option(" ".join(name), " ".join(type), None, min, max, var)
+                option = Option(without_default.name, without_default.type, without_default.parse(" ".join(default)), min, max, var)
                 engine.options[option.name] = option
 
                 if option.default is not None:
@@ -1313,7 +1315,7 @@ class UciProtocol(EngineProtocol):
 
         return await self.communicate(UciPlayCommand)
 
-    async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: Mapping[str, Union[str]] = {}) -> "AnalysisResult":
+    async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> "AnalysisResult":
         class UciAnalysisCommand(BaseCommand[UciProtocol, AnalysisResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
@@ -1394,7 +1396,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
             break
         elif parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
             try:
-                info[parameter] = int(tokens.pop(0))
+                info[parameter] = int(tokens.pop(0))  # type: ignore
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing %s from info: %r", parameter, arg)
         elif parameter == "time":
@@ -1412,7 +1414,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 kind = tokens.pop(0)
                 value = tokens.pop(0)
                 if tokens and tokens[0] in ["lowerbound", "upperbound"]:
-                    info[tokens.pop(0)] = True
+                    info[tokens.pop(0)] = True  # type: ignore
                 if kind == "cp":
                     info["score"] = PovScore(Cp(int(value)), root_board.turn)
                 elif kind == "mate":
@@ -1732,7 +1734,7 @@ class XBoardProtocol(EngineProtocol):
                 # Limit or time control.
                 increment = limit.white_inc if board.turn else limit.black_inc
                 if limit.remaining_moves or increment:
-                    base_mins, base_secs = divmod(int(limit.white_clock if board.turn else limit.black_clock), 60)
+                    base_mins, base_secs = divmod(int((limit.white_clock if board.turn else limit.black_clock) or 0), 60)
                     engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment}")
 
                 if limit.nodes is not None:
