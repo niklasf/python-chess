@@ -1709,6 +1709,7 @@ class XBoardProtocol(EngineProtocol):
 
             def line_received(self, engine: XBoardProtocol, line: str) -> None:
                 if line == self.pong:
+                    self.result.set_result(None)
                     self.set_finished()
                 elif not line.startswith("#"):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
