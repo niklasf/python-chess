@@ -157,15 +157,15 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
                 return asyncio.SafeChildWatcher()
 
         class PollingChildWatcher(asyncio.SafeChildWatcher):
-
-            _loop: asyncio.AbstractEventLoop
+            _loop: Optional[asyncio.AbstractEventLoop]
+            _callbacks: Dict[int, Any]
 
             def __init__(self) -> None:
                 super().__init__()
                 self._poll_handle: Optional[asyncio.Handle] = None
                 self._poll_delay = 0.001
 
-            def attach_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+            def attach_loop(self, loop: Optional[asyncio.AbstractEventLoop]) -> None:
                 assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
 
                 if self._loop is not None and loop is None and self._callbacks:
@@ -175,13 +175,13 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
                     self._poll_handle.cancel()
 
                 self._loop = loop
-                if loop is not None:
+                if self._loop is not None:
                     self._poll_handle = self._loop.call_soon(self._poll)
-                    self._do_waitpid_all()
+                    self._do_waitpid_all()  # type: ignore
 
             def _poll(self) -> None:
                 if self._loop:
-                    self._do_waitpid_all()
+                    self._do_waitpid_all()  # type: ignore
                     self._poll_delay = min(self._poll_delay * 2, 1.0)
                     self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
 
@@ -621,7 +621,7 @@ class MockTransport(asyncio.SubprocessTransport):
     def assert_done(self) -> None:
         assert not self.expectations, f"pending expectations: {self.expectations}"
 
-    def get_pipe_transport(self, fd: int) -> "MockTransport":
+    def get_pipe_transport(self, fd: int) -> "MockTransport":  # type: ignore
         assert fd == 0, f"expected 0 for stdin, got {fd}"
         return self
 
@@ -654,7 +654,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     id: Dict[str, str]
     options: Dict[str, Option]
 
-    def __init__(self) -> None:
+    def __init__(self: EngineProtocolT) -> None:
         self.loop = _get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
 
@@ -663,8 +663,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             2: bytearray(),  # stderr
         }
 
-        self.command: Optional[BaseCommand[EngineProtocol, Any]] = None
-        self.next_command: Optional[BaseCommand[EngineProtocol, Any]] = None
+        self.command: Optional[BaseCommand[EngineProtocolT, Any]] = None
+        self.next_command: Optional[BaseCommand[EngineProtocolT, Any]] = None
 
         self.initialized = False
         self.returncode: asyncio.Future[int] = asyncio.Future()
@@ -674,9 +674,10 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.transport = transport  # type: ignore
         LOGGER.debug("%s: Connection made", self)
 
-    def connection_lost(self, exc: Optional[Exception]) -> None:
+    def connection_lost(self: EngineProtocolT, exc: Optional[Exception]) -> None:
         assert self.transport is not None
         code = self.transport.get_returncode()
+        assert code is not None, "connect lost, but got no returncode"
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
         # Terminate commands.
@@ -696,16 +697,17 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         LOGGER.debug("%s: << %s", self, line)
         assert self.transport is not None, "cannot send line before connection is made"
         stdin = self.transport.get_pipe_transport(0)
+        assert stdin is not None, "no pipe for stdin"
         stdin.write(line.encode("utf-8"))
         stdin.write(b"\n")
 
     def pipe_data_received(self, fd: int, data: Union[bytes, str]) -> None:
-        self.buffer[fd].extend(data)
+        self.buffer[fd].extend(data)  # type: ignore
         while b"\n" in self.buffer[fd]:
-            line, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
-            if line.endswith(b"\r"):
-                line = line[:-1]
-            line = line.decode("utf-8")
+            line_bytes, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
+            if line_bytes.endswith(b"\r"):
+                line_bytes = line_bytes[:-1]
+            line = line_bytes.decode("utf-8")
             if fd == 1:
                 self.loop.call_soon(self._line_received, line)
             else:
@@ -714,7 +716,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
 
-    def _line_received(self, line: str) -> None:
+    def _line_received(self: EngineProtocolT, line: str) -> None:
         LOGGER.debug("%s: >> %s", self, line)
 
         self.line_received(line)
@@ -747,7 +749,12 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
-                cmd.result.add_done_callback(lambda result: result.cancelled() and cmd._cancel(self))
+
+                def cancel_if_cancelled(result):
+                    if result.cancelled():
+                        cmd._cancel(self)
+
+                cmd.result.add_done_callback(cancel_if_cancelled)
                 cmd.finished.add_done_callback(previous_command_finished)
                 cmd._start(self)
 
@@ -902,7 +909,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp
         popen_args.update(kwargs)
 
-        return await _get_running_loop().subprocess_exec(cls, *command, **popen_args)
+        return await _get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
 
 class CommandState(enum.Enum):
