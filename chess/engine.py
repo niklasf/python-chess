@@ -21,6 +21,7 @@ import asyncio
 import collections
 import concurrent.futures
 import contextlib
+import copy
 import enum
 import logging
 import warnings
@@ -652,7 +653,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
     id: Dict[str, str]
-    options: Dict[str, Option]
+    options: MutableMapping[str, Option]
 
     def __init__(self: EngineProtocolT) -> None:
         self.loop = _get_running_loop()
@@ -2305,9 +2306,9 @@ class SimpleEngine:
             yield
 
     @property
-    def options(self) -> Dict[str, Option]:
-        async def _get() -> Dict[str, Option]:
-            return self.protocol.options.copy()
+    def options(self) -> MutableMapping[str, Option]:
+        async def _get() -> MutableMapping[str, Option]:
+            return copy.copy(self.protocol.options)
 
         with self._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
