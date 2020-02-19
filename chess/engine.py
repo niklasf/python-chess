@@ -1618,7 +1618,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.send_line("reject san")
 
                 if "myname" in engine.features:
-                    engine.id["name"] = engine.features["myname"]
+                    engine.id["name"] = str(engine.features["myname"])
 
                 if engine.features.get("memory", 0):
                     engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
@@ -1627,7 +1627,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
                     engine.send_line("accept smp")
                 if engine.features.get("egt"):
-                    for egt in engine.features["egt"].split(","):
+                    for egt in str(engine.features["egt"]).split(","):
                         name = f"egtpath {egt}"
                         engine.options[name] = Option(name, "path", None, None, None, None)
                     engine.send_line("accept egt")
@@ -1648,7 +1648,7 @@ class XBoardProtocol(EngineProtocol):
         self.send_line(f"ping {n}")
 
     def _variant(self, variant: Optional[str]) -> None:
-        variants = self.features.get("variants", "").split(",")
+        variants = str(self.features.get("variants", "")).split(",")
         if not variant or variant not in variants:
             raise EngineError("unsupported xboard variant: {} (available: {})".format(variant, ", ".join(variants)))
 
