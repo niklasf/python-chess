@@ -300,7 +300,7 @@ Download and install the latest release:
 Selected use cases
 ------------------
 
-If you like, let me know if you are creating something intresting with
+If you like, let me know if you are creating something interesting with
 python-chess, for example:
 
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
