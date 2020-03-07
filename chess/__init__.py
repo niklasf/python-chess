@@ -354,7 +354,7 @@ BB_FILE_MASKS, BB_FILE_ATTACKS = _attack_table([-8, 8])
 BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 
-def _rays() -> Tuple[List[List[Bitboard]], List[List[Bitboard]]]:
+def _rays() -> List[List[Bitboard]]:
     rays = []
     for a, bb_a in enumerate(BB_SQUARES):
         rays_row = []
@@ -372,7 +372,7 @@ def _rays() -> Tuple[List[List[Bitboard]], List[List[Bitboard]]]:
 
 BB_RAYS = _rays()
 
-def between(a, b):
+def between(a: Square, b: Square) -> Bitboard:
     bb = BB_RAYS[a][b] & ((BB_ALL << a) ^ (BB_ALL << b))
     return bb & (bb - 1)
 
