@@ -356,28 +356,25 @@ BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 def _rays() -> Tuple[List[List[Bitboard]], List[List[Bitboard]]]:
     rays = []
-    between = []
     for a, bb_a in enumerate(BB_SQUARES):
         rays_row = []
-        between_row = []
         for b, bb_b in enumerate(BB_SQUARES):
             if BB_DIAG_ATTACKS[a][0] & bb_b:
                 rays_row.append((BB_DIAG_ATTACKS[a][0] & BB_DIAG_ATTACKS[b][0]) | bb_a | bb_b)
-                between_row.append(BB_DIAG_ATTACKS[a][BB_DIAG_MASKS[a] & bb_b] & BB_DIAG_ATTACKS[b][BB_DIAG_MASKS[b] & bb_a])
             elif BB_RANK_ATTACKS[a][0] & bb_b:
                 rays_row.append(BB_RANK_ATTACKS[a][0] | bb_a)
-                between_row.append(BB_RANK_ATTACKS[a][BB_RANK_MASKS[a] & bb_b] & BB_RANK_ATTACKS[b][BB_RANK_MASKS[b] & bb_a])
             elif BB_FILE_ATTACKS[a][0] & bb_b:
                 rays_row.append(BB_FILE_ATTACKS[a][0] | bb_a)
-                between_row.append(BB_FILE_ATTACKS[a][BB_FILE_MASKS[a] & bb_b] & BB_FILE_ATTACKS[b][BB_FILE_MASKS[b] & bb_a])
             else:
                 rays_row.append(BB_EMPTY)
-                between_row.append(BB_EMPTY)
         rays.append(rays_row)
-        between.append(between_row)
-    return rays, between
+    return rays
 
-BB_RAYS, BB_BETWEEN = _rays()
+BB_RAYS = _rays()
+
+def between(a, b):
+    bb = BB_RAYS[a][b] & ((BB_ALL << a) ^ (BB_ALL << b))
+    return bb & (bb - 1)
 
 
 SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkNBRQK])?(\+|#)?\Z")
@@ -749,7 +746,7 @@ class BaseBoard:
             if rays & square_mask:
                 snipers = rays & sliders & self.occupied_co[not color]
                 for sniper in scan_reversed(snipers):
-                    if BB_BETWEEN[sniper][king] & (self.occupied | square_mask) == square_mask:
+                    if between(sniper, king) & (self.occupied | square_mask) == square_mask:
                         return BB_RAYS[king][sniper]
 
                 break
@@ -3227,7 +3224,7 @@ class Board(BaseBoard):
         blockers = 0
 
         for sniper in scan_reversed(snipers & self.occupied_co[not self.turn]):
-            b = BB_BETWEEN[king][sniper] & self.occupied
+            b = between(king, sniper) & self.occupied
 
             # Add to blockers if exactly one piece in-between.
             if b and BB_SQUARES[msb(b)] == b:
@@ -3262,7 +3259,7 @@ class Board(BaseBoard):
         checker = msb(checkers)
         if BB_SQUARES[checker] == checkers:
             # Capture or block a single checker.
-            target = BB_BETWEEN[king][checker] | checkers
+            target = between(king, checker) | checkers
 
             yield from self.generate_pseudo_legal_moves(~self.kings & from_mask, target & to_mask)
 
@@ -3331,8 +3328,8 @@ class Board(BaseBoard):
             king_to = bb_c if a_side else bb_g
             rook_to = bb_d if a_side else bb_f
 
-            king_path = BB_BETWEEN[msb(king)][msb(king_to)]
-            rook_path = BB_BETWEEN[candidate][msb(rook_to)]
+            king_path = between(msb(king), msb(king_to))
+            rook_path = between(candidate, msb(rook_to))
 
             if not ((self.occupied ^ king ^ rook) & (king_path | rook_path | king_to | rook_to) or
                     self._attacked_for_king(king_path | king, self.occupied ^ king) or

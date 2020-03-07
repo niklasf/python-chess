@@ -733,7 +733,7 @@ class CrazyhouseBoard(chess.Board):
         if not king_attackers:
             return ~self.occupied
         elif chess.popcount(king_attackers) == 1:
-            return chess.BB_BETWEEN[king][chess.msb(king_attackers)] & ~self.occupied
+            return chess.between(king, chess.msb(king_attackers)) & ~self.occupied
         else:
             return chess.BB_EMPTY
 
