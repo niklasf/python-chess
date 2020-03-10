@@ -312,6 +312,7 @@ python-chess, for example:
 * a JIT compiled chess engine – https://github.com/SamRagusa/Batch-First
 * a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
 * teaching Cognitive Science – `https://jupyter.brynmawr.edu <https://jupyter.brynmawr.edu/services/public/dblank/CS371%20Cognitive%20Science/2016-Fall/Programming%20a%20Chess%20Player.ipynb>`_
+* an `Alexa skill to play blindfold chess <https://www.amazon.com/Laynr-blindfold-chess/dp/B0859QF8YL>`_ – `https://github.com/laynr/blindfold-chess`_
 
 Acknowledgements
 ----------------
