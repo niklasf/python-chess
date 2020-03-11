@@ -12,7 +12,7 @@ def fuzz(buf):
     else:
         try:
             board = chess.Board(fen)
-        except ValueError as err:
+        except ValueError:
             pass
         else:
             sanitized_fen = board.fen()
