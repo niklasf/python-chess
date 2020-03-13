@@ -409,7 +409,7 @@ class PovScore:
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, PovScore):
-            return (self.relative, self.turn) == (other.relative, other.turn)
+            return self.white() == other.white()
         else:
             return NotImplemented
 
