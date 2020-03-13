@@ -3073,9 +3073,11 @@ class Board(BaseBoard):
         Gets a bitmask of possible problems with the position.
 
         Move making, generation and validation are only guaranteed to work on
-        a completely valid board.
+        a valid board.
 
-        :data:`~chess.STATUS_VALID` for a completely valid board.
+        :data:`~chess.STATUS_VALID` if all basic validity requirements are met.
+        This does not imply that the position is actually reachable with a
+        series of legal moves from the starting position.
 
         Otherwise, bitwise combinations of:
         :data:`~chess.STATUS_NO_WHITE_KING`,
@@ -3177,10 +3179,10 @@ class Board(BaseBoard):
 
     def is_valid(self) -> bool:
         """
-        Checks if the board is valid.
+        Checks some basic validity requirements.
 
         Move making, generation and validation are only guaranteed to work on
-        a completely valid board.
+        a valid board.
 
         See :func:`~chess.Board.status()` for details.
         """
