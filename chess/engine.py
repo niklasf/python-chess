@@ -360,7 +360,7 @@ class PlayResult:
 
 
 class Info(enum.IntFlag):
-    """Select information sent by the chess engine."""
+    """Used to filter information sent by the chess engine."""
     NONE = 0
     BASIC = 1
     SCORE = 2
@@ -386,15 +386,15 @@ class PovScore:
         self.turn = turn
 
     def white(self) -> "Score":
-        """Get the score from White's point of view."""
+        """Gets the score from White's point of view."""
         return self.pov(chess.WHITE)
 
     def black(self) -> "Score":
-        """Get the score from Black's point of view."""
+        """Gets the score from Black's point of view."""
         return self.pov(chess.BLACK)
 
     def pov(self, color: chess.Color) -> "Score":
-        """Get the score from the point of view of the given *color*."""
+        """Gets the score from the point of view of the given *color*."""
         return self.relative if self.turn == color else -self.relative
 
     def is_mate(self) -> bool:
