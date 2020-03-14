@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding=utf-8
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2012-2020 Niklas Fiekas <niklas.fiekas@backscattering.de>
