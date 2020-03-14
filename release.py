@@ -20,9 +20,9 @@ def check_git():
     system("git diff --cached --exit-code")
 
     system("git fetch origin")
-    behind = subprocess.check_output(["git", "rev-list", "--count", "master..origin/master"])
-    if int(behind) > 0:
-        print(f"master is {int(behind)} commits behind origin/master")
+    behind = int(subprocess.check_output(["git", "rev-list", "--count", "master..origin/master"]))
+    if behind > 0:
+        print(f"master is {behind} commit(s) behind origin/master")
         sys.exit(1)
 
 def test():
