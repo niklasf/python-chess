@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Compute X-Ray attacks through more valuable pieces."""
 

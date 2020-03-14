@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # This file is part of the python-chess library.
 # Copyright (C) 2015 Jean-Noël Avila <jn.avila@free.fr>
 # Copyright (C) 2015-2020 Niklas Fiekas <niklas.fiekas@backscattering.de>

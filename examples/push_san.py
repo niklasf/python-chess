@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Play the immortal game using push_san() from chess.Board()."""
 
