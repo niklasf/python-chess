@@ -1,6 +1,31 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Replaced lookup table `chess.BB_BETWEEN[a][b]` with a function
+  `chess.between(a, b)`. Improves initialization and runtime performance.
+* `chess.pgn.BaseVisitor.result()` is now an abstract method, forcing
+  subclasses to implement it.
+* Removed helper attributes from `chess.engine.InfoDict`. Instead it is now
+  a `TypedDict`.
+* `chess.engine.PovScore` equality is now semantic instead of structural:
+  Scores compare equal to the negative score from the opposite point of view.
+
+Bugfixes:
+
+* Clarified documentation regarding board validity.
+* `chess.pgn.GameNode.__repr__()` no longer errors if the root node has invalid
+  FEN or Variant headers.
+* Carriage returns are no longer allowed in PGN header values, fixing
+  reparsability.
+* Fixed type error when XBoard name or egt features have a value that looks
+  like an integer.
+* `chess.engine` is now passing type checks with mypy.
+
 New in v0.30.1
 --------------
 
@@ -17,7 +42,7 @@ Changes:
 Bugfixes:
 
 * Fix Racing Kings game end detection: Black cannot catch up if their own
-  pieces block the goal. White would win on the turn, so this did not
+  pieces block the goal. White would win on the next turn, so this did not
   impact the game theoretical outcome of the game.
 * Fix bugs discovered by fuzzing the EPD parser: Fixed serialization of
   empty strings, reparsability of empty move lists, handling of non-finite
