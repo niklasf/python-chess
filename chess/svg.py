@@ -26,6 +26,7 @@ import xml.etree.ElementTree as ET
 from typing import Iterable, Optional, Tuple, Union
 
 
+BOARD_SIZE = 400
 SQUARE_SIZE = 45
 MARGIN = 20
 
