@@ -1367,7 +1367,7 @@ class Board(BaseBoard):
 
     :warning: It is possible to set up and work with invalid positions. In this
         case :class:`~chess.Board` implements a kind of "pseudo-chess"
-        (useful for implementing chess variants).
+        (useful to gracefully handle errors or to implement chess variants).
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
 
@@ -3070,9 +3070,6 @@ class Board(BaseBoard):
         """
         Gets a bitmask of possible problems with the position.
 
-        Move making, generation and validation are only guaranteed to work on
-        a valid board.
-
         :data:`~chess.STATUS_VALID` if all basic validity requirements are met.
         This does not imply that the position is actually reachable with a
         series of legal moves from the starting position.
@@ -3178,9 +3175,6 @@ class Board(BaseBoard):
     def is_valid(self) -> bool:
         """
         Checks some basic validity requirements.
-
-        Move making, generation and validation are only guaranteed to work on
-        a valid board.
 
         See :func:`~chess.Board.status()` for details.
         """
