@@ -52,7 +52,8 @@ holds general information, such as game headers.
 
     .. py:attribute:: headers
 
-        A mapping of headers. By default, the following 7 headers are provided:
+        A mapping of headers. By default, the following 7 headers are provided
+        (Seven Tag Roster):
 
         >>> import chess.pgn
         >>>
