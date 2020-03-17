@@ -330,7 +330,7 @@ class MemoryMappedReader:
             raise IOError(f"invalid file size: ensure {filename!r} is a valid polyglot opening book")
 
         try:
-            # Python 3.8
+            # Python 3.8.
             self.mmap.madvise(mmap.MADV_RANDOM)  # type: ignore
         except AttributeError:
             pass
