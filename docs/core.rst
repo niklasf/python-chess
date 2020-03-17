@@ -7,7 +7,7 @@ Colors
 Constants for the side to move or the color of a piece.
 
 .. py:data:: chess.WHITE
-    :annotation: = True
+    :annotation:  = True
 
 .. py:data:: chess.BLACK
     :annotation: = False
