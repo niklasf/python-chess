@@ -527,7 +527,7 @@ class Game(GameNode):
 
     @classmethod
     def without_tag_roster(cls: Type[GameT]) -> GameT:
-        """Creates an empty game without the default 7 tag roster."""
+        """Creates an empty game without the Seven Tag Roster."""
         return cls(headers={})
 
     @classmethod
