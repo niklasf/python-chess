@@ -318,7 +318,7 @@ def wsq_to_pidx24(pawn: int) -> int:
     sq = pawn
 
     sq = flip_ns(sq)
-    sq -= 8  # Down one row.
+    sq -= 8  # Down one row
 
     idx24 = (sq + (sq & 3)) >> 1
     return idx24
@@ -327,7 +327,7 @@ def wsq_to_pidx48(pawn: int) -> int:
     sq = pawn
 
     sq = flip_ns(sq)
-    sq -= 8  # Down one row.
+    sq -= 8  # Down one row
 
     idx48 = sq
     return idx48
@@ -349,7 +349,7 @@ def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
             anchor, loosen = pp_putanchorfirst(a, b)
 
             if (anchor & 7) > 3:
-                # Square in the kingside.
+                # Square on the kingside.
                 anchor = flip_we(anchor)
                 loosen = flip_we(loosen)
 
@@ -459,7 +459,7 @@ def kapkb_pctoindex(c: "Request") -> int:
         return NOINDEX
 
     if (pawn & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -468,7 +468,7 @@ def kapkb_pctoindex(c: "Request") -> int:
 
     sq = pawn
     sq ^= 56  # flip_ns
-    sq -= 8   # down one row
+    sq -= 8   # Down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba
@@ -486,7 +486,7 @@ def kabpk_pctoindex(c: "Request") -> int:
     bk = c.black_piece_squares[0]
 
     if (pawn & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -513,7 +513,7 @@ def kabkp_pctoindex(c: "Request") -> int:
         return NOINDEX
 
     if (pawn & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -521,7 +521,7 @@ def kabkp_pctoindex(c: "Request") -> int:
         wb = flip_we(wb)
 
     sq = pawn
-    sq -= 8  # down one row
+    sq -= 8  # Down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
@@ -538,7 +538,7 @@ def kaapk_pctoindex(c: "Request") -> int:
     bk = c.black_piece_squares[0]
 
     if (pawn & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -566,7 +566,7 @@ def kaakp_pctoindex(c: "Request") -> int:
     pawn = c.black_piece_squares[1]
 
     if (pawn & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         pawn = flip_we(pawn)
         wk = flip_we(wk)
         bk = flip_we(bk)
@@ -598,7 +598,7 @@ def kapkp_pctoindex(c: "Request") -> int:
     loosen = pawn_b
 
     if (anchor & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -628,7 +628,7 @@ def kappk_pctoindex(c: "Request") -> int:
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
     if (anchor & 7) > 3:
-        # Column is more than 3, i.e. e, f, g or h.
+        # Column is more than 3, i.e., e, f, g or h.
         anchor = flip_we(anchor)
         loosen = flip_we(loosen)
         wk = flip_we(wk)
@@ -841,7 +841,7 @@ def kppkp_pctoindex(c: "Request") -> int:
     i = flip_we(flip_ns(pawn_a)) - 8
     j = flip_we(flip_ns(pawn_b)) - 8
 
-    # Black pawn, so low indexes mean more advanced.
+    # Black pawn, so low indexes are more advanced.
     k = map24_b(pawn_c)
 
     pp48_slice = PP48_IDX[i][j]
@@ -989,7 +989,7 @@ def kapk_pctoindex(c: "Request") -> int:
 
     sq = pawn
     sq ^= 56  # flip_ns
-    sq -= 8   # down one row
+    sq -= 8   # Down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
@@ -1042,7 +1042,7 @@ def kakp_pctoindex(c: "Request") -> int:
         wa = flip_we(wa)
 
     sq = pawn
-    sq -= 8  # down one row
+    sq -= 8  # Down one row
     pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
@@ -1129,7 +1129,7 @@ def kpk_pctoindex(c: "Request") -> int:
 
     sq = pawn
     sq ^= 56  # flip_ns
-    sq -= 8   # down one row
+    sq -= 8   # Down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     res = pslice * BLOCK_A + wk * BLOCK_B + bk
@@ -1555,7 +1555,7 @@ class PythonTablebase:
         (or ``0`` in drawn positions). The value is positive if the
         side to move is winning, otherwise it is negative.
 
-        In the example position white to move will get mated in 10 half-moves:
+        In the example position, white to move will get mated in 10 half-moves:
 
         >>> import chess
         >>> import chess.gaviota
@@ -1634,7 +1634,7 @@ class PythonTablebase:
 
     def probe_wdl(self, board: chess.Board) -> int:
         """
-        Probes for win/draw/loss-information.
+        Probes for win/draw/loss information.
 
         Returns ``1`` if the side to move is winning, ``0`` if it is a draw,
         and ``-1`` if the side to move is losing.
@@ -1757,7 +1757,7 @@ class PythonTablebase:
             if 0 == (0x88 & (map88(xed) + 1)):
                 capturer_a = xed + 1
 
-            # Try second possible ep capture
+            # Try second possible ep capture.
             if 0 == (0x88 & (map88(xed) - 1)):
                 capturer_b = xed - 1
 
@@ -1788,7 +1788,7 @@ class PythonTablebase:
                             epscore = self._tb_probe(subreq)
                             epscore = adjust_up(epscore)
 
-                            # Chooses to ep or not.
+                            # Choose to ep or not.
                             dtm = bestx(req.side, epscore, dtm)
                         except IndexError:
                             break
@@ -1810,9 +1810,9 @@ class PythonTablebase:
         offset = block * blocksz
 
         if (offset + blocksz) > maxindex:
-            return maxindex - offset  # last block size
+            return maxindex - offset  # Last block size
         else:
-            return blocksz  # size of a normal block
+            return blocksz  # Size of a normal block
 
     def _tb_probe(self, req: Request) -> int:
         stream = self._setup_tablebase(req)
@@ -1835,7 +1835,7 @@ class PythonTablebase:
                 # If flag is zero, plain LZMA is following.
                 buffer_zipped = buffer_zipped[2:]
             else:
-                # Else LZMA86. We have to build a fake header.
+                # Else LZMA86. Build a fake header.
                 DICTIONARY_SIZE = 4096
                 POS_STATE_BITS = 2
                 NUM_LITERAL_POS_STATE_BITS = 0
@@ -1963,17 +1963,17 @@ class NativeTablebase:
 
         av = self.libgtb.tb_availability()
         if av & 1:
-            LOGGER.debug("Some 3 piece tables available")
+            LOGGER.debug("Some 3-piece tables available")
         if av & 2:
-            LOGGER.debug("All 3 piece tables complete")
+            LOGGER.debug("All 3-piece tables complete")
         if av & 4:
-            LOGGER.debug("Some 4 piece tables available")
+            LOGGER.debug("Some 4-piece tables available")
         if av & 8:
-            LOGGER.debug("All 4 piece tables complete")
+            LOGGER.debug("All 4-piece tables complete")
         if av & 16:
-            LOGGER.debug("Some 5 piece tables available")
+            LOGGER.debug("Some 5-piece tables available")
         if av & 32:
-            LOGGER.debug("All 5 piece tables complete")
+            LOGGER.debug("All 5-piece tables complete")
 
     def _tbcache_restart(self, cache_mem: int, wdl_fraction: int) -> None:
         self.libgtb.tbcache_restart(ctypes.c_size_t(cache_mem), ctypes.c_int(wdl_fraction))
