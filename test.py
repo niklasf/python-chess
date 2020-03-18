@@ -249,7 +249,7 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board(fen)
         self.assertEqual(board.fen(), fen)
 
-        # Illegal en passant square in illegal board.
+        # Illegal en passant square on illegal board.
         fen = "1r6/8/8/pP6/8/8/8/1K6 w - a6 0 1"
         board = chess.Board(fen)
         self.assertEqual(board.fen(), "1r6/8/8/pP6/8/8/8/1K6 w - - 0 1")
@@ -289,7 +289,7 @@ class BoardTestCase(unittest.TestCase):
     def test_pawn_captures(self):
         board = chess.Board()
 
-        # Kings gambit.
+        # King's Gambit.
         board.push(chess.Move.from_uci("e2e4"))
         board.push(chess.Move.from_uci("e7e5"))
         board.push(chess.Move.from_uci("f2f4"))
@@ -368,7 +368,7 @@ class BoardTestCase(unittest.TestCase):
         fen = "3r1k1r/4pp2/8/8/8/8/8/4RKR1 w Gd - 1 1"
         board = chess.Board(fen, chess960=True)
 
-        # Let white do the king side swap.
+        # Let white do the kingside swap.
         move = board.parse_san("O-O")
         self.assertEqual(board.san(move), "O-O")
         self.assertEqual(board.xboard(move), "O-O")
@@ -426,15 +426,15 @@ class BoardTestCase(unittest.TestCase):
     def test_selective_castling(self):
         board = chess.Board("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
 
-        # King not selected
+        # King not selected.
         self.assertFalse(any(board.generate_castling_moves(chess.BB_ALL & ~board.kings)))
 
-        # Rook on h1 not selected
+        # Rook on h1 not selected.
         moves = board.generate_castling_moves(chess.BB_ALL, chess.BB_ALL & ~chess.BB_H1)
         self.assertEqual(len(list(moves)), 1)
 
     def test_castling_right_not_destroyed_bug(self):
-        # A rook move from H8 to H1 was only taking whites possible castling
+        # A rook move from h8 to h1 was only taking white's possible castling
         # rights away.
         board = chess.Board("2r1k2r/2qbbpp1/p2pp3/1p3PP1/Pn2P3/1PN1B3/1P3QB1/1K1R3R b k - 0 22")
         board.push_san("Rxh1")
@@ -459,9 +459,9 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQq - 0 1")
 
     def test_ninesixty_different_king_and_rook_file(self):
-        # Theoretically this position (with castling rights) can not be reached
-        # with a series of legal moves from one of the 960 starting positions.
-        # Decision: We don't care. Neither does Stockfish or lichess.org.
+        # Theoretically, this position (with castling rights) can not be reached
+        # with a series of legal moves from one of the Chess960 starting positions.
+        # Decision: we don't care, neither does Stockfish or lichess.org.
         fen = "1r1k1r2/5p2/8/8/8/8/3N4/R5KR b KQkq - 0 1"
         board = chess.Board(fen, chess960=True)
         self.assertEqual(board.fen(), fen)
@@ -747,8 +747,8 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.pseudo_legal_moves.count(), 8 + 4 + 3 + 2 + 1 + 6 + 9)
 
     def test_polyglot(self):
-        # Test polyglot compability using test data from
-        # http://hardy.uhasselt.be/Toga/book_format.html. Forfeiting castling
+        # Test Polyglot compatibility using test data from
+        # http://hardy.uhasselt.be/Toga/book_format.html.  Forfeiting castling
         # rights should not reset the half-move counter, though.
 
         board = chess.Board()
@@ -816,7 +816,7 @@ class BoardTestCase(unittest.TestCase):
         # Unmake the move.
         board.pop()
 
-        # Generate all pseudo legal moves, two moves deep.
+        # Generate all pseudo-legal moves, two moves deep.
         for move in board.pseudo_legal_moves:
             board.push(move)
             for move in board.pseudo_legal_moves:
@@ -847,7 +847,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(illegal_move, board.legal_moves)
         self.assertNotIn(illegal_move, board.generate_legal_moves())
 
-        # Generate all pseudo legal moves.
+        # Generate all pseudo-legal moves.
         for a in board.pseudo_legal_moves:
             board.push(a)
             board.pop()
@@ -909,16 +909,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.ep_square, chess.E3)
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
-        # But there must indeed be a pawn there.
+        # But there must indeed be a pawn.
         board.remove_piece_at(chess.E4)
         self.assertEqual(board.status(), chess.STATUS_INVALID_EP_SQUARE)
 
-        # King must be between the two rooks.
+        # The king must be between the two rooks.
         board = chess.Board("2rrk3/8/8/8/8/8/3PPPPP/2RK4 w cd - 0 1")
         self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
 
         # Generally valid position, but not valid standard chess position due
-        # to non-standard castling rights. Chess960 start position #0.
+        # to non-standard castling rights.  Chess960 start position #0.
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=True)
         self.assertEqual(board.status(), chess.STATUS_VALID)
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=False)
@@ -992,7 +992,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertIn(chess.Move(chess.F2, chess.F4), operations["bm"])
         self.assertEqual(operations["id"], "BK.24")
 
-        # Test loading an EPD with half counter operations.
+        # Test loading an EPD with half-counter operations.
         board = chess.Board()
         operations = board.set_epd("4k3/8/8/8/8/8/8/4K3 b - - fmvn 17; hmvc 13")
         self.assertEqual(board.fen(), "4k3/8/8/8/8/8/8/4K3 b - - 13 17")
@@ -1026,13 +1026,13 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["bm"], [chess.Move.from_uci("f3g5")])
         self.assertEqual(operations["c0"], "ERET.095; Queen sacrifice")
 
-        # Test an EPD with string escaping.
+        # Test EPD with string escaping.
         board = chess.Board()
         operations = board.set_epd(r"""4k3/8/8/8/8/8/8/4K3 w - - a "foo\"bar";; ; b "foo\\\\";""")
         self.assertEqual(operations["a"], "foo\"bar")
         self.assertEqual(operations["b"], "foo\\\\")
 
-        # Test an EPD with unmatched trailing quotes.
+        # Test EPD with unmatched trailing quotes.
         board = chess.Board()
         operations = board.set_epd("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"")
         self.assertEqual(operations["bm"], [chess.Move.from_uci("d6d1")])
@@ -1118,7 +1118,7 @@ class BoardTestCase(unittest.TestCase):
     def test_threefold_repetition(self):
         board = chess.Board()
 
-        # Go back and forth with the nights to reach the starting position
+        # Go back and forth with the knights to reach the starting position
         # for a second time.
         self.assertFalse(board.can_claim_threefold_repetition())
         self.assertFalse(board.is_repetition())
@@ -1145,12 +1145,12 @@ class BoardTestCase(unittest.TestCase):
         board.push_san("Ng1")
 
         # Now black can go back to the starting position (thus reaching it a
-        # third time.)
+        # third time).
         self.assertTrue(board.can_claim_threefold_repetition())
         self.assertFalse(board.is_repetition())
         board.push_san("Ng8")
 
-        # They indeed do it. Also white can now claim.
+        # They indeed do it.  Also, white can now claim.
         self.assertTrue(board.can_claim_threefold_repetition())
         self.assertTrue(board.is_repetition())
 
@@ -1185,7 +1185,7 @@ class BoardTestCase(unittest.TestCase):
             self.assertFalse(board.is_fivefold_repetition())
             self.assertFalse(board.is_game_over())
 
-        # Repeat it once more. Now it is a five-fold repetition.
+        # Repeat it once more.  Now it is a fivefold repetition.
         board.push_san("Be2")
         self.assertFalse(board.is_fivefold_repetition())
         board.push_san("Ne4")
@@ -1217,7 +1217,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.can_claim_threefold_repetition())
         self.assertTrue(board.is_game_over(claim_draw=True))
 
-        # Do in fact repeat.
+        # Do, in fact, repeat.
         self.assertFalse(board.is_fivefold_repetition())
         board.push_san("Qd8")
 
@@ -1231,7 +1231,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(chess.Board().is_repetition(1))
 
     def test_fifty_moves(self):
-        # Test positions from Timman - Lutz (1995).
+        # Test positions from Jan Timman vs. Christopher Lutz (1995).
         board = chess.Board()
         self.assertFalse(board.can_claim_fifty_moves())
         board = chess.Board("8/5R2/8/r2KB3/6k1/8/8/8 w - - 19 79")
@@ -1245,12 +1245,12 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/7k/8/1r3KR1/5B2/8/8/8 w - - 105 122")
         self.assertTrue(board.can_claim_fifty_moves())
 
-        # Once checkmated it is too late to claim.
+        # Once checkmated, it is too late to claim.
         board = chess.Board("k7/8/NKB5/8/8/8/8/8 b - - 105 176")
         self.assertFalse(board.can_claim_fifty_moves())
 
         # A stalemate is a draw, but you can not and do not need to claim it by
-        # the fifty move rule.
+        # the fifty-move rule.
         board = chess.Board("k7/3N4/1K6/1B6/8/8/8/8 b - - 99 1")
         self.assertTrue(board.is_stalemate())
         self.assertTrue(board.is_game_over())
@@ -1312,13 +1312,13 @@ class BoardTestCase(unittest.TestCase):
 
             pseudo_legal_moves = list(board.generate_pseudo_legal_moves())
 
-            # Ensure that all moves generated as pseudo legal pass the pseudo-
-            # legality check.
+            # Ensure that all moves generated as pseudo-legal pass the
+            # pseudo-legality check.
             for move in pseudo_legal_moves:
                 self.assertTrue(board.is_pseudo_legal(move))
 
-            # Check that moves not generated as pseudo legal do not pass the
-            # pseudo legality check.
+            # Check that moves not generated as pseudo-legal do not pass the
+            # pseudo-legality check.
             for move in sample_moves:
                 if move not in pseudo_legal_moves:
                     self.assertFalse(board.is_pseudo_legal(move))
@@ -1428,7 +1428,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(chess.Board(None).pin(chess.WHITE, chess.F7), chess.BB_ALL)
 
     def test_pin_in_check(self):
-        # The knight on the eighth rank is on the outer side of the rank attack.
+        # The knight on the eight rank is on the outer side of the rank attack.
         board = chess.Board("1n1R2k1/2b1qpp1/p3p2p/1p6/1P2Q2P/4PNP1/P4PB1/6K1 b - - 0 1")
         self.assertFalse(board.is_pinned(chess.BLACK, chess.B8))
 
@@ -1449,7 +1449,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.status() & chess.STATUS_INVALID_EP_SQUARE)
 
     def test_horizontally_skewered_en_passant(self):
-        # Horizontal pin. Non evasion.
+        # Horizontal pin.  Non-evasion.
         board = chess.Board("8/8/8/r2Pp2K/8/8/4k3/8 w - e6 0 1")
         move = chess.Move.from_uci("d5e6")
         self.assertEqual(board.status(), chess.STATUS_VALID)
@@ -1469,10 +1469,10 @@ class BoardTestCase(unittest.TestCase):
 
         # Regarding the following positions:
         # Note that the positions under test can not be reached by a sequence
-        # of legal moves. The last move must have been a double pawn move,
+        # of legal moves.  The last move must have been a double pawn move,
         # but then the king would have been in check already.
 
-        # Diagonal attack uncovered. Evasion try.
+        # Diagonal attack uncovered.  Evasion try.
         board = chess.Board("8/8/8/5k2/4Pp2/8/2B5/4K3 b - e3 0 1")
         move = chess.Move.from_uci("f4e3")
         self.assertTrue(board.is_pseudo_legal(move))
@@ -1482,7 +1482,7 @@ class BoardTestCase(unittest.TestCase):
         self.assertNotIn(move, board.generate_legal_moves())
         self.assertNotIn(move, board.generate_legal_ep())
 
-        # Diagonal attack uncovered. Non-evasion.
+        # Diagonal attack uncovered.  Non-evasion.
         board = chess.Board("8/8/8/7B/6Pp/8/4k2K/3r4 b - g3 0 1")
         move = chess.Move.from_uci("h4g3")
         self.assertTrue(board.is_pseudo_legal(move))
@@ -1516,16 +1516,16 @@ class BoardTestCase(unittest.TestCase):
     def test_capture_generation(self):
         board = chess.Board("3q1rk1/ppp1p1pp/4b3/3pPp2/3P4/1K1n4/PPQ2PPP/3b1BNR w - f6 0 1")
 
-        # Fully legal captures.
+        # Fully-legal captures.
         lc = list(board.generate_legal_captures())
         self.assertIn(board.parse_san("Qxd1"), lc)
-        self.assertIn(board.parse_san("exf6"), lc)  # En passant.
+        self.assertIn(board.parse_san("exf6"), lc)  # En passant
         self.assertIn(board.parse_san("Bxd3"), lc)
         self.assertEqual(len(lc), 3)
 
         plc = list(board.generate_pseudo_legal_captures())
         self.assertIn(board.parse_san("Qxd1"), plc)
-        self.assertIn(board.parse_san("exf6"), plc)  # En passant.
+        self.assertIn(board.parse_san("exf6"), plc)  # En passant
         self.assertIn(board.parse_san("Bxd3"), plc)
         self.assertIn(chess.Move.from_uci("c2c7"), plc)
         self.assertIn(chess.Move.from_uci("c2d3"), plc)
@@ -1833,7 +1833,7 @@ class PolyglotTestCase(unittest.TestCase):
     def test_castling(self):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             # White decides between short castling and long castling at this
-            # turning point in the Queens Gambit Exchange.
+            # turning point in the Queen's Gambit Declined, Exchange Variation.
             pos = chess.Board("r1bqr1k1/pp1nbppp/2p2n2/3p2B1/3P4/2NBP3/PPQ1NPPP/R3K2R w KQ - 5 10")
             moves = set(entry.move for entry in book.find_all(pos))
             self.assertIn(pos.parse_san("O-O"), moves)
@@ -1841,8 +1841,8 @@ class PolyglotTestCase(unittest.TestCase):
             self.assertIn(pos.parse_san("h3"), moves)
             self.assertEqual(len(moves), 3)
 
-            # Black usually castles long at this point in the Ruy Lopez
-            # Exchange.
+            # Black usually castles long at this point in the Ruy Lopez,
+            # Exchange Variation.
             pos = chess.Board("r3k1nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 b kq - 4 9")
             moves = set(entry.move for entry in book.find_all(pos))
             self.assertIn(pos.parse_san("O-O-O"), moves)
@@ -1938,21 +1938,21 @@ class PgnTestCase(unittest.TestCase):
         game.headers["VeryLongHeader"] = "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
-        e4.comment = "Scandinavian defense:"
+        e4.comment = "Scandinavian Defense:"
 
         e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
 
         e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
         e4_h5.nags.add(chess.pgn.NAG_MISTAKE)
         e4_h5.starting_comment = "This"
-        e4_h5.comment = "is nonesense"
+        e4_h5.comment = "is nonsense"
 
         e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
         e4_e5_Qf3 = e4_e5.add_variation(e4_e5.board().parse_san("Qf3"))
         e4_e5_Qf3.nags.add(chess.pgn.NAG_MISTAKE)
 
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
-        e4_c5.comment = "Sicilian"
+        e4_c5.comment = "Sicilian Defense:"
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
         e4_d5_exd5.comment = "Best"
@@ -1964,7 +1964,7 @@ class PgnTestCase(unittest.TestCase):
 
         exporter = chess.pgn.StringExporter(headers=False, comments=False)
         game.accept(exporter)
-        self.assertEqual(str(exporter), "1. e4 d5 ( 1... h5 ) ( 1... e5 2. Qf3 ) ( 1... c5 ) 2. exd5 *")
+        self.assertEqual(str(exporter), "1. e4 d5 ( 1...h5 ) ( 1...e5 2. Qf3 ) ( 1...c5 ) 2. exd5 *")
 
         exporter = chess.pgn.StringExporter()
         game.accept(exporter)
@@ -1978,8 +1978,8 @@ class PgnTestCase(unittest.TestCase):
             [Result "*"]
             [VeryLongHeader "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"]
 
-            { Test game: } 1. e4 { Scandinavian defense: } 1... d5 ( { This } 1... h5 $2
-            { is nonesense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
+            { Test game: } 1. e4 { Scandinavian Defense: } 1...d5 ( { This } 1...h5 $2
+            { is nonsense } ) ( 1...e5 2. Qf3 $2 ) ( 1...c5 { Sicilian Defense: } ) 2. exd5
             { Best } *""")
         self.assertEqual(str(exporter), pgn)
 
@@ -2011,7 +2011,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertNotIn("SetUp", game.headers)
         self.assertNotIn("Variant", game.headers)
 
-        # Setup again, while starting FEN is already set.
+        # Test again while starting FEN is already set.
         game.setup(chess.STARTING_FEN)
         self.assertNotIn("FEN", game.headers)
         self.assertNotIn("SetUp", game.headers)
@@ -2022,7 +2022,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["SetUp"], "1")
         self.assertNotIn("Variant", game.headers)
 
-        # Chess960 starting position 283.
+        # Chess960 starting position #283.
         fen = "rkbqrnnb/pppppppp/8/8/8/8/PPPPPPPP/RKBQRNNB w KQkq - 0 1"
         game.setup(fen)
         self.assertEqual(game.headers["FEN"], fen)
@@ -2072,7 +2072,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_comment_at_eol(self):
         pgn = io.StringIO(textwrap.dedent(r"""\
-            1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
+            1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6...Bb6 $5 {
             /\ Ne7, c6}) *"""))
 
         game = chess.pgn.read_game(pgn)
@@ -2082,7 +2082,7 @@ class PgnTestCase(unittest.TestCase):
         while node.variations and not node.has_variation(chess.Move.from_uci("a7a6")):
             node = node[0]
 
-        # Make sure the comment for the second variation is there.
+        # Make sure the comment of the second variation is there.
         self.assertIn(5, node[1].nags)
         self.assertEqual(node[1].comment, "/\\ Ne7, c6")
 
@@ -2126,7 +2126,7 @@ class PgnTestCase(unittest.TestCase):
     def test_header_with_paren(self):
         with open("data/pgn/stockfish-learning.pgn") as pgn:
             game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.headers["Opening"], "St. George (Baker) defense")
+        self.assertEqual(game.headers["Opening"], "St. George (Baker) Defense")
         self.assertEqual(game.end().board(), chess.Board("8/2p2k2/1pR3p1/1P1P4/p1P2P2/P4K2/8/5r2 w - - 7 78"))
 
     def test_chess960_without_fen(self):
@@ -2294,11 +2294,11 @@ class PgnTestCase(unittest.TestCase):
 
             1. b3 { ;
             % {
-            1... g6 ; {
+            1...g6 ; {
 
             1. c3 { }
             % {
-            1... f6 ; { } {{{
+            1...f6 ; { } {{{
 
             1. d3""")
         pgn = io.StringIO(raw_pgn)
@@ -2355,7 +2355,7 @@ class PgnTestCase(unittest.TestCase):
         pgn = io.StringIO(textwrap.dedent("""\
             [FEN "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"]
 
-            1... e5 (1... d5 2. exd5) (1... c5) 2. Nf3 Nc6
+            1...e5 (1...d5 2. exd5) (1...c5) 2. Nf3 Nc6
             """))
 
         trace = [
@@ -2401,7 +2401,7 @@ class PgnTestCase(unittest.TestCase):
             [FEN "8/8/4k3/8/4P3/4K3/8/8 b - - 0 17"]
             [SetUp "1"]
 
-            17... Kd6 18. Kd4 Ke6 *""")
+            17...Kd6 18. Kd4 Ke6 *""")
 
         self.assertEqual(str(game), expected)
 
@@ -2421,7 +2421,7 @@ class PgnTestCase(unittest.TestCase):
             [Result "1-0"]
             [FEN "rbb1N1k1/pp1n1ppp/8/2Pp4/3P4/4P3/P1Q2PPq/R1BR1K2 b - - 0 1"]
 
-            {Houdini 1.5 x64: 1)} 1... Nxc5 ({Houdini 1.5 x64: 2)} 1... Qh1+ 2. Ke2 Qxg2 3.
+            {Houdini 1.5 x64: 1)} 1...Nxc5 ({Houdini 1.5 x64: 2)} 1...Qh1+ 2. Ke2 Qxg2 3.
             Kd2 Nxc5 4. Qxc5 Bg4 5. Ba3 Qxf2+ 6. Kc3 Qxe3+ 7. Kb2 Qxe8 8. Re1 Be6 9. Rh1 a5
             10. Rag1 Ba7 11. Qc3 g6 12. Bc5 Qb5+ 13. Qb3 Qe2+ 14. Qc2 Qxc2+ 15. Kxc2 Bxc5
             16. dxc5 Rc8 17. Kd2 {-2.39/22}) 2. dxc5 Bg4 3. f3 Bxf3 4. Qf2 Bxd1 5. Nd6 Bxd6
@@ -2591,7 +2591,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(isinstance(node, MyGameNode))
 
 
-@unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
+@unittest.skipIf(platform.system() == "Windows" and platform.python_version() >= "3.8.1", "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
 
     def test_uci_option_map_equality(self):
@@ -2638,8 +2638,8 @@ class EngineTestCase(unittest.TestCase):
             chess.engine.MateGiven,
         ]
 
-        for i, a in enumerate(order):
-            for j, b in enumerate(order):
+        for (i, a) in enumerate(order):
+            for (j, b) in enumerate(order):
                 self.assertEqual(i < j, a < b, f"{a!r} < {b!r}")
                 self.assertEqual(i == j, a == b, f"{a!r} == {b!r}")
                 self.assertEqual(i <= j, a <= b)
@@ -2665,7 +2665,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(chess.engine.Cp(-300).mate(), None)
         self.assertEqual(chess.engine.Mate(+5).mate(), 5)
 
-    @catchAndSkip(FileNotFoundError, "need stockfish")
+    @catchAndSkip(FileNotFoundError, "need Stockfish chess engine")
     def test_sf_forced_mates(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             engine.configure({"Contempt": 23})
@@ -2682,14 +2682,14 @@ class EngineTestCase(unittest.TestCase):
                 result = engine.play(board, chess.engine.Limit(mate=5), game=object())
                 self.assertIn(result.move, operations["bm"], operations["id"])
 
-    @catchAndSkip(FileNotFoundError, "need stockfish")
+    @catchAndSkip(FileNotFoundError, "need Stockfish chess engine")
     def test_sf_options(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             self.assertEqual(engine.options["UCI_Chess960"].name, "UCI_Chess960")
             self.assertEqual(engine.options["uci_Chess960"].type, "check")
             self.assertEqual(engine.options["UCI_CHESS960"].default, False)
 
-    @catchAndSkip(FileNotFoundError, "need stockfish")
+    @catchAndSkip(FileNotFoundError, "need Stockfish chess engine")
     def test_sf_analysis(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
@@ -2719,7 +2719,7 @@ class EngineTestCase(unittest.TestCase):
             for info in analysis:
                 self.fail("all info should have been consumed")
 
-    @catchAndSkip(FileNotFoundError, "need stockfish")
+    @catchAndSkip(FileNotFoundError, "need Stockfish chess engine")
     def test_sf_multipv(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             board = chess.Board("r2qr1k1/pb2npp1/1pn1p2p/8/3P4/P1PQ1N2/B4PPP/R1B1R1K1 w - - 2 15")
@@ -2728,7 +2728,7 @@ class EngineTestCase(unittest.TestCase):
             self.assertTrue(result[0]["score"].relative >= result[1]["score"].relative)
             self.assertTrue(result[1]["score"].relative >= result[2]["score"].relative)
 
-    @catchAndSkip(FileNotFoundError, "need stockfish")
+    @catchAndSkip(FileNotFoundError, "need Stockfish chess engine")
     def test_sf_quit(self):
         engine = chess.engine.SimpleEngine.popen_uci("stockfish", debug=True)
 
@@ -2738,7 +2738,7 @@ class EngineTestCase(unittest.TestCase):
         with self.assertRaises(chess.engine.EngineTerminatedError), engine:
             engine.ping()
 
-    @catchAndSkip(FileNotFoundError, "need crafty")
+    @catchAndSkip(FileNotFoundError, "need Crafty chess engine")
     def test_crafty_play_to_mate(self):
         logging.disable(logging.WARNING)
         try:
@@ -2754,7 +2754,7 @@ class EngineTestCase(unittest.TestCase):
         finally:
             logging.disable(logging.NOTSET)
 
-    @catchAndSkip(FileNotFoundError, "need crafty")
+    @catchAndSkip(FileNotFoundError, "need Crafty chess engine")
     def test_crafty_analyse(self):
         logging.disable(logging.WARNING)
         try:
@@ -2768,7 +2768,7 @@ class EngineTestCase(unittest.TestCase):
         finally:
             logging.disable(logging.NOTSET)
 
-    @catchAndSkip(FileNotFoundError, "need crafty")
+    @catchAndSkip(FileNotFoundError, "need Crafty chess engine")
     def test_crafty_ping(self):
         with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
             with chess.engine.SimpleEngine.popen_xboard("crafty", debug=True, cwd=tmpdir) as engine:
@@ -2824,7 +2824,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("ucinewgame")
             mock.expect("isready", ["readyok"])
             mock.expect("position startpos")
-            mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching ...", "bestmove d2d4 ponder d7d5"])
+            mock.expect("go movetime 123 searchmoves e2e4 d2d4", ["info string searching...", "bestmove d2d4 ponder d7d5"])
             mock.expect("position startpos moves d2d4 d7d5")
             mock.expect("go ponder movetime 123")
             board = chess.Board()
@@ -2834,7 +2834,7 @@ class EngineTestCase(unittest.TestCase):
                                          info=chess.engine.INFO_ALL)
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
-            self.assertEqual(result.info["string"], "searching ...")
+            self.assertEqual(result.info["string"], "searching...")
             mock.assert_done()
 
             mock.expect("stop", ["bestmove c2c4"])
@@ -2865,7 +2865,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("uci", ["uciok"])
             await protocol.initialize()
 
-            # Iota writes invalid \0 character in old version.
+            # Iota writes invalid \0 character in the old version.
             mock.expect("ucinewgame")
             mock.expect("isready", ["readyok"])
             mock.expect("position startpos moves d2d4")
@@ -2905,7 +2905,7 @@ class EngineTestCase(unittest.TestCase):
             await result.wait()
             mock.assert_done()
 
-            # Disable explicitly.
+            # Explicitly disable.
             mock.expect("setoption name UCI_AnalyseMode value false")
             await protocol.configure({"UCI_AnalyseMode": False})
             mock.assert_done()
@@ -2981,7 +2981,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["multipv"], 1)
         self.assertEqual(info["pv"], [chess.Move.from_uci("g1f3"), chess.Move.from_uci("g8f6")])
 
-        # WDL (activated with UCI_ShowWDL).
+        # WDL (win/draw/loss) bitbase, activated with UCI_ShowWDL.
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
         self.assertEqual(info["wdl"], (249, 747, 4))
 
@@ -3136,7 +3136,7 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("exclude all")
             mock.expect("include f7f6")
             mock.expect("post")
-            mock.expect("analyze", ["4    116      23   2252  1... f6 2. e4 e6"])
+            mock.expect("analyze", ["4    116      23   2252  1...f6 2. e4 e6"])
             mock.expect(".")
             mock.expect("exit")
             mock.expect_ping()
@@ -3189,12 +3189,12 @@ class EngineTestCase(unittest.TestCase):
             mock = chess.engine.MockTransport(protocol)
 
             mock.expect("xboard")
-            mock.expect("protover 2", ["Error (failed to initialize): Too bad ..."])
+            mock.expect("protover 2", ["Error (failed to initialize): Too bad!"])
             with self.assertRaises(chess.engine.EngineError):
                 await protocol.initialize()
 
             with self.assertRaises(chess.engine.EngineError):
-                # Trying to use engine, but it was not successfully initialized.
+                # Trying to use the engine, but it was not successfully initialized.
                 await protocol.ping()
 
             mock.assert_done()
@@ -3263,7 +3263,7 @@ class SyzygyTestCase(unittest.TestCase):
         self.assertIn("KRPvKP", chess.syzygy.tablenames())
 
     def test_suicide_tablenames(self):
-        # Test number of 6 piece tables.
+        # Test the number of 6-piece tables.
         self.assertEqual(sum(1 for eg in chess.syzygy.tablenames(one_king=False) if len(eg) == 7), 5754)
 
     def test_normalize_tablename(self):
@@ -3367,7 +3367,7 @@ class SyzygyTestCase(unittest.TestCase):
             # Winning KPvKP because of en passant.
             board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
-            # If there was no en passant this would be a draw.
+            # If there was no en passant, this would be a draw.
             self.assertEqual(tables.probe_wdl_table(board), 0)
 
             # But it is a win.
@@ -3389,17 +3389,17 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl_table = tables.probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
-                    f"Expecting wdl_table {extra['wdl_table']} for {board.fen()}, got {wdl_table} (at line {line + 1})")
+                    f"Expecting WDL bitbase {extra['wdl_table']} for {board.fen()}, got {wdl_table} (at line {line + 1})")
 
                 wdl = tables.probe_wdl(board)
                 self.assertEqual(
                     wdl, extra["wdl"],
-                    f"Expecting wdl {extra['wdl']} for {board.fen()}, got {wdl} (at line {line + 1})")
+                    f"Expecting WDL bitbase {extra['wdl']} for {board.fen()}, got {wdl} (at line {line + 1})")
 
                 dtz = tables.probe_dtz(board)
                 self.assertEqual(
                     dtz, extra["dtz"],
-                    f"Expecting dtz {extra['dtz']} for {board.fen()}, got {dtz} (at line {line + 1})")
+                    f"Expecting DTZ tablebase {extra['dtz']} for {board.fen()}, got {dtz} (at line {line + 1})")
 
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_stockfish_dtz_bug(self):
@@ -3425,7 +3425,7 @@ class SyzygyTestCase(unittest.TestCase):
                 wdl = tables.probe_wdl(board)
 
                 expected_wdl = ((solution["max_dtm"] > 0) - (solution["max_dtm"] < 0)) * 2
-                self.assertEqual(wdl, expected_wdl, f"Expecting wdl {expected_wdl}, got {wdl} (in {epd})")
+                self.assertEqual(wdl, expected_wdl, f"Expecting WDL bitbase {expected_wdl}, got {wdl} (in {epd})")
 
                 dtz = tables.probe_dtz(board)
 
@@ -3449,9 +3449,9 @@ class SyzygyTestCase(unittest.TestCase):
                 board, solution = chess.variant.SuicideBoard.from_epd(epd)
 
                 dtz = tables.probe_dtz(board)
-                self.assertEqual(dtz, solution["dtz"], f"Expecting dtz {solution['dtz']}, got {dtz} (in {epd})")
+                self.assertEqual(dtz, solution["dtz"], f"Expecting DTZ tablebase {solution['dtz']}, got {dtz} (in {epd})")
 
-    @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
+    @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "Travis PyPy is very slow")
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
@@ -3462,13 +3462,13 @@ class SyzygyTestCase(unittest.TestCase):
 
                 dtz = tables.probe_dtz(board)
                 self.assertAlmostEqual(dtz, solution["dtz"], delta=1,
-                                       msg=f"Expected dtz {solution['dtz']}, got {dtz} (in l. {l + 1}, fen: {board.fen()})")
+                                       msg=f"Expecting DTZ tablebase {solution['dtz']}, got {dtz} (in l. {l + 1}, fen: {board.fen()})")
 
 
 class NativeGaviotaTestCase(unittest.TestCase):
 
-    @unittest.skipUnless(platform.python_implementation() == "CPython", "need CPython for native Gaviota")
-    @catchAndSkip((OSError, RuntimeError), "need libgtb")
+    @unittest.skipUnless(platform.python_implementation() == "CPython", "need CPython for native Gaviota tablebases")
+    @catchAndSkip((OSError, RuntimeError), "need libgtb library")
     def setUp(self):
         self.tablebase = chess.gaviota.open_tablebase_native("data/gaviota")
 
@@ -3513,16 +3513,16 @@ class GaviotaTestCase(unittest.TestCase):
                 if not epd or epd.startswith("#"):
                     continue
 
-                # Parse EPD.
+                # Parse EPD notation.
                 board, extra = chess.Board.from_epd(epd)
 
-                # Check DTM.
+                # Check DTM tablebase.
                 if extra["dm"] > 0:
                     expected = extra["dm"] * 2 - 1
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected, f"Expecting dtm {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
+                self.assertEqual(dtm, expected, f"Expecting DTM tablebase {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
 
     @catchAndSkip(chess.gaviota.MissingTableError)
     def test_dm_5(self):
@@ -3533,16 +3533,16 @@ class GaviotaTestCase(unittest.TestCase):
                 if not epd or epd.startswith("#"):
                     continue
 
-                # Parse EPD.
+                # Parse EPD notation.
                 board, extra = chess.Board.from_epd(epd)
 
-                # Check DTM.
+                # Check DTM tablebase.
                 if extra["dm"] > 0:
                     expected = extra["dm"] * 2 - 1
                 else:
                     expected = extra["dm"] * 2
                 dtm = self.tablebase.probe_dtm(board)
-                self.assertEqual(dtm, expected, f"Expecting dtm {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
+                self.assertEqual(dtm, expected, f"Expecting DTM tablebase {expected} for {board.fen()}, got {dtm} (at line {line + 1})")
 
     def test_wdl(self):
         board = chess.Board("8/8/4K3/2n5/8/3k4/8/8 w - - 0 1")
@@ -3596,7 +3596,7 @@ class SuicideTestCase(unittest.TestCase):
         board.push_san("e4")
         board.push_san("d5")
 
-        # Capture mandatory.
+        # Capture is mandatory.
         with self.assertRaises(ValueError):
             board.push_san("Nf3")
 
@@ -3614,11 +3614,11 @@ class SuicideTestCase(unittest.TestCase):
         board = chess.variant.SuicideBoard("8/8/8/2k5/8/8/4K3/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
-        # Bishops on same color.
+        # Bishops on the same color.
         board = chess.variant.SuicideBoard("8/8/8/5b2/2B5/1B6/8/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
-        # Opposite color bishops.
+        # Opposite-color bishops.
         board = chess.variant.SuicideBoard("4b3/8/8/8/3B4/2B5/8/8 b - - 0 1")
         self.assertTrue(board.is_insufficient_material())
 
@@ -3626,7 +3626,7 @@ class SuicideTestCase(unittest.TestCase):
         board = chess.variant.SuicideBoard("8/5b2/5P2/8/3B4/2B5/8/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
-        # Pawns blocked but on wrong color.
+        # Pawns blocked, but on wrong color.
         board = chess.variant.SuicideBoard("8/5p2/5P2/8/8/8/3b4/8 b - - 0 1")
         self.assertFalse(board.is_insufficient_material())
 
@@ -3659,7 +3659,7 @@ class AtomicTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), fen)
 
     def test_atomic_mate_legality(self):
-        # We are in check. Not just any move will do.
+        # We are in check.  Not just any move will do.
         board = chess.variant.AtomicBoard("8/8/1Q2pk2/8/8/8/3K4/1n6 w - - 0 1")
         self.assertTrue(board.is_check())
         Qa7 = chess.Move.from_uci("b6a7")
@@ -3667,7 +3667,7 @@ class AtomicTestCase(unittest.TestCase):
         self.assertFalse(board.is_legal(Qa7))
         self.assertNotIn(Qa7, board.generate_legal_moves())
 
-        # Ignore check to explode the opponents king.
+        # Ignore check to explode the opponent's king.
         Qxe6 = board.parse_san("Qxe6#")
         self.assertTrue(board.is_legal(Qxe6))
         self.assertIn(Qxe6, board.generate_legal_moves())
@@ -3680,7 +3680,7 @@ class AtomicTestCase(unittest.TestCase):
         self.assertNotIn(Nxc4, board.generate_legal_moves())
 
     def test_atomic_en_passant(self):
-        # Real world position.
+        # Real-world position.
         board = chess.variant.AtomicBoard("rn2kb1r/2p1p2p/p2q1pp1/1pPP4/Q7/4P3/PP3P1P/R3K3 w Qkq b6 0 11")
         board.push_san("cxb6+")
         self.assertEqual(board.fen(), "rn2kb1r/2p1p2p/p2q1pp1/3P4/Q7/4P3/PP3P1P/R3K3 b Qkq - 0 11")
@@ -3700,7 +3700,7 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard("8/3k4/8/8/4R3/4K3/8/8 w - - 0 1")
         self.assertTrue(board.is_insufficient_material())
 
-        # Only bishops but no captures possible.
+        # Only bishops, but no captures possible.
         board = chess.variant.AtomicBoard("7k/4b3/8/8/8/3B4/2B5/K7 w - - 0 1")
         self.assertTrue(board.is_insufficient_material())
 
@@ -3762,7 +3762,7 @@ class AtomicTestCase(unittest.TestCase):
         self.assertEqual(tables.probe_wdl(board), -2)
 
     def test_atomic_validity(self):
-        # 14 checkers, the maximum in Atomic chess.
+        # 14 checkers, the maximum in atomic chess.
         board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 w - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
@@ -3780,18 +3780,18 @@ class RacingKingsTestCase(unittest.TestCase):
         board = chess.variant.RacingKingsBoard("1K6/7k/8/8/8/8/8/8 b - - 0 1")
         self.assertFalse(board.is_game_over())
 
-        board.push_san("Kg7")  # ??
+        board.push_san("Kg7")
         self.assertFalse(board.is_variant_draw())
         self.assertTrue(board.is_variant_win())
         self.assertFalse(board.is_variant_loss())
 
-        # White to move is lost, because black reached the backrank.
+        # White is lost, because black reached the backrank.
         board = chess.variant.RacingKingsBoard("1k6/6K1/8/8/8/8/8/8 w - - 0 1")
         self.assertFalse(board.is_variant_draw())
         self.assertFalse(board.is_variant_win())
         self.assertTrue(board.is_variant_loss())
 
-        # Black to move is lost, because they cannot reach the backrank.
+        # Black is lost, because they can not reach the backrank.
         board = chess.variant.RacingKingsBoard("5RK1/1k6/8/8/8/8/8/8 b - - 0 1")
         self.assertFalse(board.is_variant_draw())
         self.assertFalse(board.is_variant_win())
@@ -3865,7 +3865,7 @@ class HordeTestCase(unittest.TestCase):
         self.assertIn(chess.Move.from_uci("e1e3"), board.generate_legal_moves())
         self.assertTrue(board.is_legal(board.parse_san("e3")))
 
-        # En-passant not possible.
+        # En passant not possible.
         board.push_san("e3")
         self.assertFalse(any(board.generate_pseudo_legal_ep()))
 
@@ -3923,12 +3923,12 @@ class ThreeCheckTestCase(unittest.TestCase):
         self.assertTrue(board.is_irreversible(move))
         board.push(move)
 
-        # Loses castling rights.
+        # Lose castling rights.
         move = board.parse_san("Ke7")
         self.assertTrue(board.is_irreversible(move))
         board.push(move)
 
-        # Gives a check.
+        # Give check.
         move = board.parse_san("Nc6+")
         self.assertTrue(board.is_irreversible(move))
 
