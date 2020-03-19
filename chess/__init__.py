@@ -1795,10 +1795,10 @@ class Board(BaseBoard):
                     not (self.occupied_co[not color] & ~self.kings & ~self.queens))
 
         # Bishops are only insufficient material if:
-        # (1) We no dot have any other pieces, including bishops of the
+        # (1) We do not have any other pieces, including bishops of the
         #     opposite color.
         # (2) The opponent does not have bishops of the opposite color,
-        #     pawns or knights. These would allow self mate.
+        #     pawns or knights. These would allow selfmate.
         if self.occupied_co[color] & self.bishops:
             same_color = (not self.bishops & BB_DARK_SQUARES) or (not self.bishops & BB_LIGHT_SQUARES)
             return same_color and not (self.occupied_co[not color] & ~self.kings & ~self.rooks & ~self.queens)
