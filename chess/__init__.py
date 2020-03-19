@@ -1701,10 +1701,10 @@ class Board(BaseBoard):
             return True
 
         if claim_draw:
-            # Claim draw, including by three-fold repetition.
+            # Claim draw, including by threefold repetition.
             return self.can_claim_draw()
         else:
-            # Five-fold repetition.
+            # Fivefold repetition.
             return self.is_fivefold_repetition()
 
     def result(self, *, claim_draw: bool = False) -> str:
