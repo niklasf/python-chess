@@ -1616,7 +1616,7 @@ class Board(BaseBoard):
         if not self.occupied_co[self.turn] & from_mask:
             return False
 
-        # Only pawns can promote and only on the back rank.
+        # Only pawns can promote and only on the backrank.
         if move.promotion:
             if piece != PAWN:
                 return False
@@ -1789,7 +1789,7 @@ class Board(BaseBoard):
         # Knights are only insufficient material if:
         # (1) We do not have any other pieces, including more than one knight.
         # (2) The opponent does not have pawns, knights, bishops or rooks.
-        #     These would allow self mate.
+        #     These would allow selfmate.
         if self.occupied_co[color] & self.knights:
             return (popcount(self.occupied_co[color]) <= 2 and
                     not (self.occupied_co[not color] & ~self.kings & ~self.queens))
@@ -1856,7 +1856,7 @@ class Board(BaseBoard):
         with one of the possible legal moves.
 
         Note that checking this can be slow: In the worst case
-        scenario every legal move has to be tested and the entire game has to
+        scenario, every legal move has to be tested and the entire game has to
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
