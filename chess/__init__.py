@@ -1172,7 +1172,7 @@ class BaseBoard:
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
-                    builder.append(u"·")
+                    builder.append(u"⭘")
 
             if borders:
                 builder.append("|")
