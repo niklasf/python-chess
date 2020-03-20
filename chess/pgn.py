@@ -1396,7 +1396,7 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
     ...     if "Kasparov" in headers.get("White", "?"):
     ...         kasparov_offsets.append(offset)
 
-    Then it can later be seeked an parsed.
+    Then it can later be seeked and parsed.
 
     >>> for offset in kasparov_offsets:
     ...     pgn.seek(offset)
