@@ -2751,7 +2751,7 @@ class Board(BaseBoard):
         to_square = SQUARE_NAMES.index(match.group(4))
         to_mask = BB_SQUARES[to_square] & ~self.occupied_co[self.turn]
 
-        # Get the promotion type.
+        # Get the promotion piece type.
         p = match.group(5)
         promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
 
