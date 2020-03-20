@@ -1147,7 +1147,7 @@ class BaseBoard:
         Useful for pretty-printing to a terminal.
 
         :param invert_color: Invert color of the Unicode pieces.
-        :param borders: Show borders and a coordinate margin.
+        :param borders: Show borders and coordinate margin.
         """
         builder = []
         for rank_index in range(7, -1, -1):
@@ -1172,7 +1172,7 @@ class BaseBoard:
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
-                    builder.append(u"·")
+                    builder.append("·")
 
             if borders:
                 builder.append("|")
@@ -1242,7 +1242,7 @@ class BaseBoard:
         Returns a mirrored copy of the board.
 
         The board is mirrored vertically and piece colors are swapped, so that
-        the position is equivalent modulo color.
+        the position is equivalent to modulo color.
         """
         board = self.transform(flip_vertical)
         board.occupied_co[WHITE], board.occupied_co[BLACK] = board.occupied_co[BLACK], board.occupied_co[WHITE]
