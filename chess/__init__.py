@@ -1901,7 +1901,7 @@ class Board(BaseBoard):
         this does not consider a repetition that can be played on the next
         move.
 
-        Note that checking this can be slow: In the worst case the entire
+        Note that checking this can be slow: In the worst case, the entire
         game has to be replayed because there is no incremental transposition
         table.
         """
