@@ -53,12 +53,12 @@ def piece_name(piece_type: PieceType) -> str:
     return typing.cast(str, PIECE_NAMES[piece_type])
 
 UNICODE_PIECE_SYMBOLS = {
-    "R": u"♖", "r": u"♜",
-    "N": u"♘", "n": u"♞",
-    "B": u"♗", "b": u"♝",
-    "Q": u"♕", "q": u"♛",
-    "K": u"♔", "k": u"♚",
-    "P": u"♙", "p": u"♟",
+    "R": "♖", "r": "♜",
+    "N": "♘", "n": "♞",
+    "B": "♗", "b": "♝",
+    "Q": "♕", "q": "♛",
+    "K": "♔", "k": "♚",
+    "P": "♙", "p": "♟",
 }
 
 FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -1172,7 +1172,7 @@ class BaseBoard:
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
-                    builder.append(u"·")
+                    builder.append("·")
 
             if borders:
                 builder.append("|")

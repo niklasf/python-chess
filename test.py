@@ -1348,7 +1348,7 @@ class BoardTestCase(unittest.TestCase):
     def test_string_conversion(self):
         board = chess.Board("7k/1p1qn1b1/pB1p1n2/3Pp3/4Pp1p/2QN1B2/PP4PP/6K1 w - - 0 28")
 
-        self.assertEqual(str(board), textwrap.dedent(u"""\
+        self.assertEqual(str(board), textwrap.dedent("""\
             . . . . . . . k
             . p . q n . b .
             p B . p . n . .
@@ -1358,7 +1358,7 @@ class BoardTestCase(unittest.TestCase):
             P P . . . . P P
             . . . . . . K ."""))
 
-        self.assertEqual(board.unicode(), textwrap.dedent(u"""\
+        self.assertEqual(board.unicode(), textwrap.dedent("""\
             · · · · · · · ♚
             · ♟ · ♛ ♞ · ♝ ·
             ♟ ♗ · ♟ · ♞ · ·
@@ -1368,7 +1368,7 @@ class BoardTestCase(unittest.TestCase):
             ♙ ♙ · · · · ♙ ♙
             · · · · · · ♔ ·"""))
 
-        self.assertEqual(board.unicode(invert_color=True, borders=True), textwrap.dedent(u"""\
+        self.assertEqual(board.unicode(invert_color=True, borders=True), textwrap.dedent("""\
               -----------------
             8 |·|·|·|·|·|·|·|♔|
               -----------------
