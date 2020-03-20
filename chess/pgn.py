@@ -1382,21 +1382,18 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
 
     >>> import chess.pgn
     >>>
-    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
-    >>>
-    >>> kasparov_offsets = []
-    >>>
-    >>> while True:
-    ...     offset = pgn.tell()
+    >>> with open("data/pgn/kasparov-deep-blue-1997.pgn") as pgn:
     ...
-    ...     headers = chess.pgn.read_headers(pgn)
-    ...     if headers is None:
-    ...         break
+    ...     while True:
+    ...         offset = pgn.tell()
     ...
-    ...     if "Kasparov" in headers.get("White", "?"):
-    ...         kasparov_offsets.append(offset)
+    ...         headers = chess.pgn.read_headers(pgn)
+    ...         if headers is None:
+    ...             break
+    ...
+    ...         kasparov_offsets = [offset if "Kasparov" in headers.get("White", "?")]
 
-    Then it can later be seeked an parsed.
+    Then it can later be seeked and parsed.
 
     >>> for offset in kasparov_offsets:
     ...     pgn.seek(offset)
