@@ -80,8 +80,6 @@ ConfigMapping = Mapping[str, ConfigValue]
 
 
 LOGGER = logging.getLogger(__name__)
-
-
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 
 
@@ -95,7 +93,7 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
 
     Unix: Uses :class:`~asyncio.SelectorEventLoop`. If available,
     :class:`~asyncio.PidfdChildWatcher` is used to detect subprocess
-    termination (Python 3.9+ on Linux 5.3+). Otherwise the default child
+    termination (Python 3.9+ on Linux 5.3+). Otherwise, the default child
     watcher is used on the main thread and relatively slow eager polling
     is used on all other threads.
     """
@@ -144,7 +142,7 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
             os.close(os.pidfd_open(os.getpid()))
             return asyncio.PidfdChildWatcher()
         except (AttributeError, OSError):
-            # Before Python 3.9 or before Linux 5.3 or the syscall is not
+            # Before Python 3.9 or before Linux 5.3 or if the syscall is not
             # permitted.
             pass
 
@@ -195,7 +193,7 @@ def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T]], Corou
     The coroutine and all remaining tasks continue running in the background
     until it is complete.
 
-    Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
+    Note: This installs an :class:`chess.engine.EventLoopPolicy` for the entire
     process.
     """
     assert asyncio.iscoroutinefunction(coroutine)
@@ -219,10 +217,12 @@ def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T]], Corou
 
 class EngineError(RuntimeError):
     """Runtime error caused by a misbehaving engine or incorrect usage."""
+    pass
 
 
 class EngineTerminatedError(EngineError):
     """The engine process exited unexpectedly."""
+    pass
 
 
 class AnalysisComplete(Exception):
@@ -230,11 +230,11 @@ class AnalysisComplete(Exception):
     Raised when analysis is complete, all information has been consumed, but
     further information was requested.
     """
+    pass
 
 
 class Option(NamedTuple):
     """Information about an available engine option."""
-
     name: str
     type: str
     default: ConfigValue
@@ -279,7 +279,7 @@ class Option(NamedTuple):
 
 
 class Limit:
-    """Search termination condition."""
+    """Search-termination condition."""
 
     def __init__(self, *,
                  time: Optional[float] = None,
@@ -358,7 +358,7 @@ class PlayResult:
 
 
 class Info(enum.IntFlag):
-    """Used to filter information sent by the chess engine."""
+    """Used to filter information sent by the engine."""
     NONE = 0
     BASIC = 1
     SCORE = 2
@@ -366,6 +366,7 @@ class Info(enum.IntFlag):
     REFUTATION = 8
     CURRLINE = 16
     ALL = BASIC | SCORE | PV | REFUTATION | CURRLINE
+
 
 INFO_NONE = Info.NONE
 INFO_BASIC = Info.BASIC
@@ -384,11 +385,11 @@ class PovScore:
         self.turn = turn
 
     def white(self) -> "Score":
-        """Gets the score from White's point of view."""
+        """Gets the score from white's point of view."""
         return self.pov(chess.WHITE)
 
     def black(self) -> "Score":
-        """Gets the score from Black's point of view."""
+        """Gets the score from black's point of view."""
         return self.pov(chess.BLACK)
 
     def pov(self, color: chess.Color) -> "Score":
@@ -599,6 +600,7 @@ class MateGivenType(Score):
     def __str__(self) -> str:
         return "#+0"
 
+
 MateGiven = MateGivenType()
 
 
@@ -648,7 +650,7 @@ class MockTransport(asyncio.SubprocessTransport):
 
 
 class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
-    """Protocol for communicating with a chess engine process."""
+    """Protocol for communicating with an engine's process."""
 
     id: Dict[str, str]
     options: MutableMapping[str, Option]
@@ -669,7 +671,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.returncode: asyncio.Future[int] = asyncio.Future()
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
-        # SubprocessTransport expected, but not checked to allow ducktyping.
+        # SubprocessTransport expected, but not checked to allow duck typing.
         self.transport = transport  # type: ignore
         LOGGER.debug("%s: Connection made", self)
 
@@ -786,7 +788,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
         Configures global engine options.
 
-        :param options: A dictionary of engine options, where the keys are
+        :param options: A dictionary of engine options where the keys are
             names of :py:attr:`~options`. Do not set options that are
             managed automatically (:func:`chess.engine.Option.is_managed()`).
         """
@@ -794,7 +796,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         """
-        Play a position.
+        Plays a position.
 
         :param board: The position. The entire move stack will be sent to the
             engine.
@@ -802,7 +804,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             determines when to stop thinking.
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically inform the engine if the object is not equal
-            to the previous game (e.g. ``ucinewgame``, ``new``).
+            to the previous game (e.g., ``ucinewgame``, ``new``).
         :param info: Selects which additional information to retrieve from the
             engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
@@ -845,7 +847,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
-        :param root_moves: Optional. Limit analysis to a list of root moves.
+        :param root_moves: Optional. Limits analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
@@ -868,17 +870,17 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param limit: Optional. An instance of :class:`chess.engine.Limit`
             that determines when to stop the analysis. Analysis is infinite
             by default.
-        :param multipv: Optional. Analyse multiple root moves.
+        :param multipv: Optional. Analyses multiple root moves.
         :param game: Optional. An arbitrary object that identifies the game.
             Will automatically inform the engine if the object is not equal
-            to the previous game (e.g. ``ucinewgame``, ``new``).
+            to the previous game (e.g., ``ucinewgame``, ``new``).
         :param info: Selects which information to retrieve from the
             engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
             extra information.
-        :param root_moves: Optional. Limit analysis to a list of root moves.
+        :param root_moves: Optional. Limits analysis to a list of root moves.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
@@ -886,7 +888,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         Returns :class:`~chess.engine.AnalysisResult`, a handle that allows
         asynchronously iterating over the information sent by the engine
-        and stopping the the analysis at any time.
+        and stopping the analysis at any time.
         """
 
     @abc.abstractmethod
@@ -1315,7 +1317,7 @@ class UciProtocol(EngineProtocol):
                 engine.send_line("stop")
 
             def engine_terminated(self, engine: UciProtocol, exc: Exception) -> None:
-                # Allow terminating engine while pondering.
+                # Allow terminating the engine while pondering.
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
@@ -1376,7 +1378,7 @@ class UciProtocol(EngineProtocol):
                 engine.send_line("stop")
 
             def engine_terminated(self, engine: UciProtocol, exc: Exception) -> None:
-                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+                LOGGER.debug("%s: Closing analysis because the engine has been terminated (error: %s)", engine, exc)
                 self.analysis.set_exception(exc)
 
         return await self.communicate(UciAnalysisCommand)
@@ -1655,7 +1657,7 @@ class XBoardProtocol(EngineProtocol):
     def _new(self, board: chess.Board, game: object, options: ConfigMapping) -> None:
         self._configure(options)
 
-        # Setup start position.
+        # Set up starting position.
         root = board.root()
         new_options = "random" in options or "computer" in options
         new_game = self.first_game or self.game != game or new_options or root != self.board.root()
@@ -1852,7 +1854,7 @@ class XBoardProtocol(EngineProtocol):
                     engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
-                # Allow terminating engine while pondering.
+                # Allow terminating the engine while pondering.
                 if not self.result.done():
                     super().engine_terminated(engine, exc)
 
@@ -1939,7 +1941,7 @@ class XBoardProtocol(EngineProtocol):
                 engine._ping(n)
 
             def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
-                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+                LOGGER.debug("%s: Closing analysis because the engine has been terminated (error: %s)", engine, exc)
 
                 if self.time_limit_handle:
                     self.time_limit_handle.cancel()
@@ -2099,7 +2101,7 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 
 class AnalysisResult:
     """
-    Handle to ongoing engine analysis.
+    Handles ongoing engine analysis.
     Returned by :func:`chess.engine.EngineProtocol.analysis()`.
 
     Can be used to asynchronously iterate over information sent by the engine.
@@ -2172,7 +2174,7 @@ class AnalysisResult:
 
         info = await self._queue.get()
         if not info:
-            # Empty dictionary marks end.
+            # Empty dictionary marks the end.
             self._seen_kork = True
             await self._finished
             raise AnalysisComplete()
@@ -2215,11 +2217,11 @@ class AnalysisResult:
 
 async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
     """
-    Spawns and initializes an UCI engine.
+    Spawns and initializes a UCI engine.
 
-    :param command: Path of the engine executable, or a list including the
+    :param command: Path of the engine executable or a list including the
         path and arguments.
-    :param setpgrp: Open the engine process in a new process group. This will
+    :param setpgrp: Starts the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
     :param popen_args: Additional arguments for
@@ -2242,9 +2244,9 @@ async def popen_xboard(command: Union[str, List[str]], *, setpgrp: bool = False,
     """
     Spawns and initializes an XBoard engine.
 
-    :param command: Path of the engine executable, or a list including the
+    :param command: Path of the engine executable or a list including the
         path and arguments.
-    :param setpgrp: Open the engine process in a new process group. This will
+    :param setpgrp: Starts the engine process in a new process group. This will
         stop signals (such as keyboard interrupts) from propagating from the
         parent process. Defaults to ``False``.
     :param popen_args: Additional arguments for
@@ -2266,11 +2268,11 @@ async def popen_xboard(command: Union[str, List[str]], *, setpgrp: bool = False,
 class SimpleEngine:
     """
     Synchronous wrapper around a transport and engine protocol pair. Provides
-    the same methods and attributes as :class:`~chess.engine.EngineProtocol`,
+    the same methods and attributes as :class:`~chess.engine.EngineProtocol`
     with blocking functions instead of coroutines.
 
     You may not concurrently modify objects passed to any of the methods. Other
-    than that :class:`~chess.engine.SimpleEngine` is thread-safe. When sending
+    than that, :class:`~chess.engine.SimpleEngine` is thread-safe. When sending
     a new command to the engine, any previous running command will be cancelled
     as soon as possible.
 
@@ -2408,7 +2410,7 @@ class SimpleEngine:
     @classmethod
     def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
         """
-        Spawns and initializes an UCI engine.
+        Spawns and initializes a UCI engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
         """
         return cls.popen(UciProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
@@ -2428,7 +2430,7 @@ class SimpleEngine:
         self.close()
 
     def __repr__(self) -> str:
-        pid = self.transport.get_pid()  # This happens to be thread-safe.
+        pid = self.transport.get_pid()  # This happens to be thread-safe
         return f"<{type(self).__name__} (pid={pid})>"
 
 
