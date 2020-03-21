@@ -1164,9 +1164,9 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     >>> game = chess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of
-    the file. (Of course, blank lines in comments are possible).
+    the file. Of course, blank lines in comments are also possible.
 
-    According to the PGN standard, at least the usual 7 header tags are
+    According to the PGN standard, at least the default seven header tags are
     required for a valid game. This parser also handles games without any
     headers just fine.
 
@@ -1175,7 +1175,7 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     collected in :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can
     be :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
 
-    Returns the parsed game or ``None`` if the end of file is reached.
+    Returns the parsed game or ``None`` if the end of the file is reached.
     """
     visitor = Visitor()
 
