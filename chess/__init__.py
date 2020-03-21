@@ -1949,7 +1949,7 @@ class Board(BaseBoard):
 
     def push(self: BoardT, move: Move) -> None:
         """
-        Updates the position with the given move and puts it onto the
+        Updates the position with the given *move* and puts it onto the
         move stack.
 
         >>> import chess
@@ -1957,33 +1957,33 @@ class Board(BaseBoard):
         >>> board = chess.Board()
         >>>
         >>> Nf3 = chess.Move.from_uci("g1f3")
-        >>> board.push(Nf3)  # Make the move
+        >>> board.push(Nf3)  # Make a move
 
         >>> board.pop()  # Unmake the last move
         Move.from_uci('g1f3')
 
-        Null moves just increment the move counters, switch turns and forfeit
-        en passant capturing.
+        Null moves just increment the move counter, switch turns and forfeit
+        en passant capturings.
 
-        :warning: Moves are not checked for legality. It is the callers
-            responsibility to ensure the move is at least pseudo-legal or
+        :warning: Moves are not checked for legality. It is the caller's
+            responsibility to ensure that the move is at least pseudo-legal or
             a null move.
         """
-        # Push move and remember board state.
+        # Push the move onto the move stack and remember board state.
         move = self._to_chess960(move)
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
         self._stack.append(self._board_state())
 
-        # Reset en passant square.
+        # Reset the en passant square.
         ep_square = self.ep_square
         self.ep_square = None
 
-        # Increment move counters.
+        # Increment the move counter.
         self.halfmove_clock += 1
         if self.turn == BLACK:
             self.fullmove_number += 1
 
-        # On a null move, simply swap turns and reset the en passant square.
+        # On a null move, swap turns and also reset the en passant square (if any).
         if not move:
             self.turn = not self.turn
             return
