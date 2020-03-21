@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Helper script to create and publish a new python-chess release.
 
 import os
