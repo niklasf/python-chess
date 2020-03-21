@@ -122,7 +122,7 @@ SQUARES = [
     A8, B8, C8, D8, E8, F8, G8, H8,
 ] = range(64)
 
-SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
+SQUARE_NAMES = [file_name + rank_name for file_name in FILE_NAMES for rank_name in RANK_NAMES]
 
 def square(file_index: int, rank_index: int) -> Square:
     """Gets a square number by file and rank index."""
