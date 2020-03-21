@@ -30,7 +30,7 @@ if sys.version_info < (3, ):
     raise ImportError(textwrap.dedent("""\
         You are trying to install python-chess on Python 2.
 
-        The last compatible branch was 0.23.x, which was supported until the
+        The last compatible branch was 0.23.x which was supported until the
         end of 2018. Consider upgrading to Python 3.
         """))
 
@@ -45,22 +45,22 @@ def read_description():
     with open(os.path.join(os.path.dirname(__file__), "README.rst"), encoding="utf-8") as f:
         description = f.read()
 
-    # Link to the documentation of the specific version.
+    # Link to the documentation of a specific version.
     description = description.replace(
         "//python-chess.readthedocs.io/en/latest/",
         "//python-chess.readthedocs.io/en/v{}/".format(chess.__version__))
 
-    # Use documentation badge for the specific version.
+    # Use documentation badge for a specific version.
     description = description.replace(
         "//readthedocs.org/projects/python-chess/badge/?version=latest",
         "//readthedocs.org/projects/python-chess/badge/?version=v{}".format(chess.__version__))
 
-    # Show Travis CI build status of the concrete version.
+    # Show Travis CI build status of a concrete version.
     description = description.replace(
         "//travis-ci.org/niklasf/python-chess.svg?branch=master",
         "//travis-ci.org/niklasf/python-chess.svg?branch=v{}".format(chess.__version__))
 
-    # Show Appveyor build status of the concrete version.
+    # Show Appveyor build status of a concrete version.
     description = description.replace(
         "/y9k3hdbm0f0nbum9/branch/master",
         "/y9k3hdbm0f0nbum9/branch/v{}".format(chess.__version__))
