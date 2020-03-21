@@ -1141,7 +1141,7 @@ class BaseBoard:
 
         return "".join(builder)
 
-    def unicode(self, *, invert_color: bool = False, borders: bool = False) -> str:
+    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘") -> str:
         """
         Returns a string representation of the board with Unicode pieces.
         Useful for pretty-printing to a terminal.
@@ -1172,7 +1172,7 @@ class BaseBoard:
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
                 else:
-                    builder.append("·")
+                    builder.append(empty_square)
 
             if borders:
                 builder.append("|")

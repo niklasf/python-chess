@@ -26,6 +26,11 @@ Bugfixes:
   like an integer.
 * `chess.engine` is now passing type checks with mypy.
 
+Features:
+
+* Added `empty_square` parameter for `chess.Board.unicode()` with better
+  aligned default (⭘).
+
 New in v0.30.1
 --------------
 

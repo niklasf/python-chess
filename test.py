@@ -1358,7 +1358,7 @@ class BoardTestCase(unittest.TestCase):
             P P . . . . P P
             . . . . . . K ."""))
 
-        self.assertEqual(board.unicode(), textwrap.dedent("""\
+        self.assertEqual(board.unicode(empty_square="·"), textwrap.dedent("""\
             · · · · · · · ♚
             · ♟ · ♛ ♞ · ♝ ·
             ♟ ♗ · ♟ · ♞ · ·
@@ -1368,7 +1368,7 @@ class BoardTestCase(unittest.TestCase):
             ♙ ♙ · · · · ♙ ♙
             · · · · · · ♔ ·"""))
 
-        self.assertEqual(board.unicode(invert_color=True, borders=True), textwrap.dedent("""\
+        self.assertEqual(board.unicode(invert_color=True, borders=True, empty_square="·"), textwrap.dedent("""\
               -----------------
             8 |·|·|·|·|·|·|·|♔|
               -----------------
