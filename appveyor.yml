@@ -7,7 +7,7 @@ environment:
 build: off
 
 install:
-  # Stockfish
+  # Stockfish engine.
   - ps: Start-FileDownload "https://stockfishchess.org/files/stockfish-10-win.zip"
   - 7z e stockfish-10-win.zip stockfish-10-win/Windows/*.exe
   - ren stockfish_10_x64_popcnt.exe stockfish.exe
