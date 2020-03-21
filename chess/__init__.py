@@ -891,7 +891,7 @@ class BaseBoard:
         return "".join(builder)
 
     def _set_board_fen(self, fen: str) -> None:
-        # Compability with set_fen().
+        # Compatibility with set_fen().
         fen = fen.strip()
         if " " in fen:
             raise ValueError(f"expected position part of fen, got multiple parts: {fen!r}")
