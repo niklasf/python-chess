@@ -867,7 +867,7 @@ class GameBuilder(BaseVisitor[GameT]):
         Populates :data:`chess.pgn.Game.errors` with encountered errors and
         logs them.
 
-        You can silence the log and handle errors yourself, after parsing:
+        You can silence the log and handle errors yourself after parsing:
 
         >>> import chess.pgn
         >>> import logging
@@ -1413,6 +1413,6 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
 
 def skip_game(handle: TextIO) -> bool:
     """
-    Skip a game. Returns ``True`` if a game was found and skipped.
+    Skips a game. Returns ``True`` if a game was found and skipped.
     """
     return bool(read_game(handle, Visitor=SkipVisitor))

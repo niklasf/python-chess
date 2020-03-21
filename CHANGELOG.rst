@@ -115,7 +115,7 @@ New in v0.28.2
 
 Bugfixes:
 
-* Fixed exception propagation, when an UCI engine sends an invalid `bestmove`.
+* Fixed exception propagation, when a UCI engine sends an invalid `bestmove`.
   Thanks @fsmosca.
 
 Changes:
@@ -149,7 +149,7 @@ Changes:
   The raw move is now always decoded in the context of the position (relevant
   for castling moves).
 * `Piece`, `Move`, `BaseBoard` and `Board` comparisons no longer support
-  ducktyping.
+  duck typing.
 * FENs sent to engines now always include potential en-passant squares, even if
   no legal en-passant capture exists.
 * Circular SVG arrows now have a `circle` CSS class.

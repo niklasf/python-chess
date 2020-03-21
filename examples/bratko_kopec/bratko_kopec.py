@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Run an EPD test suite with an UCI engine."""
+"""Run an EPD test suite with a UCI engine."""
 
 import asyncio
 import time

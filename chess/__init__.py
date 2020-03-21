@@ -447,7 +447,7 @@ class Move:
 
     def uci(self) -> str:
         """
-        Gets an UCI string for the move.
+        Gets a UCI string for the move.
 
         For example, a move from a7 to a8 would be ``a7a8`` or ``a7a8q``
         (if the latter is a promotion to a queen).
@@ -491,7 +491,7 @@ class Move:
     @classmethod
     def from_uci(cls, uci: str) -> "Move":
         """
-        Parses an UCI string.
+        Parses a UCI string.
 
         :raises: :exc:`ValueError` if the UCI string is invalid.
         """
@@ -2751,7 +2751,7 @@ class Board(BaseBoard):
         to_square = SQUARE_NAMES.index(match.group(4))
         to_mask = BB_SQUARES[to_square] & ~self.occupied_co[self.turn]
 
-        # Get the promotion type.
+        # Get the promotion piece type.
         p = match.group(5)
         promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
 
