@@ -867,7 +867,7 @@ class GameBuilder(BaseVisitor[GameT]):
         Populates :data:`chess.pgn.Game.errors` with encountered errors and
         logs them.
 
-        You can silence the log and handle errors yourself, after parsing:
+        You can silence the log and handle errors yourself after parsing:
 
         >>> import chess.pgn
         >>> import logging
@@ -1150,9 +1150,9 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     Board('4r3/6P1/2p2P1k/1p6/pP2p1R1/P1B5/2P2K2/3r4 b - - 0 45')
 
     By using text mode, the parser does not need to handle encodings. It is the
-    caller's responsibility to open the file with the correct encoding.
+    caller's responsibility to open a file with the correct encoding.
     PGN files are usually ASCII or UTF-8 encoded. So, the following should
-    cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
+    cover most relevant cases: ASCII, UTF-8, UTF-8 with BOM.
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
 
@@ -1164,9 +1164,9 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     >>> game = chess.pgn.read_game(pgn)
 
     The end of a game is determined by a completely blank line or the end of
-    the file. (Of course, blank lines in comments are possible).
+    the file. (Of course, blank lines in comments are possible.)
 
-    According to the PGN standard, at least the usual 7 header tags are
+    According to the PGN standard, at least the usual Seven Tag Roster is
     required for a valid game. This parser also handles games without any
     headers just fine.
 
@@ -1175,7 +1175,7 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     collected in :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can
     be :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
 
-    Returns the parsed game or ``None`` if the end of file is reached.
+    Returns the parsed game or ``None`` if the end of the file is reached.
     """
     visitor = Visitor()
 
@@ -1413,6 +1413,6 @@ def read_headers(handle: TextIO) -> Optional[Headers]:
 
 def skip_game(handle: TextIO) -> bool:
     """
-    Skip a game. Returns ``True`` if a game was found and skipped.
+    Skips a game. Returns ``True`` if a game was found and skipped.
     """
     return bool(read_game(handle, Visitor=SkipVisitor))
