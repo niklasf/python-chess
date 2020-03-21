@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Print a polyglot opening book in tree form."""
+"""Print a Polyglot opening book in tree form."""
 
 import chess
 import chess.polyglot
