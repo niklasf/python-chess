@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Compute X-Ray attacks through more valuable pieces."""
+"""Compute X-ray attacks through more valuable pieces."""
 
 import chess
 

@@ -891,7 +891,7 @@ class BaseBoard:
         return "".join(builder)
 
     def _set_board_fen(self, fen: str) -> None:
-        # Compability with set_fen().
+        # Compatibility with set_fen().
         fen = fen.strip()
         if " " in fen:
             raise ValueError(f"expected position part of fen, got multiple parts: {fen!r}")
@@ -1949,7 +1949,7 @@ class Board(BaseBoard):
 
     def push(self: BoardT, move: Move) -> None:
         """
-        Updates the position with the given move and puts it onto the
+        Updates the position with the given *move* and puts it onto the
         move stack.
 
         >>> import chess
@@ -1965,8 +1965,8 @@ class Board(BaseBoard):
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
 
-        :warning: Moves are not checked for legality. It is the callers
-            responsibility to ensure the move is at least pseudo-legal or
+        :warning: Moves are not checked for legality. It is the caller's
+            responsibility to ensure that the move is at least pseudo-legal or
             a null move.
         """
         # Push move and remember board state.

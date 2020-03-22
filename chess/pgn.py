@@ -1166,7 +1166,7 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
     The end of a game is determined by a completely blank line or the end of
     the file. (Of course, blank lines in comments are possible).
 
-    According to the PGN standard, at least the usual 7 header tags are
+    According to the PGN standard, at least the usual seven header tags are
     required for a valid game. This parser also handles games without any
     headers just fine.
 
