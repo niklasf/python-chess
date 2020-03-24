@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Run an EPD test suite with a UCI engine."""
+"""Runs an EPD test suite with a UCI engine."""
 
 import asyncio
 import time
@@ -44,7 +44,7 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
     if "bm" in epd_info:
         epd_string = "{} (expect {})".format(epd_string, " or ".join(board.san(bm) for bm in epd_info["bm"]))
 
-    # Start analysis.
+    # Start the analysis.
     score = 0.0
     print(f"{epd_string}:", end=" ", flush=True)
     analysis = await engine.analysis(board, game=object())
@@ -72,7 +72,7 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
 
 
 async def main():
-    # Parse command line arguments.
+    # Parse command-line arguments.
     parser = argparse.ArgumentParser(description=__doc__)
 
     engine_group = parser.add_mutually_exclusive_group(required=True)
@@ -98,13 +98,13 @@ async def main():
 
     args = parser.parse_args()
 
-    # Configure logger.
+    # Configure the logger.
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARNING)
 
-    # Find variant.
+    # Find the variant.
     VariantBoard = chess.variant.find_variant(args.variant)
 
-    # Open and configure engine.
+    # Open and configure the engine.
     if args.uci:
         _, engine = await chess.engine.popen_uci(args.uci)
         if args.threads > 1:
