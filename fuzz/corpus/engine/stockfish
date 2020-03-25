@@ -1,5 +1,5 @@
-Stockfish 10 64 POPCNT by T. Romstad, M. Costalba, J. Kiiski, G. Linscott
-id name Stockfish 10 64 POPCNT
+Stockfish 11 64 POPCNT by T. Romstad, M. Costalba, J. Kiiski, G. Linscott
+id name Stockfish 11 64 POPCNT
 id author T. Romstad, M. Costalba, J. Kiiski, G. Linscott
 
 option name Debug Log File type string default 
