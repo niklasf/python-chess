@@ -322,8 +322,8 @@ def _edges(square: Square) -> Bitboard:
     return (((BB_RANK_1 | BB_RANK_8) & ~BB_RANKS[square_rank(square)]) |
             ((BB_FILE_A | BB_FILE_H) & ~BB_FILES[square_file(square)]))
 
-def _carry_rippler(mask: Bitboard) -> Iterator[Bitboard]:
-    # Carry-Rippler trick to iterate subsets of mask.
+def _ripple_carry(mask: Bitboard) -> Iterator[Bitboard]:
+    # Ripple-carry trick to iterate subsets of a mask.
     subset = BB_EMPTY
     while True:
         yield subset
@@ -339,7 +339,7 @@ def _attack_table(deltas: List[int]) -> Tuple[List[Bitboard], List[Dict[Bitboard
         attacks = {}
 
         mask = _sliding_attacks(square, 0, deltas) & ~_edges(square)
-        for subset in _carry_rippler(mask):
+        for subset in _ripple_carry(mask):
             attacks[subset] = _sliding_attacks(square, subset, deltas)
 
         attack_table.append(attacks)
@@ -3735,9 +3735,9 @@ class SquareSet:
 
     # SquareSet
 
-    def carry_rippler(self) -> Iterator[Bitboard]:
+    def ripple_carry(self) -> Iterator[Bitboard]:
         """Iterator over the subsets of this set."""
-        return _carry_rippler(self.mask)
+        return _ripple_carry(self.mask)
 
     def mirror(self) -> "SquareSet":
         """Returns a vertically mirrored copy of this square set."""
