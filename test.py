@@ -1760,9 +1760,9 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(chess.SquareSet.from_square(chess.H5), chess.BB_H5)
         self.assertEqual(chess.SquareSet.from_square(chess.C2), chess.BB_C2)
 
-    def test_carry_rippler(self):
-        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_D1).carry_rippler()), 2 ** 1)
-        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_FILE_B).carry_rippler()), 2 ** 8)
+    def test_ripple_carry(self):
+        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_D1).ripple_carry()), 2 ** 1)
+        self.assertEqual(sum(1 for _ in chess.SquareSet(chess.BB_FILE_B).ripple_carry()), 2 ** 8)
 
     def test_mirror(self):
         self.assertEqual(chess.SquareSet(0x00a2_0900_0004_a600).mirror(), 0x00a6_0400_0009_a200)
