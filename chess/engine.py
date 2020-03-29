@@ -268,7 +268,7 @@ class Option(NamedTuple):
                 raise EngineError(f"invalid line-break in string option {self.name!r}: {value!r}")
             return value
         else:
-            raise EngineError("unknown option type: {}", self.type)
+            raise EngineError(f"unknown option type: {self.type!r}")
 
     def is_managed(self) -> bool:
         """
@@ -939,7 +939,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
             self.result.set_exception(exc)
         else:
             engine.loop.call_exception_handler({
-                "message": f"engine command failed after returning preliminary result ({self.result!r})",
+                "message": f"{type(self).__name__} failed after returning preliminary result ({self.result!r})",
                 "exception": exc,
                 "protocol": engine,
                 "transport": engine.transport,
