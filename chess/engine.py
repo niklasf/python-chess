@@ -1026,7 +1026,7 @@ class UciProtocol(EngineProtocol):
                 engine.send_line("uci")
 
             def line_received(self, engine: UciProtocol, line: str) -> None:
-                if line == "uciok":
+                if line == "uciok" and not self.result.done():
                     engine.initialized = True
                     self.result.set_result(None)
                     self.set_finished()
