@@ -1,0 +1,44 @@
+Stockfish 11 64 BMI2 Multi-Variant by D. Dugovic, F. Fichter et al.
+id name Stockfish 11 64 BMI2 Multi-Variant
+id author D. Dugovic, F. Fichter et al.
+
+option name Debug Log File type string default 
+option name Contempt type spin default 24 min -100 max 100
+option name Analysis Contempt type combo default Both var Both var Off var White var Black
+option name Threads type spin default 1 min 1 max 512
+option name Hash type spin default 16 min 1 max 131072
+option name Clear Hash type button
+option name Ponder type check default false
+option name MultiPV type spin default 1 min 1 max 500
+option name Skill Level type spin default 20 min 0 max 20
+option name Move Overhead type spin default 30 min 0 max 5000
+option name Minimum Thinking Time type spin default 20 min 0 max 5000
+option name Slow Mover type spin default 84 min 10 max 1000
+option name nodestime type spin default 0 min 0 max 10000
+option name UCI_Chess960 type check default false
+option name UCI_Variant type combo default chess var chess var antichess var atomic var crazyhouse var horde var kingofthehill var racingkings var 3check var giveaway
+option name UCI_AnalyseMode type check default false
+option name UCI_LimitStrength type check default false
+option name UCI_Elo type spin default 1350 min 1350 max 2850
+option name SyzygyPath type string default <empty>
+option name SyzygyProbeDepth type spin default 1 min 1 max 100
+option name Syzygy50MoveRule type check default true
+option name SyzygyProbeLimit type spin default 7 min 0 max 7
+uciok
+!
+readyok
+!
+!
+!
+info depth 1 seldepth 1 multipv 1 score cp 114 nodes 20 nps 10000 tbhits 0 time 2 pv e2e3
+info depth 2 seldepth 2 multipv 1 score cp 126 nodes 54 nps 27000 tbhits 0 time 2 pv e2e3 b7b6
+info depth 3 seldepth 3 multipv 1 score cp 124 nodes 147 nps 73500 tbhits 0 time 2 pv e2e3 b7b6 f1c4
+info depth 4 seldepth 4 multipv 1 score cp 75 nodes 574 nps 191333 tbhits 0 time 3 pv d2d4 e7e6 e2e3 b8c6
+info depth 5 seldepth 5 multipv 1 score cp 86 nodes 782 nps 195500 tbhits 0 time 4 pv c2c3 b8c6 d2d4 d7d6
+info depth 6 seldepth 6 multipv 1 score cp 56 nodes 2734 nps 341750 tbhits 0 time 8 pv d2d4 c7c6 g1f3 d7d5 c2c3 g8f6
+info depth 7 seldepth 8 multipv 1 score cp 43 nodes 5780 nps 525454 tbhits 0 time 11 pv c2c3 b8c6 d2d4 d7d5 e2e3 g8f6 f1e2
+info depth 8 seldepth 10 multipv 1 score cp 46 nodes 9568 nps 598000 tbhits 0 time 16 pv b1c3 d7d5 e2e4 d5e4 c3e4 c7c6 g1f3 g8f6
+info depth 9 seldepth 13 multipv 1 score cp 48 nodes 14134 nps 673047 tbhits 0 time 21 pv e2e4 d7d5 e4d5 d8d5 d2d4 d5e6 c1e3 g8f6 g1e2 b8c6
+info depth 10 seldepth 14 multipv 1 score cp 105 nodes 18613 nps 744520 tbhits 0 time 25 pv e2e4 e7e6 b1c3 b8c6 d2d4 d7d5 e4d5 e6d5 g1f3
+bestmove e2e4 ponder e7e6
+!
