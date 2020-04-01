@@ -3790,7 +3790,7 @@ class SquareSet:
 
         for square in SQUARES_180:
             mask = BB_SQUARES[square]
-            builder.append("1" if self.mask & mask else ".")
+            builder.append("1" if self.mask & mask else "·")
 
             if not mask & BB_FILE_H:
                 builder.append(" ")
