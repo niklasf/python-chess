@@ -67,6 +67,8 @@ and so on to
 
 .. autofunction:: chess.square_rank
 
+.. autofunction:: chess.square_name
+
 .. autofunction:: chess.square_distance
 
 .. autofunction:: chess.square_mirror
