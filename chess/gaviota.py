@@ -1508,11 +1508,11 @@ class Request:
         self.side = side
         self.epsq = epsq
 
-        self.egkey: str = None
-        self.white_piece_squares: List[int] = None
-        self.white_piece_types: List[int] = None
-        self.black_piece_squares: List[int] = None
-        self.black_piece_types: List[int] = None
+        self.egkey = ""
+        self.white_piece_squares: List[int] = []
+        self.white_piece_types: List[int] = []
+        self.black_piece_squares: List[int] = []
+        self.black_piece_types: List[int] = []
         self.is_reversed: bool = None
 
 
