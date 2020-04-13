@@ -1492,28 +1492,29 @@ class MissingTableError(KeyError):
 
 
 class TableBlock:
+    pcache: List[int]
+
     def __init__(self, egkey: str, side: int, offset: int, age: int):
         self.egkey = egkey
         self.side = side
         self.offset = offset
         self.age = age
-        self.pcache: Optional[List[int]] = None
 
 
 class Request:
+    egkey: str
+    white_piece_squares: List[int]
+    white_piece_types: List[int]
+    black_piece_squares: List[int]
+    black_piece_types: List[int]
+    is_reversed: bool
+
     def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int, epsq: int):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
         self.realside = side
         self.side = side
         self.epsq = epsq
-
-        self.egkey: str = None
-        self.white_piece_squares: List[int] = None
-        self.white_piece_types: List[int] = None
-        self.black_piece_squares: List[int] = None
-        self.black_piece_types: List[int] = None
-        self.is_reversed: bool = None
 
 
 class Zipinfo:
