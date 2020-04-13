@@ -254,6 +254,17 @@ Example: Stream information from the engine and stop on an arbitrary condition.
         A list of dictionaries with aggregated information sent by the engine.
         One item for each root move.
 
+.. autoclass:: chess.engine.BestMove
+    :members:
+
+    .. py:attribute:: move
+
+        The best move accordig to the engine, or ``None``.
+
+    .. py:attribute:: ponder
+
+        The response that the engine expects after *move*, or ``None``.
+
 Options
 -------
 

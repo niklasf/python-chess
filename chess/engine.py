@@ -1281,27 +1281,13 @@ class UciProtocol(EngineProtocol):
                 if self.pondering:
                     self.pondering = False
                 elif not self.result.cancelled():
-                    tokens = arg.split(None, 2)
+                    best = _parse_uci_bestmove(engine.board, arg)
+                    self.result.set_result(PlayResult(best.move, best.ponder, self.info))
 
-                    bestmove = None
-                    if tokens[0] != "(none)":
-                        try:
-                            bestmove = engine.board.parse_uci(tokens[0])
-                        except ValueError as err:
-                            raise EngineError(err)
-
-                    pondermove = None
-                    if bestmove is not None and len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-                        engine.board.push(bestmove)
-                        try:
-                            pondermove = engine.board.push_uci(tokens[2])
-                        except ValueError:
-                            LOGGER.exception("engine sent invalid ponder move")
-
-                    self.result.set_result(PlayResult(bestmove, pondermove, self.info))
-
-                    if ponder and pondermove:
+                    if ponder and best.move and best.ponder:
                         self.pondering = True
+                        engine.board.push(best.move)
+                        engine.board.push(best.ponder)
                         engine._position(engine.board)
                         engine._go(limit, ponder=True)
 
@@ -1369,8 +1355,9 @@ class UciProtocol(EngineProtocol):
             def _bestmove(self, engine: UciProtocol, arg: str) -> None:
                 if not self.result.done():
                     raise EngineError("was not searching, but engine sent bestmove")
+                best = _parse_uci_bestmove(engine.board, arg)
                 self.set_finished()
-                self.analysis.set_finished()
+                self.analysis.set_finished(best)
 
             def cancel(self, engine: UciProtocol) -> None:
                 engine.send_line("stop")
@@ -1478,6 +1465,27 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 LOGGER.error("exception parsing wdl from info: %r", arg)
 
     return info
+
+def _parse_uci_bestmove(board: chess.Board, args: str) -> "BestMove":
+    tokens = args.split(None, 2)
+
+    move = None
+    ponder = None
+    if tokens[0] != "(none)":
+        try:
+            move = board.push_uci(tokens[0])
+        except ValueError as err:
+            raise EngineError(err)
+
+        try:
+            if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+                ponder = board.parse_uci(tokens[2])
+        except ValueError:
+            LOGGER.exception("engine sent invalid ponder move")
+        finally:
+            board.pop()
+
+    return BestMove(move, ponder)
 
 
 class UciOptionMap(MutableMapping[str, T]):
@@ -1868,6 +1876,7 @@ class XBoardProtocol(EngineProtocol):
         class XBoardAnalysisCommand(BaseCommand[XBoardProtocol, AnalysisResult]):
             def start(self, engine: XBoardProtocol) -> None:
                 self.stopped = False
+                self.best_move: Optional[chess.Move] = None
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.final_pong: Optional[str] = None
 
@@ -1908,6 +1917,10 @@ class XBoardProtocol(EngineProtocol):
                 post_info = _parse_xboard_post(line, engine.board, info | INFO_BASIC)
                 self.analysis.post(post_info)
 
+                pv = post_info.get("pv")
+                if pv:
+                    self.best_move = pv[0]
+
                 if limit is not None:
                     if limit.time is not None and typing.cast(float, post_info.get("time", 0)) >= limit.time:
                         self.cancel(engine)
@@ -1924,7 +1937,7 @@ class XBoardProtocol(EngineProtocol):
                     self.time_limit_handle.cancel()
 
                 self.set_finished()
-                self.analysis.set_finished()
+                self.analysis.set_finished(BestMove(self.best_move, None))
 
             def cancel(self, engine: XBoardProtocol) -> None:
                 if self.stopped:
@@ -2045,7 +2058,7 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
             pv_tokens.insert(0, token)
             break
 
-    if len(integer_tokens) < 4 or not selector:
+    if len(integer_tokens) < 4:
         return info
 
     # Required integer tokens.
@@ -2079,9 +2092,6 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
         info["tbhits"] = integer_tokens.pop(0)
 
     # Principal variation.
-    if not (selector & INFO_PV):
-        return info
-
     pv = []
     board = root_board.copy(stack=False)
     for token in pv_tokens:
@@ -2092,9 +2102,24 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
             pv.append(board.push_xboard(token))
         except ValueError:
             break
+
+        if not (selector & INFO_PV):
+            break
     info["pv"] = pv
 
     return info
+
+
+class BestMove:
+    """Returned by :func:`chess.engine.AnalysisResult.wait()`."""
+
+    def __init__(self, move: Optional[chess.Move], ponder: Optional[chess.Move]):
+        self.move = move
+        self.ponder = ponder
+
+    def __repr__(self) -> str:
+        return "<{} at {:#x} (move={}, ponder={}>".format(
+            type(self).__name__, id(self), self.move, self.ponder)
 
 
 class AnalysisResult:
@@ -2112,7 +2137,7 @@ class AnalysisResult:
         self._queue: asyncio.Queue[InfoDict] = asyncio.Queue()
         self._posted_kork = False
         self._seen_kork = False
-        self._finished: asyncio.Future[None] = asyncio.Future()
+        self._finished: asyncio.Future[BestMove] = asyncio.Future()
         self.multipv: List[InfoDict] = [{}]
 
     def post(self, info: InfoDict) -> None:
@@ -2132,9 +2157,9 @@ class AnalysisResult:
             self._posted_kork = True
             self._queue.put_nowait({})
 
-    def set_finished(self) -> None:
+    def set_finished(self, best: BestMove) -> None:
         if not self._finished.done():
-            self._finished.set_result(None)
+            self._finished.set_result(best)
         self._kork()
 
     def set_exception(self, exc: Exception) -> None:
@@ -2151,9 +2176,9 @@ class AnalysisResult:
             self._stop()
             self._stop = None
 
-    async def wait(self) -> None:
+    async def wait(self) -> BestMove:
         """Waits until the analysis is complete (or stopped)."""
-        await self._finished
+        return await self._finished
 
     async def get(self) -> InfoDict:
         """
@@ -2464,7 +2489,7 @@ class SimpleAnalysisResult:
         with self.simple_engine._not_shut_down():
             self.simple_engine.protocol.loop.call_soon_threadsafe(self.inner.stop)
 
-    def wait(self) -> None:
+    def wait(self) -> BestMove:
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(self.inner.wait(), self.simple_engine.protocol.loop)
         return future.result()

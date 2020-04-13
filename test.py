@@ -2902,7 +2902,9 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("stop", ["bestmove e2e4"])
             result = await protocol.analysis(chess.Board())
             result.stop()
-            await result.wait()
+            best = await result.wait()
+            self.assertEqual(best.move, chess.Move.from_uci("e2e4"))
+            self.assertTrue(best.ponder is None)
             mock.assert_done()
 
             # Explicitly disable.
@@ -2913,10 +2915,12 @@ class EngineTestCase(unittest.TestCase):
             # Analyse again.
             mock.expect("position startpos")
             mock.expect("go infinite")
-            mock.expect("stop", ["bestmove e2e4"])
+            mock.expect("stop", ["bestmove e2e4 ponder e7e5"])
             result = await protocol.analysis(chess.Board())
             result.stop()
-            await result.wait()
+            best = await result.wait()
+            self.assertEqual(best.move, chess.Move.from_uci("e2e4"))
+            self.assertEqual(best.ponder, chess.Move.from_uci("e7e5"))
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())

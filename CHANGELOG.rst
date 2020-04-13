@@ -28,6 +28,7 @@ Bugfixes:
 
 Features:
 
+* `chess.engine.AnalysisResult.wait()` now returns `chess.engine.BestMove`.
 * Added `empty_square` parameter for `chess.Board.unicode()` with better
   aligned default (⭘).
 
