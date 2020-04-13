@@ -80,7 +80,7 @@ script:
  - # Typing
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/__init__.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/engine.py || true; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/gaviota.py || true; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/gaviota.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/pgn.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/polyglot.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/svg.py; fi
