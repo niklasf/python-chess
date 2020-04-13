@@ -25,7 +25,7 @@ import threading
 import chess
 
 from types import TracebackType
-from typing import Deque, Iterable, Iterator, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Deque, Dict, Iterable, Iterator, List, MutableMapping, Optional, Tuple, Type, TypeVar, Union
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -514,36 +514,37 @@ class MissingTableError(KeyError):
 
 
 class PairsData:
-    def __init__(self) -> None:
-        self.indextable = None
-        self.sizetable = None
-        self.data = None
-        self.offset = None
-        self.symlen = None
-        self.sympat: int = None
-        self.blocksize = None
-        self.idxbits = None
-        self.min_len = None
-        self.base = None
+    indextable: int
+    sizetable: int
+    data: int
+    offset: int
+    symlen: List[int]
+    sympat: int
+    blocksize: int
+    idxbits: int
+    min_len: int
+    base: List[int]
 
 
 class PawnFileData:
     def __init__(self) -> None:
-        self.precomp = {}
-        self.factor = {}
-        self.pieces = {}
-        self.norm = {}
+        self.precomp: Dict[int, PairsData] = {}
+        self.factor: Dict[int, List[int]] = {}
+        self.pieces: Dict[int, List[int]] = {}
+        self.norm: Dict[int, List[int]] = {}
 
 
 class PawnFileDataDtz:
-    def __init__(self) -> None:
-        self.precomp = None
-        self.factor = None
-        self.pieces = None
-        self.norm = None
+    precomp: PairsData
+    factor: List[int]
+    pieces: List[int]
+    norm: List[int]
 
+
+TableT = TypeVar("TableT", bound="Table")
 
 class Table:
+    size: List[int]
 
     def __init__(self, path: str, *, variant: Type[chess.Board] = chess.Board) -> None:
         self.path = path
@@ -551,8 +552,8 @@ class Table:
 
         self.write_lock = threading.RLock()
         self.initialized = False
-        self.fd = None
-        self.data = None
+        self.fd: Optional[int] = None
+        self.data: Optional[mmap.mmap] = None
 
         self.read_condition = threading.Condition()
         self.read_count = 0
@@ -613,7 +614,7 @@ class Table:
                 except AttributeError:
                     pass
 
-    def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> bool:
+    def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> None:
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[:min(4, len(self.data))] not in valid_magics:
             raise IOError(f"invalid magic header: ensure {self.path!r} is a valid syzygy tablebase file")
@@ -716,7 +717,7 @@ class Table:
 
         return f
 
-    def calc_factors_pawn(self, factor: int, order: int, order2: int, norm: List[int], f: int) -> int:
+    def calc_factors_pawn(self, factor: List[int], order: int, order2: int, norm: List[int], f: int) -> int:
         i = norm[0]
         if order2 < 0x0f:
             i += norm[i]
@@ -767,14 +768,14 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos: chess.Square) -> int:
+    def pawn_file(self, pos: List[chess.Square]) -> int:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: int) -> int:
+    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -887,7 +888,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm: List[int], pos: chess.Square, factor: int) -> int:
+    def encode_pawn(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -1034,7 +1035,7 @@ class Table:
                     os.close(self.fd)
                     self.fd = None
 
-    def __enter__(self) -> None:
+    def __enter__(self: TableT) -> TableT:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
@@ -1042,6 +1043,8 @@ class Table:
 
 
 class WdlTable(Table):
+    _next: int
+    _flags: int
 
     def init_table_wdl(self) -> None:
         with self.write_lock:
@@ -1056,8 +1059,8 @@ class WdlTable(Table):
             self.size = [0 for _ in range(8 * 3)]
 
             # Used if there are only pieces.
-            self.precomp = {}
-            self.pieces = {}
+            self.precomp: Dict[int, PairsData] = {}
+            self.pieces: Dict[int, List[int]] = {}
 
             self.factor = {0: [0 for _ in range(TBPIECES)],
                            1: [0 for _ in range(TBPIECES)]}
@@ -1068,8 +1071,6 @@ class WdlTable(Table):
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
 
-            self._next = None
-            self._flags = None
             self.flags = None
 
             split = self.data[4] & 0x01
@@ -1087,8 +1088,6 @@ class WdlTable(Table):
                 if split:
                     self.precomp[1] = self.setup_pairs(data_ptr, self.tb_size[1], 3, True)
                     data_ptr = self._next
-                else:
-                    self.precomp[1] = None
 
                 self.precomp[0].indextable = data_ptr
                 data_ptr += self.size[0]
@@ -1124,8 +1123,6 @@ class WdlTable(Table):
                     if split:
                         self.files[f].precomp[1] = self.setup_pairs(data_ptr, self.tb_size[2 * f + 1], 6 * f + 3, True)
                         data_ptr = self._next
-                    else:
-                        self.files[f].precomp[1] = None
 
                 for f in range(files):
                     self.files[f].precomp[0].indextable = data_ptr
