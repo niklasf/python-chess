@@ -1914,7 +1914,7 @@ class XBoardProtocol(EngineProtocol):
                     LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
 
             def _post(self, engine: XBoardProtocol, line: str) -> None:
-                post_info = _parse_xboard_post(line, engine.board, info | INFO_BASIC)
+                post_info = _parse_xboard_post(line, engine.board, info)
                 self.analysis.post(post_info)
 
                 pv = post_info.get("pv")
