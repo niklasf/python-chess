@@ -144,28 +144,44 @@ class GameNode:
     def dangling_node(cls) -> "GameNode":
         return GameNode()
 
-    # TODO: Unroll
-    def board(self, *, _cache: bool = True) -> chess.Board:
+    def _board(self) -> chess.Board:
+        assert False, "cannot get board of dangling GameNode"
+
+    def board(self) -> chess.Board:
         """
         Gets a board with the position of the node.
 
+        For the root node, this is the default starting position (for the
+        ``Variant``) unless the ``FEN`` header tag is set.
+
         It's a copy, so modifying the board will not alter the game.
         """
-        assert self.parent is not None and self.move is not None, "cannot get board of dangling GameNode"
-
         if self.board_cached is not None:
-            board = self.board_cached()
-            if board is not None:
-                return board.copy()
+            board_cached = self.board_cached()
+            if board_cached is not None:
+                return board_cached.copy()
 
-        board = self.parent.board(_cache=False)
-        board.push(self.move)
+        stack = []
+        node = self
+        while True:
+            if node.parent is None or node.move is None:
+                board = node._board()
+                break
+            elif node.board_cached is not None:
+                board_cached = node.board_cached()
+                if board_cached is not None:
+                    board = board_cached.copy()
+                    break
+            stack.append(node.move)
+            node = node.parent
 
-        if _cache:
+        while stack:
+            board.push(stack.pop())
+
+        if self.parent is not None:
             self.board_cached = weakref.ref(board)
-            return board.copy()
-        else:
-            return board
+
+        return board
 
     def _move(self) -> chess.Move:
         assert self.move is not None, "cannot get move of dangling GameNode"
@@ -476,13 +492,7 @@ class Game(GameNode):
         self.headers = Headers(headers)
         self.errors: List[Exception] = []
 
-    def board(self, *, _cache: bool = False) -> chess.Board:
-        """
-        Gets the starting position of the game.
-
-        Unless the ``FEN`` header tag is set, this is the default starting
-        position (for the ``Variant``).
-        """
+    def _board(self) -> chess.Board:
         return self.headers.board()
 
     def setup(self, board: Union[chess.Board, str]) -> None:
