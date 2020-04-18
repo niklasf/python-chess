@@ -118,6 +118,16 @@ SKIP = SkipType.SKIP
 ResultT = TypeVar("ResultT", covariant=True)
 
 
+class _AcceptFrame:
+    def __init__(self, node: "GameNode", *, is_variation: bool = False, sidelines: bool = True):
+        assert node.parent is not None, "cannot visit dangling GameNode"
+        self.state = "pre"
+        self.node = node
+        self.is_variation = is_variation
+        self.variations = iter(itertools.islice(node.parent.variations, 1, None) if sidelines else [])
+        self.in_variation = False
+
+
 class GameNode:
     def __init__(self) -> None:
         self.parent: Optional[GameNode] = None
@@ -134,6 +144,7 @@ class GameNode:
     def dangling_node(cls) -> "GameNode":
         return GameNode()
 
+    # TODO: Unroll
     def board(self, *, _cache: bool = True) -> chess.Board:
         """
         Gets a board with the position of the node.
@@ -358,23 +369,38 @@ class GameNode:
             visitor.visit_comment(self.comment)
 
     def _accept(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]", *, sidelines: bool = True) -> None:
-        assert self.parent is not None and self.move is not None, "cannot visit dangling GameNode"
+        stack = [_AcceptFrame(self, sidelines=sidelines)]
 
-        # First, visit the move that leads to this node.
-        self._accept_node(parent_board, visitor)
+        while stack:
+            top = stack[-1]
 
-        # Then visit sidelines.
-        if sidelines and self == self.parent.variations[0]:
-            for variation in itertools.islice(self.parent.variations, 1, None):
-                if visitor.begin_variation() is not SKIP:
-                    variation._accept(parent_board, visitor)
+            if top.in_variation:
+                top.in_variation = False
                 visitor.end_variation()
 
-        # The mainline is continued last.
-        if self.variations:
-            parent_board.push(self.move)
-            self.variations[0]._accept(parent_board, visitor)
-            parent_board.pop()
+            if top.state == "pre":
+                top.node._accept_node(parent_board, visitor)
+                top.state = "variations"
+            elif top.state == "variations":
+                try:
+                    variation = next(top.variations)
+                except StopIteration:
+                    if top.node.variations:
+                        assert top.node.move is not None, "root node cannot be a variation"
+                        parent_board.push(top.node.move)
+                        stack.append(_AcceptFrame(top.node.variations[0], sidelines=True))
+                        top.state = "post"
+                    else:
+                        top.state = "end"
+                else:
+                    if visitor.begin_variation() is not SKIP:
+                        stack.append(_AcceptFrame(variation, sidelines=False, is_variation=True))
+                    top.in_variation = True
+            elif top.state == "post":
+                parent_board.pop()
+                top.state = "end"
+            else:
+                stack.pop()
 
     def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
         """

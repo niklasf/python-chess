@@ -2590,6 +2590,16 @@ class PgnTestCase(unittest.TestCase):
         node = game.variation(chess.Move.from_uci("e2e4"))
         self.assertTrue(isinstance(node, MyGameNode))
 
+    def test_recursion(self):
+        board = chess.Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
+        for _ in range(1000):
+            board.push(chess.Move(chess.E1, chess.E2))
+            board.push(chess.Move(chess.E8, chess.E7))
+            board.push(chess.Move(chess.E2, chess.E1))
+            board.push(chess.Move(chess.E7, chess.E8))
+        game = chess.pgn.Game.from_board(board)
+        self.assertTrue(str(game).endswith("2000. Ke1 Ke8 1/2-1/2"))
+
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
