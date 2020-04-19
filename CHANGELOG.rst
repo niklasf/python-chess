@@ -17,6 +17,8 @@ Changes:
 
 Bugfixes:
 
+* `chess.pgn`: Fixed stack overflow when exporting, visiting or getting the
+   final board of a very long game.
 * Clarified documentation regarding board validity.
 * `chess.pgn.GameNode.__repr__()` no longer errors if the root node has invalid
   FEN or Variant headers.
@@ -25,6 +27,7 @@ Bugfixes:
 * Fixed type error when XBoard name or egt features have a value that looks
   like an integer.
 * `chess.engine` is now passing type checks with mypy.
+* `chess.gaviota` is now passing type checks with mypy.
 
 Features:
 
