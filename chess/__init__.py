@@ -2924,14 +2924,14 @@ class Board(BaseBoard):
         """
         Checks if the given pseudo-legal move is irreversible.
 
-        In standard chess, pawn moves, captures and moves that destroy castling
-        rights are irreversible.
+        In standard chess, pawn moves, captures, moves that destroy castling
+        rights and moves the cede en-passant are irreversible.
 
         This method has false-negatives with forced lines: For example a check
         that will force the king to lose castling rights is not considered
         irreversible. The actual king move is.
         """
-        return self.is_zeroing(move) or self._reduces_castling_rights(move)
+        return self.is_zeroing(move) or self._reduces_castling_rights(move) or self.has_legal_en_passant()
 
     def is_castling(self, move: Move) -> bool:
         """Checks if the given pseudo-legal move is a castling move."""
