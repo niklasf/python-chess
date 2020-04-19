@@ -63,38 +63,47 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     :members:
 
     .. py:attribute:: time
+        :type: Optional[float]
 
         Search exactly *time* seconds.
 
     .. py:attribute:: depth
+        :type: Optional[int]
 
         Search *depth* ply only.
 
     .. py:attribute:: nodes
+        :type: Optional[int]
 
         Search only a limited number of *nodes*.
 
     .. py:attribute:: mate
+        :type: Optional[int]
 
         Search for a mate in *mate* moves.
 
     .. py:attribute:: white_clock
+        :type: Optional[float]
 
         Time in seconds remaining for White.
 
     .. py:attribute:: black_clock
+        :type: Optional[float]
 
         Time in seconds remaining for Black.
 
     .. py:attribute:: white_inc
+        :type: Optional[float]
 
         Fisher increment for White, in seconds.
 
     .. py:attribute:: black_inc
+        :type: Optional[float]
 
         Fisher increment for Black, in seconds.
 
     .. py:attribute:: remaining_moves
+        :type: Optional[int]
 
         Number of moves to the next time control. If this is not set, but
         *white_clock* and *black_clock* are, then it is sudden death.
@@ -103,14 +112,17 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     :members:
 
     .. py:attribute:: move
+        :type: Optional[chess.Move]
 
         The best move accordig to the engine, or ``None``.
 
     .. py:attribute:: ponder
+        :type: Optional[chess.Move]
 
         The response that the engine expects after *move*, or ``None``.
 
     .. py:attribute:: info
+        :type: chess.engine.InfoDict
 
         A dictionary of extra information sent by the engine. Commonly used
         keys are: ``score`` (a :class:`~chess.engine.PovScore`),
@@ -122,10 +134,12 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
         ``refutation``, ``currline``, ``ebf``, ``wdl``, and ``string``.
 
     .. py:attribute:: draw_offered
+        :type: bool
 
         Whether the engine offered a draw before moving.
 
     .. py:attribute:: resigned
+        :type: bool
 
         Whether the engine resigned.
 
@@ -184,10 +198,12 @@ Example:
     :members:
 
     .. py:attribute:: relative
+        :type: chess.engine.Score
 
         The relative :class:`~chess.engine.Score`.
 
     .. py:attribute:: turn
+        :type: chess.Color
 
         The point of view (``chess.WHITE`` or ``chess.BLACK``).
 
@@ -245,11 +261,13 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     :members:
 
     .. py:attribute:: info
+        :type: chess.engine.InfoDict
 
         A dictionary of aggregated information sent by the engine. This is
         actually an alias for ``multipv[0]``.
 
     .. py:attribute:: multipv
+        :type: List[chess.engine.InfoDict]
 
         A list of dictionaries with aggregated information sent by the engine.
         One item for each root move.
@@ -258,10 +276,12 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     :members:
 
     .. py:attribute:: move
+        :type: Optional[chess.Move]
 
         The best move accordig to the engine, or ``None``.
 
     .. py:attribute:: ponder
+        :type: Optional[chess.Move]
 
         The response that the engine expects after *move*, or ``None``.
 
@@ -310,6 +330,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     :members: configure
 
     .. py:attribute:: options
+        :type: MutableMapping[str, chess.engine.Option]
 
         Dictionary of available options.
 
@@ -317,6 +338,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     :members:
 
     .. py:attribute:: name
+        :type: str
 
         The name of the option.
 
@@ -343,18 +365,22 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
         +--------+-----+------+------------------------------------------------+
 
     .. py:attribute:: default
+        :type: chess.engine.ConfigValue
 
         The default value of the option.
 
     .. py:attribute:: min
+        :type: Optional[int]
 
         The minimum integer value of a *spin* option.
 
     .. py:attribute:: max
+        :type: Optional[int]
 
         The maximum integer value of a *spin* option.
 
     .. py:attribute:: var
+        :type: Optional[List[str]]
 
         A list of allowed string values for a *combo* option.
 
@@ -413,10 +439,12 @@ Reference
     :members: initialize, ping, quit
 
     .. py:attribute:: returncode
+        :type: asyncio.Future[int]
 
         Future: Exit code of the process.
 
     .. py:attribute:: id
+        :type: Dict[str, str]
 
         Dictionary of information about the engine. Common keys are ``name``
         and ``author``.

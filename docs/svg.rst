@@ -15,14 +15,16 @@ licensed under the GFDL, BSD and GPL.
     :members:
 
     .. py:attribute:: tail
+        :type: chess.Square
 
         Start square of the arrow.
 
     .. py:attribute:: head
+        :type: chess.Square
 
         End square of the arrow.
 
     .. py:attribute:: color
-        :annotation: = "#888"
+        :value: '#888'
 
         Arrow color.

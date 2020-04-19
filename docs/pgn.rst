@@ -51,6 +51,7 @@ holds general information, such as game headers.
     :members:
 
     .. py:attribute:: headers
+        :type: chess.pgn.Headers
 
         A mapping of headers. By default, the following 7 headers are provided
         (Seven Tag Roster):
@@ -62,6 +63,7 @@ holds general information, such as game headers.
         Headers(Event='?', Site='?', Date='????.??.??', Round='?', White='?', Black='?', Result='*')
 
     .. py:attribute:: errors
+        :type: List[Exception]
 
         A list of errors (such as illegal or ambiguous moves) encountered while
         parsing the game.
@@ -70,28 +72,33 @@ holds general information, such as game headers.
     :members:
 
     .. py:attribute:: parent
+        :type: Optional[chess.pgn.GameNode]
 
         The parent node or ``None`` if this is the root node of the game.
 
     .. py:attribute:: move
+        :type: Optional[chess.Move]
 
         The move leading to this node or ``None`` if this is the root node of the
         game.
 
     .. py:attribute:: nags
-        :annotation: = set()
+        :type: Set[int]
+        :value: set()
 
         A set of NAGs as integers. NAGs always go behind a move, so the root
         node of the game will never have NAGs.
 
     .. py:attribute:: comment
-        :annotation: = ''
+        :type: str
+        :value: ''
 
         A comment that goes behind the move leading to this node. Comments
         that occur before any moves are assigned to the root node.
 
     .. py:attribute:: starting_comment
-        :annotation: = ''
+        :type: str
+        :value: ''
 
         A comment for the start of a variation. Only nodes that
         actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
@@ -99,6 +106,7 @@ holds general information, such as game headers.
         a starting comment.
 
     .. py:attribute:: variations
+        :type: List[chess.pgn.GameNode]
 
         A list of child nodes.
 

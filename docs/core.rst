@@ -7,10 +7,12 @@ Colors
 Constants for the side to move or the color of a piece.
 
 .. py:data:: chess.WHITE
-    :annotation: = True
+    :type: chess.Color
+    :value: True
 
 .. py:data:: chess.BLACK
-    :annotation: = False
+    :type: chess.Color
+    :value: False
 
 You can get the opposite *color* using ``not color``.
 
@@ -18,17 +20,23 @@ Piece types
 -----------
 
 .. py:data:: chess.PAWN
-    :annotation: = 1
+    :type: chess.PieceType
+    :value: 1
 .. py:data:: chess.KNIGHT
-    :annotation: = 2
+    :type: chess.PieceType
+    :value: 2
 .. py:data:: chess.BISHOP
-    :annotation: = 3
+    :type: chess.PieceType
+    :value: 3
 .. py:data:: chess.ROOK
-    :annotation: = 4
+    :type: chess.PieceType
+    :value: 4
 .. py:data:: chess.QUEEN
-    :annotation: = 5
+    :type: chess.PieceType
+    :value: 5
 .. py:data:: chess.KING
-    :annotation: = 6
+    :type: chess.PieceType
+    :value: 6
 
 .. autofunction:: chess.piece_symbol
 
@@ -38,28 +46,32 @@ Squares
 -------
 
 .. py:data:: chess.A1
-    :annotation: = 0
+    :type: chess.Square
+    :value: 0
 .. py:data:: chess.B1
-    :annotation: = 1
+    :type: chess.Square
+    :value: 1
 
 and so on to
 
 .. py:data:: chess.G8
-    :annotation: = 62
+    :type: chess.Square
+    :value: 62
 .. py:data:: chess.H8
-    :annotation: = 63
+    :type: chess.Square
+    :value: 63
 
 .. py:data:: chess.SQUARES
-    :annotation: = [chess.A1, chess.B1, ..., chess.G8, chess.H8]
+    :value: [chess.A1, chess.B1, ..., chess.G8, chess.H8]
 
 .. py:data:: chess.SQUARE_NAMES
-    :annotation: = ['a1', 'b1', ..., 'g8', 'h8']
+    :value: ['a1', 'b1', ..., 'g8', 'h8']
 
 .. py:data:: chess.FILE_NAMES
-    :annotation: = ['a', 'b', ..., 'g', 'h']
+    :value: ['a', 'b', ..., 'g', 'h']
 
 .. py:data:: chess.RANK_NAMES
-    :annotation: = ['1', '2', ..., '7', '8']
+    :value: ['1', '2', ..., '7', '8']
 
 .. autofunction:: chess.square
 
@@ -80,10 +92,12 @@ Pieces
     :members:
 
     .. py:attribute:: piece_type
+        :type: chess.PieceType
 
         The piece type.
 
     .. py:attribute:: color
+        :type: chess.Color
 
         The piece color.
 
@@ -94,18 +108,22 @@ Moves
     :members:
 
     .. py:attribute:: from_square
+        :type: chess.Square
 
         The source square.
 
     .. py:attribute:: to_square
+        :type: chess.Square
 
         The target square.
 
     .. py:attribute:: promotion
+        :type: Optional[chess.PieceType]
 
         The promotion piece type or ``None``.
 
     .. py:attribute:: drop
+        :type: Optional[chess.PieceType]
 
         The drop piece type or ``None``.
 
@@ -120,10 +138,12 @@ Board
     :members:
 
     .. py:attribute:: turn
+        :type: chess.Color
 
         The side to move (``chess.WHITE`` or ``chess.BLACK``).
 
     .. py:attribute:: castling_rights
+        :type: chess.Bitboard
 
         Bitmask of the rooks with castling rights.
 
@@ -147,6 +167,7 @@ Board
         :func:`~chess.Board.clean_castling_rights()`.
 
     .. py:attribute:: ep_square
+        :type: Optional[chess.Square]
 
         The potential en passant square on the third or sixth rank or ``None``.
 
@@ -154,25 +175,29 @@ Board
         capturing would actually be possible on the next move.
 
     .. py:attribute:: fullmove_number
+        :type: int
 
         Counts move pairs. Starts at `1` and is incremented after every move
         of the black side.
 
     .. py:attribute:: halfmove_clock
+        :type: int
 
         The number of half-moves since the last capture or pawn move.
 
     .. py:attribute:: promoted
+        :type: chess.Bitboard
 
         A bitmask of pieces that have been promoted.
 
     .. py:attribute:: chess960
+        :type: bool
 
         Whether the board is in Chess960 mode. In Chess960 castling moves are
         represented as king moves to the corresponding rook square.
 
     .. py:attribute:: legal_moves
-        :annotation: = LegalMoveGenerator(self)
+        :value: chess.LegalMoveGenerator(self)
 
         A dynamic list of legal moves.
 
@@ -191,7 +216,7 @@ Board
         :func:`~chess.Board.is_legal()`.
 
     .. py:attribute:: pseudo_legal_moves
-        :annotation: = PseudoLegalMoveGenerator(self)
+        :value: chess.PseudoLegalMoveGenerator(self)
 
         A dynamic list of pseudo legal moves, much like the legal move list.
 
@@ -203,6 +228,7 @@ Board
         :func:`~chess.Board.is_pseudo_legal()`.
 
     .. py:attribute:: move_stack
+        :type: List[chess.Move]
 
         The move stack. Use :func:`Board.push() <chess.Board.push()>`,
         :func:`Board.pop() <chess.Board.pop()>`,
@@ -222,35 +248,39 @@ Square sets
 Common integer masks are:
 
 .. py:data:: chess.BB_EMPTY
-    :annotation: = 0
+    :type: chess.Bitboard
+    :value: 0
 .. py:data:: chess.BB_ALL
-    :annotation: = 0xFFFF_FFFF_FFFF_FFFF
+    :type: chess.Bitboard
+    :value: 0xFFFF_FFFF_FFFF_FFFF
 
 Single squares:
 
 .. py:data:: chess.BB_SQUARES
-    :annotation: = [chess.BB_A1, chess.BB_B1, ..., chess.BB_G8, chess.BB_H8]
+    :value: [chess.BB_A1, chess.BB_B1, ..., chess.BB_G8, chess.BB_H8]
 
 Ranks and files:
 
 .. py:data:: chess.BB_RANKS
-    :annotation: = [chess.BB_RANK_1, ..., chess.BB_RANK_8]
+    :value: [chess.BB_RANK_1, ..., chess.BB_RANK_8]
 
 
 .. py:data:: chess.BB_FILES
-    :annotation: = [chess.BB_FILE_A, ..., chess.BB_FILE_H]
+    :value: [chess.BB_FILE_A, ..., chess.BB_FILE_H]
 
 Other masks:
 
 .. py:data:: chess.BB_LIGHT_SQUARES
-    :annotation: = 0x55AA_55AA_55AA_55AA
+    :type: chess.Bitboard
+    :value: 0x55AA_55AA_55AA_55AA
 .. py:data:: chess.BB_DARK_SQUARES
-    :annotation: = 0xAA55_AA55_AA55_AA55
+    :type: chess.Bitboard
+    :value: 0xAA55_AA55_AA55_AA55
 
 .. py:data:: chess.BB_BACKRANKS
-    :annotation: = chess.BB_RANK_1 | chess.BB_RANK_8
+    :value: chess.BB_RANK_1 | chess.BB_RANK_8
 
 .. py:data:: chess.BB_CORNERS
-    :annotation: = chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
+    :value: chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
 .. py:data:: chess.BB_CENTER
-    :annotation: = chess.BB_D4 | chess.BB_E4 | chess.BB_D5 | chess.BB_E5
+    :value: chess.BB_D4 | chess.BB_E4 | chess.BB_D5 | chess.BB_E5

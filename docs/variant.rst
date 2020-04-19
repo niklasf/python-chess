@@ -58,7 +58,7 @@ Crazyhouse
 .. autoclass:: chess.variant.CrazyhouseBoard
 
     .. py:attribute:: pockets
-       :annotation: = [chess.variant.CrazyhousePocket(), chess.variant.CrazyhousePocket()]
+       :value: [chess.variant.CrazyhousePocket(), chess.variant.CrazyhousePocket()]
 
 Three-check
 -----------
@@ -66,7 +66,7 @@ Three-check
 .. autoclass:: chess.variant.ThreeCheckBoard
 
     .. py:attribute:: remaining_checks
-       :annotation: = [3, 3]
+       :value: [3, 3]
 
 UCI/XBoard
 ----------
