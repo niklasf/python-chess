@@ -2926,6 +2926,10 @@ class Board(BaseBoard):
 
         In standard chess, pawn moves, captures and moves that destroy castling
         rights are irreversible.
+
+        This method has false-negatives with forced lines: For example a check
+        that will force the king to lose castling rights is not considered
+        irreversible. The actual king move is.
         """
         return self.is_zeroing(move) or self._reduces_castling_rights(move)
 
