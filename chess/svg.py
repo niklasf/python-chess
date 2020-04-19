@@ -107,6 +107,7 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     >>> chess.svg.piece(chess.Piece.from_symbol("R"))  # doctest: +SKIP
 
     .. image:: ../docs/wR.svg
+        :alt: R
     """
     svg = _svg(SQUARE_SIZE, size)
     svg.append(ET.fromstring(PIECES[piece.symbol()]))
@@ -148,6 +149,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     >>> chess.svg.board(board=board, squares=squares)  # doctest: +SKIP
 
     .. image:: ../docs/Ne4.svg
+        :alt: 8/8/8/8/4N3/8/8/8
     """
     margin = MARGIN if coordinates else 0
     svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)

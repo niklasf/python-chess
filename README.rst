@@ -3,21 +3,27 @@ python-chess: a pure Python chess library
 
 .. image:: https://travis-ci.org/niklasf/python-chess.svg?branch=master
     :target: https://travis-ci.org/niklasf/python-chess
+    :alt: build
 
 .. image:: https://ci.appveyor.com/api/projects/status/y9k3hdbm0f0nbum9/branch/master?svg=true
     :target: https://ci.appveyor.com/project/niklasf/python-chess
+    :alt: appveyor build
 
 .. image:: https://coveralls.io/repos/github/niklasf/python-chess/badge.svg?branch=master
    :target: https://coveralls.io/github/niklasf/python-chess?branch=master
+   :alt: coverage
 
 .. image:: https://badge.fury.io/py/python-chess.svg
     :target: https://pypi.python.org/pypi/python-chess
+    :alt: pypi package
 
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
+    :alt: docs
 
 .. image:: https://badges.gitter.im/python-chess/community.svg
     :target: https://gitter.im/python-chess/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+    :alt: chat on gitter
 
 Introduction
 ------------
@@ -83,6 +89,7 @@ Features
       >>> board  # doctest: +SKIP
 
   .. image:: https://backscattering.de/web-boardimage/board.png?fen=r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR&lastmove=h5f7&check=e8
+      :alt: r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR
 
 * Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic,
   King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse.
