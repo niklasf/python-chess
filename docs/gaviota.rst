@@ -5,7 +5,8 @@ Gaviota tablebases provide **WDL** (win/draw/loss) and **DTM** (depth to mate)
 information for all endgame positions with up to 5 pieces. Positions with
 castling rights are not included.
 
-:warning: Ensure tablebase files match the known checksums. Maliciously crafted
+.. warning::
+    Ensure tablebase files match the known checksums. Maliciously crafted
     tablebase files may cause denial of service with
     :class:`~chess.gaviota.PythonTablebase` and memory unsafety with
     :class:`~chess.gaviota.NativeTablebase`.

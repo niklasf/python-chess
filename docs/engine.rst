@@ -5,7 +5,8 @@ UCI and XBoard are protocols for communicating with chess engines. This module
 implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
-:warning: Many popular chess engines make no guarantees, not even memory
+.. warning::
+    Many popular chess engines make no guarantees, not even memory
     safety, when parameters and positions are not completely
     :func:`valid <chess.Board.is_valid()>`. This module tries to deal with
     benign misbehaving engines, but ultimately they are executables running
@@ -335,7 +336,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
         Dictionary of available options.
 
 .. autoclass:: chess.engine.Option
-    :members:
+    :members: is_managed
 
     .. py:attribute:: name
         :type: str

@@ -1365,7 +1365,8 @@ class Board(BaseBoard):
     :data:`~Board.ep_square`, :data:`~Board.halfmove_clock` and
     :data:`~Board.fullmove_number` directly.
 
-    :warning: It is possible to set up and work with invalid positions. In this
+    .. warning::
+        It is possible to set up and work with invalid positions. In this
         case :class:`~chess.Board` implements a kind of "pseudo-chess"
         (useful to gracefully handle errors or to implement chess variants).
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
@@ -1965,7 +1966,8 @@ class Board(BaseBoard):
         Null moves just increment the move counters, switch turns and forfeit
         en passant capturing.
 
-        :warning: Moves are not checked for legality. It is the caller's
+        .. warning::
+            Moves are not checked for legality. It is the caller's
             responsibility to ensure that the move is at least pseudo-legal or
             a null move.
         """

@@ -461,7 +461,8 @@ class Score(abc.ABC):
         Returns the number of plies to mate, negative if we are getting
         mated, or ``None``.
 
-        :warning: This conflates ``Mate(0)`` (we lost) and ``MateGiven``
+        .. warning::
+            This conflates ``Mate(0)`` (we lost) and ``MateGiven``
             (we won) to ``0``.
         """
 
