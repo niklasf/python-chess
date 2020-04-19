@@ -48,6 +48,9 @@ class SuicideBoard(chess.Board):
     def checkers_mask(self) -> chess.Bitboard:
         return chess.BB_EMPTY
 
+    def gives_check(self, move: chess.Move) -> bool:
+        return False
+
     def is_into_check(self, move: chess.Move) -> bool:
         return False
 
@@ -360,18 +363,12 @@ class RacingKingsBoard(chess.Board):
     def reset(self) -> None:
         self.set_fen(type(self).starting_fen)
 
-    def _gives_check(self, move: chess.Move) -> bool:
-        self.push(move)
-        gives_check = self.is_check()
-        self.pop()
-        return gives_check
-
     def is_legal(self, move: chess.Move) -> bool:
-        return super().is_legal(move) and not self._gives_check(move)
+        return super().is_legal(move) and not self.gives_check(move)
 
     def generate_legal_moves(self, from_mask: chess.Bitboard = chess.BB_ALL, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
         for move in super().generate_legal_moves(from_mask, to_mask):
-            if not self._gives_check(move):
+            if not self.gives_check(move):
                 yield move
 
     def is_variant_end(self) -> bool:
@@ -589,13 +586,7 @@ class ThreeCheckBoard(chess.Board):
         return self.remaining_checks[self.turn] <= 0 < self.remaining_checks[not self.turn]
 
     def is_irreversible(self, move: chess.Move) -> bool:
-        if super().is_irreversible(move):
-            return True
-
-        self.push(move)
-        gives_check = self.is_check()
-        self.pop()
-        return gives_check
+        return super().is_irreversible(move) or self.gives_check(move)
 
     def _transposition_key(self) -> Hashable:
         return (super()._transposition_key(),

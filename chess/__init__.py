@@ -1575,6 +1575,17 @@ class Board(BaseBoard):
         """Returns if the current side to move is in check."""
         return bool(self.checkers_mask())
 
+    def gives_check(self, move: Move) -> bool:
+        """
+        Returns if the given move would put the opponent in check. The move
+        must be at least pseudo-legal.
+        """
+        self.push(move)
+        try:
+            return self.is_check()
+        finally:
+            self.pop()
+
     def is_into_check(self, move: Move) -> bool:
         king = self.king(self.turn)
         if king is None:
