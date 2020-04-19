@@ -17,7 +17,7 @@ Changes:
 
 Bugfixes:
 
-* `chess.pgn`: Fixed stack overflow when exporting, visiting or getting the
+* Fixed stack overflow in `chess.pgn` when exporting, visiting or getting the
    final board of a very long game.
 * Clarified documentation regarding board validity.
 * `chess.pgn.GameNode.__repr__()` no longer errors if the root node has invalid
@@ -31,6 +31,7 @@ Bugfixes:
 
 Features:
 
+* Added `chess.Board.gives_check()`.
 * `chess.engine.AnalysisResult.wait()` now returns `chess.engine.BestMove`.
 * Added `empty_square` parameter for `chess.Board.unicode()` with better
   aligned default (⭘).
