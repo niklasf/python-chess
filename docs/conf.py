@@ -1,10 +1,32 @@
 import asyncio
 import sys
 import os
+import typing
 
 import sphinx
 import sphinx.ext.autodoc
 import sphinx.domains.python
+
+def _rewrite(path):
+    """Rewrite source file to postpone evaluation of type annotations."""
+    with open(path) as f:
+        contents = f.read()
+    with open(path, "w") as f:
+        f.write("from __future__ import annotations\n")
+        f.write(contents)
+
+if "READTHEDOCS" in os.environ:
+    _rewrite("../chess/engine.py")
+    _rewrite("../chess/gaviota.py")
+    _rewrite("../chess/__init__.py")
+    _rewrite("../chess/pgn.py")
+    _rewrite("../chess/polyglot.py")
+    _rewrite("../chess/svg.py")
+    _rewrite("../chess/syzygy.py")
+    _rewrite("../chess/variant.py")
+
+# Do not resolve type aliases in annotations.
+typing.get_type_hints = lambda obj, *_unused: obj
 
 # Import the chess module.
 sys.path.insert(0, os.path.abspath('..'))

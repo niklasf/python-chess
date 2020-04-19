@@ -1,3 +1,4 @@
+version: 2
 python:
   version: 3.8
   install:
