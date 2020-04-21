@@ -2703,7 +2703,7 @@ class EngineTestCase(unittest.TestCase):
     def test_sf_analysis(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
-            limit = chess.engine.Limit(depth=20)
+            limit = chess.engine.Limit(depth=25)
             analysis = engine.analysis(board, limit)
             with analysis:
                 for info in iter(analysis.next, None):
@@ -2713,11 +2713,11 @@ class EngineTestCase(unittest.TestCase):
                     self.fail("never found a mate score")
 
                 for info in analysis:
-                    if "score" in info and info["score"].white() >= chess.engine.Mate(+3):
+                    if "score" in info and info["score"].white() >= chess.engine.Mate(+2):
                         break
             analysis.wait()
-            self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+3))
-            self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-3))
+            self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+2))
+            self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-2))
 
             # Exhaust remaining information.
             was_empty = analysis.empty()
