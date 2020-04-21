@@ -1431,10 +1431,10 @@ class Board(BaseBoard):
         """
         Clears the board.
 
-        Resets move stack and move counters. The side to move is white. There
+        Resets the move stack and move counters. The side to move is white. There
         are no rooks or kings, so castling rights are removed.
 
-        In order to be in a valid :func:`~chess.Board.status()` at least kings
+        In order to be in a valid :func:`~chess.Board.status()`, at least kings
         need to be put on the board.
         """
         self.turn = WHITE
@@ -1535,7 +1535,7 @@ class Board(BaseBoard):
             from_square = to_square + (16 if self.turn == BLACK else -16)
             yield Move(from_square, to_square)
 
-        # Generate en passant captures.
+        # Generate en-passant captures.
         if self.ep_square:
             yield from self.generate_pseudo_legal_ep(from_mask, to_mask)
 
@@ -1577,8 +1577,8 @@ class Board(BaseBoard):
 
     def gives_check(self, move: Move) -> bool:
         """
-        Returns if the given move would put the opponent in check. The move
-        must be at least pseudo-legal.
+        Returns True if the given move would put the opponent in check. The move
+        must be at least pseudo legal.
         """
         self.push(move)
         try:
