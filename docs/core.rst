@@ -218,10 +218,10 @@ Board
     .. py:attribute:: pseudo_legal_moves
         :value: chess.PseudoLegalMoveGenerator(self)
 
-        A dynamic list of pseudo legal moves, much like the legal move list.
+        A dynamic list of pseudo-legal moves, much like the legal move list.
 
-        Pseudo legal moves might leave or put the king in check, but are
-        otherwise valid. Null moves are not pseudo legal. Castling moves are
+        Pseudo-legal moves might leave or put the king in check, but are
+        otherwise valid. Null moves are not pseudo-legal. Castling moves are
         only included if they are completely legal.
 
         Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and

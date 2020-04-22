@@ -17,7 +17,7 @@ Changes:
 
 Bugfixes:
 
-* `chess.Board.is_irreversible()` now considers ceding legal en-passant
+* `chess.Board.is_irreversible()` now considers ceding legal en passant
   captures as irreversible. Also documented that false-negatives due to forced
   lines are by design.
 * Fixed stack overflow in `chess.pgn` when exporting, visiting or getting the
@@ -163,8 +163,8 @@ Changes:
   for castling moves).
 * `Piece`, `Move`, `BaseBoard` and `Board` comparisons no longer support
   duck typing.
-* FENs sent to engines now always include potential en-passant squares, even if
-  no legal en-passant capture exists.
+* FENs sent to engines now always include potential en passant squares, even if
+  no legal en passant capture exists.
 * Circular SVG arrows now have a `circle` CSS class.
 * Superfluous dashes (-) in EPDs are no longer treated as opcodes.
 * Removed `GameCreator`, `HeaderCreator` and `BoardCreator` aliases for
@@ -774,7 +774,7 @@ New in v0.18.1
 
 Bugfixes:
 
-* Crazyhouse drops were accepted as pseudo legal (and legal) even if the
+* Crazyhouse drops were accepted as pseudo-legal (and legal) even if the
   respective piece was not in the pocket.
 * `CrazyhouseBoard.pop()` was failing to undo en passant moves.
 * `CrazyhouseBoard.pop()` was always returning `None`.
@@ -1014,7 +1014,7 @@ New in v0.14.1
 
 Bugfixes:
 
-* Backport Bugfix for Syzygy DTZ related to en-passant.
+* Backport Bugfix for Syzygy DTZ related to en passant.
   See official-stockfish/Stockfish@6e2ca97d93812b2.
 
 Changes:

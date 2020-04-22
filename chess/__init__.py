@@ -1434,7 +1434,7 @@ class Board(BaseBoard):
         Resets move stack and move counters. The side to move is white. There
         are no rooks or kings, so castling rights are removed.
 
-        In order to be in a valid :func:`~chess.Board.status()` at least kings
+        In order to be in a valid :func:`~chess.Board.status()`, at least kings
         need to be put on the board.
         """
         self.turn = WHITE
@@ -1572,12 +1572,12 @@ class Board(BaseBoard):
         return SquareSet(self.checkers_mask())
 
     def is_check(self) -> bool:
-        """Returns if the current side to move is in check."""
+        """Tests if the current side to move is in check."""
         return bool(self.checkers_mask())
 
     def gives_check(self, move: Move) -> bool:
         """
-        Returns if the given move would put the opponent in check. The move
+        Probes if the given move would put the opponent in check. The move
         must be at least pseudo-legal.
         """
         self.push(move)
@@ -1603,11 +1603,11 @@ class Board(BaseBoard):
         return king is not None and self.is_attacked_by(self.turn, king)
 
     def is_pseudo_legal(self, move: Move) -> bool:
-        # Null moves are not pseudo legal.
+        # Null moves are not pseudo-legal.
         if not move:
             return False
 
-        # Drops are not pseudo legal.
+        # Drops are not pseudo-legal.
         if move.drop:
             return False
 

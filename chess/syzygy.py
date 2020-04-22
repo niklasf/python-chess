@@ -1880,7 +1880,7 @@ class Tablebase:
 
         v1 = -3
 
-        # Generate all en-passant moves.
+        # Generate all en passant moves.
         for move in board.generate_legal_ep():
             board.push(move)
             try:
