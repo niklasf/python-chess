@@ -2390,16 +2390,16 @@ class Board(BaseBoard):
             elif isinstance(operand, float):
                 assert math.isfinite(operand), f"expected numeric epd operand to be finite, got: {operand}"
                 epd.append(f" {operand};")
-            elif opcode in ["pv", "am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
-                # Value is a set of moves or a variation.
-                position = Board(self.shredder_fen()) if opcode == "pv" else self
+            elif opcode == "pv" and not isinstance(operand, str) and hasattr(operand, "__iter__"):
+                position = self.copy(stack=False)
                 for move in operand:
-                    assert isinstance(move, Move), f"expected epd operand {opcode} to yield moves, got: {move!r}"
                     epd.append(" ")
-                    epd.append(position.san(move))
-                    if opcode == "pv":
-                        position.push(move)
-
+                    epd.append(position.san_and_push(move))
+                epd.append(";")
+            elif opcode in ["am", "bm"] and not isinstance(operand, str) and hasattr(operand, "__iter__"):
+                for san in sorted(self.san(move) for move in operand):
+                    epd.append(" ")
+                    epd.append(san)
                 epd.append(";")
             else:
                 # Append as escaped string.

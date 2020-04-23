@@ -983,7 +983,7 @@ class BoardTestCase(unittest.TestCase):
             chess.Move.from_uci("e5e6"),  # Ke6
             chess.Move.from_uci("e5e4"),  # Ke4
         ])
-        self.assertEqual(epd, "8/8/8/4k3/8/1K6/8/8 b - - bm Ke6 Ke4;")
+        self.assertEqual(epd, "8/8/8/4k3/8/1K6/8/8 b - - bm Ke4 Ke6;")
 
         # Test loading an EPD.
         board = chess.Board()
