@@ -2734,9 +2734,12 @@ class Board(BaseBoard):
         Uses the current position as the context to parse a move in standard
         algebraic notation and returns the corresponding move object.
 
+        Ambiguous moves are rejected. Overspecified moves (including long
+        algebraic notation) are accepted.
+
         The returned move is guaranteed to be either legal or a null move.
 
-        :raises: :exc:`ValueError` if the SAN is invalid or ambiguous.
+        :raises: :exc:`ValueError` if the SAN is invalid, illegal or ambiguous.
         """
         # Castling.
         try:
