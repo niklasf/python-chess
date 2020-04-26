@@ -21,7 +21,7 @@ Bugfixes:
   captures as irreversible. Also documented that false-negatives due to forced
   lines are by design.
 * Fixed stack overflow in `chess.pgn` when exporting, visiting or getting the
-   final board of a very long game.
+  final board of a very long game.
 * Clarified documentation regarding board validity.
 * `chess.pgn.GameNode.__repr__()` no longer errors if the root node has invalid
   FEN or Variant headers.
