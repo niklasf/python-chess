@@ -2916,6 +2916,29 @@ class Board(BaseBoard):
         touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
         return bool(touched & self.pawns or touched & self.occupied_co[not self.turn] or move.drop == PAWN)
 
+    def is_promoting(self, move: Move) -> bool:
+        """
+        Checks whether the *move* is either a white pawn or a black pawn
+        attempting to promote.
+
+        Returns ``True`` only if all conditions are met. These conditions
+        include that the moving piece is actually a pawn that is attempting to
+        jump from the pre-last to the last rank and is not pinned to its king.
+        Also, the target square must be vacant or a legal capture.
+        """
+        if piece != PAWN:
+            return False
+
+        if self.turn and square_rank(move.to_square) != 7:
+            return False
+        elif not self.turn and square_rank(move.to_square) != 0:
+            return False
+
+        if move.uci() not in [move.uci()[0:4] for move in self.legal_moves]:
+            return False
+
+        return True
+
     def _reduces_castling_rights(self, move: Move) -> bool:
         cr = self.clean_castling_rights()
         touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
