@@ -10,7 +10,7 @@ install:
   # Stockfish
   - ps: Start-FileDownload "https://stockfishchess.org/files/stockfish-11-win.zip"
   - 7z e stockfish-11-win.zip stockfish-11-win/Windows/*.exe
-  - ren stockfish_20011801_x64_modern.exe stockfish.exe
+  - ren stockfish_20011801_x64_bmi2.exe stockfish.exe
   - set PATH=%cd%;%PATH%
 
 test_script:
