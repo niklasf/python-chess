@@ -17,10 +17,10 @@ before_cache:
  - rm -f data/syzygy/suicide/travis_wait_*.log || true
 before_install:
  - | # Stockfish
-     wget https://stockfish.s3.amazonaws.com/stockfish-10-linux.zip
-     unzip stockfish-10-linux.zip
+     wget https://stockfish.s3.amazonaws.com/stockfish-11-linux.zip
+     unzip stockfish-11-linux.zip
      mkdir -p bin
-     cp stockfish-10-linux/Linux/stockfish_10_x64_modern bin/stockfish
+     cp stockfish-11-linux/Linux/stockfish_20011801_x64_bmi2 bin/stockfish
      chmod +x bin/stockfish
      export PATH="`pwd`/bin:${PATH}"
      which stockfish || (echo $PATH && false)
