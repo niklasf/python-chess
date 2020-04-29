@@ -87,12 +87,12 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
 
 def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
     t = ET.Element("text", {
-        "x": str(x + width // 2),
-        "y": str(y + height // 2),
+        "x": str(x + width // 2.0),
+        "y": str(y + height // 1.5),
+        "font-family": "sans-serif",
         "font-size": str(max(1, int(min(width, height) * 0.7))),
         "text-anchor": "middle",
-        "dominant-baseline": "central",
-        "font-family": "sans-serif",
+        "dominant-baseline": "middle",
     })
     t.text = content
     return t
