@@ -8,9 +8,9 @@ build: off
 
 install:
   # Stockfish
-  - ps: Start-FileDownload "https://stockfishchess.org/files/stockfish-10-win.zip"
-  - 7z e stockfish-10-win.zip stockfish-10-win/Windows/*.exe
-  - ren stockfish_10_x64_popcnt.exe stockfish.exe
+  - ps: Start-FileDownload "https://stockfishchess.org/files/stockfish-11-win.zip"
+  - 7z e stockfish-11-win.zip stockfish-11-win/Windows/*.exe
+  - ren stockfish_11_x64_popcnt.exe stockfish.exe
   - set PATH=%cd%;%PATH%
 
 test_script:
