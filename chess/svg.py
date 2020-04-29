@@ -91,7 +91,8 @@ def _text(content: str, x: int, y: int, width: int, height: int) -> ET.Element:
         "y": str(y + height // 2),
         "font-size": str(max(1, int(min(width, height) * 0.7))),
         "text-anchor": "middle",
-        "alignment-baseline": "middle",
+        "dominant-baseline": "central",
+        "font-family": "sans-serif",
     })
     t.text = content
     return t
