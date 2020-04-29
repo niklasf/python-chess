@@ -279,7 +279,7 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     .. py:attribute:: move
         :type: Optional[chess.Move]
 
-        The best move accordig to the engine, or ``None``.
+        The best move according to the engine, or ``None``.
 
     .. py:attribute:: ponder
         :type: Optional[chess.Move]
