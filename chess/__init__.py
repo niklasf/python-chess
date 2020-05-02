@@ -1667,16 +1667,22 @@ class Board(BaseBoard):
         return False
 
     def is_variant_loss(self) -> bool:
-        """Checks if a special variant-specific loss condition is fulfilled."""
+        """
+        Checks if the current side to move lost due to a variant-specific
+        condition.
+        """
         return False
 
     def is_variant_win(self) -> bool:
-        """Checks if a special variant-specific win condition is fulfilled."""
+        """
+        Checks if the current side to move won due to a variant-specific
+        condition.
+        """
         return False
 
     def is_variant_draw(self) -> bool:
         """
-        Checks if a special variant-specific drawing condition is fulfilled.
+        Checks if a variant-specific drawing condition is fulfilled.
         """
         return False
 
