@@ -72,6 +72,8 @@ DEFAULT_COLORS = {
     "square dark": "#d18b47",
     "square dark lastmove": "#aaa23b",
     "square light lastmove": "#cdd16a",
+    "margin": "#212121",
+    "coord": "#e5e5e5",
 }
 
 
@@ -104,9 +106,18 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     return svg
 
 
-def _coord(text: str, x: int, y: int) -> ET.Element:
+def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int) -> ET.Element:
+    scale = margin / MARGIN
+
+    if horizontal:
+        x += (width - scale * width) / 2
+    else:
+        y += (height - scale * height) / 2
+
     t = ET.Element("g", {
-        "transform": f"translate({x:d}, {y:d})",
+        "transform": f"translate({x}, {y}) scale({scale}, {scale})",
+        "fill": DEFAULT_COLORS["coord"],
+        "stroke": DEFAULT_COLORS["coord"],
     })
     t.append(ET.fromstring(COORDS[text]))
     return t
@@ -145,7 +156,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``None`` (the default) for a chessboard without pieces.
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param flipped: Pass ``True`` to flip the board.
-    :param coordinates: Pass ``False`` to disable coordinates in the margin.
+    :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects like
@@ -166,7 +177,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
     """
-    margin = MARGIN if coordinates else 0
+    margin = 15 if coordinates else 0
     svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
     if style:
@@ -185,6 +196,15 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
+
+    if coordinates:
+        ET.SubElement(svg, "rect", {
+            "x": "0",
+            "y": "0",
+            "width": str(2 * margin + 8 * SQUARE_SIZE),
+            "height": str(2 * margin + 8 * SQUARE_SIZE),
+            "fill": DEFAULT_COLORS["margin"],
+        })
 
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
@@ -240,12 +260,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if coordinates:
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
-            svg.append(_coord(file_name, x, 0))
-            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE))
+            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin))
+            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
             y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
-            svg.append(_coord(rank_name, 0, y))
-            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y))
+            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin))
+            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin))
 
     for arrow in arrows:
         try:

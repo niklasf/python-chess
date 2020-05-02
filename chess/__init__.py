@@ -3398,7 +3398,7 @@ class Board(BaseBoard):
         import chess.svg
         return chess.svg.board(
             board=self,
-            size=400,
+            size=390,
             lastmove=self.peek() if self.move_stack else None,
             check=self.king(self.turn) if self.is_check() else None)
 
@@ -3823,7 +3823,7 @@ class SquareSet:
 
     def _repr_svg_(self) -> str:
         import chess.svg
-        return chess.svg.board(squares=self, size=400)
+        return chess.svg.board(squares=self, size=390)
 
     @classmethod
     def from_square(cls, square: Square) -> "SquareSet":
