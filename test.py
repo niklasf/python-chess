@@ -3811,6 +3811,30 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_variant_win())
         self.assertTrue(board.is_variant_loss())
 
+        # White far away.
+        board = chess.variant.RacingKingsBoard("k1q1R2Q/3N4/8/8/5K2/6n1/1b6/1r6 w - - 4 19")
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+        self.assertFalse(board.is_variant_draw())
+        self.assertEqual(board.result(), "0-1")
+
+        # Black near backrank, but cannot move there.
+        board = chess.variant.RacingKingsBoard("2KR4/k7/2Q5/4q3/8/8/8/2N5 b - - 0 1")
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+        self.assertFalse(board.is_variant_draw())
+        self.assertEqual(board.result(), "1-0")
+
+        # Black two moves away.
+        board = chess.variant.RacingKingsBoard("1r4RK/6R1/k1r5/8/8/8/4N3/q2n1n2 b - - 0 1")
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+        self.assertFalse(board.is_variant_draw())
+        self.assertEqual(board.result(), "1-0")
+
     def test_stalemate(self):
         board = chess.variant.RacingKingsBoard("1Q4R1/5K2/4B3/8/8/3N4/8/k7 b - - 0 1")
         self.assertTrue(board.is_game_over())
