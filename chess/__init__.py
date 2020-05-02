@@ -2098,6 +2098,28 @@ class Board(BaseBoard):
         """
         return self.move_stack[-1]
 
+    def find_move(self, from_square: Square, to_square: Square, promotion: PieceType = None) -> Move:
+        """
+        Finds a matching legal move for an origin square, a target square and
+        an optional promotion piece type.
+
+        For pawn moves to the backrank, the promotion piece type defaults to
+        :data:`chess.QUEEN`, unless otherwise specified.
+
+        Castling moves are normalized to king moves by two steps, except in
+        Chess960.
+
+        :raises: :exc:`ValueError` if no matching legal move is found.
+        """
+        if promotion is None and self.pawns & BB_SQUARES[from_square] and BB_SQUARES[to_square] & BB_BACKRANKS:
+            promotion = QUEEN
+
+        move = self._from_chess960(self.chess960, from_square, to_square, promotion)
+        if not self.is_legal(move):
+            raise ValueError(f"no matching legal move for {move.uci()} ({SQUARE_NAMES[from_square]} -> {SQUARE_NAMES[to_square]}) in {self.fen()}")
+
+        return move
+
     def castling_shredder_fen(self) -> str:
         castling_rights = self.clean_castling_rights()
         if not castling_rights:

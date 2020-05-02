@@ -470,6 +470,26 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/8/8/1b6/8/8/8/5RKR w KQ - 0 1", chess960=True)
         self.assertFalse(board.is_legal(chess.Move.from_uci("g1f1")))
 
+    def test_find_move(self):
+        board = chess.Board("4k3/1P6/8/8/8/8/3P4/4K2R w K - 0 1")
+
+        # Pawn moves.
+        self.assertEqual(board.find_move(chess.D2, chess.D4), chess.Move.from_uci("d2d4"))
+        self.assertEqual(board.find_move(chess.B7, chess.B8), chess.Move.from_uci("b7b8q"))
+        self.assertEqual(board.find_move(chess.B7, chess.B8, chess.KNIGHT), chess.Move.from_uci("b7b8n"))
+
+        # Illegal moves.
+        with self.assertRaises(ValueError):
+            board.find_move(chess.D2, chess.D8)
+        with self.assertRaises(ValueError):
+            board.find_move(chess.E1, chess.A1)
+
+        # Castling.
+        self.assertEqual(board.find_move(chess.E1, chess.G1), chess.Move.from_uci("e1g1"))
+        self.assertEqual(board.find_move(chess.E1, chess.H1), chess.Move.from_uci("e1g1"))
+        board.chess960 = True
+        self.assertEqual(board.find_move(chess.E1, chess.H1), chess.Move.from_uci("e1h1"))
+
     def test_insufficient_material(self):
         def _check(board, white, black):
             self.assertEqual(board.has_insufficient_material(chess.WHITE), white)
