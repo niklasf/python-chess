@@ -3835,6 +3835,22 @@ class RacingKingsTestCase(unittest.TestCase):
         self.assertFalse(board.is_variant_draw())
         self.assertEqual(board.result(), "1-0")
 
+        # Both sides already reached the backrank.
+        board = chess.variant.RacingKingsBoard("kr3NK1/1q2R3/8/8/8/5n2/2N5/1rb2B1R w - - 11 14")
+        self.assertTrue(board.is_variant_end())
+        self.assertFalse(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_draw())
+        self.assertEqual(board.result(), "1/2-1/2")
+
+        # Another draw.
+        board = chess.variant.RacingKingsBoard("1knq1RK1/2n5/8/8/3N4/6N1/6B1/8 w - - 23 25")
+        self.assertTrue(board.is_variant_end())
+        self.assertFalse(board.is_variant_loss())
+        self.assertFalse(board.is_variant_win())
+        self.assertTrue(board.is_variant_draw())
+        self.assertEqual(board.result(), "1/2-1/2")
+
     def test_stalemate(self):
         board = chess.variant.RacingKingsBoard("1Q4R1/5K2/4B3/8/8/3N4/8/k7 b - - 0 1")
         self.assertTrue(board.is_game_over())

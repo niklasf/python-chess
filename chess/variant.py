@@ -375,18 +375,14 @@ class RacingKingsBoard(chess.Board):
         if not self.kings & chess.BB_RANK_8:
             return False
 
-        if self.turn == chess.WHITE or self.kings & self.occupied_co[chess.BLACK] & chess.BB_RANK_8:
-            return True
-
         black_kings = self.kings & self.occupied_co[chess.BLACK]
-        if not black_kings:
+        if self.turn == chess.WHITE or black_kings & chess.BB_RANK_8 or not black_kings:
             return True
-
-        black_king = chess.msb(black_kings)
 
         # White has reached the backrank. The game is over if black can not
         # also reach the backrank on the next move. Check if there are any
         # safe squares for the king.
+        black_king = chess.msb(black_kings)
         targets = chess.BB_KING_ATTACKS[black_king] & chess.BB_RANK_8 & ~self.occupied_co[chess.BLACK]
         return all(self.attackers_mask(chess.WHITE, target) for target in chess.scan_forward(targets))
 
@@ -398,7 +394,10 @@ class RacingKingsBoard(chess.Board):
         return self.is_variant_end() and not self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8
 
     def is_variant_win(self) -> bool:
-        return self.is_variant_end() and bool(self.kings & self.occupied_co[self.turn] & chess.BB_RANK_8)
+        in_goal = self.kings & chess.BB_RANK_8
+        return (self.is_variant_end() and
+            bool(in_goal & self.occupied_co[self.turn]) and
+            not in_goal & self.occupied_co[not self.turn])
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
         return False
