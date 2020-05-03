@@ -110,9 +110,9 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
     scale = margin / MARGIN
 
     if horizontal:
-        x += (width - scale * width) / 2
+        x += int(width - scale * width) // 2
     else:
-        y += (height - scale * height) / 2
+        y += int(height - scale * height) // 2
 
     t = ET.Element("g", {
         "transform": f"translate({x}, {y}) scale({scale}, {scale})",
