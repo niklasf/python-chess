@@ -1,6 +1,29 @@
 Changelog for python-chess
 ==========================
 
+New in v0.31.1
+--------------
+
+Bugfixes:
+
+* `RacingKingsBoard.is_variant_win()` no longer incorrectly returns `True`
+  for drawn positions.
+* Multiple moves for EPD opcodes *am* and *bm* are now sorted as required by
+  the specification.
+* Coordinates of SVG boards are now properly aligned, even when rendered as
+  SVG Tiny.
+
+Changes:
+
+* SVG boards now have a background color for the coordinate margin, making
+  coordinates readable on dark backgrounds.
+* Added *[Variant "Illegal"]* as an alias for standard chess
+  (used by Chessbase).
+
+Features:
+
+* Added `Board.find_move()`, useful for finding moves that match human input.
+
 New in v0.31.0
 --------------
 
