@@ -2098,7 +2098,7 @@ class Board(BaseBoard):
         """
         return self.move_stack[-1]
 
-    def find_move(self, from_square: Square, to_square: Square, promotion: PieceType = None) -> Move:
+    def find_move(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None) -> Move:
         """
         Finds a matching legal move for an origin square, a target square and
         an optional promotion piece type.
