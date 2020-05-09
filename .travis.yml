@@ -78,14 +78,14 @@ script:
  - echo Unit tests complete
  - coveralls || [[ $? -eq 139 ]]
  - # Typing
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/__init__.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/engine.py || true; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/__init__.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/engine.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/gaviota.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/pgn.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/polyglot.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/svg.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/svg.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/syzygy.py || true; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/variant.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/variant.py; fi
  - # Perft tests
  - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
  - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/tricky.perft; fi
