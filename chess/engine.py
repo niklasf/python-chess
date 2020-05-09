@@ -603,7 +603,7 @@ class MateGivenType(Score):
 MateGiven = MateGivenType()
 
 
-class MockTransport(asyncio.SubprocessTransport):
+class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
     def __init__(self, protocol: "EngineProtocol") -> None:
         super().__init__()
         self.protocol = protocol
@@ -621,7 +621,7 @@ class MockTransport(asyncio.SubprocessTransport):
     def assert_done(self) -> None:
         assert not self.expectations, f"pending expectations: {self.expectations}"
 
-    def get_pipe_transport(self, fd: int) -> "MockTransport":  # type: ignore
+    def get_pipe_transport(self, fd: int) -> Optional[asyncio.BaseTransport]:
         assert fd == 0, f"expected 0 for stdin, got {fd}"
         return self
 
@@ -697,9 +697,9 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         LOGGER.debug("%s: << %s", self, line)
         assert self.transport is not None, "cannot send line before connection is made"
         stdin = self.transport.get_pipe_transport(0)
-        assert stdin is not None, "no pipe for stdin"
-        stdin.write(line.encode("utf-8"))
-        stdin.write(b"\n")
+        # WriteTransport expected, but not checked to allow duck typing.
+        stdin.write(line.encode("utf-8"))  # type: ignore
+        stdin.write(b"\n")  # type: ignore
 
     def pipe_data_received(self, fd: int, data: Union[bytes, str]) -> None:
         self.buffer[fd].extend(data)  # type: ignore
