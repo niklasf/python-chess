@@ -750,7 +750,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             if self.command is not None:
                 cmd = self.command
 
-                def cancel_if_cancelled(result: asyncio.Future[T]) -> None:
+                def cancel_if_cancelled(result: "asyncio.Future[T]") -> None:
                     if result.cancelled():
                         cmd._cancel(self)
 
