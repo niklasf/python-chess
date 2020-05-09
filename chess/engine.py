@@ -107,42 +107,42 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
     def __init__(self) -> None:
         self._local = self._Local()
 
-    def get_event_loop(self):
+    def get_event_loop(self) -> asyncio.AbstractEventLoop:
         if self._local.loop is None and not self._local.set_called and threading.current_thread() is threading.main_thread():
             self.set_event_loop(self.new_event_loop())
         if self._local.loop is None:
             raise RuntimeError(f"no current event loop in thread {threading.current_thread().name!r}")
         return self._local.loop
 
-    def set_event_loop(self, loop):
+    def set_event_loop(self, loop: Optional[asyncio.AbstractEventLoop]) -> None:
         assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
         self._local.set_called = True
         self._local.loop = loop
         if self._local.watcher is not None:
             self._local.watcher.attach_loop(loop)
 
-    def new_event_loop(self):
-        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()
+    def new_event_loop(self) -> asyncio.AbstractEventLoop:
+        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
 
-    def get_child_watcher(self):
+    def get_child_watcher(self) -> "asyncio.AbstractChildWatcher":
         if self._local.watcher is None:
             self._local.watcher = self._init_watcher()
             self._local.watcher.attach_loop(self._local.loop)
         return self._local.watcher
 
-    def set_child_watcher(self, watcher):
+    def set_child_watcher(self, watcher: "Optional[asyncio.AbstractChildWatcher]") -> None:
         assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
         if self._local.watcher is not None:
             self._local.watcher.close()
         self._local.watcher = watcher
 
-    def _init_watcher(self):
+    def _init_watcher(self) -> "asyncio.AbstractChildWatcher":
         if sys.platform == "win32":
             raise NotImplementedError
 
         try:
-            os.close(os.pidfd_open(os.getpid()))
-            return asyncio.PidfdChildWatcher()
+            os.close(os.pidfd_open(os.getpid()))  # type: ignore
+            return asyncio.PidfdChildWatcher()  # type: ignore
         except (AttributeError, OSError):
             # Before Python 3.9 or before Linux 5.3 or the syscall is not
             # permitted.
@@ -750,7 +750,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             if self.command is not None:
                 cmd = self.command
 
-                def cancel_if_cancelled(result):
+                def cancel_if_cancelled(result: asyncio.Future[T]) -> None:
                     if result.cancelled():
                         cmd._cancel(self)
 
@@ -1923,14 +1923,14 @@ class XBoardProtocol(EngineProtocol):
                     self.best_move = pv[0]
 
                 if limit is not None:
-                    if limit.time is not None and typing.cast(float, post_info.get("time", 0)) >= limit.time:
+                    if limit.time is not None and post_info.get("time", 0) >= limit.time:
                         self.cancel(engine)
-                    elif limit.nodes is not None and typing.cast(int, post_info.get("nodes", 0)) >= limit.nodes:
+                    elif limit.nodes is not None and post_info.get("nodes", 0) >= limit.nodes:
                         self.cancel(engine)
-                    elif limit.depth is not None and typing.cast(int, post_info.get("depth", 0)) >= limit.depth:
+                    elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
                         self.cancel(engine)
                     elif limit.mate is not None and "score" in post_info:
-                        if typing.cast(PovScore, post_info["score"]).relative >= Mate(limit.mate):
+                        if post_info["score"].relative >= Mate(limit.mate):
                             self.cancel(engine)
 
             def end(self, engine: XBoardProtocol) -> None:
@@ -2146,14 +2146,14 @@ class AnalysisResult:
         if not info:
             return
 
-        multipv = typing.cast(int, info.get("multipv", 1))
+        multipv = info.get("multipv", 1)
         while len(self.multipv) < multipv:
             self.multipv.append({})
         self.multipv[multipv - 1].update(info)
 
         self._queue.put_nowait(info)
 
-    def _kork(self):
+    def _kork(self) -> None:
         if not self._posted_kork:
             self._posted_kork = True
             self._queue.put_nowait({})
