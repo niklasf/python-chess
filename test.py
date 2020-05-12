@@ -3038,7 +3038,7 @@ class EngineTestCase(unittest.TestCase):
                 "feature option=\"savevar -save\"",
                 "feature ping=1 setboard=1 done=1",
             ])
-            mock.expect("accept egt")
+            mock.expect("accepted egt")
             await protocol.initialize()
             mock.assert_done()
 

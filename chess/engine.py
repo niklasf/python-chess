@@ -1613,31 +1613,31 @@ class XBoardProtocol(EngineProtocol):
 
                 if not engine.features.get("reuse", 1):
                     LOGGER.warning("%s: Rejecting feature reuse=0", engine)
-                    engine.send_line("reject reuse")
+                    engine.send_line("rejected reuse")
                 if not engine.features.get("sigterm", 1):
                     LOGGER.warning("%s: Rejecting feature sigterm=0", engine)
-                    engine.send_line("reject sigterm")
+                    engine.send_line("rejected sigterm")
                 if engine.features.get("usermove", 0):
                     LOGGER.warning("%s: Rejecting feature usermove=1", engine)
-                    engine.send_line("reject usermove")
+                    engine.send_line("rejected usermove")
                 if engine.features.get("san", 0):
                     LOGGER.warning("%s: Rejecting feature san=1", engine)
-                    engine.send_line("reject san")
+                    engine.send_line("rejected san")
 
                 if "myname" in engine.features:
                     engine.id["name"] = str(engine.features["myname"])
 
                 if engine.features.get("memory", 0):
                     engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
-                    engine.send_line("accept memory")
+                    engine.send_line("accepted memory")
                 if engine.features.get("smp", 0):
                     engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
-                    engine.send_line("accept smp")
+                    engine.send_line("accepted smp")
                 if engine.features.get("egt"):
                     for egt in str(engine.features["egt"]).split(","):
                         name = f"egtpath {egt}"
                         engine.options[name] = Option(name, "path", None, None, None, None)
-                    engine.send_line("accept egt")
+                    engine.send_line("accepted egt")
 
                 for option in engine.options.values():
                     if option.default is not None:
