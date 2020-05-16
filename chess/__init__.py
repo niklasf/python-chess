@@ -1451,8 +1451,8 @@ class Board(BaseBoard):
 
     def clear_stack(self) -> None:
         """Clears the move stack."""
-        del self.move_stack[:]
-        del self._stack[:]
+        self.move_stack.clear()
+        self._stack.clear()
 
     def root(self: BoardT) -> BoardT:
         """Returns a copy of the root position."""
