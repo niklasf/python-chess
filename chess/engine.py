@@ -1505,7 +1505,7 @@ class UciOptionMap(MutableMapping[str, T]):
         return self._store[key.lower()][1]
 
     def __delitem__(self, key: str) -> None:
-        del self._store[key.lower()]
+        self._store[key.lower()].clear()
 
     def __iter__(self) -> Iterator[str]:
         return (casedkey for casedkey, mappedvalue in self._store.values())
