@@ -370,10 +370,15 @@ PCHR = ["K", "Q", "R", "B", "N", "P"]
 TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
 
 
-def is_tablename(name: str) -> bool:
-    return len(name) <= 7 + 1 and bool(TABLENAME_REGEX.match(name)) and normalize_tablename(name) == name
+def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int] = 7, normalized: bool = True) -> bool:
+    return (
+        (piece_count is None or len(name) <= piece_count + 1) and
+        bool(TABLENAME_REGEX.match(name)) and
+        (not normalized or normalize_tablename(name) == name) and
+        (not one_king or (name != "KvK" and name.startswith("K") and "vK" in name)))
 
-is_table_name = is_tablename  # TODO: Remove before 1.0
+def is_table_name(name: str) -> bool:  # TODO: Remove before 1.0
+    return is_tablename(name, one_king=False)
 
 
 def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
@@ -1525,7 +1530,7 @@ class Tablebase:
             path = os.path.join(directory, filename)
             tablename, ext = os.path.splitext(filename)
 
-            if is_tablename(tablename) and os.path.isfile(path):
+            if is_tablename(tablename, one_king=self.variant.one_king) and os.path.isfile(path):
                 if load_wdl:
                     if ext == self.variant.tbw_suffix:
                         num += self._open_table(self.wdl, WdlTable, path)
