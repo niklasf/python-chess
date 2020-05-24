@@ -123,6 +123,7 @@ SQUARES = [
 ] = range(64)
 
 SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
+GET_INDEX = {square_name: index for (index, square_name) in enumerate(SQUARE_NAMES)}
 
 def square(file_index: int, rank_index: int) -> Square:
     """Gets a square number by file and rank index."""
