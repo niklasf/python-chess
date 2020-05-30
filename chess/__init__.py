@@ -219,7 +219,7 @@ def scan_reversed(bb: Bitboard) -> Iterator[Square]:
 
 try:
     # Python 3.10
-    popcount: Callable[[int], int] = int.bit_count  # type: ignore
+    popcount: Callable[[Bitboard], int] = int.bit_count  # type: ignore
 except AttributeError:
     def popcount(bb: Bitboard) -> int:
         return bin(bb).count("1")
