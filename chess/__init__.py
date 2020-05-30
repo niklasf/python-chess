@@ -46,8 +46,8 @@ PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
-def piece_symbol(piece_type: PieceType, _PIECE_SYMBOLS: List[Optional[str]] = PIECE_SYMBOLS) -> str:
-    return typing.cast(str, _PIECE_SYMBOLS[piece_type])
+def piece_symbol(piece_type: PieceType) -> str:
+    return typing.cast(str, PIECE_SYMBOLS[piece_type])
 
 def piece_name(piece_type: PieceType) -> str:
     return typing.cast(str, PIECE_NAMES[piece_type])
@@ -211,18 +211,18 @@ def scan_forward(bb: Bitboard) -> Iterator[Square]:
 def msb(bb: Bitboard) -> int:
     return bb.bit_length() - 1
 
-def scan_reversed(bb: Bitboard, *, _BB_SQUARES: List[Bitboard] = BB_SQUARES) -> Iterator[Square]:
+def scan_reversed(bb: Bitboard) -> Iterator[Square]:
     while bb:
         r = bb.bit_length() - 1
         yield r
-        bb ^= _BB_SQUARES[r]
+        bb ^= BB_SQUARES[r]
 
 try:
     # Python 3.10
     popcount = int.bit_count
 except AttributeError:
-    def popcount(bb: Bitboard, *, _bin: Callable[[int], str] = bin) -> int:
-        return _bin(bb).count("1")
+    def popcount(bb: Bitboard) -> int:
+        return bin(bb).count("1")
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
