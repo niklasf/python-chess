@@ -217,8 +217,12 @@ def scan_reversed(bb: Bitboard, *, _BB_SQUARES: List[Bitboard] = BB_SQUARES) -> 
         yield r
         bb ^= _BB_SQUARES[r]
 
-def popcount(bb: Bitboard, *, _bin: Callable[[int], str] = bin) -> int:
-    return _bin(bb).count("1")
+try:
+    # Python 3.10
+    popcount = int.bit_count
+except AttributeError:
+    def popcount(bb: Bitboard, *, _bin: Callable[[int], str] = bin) -> int:
+        return _bin(bb).count("1")
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
