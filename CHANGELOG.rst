@@ -1,6 +1,21 @@
 Changelog for python-chess
 ==========================
 
+New in v0.31.2
+--------------
+
+Bugfixes:
+
+* Fix rejected/accepted in `chess.engine.XBoardProtocol`.
+* Misc typing fixes.
+
+Changes:
+
+* Deprecated `chess.syzygy.is_table_name()`. Replaced with
+  `chess.syzygy.is_tablename()` which has additional parameters and defaults to
+  `one_king`.
+* Take advantage of `int.bit_count()` coming in Python 3.10.
+
 New in v0.31.1
 --------------
 
