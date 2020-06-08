@@ -115,7 +115,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: move
         :type: Optional[chess.Move]
 
-        The best move accordig to the engine, or ``None``.
+        The best move according to the engine, or ``None``.
 
     .. py:attribute:: ponder
         :type: Optional[chess.Move]
