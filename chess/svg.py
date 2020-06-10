@@ -146,7 +146,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           coordinates: bool = True,
           lastmove: Optional[chess.Move] = None,
           check: Optional[chess.Square] = None,
-          arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = (),
+          arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = [],
           size: Optional[int] = None,
           style: Optional[str] = None) -> str:
     """
