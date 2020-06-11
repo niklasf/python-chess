@@ -314,7 +314,7 @@ class GameNode:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = ()) -> "GameNode":
+    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> "GameNode":
         """Creates a child node with the given attributes."""
         node = type(self).dangling_node()
         node.move = move
@@ -344,7 +344,7 @@ class GameNode:
         """Returns an iterator over the main moves after this node."""
         return Mainline(self, lambda node: node._move())
 
-    def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = ()) -> "GameNode":
+    def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> "GameNode":
         """
         Creates a sequence of child nodes for the given list of moves.
         Adds *comment* and *nags* to the last node of the line and returns it.

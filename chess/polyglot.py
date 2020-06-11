@@ -395,7 +395,7 @@ class MemoryMappedReader:
     def __contains__(self, entry: Entry) -> bool:
         return any(current == entry for current in self.find_all(entry.key, minimum_weight=entry.weight))
 
-    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Iterator[Entry]:
+    def find_all(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Iterator[Entry]:
         """Seeks a specific position and yields corresponding entries."""
         try:
             key = int(board)  # type: ignore
@@ -429,7 +429,7 @@ class MemoryMappedReader:
 
             yield entry
 
-    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Entry:
+    def find(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Entry:
         """
         Finds the main entry for the given position or Zobrist hash.
 
@@ -448,13 +448,13 @@ class MemoryMappedReader:
         except ValueError:
             raise IndexError()
 
-    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = ()) -> Optional[Entry]:
+    def get(self, board: Union[chess.Board, int], default: Optional[Entry] = None, *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = []) -> Optional[Entry]:
         try:
             return self.find(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = (), random=random) -> Entry:
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = [], random=random) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -471,7 +471,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = (), random=random) -> Entry:
+    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = [], random=random) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
