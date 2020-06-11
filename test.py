@@ -2456,6 +2456,15 @@ class PgnTestCase(unittest.TestCase):
         board = chess.Board("rbb1N1k1/pp1n1ppp/8/2Pp4/3P4/4P3/P1Q2PPq/R1BR1K2 b - - 0 1")
         self.assertEqual(game.board(), board)
 
+    def test_chessbase_empty_line(self):
+        with open("data/pgn/chessbase-empty-line.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.headers["Event"], "AlphaZero vs. Stockfish")
+            self.assertEqual(game.headers["Round"], "1")
+            self.assertEqual(game.variations[0].move, chess.Move.from_uci("e2e4"))
+
+            self.assertTrue(chess.pgn.read_game(pgn) is None)
+
     def test_game_from_board(self):
         setup = "3k4/8/4K3/8/8/8/8/2R5 b - - 0 1"
         board = chess.Board(setup)

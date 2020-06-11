@@ -1,0 +1,35 @@
+[Event "AlphaZero vs. Stockfish"]
+
+[Date "2017.12.04"]
+[Round "1"]
+[White "Stockfish 8"]
+[Black "AlphaZero"]
+[Result "0-1"]
+[Board "1"]
+[WhiteCountry "NOR"]
+[WhiteFideId "stockfish"]
+[BlackCountry "ENG"]
+[BlackFideId "deepmind"]
+
+1. e4  e5  2. Nf3  Nc6  3. Bb5  Nf6  4. d3  Bc5
+ 5. Bxc6  dxc6  6. O-O  Nd7  7. Nbd2  O-O  8.
+Qe1  f6  9. Nc4  Rf7  10. a4  Bf8  11. Kh1 
+Nc5  12. a5  Ne6  13. Ncxe5
+ fxe5  14. Nxe5  Rf6  15. Ng4  Rf7  16. Ne5 
+Re7  17. a6  c5  18. f4  Qe8  19. axb7  Bxb7 
+20. Qa5  Nd4  21. Qc3  Re6  22. Be3  Rb6  23. Nc4 
+Rb4  24. b3  a5  25. Rxa5  Rxa5  26. Nxa5  Ba6 
+27. Bxd4  Rxd4  28. Nc4  Rd8
+ 29. g3  h6  30. Qa5  Bc8  31. Qxc7  Bh3  32.
+Rg1  Rd7  33. Qe5  Qxe5  34. Nxe5  Ra7  35. Nc4 
+g5  36. Rc1  Bg7  37. Ne5  Ra8  38. Nf3  Bb2  39.
+Rb1  Bc3  40. Ng1  Bd7  41. Ne2  Bd2  42. Rd1 
+Be3  43. Kg2  Bg4  44. Re1  Bd2  45. Rf1  Ra2  46.
+h3  Bxe2  47. Rf2  Bxf4  48. Rxe2  Be5  49. Rf2 
+Kg7  50. g4  Bd4  51. Re2  Kf6  52. e5+  Bxe5  53.
+Kf3  Ra1  54. Rf2  Re1  55. Kg2+  Bf4  56. c3 
+Rc1  57. d4  Rxc3  58. dxc5
+ Rxc5  59. b4  Rc3  60. h4  Ke5  61. hxg5 
+hxg5  62. Re2+  Kf6  63. Kf2
+ Be5  64. Ra2  Rc4  65. Ra6+  Ke7  66. Ra5 
+Ke6  67. Ra6+  Bd6  0-1

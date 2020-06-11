@@ -1226,9 +1226,16 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
         line = handle.readline()
 
     # Parse game headers.
+    consecutive_empty_lines = 0
     while line:
         # Ignore comments.
         if line.startswith("%") or line.startswith(";"):
+            line = handle.readline()
+            continue
+
+        # Ignore up to one consecutive empty line between headers.
+        if consecutive_empty_lines < 1 and line.isspace():
+            consecutive_empty_lines += 1
             line = handle.readline()
             continue
 
@@ -1243,6 +1250,8 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
 
         if not line.startswith("["):
             break
+
+        consecutive_empty_lines = 0
 
         if not skipping_game:
             tag_match = TAG_REGEX.match(line)
@@ -1260,10 +1269,6 @@ def read_game(handle: TextIO, *, Visitor = GameBuilder):
 
     if not skipping_game:
         skipping_game = visitor.end_headers() is SKIP
-
-    # Ignore single empty line after headers.
-    if line.isspace():
-        line = handle.readline()
 
     if not skipping_game:
         # Chess variant.
