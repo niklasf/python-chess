@@ -1472,7 +1472,8 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> "BestMove":
 
     move = None
     ponder = None
-    if tokens[0] != "(none)":
+
+    if tokens[0] not in ["(none)", "NULL"]:
         try:
             # AnMon 5.75 uses uppercase letters to denote promotion types.
             move = board.push_uci(tokens[0].lower())
@@ -1480,7 +1481,8 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> "BestMove":
             raise EngineError(err)
 
         try:
-            if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
+            # Houdini 1.5 sends NULL instead of skipping the token.
+            if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] not in ["(none)", "NULL"]:
                 ponder = board.parse_uci(tokens[2].lower())
         except ValueError:
             LOGGER.exception("engine sent invalid ponder move")
