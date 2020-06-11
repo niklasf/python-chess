@@ -1474,13 +1474,14 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> "BestMove":
     ponder = None
     if tokens[0] != "(none)":
         try:
-            move = board.push_uci(tokens[0])
+            # AnMon 5.75 uses uppercase letters to denote promotion types.
+            move = board.push_uci(tokens[0].lower())
         except ValueError as err:
             raise EngineError(err)
 
         try:
             if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] != "(none)":
-                ponder = board.parse_uci(tokens[2])
+                ponder = board.parse_uci(tokens[2].lower())
         except ValueError:
             LOGGER.exception("engine sent invalid ponder move")
         finally:
