@@ -3852,6 +3852,46 @@ class SquareSet:
         return chess.svg.board(squares=self, size=390)
 
     @classmethod
+    def ray(cls, a: Square, b: Square) -> "SquareSet":
+        """
+        All squares on the rank, file or diagonal with the two squares, if they
+        are aligned.
+
+        >>> import chess
+        >>>
+        >>> print(chess.SquareSet.ray(chess.E2, chess.B5))
+        . . . . . . . .
+        . . . . . . . .
+        1 . . . . . . .
+        . 1 . . . . . .
+        . . 1 . . . . .
+        . . . 1 . . . .
+        . . . . 1 . . .
+        . . . . . 1 . .
+        """
+        return cls(BB_RAYS[a][b])
+
+    @classmethod
+    def between(cls, a: Square, b: Square) -> "SquareSet":
+        """
+        All squares on the rank, file or diagonal between the two squares
+        (bounds not included), if they are aligned.
+
+        >>> import chess
+        >>>
+        >>> print(chess.SquareSet.between(chess.E2, chess.B5))
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . 1 . . . . .
+        . . . 1 . . . .
+        . . . . . . . .
+        . . . . . . . .
+        """
+        return cls(between(a, b))
+
+    @classmethod
     def from_square(cls, square: Square) -> "SquareSet":
         """
         Creates a :class:`~chess.SquareSet` from a single square.
