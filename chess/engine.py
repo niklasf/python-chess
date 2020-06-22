@@ -1233,9 +1233,11 @@ class UciProtocol(EngineProtocol):
             builder.append(str(int(limit.time * 1000)))
         if infinite:
             builder.append("infinite")
-        if root_moves:
+        if root_moves is not None:
             builder.append("searchmoves")
-            builder.extend(move.uci() for move in root_moves if move)
+            builder.extend(move.uci() for move in root_moves)
+            if not root_moves:
+                builder.append("0000")
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
