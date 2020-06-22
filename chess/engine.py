@@ -1181,7 +1181,8 @@ class UciProtocol(EngineProtocol):
 
         # Send starting position.
         builder = ["position"]
-        root = board.root()
+        safe_history = all(board.move_stack)
+        root = board.root() if safe_history else board
         fen = root.fen(shredder=board.chess960, en_passant="fen")
         if uci_variant == "chess" and fen == chess.STARTING_FEN:
             builder.append("startpos")
@@ -1190,7 +1191,9 @@ class UciProtocol(EngineProtocol):
             builder.append(fen)
 
         # Send moves.
-        if board.move_stack:
+        if not safe_history:
+            LOGGER.warning("Not transmitting history with null moves to UCI engine")
+        elif board.move_stack:
             builder.append("moves")
             builder.extend(move.uci() for move in board.move_stack)
 
@@ -1232,7 +1235,7 @@ class UciProtocol(EngineProtocol):
             builder.append("infinite")
         if root_moves:
             builder.append("searchmoves")
-            builder.extend(move.uci() for move in root_moves)
+            builder.extend(move.uci() for move in root_moves if move)
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
@@ -1715,6 +1718,8 @@ class XBoardProtocol(EngineProtocol):
 
         # Play moves from board stack.
         for move in board.move_stack[common_stack_len:]:
+            if not move:
+                LOGGER.warning("Null move (in %s) may not be supported by all XBoard engines", self.board.fen())
             self.send_line(self.board.xboard(move))
             self.board.push(move)
 
