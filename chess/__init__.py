@@ -1376,7 +1376,7 @@ class Board(BaseBoard):
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
 
-    aliases = ["Standard", "Chess", "Classical", "Normal", "Illegal"]
+    aliases = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
     uci_variant: ClassVar[Optional[str]] = "chess"
     xboard_variant: ClassVar[Optional[str]] = "normal"
     starting_fen = STARTING_FEN
