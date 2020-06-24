@@ -1237,6 +1237,7 @@ class UciProtocol(EngineProtocol):
             builder.append("searchmoves")
             builder.extend(move.uci() for move in root_moves)
             if not root_moves:
+                # Work around searchmoves followed by nothing.
                 builder.append("0000")
         self.send_line(" ".join(builder))
 
