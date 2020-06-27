@@ -1206,10 +1206,10 @@ class UciProtocol(EngineProtocol):
             builder.append("ponder")
         if limit.white_clock is not None:
             builder.append("wtime")
-            builder.append(str(int(limit.white_clock * 1000)))
+            builder.append(str(max(1, int(limit.white_clock * 1000))))
         if limit.black_clock is not None:
             builder.append("btime")
-            builder.append(str(int(limit.black_clock * 1000)))
+            builder.append(str(max(1, int(limit.black_clock * 1000))))
         if limit.white_inc is not None:
             builder.append("winc")
             builder.append(str(int(limit.white_inc * 1000)))
@@ -1221,16 +1221,16 @@ class UciProtocol(EngineProtocol):
             builder.append(str(int(limit.remaining_moves)))
         if limit.depth is not None:
             builder.append("depth")
-            builder.append(str(int(limit.depth)))
+            builder.append(str(max(1, int(limit.depth))))
         if limit.nodes is not None:
             builder.append("nodes")
-            builder.append(str(int(limit.nodes)))
+            builder.append(str(max(1, int(limit.nodes))))
         if limit.mate is not None:
             builder.append("mate")
-            builder.append(str(int(limit.mate)))
+            builder.append(str(max(1, int(limit.mate))))
         if limit.time is not None:
             builder.append("movetime")
-            builder.append(str(int(limit.time * 1000)))
+            builder.append(str(max(1, int(limit.time * 1000))))
         if infinite:
             builder.append("infinite")
         if root_moves is not None:
@@ -1775,15 +1775,15 @@ class XBoardProtocol(EngineProtocol):
                         raise EngineError("xboard engine does not support node limits (feature nps=0)")
 
                     engine.send_line("nps 1")
-                    engine.send_line(f"st {int(limit.nodes)}")
+                    engine.send_line(f"st {max(1, int(limit.nodes))}")
                 if limit.depth is not None:
-                    engine.send_line(f"sd {limit.depth}")
+                    engine.send_line(f"sd {max(1, int(limit.depth))}")
                 if limit.time is not None:
-                    engine.send_line(f"st {limit.time}")
+                    engine.send_line(f"st {max(0.01, limit.time)}")
                 if limit.white_clock is not None:
-                    engine.send_line("{} {}".format("time" if board.turn else "otim", int(limit.white_clock * 100)))
+                    engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, int(limit.white_clock * 100))))
                 if limit.black_clock is not None:
-                    engine.send_line("{} {}".format("otim" if board.turn else "time", int(limit.black_clock * 100)))
+                    engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, int(limit.black_clock * 100))))
 
                 # Start thinking.
                 engine.send_line("post" if info else "nopost")
