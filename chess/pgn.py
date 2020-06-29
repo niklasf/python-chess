@@ -458,6 +458,17 @@ class GameNode:
         visitor.end_game()
         return visitor.result()
 
+    def clock_comment(self) -> str:
+      """
+      Searches the comment string for a substring of the form [%clk <<clock string>>>] and
+      returns <<clock string>>, or returns the empty string if no such substring is found.
+      """
+      CLOCK_REGEX = re.compile("\[%clk\s([^\]]*)\]")
+      try:
+        return re.search(CLOCK_REGEX, self.comment).groups()[0]
+      except:
+        return ""
+
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
 
