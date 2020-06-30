@@ -106,6 +106,8 @@ MOVETEXT_REGEX = re.compile(r"""
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
+CLOCK_REGEX = re.compile("\[%clk\s([^\]]*)\]") # used by the clock_comment method of GameNode
+
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
@@ -463,11 +465,11 @@ class GameNode:
       Searches the comment string for a substring of the form [%clk <<clock string>>>] and
       returns <<clock string>>, or returns the empty string if no such substring is found.
       """
-      CLOCK_REGEX = re.compile("\[%clk\s([^\]]*)\]")
-      try:
-        return re.search(CLOCK_REGEX, self.comment).groups()[0]
-      except:
+      match = re.search(CLOCK_REGEX, self.comment)
+      if match is None:
         return ""
+      else:
+        return match.groups()[0]
 
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
