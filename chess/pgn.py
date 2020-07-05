@@ -397,7 +397,7 @@ class GameNode:
             return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
 
     def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
-        eval = None
+        eval = ""
         if score is not None:
             cp = score.white().score()
             if cp is not None:
@@ -405,7 +405,7 @@ class GameNode:
             elif score.white().mate():
                 eval = f"[%eval #{score.white().mate()}]"
 
-        self.comment, found = EVAL_REGEX.subn(eval or "", self.comment, count=1)
+        self.comment, found = EVAL_REGEX.subn(eval, self.comment, count=1)
 
         if not found and eval:
             if not self.comment.endswith(" "):
@@ -468,10 +468,24 @@ class GameNode:
         if prefix:
             self.comment = prefix + " " + self.comment
 
-    def clock(self) -> Optional[str]:
-        # TODO: Parse value, add setter
+    def clock(self) -> Optional[float]:
         match = CLOCK_REGEX.search(self.comment)
-        return match.group(1) if match else None
+        return float(match.group(1)) if match else None # TODO: broken
+
+    def set_clock(self, seconds: Optional[float]) -> None:
+        clk = ""
+        if seconds is not None:
+            hours = seconds // 3600
+            minutes = seconds % 3600 // 60
+            seconds = seconds % 3600 % 60
+            clk = f"[%clk {hours:d}:{minutes:02d}:{seconds:02d}]"
+
+        self.comment, found = CLOCK_REGEX.subn(clk, self.comment, count=1)
+
+        if not found and clk:
+            if not self.comment.endswith(" "):
+                self.comment += " "
+            self.comment += clk
 
     def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
