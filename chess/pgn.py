@@ -109,7 +109,7 @@ MOVETEXT_REGEX = re.compile(r"""
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
-CLOCK_REGEX = re.compile(r"""\[%clk\s([^\]]*)\]""")
+CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+)\]""")
 
 EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
@@ -470,7 +470,9 @@ class GameNode:
 
     def clock(self) -> Optional[float]:
         match = CLOCK_REGEX.search(self.comment)
-        return float(match.group(1)) if match else None # TODO: broken
+        if match is None:
+            return None
+        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + int(match.group(3))
 
     def set_clock(self, seconds: Optional[float]) -> None:
         clk = ""
