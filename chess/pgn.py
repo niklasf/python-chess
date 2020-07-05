@@ -468,6 +468,11 @@ class GameNode:
         if prefix:
             self.comment = prefix + " " + self.comment
 
+    def clock(self) -> Optional[str]:
+        # TODO: Parse value, add setter
+        match = CLOCK_REGEX.search(self.comment)
+        return match.group(1) if match else None
+
     def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
 
@@ -559,11 +564,6 @@ class GameNode:
 
         visitor.end_game()
         return visitor.result()
-
-    def clock(self) -> Optional[str]:
-        # TODO: Parse value, add setter
-        match = CLOCK_REGEX.search(self.comment)
-        return match.group(1) if match else None
 
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
