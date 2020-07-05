@@ -112,9 +112,9 @@ SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+)\]""")
 
 EVAL_REGEX = re.compile(r"""
-    \[%eval\s(
-        \#[+-]?\d+
-        |[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?)
+    \[%eval\s(?:
+        \#([+-]?\d+)
+        |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
     )\]
     """, re.VERBOSE)
 
@@ -394,11 +394,11 @@ class GameNode:
         match = EVAL_REGEX.search(self.comment)
         if not match:
             return None
-        if match.group(1).startswith("#"):
-            mate = int(match.group(1).lstrip("#"))
+        if match.group(1):
+            mate = int(match.group(1))
             return chess.engine.PovScore(chess.engine.Mate(mate), chess.WHITE) if mate else None
         else:
-            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(1)) * 100)), chess.WHITE)
+            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
 
     def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
         """
