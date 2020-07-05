@@ -108,6 +108,9 @@ MOVETEXT_REGEX = re.compile(r"""
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
+
+CLOCK_REGEX = re.compile(r"""\[%clk\s([^\]]*)\]""")
+
 EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
         #([+-]?\d+)
@@ -121,6 +124,7 @@ ARROWS_REGEX = re.compile(r"""
         (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
     )\]
     """, re.VERBOSE)
+
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
@@ -555,6 +559,10 @@ class GameNode:
 
         visitor.end_game()
         return visitor.result()
+
+    def clock(self) -> Optional[str]:
+        match = CLOCK_REGEX.search(self.comment)
+        return match.groups(1) if match else None
 
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
