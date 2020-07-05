@@ -24,6 +24,7 @@ import typing
 
 import chess
 import chess.engine
+import chess.svg
 
 from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
@@ -107,7 +108,19 @@ MOVETEXT_REGEX = re.compile(r"""
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
-EVAL_REGEX = re.compile(r"""\[%eval\s(?:#([+-]?\d+)|([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?)))\]""")
+EVAL_REGEX = re.compile(r"""
+    \[%eval\s(?:
+        #([+-]?\d+)
+        |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
+    )\]
+    """, re.VERBOSE)
+
+ARROWS_REGEX = re.compile(r"""
+    \[%(?:csl|cal)\s(
+        [RGYB][a-h][1-8](?:[a-h][1-8])?
+        (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
+    )\]
+    """, re.VERBOSE)
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
@@ -379,7 +392,7 @@ class GameNode:
         else:
             return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
 
-    def set_eval(self, score: Optional[chess.engine.PovScore]):
+    def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
         eval = None
         if score is not None:
             cp = score.white().score()
@@ -394,6 +407,40 @@ class GameNode:
             if not self.comment.endswith(" "):
                 self.comment += " "
             self.comment += eval
+
+    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[chess.Square, chess.Square]]]) -> None:
+        csl = []
+        cal = []
+
+        for arrow in arrows:
+            try:
+                tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
+                if color == "red":
+                    color = "R"
+                elif color == "yellow":
+                    color = "Y"
+                elif color == "blue":
+                    color = "B"
+                else:
+                    color = "G"
+            except AttributeError:
+                tail, head = arrow  # type: ignore
+                color = "G"
+            if tail == head:
+                csl.append(f"{color}{chess.SQUARE_NAMES[tail]}")
+            else:
+                cal.append(f"{color}{chess.SQUARE_NAMES[tail]}{chess.SQUARE_NAMES[head]}")
+
+        self.comment = ARROWS_REGEX.sub(self.comment, "").strip()
+
+        prefix = ""
+        if csl:
+            prefix += f"[%csl {','.join(csl)}]"
+        if cal:
+            prefix += f"[%cal {','.join(cal)}]"
+
+        if prefix:
+            self.comment = prefix + " " + self.comment
 
     def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
