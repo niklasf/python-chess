@@ -85,6 +85,9 @@ class Arrow:
         self.head = head
         self.color = color
 
+    def __repr__(self) -> str:
+        return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
+
 
 class SvgWrapper(str):
     def _repr_svg_(self) -> "SvgWrapper":
