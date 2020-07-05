@@ -23,6 +23,8 @@ import weakref
 import typing
 
 import chess
+import chess.engine
+import chess.svg
 
 from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
@@ -106,7 +108,23 @@ MOVETEXT_REGEX = re.compile(r"""
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
-CLOCK_REGEX = re.compile("\[%clk\s([^\]]*)\]") # used by the clock_comment method of GameNode
+
+CLOCK_REGEX = re.compile(r"""\[%clk\s([^\]]*)\]""")
+
+EVAL_REGEX = re.compile(r"""
+    \[%eval\s(?:
+        #([+-]?\d+)
+        |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
+    )\]
+    """, re.VERBOSE)
+
+ARROWS_REGEX = re.compile(r"""
+    \[%(?:csl|cal)\s(
+        [RGYB][a-h][1-8](?:[a-h][1-8])?
+        (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
+    )\]
+    """, re.VERBOSE)
+
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
@@ -368,6 +386,88 @@ class GameNode:
 
         return node
 
+    def eval(self) -> Optional[chess.engine.PovScore]:
+        match = EVAL_REGEX.search(self.comment)
+        if not match:
+            return None
+        if match.group(1):
+            mate = int(match.group(1))
+            return chess.engine.PovScore(chess.engine.Mate(mate), chess.WHITE) if mate else None
+        else:
+            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
+
+    def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
+        eval = None
+        if score is not None:
+            cp = score.white().score()
+            if cp is not None:
+                eval = f"[%eval {float(cp) / 100}]"
+            elif score.white().mate():
+                eval = f"[%eval #{score.white().mate()}]"
+
+        self.comment, found = EVAL_REGEX.subn(eval or "", self.comment, count=1)
+
+        if not found and eval:
+            if not self.comment.endswith(" "):
+                self.comment += " "
+            self.comment += eval
+
+    def arrows(self) -> List[chess.svg.Arrow]:
+        arrows = []
+        for match in ARROWS_REGEX.finditer(self.comment):
+            for group in match.group(1).split(","):
+                color = "G"
+                if group[0] == "R":
+                    color = "red"
+                elif group[0] == "Y":
+                    color = "yellow"
+                elif group[0] == "B":
+                    color = "blue"
+
+                tail = chess.SQUARE_NAMES.index(group[1:3])
+                if len(group) == 5:
+                    head = chess.SQUARE_NAMES.index(group[3:5])
+                else:
+                    head = tail
+
+                arrows.append(chess.svg.Arrow(tail, head, color=color))
+
+        return arrows
+
+    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[chess.Square, chess.Square]]]) -> None:
+        csl = []
+        cal = []
+
+        for arrow in arrows:
+            try:
+                tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
+                if color == "red":
+                    color = "R"
+                elif color == "yellow":
+                    color = "Y"
+                elif color == "blue":
+                    color = "B"
+                else:
+                    color = "G"
+            except AttributeError:
+                tail, head = arrow  # type: ignore
+                color = "G"
+            if tail == head:
+                csl.append(f"{color}{chess.SQUARE_NAMES[tail]}")
+            else:
+                cal.append(f"{color}{chess.SQUARE_NAMES[tail]}{chess.SQUARE_NAMES[head]}")
+
+        self.comment = ARROWS_REGEX.sub(self.comment, "").strip()
+
+        prefix = ""
+        if csl:
+            prefix += f"[%csl {','.join(csl)}]"
+        if cal:
+            prefix += f"[%cal {','.join(cal)}]"
+
+        if prefix:
+            self.comment = prefix + " " + self.comment
+
     def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
 
@@ -460,16 +560,9 @@ class GameNode:
         visitor.end_game()
         return visitor.result()
 
-    def clock_comment(self) -> str:
-      """
-      Searches the comment string for a substring of the form [%clk <<clock string>>>] and
-      returns <<clock string>>, or returns the empty string if no such substring is found.
-      """
-      match = re.search(CLOCK_REGEX, self.comment)
-      if match is None:
-        return ""
-      else:
-        return match.groups()[0]
+    def clock(self) -> Optional[str]:
+        match = CLOCK_REGEX.search(self.comment)
+        return match.groups(1) if match else None
 
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
