@@ -23,6 +23,7 @@ import weakref
 import typing
 
 import chess
+import chess.engine
 
 from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
@@ -105,6 +106,8 @@ MOVETEXT_REGEX = re.compile(r"""
     """, re.DOTALL | re.VERBOSE)
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
+
+EVAL_REGEX = re.compile(r"""\[%eval\s(?:#([+-]?\d+)|([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?)))\]""")
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
@@ -365,6 +368,32 @@ class GameNode:
         node.nags.update(nags)
 
         return node
+
+    def eval(self) -> Optional[chess.engine.PovScore]:
+        match = EVAL_REGEX.search(self.comment)
+        if not match:
+            return None
+        if match.group(1):
+            mate = int(match.group(1))
+            return chess.engine.PovScore(chess.engine.Mate(mate), chess.WHITE) if mate else None
+        else:
+            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
+
+    def set_eval(self, score: Optional[chess.engine.PovScore]):
+        eval = None
+        if score is not None:
+            cp = score.white().score()
+            if cp is not None:
+                eval = f"[%eval {float(cp) / 100}]"
+            elif score.white().mate():
+                eval = f"[%eval #{score.white().mate()}]"
+
+        self.comment, found = EVAL_REGEX.subn(eval or "", self.comment, count=1)
+
+        if not found and eval:
+            if not self.comment.endswith(" "):
+                self.comment += " "
+            self.comment += eval
 
     def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
