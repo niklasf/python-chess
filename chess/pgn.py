@@ -112,9 +112,9 @@ SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+)\]""")
 
 EVAL_REGEX = re.compile(r"""
-    \[%eval\s(?:
-        #([+-]?\d+)
-        |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
+    \[%eval\s(
+        \#[+-]?\d+
+        |[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?)
     )\]
     """, re.VERBOSE)
 
@@ -394,11 +394,11 @@ class GameNode:
         match = EVAL_REGEX.search(self.comment)
         if not match:
             return None
-        if match.group(1):
-            mate = int(match.group(1))
+        if match.group(1).startswith("#"):
+            mate = int(match.group(1).lstrip("#"))
             return chess.engine.PovScore(chess.engine.Mate(mate), chess.WHITE) if mate else None
         else:
-            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
+            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(1)) * 100)), chess.WHITE)
 
     def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
         """
@@ -409,7 +409,7 @@ class GameNode:
         if score is not None:
             cp = score.white().score()
             if cp is not None:
-                eval = f"[%eval {float(cp) / 100}]"
+                eval = f"[%eval {float(cp) / 100:.2f}]"
             elif score.white().mate():
                 eval = f"[%eval #{score.white().mate()}]"
 
@@ -475,7 +475,7 @@ class GameNode:
             else:
                 cal.append(f"{color}{chess.SQUARE_NAMES[tail]}{chess.SQUARE_NAMES[head]}")
 
-        self.comment = ARROWS_REGEX.sub(self.comment, "").strip()
+        self.comment = ARROWS_REGEX.sub("", self.comment).strip()
 
         prefix = ""
         if csl:

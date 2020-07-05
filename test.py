@@ -2629,6 +2629,35 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.Game.from_board(board)
         self.assertTrue(str(game).endswith("2000. Ke1 Ke8 1/2-1/2"))
 
+    def test_annotations(self):
+        game = chess.pgn.Game()
+        game.comment = "foo [%bar] baz"
+
+        self.assertTrue(game.clock() is None)
+        clock = 12345
+        game.set_clock(12345)
+        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45]")
+        self.assertEqual(game.clock(), clock)
+
+        self.assertTrue(game.eval() is None)
+        game.set_eval(chess.engine.PovScore(chess.engine.Cp(-80), chess.WHITE))
+        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45] [%eval -0.80]")
+        self.assertEqual(game.eval().white().score(), -80)
+        game.set_eval(chess.engine.PovScore(chess.engine.Mate(1), chess.WHITE))
+        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45] [%eval #1]")
+        self.assertEqual(game.eval().white().mate(), 1)
+
+        self.assertEqual(game.arrows(), [])
+        game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1]")
+        self.assertEqual(len(game.arrows()), 3)
+        self.assertTrue(any(arrow.color == "red" for arrow in game.arrows()))
+
+        game.set_clock(None)
+        game.set_eval(None)
+        game.set_arrows([])
+        self.assertEqual(game.comment, "foo [%bar] baz")
+
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
