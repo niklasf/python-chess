@@ -562,7 +562,7 @@ class GameNode:
 
     def clock(self) -> Optional[str]:
         match = CLOCK_REGEX.search(self.comment)
-        return match.groups(1) if match else None
+        return match.group(1) if match else None
 
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
