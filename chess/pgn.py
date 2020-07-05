@@ -408,6 +408,28 @@ class GameNode:
                 self.comment += " "
             self.comment += eval
 
+    def arrows(self) -> List[chess.svg.Arrow]:
+        arrows = []
+        for match in ARROWS_REGEX.finditer(self.comment):
+            for group in match.group(1).split(","):
+                color = "G"
+                if group[0] == "R":
+                    color = "red"
+                elif group[0] == "Y":
+                    color = "yellow"
+                elif group[0] == "B":
+                    color = "blue"
+
+                tail = chess.SQUARE_NAMES.index(group[1:3])
+                if len(group) == 5:
+                    head = chess.SQUARE_NAMES.index(group[3:5])
+                else:
+                    head = tail
+
+                arrows.append(chess.svg.Arrow(tail, head, color=color))
+
+        return arrows
+
     def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[chess.Square, chess.Square]]]) -> None:
         csl = []
         cal = []
