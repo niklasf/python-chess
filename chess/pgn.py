@@ -387,6 +387,10 @@ class GameNode:
         return node
 
     def eval(self) -> Optional[chess.engine.PovScore]:
+        """
+        Parses the first valid ``[%eval ...]`` annotation in the comment of
+        this node, if any.
+        """
         match = EVAL_REGEX.search(self.comment)
         if not match:
             return None
@@ -397,6 +401,10 @@ class GameNode:
             return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
 
     def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
+        """
+        Replaces the first valid ``[%eval ...]`` annotation in the comment of
+        this node or adds a new one.
+        """
         eval = ""
         if score is not None:
             cp = score.white().score()
@@ -413,6 +421,12 @@ class GameNode:
             self.comment += eval
 
     def arrows(self) -> List[chess.svg.Arrow]:
+        """
+        Parses all ``[%csl ...]`` and ``[%cal ...]`` annotations in the comment
+        of this node.
+
+        Returns a list of :class:`arrows <chess.svg.Arrow>`.
+        """
         arrows = []
         for match in ARROWS_REGEX.finditer(self.comment):
             for group in match.group(1).split(","):
@@ -435,6 +449,10 @@ class GameNode:
         return arrows
 
     def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[chess.Square, chess.Square]]]) -> None:
+        """
+        Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
+        the comment of this node or adds new ones.
+        """
         csl = []
         cal = []
 
@@ -469,12 +487,23 @@ class GameNode:
             self.comment = prefix + " " + self.comment
 
     def clock(self) -> Optional[float]:
+        """
+        Parses the first valid ``[%clk ...]`` annotation in the comment of
+        this node, if any.
+
+        Returns the remaining time to the next time control after this move,
+        in seconds.
+        """
         match = CLOCK_REGEX.search(self.comment)
         if match is None:
             return None
         return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + int(match.group(3))
 
     def set_clock(self, seconds: Optional[float]) -> None:
+        """
+        Replaces the first valid ``[%clk ...]`` annotation in the comment of
+        this node or adds a new one.
+        """
         clk = ""
         if seconds is not None:
             hours = seconds // 3600
