@@ -561,6 +561,7 @@ class GameNode:
         return visitor.result()
 
     def clock(self) -> Optional[str]:
+        # TODO: Parse value, add setter
         match = CLOCK_REGEX.search(self.comment)
         return match.group(1) if match else None
 
