@@ -491,7 +491,7 @@ class GameNode:
         Parses the first valid ``[%clk ...]`` annotation in the comment of
         this node, if any.
 
-        Returns the players remaining time to the next time control after this
+        Returns the player's remaining time to the next time control after this
         move, in seconds.
         """
         match = CLOCK_REGEX.search(self.comment)
