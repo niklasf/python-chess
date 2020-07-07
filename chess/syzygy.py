@@ -370,7 +370,7 @@ PCHR = ["K", "Q", "R", "B", "N", "P"]
 TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
 
 
-def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int] = 7, normalized: bool = True) -> bool:
+def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int] = TBPIECES, normalized: bool = True) -> bool:
     return (
         (piece_count is None or len(name) <= piece_count + 1) and
         bool(TABLENAME_REGEX.match(name)) and
@@ -1688,8 +1688,8 @@ class Tablebase:
             raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
 
         # Validate piece count.
-        if chess.popcount(board.occupied) > 7:
-            raise KeyError(f"syzygy tables support up to 6 (and experimentally 7) pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+        if chess.popcount(board.occupied) > TBPIECES:
+            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
@@ -1954,10 +1954,11 @@ def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = Tr
     .. note::
 
         Generally probing requires tablebase files for the specific
-        material composition, **as well as** tablebase files with less pieces.
-        This is important because 6-piece and 5-piece files are often
-        distributed seperately, but are both required for 6-piece positions.
-        Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
+        material composition, **as well as** material compositions transitively
+        reachable by captures and promotions.
+        This is important because 6-piece and 5-piece (let alone 7-piece) files
+        are often distributed separately, but are both required for 6-piece
+        positions. Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
         tables from additional directories.
     """
     tables = Tablebase(max_fds=max_fds, VariantBoard=VariantBoard)
