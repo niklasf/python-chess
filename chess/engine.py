@@ -635,7 +635,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
                 self.expected_pings -= 1
                 self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n")
             else:
-                assert self.expectations, f"unexpected: {line}"
+                assert self.expectations, f"unexpected: {line!r}"
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, f"expected {expectation}, got: {line}"
                 if responses:
@@ -1127,7 +1127,7 @@ class UciProtocol(EngineProtocol):
                     self.result.set_result(None)
                     self.set_finished()
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
         return await self.communicate(UciPingCommand)
 
@@ -1274,7 +1274,7 @@ class UciProtocol(EngineProtocol):
                 elif line == "readyok" and self.sent_isready:
                     self._readyok(engine)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
             def _readyok(self, engine: UciProtocol) -> None:
                 self.sent_isready = False
@@ -1344,7 +1344,7 @@ class UciProtocol(EngineProtocol):
                 elif line == "readyok" and self.sent_isready:
                     self._readyok(engine)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
             def _readyok(self, engine: UciProtocol) -> None:
                 self.sent_isready = False
@@ -1739,7 +1739,7 @@ class XBoardProtocol(EngineProtocol):
                     self.result.set_result(None)
                     self.set_finished()
                 elif not line.startswith("#"):
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
                 elif XBOARD_ERROR_REGEX.match(line):
                     raise EngineError(line)
 
@@ -1822,7 +1822,7 @@ class XBoardProtocol(EngineProtocol):
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
                     self._post(engine, line)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
             def _post(self, engine: XBoardProtocol, line: str) -> None:
                 if not self.result.done():
@@ -1924,7 +1924,7 @@ class XBoardProtocol(EngineProtocol):
                     engine.first_game = True  # Board state might no longer be in sync
                     raise EngineError(line)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %s", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
             def _post(self, engine: XBoardProtocol, line: str) -> None:
                 post_info = _parse_xboard_post(line, engine.board, info)
