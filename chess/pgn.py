@@ -1269,7 +1269,7 @@ class StringExporter(StringExporterMixin, BaseVisitor[str]):
         return self.result()
 
 
-class FileExporter(StringExporterMixin, BaseVisitor[None]):
+class FileExporter(StringExporterMixin, BaseVisitor[int]):
     """
     Acts like a :class:`~chess.pgn.StringExporter`, but games are written
     directly into a text file.
@@ -1290,19 +1290,23 @@ class FileExporter(StringExporterMixin, BaseVisitor[None]):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
+    def begin_game(self):
+        self.written: int = 0
+        super().begin_game()
+
     def flush_current_line(self) -> None:
         if self.current_line:
-            self.handle.write(self.current_line.rstrip())
-            self.handle.write("\n")
+            self.written += self.handle.write(self.current_line.rstrip())
+            self.written += self.handle.write("\n")
         self.current_line = ""
 
     def write_line(self, line: str = "") -> None:
         self.flush_current_line()
-        self.handle.write(line.rstrip())
-        self.handle.write("\n")
+        self.written += self.handle.write(line.rstrip())
+        self.written += self.handle.write("\n")
 
-    def result(self) -> None:
-        return None
+    def result(self) -> int:
+        return self.written
 
     def __repr__(self) -> str:
         return f"<FileExporter at {id(self):#x}>"
