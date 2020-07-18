@@ -1990,8 +1990,10 @@ class Board(BaseBoard):
         """
         # Push move and remember board state.
         move = self._to_chess960(move)
+        board_state = self._board_state()
+        self.castling_rights = self.clean_castling_rights()  # Before pushing stack
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
-        self._stack.append(self._board_state())
+        self._stack.append(board_state)
 
         # Reset en passant square.
         ep_square = self.ep_square
@@ -2027,7 +2029,7 @@ class Board(BaseBoard):
         captured_piece_type = self.piece_type_at(capture_square)
 
         # Update castling rights.
-        self.castling_rights = self.clean_castling_rights() & ~to_bb & ~from_bb
+        self.castling_rights &= ~to_bb & ~from_bb
         if piece_type == KING and not promoted:
             if self.turn == WHITE:
                 self.castling_rights &= ~BB_RANK_1

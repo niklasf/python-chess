@@ -490,6 +490,15 @@ class BoardTestCase(unittest.TestCase):
         board.chess960 = True
         self.assertEqual(board.find_move(chess.E1, chess.H1), chess.Move.from_uci("e1h1"))
 
+    def test_clean_castling_rights(self):
+        board = chess.Board()
+        board.set_board_fen("k6K/8/8/pppppppp/8/8/8/QqQq4")
+        self.assertEqual(board.clean_castling_rights(), chess.BB_EMPTY)
+        self.assertEqual(board.fen(), "k6K/8/8/pppppppp/8/8/8/QqQq4 w - - 0 1")
+        board.push_san("Qxc5")
+        self.assertEqual(board.clean_castling_rights(), chess.BB_EMPTY)
+        self.assertEqual(board.fen(), "k6K/8/8/ppQppppp/8/8/8/Qq1q4 b - - 0 1")
+
     def test_insufficient_material(self):
         def _check(board, white, black):
             self.assertEqual(board.has_insufficient_material(chess.WHITE), white)
