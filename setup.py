@@ -34,6 +34,9 @@ if sys.version_info < (3, ):
         end of 2018. Consider upgrading to Python 3.
         """))
 
+if sys.version_info < (3, 6):
+    raise ImportError("Since version 0.30.0, python-chess requires Python 3.6 or later.")
+
 import chess
 
 

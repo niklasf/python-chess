@@ -1,6 +1,37 @@
 Changelog for python-chess
 ==========================
 
+New in v0.31.3
+--------------
+
+Bugfixes:
+
+* Custom castling rights assigned to `board.castling_rights` or castling rights
+  left over after `Board.set_board_fen()` were not correctly cleaned after
+  the first move.
+
+Changes:
+
+* Ignore up to one consecutive empty line between PGN headers.
+* Added PGN Variant `From Position` as an alias for standard chess.
+* `chess.pgn.FileExporter.result()` now returns the number of written
+  characters.
+* `chess.engine` now avoids sending 0 for search limits, which some engines
+  misunderstand as no limit.
+* `chess.engine` better handles null moves sent to the engine.
+* `chess.engine` now gracefully handles `NULL` ponder moves and uppercase
+  moves received from UCI engines, which is technically invalid.
+
+New features:
+
+* Added `chess.pgn.GameNode.{clock, set_clock}()` to read and write
+  `[%clk ...]` **PGN annotations**.
+* Added `chess.pgn.GameNode.{arrows, set_arrows}()` to read and write
+  `[%csl ...]` and `[%cal ...]` PGN annotations.
+* Added `chess.pgn.GameNode.{eval, set_eval}()` to read and write
+  `[%eval ...]` PGN annotations.
+* Added `SquareSet.ray(a, b)` and `SquareSet.between(a, b)`.
+
 New in v0.31.2
 --------------
 
