@@ -2279,7 +2279,7 @@ class Board(BaseBoard):
                 raise ValueError(f"half-move clock cannot be negative: {fen!r}")
 
         # Check that the full-move number part is valid.
-        # 0 is allowed for compability, but later replaced with 1.
+        # 0 is allowed for compatibility, but later replaced with 1.
         try:
             fullmove_part = parts.pop(0)
         except IndexError:
