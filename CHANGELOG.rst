@@ -812,7 +812,7 @@ New in v0.18.4
 
 Changes:
 
-* Support `[Variant "fischerandom"]` in PGNs for Cutechess compability.
+* Support `[Variant "fischerandom"]` in PGNs for Cutechess compatibility.
   Thanks to Steve Maughan for reporting.
 
 New in v0.18.3
@@ -1537,8 +1537,8 @@ Incompatible changes:
 
 * Scripts removed.
 
-* Python 3.2 compability dropped. Use Python 3.3 or higher. Python 2.7 support
-  is not affected.
+* Python 3.2 compatibility dropped. Use Python 3.3 or higher. Python 2.7
+  support is not affected.
 
 New features:
 
