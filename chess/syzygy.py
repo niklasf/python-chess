@@ -21,11 +21,12 @@ import os
 import re
 import struct
 import threading
+import typing
 
 import chess
 
 from types import TracebackType
-from typing import Deque, Dict, Iterable, Iterator, List, MutableMapping, Optional, Tuple, Type, TypeVar, Union
+from typing import Deque, Dict, Iterable, Iterator, List, Optional, Tuple, Type, TypeVar, Union
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -685,7 +686,7 @@ class Table:
 
         return d
 
-    def set_norm_piece(self, norm: List[int], pieces) -> None:
+    def set_norm_piece(self, norm: List[int], pieces: List[int]) -> None:
         if self.enc_type == 0:
             norm[0] = 3
         elif self.enc_type == 2:
@@ -752,7 +753,7 @@ class Table:
 
         return fac
 
-    def set_norm_pawn(self, norm: List[int], pieces) -> None:
+    def set_norm_pawn(self, norm: List[int], pieces: List[int]) -> None:
         norm[0] = self.pawns[0]
         if self.pawns[1]:
             norm[self.pawns[0]] = self.pawns[1]
@@ -1290,7 +1291,7 @@ class DtzTable(Table):
             p_data = 5
 
             if not self.has_pawns:
-                self.map_idx: Union[List[int], List[List[int]]] = [0, 0, 0, 0]
+                self.map_idx = [[0, 0, 0, 0]]
 
                 self.setup_pieces_piece_dtz(p_data, 0)
                 p_data += self.num + 1
@@ -1303,11 +1304,11 @@ class DtzTable(Table):
                 if self.flags & 2:
                     if not self.flags & 16:
                         for i in range(4):
-                            self.map_idx[i] = p_data + 1 - self.p_map
+                            self.map_idx[0][i] = p_data + 1 - self.p_map
                             p_data += 1 + self.data[p_data]
                     else:
                         for i in range(4):
-                            self.map_idx[i] = (p_data + 2 - self.p_map) // 2
+                            self.map_idx[0][i] = (p_data + 2 - self.p_map) // 2
                             p_data += 2 + 2 * self.read_uint16(p_data)
                 p_data += p_data & 0x01
 
@@ -1397,6 +1398,8 @@ class DtzTable(Table):
             bside = 0
 
         if not self.has_pawns:
+            assert isinstance(self.flags, int)
+
             if (self.flags & 1) != bside and not self.symmetric:
                 return 0, -1
 
@@ -1417,13 +1420,15 @@ class DtzTable(Table):
 
             if self.flags & 2:
                 if not self.flags & 16:
-                    res = self.data[self.p_map + self.map_idx[WDL_TO_MAP[wdl + 2]] + res]
+                    res = self.data[self.p_map + self.map_idx[0][WDL_TO_MAP[wdl + 2]] + res]
                 else:
-                    res = self.read_uint16(self.p_map + 2 * (self.map_idx[WDL_TO_MAP[wdl + 2]] + res))
+                    res = self.read_uint16(self.p_map + 2 * (self.map_idx[0][WDL_TO_MAP[wdl + 2]] + res))
 
             if (not (self.flags & PA_FLAGS[wdl + 2])) or (wdl & 1):
                 res *= 2
         else:
+            assert isinstance(self.flags, list)
+
             k = self.files[0].pieces[0] ^ cmirror
             piece_type = k & 0x07
             color = k >> 3
@@ -1500,8 +1505,8 @@ class Tablebase:
         self.lru: Deque[Table] = collections.deque()
         self.lru_lock = threading.Lock()
 
-        self.wdl: MutableMapping[str, WdlTable] = {}
-        self.dtz: MutableMapping[str, DtzTable] = {}
+        self.wdl: Dict[str, Table] = {}
+        self.dtz: Dict[str, Table] = {}
 
     def _bump_lru(self, table: Table) -> None:
         if self.max_fds is None:
@@ -1517,7 +1522,7 @@ class Tablebase:
                 if len(self.lru) > self.max_fds:
                     self.lru.pop().close()
 
-    def _open_table(self, hashtable: MutableMapping[str, Table], Table: Type[Table], path: str) -> int:
+    def _open_table(self, hashtable: Dict[str, Table], Table: Type[Table], path: str) -> int:
         table = Table(path, variant=self.variant)
 
         if table.key in hashtable:
@@ -1577,7 +1582,7 @@ class Tablebase:
 
         key = calc_key(board)
         try:
-            table = self.wdl[key]
+            table = typing.cast(WdlTable, self.wdl[key])
         except KeyError:
             raise MissingTableError(f"did not find wdl table {key}")
 
@@ -1750,7 +1755,7 @@ class Tablebase:
     def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
         key = calc_key(board)
         try:
-            table = self.dtz[key]
+            table = typing.cast(DtzTable, self.dtz[key])
         except KeyError:
             raise MissingTableError(f"did not find dtz table {key}")
 
