@@ -1290,7 +1290,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
-    def begin_game(self):
+    def begin_game(self) -> None:
         self.written: int = 0
         super().begin_game()
 
