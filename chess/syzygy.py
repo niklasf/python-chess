@@ -622,11 +622,15 @@ class Table:
                     pass
 
     def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> None:
+        assert self.data
+
         valid_magics = [magic, self.has_pawns and pawnless_magic]
         if self.data[:min(4, len(self.data))] not in valid_magics:
             raise IOError(f"invalid magic header: ensure {self.path!r} is a valid syzygy tablebase file")
 
     def setup_pairs(self, data_ptr: int, tb_size: int, size_idx: int, wdl: int) -> PairsData:
+        assert self.data
+
         d = PairsData()
 
         self._flags = self.data[data_ptr]
@@ -762,6 +766,8 @@ class Table:
             i += norm[i]
 
     def calc_symlen(self, d: PairsData, s: int, tmp: List[int]) -> None:
+        assert self.data
+
         w = d.sympat + 3 * s
         s2 = (self.data[w + 2] << 4) | (self.data[w + 1] >> 4)
         if s2 == 0x0fff:
@@ -952,6 +958,8 @@ class Table:
         return idx
 
     def decompress_pairs(self, d: PairsData, idx: int) -> int:
+        assert self.data
+
         if not d.idxbits:
             return d.min_len
 
@@ -1017,16 +1025,16 @@ class Table:
             return self.data[w]
 
     def read_uint64_be(self, data_ptr: int) -> int:
-        return UINT64_BE.unpack_from(self.data, data_ptr)[0]
+        return UINT64_BE.unpack_from(self.data, data_ptr)[0]  # type: ignore
 
     def read_uint32(self, data_ptr: int) -> int:
-        return UINT32.unpack_from(self.data, data_ptr)[0]
+        return UINT32.unpack_from(self.data, data_ptr)[0]  # type: ignore
 
     def read_uint32_be(self, data_ptr: int) -> int:
-        return UINT32_BE.unpack_from(self.data, data_ptr)[0]
+        return UINT32_BE.unpack_from(self.data, data_ptr)[0]  # type: ignore
 
     def read_uint16(self, data_ptr: int) -> int:
-        return UINT16.unpack_from(self.data, data_ptr)[0]
+        return UINT16.unpack_from(self.data, data_ptr)[0]  # type: ignore
 
     def close(self) -> None:
         with self.write_lock:
@@ -1056,6 +1064,7 @@ class WdlTable(Table):
     def init_table_wdl(self) -> None:
         with self.write_lock:
             self.init_mmap()
+            assert self.data
 
             if self.initialized:
                 return
@@ -1077,8 +1086,6 @@ class WdlTable(Table):
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
-
-            self.flags = None
 
             split = self.data[4] & 0x01
             files = 4 if self.data[4] & 0x02 else 1
@@ -1157,6 +1164,8 @@ class WdlTable(Table):
             self.initialized = True
 
     def setup_pieces_pawn(self, p_data: int, p_tb_size: int, f: int) -> None:
+        assert self.data
+
         j = 1 + int(self.pawns[1] > 0)
         order = self.data[p_data] & 0x0f
         order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
@@ -1175,6 +1184,8 @@ class WdlTable(Table):
         self.tb_size[p_tb_size + 1] = self.calc_factors_pawn(self.files[f].factor[1], order, order2, self.files[f].norm[1], f)
 
     def setup_pieces_piece(self, p_data: int) -> None:
+        assert self.data
+
         self.pieces[0] = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
         order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm[0], self.pieces[0])
@@ -1261,6 +1272,7 @@ class DtzTable(Table):
     def init_table_dtz(self) -> None:
         with self.write_lock:
             self.init_mmap()
+            assert self.data
 
             if self.initialized:
                 return
@@ -1278,14 +1290,14 @@ class DtzTable(Table):
             p_data = 5
 
             if not self.has_pawns:
-                self.map_idx = [0, 0, 0, 0]
+                self.map_idx: Union[List[int], List[List[int]]] = [0, 0, 0, 0]
 
                 self.setup_pieces_piece_dtz(p_data, 0)
                 p_data += self.num + 1
                 p_data += p_data & 0x01
 
                 self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
-                self.flags = self._flags
+                self.flags: Union[int, List[int]] = self._flags
                 p_data = self._next
                 self.p_map = p_data
                 if self.flags & 2:
@@ -1367,6 +1379,7 @@ class DtzTable(Table):
 
     def _probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
         self.init_table_dtz()
+        assert self.data
 
         key = calc_key(board)
 
@@ -1450,12 +1463,16 @@ class DtzTable(Table):
         return res, 1
 
     def setup_pieces_piece_dtz(self, p_data: int, p_tb_size: int) -> None:
+        assert self.data
+
         self.pieces = [self.data[p_data + i + 1] & 0x0f for i in range(self.num)]
         order = self.data[p_data] & 0x0f
         self.set_norm_piece(self.norm, self.pieces)
         self.tb_size[p_tb_size] = self.calc_factors_piece(self.factor, order, self.norm)
 
     def setup_pieces_pawn_dtz(self, p_data: int, p_tb_size: int, f: int) -> None:
+        assert self.data
+
         j = 1 + int(self.pawns[1] > 0)
         order = self.data[p_data] & 0x0f
         order2 = self.data[p_data + 1] & 0x0f if self.pawns[1] else 0x0f
