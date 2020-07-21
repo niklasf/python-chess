@@ -20,11 +20,11 @@ def print_tree(args, visited, level=0):
     for entry in args.book.find_all(zobrist_hash):
         print("{}├─ \033[1m{}\033[0m (weight: {}, learn: {})".format(
             "|  " * level,
-            args.board.san(entry.move()),
+            args.board.san(entry.move),
             entry.weight,
             entry.learn))
 
-        args.board.push(entry.move())
+        args.board.push(entry.move)
         print_tree(args, visited, level + 1)
         args.board.pop()
 
