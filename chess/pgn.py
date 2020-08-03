@@ -416,7 +416,7 @@ class GameNode:
         self.comment, found = EVAL_REGEX.subn(eval, self.comment, count=1)
 
         if not found and eval:
-            if not self.comment.endswith(" "):
+            if self.comment and not self.comment.endswith(" "):
                 self.comment += " "
             self.comment += eval
 
@@ -484,7 +484,7 @@ class GameNode:
             prefix += f"[%cal {','.join(cal)}]"
 
         if prefix:
-            self.comment = prefix + " " + self.comment
+            self.comment = prefix + " " + self.comment if self.comment else prefix
 
     def clock(self) -> Optional[float]:
         """
@@ -514,7 +514,7 @@ class GameNode:
         self.comment, found = CLOCK_REGEX.subn(clk, self.comment, count=1)
 
         if not found and clk:
-            if not self.comment.endswith(" "):
+            if self.comment and not self.comment.endswith(" "):
                 self.comment += " "
             self.comment += clk
 
