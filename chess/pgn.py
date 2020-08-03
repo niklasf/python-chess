@@ -506,6 +506,7 @@ class GameNode:
         """
         clk = ""
         if seconds is not None:
+            seconds = max(0, round(seconds))
             hours = seconds // 3600
             minutes = seconds % 3600 // 60
             seconds = seconds % 3600 % 60

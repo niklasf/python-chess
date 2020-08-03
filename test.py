@@ -2644,7 +2644,7 @@ class PgnTestCase(unittest.TestCase):
 
         self.assertTrue(game.clock() is None)
         clock = 12345
-        game.set_clock(12345)
+        game.set_clock(clock)
         self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45]")
         self.assertEqual(game.clock(), clock)
 
@@ -2666,6 +2666,12 @@ class PgnTestCase(unittest.TestCase):
         game.set_eval(None)
         game.set_arrows([])
         self.assertEqual(game.comment, "foo [%bar] baz")
+
+        game.set_clock(1.4)
+        self.assertEqual(game.clock(), 1)  # Rounded
+
+        game.set_clock(-70)
+        self.assertEqual(game.clock(), 0)  # Clamped
 
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
