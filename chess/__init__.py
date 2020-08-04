@@ -1640,6 +1640,7 @@ class Board(BaseBoard):
 
         # Handle castling.
         if piece == KING:
+            move = self._from_chess960(self.chess960, move.from_square, move.to_square)
             if move in self.generate_castling_moves():
                 return True
 

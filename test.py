@@ -1560,6 +1560,15 @@ class BoardTestCase(unittest.TestCase):
         self.assertIn(chess.Move.from_uci("c2d3"), plc)
         self.assertEqual(len(plc), 5)
 
+    def test_castling_is_legal(self):
+        board = chess.Board("rnbqkbnr/5p2/1pp3pp/p2P4/6P1/2NPpN2/PPP1Q1BP/R3K2R w Qq - 0 11")
+        self.assertFalse(board.is_legal(chess.Move.from_uci("e1g1")))
+        self.assertFalse(board.is_legal(chess.Move.from_uci("e1h1")))
+
+        board.castling_rights |= chess.BB_H1
+        self.assertTrue(board.is_legal(chess.Move.from_uci("e1g1")))
+        self.assertTrue(board.is_legal(chess.Move.from_uci("e1h1")))
+
     def test_from_chess960_pos(self):
         board = chess.Board.from_chess960_pos(909)
         self.assertTrue(board.chess960)
