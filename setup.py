@@ -85,6 +85,10 @@ setuptools.setup(
     license="GPL-3.0+",
     keywords="chess fen epd pgn polyglot syzygy gaviota uci xboard",
     url="https://github.com/niklasf/python-chess",
+    zip_safe=False,  # for mypy
+    package_data={
+        "chess": ["py.typed"],
+    },
     packages=["chess"],
     test_suite="test",
     python_requires=">=3.6",
