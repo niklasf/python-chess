@@ -1,6 +1,21 @@
 Changelog for python-chess
 ==========================
 
+New in v0.31.4
+--------------
+
+Bugfixes:
+
+* Fix inconsistency where `board.is_legal()` was not accepting castling moves
+  in Chess960 notation (when board is in standard mode), while all other
+  methods did.
+* Fix `chess.pgn.GameNode.set_clock()` with negative or floating point values.
+* Avoid leading and trailing spaces in PGN comments when setting annotations.
+
+New features:
+
+* Finish typing and declare support for mypy.
+
 New in v0.31.3
 --------------
 
