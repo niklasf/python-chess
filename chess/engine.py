@@ -158,9 +158,9 @@ def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T]], Corou
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
-    Blocks and returns the *future* result as soon as it is resolved.
+    Blocks on *future* and returns the result as soon as it is resolved.
     The coroutine and all remaining tasks continue running in the background
-    until it is complete.
+    until complete.
 
     Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
     process.
