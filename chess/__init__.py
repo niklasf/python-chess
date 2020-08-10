@@ -1371,7 +1371,7 @@ class Board(BaseBoard):
 
     .. warning::
         It is possible to set up and work with invalid positions. In this
-        case :class:`~chess.Board` implements a kind of "pseudo-chess"
+        case, :class:`~chess.Board` implements a kind of "pseudo-chess"
         (useful to gracefully handle errors or to implement chess variants).
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
