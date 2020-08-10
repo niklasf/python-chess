@@ -85,6 +85,8 @@ script:
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/svg.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/syzygy.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/variant.py; fi
+ - # Typing of examples
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/xray_attacks.py; fi
  - # Perft tests
  - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
  - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/tricky.perft; fi

@@ -5,7 +5,7 @@
 import chess
 
 
-def xray_rook_attackers(board, color, square):
+def xray_rook_attackers(board: chess.Board, color: chess.Color, square: chess.Square) -> chess.SquareSet:
     occupied = board.occupied
     rank_pieces = chess.BB_RANK_MASKS[square] & occupied
     file_pieces = chess.BB_FILE_MASKS[square] & occupied
@@ -28,7 +28,7 @@ def xray_rook_attackers(board, color, square):
         chess.BB_FILE_ATTACKS[square][file_pieces]))
 
 
-def xray_bishop_attackers(board, color, square):
+def xray_bishop_attackers(board: chess.Board, color: chess.Color, square: chess.Square) -> chess.SquareSet:
     occupied = board.occupied
     diag_pieces = chess.BB_DIAG_MASKS[square] & occupied
 
@@ -47,7 +47,7 @@ def xray_bishop_attackers(board, color, square):
     return chess.SquareSet(board.occupied_co[color] & board.bishops & chess.BB_DIAG_ATTACKS[square][diag_pieces])
 
 
-def example():
+def example() -> None:
     board = chess.Board("r3k2r/pp3p2/4p2Q/4q1p1/4P3/P2PK3/6PP/R3R3 w q - 1 2")
     print("rook x-ray, black, h3:")
     print(xray_rook_attackers(board, chess.BLACK, chess.H3))
