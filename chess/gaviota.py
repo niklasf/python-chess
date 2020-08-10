@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import ctypes
 import ctypes.util
+import dataclasses
 import fnmatch
 import logging
 import lzma
@@ -1519,11 +1520,11 @@ class Request:
         self.epsq = epsq
 
 
+@dataclasses.dataclass(eq=False)
 class Zipinfo:
-    def __init__(self, extraoffset: int, totalblocks: int, blockindex: List[int]) -> None:
-        self.extraoffset = extraoffset
-        self.totalblocks = totalblocks
-        self.blockindex = blockindex
+    extraoffset: int
+    totalblocks: int
+    blockindex: List[int]
 
 
 class PythonTablebase:

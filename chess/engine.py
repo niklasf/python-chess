@@ -22,6 +22,7 @@ import collections
 import concurrent.futures
 import contextlib
 import copy
+import dataclasses
 import enum
 import logging
 import warnings
@@ -245,30 +246,22 @@ class Option(NamedTuple):
         return self.name.lower() in MANAGED_OPTIONS
 
 
+@dataclasses.dataclass
 class Limit:
     """Search-termination condition."""
 
-    def __init__(self, *,
-                 time: Optional[float] = None,
-                 depth: Optional[int] = None,
-                 nodes: Optional[int] = None,
-                 mate: Optional[int] = None,
-                 white_clock: Optional[float] = None,
-                 black_clock: Optional[float] = None,
-                 white_inc: Optional[float] = None,
-                 black_inc: Optional[float] = None,
-                 remaining_moves: Optional[int] = None):
-        self.time = time
-        self.depth = depth
-        self.nodes = nodes
-        self.mate = mate
-        self.white_clock = white_clock
-        self.black_clock = black_clock
-        self.white_inc = white_inc
-        self.black_inc = black_inc
-        self.remaining_moves = remaining_moves
+    time: Optional[float] = None
+    depth: Optional[int] = None
+    nodes: Optional[int] = None
+    mate: Optional[int] = None
+    white_clock: Optional[float] = None
+    black_clock: Optional[float] = None
+    white_inc: Optional[float] = None
+    black_inc: Optional[float] = None
+    remaining_moves: Optional[int] = None
 
     def __repr__(self) -> str:
+        # Like default __repr__, but without None values.
         return "{}({})".format(
             type(self).__name__,
             ", ".join("{}={!r}".format(attr, getattr(self, attr))

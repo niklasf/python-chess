@@ -30,6 +30,7 @@ __version__ = "0.31.4"
 
 import collections
 import copy
+import dataclasses
 import enum
 import math
 import re
@@ -386,12 +387,12 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
 
+@dataclasses.dataclass
 class Piece:
     """A piece with type and color."""
 
-    def __init__(self, piece_type: PieceType, color: Color) -> None:
-        self.piece_type = piece_type
-        self.color = color
+    piece_type: PieceType
+    color: Color
 
     def symbol(self) -> str:
         """
@@ -421,12 +422,6 @@ class Piece:
         import chess.svg
         return chess.svg.piece(self, size=45)
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Piece):
-            return (self.piece_type, self.color) == (other.piece_type, other.color)
-        else:
-            return NotImplemented
-
     @classmethod
     def from_symbol(cls, symbol: str) -> Piece:
         """
@@ -437,6 +432,7 @@ class Piece:
         return cls(PIECE_SYMBOLS.index(symbol.lower()), symbol.isupper())
 
 
+@dataclasses.dataclass(unsafe_hash=True)
 class Move:
     """
     Represents a move from a square to a square and possibly the promotion
@@ -444,6 +440,11 @@ class Move:
 
     Drops and null moves are supported.
     """
+
+    from_square: Square
+    to_square: Square
+    promotion: Optional[PieceType] = None
+    drop: Optional[PieceType] = None
 
     def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> None:
         self.from_square = from_square
@@ -475,24 +476,11 @@ class Move:
     def __bool__(self) -> bool:
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Move):
-            return (
-                self.from_square == other.from_square and
-                self.to_square == other.to_square and
-                self.promotion == other.promotion and
-                self.drop == other.drop)
-        else:
-            return NotImplemented
-
     def __repr__(self) -> str:
         return f"Move.from_uci({self.uci()!r})"
 
     def __str__(self) -> str:
         return self.uci()
-
-    def __hash__(self) -> int:
-        return hash((self.to_square, self.from_square, self.promotion, self.drop))
 
     @classmethod
     def from_uci(cls, uci: str) -> Move:
