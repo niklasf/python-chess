@@ -44,7 +44,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     import chess
     import chess.engine
 
-    async def main():
+    async def main() -> None:
         transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         board = chess.Board()
@@ -174,7 +174,7 @@ Example:
     import chess
     import chess.engine
 
-    async def main():
+    async def main() -> None:
         transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         board = chess.Board()
@@ -239,7 +239,7 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     import chess
     import chess.engine
 
-    async def main():
+    async def main() -> None:
         transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         with await engine.analysis(chess.Board()) as analysis:
@@ -312,7 +312,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     import asyncio
     import chess.engine
 
-    async def main():
+    async def main() -> None:
         transport, protocol = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         # Check available options.
@@ -413,7 +413,7 @@ to communicate with an engine on a remote computer.
     import chess
     import chess.engine
 
-    async def main():
+    async def main() -> None:
         async with asyncssh.connect("localhost") as conn:
             channel, engine = await conn.create_subprocess(chess.engine.UciProtocol, "/usr/bin/stockfish")
             await engine.initialize()

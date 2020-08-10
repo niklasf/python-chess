@@ -1076,7 +1076,7 @@ class GameBuilder(BaseVisitor[GameT]):
         >>> import chess.pgn
         >>>
         >>> class MyGameBuilder(chess.pgn.GameBuilder):
-        >>>     def handle_error(self, error):
+        >>>     def handle_error(self, error: Exception) -> None:
         >>>         pass  # Ignore error
         >>>
         >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn")
