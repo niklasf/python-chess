@@ -35,7 +35,7 @@ import os
 import re
 
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NamedTuple, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
 
 import chess
 
@@ -200,7 +200,8 @@ class AnalysisComplete(Exception):
     """
 
 
-class Option(NamedTuple):
+@dataclasses.dataclass(frozen=True)
+class Option:
     """Information about an available engine option."""
 
     name: str
