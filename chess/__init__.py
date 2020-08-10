@@ -20,6 +20,8 @@ opening book probing, PGN reading and writing, Gaviota tablebase probing,
 Syzygy tablebase probing and XBoard/UCI engine communication.
 """
 
+from __future__ import annotations
+
 __author__ = "Niklas Fiekas"
 
 __email__ = "niklas.fiekas@backscattering.de"

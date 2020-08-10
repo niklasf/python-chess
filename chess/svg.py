@@ -18,6 +18,8 @@
 # <https://en.wikipedia.org/wiki/User:Cburnett> and also licensed under the
 # GNU General Public License.
 
+from __future__ import annotations
+
 import chess
 import math
 

@@ -34,8 +34,8 @@ if sys.version_info < (3, ):
         end of 2018. Consider upgrading to Python 3.
         """))
 
-if sys.version_info < (3, 6):
-    raise ImportError("Since version 0.30.0, python-chess requires Python 3.6 or later.")
+if sys.version_info < (3, 7):
+    raise ImportError("Since version 1.0.0, python-chess requires Python 3.7 or later.")
 
 import chess
 
@@ -91,7 +91,7 @@ setuptools.setup(
     },
     packages=["chess"],
     test_suite="test",
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -100,7 +100,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
