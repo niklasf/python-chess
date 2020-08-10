@@ -36,35 +36,6 @@ import re
 from types import TracebackType
 from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, NamedTuple, Optional, Text, Tuple, Type, TypeVar, Union
 
-try:
-    # Python 3.7
-    from asyncio import all_tasks as _all_tasks
-except ImportError:
-    _all_tasks = asyncio.Task.all_tasks
-
-try:
-    # Python 3.7
-    from asyncio import run as _run
-except ImportError:
-    _T = TypeVar("_T")
-
-    def _run(main: Awaitable[_T], *, debug: bool = False) -> _T:
-        assert _get_running_loop() is None
-        assert asyncio.iscoroutine(main)
-
-        loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(loop)
-            loop.set_debug(debug)
-            return loop.run_until_complete(main)
-        finally:
-            try:
-                loop.run_until_complete(asyncio.gather(*_all_tasks(loop), return_exceptions=True))
-                loop.run_until_complete(loop.shutdown_asyncgens())
-            finally:
-                asyncio.set_event_loop(None)
-                loop.close()
-
 import chess
 
 
@@ -204,7 +175,7 @@ def run_in_background(coroutine: "Callable[[concurrent.futures.Future[T]], Corou
 
     def background() -> None:
         try:
-            _run(coroutine(future))
+            asyncio.run(coroutine(future))
             future.cancel()
         except Exception as exc:
             future.set_exception(exc)

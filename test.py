@@ -18,7 +18,6 @@
 
 import asyncio
 import copy
-import contextlib
 import logging
 import os
 import os.path
@@ -2881,9 +2880,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_uci_debug(self):
         async def main():
@@ -2899,9 +2896,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_uci_go(self):
         async def main():
@@ -2944,9 +2939,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_iota_log(self):
         async def main():
@@ -2969,9 +2962,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_uci_analyse_mode(self):
         async def main():
@@ -3016,9 +3007,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_uci_info(self):
         # Info: refutation.
@@ -3142,9 +3131,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_xboard_replay(self):
         async def main():
@@ -3206,8 +3193,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_xboard_analyse(self):
         async def main():
@@ -3245,9 +3231,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_xboard_level(self):
         async def main():
@@ -3275,9 +3259,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     def test_xboard_error(self):
         async def main():
@@ -3296,9 +3278,7 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     @catchAndSkip(FileNotFoundError, "need /bin/bash")
     def test_transport_close_with_pending(self):
@@ -3310,9 +3290,7 @@ class EngineTestCase(unittest.TestCase):
             self.assertNotEqual(results[1], None)
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
-        with contextlib.closing(asyncio.get_event_loop()) as loop:
-            loop.set_debug(True)
-            loop.run_until_complete(main())
+        asyncio.run(main())
 
     @catchAndSkip(FileNotFoundError, "need /bin/bash")
     def test_quit_timeout(self):
