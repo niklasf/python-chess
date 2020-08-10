@@ -866,7 +866,8 @@ class BaseBoard:
 
     def board_fen(self, *, promoted: Optional[bool] = False) -> str:
         """
-        Gets the board FEN.
+        Gets the board FEN (e.g.,
+        ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR``).
         """
         builder = []
         empty = 0
@@ -950,9 +951,10 @@ class BaseBoard:
 
     def set_board_fen(self, fen: str) -> None:
         """
-        Parses a FEN and sets the board from it.
+        Parses *fen* and sets up the board, where *fen* is the board part of
+        a FEN.
 
-        :raises: :exc:`ValueError` if the FEN string is invalid.
+        :raises: :exc:`ValueError` if syntactically invalid.
         """
         self._set_board_fen(fen)
 
@@ -2185,7 +2187,7 @@ class Board(BaseBoard):
 
         A FEN string (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1``) consists
-        of the position part :func:`~chess.Board.board_fen()`, the
+        of the board part :func:`~chess.Board.board_fen()`, the
         :data:`~chess.Board.turn`, the castling part
         (:data:`~chess.Board.castling_rights`),
         the en passant square (:data:`~chess.Board.ep_square`),
@@ -2222,7 +2224,8 @@ class Board(BaseBoard):
         """
         Parses a FEN and sets the position from it.
 
-        :raises: :exc:`ValueError` if the FEN string is invalid.
+        :raises: :exc:`ValueError` if syntactically invalid. Use
+            :func:`~chess.Board.is_valid()` to detect invalid positions.
         """
         parts = fen.split()
 
