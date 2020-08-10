@@ -9,12 +9,14 @@ import itertools
 import logging
 import sys
 
+from typing import Type
+
 import chess
 import chess.engine
 import chess.variant
 
 
-async def test_epd(engine, epd, VariantBoard, movetime):
+async def test_epd(engine: chess.engine.EngineProtocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
     board, epd_info = VariantBoard.from_epd(epd)
     epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:
@@ -25,7 +27,10 @@ async def test_epd(engine, epd, VariantBoard, movetime):
     limit = chess.engine.Limit(time=movetime)
     result = await engine.play(board, limit, game=object())
 
-    if "am" in epd_info and result.move in epd_info["am"]:
+    if not result.move:
+        print(f"{epd_string}: -- | +0")
+        return 0.0
+    elif "am" in epd_info and result.move in epd_info["am"]:
         print(f"{epd_string}: {board.san(result.move)} | +0")
         return 0.0
     elif "bm" in epd_info and result.move not in epd_info["bm"]:
@@ -36,7 +41,7 @@ async def test_epd(engine, epd, VariantBoard, movetime):
         return 1.0
 
 
-async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
+async def test_epd_with_fractional_scores(engine: chess.engine.EngineProtocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
     board, epd_info = VariantBoard.from_epd(epd)
     epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:
@@ -71,7 +76,7 @@ async def test_epd_with_fractional_scores(engine, epd, VariantBoard, movetime):
     return score
 
 
-async def main():
+async def main() -> None:
     # Parse command line arguments.
     parser = argparse.ArgumentParser(description=__doc__)
 

@@ -7,7 +7,7 @@ import timeit
 import chess
 
 
-def main(bench_only=False):
+def main(bench_only: bool = False) -> None:
     board = chess.Board.empty(chess960=True)
 
     for sharnagl in range(0, 960):

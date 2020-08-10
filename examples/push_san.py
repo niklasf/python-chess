@@ -6,7 +6,7 @@ import chess
 import timeit
 
 
-def play_immortal_game():
+def play_immortal_game() -> None:
     board = chess.Board()
 
     # 1. e4 e5

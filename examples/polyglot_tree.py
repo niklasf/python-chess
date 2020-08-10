@@ -2,12 +2,15 @@
 
 """Print a Polyglot opening book in tree form."""
 
-import chess
-import chess.polyglot
 import argparse
 
+from typing import Set
 
-def print_tree(args, visited, level=0):
+import chess
+import chess.polyglot
+
+
+def print_tree(args: argparse.Namespace, visited: Set[int], level: int = 0) -> None:
     if level >= args.depth:
         return
 

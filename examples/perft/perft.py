@@ -4,16 +4,19 @@
 Run perft test to check correctness and speed of the legal move generator.
 """
 
-import chess
-import chess.variant
 import multiprocessing
 import functools
 import time
 import argparse
 import sys
 
+from typing import Callable, Iterator, Optional, TextIO, Type
 
-def perft(depth, board):
+import chess
+import chess.variant
+
+
+def perft(depth: int, board: chess.Board) -> int:
     if depth == 1:
         return board.legal_moves.count()
     elif depth > 1:
@@ -29,11 +32,11 @@ def perft(depth, board):
         return 1
 
 
-def parallel_perft(pool, depth, board):
+def parallel_perft(pool, depth: int, board: chess.Board) -> int:
     if depth == 1:
         return board.legal_moves.count()
     elif depth > 1:
-        def successors(board):
+        def successors(board: chess.Board) -> Iterator[chess.Board]:
             for move in board.legal_moves:
                 board_after = board.copy(stack=False)
                 board_after.push(move)
@@ -44,14 +47,14 @@ def parallel_perft(pool, depth, board):
         return 1
 
 
-def sdiv(a, b):
+def sdiv(a: float, b: float) -> float:
     try:
         return a / b
     except ZeroDivisionError:
         return float("Inf")
 
 
-def main(perft_file, VariantBoard, perft_f, max_depth, max_nodes):
+def main(perft_file: TextIO, VariantBoard: Type[chess.Board], perft_f: Callable[[int, chess.Board], int], max_depth: Optional[int], max_nodes: Optional[int]) -> None:
     current_id = None
     board = VariantBoard(chess960=True)
     column = 0
