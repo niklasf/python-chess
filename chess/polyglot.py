@@ -337,7 +337,7 @@ class MemoryMappedReader:
         except AttributeError:
             pass
 
-    def __enter__(self) -> "MemoryMappedReader":
+    def __enter__(self) -> MemoryMappedReader:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:

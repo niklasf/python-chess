@@ -418,7 +418,7 @@ def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
 KKIDX, WKSQ, BKSQ = init_kkidx()
 
 
-def kxk_pctoindex(c: "Request") -> int:
+def kxk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64
 
     ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0])
@@ -445,7 +445,7 @@ def kxk_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ws[1]
 
-def kapkb_pctoindex(c: "Request") -> int:
+def kapkb_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
@@ -475,7 +475,7 @@ def kapkb_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba
 
-def kabpk_pctoindex(c: "Request") -> int:
+def kabpk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
@@ -499,7 +499,7 @@ def kabpk_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
 
-def kabkp_pctoindex(c: "Request") -> int:
+def kabkp_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
     BLOCK_B = 64 * 64 * 64
     BLOCK_C = 64 * 64
@@ -528,7 +528,7 @@ def kabkp_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
 
-def kaapk_pctoindex(c: "Request") -> int:
+def kaapk_pctoindex(c: Request) -> int:
     BLOCK_C = MAX_AAINDEX
     BLOCK_B = 64 * BLOCK_C
     BLOCK_A = 64 * BLOCK_B
@@ -556,7 +556,7 @@ def kaapk_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
-def kaakp_pctoindex(c: "Request") -> int:
+def kaakp_pctoindex(c: Request) -> int:
     BLOCK_C = MAX_AAINDEX
     BLOCK_B = 64 * BLOCK_C
     BLOCK_A = 64 * BLOCK_B
@@ -585,7 +585,7 @@ def kaakp_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
-def kapkp_pctoindex(c: "Request") -> int:
+def kapkp_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
     BLOCK_C = 64
@@ -616,7 +616,7 @@ def kapkp_pctoindex(c: "Request") -> int:
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
 
-def kappk_pctoindex(c: "Request") -> int:
+def kappk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
     BLOCK_C = 64
@@ -647,7 +647,7 @@ def kappk_pctoindex(c: "Request") -> int:
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
 
-def kppka_pctoindex(c: "Request") -> int:
+def kppka_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
     BLOCK_C = 64
@@ -677,7 +677,7 @@ def kppka_pctoindex(c: "Request") -> int:
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + ba
 
-def kabck_pctoindex(c: "Request") -> int:
+def kabck_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_A = 64 * 64 * 64
@@ -708,7 +708,7 @@ def kabck_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_A + ws[1] * BLOCK_B + ws[2] * BLOCK_C + ws[3]
 
-def kabbk_pctoindex(c: "Request") -> int:
+def kabbk_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_Bx = 64
@@ -739,7 +739,7 @@ def kabbk_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[1]
 
-def kaabk_pctoindex(c: "Request") -> int:
+def kaabk_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_Bx = 64
@@ -775,7 +775,7 @@ def aaa_getsubi(x: int, y: int, z: int) -> int:
     calc_idx = x + (y - 1) * y // 2 + bse
     return calc_idx
 
-def kaaak_pctoindex(c: "Request") -> int:
+def kaaak_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
     BLOCK_Ax = MAX_AAAINDEX
@@ -822,7 +822,7 @@ def kaaak_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ai
 
-def kppkp_pctoindex(c: "Request") -> int:
+def kppkp_pctoindex(c: Request) -> int:
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
@@ -853,7 +853,7 @@ def kppkp_pctoindex(c: "Request") -> int:
 
     return k * BLOCK_Ax + pp48_slice * BLOCK_Bx + wk * BLOCK_Cx + bk
 
-def kaakb_pctoindex(c: "Request") -> int:
+def kaakb_pctoindex(c: Request) -> int:
     N_WHITE = 3
     N_BLACK = 2
     BLOCK_Bx = 64
@@ -884,7 +884,7 @@ def kaakb_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + bs[1]
 
-def kabkc_pctoindex(c: "Request") -> int:
+def kabkc_pctoindex(c: Request) -> int:
     N_WHITE = 3
     N_BLACK = 2
 
@@ -916,7 +916,7 @@ def kabkc_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + ws[2] * BLOCK_Cx + bs[1]
 
-def kpkp_pctoindex(c: "Request") -> int:
+def kpkp_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
@@ -944,7 +944,7 @@ def kpkp_pctoindex(c: "Request") -> int:
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-def kppk_pctoindex(c: "Request") -> int:
+def kppk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
     wk = c.white_piece_squares[0]
@@ -970,7 +970,7 @@ def kppk_pctoindex(c: "Request") -> int:
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-def kapk_pctoindex(c: "Request") -> int:
+def kapk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64 * 64
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
@@ -996,7 +996,7 @@ def kapk_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
-def kabk_pctoindex(c: "Request") -> int:
+def kabk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
@@ -1024,7 +1024,7 @@ def kabk_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + ws[2]
 
-def kakp_pctoindex(c: "Request") -> int:
+def kakp_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64 * 64
     BLOCK_Bx = 64 * 64
     BLOCK_Cx = 64
@@ -1049,7 +1049,7 @@ def kakp_pctoindex(c: "Request") -> int:
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
-def kaak_pctoindex(c: "Request") -> int:
+def kaak_pctoindex(c: Request) -> int:
     N_WHITE = 3
     N_BLACK = 1
     BLOCK_Ax = MAX_AAINDEX
@@ -1079,7 +1079,7 @@ def kaak_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ai
 
-def kakb_pctoindex(c: "Request") -> int:
+def kakb_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
@@ -1113,7 +1113,7 @@ def kakb_pctoindex(c: "Request") -> int:
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + bs[1]
 
-def kpk_pctoindex(c: "Request") -> int:
+def kpk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64
     BLOCK_B = 64
 
@@ -1137,7 +1137,7 @@ def kpk_pctoindex(c: "Request") -> int:
     res = pslice * BLOCK_A + wk * BLOCK_B + bk
     return res
 
-def kpppk_pctoindex(c: "Request") -> int:
+def kpppk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64
     BLOCK_B = 64
 
@@ -1174,7 +1174,7 @@ def kpppk_pctoindex(c: "Request") -> int:
 
 
 class Endgamekey:
-    def __init__(self, maxindex: int, slice_n: int, pctoi: Callable[["Request"], int]) -> None:
+    def __init__(self, maxindex: int, slice_n: int, pctoi: Callable[[Request], int]) -> None:
         self.maxindex = maxindex
         self.slice_n = slice_n
         self.pctoi = pctoi
@@ -1902,7 +1902,7 @@ class PythonTablebase:
         stream.seek(i)
         return i
 
-    def __enter__(self) -> "PythonTablebase":
+    def __enter__(self) -> PythonTablebase:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
@@ -2065,7 +2065,7 @@ class NativeTablebase:
             self.libgtb.tbcache_done()
             self.libgtb.tb_done()
 
-    def __enter__(self) -> "NativeTablebase":
+    def __enter__(self) -> NativeTablebase:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:

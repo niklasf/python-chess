@@ -1963,7 +1963,7 @@ class Tablebase:
 
         self.lru.clear()
 
-    def __enter__(self) -> "Tablebase":
+    def __enter__(self) -> Tablebase:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:

@@ -141,7 +141,7 @@ ResultT = TypeVar("ResultT", covariant=True)
 
 
 class _AcceptFrame:
-    def __init__(self, node: "GameNode", *, is_variation: bool = False, sidelines: bool = True):
+    def __init__(self, node: GameNode, *, is_variation: bool = False, sidelines: bool = True):
         assert node.parent is not None, "cannot visit dangling GameNode"
         self.state = "pre"
         self.node = node
@@ -163,7 +163,7 @@ class GameNode:
         self.board_cached: Optional[weakref.ref[chess.Board]] = None
 
     @classmethod
-    def dangling_node(cls) -> "GameNode":
+    def dangling_node(cls) -> GameNode:
         return GameNode()
 
     def _board(self) -> chess.Board:
@@ -229,7 +229,7 @@ class GameNode:
         assert self.parent is not None and self.move is not None, "cannot get uci of dangling GameNode"
         return self.parent.board().uci(self.move, chess960=chess960)
 
-    def root(self) -> "GameNode":
+    def root(self) -> GameNode:
         node = self
         while node.parent:
             node = node.parent
@@ -241,7 +241,7 @@ class GameNode:
         assert isinstance(root, Game), "GameNode not rooted in Game"
         return root
 
-    def end(self) -> "GameNode":
+    def end(self) -> GameNode:
         """Follows the main variation to the end and returns the last node."""
         node = self
 
@@ -292,7 +292,7 @@ class GameNode:
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def __getitem__(self, move: Union[int, chess.Move]) -> "GameNode":
+    def __getitem__(self, move: Union[int, chess.Move]) -> GameNode:
         try:
             return self.variations[move]  # type: ignore
         except TypeError:
@@ -302,7 +302,7 @@ class GameNode:
 
         raise KeyError(move)
 
-    def variation(self, move: Union[int, chess.Move]) -> "GameNode":
+    def variation(self, move: Union[int, chess.Move]) -> GameNode:
         """
         Gets a child node by either the move or the variation index.
         """
@@ -336,7 +336,7 @@ class GameNode:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> "GameNode":
+    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
         """Creates a child node with the given attributes."""
         node = type(self).dangling_node()
         node.move = move
@@ -348,7 +348,7 @@ class GameNode:
         self.variations.append(node)
         return node
 
-    def add_main_variation(self, move: chess.Move, *, comment: str = "") -> "GameNode":
+    def add_main_variation(self, move: chess.Move, *, comment: str = "") -> GameNode:
         """
         Creates a child node with the given attributes and promotes it to the
         main variation.
@@ -358,15 +358,15 @@ class GameNode:
         self.variations.insert(0, node)
         return node
 
-    def mainline(self) -> "Mainline[GameNode]":
+    def mainline(self) -> Mainline[GameNode]:
         """Returns an iterator over the mainline starting after this node."""
         return Mainline(self, lambda node: node)
 
-    def mainline_moves(self) -> "Mainline[chess.Move]":
+    def mainline_moves(self) -> Mainline[chess.Move]:
         """Returns an iterator over the main moves after this node."""
         return Mainline(self, lambda node: node._move())
 
-    def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> "GameNode":
+    def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
         """
         Creates a sequence of child nodes for the given list of moves.
         Adds *comment* and *nags* to the last node of the line and returns it.
@@ -521,7 +521,7 @@ class GameNode:
                 self.comment += " "
             self.comment += clk
 
-    def _accept_node(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]") -> None:
+    def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
         assert self.move is not None, "cannot visit dangling GameNode"
 
         if self.starting_comment:
@@ -539,7 +539,7 @@ class GameNode:
         if self.comment:
             visitor.visit_comment(self.comment)
 
-    def _accept(self, parent_board: chess.Board, visitor: "BaseVisitor[ResultT]", *, sidelines: bool = True) -> None:
+    def _accept(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT], *, sidelines: bool = True) -> None:
         stack = [_AcceptFrame(self, sidelines=sidelines)]
 
         while stack:
@@ -573,7 +573,7 @@ class GameNode:
             else:
                 stack.pop()
 
-    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
         Traverses game nodes in PGN order using the given *visitor*. Starts with
         the move leading to this node. Returns the *visitor* result.
@@ -582,7 +582,7 @@ class GameNode:
         self._accept(self.parent.board(), visitor, sidelines=False)
         return visitor.result()
 
-    def accept_subgame(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept_subgame(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
         Traverses headers and game nodes in PGN order, as if the game was
         starting after this node. Returns the *visitor* result.
@@ -678,7 +678,7 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
         Traverses the game in PGN order using the given *visitor*. Returns
         the *visitor* result.
@@ -722,7 +722,7 @@ class Game(GameNode):
         return cls(headers={})
 
     @classmethod
-    def builder(cls: Type[GameT]) -> "GameBuilder[GameT]":
+    def builder(cls: Type[GameT]) -> GameBuilder[GameT]:
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
@@ -828,7 +828,7 @@ class Headers(MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls: Type[HeadersT]) -> "HeadersBuilder[HeadersT]":
+    def builder(cls: Type[HeadersT]) -> HeadersBuilder[HeadersT]:
         return HeadersBuilder(Headers=cls)
 
 
@@ -848,10 +848,10 @@ class Mainline(Generic[MainlineMapT]):
             node = node.variations[0]
             yield self.f(node)
 
-    def __reversed__(self) -> "ReverseMainline[MainlineMapT]":
+    def __reversed__(self) -> ReverseMainline[MainlineMapT]:
         return ReverseMainline(self.start, self.f)
 
-    def accept(self, visitor: "BaseVisitor[ResultT]") -> ResultT:
+    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         node = self.start
         board = self.start.board()
         while node.variations:
@@ -1000,9 +1000,9 @@ class GameBuilder(BaseVisitor[GameT]):
     """
 
     @typing.overload
-    def __init__(self: "GameBuilder[Game]") -> None: ...
+    def __init__(self: GameBuilder[Game]) -> None: ...
     @typing.overload
-    def __init__(self: "GameBuilder[GameT]", *, Game: Type[GameT]) -> None: ...
+    def __init__(self: GameBuilder[GameT], *, Game: Type[GameT]) -> None: ...
     def __init__(self, *, Game = Game) -> None:
         self.Game = Game
 
@@ -1097,9 +1097,9 @@ class HeadersBuilder(BaseVisitor[HeadersT]):
     """Collects headers into a dictionary."""
 
     @typing.overload
-    def __init__(self: "HeadersBuilder[Headers]") -> None: ...
+    def __init__(self: HeadersBuilder[Headers]) -> None: ...
     @typing.overload
-    def __init__(self: "HeadersBuilder[HeadersT]", *, Headers: Type[Headers]) -> None: ...
+    def __init__(self: HeadersBuilder[HeadersT], *, Headers: Type[Headers]) -> None: ...
     def __init__(self, *, Headers = Headers) -> None:
         self.Headers = Headers
 

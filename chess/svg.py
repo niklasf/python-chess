@@ -92,7 +92,7 @@ class Arrow:
 
 
 class SvgWrapper(str):
-    def _repr_svg_(self) -> "SvgWrapper":
+    def _repr_svg_(self) -> SvgWrapper:
         return self
 
 

@@ -428,7 +428,7 @@ class Piece:
             return NotImplemented
 
     @classmethod
-    def from_symbol(cls, symbol: str) -> "Piece":
+    def from_symbol(cls, symbol: str) -> Piece:
         """
         Creates a :class:`~chess.Piece` instance from a piece symbol.
 
@@ -495,7 +495,7 @@ class Move:
         return hash((self.to_square, self.from_square, self.promotion, self.drop))
 
     @classmethod
-    def from_uci(cls, uci: str) -> "Move":
+    def from_uci(cls, uci: str) -> Move:
         """
         Parses a UCI string.
 
@@ -518,7 +518,7 @@ class Move:
             raise ValueError(f"expected uci string to be of length 4 or 5: {uci!r}")
 
     @classmethod
-    def null(cls) -> "Move":
+    def null(cls) -> Move:
         """
         Gets a null move.
 
@@ -608,7 +608,7 @@ class BaseBoard:
 
         return bb & self.occupied_co[color]
 
-    def pieces(self, piece_type: PieceType, color: Color) -> "SquareSet":
+    def pieces(self, piece_type: PieceType, color: Color) -> SquareSet:
         """
         Gets pieces of the given type and color.
 
@@ -685,7 +685,7 @@ class BaseBoard:
                             BB_FILE_ATTACKS[square][BB_FILE_MASKS[square] & self.occupied])
             return attacks
 
-    def attacks(self, square: Square) -> "SquareSet":
+    def attacks(self, square: Square) -> SquareSet:
         """
         Gets the set of attacked squares from the given square.
 
@@ -726,7 +726,7 @@ class BaseBoard:
         """
         return bool(self.attackers_mask(color, square))
 
-    def attackers(self, color: Color, square: Square) -> "SquareSet":
+    def attackers(self, color: Color, square: Square) -> SquareSet:
         """
         Gets the set of attackers of the given color for the given square.
 
@@ -757,7 +757,7 @@ class BaseBoard:
 
         return BB_ALL
 
-    def pin(self, color: Color, square: Square) -> "SquareSet":
+    def pin(self, color: Color, square: Square) -> SquareSet:
         """
         Detects an absolute pin (and its direction) of the given square to
         the king of the given color.
@@ -1414,11 +1414,11 @@ class Board(BaseBoard):
             self.set_fen(fen)
 
     @property
-    def pseudo_legal_moves(self) -> "PseudoLegalMoveGenerator":
+    def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
         return PseudoLegalMoveGenerator(self)
 
     @property
-    def legal_moves(self) -> "LegalMoveGenerator":
+    def legal_moves(self) -> LegalMoveGenerator:
         return LegalMoveGenerator(self)
 
     def reset(self) -> None:
@@ -1571,7 +1571,7 @@ class Board(BaseBoard):
         king = self.king(self.turn)
         return BB_EMPTY if king is None else self.attackers_mask(not self.turn, king)
 
-    def checkers(self) -> "SquareSet":
+    def checkers(self) -> SquareSet:
         """
         Gets the pieces currently giving check.
 
@@ -3693,39 +3693,39 @@ class SquareSet:
         """Test if this square set is a superset of another."""
         return not bool(self & ~SquareSet(other))
 
-    def union(self, other: IntoSquareSet) -> "SquareSet":
+    def union(self, other: IntoSquareSet) -> SquareSet:
         return self | other
 
-    def __or__(self, other: IntoSquareSet) -> "SquareSet":
+    def __or__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask |= self.mask
         return r
 
-    def intersection(self, other: IntoSquareSet) -> "SquareSet":
+    def intersection(self, other: IntoSquareSet) -> SquareSet:
         return self & other
 
-    def __and__(self, other: IntoSquareSet) -> "SquareSet":
+    def __and__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask &= self.mask
         return r
 
-    def difference(self, other: IntoSquareSet) -> "SquareSet":
+    def difference(self, other: IntoSquareSet) -> SquareSet:
         return self - other
 
-    def __sub__(self, other: IntoSquareSet) -> "SquareSet":
+    def __sub__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask = self.mask & ~r.mask
         return r
 
-    def symmetric_difference(self, other: IntoSquareSet) -> "SquareSet":
+    def symmetric_difference(self, other: IntoSquareSet) -> SquareSet:
         return self ^ other
 
-    def __xor__(self, other: IntoSquareSet) -> "SquareSet":
+    def __xor__(self, other: IntoSquareSet) -> SquareSet:
         r = SquareSet(other)
         r.mask ^= self.mask
         return r
 
-    def copy(self) -> "SquareSet":
+    def copy(self) -> SquareSet:
         return SquareSet(self.mask)
 
     # set
@@ -3734,7 +3734,7 @@ class SquareSet:
         for other in others:
             self |= other
 
-    def __ior__(self, other: IntoSquareSet) -> "SquareSet":
+    def __ior__(self, other: IntoSquareSet) -> SquareSet:
         self.mask |= SquareSet(other).mask
         return self
 
@@ -3742,21 +3742,21 @@ class SquareSet:
         for other in others:
             self &= other
 
-    def __iand__(self, other: IntoSquareSet) -> "SquareSet":
+    def __iand__(self, other: IntoSquareSet) -> SquareSet:
         self.mask &= SquareSet(other).mask
         return self
 
     def difference_update(self, other: IntoSquareSet) -> None:
         self -= other
 
-    def __isub__(self, other: IntoSquareSet) -> "SquareSet":
+    def __isub__(self, other: IntoSquareSet) -> SquareSet:
         self.mask &= ~SquareSet(other).mask
         return self
 
     def symmetric_difference_update(self, other: IntoSquareSet) -> None:
         self ^= other
 
-    def __ixor__(self, other: IntoSquareSet) -> "SquareSet":
+    def __ixor__(self, other: IntoSquareSet) -> SquareSet:
         self.mask ^= SquareSet(other).mask
         return self
 
@@ -3795,7 +3795,7 @@ class SquareSet:
         """Iterator over the subsets of this set."""
         return _carry_rippler(self.mask)
 
-    def mirror(self) -> "SquareSet":
+    def mirror(self) -> SquareSet:
         """Returns a vertically mirrored copy of this square set."""
         return SquareSet(flip_vertical(self.mask))
 
@@ -3815,21 +3815,21 @@ class SquareSet:
         except (TypeError, ValueError):
             return NotImplemented
 
-    def __lshift__(self, shift: int) -> "SquareSet":
+    def __lshift__(self, shift: int) -> SquareSet:
         return SquareSet((self.mask << shift) & BB_ALL)
 
-    def __rshift__(self, shift: int) -> "SquareSet":
+    def __rshift__(self, shift: int) -> SquareSet:
         return SquareSet(self.mask >> shift)
 
-    def __ilshift__(self, shift: int) -> "SquareSet":
+    def __ilshift__(self, shift: int) -> SquareSet:
         self.mask = (self.mask << shift) & BB_ALL
         return self
 
-    def __irshift__(self, shift: int) -> "SquareSet":
+    def __irshift__(self, shift: int) -> SquareSet:
         self.mask >>= shift
         return self
 
-    def __invert__(self) -> "SquareSet":
+    def __invert__(self) -> SquareSet:
         return SquareSet(~self.mask & BB_ALL)
 
     def __int__(self) -> int:
@@ -3860,7 +3860,7 @@ class SquareSet:
         return chess.svg.board(squares=self, size=390)
 
     @classmethod
-    def ray(cls, a: Square, b: Square) -> "SquareSet":
+    def ray(cls, a: Square, b: Square) -> SquareSet:
         """
         All squares on the rank, file or diagonal with the two squares, if they
         are aligned.
@@ -3880,7 +3880,7 @@ class SquareSet:
         return cls(BB_RAYS[a][b])
 
     @classmethod
-    def between(cls, a: Square, b: Square) -> "SquareSet":
+    def between(cls, a: Square, b: Square) -> SquareSet:
         """
         All squares on the rank, file or diagonal between the two squares
         (bounds not included), if they are aligned.
@@ -3900,7 +3900,7 @@ class SquareSet:
         return cls(between(a, b))
 
     @classmethod
-    def from_square(cls, square: Square) -> "SquareSet":
+    def from_square(cls, square: Square) -> SquareSet:
         """
         Creates a :class:`~chess.SquareSet` from a single square.
 

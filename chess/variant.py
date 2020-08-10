@@ -477,13 +477,13 @@ class HordeBoard(chess.Board):
 
 ThreeCheckBoardT = TypeVar("ThreeCheckBoardT", bound="ThreeCheckBoard")
 
-class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], chess._BoardState["ThreeCheckBoardT"]):
-    def __init__(self, board: "ThreeCheckBoardT") -> None:
+class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], chess._BoardState[ThreeCheckBoardT]):
+    def __init__(self, board: ThreeCheckBoardT) -> None:
         super().__init__(board)
         self.remaining_checks_w = board.remaining_checks[chess.WHITE]
         self.remaining_checks_b = board.remaining_checks[chess.BLACK]
 
-    def restore(self, board: "ThreeCheckBoardT") -> None:
+    def restore(self, board: ThreeCheckBoardT) -> None:
         super().restore(board)
         board.remaining_checks[chess.WHITE] = self.remaining_checks_w
         board.remaining_checks[chess.BLACK] = self.remaining_checks_b
@@ -607,13 +607,13 @@ class ThreeCheckBoard(chess.Board):
 
 CrazyhouseBoardT = TypeVar("CrazyhouseBoardT", bound="CrazyhouseBoard")
 
-class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState["CrazyhouseBoardT"]):
-    def __init__(self, board: "CrazyhouseBoardT") -> None:
+class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState[CrazyhouseBoardT]):
+    def __init__(self, board: CrazyhouseBoardT) -> None:
         super().__init__(board)
         self.pockets_w = board.pockets[chess.WHITE].copy()
         self.pockets_b = board.pockets[chess.BLACK].copy()
 
-    def restore(self, board: "CrazyhouseBoardT") -> None:
+    def restore(self, board: CrazyhouseBoardT) -> None:
         super().restore(board)
         board.pockets[chess.WHITE] = self.pockets_w.copy()
         board.pockets[chess.BLACK] = self.pockets_b.copy()
