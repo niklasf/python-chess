@@ -38,12 +38,6 @@ from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, 
 
 try:
     # Python 3.7
-    from asyncio import get_running_loop as _get_running_loop
-except ImportError:
-    from asyncio import _get_running_loop
-
-try:
-    # Python 3.7
     from asyncio import all_tasks as _all_tasks
 except ImportError:
     _all_tasks = asyncio.Task.all_tasks
@@ -657,7 +651,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     options: MutableMapping[str, Option]
 
     def __init__(self: EngineProtocolT) -> None:
-        self.loop = _get_running_loop()
+        self.loop = asyncio.get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
 
         self.buffer = {
@@ -911,7 +905,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp
         popen_args.update(kwargs)
 
-        return await _get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
+        return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
 
 class CommandState(enum.Enum):
