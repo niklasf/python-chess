@@ -40,7 +40,7 @@ import chess
 
 
 T = TypeVar("T")
-EngineProtocolT = TypeVar("EngineProtocolT", bound="EngineProtocol")
+ProtocolT = TypeVar("ProtocolT", bound="Protocol")
 
 ConfigValue = Union[str, int, bool, None]
 ConfigMapping = Mapping[str, ConfigValue]
@@ -303,7 +303,7 @@ except AttributeError:
 
 
 class PlayResult:
-    """Returned by :func:`chess.engine.EngineProtocol.play()`."""
+    """Returned by :func:`chess.engine.Protocol.play()`."""
 
     def __init__(self,
                  move: Optional[chess.Move],
@@ -571,7 +571,7 @@ MateGiven = MateGivenType()
 
 
 class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
-    def __init__(self, protocol: "EngineProtocol") -> None:
+    def __init__(self, protocol: "Protocol") -> None:
         super().__init__()
         self.protocol = protocol
         self.expectations: Deque[Tuple[str, List[str]]] = collections.deque()
@@ -615,13 +615,13 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
         return None if self.expectations else 0
 
 
-class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
+class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
     id: Dict[str, str]
     options: MutableMapping[str, Option]
 
-    def __init__(self: EngineProtocolT) -> None:
+    def __init__(self: ProtocolT) -> None:
         self.loop = asyncio.get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
 
@@ -630,8 +630,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             2: bytearray(),  # stderr
         }
 
-        self.command: Optional[BaseCommand[EngineProtocolT, Any]] = None
-        self.next_command: Optional[BaseCommand[EngineProtocolT, Any]] = None
+        self.command: Optional[BaseCommand[ProtocolT, Any]] = None
+        self.next_command: Optional[BaseCommand[ProtocolT, Any]] = None
 
         self.initialized = False
         self.returncode: asyncio.Future[int] = asyncio.Future()
@@ -641,7 +641,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.transport = transport  # type: ignore
         LOGGER.debug("%s: Connection made", self)
 
-    def connection_lost(self: EngineProtocolT, exc: Optional[Exception]) -> None:
+    def connection_lost(self: ProtocolT, exc: Optional[Exception]) -> None:
         assert self.transport is not None
         code = self.transport.get_returncode()
         assert code is not None, "connect lost, but got no returncode"
@@ -683,7 +683,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
 
-    def _line_received(self: EngineProtocolT, line: str) -> None:
+    def _line_received(self: ProtocolT, line: str) -> None:
         LOGGER.debug("%s: >> %s", self, line)
 
         self.line_received(line)
@@ -694,7 +694,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def line_received(self, line: str) -> None:
         pass
 
-    async def communicate(self: EngineProtocolT, command_factory: Callable[[], "BaseCommand[EngineProtocolT, T]"]) -> T:
+    async def communicate(self: ProtocolT, command_factory: Callable[[], "BaseCommand[ProtocolT, T]"]) -> T:
         command = command_factory()
 
         if self.returncode.done():
@@ -783,7 +783,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.EngineProtocol.configure()`.
+            with :func:`~chess.engine.Protocol.configure()`.
         """
 
     @typing.overload
@@ -817,7 +817,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.EngineProtocol.configure()`.
+            with :func:`~chess.engine.Protocol.configure()`.
         """
         analysis = await self.analysis(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options)
 
@@ -850,7 +850,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
-            with :func:`~chess.engine.EngineProtocol.configure()`.
+            with :func:`~chess.engine.Protocol.configure()`.
 
         Returns :class:`~chess.engine.AnalysisResult`, a handle that allows
         asynchronously iterating over the information sent by the engine
@@ -862,7 +862,7 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: Type[EngineProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, EngineProtocolT]:
+    async def popen(cls: Type[ProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, ProtocolT]:
         if not isinstance(command, list):
             command = [command]
 
@@ -878,6 +878,8 @@ class EngineProtocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
+EngineProtocol = Protocol  # TODO: Remove before 1.0
+
 
 class CommandState(enum.Enum):
     New = 1
@@ -886,14 +888,14 @@ class CommandState(enum.Enum):
     Done = 4
 
 
-class BaseCommand(Generic[EngineProtocolT, T]):
+class BaseCommand(Generic[ProtocolT, T]):
     def __init__(self) -> None:
         self.state = CommandState.New
 
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
 
-    def _engine_terminated(self, engine: EngineProtocolT, code: int) -> None:
+    def _engine_terminated(self, engine: ProtocolT, code: int) -> None:
         exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
         if self.state == CommandState.Active:
             self.engine_terminated(engine, exc)
@@ -902,7 +904,7 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         elif self.state == CommandState.New:
             self._handle_exception(engine, exc)
 
-    def _handle_exception(self, engine: EngineProtocolT, exc: Exception) -> None:
+    def _handle_exception(self, engine: ProtocolT, exc: Exception) -> None:
         if not self.result.done():
             self.result.set_exception(exc)
         else:
@@ -922,12 +924,12 @@ class BaseCommand(Generic[EngineProtocolT, T]):
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.finished.set_result(None)
 
-    def _cancel(self, engine: EngineProtocolT) -> None:
+    def _cancel(self, engine: ProtocolT) -> None:
         assert self.state == CommandState.Active
         self.state = CommandState.Cancelling
         self.cancel(engine)
 
-    def _start(self, engine: EngineProtocolT) -> None:
+    def _start(self, engine: ProtocolT) -> None:
         assert self.state == CommandState.New
         self.state = CommandState.Active
         try:
@@ -940,34 +942,34 @@ class BaseCommand(Generic[EngineProtocolT, T]):
         assert self.state != CommandState.Done
         self.state = CommandState.Done
 
-    def _line_received(self, engine: EngineProtocolT, line: str) -> None:
+    def _line_received(self, engine: ProtocolT, line: str) -> None:
         assert self.state in [CommandState.Active, CommandState.Cancelling]
         try:
             self.line_received(engine, line)
         except EngineError as err:
             self._handle_exception(engine, err)
 
-    def cancel(self, engine: EngineProtocolT) -> None:
+    def cancel(self, engine: ProtocolT) -> None:
         pass
 
-    def check_initialized(self, engine: EngineProtocolT) -> None:
+    def check_initialized(self, engine: ProtocolT) -> None:
         if not engine.initialized:
             raise EngineError("tried to run command, but engine is not initialized")
 
-    def start(self, engine: EngineProtocolT) -> None:
+    def start(self, engine: ProtocolT) -> None:
         raise NotImplementedError
 
-    def line_received(self, engine: EngineProtocolT, line: str) -> None:
+    def line_received(self, engine: ProtocolT, line: str) -> None:
         pass
 
-    def engine_terminated(self, engine: EngineProtocolT, exc: Exception) -> None:
+    def engine_terminated(self, engine: ProtocolT, exc: Exception) -> None:
         self._handle_exception(engine, exc)
 
     def __repr__(self) -> str:
         return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
 
 
-class UciProtocol(EngineProtocol):
+class UciProtocol(Protocol):
     """
     An implementation of the
     `Universal Chess Interface <https://www.chessprogramming.org/UCI>`_
@@ -1517,7 +1519,7 @@ class UciOptionMap(MutableMapping[str, T]):
 XBOARD_ERROR_REGEX = re.compile(r"^\s*(Error|Illegal move)(\s*\([^()]+\))?\s*:")
 
 
-class XBoardProtocol(EngineProtocol):
+class XBoardProtocol(Protocol):
     """
     An implementation of the
     `XBoard protocol <http://hgm.nubati.net/CECP.html>`_ (CECP).
@@ -2105,7 +2107,7 @@ class BestMove:
 class AnalysisResult:
     """
     Handle to ongoing engine analysis.
-    Returned by :func:`chess.engine.EngineProtocol.analysis()`.
+    Returned by :func:`chess.engine.Protocol.analysis()`.
 
     Can be used to asynchronously iterate over information sent by the engine.
 
@@ -2271,7 +2273,7 @@ async def popen_xboard(command: Union[str, List[str]], *, setpgrp: bool = False,
 class SimpleEngine:
     """
     Synchronous wrapper around a transport and engine protocol pair. Provides
-    the same methods and attributes as :class:`~chess.engine.EngineProtocol`
+    the same methods and attributes as :class:`chess.engine.Protocol`
     with blocking functions instead of coroutines.
 
     You may not concurrently modify objects passed to any of the methods. Other
@@ -2285,7 +2287,7 @@ class SimpleEngine:
     Automatically closes the transport when used as a context manager.
     """
 
-    def __init__(self, transport: asyncio.SubprocessTransport, protocol: EngineProtocol, *, timeout: Optional[float] = 10.0) -> None:
+    def __init__(self, transport: asyncio.SubprocessTransport, protocol: Protocol, *, timeout: Optional[float] = 10.0) -> None:
         self.transport = transport
         self.protocol = protocol
         self.timeout = timeout
@@ -2326,7 +2328,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
         return future.result()
 
-    def communicate(self, command_factory: Callable[[], BaseCommand[EngineProtocol, T]]) -> T:
+    def communicate(self, command_factory: Callable[[], BaseCommand[Protocol, T]]) -> T:
         with self._not_shut_down():
             coro = self.protocol.communicate(command_factory)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
@@ -2394,7 +2396,7 @@ class SimpleEngine:
                 self.protocol.loop.call_soon_threadsafe(_shutdown)
 
     @classmethod
-    def popen(cls, Protocol: Type[EngineProtocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
+    def popen(cls, Protocol: Type[Protocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: bool = False, setpgrp: bool = False, **popen_args: Any) -> "SimpleEngine":
         async def background(future: "concurrent.futures.Future[SimpleEngine]") -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
             threading.current_thread().name = f"{cls.__name__} (pid={transport.get_pid()})"

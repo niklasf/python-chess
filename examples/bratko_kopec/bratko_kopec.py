@@ -16,7 +16,7 @@ import chess.engine
 import chess.variant
 
 
-async def test_epd(engine: chess.engine.EngineProtocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
     board, epd_info = VariantBoard.from_epd(epd)
     epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:
@@ -41,7 +41,7 @@ async def test_epd(engine: chess.engine.EngineProtocol, epd: str, VariantBoard: 
         return 1.0
 
 
-async def test_epd_with_fractional_scores(engine: chess.engine.EngineProtocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+async def test_epd_with_fractional_scores(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
     board, epd_info = VariantBoard.from_epd(epd)
     epd_string = epd_info.get("id", board.fen())
     if "am" in epd_info:

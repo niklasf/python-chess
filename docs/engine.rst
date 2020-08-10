@@ -57,7 +57,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
-.. autoclass:: chess.engine.EngineProtocol
+.. autoclass:: chess.engine.Protocol
     :members: play
 
 .. autoclass:: chess.engine.Limit
@@ -192,7 +192,7 @@ Example:
     asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
-.. autoclass:: chess.engine.EngineProtocol
+.. autoclass:: chess.engine.Protocol
     :members: analyse
 
 .. autoclass:: chess.engine.PovScore
@@ -255,7 +255,7 @@ Example: Stream information from the engine and stop on an arbitrary condition.
     asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
-.. autoclass:: chess.engine.EngineProtocol
+.. autoclass:: chess.engine.Protocol
     :members: analysis
 
 .. autoclass:: chess.engine.AnalysisResult
@@ -289,10 +289,10 @@ Example: Stream information from the engine and stop on an arbitrary condition.
 Options
 -------
 
-:func:`~chess.EngineProtocol.configure()`,
-:func:`~chess.EngineProtocol.play()`,
-:func:`~chess.EngineProtocol.analyse()` and
-:func:`~chess.EngineProtocol.analysis()` accept a dictionary of options.
+:func:`~chess.Protocol.configure()`,
+:func:`~chess.Protocol.play()`,
+:func:`~chess.Protocol.analyse()` and
+:func:`~chess.Protocol.analysis()` accept a dictionary of options.
 
 >>> import chess.engine
 >>>
@@ -327,7 +327,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
-.. autoclass:: chess.engine.EngineProtocol
+.. autoclass:: chess.engine.Protocol
     :members: configure
 
     .. py:attribute:: options
@@ -402,7 +402,7 @@ when submitting bug reports.
 AsyncSSH
 --------
 
-:class:`~chess.engine.EngineProtocol` can also be used with
+:class:`chess.engine.Protocol` can also be used with
 `AsyncSSH <https://asyncssh.readthedocs.io/en/latest/>`_ (since 1.16.0)
 to communicate with an engine on a remote computer.
 
@@ -436,7 +436,7 @@ Reference
 
 .. autofunction:: chess.engine.popen_xboard
 
-.. autoclass:: chess.engine.EngineProtocol
+.. autoclass:: chess.engine.Protocol
     :members: initialize, ping, quit
 
     .. py:attribute:: returncode
