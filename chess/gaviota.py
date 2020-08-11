@@ -1174,11 +1174,11 @@ def kpppk_pctoindex(c: Request) -> int:
     return ppp48_slice * BLOCK_A + wk * BLOCK_B + bk
 
 
-@dataclasses.dataclass(eq=False)
 class EndgameKey:
-    maxindex: int
-    slice_n: int
-    pctoi: Callable[[Request], int]
+    def __init__(self, maxindex: int, slice_n: int, pctoi: Callable[[Request], int]):
+        self.maxindex = maxindex
+        self.slice_n = slice_n
+        self.pctoi = pctoi
 
 EGKEY = {
     "kqk": EndgameKey(MAX_KXK, 1, kxk_pctoindex),
@@ -1520,7 +1520,7 @@ class Request:
         self.epsq = epsq
 
 
-@dataclasses.dataclass(eq=False)
+@dataclasses.dataclass
 class Zipinfo:
     extraoffset: int
     totalblocks: int
