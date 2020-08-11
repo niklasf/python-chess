@@ -1399,11 +1399,11 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 
                 cpunr = int(tokens.pop(0))
                 currline: List[chess.Move] = []
+                info["currline"][cpunr] = currline
 
                 board = root_board.copy(stack=False)
                 while tokens and UCI_REGEX.match(tokens[0]):
                     currline.append(board.push_uci(tokens.pop(0)))
-                info["currline"][cpunr] = currline
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "refutation" and selector & INFO_REFUTATION:
@@ -1413,20 +1413,21 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 
                 board = root_board.copy(stack=False)
                 refuted = board.push_uci(tokens.pop(0))
+
                 refuted_by: List[chess.Move] = []
+                info["refutation"][refuted] = refuted_by
 
                 while tokens and UCI_REGEX.match(tokens[0]):
                     refuted_by.append(board.push_uci(tokens.pop(0)))
-                info["refutation"][refuted] = refuted_by
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "pv" and selector & INFO_PV:
             try:
                 pv: List[chess.Move] = []
+                info["pv"] = pv
                 board = root_board.copy(stack=False)
                 while tokens and UCI_REGEX.match(tokens[0]):
                     pv.append(board.push_uci(tokens.pop(0)))
-                info["pv"] = pv
             except (ValueError, IndexError):
                 LOGGER.error("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
