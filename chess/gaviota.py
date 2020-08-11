@@ -1521,7 +1521,7 @@ class Request:
 
 
 @dataclasses.dataclass
-class Zipinfo:
+class ZipInfo:
     extraoffset: int
     totalblocks: int
     blockindex: List[int]
@@ -1534,7 +1534,7 @@ class PythonTablebase:
         self.available_tables: Dict[str, str] = {}
 
         self.streams: Dict[str, BinaryIO] = {}
-        self.zipinfo: Dict[str, Zipinfo] = {}
+        self.zipinfo: Dict[str, ZipInfo] = {}
 
         self.block_cache: Dict[Tuple[str, int, int], TableBlock] = {}
         self.block_age = 0
@@ -1871,7 +1871,7 @@ class PythonTablebase:
 
         return dtm
 
-    def egtb_loadindexes(self, egkey: str, stream: BinaryIO) -> Zipinfo:
+    def egtb_loadindexes(self, egkey: str, stream: BinaryIO) -> ZipInfo:
         zipinfo = self.zipinfo.get(egkey)
 
         if zipinfo is None:
@@ -1887,7 +1887,7 @@ class PythonTablebase:
             IndexStruct = struct.Struct("<" + "I" * n_idx)
             p = list(IndexStruct.unpack(stream.read(IndexStruct.size)))
 
-            zipinfo = Zipinfo(extraoffset=0, totalblocks=n_idx, blockindex=p)
+            zipinfo = ZipInfo(extraoffset=0, totalblocks=n_idx, blockindex=p)
             self.zipinfo[egkey] = zipinfo
 
         return zipinfo
