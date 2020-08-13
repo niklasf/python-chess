@@ -2446,7 +2446,7 @@ class Board(BaseBoard):
 
         EPD operations can be given as keyword arguments. Supported operands
         are strings, integers, finite floats, legal moves and ``None``.
-        Aditionally, the operation ``pv`` also accepts a legal variation as
+        Additionally, the operation ``pv`` also accepts a legal variation as
         a list of moves. The operations ``bm`` and ``bm`` also accept a list of
         legal moves in the current position.
 
