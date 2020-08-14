@@ -88,7 +88,7 @@ script:
  - # Typing of examples
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/bratko_kopec/bratko_kopec.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/chess960_pos_list.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy examples/perft/perft.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/perft/perft.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/polyglot_tree.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/push_san.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/xray_attacks.py; fi

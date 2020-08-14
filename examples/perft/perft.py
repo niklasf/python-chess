@@ -5,6 +5,7 @@ Run perft test to check correctness and speed of the legal move generator.
 """
 
 import multiprocessing
+import multiprocessing.pool
 import functools
 import time
 import argparse
@@ -32,7 +33,7 @@ def perft(depth: int, board: chess.Board) -> int:
         return 1
 
 
-def parallel_perft(pool, depth: int, board: chess.Board) -> int:
+def parallel_perft(pool: multiprocessing.pool.Pool, depth: int, board: chess.Board) -> int:
     if depth == 1:
         return board.legal_moves.count()
     elif depth > 1:
