@@ -1354,10 +1354,10 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     By using text mode, the parser does not need to handle encodings. It is the
     caller's responsibility to open the file with the correct encoding.
-    PGN files are usually ASCII or UTF-8 encoded. So, the following should
-    cover most relevant cases (ASCII, UTF-8, UTF-8 with BOM).
+    PGN files are usually ASCII or UTF-8 encoded, sometimes with BOM (which
+    this parser automatically ignores).
 
-    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8-sig")
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8")
 
     Use :class:`~io.StringIO` to parse games from a string.
 
