@@ -320,6 +320,7 @@ python-chess, for example:
 * an `Alexa skill to play blindfold chess <https://www.amazon.com/Laynr-blindfold-chess/dp/B0859QF8YL>`_ – https://github.com/laynr/blindfold-chess
 * a chessboard widget for PySide2 – https://github.com/H-a-y-k/hichesslib
 * Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
+* a multi-agent reinforcement learning environment - https://github.com/PettingZoo-Team/PettingZoo / https://www.pettingzoo.ml/classic/chess
 
 Acknowledgements
 ----------------
