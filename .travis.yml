@@ -86,7 +86,7 @@ script:
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/syzygy.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/variant.py; fi
  - # Typing of examples
- - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/bratko_kopec/bratko_kopec.py || true; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/bratko_kopec/bratko_kopec.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/chess960_pos_list.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy examples/perft/perft.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy examples/polyglot_tree.py; fi

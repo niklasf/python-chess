@@ -8,50 +8,61 @@ import argparse
 import itertools
 import logging
 import sys
+import typing
 
-from typing import Type
+from typing import List, Tuple, Type
 
 import chess
 import chess.engine
 import chess.variant
 
 
-async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+def parse_epd(epd: str, VariantBoard: Type[chess.Board]) -> Tuple[chess.Board, str, List[chess.Move], List[chess.Move]]:
     board, epd_info = VariantBoard.from_epd(epd)
-    epd_string = epd_info.get("id", board.fen())
+
+    description = str(epd_info.get("id", board.fen()))
+
     if "am" in epd_info:
-        epd_string = "{} (avoid {})".format(epd_string, " and ".join(board.san(am) for am in epd_info["am"]))
+        am = typing.cast(List[chess.Move], epd_info["am"])
+        description = "{} (avoid {})".format(description, " and ".join(board.san(m) for m in am))
+    else:
+        am = []
+
     if "bm" in epd_info:
-        epd_string = "{} (expect {})".format(epd_string, " or ".join(board.san(bm) for bm in epd_info["bm"]))
+        bm = typing.cast(List[chess.Move], epd_info["bm"])
+        description = "{} (expect {})".format(description, " or ".join(board.san(m) for m in bm))
+    else:
+        bm = []
+
+    return board, description, am, bm
+
+
+async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+    board, description, am, bm = parse_epd(epd, VariantBoard)
 
     limit = chess.engine.Limit(time=movetime)
     result = await engine.play(board, limit, game=object())
 
     if not result.move:
-        print(f"{epd_string}: -- | +0")
+        print(f"{description}: -- | +0")
         return 0.0
-    elif "am" in epd_info and result.move in epd_info["am"]:
-        print(f"{epd_string}: {board.san(result.move)} | +0")
+    elif result.move in am:
+        print(f"{description}: {board.san(result.move)} | +0")
         return 0.0
-    elif "bm" in epd_info and result.move not in epd_info["bm"]:
-        print(f"{epd_string}: {board.san(result.move)} | +0")
+    elif bm and result.move not in bm:
+        print(f"{description}: {board.san(result.move)} | +0")
         return 0.0
     else:
-        print(f"{epd_string}: {board.san(result.move)} | +1")
+        print(f"{description}: {board.san(result.move)} | +1")
         return 1.0
 
 
 async def test_epd_with_fractional_scores(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
-    board, epd_info = VariantBoard.from_epd(epd)
-    epd_string = epd_info.get("id", board.fen())
-    if "am" in epd_info:
-        epd_string = "{} (avoid {})".format(epd_string, " and ".join(board.san(am) for am in epd_info["am"]))
-    if "bm" in epd_info:
-        epd_string = "{} (expect {})".format(epd_string, " or ".join(board.san(bm) for bm in epd_info["bm"]))
+    board, description, am, bm = parse_epd(epd, VariantBoard)
 
     # Start analysis.
     score = 0.0
-    print(f"{epd_string}:", end=" ", flush=True)
+    print(f"{description}:", end=" ", flush=True)
     analysis = await engine.analysis(board, game=object())
 
     with analysis:
@@ -62,9 +73,9 @@ async def test_epd_with_fractional_scores(engine: chess.engine.Protocol, epd: st
             if "pv" in analysis.info and len(analysis.info["pv"]) >= 1:
                 move = analysis.info["pv"][0]
                 print(board.san(move), end=" ", flush=True)
-                if "am" in epd_info and move in epd_info["am"]:
+                if move in am:
                     continue  # fail
-                elif "bm" in epd_info and move not in epd_info["bm"]:
+                elif bm and move not in bm:
                     continue  # fail
                 else:
                     score = 1.0 / (4 - step)
@@ -110,6 +121,7 @@ async def main() -> None:
     VariantBoard = chess.variant.find_variant(args.variant)
 
     # Open and configure engine.
+    engine: chess.engine.Protocol
     if args.uci:
         _, engine = await chess.engine.popen_uci(args.uci)
         if args.threads > 1:
