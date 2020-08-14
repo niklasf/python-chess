@@ -81,7 +81,7 @@ script:
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/engine.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/gaviota.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/pgn.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/polyglot.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/polyglot.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/svg.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/syzygy.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/variant.py; fi
@@ -89,7 +89,7 @@ script:
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/bratko_kopec/bratko_kopec.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/chess960_pos_list.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy examples/perft/perft.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy examples/polyglot_tree.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/polyglot_tree.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/push_san.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/xray_attacks.py; fi
  - # Perft tests

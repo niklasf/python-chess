@@ -317,6 +317,10 @@ class _EmptyMmap(bytearray):
         pass
 
 
+def _randint(rng: Optional[random.Random], a: int, b: int) -> int:
+    return random.randint(a, b) if rng is None else rng.randint(a, b)
+
+
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
@@ -456,7 +460,7 @@ class MemoryMappedReader:
         except IndexError:
             return default
 
-    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = [], random=random) -> Entry:
+    def choice(self, board: Union[chess.Board, int], *, minimum_weight: int = 1, exclude_moves: Container[chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
         """
         Uniformly selects a random entry for the given position.
 
@@ -465,7 +469,7 @@ class MemoryMappedReader:
         chosen_entry = None
 
         for i, entry in enumerate(self.find_all(board, minimum_weight=minimum_weight, exclude_moves=exclude_moves)):
-            if chosen_entry is None or random.randint(0, i) == i:
+            if chosen_entry is None or _randint(random, 0, i) == i:
                 chosen_entry = entry
 
         if chosen_entry is None:
@@ -473,7 +477,7 @@ class MemoryMappedReader:
 
         return chosen_entry
 
-    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = [], random=random) -> Entry:
+    def weighted_choice(self, board: Union[chess.Board, int], *, exclude_moves: Container[chess.Move] = [], random: Optional[random.Random] = None) -> Entry:
         """
         Selects a random entry for the given position, distributed by the
         weights of the entries.
@@ -484,7 +488,7 @@ class MemoryMappedReader:
         if not total_weights:
             raise IndexError()
 
-        choice = random.randint(0, total_weights - 1)
+        choice = _randint(random, 0, total_weights - 1)
 
         current_sum = 0
         for entry in self.find_all(board, exclude_moves=exclude_moves):
