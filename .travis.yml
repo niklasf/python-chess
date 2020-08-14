@@ -79,7 +79,7 @@ script:
  - # Typing
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/__init__.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/engine.py; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/gaviota.py; fi
+ - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/gaviota.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy chess/pgn.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/polyglot.py; fi
  - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess/svg.py; fi
