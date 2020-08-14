@@ -28,7 +28,7 @@ import chess
 import chess.engine
 import chess.svg
 
-from typing import Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1011,7 +1011,7 @@ class GameBuilder(BaseVisitor[GameT]):
     def __init__(self: GameBuilder[Game]) -> None: ...
     @typing.overload
     def __init__(self: GameBuilder[GameT], *, Game: Type[GameT]) -> None: ...
-    def __init__(self, *, Game = Game) -> None:
+    def __init__(self, *, Game: Any = Game) -> None:
         self.Game = Game
 
     def begin_game(self) -> None:
@@ -1108,7 +1108,7 @@ class HeadersBuilder(BaseVisitor[HeadersT]):
     def __init__(self: HeadersBuilder[Headers]) -> None: ...
     @typing.overload
     def __init__(self: HeadersBuilder[HeadersT], *, Headers: Type[Headers]) -> None: ...
-    def __init__(self, *, Headers = Headers) -> None:
+    def __init__(self, *, Headers: Any = Headers) -> None:
         self.Headers = Headers
 
     def begin_headers(self) -> HeadersT:
@@ -1330,7 +1330,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
 def read_game(handle: TextIO) -> Optional[Game]: ...
 @typing.overload
 def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]]) -> Optional[ResultT]: ...
-def read_game(handle: TextIO, *, Visitor = GameBuilder):
+def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     """
     Reads a game from a file opened in text mode.
 
