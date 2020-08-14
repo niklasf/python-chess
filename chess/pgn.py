@@ -292,7 +292,7 @@ class GameNode:
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def __getitem__(self, move: Union[int, chess.Move]) -> GameNode:
+    def __getitem__(self, move: Union[int, chess.Move, GameNode]) -> GameNode:
         try:
             return self.variations[move]  # type: ignore
         except TypeError:
@@ -302,37 +302,45 @@ class GameNode:
 
         raise KeyError(move)
 
-    def variation(self, move: Union[int, chess.Move]) -> GameNode:
+    def __contains__(self, move: Union[int, chess.Move, GameNode]) -> bool:
+        try:
+            self[move]
+        except KeyError:
+            return False
+        else:
+            return True
+
+    def variation(self, move: Union[int, chess.Move, GameNode]) -> GameNode:
         """
         Gets a child node by either the move or the variation index.
         """
         return self[move]
 
-    def has_variation(self, move: chess.Move) -> bool:
-        """Checks if the given *move* appears as a variation."""
-        return move in (variation.move for variation in self.variations)
+    def has_variation(self, move: Union[int, chess.Move, GameNode]) -> bool:
+        """Checks if this node has the given variation."""
+        return move in self
 
-    def promote_to_main(self, move: chess.Move) -> None:
+    def promote_to_main(self, move: Union[int, chess.Move, GameNode]) -> None:
         """Promotes the given *move* to the main variation."""
         variation = self[move]
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
-    def promote(self, move: chess.Move) -> None:
+    def promote(self, move: Union[int, chess.Move, GameNode]) -> None:
         """Moves a variation one up in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
-    def demote(self, move: chess.Move) -> None:
+    def demote(self, move: Union[int, chess.Move, GameNode]) -> None:
         """Moves a variation one down in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
             self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
 
-    def remove_variation(self, move: chess.Move) -> None:
+    def remove_variation(self, move: Union[int, chess.Move, GameNode]) -> None:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
