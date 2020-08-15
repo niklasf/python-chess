@@ -3555,7 +3555,7 @@ IntoSquareSet = Union[SupportsInt, Iterable[Square]]
 
 class SquareSet:
     """
-    A set of squares.
+    Defines a set of squares.
 
     >>> import chess
     >>>
@@ -3618,7 +3618,7 @@ class SquareSet:
     >>> int(squares)
     72057594037928191
 
-    Also supports common set operations like
+    Also supports common set operations, like
     :func:`~chess.SquareSet.issubset()`, :func:`~chess.SquareSet.issuperset()`,
     :func:`~chess.SquareSet.union()`, :func:`~chess.SquareSet.intersection()`,
     :func:`~chess.SquareSet.difference()`,
@@ -3638,7 +3638,7 @@ class SquareSet:
         except AttributeError:
             self.mask = 0
 
-        # Try squares as an iterable. Not under except clause for nicer
+        # Try squares as an iterable, not under the except clause, for nicer
         # backtraces.
         for square in squares:  # type: ignore
             self.add(square)
@@ -3660,25 +3660,25 @@ class SquareSet:
     # MutableSet
 
     def add(self, square: Square) -> None:
-        """Adds a square to the set."""
+        """Adds the given *square* to the set."""
         self.mask |= BB_SQUARES[square]
 
     def discard(self, square: Square) -> None:
-        """Discards a square from the set."""
+        """Discards the given *square* from the set."""
         self.mask &= ~BB_SQUARES[square]
 
     # frozenset
 
     def isdisjoint(self, other: IntoSquareSet) -> bool:
-        """Test if the square sets are disjoint."""
+        """Tests if square sets are disjoint."""
         return not bool(self & other)
 
     def issubset(self, other: IntoSquareSet) -> bool:
-        """Test if this square set is a subset of another."""
+        """Tests if this square set is a subset of another."""
         return not bool(~self & other)
 
     def issuperset(self, other: IntoSquareSet) -> bool:
-        """Test if this square set is a superset of another."""
+        """Tests if this square set is a superset of another."""
         return not bool(self & ~SquareSet(other))
 
     def union(self, other: IntoSquareSet) -> SquareSet:
@@ -3750,9 +3750,9 @@ class SquareSet:
 
     def remove(self, square: Square) -> None:
         """
-        Removes a square from the set.
+        Removes the given *square* from the set.
 
-        :raises: :exc:`KeyError` if the given square was not in the set.
+        :raises: :exc:`KeyError` if the given *square* was not found in the set.
         """
         mask = BB_SQUARES[square]
         if self.mask & mask:
@@ -3764,7 +3764,7 @@ class SquareSet:
         """
         Removes a square from the set and returns it.
 
-        :raises: :exc:`KeyError` on an empty set.
+        :raises: :exc:`KeyError` on manipulating an empty set.
         """
         if not self.mask:
             raise KeyError("pop from empty SquareSet")
@@ -3774,13 +3774,13 @@ class SquareSet:
         return square
 
     def clear(self) -> None:
-        """Remove all elements from this set."""
+        """Removes all elements from this set."""
         self.mask = BB_EMPTY
 
     # SquareSet
 
     def carry_rippler(self) -> Iterator[Bitboard]:
-        """Iterator over the subsets of this set."""
+        """Iterates over subsets of this set."""
         return _carry_rippler(self.mask)
 
     def mirror(self) -> SquareSet:
@@ -3788,7 +3788,7 @@ class SquareSet:
         return SquareSet(flip_vertical(self.mask))
 
     def tolist(self) -> List[bool]:
-        """Convert the set to a list of 64 bools."""
+        """Converts the set to a list of 64 bools."""
         result = [False] * 64
         for square in self:
             result[square] = True
@@ -3850,8 +3850,8 @@ class SquareSet:
     @classmethod
     def ray(cls, a: Square, b: Square) -> SquareSet:
         """
-        All squares on the rank, file or diagonal with the two squares, if they
-        are aligned.
+        Marks all squares on the rank, file or diagonal in-between squares *a* and *b*,
+        if they are aligned.
 
         >>> import chess
         >>>
@@ -3870,7 +3870,7 @@ class SquareSet:
     @classmethod
     def between(cls, a: Square, b: Square) -> SquareSet:
         """
-        All squares on the rank, file or diagonal between the two squares
+        Marks all squares on the rank, file or diagonal in-between squares *a* and *b*
         (bounds not included), if they are aligned.
 
         >>> import chess
@@ -3890,7 +3890,7 @@ class SquareSet:
     @classmethod
     def from_square(cls, square: Square) -> SquareSet:
         """
-        Creates a :class:`~chess.SquareSet` from a single square.
+        Creates a :class:`~chess.SquareSet` from the given *square*.
 
         >>> import chess
         >>>
