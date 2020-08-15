@@ -3660,7 +3660,7 @@ class SquareSet:
     # MutableSet
 
     def add(self, square: Square) -> None:
-        """Adds a square to a set."""
+        """Adds a square to the set."""
         self.mask |= BB_SQUARES[square]
 
     def discard(self, square: Square) -> None:
