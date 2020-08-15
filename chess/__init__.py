@@ -3670,15 +3670,15 @@ class SquareSet:
     # frozenset
 
     def isdisjoint(self, other: IntoSquareSet) -> bool:
-        """Test if the square sets are disjoint."""
+        """Tests if the square sets are disjoint."""
         return not bool(self & other)
 
     def issubset(self, other: IntoSquareSet) -> bool:
-        """Test if this square set is a subset of another."""
+        """Tests if this square set is a subset of another."""
         return not bool(~self & other)
 
     def issuperset(self, other: IntoSquareSet) -> bool:
-        """Test if this square set is a superset of another."""
+        """Tests if this square set is a superset of another."""
         return not bool(self & ~SquareSet(other))
 
     def union(self, other: IntoSquareSet) -> SquareSet:
@@ -3752,7 +3752,7 @@ class SquareSet:
         """
         Removes a square from the set.
 
-        :raises: :exc:`KeyError` if the given square was not in the set.
+        :raises: :exc:`KeyError` if the given *square* was not in the set.
         """
         mask = BB_SQUARES[square]
         if self.mask & mask:
@@ -3762,9 +3762,9 @@ class SquareSet:
 
     def pop(self) -> Square:
         """
-        Removes a square from the set and returns it.
+        Removes and returns a square from the set.
 
-        :raises: :exc:`KeyError` on an empty set.
+        :raises: :exc:`KeyError` if the set is empty.
         """
         if not self.mask:
             raise KeyError("pop from empty SquareSet")
@@ -3774,7 +3774,7 @@ class SquareSet:
         return square
 
     def clear(self) -> None:
-        """Remove all elements from this set."""
+        """Removes all elements from this set."""
         self.mask = BB_EMPTY
 
     # SquareSet
@@ -3788,7 +3788,7 @@ class SquareSet:
         return SquareSet(flip_vertical(self.mask))
 
     def tolist(self) -> List[bool]:
-        """Convert the set to a list of 64 bools."""
+        """Converts the set to a list of 64 bools."""
         result = [False] * 64
         for square in self:
             result[square] = True
