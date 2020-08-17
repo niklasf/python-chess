@@ -35,7 +35,7 @@ import os
 import re
 
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Text, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
 
 import chess
 

@@ -397,7 +397,8 @@ class RacingKingsBoard(chess.Board):
 
     def is_variant_win(self) -> bool:
         in_goal = self.kings & chess.BB_RANK_8
-        return (self.is_variant_end() and
+        return (
+            self.is_variant_end() and
             bool(in_goal & self.occupied_co[self.turn]) and
             not in_goal & self.occupied_co[not self.turn])
 
