@@ -1776,7 +1776,7 @@ class Board(BaseBoard):
 
     def is_insufficient_material(self) -> bool:
         """
-        Checks if neither side has sufficient winning material
+        Checks if either side has insufficient winning material
         (:func:`~chess.Board.has_insufficient_material()`).
         """
         return all(self.has_insufficient_material(color) for color in COLORS)
@@ -1790,7 +1790,7 @@ class Board(BaseBoard):
 
         The converse does not necessarily hold:
         The implementation only looks at the material, including the colors
-        of bishops, but not considering piece positions. So fortress
+        of bishops, but not considering piece positions. So, fortress
         positions or positions with forced lines may return ``False``, even
         though there is no possible winning line.
         """
