@@ -2453,13 +2453,13 @@ class Board(BaseBoard):
         The name of the field cannot be a lone dash and cannot contain spaces,
         newlines, carriage returns or tabs.
 
-        *hmvc* and *fmvc* are not included by default. You can use:
+        *hmvc* and *fmvn* are not included by default. You can use:
 
         >>> import chess
         >>>
         >>> board = chess.Board()
-        >>> board.epd(hmvc=board.halfmove_clock, fmvc=board.fullmove_number)
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvc 1;'
+        >>> board.epd(hmvc=board.halfmove_clock, fmvn=board.fullmove_number)
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvn 1;'
         """
         if en_passant == "fen":
             ep_square = self.ep_square
