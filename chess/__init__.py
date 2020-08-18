@@ -1790,7 +1790,7 @@ class Board(BaseBoard):
 
         The converse does not necessarily hold:
         The implementation only looks at the material, including the colors
-        of bishops, but not considering piece positions. So fortress
+        of bishops, but not considering piece positions. So, fortress
         positions or positions with forced lines may return ``False``, even
         though there is no possible winning line.
         """
