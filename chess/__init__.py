@@ -2829,7 +2829,7 @@ class Board(BaseBoard):
     def push_san(self, san: str) -> Move:
         """
         Parses a move in standard algebraic notation, makes the move and puts
-        it on the the move stack.
+        it onto the move stack.
 
         Returns the move.
 
