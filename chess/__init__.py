@@ -68,11 +68,11 @@ FILE_NAMES = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
 RANK_NAMES = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
+# The FEN for the starting position of standard chess.
 STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-"""The FEN for the standard chess starting position."""
 
+# The board part of the FEN for the starting position of standard chess.
 STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-"""The board part of the FEN for the standard chess starting position."""
 
 
 class Status(enum.IntFlag):
@@ -1223,7 +1223,7 @@ class BaseBoard:
         Available transformations include :func:`chess.flip_vertical()`,
         :func:`chess.flip_horizontal()`, :func:`chess.flip_diagonal()`,
         :func:`chess.flip_anti_diagonal()`, :func:`chess.shift_down()`,
-        :func:`chess.shift_up()`, :func:`chess.shift_left()`, and
+        :func:`chess.shift_up()`, :func:`chess.shift_left()` and
         :func:`chess.shift_right()`.
 
         Alternatively, :func:`~chess.BaseBoard.apply_transform()` can be used
@@ -1339,8 +1339,8 @@ class _BoardState(Generic[BoardT]):
 
 class Board(BaseBoard):
     """
-    A :class:`~chess.BaseBoard`, additional information representing
-    a chess position, and a :data:`move stack <chess.Board.move_stack>`.
+    A :class:`~chess.BaseBoard` with additional information to represent
+    a chess position and a :data:`move stack <chess.Board.move_stack>`.
 
     Provides :data:`move generation <chess.Board.legal_moves>`, validation,
     :func:`parsing <chess.Board.parse_san()>`, attack generation,
@@ -2600,7 +2600,7 @@ class Board(BaseBoard):
         clock and the full-move number. Otherwise, ``0`` and ``1`` are used.
 
         Returns a dictionary of parsed operations. Values can be strings,
-        integers, floats, move objects, or lists of moves.
+        integers, floats, move objects or lists of moves.
 
         :raises: :exc:`ValueError` if the EPD string is invalid.
         """
@@ -3010,7 +3010,7 @@ class Board(BaseBoard):
 
             return white_castling | black_castling
         else:
-            # The kings must be on the back rank.
+            # The kings must be on the backrank.
             white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self.promoted
             black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self.promoted
             if not white_king_mask:
@@ -3018,8 +3018,8 @@ class Board(BaseBoard):
             if not black_king_mask:
                 black_castling = 0
 
-            # There are only two ways of castling, a-side and h-side, and the
-            # king must be between the rooks.
+            # There are only two ways of castling: on the a-side or on the h-side.
+            # The king must be between the rooks.
             white_a_side = white_castling & -white_castling
             white_h_side = BB_SQUARES[msb(white_castling)] if white_castling else 0
 
@@ -3455,7 +3455,7 @@ class Board(BaseBoard):
         Creates a copy of the board.
 
         Defaults to copying the entire move stack. Alternatively, *stack* can
-        be ``False``, or an integer to copy a limited number of moves.
+        be ``False`` or it can be an integer to copy a limited number of moves.
         """
         board = super().copy()
 
