@@ -2372,7 +2372,7 @@ class Board(BaseBoard):
         or ``None`` if the current position is not a Chess960 starting
         position.
 
-        By default white to move (**ignore_turn**) and full castling rights
+        By default, white to move (**ignore_turn**) and full castling rights
         (**ignore_castling**) are required, but move counters
         (**ignore_counters**) are ignored.
         """
