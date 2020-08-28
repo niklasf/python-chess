@@ -1376,7 +1376,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     The parser is relatively forgiving when it comes to errors. It skips over
     tokens it can not parse. By default, any exceptions are logged and
     collected in :data:`Game.errors <chess.pgn.Game.errors>`. This behavior can
-    be :func:`overriden <chess.pgn.GameBuilder.handle_error>`.
+    be :func:`overridden <chess.pgn.GameBuilder.handle_error>`.
 
     Returns the parsed game or ``None`` if the end of file is reached.
     """
