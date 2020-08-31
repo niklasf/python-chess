@@ -1227,11 +1227,15 @@ class BaseBoard:
         :func:`chess.shift_right()`.
 
         Alternatively, :func:`~chess.BaseBoard.apply_transform()` can be used
-        to apply the transformation in place.
+        to apply the transformation on the board.
         """
         board = self.copy()
         board.apply_transform(f)
         return board
+
+    def apply_mirror(self: BaseBoardT) -> None:
+        self.apply_transform(flip_vertical)
+        self.occupied_co[WHITE], self.occupied_co[BLACK] = self.occupied_co[BLACK], self.occupied_co[WHITE]
 
     def mirror(self: BaseBoardT) -> BaseBoardT:
         """
@@ -1239,9 +1243,12 @@ class BaseBoard:
 
         The board is mirrored vertically and piece colors are swapped, so that
         the position is equivalent modulo color.
+
+        Alternatively, :func:`~chess.BaseBoard.apply_mirror()` can be used
+        to mirror the board.
         """
-        board = self.transform(flip_vertical)
-        board.occupied_co[WHITE], board.occupied_co[BLACK] = board.occupied_co[BLACK], board.occupied_co[WHITE]
+        board = self.copy()
+        board.apply_mirror()
         return board
 
     def copy(self: BaseBoardT) -> BaseBoardT:
@@ -3437,17 +3444,31 @@ class Board(BaseBoard):
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
         super().apply_transform(f)
         self.clear_stack()
+        self.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
+        self.castling_rights = f(self.castling_rights)
 
     def transform(self: BoardT, f: Callable[[Bitboard], Bitboard]) -> BoardT:
         board = self.copy(stack=False)
         board.apply_transform(f)
-        board.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
-        board.castling_rights = f(self.castling_rights)
         return board
 
+    def apply_mirror(self: BoardT) -> None:
+        super().apply_mirror()
+        self.turn = not self.turn
+
     def mirror(self: BoardT) -> BoardT:
-        board = super().mirror()
-        board.turn = not self.turn
+        """
+        Returns a mirrored copy of the board.
+
+        The board is mirrored vertically and piece colors are swapped, so that
+        the position is equivalent modulo color. Also swap the "en passant" 
+        square, castling rights and turn.
+
+        Alternatively, :func:`~chess.Board.apply_mirror()` can be used
+        to mirror the board.
+        """
+        board = self.copy()
+        board.apply_mirror()
         return board
 
     def copy(self: BoardT, *, stack: Union[bool, int] = True) -> BoardT:
