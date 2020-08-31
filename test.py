@@ -1577,6 +1577,8 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("r1bq1r2/pp2n3/4N2k/3pPppP/1b1n2Q1/2N5/PP3PP1/R1B1K2R w KQ g6 0 15")
         mirrored = chess.Board("r1b1k2r/pp3pp1/2n5/1B1N2q1/3PpPPp/4n2K/PP2N3/R1BQ1R2 b kq g3 0 15")
         self.assertEqual(board.mirror(), mirrored)
+        board.apply_mirror()
+        self.assertEqual(board, mirrored)
 
     def test_chess960_pos(self):
         board = chess.Board()
