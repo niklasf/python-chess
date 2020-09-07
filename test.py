@@ -86,6 +86,13 @@ class SquareTestCase(unittest.TestCase):
                 self.assertLessEqual(c, 1)
                 self.assertEqual(c, chess.popcount(shifted & chess.BB_ALL))
 
+    def test_parse_square(self):
+        self.assertEqual(chess.parse_square("a1"), 0)
+        with self.assertRaises(ValueError):
+            self.assertEqual(chess.parse_square("A1"))
+        with self.assertRaises(ValueError):
+            self.assertEqual(chess.parse_square("a0"))
+
 
 class MoveTestCase(unittest.TestCase):
 

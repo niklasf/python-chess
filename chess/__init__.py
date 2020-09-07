@@ -127,6 +127,19 @@ SQUARES = [
 
 SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
 
+def parse_square(name: str) -> Square:
+    """
+    Gets the square index for the given square *name*
+    (e.g., ``a1`` returns ``0``).
+
+    :raises: :exc:`ValueError` if the square name is invalid.
+    """
+    return SQUARE_NAMES.index(name)
+
+def square_name(square: Square) -> str:
+    """Gets the name of the square, like ``a3``."""
+    return SQUARE_NAMES[square]
+
 def square(file_index: int, rank_index: int) -> Square:
     """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
@@ -138,18 +151,6 @@ def square_file(square: Square) -> int:
 def square_rank(square: Square) -> int:
     """Gets the rank index of the square where ``0`` is the first rank."""
     return square >> 3
-
-def square_name(square: Square) -> str:
-    """Gets the name of the square, like ``a3``."""
-    return SQUARE_NAMES[square]
-
-def parse_square(name: str) -> Square:
-    """
-    Gets a square number from the square's *name* (e.g., "e4" returns 28).
-    
-    :raises: :exc:`ValueError` if the square name is invalid (e.g., "d9").
-    """
-    return SQUARE_NAMES.index(name)
 
 def square_distance(a: Square, b: Square) -> int:
     """

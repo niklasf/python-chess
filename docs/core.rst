@@ -73,13 +73,15 @@ and so on to
 .. py:data:: chess.RANK_NAMES
     :value: ['1', '2', ..., '7', '8']
 
+.. autofunction:: chess.parse_square
+
+.. autofunction:: chess.square_name
+
 .. autofunction:: chess.square
 
 .. autofunction:: chess.square_file
 
 .. autofunction:: chess.square_rank
-
-.. autofunction:: chess.square_name
 
 .. autofunction:: chess.square_distance
 
