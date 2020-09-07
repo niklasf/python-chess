@@ -143,6 +143,14 @@ def square_name(square: Square) -> str:
     """Gets the name of the square, like ``a3``."""
     return SQUARE_NAMES[square]
 
+def parse_square(name: str) -> Square:
+    """
+    Gets a square number from the square's *name* (e.g., "e4" returns 28).
+    
+    :raises: :exc:`ValueError` if the square name is invalid (e.g., "d9").
+    """
+    return SQUARE_NAMES.index(name)
+
 def square_distance(a: Square, b: Square) -> int:
     """
     Gets the distance (i.e., the number of king steps) from square *a* to *b*.
