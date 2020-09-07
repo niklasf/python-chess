@@ -149,7 +149,10 @@ def parse_square(sq_name: str) -> Square:
     
     :raises: :exc:`ValueError` if sq_name is invalid (e.g., "d9").
     """
-    return SQUARE_NAMES.index(sq_name)
+    if sq_name in SQUARE_NAMES:
+        return SQUARE_NAMES.index(sq_name)
+    else:
+        raise ValueError(f"'{sq_name}' is not a valid square name")
 
 def square_distance(a: Square, b: Square) -> int:
     """
