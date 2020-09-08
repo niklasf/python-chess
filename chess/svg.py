@@ -20,12 +20,13 @@
 
 from __future__ import annotations
 
-import chess
 import math
-
 import xml.etree.ElementTree as ET
 
+import chess
+
 from typing import Iterable, Optional, Tuple, Union
+from chess import IntoSquareSet, Square
 
 
 SQUARE_SIZE = 45
@@ -82,7 +83,7 @@ DEFAULT_COLORS = {
 class Arrow:
     """Details of an arrow to be drawn."""
 
-    def __init__(self, tail: chess.Square, head: chess.Square, *, color: str = "#888") -> None:
+    def __init__(self, tail: Square, head: Square, *, color: str = "#888") -> None:
         self.tail = tail
         self.head = head
         self.color = color
@@ -146,12 +147,12 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 
 
 def board(board: Optional[chess.BaseBoard] = None, *,
-          squares: Optional[chess.IntoSquareSet] = None,
+          squares: Optional[IntoSquareSet] = None,
           flipped: bool = False,
           coordinates: bool = True,
           lastmove: Optional[chess.Move] = None,
-          check: Optional[chess.Square] = None,
-          arrows: Iterable[Union[Arrow, Tuple[chess.Square, chess.Square]]] = [],
+          check: Optional[Square] = None,
+          arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           size: Optional[int] = None,
           style: Optional[str] = None) -> str:
     """

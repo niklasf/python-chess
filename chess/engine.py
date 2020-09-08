@@ -34,10 +34,11 @@ import typing
 import os
 import re
 
+import chess
+
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
-
-import chess
+from chess import Color
 
 
 T = TypeVar("T")
@@ -340,7 +341,7 @@ INFO_ALL = Info.ALL
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
-    def __init__(self, relative: Score, turn: chess.Color) -> None:
+    def __init__(self, relative: Score, turn: Color) -> None:
         self.relative = relative
         self.turn = turn
 
@@ -352,7 +353,7 @@ class PovScore:
         """Gets the score from Black's point of view."""
         return self.pov(chess.BLACK)
 
-    def pov(self, color: chess.Color) -> Score:
+    def pov(self, color: Color) -> Score:
         """Gets the score from the point of view of the given *color*."""
         return self.relative if self.turn == color else -self.relative
 
