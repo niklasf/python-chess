@@ -29,6 +29,7 @@ import chess.engine
 import chess.svg
 
 from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from chess import Square
 
 
 LOGGER = logging.getLogger(__name__)
@@ -458,7 +459,7 @@ class GameNode:
 
         return arrows
 
-    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[chess.Square, chess.Square]]]) -> None:
+    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
         """
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
