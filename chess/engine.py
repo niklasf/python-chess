@@ -111,23 +111,23 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
 
         try:
             os.close(os.pidfd_open(os.getpid()))  # type: ignore
-            return asyncio.PidfdChildWatcher()  # type: ignore
+            watcher: asyncio.AbstractChildWatcher = asyncio.PidfdChildWatcher()  # type: ignore
+            LOGGER.debug("Using PidfdChildWatcher")
+            return watcher
         except (AttributeError, OSError):
             # Before Python 3.9 or before Linux 5.3 or the syscall is not
             # permitted.
             pass
-        else:
-            LOGGER.debug("Using PidfdChildWatcher")
 
         if threading.current_thread() is threading.main_thread():
             try:
-                return asyncio.ThreadedChildWatcher()
+                watcher = asyncio.ThreadedChildWatcher()
+                LOGGER.debug("Using ThreadedChildWatcher")
+                return watcher
             except AttributeError:
                 # Before Python 3.8.
                 LOGGER.debug("Using SafeChildWatcher")
                 return asyncio.SafeChildWatcher()
-            else:
-                LOGGER.debug("Using ThreadedChildWatcher")
 
         class PollingChildWatcher(asyncio.SafeChildWatcher):
             _loop: Optional[asyncio.AbstractEventLoop]
