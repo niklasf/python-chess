@@ -116,13 +116,18 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
             # Before Python 3.9 or before Linux 5.3 or the syscall is not
             # permitted.
             pass
+        else:
+            LOGGER.debug("Using PidfdChildWatcher")
 
         if threading.current_thread() is threading.main_thread():
             try:
                 return asyncio.ThreadedChildWatcher()
             except AttributeError:
                 # Before Python 3.8.
+                LOGGER.debug("Using SafeChildWatcher")
                 return asyncio.SafeChildWatcher()
+            else:
+                LOGGER.debug("Using ThreadedChildWatcher")
 
         class PollingChildWatcher(asyncio.SafeChildWatcher):
             _loop: Optional[asyncio.AbstractEventLoop]
@@ -153,6 +158,7 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
                     self._poll_delay = min(self._poll_delay * 2, 1.0)
                     self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
 
+        LOGGER.debug("Using PollingChildWatcher")
         return PollingChildWatcher()
 
 
@@ -1039,12 +1045,12 @@ class UciProtocol(Protocol):
                         try:
                             min = int(token)
                         except ValueError:
-                            LOGGER.exception("exception parsing option min")
+                            LOGGER.exception("Exception parsing option min")
                     elif current_parameter == "max":
                         try:
                             max = int(token)
                         except ValueError:
-                            LOGGER.exception("exception parsing option max")
+                            LOGGER.exception("Exception parsing option max")
 
                 if current_var is not None:
                     var.append(" ".join(current_var))
@@ -1363,17 +1369,17 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
             try:
                 info[parameter] = int(tokens.pop(0))  # type: ignore
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+                LOGGER.error("Exception parsing %s from info: %r", parameter, arg)
         elif parameter == "time":
             try:
                 info["time"] = int(tokens.pop(0)) / 1000.0
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+                LOGGER.error("Exception parsing %s from info: %r", parameter, arg)
         elif parameter == "ebf":
             try:
                 info["ebf"] = float(tokens.pop(0))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing %s from info: %r", parameter, arg)
+                LOGGER.error("Exception parsing %s from info: %r", parameter, arg)
         elif parameter == "score" and selector & INFO_SCORE:
             try:
                 kind = tokens.pop(0)
@@ -1385,14 +1391,14 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 elif kind == "mate":
                     info["score"] = PovScore(Mate(int(value)), root_board.turn)
                 else:
-                    LOGGER.error("unknown score kind %r in info (expected cp or mate): %r", kind, arg)
+                    LOGGER.error("Unknown score kind %r in info (expected cp or mate): %r", kind, arg)
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing score from info: %r", arg)
+                LOGGER.error("Exception parsing score from info: %r", arg)
         elif parameter == "currmove":
             try:
                 info["currmove"] = chess.Move.from_uci(tokens.pop(0))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing currmove from info: %r", arg)
+                LOGGER.error("Exception parsing currmove from info: %r", arg)
         elif parameter == "currline" and selector & INFO_CURRLINE:
             try:
                 if "currline" not in info:
@@ -1406,7 +1412,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 while tokens and UCI_REGEX.match(tokens[0]):
                     currline.append(board.push_uci(tokens.pop(0)))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
+                LOGGER.error("Exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "refutation" and selector & INFO_REFUTATION:
             try:
                 if "refutation" not in info:
@@ -1421,7 +1427,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 while tokens and UCI_REGEX.match(tokens[0]):
                     refuted_by.append(board.push_uci(tokens.pop(0)))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
+                LOGGER.error("Exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "pv" and selector & INFO_PV:
             try:
                 pv: List[chess.Move] = []
@@ -1430,12 +1436,12 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 while tokens and UCI_REGEX.match(tokens[0]):
                     pv.append(board.push_uci(tokens.pop(0)))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
+                LOGGER.error("Exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
             try:
                 info["wdl"] = int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))
             except (ValueError, IndexError):
-                LOGGER.error("exception parsing wdl from info: %r", arg)
+                LOGGER.error("Exception parsing wdl from info: %r", arg)
 
     return info
 
@@ -1457,7 +1463,7 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
             if len(tokens) >= 3 and tokens[1] == "ponder" and tokens[2] not in ["(none)", "NULL"]:
                 ponder = board.parse_uci(tokens[2].lower())
         except ValueError:
-            LOGGER.exception("engine sent invalid ponder move")
+            LOGGER.exception("Engine sent invalid ponder move")
         finally:
             board.pop()
 
@@ -1805,16 +1811,16 @@ class XBoardProtocol(Protocol):
                     try:
                         engine.board.push_xboard(arg)
                     except ValueError:
-                        LOGGER.exception("exception playing unexpected move")
+                        LOGGER.exception("Exception playing unexpected move")
 
             def _hint(self, engine: XBoardProtocol, arg: str) -> None:
                 if not self.result.done() and self.play_result.move is not None and self.play_result.ponder is None:
                     try:
                         self.play_result.ponder = engine.board.parse_xboard(arg)
                     except ValueError:
-                        LOGGER.exception("exception parsing hint")
+                        LOGGER.exception("Exception parsing hint")
                 else:
-                    LOGGER.warning("unexpected hint: %r", arg)
+                    LOGGER.warning("Unexpected hint: %r", arg)
 
             def _ping_after_move(self, engine: XBoardProtocol) -> None:
                 if self.pong_after_move is None:
