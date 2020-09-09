@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 
 import chess
 
-from typing import Iterable, Optional, Tuple, Union
+from typing import Dict, Iterable, Optional, Tuple, Union
 from chess import IntoSquareSet, Square
 
 
@@ -112,7 +112,11 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     return svg
 
 
-def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int) -> ET.Element:
+def _color(colors: Dict[str, str], color: str) -> str:
+    return colors.get(color, DEFAULT_COLORS[color])
+
+
+def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int, *, color: str) -> ET.Element:
     scale = margin / MARGIN
 
     if horizontal:
@@ -122,8 +126,8 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
 
     t = ET.Element("g", {
         "transform": f"translate({x}, {y}) scale({scale}, {scale})",
-        "fill": DEFAULT_COLORS["coord"],
-        "stroke": DEFAULT_COLORS["coord"],
+        "fill": color,
+        "stroke": color,
     })
     t.append(ET.fromstring(COORDS[text]))
     return t
@@ -154,6 +158,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           size: Optional[int] = None,
+          colors: Dict[str, str] = {},
           style: Optional[str] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
@@ -171,6 +176,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
+    :param colors: Dictionary to override default colors. Possible keys are
+        ``square light``, ``square dark``, ``square light lastmove``,
+        ``square dark lastmove``, ``margin``, and ``coord``. Values should look
+        like ``#ffce9e``.
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
@@ -209,7 +218,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "y": "0",
             "width": str(2 * margin + 8 * SQUARE_SIZE),
             "height": str(2 * margin + 8 * SQUARE_SIZE),
-            "fill": DEFAULT_COLORS["margin"],
+            "fill": _color(colors, "margin"),
         })
 
     for square, bb in enumerate(chess.BB_SQUARES):
@@ -222,7 +231,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
-        fill_color = DEFAULT_COLORS[" ".join(cls)]
+        fill_color = _color(colors, " ".join(cls))
 
         cls.append(chess.SQUARE_NAMES[square])
 
@@ -264,14 +273,15 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             })
 
     if coordinates:
+        coord_color = _color(colors, "coord")
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
-            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin))
-            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin))
+            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color))
+            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
             y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
-            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin))
-            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin))
+            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color))
+            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color))
 
     for arrow in arrows:
         try:
