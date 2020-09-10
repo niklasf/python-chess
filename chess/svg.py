@@ -77,13 +77,17 @@ DEFAULT_COLORS = {
     "square light lastmove": "#cdd16a",
     "margin": "#212121",
     "coord": "#e5e5e5",
+    "arrow green": "#15781B80",
+    "arrow red": "#88202080",
+    "arrow yellow": "#e68f00b3",
+    "arrow blue": "#00308880",
 }
 
 
 class Arrow:
     """Details of an arrow to be drawn."""
 
-    def __init__(self, tail: Square, head: Square, *, color: str = "#888") -> None:
+    def __init__(self, tail: Square, head: Square, *, color: str = "green") -> None:
         self.tail = tail
         self.head = head
         self.color = color
@@ -288,7 +292,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
         except AttributeError:
             tail, head = arrow  # type: ignore
-            color = "#888"
+            color = "green"
+
+        try:
+            color = _color(colors, " ".join(["arrow", color]))
+        except KeyError:
+            pass
 
         tail_file = chess.square_file(tail)
         tail_rank = chess.square_rank(tail)
@@ -308,7 +317,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "stroke-width": str(SQUARE_SIZE * 0.1),
                 "stroke": color,
                 "fill": "none",
-                "opacity": "0.5",
                 "class": "circle",
             })
         else:
@@ -331,7 +339,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "y2": str(shaft_y),
                 "stroke": color,
                 "stroke-width": str(SQUARE_SIZE * 0.2),
-                "opacity": "0.5",
                 "stroke-linecap": "butt",
                 "class": "arrow",
             })
@@ -345,7 +352,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             ET.SubElement(svg, "polygon", {
                 "points": " ".join(str(x) + "," + str(y) for x, y in marker),
                 "fill": color,
-                "opacity": "0.5",
                 "class": "arrow",
             })
 
