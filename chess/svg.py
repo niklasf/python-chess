@@ -182,8 +182,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         400 board) or ``None`` (the default) for no size limit.
     :param colors: Dictionary to override default colors. Possible keys are
         ``square light``, ``square dark``, ``square light lastmove``,
-        ``square dark lastmove``, ``margin``, and ``coord``. Values should look
-        like ``#ffce9e``.
+        ``square dark lastmove``, ``margin``, ``coord``, ``arrow green``,
+        ``arrow blue``, ``arrow red``, and ``arrow yellow``. Values should look
+        like ``#ffce9e`` (opaque) or ``#15781B80`` (transparent).
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
