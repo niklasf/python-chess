@@ -2676,8 +2676,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.arrows(), [])
         game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
         self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1]")
-        self.assertEqual(len(game.arrows()), 3)
-        self.assertTrue(any(arrow.color == "red" for arrow in game.arrows()))
+        arrows = game.arrows()
+        self.assertEqual(len(arrows), 3)
+        self.assertEqual(arrows[0].color, "green")
+        self.assertEqual(arrows[1].color, "red")
+        self.assertEqual(arrows[2].color, "green")
 
         game.set_clock(None)
         game.set_eval(None)

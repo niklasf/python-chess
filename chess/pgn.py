@@ -441,7 +441,7 @@ class GameNode:
         arrows = []
         for match in ARROWS_REGEX.finditer(self.comment):
             for group in match.group(1).split(","):
-                color = "G"
+                color = "green"
                 if group[0] == "R":
                     color = "red"
                 elif group[0] == "Y":
