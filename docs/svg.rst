@@ -25,6 +25,6 @@ licensed under the GFDL, BSD and GPL.
         End square of the arrow.
 
     .. py:attribute:: color
-        :value: '#888'
+        :value: 'green'
 
         Arrow color.
