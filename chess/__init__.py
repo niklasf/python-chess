@@ -1832,6 +1832,9 @@ class Board(BaseBoard):
 
         return True
 
+    def _is_halfmoves(self, n: int) -> bool:
+        return self.halfmove_clock >= n and any(self.generate_legal_moves())
+
     def is_seventyfive_moves(self) -> bool:
         """
         Since the 1st of July 2014, a game is automatically drawn (without
@@ -1839,11 +1842,7 @@ class Board(BaseBoard):
         or pawn move is equal to or greater than 150. Other means to end a game
         take precedence.
         """
-        if self.halfmove_clock >= 150:
-            if any(self.generate_legal_moves()):
-                return True
-
-        return False
+        return self._is_halfmoves(150)
 
     def is_fivefold_repetition(self) -> bool:
         """
@@ -1856,28 +1855,44 @@ class Board(BaseBoard):
 
     def can_claim_draw(self) -> bool:
         """
-        Checks if the side to move can claim a draw by the fifty-move rule or
+        Checks if the player to move can claim a draw by the fifty-move rule or
         by threefold repetition.
 
         Note that checking the latter can be slow.
         """
         return self.can_claim_fifty_moves() or self.can_claim_threefold_repetition()
 
+    def is_fifty_moves(self) -> bool:
+        return self._is_halfmoves(100)
+
     def can_claim_fifty_moves(self) -> bool:
         """
+        Checks if the player to move can claim a draw by the fifty-move rule.
+
         Draw by the fifty-move rule can be claimed once the clock of halfmoves
-        since the last capture or pawn move becomes equal or greater to 100
-        and the side to move still has a legal move they can make.
+        since the last capture or pawn move becomes equal or greater to 100,
+        or if there is a legal move that achieves this. Other means of ending
+        the game take precedence.
         """
-        # Fifty-move rule.
-        if self.halfmove_clock >= 100:
-            if any(self.generate_legal_moves()):
-                return True
+        if self.is_fifty_moves():
+            return True
+
+        if self.halfmove_clock >= 99:
+            for move in self.generate_legal_moves():
+                if not self.is_zeroing(move):
+                    self.push(move)
+                    try:
+                        if self.is_fifty_moves():
+                            return True
+                    finally:
+                        self.pop()
 
         return False
 
     def can_claim_threefold_repetition(self) -> bool:
         """
+        Checks if the player to move can claim a draw by threefold repetition.
+
         Draw by threefold repetition can be claimed if the position on the
         board occured for the third time or if such a repetition is reached
         with one of the possible legal moves.

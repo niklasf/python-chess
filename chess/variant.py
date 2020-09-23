@@ -700,10 +700,8 @@ class CrazyhouseBoard(chess.Board):
         else:
             self.pockets[self.turn].add(piece_type)
 
-    def can_claim_fifty_moves(self) -> bool:
-        return False
-
-    def is_seventyfive_moves(self) -> bool:
+    def _is_halfmoves(self, n: int) -> bool:
+        # No draw by 50-move rule or 75-move rule.
         return False
 
     def is_irreversible(self, move: chess.Move) -> bool:

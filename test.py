@@ -1268,20 +1268,27 @@ class BoardTestCase(unittest.TestCase):
     def test_fifty_moves(self):
         # Test positions from Jan Timman vs. Christopher Lutz (1995).
         board = chess.Board()
+        self.assertFalse(board.is_fifty_moves())
         self.assertFalse(board.can_claim_fifty_moves())
         board = chess.Board("8/5R2/8/r2KB3/6k1/8/8/8 w - - 19 79")
+        self.assertFalse(board.is_fifty_moves())
         self.assertFalse(board.can_claim_fifty_moves())
         board = chess.Board("8/8/6r1/4B3/8/4K2k/5R2/8 b - - 68 103")
+        self.assertFalse(board.is_fifty_moves())
         self.assertFalse(board.can_claim_fifty_moves())
         board = chess.Board("6R1/7k/8/8/1r3B2/5K2/8/8 w - - 99 119")
-        self.assertFalse(board.can_claim_fifty_moves())
+        self.assertFalse(board.is_fifty_moves())
+        self.assertTrue(board.can_claim_fifty_moves())
         board = chess.Board("8/7k/8/6R1/1r3B2/5K2/8/8 b - - 100 119")
+        self.assertTrue(board.is_fifty_moves())
         self.assertTrue(board.can_claim_fifty_moves())
         board = chess.Board("8/7k/8/1r3KR1/5B2/8/8/8 w - - 105 122")
+        self.assertTrue(board.is_fifty_moves())
         self.assertTrue(board.can_claim_fifty_moves())
 
         # Once checkmated, it is too late to claim.
         board = chess.Board("k7/8/NKB5/8/8/8/8/8 b - - 105 176")
+        self.assertFalse(board.is_fifty_moves())
         self.assertFalse(board.can_claim_fifty_moves())
 
         # A stalemate is a draw, but you can not and do not need to claim it by
@@ -1289,6 +1296,7 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("k7/3N4/1K6/1B6/8/8/8/8 b - - 99 1")
         self.assertTrue(board.is_stalemate())
         self.assertTrue(board.is_game_over())
+        self.assertFalse(board.is_fifty_moves())
         self.assertFalse(board.can_claim_fifty_moves())
         self.assertFalse(board.can_claim_draw())
 
