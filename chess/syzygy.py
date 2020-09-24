@@ -380,9 +380,6 @@ def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int]
         (not normalized or normalize_tablename(name) == name) and
         (not one_king or (name != "KvK" and name.startswith("K") and "vK" in name)))
 
-def is_table_name(name: str) -> bool:  # TODO: Remove before 1.0
-    return is_tablename(name, one_king=False)
-
 
 def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
     first = "K" if one_king else "P"
