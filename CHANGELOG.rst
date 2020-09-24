@@ -1,6 +1,40 @@
 Changelog for python-chess
 ==========================
 
+New in v1.0.0
+-------------
+
+Changes:
+
+* Now requires Python 3.7+.
+* `chess.engine` will now cut off illegal principal variations at the first
+  illegal move instead of discarding them entirely.
+* `chess.engine.EngineProtocol` renamed to `chess.engine.Protocol`.
+* `chess.engne.Option` is no longer a named tuple.
+* Renamed `chess.gaviota` internals.
+* Relaxed type annotations of `chess.pgn.GameNode.variation()` and related
+  methods.
+* Documentation improvements. Will now show type aliases like `chess.Square`
+  instead of `int`.
+
+Bugfixes:
+
+* Fix insufficient material with same-color bishops on both sides.
+* Clarify that `chess.Board.can_claim_draw()` and related methods refer to
+  claims by the player to move. Three-fold repetition could already be claimed
+  before making the final repeating move. `chess.Board.can_claim_fifty_moves()`
+  now also allows a claim before the final repeating move. The previous
+  behavior is `chess.Board.is_fifty_moves()`.
+* Fix parsing of green arrows/circles in `chess.pgn.GameNode.arrows()`.
+* Fix overloaded type signature of `chess.engine.Protocol.engine()`.
+
+New features:
+
+* Added `chess.parse_square()`, to be used instead of
+  `chess.SQUARE_NAMES.index()`.
+* Added `chess.Board.apply_mirror()`.
+* Added `chess.svg.board(..., colors)`, to allow overriding the default theme.
+
 New in v0.31.4
 --------------
 

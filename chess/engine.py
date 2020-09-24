@@ -879,8 +879,6 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
-EngineProtocol = Protocol  # TODO: Remove before 1.0
-
 
 class CommandState(enum.Enum):
     New = 1
