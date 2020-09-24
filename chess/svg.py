@@ -198,7 +198,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``square light``, ``square dark``, ``square light lastmove``,
         ``square dark lastmove``, ``margin``, ``coord``, ``arrow green``,
         ``arrow blue``, ``arrow red``, and ``arrow yellow``. Values should look
-        like ``#ffce9e`` (opaque) or ``#15781B80`` (transparent).
+        like ``#ffce9e`` (opaque) or ``#15781B80`` (transparent). The values can
+        also look like color names, like ``red``, ``green``, ``blue``, etc.
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
