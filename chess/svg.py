@@ -116,11 +116,24 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     return svg
 
 
-def _color(colors: Dict[str, str], color: str) -> str:
-    return colors.get(color, DEFAULT_COLORS[color])
+def _attrs(attrs: Dict[str, Union[str, int, float, None]]) -> Dict[str, str]:
+    return {k: str(v) for k, v in attrs.items() if v is not None}
 
 
-def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int, *, color: str) -> ET.Element:
+def _color(colors: Dict[str, str], color: str) -> Tuple[str, float]:
+    color = colors.get(color, DEFAULT_COLORS[color])
+    if color.startswith("#"):
+        try:
+            if len(color) == 5:
+                return color[:4], int(color[4], 16) / 0xf
+            elif len(color) == 9:
+                return color[:7], int(color[7:], 16) / 0xff
+        except ValueError:
+            pass  # Ignore invalid hex.
+    return color, 1.0
+
+
+def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int, *, color: str, opacity: float) -> ET.Element:
     scale = margin / MARGIN
 
     if horizontal:
@@ -128,11 +141,12 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
     else:
         y += int(height - scale * height) // 2
 
-    t = ET.Element("g", {
+    t = ET.Element("g", _attrs({
         "transform": f"translate({x}, {y}) scale({scale}, {scale})",
         "fill": color,
         "stroke": color,
-    })
+        "opacity": opacity if opacity < 1.0 else None,
+    }))
     t.append(ET.fromstring(COORDS[text]))
     return t
 
@@ -218,13 +232,15 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
     if coordinates:
-        ET.SubElement(svg, "rect", {
-            "x": "0",
-            "y": "0",
-            "width": str(2 * margin + 8 * SQUARE_SIZE),
-            "height": str(2 * margin + 8 * SQUARE_SIZE),
-            "fill": _color(colors, "margin"),
-        })
+        margin_color, margin_opacity = _color(colors, "margin")
+        ET.SubElement(svg, "rect", _attrs({
+            "x": 0,
+            "y": 0,
+            "width": 2 * margin + 8 * SQUARE_SIZE,
+            "height": 2 * margin + 8 * SQUARE_SIZE,
+            "fill": margin_color,
+            "opacity": margin_opacity if margin_opacity < 1.0 else None,
+        }))
 
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
@@ -236,29 +252,30 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
-        fill_color = _color(colors, " ".join(cls))
+        fill_color, fill_opacity = _color(colors, " ".join(cls))
 
         cls.append(chess.SQUARE_NAMES[square])
 
-        ET.SubElement(svg, "rect", {
-            "x": str(x),
-            "y": str(y),
-            "width": str(SQUARE_SIZE),
-            "height": str(SQUARE_SIZE),
+        ET.SubElement(svg, "rect", _attrs({
+            "x": x,
+            "y": y,
+            "width": SQUARE_SIZE,
+            "height": SQUARE_SIZE,
             "class": " ".join(cls),
             "stroke": "none",
             "fill": fill_color,
-        })
+            "opacity": fill_opacity if fill_opacity < 1.0 else None,
+        }))
 
         if square == check:
-            ET.SubElement(svg, "rect", {
-                "x": str(x),
-                "y": str(y),
-                "width": str(SQUARE_SIZE),
-                "height": str(SQUARE_SIZE),
+            ET.SubElement(svg, "rect", _attrs({
+                "x": x,
+                "y": y,
+                "width": SQUARE_SIZE,
+                "height": SQUARE_SIZE,
                 "class": "check",
                 "fill": "url(#check_gradient)",
-            })
+            }))
 
         # Render pieces.
         if board is not None:
@@ -271,22 +288,22 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
         # Render selected squares.
         if squares is not None and square in squares:
-            ET.SubElement(svg, "use", {
+            ET.SubElement(svg, "use", _attrs({
                 "xlink:href": "#xx",
-                "x": str(x),
-                "y": str(y),
-            })
+                "x": x,
+                "y": y,
+            }))
 
     if coordinates:
-        coord_color = _color(colors, "coord")
+        coord_color, coord_opacity = _color(colors, "coord")  # TODO
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
-            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color))
-            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color))
+            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
+            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
             y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
-            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color))
-            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color))
+            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
+            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
     for arrow in arrows:
         try:
@@ -296,9 +313,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             color = "green"
 
         try:
-            color = _color(colors, " ".join(["arrow", color]))
+            color, opacity = _color(colors, " ".join(["arrow", color]))
         except KeyError:
-            pass
+            opacity = 1.0
 
         tail_file = chess.square_file(tail)
         tail_rank = chess.square_rank(tail)
@@ -311,15 +328,16 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
-            ET.SubElement(svg, "circle", {
-                "cx": str(xhead),
-                "cy": str(yhead),
-                "r": str(SQUARE_SIZE * 0.9 / 2),
-                "stroke-width": str(SQUARE_SIZE * 0.1),
+            ET.SubElement(svg, "circle", _attrs({
+                "cx": xhead,
+                "cy": yhead,
+                "r": SQUARE_SIZE * 0.9 / 2,
+                "stroke-width": SQUARE_SIZE * 0.1,
                 "stroke": color,
+                "opacity": opacity if opacity < 1.0 else None,
                 "fill": "none",
                 "class": "circle",
-            })
+            }))
         else:
             marker_size = 0.75 * SQUARE_SIZE
             marker_margin = 0.1 * SQUARE_SIZE
@@ -333,16 +351,17 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             xtip = xhead - dx * marker_margin / hypot
             ytip = yhead - dy * marker_margin / hypot
 
-            ET.SubElement(svg, "line", {
-                "x1": str(xtail),
-                "y1": str(ytail),
-                "x2": str(shaft_x),
-                "y2": str(shaft_y),
+            ET.SubElement(svg, "line", _attrs({
+                "x1": xtail,
+                "y1": ytail,
+                "x2": shaft_x,
+                "y2": shaft_y,
                 "stroke": color,
-                "stroke-width": str(SQUARE_SIZE * 0.2),
+                "opacity": opacity if opacity < 1.0 else None,
+                "stroke-width": SQUARE_SIZE * 0.2,
                 "stroke-linecap": "butt",
                 "class": "arrow",
-            })
+            }))
 
             marker = [(xtip, ytip),
                       (shaft_x + dy * 0.5 * marker_size / hypot,
@@ -350,10 +369,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                       (shaft_x - dy * 0.5 * marker_size / hypot,
                        shaft_y + dx * 0.5 * marker_size / hypot)]
 
-            ET.SubElement(svg, "polygon", {
-                "points": " ".join(str(x) + "," + str(y) for x, y in marker),
+            ET.SubElement(svg, "polygon", _attrs({
+                "points": " ".join(f"{x},{y}" for x, y in marker),
                 "fill": color,
+                "opacity": opacity if opacity < 1.0 else None,
                 "class": "arrow",
-            })
+            }))
 
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
