@@ -10,7 +10,7 @@ Changes:
 * `chess.engine` will now cut off illegal principal variations at the first
   illegal move instead of discarding them entirely.
 * `chess.engine.EngineProtocol` renamed to `chess.engine.Protocol`.
-* `chess.engne.Option` is no longer a named tuple.
+* `chess.engine.Option` is no longer a named tuple.
 * Renamed `chess.gaviota` internals.
 * Relaxed type annotations of `chess.pgn.GameNode.variation()` and related
   methods.
