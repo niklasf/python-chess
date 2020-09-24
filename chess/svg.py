@@ -77,7 +77,7 @@ DEFAULT_COLORS = {
     "square light lastmove": "#cdd16a",
     "margin": "#212121",
     "coord": "#e5e5e5",
-    "arrow green": "#15781B80",
+    "arrow green": "#006666",
     "arrow red": "#88202080",
     "arrow yellow": "#e68f00b3",
     "arrow blue": "#00308880",
