@@ -180,7 +180,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
-    :param colors: Dictionary to override default colors. Possible keys are
+    :param colors: A dictionary to override default colors. Possible keys are
         ``square light``, ``square dark``, ``square light lastmove``,
         ``square dark lastmove``, ``margin``, ``coord``, ``arrow green``,
         ``arrow blue``, ``arrow red``, and ``arrow yellow``. Values should look
