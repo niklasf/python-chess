@@ -162,7 +162,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           size: Optional[int] = None,
-          colors: Dict[str, str] = {},
+          colors: Dict[str, str] = DEFAULT_COLORS,
           style: Optional[str] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
@@ -174,8 +174,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked as check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
+        ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
