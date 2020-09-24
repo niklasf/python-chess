@@ -129,7 +129,7 @@ def _color(colors: Dict[str, str], color: str) -> Tuple[str, float]:
             elif len(color) == 9:
                 return color[:7], int(color[7:], 16) / 0xff
         except ValueError:
-            pass  # Ignore invalid hex.
+            pass  # Ignore invalid hex value
     return color, 1.0
 
 
