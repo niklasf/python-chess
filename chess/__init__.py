@@ -1828,7 +1828,7 @@ class Board(BaseBoard):
         #     pawns or knights. These would allow selfmate.
         if self.occupied_co[color] & self.bishops:
             same_color = (not self.bishops & BB_DARK_SQUARES) or (not self.bishops & BB_LIGHT_SQUARES)
-            return same_color and not (self.occupied_co[not color] & ~self.kings & ~self.rooks & ~self.queens)
+            return same_color and not self.pawns and not self.knights
 
         return True
 
