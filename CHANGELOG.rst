@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v1.0.1
+-------------
+
+Bugfixes:
+
+* `chess.svg`: Restore SVG Tiny compatibility by splitting colors like
+  `#rrggbbaa` into a solid color and opacity.
+
 New in v1.0.0
 -------------
 
