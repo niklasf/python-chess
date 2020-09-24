@@ -14,6 +14,9 @@ Changes:
 * Renamed `chess.gaviota` internals.
 * Relaxed type annotations of `chess.pgn.GameNode.variation()` and related
   methods.
+* Changed default colors of `chess.svg.Arrow` and
+  `chess.pgn.GameNode.arrows()`. These can be overriden with the new
+  `chess.svg.board(..., colors)` feature.
 * Documentation improvements. Will now show type aliases like `chess.Square`
   instead of `int`.
 
