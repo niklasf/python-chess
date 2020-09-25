@@ -772,8 +772,8 @@ class CrazyhouseBoard(chess.Board):
             return super().parse_san(san)
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
-        # In practise no material can leave the game, but this is easy to
-        # implement anyway. Note that bishops can be captured and put onto
+        # In practice, no material can leave the game, but this is easy to
+        # implement, anyway. Note that bishops can be captured and put onto
         # a different color complex.
         return (
             chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
