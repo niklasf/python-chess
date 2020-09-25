@@ -2802,6 +2802,7 @@ class Board(BaseBoard):
         """
         # Castling.
         try:
+            san = san.replace('0', 'O')
             if san in ["O-O", "O-O+", "O-O#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_kingside_castling(move))
             elif san in ["O-O-O", "O-O-O+", "O-O-O#"]:
