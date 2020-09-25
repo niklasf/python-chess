@@ -295,7 +295,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             }))
 
     if coordinates:
-        coord_color, coord_opacity = _color(colors, "coord")  # TODO
+        coord_color, coord_opacity = _color(colors, "coord")
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
             svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
