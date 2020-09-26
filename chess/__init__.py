@@ -2802,9 +2802,9 @@ class Board(BaseBoard):
         """
         # Castling.
         try:
-            if san in ["O-O", "O-O+", "O-O#"]:
+            if san in ["O-O", "O-O+", "O-O#", "0-0", "0-0+", "0-0#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_kingside_castling(move))
-            elif san in ["O-O-O", "O-O-O+", "O-O-O#"]:
+            elif san in ["O-O-O", "O-O-O+", "O-O-O#", "0-0-0", "0-0-0+", "0-0-0#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
         except StopIteration:
             raise ValueError(f"illegal san: {san!r} in {self.fen()}")
