@@ -7,7 +7,7 @@ python-chess supports several chess variants.
 >>>
 >>> board = chess.variant.GiveawayBoard()
 
->>> # General information about the variants
+>>> # General information about the variants.
 >>> type(board).uci_variant
 'giveaway'
 >>> type(board).xboard_variant
