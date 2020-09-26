@@ -1409,6 +1409,7 @@ class Board(BaseBoard):
         self.ep_square: Optional[Square] = None
         self.move_stack: List[Move] = []
         self._stack: List[_BoardState[BoardT]] = []
+        self.move_state = Dict[Move, _BoardState[BoardT]] = {}
 
         if fen is None:
             self.clear()
@@ -1465,6 +1466,7 @@ class Board(BaseBoard):
         """Clears the move stack."""
         self.move_stack.clear()
         self._stack.clear()
+        self.move_state.clear()
 
     def root(self: BoardT) -> BoardT:
         """Returns a copy of the root position."""
@@ -2018,6 +2020,7 @@ class Board(BaseBoard):
         self.castling_rights = self.clean_castling_rights()  # Before pushing stack
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
         self._stack.append(board_state)
+        self.move_state.update({self.move_stack[-1]: self._stack[-1]})
 
         # Reset en passant square.
         ep_square = self.ep_square
