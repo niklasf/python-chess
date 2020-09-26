@@ -940,12 +940,6 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         You can override the default implementation to work around specific
         quirks of your input format.
         """
-        # Replace zeros with correct castling notation.
-        if san == "0-0":
-            san = "O-O"
-        elif san == "0-0-0":
-            san = "O-O-O"
-
         return board.parse_san(san)
 
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
