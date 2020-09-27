@@ -455,12 +455,6 @@ class Move:
     promotion: Optional[PieceType] = None
     drop: Optional[PieceType] = None
 
-    def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> None:
-        self.from_square = from_square
-        self.to_square = to_square
-        self.promotion = promotion
-        self.drop = drop
-
     def uci(self) -> str:
         """
         Gets a UCI string for the move.
@@ -568,7 +562,7 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
     def reset_board(self) -> None:
-        """Resets piece positions to the starting position."""
+        """Resets pieces to the starting position."""
         self._reset_board()
 
     def _clear_board(self) -> None:
@@ -978,13 +972,13 @@ class BaseBoard:
         """
         self._set_piece_map(pieces)
 
-    def _set_chess960_pos(self, sharnagl: int) -> None:
-        if not 0 <= sharnagl <= 959:
-            raise ValueError(f"chess960 position index not 0 <= {sharnagl!r} <= 959")
+    def _set_chess960_pos(self, scharnagl: int) -> None:
+        if not 0 <= scharnagl <= 959:
+            raise ValueError(f"chess960 position index not 0 <= {scharnagl!r} <= 959")
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
-        n, bw = divmod(sharnagl, 4)
+        n, bw = divmod(scharnagl, 4)
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
@@ -1039,16 +1033,16 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
         self.promoted = BB_EMPTY
 
-    def set_chess960_pos(self, sharnagl: int) -> None:
+    def set_chess960_pos(self, scharnagl: int) -> None:
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
         Also see :func:`~chess.BaseBoard.from_chess960_pos()`.
         """
-        self._set_chess960_pos(sharnagl)
+        self._set_chess960_pos(scharnagl)
 
     def chess960_pos(self) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 959
+        Gets the Chess960 starting position index between 0 and 959,
         or ``None``.
         """
         if self.occupied_co[WHITE] != BB_RANK_1 | BB_RANK_2:
@@ -1295,7 +1289,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BaseBoardT], sharnagl: int) -> BaseBoardT:
+    def from_chess960_pos(cls: Type[BaseBoardT], scharnagl: int) -> BaseBoardT:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1305,7 +1299,7 @@ class BaseBoard:
         >>> board = chess.Board.from_chess960_pos(random.randint(0, 959))
         """
         board = cls.empty()
-        board.set_chess960_pos(sharnagl)
+        board.set_chess960_pos(scharnagl)
         return board
 
 
@@ -1436,6 +1430,11 @@ class Board(BaseBoard):
         self.reset_board()
 
     def reset_board(self) -> None:
+        """
+        Resets only pieces to the starting position. Use
+        :func:`~chess.Board.reset()` to fully restore the starting position
+        (including turn, castling rights, etc.).
+        """
         super().reset_board()
         self.clear_stack()
 
@@ -2114,7 +2113,7 @@ class Board(BaseBoard):
         """
         Restores the previous position and returns the last move from the stack.
 
-        :raises: :exc:`IndexError` if the stack is empty.
+        :raises: :exc:`IndexError` if the move stack is empty.
         """
         move = self.move_stack.pop()
         self._stack.pop().restore(self)
@@ -2130,7 +2129,7 @@ class Board(BaseBoard):
 
     def find_move(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None) -> Move:
         """
-        Finds a matching legal move for an origin square, a target square and
+        Finds a matching legal move for an origin square, a target square, and
         an optional promotion piece type.
 
         For pawn moves to the backrank, the promotion piece type defaults to
@@ -2386,8 +2385,8 @@ class Board(BaseBoard):
         super().set_piece_map(pieces)
         self.clear_stack()
 
-    def set_chess960_pos(self, sharnagl: int) -> None:
-        super().set_chess960_pos(sharnagl)
+    def set_chess960_pos(self, scharnagl: int) -> None:
+        super().set_chess960_pos(scharnagl)
         self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
@@ -2399,7 +2398,7 @@ class Board(BaseBoard):
 
     def chess960_pos(self, *, ignore_turn: bool = False, ignore_castling: bool = False, ignore_counters: bool = True) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 956
+        Gets the Chess960 starting position index between 0 and 956,
         or ``None`` if the current position is not a Chess960 starting
         position.
 
@@ -3536,9 +3535,9 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BoardT], sharnagl: int) -> BoardT:
+    def from_chess960_pos(cls: Type[BoardT], scharnagl: int) -> BoardT:
         board = cls.empty(chess960=True)
-        board.set_chess960_pos(sharnagl)
+        board.set_chess960_pos(scharnagl)
         return board
 
 

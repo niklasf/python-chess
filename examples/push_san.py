@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Play the immortal game using push_san() from chess.Board()."""
 

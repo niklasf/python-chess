@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Compute X-ray attacks through more valuable pieces."""
 

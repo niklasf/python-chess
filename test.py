@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # This file is part of the python-chess library.
 # Copyright (C) 2012-2020 Niklas Fiekas <niklas.fiekas@backscattering.de>
