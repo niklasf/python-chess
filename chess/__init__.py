@@ -978,13 +978,13 @@ class BaseBoard:
         """
         self._set_piece_map(pieces)
 
-    def _set_chess960_pos(self, sharnagl: int) -> None:
-        if not 0 <= sharnagl <= 959:
-            raise ValueError(f"chess960 position index not 0 <= {sharnagl!r} <= 959")
+    def _set_chess960_pos(self, scharnagl: int) -> None:
+        if not 0 <= scharnagl <= 959:
+            raise ValueError(f"chess960 position index not 0 <= {scharnagl!r} <= 959")
 
         # See http://www.russellcottrell.com/Chess/Chess960.htm for
         # a description of the algorithm.
-        n, bw = divmod(sharnagl, 4)
+        n, bw = divmod(scharnagl, 4)
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
@@ -1039,12 +1039,12 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
         self.promoted = BB_EMPTY
 
-    def set_chess960_pos(self, sharnagl: int) -> None:
+    def set_chess960_pos(self, scharnagl: int) -> None:
         """
         Sets up a Chess960 starting position given its index between 0 and 959.
         Also see :func:`~chess.BaseBoard.from_chess960_pos()`.
         """
-        self._set_chess960_pos(sharnagl)
+        self._set_chess960_pos(scharnagl)
 
     def chess960_pos(self) -> Optional[int]:
         """
@@ -1295,7 +1295,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BaseBoardT], sharnagl: int) -> BaseBoardT:
+    def from_chess960_pos(cls: Type[BaseBoardT], scharnagl: int) -> BaseBoardT:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1305,7 +1305,7 @@ class BaseBoard:
         >>> board = chess.Board.from_chess960_pos(random.randint(0, 959))
         """
         board = cls.empty()
-        board.set_chess960_pos(sharnagl)
+        board.set_chess960_pos(scharnagl)
         return board
 
 
@@ -2386,8 +2386,8 @@ class Board(BaseBoard):
         super().set_piece_map(pieces)
         self.clear_stack()
 
-    def set_chess960_pos(self, sharnagl: int) -> None:
-        super().set_chess960_pos(sharnagl)
+    def set_chess960_pos(self, scharnagl: int) -> None:
+        super().set_chess960_pos(scharnagl)
         self.chess960 = True
         self.turn = WHITE
         self.castling_rights = self.rooks
@@ -3536,9 +3536,9 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BoardT], sharnagl: int) -> BoardT:
+    def from_chess960_pos(cls: Type[BoardT], scharnagl: int) -> BoardT:
         board = cls.empty(chess960=True)
-        board.set_chess960_pos(sharnagl)
+        board.set_chess960_pos(scharnagl)
         return board
 
 
