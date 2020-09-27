@@ -568,7 +568,7 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
     def reset_board(self) -> None:
-        """Resets piece positions to the starting position."""
+        """Resets pieces to the starting position."""
         self._reset_board()
 
     def _clear_board(self) -> None:
@@ -1048,7 +1048,7 @@ class BaseBoard:
 
     def chess960_pos(self) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 959
+        Gets the Chess960 starting position index between 0 and 959,
         or ``None``.
         """
         if self.occupied_co[WHITE] != BB_RANK_1 | BB_RANK_2:
@@ -1436,6 +1436,11 @@ class Board(BaseBoard):
         self.reset_board()
 
     def reset_board(self) -> None:
+        """
+        Resets only pieces to the starting position. Use
+        :func:`~chess.Board.reset()` to fully restore the starting position
+        (including turn, castling rights, etc.).
+        """
         super().reset_board()
         self.clear_stack()
 
@@ -2114,7 +2119,7 @@ class Board(BaseBoard):
         """
         Restores the previous position and returns the last move from the stack.
 
-        :raises: :exc:`IndexError` if the stack is empty.
+        :raises: :exc:`IndexError` if the move stack is empty.
         """
         move = self.move_stack.pop()
         self._stack.pop().restore(self)
@@ -2130,7 +2135,7 @@ class Board(BaseBoard):
 
     def find_move(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None) -> Move:
         """
-        Finds a matching legal move for an origin square, a target square and
+        Finds a matching legal move for an origin square, a target square, and
         an optional promotion piece type.
 
         For pawn moves to the backrank, the promotion piece type defaults to
@@ -2399,7 +2404,7 @@ class Board(BaseBoard):
 
     def chess960_pos(self, *, ignore_turn: bool = False, ignore_castling: bool = False, ignore_counters: bool = True) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 956
+        Gets the Chess960 starting position index between 0 and 956,
         or ``None`` if the current position is not a Chess960 starting
         position.
 
