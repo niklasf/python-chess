@@ -568,7 +568,10 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
     def reset_board(self) -> None:
-        """Resets piece positions to the starting position."""
+        """
+        Resets piece positions to the starting position. Note that the move stack
+        is not cleared, and the side to move is not explicitly set to be white.
+        """
         self._reset_board()
 
     def _clear_board(self) -> None:
@@ -1048,7 +1051,7 @@ class BaseBoard:
 
     def chess960_pos(self) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 959
+        Gets the Chess960 starting position index between 0 and 959,
         or ``None``.
         """
         if self.occupied_co[WHITE] != BB_RANK_1 | BB_RANK_2:
@@ -1250,8 +1253,8 @@ class BaseBoard:
         """
         Returns a mirrored copy of the board.
 
-        The board is mirrored vertically and piece colors are swapped, so that
-        the position is equivalent modulo color.
+        The board is mirrored vertically and piece colors are swapped, making
+        the position equivalent, except color of the pieces.
 
         Alternatively, :func:`~chess.BaseBoard.apply_mirror()` can be used
         to mirror the board.
@@ -1426,7 +1429,10 @@ class Board(BaseBoard):
         return LegalMoveGenerator(self)
 
     def reset(self) -> None:
-        """Restores the starting position."""
+        """
+        Restores the starting position, clears the move stack, and sets white as the
+        side to move.
+        """
         self.turn = WHITE
         self.castling_rights = BB_CORNERS
         self.ep_square = None
@@ -1436,6 +1442,10 @@ class Board(BaseBoard):
         self.reset_board()
 
     def reset_board(self) -> None:
+        """
+        Resets piece positions to the starting position, and clears the move stack.
+        Note that the turn is not reset to white as the side to move.
+        """
         super().reset_board()
         self.clear_stack()
 
@@ -1443,7 +1453,7 @@ class Board(BaseBoard):
         """
         Clears the board.
 
-        Resets move stack and move counters. The side to move is white. There
+        Resets the move stack and move counters. The side to move is white. There
         are no rooks or kings, so castling rights are removed.
 
         In order to be in a valid :func:`~chess.Board.status()`, at least kings
@@ -2112,9 +2122,9 @@ class Board(BaseBoard):
 
     def pop(self: BoardT) -> Move:
         """
-        Restores the previous position and returns the last move from the stack.
+        Restores the previous position and returns the last move from the move stack.
 
-        :raises: :exc:`IndexError` if the stack is empty.
+        :raises: :exc:`IndexError` if the move stack is empty.
         """
         move = self.move_stack.pop()
         self._stack.pop().restore(self)
@@ -2130,7 +2140,7 @@ class Board(BaseBoard):
 
     def find_move(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None) -> Move:
         """
-        Finds a matching legal move for an origin square, a target square and
+        Finds a matching legal move for an origin square, a target square, and
         an optional promotion piece type.
 
         For pawn moves to the backrank, the promotion piece type defaults to
@@ -2399,7 +2409,7 @@ class Board(BaseBoard):
 
     def chess960_pos(self, *, ignore_turn: bool = False, ignore_castling: bool = False, ignore_counters: bool = True) -> Optional[int]:
         """
-        Gets the Chess960 starting position index between 0 and 956
+        Gets the Chess960 starting position index between 0 and 956,
         or ``None`` if the current position is not a Chess960 starting
         position.
 
