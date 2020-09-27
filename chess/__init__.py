@@ -455,12 +455,6 @@ class Move:
     promotion: Optional[PieceType] = None
     drop: Optional[PieceType] = None
 
-    def __init__(self, from_square: Square, to_square: Square, promotion: Optional[PieceType] = None, drop: Optional[PieceType] = None) -> None:
-        self.from_square = from_square
-        self.to_square = to_square
-        self.promotion = promotion
-        self.drop = drop
-
     def uci(self) -> str:
         """
         Gets a UCI string for the move.
