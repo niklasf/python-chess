@@ -92,8 +92,61 @@ class Arrow:
         self.head = head
         self.color = color
 
+    def pgn(self) -> str:
+        """
+        Returns the arrow in the format used by ``[%csl ...]`` and
+        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
+
+        Colors other than ``red``, ``yellow`` and ``blue`` default to green.
+        """
+        if self.color == "red":
+            color = "R"
+        elif self.color == "yellow":
+            color = "Y"
+        elif self.color == "blue":
+            color = "B"
+        else:
+            color = "G"
+
+        if self.tail == self.head:
+            return f"{color}{chess.SQUARE_NAMES[self.tail]}"
+        else:
+            return f"{color}{chess.SQUARE_NAMES[self.tail]}{chess.SQUARE_NAMES[self.head]}"
+
+    def __str__(self) -> str:
+        return self.pgn()
+
     def __repr__(self) -> str:
         return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
+
+    @classmethod
+    def from_pgn(cls, pgn: str) -> Arrow:
+        """
+        Parses an arrow from the format used by ``[%csl ...]`` and
+        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
+
+        Also allows skipping the color prefix, defaulting to green.
+
+        :raises: :exc:`ValueError` if the format is invalid.
+        """
+        if pgn.startswith("G"):
+            color = "green"
+            pgn = pgn[1:]
+        elif pgn.startswith("R"):
+            color = "red"
+            pgn = pgn[1:]
+        elif pgn.startswith("Y"):
+            color = "yellow"
+            pgn = pgn[1:]
+        elif pgn.startswith("B"):
+            color = "blue"
+            pgn = pgn[1:]
+        else:
+            color = "green"
+
+        tail = chess.parse_square(pgn[:2])
+        head = chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
+        return cls(tail, head, color=color)
 
 
 class SvgWrapper(str):

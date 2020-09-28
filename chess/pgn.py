@@ -441,21 +441,7 @@ class GameNode:
         arrows = []
         for match in ARROWS_REGEX.finditer(self.comment):
             for group in match.group(1).split(","):
-                color = "green"
-                if group[0] == "R":
-                    color = "red"
-                elif group[0] == "Y":
-                    color = "yellow"
-                elif group[0] == "B":
-                    color = "blue"
-
-                tail = chess.SQUARE_NAMES.index(group[1:3])
-                if len(group) == 5:
-                    head = chess.SQUARE_NAMES.index(group[3:5])
-                else:
-                    head = tail
-
-                arrows.append(chess.svg.Arrow(tail, head, color=color))
+                arrows.append(chess.svg.Arrow.from_pgn(group))
 
         return arrows
 
@@ -469,22 +455,11 @@ class GameNode:
 
         for arrow in arrows:
             try:
-                tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
-                if color == "red":
-                    color = "R"
-                elif color == "yellow":
-                    color = "Y"
-                elif color == "blue":
-                    color = "B"
-                else:
-                    color = "G"
-            except AttributeError:
                 tail, head = arrow  # type: ignore
-                color = "G"
-            if tail == head:
-                csl.append(f"{color}{chess.SQUARE_NAMES[tail]}")
-            else:
-                cal.append(f"{color}{chess.SQUARE_NAMES[tail]}{chess.SQUARE_NAMES[head]}")
+                arrow = chess.svg.Arrow(tail, head)
+            except TypeError:
+                pass
+            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())
 
         self.comment = ARROWS_REGEX.sub("", self.comment).strip()
 
