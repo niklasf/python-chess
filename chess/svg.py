@@ -187,7 +187,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param flipped: Pass ``True`` to flip the board.
     :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
-    :param check: A square to be marked as check.
+    :param check: A :class:`chess.Square` to be marked indicating a check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects like
         ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
