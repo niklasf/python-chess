@@ -450,8 +450,8 @@ class GameNode:
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
         """
-        csl = []
-        cal = []
+        csl: List[str] = []
+        cal: List[str] = []
 
         for arrow in arrows:
             try:
@@ -459,7 +459,7 @@ class GameNode:
                 arrow = chess.svg.Arrow(tail, head)
             except TypeError:
                 pass
-            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())
+            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
 
         self.comment = ARROWS_REGEX.sub("", self.comment).strip()
 
