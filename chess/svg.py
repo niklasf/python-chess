@@ -169,12 +169,12 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 
 
 def board(board: Optional[chess.BaseBoard] = None, *,
-          squares: Optional[IntoSquareSet] = None,
           flipped: bool = False,
           coordinates: bool = True,
           lastmove: Optional[chess.Move] = None,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
+          squares: Optional[IntoSquareSet] = None,
           size: Optional[int] = None,
           colors: Dict[str, str] = {},
           style: Optional[str] = None) -> str:
@@ -183,7 +183,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
         ``None`` (the default) for a chessboard without pieces.
-    :param squares: A :class:`chess.SquareSet` with selected squares.
     :param flipped: Pass ``True`` to flip the board.
     :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param lastmove: A :class:`chess.Move` to be highlighted.
@@ -192,6 +191,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
+    :param squares: A :class:`chess.SquareSet` with selected squares.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
     :param colors: A dictionary to override default colors. Possible keys are
