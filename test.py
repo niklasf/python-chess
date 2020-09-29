@@ -2595,6 +2595,12 @@ class PgnTestCase(unittest.TestCase):
             board = game.end().board()
             self.assertEqual(board.fen(), "5rk1/2p1R2p/p5pb/2PPR3/8/2Q2B2/5P2/4K2q w - - 3 43")
 
+    def test_uci_moves(self):
+        with open("data/pgn/uci-moves.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            board = game.end().board()
+            self.assertEqual(board.fen(), "8/8/2B5/4k3/4Pp2/1b6/1P3K2/8 b - - 0 57")
+
     def test_wierd_header(self):
         pgn = io.StringIO(r"""[Black "[=0040.34h5a4]"]""")
         game = chess.pgn.read_game(pgn)

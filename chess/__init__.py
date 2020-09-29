@@ -2817,7 +2817,7 @@ class Board(BaseBoard):
 
             raise ValueError(f"invalid san: {san!r}")
 
-        # Get target square.
+        # Get target square. Mask our own pieces to exclude castling moves.
         to_square = SQUARE_NAMES.index(match.group(4))
         to_mask = BB_SQUARES[to_square] & ~self.occupied_co[self.turn]
 
@@ -2825,20 +2825,29 @@ class Board(BaseBoard):
         p = match.group(5)
         promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
 
+        # Filter by original square.
+        from_mask = BB_ALL
+        if match.group(2):
+            from_file = FILE_NAMES.index(match.group(2))
+            from_mask &= BB_FILES[from_file]
+        if match.group(3):
+            from_rank = int(match.group(3)) - 1
+            from_mask &= BB_RANKS[from_rank]
+
         # Filter by piece type.
         if match.group(1):
             piece_type = PIECE_SYMBOLS.index(match.group(1).lower())
-            from_mask = self.pieces_mask(piece_type, self.turn)
+            from_mask &= self.pieces_mask(piece_type, self.turn)
+        elif match.group(2) and match.group(3):
+            # Allow fully specified moves, even if they are not pawn moves,
+            # including castling moves.
+            move = self.find_move(square(from_file, from_rank), to_square, promotion)
+            if move.promotion == promotion:
+                return move
+            else:
+                raise ValueError(f"missing promotion piece type: {san!r} in {self.fen()}")
         else:
-            from_mask = self.pawns
-
-        # Filter by source file.
-        if match.group(2):
-            from_mask &= BB_FILES[FILE_NAMES.index(match.group(2))]
-
-        # Filter by source rank.
-        if match.group(3):
-            from_mask &= BB_RANKS[int(match.group(3)) - 1]
+            from_mask &= self.pawns
 
         # Match legal moves.
         matched_move = None
