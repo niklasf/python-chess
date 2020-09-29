@@ -761,7 +761,7 @@ class CrazyhouseBoard(chess.Board):
 
     def parse_san(self, san: str) -> chess.Move:
         if "@" in san:
-            uci = san.rstrip("+# ")
+            uci = san.rstrip("+#")
             if uci[0] == "@":
                 uci = "P" + uci
             move = chess.Move.from_uci(uci)
