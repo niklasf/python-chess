@@ -2814,8 +2814,10 @@ class Board(BaseBoard):
             # Null moves.
             if san in ["--", "Z0", "0000", "@@@@"]:
                 return Move.null()
-
-            raise ValueError(f"invalid san: {san!r}")
+            elif "," in san:
+                raise ValueError(f"unsupported multi-leg move: {san!r}")
+            else:
+                raise ValueError(f"invalid san: {san!r}")
 
         # Get target square. Mask our own pieces to exclude castling moves.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -2940,31 +2942,9 @@ class Board(BaseBoard):
         else:
             return "O-O-O"
 
-    def parse_xboard(self, xboard: str) -> Move:
-        if xboard == "@@@@":
-            return Move.null()
-        elif "," in xboard:
-            raise ValueError(f"unsupported multi-leg xboard move: {xboard!r}")
+    parse_xboard = parse_san
 
-        try:
-            move = Move.from_uci(xboard)
-            move = self._to_chess960(move)
-            move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
-            if not self.is_legal(move):
-                raise ValueError(f"illegal xboard move: {xboard!r} in {self.fen()}")
-            return move
-        except ValueError:
-            pass
-
-        try:
-            return self.parse_san(xboard)
-        except ValueError:
-            raise ValueError(f"invalid or illegal xboard move: {xboard!r} in {self.fen()}")
-
-    def push_xboard(self, xboard: str) -> Move:
-        move = self.parse_xboard(xboard)
-        self.push(move)
-        return move
+    push_xboard = push_san
 
     def is_en_passant(self, move: Move) -> bool:
         """Checks if the given pseudo-legal move is an en passant capture."""
