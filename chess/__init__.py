@@ -2942,7 +2942,8 @@ class Board(BaseBoard):
         else:
             return "O-O-O"
 
-    parse_xboard = parse_san
+    def parse_xboard(self, xboard: str) -> Move:
+        return self.parse_san(xboard)
 
     push_xboard = push_san
 
