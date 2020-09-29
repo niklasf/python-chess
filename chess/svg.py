@@ -26,7 +26,7 @@ import xml.etree.ElementTree as ET
 import chess
 
 from typing import Dict, Iterable, Optional, Tuple, Union
-from chess import IntoSquareSet, Square
+from chess import Color, IntoSquareSet, Square
 
 
 SQUARE_SIZE = 45
@@ -222,22 +222,22 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 
 
 def board(board: Optional[chess.BaseBoard] = None, *,
-          flipped: bool = False,
-          coordinates: bool = True,
+          orientation: Color = chess.WHITE,
           lastmove: Optional[chess.Move] = None,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           squares: Optional[IntoSquareSet] = None,
           size: Optional[int] = None,
+          coordinates: bool = True,
           colors: Dict[str, str] = {},
+          flipped: bool = False,
           style: Optional[str] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
     :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
         ``None`` (the default) for a chessboard without pieces.
-    :param flipped: Pass ``True`` to flip the board.
-    :param coordinates: Pass ``False`` to disable the coordinate margin.
+    :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked indicating a check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects like
@@ -247,11 +247,13 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board) or ``None`` (the default) for no size limit.
+    :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param colors: A dictionary to override default colors. Possible keys are
         ``square light``, ``square dark``, ``square light lastmove``,
         ``square dark lastmove``, ``margin``, ``coord``, ``arrow green``,
         ``arrow blue``, ``arrow red``, and ``arrow yellow``. Values should look
         like ``#ffce9e`` (opaque) or ``#15781B80`` (transparent).
+    :param flipped: Pass ``True`` to flip the board.
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
@@ -264,6 +266,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
     """
+    orientation ^= flipped
     margin = 15 if coordinates else 0
     svg = _svg(8 * SQUARE_SIZE + 2 * margin, size)
 
@@ -299,8 +302,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
 
-        x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
-        y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
@@ -350,11 +353,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if coordinates:
         coord_color, coord_opacity = _color(colors, "coord")
         for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = (file_index if not flipped else 7 - file_index) * SQUARE_SIZE + margin
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
             svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
         for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = (7 - rank_index if not flipped else rank_index) * SQUARE_SIZE + margin
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
             svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
@@ -375,10 +378,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         head_file = chess.square_file(head)
         head_rank = chess.square_rank(head)
 
-        xtail = margin + (tail_file + 0.5 if not flipped else 7.5 - tail_file) * SQUARE_SIZE
-        ytail = margin + (7.5 - tail_rank if not flipped else tail_rank + 0.5) * SQUARE_SIZE
-        xhead = margin + (head_file + 0.5 if not flipped else 7.5 - head_file) * SQUARE_SIZE
-        yhead = margin + (7.5 - head_rank if not flipped else head_rank + 0.5) * SQUARE_SIZE
+        xtail = margin + (tail_file + 0.5 if orientation else 7.5 - tail_file) * SQUARE_SIZE
+        ytail = margin + (7.5 - tail_rank if orientation else tail_rank + 0.5) * SQUARE_SIZE
+        xhead = margin + (head_file + 0.5 if orientation else 7.5 - head_file) * SQUARE_SIZE
+        yhead = margin + (7.5 - head_rank if orientation else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
             ET.SubElement(svg, "circle", _attrs({
