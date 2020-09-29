@@ -2825,7 +2825,7 @@ class Board(BaseBoard):
 
         # Get the promotion piece type.
         p = match.group(5)
-        promotion = p and PIECE_SYMBOLS.index(p[-1].lower())
+        promotion = PIECE_SYMBOLS.index(p[-1].lower()) if p else None
 
         # Filter by original square.
         from_mask = BB_ALL
