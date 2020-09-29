@@ -97,6 +97,8 @@ MOVETEXT_REGEX = re.compile(r"""
         |[PNBRQK]?@[a-h][1-8]
         |--
         |Z0
+        |0000
+        |@@@@
         |O-O(?:-O)?
         |0-0(?:-0)?
     )

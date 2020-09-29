@@ -2812,7 +2812,7 @@ class Board(BaseBoard):
         match = SAN_REGEX.match(san)
         if not match:
             # Null moves.
-            if san in ["--", "Z0"]:
+            if san in ["--", "Z0", "0000", "@@@@"]:
                 return Move.null()
 
             raise ValueError(f"invalid san: {san!r}")
