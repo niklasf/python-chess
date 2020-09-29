@@ -261,7 +261,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     >>>
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
     >>> squares = board.attacks(chess.E4)
-    >>> chess.svg.board(board=board, squares=squares)  # doctest: +SKIP
+    >>> chess.svg.board(board, squares=squares, size=350)  # doctest: +SKIP
 
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
