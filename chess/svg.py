@@ -265,6 +265,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
+
+    .. deprecated:: 1.1
+        Use *orientation* with a color instead of the *flipped* toggle.
     """
     orientation ^= flipped
     margin = 15 if coordinates else 0

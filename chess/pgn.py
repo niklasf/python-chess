@@ -916,6 +916,11 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
 
         You can override the default implementation to work around specific
         quirks of your input format.
+
+        .. deprecated:: 1.1
+            This method is very limited, because it depends too strongly on the
+            rest of the parser. Instead, please report common quirks so that
+            workarounds can be added for everyone.
         """
         return board.parse_san(san)
 
