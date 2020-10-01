@@ -918,9 +918,10 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         quirks of your input format.
 
         .. deprecated:: 1.1
-            This method is very limited, because it depends too strongly on the
-            rest of the parser. Instead, please report common quirks so that
-            workarounds can be added for everyone.
+            This method is very limited, because it is only called on moves
+            that the parser recognizes in the first place. Instead of adding
+            workarounds here, please report common quirks so that
+            they can be handled for everyone.
         """
         return board.parse_san(san)
 
