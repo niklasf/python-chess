@@ -2,17 +2,22 @@ import sys
 import os
 import typing
 
-# Do not resolve some type aliases.
+# Do not resolve these.
+autodoc_type_aliases = {
+    "Square": "chess.Square",
+    "Color": "chess.Color",
+    "PieceType": "chess.PieceType",
+    "Bitboard": "chess.Bitboard",
+    "IntoSquareSet": "chess.IntoSquareSet",
+}
+
+# Hack to not resolve autodoc_type_aliases before Sphinx 3.3.
 # See https://github.com/sphinx-doc/sphinx/issues/6518.
 _get_type_hints = typing.get_type_hints
 def get_type_hints(obj, globalns=None, localns=None):
     if localns is None:
         localns = {}
-    localns["Square"] = "chess.Square"
-    localns["Color"] = "chess.Color"
-    localns["PieceType"] = "chess.PieceType"
-    localns["Bitboard"] = "chess.Bitboard"
-    localns["IntoSquareSet"] = "chess.IntoSquareSet"
+    localns.update(autodoc_type_aliases)
     return _get_type_hints(obj, globalns, localns)
 typing.get_type_hints = get_type_hints
 
