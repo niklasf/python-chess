@@ -2,7 +2,7 @@ import sys
 import os
 import typing
 
-# Do not resolve these.
+# Do not resolve these type aliases.
 autodoc_type_aliases = {
     "Square": "chess.Square",
     "Color": "chess.Color",
@@ -11,7 +11,7 @@ autodoc_type_aliases = {
     "IntoSquareSet": "chess.IntoSquareSet",
 }
 
-# Hack to not resolve autodoc_type_aliases before Sphinx 3.3.
+# Use a hack to not resolve autodoc_type_aliases before Sphinx 3.3.
 # See https://github.com/sphinx-doc/sphinx/issues/6518.
 _get_type_hints = typing.get_type_hints
 def get_type_hints(obj, globalns=None, localns=None):
@@ -25,31 +25,31 @@ typing.get_type_hints = get_type_hints
 sys.path.insert(0, os.path.abspath('..'))
 import chess
 
-# Autodoc.
+# Autodocument the project and order the output by source.
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
-# The suffix of source filenames.
+# Add a suffix for source filenames.
 source_suffix = ".rst"
 
-# The master toctree document.
+# Name the master toctree document.
 master_doc = "index"
 
-# General information about the project.
+# Add general information about the project.
 project = "python-chess"
 copyright = "2014–2020, Niklas Fiekas"
 
-# The version.
+# Add a version number for the project.
 version = chess.__version__
 release = chess.__version__
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
+# Exclude these patterns, relative to source directory, that match files and
+# directories when looking for source files.
 exclude_patterns = ["_build"]
 
-# The name of the Pygments (syntax highlighting) style to use.
+# Use a Pygments (syntax highlighting) style.
 pygments_style = "sphinx"
 
-# The theme to use for HTML and HTML Help pages. See the documentation for
-# a list of builtin themes.
+# Use a theme to use for HTML and HTML Help pages. See the documentation for
+# a list of built-in themes.
 html_theme = "default"
