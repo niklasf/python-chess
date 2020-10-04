@@ -22,12 +22,12 @@ def get_type_hints(obj, globalns=None, localns=None):
 typing.get_type_hints = get_type_hints
 
 # Import the chess module.
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 import chess
 
 # Autodoc.
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 # The suffix of source filenames.
 source_suffix = ".rst"
@@ -51,5 +51,5 @@ exclude_patterns = ["_build"]
 pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages. See the documentation for
-# a list of builtin themes.
+# a list of built-in themes.
 html_theme = "default"
