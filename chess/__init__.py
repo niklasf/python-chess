@@ -1474,6 +1474,17 @@ class Board(BaseBoard):
         else:
             return self.copy(stack=False)
 
+    def restore_position(self: BoardT, index: int) -> BoardT:
+        """
+        Restores the board to a position by the given *index*.
+        
+        :raises: :exc:`IndexError` if the index is out of range.
+        """
+        if self._stack:
+            board = type(self)(None, chess960=self.chess960)
+            self._stack[index].restore(board)
+            return board
+
     def remove_piece_at(self, square: Square) -> Optional[Piece]:
         piece = super().remove_piece_at(square)
         self.clear_stack()
