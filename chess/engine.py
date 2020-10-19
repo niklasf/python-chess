@@ -444,15 +444,15 @@ class Score(abc.ABC):
 
     @abc.abstractmethod
     def __neg__(self) -> Score:
-        pass
+        ...
 
     @abc.abstractmethod
     def __pos__(self) -> Score:
-        pass
+        ...
 
     @abc.abstractmethod
     def __abs__(self) -> Score:
-        pass
+        ...
 
     def _score_tuple(self) -> Tuple[bool, bool, bool, int, Optional[int]]:
         mate = self.mate()
