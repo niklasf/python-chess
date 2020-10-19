@@ -108,4 +108,7 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Typing :: Typed",
     ],
+    project_urls={
+        "Documentation": "https://python-chess.readthedocs.io",
+    },
 )
