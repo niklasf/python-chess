@@ -407,6 +407,10 @@ class Score(abc.ABC):
     MateGiven
     """
 
+    @typing.overload
+    def score(self, *, mate_score: int) -> int: ...
+    @typing.overload
+    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     @abc.abstractmethod
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         """
@@ -520,6 +524,10 @@ class Mate(Score):
     def mate(self) -> int:
         return self.moves
 
+    @typing.overload
+    def score(self, *, mate_score: int) -> int: ...
+    @typing.overload
+    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         if mate_score is None:
             return None
@@ -550,6 +558,10 @@ class MateGivenType(Score):
     def mate(self) -> int:
         return 0
 
+    @typing.overload
+    def score(self, *, mate_score: int) -> int: ...
+    @typing.overload
+    def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         return mate_score
 
