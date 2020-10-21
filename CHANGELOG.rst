@@ -18,6 +18,7 @@ Changes:
   relative to the side to move. The ambiguity around `[%eval #0]` has been
   resolved to `Mate(-0)`. This makes sense, given that the authors had standard
   chess in mind (where a game ending move is always a loss for the opponent).
+  Previously this would be parsed as `None`.
 * Typed `chess.engine.InfoDict["wdl"]` as the new `chess.engine.PovWdl`, rather
   than `Tuple[int, int, int]`. The new type is backwards compatible, but it
   is recommended to use its documented fields and methods instead.
