@@ -1474,6 +1474,18 @@ class Board(BaseBoard):
         else:
             return self.copy(stack=False)
 
+    def ply(self) -> int:
+        """
+        Returns the number of half-moves since the start of the game, as
+        indicated by :data:`~chess.Board.fullmove_number` and
+        :data:`~chess.Board.turn`.
+
+        If moves have been pushed from the beginning, this is usually equal to
+        ``len(board.move_stack)``. But note that a board can be set up with
+        arbitrary starting positions, and the stack can be cleared.
+        """
+        return 2 * (self.fullmove_number - 1) + (self.turn == BLACK)
+
     def remove_piece_at(self, square: Square) -> Optional[Piece]:
         piece = super().remove_piece_at(square)
         self.clear_stack()

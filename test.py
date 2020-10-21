@@ -205,6 +205,18 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "8/8/8/8/8/8/8/8 w - - 0 1")
         self.assertEqual(board, chess.Board(None))
 
+    def test_ply(self):
+        board = chess.Board()
+        self.assertEqual(board.ply(), 0)
+        board.push_san("d4")
+        self.assertEqual(board.ply(), 1)
+        board.push_san("d5")
+        self.assertEqual(board.ply(), 2)
+        board.clear_stack()
+        self.assertEqual(board.ply(), 2)
+        board.push_san("Nf3")
+        self.assertEqual(board.ply(), 3)
+
     def test_from_epd(self):
         base_epd = "rnbqkb1r/ppp1pppp/5n2/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq -"
         board, ops = chess.Board.from_epd(base_epd + " ce 55;")
