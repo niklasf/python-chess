@@ -370,9 +370,6 @@ class PovScore:
     def __repr__(self) -> str:
         return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
-    def __str__(self) -> str:
-        return str(self.relative)
-
     def __eq__(self, other: object) -> bool:
         if isinstance(other, PovScore):
             return self.white() == other.white()
