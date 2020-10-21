@@ -296,8 +296,8 @@ try:
         ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``.
 
         Others: ``thits``, ``currmove``, ``currmovenumber``, ``hashfull``,
-        ``cpuload``, ``refutation``, ``currline``, ``ebf``, ``wdl``, and
-        ``string``.
+        ``cpuload``, ``refutation``, ``currline``, ``ebf``,
+        ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
         """
         score: PovScore
         pv: List[chess.Move]
@@ -663,6 +663,12 @@ class PovWdl:
     of view.
     """
 
+    relative: Wdl
+    """The relative :class:`~chess.engine.Wdl`."""
+
+    turn: Color
+    """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
+
     def __init__(self, relative: Wdl, turn: Color) -> None:
         self.relative = relative
         self.turn = turn
@@ -712,9 +718,16 @@ class PovWdl:
 
 @dataclasses.dataclass
 class Wdl:
+    """Win/draw/loss statistics."""
+
     wins: int
+    """The number of wins."""
+
     draws: int
+    """The number of draws."""
+
     losses: int
+    """The number of losses."""
 
     def total(self) -> int:
         """
