@@ -294,7 +294,7 @@ try:
         ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
         ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``.
 
-        Others: ``thits``, ``currmove``, ``currmovenumber``, ``hashfull``,
+        Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
         ``cpuload``, ``refutation``, ``currline``, ``ebf``,
         ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
         """
