@@ -279,7 +279,17 @@ class Limit:
 
 try:
     class InfoDict(typing.TypedDict, total=False):
-        """Dictionary of extra information sent by the engine."""
+        """
+        Dictionary of aggregated information sent by the engine.
+
+        Commonly used keys are: ``score`` (a :class:`~chess.engine.PovScore`),
+        ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
+        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``.
+
+        Others: ``thits``, ``currmove``, ``currmovenumber``, ``hashfull``,
+        ``cpuload``, ``refutation``, ``currline``, ``ebf``, ``wdl``, and
+        ``string``.
+        """
         score: PovScore
         pv: List[chess.Move]
         depth: int
@@ -813,7 +823,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]:
         """
         Analyses a position and returns a dictionary of
-        `information <#chess.engine.PlayResult.info>`_.
+        :class:`information <chess.engine.InfoDict>`.
 
         :param board: The position to analyse. The entire move stack will be
             sent to the engine.

@@ -124,14 +124,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     .. py:attribute:: info
         :type: chess.engine.InfoDict
 
-        A dictionary of extra information sent by the engine. Commonly used
-        keys are: ``score`` (a :class:`~chess.engine.PovScore`),
-        ``pv`` (a list of :class:`~chess.Move` objects),
-        ``depth``, ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``,
-        ``tbhits``, ``multipv``.
-
-        Others: ``currmove``, ``currmovenumber``, ``hashfull``, ``cpuload``,
-        ``refutation``, ``currline``, ``ebf``, ``wdl``, and ``string``.
+        A dictionary of extra :class:`information <chess.engine.InfoDict>`
+        sent by the engine.
 
     .. py:attribute:: draw_offered
         :type: bool
@@ -193,6 +187,8 @@ Example:
 
 .. autoclass:: chess.engine.Protocol
     :members: analyse
+
+.. autoclass:: chess.engine.InfoDict
 
 .. autoclass:: chess.engine.PovScore
     :members:
