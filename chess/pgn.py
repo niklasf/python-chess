@@ -216,6 +216,14 @@ class GameNode:
         assert False, "cannot get ply of dangling GameNode"
 
     def ply(self) -> int:
+        """
+        Returns the number of half-moves up to this node, as indicated by
+        fullmove number and turn of the position.
+        See :func:`chess.Board.ply()`.
+
+        Usually this is equal to the number of parent nodes, but it may be
+        more if the game was started from a custom position.
+        """
         ply = 0
         node = self
         while node.parent is not None:
@@ -224,6 +232,9 @@ class GameNode:
         return node._ply() + ply
 
     def turn(self) -> Color:
+        """
+        Gets the color to move at this node. See :data:`chess.Board.turn`.
+        """
         return self.ply() % 2 == 0
 
     def san(self) -> str:
@@ -650,7 +661,7 @@ class Game(GameNode):
     def _board(self) -> chess.Board:
         return self.headers.board()
 
-    def _ply(self) -> Color:
+    def _ply(self) -> int:
         # Optimization: Parse FEN only for custom starting positions.
         return self.board().ply() if "FEN" in self.headers else 0
 
