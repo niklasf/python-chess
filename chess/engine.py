@@ -25,6 +25,7 @@ import copy
 import dataclasses
 import enum
 import logging
+import math
 import warnings
 import shlex
 import subprocess
@@ -470,18 +471,21 @@ class Score(abc.ABC):
         Scores have a total order, but it makes little sense to compute
         the difference between two scores. For example, going from
         ``Cp(-100)`` to ``Cp(+100)`` is much more significant than going
-        from ``Cp(800)`` to ``Cp(1000)``. It is better to compare the
-        expectation values for the outcome of the game (based on winning
+        from ``Cp(+300)`` to ``Cp(+500)``. It is better to compute differences
+        of the expectation values for the outcome of the game (based on winning
         chances and drawing chances).
+
+        >>> Cp(100).wdl().expectation() - Cp(-100).wdl().expectation()  # doctest: +ELLIPSIS
+        0.379...
+
+        >>> Cp(500).wdl().expectation() - Cp(300).wdl().expectation()  # doctest: +ELLIPSIS
+        0.015...
 
         :param model: Currently the only implemented model is ``sf12``, the
             win rate model used by Stockfish 12.
         :param ply: The number of half-moves played since the starting
             position. Models may scale scores slightly differently based on
             this. Defaults to middle game.
-
-        >>> Cp(100).wdl().expectation() - Cp(-100).wdl().expectation()
-        >>> Cp(1000).wdl().expectation() - Cp(800).wdl().expectation()
         """
 
     @abc.abstractmethod
@@ -679,25 +683,25 @@ class PovWdl:
         return self.relative if self.turn == color else -self.relative
 
     def __repr__(self) -> str:
-        return "PovWdl({!r}, {})".format(self.wdl, "WHITE" if self.turn else "BLACK")
+        return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
     # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
     # of the relative permille values, so we have to support __iter__,
     # __len__, __getitem__ and equality comparisons with other tuples.
     # Nevermind ordering, because thats not a sensible operation anyway.
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         yield self.relative.wins
         yield self.relative.draws
         yield self.relative.losses
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 3
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> int:
         return (self.relative.wins, self.relative.draws, self.relative.losses)[idx]
 
-    def __eq__(self) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PovWdl):
             return self.white() == other.white()
         elif isinstance(other, tuple):
@@ -717,7 +721,7 @@ class Wdl:
         Returns the total number of games. Usually ``wdl`` reported by engines
         is scaled to 1000 games.
         """
-        self.wins + self.draws + self.losses
+        return self.wins + self.draws + self.losses
 
     def winning_chance(self) -> float:
         """Returns the relative frequency of wins."""
@@ -738,12 +742,12 @@ class Wdl:
         """
         return (self.wins + 0.5 * self.draws) / self.total()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         yield self.wins
         yield self.draws
         yield self.losses
 
-    def __reversed__(self):
+    def __reversed__(self) -> Iterator[int]:
         yield self.losses
         yield self.draws
         yield self.wins

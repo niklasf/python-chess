@@ -2796,6 +2796,10 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i >= j, a >= b)
                 self.assertEqual(i < j, a.score(mate_score=100000) < b.score(mate_score=100000))
 
+                self.assertTrue(not (i < j) or a.wdl().expectation() <= b.wdl().expectation())
+                self.assertTrue(not (i < j) or a.wdl().winning_chance() <= b.wdl().winning_chance())
+                self.assertTrue(not (i < j) or a.wdl().losing_chance() >= b.wdl().losing_chance())
+
     def test_score(self):
         # Negation.
         self.assertEqual(-chess.engine.Cp(+20), chess.engine.Cp(-20))
@@ -2812,6 +2816,15 @@ class EngineTestCase(unittest.TestCase):
         # Mate.
         self.assertEqual(chess.engine.Cp(-300).mate(), None)
         self.assertEqual(chess.engine.Mate(+5).mate(), 5)
+
+        # Wdl.
+        self.assertEqual(chess.engine.MateGiven.wdl().expectation(), 1)
+        self.assertEqual(chess.engine.Mate(0).wdl().expectation(), 0)
+        self.assertEqual(chess.engine.Cp(0).wdl().expectation(), 0.5)
+
+        for cp in map(chess.engine.Cp, range(-1050, 1100, 50)):
+            wdl = cp.wdl()
+            self.assertAlmostEqual(wdl.winning_chance() + wdl.drawing_chance() + wdl.losing_chance(), 1)
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
