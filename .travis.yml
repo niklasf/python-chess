@@ -1,10 +1,9 @@
 dist: xenial
 language: python
 sudo: false
-python:
- - "3.7"
 matrix:
   include:
+   - python: "3.7"
    - python: "3.8"
      env: LATEST=1
 cache:
