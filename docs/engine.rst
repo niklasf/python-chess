@@ -13,8 +13,7 @@ both kinds of engines.
     on your system.
 
 The preferred way to use the API is with an
-`asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop
-(examples show usage with Python 3.7 or later).
+`asyncio <https://docs.python.org/3/library/asyncio.html>`_ event loop.
 The examples also show a synchronous wrapper
 :class:`~chess.engine.SimpleEngine` that automatically spawns an event loop
 in the background.
