@@ -220,11 +220,42 @@ class Option:
     """Information about an available engine option."""
 
     name: str
+    """The name of the option."""
+
     type: str
+    """
+    The type of the option.
+
+    +--------+-----+------+------------------------------------------------+
+    | type   | UCI | CECP | value                                          |
+    +========+=====+======+================================================+
+    | check  | X   | X    | ``True`` or ``False``                          |
+    +--------+-----+------+------------------------------------------------+
+    | button | X   | X    | ``None``                                       |
+    +--------+-----+------+------------------------------------------------+
+    | reset  |     | X    | ``None``                                       |
+    +--------+-----+------+------------------------------------------------+
+    | save   |     | X    | ``None``                                       |
+    +--------+-----+------+------------------------------------------------+
+    | string | X   | X    | string without line breaks                     |
+    +--------+-----+------+------------------------------------------------+
+    | file   |     | X    | string, interpreted as the path to a file      |
+    +--------+-----+------+------------------------------------------------+
+    | path   |     | X    | string, interpreted as the path to a directory |
+    +--------+-----+------+------------------------------------------------+
+    """
+
     default: ConfigValue
+    """The default value of the option."""
+
     min: Optional[int]
+    """The minimum integer value of a *spin* option."""
+
     max: Optional[int]
+    """The maximum integer value of a *spin* option."""
+
     var: Optional[List[str]]
+    """A list of allowed string values for a *combo* option."""
 
     def parse(self, value: ConfigValue) -> ConfigValue:
         if self.type == "check":
@@ -267,14 +298,34 @@ class Limit:
     """Search-termination condition."""
 
     time: Optional[float] = None
+    """Search exactly *time* seconds."""
+
     depth: Optional[int] = None
+    """Search *depth* ply only."""
+
     nodes: Optional[int] = None
+    """Search only a limited number of *nodes*."""
+
     mate: Optional[int] = None
+    """Search for a mate in *mate* moves."""
+
     white_clock: Optional[float] = None
+    """Time in seconds remaining for White."""
+
     black_clock: Optional[float] = None
+    """Time in seconds remaining for Black."""
+
     white_inc: Optional[float] = None
+    """Fisher increment for White, in seconds."""
+
     black_inc: Optional[float] = None
+    """Fisher increment for Black, in seconds."""
+
     remaining_moves: Optional[int] = None
+    """
+    Number of moves to the next time control. If this is not set, but
+    *white_clock* and *black_clock* are, then it is sudden death.
+    """
 
     def __repr__(self) -> str:
         # Like default __repr__, but without None values.
@@ -325,6 +376,24 @@ except AttributeError:
 class PlayResult:
     """Returned by :func:`chess.engine.Protocol.play()`."""
 
+    move: Optional[chess.Move]
+    """The best move according to the engine, or ``None``."""
+
+    ponder: Optional[chess.Move]
+    """The response that the engine expects after *move*, or ``None``."""
+
+    info: InfoDict
+    """
+    A dictionary of extra :class:`information <chess.engine.InfoDict>`
+    sent by the engine.
+    """
+
+    draw_offered: bool
+    """Whether the engine offered a draw before moving."""
+
+    resigned: bool
+    """Whether the engine resigned."""
+
     def __init__(self,
                  move: Optional[chess.Move],
                  ponder: Optional[chess.Move],
@@ -334,7 +403,7 @@ class PlayResult:
                  resigned: bool = False) -> None:
         self.move = move
         self.ponder = ponder
-        self.info: InfoDict = info or {}
+        self.info = info or {}
         self.draw_offered = draw_offered
         self.resigned = resigned
 
@@ -365,6 +434,12 @@ INFO_ALL = Info.ALL
 
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
+
+    relative: Score
+    """The relative :class:`~chess.engine.Score`."""
+
+    turn: Color
+    """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
 
     def __init__(self, relative: Score, turn: Color) -> None:
         self.relative = relative
@@ -826,8 +901,17 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
 class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
-    id: Dict[str, str]
     options: MutableMapping[str, Option]
+    """Dictionary of available options."""
+
+    id: Dict[str, str]
+    """
+    Dictionary of information about the engine. Common keys are ``name``
+    and ``author``.
+    """
+
+    returncode: asyncio.Future[int]
+    """Future: Exit code of the process."""
 
     def __init__(self: ProtocolT) -> None:
         self.loop = asyncio.get_running_loop()
@@ -963,8 +1047,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         Configures global engine options.
 
         :param options: A dictionary of engine options where the keys are
-            names of :py:attr:`~options`. Do not set options that are
-            managed automatically (:func:`chess.engine.Option.is_managed()`).
+            names of :data:`~chess.engine.Protocol.options`. Do not set options
+            that are managed automatically
+            (:func:`chess.engine.Option.is_managed()`).
         """
 
     @abc.abstractmethod
@@ -2302,6 +2387,12 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 class BestMove:
     """Returned by :func:`chess.engine.AnalysisResult.wait()`."""
 
+    move: Optional[chess.Move]
+    """The best move according to the engine, or ``None``."""
+
+    ponder: Optional[chess.Move]
+    """The response that the engine expects after *move*, or ``None``."""
+
     def __init__(self, move: Optional[chess.Move], ponder: Optional[chess.Move]):
         self.move = move
         self.ponder = ponder
@@ -2321,13 +2412,19 @@ class AnalysisResult:
     Automatically stops the analysis when used as a context manager.
     """
 
+    multipv: List[chess.engine.InfoDict]
+    """
+    A list of dictionaries with aggregated information sent by the engine.
+    One item for each root move.
+    """
+
     def __init__(self, stop: Optional[Callable[[], None]] = None):
         self._stop = stop
         self._queue: asyncio.Queue[InfoDict] = asyncio.Queue()
         self._posted_kork = False
         self._seen_kork = False
         self._finished: asyncio.Future[BestMove] = asyncio.Future()
-        self.multipv: List[InfoDict] = [{}]
+        self.multipv = [{}]
 
     def post(self, info: InfoDict) -> None:
         # Empty dictionary reserved for kork.
@@ -2357,6 +2454,10 @@ class AnalysisResult:
 
     @property
     def info(self) -> InfoDict:
+        """
+        A dictionary of aggregated information sent by the engine. This is
+        actually an alias for ``multipv[0]``.
+        """
         return self.multipv[0]
 
     def stop(self) -> None:

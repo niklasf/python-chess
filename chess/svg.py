@@ -87,6 +87,15 @@ DEFAULT_COLORS = {
 class Arrow:
     """Details of an arrow to be drawn."""
 
+    tail: Square
+    """Start square of the arrow."""
+
+    head: Square
+    """End square of the arrow."""
+
+    color: str
+    """Arrow color."""
+
     def __init__(self, tail: Square, head: Square, *, color: str = "green") -> None:
         self.tail = tail
         self.head = head

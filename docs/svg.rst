@@ -13,18 +13,3 @@ licensed under the GFDL, BSD and GPL.
 
 .. autoclass:: chess.svg.Arrow
     :members:
-
-    .. py:attribute:: tail
-        :type: chess.Square
-
-        Start square of the arrow.
-
-    .. py:attribute:: head
-        :type: chess.Square
-
-        End square of the arrow.
-
-    .. py:attribute:: color
-        :value: 'green'
-
-        Arrow color.

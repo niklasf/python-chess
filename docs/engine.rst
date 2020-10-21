@@ -62,80 +62,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 .. autoclass:: chess.engine.Limit
     :members:
 
-    .. py:attribute:: time
-        :type: Optional[float]
-
-        Search exactly *time* seconds.
-
-    .. py:attribute:: depth
-        :type: Optional[int]
-
-        Search *depth* ply only.
-
-    .. py:attribute:: nodes
-        :type: Optional[int]
-
-        Search only a limited number of *nodes*.
-
-    .. py:attribute:: mate
-        :type: Optional[int]
-
-        Search for a mate in *mate* moves.
-
-    .. py:attribute:: white_clock
-        :type: Optional[float]
-
-        Time in seconds remaining for White.
-
-    .. py:attribute:: black_clock
-        :type: Optional[float]
-
-        Time in seconds remaining for Black.
-
-    .. py:attribute:: white_inc
-        :type: Optional[float]
-
-        Fisher increment for White, in seconds.
-
-    .. py:attribute:: black_inc
-        :type: Optional[float]
-
-        Fisher increment for Black, in seconds.
-
-    .. py:attribute:: remaining_moves
-        :type: Optional[int]
-
-        Number of moves to the next time control. If this is not set, but
-        *white_clock* and *black_clock* are, then it is sudden death.
-
 .. autoclass:: chess.engine.PlayResult
     :members:
-
-    .. py:attribute:: move
-        :type: Optional[chess.Move]
-
-        The best move according to the engine, or ``None``.
-
-    .. py:attribute:: ponder
-        :type: Optional[chess.Move]
-
-        The response that the engine expects after *move*, or ``None``.
-
-    .. py:attribute:: info
-        :type: chess.engine.InfoDict
-
-        A dictionary of extra :class:`information <chess.engine.InfoDict>`
-        sent by the engine.
-
-    .. py:attribute:: draw_offered
-        :type: bool
-
-        Whether the engine offered a draw before moving.
-
-    .. py:attribute:: resigned
-        :type: bool
-
-        Whether the engine resigned.
 
 Analysing and evaluating a position
 -----------------------------------
@@ -192,16 +120,6 @@ Example:
 
 .. autoclass:: chess.engine.PovScore
     :members:
-
-    .. py:attribute:: relative
-        :type: chess.engine.Score
-
-        The relative :class:`~chess.engine.Score`.
-
-    .. py:attribute:: turn
-        :type: chess.Color
-
-        The point of view (``chess.WHITE`` or ``chess.BLACK``).
 
 .. autoclass:: chess.engine.Score
     :members:
@@ -262,30 +180,8 @@ Example: Stream information from the engine and stop on an arbitrary condition.
 .. autoclass:: chess.engine.AnalysisResult
     :members:
 
-    .. py:attribute:: info
-        :type: chess.engine.InfoDict
-
-        A dictionary of aggregated information sent by the engine. This is
-        actually an alias for ``multipv[0]``.
-
-    .. py:attribute:: multipv
-        :type: List[chess.engine.InfoDict]
-
-        A list of dictionaries with aggregated information sent by the engine.
-        One item for each root move.
-
 .. autoclass:: chess.engine.BestMove
     :members:
-
-    .. py:attribute:: move
-        :type: Optional[chess.Move]
-
-        The best move according to the engine, or ``None``.
-
-    .. py:attribute:: ponder
-        :type: Optional[chess.Move]
-
-        The response that the engine expects after *move*, or ``None``.
 
 Options
 -------
@@ -329,62 +225,10 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     asyncio.run(main())
 
 .. autoclass:: chess.engine.Protocol
-    :members: configure
-
-    .. py:attribute:: options
-        :type: MutableMapping[str, chess.engine.Option]
-
-        Dictionary of available options.
+    :members: options, configure
 
 .. autoclass:: chess.engine.Option
-    :members: is_managed
-
-    .. py:attribute:: name
-        :type: str
-
-        The name of the option.
-
-    .. py:attribute:: type
-
-        The type of the option.
-
-        +--------+-----+------+------------------------------------------------+
-        | type   | UCI | CECP | value                                          |
-        +========+=====+======+================================================+
-        | check  | X   | X    | ``True`` or ``False``                          |
-        +--------+-----+------+------------------------------------------------+
-        | button | X   | X    | ``None``                                       |
-        +--------+-----+------+------------------------------------------------+
-        | reset  |     | X    | ``None``                                       |
-        +--------+-----+------+------------------------------------------------+
-        | save   |     | X    | ``None``                                       |
-        +--------+-----+------+------------------------------------------------+
-        | string | X   | X    | string without line breaks                     |
-        +--------+-----+------+------------------------------------------------+
-        | file   |     | X    | string, interpreted as the path to a file      |
-        +--------+-----+------+------------------------------------------------+
-        | path   |     | X    | string, interpreted as the path to a directory |
-        +--------+-----+------+------------------------------------------------+
-
-    .. py:attribute:: default
-        :type: chess.engine.ConfigValue
-
-        The default value of the option.
-
-    .. py:attribute:: min
-        :type: Optional[int]
-
-        The minimum integer value of a *spin* option.
-
-    .. py:attribute:: max
-        :type: Optional[int]
-
-        The maximum integer value of a *spin* option.
-
-    .. py:attribute:: var
-        :type: Optional[List[str]]
-
-        A list of allowed string values for a *combo* option.
+    :members:
 
 Logging
 -------
@@ -438,18 +282,7 @@ Reference
 .. autofunction:: chess.engine.popen_xboard
 
 .. autoclass:: chess.engine.Protocol
-    :members: initialize, ping, quit
-
-    .. py:attribute:: returncode
-        :type: asyncio.Future[int]
-
-        Future: Exit code of the process.
-
-    .. py:attribute:: id
-        :type: Dict[str, str]
-
-        Dictionary of information about the engine. Common keys are ``name``
-        and ``author``.
+    :members: id, returncode, initialize, ping, quit
 
 .. autoclass:: chess.engine.UciProtocol
 

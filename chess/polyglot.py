@@ -303,10 +303,22 @@ class Entry(NamedTuple):
     """An entry from a Polyglot opening book."""
 
     key: int
+    """The Zobrist hash of the position."""
+
     raw_move: int
+    """
+    The raw binary representation of the move. Use
+    :data:`~chess.polyglot.Entry.move` instead.
+    """
+
     weight: int
+    """An integer value that can be used as the weight for this entry."""
+
     learn: int
+    """Another integer value that can be used for extra information."""
+
     move: chess.Move
+    """The :class:`~chess.Move`."""
 
 
 class _EmptyMmap(bytearray):

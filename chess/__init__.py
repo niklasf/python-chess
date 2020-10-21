@@ -1456,7 +1456,7 @@ class Board(BaseBoard):
     halfmove_clock: int
     """The number of half-moves since the last capture or pawn move."""
 
-    promoted: chess.Bitboard
+    promoted: Bitboard
     """A bitmask of pieces that have been promoted."""
 
     chess960: bool
@@ -1465,7 +1465,7 @@ class Board(BaseBoard):
     represented as king moves to the corresponding rook square.
     """
 
-    move_stack: List[chess.Move]
+    move_stack: List[Move]
     """
     The move stack. Use :func:`Board.push() <chess.Board.push()>`,
     :func:`Board.pop() <chess.Board.pop()>`,

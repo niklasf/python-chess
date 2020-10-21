@@ -161,12 +161,47 @@ class _AcceptFrame:
 
 
 class GameNode:
-    def __init__(self) -> None:
-        self.parent: Optional[GameNode] = None
-        self.variations: List[GameNode] = []
 
-        self.move: Optional[chess.Move] = None
-        self.nags: Set[int] = set()
+    parent: Optional[GameNode]
+    """
+    The parent node or ``None`` if this is the root node of the game.
+    """
+
+    move: Optional[chess.Move]
+    """
+    The move leading to this node or ``None`` if this is the root node of the
+    game.
+    """
+
+    nags: Set[int]
+    """
+    A set of NAGs as integers. NAGs always go behind a move, so the root
+    node of the game will never have NAGs.
+    """
+
+    comment: str
+    """
+    A comment that goes behind the move leading to this node. Comments
+    that occur before any moves are assigned to the root node.
+    """
+
+    starting_comment: str
+    """
+    A comment for the start of a variation. Only nodes that
+    actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
+    checks this) can have a starting comment. The root node can not have
+    a starting comment.
+    """
+
+    variations: List[GameNode]
+    """A list of child nodes."""
+
+    def __init__(self) -> None:
+        self.parent = None
+        self.variations = []
+
+        self.move = None
+        self.nags = set()
         self.starting_comment = ""
         self.comment = ""
 
@@ -670,10 +705,28 @@ class Game(GameNode):
     :class:`~chess.pgn.GameNode`.
     """
 
+    headers: Headers
+    """
+    A mapping of headers. By default, the following 7 headers are provided
+    (Seven Tag Roster):
+
+    >>> import chess.pgn
+    >>>
+    >>> game = chess.pgn.Game()
+    >>> game.headers
+    Headers(Event='?', Site='?', Date='????.??.??', Round='?', White='?', Black='?', Result='*')
+    """
+
+    errors: List[Exception]
+    """
+    A list of errors (such as illegal or ambiguous moves) encountered while
+    parsing the game.
+    """
+
     def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None) -> None:
         super().__init__()
         self.headers = Headers(headers)
-        self.errors: List[Exception] = []
+        self.errors = []
 
     def _board(self) -> chess.Board:
         return self.headers.board()
