@@ -292,7 +292,8 @@ try:
 
         Commonly used keys are: ``score`` (a :class:`~chess.engine.PovScore`),
         ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
-        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``.
+        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``
+        (``1`` for the mainline).
 
         Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
         ``cpuload``, ``refutation``, ``currline``, ``ebf``,
