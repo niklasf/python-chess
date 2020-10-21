@@ -212,16 +212,19 @@ class GameNode:
         assert self.move is not None, "cannot get move of dangling GameNode"
         return self.move
 
-    def _turn(self) -> Color:
-        assert False, "cannot get turn of dangling GameNode"
+    def _ply(self) -> int:
+        assert False, "cannot get ply of dangling GameNode"
 
-    def turn(self) -> Color:
-        flip = False
+    def ply(self) -> int:
+        ply = 0
         node = self
         while node.parent is not None:
-            flip = not flip
+            ply += 1
             node = node.parent
-        return node._turn() ^ flip
+        return node._ply() + ply
+
+    def turn(self) -> Color:
+        return self.ply() % 2 == 0
 
     def san(self) -> str:
         """
@@ -647,12 +650,9 @@ class Game(GameNode):
     def _board(self) -> chess.Board:
         return self.headers.board()
 
-    def _turn(self) -> Color:
-        # Optimization: Parse FEN only for special starting positions.
-        if "FEN" in self.headers or "Variant" in self.headers:
-            return self.board().turn
-        else:
-            return chess.WHITE
+    def _ply(self) -> Color:
+        # Optimization: Parse FEN only for custom starting positions.
+        return self.board().ply() if "FEN" in self.headers else 0
 
     def setup(self, board: Union[chess.Board, str]) -> None:
         """
