@@ -432,11 +432,21 @@ class GameNode:
         match = EVAL_REGEX.search(self.comment)
         if not match:
             return None
+
+        turn = self.turn()
+
         if match.group(1):
             mate = int(match.group(1))
-            return chess.engine.PovScore(chess.engine.Mate(mate), chess.WHITE) if mate else None
+            score: chess.engine.Score = chess.engine.Mate(mate)
+            if mate == 0:
+                # Resolve this ambiguity in the specification in favor of
+                # standard chess: The player to move after mate is the player
+                # who has been mated.
+                return chess.engine.PovScore(score, turn)
         else:
-            return chess.engine.PovScore(chess.engine.Cp(int(float(match.group(2)) * 100)), chess.WHITE)
+            score = chess.engine.Cp(int(float(match.group(2)) * 100))
+
+        return chess.engine.PovScore(score if turn else -score, turn)
 
     def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
         """
