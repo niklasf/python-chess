@@ -598,6 +598,108 @@ class MateGivenType(Score):
 MateGiven = MateGivenType()
 
 
+class PovWdl:
+    """
+    Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
+    of view.
+    """
+
+    def __init__(self, relative: Wdl, turn: Color) -> None:
+        self.relative = relative
+        self.turn = turn
+
+    def white(self) -> Wdl:
+        """Gets the :class:`~chess.engine.Wdl` from White's point of view."""
+        return self.pov(chess.WHITE)
+
+    def black(self) -> Wdl:
+        """Gets the :class:`~chess.engine.Wdl` from Black's point of view."""
+        return self.pov(chess.BLACK)
+
+    def pov(self, color: Color) -> Wdl:
+        """
+        Gets the :class:`~chess.engine.Wdl` from the point of view of the given
+        *color*.
+        """
+        return self.relative if self.turn == color else -self.relative
+
+    def __repr__(self) -> str:
+        return "PovWdl({!r}, {})".format(self.wdl, "WHITE" if self.turn else "BLACK")
+
+    # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
+    # of the relative permille values, so we have to support __iter__,
+    # __len__, __getitem__ and equality comparisons with other tuples.
+    # Nevermind ordering, because thats not a sensible operation anyway.
+
+    def __iter__(self):
+        yield self.relative.wins
+        yield self.relative.draws
+        yield self.relative.losses
+
+    def __len__(self):
+        return 3
+
+    def __getitem__(self, idx):
+        return (self.relative.wins, self.relative.draws, self.relative.losses)[idx]
+
+    def __eq__(self) -> bool:
+        if isinstance(other, PovWdl):
+            return self.white() == other.white()
+        elif isinstance(other, tuple):
+            return (self.relative.wins, self.relative.draws, self.relative.losses) == other
+        else:
+            return NotImplemented
+
+
+@dataclasses.dataclass
+class Wdl:
+    wins: int
+    draws: int
+    losses: int
+
+    def total(self) -> int:
+        """
+        Returns the total number of games. Usually ``wdl`` reported by engines
+        is scaled to 1000 games.
+        """
+        self.wins + self.draws + self.losses
+
+    def winning_chance(self) -> float:
+        """Returns the relative frequency of wins."""
+        return self.wins / self.total()
+
+    def drawing_chance(self) -> float:
+        """Returns the relative frequency of draws."""
+        return self.draws / self.total()
+
+    def losing_chance(self) -> float:
+        """Returns the relative frequency of losses."""
+        return self.losses / self.total()
+
+    def expectation(self) -> float:
+        """
+        Returns the expectation value, where a win is valued 1, a draw is
+        valued 0.5, and a loss is valued 0.
+        """
+        return (self.wins + 0.5 * self.draws) / self.total()
+
+    def __iter__(self):
+        yield self.wins
+        yield self.draws
+        yield self.losses
+
+    def __reversed__(self):
+        yield self.losses
+        yield self.draws
+        yield self.wins
+
+    def __pos__(self) -> Wdl:
+        return self
+
+    def __neg__(self) -> Wdl:
+        return Wdl(self.losses, self.draws, self.wins)
+
+
 class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
     def __init__(self, protocol: Protocol) -> None:
         super().__init__()
