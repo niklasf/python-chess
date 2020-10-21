@@ -381,11 +381,11 @@ class GameNode:
         return node
 
     def mainline(self) -> Mainline[GameNode]:
-        """Returns an iterator over the mainline starting after this node."""
+        """Returns an iterable over the mainline starting after this node."""
         return Mainline(self, lambda node: node)
 
     def mainline_moves(self) -> Mainline[chess.Move]:
-        """Returns an iterator over the main moves after this node."""
+        """Returns an iterable over the main moves after this node."""
         return Mainline(self, lambda node: node._move())
 
     def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
