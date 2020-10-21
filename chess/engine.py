@@ -556,7 +556,7 @@ class Score(abc.ABC):
         >>> Cp(500).wdl().expectation() - Cp(300).wdl().expectation()  # doctest: +ELLIPSIS
         0.015...
 
-        :param model: Currently the only implemented model is ``sf12``, the
+        :param model: Currently, the only implemented model is ``sf12``, the
             win rate model used by Stockfish 12.
         :param ply: The number of half-moves played since the starting
             position. Models may scale scores slightly differently based on
