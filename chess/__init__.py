@@ -408,7 +408,10 @@ class Piece:
     """A piece with type and color."""
 
     piece_type: PieceType
+    """The piece type."""
+
     color: Color
+    """The piece color."""
 
     def symbol(self) -> str:
         """
@@ -458,9 +461,16 @@ class Move:
     """
 
     from_square: Square
+    """The source square."""
+
     to_square: Square
+    """The target square."""
+
     promotion: Optional[PieceType] = None
+    """The promotion piece type or ``None``."""
+
     drop: Optional[PieceType] = None
+    """The drop piece type or ``None``."""
 
     def uci(self) -> str:
         """
@@ -1398,17 +1408,110 @@ class Board(BaseBoard):
     pawnless_tbz_suffix: ClassVar[Optional[str]] = None
     pawnless_tbw_magic: ClassVar[Optional[bytes]] = None
     pawnless_tbz_magic: ClassVar[Optional[bytes]] = None
-    connected_kings = False
-    one_king = True
-    captures_compulsory = False
+    connected_kings: ClassVar[bool] = False
+    one_king: ClassVar[bool] = True
+    captures_compulsory: ClassVar[bool] = False
+
+    turn: Color
+    """The side to move (``chess.WHITE`` or ``chess.BLACK``)."""
+
+    castling_rights: Bitboard
+    """
+    Bitmask of the rooks with castling rights.
+
+    To test for specific squares:
+
+    >>> import chess
+    >>>
+    >>> board = chess.Board()
+    >>> bool(board.castling_rights & chess.BB_H1)  # White can castle with the h1 rook
+    True
+
+    To add a specific square:
+
+    >>> board.castling_rights |= chess.BB_A1
+
+    Use :func:`~chess.Board.set_castling_fen()` to set multiple castling
+    rights. Also see :func:`~chess.Board.has_castling_rights()`,
+    :func:`~chess.Board.has_kingside_castling_rights()`,
+    :func:`~chess.Board.has_queenside_castling_rights()`,
+    :func:`~chess.Board.has_chess960_castling_rights()`,
+    :func:`~chess.Board.clean_castling_rights()`.
+    """
+
+    ep_square: Optional[Square]
+    """
+    The potential en passant square on the third or sixth rank or ``None``.
+
+    Use :func:`~chess.Board.has_legal_en_passant()` to test if en passant
+    capturing would actually be possible on the next move.
+    """
+
+    fullmove_number: int
+    """
+    Counts move pairs. Starts at `1` and is incremented after every move
+    of the black side.
+    """
+
+    halfmove_clock: int
+    """The number of half-moves since the last capture or pawn move."""
+
+    promoted: chess.Bitboard
+    """A bitmask of pieces that have been promoted."""
+
+    chess960: bool
+    """
+    Whether the board is in Chess960 mode. In Chess960 castling moves are
+    represented as king moves to the corresponding rook square.
+    """
+
+    legal_moves: LegalMoveGenerator
+    """
+    A dynamic list of legal moves.
+
+    >>> import chess
+    >>>
+    >>> board = chess.Board()
+    >>> board.legal_moves.count()
+    20
+    >>> bool(board.legal_moves)
+    True
+    >>> move = chess.Move.from_uci("g1f3")
+    >>> move in board.legal_moves
+    True
+
+    Wraps :func:`~chess.Board.generate_legal_moves()` and
+    :func:`~chess.Board.is_legal()`.
+    """
+
+    pseudo_legal_moves: PseudoLegalMoveGenerator
+    """
+    A dynamic list of pseudo-legal moves, much like the legal move list.
+
+    Pseudo-legal moves might leave or put the king in check, but are
+    otherwise valid. Null moves are not pseudo-legal. Castling moves are
+    only included if they are completely legal.
+
+    Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
+    :func:`~chess.Board.is_pseudo_legal()`.
+    """
+
+    move_stack: List[chess.Move]
+    """
+    The move stack. Use :func:`Board.push() <chess.Board.push()>`,
+    :func:`Board.pop() <chess.Board.pop()>`,
+    :func:`Board.peek() <chess.Board.peek()>` and
+    :func:`Board.clear_stack() <chess.Board.clear_stack()>` for
+    manipulation.
+    """
 
     def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
 
-        self.ep_square: Optional[Square] = None
-        self.move_stack: List[Move] = []
+        self.ep_square = None
+        self.move_stack = []
         self._stack: List[_BoardState[BoardT]] = []
 
         if fen is None:
