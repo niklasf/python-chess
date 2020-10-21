@@ -43,11 +43,10 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
+    _WdlModel = Literal["sf12"]
 except ImportError:
     # Before Python 3.8.
-    _WdlModel = str
-else:
-    _WdlModel = Literal["sf12"]  # type: ignore
+    _WdlModel = str  # type: ignore
 
 
 T = TypeVar("T")

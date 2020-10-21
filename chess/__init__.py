@@ -41,11 +41,10 @@ from typing import ClassVar, Callable, Counter, Dict, Generic, Hashable, Iterabl
 
 try:
     from typing import Literal
+    _EnPassantSpec = Literal["legal", "fen", "xfen"]
 except ImportError:
     # Before Python 3.8.
-    _EnPassantSpec = str
-else:
-    _EnPassantSpec = Literal["legal", "fen", "xfen"]  # type: ignore
+    _EnPassantSpec = str  # type: ignore
 
 
 Color = bool

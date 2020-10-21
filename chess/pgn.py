@@ -33,11 +33,10 @@ from chess import Color, Square
 
 try:
     from typing import Literal
+    _TrueLiteral = Literal[True]
 except ImportError:
     # Before Python 3.8.
-    _TrueLiteral = bool
-else:
-    _TrueLiteral = Literal[True]  # type: ignore
+    _TrueLiteral = bool  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
