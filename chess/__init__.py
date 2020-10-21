@@ -3494,7 +3494,7 @@ class Board(BaseBoard):
         Returns a mirrored copy of the board.
 
         The board is mirrored vertically and piece colors are swapped, so that
-        the position is equivalent modulo color. Also swap the "en passant" 
+        the position is equivalent modulo color. Also swap the "en passant"
         square, castling rights and turn.
 
         Alternatively, :func:`~chess.Board.apply_mirror()` can be used
