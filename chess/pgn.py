@@ -29,7 +29,7 @@ import chess.engine
 import chess.svg
 
 from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
-from chess import Square
+from chess import Color, Square
 
 
 LOGGER = logging.getLogger(__name__)
@@ -211,6 +211,17 @@ class GameNode:
     def _move(self) -> chess.Move:
         assert self.move is not None, "cannot get move of dangling GameNode"
         return self.move
+
+    def _turn(self) -> Color:
+        assert False, "cannot get turn of dangling GameNode"
+
+    def turn(self) -> Color:
+        flip = False
+        node = self
+        while node.parent is not None:
+            flip = not flip
+            node = node.parent
+        return node._turn() ^ flip
 
     def san(self) -> str:
         """
@@ -635,6 +646,13 @@ class Game(GameNode):
 
     def _board(self) -> chess.Board:
         return self.headers.board()
+
+    def _turn(self) -> Color:
+        # Optimization: Parse FEN only for special starting positions.
+        if "FEN" in self.headers or "Variant" in self.headers:
+            return self.board().turn
+        else:
+            return chess.WHITE
 
     def setup(self, board: Union[chess.Board, str]) -> None:
         """

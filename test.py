@@ -2710,6 +2710,22 @@ class PgnTestCase(unittest.TestCase):
         game.set_clock(-70)
         self.assertEqual(game.clock(), 0)  # Clamped
 
+    def test_node_turn(self):
+        game = chess.pgn.Game()
+        self.assertEqual(game.turn(), chess.WHITE)
+        node = game.add_variation(chess.Move.from_uci("a2a3"))
+        self.assertEqual(node.turn(), chess.BLACK)
+        node = node.add_variation(chess.Move.from_uci("a7a6"))
+        self.assertEqual(node.turn(), chess.WHITE)
+
+        game = chess.pgn.Game()
+        game.setup("4k3/8/8/8/8/8/8/4K3 b - - 7 6")
+        self.assertEqual(game.turn(), chess.BLACK)
+        node = game.add_variation(chess.Move.from_uci("e8e7"))
+        self.assertEqual(node.turn(), chess.WHITE)
+        node = node.add_variation(chess.Move.from_uci("e1e2"))
+        self.assertEqual(node.turn(), chess.BLACK)
+
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
