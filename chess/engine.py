@@ -306,7 +306,7 @@ try:
         refutation: Dict[chess.Move, List[chess.Move]]
         currline: Dict[int, List[chess.Move]]
         ebf: float
-        wdl: Tuple[int, int, int]
+        wdl: PovWdl
         string: str
 except AttributeError:
     # Before Python 3.8.
@@ -1566,7 +1566,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 LOGGER.error("Exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
             try:
-                info["wdl"] = int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))
+                info["wdl"] = PovWdl(Wdl(int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))), root_board.turn)
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing wdl from info: %r", arg)
 
