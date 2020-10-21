@@ -1465,37 +1465,6 @@ class Board(BaseBoard):
     represented as king moves to the corresponding rook square.
     """
 
-    legal_moves: LegalMoveGenerator
-    """
-    A dynamic list of legal moves.
-
-    >>> import chess
-    >>>
-    >>> board = chess.Board()
-    >>> board.legal_moves.count()
-    20
-    >>> bool(board.legal_moves)
-    True
-    >>> move = chess.Move.from_uci("g1f3")
-    >>> move in board.legal_moves
-    True
-
-    Wraps :func:`~chess.Board.generate_legal_moves()` and
-    :func:`~chess.Board.is_legal()`.
-    """
-
-    pseudo_legal_moves: PseudoLegalMoveGenerator
-    """
-    A dynamic list of pseudo-legal moves, much like the legal move list.
-
-    Pseudo-legal moves might leave or put the king in check, but are
-    otherwise valid. Null moves are not pseudo-legal. Castling moves are
-    only included if they are completely legal.
-
-    Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
-    :func:`~chess.Board.is_pseudo_legal()`.
-    """
-
     move_stack: List[chess.Move]
     """
     The move stack. Use :func:`Board.push() <chess.Board.push()>`,
@@ -1522,12 +1491,40 @@ class Board(BaseBoard):
             self.set_fen(fen)
 
     @property
-    def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
-        return PseudoLegalMoveGenerator(self)
+    def legal_moves(self) -> LegalMoveGenerator:
+        """
+        A dynamic list of legal moves.
+
+        >>> import chess
+        >>>
+        >>> board = chess.Board()
+        >>> board.legal_moves.count()
+        20
+        >>> bool(board.legal_moves)
+        True
+        >>> move = chess.Move.from_uci("g1f3")
+        >>> move in board.legal_moves
+        True
+
+        Wraps :func:`~chess.Board.generate_legal_moves()` and
+        :func:`~chess.Board.is_legal()`.
+        """
+        return LegalMoveGenerator(self)
+
 
     @property
-    def legal_moves(self) -> LegalMoveGenerator:
-        return LegalMoveGenerator(self)
+    def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
+        """
+        A dynamic list of pseudo-legal moves, much like the legal move list.
+
+        Pseudo-legal moves might leave or put the king in check, but are
+        otherwise valid. Null moves are not pseudo-legal. Castling moves are
+        only included if they are completely legal.
+
+        Wraps :func:`~chess.Board.generate_pseudo_legal_moves()` and
+        :func:`~chess.Board.is_pseudo_legal()`.
+        """
+        return PseudoLegalMoveGenerator(self)
 
     def reset(self) -> None:
         """Restores the starting position."""
