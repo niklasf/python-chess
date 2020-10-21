@@ -25,6 +25,7 @@ import copy
 import dataclasses
 import enum
 import logging
+import math
 import warnings
 import shlex
 import subprocess
@@ -36,9 +37,17 @@ import re
 
 import chess
 
+from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
-from chess import Color
+
+try:
+    from typing import Literal
+except ImportError:
+    # Before Python 3.8.
+    _WdlModel = str
+else:
+    _WdlModel = Literal["sf12"]  # type: ignore
 
 
 T = TypeVar("T")
@@ -287,8 +296,8 @@ try:
         ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``.
 
         Others: ``thits``, ``currmove``, ``currmovenumber``, ``hashfull``,
-        ``cpuload``, ``refutation``, ``currline``, ``ebf``, ``wdl``, and
-        ``string``.
+        ``cpuload``, ``refutation``, ``currline``, ``ebf``,
+        ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
         """
         score: PovScore
         pv: List[chess.Move]
@@ -306,7 +315,7 @@ try:
         refutation: Dict[chess.Move, List[chess.Move]]
         currline: Dict[int, List[chess.Move]]
         ebf: float
-        wdl: Tuple[int, int, int]
+        wdl: PovWdl
         string: str
 except AttributeError:
     # Before Python 3.8.
@@ -376,6 +385,10 @@ class PovScore:
     def is_mate(self) -> bool:
         """Tests if this is a mate score."""
         return self.relative.is_mate()
+
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> PovWdl:
+        """See :func:`~chess.engine.Score.wdl()`."""
+        return PovWdl(self.relative.wdl(), self.turn)
 
     def __repr__(self) -> str:
         return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
@@ -450,6 +463,32 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        """
+        Returns statistics for the expected outcome of this game, based on
+        a *model*, given that this score is reached at *ply*.
+
+        Scores have a total order, but it makes little sense to compute
+        the difference between two scores. For example, going from
+        ``Cp(-100)`` to ``Cp(+100)`` is much more significant than going
+        from ``Cp(+300)`` to ``Cp(+500)``. It is better to compute differences
+        of the expectation values for the outcome of the game (based on winning
+        chances and drawing chances).
+
+        >>> Cp(100).wdl().expectation() - Cp(-100).wdl().expectation()  # doctest: +ELLIPSIS
+        0.379...
+
+        >>> Cp(500).wdl().expectation() - Cp(300).wdl().expectation()  # doctest: +ELLIPSIS
+        0.015...
+
+        :param model: Currently the only implemented model is ``sf12``, the
+            win rate model used by Stockfish 12.
+        :param ply: The number of half-moves played since the starting
+            position. Models may scale scores slightly differently based on
+            this. Defaults to middle game.
+        """
+
+    @abc.abstractmethod
     def __neg__(self) -> Score:
         ...
 
@@ -514,6 +553,20 @@ class Cp(Score):
     def score(self, *, mate_score: Optional[int] = None) -> int:
         return self.cp
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        wins = self._sf12_wins(ply=ply)
+        losses = (-self)._sf12_wins(ply=ply)
+        draws = 1000 - wins - losses
+        return Wdl(wins, draws, losses)
+
+    def _sf12_wins(self, *, ply: int) -> int:
+        # https://github.com/official-stockfish/Stockfish/blob/sf_12/src/uci.cpp#L198-L218
+        m = min(240, max(ply, 0)) / 64
+        a = (((-8.24404295 * m + 64.23892342) * m + -95.73056462) * m) + 153.86478679
+        b = (((-3.37154371 * m + 28.44489198) * m + -56.67657741) * m) + 72.05858751
+        x = min(1000, max(self.cp, -1000))
+        return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
     def __str__(self) -> str:
         return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
 
@@ -551,6 +604,9 @@ class Mate(Score):
         else:
             return -mate_score - self.moves
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
+
     def __str__(self) -> str:
         return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
 
@@ -580,6 +636,9 @@ class MateGivenType(Score):
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         return mate_score
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        return Wdl(1000, 0, 0)
+
     def __neg__(self) -> Mate:
         return Mate(0)
 
@@ -596,6 +655,127 @@ class MateGivenType(Score):
         return "#+0"
 
 MateGiven = MateGivenType()
+
+
+class PovWdl:
+    """
+    Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
+    of view.
+    """
+
+    relative: Wdl
+    """The relative :class:`~chess.engine.Wdl`."""
+
+    turn: Color
+    """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
+
+    def __init__(self, relative: Wdl, turn: Color) -> None:
+        self.relative = relative
+        self.turn = turn
+
+    def white(self) -> Wdl:
+        """Gets the :class:`~chess.engine.Wdl` from White's point of view."""
+        return self.pov(chess.WHITE)
+
+    def black(self) -> Wdl:
+        """Gets the :class:`~chess.engine.Wdl` from Black's point of view."""
+        return self.pov(chess.BLACK)
+
+    def pov(self, color: Color) -> Wdl:
+        """
+        Gets the :class:`~chess.engine.Wdl` from the point of view of the given
+        *color*.
+        """
+        return self.relative if self.turn == color else -self.relative
+
+    def __bool__(self) -> bool:
+        return bool(self.relative)
+
+    def __repr__(self) -> str:
+        return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
+
+    # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
+    # of the relative permille values, so we have to support __iter__,
+    # __len__, __getitem__ and equality comparisons with other tuples.
+    # Nevermind ordering, because thats not a sensible operation anyway.
+
+    def __iter__(self) -> Iterator[int]:
+        yield self.relative.wins
+        yield self.relative.draws
+        yield self.relative.losses
+
+    def __len__(self) -> int:
+        return 3
+
+    def __getitem__(self, idx: int) -> int:
+        return (self.relative.wins, self.relative.draws, self.relative.losses)[idx]
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, PovWdl):
+            return self.white() == other.white()
+        elif isinstance(other, tuple):
+            return (self.relative.wins, self.relative.draws, self.relative.losses) == other
+        else:
+            return NotImplemented
+
+
+@dataclasses.dataclass
+class Wdl:
+    """Win/draw/loss statistics."""
+
+    wins: int
+    """The number of wins."""
+
+    draws: int
+    """The number of draws."""
+
+    losses: int
+    """The number of losses."""
+
+    def total(self) -> int:
+        """
+        Returns the total number of games. Usually ``wdl`` reported by engines
+        is scaled to 1000 games.
+        """
+        return self.wins + self.draws + self.losses
+
+    def winning_chance(self) -> float:
+        """Returns the relative frequency of wins."""
+        return self.wins / self.total()
+
+    def drawing_chance(self) -> float:
+        """Returns the relative frequency of draws."""
+        return self.draws / self.total()
+
+    def losing_chance(self) -> float:
+        """Returns the relative frequency of losses."""
+        return self.losses / self.total()
+
+    def expectation(self) -> float:
+        """
+        Returns the expectation value, where a win is valued 1, a draw is
+        valued 0.5, and a loss is valued 0.
+        """
+        return (self.wins + 0.5 * self.draws) / self.total()
+
+    def __bool__(self) -> bool:
+        return bool(self.total())
+
+    def __iter__(self) -> Iterator[int]:
+        yield self.wins
+        yield self.draws
+        yield self.losses
+
+    def __reversed__(self) -> Iterator[int]:
+        yield self.losses
+        yield self.draws
+        yield self.wins
+
+    def __pos__(self) -> Wdl:
+        return self
+
+    def __neg__(self) -> Wdl:
+        return Wdl(self.losses, self.draws, self.wins)
 
 
 class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
@@ -1464,7 +1644,7 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 LOGGER.error("Exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
             try:
-                info["wdl"] = int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))
+                info["wdl"] = PovWdl(Wdl(int(tokens.pop(0)), int(tokens.pop(0)), int(tokens.pop(0))), root_board.turn)
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing wdl from info: %r", arg)
 

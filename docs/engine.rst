@@ -206,6 +206,12 @@ Example:
 .. autoclass:: chess.engine.Score
     :members:
 
+.. autoclass:: chess.engine.PovWdl
+    :members:
+
+.. autoclass:: chess.engine.Wdl
+    :members:
+
 Indefinite or infinite analysis
 -------------------------------
 
