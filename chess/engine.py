@@ -688,6 +688,9 @@ class PovWdl:
         """
         return self.relative if self.turn == color else -self.relative
 
+    def __bool__(self) -> bool:
+        return bool(self.relative)
+
     def __repr__(self) -> str:
         return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
@@ -754,6 +757,9 @@ class Wdl:
         valued 0.5, and a loss is valued 0.
         """
         return (self.wins + 0.5 * self.draws) / self.total()
+
+    def __bool__(self) -> bool:
+        return bool(self.total())
 
     def __iter__(self) -> Iterator[int]:
         yield self.wins

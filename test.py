@@ -2824,7 +2824,10 @@ class EngineTestCase(unittest.TestCase):
 
         for cp in map(chess.engine.Cp, range(-1050, 1100, 50)):
             wdl = cp.wdl()
+            self.assertTrue(wdl)
             self.assertAlmostEqual(wdl.winning_chance() + wdl.drawing_chance() + wdl.losing_chance(), 1)
+
+        self.assertFalse(chess.engine.Wdl(0, 0, 0))
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
