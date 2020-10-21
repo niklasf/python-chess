@@ -36,9 +36,17 @@ import re
 
 import chess
 
+from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
-from chess import Color
+
+try:
+    from typing import Literal
+except ImportError:
+    # Before Python 3.8.
+    _WdlModel = str
+else:
+    _WdlModel = Literal["sf12"]  # type: ignore
 
 
 T = TypeVar("T")
@@ -377,6 +385,10 @@ class PovScore:
         """Tests if this is a mate score."""
         return self.relative.is_mate()
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> PovWdl:
+        """See :func:`~chess.engine.Score.wdl()`."""
+        return PovWdl(self.relative.wdl(), self.turn)
+
     def __repr__(self) -> str:
         return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
@@ -450,6 +462,29 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        """
+        Returns statistics for the expected outcome of this game, based on
+        a *model*, given that this score is reached at *ply*.
+
+        Scores have a total order, but it makes little sense to compute
+        the difference between two scores. For example, going from
+        ``Cp(-100)`` to ``Cp(+100)`` is much more significant than going
+        from ``Cp(800)`` to ``Cp(1000)``. It is better to compare the
+        expectation values for the outcome of the game (based on winning
+        chances and drawing chances).
+
+        :param model: Currently the only implemented model is ``sf12``, the
+            win rate model used by Stockfish 12.
+        :param ply: The number of half-moves played since the starting
+            position. Models may scale scores slightly differently based on
+            this. Defaults to middle game.
+
+        >>> Cp(100).wdl().expectation() - Cp(-100).wdl().expectation()
+        >>> Cp(1000).wdl().expectation() - Cp(800).wdl().expectation()
+        """
+
+    @abc.abstractmethod
     def __neg__(self) -> Score:
         ...
 
@@ -514,6 +549,20 @@ class Cp(Score):
     def score(self, *, mate_score: Optional[int] = None) -> int:
         return self.cp
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        wins = self._sf12_wins(ply=ply)
+        losses = (-self)._sf12_wins(ply=ply)
+        draws = 1000 - wins - losses
+        return Wdl(wins, draws, losses)
+
+    def _sf12_wins(self, *, ply: int) -> int:
+        # https://github.com/official-stockfish/Stockfish/blob/sf_12/src/uci.cpp#L198-L218
+        m = min(240, max(ply, 0)) / 64
+        a = (((-8.24404295 * m + 64.23892342) * m + -95.73056462) * m) + 153.86478679
+        b = (((-3.37154371 * m + 28.44489198) * m + -56.67657741) * m) + 72.05858751
+        x = min(1000, max(self.cp, -1000))
+        return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
     def __str__(self) -> str:
         return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
 
@@ -551,6 +600,9 @@ class Mate(Score):
         else:
             return -mate_score - self.moves
 
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
+
     def __str__(self) -> str:
         return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
 
@@ -579,6 +631,9 @@ class MateGivenType(Score):
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         return mate_score
+
+    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+        return Wdl(1000, 0, 0)
 
     def __neg__(self) -> Mate:
         return Mate(0)
