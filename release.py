@@ -35,8 +35,8 @@ def check_changelog():
     with open("CHANGELOG.rst", "r") as changelog_file:
         changelog = changelog_file.read()
 
-    if "Upcoming in the next release" in changelog:
-        print("Found: Upcoming in the next release")
+    if "Upcoming in" in changelog:
+        print("Found: Upcoming in")
         sys.exit(1)
 
     tagname = f"v{chess.__version__}"
