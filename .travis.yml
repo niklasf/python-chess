@@ -5,8 +5,12 @@ matrix:
   include:
    - python: "3.7"
    - python: "3.8"
+     env:
+     - RUN_MYPY=1
    - python: "3.9-dev"
-     env: LATEST=1
+     env:
+     - RUN_MYPY=1
+     - RUN_PERFT=1
 cache:
   directories:
     - data/gaviota
@@ -47,7 +51,7 @@ install:
  - pip install --upgrade pip wheel
  - pip install --upgrade setuptools
  - pip install --upgrade coveralls
- - if [[ $LATEST -eq 1 ]]; then pip install --upgrade mypy; fi
+ - if [[ $RUN_MYPY -eq 1 ]]; then pip install --upgrade mypy; fi
  - pip install -e .
 script:
  - # Unit tests
@@ -77,13 +81,13 @@ script:
  - echo Unit tests complete
  - coveralls || [[ $? -eq 139 ]]
  - # Typing
- - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict chess; fi
- - if [[ $LATEST -eq 1 ]]; then python -m mypy --strict examples/**/*.py; fi
+ - if [[ $RUN_MYPY -eq 1 ]]; then python -m mypy --strict chess; fi
+ - if [[ $RUN_MYPY -eq 1 ]]; then python -m mypy --strict examples/**/*.py; fi
  - # Perft tests
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/tricky.perft; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft; fi
- - if [[ $LATEST -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 examples/perft/tricky.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft; fi
+ - if [[ $RUN_PERFT -eq 1 ]]; then python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft; fi
