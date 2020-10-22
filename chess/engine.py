@@ -736,6 +736,12 @@ class PovWdl:
     """
     Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
     of view.
+
+    .. deprecated:: 1.2
+        Behaves like a tuple
+        ``(wdl.relative.wins, wdl.relative.draws, wdl.relative.losses)``
+        for backwards compatibility. But it is recommended to use the provided
+        fields and methods instead.
     """
 
     relative: Wdl
