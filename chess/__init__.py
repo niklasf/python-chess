@@ -1395,10 +1395,10 @@ class Board(BaseBoard):
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
 
-    aliases = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
+    aliases: ClassVar[List[str]] = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
     uci_variant: ClassVar[Optional[str]] = "chess"
     xboard_variant: ClassVar[Optional[str]] = "normal"
-    starting_fen = STARTING_FEN
+    starting_fen: ClassVar[str] = STARTING_FEN
 
     tbw_suffix: ClassVar[Optional[str]] = ".rtbw"
     tbz_suffix: ClassVar[Optional[str]] = ".rtbz"
@@ -1510,7 +1510,6 @@ class Board(BaseBoard):
         :func:`~chess.Board.is_legal()`.
         """
         return LegalMoveGenerator(self)
-
 
     @property
     def pseudo_legal_moves(self) -> PseudoLegalMoveGenerator:
