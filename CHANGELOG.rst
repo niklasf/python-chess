@@ -6,40 +6,41 @@ Upcoming in v1.2.0
 
 New features:
 
-* Added `chess.Board.ply()`.
-* Added `chess.pgn.GameNode.ply()` and `chess.pgn.GameNode.turn()`.
-* Added `chess.engine.PovWdl`, `chess.engine.Wdl`, and conversions from score:
-  `chess.engine.PovScore.wdl()`, `chess.engine.Score.wdl()`.
-* Added `chess.engine.Score(*, mate_score: int) -> int` overload.
+* Added ``chess.Board.ply()``.
+* Added ``chess.pgn.GameNode.ply()`` and ``chess.pgn.GameNode.turn()``.
+* Added ``chess.engine.PovWdl``, ``chess.engine.Wdl``, and conversions from
+  scores: ``chess.engine.PovScore.wdl()``, ``chess.engine.Score.wdl()``.
+* Added ``chess.engine.Score(*, mate_score: int) -> int`` overload.
 
 Changes:
 
-* The `PovScore` returned by `chess.pgn.GameNode.eval()` is now always
-  relative to the side to move. The ambiguity around `[%eval #0]` has been
-  resolved to `Mate(-0)`. This makes sense, given that the authors had standard
-  chess in mind (where a game ending move is always a loss for the opponent).
-  Previously this would be parsed as `None`.
-* Typed `chess.engine.InfoDict["wdl"]` as the new `chess.engine.PovWdl`, rather
-  than `Tuple[int, int, int]`. The new type is backwards compatible, but it
-  is recommended to use its documented fields and methods instead.
-* Removed `chess.engine.PovScore.__str__()`. String representation falls back
-  to `__repr__`.
-* The `en_passant` parameter of `chess.Board.fen()` and `chess.Board.epd()` is
-  now typed as `Literal["legal", "fen", "xfen"]` rather than `str`.
+* The ``PovScore`` returned by ``chess.pgn.GameNode.eval()`` is now always
+  relative to the side to move. The ambiguity around ``[%eval #0]`` has been
+  resolved to ``Mate(-0)``. This makes sense, given that the authors had
+  standard chess in mind (where a game ending move is always a loss for the
+  opponent). Previously this would be parsed as ``None``.
+* Typed ``chess.engine.InfoDict["wdl"]`` as the new ``chess.engine.PovWdl``,
+  rather than ``Tuple[int, int, int]``. The new type is backwards compatible,
+  but it is recommended to use its documented fields and methods instead.
+* Removed ``chess.engine.PovScore.__str__()``. String representation falls back
+  to ``__repr__``.
+* The ``en_passant`` parameter of ``chess.Board.fen()`` and
+  ``chess.Board.epd()`` is now typed as ``Literal["legal", "fen", "xfen"]``
+  rather than ``str``.
 
 New in v1.1.0
 -------------
 
 New features:
 
-* Added `chess.svg.board(..., orientation)`. This is a more idiomatic way to
-  set the board orientation than `flipped`.
-* Added `chess.svg.Arrow.pgn()` and `chess.svg.Arrow.from_pgn()`.
+* Added ``chess.svg.board(..., orientation)``. This is a more idiomatic way to
+  set the board orientation than ``flipped``.
+* Added ``chess.svg.Arrow.pgn()`` and ``chess.svg.Arrow.from_pgn()``.
 
 Changes:
 
-* Further relaxed `chess.Board.parse_san()`. Now accepts fully specified moves
-  like `e2e4`, even if that is not a pawn move, castling notation with zeros,
+* Further relaxed ``chess.Board.parse_san()``. Now accepts fully specified moves
+  like ``e2e4``, even if that is not a pawn move, castling notation with zeros,
   null moves in UCI notation, and null moves in XBoard notation.
 
 New in v1.0.1
@@ -47,8 +48,8 @@ New in v1.0.1
 
 Bugfixes:
 
-* `chess.svg`: Restore SVG Tiny compatibility by splitting colors like
-  `#rrggbbaa` into a solid color and opacity.
+* ``chess.svg``: Restore SVG Tiny compatibility by splitting colors like
+  ``#rrggbbaa`` into a solid color and opacity.
 
 New in v1.0.0
 -------------
