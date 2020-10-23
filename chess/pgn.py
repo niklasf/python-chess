@@ -305,7 +305,7 @@ class GameNode:
             node = node.parent
         return node
 
-    def game(self) -> "Game":
+    def game(self) -> Game:
         """Gets the root node, i.e., the game."""
         root = self.root()
         assert isinstance(root, Game), "GameNode not rooted in Game"
