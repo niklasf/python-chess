@@ -777,8 +777,8 @@ class PovWdl:
 
     # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
     # of the relative permille values, so we have to support __iter__,
-    # __len__, __getitem__ and equality comparisons with other tuples.
-    # Nevermind ordering, because thats not a sensible operation anyway.
+    # __len__, __getitem__, and equality comparisons with other tuples.
+    # Never mind the ordering, because that's not a sensible operation, anyway.
 
     def __iter__(self) -> Iterator[int]:
         yield self.relative.wins
@@ -815,7 +815,7 @@ class Wdl:
 
     def total(self) -> int:
         """
-        Returns the total number of games. Usually ``wdl`` reported by engines
+        Returns the total number of games. Usually, ``wdl`` reported by engines
         is scaled to 1000 games.
         """
         return self.wins + self.draws + self.losses
