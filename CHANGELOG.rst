@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in v1.2.1
-------------------
+New in v1.2.1
+-------------
 
 The primary location for the published package is now
 https://pypi.org/project/chess/. Thanks to
