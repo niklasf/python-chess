@@ -75,7 +75,7 @@ def read_description():
 
 
 setuptools.setup(
-    name="python-chess",
+    name="chess",
     version=chess.__version__,
     author=chess.__author__,
     author_email=chess.__email__,

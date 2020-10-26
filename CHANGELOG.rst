@@ -1,6 +1,18 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in v1.2.1
+------------------
+
+The primary location for the published package is now
+https://pypi.org/project/chess/. Thanks to
+`Kristian Glass <https://github.com/doismellburning>`_ for transferring the
+namespace.
+
+The old https://pypi.org/project/python-chess/ will remain an alias that
+installs the package from the new location as a dependency (as recommended by
+`PEP423 <https://www.python.org/dev/peps/pep-0423/#how-to-rename-a-project>`_).
+
 New in v1.2.0
 -------------
 

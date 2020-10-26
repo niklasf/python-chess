@@ -13,8 +13,8 @@ python-chess: a pure Python chess library
    :target: https://coveralls.io/github/niklasf/python-chess?branch=master
    :alt: coverage
 
-.. image:: https://badge.fury.io/py/python-chess.svg
-    :target: https://pypi.python.org/pypi/python-chess
+.. image:: https://badge.fury.io/py/chess.svg
+    :target: https://pypi.python.org/pypi/chess
     :alt: pypi package
 
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
@@ -63,6 +63,16 @@ python-chess:
 
     >>> board
     Board('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+
+Installing
+----------
+
+Download and install the latest release:
+
+::
+
+    pip install chess
+
 
 `Documentation <https://python-chess.readthedocs.io/en/latest/>`__
 --------------------------------------------------------------------
@@ -292,15 +302,6 @@ Features
       <PlayResult at ... (move=d6d1, ponder=c1d1, info={...}, draw_offered=False, resigned=False)>
 
       >>> engine.quit()
-
-Installing
-----------
-
-Download and install the latest release:
-
-::
-
-    pip install python-chess
 
 Selected use cases
 ------------------
