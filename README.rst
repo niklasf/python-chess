@@ -335,6 +335,9 @@ Thanks to Ronald de Man for his
 `Syzygy endgame tablebases <https://github.com/syzygy1/tb>`_.
 The probing code in python-chess is very directly ported from his C probing code.
 
+Thanks to `Kristian Glass <https://github.com/doismellburning>`_ for
+transferring the namespace ``chess`` on PyPI.
+
 License
 -------
 
