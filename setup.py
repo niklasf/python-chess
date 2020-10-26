@@ -111,4 +111,5 @@ setuptools.setup(
     project_urls={
         "Documentation": "https://python-chess.readthedocs.io",
     },
+    obsoletes=["python_chess"],
 )
