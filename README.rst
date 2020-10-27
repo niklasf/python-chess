@@ -73,6 +73,10 @@ Download and install the latest release:
 
     pip install chess
 
+``ModuleNotFoundError: No module named 'chess'`` after upgrading from old
+python-chess versions? ``pip install --force-reinstall chess``
+(due to `#680 <https://github.com/niklasf/python-chess/issues/680>`_)
+
 
 `Documentation <https://python-chess.readthedocs.io/en/latest/>`__
 --------------------------------------------------------------------
