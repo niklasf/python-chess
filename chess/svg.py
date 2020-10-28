@@ -106,7 +106,7 @@ class Arrow:
         Returns the arrow in the format used by ``[%csl ...]`` and
         ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
 
-        Colors other than ``red``, ``yellow`` and ``blue`` default to green.
+        Colors other than ``red``, ``yellow``, and ``blue`` default to green.
         """
         if self.color == "red":
             color = "R"
@@ -244,18 +244,18 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
-    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
+    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces, or
         ``None`` (the default) for a chessboard without pieces.
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked indicating a check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
+        ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
-        400 board) or ``None`` (the default) for no size limit.
+        400 board), or ``None`` (the default) for no size limit.
     :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param colors: A dictionary to override default colors. Possible keys are
         ``square light``, ``square dark``, ``square light lastmove``,
