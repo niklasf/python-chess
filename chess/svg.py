@@ -71,16 +71,16 @@ XX = """<g id="xx"><path d="M35.865 9.135a1.89 1.89 0 0 1 0 2.673L25.173 22.5l10
 CHECK_GRADIENT = """<radialGradient id="check_gradient"><stop offset="0%" stop-color="#ff0000" stop-opacity="1.0" /><stop offset="50%" stop-color="#e70000" stop-opacity="1.0" /><stop offset="100%" stop-color="#9e0000" stop-opacity="0.0" /></radialGradient>"""  # noqa: E501
 
 DEFAULT_COLORS = {
-    "square light": "#ffce9e",
-    "square dark": "#d18b47",
-    "square dark lastmove": "#aaa23b",
-    "square light lastmove": "#cdd16a",
+    "square_light": "#ffce9e",
+    "square_dark": "#d18b47",
+    "square_dark_lastmove": "#aaa23b",
+    "square_light_lastmove": "#cdd16a",
     "margin": "#212121",
     "coord": "#e5e5e5",
-    "arrow green": "#15781B80",
-    "arrow red": "#88202080",
-    "arrow yellow": "#e68f00b3",
-    "arrow blue": "#00308880",
+    "arrow_green": "#15781B80",
+    "arrow_red": "#88202080",
+    "arrow_yellow": "#e68f00b3",
+    "arrow_blue": "#00308880",
 }
 
 
@@ -106,7 +106,7 @@ class Arrow:
         Returns the arrow in the format used by ``[%csl ...]`` and
         ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
 
-        Colors other than ``red``, ``yellow`` and ``blue`` default to green.
+        Colors other than ``red``, ``yellow``, and ``blue`` default to green.
         """
         if self.color == "red":
             color = "R"
@@ -244,24 +244,24 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
-    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces or
+    :param board: A :class:`chess.BaseBoard` for a chessboard with pieces, or
         ``None`` (the default) for a chessboard without pieces.
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked indicating a check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]`` or a list of tuples like
+    :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
+        ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param squares: A :class:`chess.SquareSet` with selected squares.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
-        400 board) or ``None`` (the default) for no size limit.
+        400 board), or ``None`` (the default) for no size limit.
     :param coordinates: Pass ``False`` to disable the coordinate margin.
     :param colors: A dictionary to override default colors. Possible keys are
-        ``square light``, ``square dark``, ``square light lastmove``,
-        ``square dark lastmove``, ``margin``, ``coord``, ``arrow green``,
-        ``arrow blue``, ``arrow red``, and ``arrow yellow``. Values should look
-        like ``#ffce9e`` (opaque) or ``#15781B80`` (transparent).
+        ``square_light``, ``square_dark``, ``square_light_lastmove``,
+        ``square_dark_lastmove``, ``margin``, ``coord``, ``arrow_green``,
+        ``arrow_blue``, ``arrow_red``, and ``arrow_yellow``. Values should look
+        like ``#ffce9e`` (opaque), or ``#15781B80`` (transparent).
     :param flipped: Pass ``True`` to flip the board.
     :param style: A CSS stylesheet to include in the SVG image.
 
