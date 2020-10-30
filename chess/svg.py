@@ -276,7 +276,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         :alt: 8/8/8/8/4N3/8/8/8
 
     .. deprecated:: 1.1
-        Use *orientation* with a color instead of the *flipped* toggle.
+        Instead of using the *flipped* toggle, use *orientation* by passing
+        either the color chess.WHITE (the default), or chess.BLACK.
     """
     orientation ^= flipped
     margin = 15 if coordinates else 0
