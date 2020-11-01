@@ -6,7 +6,7 @@ New in v1.2.2
 
 Bugfixes:
 
-* Fixed regression where releases were uploaded without the ``py.typed``
+* Fixed a regression where releases were uploaded without the ``py.typed``
   marker.
 
 New in v1.2.1
