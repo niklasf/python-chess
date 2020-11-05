@@ -436,6 +436,13 @@ class GameNode:
         self.variations.insert(0, node)
         return node
 
+    def next(self) -> Optional[GameNode]:
+        """
+        Returns the first node of the mainline after this node, or ``None`` if
+        this node does not have any children.
+        """
+        return self.variations[0] if self.variations else None
+
     def mainline(self) -> Mainline[GameNode]:
         """Returns an iterable over the mainline starting after this node."""
         return Mainline(self, lambda node: node)

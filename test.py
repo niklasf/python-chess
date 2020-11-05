@@ -2383,11 +2383,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(len(offsets), 3)
 
         pgn.seek(offsets[0])
-        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("a2a3"))
+        self.assertEqual(chess.pgn.read_game(pgn).next().move, chess.Move.from_uci("a2a3"))
         pgn.seek(offsets[1])
-        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("b2b3"))
+        self.assertEqual(chess.pgn.read_game(pgn).next().move, chess.Move.from_uci("b2b3"))
         pgn.seek(offsets[2])
-        self.assertEqual(chess.pgn.read_game(pgn).variations[0].move, chess.Move.from_uci("d2d3"))
+        self.assertEqual(chess.pgn.read_game(pgn).next().move, chess.Move.from_uci("d2d3"))
         self.assertEqual(chess.pgn.read_game(pgn), None)
 
     def test_read_headers(self):
@@ -2510,7 +2510,7 @@ class PgnTestCase(unittest.TestCase):
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.headers["Event"], "AlphaZero vs. Stockfish")
             self.assertEqual(game.headers["Round"], "1")
-            self.assertEqual(game.variations[0].move, chess.Move.from_uci("e2e4"))
+            self.assertEqual(game.next().move, chess.Move.from_uci("e2e4"))
 
             self.assertTrue(chess.pgn.read_game(pgn) is None)
 
@@ -2621,7 +2621,7 @@ class PgnTestCase(unittest.TestCase):
     def test_semicolon_comment(self):
         pgn = io.StringIO("1. e4 ; e5")
         game = chess.pgn.read_game(pgn)
-        node = game.variations[0]
+        node = game.next()
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
         self.assertTrue(node.is_end())
 
@@ -2648,10 +2648,10 @@ class PgnTestCase(unittest.TestCase):
     def test_subgame(self):
         pgn = io.StringIO("1. d4 d5 (1... Nf6 2. c4 (2. Nf3 g6 3. g3))")
         game = chess.pgn.read_game(pgn)
-        node = game.variations[0].variations[1]
+        node = game.next().variations[1]
         subgame = node.accept_subgame(chess.pgn.GameBuilder())
         self.assertEqual(subgame.headers["FEN"], "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2")
-        self.assertEqual(subgame.variations[0].move, chess.Move.from_uci("c2c4"))
+        self.assertEqual(subgame.next().move, chess.Move.from_uci("c2c4"))
         self.assertEqual(subgame.variations[1].move, chess.Move.from_uci("g1f3"))
 
     def test_is_wild(self):
