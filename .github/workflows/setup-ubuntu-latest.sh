@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # Stockfish
 wget https://stockfish.s3.amazonaws.com/stockfish-11-linux.zip
@@ -9,7 +9,7 @@ chmod +x bin/stockfish
 echo "`pwd`/bin" >> $GITHUB_PATH
 
 # Crafty
-git clone https://github.com/lazydroid/crafty-chess
+git clone https://github.com/lazydroid/crafty-chess --depth 1
 cd crafty-chess
 make unix-gcc
 pwd >> $GITHUB_PATH
@@ -19,15 +19,5 @@ cd ..
 git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
 cd Gaviota-Tablebases
 make
-echo "::set-env LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}"
+echo "LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
 cd ..
-
-# Gaviota tablebases
-#cd data/gaviota
-#travis_wait wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
-#cd ../..
-
-# Suicide syzygy bases
-#cd data/syzygy/suicide
-#travis_wait wget --no-verbose --no-check-certificate --no-clobber --input-file TEST-SOURCE.txt
-#cd ../../..
