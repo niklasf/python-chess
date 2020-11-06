@@ -14,12 +14,16 @@ Changes:
   However, a notable undocumented feature is the ability to create dangling
   nodes. This is no longer possible. If you have been using this for
   subclassing, override ``GameNode.add_variation()`` instead of
-  ``GameNode.danling_node()``. It is now the only method that creates child
+  ``GameNode.dangling_node()``. It is now the only method that creates child
   nodes.
+
+Bugfixes:
+
+* Removed broken ``weakref`` based caching in ``chess.pgn.GameNode.board()``.
 
 New features:
 
-* Added ``GameNode.next()``.
+* Added ``chess.pgn.GameNode.next()``.
 
 New in v1.2.2
 -------------
