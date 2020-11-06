@@ -393,6 +393,9 @@ def _rays() -> List[List[Bitboard]]:
 
 BB_RAYS = _rays()
 
+def ray(a: Square, b: Square) -> Bitboard:
+    return BB_RAYS[a][b]
+
 def between(a: Square, b: Square) -> Bitboard:
     bb = BB_RAYS[a][b] & ((BB_ALL << a) ^ (BB_ALL << b))
     return bb & (bb - 1)
@@ -759,7 +762,7 @@ class BaseBoard:
                 snipers = rays & sliders & self.occupied_co[not color]
                 for sniper in scan_reversed(snipers):
                     if between(sniper, king) & (self.occupied | square_mask) == square_mask:
-                        return BB_RAYS[king][sniper]
+                        return ray(king, sniper)
 
                 break
 
@@ -3419,14 +3422,14 @@ class Board(BaseBoard):
                         not self._ep_skewered(king, move.from_square))
         else:
             return bool(not blockers & BB_SQUARES[move.from_square] or
-                        BB_RAYS[move.from_square][move.to_square] & BB_SQUARES[king])
+                        ray(move.from_square, move.to_square) & BB_SQUARES[king])
 
     def _generate_evasions(self, king: Square, checkers: Bitboard, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         sliders = checkers & (self.bishops | self.rooks | self.queens)
 
         attacked = 0
         for checker in scan_reversed(sliders):
-            attacked |= BB_RAYS[king][checker] & ~BB_SQUARES[checker]
+            attacked |= ray(king, checker) & ~BB_SQUARES[checker]
 
         if BB_SQUARES[king] & from_mask:
             for to_square in scan_reversed(BB_KING_ATTACKS[king] & ~self.occupied_co[self.turn] & ~attacked & to_mask):
@@ -4017,7 +4020,7 @@ class SquareSet:
         . . . . 1 . . .
         . . . . . 1 . .
         """
-        return cls(BB_RAYS[a][b])
+        return cls(ray(a, b))
 
     @classmethod
     def between(cls, a: Square, b: Square) -> SquareSet:
