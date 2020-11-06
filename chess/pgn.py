@@ -161,9 +161,7 @@ class _AcceptFrame:
 
 class GameNode(abc.ABC):
     parent: Optional[GameNode]
-    """
-    The parent node or ``None`` if this is the root node of the game.
-    """
+    """The parent node or ``None`` if this is the root node of the game."""
 
     move: Optional[chess.Move]
     """
@@ -551,14 +549,16 @@ class GameNode(abc.ABC):
 
 
 class ChildNode(GameNode):
-    parent: GameNode
-    move: chess.Move
+    """
+    A child node of a game, with the move leading to it.
+    Extends :class:`~chess.pgn.GameNode`.
+    """
 
-    nags: Set[int]
-    """
-    A set of NAGs as integers. NAGs always go behind a move, so the root
-    node of the game will never have NAGs.
-    """
+    parent: GameNode
+    """The parent node."""
+
+    move: chess.Move
+    """The move leading to this node."""
 
     starting_comment: str
     """
@@ -566,6 +566,12 @@ class ChildNode(GameNode):
     actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
     checks this) can have a starting comment. The root node can not have
     a starting comment.
+    """
+
+    nags: Set[int]
+    """
+    A set of NAGs as integers. NAGs always go behind a move, so the root
+    node of the game will never have NAGs.
     """
 
     def __init__(self, parent: GameNode, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> None:
@@ -619,6 +625,7 @@ class ChildNode(GameNode):
         return self.parent.board().uci(self.move, chess960=chess960)
 
     def end(self) -> ChildNode:
+        """Follows the main variation to the end and returns the last node."""
         return typing.cast(ChildNode, super().end())
 
     def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
@@ -693,8 +700,7 @@ GameT = TypeVar("GameT", bound="Game")
 class Game(GameNode):
     """
     The root node of a game with extra information such as headers and the
-    starting position. Also has all the other properties and methods of
-    :class:`~chess.pgn.GameNode`.
+    starting position. Extends :class:`~chess.pgn.GameNode`.
     """
 
     headers: Headers

@@ -42,16 +42,20 @@ Use the :class:`~chess.pgn.StringExporter()` or
 Game model
 ----------
 
-Games are represented as a tree of moves. Each :class:`~chess.pgn.GameNode` can have extra
-information, such as comments. The root node of a game
-(:class:`~chess.pgn.Game` extends the :class:`~chess.pgn.GameNode`) also
-holds general information, such as game headers.
-
-.. autoclass:: chess.pgn.Game
-    :members:
+Games are represented as a tree of moves. Conceptually each node represents a
+position of the game. The tree consists of one root node
+(:class:`~chess.pgn.Game`, also holding game headers) and many child
+nodes (:class:`~chess.pgn.ChildNode`).
+Both extend :class:`~chess.pgn.GameNode`.
 
 .. autoclass:: chess.pgn.GameNode
     :members:
+
+.. autoclass:: chess.pgn.Game
+    :members: headers, errors, setup, accept
+
+.. autoclass:: chess.pgn.ChildNode
+    :members: parent, move, starting_comment, nags, san, uci, end
 
 Visitors
 --------
