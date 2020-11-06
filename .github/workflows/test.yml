@@ -31,3 +31,17 @@ jobs:
     - run: python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft
     - run: python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
     - run: python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
+  mypy:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: pip install -e .
+    - run: pip install mypy
+    - run: python -m mypy --strict chess
+    - run: python -m mypy --strict examples/**/*.py
