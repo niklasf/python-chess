@@ -1,0 +1,64 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.7, 3.8, 3.9]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: .github/workflows/setup-${{ matrix.os }}.sh
+      shell: bash
+    - run: pip install -e .
+    - run: python test.py -v
+  perft:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - run: pip install -e .
+    - run: python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
+    - run: python examples/perft/perft.py -t 1 examples/perft/tricky.perft
+    - run: python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft
+    - run: python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft
+    - run: python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft
+    - run: python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
+    - run: python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
+  mypy:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: pip install -e .
+    - run: pip install mypy
+    - run: python -m mypy --strict chess
+    - run: python -m mypy --strict examples/**/*.py
+  readme:
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: sudo apt-get update && sudo apt-get install -y docutils-common
+    - run: python setup.py --long-description | rst2html --strict --no-raw > /dev/null
+    - run: pip install -e .
+    - run: .github/workflows/setup-ubuntu-latest.sh
+    - run: python -m doctest README.rst
