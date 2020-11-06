@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in v1.3.0
-------------------
+New in v1.3.0
+-------------
 
 Changes:
 
