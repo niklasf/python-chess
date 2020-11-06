@@ -25,13 +25,13 @@ jobs:
       with:
         python-version: 3.9
     - run: pip install -e .
-    - run: python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
-    - run: python examples/perft/perft.py -t 1 examples/perft/tricky.perft
-    - run: python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft
-    - run: python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft
-    - run: python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft
-    - run: python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
-    - run: python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
+    - run: python examples/perft/perft.py -t 2 examples/perft/random.perft --max-nodes 10000
+    - run: python examples/perft/perft.py -t 2 examples/perft/tricky.perft
+    - run: python examples/perft/perft.py -t 2 --variant giveaway examples/perft/giveaway.perft
+    - run: python examples/perft/perft.py -t 2 --variant atomic examples/perft/atomic.perft
+    - run: python examples/perft/perft.py -t 2 --variant racingkings examples/perft/racingkings.perft
+    - run: python examples/perft/perft.py -t 2 --variant horde examples/perft/horde.perft
+    - run: python examples/perft/perft.py -t 2 --variant crazyhouse examples/perft/crazyhouse.perft
   mypy:
     strategy:
       matrix:
