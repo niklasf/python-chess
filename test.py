@@ -2661,9 +2661,11 @@ class PgnTestCase(unittest.TestCase):
 
     def test_my_game_node(self):
         class MyGameNode(chess.pgn.GameNode):
-            @classmethod
-            def dangling_node(cls):
-                return MyGameNode()
+            def add_variation(self, move, *, comment="", starting_comment="", nags=[]):
+                return MyChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags)
+
+        class MyChildNode(chess.pgn.ChildNode, MyGameNode):
+            pass
 
         class MyGame(chess.pgn.Game, MyGameNode):
             pass

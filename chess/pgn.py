@@ -161,7 +161,6 @@ class _AcceptFrame:
 
 
 class GameNode:
-
     parent: Optional[GameNode]
     """
     The parent node or ``None`` if this is the root node of the game.
@@ -173,11 +172,8 @@ class GameNode:
     game.
     """
 
-    nags: Set[int]
-    """
-    A set of NAGs as integers. NAGs always go behind a move, so the root
-    node of the game will never have NAGs.
-    """
+    variations: List[ChildNode]
+    """A list of child nodes."""
 
     comment: str
     """
@@ -186,30 +182,18 @@ class GameNode:
     """
 
     starting_comment: str
-    """
-    A comment for the start of a variation. Only nodes that
-    actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
-    checks this) can have a starting comment. The root node can not have
-    a starting comment.
-    """
+    nags: Set[int]
 
-    variations: List[GameNode]
-    """A list of child nodes."""
-
-    def __init__(self) -> None:
+    def __init__(self, *, comment: str = "") -> None:
         self.parent = None
-        self.variations = []
-
         self.move = None
-        self.nags = set()
+        self.variations = []
+        self.comment = comment
+
         self.starting_comment = ""
-        self.comment = ""
+        self.nags = set()
 
         self.board_cached: Optional[weakref.ref[chess.Board]] = None
-
-    @classmethod
-    def dangling_node(cls) -> GameNode:
-        return GameNode()
 
     def _board(self) -> chess.Board:
         assert False, "cannot get board of dangling GameNode"
@@ -250,10 +234,6 @@ class GameNode:
 
         return board
 
-    def _move(self) -> chess.Move:
-        assert self.move is not None, "cannot get move of dangling GameNode"
-        return self.move
-
     def _ply(self) -> int:
         assert False, "cannot get ply of dangling GameNode"
 
@@ -278,26 +258,6 @@ class GameNode:
         Gets the color to move at this node. See :data:`chess.Board.turn`.
         """
         return self.ply() % 2 == 0
-
-    def san(self) -> str:
-        """
-        Gets the standard algebraic notation of the move leading to this node.
-        See :func:`chess.Board.san()`.
-
-        Do not call this on the root node.
-        """
-        assert self.parent is not None and self.move is not None, "cannot get san of dangling GameNode"
-        return self.parent.board().san(self.move)
-
-    def uci(self, *, chess960: Optional[bool] = None) -> str:
-        """
-        Gets the UCI notation of the move leading to this node.
-        See :func:`chess.Board.uci()`.
-
-        Do not call this on the root node.
-        """
-        assert self.parent is not None and self.move is not None, "cannot get uci of dangling GameNode"
-        return self.parent.board().uci(self.move, chess960=chess960)
 
     def root(self) -> GameNode:
         node = self
@@ -362,7 +322,7 @@ class GameNode:
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def __getitem__(self, move: Union[int, chess.Move, GameNode]) -> GameNode:
+    def __getitem__(self, move: Union[int, chess.Move, GameNode]) -> ChildNode:
         try:
             return self.variations[move]  # type: ignore
         except TypeError:
@@ -380,7 +340,7 @@ class GameNode:
         else:
             return True
 
-    def variation(self, move: Union[int, chess.Move, GameNode]) -> GameNode:
+    def variation(self, move: Union[int, chess.Move, GameNode]) -> ChildNode:
         """
         Gets a child node by either the move or the variation index.
         """
@@ -414,42 +374,34 @@ class GameNode:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
+    def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> ChildNode:
         """Creates a child node with the given attributes."""
-        node = type(self).dangling_node()
-        node.move = move
-        node.nags = set(nags)
-        node.comment = comment
-        node.starting_comment = starting_comment
+        return ChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags)
 
-        node.parent = self
-        self.variations.append(node)
-        return node
-
-    def add_main_variation(self, move: chess.Move, *, comment: str = "") -> GameNode:
+    def add_main_variation(self, move: chess.Move, *, comment: str = "", nags: Iterable[int] = []) -> ChildNode:
         """
         Creates a child node with the given attributes and promotes it to the
         main variation.
         """
-        node = self.add_variation(move, comment=comment)
+        node = self.add_variation(move, comment=comment, nags=nags)
         self.variations.remove(node)
         self.variations.insert(0, node)
         return node
 
-    def next(self) -> Optional[GameNode]:
+    def next(self) -> Optional[ChildNode]:
         """
         Returns the first node of the mainline after this node, or ``None`` if
         this node does not have any children.
         """
         return self.variations[0] if self.variations else None
 
-    def mainline(self) -> Mainline[GameNode]:
+    def mainline(self) -> Mainline[ChildNode]:
         """Returns an iterable over the mainline starting after this node."""
         return Mainline(self, lambda node: node)
 
     def mainline_moves(self) -> Mainline[chess.Move]:
         """Returns an iterable over the main moves after this node."""
-        return Mainline(self, lambda node: node._move())
+        return Mainline(self, lambda node: node.move)
 
     def add_line(self, moves: Iterable[chess.Move], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
         """
@@ -687,9 +639,60 @@ class GameNode:
         return self.accept(StringExporter(columns=None))
 
     def __repr__(self) -> str:
-        if self.parent is None:
-            return f"<{type(self).__name__} at {id(self):#x} (dangling: {self.move})>"
+        return f"<{type(self).__name__} at {id(self):#x} (dangling)>"
 
+
+class ChildNode(GameNode):
+    parent: GameNode
+    move: chess.Move
+
+    nags: Set[int]
+    """
+    A set of NAGs as integers. NAGs always go behind a move, so the root
+    node of the game will never have NAGs.
+    """
+
+    starting_comment: str
+    """
+    A comment for the start of a variation. Only nodes that
+    actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
+    checks this) can have a starting comment. The root node can not have
+    a starting comment.
+    """
+
+    def __init__(self, parent: GameNode, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> None:
+        super().__init__(comment=comment)
+        self.parent = parent
+        self.move = move
+        self.parent.variations.append(self)
+
+        self.nags.update(nags)
+        self.starting_comment = starting_comment
+
+    def san(self) -> str:
+        """
+        Gets the standard algebraic notation of the move leading to this node.
+        See :func:`chess.Board.san()`.
+
+        Do not call this on the root node.
+        """
+        assert self.parent is not None and self.move is not None, "cannot get san of dangling GameNode"
+        return self.parent.board().san(self.move)
+
+    def uci(self, *, chess960: Optional[bool] = None) -> str:
+        """
+        Gets the UCI notation of the move leading to this node.
+        See :func:`chess.Board.uci()`.
+
+        Do not call this on the root node.
+        """
+        assert self.parent is not None and self.move is not None, "cannot get uci of dangling GameNode"
+        return self.parent.board().uci(self.move, chess960=chess960)
+
+    def end(self) -> ChildNode:
+        return typing.cast(ChildNode, super().end())
+
+    def __repr__(self) -> str:
         try:
             parent_board = self.parent.board()
         except ValueError:
@@ -927,7 +930,7 @@ class Headers(MutableMapping[str, str]):
 MainlineMapT = TypeVar("MainlineMapT")
 
 class Mainline(Generic[MainlineMapT]):
-    def __init__(self, start: GameNode, f: Callable[[GameNode], MainlineMapT]) -> None:
+    def __init__(self, start: GameNode, f: Callable[[ChildNode], MainlineMapT]) -> None:
         self.start = start
         self.f = f
 
@@ -949,7 +952,7 @@ class Mainline(Generic[MainlineMapT]):
         while node.variations:
             node = node.variations[0]
             node._accept_node(board, visitor)
-            board.push(node._move())
+            board.push(node.move)
         return visitor.result()
 
     def __str__(self) -> str:
@@ -960,7 +963,7 @@ class Mainline(Generic[MainlineMapT]):
 
 
 class ReverseMainline(Generic[MainlineMapT]):
-    def __init__(self, stop: GameNode, f: Callable[[GameNode], MainlineMapT]) -> None:
+    def __init__(self, stop: GameNode, f: Callable[[ChildNode], MainlineMapT]) -> None:
         self.stop = stop
         self.f = f
 
@@ -977,7 +980,7 @@ class ReverseMainline(Generic[MainlineMapT]):
     def __iter__(self) -> Iterator[MainlineMapT]:
         node = self.end
         while node.parent and node != self.stop:
-            yield self.f(node)
+            yield self.f(typing.cast(ChildNode, node))
             node = node.parent
 
     def __reversed__(self) -> Mainline[MainlineMapT]:
@@ -986,7 +989,7 @@ class ReverseMainline(Generic[MainlineMapT]):
     def __repr__(self) -> str:
         return "<ReverseMainline at {:#x} ({})>".format(
             id(self),
-            " ".join(ReverseMainline(self.stop, lambda node: node._move().uci())))
+            " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
 
 
 class BaseVisitor(abc.ABC, Generic[ResultT]):
