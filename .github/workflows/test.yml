@@ -45,3 +45,17 @@ jobs:
     - run: pip install mypy
     - run: python -m mypy --strict chess
     - run: python -m mypy --strict examples/**/*.py
+  readme:
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - run: sudo apt-get update && sudo apt-get install -y docutils-common
+    - run: python setup.py --long-description | rst2html --strict --no-raw > /dev/null
+    - run: pip install -e .
+    - run: python -m doctest README.rst
