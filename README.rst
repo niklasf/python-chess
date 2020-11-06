@@ -1,29 +1,21 @@
 python-chess: a pure Python chess library
 =========================================
 
-.. image:: https://travis-ci.org/niklasf/python-chess.svg?branch=master
-    :target: https://travis-ci.org/niklasf/python-chess
-    :alt: build
-
-.. image:: https://ci.appveyor.com/api/projects/status/y9k3hdbm0f0nbum9/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/niklasf/python-chess
-    :alt: appveyor build
-
-.. image:: https://coveralls.io/repos/github/niklasf/python-chess/badge.svg?branch=master
-   :target: https://coveralls.io/github/niklasf/python-chess?branch=master
-   :alt: coverage
+.. image:: https://github.com/niklasf/python-chess/workflows/Test/badge.svg
+    :target: https://github.com/niklasf/python-chess/actions
+    :alt: Test status
 
 .. image:: https://badge.fury.io/py/chess.svg
     :target: https://pypi.python.org/pypi/chess
-    :alt: pypi package
+    :alt: PyPI package
 
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
-    :alt: docs
+    :alt: Docs
 
 .. image:: https://badges.gitter.im/python-chess/community.svg
     :target: https://gitter.im/python-chess/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
-    :alt: chat on gitter
+    :alt: Chat on Gitter
 
 Introduction
 ------------
