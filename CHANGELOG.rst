@@ -1,6 +1,26 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in v1.3.0
+------------------
+
+Changes:
+
+* Introduced ``chess.pgn.ChildNode``, a subclass of ``chess.pgn.GameNode``
+  for all nodes other than the root node, and converted ``chess.pgn.GameNode``
+  to an abstract base class. This improves ergonomics in typed code.
+
+  The change is backwards compatible if using only documented features.
+  However, a notable undocumented feature is the ability to create dangling
+  nodes. This is no longer possible. If you have been using this for
+  subclassing, override ``GameNode.add_variation()`` instead of
+  ``GameNode.danling_node()``. It is now the only method that creates child
+  nodes.
+
+New features:
+
+* Added ``GameNode.next()``.
+
 New in v1.2.2
 -------------
 
@@ -12,14 +32,16 @@ Bugfixes:
 New in v1.2.1
 -------------
 
-The primary location for the published package is now
-https://pypi.org/project/chess/. Thanks to
-`Kristian Glass <https://github.com/doismellburning>`_ for transferring the
-namespace.
+Changes:
 
-The old https://pypi.org/project/python-chess/ will remain an alias that
-installs the package from the new location as a dependency (as recommended by
-`PEP423 <https://www.python.org/dev/peps/pep-0423/#how-to-rename-a-project>`_).
+* The primary location for the published package is now
+  https://pypi.org/project/chess/. Thanks to
+  `Kristian Glass <https://github.com/doismellburning>`_ for transferring the
+  namespace.
+
+  The old https://pypi.org/project/python-chess/ will remain an alias that
+  installs the package from the new location as a dependency (as recommended by
+  `PEP423 <https://www.python.org/dev/peps/pep-0423/#how-to-rename-a-project>`_).
 
 New in v1.2.0
 -------------

@@ -337,6 +337,7 @@ class GameNode(abc.ABC):
 
     def add_variation(self, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> ChildNode:
         """Creates a child node with the given attributes."""
+        # Instanciate ChildNode only in this method.
         return ChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags)
 
     def add_main_variation(self, move: chess.Move, *, comment: str = "", nags: Iterable[int] = []) -> ChildNode:
@@ -544,9 +545,6 @@ class GameNode(abc.ABC):
     def __str__(self) -> str:
         return self.accept(StringExporter(columns=None))
 
-    def __repr__(self) -> str:
-        return f"<{type(self).__name__} at {id(self):#x} (dangling)>"
-
 
 class ChildNode(GameNode):
     """
@@ -692,7 +690,7 @@ class ChildNode(GameNode):
                 id(self),
                 parent_board.fullmove_number,
                 "." if parent_board.turn == chess.WHITE else "...",
-                self.san())
+                parent_board.san(self.move))
 
 
 GameT = TypeVar("GameT", bound="Game")
