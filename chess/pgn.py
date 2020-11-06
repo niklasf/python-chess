@@ -151,8 +151,7 @@ ResultT = TypeVar("ResultT", covariant=True)
 
 
 class _AcceptFrame:
-    def __init__(self, node: GameNode, *, is_variation: bool = False, sidelines: bool = True):
-        assert node.parent is not None, "cannot visit dangling GameNode"
+    def __init__(self, node: ChildNode, *, is_variation: bool = False, sidelines: bool = True):
         self.state = "pre"
         self.node = node
         self.is_variation = is_variation
@@ -160,7 +159,7 @@ class _AcceptFrame:
         self.in_variation = False
 
 
-class GameNode:
+class GameNode(abc.ABC):
     parent: Optional[GameNode]
     """
     The parent node or ``None`` if this is the root node of the game.
@@ -190,14 +189,12 @@ class GameNode:
         self.variations = []
         self.comment = comment
 
+        # Deprecated: These should be properties of ChildNode, but need to
+        # remain here for backwards compatibility.
         self.starting_comment = ""
         self.nags = set()
 
-        self.board_cached: Optional[weakref.ref[chess.Board]] = None
-
-    def _board(self) -> chess.Board:
-        assert False, "cannot get board of dangling GameNode"
-
+    @abc.abstractmethod
     def board(self) -> chess.Board:
         """
         Gets a board with the position of the node.
@@ -207,36 +204,8 @@ class GameNode:
 
         It's a copy, so modifying the board will not alter the game.
         """
-        if self.board_cached is not None:
-            board_cached = self.board_cached()
-            if board_cached is not None:
-                return board_cached.copy()
 
-        stack = []
-        node = self
-        while True:
-            if node.parent is None or node.move is None:
-                board = node._board()
-                break
-            elif node.board_cached is not None:
-                board_cached = node.board_cached()
-                if board_cached is not None:
-                    board = board_cached.copy()
-                    break
-            stack.append(node.move)
-            node = node.parent
-
-        while stack:
-            board.push(stack.pop())
-
-        if self.parent is not None:
-            self.board_cached = weakref.ref(board)
-
-        return board
-
-    def _ply(self) -> int:
-        assert False, "cannot get ply of dangling GameNode"
-
+    @abc.abstractmethod
     def ply(self) -> int:
         """
         Returns the number of half-moves up to this node, as indicated by
@@ -246,12 +215,6 @@ class GameNode:
         Usually this is equal to the number of parent nodes, but it may be
         more if the game was started from a custom position.
         """
-        ply = 0
-        node = self
-        while node.parent is not None:
-            ply += 1
-            node = node.parent
-        return node._ply() + ply
 
     def turn(self) -> Color:
         """
@@ -384,8 +347,7 @@ class GameNode:
         main variation.
         """
         node = self.add_variation(move, comment=comment, nags=nags)
-        self.variations.remove(node)
-        self.variations.insert(0, node)
+        self.variations.insert(0, self.variations.pop())
         return node
 
     def next(self) -> Optional[ChildNode]:
@@ -543,66 +505,12 @@ class GameNode:
                 self.comment += " "
             self.comment += clk
 
-    def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
-        assert self.move is not None, "cannot visit dangling GameNode"
-
-        if self.starting_comment:
-            visitor.visit_comment(self.starting_comment)
-
-        visitor.visit_move(parent_board, self.move)
-
-        parent_board.push(self.move)
-        visitor.visit_board(parent_board)
-        parent_board.pop()
-
-        for nag in sorted(self.nags):
-            visitor.visit_nag(nag)
-
-        if self.comment:
-            visitor.visit_comment(self.comment)
-
-    def _accept(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT], *, sidelines: bool = True) -> None:
-        stack = [_AcceptFrame(self, sidelines=sidelines)]
-
-        while stack:
-            top = stack[-1]
-
-            if top.in_variation:
-                top.in_variation = False
-                visitor.end_variation()
-
-            if top.state == "pre":
-                top.node._accept_node(parent_board, visitor)
-                top.state = "variations"
-            elif top.state == "variations":
-                try:
-                    variation = next(top.variations)
-                except StopIteration:
-                    if top.node.variations:
-                        assert top.node.move is not None, "root node cannot be a variation"
-                        parent_board.push(top.node.move)
-                        stack.append(_AcceptFrame(top.node.variations[0], sidelines=True))
-                        top.state = "post"
-                    else:
-                        top.state = "end"
-                else:
-                    if visitor.begin_variation() is not SKIP:
-                        stack.append(_AcceptFrame(variation, sidelines=False, is_variation=True))
-                    top.in_variation = True
-            elif top.state == "post":
-                parent_board.pop()
-                top.state = "end"
-            else:
-                stack.pop()
-
+    @abc.abstractmethod
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
         Traverses game nodes in PGN order using the given *visitor*. Starts with
         the move leading to this node. Returns the *visitor* result.
         """
-        assert self.parent is not None, "cannot visit dangling GameNode"
-        self._accept(self.parent.board(), visitor, sidelines=False)
-        return visitor.result()
 
     def accept_subgame(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
@@ -669,6 +577,29 @@ class ChildNode(GameNode):
         self.nags.update(nags)
         self.starting_comment = starting_comment
 
+    def board(self) -> chess.Board:
+        stack: List[chess.Move] = []
+        node: GameNode = self
+
+        while node.move is not None and node.parent is not None:
+            stack.append(node.move)
+            node = node.parent
+
+        board = node.game().board()
+
+        while stack:
+            board.push(stack.pop())
+
+        return board
+
+    def ply(self) -> int:
+        ply = 0
+        node: GameNode = self
+        while node.parent is not None:
+            ply += 1
+            node = node.parent
+        return node.game().ply() + ply
+
     def san(self) -> str:
         """
         Gets the standard algebraic notation of the move leading to this node.
@@ -676,7 +607,6 @@ class ChildNode(GameNode):
 
         Do not call this on the root node.
         """
-        assert self.parent is not None and self.move is not None, "cannot get san of dangling GameNode"
         return self.parent.board().san(self.move)
 
     def uci(self, *, chess960: Optional[bool] = None) -> str:
@@ -686,11 +616,63 @@ class ChildNode(GameNode):
 
         Do not call this on the root node.
         """
-        assert self.parent is not None and self.move is not None, "cannot get uci of dangling GameNode"
         return self.parent.board().uci(self.move, chess960=chess960)
 
     def end(self) -> ChildNode:
         return typing.cast(ChildNode, super().end())
+
+    def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
+        if self.starting_comment:
+            visitor.visit_comment(self.starting_comment)
+
+        visitor.visit_move(parent_board, self.move)
+
+        parent_board.push(self.move)
+        visitor.visit_board(parent_board)
+        parent_board.pop()
+
+        for nag in sorted(self.nags):
+            visitor.visit_nag(nag)
+
+        if self.comment:
+            visitor.visit_comment(self.comment)
+
+    def _accept(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT], *, sidelines: bool = True) -> None:
+        stack = [_AcceptFrame(self, sidelines=sidelines)]
+
+        while stack:
+            top = stack[-1]
+
+            if top.in_variation:
+                top.in_variation = False
+                visitor.end_variation()
+
+            if top.state == "pre":
+                top.node._accept_node(parent_board, visitor)
+                top.state = "variations"
+            elif top.state == "variations":
+                try:
+                    variation = next(top.variations)
+                except StopIteration:
+                    if top.node.variations:
+                        parent_board.push(top.node.move)
+                        stack.append(_AcceptFrame(top.node.variations[0], sidelines=True))
+                        top.state = "post"
+                    else:
+                        top.state = "end"
+                else:
+                    if visitor.begin_variation() is not SKIP:
+                        stack.append(_AcceptFrame(variation, sidelines=False, is_variation=True))
+                    top.in_variation = True
+            elif top.state == "post":
+                parent_board.pop()
+                top.state = "end"
+            else:
+                stack.pop()
+
+    def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
+        self._accept(self.parent.board(), visitor, sidelines=False)
+        return visitor.result()
 
     def __repr__(self) -> str:
         try:
@@ -738,10 +720,10 @@ class Game(GameNode):
         self.headers = Headers(headers)
         self.errors = []
 
-    def _board(self) -> chess.Board:
+    def board(self) -> chess.Board:
         return self.headers.board()
 
-    def _ply(self) -> int:
+    def ply(self) -> int:
         # Optimization: Parse FEN only for custom starting positions.
         return self.board().ply() if "FEN" in self.headers else 0
 
