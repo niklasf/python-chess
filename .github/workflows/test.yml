@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10.0-alpha.2"]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.10.0-alpha.2"
     - run: pip install -e .
     - run: python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
     - run: python examples/perft/perft.py -t 1 examples/perft/tricky.perft
@@ -36,7 +36,7 @@ jobs:
   mypy:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10.0-alpha.2"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
   readme:
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10.0-alpha.2"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
