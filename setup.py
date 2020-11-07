@@ -103,6 +103,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Games/Entertainment :: Turn Based Strategy",
         "Topic :: Software Development :: Libraries :: Python Modules",
