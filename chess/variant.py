@@ -616,8 +616,8 @@ class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState[Crazyho
 
     def restore(self, board: CrazyhouseBoardT) -> None:
         super().restore(board)
-        board.pockets[chess.WHITE] = self.pockets_w.copy()
-        board.pockets[chess.BLACK] = self.pockets_b.copy()
+        board.pockets[chess.WHITE] = self.pockets_w
+        board.pockets[chess.BLACK] = self.pockets_b
 
 CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 
@@ -727,6 +727,13 @@ class CrazyhouseBoard(chess.Board):
             return chess.BB_EMPTY
 
     def legal_drop_squares(self) -> chess.SquareSet:
+        """
+        Get the squares where a legal drop is possible for the side to move.
+
+        It is legal to drop a checkmate.
+        
+        Returns a :class:`set of squares <chess.SquareSet>`.
+        """
         return chess.SquareSet(self.legal_drop_squares_mask())
 
     def is_pseudo_legal(self, move: chess.Move) -> bool:
