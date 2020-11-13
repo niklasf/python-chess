@@ -19,7 +19,7 @@ Changes:
 
 Bugfixes:
 
-* Removed broken ``weakref`` based caching in ``chess.pgn.GameNode.board()``.
+* Removed broken ``weakref``-based caching in ``chess.pgn.GameNode.board()``.
 
 New features:
 
