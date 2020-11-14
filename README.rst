@@ -325,10 +325,10 @@ If you like, share interesting things you are doing with python-chess, for examp
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: http://johncheetham.com/projects/jcchess/                                               | A GUI to play against UCI chess engines                                                 |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | https://github.com/PettingZoo-Team/PettingZoo / https://www.pettingzoo.ml/classic/chess |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | https://www.pettingzoo.ml/classic/chess                                                 |
 |     :width: 64                                                                                       |                                                                                         |
 |     :height: 64                                                                                      |                                                                                         |
-|     :target: https://github.com/PettingZoo-Team/PettingZoo                                           | A multi-agent reinforcement learning environment                                        |
+|     :target: https://www.pettingzoo.ml/classic/chess                                                 | A multi-agent reinforcement learning environment                                        |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
 
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
