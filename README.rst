@@ -305,14 +305,20 @@ Selected projects
 If you like, share interesting things you are doing with python-chess, for example:
 
 +------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info – A website to probe Syzygy endgame tablebases                                          |
-|     :target: https://syzygy-tables.info                                                              |                                                                                                                    |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info –                                                                                       |
+|     :target: https://syzygy-tables.info/                                                             | A website to probe Syzygy endgame tablebases                                                                       |
 +------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | https://github.com/clente/chess – Oppinionated wrapper to use python-chess from R                                  |
-|     :target: https://github.com/clente/chess                                                         |                                                                                                                    |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | https://github.com/clente/chess –                                                                                  |
+|     :target: https://github.com/clente/chess                                                         | Oppinionated wrapper to use python-chess from the R programming language                                           |
 +------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/crazyara.png?raw=true     | https://github.com/QueensGambit/CrazyAra – Deep learning for Crazyhouse                                            |
-|     :target: https://github.com/QueensGambit/CrazyAra                                                |                                                                                                                    |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/crazyara.png?raw=true     | https://crazyara.org/ –                                                                                            |
+|     :target: https://crazyara.org/                                                                   | Deep learning for Crazyhouse                                                                                       |
++------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/jcchess.png?raw=true      | http://johncheetham.com/projects/jcchess/ –                                                                        |
+|     :target: http://johncheetham.com/projects/jcchess/                                               | A GUI to play against UCI chess engines                                                                            |
++------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | https://github.com/PettingZoo-Team/PettingZoo / https://www.pettingzoo.ml/classic/chess –                          |
+|     :target: https://github.com/PettingZoo-Team/PettingZoo                                           | A multi-agent reinforcement learning environment                                                                   |
 +------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------+
 
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
@@ -320,12 +326,10 @@ If you like, share interesting things you are doing with python-chess, for examp
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
 * a JIT compiled chess engine – https://github.com/SamRagusa/Batch-First
-* a GUI to play against UCI chess engines – http://johncheetham.com/projects/jcchess/
 * teaching Cognitive Science – `https://jupyter.brynmawr.edu <https://jupyter.brynmawr.edu/services/public/dblank/CS371%20Cognitive%20Science/2016-Fall/Programming%20a%20Chess%20Player.ipynb>`_
 * an `Alexa skill to play blindfold chess <https://www.amazon.com/Laynr-blindfold-chess/dp/B0859QF8YL>`_ – https://github.com/laynr/blindfold-chess
 * a chessboard widget for PySide2 – https://github.com/H-a-y-k/hichesslib
 * Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
-* a multi-agent reinforcement learning environment – https://github.com/PettingZoo-Team/PettingZoo / https://www.pettingzoo.ml/classic/chess
 
 Acknowledgements
 ----------------
