@@ -728,10 +728,12 @@ class CrazyhouseBoard(chess.Board):
 
     def legal_drop_squares(self) -> chess.SquareSet:
         """
-        Get the squares where a legal drop is possible for the side to move.
+        Gets the squares where the side to move could legally drop a piece.
+        Does *not* check, if they actually have a suitable piece in their
+        pocket.
 
         It is legal to drop a checkmate.
-        
+
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
         return chess.SquareSet(self.legal_drop_squares_mask())

@@ -56,9 +56,13 @@ Crazyhouse
     :members:
 
 .. autoclass:: chess.variant.CrazyhouseBoard
+    :members: legal_drop_squares
 
     .. py:attribute:: pockets
        :value: [chess.variant.CrazyhousePocket(), chess.variant.CrazyhousePocket()]
+
+        Pockets for each color. For example, ``board.pockets[chess.WHITE]``
+        are the pocket pieces available to White.
 
 Three-check
 -----------
@@ -67,6 +71,9 @@ Three-check
 
     .. py:attribute:: remaining_checks
        :value: [3, 3]
+
+        Remaining checks until victory for each color. For example,
+        ``board.remaining_checks[chess.WHITE] == 0`` implies that White has won.
 
 UCI/XBoard
 ----------
