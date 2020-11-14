@@ -299,15 +299,21 @@ Features
 
       >>> engine.quit()
 
-Selected use cases
-------------------
+Selected projects
+-----------------
+
++-------------------------------------------------------------+--------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+
+| .. image:: https://syzygy-tables.info/static/favicon.96.png | .. image:: https://github.com/clente/chess/blob/master/man/figures/logo.png?raw=true | .. image:: https://github.com/QueensGambit/CrazyAra/blob/master/etc/media/crazyara_logo_medium.png?raw=true |
++-------------------------------------------------------------+--------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+
+| https://syzygy-tables.info                                  | https://github.com/clente/chess                                                      | https://github.com/QueensGambit/CrazyAra                                                                    |
++-------------------------------------------------------------+--------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+
+| A website to probe Syzygy endgame tablebases                | Use python-chess from the R programming language (oppinionated wrapper)              | Deep learning for Crazyhouse                                                                                |
++-------------------------------------------------------------+--------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+
 
 If you like, let me know if you are creating something interesting with
 python-chess, for example:
 
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
-* a website to probe Syzygy endgame tablebases – https://syzygy-tables.info/
-* deep learning for Crazyhouse – https://github.com/QueensGambit/CrazyAra
 * a bridge between Lichess API and chess engines – https://github.com/careless25/lichess-bot
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
