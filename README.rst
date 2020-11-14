@@ -305,12 +305,12 @@ Selected projects
 If you like, share interesting things you are doing with python-chess, for example:
 
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info                                                              |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info/                                                             |
 |     :height: 64                                                                                      |                                                                                         |
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: https://syzygy-tables.info/                                                             | A website to probe Syzygy endgame tablebases                                            |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | https://github.com/clente/chess                                                         |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | `clente/chess <https://github.com/clente/chess>`_                                       |
 |     :height: 64                                                                                      |                                                                                         |
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: https://github.com/clente/chess                                                         | Oppinionated wrapper to use python-chess from the R programming language                |
@@ -320,12 +320,12 @@ If you like, share interesting things you are doing with python-chess, for examp
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: https://crazyara.org/                                                                   | Deep learning for Crazyhouse                                                            |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/jcchess.png?raw=true      | http://johncheetham.com/projects/jcchess/                                               |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/jcchess.png?raw=true      | `http://johncheetham.com <http://johncheetham.com/projects/jcchess/>`_                  |
 |     :height: 64                                                                                      |                                                                                         |
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: http://johncheetham.com/projects/jcchess/                                               | A GUI to play against UCI chess engines                                                 |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | https://www.pettingzoo.ml/classic/chess                                                 |
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | `https://www.pettingzoo.ml <https://www.pettingzoo.ml/classic/chess>`_                  |
 |     :width: 64                                                                                       |                                                                                         |
 |     :height: 64                                                                                      |                                                                                         |
 |     :target: https://www.pettingzoo.ml/classic/chess                                                 | A multi-agent reinforcement learning environment                                        |
