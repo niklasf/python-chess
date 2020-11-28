@@ -385,7 +385,8 @@ class PlayResult:
     info: InfoDict
     """
     A dictionary of extra :class:`information <chess.engine.InfoDict>`
-    sent by the engine.
+    sent by the engine, if selected with the *info* argument of
+    :func:`~chess.engine.Protocol.play()`.
     """
 
     draw_offered: bool
