@@ -47,6 +47,10 @@ Changes:
   installs the package from the new location as a dependency (as recommended by
   `PEP423 <https://www.python.org/dev/peps/pep-0423/#how-to-rename-a-project>`_).
 
+  ``ModuleNotFoundError: No module named 'chess'`` after upgrading from
+  previous versions? Run ``pip install --force-reinstall chess``
+  (due to https://github.com/niklasf/python-chess/issues/680).
+
 New in v1.2.0
 -------------
 
