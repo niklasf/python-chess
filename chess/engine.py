@@ -347,7 +347,7 @@ try:
         (``1`` for the mainline).
 
         Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
-        ``cpuload``, ``refutation``, ``currline``, ``ebf``,
+        ``cpuload``, ``refutation``, ``currline``, ``ebf`` (effective branching factor),
         ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
         """
         score: PovScore
