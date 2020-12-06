@@ -83,7 +83,6 @@ setuptools.setup(
     long_description=read_description(),
     long_description_content_type="text/x-rst",
     license="GPL-3.0+",
-    license_file="LICENSE.txt",
     keywords="chess fen epd pgn polyglot syzygy gaviota uci xboard",
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
