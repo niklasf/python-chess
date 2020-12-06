@@ -310,6 +310,11 @@ If you like, share interesting things you are doing with python-chess, for examp
 |     :width: 64                                                                                       |                                                                                         |
 |     :target: https://syzygy-tables.info/                                                             | A website to probe Syzygy endgame tablebases                                            |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/maia.png?raw=true         | https://maiachess.com/                                                                  |
+|     :height: 64                                                                                      |                                                                                         |
+|     :width: 64                                                                                       |                                                                                         |
+|     :target: https://maiachess.com/                                                                  | A human-like neural network chess engine                                                |
++------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | `clente/chess <https://github.com/clente/chess>`_                                       |
 |     :height: 64                                                                                      |                                                                                         |
 |     :width: 64                                                                                       |                                                                                         |
