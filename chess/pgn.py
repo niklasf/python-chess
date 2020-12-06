@@ -1523,12 +1523,14 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         # Initial position.
         fen = headers.get("FEN", VariantBoard.starting_fen)
         try:
-            board_stack = [VariantBoard(fen, chess960=headers.is_chess960())]
+            board = VariantBoard(fen, chess960=headers.is_chess960())
         except ValueError as error:
             visitor.handle_error(error)
             skipping_game = True
         else:
-            visitor.visit_board(board_stack[0])
+            board.chess960 = board.chess960 or board.has_chess960_castling_rights()
+            board_stack = [board]
+            visitor.visit_board(board)
 
     # Fast path: Skip entire game.
     if skipping_game:

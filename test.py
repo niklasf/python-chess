@@ -3915,6 +3915,18 @@ class AtomicTestCase(unittest.TestCase):
         board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 w - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
+    def test_atomic960(self):
+        pgn = io.StringIO(textwrap.dedent("""\
+            [Variant "Atomic"]
+            [FEN "rkrbbnnq/pppppppp/8/8/8/8/PPPPPPPP/RKRBBNNQ w KQkq - 0 1"]
+
+            1. g3 d5 2. Nf3 e5 3. Ng5 Bxg5 4. Qf3 Ne6 5. Qa3 a5 6. d4 g6 7. c3 h5 8. h4 Qh6 9. Bd2 Qxd2 10. O-O-O *
+            """))
+        game = chess.pgn.read_game(pgn)
+        self.assertTrue(game.board().chess960)
+        self.assertEqual(game.end().parent.board().fen(), "rkr1b1n1/1pp2p2/4n1p1/p2pp2p/3P3P/Q1P3P1/PP2PP2/RK3N2 w Qkq - 0 10")
+        self.assertEqual(game.end().board().fen(), "rkr1b1n1/1pp2p2/4n1p1/p2pp2p/3P3P/Q1P3P1/PP2PP2/2KR1N2 b kq - 1 10")
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
