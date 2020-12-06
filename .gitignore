@@ -10,7 +10,7 @@ nosetests.xml
 
 dist/
 build/
-python_chess.egg-info/
+*.egg-info/
 docs/_build/
 
 data/gaviota/*.gtb.cp4

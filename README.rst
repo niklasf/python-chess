@@ -302,7 +302,7 @@ Features
 Selected projects
 -----------------
 
-If you like, share interesting things you are doing with python-chess, for example:
+If you like, share interesting things you are using python-chess for, for example:
 
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info/                                                             |
