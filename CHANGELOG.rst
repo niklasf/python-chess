@@ -7,7 +7,7 @@ New in v1.3.1
 Bugfixes:
 
 * ``chess.pgn.read_game()`` now properly detects variant games with Chess960
-  castling rights (as well as mislabeled Standard Chess960 games). Previously
+  castling rights (as well as mislabeled Standard Chess960 games). Previously,
   all castling moves in such games were rejected.
 
 New in v1.3.0
