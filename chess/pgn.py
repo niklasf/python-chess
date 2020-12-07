@@ -1655,7 +1655,8 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
 def read_headers(handle: TextIO) -> Optional[Headers]:
     """
-    Reads game headers from a PGN file opened in text mode.
+    Reads game headers from a PGN file opened in text mode. Skips the rest of
+    the game.
 
     Since actually parsing many games from a big file is relatively expensive,
     this is a better way to look only for specific games and then seek and
