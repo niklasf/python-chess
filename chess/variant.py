@@ -867,7 +867,10 @@ VARIANTS: List[Type[chess.Board]] = [
 
 
 def find_variant(name: str) -> Type[chess.Board]:
-    """Looks for a variant board class by variant name."""
+    """
+    Looks for a variant board class by variant name. Supports many common
+    aliases.
+    """
     for variant in VARIANTS:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
