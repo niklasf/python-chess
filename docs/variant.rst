@@ -15,10 +15,6 @@ python-chess supports several chess variants.
 >>> type(board).starting_fen
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 
-See :func:`chess.Board.is_variant_end()`, :func:`~chess.Board.is_variant_win()`,
-:func:`~chess.Board.is_variant_draw()`, or :func:`~chess.Board.is_variant_loss()`
-for special variant end conditions and results.
-
 ================ ========================================= ============= ============
 Variant          Board class                               UCI/XBoard    Syzygy
 ================ ========================================= ============= ============
@@ -35,6 +31,20 @@ Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
 ================ ========================================= ============= ============
 
 .. autofunction:: chess.variant.find_variant
+
+Game end
+--------
+
+See :func:`chess.Board.is_variant_end()`, :func:`~chess.Board.is_variant_win()`,
+:func:`~chess.Board.is_variant_draw()`,
+or :func:`~chess.Board.is_variant_loss()` for special variant end conditions
+and results.
+
+Note that if all of them return ``False``, the game may still be over and
+decided by standard conditions like :func:`~chess.Board.is_checkmate()`,
+:func:`~chess.Board.is_stalemate()`,
+:func:`~chess.Board.is_insufficient_material()`, move counters, repetitions,
+and legitimate claims.
 
 Chess960
 --------
