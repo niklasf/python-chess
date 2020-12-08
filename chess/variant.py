@@ -320,6 +320,7 @@ class AtomicBoard(chess.Board):
             status &= ~chess.STATUS_NO_BLACK_KING
         if chess.popcount(self.checkers_mask()) <= 14:
             status &= ~chess.STATUS_TOO_MANY_CHECKERS
+        status &= ~chess.STATUS_IMPOSSIBLE_CHECK
         return status
 
 

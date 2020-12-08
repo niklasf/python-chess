@@ -84,22 +84,24 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 class Status(enum.IntFlag):
     VALID = 0
-    NO_WHITE_KING = 1
-    NO_BLACK_KING = 2
-    TOO_MANY_KINGS = 4
-    TOO_MANY_WHITE_PAWNS = 8
-    TOO_MANY_BLACK_PAWNS = 16
-    PAWNS_ON_BACKRANK = 32
-    TOO_MANY_WHITE_PIECES = 64
-    TOO_MANY_BLACK_PIECES = 128
-    BAD_CASTLING_RIGHTS = 256
-    INVALID_EP_SQUARE = 512
-    OPPOSITE_CHECK = 1024
-    EMPTY = 2048
-    RACE_CHECK = 4096
-    RACE_OVER = 8192
-    RACE_MATERIAL = 16384
-    TOO_MANY_CHECKERS = 32768
+    NO_WHITE_KING = 1 << 0
+    NO_BLACK_KING = 1 << 1
+    TOO_MANY_KINGS = 1 << 2
+    TOO_MANY_WHITE_PAWNS = 1 << 3
+    TOO_MANY_BLACK_PAWNS = 1 << 4
+    PAWNS_ON_BACKRANK = 1 << 5
+    TOO_MANY_WHITE_PIECES = 1 << 6
+    TOO_MANY_BLACK_PIECES = 1 << 7
+    BAD_CASTLING_RIGHTS = 1 << 8
+    INVALID_EP_SQUARE = 1 << 9
+    OPPOSITE_CHECK = 1 << 10
+    EMPTY = 1 << 11
+    RACE_CHECK = 1 << 12
+    RACE_OVER = 1 << 13
+    RACE_MATERIAL = 1 << 14
+    TOO_MANY_CHECKERS = 1 << 15
+    IMPOSSIBLE_CHECK = 1 << 16
+
 
 STATUS_VALID = Status.VALID
 STATUS_NO_WHITE_KING = Status.NO_WHITE_KING
@@ -118,6 +120,7 @@ STATUS_RACE_CHECK = Status.RACE_CHECK
 STATUS_RACE_OVER = Status.RACE_OVER
 STATUS_RACE_MATERIAL = Status.RACE_MATERIAL
 STATUS_TOO_MANY_CHECKERS = Status.TOO_MANY_CHECKERS
+STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
 
 
 Square = int
@@ -3275,7 +3278,8 @@ class Board(BaseBoard):
         :data:`~chess.STATUS_RACE_CHECK`,
         :data:`~chess.STATUS_RACE_OVER`,
         :data:`~chess.STATUS_RACE_MATERIAL`,
-        :data:`~chess.STATUS_TOO_MANY_CHECKERS`.
+        :data:`~chess.STATUS_TOO_MANY_CHECKERS`,
+        :data:`~chess.STATUS_IMPOSSIBLE_CHECK`.
         """
         errors = STATUS_VALID
 
@@ -3320,8 +3324,11 @@ class Board(BaseBoard):
             errors |= STATUS_OPPOSITE_CHECK
 
         # More than the maximum number of possible checkers in the variant.
-        if popcount(self.checkers_mask()) > 2:
+        checkers = self.checkers_mask()
+        if popcount(checkers) > 2:
             errors |= STATUS_TOO_MANY_CHECKERS
+        elif popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & self.kings & ~self.promoted:
+            errors |= STATUS_IMPOSSIBLE_CHECK
 
         return errors
 

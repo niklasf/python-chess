@@ -990,6 +990,14 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("4k3/5P2/3N4/8/8/8/4R3/4K3 b - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_TOO_MANY_CHECKERS)
 
+        # Impossible checker alignment.
+        board = chess.Board("3R4/8/q4k2/2B5/1NK5/3b4/8/8 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+        board = chess.Board("2Nq4/2K5/1b6/8/7R/3k4/7P/8 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+        board = chess.Board("5R2/2P5/8/4k3/8/3rK2r/8/8 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+
     def test_one_king_movegen(self):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
