@@ -1,6 +1,17 @@
 Changelog for python-chess
 ==========================
 
+New in v1.3.2
+-------------
+
+Bugfixes:
+
+* Added a new reason for ``board.status()`` to be invalid:
+  ``chess.STATUS_IMPOSSIBLE_CHECK``. This detects positions where two sliding
+  pieces are giving check while also being aligned with the king
+  on the same rank, file, or diagonal. Such positions are impossible to reach,
+  break Stockfish, and maybe other engines.
+
 New in v1.3.1
 -------------
 
