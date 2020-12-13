@@ -3734,12 +3734,18 @@ class SvgTestCase(unittest.TestCase):
 
     def test_svg_arrows(self):
         svg = chess.svg.board(arrows=[(chess.A1, chess.A1)])
-        self.assertIn("<circle", svg)
-        self.assertNotIn("<line", svg)
+        parsed_svg = chess.svg.ET.fromstring(svg)
+        ns = {"svg": "http://www.w3.org/2000/svg"}
+
+        self.assertIsNotNone(parsed_svg.find("./svg:circle", ns))
+        self.assertIsNone(parsed_svg.find("./*[@class='arrow']", ns))
 
         svg = chess.svg.board(arrows=[chess.svg.Arrow(chess.A1, chess.H8)])
-        self.assertNotIn("<circle", svg)
-        self.assertIn("<line", svg)
+        parsed_svg = chess.svg.ET.fromstring(svg)
+
+        self.assertIsNone(parsed_svg.find("./svg:circle", ns))
+
+        self.assertIsNotNone(parsed_svg.find("./svg:polygon[@class='arrow']", ns))
 
     def test_svg_piece(self):
         svg = chess.svg.piece(chess.Piece.from_symbol("K"))
