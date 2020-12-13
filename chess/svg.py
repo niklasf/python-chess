@@ -539,6 +539,9 @@ def __render_arrow(arrow, svg, colors, margin, orientation):
                 tail_rank - head_rank,
             )
         )
+        if not orientation:
+            # flip this angle if the board is flipped
+            angle = angle - 180
         svg_transform = "rotate({},{},{})".format(angle, xtail, ytail)
 
         lwo = 0.1 * SQUARE_SIZE  # line width offset
