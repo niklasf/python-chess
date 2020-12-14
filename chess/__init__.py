@@ -435,7 +435,7 @@ class Piece:
         return UNICODE_PIECE_SYMBOLS[symbol]
 
     def __hash__(self) -> int:
-        return hash(self.piece_type * (self.color + 1))
+        return (self.piece_type - 1) * 2 + self.color
 
     def __repr__(self) -> str:
         return f"Piece.from_symbol({self.symbol()!r})"
