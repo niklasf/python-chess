@@ -43,7 +43,7 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf12"]
+    _WdlModel = Literal["sf12", "lichess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -557,8 +557,10 @@ class Score(abc.ABC):
         >>> Cp(500).wdl().expectation() - Cp(300).wdl().expectation()  # doctest: +ELLIPSIS
         0.015...
 
-        :param model: Currently, the only implemented model is ``sf12``, the
-            win rate model used by Stockfish 12.
+        :param model:
+            * ``sf12``, the WDL model used by Stockfish 12.
+            * ``lichess``, the win rate model used by Lichess.
+              Does not use *ply*, and does not consider drawing chances.
         :param ply: The number of half-moves played since the starting
             position. Models may scale scores slightly differently based on
             this. Defaults to middle game.
@@ -617,6 +619,18 @@ class Score(abc.ABC):
             return NotImplemented
 
 
+def _sf12_wins(cp: int, *, ply: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_12/src/uci.cpp#L198-L218
+    m = min(240, max(ply, 0)) / 64
+    a = (((-8.24404295 * m + 64.23892342) * m + -95.73056462) * m) + 153.86478679
+    b = (((-3.37154371 * m + 28.44489198) * m + -56.67657741) * m) + 72.05858751
+    x = min(1000, max(cp, -1000))
+    return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
+def _lichess_winning_chance(cp: int) -> int:
+    return 1 / (1 + math.exp(-0.004 * cp))
+
+
 class Cp(Score):
     """Centi-pawn score."""
 
@@ -630,18 +644,14 @@ class Cp(Score):
         return self.cp
 
     def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
-        wins = self._sf12_wins(ply=ply)
-        losses = (-self)._sf12_wins(ply=ply)
+        if model == "lichess":
+            wins = round(1000 * _lichess_winning_chance(self.cp))
+            losses = 1000 - wins
+        else:
+            wins = _sf12_wins(self.cp, ply=ply)
+            losses = _sf12_wins(-self.cp, ply=ply)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
-
-    def _sf12_wins(self, *, ply: int) -> int:
-        # https://github.com/official-stockfish/Stockfish/blob/sf_12/src/uci.cpp#L198-L218
-        m = min(240, max(ply, 0)) / 64
-        a = (((-8.24404295 * m + 64.23892342) * m + -95.73056462) * m) + 153.86478679
-        b = (((-3.37154371 * m + 28.44489198) * m + -56.67657741) * m) + 72.05858751
-        x = min(1000, max(self.cp, -1000))
-        return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
 
     def __str__(self) -> str:
         return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
@@ -681,7 +691,11 @@ class Mate(Score):
             return -mate_score - self.moves
 
     def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
-        return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
+        if model == "lichess":
+            cp = (21 - min(10, abs(self.moves))) * 100
+            return Cp(cp if self.moves > 0 else -cp).wdl(model="lichess")
+        else:
+            return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
 
     def __str__(self) -> str:
         return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
