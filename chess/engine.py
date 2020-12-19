@@ -627,8 +627,8 @@ def _sf12_wins(cp: int, *, ply: int) -> int:
     x = min(1000, max(cp, -1000))
     return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
 
-def _lichess_raw_winning_chance(cp: int) -> int:
-    return 1 / (1 + math.exp(-0.004 * cp))
+def _lichess_raw_wins(cp: int) -> int:
+    return round(1000 / (1 + math.exp(-0.004 * cp)))
 
 
 class Cp(Score):
@@ -645,7 +645,7 @@ class Cp(Score):
 
     def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
         if model == "lichess":
-            wins = round(1000 * _lichess_raw_winning_chance(max(-1000, min(self.cp, 1000))))
+            wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
         else:
             wins = _sf12_wins(self.cp, ply=ply)
@@ -693,7 +693,7 @@ class Mate(Score):
     def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
         if model == "lichess":
             cp = (21 - min(10, abs(self.moves))) * 100
-            wins = round(1000 * _lichess_raw_winning_chance(cp))
+            wins = _lichess_raw_wins(cp)
             return Wdl(wins, 0, 1000 - wins) if self.moves > 0 else Wdl(1000 - wins, 0, wins)
         else:
             return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
