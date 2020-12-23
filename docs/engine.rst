@@ -210,7 +210,7 @@ Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
     import chess.engine
 
     async def main() -> None:
-        transport, protocol = await chess.engine.popen_uci("/usr/bin/stockfish")
+        transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
 
         # Check available options.
         print(engine.options["Hash"])
