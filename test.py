@@ -1003,6 +1003,8 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
         board = chess.Board("5R2/2P5/8/4k3/8/3rK2r/8/8 w - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+        board = chess.Board("8/8/8/1k6/3Pp3/8/8/4KQ2 b - d3 0 1")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
 
     def test_one_king_movegen(self):
         board = chess.Board.empty()

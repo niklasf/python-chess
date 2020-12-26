@@ -3316,7 +3316,8 @@ class Board(BaseBoard):
             errors |= STATUS_BAD_CASTLING_RIGHTS
 
         # En passant.
-        if self.ep_square != self._valid_ep_square():
+        valid_ep_square = self._valid_ep_square()
+        if self.ep_square != valid_ep_square:
             errors |= STATUS_INVALID_EP_SQUARE
 
         # Side to move giving check.
@@ -3328,6 +3329,8 @@ class Board(BaseBoard):
         if popcount(checkers) > 2:
             errors |= STATUS_TOO_MANY_CHECKERS
         elif popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & self.kings & ~self.promoted:
+            errors |= STATUS_IMPOSSIBLE_CHECK
+        elif valid_ep_square is not None and any(ray(checker, valid_ep_square) & self.kings & ~self.promoted for checker in scan_reversed(checkers)):
             errors |= STATUS_IMPOSSIBLE_CHECK
 
         return errors
