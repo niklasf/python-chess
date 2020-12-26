@@ -3326,11 +3326,12 @@ class Board(BaseBoard):
 
         # More than the maximum number of possible checkers in the variant.
         checkers = self.checkers_mask()
+        our_kings = self.kings & self.occupied_co[self.turn] & ~self.promoted
         if popcount(checkers) > 2:
             errors |= STATUS_TOO_MANY_CHECKERS
-        elif popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & self.kings & ~self.promoted:
+        elif popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & our_kings:
             errors |= STATUS_IMPOSSIBLE_CHECK
-        elif valid_ep_square is not None and any(ray(checker, valid_ep_square) & self.kings & ~self.promoted for checker in scan_reversed(checkers)):
+        elif valid_ep_square is not None and any(ray(checker, valid_ep_square) & our_kings for checker in scan_reversed(checkers)):
             errors |= STATUS_IMPOSSIBLE_CHECK
 
         return errors

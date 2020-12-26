@@ -1006,6 +1006,10 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/8/8/1k6/3Pp3/8/8/4KQ2 b - d3 0 1")
         self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
 
+        # Checkers aligned with opponent king are fine.
+        board = chess.Board("8/8/5k2/p1q5/PP1rp1P1/3P1N2/2RK1r2/5nN1 w - - 0 3")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
     def test_one_king_movegen(self):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
