@@ -1,6 +1,25 @@
 Changelog for python-chess
 ==========================
 
+New in v1.3.3
+-------------
+
+Bugfixes:
+
+* Fixed unintended collisions and optimized ``chess.Piece.__hash__()``.
+* Fixed false-positive ``chess.STATUS_IMPOSSIBLE_CHECK`` if checkers are
+  aligned with other king.
+
+Changes:
+
+* Also detect ``chess.STATUS_IMPOSSIBLE_CHECK`` if checker is aligned with
+  en passant square and king.
+
+New features:
+
+* Implemented Lichess winning chance model for ``chess.engine.Score``:
+  ``score.wdl(model="lichess")``.
+
 New in v1.3.2
 -------------
 
