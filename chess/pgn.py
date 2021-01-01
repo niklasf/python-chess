@@ -126,7 +126,9 @@ EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
         \#([+-]?\d+)
         |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
-    )\]
+    )(?:
+        ,(\d+)
+    )?\]
     """, re.VERBOSE)
 
 ARROWS_REGEX = re.compile(r"""
@@ -409,18 +411,27 @@ class GameNode(abc.ABC):
 
         return chess.engine.PovScore(score if turn else -score, turn)
 
-    def set_eval(self, score: Optional[chess.engine.PovScore]) -> None:
+    def eval_depth(self) -> Optional[int]:
+        """
+        Parses the first valid ``[%eval ...]`` annotation in the comment of
+        this node and returns the corresponding depth, if any.
+        """
+        match = EVAL_REGEX.search(self.comment)
+        return int(match.group(3)) if match and match.group(3) else None
+
+    def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
         """
         Replaces the first valid ``[%eval ...]`` annotation in the comment of
         this node or adds a new one.
         """
         eval = ""
         if score is not None:
+            depth_suffix = "" if depth is None else f",{max(depth, 0):d}"
             cp = score.white().score()
             if cp is not None:
-                eval = f"[%eval {float(cp) / 100:.2f}]"
+                eval = f"[%eval {float(cp) / 100:.2f}{depth_suffix}]"
             elif score.white().mate():
-                eval = f"[%eval #{score.white().mate()}]"
+                eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
 
         self.comment, found = EVAL_REGEX.subn(eval, self.comment, count=1)
 
