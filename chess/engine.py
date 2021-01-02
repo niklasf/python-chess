@@ -988,11 +988,15 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             line_bytes, self.buffer[fd] = self.buffer[fd].split(b"\n", 1)
             if line_bytes.endswith(b"\r"):
                 line_bytes = line_bytes[:-1]
-            line = line_bytes.decode("utf-8")
-            if fd == 1:
-                self.loop.call_soon(self._line_received, line)
+            try:
+                line = line_bytes.decode("utf-8")
+            except UnicodeDecodeError as err:
+                LOGGER.warning("%s: >> %r (%s)", self, bytes(line_bytes), err)
             else:
-                self.loop.call_soon(self.error_line_received, line)
+                if fd == 1:
+                    self.loop.call_soon(self._line_received, line)
+                else:
+                    self.loop.call_soon(self.error_line_received, line)
 
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
