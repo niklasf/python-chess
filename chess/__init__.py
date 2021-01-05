@@ -15,9 +15,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """
-A pure Python chess library with move generation and validation, Polyglot
-opening book probing, PGN reading and writing, Gaviota tablebase probing,
-Syzygy tablebase probing and XBoard/UCI engine communication.
+A chess library with move generation and validation,
+Polyglot opening book probing, PGN reading and writing,
+Gaviota tablebase probing,
+Syzygy tablebase probing, and XBoard/UCI engine communication.
 """
 
 from __future__ import annotations

@@ -1,5 +1,5 @@
-python-chess: a pure Python chess library
-=========================================
+python-chess: a chess library for Python
+========================================
 
 .. image:: https://github.com/niklasf/python-chess/workflows/Test/badge.svg
     :target: https://github.com/niklasf/python-chess/actions
@@ -20,8 +20,8 @@ python-chess: a pure Python chess library
 Introduction
 ------------
 
-python-chess is a pure Python chess library with move generation, move
-validation and support for common formats. This is the Scholar's mate in
+python-chess is a chess library for Python, with move generation,
+move validation, and support for common formats. This is the Scholar's mate in
 python-chess:
 
 .. code:: python
