@@ -37,7 +37,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "python-chess"
-copyright = "2014–2020, Niklas Fiekas"
+copyright = "2014–2021, Niklas Fiekas"
 
 # The version.
 version = chess.__version__
