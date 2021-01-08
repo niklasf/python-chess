@@ -936,7 +936,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Future: Exit code of the process."""
 
     def __init__(self: ProtocolT) -> None:
-        self.loop = asyncio.events.get_running_loop()
+        self.loop = asyncio.get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
 
         self.buffer = {
@@ -1195,7 +1195,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["preexec_fn"] = os.setpgrp
         popen_args.update(kwargs)
 
-        return await asyncio.events.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
+        return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
 
 class CommandState(enum.Enum):
