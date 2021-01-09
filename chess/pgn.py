@@ -120,7 +120,7 @@ MOVETEXT_REGEX = re.compile(r"""
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
-CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+)\]""")
+CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+(?:\.\d*)?)\]""")
 
 EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
@@ -492,7 +492,7 @@ class GameNode(abc.ABC):
         match = CLOCK_REGEX.search(self.comment)
         if match is None:
             return None
-        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + int(match.group(3))
+        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + float(match.group(3))
 
     def set_clock(self, seconds: Optional[float]) -> None:
         """
@@ -501,11 +501,12 @@ class GameNode(abc.ABC):
         """
         clk = ""
         if seconds is not None:
-            seconds = max(0, round(seconds))
-            hours = seconds // 3600
-            minutes = seconds % 3600 // 60
+            seconds = max(0, seconds)
+            hours = int(seconds // 3600)
+            minutes = int(seconds % 3600 // 60)
             seconds = seconds % 3600 % 60
-            clk = f"[%clk {hours:d}:{minutes:02d}:{seconds:02d}]"
+            seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
+            clk = f"[%clk {hours:d}:{minutes:02d}:{seconds_part}]"
 
         self.comment, found = CLOCK_REGEX.subn(clk, self.comment, count=1)
 

@@ -2740,11 +2740,18 @@ class PgnTestCase(unittest.TestCase):
         game.set_arrows([])
         self.assertEqual(game.comment, "foo [%bar] baz")
 
-        game.set_clock(1.4)
-        self.assertEqual(game.clock(), 1)  # Rounded
+    def test_float_clk(self):
+        game = chess.pgn.Game()
+        game.comment = "[%clk 0:00:01.234]"
+        self.assertEqual(game.clock(), 1.234)
+
+        game.set_clock(6.54321)
+        self.assertEqual(game.comment, "[%clk 0:00:06.543]")
+        self.assertEqual(game.clock(), 6.543)
 
         game.set_clock(-70)
-        self.assertEqual(game.clock(), 0)  # Clamped
+        self.assertEqual(game.comment, "[%clk 0:00:00]")  # Clamped
+        self.assertEqual(game.clock(), 0)
 
     def test_node_turn(self):
         game = chess.pgn.Game()
