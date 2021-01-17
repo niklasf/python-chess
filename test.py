@@ -1667,6 +1667,14 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.is_irreversible(board.parse_san("Rf1")))
         self.assertFalse(board.is_irreversible(chess.Move.null()))
 
+    def test_king_captures_unmoved_rook(self):
+        board = chess.Board("8/8/8/B2p3Q/2qPp1P1/b7/2P2PkP/4K2R b K - 0 1")
+        move = board.parse_uci("g2h1")
+        self.assertFalse(board.is_castling(move))
+        self.assertEqual(board.san(move), "Kxh1")
+        board.push(move)
+        self.assertEqual(board.fen(), "8/8/8/B2p3Q/2qPp1P1/b7/2P2P1P/4K2k w - - 0 2")
+
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
