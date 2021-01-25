@@ -1,13 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in v1.3.4
-------------------
-
-Bugfixes:
-
-* Recover from invalid UTF-8 sent by an UCI engine, by ignoring that
-  (and only that) line.
+New in v1.4.0
+-------------
 
 New features:
 
@@ -15,8 +10,13 @@ New features:
   ``[%eval 2.5,11]``, meaning 250 centipawns at depth 11.
   Use ``chess.pgn.GameNode.eval_depth()`` and
   ``chess.pgn.GameNode.set_eval(..., depth)`` to get and set the depth.
-* Read and write PGN comments with millisecond precision
+* Read and write PGN comments with millisecond precision like
   ``[%clk 1:23:45.678]``.
+
+Changes:
+
+* Recover from invalid UTF-8 sent by an UCI engine, by ignoring that
+  (and only that) line.
 
 New in v1.3.3
 -------------
