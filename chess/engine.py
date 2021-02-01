@@ -1242,9 +1242,10 @@ class BaseCommand(Generic[ProtocolT, T]):
         self.finished.set_result(None)
 
     def _cancel(self, engine: ProtocolT) -> None:
-        assert self.state == CommandState.Active
-        self.state = CommandState.Cancelling
-        self.cancel(engine)
+        if self.state != CommandState.Cancelling:
+            assert self.state == CommandState.Active
+            self.state = CommandState.Cancelling
+            self.cancel(engine)
 
     def _start(self, engine: ProtocolT) -> None:
         assert self.state == CommandState.New
