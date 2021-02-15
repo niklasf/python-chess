@@ -1915,9 +1915,6 @@ class XBoardProtocol(Protocol):
                 if not engine.features.get("sigterm", 1):
                     LOGGER.warning("%s: Rejecting feature sigterm=0", engine)
                     engine.send_line("rejected sigterm")
-                if engine.features.get("usermove", 0):
-                    LOGGER.warning("%s: Rejecting feature usermove=1", engine)
-                    engine.send_line("rejected usermove")
                 if engine.features.get("san", 0):
                     LOGGER.warning("%s: Rejecting feature san=1", engine)
                     engine.send_line("rejected san")
@@ -2012,7 +2009,8 @@ class XBoardProtocol(Protocol):
         for move in board.move_stack[common_stack_len:]:
             if not move:
                 LOGGER.warning("Null move (in %s) may not be supported by all XBoard engines", self.board.fen())
-            self.send_line(self.board.xboard(move))
+            prefix = "usermove " if self.features.get("usermove", 0) else ""
+            self.send_line(prefix + self.board.xboard(move))
             self.board.push(move)
 
     async def ping(self) -> None:
