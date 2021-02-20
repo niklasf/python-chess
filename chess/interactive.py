@@ -170,7 +170,7 @@ class InteractiveViewer:
                                 """,
                 ),
             )
-            clear_output()
+            clear_output(wait=True)
             display(grid_box)
 
     @property
