@@ -738,9 +738,10 @@ class Game(GameNode):
     def board(self) -> chess.Board:
         return self.headers.board()
 
-    def interactive_viewer(self):
+    # TODO: Consider naming.
+    def interactive_viewer(self) -> Any:
         from chess.interactive import InteractiveViewer
-        return InteractiveViewer(self)
+        return InteractiveViewer(self)  # type: ignore
 
     def ply(self) -> int:
         # Optimization: Parse FEN only for custom starting positions.

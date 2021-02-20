@@ -1,3 +1,6 @@
+# TODO: Fix typing in this file.
+# mypy: ignore-errors
+
 import chess.svg
 
 
