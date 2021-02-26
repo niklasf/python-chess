@@ -739,8 +739,8 @@ class Game(GameNode):
         return self.headers.board()
 
     # TODO: Consider naming.
-    def interactive_viewer(self) -> Any:
-        from chess.interactive import InteractiveViewer
+    def _interactive_viewer(self) -> Any:
+        from chess._interactive import InteractiveViewer
         return InteractiveViewer(self)  # type: ignore
 
     def ply(self) -> int:
