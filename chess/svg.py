@@ -384,13 +384,13 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
                 # Render animated move.
                 if animation:
-                    if square == lastmove.to_square:
-                        dx = int((math.fmod(lastmove.from_square, 8) - math.fmod(lastmove.to_square, 8)) * SQUARE_SIZE)
-                        dy = (math.ceil(lastmove.to_square / 8) - math.ceil(lastmove.from_square / 8)) * SQUARE_SIZE
+                    if lastmove is not None and square == lastmove.to_square:
+                        lmdx = (math.fmod(lastmove.from_square, 8) - math.fmod(lastmove.to_square, 8)) * SQUARE_SIZE
+                        lmdy = (math.ceil(lastmove.to_square / 8) - math.ceil(lastmove.from_square / 8)) * SQUARE_SIZE
                         ET.SubElement(z, "animateMotion", {
                             "dur": f"1s",
                             "repeatCount": f"1",
-                            "path": f"M{dx:d},{dy:d} 0,0",
+                            "path": f"M{lmdx:d},{lmdy:d} 0,0",
                         })
 
         # Render selected squares.
