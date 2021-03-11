@@ -233,7 +233,6 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 def board(board: Optional[chess.BaseBoard] = None, *,
           orientation: Color = chess.WHITE,
           lastmove: Optional[chess.Move] = None,
-          animation: bool = False,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           squares: Optional[IntoSquareSet] = None,
@@ -249,7 +248,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``None`` (the default) for a chessboard without pieces.
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
-    :param animation: Pass ``True`` to animate lastmove.
     :param check: A square to be marked indicating a check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
         ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
@@ -349,24 +347,23 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         }))
 
     # Render check mark.
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    if check is not None:
+        file_index = chess.square_file(check)
+        rank_index = chess.square_rank(check)
 
         x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
-        if square == check:
-            ET.SubElement(svg, "rect", _attrs({
-                "x": x,
-                "y": y,
-                "width": SQUARE_SIZE,
-                "height": SQUARE_SIZE,
-                "class": "check",
-                "fill": "url(#check_gradient)",
-            }))
+        ET.SubElement(svg, "rect", _attrs({
+            "x": x,
+            "y": y,
+            "width": SQUARE_SIZE,
+            "height": SQUARE_SIZE,
+            "class": "check",
+            "fill": "url(#check_gradient)",
+        }))
 
-    # Render pieces.
+    # Render pieces and selected squares.
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
@@ -377,21 +374,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                z = ET.SubElement(svg, "use", {
+                ET.SubElement(svg, "use", {
                     "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
                     "transform": f"translate({x:d}, {y:d})",
                 })
-
-                # Render animated move.
-                if animation:
-                    if lastmove is not None and square == lastmove.to_square:
-                        lmdx = (math.fmod(lastmove.from_square, 8) - math.fmod(lastmove.to_square, 8)) * SQUARE_SIZE
-                        lmdy = (math.ceil(lastmove.to_square / 8) - math.ceil(lastmove.from_square / 8)) * SQUARE_SIZE
-                        ET.SubElement(z, "animateMotion", {
-                            "dur": f"1s",
-                            "repeatCount": f"1",
-                            "path": f"M{lmdx:d},{lmdy:d} 0,0",
-                        })
 
         # Render selected squares.
         if squares is not None and square in squares:
@@ -401,6 +387,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "y": y,
             }))
 
+    # Render arrows.
     for arrow in arrows:
         try:
             tail, head, color = arrow.tail, arrow.head, arrow.color  # type: ignore
