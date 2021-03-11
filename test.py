@@ -3182,6 +3182,31 @@ class EngineTestCase(unittest.TestCase):
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
         self.assertEqual(info["wdl"], (249, 747, 4))
 
+    def test_hiarcs_bestmove(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position fen QN4n1/6r1/3k4/8/b2K4/8/8/8 b - - 0 1")
+            mock.expect("go", [
+                "info depth 1 seldepth 4 time 793 nodes 187 nps 235 score cp -40 pv g7g4 d4c3 string keep double  space",
+                "bestmove g7g4  ponder d4c3 ",
+            ])
+            result = await protocol.play(chess.Board("QN4n1/6r1/3k4/8/b2K4/8/8/8 b - - 0 1"), chess.engine.Limit(), info=chess.engine.INFO_ALL)
+            self.assertEqual(result.move, chess.Move.from_uci("g7g4"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("d4c3"))
+            self.assertEqual(result.info["pv"], [chess.Move.from_uci("g7g4"), chess.Move.from_uci("d4c3")])
+            self.assertEqual(result.info["string"], "keep double  space")
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
     def test_xboard_options(self):
         async def main():
             protocol = chess.engine.XBoardProtocol()

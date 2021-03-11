@@ -1763,12 +1763,12 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
     return info
 
 def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
-    tokens = args.split(None, 2)
+    tokens = args.split()
 
     move = None
     ponder = None
 
-    if tokens[0] not in ["(none)", "NULL"]:
+    if tokens and tokens[0] not in ["(none)", "NULL"]:
         try:
             # AnMon 5.75 uses uppercase letters to denote promotion types.
             move = board.push_uci(tokens[0].lower())
