@@ -233,6 +233,7 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 def board(board: Optional[chess.BaseBoard] = None, *,
           orientation: Color = chess.WHITE,
           lastmove: Optional[chess.Move] = None,
+          animation: bool = False,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           squares: Optional[IntoSquareSet] = None,
@@ -248,6 +249,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``None`` (the default) for a chessboard without pieces.
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
+    :param animation: Pass ``True`` to animate lastmove.
     :param check: A square to be marked indicating a check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
         ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
@@ -299,6 +301,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
 
+    # Render coordinates.
     if coordinates:
         margin_color, margin_opacity = _color(colors, "margin")
         ET.SubElement(svg, "rect", _attrs({
@@ -309,7 +312,17 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "fill": margin_color,
             "opacity": margin_opacity if margin_opacity < 1.0 else None,
         }))
+        coord_color, coord_opacity = _color(colors, "coord")
+        for file_index, file_name in enumerate(chess.FILE_NAMES):
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
+            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
+        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
+            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
+    # Render board.
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
@@ -335,6 +348,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "opacity": fill_opacity if fill_opacity < 1.0 else None,
         }))
 
+    # Render check mark.
+    for square, bb in enumerate(chess.BB_SQUARES):
+        file_index = chess.square_file(square)
+        rank_index = chess.square_rank(square)
+
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+
         if square == check:
             ET.SubElement(svg, "rect", _attrs({
                 "x": x,
@@ -345,14 +366,32 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "fill": "url(#check_gradient)",
             }))
 
-        # Render pieces.
+    # Render pieces.
+    for square, bb in enumerate(chess.BB_SQUARES):
+        file_index = chess.square_file(square)
+        rank_index = chess.square_rank(square)
+
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+
         if board is not None:
             piece = board.piece_at(square)
             if piece:
-                ET.SubElement(svg, "use", {
+                z = ET.SubElement(svg, "use", {
                     "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
                     "transform": f"translate({x:d}, {y:d})",
                 })
+
+                # Render animated move.
+                if animation:
+                    if lastmove is not None and square == lastmove.to_square:
+                        lmdx = (math.fmod(lastmove.from_square, 8) - math.fmod(lastmove.to_square, 8)) * SQUARE_SIZE
+                        lmdy = (math.ceil(lastmove.to_square / 8) - math.ceil(lastmove.from_square / 8)) * SQUARE_SIZE
+                        ET.SubElement(z, "animateMotion", {
+                            "dur": f"1s",
+                            "repeatCount": f"1",
+                            "path": f"M{lmdx:d},{lmdy:d} 0,0",
+                        })
 
         # Render selected squares.
         if squares is not None and square in squares:
@@ -361,17 +400,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "x": x,
                 "y": y,
             }))
-
-    if coordinates:
-        coord_color, coord_opacity = _color(colors, "coord")
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
-            svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-            svg.append(_coord(file_name, x, margin + 8 * SQUARE_SIZE, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
-            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
-            svg.append(_coord(rank_name, margin + 8 * SQUARE_SIZE, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
     for arrow in arrows:
         try:
