@@ -2047,9 +2047,11 @@ class XBoardProtocol(Protocol):
 
                 # Limit or time control.
                 increment = limit.white_inc if board.turn else limit.black_inc
-                if limit.remaining_moves or increment:
+                if limit.time is not None:
+                    engine.send_line(f"st {max(0.01, limit.time)}")
+                else:
                     base_mins, base_secs = divmod(int((limit.white_clock if board.turn else limit.black_clock) or 0), 60)
-                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment}")
+                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
 
                 if limit.nodes is not None:
                     if limit.time is not None or limit.white_clock is not None or limit.black_clock is not None or increment is not None:
@@ -2064,8 +2066,6 @@ class XBoardProtocol(Protocol):
                     engine.send_line(f"st {max(1, int(limit.nodes))}")
                 if limit.depth is not None:
                     engine.send_line(f"sd {max(1, int(limit.depth))}")
-                if limit.time is not None:
-                    engine.send_line(f"st {max(0.01, limit.time)}")
                 if limit.white_clock is not None:
                     engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, int(limit.white_clock * 100))))
                 if limit.black_clock is not None:
