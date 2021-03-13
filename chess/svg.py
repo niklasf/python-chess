@@ -233,6 +233,7 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
 def board(board: Optional[chess.BaseBoard] = None, *,
           orientation: Color = chess.WHITE,
           lastmove: Optional[chess.Move] = None,
+          animation: bool = False,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
           squares: Optional[IntoSquareSet] = None,
@@ -248,6 +249,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``None`` (the default) for a chessboard without pieces.
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
+    :param animation: Pass ``True`` to animate lastmove.
     :param check: A square to be marked indicating a check.
     :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
         ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
@@ -372,12 +374,13 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
         if board is not None:
-            piece = board.piece_at(square)
-            if piece:
-                ET.SubElement(svg, "use", {
-                    "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
-                    "transform": f"translate({x:d}, {y:d})",
-                })
+            if not lastmove or lastmove.to_square != square:  # skip the moved piece if lastmove presents.
+                piece = board.piece_at(square)
+                if piece:
+                    ET.SubElement(svg, "use", {
+                        "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
+                        "transform": f"translate({x:d}, {y:d})",
+                    })
 
         # Render selected squares.
         if squares is not None and square in squares:
@@ -386,6 +389,30 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "x": x,
                 "y": y,
             }))
+
+    # Render lastmove and optional animation.
+    if lastmove is not None:
+        file_index = chess.square_file(lastmove.to_square)
+        rank_index = chess.square_rank(lastmove.to_square)
+
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+
+        if board is not None:
+            piece = board.piece_at(lastmove.to_square)
+            if piece:
+                z = ET.SubElement(svg, "use", {
+                    "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
+                    "transform": f"translate({x:d}, {y:d})",
+                })
+                if animation:
+                    lmdx = int((math.fmod(lastmove.from_square, 8) - math.fmod(lastmove.to_square, 8)) * SQUARE_SIZE)
+                    lmdy = int((math.ceil(lastmove.to_square / 8) - math.ceil(lastmove.from_square / 8)) * SQUARE_SIZE)
+                    ET.SubElement(z, "animateMotion", {
+                        "dur": f"1s",
+                        "repeatCount": f"1",
+                        "path": f"M{lmdx:d},{lmdy:d} 0,0",
+                    })
 
     # Render arrows.
     for arrow in arrows:
