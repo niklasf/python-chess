@@ -1304,6 +1304,7 @@ class UciProtocol(Protocol):
         self.game: object = None
         self.first_game = True
         self.ponder_move = None
+        self.ponderhit = False
 
     async def initialize(self) -> None:
         class UciInitializeCommand(BaseCommand[UciProtocol, None]):
@@ -1548,6 +1549,10 @@ class UciProtocol(Protocol):
 
                 engine._configure(options)
 
+                if engine.ponderhit:
+                    engine.ponderhit = False
+                    return
+
                 if engine.first_game or engine.game != game:
                     engine.game = game
                     engine._ucinewgame()
@@ -1600,6 +1605,9 @@ class UciProtocol(Protocol):
 
             def cancel(self, engine: UciProtocol) -> None:
                 if engine.ponder_move and engine.ponder_move == engine.last_move:
+                    engine.ponderhit = True
+                    engine.ponder_move = None
+                    self.end(engine)
                     engine.send_line("ponderhit")
                 else:
                     engine.send_line("stop")
