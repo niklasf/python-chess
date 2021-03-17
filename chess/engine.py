@@ -1395,6 +1395,8 @@ class UciProtocol(Protocol):
     def _ucinewgame(self) -> None:
         self.send_line("ucinewgame")
         self.first_game = False
+        self.ponder_move = None
+        self.ponderhit = False
 
     def debug(self, on: bool = True) -> None:
         """
