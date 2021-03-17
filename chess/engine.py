@@ -1303,6 +1303,7 @@ class UciProtocol(Protocol):
         self.board = chess.Board()
         self.game: object = None
         self.first_game = True
+        self.ponder_move = None
 
     async def initialize(self) -> None:
         class UciInitializeCommand(BaseCommand[UciProtocol, None]):
@@ -1530,6 +1531,8 @@ class UciProtocol(Protocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+        self.last_move = board.move_stack[-1] if board.move_stack else None
+
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
@@ -1581,10 +1584,13 @@ class UciProtocol(Protocol):
 
                     if ponder and best.move and best.ponder:
                         self.pondering = True
+                        engine.ponder_move = best.ponder
                         engine.board.push(best.move)
                         engine.board.push(best.ponder)
                         engine._position(engine.board)
                         engine._go(limit, ponder=True)
+                    else:
+                        engine.ponder_move = None
 
                 if not self.pondering:
                     self.end(engine)
@@ -1593,7 +1599,10 @@ class UciProtocol(Protocol):
                 self.set_finished()
 
             def cancel(self, engine: UciProtocol) -> None:
-                engine.send_line("stop")
+                if engine.ponder_move and engine.ponder_move == engine.last_move:
+                    engine.send_line("ponderhit")
+                else:
+                    engine.send_line("stop")
 
             def engine_terminated(self, engine: UciProtocol, exc: Exception) -> None:
                 # Allow terminating engine while pondering.
