@@ -1581,9 +1581,10 @@ class UciProtocol(Protocol):
 
                     if ponder and best.move and best.ponder:
                         self.pondering = True
-                        engine.board.push(best.move)
-                        engine.board.push(best.ponder)
-                        engine._position(engine.board)
+                        pondering_board = board.copy()
+                        pondering_board.push(best.move)
+                        pondering_board.push(best.ponder)
+                        engine._position(pondering_board)
                         engine._go(limit, ponder=True)
 
                 if not self.pondering:
