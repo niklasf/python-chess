@@ -2050,7 +2050,7 @@ class XBoardProtocol(Protocol):
                 clock = limit.white_clock if board.turn else limit.black_clock
                 increment = limit.white_inc if board.turn else limit.black_inc
                 if limit.remaining_moves or clock is not None or increment is not None:
-                    base_mins, base_secs = divmod(int(clock) or 0, 60)
+                    base_mins, base_secs = divmod(int(clock or 0), 60)
                     engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
 
                 if limit.nodes is not None:
