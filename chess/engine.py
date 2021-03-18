@@ -1553,6 +1553,7 @@ class UciProtocol(Protocol):
 
                 if engine.ponderhit:
                     engine.ponderhit = False
+                    engine.send_line("ponderhit")
                     return
 
                 if engine.first_game or engine.game != game:
@@ -1610,7 +1611,6 @@ class UciProtocol(Protocol):
                     engine.ponderhit = True
                     engine.ponder_move = None
                     self.end(engine)
-                    engine.send_line("ponderhit")
                 else:
                     engine.send_line("stop")
 
