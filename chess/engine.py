@@ -19,6 +19,7 @@ from __future__ import annotations
 import abc
 import asyncio
 import collections
+import copy
 import concurrent.futures
 import contextlib
 import copy
@@ -31,6 +32,7 @@ import shlex
 import subprocess
 import sys
 import threading
+import time
 import typing
 import os
 import re
@@ -1541,6 +1543,7 @@ class UciProtocol(Protocol):
                 self.info: InfoDict = {}
                 self.pondering = False
                 self.sent_isready = False
+                self.start_time = time.perf_counter()
 
                 if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", False)
@@ -1597,7 +1600,22 @@ class UciProtocol(Protocol):
                         pondering_board.push(best.move)
                         pondering_board.push(best.ponder)
                         engine._position(pondering_board)
-                        engine._go(limit, ponder=True)
+
+                        time_used = time.perf_counter() - self.start_time
+                        ponder_limit = copy.copy(limit)
+                        if pondering_board.turn == chess.WHITE:
+                            if limit.white_clock:
+                                ponder_limit.white_clock -= time_used
+                                ponder_limit.white_clock += (limit.white_inc or 0.0)
+                        else:
+                            if limit.black_clock:
+                                ponder_limit.black_clock -= time_used
+                                ponder_limit.black_clock += (limit.black_inc or 0.0)
+
+                        if ponder_limit.remaining_moves:
+                            ponder_limit.remaining_moves -= 1
+
+                        engine._go(ponder_limit, ponder=True)
                     else:
                         engine.ponder_move = None
 
