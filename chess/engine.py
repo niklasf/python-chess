@@ -1603,13 +1603,13 @@ class UciProtocol(Protocol):
                         time_used = time.perf_counter() - self.start_time
                         ponder_limit = copy.copy(limit)
                         if pondering_board.turn == chess.WHITE:
-                            if limit.white_clock:
+                            if ponder_limit.white_clock:
                                 ponder_limit.white_clock -= time_used
-                                ponder_limit.white_clock += (limit.white_inc or 0.0)
+                                ponder_limit.white_clock += (ponder_limit.white_inc or 0.0)
                         else:
-                            if limit.black_clock:
+                            if ponder_limit.black_clock:
                                 ponder_limit.black_clock -= time_used
-                                ponder_limit.black_clock += (limit.black_inc or 0.0)
+                                ponder_limit.black_clock += (ponder_limit.black_inc or 0.0)
 
                         if ponder_limit.remaining_moves:
                             ponder_limit.remaining_moves -= 1
