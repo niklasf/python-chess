@@ -1305,7 +1305,6 @@ class UciProtocol(Protocol):
         self.board = chess.Board()
         self.game: object = None
         self.first_game = True
-        self.ponder_move = None
         self.ponderhit = False
 
     async def initialize(self) -> None:
@@ -1397,7 +1396,6 @@ class UciProtocol(Protocol):
     def _ucinewgame(self) -> None:
         self.send_line("ucinewgame")
         self.first_game = False
-        self.ponder_move = None
         self.ponderhit = False
 
     def debug(self, on: bool = True) -> None:
@@ -1542,6 +1540,7 @@ class UciProtocol(Protocol):
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
                 self.pondering = False
+                self.ponder_move = None
                 self.sent_isready = False
                 self.start_time = time.perf_counter()
 
@@ -1595,7 +1594,7 @@ class UciProtocol(Protocol):
 
                     if ponder and best.move and best.ponder:
                         self.pondering = True
-                        engine.ponder_move = best.ponder
+                        self.ponder_move = best.ponder
                         pondering_board = board.copy()
                         pondering_board.push(best.move)
                         pondering_board.push(best.ponder)
@@ -1617,7 +1616,7 @@ class UciProtocol(Protocol):
 
                         engine._go(ponder_limit, ponder=True)
                     else:
-                        engine.ponder_move = None
+                        self.ponder_move = None
 
                 if not self.pondering:
                     self.end(engine)
@@ -1626,9 +1625,8 @@ class UciProtocol(Protocol):
                 self.set_finished()
 
             def cancel(self, engine: UciProtocol) -> None:
-                if engine.ponder_move and engine.ponder_move == engine.last_move:
+                if self.ponder_move and self.ponder_move == engine.last_move:
                     engine.ponderhit = True
-                    engine.ponder_move = None
                     self.end(engine)
                 else:
                     engine.send_line("stop")
