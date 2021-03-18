@@ -1540,7 +1540,7 @@ class UciProtocol(Protocol):
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
                 self.pondering = False
-                self.ponder_move = None
+                self.ponder_move = chess.Move.null()
                 self.sent_isready = False
                 self.start_time = time.perf_counter()
 
@@ -1616,7 +1616,7 @@ class UciProtocol(Protocol):
 
                         engine._go(ponder_limit, ponder=True)
                     else:
-                        self.ponder_move = None
+                        self.ponder_move = chess.Move.null()
 
                 if not self.pondering:
                     self.end(engine)
