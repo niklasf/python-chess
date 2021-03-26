@@ -1534,7 +1534,7 @@ class UciProtocol(Protocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
-        self.last_move = board.move_stack[-1] if board.move_stack else None
+        self.last_move = board.move_stack[-1] if (ponder and board.move_stack) else chess.Move.null()
 
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def start(self, engine: UciProtocol) -> None:
