@@ -945,8 +945,11 @@ class Mainline(Generic[MainlineMapT]):
             node = node.variations[0]
             yield self.f(node)
 
-    def __reversed__(self) -> ReverseMainline[MainlineMapT]:
-        return ReverseMainline(self.start, self.f)
+    def __reversed__(self) -> Iterator[MainlineMapT]:
+        node = self.start.end()
+        while node.parent and node != self.start:
+            yield self.f(typing.cast(ChildNode, node))
+            node = node.parent
 
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         node = self.start
@@ -962,36 +965,6 @@ class Mainline(Generic[MainlineMapT]):
 
     def __repr__(self) -> str:
         return f"<Mainline at {id(self):#x} ({self.accept(StringExporter(columns=None, comments=False))})>"
-
-
-class ReverseMainline(Generic[MainlineMapT]):
-    def __init__(self, stop: GameNode, f: Callable[[ChildNode], MainlineMapT]) -> None:
-        self.stop = stop
-        self.f = f
-
-        self.length = 0
-        node = stop
-        while node.variations:
-            node = node.variations[0]
-            self.length += 1
-        self.end = node
-
-    def __len__(self) -> int:
-        return self.length
-
-    def __iter__(self) -> Iterator[MainlineMapT]:
-        node = self.end
-        while node.parent and node != self.stop:
-            yield self.f(typing.cast(ChildNode, node))
-            node = node.parent
-
-    def __reversed__(self) -> Mainline[MainlineMapT]:
-        return Mainline(self.stop, self.f)
-
-    def __repr__(self) -> str:
-        return "<ReverseMainline at {:#x} ({})>".format(
-            id(self),
-            " ".join(ReverseMainline(self.stop, lambda node: node.move.uci())))
 
 
 class BaseVisitor(abc.ABC, Generic[ResultT]):

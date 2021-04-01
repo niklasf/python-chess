@@ -2597,7 +2597,6 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(list(game.mainline_moves()), moves)
         self.assertTrue(game.mainline_moves())
         self.assertEqual(list(reversed(game.mainline_moves())), list(reversed(moves)))
-        self.assertEqual(len(reversed(game.mainline_moves())), 3)
         self.assertEqual(str(game.mainline_moves()), "1. d3 Nf6 2. e4")
 
     def test_lan(self):
