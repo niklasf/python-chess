@@ -124,7 +124,7 @@ STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
 
 
 class Termination(enum.Enum):
-    """Reasons for a game to be over."""
+    """Enum with reasons for a game to be over."""
 
     Checkmate = 1
     """See :func:`chess.Board.is_checkmate()`."""
@@ -1880,7 +1880,8 @@ class Board(BaseBoard):
         the :func:`seventyfive-move rule <chess.Board.is_seventyfive_moves()>`,
         :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`,
         or a :func:`variant end condition <chess.Board.is_variant_end()>`.
-        Returns the :class:`chess.Outcome` if the game has ended or ``None``.
+        Returns the :class:`chess.Outcome` if the game has ended, otherwise
+        ``None``.
 
         Alternatively, use :func:`~chess.Board.is_game_over()` if you are not
         interested in who won the game and why.
