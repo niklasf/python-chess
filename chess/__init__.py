@@ -160,7 +160,7 @@ class Outcome:
     winner: Optional[Color]
     """The winning color or ``None`` if drawn."""
 
-    def result(self):
+    def result(self) -> str:
         """Returns ``1-0``, ``0-1`` or ``1/2-1/2``."""
         return "1/2-1/2" if self.winner is None else ("1-0" if self.winner else "0-1")
 
