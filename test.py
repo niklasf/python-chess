@@ -3120,6 +3120,34 @@ class EngineTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
+    def test_uci_play_after_analyse(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+
+            # Ponder.
+            board = chess.Board()
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go depth 20", ["bestmove a2a4 ponder a7a5"])
+            info = await protocol.analyse(board, chess.engine.Limit(depth=20))
+            self.assertEqual(info, {})
+
+            # Play.
+            mock.expect("position startpos")
+            mock.expect("go movetime 3000", ["bestmove a2a4 ponder a7a5"])
+            await protocol.play(board, chess.engine.Limit(time=3))
+
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
     def test_uci_info(self):
         # Info: refutation.
         board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")

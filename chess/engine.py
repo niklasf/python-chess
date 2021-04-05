@@ -1025,14 +1025,11 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         if self.next_command is not None:
             self.next_command.result.cancel()
             self.next_command.finished.cancel()
-            self.next_command._done()
+            self.next_command.set_finished()
 
         self.next_command = command
 
         def previous_command_finished(_: Optional[asyncio.Future[None]]) -> None:
-            if self.command is not None:
-                self.command._done()
-
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
@@ -1242,9 +1239,10 @@ class BaseCommand(Generic[ProtocolT, T]):
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.finished.set_result(None)
+        self.state = CommandState.Done
 
     def _cancel(self, engine: ProtocolT) -> None:
-        if self.state != CommandState.Cancelling:
+        if self.state != CommandState.Cancelling and self.state != CommandState.Done:
             assert self.state == CommandState.Active
             self.state = CommandState.Cancelling
             self.cancel(engine)
@@ -1647,6 +1645,8 @@ class UciProtocol(Protocol):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.sent_isready = False
 
+                if "Ponder" in engine.options:
+                    engine._setoption("Ponder", False)
                 if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", True)
                 if "MultiPV" in engine.options or (multipv and multipv > 1):
