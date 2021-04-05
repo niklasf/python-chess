@@ -3148,6 +3148,90 @@ class EngineTestCase(unittest.TestCase):
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
+    def test_uci_ponderhit(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", [
+                "option name Hash type spin default 16 min 1 max 33554432",
+                "option name Ponder type check default false",
+                "uciok",
+            ])
+            await protocol.initialize()
+
+            # First search.
+            mock.expect("setoption name Ponder value true")
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go movetime 1000", ["bestmove d2d4 ponder g8f6"])
+            mock.expect("position startpos moves d2d4 g8f6")
+            mock.expect("go ponder movetime 1000")
+            board = chess.Board()
+            result = await protocol.play(board, chess.engine.Limit(time=1), ponder=True)
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("g8f6"))
+
+            # Ponderhit.
+            board.push(result.move)
+            board.push(result.ponder)
+            mock.expect("ponderhit", ["bestmove c2c4 ponder e7e6"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6")
+            mock.expect("go ponder movetime 2000")
+            result = await protocol.play(board, chess.engine.Limit(time=2), ponder=True)
+            self.assertEqual(result.move, chess.Move.from_uci("c2c4"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("e7e6"))
+
+            # Ponderhit prevented by changed option.
+            board.push(result.move)
+            board.push(result.ponder)
+            mock.expect("stop", ["bestmove g2g3 ponder f8b4"])
+            mock.expect("setoption name Hash value 32")
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6")
+            mock.expect("go movetime 3000", ["bestmove b1c3 ponder f8b4"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4")
+            mock.expect("go ponder movetime 3000")
+            result = await protocol.play(board, chess.engine.Limit(time=3), ponder=True, options={"Hash": 32})
+            self.assertEqual(result.move, chess.Move.from_uci("b1c3"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("f8b4"))
+
+            # Ponderhit prevented by reverted option.
+            board.push(result.move)
+            board.push(result.ponder)
+            mock.expect("stop", ["bestmove e2e3 ponder e8g8"])
+            mock.expect("setoption name Hash value 16")
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4")
+            mock.expect("go movetime 3000", ["bestmove d1c2 ponder d7d5"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5")
+            mock.expect("go ponder movetime 3000")
+            result = await protocol.play(board, chess.engine.Limit(time=3), ponder=True)
+            self.assertEqual(result.move, chess.Move.from_uci("d1c2"))
+            self.assertEqual(result.ponder, chess.Move.from_uci("d7d5"))
+
+            # Interject analysis.
+            board.push(result.move)
+            board.push(result.ponder)
+            mock.expect("stop", ["bestmove c4d5 ponder e6d5"])
+            mock.expect("setoption name Ponder value false")
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5")
+            mock.expect("go movetime 4000", ["bestmove c4d5 ponder e6d5"])
+            await protocol.analyse(board, chess.engine.Limit(time=4))
+
+            # Interjected analysis prevents ponderhit.
+            mock.expect("setoption name Ponder value true")
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5")
+            mock.expect("go movetime 5000", ["bestmove c4d5 ponder e6d5"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5")
+            mock.expect("go ponder movetime 5000")
+            await protocol.play(board, chess.engine.Limit(time=5), ponder=True)
+
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
     def test_uci_info(self):
         # Info: refutation.
         board = chess.Board("8/8/6k1/8/8/8/1K6/3B4 w - - 0 1")

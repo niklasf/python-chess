@@ -1014,8 +1014,8 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def line_received(self, line: str) -> None:
         pass
 
-    async def communicate(self: ProtocolT, command_factory: Callable[[], BaseCommand[ProtocolT, T]]) -> T:
-        command = command_factory()
+    async def communicate(self: ProtocolT, command_factory: Callable[[ProtocolT], BaseCommand[ProtocolT, T]]) -> T:
+        command = command_factory(self)
 
         if self.returncode.done():
             raise EngineTerminatedError(f"engine process dead (exit code: {self.returncode.result()})")
@@ -1205,7 +1205,7 @@ class CommandState(enum.Enum):
 
 
 class BaseCommand(Generic[ProtocolT, T]):
-    def __init__(self) -> None:
+    def __init__(self, engine: ProtocolT) -> None:
         self.state = CommandState.New
 
         self.result: asyncio.Future[T] = asyncio.Future()
@@ -1256,10 +1256,6 @@ class BaseCommand(Generic[ProtocolT, T]):
         except EngineError as err:
             self._handle_exception(engine, err)
 
-    def _done(self) -> None:
-        assert self.state != CommandState.Done
-        self.state = CommandState.Done
-
     def _line_received(self, engine: ProtocolT, line: str) -> None:
         assert self.state in [CommandState.Active, CommandState.Cancelling]
         try:
@@ -1303,6 +1299,7 @@ class UciProtocol(Protocol):
         self.board = chess.Board()
         self.game: object = None
         self.first_game = True
+        self.may_ponderhit: Optional[chess.Board] = None
         self.ponderhit = False
 
     async def initialize(self) -> None:
@@ -1420,6 +1417,9 @@ class UciProtocol(Protocol):
 
         return await self.communicate(UciPingCommand)
 
+    def _changed_options(self, options: ConfigMapping) -> bool:
+        return any(value is None or value != self.config.get(name) for name, value in collections.ChainMap(options, self.target_config).items())
+
     def _setoption(self, name: str, value: ConfigValue) -> None:
         try:
             value = self.options[name].parse(value)
@@ -1536,12 +1536,24 @@ class UciProtocol(Protocol):
         self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else chess.Move.null()
 
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
+            def __init__(self, engine):
+                super().__init__(engine)
+
+                # May ponderhit only in the same game and with unchanged target
+                # options. The managed options UCI_AnalyseMode, Ponder, and
+                # MultiPV never change between pondering play commands.
+                engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(options) else None
+
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
-                self.pondering = False
-                self.ponder_move = chess.Move.null()
+                self.pondering: Optional[chess.Board] = None
                 self.sent_isready = False
                 self.start_time = time.perf_counter()
+
+                if engine.ponderhit:
+                    engine.ponderhit = False
+                    engine.send_line("ponderhit")
+                    return
 
                 if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", False)
@@ -1551,11 +1563,6 @@ class UciProtocol(Protocol):
                     engine._setoption("MultiPV", engine.options["MultiPV"].default)
 
                 engine._configure(options)
-
-                if engine.ponderhit:
-                    engine.ponderhit = False
-                    engine.send_line("ponderhit")
-                    return
 
                 if engine.first_game or engine.game != game:
                     engine.game = game
@@ -1586,47 +1593,42 @@ class UciProtocol(Protocol):
 
             def _bestmove(self, engine: UciProtocol, arg: str) -> None:
                 if self.pondering:
-                    self.pondering = False
+                    self.pondering = None
                 elif not self.result.cancelled():
                     best = _parse_uci_bestmove(engine.board, arg)
                     self.result.set_result(PlayResult(best.move, best.ponder, self.info))
 
                     if ponder and best.move and best.ponder:
-                        self.pondering = True
-                        self.ponder_move = best.ponder
-                        pondering_board = board.copy()
-                        pondering_board.push(best.move)
-                        pondering_board.push(best.ponder)
-                        engine._position(pondering_board)
+                        self.pondering = board.copy()
+                        self.pondering.push(best.move)
+                        self.pondering.push(best.ponder)
+                        engine._position(self.pondering)
 
+                        # Adjust clocks for pondering.
                         time_used = time.perf_counter() - self.start_time
                         ponder_limit = copy.copy(limit)
-
                         if ponder_limit.white_clock is not None:
                             ponder_limit.white_clock += (ponder_limit.white_inc or 0.0)
-                            if pondering_board.turn == chess.WHITE:
+                            if self.pondering.turn == chess.WHITE:
                                 ponder_limit.white_clock -= time_used
-
                         if ponder_limit.black_clock is not None:
                             ponder_limit.black_clock += (ponder_limit.black_inc or 0.0)
-                            if pondering_board.turn == chess.BLACK:
+                            if self.pondering.turn == chess.BLACK:
                                 ponder_limit.black_clock -= time_used
-
                         if ponder_limit.remaining_moves:
                             ponder_limit.remaining_moves -= 1
 
                         engine._go(ponder_limit, ponder=True)
-                    else:
-                        self.ponder_move = chess.Move.null()
 
                 if not self.pondering:
                     self.end(engine)
 
             def end(self, engine: UciProtocol) -> None:
+                engine.may_ponderhit = None
                 self.set_finished()
 
             def cancel(self, engine: UciProtocol) -> None:
-                if self.ponder_move and self.ponder_move == engine.last_move:
+                if engine.may_ponderhit and self.pondering and engine.may_ponderhit.move_stack == self.pondering.move_stack and engine.may_ponderhit == self.pondering:
                     engine.ponderhit = True
                     self.end(engine)
                 else:
@@ -2701,7 +2703,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
         return future.result()
 
-    def communicate(self, command_factory: Callable[[], BaseCommand[Protocol, T]]) -> T:
+    def communicate(self, command_factory: Callable[[Protocol], BaseCommand[Protocol, T]]) -> T:
         with self._not_shut_down():
             coro = self.protocol.communicate(command_factory)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
