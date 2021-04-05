@@ -123,7 +123,7 @@ STATUS_TOO_MANY_CHECKERS = Status.TOO_MANY_CHECKERS
 STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
 
 
-class GameEnd(enum.Enum):
+class Termination(enum.Enum):
     """Reasons for a game to be over."""
 
     Checkmate = 1
@@ -154,7 +154,7 @@ class Outcome:
     :func:`chess.Board.outcome()`.
     """
 
-    end: GameEnd
+    termination: Termination
     """The reason for the game to have ended."""
 
     winner: Optional[Color]
@@ -1893,32 +1893,32 @@ class Board(BaseBoard):
         """
         # Variant support.
         if self.is_variant_loss():
-            return Outcome(GameEnd.VariantLoss, not self.turn)
+            return Outcome(Termination.VariantLoss, not self.turn)
         if self.is_variant_win():
-            return Outcome(GameEnd.VariantWin, self.turn)
+            return Outcome(Termination.VariantWin, self.turn)
         if self.is_variant_draw():
-            return Outcome(GameEnd.VariantDraw, None)
+            return Outcome(Termination.VariantDraw, None)
 
         # Normal game end.
         if self.is_checkmate():
-            return Outcome(GameEnd.Checkmate, not self.turn)
+            return Outcome(Termination.Checkmate, not self.turn)
         if self.is_insufficient_material():
-            return Outcome(GameEnd.InsufficientMaterial, None)
+            return Outcome(Termination.InsufficientMaterial, None)
         if not any(self.generate_legal_moves()):
-            return Outcome(GameEnd.Stalemate, None)
+            return Outcome(Termination.Stalemate, None)
 
         # Automatic draws.
         if self.is_seventyfive_moves():
-            return Outcome(GameEnd.SeventyfiveMoves, None)
+            return Outcome(Termination.SeventyfiveMoves, None)
         if self.is_fivefold_repetition():
-            return Outcome(GameEnd.FivefoldRepetition, None)
+            return Outcome(Termination.FivefoldRepetition, None)
 
         # Claimable draws.
         if claim_draw:
             if self.can_claim_fifty_moves():
-                return Outcome(GameEnd.FiftyMoves, None)
+                return Outcome(Termination.FiftyMoves, None)
             if self.can_claim_threefold_repetition():
-                return Outcome(GameEnd.ThreefoldRepetition, None)
+                return Outcome(Termination.ThreefoldRepetition, None)
 
         return None
 

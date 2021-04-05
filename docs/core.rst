@@ -118,7 +118,7 @@ Outcome
 .. autoclass:: chess.Outcome
     :members:
 
-.. autoclass:: chess.GameEnd
+.. autoclass:: chess.Termination
     :members:
 
 Square sets
