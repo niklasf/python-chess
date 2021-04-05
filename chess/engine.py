@@ -1536,7 +1536,7 @@ class UciProtocol(Protocol):
         self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else chess.Move.null()
 
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
-            def __init__(self, engine):
+            def __init__(self, engine: UciProtocol):
                 super().__init__(engine)
 
                 # May ponderhit only in the same game and with unchanged target
