@@ -1609,6 +1609,8 @@ class UciProtocol(Protocol):
                 self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
                 self.sent_isready = False
 
+                if "Ponder" in engine.options:
+                    engine._setoption("Ponder", False)
                 if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
                     engine._setoption("UCI_AnalyseMode", True)
                 if "MultiPV" in engine.options or (multipv and multipv > 1):
