@@ -103,7 +103,6 @@ class Status(enum.IntFlag):
     TOO_MANY_CHECKERS = 1 << 15
     IMPOSSIBLE_CHECK = 1 << 16
 
-
 STATUS_VALID = Status.VALID
 STATUS_NO_WHITE_KING = Status.NO_WHITE_KING
 STATUS_NO_BLACK_KING = Status.NO_BLACK_KING
@@ -122,6 +121,48 @@ STATUS_RACE_OVER = Status.RACE_OVER
 STATUS_RACE_MATERIAL = Status.RACE_MATERIAL
 STATUS_TOO_MANY_CHECKERS = Status.TOO_MANY_CHECKERS
 STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
+
+
+class GameEnd(enum.Enum):
+    """Reasons for a game to be over."""
+
+    Checkmate = 1
+    """See :func:`chess.Board.is_checkmate()`."""
+    Stalemate = 2
+    """See :func:`chess.Board.is_stalemate()`."""
+    InsufficientMaterial = 3
+    """See :func:`chess.Board.is_insufficient_material()`."""
+    SeventyfiveMoves = 4
+    """See :func:`chess.Board.is_seventyfive_moves()`."""
+    FivefoldRepetition = 5
+    """See :func:`chess.Board.is_fivefold_repetition()`."""
+    FiftyMoves = 6
+    """See :func:`chess.Board.can_claim_fifty_moves()`."""
+    ThreefoldRepetition = 7
+    """See :func:`chess.Board.can_claim_threefold_repetition()`."""
+    VariantWin = 8
+    """See :func:`chess.Board.is_variant_win()`."""
+    VariantLoss = 9
+    """See :func:`chess.Board.is_variant_loss()`."""
+    VariantDraw = 10
+    """See :func:`chess.Board.is_variant_draw()`."""
+
+@dataclasses.dataclass
+class Outcome:
+    """
+    Information about the outcome of an ended game, usually obtained from
+    :func:`chess.Board.outcome()`.
+    """
+
+    end: GameEnd
+    """The reason for the game to have ended."""
+
+    winner: Optional[Color]
+    """The winning color or ``None`` if drawn."""
+
+    def result(self):
+        """Returns ``1-0``, ``0-1`` or ``1/2-1/2``."""
+        return "1/2-1/2" if self.winner is None else ("1-0" if self.winner else "0-1")
 
 
 Square = int
@@ -1824,14 +1865,25 @@ class Board(BaseBoard):
         return False
 
     def is_game_over(self, *, claim_draw: bool = False) -> bool:
+        return self.outcome(claim_draw=claim_draw) is not None
+
+    def result(self, *, claim_draw: bool = False) -> str:
+        outcome = self.outcome(claim_draw=claim_draw)
+        return outcome.result() if outcome else "*"
+
+    def outcome(self, *, claim_draw: bool = False) -> Optional[Outcome]:
         """
         Checks if the game is over due to
         :func:`checkmate <chess.Board.is_checkmate()>`,
         :func:`stalemate <chess.Board.is_stalemate()>`,
         :func:`insufficient material <chess.Board.is_insufficient_material()>`,
         the :func:`seventyfive-move rule <chess.Board.is_seventyfive_moves()>`,
-        :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`
+        :func:`fivefold repetition <chess.Board.is_fivefold_repetition()>`,
         or a :func:`variant end condition <chess.Board.is_variant_end()>`.
+        Returns the :class:`chess.Outcome` if the game has ended or ``None``.
+
+        Alternatively, use :func:`~chess.Board.is_game_over()` if you are not
+        interested in who won the game and why.
 
         The game is not considered to be over by the
         :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>` or
@@ -1839,63 +1891,36 @@ class Board(BaseBoard):
         unless *claim_draw* is given. Note that checking the latter can be
         slow.
         """
-        # Seventyfive-move rule.
-        if self.is_seventyfive_moves():
-            return True
-
-        # Insufficient material.
-        if self.is_insufficient_material():
-            return True
-
-        # Stalemate or checkmate.
-        if not any(self.generate_legal_moves()):
-            return True
-
-        if claim_draw:
-            # Claim draw, including by threefold repetition.
-            return self.can_claim_draw()
-        else:
-            # Fivefold repetition.
-            return self.is_fivefold_repetition()
-
-    def result(self, *, claim_draw: bool = False) -> str:
-        """
-        Gets the game result.
-
-        ``1-0``, ``0-1`` or ``1/2-1/2`` if the
-        :func:`game is over <chess.Board.is_game_over()>`. Otherwise, the
-        result is undetermined: ``*``.
-        """
-        # Chess variant support.
+        # Variant support.
         if self.is_variant_loss():
-            return "0-1" if self.turn == WHITE else "1-0"
-        elif self.is_variant_win():
-            return "1-0" if self.turn == WHITE else "0-1"
-        elif self.is_variant_draw():
-            return "1/2-1/2"
+            return Outcome(GameEnd.VariantLoss, not self.turn)
+        if self.is_variant_win():
+            return Outcome(GameEnd.VariantWin, self.turn)
+        if self.is_variant_draw():
+            return Outcome(GameEnd.VariantDraw, None)
 
-        # Checkmate.
+        # Normal game end.
         if self.is_checkmate():
-            return "0-1" if self.turn == WHITE else "1-0"
-
-        # Draw claimed.
-        if claim_draw and self.can_claim_draw():
-            return "1/2-1/2"
-
-        # Seventyfive-move rule or fivefold repetition.
-        if self.is_seventyfive_moves() or self.is_fivefold_repetition():
-            return "1/2-1/2"
-
-        # Insufficient material.
+            return Outcome(GameEnd.Checkmate, not self.turn)
         if self.is_insufficient_material():
-            return "1/2-1/2"
-
-        # Stalemate.
+            return Outcome(GameEnd.InsufficientMaterial, None)
         if not any(self.generate_legal_moves()):
-            return "1/2-1/2"
+            return Outcome(GameEnd.Stalemate, None)
 
-        # Undetermined.
-        return "*"
+        # Automatic draws.
+        if self.is_seventyfive_moves():
+            return Outcome(GameEnd.SeventyfiveMoves, None)
+        if self.is_fivefold_repetition():
+            return Outcome(GameEnd.FivefoldRepetition, None)
+
+        # Claimable draws.
+        if claim_draw:
+            if self.can_claim_fifty_moves():
+                return Outcome(GameEnd.FiftyMoves, None)
+            if self.can_claim_threefold_repetition():
+                return Outcome(GameEnd.ThreefoldRepetition, None)
+
+        return None
 
     def is_checkmate(self) -> bool:
         """Checks if the current position is a checkmate."""

@@ -130,8 +130,8 @@ Features
       False
       >>> board.is_insufficient_material()
       False
-      >>> board.is_game_over()
-      True
+      >>> board.outcome()
+      Outcome(end=<GameEnd.Checkmate: 1>, winner=True)
 
 * Detects repetitions. Has a half-move clock.
 

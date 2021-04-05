@@ -112,6 +112,15 @@ Board
 .. autoclass:: chess.BaseBoard
     :members:
 
+Outcome
+-------
+
+.. autoclass:: chess.Outcome
+    :members:
+
+.. autoclass:: chess.GameEnd
+    :members:
+
 Square sets
 -----------
 
