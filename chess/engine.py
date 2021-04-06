@@ -1020,7 +1020,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         if self.returncode.done():
             raise EngineTerminatedError(f"engine process dead (exit code: {self.returncode.result()})")
 
-        assert command.state == CommandState.New
+        assert command.state == CommandState.NEW
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -1198,26 +1198,26 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
 
 class CommandState(enum.Enum):
-    New = 1
-    Active = 2
-    Cancelling = 3
-    Done = 4
+    NEW = enum.auto()
+    ACTIVE = enum.auto()
+    CANCELLING = enum.auto()
+    DONE = enum.auto()
 
 
 class BaseCommand(Generic[ProtocolT, T]):
     def __init__(self, engine: ProtocolT) -> None:
-        self.state = CommandState.New
+        self.state = CommandState.NEW
 
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
 
     def _engine_terminated(self, engine: ProtocolT, code: int) -> None:
         exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
-        if self.state == CommandState.Active:
+        if self.state == CommandState.ACTIVE:
             self.engine_terminated(engine, exc)
-        elif self.state == CommandState.Cancelling:
+        elif self.state == CommandState.CANCELLING:
             self.finished.set_result(None)
-        elif self.state == CommandState.New:
+        elif self.state == CommandState.NEW:
             self._handle_exception(engine, exc)
 
     def _handle_exception(self, engine: ProtocolT, exc: Exception) -> None:
@@ -1235,21 +1235,21 @@ class BaseCommand(Generic[ProtocolT, T]):
             self.finished.set_result(None)
 
     def set_finished(self) -> None:
-        assert self.state in [CommandState.Active, CommandState.Cancelling]
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.finished.set_result(None)
-        self.state = CommandState.Done
+        self.state = CommandState.DONE
 
     def _cancel(self, engine: ProtocolT) -> None:
-        if self.state != CommandState.Cancelling and self.state != CommandState.Done:
-            assert self.state == CommandState.Active
-            self.state = CommandState.Cancelling
+        if self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
+            assert self.state == CommandState.ACTIVE
+            self.state = CommandState.CANCELLING
             self.cancel(engine)
 
     def _start(self, engine: ProtocolT) -> None:
-        assert self.state == CommandState.New
-        self.state = CommandState.Active
+        assert self.state == CommandState.NEW
+        self.state = CommandState.ACTIVE
         try:
             self.check_initialized(engine)
             self.start(engine)
@@ -1257,7 +1257,7 @@ class BaseCommand(Generic[ProtocolT, T]):
             self._handle_exception(engine, err)
 
     def _line_received(self, engine: ProtocolT, line: str) -> None:
-        assert self.state in [CommandState.Active, CommandState.Cancelling]
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
         try:
             self.line_received(engine, line)
         except EngineError as err:
