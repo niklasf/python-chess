@@ -126,25 +126,25 @@ STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
 class Termination(enum.Enum):
     """Enum with reasons for a game to be over."""
 
-    Checkmate = 1
+    CHECKMATE = enum.auto()
     """See :func:`chess.Board.is_checkmate()`."""
-    Stalemate = 2
+    STALEMATE = enum.auto()
     """See :func:`chess.Board.is_stalemate()`."""
-    InsufficientMaterial = 3
+    INSUFFICIENT_MATERIAL = enum.auto()
     """See :func:`chess.Board.is_insufficient_material()`."""
-    SeventyfiveMoves = 4
+    SEVENTYFIVE_MOVES = enum.auto()
     """See :func:`chess.Board.is_seventyfive_moves()`."""
-    FivefoldRepetition = 5
+    FIVEFOLD_REPETITION = enum.auto()
     """See :func:`chess.Board.is_fivefold_repetition()`."""
-    FiftyMoves = 6
+    FIFTY_MOVES = enum.auto()
     """See :func:`chess.Board.can_claim_fifty_moves()`."""
-    ThreefoldRepetition = 7
+    THREEFOLD_REPETITION = enum.auto()
     """See :func:`chess.Board.can_claim_threefold_repetition()`."""
-    VariantWin = 8
+    VARIANT_WIN = enum.auto()
     """See :func:`chess.Board.is_variant_win()`."""
-    VariantLoss = 9
+    VARIANT_LOSS = enum.auto()
     """See :func:`chess.Board.is_variant_loss()`."""
-    VariantDraw = 10
+    VARIANT_DRAW = enum.auto()
     """See :func:`chess.Board.is_variant_draw()`."""
 
 @dataclasses.dataclass
@@ -1894,32 +1894,32 @@ class Board(BaseBoard):
         """
         # Variant support.
         if self.is_variant_loss():
-            return Outcome(Termination.VariantLoss, not self.turn)
+            return Outcome(Termination.VARIANT_LOSS, not self.turn)
         if self.is_variant_win():
-            return Outcome(Termination.VariantWin, self.turn)
+            return Outcome(Termination.VARIANT_WIN, self.turn)
         if self.is_variant_draw():
-            return Outcome(Termination.VariantDraw, None)
+            return Outcome(Termination.VARIANT_DRAW, None)
 
         # Normal game end.
         if self.is_checkmate():
-            return Outcome(Termination.Checkmate, not self.turn)
+            return Outcome(Termination.CHECKMATE, not self.turn)
         if self.is_insufficient_material():
-            return Outcome(Termination.InsufficientMaterial, None)
+            return Outcome(Termination.INSUFFICIENT_MATERIAL, None)
         if not any(self.generate_legal_moves()):
-            return Outcome(Termination.Stalemate, None)
+            return Outcome(Termination.STALEMATE, None)
 
         # Automatic draws.
         if self.is_seventyfive_moves():
-            return Outcome(Termination.SeventyfiveMoves, None)
+            return Outcome(Termination.SEVENTYFIVE_MOVES, None)
         if self.is_fivefold_repetition():
-            return Outcome(Termination.FivefoldRepetition, None)
+            return Outcome(Termination.FIVEFOLD_REPETITION, None)
 
         # Claimable draws.
         if claim_draw:
             if self.can_claim_fifty_moves():
-                return Outcome(Termination.FiftyMoves, None)
+                return Outcome(Termination.FIFTY_MOVES, None)
             if self.can_claim_threefold_repetition():
-                return Outcome(Termination.ThreefoldRepetition, None)
+                return Outcome(Termination.THREEFOLD_REPETITION, None)
 
         return None
 
