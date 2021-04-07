@@ -1,15 +1,15 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in the next release
-----------------------------
+New in v1.5.0
+-------------
 
 Bugfixes:
 
 * Fixed typing of ``chess.pgn.Mainline.__reversed__()``. It is now a generator,
   and ``chess.pgn.ReverseMainline`` has been **removed**.
   This is a breaking change but a required bugfix.
-* Implement **ponderhit** for consecutive pondering calls to
+* Implement UCI **ponderhit** for consecutive calls to
   ``chess.engine.Protocol.play(..., ponder=True)``. Previously, the pondering
   search was always stopped and restarted.
 * Provide the full move stack, not just the position, for UCI pondering.
