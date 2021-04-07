@@ -23,7 +23,7 @@ Bugfixes:
 New features:
 
 * Added ``chess.Board.outcome()``.
-* Implement and accept usermove festure for XBoard engines.
+* Implement and accept usermove feature for XBoard engines.
 
 Special thanks to @MarkZH for many of the engine related changes in this
 release!
