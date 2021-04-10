@@ -661,6 +661,8 @@ class BaseBoard:
             bb = self.queens
         elif piece_type == KING:
             bb = self.kings
+        else:
+            assert False, f"expected PieceType, got {piece_type!r}"
 
         return bb & self.occupied_co[color]
 
