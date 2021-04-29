@@ -2893,7 +2893,7 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_analysis(self):
-        with chess.engine.SimpleEngine.popen_uci("stockfish", debug=True) as engine:
+        with chess.engine.SimpleEngine.popen_uci("stockfish", setpgrp=True, debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
             limit = chess.engine.Limit(depth=26)
             analysis = engine.analysis(board, limit)
@@ -2932,7 +2932,7 @@ class EngineTestCase(unittest.TestCase):
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_quit(self):
-        engine = chess.engine.SimpleEngine.popen_uci("stockfish", debug=True)
+        engine = chess.engine.SimpleEngine.popen_uci("stockfish", setpgrp=True, debug=True)
 
         with engine:
             engine.quit()
@@ -2945,7 +2945,7 @@ class EngineTestCase(unittest.TestCase):
         logging.disable(logging.WARNING)
         try:
             with tempfile.TemporaryDirectory(prefix="crafty") as tmpdir:
-                with chess.engine.SimpleEngine.popen_xboard("crafty", debug=True, cwd=tmpdir) as engine:
+                with chess.engine.SimpleEngine.popen_xboard("crafty", setpgrp=True, debug=True, cwd=tmpdir) as engine:
                     board = chess.Board("2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w KQkq - 0 1")
                     limit = chess.engine.Limit(depth=10)
                     while not board.is_game_over() and len(board.move_stack) < 5:

@@ -1180,19 +1180,17 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: Type[ProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **kwargs: Any) -> Tuple[asyncio.SubprocessTransport, ProtocolT]:
+    async def popen(cls: Type[ProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, ProtocolT]:
         if not isinstance(command, list):
             command = [command]
 
-        popen_args = {}
         if setpgrp:
             try:
                 # Windows.
-                popen_args["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
+                popen_args["creationflags"] = popen_args.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
             except AttributeError:
                 # Unix.
-                popen_args["preexec_fn"] = os.setpgrp
-        popen_args.update(kwargs)
+                popen_args["start_new_session"] = True
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
 
