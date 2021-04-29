@@ -1,7 +1,9 @@
 UCI/XBoard engine communication
 ===============================
 
-UCI and XBoard are protocols for communicating with chess engines. This module
+The `Universal chess interface (UCI) <https://backscattering.de/chess/uci/>`_
+and `XBoard protocol <https://www.gnu.org/software/xboard/engine-intf.html>`_
+are standards for communicating with chess engines. This module
 implements an abstraction for playing moves and analysing positions with
 both kinds of engines.
 
