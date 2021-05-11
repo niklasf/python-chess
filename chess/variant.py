@@ -506,16 +506,13 @@ class HordeBoard(chess.Board):
 
         if horde_num == 0:
             return True
-
         if horde_num >= 4:
             # Four or more white pieces can always deliver mate.
             return False
-
         if (pawns >= 1 or queens >= 1) and horde_num >= 2:
             # Pawns/queens are never insufficient material when paired with any other
             # piece (a pawn promotes to a queen and delivers mate).
             return False
-
         if rooks >= 1 and horde_num >= 2:
             # A rook is insufficient material only when it is paired with a bishop
             # against a lone king. The horde can mate in any other case.
@@ -548,9 +545,9 @@ class HordeBoard(chess.Board):
                 # Promote the pawn to a queen or a knight and check whether
                 # white can mate.
                 pawn_square = chess.SquareSet(self.pawns & white).pop()
-                promote_to_queen = HordeBoard(self.fen())
+                promote_to_queen = self.copy(stack=False)
                 promote_to_queen.set_piece_at(pawn_square, chess.Piece(chess.QUEEN, chess.WHITE))
-                promote_to_knight = HordeBoard(self.fen())
+                promote_to_knight = self.copy(stack=False)
                 promote_to_knight.set_piece_at(pawn_square, chess.Piece(chess.KNIGHT, chess.WHITE))
                 return promote_to_queen.has_insufficient_material(chess.WHITE) and promote_to_knight.has_insufficient_material(chess.WHITE)
             elif rooks == 1:
@@ -603,11 +600,7 @@ class HordeBoard(chess.Board):
                     (pieces_of_type_not(pieces_darkb) >= 3 if pieces_darkb >= 2 else True) and
                     (pieces_of_type_not(pieces_lightb) >= 3 if pieces_lightb >= 2 else True)
                 )
-
-        # By this point, we only need to deal with white's minor pieces.
-
-        elif horde_num == 2:
-
+        elif horde_num == 2:  # By this point, we only need to deal with white's minor pieces.
             if pieces_num == 1:
                 # Two minor pieces cannot mate a lone king.
                 return True
@@ -655,7 +648,6 @@ class HordeBoard(chess.Board):
                     pieces_pawns >= 2
                     # In every other case, white can only draw.
                 )
-
         elif horde_num == 3:
             # A king in the corner is mated by two knights and a bishop or three
             # knights or the bishop pair and a knight/bishop.
