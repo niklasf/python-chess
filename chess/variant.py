@@ -475,7 +475,7 @@ class HordeBoard(chess.Board):
         # squares around the enemy king.
         horde_darkb = chess.popcount(chess.BB_DARK_SQUARES & white & self.bishops)
         horde_lightb = chess.popcount(chess.BB_LIGHT_SQUARES & white & self.bishops)
-        horde_bishop_co = lambda: chess.WHITE if horde_lightb >= 1 else chess.BLACK
+        horde_bishop_co = chess.WHITE if horde_lightb >= 1 else chess.BLACK
         horde_num = (
             pawns + knights + rooks + queens +
             (horde_darkb if horde_darkb <= 2 else 2) +
@@ -488,13 +488,13 @@ class HordeBoard(chess.Board):
         pieces_knights = chess.popcount(pieces & self.knights)
         pieces_rooks = chess.popcount(pieces & self.rooks)
         pieces_queens = chess.popcount(pieces & self.queens)
-        pieces_darkb = lambda: chess.popcount(chess.BB_DARK_SQUARES & pieces & self.bishops)
-        pieces_lightb = lambda: chess.popcount(chess.BB_LIGHT_SQUARES & pieces & self.bishops)
+        pieces_darkb = chess.popcount(chess.BB_DARK_SQUARES & pieces & self.bishops)
+        pieces_lightb = chess.popcount(chess.BB_LIGHT_SQUARES & pieces & self.bishops)
         pieces_num = chess.popcount(pieces)
-        pieces_oppositeb_of = lambda square_color: pieces_darkb() if square_color == chess.WHITE else pieces_lightb()
-        pieces_sameb_as = lambda square_color: pieces_lightb() if square_color == chess.WHITE else pieces_darkb()
+        pieces_oppositeb_of = lambda square_color: pieces_darkb if square_color == chess.WHITE else pieces_lightb
+        pieces_sameb_as = lambda square_color: pieces_lightb if square_color == chess.WHITE else pieces_darkb
         pieces_of_type_not = lambda piece: pieces_num - piece
-        has_bishop_pair = lambda side: (horde_lightb >= 1 and horde_darkb >= 1) if side == chess.WHITE else (pieces_lightb() >= 1 and pieces_darkb() >= 1)
+        has_bishop_pair = lambda side: (horde_lightb >= 1 and horde_darkb >= 1) if side == chess.WHITE else (pieces_lightb >= 1 and pieces_darkb >= 1)
 
         if horde_num == 0:
             return True
@@ -515,7 +515,7 @@ class HordeBoard(chess.Board):
             # friendly pawn/opposite-color-bishop/rook/queen on C2.
             # A rook on B8 and a bishop C3 mate a king on A1 when there is a friendly
             # knight on A2.
-            if not (horde_num == 2 and rooks == 1 and bishops == 1 and pieces_of_type_not(pieces_sameb_as(horde_bishop_co())) == 1):
+            if not (horde_num == 2 and rooks == 1 and bishops == 1 and pieces_of_type_not(pieces_sameb_as(horde_bishop_co)) == 1):
                 return False
 
         if horde_num == 1:
@@ -533,8 +533,8 @@ class HordeBoard(chess.Board):
                 return not (
                     pieces_pawns >= 1 or
                     pieces_rooks >= 1 or
-                    pieces_lightb() >= 2 or
-                    pieces_darkb() >= 2
+                    pieces_lightb >= 2 or
+                    pieces_darkb >= 2
                 )
             elif pawns == 1:
                 # Promote the pawn to a queen or a knight and check whether
@@ -570,8 +570,8 @@ class HordeBoard(chess.Board):
                     # For example a king on A3 can be mated if there is
                     # a pawn/opposite-color-bishop on A4, a pawn/opposite-color-bishop on
                     # B3, a pawn/bishop/rook/queen on A2 and any other piece on B2.
-                    pieces_oppositeb_of(horde_bishop_co()) >= 2 or
-                    (pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_pawns >= 1) or
+                    pieces_oppositeb_of(horde_bishop_co) >= 2 or
+                    (pieces_oppositeb_of(horde_bishop_co) >= 1 and pieces_pawns >= 1) or
                     pieces_pawns >= 2
                 )
             elif knights == 1:
@@ -592,8 +592,8 @@ class HordeBoard(chess.Board):
                         (pieces_bishops >= 1 and pieces_pawns >= 1) or
                         (has_bishop_pair(chess.BLACK) and pieces_pawns >= 1)
                     ) and
-                    (pieces_of_type_not(pieces_darkb()) >= 3 if pieces_darkb() >= 2 else True) and
-                    (pieces_of_type_not(pieces_lightb()) >= 3 if pieces_lightb() >= 2 else True)
+                    (pieces_of_type_not(pieces_darkb) >= 3 if pieces_darkb >= 2 else True) and
+                    (pieces_of_type_not(pieces_lightb) >= 3 if pieces_lightb >= 2 else True)
                 )
 
         # By this point, we only need to deal with white's minor pieces.
@@ -623,11 +623,11 @@ class HordeBoard(chess.Board):
                 return not (
                     # A king on A1 obstructed by a pawn/opposite-color-bishop on
                     # A2 is mated by a knight on D2 and a bishop on C3.
-                    pieces_pawns >= 1 or pieces_oppositeb_of(horde_bishop_co()) >= 1 or
+                    pieces_pawns >= 1 or pieces_oppositeb_of(horde_bishop_co) >= 1 or
                     # A king on A1 bounded by two friendly pieces on A2 and B1 is
                     # mated when the knight moves from D4 to C2 so that both the
                     # knight and the bishop deliver check.
-                    pieces_of_type_not(pieces_sameb_as(horde_bishop_co())) >= 3
+                    pieces_of_type_not(pieces_sameb_as(horde_bishop_co)) >= 3
                 )
             else:
                 # The horde has two or more bishops on the same color.
@@ -639,10 +639,10 @@ class HordeBoard(chess.Board):
                     # bishops on B2 and C3. This position is theoretically
                     # achievable even when black has two pawns or when they
                     # have a pawn and an opposite color bishop.
-                    (pieces_pawns >= 1 and pieces_oppositeb_of(horde_bishop_co()) >= 1) or
+                    (pieces_pawns >= 1 and pieces_oppositeb_of(horde_bishop_co) >= 1) or
                     (pieces_pawns >= 1 and pieces_knights >= 1) or
-                    (pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_knights >= 1) or
-                    (pieces_oppositeb_of(horde_bishop_co()) >= 2) or
+                    (pieces_oppositeb_of(horde_bishop_co) >= 1 and pieces_knights >= 1) or
+                    (pieces_oppositeb_of(horde_bishop_co) >= 2) or
                     pieces_knights >= 2 or
                     pieces_pawns >= 2
                     # In every other case, white can only draw.
