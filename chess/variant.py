@@ -491,10 +491,18 @@ class HordeBoard(chess.Board):
         pieces_darkb = chess.popcount(chess.BB_DARK_SQUARES & pieces & self.bishops)
         pieces_lightb = chess.popcount(chess.BB_LIGHT_SQUARES & pieces & self.bishops)
         pieces_num = chess.popcount(pieces)
-        pieces_oppositeb_of = lambda square_color: pieces_darkb if square_color == chess.WHITE else pieces_lightb
-        pieces_sameb_as = lambda square_color: pieces_lightb if square_color == chess.WHITE else pieces_darkb
-        pieces_of_type_not = lambda piece: pieces_num - piece
-        has_bishop_pair = lambda side: (horde_lightb >= 1 and horde_darkb >= 1) if side == chess.WHITE else (pieces_lightb >= 1 and pieces_darkb >= 1)
+
+        def pieces_oppositeb_of(square_color: chess.Color) -> int:
+            return pieces_darkb if square_color == chess.WHITE else pieces_lightb
+
+        def pieces_sameb_as(square_color: chess.Color) -> int:
+            return pieces_lightb if square_color == chess.WHITE else pieces_darkb
+
+        def pieces_of_type_not(piece: int) -> int:
+            return pieces_num - piece
+
+        def has_bishop_pair(side: chess.Color) -> bool:
+            return (horde_lightb >= 1 and horde_darkb >= 1) if side == chess.WHITE else (pieces_lightb >= 1 and pieces_darkb >= 1)
 
         if horde_num == 0:
             return True
