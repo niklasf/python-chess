@@ -457,35 +457,40 @@ class HordeBoard(chess.Board):
         return bool(self.occupied) and not self.occupied_co[not self.turn]
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
-        # The side with the king can always win by capturing the horde.
+        # The side with the king can always win by capturing the Horde.
         if color == chess.BLACK:
             return False
 
+        # See https://github.com/stevepapazis/horde-insufficient-material-tests
+        # for how the following has been derived.
+
         white = self.occupied_co[chess.WHITE]
-        queens = chess.popcount( white & self.queens )
-        pawns = chess.popcount( white & self.pawns )
-        rooks = chess.popcount( white & self.rooks )
-        bishops = chess.popcount( white & self.bishops )
-        knights = chess.popcount( white & self.knights )
+        queens = chess.popcount(white & self.queens)
+        pawns = chess.popcount(white & self.pawns)
+        rooks = chess.popcount(white & self.rooks)
+        bishops = chess.popcount(white & self.bishops)
+        knights = chess.popcount(white & self.knights)
+
+        # Two same color bishops suffice to cover all the light and dark
+        # squares around the enemy king.
         horde_darkb = chess.popcount(chess.BB_DARK_SQUARES & white & self.bishops)
         horde_lightb = chess.popcount(chess.BB_LIGHT_SQUARES & white & self.bishops)
-        horde_bishop_co = lambda : chess.WHITE if horde_lightb >= 1 else chess.BLACK
+        horde_bishop_co = lambda: chess.WHITE if horde_lightb >= 1 else chess.BLACK
         horde_num = (
             pawns + knights + rooks + queens +
             (horde_darkb if horde_darkb <= 2 else 2) +
             (horde_lightb if horde_lightb <= 2 else 2)
-            )
-            # Two same color bishops suffice to cover all the light and dark squares around the enemy king.
+        )
 
         pieces = self.occupied_co[chess.BLACK]
-        pieces_pawns = chess.popcount( pieces & self.pawns )
-        pieces_bishops = chess.popcount( pieces & self.bishops )
-        pieces_knights = chess.popcount( pieces & self.knights )
-        pieces_rooks = chess.popcount( pieces & self.rooks )
-        pieces_queens = chess.popcount( pieces & self.queens )
-        pieces_darkb = lambda :  chess.popcount(chess.BB_DARK_SQUARES & pieces & self.bishops)
-        pieces_lightb = lambda : chess.popcount(chess.BB_LIGHT_SQUARES & pieces & self.bishops)
-        pieces_num = chess.popcount(pieces)        
+        pieces_pawns = chess.popcount(pieces & self.pawns)
+        pieces_bishops = chess.popcount(pieces & self.bishops)
+        pieces_knights = chess.popcount(pieces & self.knights)
+        pieces_rooks = chess.popcount(pieces & self.rooks)
+        pieces_queens = chess.popcount(pieces & self.queens)
+        pieces_darkb = lambda: chess.popcount(chess.BB_DARK_SQUARES & pieces & self.bishops)
+        pieces_lightb = lambda: chess.popcount(chess.BB_LIGHT_SQUARES & pieces & self.bishops)
+        pieces_num = chess.popcount(pieces)
         pieces_oppositeb_of = lambda square_color: pieces_darkb() if square_color == chess.WHITE else pieces_lightb()
         pieces_sameb_as = lambda square_color: pieces_lightb() if square_color == chess.WHITE else pieces_darkb()
         pieces_of_type_not = lambda piece: pieces_num - piece
@@ -494,16 +499,16 @@ class HordeBoard(chess.Board):
         if horde_num == 0:
             return True
 
-        if horde_num >= 4: 
+        if horde_num >= 4:
             # Four or more white pieces can always deliver mate.
             return False
-        
+
         if (pawns >= 1 or queens >= 1) and horde_num >= 2:
             # Pawns/queens are never insufficient material when paired with any other
             # piece (a pawn promotes to a queen and delivers mate).
             return False
-        
-        if rooks >= 1  and horde_num >= 2:
+
+        if rooks >= 1 and horde_num >= 2:
             # A rook is insufficient material only when it is paired with a bishop
             # against a lone king. The horde can mate in any other case.
             # A rook on A1 and a bishop on C3 mate a king on B1 when there is a
@@ -520,25 +525,25 @@ class HordeBoard(chess.Board):
             elif queens == 1:
                 # The horde has a lone queen.
                 # A lone queen mates a king on A1 bounded by:
-                #  -- a pawn/rook on A2
-                #  -- two same color bishops on A2, B1
+                # - a pawn/rook on A2
+                # - two same color bishops on A2, B1
                 # We ignore every other mating case, since it can be reduced to
                 # the two previous cases (e.g. a black pawn on A2 and a black
                 # bishop on B1).
                 return not (
-                        pieces_pawns >= 1 or
-                        pieces_rooks >= 1 or
-                        pieces_lightb() >= 2 or
-                        pieces_darkb() >= 2
-                        )
+                    pieces_pawns >= 1 or
+                    pieces_rooks >= 1 or
+                    pieces_lightb() >= 2 or
+                    pieces_darkb() >= 2
+                )
             elif pawns == 1:
-                # Promote the pawn to a queen or a knight and check whether white
-                # can mate.
+                # Promote the pawn to a queen or a knight and check whether
+                # white can mate.
                 pawn_square = chess.SquareSet(self.pawns & white).pop()
                 promote_to_queen = HordeBoard(self.fen())
-                promote_to_queen.set_piece_at( pawn_square, chess.Piece(chess.QUEEN,chess.WHITE) )
+                promote_to_queen.set_piece_at(pawn_square, chess.Piece(chess.QUEEN, chess.WHITE))
                 promote_to_knight = HordeBoard(self.fen())
-                promote_to_knight.set_piece_at( pawn_square, chess.Piece(chess.KNIGHT,chess.WHITE) )
+                promote_to_knight.set_piece_at(pawn_square, chess.Piece(chess.KNIGHT, chess.WHITE))
                 return promote_to_queen.has_insufficient_material(chess.WHITE) and promote_to_knight.has_insufficient_material(chess.WHITE)
             elif rooks == 1:
                 # A lone rook mates a king on A8 bounded by a pawn/rook on A7 and a
@@ -550,51 +555,52 @@ class HordeBoard(chess.Board):
                     (pieces_rooks >= 1 and pieces_pawns >= 1) or
                     (pieces_rooks >= 1 and pieces_knights >= 1) or
                     (pieces_pawns >= 1 and pieces_knights >= 1)
-                    )
+                )
             elif bishops == 1:
                 # The horde has a lone bishop.
                 return not (
-                        # The king can be mated on A1 if there is a pawn/opposite-color-bishop
-                        # on A2 and an opposite-color-bishop on B1.
-                        # If black has two or more pawns, white gets the benefit of the doubt;
-                        # there is an outside chance that white promotes its pawns to
-                        # opposite-color-bishops and selfmates theirself.
-                        # Every other case that the king is mated by the bishop requires that
-                        # black has two pawns or two opposite-color-bishop or a pawn and an
-                        # opposite-color-bishop.
-                        # For example a king on A3 can be mated if there is
-                        # a pawn/opposite-color-bishop on A4, a pawn/opposite-color-bishop on
-                        # B3, a pawn/bishop/rook/queen on A2 and any other piece on B2.
-                        pieces_oppositeb_of(horde_bishop_co()) >= 2 or
-                        (pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_pawns >= 1) or
-                        pieces_pawns >= 2
-                    )
+                    # The king can be mated on A1 if there is a pawn/opposite-color-bishop
+                    # on A2 and an opposite-color-bishop on B1.
+                    # If black has two or more pawns, white gets the benefit of the doubt;
+                    # there is an outside chance that white promotes its pawns to
+                    # opposite-color-bishops and selfmates theirself.
+                    # Every other case that the king is mated by the bishop requires that
+                    # black has two pawns or two opposite-color-bishop or a pawn and an
+                    # opposite-color-bishop.
+                    # For example a king on A3 can be mated if there is
+                    # a pawn/opposite-color-bishop on A4, a pawn/opposite-color-bishop on
+                    # B3, a pawn/bishop/rook/queen on A2 and any other piece on B2.
+                    pieces_oppositeb_of(horde_bishop_co()) >= 2 or
+                    (pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_pawns >= 1) or
+                    pieces_pawns >= 2
+                )
             elif knights == 1:
                 # The horde has a lone knight.
                 return not (
-                        # The king on A1 can be smother mated by a knight on C2 if there is
-                        # a pawn/knight/bishop on B2, a knight/rook on B1 and any other piece
-                        # on A2.
-                        # Moreover, when black has four or more pieces and two of them are
-                        # pawns, black can promote their pawns and selfmate theirself.
-                        pieces_num >= 4 and (
-                            pieces_knights>=2 or pieces_pawns>=2 or
-                            (pieces_rooks>=1 and pieces_knights>=1) or
-                            (pieces_rooks>=1 and pieces_bishops>=1) or
-                            (pieces_knights>=1 and pieces_bishops>=1) or
-                            (pieces_rooks>=1 and pieces_pawns>=1) or
-                            (pieces_knights>=1 and pieces_pawns>=1) or
-                            (pieces_bishops>=1 and pieces_pawns>=1) or
-                            (has_bishop_pair(chess.BLACK) and pieces_pawns>=1)
-                        ) and ( pieces_of_type_not(pieces_darkb())>=3 if pieces_darkb()>=2 else True )
-                        and ( pieces_of_type_not(pieces_lightb())>=3 if pieces_lightb()>=2 else True )
-                    )
-            
+                    # The king on A1 can be smother mated by a knight on C2 if there is
+                    # a pawn/knight/bishop on B2, a knight/rook on B1 and any other piece
+                    # on A2.
+                    # Moreover, when black has four or more pieces and two of them are
+                    # pawns, black can promote their pawns and selfmate theirself.
+                    pieces_num >= 4 and (
+                        pieces_knights >= 2 or pieces_pawns >= 2 or
+                        (pieces_rooks >= 1 and pieces_knights >= 1) or
+                        (pieces_rooks >= 1 and pieces_bishops >= 1) or
+                        (pieces_knights >= 1 and pieces_bishops >= 1) or
+                        (pieces_rooks >= 1 and pieces_pawns >= 1) or
+                        (pieces_knights >= 1 and pieces_pawns >= 1) or
+                        (pieces_bishops >= 1 and pieces_pawns >= 1) or
+                        (has_bishop_pair(chess.BLACK) and pieces_pawns >= 1)
+                    ) and
+                    (pieces_of_type_not(pieces_darkb()) >= 3 if pieces_darkb() >= 2 else True) and
+                    (pieces_of_type_not(pieces_lightb()) >= 3 if pieces_lightb() >= 2 else True)
+                )
+
         # By this point, we only need to deal with white's minor pieces.
 
         elif horde_num == 2:
 
-            if pieces_num == 1: 
+            if pieces_num == 1:
                 # Two minor pieces cannot mate a lone king.
                 return True
             elif knights == 2:
@@ -602,45 +608,45 @@ class HordeBoard(chess.Board):
                 # pawn/bishop/knight on B2. On the other hand, if black only has
                 # major pieces it is a draw.
                 return not (pieces_pawns + pieces_bishops + pieces_knights >= 1)
-            elif has_bishop_pair(chess.WHITE): 
+            elif has_bishop_pair(chess.WHITE):
                 return not (
-                        # A king on A1 obstructed by a pawn/bishop on A2 is mated
-                        # by the bishop pair.
-                        pieces_pawns >= 1 or pieces_bishops >= 1 or
-                        # A pawn/bishop/knight on B4, a pawn/bishop/rook/queen on
-                        # A4 and the king on A3 enable Boden's mate by the bishop
-                        # pair. In every other case white cannot win.
-                        ( pieces_knights >= 1 and pieces_rooks + pieces_queens >= 1 )
-                        )
-            elif bishops >= 1 and knights >= 1: 
+                    # A king on A1 obstructed by a pawn/bishop on A2 is mated
+                    # by the bishop pair.
+                    pieces_pawns >= 1 or pieces_bishops >= 1 or
+                    # A pawn/bishop/knight on B4, a pawn/bishop/rook/queen on
+                    # A4 and the king on A3 enable Boden's mate by the bishop
+                    # pair. In every other case white cannot win.
+                    (pieces_knights >= 1 and pieces_rooks + pieces_queens >= 1)
+                )
+            elif bishops >= 1 and knights >= 1:
                 # The horde has a bishop and a knight.
                 return not (
-                        # A king on A1 obstructed by a pawn/opposite-color-bishop on
-                        # A2 is mated by a knight on D2 and a bishop on C3.
-                        pieces_pawns >= 1 or pieces_oppositeb_of(horde_bishop_co()) >= 1 or
-                        # A king on A1 bounded by two friendly pieces on A2 and B1 is
-                        # mated when the knight moves from D4 to C2 so that both the
-                        # knight and the bishop deliver check.
-                        pieces_of_type_not( pieces_sameb_as(horde_bishop_co()) ) >=3
-                        )
+                    # A king on A1 obstructed by a pawn/opposite-color-bishop on
+                    # A2 is mated by a knight on D2 and a bishop on C3.
+                    pieces_pawns >= 1 or pieces_oppositeb_of(horde_bishop_co()) >= 1 or
+                    # A king on A1 bounded by two friendly pieces on A2 and B1 is
+                    # mated when the knight moves from D4 to C2 so that both the
+                    # knight and the bishop deliver check.
+                    pieces_of_type_not(pieces_sameb_as(horde_bishop_co())) >= 3
+                )
             else:
                 # The horde has two or more bishops on the same color.
                 # White can only win if black has enough material to obstruct
                 # the squares of the opposite color around the king.
                 return not (
-                        # A king on A1 obstructed by a pawn/opposite-bishop/knight
-                        # on A2 and a opposite-bishop/knight on B1 is mated by two
-                        # bishops on B2 and C3. This position is theoretically
-                        # achievable even when black has two pawns or when they
-                        # have a pawn and an opposite color bishop.
-                        ( pieces_pawns >= 1 and pieces_oppositeb_of(horde_bishop_co()) >= 1 ) or
-                        ( pieces_pawns >= 1 and pieces_knights >= 1 ) or
-                        ( pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_knights >= 1 ) or
-                        ( pieces_oppositeb_of(horde_bishop_co()) >= 2 ) or
-                        pieces_knights >= 2 or
-                        pieces_pawns >= 2
-                        # In every other case, white can only draw.
-                        )
+                    # A king on A1 obstructed by a pawn/opposite-bishop/knight
+                    # on A2 and a opposite-bishop/knight on B1 is mated by two
+                    # bishops on B2 and C3. This position is theoretically
+                    # achievable even when black has two pawns or when they
+                    # have a pawn and an opposite color bishop.
+                    (pieces_pawns >= 1 and pieces_oppositeb_of(horde_bishop_co()) >= 1) or
+                    (pieces_pawns >= 1 and pieces_knights >= 1) or
+                    (pieces_oppositeb_of(horde_bishop_co()) >= 1 and pieces_knights >= 1) or
+                    (pieces_oppositeb_of(horde_bishop_co()) >= 2) or
+                    pieces_knights >= 2 or
+                    pieces_pawns >= 2
+                    # In every other case, white can only draw.
+                )
 
         elif horde_num == 3:
             # A king in the corner is mated by two knights and a bishop or three
@@ -655,8 +661,7 @@ class HordeBoard(chess.Board):
                 return pieces_num == 1
 
         return True
-    
-    
+
     def status(self) -> chess.Status:
         status = super().status()
         status &= ~chess.STATUS_NO_WHITE_KING
