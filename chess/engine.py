@@ -1078,7 +1078,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         """
         Plays a position.
 
@@ -1097,6 +1097,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             extra information.
         :param ponder: Whether the engine should keep analysing in the
             background even after the result has been returned.
+        :param draw_offered: Whether the engine's opponent has offered a draw.
         :param root_moves: Optional. Consider only root moves from this list.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
@@ -1529,7 +1530,7 @@ class UciProtocol(Protocol):
                 builder.append("0000")
         self.send_line(" ".join(builder))
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         same_game = not self.first_game and game == self.game and not options
         self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else chess.Move.null()
 
@@ -2070,7 +2071,7 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardPingCommand)
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
@@ -2110,6 +2111,9 @@ class XBoardProtocol(Protocol):
                     engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, int(limit.white_clock * 100))))
                 if limit.black_clock is not None:
                     engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, int(limit.black_clock * 100))))
+
+                if draw_offered:
+                    engine.send_line("draw")
 
                 # Start thinking.
                 engine.send_line("post" if info else "nopost")
