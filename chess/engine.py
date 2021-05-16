@@ -19,7 +19,6 @@ from __future__ import annotations
 import abc
 import asyncio
 import collections
-import copy
 import concurrent.futures
 import contextlib
 import copy
