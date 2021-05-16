@@ -1098,6 +1098,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param ponder: Whether the engine should keep analysing in the
             background even after the result has been returned.
         :param draw_offered: Whether the engine's opponent has offered a draw.
+            Ignored by UCI engines.
         :param root_moves: Optional. Consider only root moves from this list.
         :param options: Optional. A dictionary of engine options for the
             analysis. The previous configuration will be restored after the
