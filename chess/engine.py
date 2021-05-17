@@ -2113,7 +2113,7 @@ class XBoardProtocol(Protocol):
                 if limit.black_clock is not None:
                     engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, int(limit.black_clock * 100))))
 
-                if draw_offered:
+                if draw_offered and engine.features.get("draw", 1):
                     engine.send_line("draw")
 
                 # Start thinking.
