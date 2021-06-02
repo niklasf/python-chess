@@ -374,14 +374,17 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         if board is not None:
             piece = board.piece_at(square)
             if piece:
+                href = f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}"
                 ET.SubElement(svg, "use", {
-                    "xlink:href": f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}",
+                    "href": href,
+                    "xlink:href": href,
                     "transform": f"translate({x:d}, {y:d})",
                 })
 
         # Render selected squares.
         if squares is not None and square in squares:
             ET.SubElement(svg, "use", _attrs({
+                "href": "#xx",
                 "xlink:href": "#xx",
                 "x": x,
                 "y": y,
