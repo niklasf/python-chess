@@ -281,12 +281,8 @@ def scan_reversed(bb: Bitboard) -> Iterator[Square]:
         yield r
         bb ^= BB_SQUARES[r]
 
-try:
-    # Python 3.10
-    popcount: Callable[[Bitboard], int] = int.bit_count  # type: ignore
-except AttributeError:
-    def popcount(bb: Bitboard) -> int:
-        return bin(bb).count("1")
+# Python 3.10 or fallback.
+popcount: Callable[[Bitboard], int] = getattr(int, "bit_count", lambda bb: bin(bb).count("1"))
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
