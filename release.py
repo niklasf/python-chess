@@ -25,6 +25,7 @@ def check_git():
         print(f"master is {behind} commit(s) behind origin/master")
         sys.exit(1)
 
+
 def test():
     print("--- TEST ---------------------------------------------------------")
     system("tox --skip-missing-interpreters")

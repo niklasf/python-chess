@@ -1,6 +1,29 @@
 Changelog for python-chess
 ==========================
 
+New in v1.6.0
+-------------
+
+New features:
+
+* Allow offering a draw to XBoard engines using
+  ``chess.engine.Protocol.play(..., draw_offered=True)``.
+* Now detects insufficient material in Horde. Thanks @stevepapazis!
+
+Changes:
+
+* ``chess.engine.popen_engine(..., setpgrp=True)`` on Windows now merges
+  ``CREATE_NEW_PROCESS_GROUP`` into ``creationflags`` instead of overriding.
+  On Unix it now uses ``start_new_session`` instead of calling ``setpgrp`` in
+  ``preexec_fn``.
+* Declare that ``chess.svg`` produces SVG Tiny 1.2, and prepare SVG 2 forwards
+  compatibility.
+
+Bugfixes:
+
+* Fix slightly off-center pawns in ``chess.svg``.
+* Fix typing error in Python 3.10 (due to added ``int.bit_count``).
+
 New in v1.5.0
 -------------
 
