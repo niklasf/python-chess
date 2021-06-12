@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v1.6.1
+-------------
+
+Bugfixes:
+
+* Make ``chess.engine.SimpleEngine.play(..., draw_offered=True)`` available.
+  Previously only added for ``chess.engine.Protocol``.
+
 New in v1.6.0
 -------------
 
