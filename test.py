@@ -1687,7 +1687,7 @@ class LegalMoveGeneratorTestCase(unittest.TestCase):
 
         caro_kann_mate = chess.Board("r1bqkb1r/pp1npppp/2pN1n2/8/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 4 6")
         self.assertFalse(caro_kann_mate.legal_moves)
-        self.assertTrue(chess.Board().pseudo_legal_moves)
+        self.assertTrue(caro_kann_mate.pseudo_legal_moves)
 
     def test_string_conversion(self):
         board = chess.Board("r3k1nr/ppq1pp1p/2p3p1/8/1PPR4/2N5/P3QPPP/5RK1 b kq b3 0 16")
