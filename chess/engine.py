@@ -625,7 +625,8 @@ def _sf12_wins(cp: int, *, ply: int) -> int:
     m = min(240, max(ply, 0)) / 64
     a = (((-8.24404295 * m + 64.23892342) * m + -95.73056462) * m) + 153.86478679
     b = (((-3.37154371 * m + 28.44489198) * m + -56.67657741) * m) + 72.05858751
-    x = min(1000, max(cp, -1000))
+    pawn_value_eg = 208
+    x = min(1000, max(cp * 100 / pawn_value_eg, -1000))
     return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
 
 def _lichess_raw_wins(cp: int) -> int:
