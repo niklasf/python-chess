@@ -44,7 +44,7 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf12", "lichess"]
+    _WdlModel = Literal["sf14", "sf12", "lichess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -559,6 +559,8 @@ class Score(abc.ABC):
         0.015...
 
         :param model:
+            * ``sf14``, the WDL model used by the current development version
+              of Stockfish. Still subject to change or removal.
             * ``sf12``, the WDL model used by Stockfish 12.
             * ``lichess``, the win rate model used by Lichess.
               Does not use *ply*, and does not consider drawing chances.
@@ -620,6 +622,15 @@ class Score(abc.ABC):
             return NotImplemented
 
 
+def _sf14_wins(cp: int, *, ply: int) -> int:
+    # TODO: When released, add permalink and update documentation.
+    m = min(240, max(ply, 0)) / 64
+    a = (((-3.68389304 * m + 30.07065921) * m + -60.52878723) * m) + 149.53378557
+    b = (((-2.01818570 * m + 15.85685038) * m + -29.83452023) * m) + 47.59078827
+    pawn_value_eg = 208
+    x = min(2000, max(cp * 100 / pawn_value_eg, -2000))
+    return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
 def _sf12_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_12/src/uci.cpp#L198-L218
     m = min(240, max(ply, 0)) / 64
@@ -649,6 +660,9 @@ class Cp(Score):
         if model == "lichess":
             wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
+        elif model == "sf14":
+            wins = _sf14_wins(self.cp, ply=ply)
+            losses = _sf14_wins(-self.cp, ply=ply)
         else:
             wins = _sf12_wins(self.cp, ply=ply)
             losses = _sf12_wins(-self.cp, ply=ply)
