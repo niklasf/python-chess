@@ -1023,6 +1023,15 @@ class BaseBoard:
             result[square] = typing.cast(Piece, self.piece_at(square))
         return result
 
+    def piece_map_by_color(self, color: Color) -> Dict[Square, Piece]:
+        """
+        Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
+        """
+        result = {}
+        for square in scan_reversed(self.occupied_co[color]):
+            result[square] = typing.cast(Piece, self.piece_at(square))
+        return result
+
     def _set_piece_map(self, pieces: Mapping[Square, Piece]) -> None:
         self._clear_board()
         for square, piece in pieces.items():
