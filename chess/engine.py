@@ -44,7 +44,7 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf14", "sf12", "lichess"]
+    _WdlModel = Literal["sf", "sf14", "sf12", "lichess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -463,7 +463,7 @@ class PovScore:
         """Tests if this is a mate score."""
         return self.relative.is_mate()
 
-    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> PovWdl:
+    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> PovWdl:
         """See :func:`~chess.engine.Score.wdl()`."""
         return PovWdl(self.relative.wdl(), self.turn)
 
@@ -540,7 +540,7 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
-    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
         """
         Returns statistics for the expected outcome of this game, based on
         a *model*, given that this score is reached at *ply*.
@@ -559,8 +559,9 @@ class Score(abc.ABC):
         0.015...
 
         :param model:
-            * ``sf14``, the WDL model used by the current development version
-              of Stockfish. Still subject to change or removal.
+            * ``sf``, the WDL model used by the latest Stockfish
+              (currently ``sf14``).
+            * ``sf14``, the WDL model used by Stockfish 14.
             * ``sf12``, the WDL model used by Stockfish 12.
             * ``lichess``, the win rate model used by Lichess.
               Does not use *ply*, and does not consider drawing chances.
@@ -623,7 +624,7 @@ class Score(abc.ABC):
 
 
 def _sf14_wins(cp: int, *, ply: int) -> int:
-    # TODO: When released, add permalink and update documentation.
+    # https://github.com/official-stockfish/Stockfish/blob/sf_14/src/uci.cpp#L200-L220
     m = min(240, max(ply, 0)) / 64
     a = (((-3.68389304 * m + 30.07065921) * m + -60.52878723) * m) + 149.53378557
     b = (((-2.01818570 * m + 15.85685038) * m + -29.83452023) * m) + 47.59078827
@@ -654,16 +655,16 @@ class Cp(Score):
     def score(self, *, mate_score: Optional[int] = None) -> int:
         return self.cp
 
-    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
         if model == "lichess":
             wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
-        elif model == "sf14":
-            wins = _sf14_wins(self.cp, ply=ply)
-            losses = _sf14_wins(-self.cp, ply=ply)
-        else:
+        elif model == "sf12":
             wins = _sf12_wins(self.cp, ply=ply)
             losses = _sf12_wins(-self.cp, ply=ply)
+        else:
+            wins = _sf14_wins(self.cp, ply=ply)
+            losses = _sf14_wins(-self.cp, ply=ply)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
 
@@ -704,7 +705,7 @@ class Mate(Score):
         else:
             return -mate_score - self.moves
 
-    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
         if model == "lichess":
             cp = (21 - min(10, abs(self.moves))) * 100
             wins = _lichess_raw_wins(cp)
@@ -741,7 +742,7 @@ class MateGivenType(Score):
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         return mate_score
 
-    def wdl(self, *, model: _WdlModel = "sf12", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
         return Wdl(1000, 0, 0)
 
     def __neg__(self) -> Mate:
