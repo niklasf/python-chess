@@ -3687,6 +3687,48 @@ class Board(BaseBoard):
         board.set_chess960_pos(scharnagl)
         return board
 
+    def advantage (self,output_mode='str'):
+    # A function that calculates which of the players is superior to the other and how close to winning
+    # King Queen Rooks Bishops Knights Pawns
+    total_advantage = 0
+    str_board = self.__str__()
+
+    # Calculating the white player's pieces points
+    # 1 point for Pawns
+    total_advantage = total_advantage + len(re.findall("P", str_board)) * 1
+    # 5 point for Rooks
+    total_advantage = total_advantage + len(re.findall("R", str_board)) * 5
+    # 3 point for Bishops and Knights
+    total_advantage = total_advantage + len(re.findall("N", str_board)) * 3
+    total_advantage = total_advantage + len(re.findall("B", str_board)) * 3
+    # 9 point for Queen
+    total_advantage = total_advantage + len(re.findall("Q", str_board)) * 9
+
+    # Calculating the Black player's pieces points
+    # 1 point for Pawns
+    total_advantage = total_advantage - len(re.findall("p", str_board)) * 1
+    # 5 point for Rooks
+    total_advantage = total_advantage - len(re.findall("r", str_board)) * 5
+    # 3 point for Bishops and Knights
+    total_advantage = total_advantage - len(re.findall("n", str_board)) * 3
+    total_advantage = total_advantage - len(re.findall("b", str_board)) * 3
+    # 9 point for Queen
+    total_advantage = total_advantage - len(re.findall("q", str_board)) * 9
+    
+    if output_mode == 'str' :
+        if total_advantage > 0 :
+            return f"The white pieces are superior to the black pieces by {total_advantage} points"
+        elif(total_advantage < 0):
+            return f"The black pieces are superior to the white pieces by {abs(total_advantage)} points"
+        else:
+            return "The advantage is balanced"
+    
+    if output_mode == 'int' :
+        return total_advantage
+
+    if output_mode == 'boolean' :
+        return total_advantage > 0
+
 
 class PseudoLegalMoveGenerator:
 
