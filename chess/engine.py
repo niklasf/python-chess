@@ -1899,7 +1899,7 @@ XBOARD_ERROR_REGEX = re.compile(r"^\s*(Error|Illegal move)(\s*\([^()]+\))?\s*:")
 class XBoardProtocol(Protocol):
     """
     An implementation of the
-    `XBoard protocol <http://hgm.nubati.net/CECP.html>`_ (CECP).
+    `XBoard protocol <http://hgm.nubati.net/CECP.html>`__ (CECP).
     """
 
     def __init__(self) -> None:
