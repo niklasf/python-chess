@@ -104,7 +104,7 @@ async def main() -> None:
     parser.add_argument("-t", "--threads", default=1, type=int,
         help="Threads for use by the UCI engine.")
     parser.add_argument("-m", "--movetime", default=1.0, type=float,
-        help="Time to move in milliseconds.")
+        help="Time to move in seconds.")
     parser.add_argument("-s", "--simple", dest="test_epd", action="store_const",
         default=test_epd_with_fractional_scores,
         const=test_epd,
