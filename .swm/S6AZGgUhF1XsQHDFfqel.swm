@@ -1,0 +1,55 @@
+{
+    "id": "S6AZGgUhF1XsQHDFfqel",
+    "name": "having fun with python",
+    "content": [
+        {
+            "type": "text",
+            "text": "this is how we have fun with python"
+        },
+        {
+            "type": "image",
+            "src": "https://firebasestorage.googleapis.com/v0/b/swimm-dev-content/o/repositories%2FZ2l0aHViJTNBJTNBcHl0aG9uLWNoZXNzJTNBJTNBZ2lsYWRuYXZvdA%3D%3D%2F81f81e4f-f342-4bfb-befa-42aec6a4d5e4.png?alt=media&token=09519ebd-27ae-4b21-80c5-47a7b343148d",
+            "width": 50
+        },
+        {
+            "type": "text",
+            "text": "we should learn that:"
+        },
+        {
+            "type": "snippet",
+            "lines": [
+                " #!/usr/bin/python3",
+                " # Helper script to create and publish a new python-chess release.",
+                " ",
+                "*import os",
+                "*import chess",
+                "*import sys",
+                "*import subprocess",
+                "*",
+                "*",
+                "*def system(command):",
+                "*    print(command)",
+                "*    exit_code = os.system(command)",
+                "*    if exit_code != 0:",
+                "*        sys.exit(exit_code)",
+                "*",
+                " ",
+                " def check_git():",
+                "     print(\"--- CHECK GIT ----------------------------------------------------\")"
+            ],
+            "firstLineNumber": 1,
+            "path": "release.py",
+            "comments": [
+                "importing the important stuff"
+            ]
+        }
+    ],
+    "symbols": {},
+    "file_version": "2.0.3",
+    "meta": {
+        "app_version": "0.5.2-0",
+        "file_blobs": {
+            "release.py": "099dd4a98ea5df4d2ee7e39080f08fb1b43338af"
+        }
+    }
+}
