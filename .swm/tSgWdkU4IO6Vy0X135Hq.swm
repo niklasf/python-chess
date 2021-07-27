@@ -1,0 +1,59 @@
+{
+    "id": "tSgWdkU4IO6Vy0X135Hq",
+    "name": "intro to chess",
+    "content": [
+        {
+            "type": "text",
+            "text": "this is py chess"
+        },
+        {
+            "type": "snippet",
+            "lines": [
+                " #!/usr/bin/env python3",
+                " ",
+                " \"\"\"List all Chess960 starting positions.\"\"\"",
+                "*",
+                "*import sys",
+                "*import timeit",
+                "*import chess",
+                "*",
+                " ",
+                " def main(bench_only: bool = False) -> None:",
+                "     board = chess.Board.empty(chess960=True)"
+            ],
+            "firstLineNumber": 1,
+            "path": "examples/chess960_pos_list.py",
+            "comments": []
+        },
+        {
+            "type": "snippet",
+            "lines": [
+                " # The suffix of source filenames.",
+                " source_suffix = \".rst\"",
+                " ",
+                "*# The master toctree document.",
+                "*master_doc = \"index\"",
+                "*",
+                "*# General information about the project.",
+                "*project = \"python-chess\"",
+                "*copyright = \"2014–2021, Niklas Fiekas\"",
+                "*",
+                " # The version.",
+                " version = chess.__version__",
+                " release = chess.__version__"
+            ],
+            "firstLineNumber": 21,
+            "path": "docs/conf.py",
+            "comments": []
+        }
+    ],
+    "symbols": {},
+    "file_version": "2.0.3",
+    "meta": {
+        "app_version": "0.5.2-0",
+        "file_blobs": {
+            "examples/chess960_pos_list.py": "88fe23696159925569cb8775cecc90a553df668b",
+            "docs/conf.py": "526150026f5bcb0ca8679b94d6b7c2d1390f88cb"
+        }
+    }
+}
