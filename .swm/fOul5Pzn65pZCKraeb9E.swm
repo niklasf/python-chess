@@ -1,0 +1,16 @@
+{
+    "id": "fOul5Pzn65pZCKraeb9E",
+    "name": "index of all",
+    "content": [
+        {
+            "type": "text",
+            "text": "this is the index:\n------------------\n\n[[swm-link:(S6AZGgUhF1XsQHDFfqel)having fun with python]]\n\nthen this is another link [[swm-link:(tSgWdkU4IO6Vy0X135Hq)intro to chess]]"
+        }
+    ],
+    "symbols": {},
+    "file_version": "2.0.3",
+    "meta": {
+        "app_version": "0.5.2-0",
+        "file_blobs": {}
+    }
+}
