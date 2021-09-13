@@ -1675,7 +1675,9 @@ class Tablebase:
 
     def probe_wdl(self, board: chess.Board) -> int:
         """
-        Probes WDL tables for win/draw/loss-information.
+        Probes WDL tables for win/draw/loss-information under the 50-move rule,
+        assuming the position has been reached directly after a capture or
+        pawn move.
 
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
@@ -1836,12 +1838,18 @@ class Tablebase:
 
     def probe_dtz(self, board: chess.Board) -> int:
         """
-        Probes DTZ tables for distance to zero information.
+        Probes DTZ tables for
+        `DTZ50'' information with rounding <https://syzygy-tables.info/metrics#dtz>`_.
 
-        Both DTZ and WDL tables are required in order to probe for DTZ.
+        Minmaxing the DTZ50'' values guarantees winning a won position
+        (and drawing a drawn position), because it makes progress keeping the
+        win in hand.
+        However the lines are not always the most straightforward ways to win.
+        Engines like Stockfish calculate themselves, checking with DTZ, but
+        only play according to DTZ if they can not manage on their own.
 
         Returns a positive value if the side to move is winning, ``0`` if the
-        position is a draw and a negative value if the side to move is losing.
+        position is a draw, and a negative value if the side to move is losing.
         More precisely:
 
         +-----+------------------+--------------------------------------------+
@@ -1871,15 +1879,14 @@ class Tablebase:
         The return value can be off by one: a return value -n can mean a
         losing zeroing move in in n + 1 plies and a return value +n can mean a
         winning zeroing move in n + 1 plies.
-        This is guaranteed not to happen for positions exactly on the edge of
-        the 50-move rule, so that (with some care) this never impacts the
-        result of practical play.
+        This implies some primary tablebase lines may waste up to 1 ply.
+        Rounding is never used for endgame phases where it would change the
+        game theoretical outcome.
 
-        Minmaxing the DTZ values guarantees winning a won position (and drawing
-        a drawn position), because it makes progress keeping the win in hand.
-        However the lines are not always the most straightforward ways to win.
-        Engines like Stockfish calculate themselves, checking with DTZ, but
-        only play according to DTZ if they can not manage on their own.
+        This means users need to be careful in positions that are nearly drawn
+        under the 50-move rule! Carelessly wasting 1 more ply by not following
+        the tablebase recommendation, for a total of 2 wasted plies, may
+        change the outcome of the game.
 
         >>> import chess
         >>> import chess.syzygy
@@ -1892,6 +1899,8 @@ class Tablebase:
 
         Probing is thread-safe when done with different *board* objects and
         if *board* objects are not modified during probing.
+
+        Both DTZ and WDL tables are required in order to probe for DTZ.
 
         :raises: :exc:`KeyError` (or specifically
             :exc:`chess.syzygy.MissingTableError`) if the position could not
