@@ -1675,7 +1675,7 @@ class Tablebase:
 
     def probe_wdl(self, board: chess.Board) -> int:
         """
-        Probes WDL tables for win/draw/loss-information under the 50-move rule,
+        Probes WDL tables for win/draw/loss information under the 50-move rule,
         assuming the position has been reached directly after a capture or
         pawn move.
 
@@ -1844,7 +1844,7 @@ class Tablebase:
         Minmaxing the DTZ50'' values guarantees winning a won position
         (and drawing a drawn position), because it makes progress keeping the
         win in hand.
-        However the lines are not always the most straightforward ways to win.
+        However, the lines are not always the most straightforward ways to win.
         Engines like Stockfish calculate themselves, checking with DTZ, but
         only play according to DTZ if they can not manage on their own.
 
