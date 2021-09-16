@@ -1535,8 +1535,8 @@ class Tablebase:
         """
         Adds tables from a directory.
 
-        By default all available tables with the correct file names
-        (e.g. WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
+        By default, all available tables with the correct file names
+        (e.g., WDL files like ``KQvKN.rtbw`` and DTZ files like ``KRBvK.rtbz``)
         are added.
 
         The relevant files are lazily opened when the tablebase is actually
