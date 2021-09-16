@@ -3777,7 +3777,6 @@ class SyzygyTestCase(unittest.TestCase):
                 dtz = tables.probe_dtz(board)
                 self.assertEqual(dtz, solution["dtz"], f"Expecting dtz {solution['dtz']}, got {dtz} (in {epd})")
 
-    @unittest.skipIf(os.environ.get("TRAVIS_PYTHON_VERSION", "").startswith("pypy"), "travis pypy is very slow")
     @catchAndSkip(chess.syzygy.MissingTableError)
     def test_suicide_stats(self):
         board = chess.variant.SuicideBoard()
