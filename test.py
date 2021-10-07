@@ -2791,8 +2791,16 @@ class PgnTestCase(unittest.TestCase):
                 else:
                     return super().end_variation()
 
-        game = chess.pgn.read_game(io.StringIO("1. e4 e5 (1... d5 2. exd5 Qxd5 3. Nc3 (3. c4) 3... Qa5)"), Visitor=BlackVariationsOnly)
-        self.assertEqual(game.accept(chess.pgn.StringExporter(headers=False)), "1. e4 e5 ( 1... d5 2. exd5 Qxd5 3. Nc3 Qa5 ) *")
+        pgn = "1. e4 e5 ( 1... d5 2. exd5 Qxd5 3. Nc3 ( 3. c4 ) 3... Qa5 ) *"
+        expected_pgn = "1. e4 e5 ( 1... d5 2. exd5 Qxd5 3. Nc3 Qa5 ) *"
+
+        # Driven by parser.
+        game = chess.pgn.read_game(io.StringIO(pgn), Visitor=BlackVariationsOnly)
+        self.assertEqual(game.accept(chess.pgn.StringExporter(headers=False)), expected_pgn)
+
+        # Driven by game tree traversal.
+        game = chess.pgn.read_game(io.StringIO(pgn)).accept(BlackVariationsOnly())
+        self.assertEqual(game.accept(chess.pgn.StringExporter(headers=False)), expected_pgn)
 
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
