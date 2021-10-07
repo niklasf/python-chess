@@ -95,3 +95,31 @@ perft 1 7
 perft 2 52
 perft 3 4593
 perft 4 50268
+
+#
+# Impossible checker alignment.
+#
+
+id align-diag-1
+epd 3R4/8/q4k2/2B5/1NK5/3b4/8/8 w - -
+perft 1 4
+perft 2 125
+perft 3 2854
+
+id align-diag-2
+epd 2Nq4/2K5/1b6/8/7R/3k4/7P/8 w - -
+perft 1 3
+perft 2 81
+perft 3 1217
+
+id align-horizontal
+epd 5R2/2P5/8/4k3/8/3rK2r/8/8 w - -
+perft 1 2
+perft 2 56
+perft 3 1030
+
+id align-ep
+epd 8/8/8/1k6/3Pp3/8/8/4KQ2 b - d3
+perft 1 6
+perft 2 121
+perft 3 711
