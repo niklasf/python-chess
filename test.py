@@ -2776,6 +2776,24 @@ class PgnTestCase(unittest.TestCase):
         node = node.add_variation(chess.Move.from_uci("e1e2"))
         self.assertEqual(node.turn(), chess.BLACK)
 
+    def test_skip_inner_variation(self):
+        class BlackVariationsOnly(chess.pgn.GameBuilder):
+            def begin_variation(self):
+                self.skipping = self.variation_stack[-1].turn() != chess.WHITE
+                if self.skipping:
+                    return chess.pgn.SKIP
+                else:
+                    return super().begin_variation()
+
+            def end_variation(self):
+                if self.skipping:
+                    self.skipping = False
+                else:
+                    return super().end_variation()
+
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 (1... d5 2. exd5 Qxd5 3. Nc3 (3. c4) 3... Qa5)"), Visitor=BlackVariationsOnly)
+        self.assertEqual(game.accept(chess.pgn.StringExporter(headers=False)), "1. e4 e5 ( 1... d5 2. exd5 Qxd5 3. Nc3 Qa5 ) *")
+
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
