@@ -30,7 +30,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     import chess
     import chess.engine
 
-    engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci(r"C:\Users\xxxxx\Download\stockfish_14_win_x64\stockfish_14_win_x64_avx2.exe")
 
     board = chess.Board()
     while not board.is_game_over():
@@ -46,7 +46,7 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
     import chess.engine
 
     async def main() -> None:
-        transport, engine = await chess.engine.popen_uci("/usr/bin/stockfish")
+        transport, engine = await chess.engine.popen_uci(r"C:\Users\xxxxx\Download\stockfish_14_win_x64\stockfish_14_win_x64_avx2.exe")
 
         board = chess.Board()
         while not board.is_game_over():
