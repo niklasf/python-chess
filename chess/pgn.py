@@ -1599,7 +1599,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
             elif token == ")":
                 if skip_variation_depth:
                     skip_variation_depth -= 1
-                if len(board_stack) > 1:
+                elif len(board_stack) > 1:
                     visitor.end_variation()
                     board_stack.pop()
             elif skip_variation_depth:
