@@ -1,6 +1,20 @@
 Changelog for python-chess
 ==========================
 
+New in v1.7.0
+-------------
+
+New features:
+
+* Added new models for ``chess.engine.Score.wdl()``: ``sf`` (the new default)
+  and ``sf14``.
+* Added ``chess.Board.piece_map()``.
+
+Bugfixes:
+
+* ``chess.pgn``: Fix skipping with nested variations.
+* ``chess.svg``: Make check gradient compatible with QtSvg.
+
 New in v1.6.1
 -------------
 
