@@ -4127,6 +4127,11 @@ class AtomicTestCase(unittest.TestCase):
         self.assertEqual(game.end().parent.board().fen(), "rkr1b1n1/1pp2p2/4n1p1/p2pp2p/3P3P/Q1P3P1/PP2PP2/RK3N2 w Qkq - 0 10")
         self.assertEqual(game.end().board().fen(), "rkr1b1n1/1pp2p2/4n1p1/p2pp2p/3P3P/Q1P3P1/PP2PP2/2KR1N2 b kq - 1 10")
 
+    def test_atomic_king_exploded(self):
+        board = chess.variant.AtomicBoard("rn5r/pp4pp/2p3Nn/5p2/1b2P1PP/8/PPP2P2/R1B1KB1R b KQ - 0 9")
+        self.assertEqual(board.outcome().winner, chess.WHITE)
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
 
 class RacingKingsTestCase(unittest.TestCase):
 
