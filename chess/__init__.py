@@ -303,19 +303,19 @@ def flip_diagonal(bb: Bitboard) -> Bitboard:
     t = (bb ^ (bb << 28)) & 0x0f0f_0f0f_0000_0000
     bb = bb ^ (t ^ (t >> 28))
     t = (bb ^ (bb << 14)) & 0x3333_0000_3333_0000
-    bb = bb ^ (t ^ (t >> 14))
+    bb ^= t ^ (t >> 14)
     t = (bb ^ (bb << 7)) & 0x5500_5500_5500_5500
-    bb = bb ^ (t ^ (t >> 7))
+    bb ^= t ^ (t >> 7)
     return bb
 
 def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
-    bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f)
+    bb ^= (t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f
     t = (bb ^ (bb << 18)) & 0xcccc_0000_cccc_0000
-    bb = bb ^ (t ^ (t >> 18))
+    bb ^= t ^ (t >> 18)
     t = (bb ^ (bb << 9)) & 0xaa00_aa00_aa00_aa00
-    bb = bb ^ (t ^ (t >> 9))
+    bb ^= t ^ (t >> 9)
     return bb
 
 
@@ -3230,7 +3230,7 @@ class Board(BaseBoard):
             if rook > king_mask:
                 return True
 
-            castling_rights = castling_rights & (castling_rights - 1)
+            castling_rights &= castling_rights - 1
 
         return False
 
@@ -3251,7 +3251,7 @@ class Board(BaseBoard):
             if rook < king_mask:
                 return True
 
-            castling_rights = castling_rights & (castling_rights - 1)
+            castling_rights &= castling_rights - 1
 
         return False
 
@@ -3527,7 +3527,7 @@ class Board(BaseBoard):
 
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
         king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
-        king = king & -king
+        king &= -king
         if not king:
             return
 

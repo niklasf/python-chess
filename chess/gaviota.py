@@ -102,7 +102,7 @@ EGTB_MAXBLOCKSIZE = 65536
 
 
 def map24_b(s: int) -> int:
-    s = s - 8
+    s -= 8
     return ((s & 3) + s) >> 1
 
 def map88(x: int) -> int:
@@ -219,7 +219,7 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
                     ppp48_sq_x[idx] = i
                     ppp48_sq_y[idx] = j
                     ppp48_sq_z[idx] = k
-                    idx = idx + 1
+                    idx += 1
 
     return ppp48_idx, ppp48_sq_x, ppp48_sq_y, ppp48_sq_z
 
@@ -253,7 +253,7 @@ def init_aaa() -> Tuple[List[int], List[List[int]]]:
     accum = 0
     aaa_base = [0] * 64
     for a in range(64 - 1):
-        accum = accum + comb[a]
+        accum += comb[a]
         aaa_base[a + 1] = accum
 
     # Get aaa_xyz.
