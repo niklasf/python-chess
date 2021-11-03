@@ -1892,6 +1892,13 @@ class SquareSetTestCase(unittest.TestCase):
     def test_tolist(self):
         self.assertEqual(chess.SquareSet(chess.BB_LIGHT_SQUARES).tolist().count(True), 32)
 
+    def test_flip_ducktyping(self):
+        bb = 0x1e22_2212_0e0a_1222
+        squares = chess.SquareSet(bb)
+        for f in [chess.flip_vertical, chess.flip_horizontal, chess.flip_diagonal, chess.flip_anti_diagonal]:
+            self.assertEqual(int(f(squares)), f(bb))
+            self.assertEqual(int(squares), bb)  # Not mutated
+
 
 class PolyglotTestCase(unittest.TestCase):
 

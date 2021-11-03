@@ -301,21 +301,21 @@ def flip_horizontal(bb: Bitboard) -> Bitboard:
 def flip_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
     t = (bb ^ (bb << 28)) & 0x0f0f_0f0f_0000_0000
-    bb = bb ^ (t ^ (t >> 28))
+    bb = bb ^ t ^ (t >> 28)
     t = (bb ^ (bb << 14)) & 0x3333_0000_3333_0000
-    bb ^= t ^ (t >> 14)
+    bb = bb ^ t ^ (t >> 14)
     t = (bb ^ (bb << 7)) & 0x5500_5500_5500_5500
-    bb ^= t ^ (t >> 7)
+    bb = bb ^ t ^ (t >> 7)
     return bb
 
 def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
-    bb ^= (t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f
+    bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f)
     t = (bb ^ (bb << 18)) & 0xcccc_0000_cccc_0000
-    bb ^= t ^ (t >> 18)
+    bb = bb ^ t ^ (t >> 18)
     t = (bb ^ (bb << 9)) & 0xaa00_aa00_aa00_aa00
-    bb ^= t ^ (t >> 9)
+    bb = bb ^ t ^ (t >> 9)
     return bb
 
 
