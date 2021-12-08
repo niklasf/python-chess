@@ -2017,10 +2017,13 @@ class Board(BaseBoard):
         """
         Checks if the player to move can claim a draw by the fifty-move rule.
 
-        Draw by the fifty-move rule can be claimed once the clock of halfmoves
-        since the last capture or pawn move becomes equal or greater to 100,
-        or if there is a legal move that achieves this. Other means of ending
-        the game take precedence.
+        :func:`~chess.Board.is_fifty_moves()` checks that the clock of
+        halfmoves since the last capture or pawn move is greater or equal
+        to 100, and that no other means of ending the game (like checkmate)
+        take precedence.
+
+        In addition, the fifty-move rule can also be claimed if there is a
+        legal move that achieves this condition.
         """
         if self.is_fifty_moves():
             return True
