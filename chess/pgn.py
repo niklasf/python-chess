@@ -121,6 +121,7 @@ SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
 CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+(?:\.\d*)?)\]""")
+EMT_REGEX = re.compile(r"""\[%emt\s(\d+):(\d+):(\d+(?:\.\d*)?)\]""")
 
 EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
@@ -514,6 +515,40 @@ class GameNode(abc.ABC):
             if self.comment and not self.comment.endswith(" "):
                 self.comment += " "
             self.comment += clk
+
+    def emt(self) -> Optional[float]:
+        """
+        Parses the first valid ``[%emt ...]`` annotation in the comment of
+        this node, if any.
+
+        Returns the player's elapsed move time use for the comment of this
+        move, in seconds.
+        """
+        match = EMT_REGEX.search(self.comment)
+        if match is None:
+            return None
+        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + float(match.group(3))
+
+    def set_emt(self, seconds: Optional[float]) -> None:
+        """
+        Replaces the first valid ``[%emt ...]`` annotation in the comment of
+        this node or adds a new one.
+        """
+        emt = ""
+        if seconds is not None:
+            seconds = max(0, seconds)
+            hours = int(seconds // 3600)
+            minutes = int(seconds % 3600 // 60)
+            seconds = seconds % 3600 % 60
+            seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
+            emt = f"[%emt {hours:d}:{minutes:02d}:{seconds_part}]"
+
+        self.comment, found = EMT_REGEX.subn(emt, self.comment, count=1)
+
+        if not found and emt:
+            if self.comment and not self.comment.endswith(" "):
+                self.comment += " "
+            self.comment += emt
 
     @abc.abstractmethod
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
