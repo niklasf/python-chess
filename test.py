@@ -2749,10 +2749,30 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(arrows[1].color, "red")
         self.assertEqual(arrows[2].color, "green")
 
+        self.assertTrue(game.emt() is None)
+        emt = 321
+        game.set_emt(emt)
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5] [%emt 0:05:21]")
+        self.assertEqual(game.emt(), emt)
+
+        game.set_emt(None)
         game.set_clock(None)
         game.set_eval(None)
         game.set_arrows([])
         self.assertEqual(game.comment, "foo [%bar] baz")
+
+    def test_float_emt(self):
+        game = chess.pgn.Game()
+        game.comment = "[%emt 0:00:01.234]"
+        self.assertEqual(game.emt(), 1.234)
+
+        game.set_emt(6.54321)
+        self.assertEqual(game.comment, "[%emt 0:00:06.543]")
+        self.assertEqual(game.emt(), 6.543)
+
+        game.set_emt(-70)
+        self.assertEqual(game.comment, "[%emt 0:00:00]")  # Clamped
+        self.assertEqual(game.emt(), 0)
 
     def test_float_clk(self):
         game = chess.pgn.Game()
