@@ -60,7 +60,7 @@ def main(perft_file: TextIO, VariantBoard: Type[chess.Board], perft_f: Callable[
     board = VariantBoard(chess960=True)
     column = 0
     total_nodes = 0
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     for line in perft_file:
         # Skip comments and empty lines.
@@ -100,14 +100,14 @@ def main(perft_file: TextIO, VariantBoard: Type[chess.Board], perft_f: Callable[
 
             if column >= 40:
                 column = 0
-                sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.time() - start_time):.0f}\n")
+                sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.perf_counter() - start_time):.0f}\n")
         else:
             print()
             print("Unknown command:", cmd, arg)
             sys.exit(2)
 
     if column:
-        sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.time() - start_time):.0f}\n")
+        sys.stdout.write(f" nodes {total_nodes} nps {sdiv(total_nodes, time.perf_counter() - start_time):.0f}\n")
 
 
 if __name__ == "__main__":

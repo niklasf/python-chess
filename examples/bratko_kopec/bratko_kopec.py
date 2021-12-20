@@ -3,7 +3,6 @@
 """Run an EPD test suite with a UCI engine."""
 
 import asyncio
-import time
 import argparse
 import itertools
 import logging
