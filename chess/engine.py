@@ -1435,7 +1435,7 @@ class UciProtocol(Protocol):
         return await self.communicate(UciPingCommand)
 
     def _changed_options(self, options: ConfigMapping) -> bool:
-        return any(value is None or value != self.config.get(name) for name, value in collections.ChainMap(options, self.target_config).items())
+        return any(value is None or value != self.config.get(name) for name, value in _chain_config(options, self.target_config))
 
     def _setoption(self, name: str, value: ConfigValue) -> None:
         try:
@@ -1457,7 +1457,7 @@ class UciProtocol(Protocol):
             self.config[name] = value
 
     def _configure(self, options: ConfigMapping) -> None:
-        for name, value in collections.ChainMap(options, self.target_config).items():
+        for name, value in _chain_config(options, self.target_config):
             if name.lower() in MANAGED_OPTIONS:
                 raise EngineError("cannot set {} which is automatically managed".format(name))
             self._setoption(name, value)
@@ -1843,6 +1843,14 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
             board.pop()
 
     return BestMove(move, ponder)
+
+
+def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterator[Tuple[str, ConfigValue]]:
+    for name, value in a.items():
+        yield name, value
+    for name, value in b.items():
+        if name not in a:
+            yield name, value
 
 
 class UciOptionMap(MutableMapping[str, T]):
@@ -2348,7 +2356,7 @@ class XBoardProtocol(Protocol):
             self.send_line(f"option {name}={value}")
 
     def _configure(self, options: ConfigMapping) -> None:
-        for name, value in collections.ChainMap(options, self.target_config).items():
+        for name, value in _chain_config(options, self.target_config):
             if name.lower() in MANAGED_OPTIONS:
                 raise EngineError(f"cannot set {name} which is automatically managed")
             self._setoption(name, value)
