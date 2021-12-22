@@ -3869,11 +3869,11 @@ class SquareSet:
 
     def issubset(self, other: IntoSquareSet) -> bool:
         """Tests if this square set is a subset of another."""
-        return not bool(~self & other)
+        return not bool(self & ~SquareSet(other))
 
     def issuperset(self, other: IntoSquareSet) -> bool:
         """Tests if this square set is a superset of another."""
-        return not bool(self & ~SquareSet(other))
+        return not bool(~self & other)
 
     def union(self, other: IntoSquareSet) -> SquareSet:
         return self | other

@@ -1796,24 +1796,30 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(bb, chess.BB_C1)
 
     def test_immutable_set_operations(self):
-        self.assertTrue(chess.SquareSet(chess.BB_RANK_1).isdisjoint(chess.BB_RANK_2))
-        self.assertFalse(chess.SquareSet(chess.BB_RANK_2).isdisjoint(chess.BB_FILE_E))
+        examples = [
+            chess.BB_EMPTY,
+            chess.BB_A1,
+            chess.BB_A2,
+            chess.BB_RANK_1,
+            chess.BB_RANK_2,
+            chess.BB_FILE_A,
+            chess.BB_FILE_E,
+        ]
 
-        self.assertFalse(chess.SquareSet(chess.BB_A1).issubset(chess.BB_RANK_1))
-        self.assertTrue(chess.SquareSet(chess.BB_RANK_1).issubset(chess.BB_A1))
+        for a in examples:
+            self.assertEqual(chess.SquareSet(a).copy(), a)
 
-        self.assertTrue(chess.SquareSet(chess.BB_A1).issuperset(chess.BB_RANK_1))
-        self.assertFalse(chess.SquareSet(chess.BB_RANK_1).issuperset(chess.BB_A1))
-
-        self.assertEqual(chess.SquareSet(chess.BB_A1).union(chess.BB_FILE_A), chess.BB_FILE_A)
-
-        self.assertEqual(chess.SquareSet(chess.BB_A1).intersection(chess.BB_A2), chess.BB_EMPTY)
-
-        self.assertEqual(chess.SquareSet(chess.BB_A1).difference(chess.BB_A2), chess.BB_A1)
-
-        self.assertEqual(chess.SquareSet(chess.BB_A1).symmetric_difference(chess.BB_A2), chess.BB_A1 | chess.BB_A2)
-
-        self.assertEqual(chess.SquareSet(chess.BB_C5).copy(), chess.BB_C5)
+        for a in examples:
+            a = chess.SquareSet(a)
+            for b in examples:
+                b = chess.SquareSet(b)
+                self.assertEqual(set(a).isdisjoint(set(b)), a.isdisjoint(b))
+                self.assertEqual(set(a).issubset(set(b)), a.issubset(b))
+                self.assertEqual(set(a).issuperset(set(b)), a.issuperset(b))
+                self.assertEqual(set(a).union(set(b)), set(a.union(b)))
+                self.assertEqual(set(a).intersection(set(b)), set(a.intersection(b)))
+                self.assertEqual(set(a).difference(set(b)), set(a.difference(b)))
+                self.assertEqual(set(a).symmetric_difference(set(b)), set(a.symmetric_difference(b)))
 
     def test_mutable_set_operations(self):
         squares = chess.SquareSet(chess.BB_A1)
