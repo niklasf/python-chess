@@ -3743,6 +3743,9 @@ class LegalMoveGenerator:
     def __repr__(self) -> str:
         sans = ", ".join(self.board.san(move) for move in self)
         return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
+    
+    def to_list(self) -> Optional[list]:
+        return [self.board.san(move) for move in self]
 
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
