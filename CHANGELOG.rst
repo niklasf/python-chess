@@ -1,6 +1,18 @@
 Changelog for python-chess
 ==========================
 
+New in v1.8.0
+-------------
+
+Bugfixes:
+
+* Fix ``SquareSet.issuperset()`` and ``SquareSet.issubset()`` by swapping
+  their respective implementations.
+
+New features:
+
+* Read and write PGN comments like ``[%emt 0:05:21]``.
+
 New in v1.7.0
 -------------
 
