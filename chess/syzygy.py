@@ -1495,7 +1495,7 @@ class Tablebase:
 
     If *max_fds* is not ``None``, will at most use *max_fds* open file
     descriptors at any given time. The least recently used tables are closed,
-    if nescessary.
+    if necessary.
     """
     def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard

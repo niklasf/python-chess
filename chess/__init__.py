@@ -2045,7 +2045,7 @@ class Board(BaseBoard):
         Checks if the player to move can claim a draw by threefold repetition.
 
         Draw by threefold repetition can be claimed if the position on the
-        board occured for the third time or if such a repetition is reached
+        board occurred for the third time or if such a repetition is reached
         with one of the possible legal moves.
 
         Note that checking this can be slow: In the worst case
@@ -2070,7 +2070,7 @@ class Board(BaseBoard):
         while switchyard:
             self.push(switchyard.pop())
 
-        # Threefold repetition occured.
+        # Threefold repetition occurred.
         if transpositions[transposition_key] >= 3:
             return True
 
