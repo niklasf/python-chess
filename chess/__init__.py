@@ -2011,19 +2011,20 @@ class Board(BaseBoard):
         return self.can_claim_fifty_moves() or self.can_claim_threefold_repetition()
 
     def is_fifty_moves(self) -> bool:
+        """
+        Checks that the clock of halfmoves since the last capture or pawn move
+        is greater or equal to 100, and that no other means of ending the game
+        (like checkmate) take precedence.
+        """
         return self._is_halfmoves(100)
 
     def can_claim_fifty_moves(self) -> bool:
         """
         Checks if the player to move can claim a draw by the fifty-move rule.
 
-        :func:`~chess.Board.is_fifty_moves()` checks that the clock of
-        halfmoves since the last capture or pawn move is greater or equal
-        to 100, and that no other means of ending the game (like checkmate)
-        take precedence.
-
-        In addition, the fifty-move rule can also be claimed if there is a
-        legal move that achieves this condition.
+        In addition to :func:`~chess.Board.is_fifty_moves()`, the fifty-move
+        rule can also be claimed if there is a legal move that achieves this
+        condition.
         """
         if self.is_fifty_moves():
             return True
