@@ -286,6 +286,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if style:
         ET.SubElement(svg, "style").text = style
 
+    if board:
+        desc = ET.SubElement(svg, "desc")
+        asciiboard = ET.SubElement(desc, "pre")
+        asciiboard.text = str(board)
+
     defs = ET.SubElement(svg, "defs")
     if board:
         for piece_color in chess.COLORS:
