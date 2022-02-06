@@ -994,7 +994,7 @@ class BoardTestCase(unittest.TestCase):
 
         # Triple check.
         board = chess.Board("4k3/5P2/3N4/8/8/8/4R3/4K3 b - - 0 1")
-        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_CHECKERS)
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_CHECKERS | chess.STATUS_IMPOSSIBLE_CHECK)
 
         # Impossible checker alignment.
         board = chess.Board("3R4/8/q4k2/2B5/1NK5/3b4/8/8 w - - 0 1")
@@ -1674,6 +1674,14 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(move), "Kxh1")
         board.push(move)
         self.assertEqual(board.fen(), "8/8/8/B2p3Q/2qPp1P1/b7/2P2P1P/4K2k w - - 0 2")
+
+    def test_impossible_check_due_to_en_passant(self):
+        board = chess.Board("rnbqk1nr/bb3p1p/1q2r3/2pPp3/3P4/7P/1PP1NpPP/R1BQKBNR w KQkq c6")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+        self.assertEqual(board.ep_square, chess.C6)
+        self.assertTrue(board.has_pseudo_legal_en_passant())
+        self.assertFalse(board.has_legal_en_passant())
+        self.assertEqual(len(list(board.legal_moves)), 2)
 
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
@@ -4279,7 +4287,7 @@ class RacingKingsTestCase(unittest.TestCase):
     def test_racing_kings_status_with_check(self):
         board = chess.variant.RacingKingsBoard("8/8/8/8/R7/8/krbnNB1K/qrbnNBRQ b - - 1 1")
         self.assertFalse(board.is_valid())
-        self.assertEqual(board.status(), chess.STATUS_RACE_CHECK | chess.STATUS_TOO_MANY_CHECKERS)
+        self.assertEqual(board.status(), chess.STATUS_RACE_CHECK | chess.STATUS_TOO_MANY_CHECKERS | chess.STATUS_IMPOSSIBLE_CHECK)
 
 
 class HordeTestCase(unittest.TestCase):
