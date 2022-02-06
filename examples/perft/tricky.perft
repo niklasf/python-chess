@@ -123,3 +123,9 @@ epd 8/8/8/1k6/3Pp3/8/8/4KQ2 b - d3
 perft 1 6
 perft 2 121
 perft 3 711
+
+id ep-unrelated-check
+epd rnbqk1nr/bb3p1p/1q2r3/2pPp3/3P4/7P/1PP1NpPP/R1BQKBNR w KQkq c6
+perft 1 2
+perft 2 92
+perft 3 2528
