@@ -475,6 +475,9 @@ class Piece:
     def __hash__(self) -> int:
         return self.piece_type + (-1 if self.color else 5)
 
+    def __invert__(self) -> Piece:
+        return Piece(self.piece_type, not self.color)
+
     def __repr__(self) -> str:
         return f"Piece.from_symbol({self.symbol()!r})"
 
