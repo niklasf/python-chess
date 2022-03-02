@@ -1229,7 +1229,8 @@ class BaseCommand(Generic[ProtocolT, T]):
         self.finished: asyncio.Future[None] = asyncio.Future()
 
     def _engine_terminated(self, engine: ProtocolT, code: int) -> None:
-        exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code})")
+        hint = ", binary not compatible with cpu?" if code in [-4, 0xc000001d] else ""
+        exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code}{hint})")
         if self.state == CommandState.ACTIVE:
             self.engine_terminated(engine, exc)
         elif self.state == CommandState.CANCELLING:
