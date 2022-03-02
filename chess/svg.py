@@ -183,8 +183,11 @@ def _attrs(attrs: Dict[str, Union[str, int, float, None]]) -> Dict[str, str]:
     return {k: str(v) for k, v in attrs.items() if v is not None}
 
 
-def _color(colors: Dict[str, str], color: str) -> Tuple[str, float]:
-    color = colors.get(color, DEFAULT_COLORS[color])
+def _select_color(colors: Dict[str, str], color: str) -> Tuple[str, float]:
+    return _color(colors.get(color, DEFAULT_COLORS[color]))
+
+
+def _color(color: str) -> Tuple[str, float]:
     if color.startswith("#"):
         try:
             if len(color) == 5:
@@ -236,6 +239,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           lastmove: Optional[chess.Move] = None,
           check: Optional[Square] = None,
           arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
+          fill: Dict[Square, str] = {},
           squares: Optional[IntoSquareSet] = None,
           size: Optional[int] = None,
           coordinates: bool = True,
@@ -254,7 +258,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
-    :param squares: A :class:`chess.SquareSet` with selected squares.
+    :param fill: A dictionary mapping squares to a colors that they should be
+        filled with.
+    :param squares: A :class:`chess.SquareSet` with selected squares to mark
+        with an X.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board), or ``None`` (the default) for no size limit.
     :param coordinates: Pass ``False`` to disable the coordinate margin.
@@ -270,8 +277,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     >>> import chess.svg
     >>>
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
-    >>> squares = board.attacks(chess.E4)
-    >>> chess.svg.board(board, squares=squares, size=350)  # doctest: +SKIP
+    >>>
+    >>> chess.svg.board(
+    ...     board,
+    ...     fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc") | {chess.E4: "#00cc00cc"},
+    ...     arrows=[chess.svg.Arrow(chess.E4, chess.F6, color="#0000cccc")],
+    ...     squares=chess.SquareSet(chess.BB_DARK_SQUARES & chess.BB_FILE_B),
+    ...     size=350,
+    ... )  # doctest: +SKIP
 
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
@@ -307,7 +320,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render coordinates.
     if coordinates:
-        margin_color, margin_opacity = _color(colors, "margin")
+        margin_color, margin_opacity = _select_color(colors, "margin")
         ET.SubElement(svg, "rect", _attrs({
             "x": 0,
             "y": 0,
@@ -316,7 +329,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "fill": margin_color,
             "opacity": margin_opacity if margin_opacity < 1.0 else None,
         }))
-        coord_color, coord_opacity = _color(colors, "coord")
+        coord_color, coord_opacity = _select_color(colors, "coord")
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
             svg.append(_coord(file_name, x, 0, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
@@ -337,7 +350,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         if lastmove and square in [lastmove.from_square, lastmove.to_square]:
             cls.append("lastmove")
-        fill_color, fill_opacity = _color(colors, " ".join(cls))
+        square_color, square_opacity = _select_color(colors, " ".join(cls))
 
         cls.append(chess.SQUARE_NAMES[square])
 
@@ -348,9 +361,24 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "height": SQUARE_SIZE,
             "class": " ".join(cls),
             "stroke": "none",
-            "fill": fill_color,
-            "opacity": fill_opacity if fill_opacity < 1.0 else None,
+            "fill": square_color,
+            "opacity": square_opacity if square_opacity < 1.0 else None,
         }))
+
+        try:
+            fill_color, fill_opacity = _color(fill[square])
+        except KeyError:
+            pass
+        else:
+            ET.SubElement(svg, "rect", _attrs({
+                "x": x,
+                "y": y,
+                "width": SQUARE_SIZE,
+                "height": SQUARE_SIZE,
+                "stroke": "none",
+                "fill": fill_color,
+                "opacity": fill_opacity if fill_opacity < 1.0 else None,
+            }))
 
     # Render check mark.
     if check is not None:
@@ -405,7 +433,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             color = "green"
 
         try:
-            color, opacity = _color(colors, " ".join(["arrow", color]))
+            color, opacity = _select_color(colors, " ".join(["arrow", color]))
         except KeyError:
             opacity = 1.0
 
