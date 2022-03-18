@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
-          python-version: "3.10.0-alpha.2"
+          python-version: "3.10"
       - run: pip install -e .
       - run: python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
       - run: python examples/perft/perft.py -t 1 examples/perft/tricky.perft
@@ -49,15 +49,12 @@ jobs:
       - run: python -m mypy --strict chess
       - run: python -m mypy --strict examples/**/*.py
   readme:
-    strategy:
-      matrix:
-        python-version: ["3.10"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
       - run: sudo apt-get update && sudo apt-get install -y docutils-common
       - run: python setup.py --long-description | rst2html --strict --no-raw > /dev/null
       - run: pip install -e .
