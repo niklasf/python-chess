@@ -1,6 +1,20 @@
 Changelog for python-chess
 ==========================
 
+New in v1.9.0
+-------------
+
+Bugfixes:
+
+* Expand position validation to detect check conflicting with en passant
+  square.
+
+New features:
+
+* Add ``chess.svg.board(..., fill=...)``.
+* Let ``chess.svg.board()`` add ASCII board as description of SVG.
+* Add hint when engine process dies due to illegal instruction.
+
 New in v1.8.0
 -------------
 
@@ -18,9 +32,9 @@ New in v1.7.0
 
 New features:
 
-* Added new models for ``chess.engine.Score.wdl()``: ``sf`` (the new default)
+* Add new models for ``chess.engine.Score.wdl()``: ``sf`` (the new default)
   and ``sf14``.
-* Added ``chess.Board.piece_map()``.
+* Add ``chess.Board.piece_map()``.
 
 Bugfixes:
 
