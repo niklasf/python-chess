@@ -1146,11 +1146,11 @@ class GameBuilder(BaseVisitor[GameT]):
             # a variation. Add as a comment for the game if the comment
             # starts before any move.
             new_comment = [self.variation_stack[-1].comment, comment]
-            self.variation_stack[-1].comment = "\n".join(new_comment).strip()
+            self.variation_stack[-1].comment = " ".join(filter(None, new_comment))
         else:
             # Otherwise, it is a starting comment.
             new_comment = [self.starting_comment, comment]
-            self.starting_comment = "\n".join(new_comment).strip()
+            self.starting_comment = " ".join(filter(None, new_comment))
 
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
