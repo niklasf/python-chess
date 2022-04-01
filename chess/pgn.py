@@ -1584,42 +1584,43 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     # Parse movetext.
     skip_variation_depth = 0
+    fresh_line = True
     while line:
-        read_next_line = True
-
-        # Ignore comments.
-        if line.startswith("%") or line.startswith(";"):
-            line = handle.readline()
-            continue
-
-        # An empty line means the end of a game.
-        if line.isspace():
-            visitor.end_game()
-            return visitor.result()
+        if fresh_line:
+            # Ignore comments.
+            if line.startswith("%") or line.startswith(";"):
+                line = handle.readline()
+                continue
+            # An empty line means the end of a game.
+            if line.isspace():
+                visitor.end_game()
+                return visitor.result()
+        fresh_line = True
 
         for match in MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
 
             if token.startswith("{"):
                 # Consume until the end of the comment.
-                line = token[1:]
+                start_index = 2 if token.startswith("{ ") else 1
+                line = token[start_index:]
+
                 comment_lines = []
                 while line and "}" not in line:
-                    comment_lines.append(line.rstrip())
+                    comment_lines.append(line)
                     line = handle.readline()
-                end_index = line.find("}")
-                comment_lines.append(line[:end_index])
-                if "}" in line:
-                    line = line[end_index:]
-                else:
-                    line = ""
+
+                if line:
+                    close_index = line.find("}")
+                    end_index = close_index - 1 if close_index > 0 and line[close_index - 1] == " " else close_index
+                    comment_lines.append(line[:end_index])
+                    line = line[close_index + 1:]
 
                 if not skip_variation_depth:
-                    visitor.visit_comment("\n".join(comment_lines).strip())
+                    visitor.visit_comment("".join(comment_lines))
 
-                # Continue with the current or the next line.
-                if line:
-                    read_next_line = False
+                # Continue with the current line.
+                fresh_line = False
                 break
             elif token == "(":
                 if skip_variation_depth:
@@ -1673,7 +1674,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     board_stack[-1].push(move)
                 visitor.visit_board(board_stack[-1])
 
-        if read_next_line:
+        if fresh_line:
             line = handle.readline()
 
     visitor.end_game()

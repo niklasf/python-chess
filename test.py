@@ -2189,9 +2189,9 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(sixth_game.headers["Result"], "1-0")
 
     def test_comment_at_eol(self):
-        pgn = io.StringIO(textwrap.dedent(r"""\
+        pgn = io.StringIO(textwrap.dedent("""\
             1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
-            /\ Ne7, c6}) *"""))
+            /\\ Ne7, c6}) *"""))
 
         game = chess.pgn.read_game(pgn)
 
@@ -2202,7 +2202,7 @@ class PgnTestCase(unittest.TestCase):
 
         # Make sure the comment for the second variation is there.
         self.assertIn(5, node[1].nags)
-        self.assertEqual(node[1].comment, "/\\ Ne7, c6")
+        self.assertEqual(node[1].comment, "\n/\\ Ne7, c6")
 
     def test_promotion_without_equals(self):
         # Example game from https://github.com/rozim/ChessData as originally
