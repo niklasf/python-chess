@@ -577,8 +577,7 @@ class Table:
 
         black_part, white_part = tablename.split("v")
         if self.has_pawns:
-            self.pawns = {0: white_part.count("P"),
-                          1: black_part.count("P")}
+            self.pawns = [white_part.count("P"), black_part.count("P")]
             if self.pawns[1] > 0 and (self.pawns[0] == 0 or self.pawns[1] < self.pawns[0]):
                 self.pawns[0], self.pawns[1] = self.pawns[1], self.pawns[0]
         else:
@@ -1078,11 +1077,9 @@ class WdlTable(Table):
             self.precomp: Dict[int, PairsData] = {}
             self.pieces: Dict[int, List[int]] = {}
 
-            self.factor = {0: [0 for _ in range(TBPIECES)],
-                           1: [0 for _ in range(TBPIECES)]}
+            self.factor = [[0 for _ in range(TBPIECES)], [0 for _ in range(TBPIECES)]]
 
-            self.norm = {0: [0 for _ in range(self.num)],
-                         1: [0 for _ in range(self.num)]}
+            self.norm = [[0 for _ in range(self.num)], [0 for _ in range(self.num)]]
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
