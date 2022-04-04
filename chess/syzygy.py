@@ -1076,10 +1076,8 @@ class WdlTable(Table):
             # Used if there are only pieces.
             self.precomp: Dict[int, PairsData] = {}
             self.pieces: Dict[int, List[int]] = {}
-
-            self.factor = [[0 for _ in range(TBPIECES)], [0 for _ in range(TBPIECES)]]
-
-            self.norm = [[0 for _ in range(self.num)], [0 for _ in range(self.num)]]
+            self.factor = [[0 for _ in range(TBPIECES)] for _ in range(2)]
+            self.norm = [[0 for _ in range(self.num)] for _ in range(2)]
 
             # Used if there are pawns.
             self.files = [PawnFileData() for _ in range(4)]
