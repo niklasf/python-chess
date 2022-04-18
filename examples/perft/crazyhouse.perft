@@ -16,3 +16,10 @@ perft 1 42
 perft 2 1347
 perft 3 58057
 perft 4 2083382
+
+id zh-promoted
+epd 1Q~6/4k3/8/8/8/8/Kpp5/8[] w - -
+perft 1 23
+perft 2 210
+perft 3 4909
+perft 4 55679
