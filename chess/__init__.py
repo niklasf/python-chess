@@ -3004,6 +3004,10 @@ class Board(BaseBoard):
         else:
             from_mask &= self.pawns
 
+            # Do not allow pawn captures if file is not specified.
+            if not match.group(2):
+                to_mask &= ~self.occupied
+
         # Match legal moves.
         matched_move = None
         for move in self.generate_legal_moves(from_mask, to_mask):

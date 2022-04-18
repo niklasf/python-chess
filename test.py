@@ -717,14 +717,16 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), fen)
 
     def test_san_newline(self):
-        fen = "rnbqk2r/ppppppbp/5np1/8/8/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 4"
-        board = chess.Board(fen)
-
+        board = chess.Board("rnbqk2r/ppppppbp/5np1/8/8/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 4")
         with self.assertRaises(ValueError):
             board.parse_san("O-O\n")
-
         with self.assertRaises(ValueError):
             board.parse_san("Nc3\n")
+
+    def test_pawn_capture_san_without_file(self):
+        board = chess.Board("2rq1rk1/pb2bppp/1p2p3/n1ppPn2/2PP4/PP3N2/1B1NQPPP/RB3RK1 b - - 4 13")
+        with self.assertRaises(ValueError):
+            board.parse_san("c4")
 
     def test_variation_san(self):
         board = chess.Board()
