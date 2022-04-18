@@ -44,7 +44,7 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf", "sf14", "sf12", "lichess"]
+    _WdlModel = Literal["sf", "sf15", "sf14", "sf12", "lichess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -564,7 +564,8 @@ class Score(abc.ABC):
 
         :param model:
             * ``sf``, the WDL model used by the latest Stockfish
-              (currently ``sf14``).
+              (currently ``sf15``).
+            * ``sf15``, the WDL model used by Stockfish 15.
             * ``sf14``, the WDL model used by Stockfish 14.
             * ``sf12``, the WDL model used by Stockfish 12.
             * ``lichess``, the win rate model used by Lichess.
@@ -627,6 +628,14 @@ class Score(abc.ABC):
             return NotImplemented
 
 
+def _sf15_wins(cp: int, *, ply: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_15/src/uci.cpp#L200-L220
+    m = min(240, max(ply, 0)) / 64
+    a = (((-1.17202460e-1 * m + 5.94729104e-1) * m + 1.12065546e+1) * m) + 1.22606222e+2
+    b = (((-1.79066759 * m + 11.30759193) * m + -17.43677612) * m) + 36.47147479
+    x = min(2000, max(cp, -2000))
+    return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
 def _sf14_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_14/src/uci.cpp#L200-L220
     m = min(240, max(ply, 0)) / 64
@@ -666,9 +675,12 @@ class Cp(Score):
         elif model == "sf12":
             wins = _sf12_wins(self.cp, ply=ply)
             losses = _sf12_wins(-self.cp, ply=ply)
-        else:
+        elif model == "sf14":
             wins = _sf14_wins(self.cp, ply=ply)
             losses = _sf14_wins(-self.cp, ply=ply)
+        else:
+            wins = _sf15_wins(self.cp, ply=ply)
+            losses = _sf15_wins(-self.cp, ply=ply)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
 

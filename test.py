@@ -2937,6 +2937,7 @@ class EngineTestCase(unittest.TestCase):
     def test_wdl_model(self):
         self.assertEqual(chess.engine.Cp(131).wdl(model="sf12", ply=25), chess.engine.Wdl(524, 467, 9))
         self.assertEqual(chess.engine.Cp(146).wdl(model="sf14", ply=25), chess.engine.Wdl(601, 398, 1))
+        self.assertEqual(chess.engine.Cp(40).wdl(model="sf15", ply=25), chess.engine.Wdl(58, 937, 5))
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
