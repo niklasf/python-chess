@@ -727,6 +727,9 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("2rq1rk1/pb2bppp/1p2p3/n1ppPn2/2PP4/PP3N2/1B1NQPPP/RB3RK1 b - - 4 13")
         with self.assertRaises(ValueError):
             board.parse_san("c4")
+        board = chess.Board("4k3/8/8/4Pp2/8/8/8/4K3 w - f6 0 2")
+        with self.assertRaises(ValueError):
+            board.parse_san("f6")
 
     def test_variation_san(self):
         board = chess.Board()

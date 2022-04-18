@@ -3006,7 +3006,7 @@ class Board(BaseBoard):
 
             # Do not allow pawn captures if file is not specified.
             if not match.group(2):
-                to_mask &= ~self.occupied
+                from_mask &= BB_FILES[square_file(to_square)]
 
         # Match legal moves.
         matched_move = None
