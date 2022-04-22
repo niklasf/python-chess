@@ -936,13 +936,13 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
 
             if line.startswith("ping ") and self.expected_pings:
                 self.expected_pings -= 1
-                self.protocol.pipe_data_received(1, line.replace("ping ", "pong ").encode("utf-8") + b"\n")
+                self.protocol.pipe_data_received(1, (line.replace("ping ", "pong ") + "\n").encode("utf-8"))
             else:
                 assert self.expectations, f"unexpected: {line!r}"
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, f"expected {expectation}, got: {line}"
                 if responses:
-                    self.protocol.pipe_data_received(1, "\n".join(responses).encode("utf-8") + b"\n")
+                    self.protocol.pipe_data_received(1, "\n".join(responses + [""]).encode("utf-8"))
 
     def get_pid(self) -> int:
         return id(self)
@@ -1010,8 +1010,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         assert self.transport is not None, "cannot send line before connection is made"
         stdin = self.transport.get_pipe_transport(0)
         # WriteTransport expected, but not checked to allow duck typing.
-        stdin.write(line.encode("utf-8"))  # type: ignore
-        stdin.write(b"\n")  # type: ignore
+        stdin.write((line + "\n").encode("utf-8"))  # type: ignore
 
     def pipe_data_received(self, fd: int, data: Union[bytes, str]) -> None:
         self.buffer[fd].extend(data)  # type: ignore
