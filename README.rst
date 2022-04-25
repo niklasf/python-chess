@@ -59,7 +59,7 @@ python-chess:
 Installing
 ----------
 
-Download and install the latest release:
+Requires Python 3.7+. Download and install the latest release:
 
 ::
 
@@ -81,7 +81,7 @@ Download and install the latest release:
 Features
 --------
 
-* Supports Python 3.7+. Includes mypy typings.
+* Includes mypy typings.
 
 * IPython/Jupyter Notebook integration.
   `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
