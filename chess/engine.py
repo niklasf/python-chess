@@ -119,8 +119,8 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
             raise NotImplementedError
 
         try:
-            os.close(os.pidfd_open(os.getpid()))  # type: ignore
-            watcher: asyncio.AbstractChildWatcher = asyncio.PidfdChildWatcher()  # type: ignore
+            os.close(os.pidfd_open(os.getpid()))
+            watcher: asyncio.AbstractChildWatcher = asyncio.PidfdChildWatcher()
             LOGGER.debug("Using PidfdChildWatcher")
             return watcher
         except (AttributeError, OSError):
@@ -1222,7 +1222,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 # Unix.
                 popen_args["start_new_session"] = True
 
-        return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)  # type: ignore
+        return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)
 
 
 class CommandState(enum.Enum):
