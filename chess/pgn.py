@@ -120,20 +120,20 @@ MOVETEXT_REGEX = re.compile(r"""
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
-CLOCK_REGEX = re.compile(r"""\[%clk\s(\d+):(\d+):(\d+(?:\.\d*)?)\]""")
-EMT_REGEX = re.compile(r"""\[%emt\s(\d+):(\d+):(\d+(?:\.\d*)?)\]""")
+CLOCK_REGEX = re.compile(r"""\[%clk\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\]""")
+EMT_REGEX = re.compile(r"""\[%emt\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\]""")
 
 EVAL_REGEX = re.compile(r"""
     \[%eval\s(?:
-        \#([+-]?\d+)
-        |([+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
+        \#(?P<mate>[+-]?\d+)
+        |(?P<cp>[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
     )(?:
-        ,(\d+)
+        ,(?P<depth>\d+)
     )?\]
     """, re.VERBOSE)
 
 ARROWS_REGEX = re.compile(r"""
-    \[%(?:csl|cal)\s(
+    \[%(?:csl|cal)\s(?P<arrows>
         [RGYB][a-h][1-8](?:[a-h][1-8])?
         (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
     )\]
@@ -399,8 +399,8 @@ class GameNode(abc.ABC):
 
         turn = self.turn()
 
-        if match.group(1):
-            mate = int(match.group(1))
+        if match.group("mate"):
+            mate = int(match.group("mate"))
             score: chess.engine.Score = chess.engine.Mate(mate)
             if mate == 0:
                 # Resolve this ambiguity in the specification in favor of
@@ -408,7 +408,7 @@ class GameNode(abc.ABC):
                 # who has been mated.
                 return chess.engine.PovScore(score, turn)
         else:
-            score = chess.engine.Cp(int(float(match.group(2)) * 100))
+            score = chess.engine.Cp(int(float(match.group("cp")) * 100))
 
         return chess.engine.PovScore(score if turn else -score, turn)
 
@@ -418,7 +418,7 @@ class GameNode(abc.ABC):
         this node and returns the corresponding depth, if any.
         """
         match = EVAL_REGEX.search(self.comment)
-        return int(match.group(3)) if match and match.group(3) else None
+        return int(match.group("depth")) if match and match.group("depth") else None
 
     def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
         """
@@ -450,7 +450,7 @@ class GameNode(abc.ABC):
         """
         arrows = []
         for match in ARROWS_REGEX.finditer(self.comment):
-            for group in match.group(1).split(","):
+            for group in match.group("arrows").split(","):
                 arrows.append(chess.svg.Arrow.from_pgn(group))
 
         return arrows
@@ -493,7 +493,7 @@ class GameNode(abc.ABC):
         match = CLOCK_REGEX.search(self.comment)
         if match is None:
             return None
-        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + float(match.group(3))
+        return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
 
     def set_clock(self, seconds: Optional[float]) -> None:
         """
@@ -527,7 +527,7 @@ class GameNode(abc.ABC):
         match = EMT_REGEX.search(self.comment)
         if match is None:
             return None
-        return int(match.group(1)) * 3600 + int(match.group(2)) * 60 + float(match.group(3))
+        return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
 
     def set_emt(self, seconds: Optional[float]) -> None:
         """
