@@ -143,8 +143,8 @@ ARROWS_REGEX = re.compile(r"""
     (?P<suffix>\s?)
     """, re.VERBOSE)
 
-def _condense_affix(infix: str):
-    def repl(match):
+def _condense_affix(infix: str) -> Callable[[typing.Match[str]], str]:
+    def repl(match: typing.Match[str]) -> str:
         if infix:
             return match.group("prefix") + infix + match.group("suffix")
         else:
