@@ -1,6 +1,26 @@
 Changelog for python-chess
 ==========================
 
+New in v1.9.1
+-------------
+
+Bugfixes:
+
+* Reject pawn capture SAN if the original file is not specified, e.g.,
+  ``d5`` will no longer match ``cxd5``.
+
+Changes:
+
+* Tweak handling of whitespace in PGN comments: When parsing, any leading
+  and trailing whitespace (beyond one space) is preserved. When joining
+  multiple PGN comments, they are now separated with a space instead of a
+  newline character. When removing annotations from comments, leftover
+  whitespace is avoided.
+
+New features:
+
+* Add model ``sf15`` for ``chess.engine.Score.wdl()``.
+
 New in v1.9.0
 -------------
 
