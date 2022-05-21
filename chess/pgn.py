@@ -512,7 +512,7 @@ class GameNode(abc.ABC):
         self.comment, found = CLOCK_REGEX.subn(clk, self.comment, count=1)
 
         if not found and clk:
-            if self.comment and not self.comment.endswith(" "):
+            if self.comment and not self.comment.endswith(" ") and not self.comment.endswith("\n"):
                 self.comment += " "
             self.comment += clk
 
@@ -546,7 +546,7 @@ class GameNode(abc.ABC):
         self.comment, found = EMT_REGEX.subn(emt, self.comment, count=1)
 
         if not found and emt:
-            if self.comment and not self.comment.endswith(" "):
+            if self.comment and not self.comment.endswith(" ") and not self.comment.endswith("\n"):
                 self.comment += " "
             self.comment += emt
 
