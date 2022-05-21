@@ -120,24 +120,36 @@ MOVETEXT_REGEX = re.compile(r"""
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
-CLOCK_REGEX = re.compile(r"""\[%clk\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\]""")
-EMT_REGEX = re.compile(r"""\[%emt\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\]""")
+CLOCK_REGEX = re.compile(r"""(?P<prefix>\s?)\[%clk\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\](?P<suffix>\s?)""")
+EMT_REGEX = re.compile(r"""(?P<prefix>\s?)\[%emt\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\](?P<suffix>\s?)""")
 
 EVAL_REGEX = re.compile(r"""
+    (?P<prefix>\s?)
     \[%eval\s(?:
         \#(?P<mate>[+-]?\d+)
         |(?P<cp>[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
     )(?:
         ,(?P<depth>\d+)
     )?\]
+    (?P<suffix>\s?)
     """, re.VERBOSE)
 
 ARROWS_REGEX = re.compile(r"""
+    (?P<prefix>\s?)
     \[%(?:csl|cal)\s(?P<arrows>
         [RGYB][a-h][1-8](?:[a-h][1-8])?
         (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
     )\]
+    (?P<suffix>\s?)
     """, re.VERBOSE)
+
+def _condense_affix(infix: str):
+    def repl(match):
+        if infix:
+            return match.group("prefix") + infix + match.group("suffix")
+        else:
+            return match.group("prefix") and match.group("suffix")
+    return repl
 
 
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
@@ -434,7 +446,7 @@ class GameNode(abc.ABC):
             elif score.white().mate():
                 eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
 
-        self.comment, found = EVAL_REGEX.subn(eval, self.comment, count=1)
+        self.comment, found = EVAL_REGEX.subn(_condense_affix(eval), self.comment, count=1)
 
         if not found and eval:
             if self.comment and not self.comment.endswith(" "):
@@ -471,7 +483,7 @@ class GameNode(abc.ABC):
                 pass
             (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
 
-        self.comment = ARROWS_REGEX.sub("", self.comment).strip()
+        self.comment = ARROWS_REGEX.sub(_condense_affix(""), self.comment)
 
         prefix = ""
         if csl:
@@ -479,8 +491,10 @@ class GameNode(abc.ABC):
         if cal:
             prefix += f"[%cal {','.join(cal)}]"
 
-        if prefix:
-            self.comment = prefix + " " + self.comment if self.comment else prefix
+        if prefix and self.comment and not self.comment.startswith(" ") and not self.comment.startswith("\n"):
+            self.comment = prefix + " " + self.comment
+        else:
+            self.comment = prefix + self.comment
 
     def clock(self) -> Optional[float]:
         """
@@ -509,7 +523,7 @@ class GameNode(abc.ABC):
             seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
             clk = f"[%clk {hours:d}:{minutes:02d}:{seconds_part}]"
 
-        self.comment, found = CLOCK_REGEX.subn(clk, self.comment, count=1)
+        self.comment, found = CLOCK_REGEX.subn(_condense_affix(clk), self.comment, count=1)
 
         if not found and clk:
             if self.comment and not self.comment.endswith(" ") and not self.comment.endswith("\n"):
@@ -543,7 +557,7 @@ class GameNode(abc.ABC):
             seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
             emt = f"[%emt {hours:d}:{minutes:02d}:{seconds_part}]"
 
-        self.comment, found = EMT_REGEX.subn(emt, self.comment, count=1)
+        self.comment, found = EMT_REGEX.subn(_condense_affix(emt), self.comment, count=1)
 
         if not found and emt:
             if self.comment and not self.comment.endswith(" ") and not self.comment.endswith("\n"):
