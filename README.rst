@@ -342,7 +342,7 @@ If you like, share interesting things you are using python-chess for, for exampl
 * an `Alexa skill to play blindfold chess <https://www.amazon.com/Laynr-blindfold-chess/dp/B0859QF8YL>`_ – https://github.com/laynr/blindfold-chess
 * a chessboard widget for PySide2 – https://github.com/H-a-y-k/hichesslib
 * Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
-
+* a `browser based PGN viewer <https://about.nmstoker.com/chess2.html>`_ written in PyScript – https://github.com/nmstoker/ChessMatchViewer
 Acknowledgements
 ----------------
 
