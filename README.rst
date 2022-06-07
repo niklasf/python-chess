@@ -343,6 +343,7 @@ If you like, share interesting things you are using python-chess for, for exampl
 * a chessboard widget for PySide2 – https://github.com/H-a-y-k/hichesslib
 * Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
 * a `browser based PGN viewer <https://about.nmstoker.com/chess2.html>`_ written in PyScript – https://github.com/nmstoker/ChessMatchViewer
+
 Acknowledgements
 ----------------
 
