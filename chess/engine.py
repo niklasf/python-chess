@@ -2608,21 +2608,19 @@ class AnalysisResult:
         calling :func:`~chess.engine.AnalysisResult.wait()`, or advancing the
         iterator one step would require waiting for the engine.
 
-        All of these functions would return immediately information is pending
-        (queue is not :func:`empty <chess.engine.AnalysisResult.empty()>`)
-        or if the search is finished.
+        All of these functions would return immediately if information is
+        pending (queue is not
+        :func:`empty <chess.engine.AnalysisResult.empty()>`) or if the search
+        is finished.
         """
         return not self._seen_kork and self._queue.empty()
 
     def empty(self) -> bool:
         """
-        Checks if all information has been consumed.
+        Checks if all current information has been consumed.
 
         If the queue is empty, but the analysis is still ongoing, then further
         information can become available in the future.
-
-        If the queue is not empty, then the next call to
-        :func:`~chess.engine.AnalysisResult.get()` will return instantly.
         """
         return self._seen_kork or self._queue.qsize() <= self._posted_kork
 
