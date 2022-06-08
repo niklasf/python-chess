@@ -2696,6 +2696,10 @@ async def popen_xboard(command: Union[str, List[str]], *, setpgrp: bool = False,
     return transport, protocol
 
 
+async def _async(sync: Callable[[], T]) -> T:
+    return sync()
+
+
 class SimpleEngine:
     """
     Synchronous wrapper around a transport and engine protocol pair. Provides
@@ -2738,20 +2742,16 @@ class SimpleEngine:
 
     @property
     def options(self) -> MutableMapping[str, Option]:
-        async def _get() -> MutableMapping[str, Option]:
-            return copy.copy(self.protocol.options)
-
         with self._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
+            coro = _async(lambda: copy.copy(self.protocol.options))
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
     @property
     def id(self) -> Mapping[str, str]:
-        async def _get() -> Mapping[str, str]:
-            return self.protocol.id.copy()
-
         with self._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_get(), self.protocol.loop)
+            coro = _async(lambda: self.protocol.id.copy())
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
     def communicate(self, command_factory: Callable[[Protocol], BaseCommand[Protocol, T]]) -> T:
@@ -2877,20 +2877,16 @@ class SimpleAnalysisResult:
 
     @property
     def info(self) -> InfoDict:
-        async def _get() -> InfoDict:
-            return self.inner.info.copy()
-
         with self.simple_engine._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
+            coro = _async(lambda: self.inner.info.copy())
+            future = asyncio.run_coroutine_threadsafe(coro, self.simple_engine.protocol.loop)
         return future.result()
 
     @property
     def multipv(self) -> List[InfoDict]:
-        async def _get() -> List[InfoDict]:
-            return [info.copy() for info in self.inner.multipv]
-
         with self.simple_engine._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_get(), self.simple_engine.protocol.loop)
+            coro = _async(lambda: [info.copy() for info in self.inner.multipv])
+            future = asyncio.run_coroutine_threadsafe(coro, self.simple_engine.protocol.loop)
         return future.result()
 
     def stop(self) -> None:
@@ -2903,19 +2899,13 @@ class SimpleAnalysisResult:
         return future.result()
 
     def would_block(self) -> bool:
-        async def _would_block() -> bool:
-            return self.inner.would_block()
-
         with self.simple_engine._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_would_block(), self.simple_engine.protocol.loop)
+            future = asyncio.run_coroutine_threadsafe(_async(self.inner.would_block), self.simple_engine.protocol.loop)
         return future.result()
 
     def empty(self) -> bool:
-        async def _empty() -> bool:
-            return self.inner.empty()
-
         with self.simple_engine._not_shut_down():
-            future = asyncio.run_coroutine_threadsafe(_empty(), self.simple_engine.protocol.loop)
+            future = asyncio.run_coroutine_threadsafe(_async(self.inner.empty), self.simple_engine.protocol.loop)
         return future.result()
 
     def get(self) -> InfoDict:
