@@ -108,6 +108,7 @@ Board
 
 .. autoclass:: chess.Board
     :members:
+    :exclude-members: set_piece_at, remove_piece_at, reset_board, set_board_fen, set_piece_map, set_chess960_pos, apply_transform
 
 .. autoclass:: chess.BaseBoard
     :members:

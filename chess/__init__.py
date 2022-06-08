@@ -623,7 +623,13 @@ class BaseBoard:
         self.occupied = BB_RANK_1 | BB_RANK_2 | BB_RANK_7 | BB_RANK_8
 
     def reset_board(self) -> None:
-        """Resets pieces to the starting position."""
+        """
+        Resets pieces to the starting position.
+
+        :class:`~chess.Board` also resets the move stack, but not turn,
+        castling rights and move counters. Use :func:`chess.Board.reset()` to
+        fully restore the starting position.
+        """
         self._reset_board()
 
     def _clear_board(self) -> None:
@@ -641,7 +647,11 @@ class BaseBoard:
         self.occupied = BB_EMPTY
 
     def clear_board(self) -> None:
-        """Clears the board."""
+        """
+        Clears the board.
+
+        :class:`~chess.Board` also clears the move stack.
+        """
         self._clear_board()
 
     def pieces_mask(self, piece_type: PieceType, color: Color) -> Bitboard:
@@ -877,6 +887,8 @@ class BaseBoard:
         """
         Removes the piece from the given square. Returns the
         :class:`~chess.Piece` or ``None`` if the square was already empty.
+
+        :class:`~chess.Board` also clears the move stack.
         """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)
@@ -914,6 +926,8 @@ class BaseBoard:
 
         An existing piece is replaced. Setting *piece* to ``None`` is
         equivalent to :func:`~chess.Board.remove_piece_at()`.
+
+        :class:`~chess.Board` also clears the move stack.
         """
         if piece is None:
             self._remove_piece_at(square)
@@ -1010,6 +1024,8 @@ class BaseBoard:
         Parses *fen* and sets up the board, where *fen* is the board part of
         a FEN.
 
+        :class:`~chess.Board` also clears the move stack.
+
         :raises: :exc:`ValueError` if syntactically invalid.
         """
         self._set_board_fen(fen)
@@ -1032,6 +1048,8 @@ class BaseBoard:
         """
         Sets up the board from a dictionary of :class:`pieces <chess.Piece>`
         by square index.
+
+        :class:`~chess.Board` also clears the move stack.
         """
         self._set_piece_map(pieces)
 
@@ -1283,8 +1301,8 @@ class BaseBoard:
 
     def transform(self: BaseBoardT, f: Callable[[Bitboard], Bitboard]) -> BaseBoardT:
         """
-        Returns a transformed copy of the board by applying a bitboard
-        transformation function.
+        Returns a transformed copy of the board (without move stack)
+        by applying a bitboard transformation function.
 
         Available transformations include :func:`chess.flip_vertical()`,
         :func:`chess.flip_horizontal()`, :func:`chess.flip_diagonal()`,
@@ -1305,7 +1323,7 @@ class BaseBoard:
 
     def mirror(self: BaseBoardT) -> BaseBoardT:
         """
-        Returns a mirrored copy of the board.
+        Returns a mirrored copy of the board (without move stack).
 
         The board is mirrored vertically and piece colors are swapped, so that
         the position is equivalent modulo color.
@@ -1582,11 +1600,6 @@ class Board(BaseBoard):
         self.reset_board()
 
     def reset_board(self) -> None:
-        """
-        Resets only pieces to the starting position. Use
-        :func:`~chess.Board.reset()` to fully restore the starting position
-        (including turn, castling rights, etc.).
-        """
         super().reset_board()
         self.clear_stack()
 
@@ -2523,6 +2536,8 @@ class Board(BaseBoard):
     def set_castling_fen(self, castling_fen: str) -> None:
         """
         Sets castling rights from a string in FEN notation like ``Qqk``.
+
+        Also clears the move stack.
 
         :raises: :exc:`ValueError` if the castling FEN is syntactically
             invalid.
