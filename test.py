@@ -2986,7 +2986,10 @@ class EngineTestCase(unittest.TestCase):
                 for info in analysis:
                     if "score" in info and info["score"].white() >= chess.engine.Mate(+2):
                         break
+
             analysis.wait()
+            self.assertFalse(analysis.would_block())
+
             self.assertEqual(analysis.info["score"].relative, chess.engine.Mate(+2))
             self.assertEqual(analysis.multipv[0]["score"].black(), chess.engine.Mate(-2))
 
@@ -2997,6 +3000,7 @@ class EngineTestCase(unittest.TestCase):
                 was_really_empty = False
             self.assertEqual(was_really_empty, was_empty)
             self.assertTrue(analysis.empty())
+            self.assertFalse(analysis.would_block())
             for info in analysis:
                 self.fail("all info should have been consumed")
 
@@ -3174,8 +3178,10 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("go infinite")
             mock.expect("stop", ["bestmove e2e4"])
             result = await protocol.analysis(chess.Board())
+            self.assertTrue(result.would_block())
             result.stop()
             best = await result.wait()
+            self.assertFalse(result.would_block())
             self.assertEqual(best.move, chess.Move.from_uci("e2e4"))
             self.assertTrue(best.ponder is None)
             mock.assert_done()

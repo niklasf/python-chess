@@ -2601,6 +2601,19 @@ class AnalysisResult:
 
         return info
 
+    def would_block(self) -> bool:
+        """
+        Checks if calling :func:`~chess.engine.AnalysisResult.get()`,
+        calling :func:`~chess.engine.AnalysisResult.next()`,
+        calling :func:`~chess.engine.AnalysisResult.wait()`, or advancing the
+        iterator one step would require waiting for the engine.
+
+        All of these functions would return immediately information is pending
+        (queue is not :func:`empty <chess.engine.AnalysisResult.empty()>`)
+        or if the search is finished.
+        """
+        return not self._seen_kork and self._queue.empty()
+
     def empty(self) -> bool:
         """
         Checks if all information has been consumed.
@@ -2889,6 +2902,14 @@ class SimpleAnalysisResult:
     def wait(self) -> BestMove:
         with self.simple_engine._not_shut_down():
             future = asyncio.run_coroutine_threadsafe(self.inner.wait(), self.simple_engine.protocol.loop)
+        return future.result()
+
+    def would_block(self) -> bool:
+        async def _would_block() -> bool:
+            return self.inner.would_block()
+
+        with self.simple_engine._not_shut_down():
+            future = asyncio.run_coroutine_threadsafe(_would_block(), self.simple_engine.protocol.loop)
         return future.result()
 
     def empty(self) -> bool:
