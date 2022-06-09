@@ -2574,7 +2574,7 @@ class AnalysisResult:
             self._stop = None
 
     async def wait(self) -> BestMove:
-        """Waits until the analysis is complete (or stopped)."""
+        """Waits until the analysis is finished."""
         return await self._finished
 
     async def get(self) -> InfoDict:
@@ -2605,10 +2605,10 @@ class AnalysisResult:
         """
         Checks if calling :func:`~chess.engine.AnalysisResult.get()`,
         calling :func:`~chess.engine.AnalysisResult.next()`,
-        calling :func:`~chess.engine.AnalysisResult.wait()`, or advancing the
-        iterator one step would require waiting for the engine.
+        or advancing the iterator one step would require waiting for the
+        engine.
 
-        All of these functions would return immediately if information is
+        These functions would return immediately if information is
         pending (queue is not
         :func:`empty <chess.engine.AnalysisResult.empty()>`) or if the search
         is finished.
