@@ -829,31 +829,32 @@ class CrazyhousePocket:
     """A Crazyhouse pocket with a counter for each piece type."""
 
     def __init__(self, symbols: Iterable[str] = "") -> None:
-        self.pieces: Dict[chess.PieceType, int] = {}
+        self.reset()
         for symbol in symbols:
             self.add(chess.PIECE_SYMBOLS.index(symbol))
 
+    def reset(self) -> None:
+        """Clears the pocket."""
+        self._pieces = [None, 0, 0, 0, 0, 0, 0]
+
     def add(self, piece_type: chess.PieceType) -> None:
         """Adds a piece of the given type to this pocket."""
-        self.pieces[piece_type] = self.pieces.get(piece_type, 0) + 1
+        self._pieces[piece_type] += 1
 
     def remove(self, piece_type: chess.PieceType) -> None:
         """Removes a piece of the given type from this pocket."""
-        self.pieces[piece_type] -= 1
+        assert self._pieces[piece_type], f"cannot remove {chess.piece_symbol(piece_type)} from {self!r}"
+        self._pieces[piece_type] -= 1
 
     def count(self, piece_type: chess.PieceType) -> int:
         """Returns the number of pieces of the given type in the pocket."""
-        return self.pieces.get(piece_type, 0)
-
-    def reset(self) -> None:
-        """Clears the pocket."""
-        self.pieces.clear()
+        return self._pieces[piece_type]
 
     def __str__(self) -> str:
         return "".join(chess.piece_symbol(pt) * self.count(pt) for pt in reversed(chess.PIECE_TYPES))
 
     def __len__(self) -> int:
-        return sum(self.pieces.values())
+        return sum(self._pieces[1:])
 
     def __repr__(self) -> str:
         return f"CrazyhousePocket('{self}')"
@@ -861,7 +862,7 @@ class CrazyhousePocket:
     def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
         """Returns a copy of this pocket."""
         pocket = type(self)()
-        pocket.pieces = copy.copy(self.pieces)
+        pocket._pieces = self._pieces[:]
         return pocket
 
 class CrazyhouseBoard(chess.Board):
@@ -959,9 +960,9 @@ class CrazyhouseBoard(chess.Board):
             return super().is_legal(move)
 
     def generate_pseudo_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
-        for to_square in chess.scan_forward(to_mask & ~self.occupied):
-            for pt, count in self.pockets[self.turn].pieces.items():
-                if count and (pt != chess.PAWN or not chess.BB_BACKRANKS & chess.BB_SQUARES[to_square]):
+        for pt in chess.PIECE_TYPES:
+            if self.pockets[self.turn].count(pt):
+                for to_square in chess.scan_forward(to_mask & ~self.occupied & (~chess.BB_BACKRANKS if pt == chess.PAWN else chess.BB_ALL)):
                     yield chess.Move(to_square, to_square, drop=pt)
 
     def generate_legal_drops(self, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:

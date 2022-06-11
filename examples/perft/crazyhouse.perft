@@ -23,3 +23,10 @@ perft 1 20
 perft 2 360
 perft 3 5445
 perft 4 132758
+
+id zh-midgame
+epd 2rn1b1r/1pp2n1p/B1PBk1pP/5p1P/P5p1/2P2RP1/RP1QNP2/1NBK4[QPp] w - -
+perft 1 99
+perft 2 3932
+perft 3 314782
+perft 4 10118606
