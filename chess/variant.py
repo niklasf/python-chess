@@ -835,7 +835,7 @@ class CrazyhousePocket:
 
     def reset(self) -> None:
         """Clears the pocket."""
-        self._pieces = [None, 0, 0, 0, 0, 0, 0]
+        self._pieces = [-1, 0, 0, 0, 0, 0, 0]
 
     def add(self, piece_type: chess.PieceType) -> None:
         """Adds a piece of the given type to this pocket."""
