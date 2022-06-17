@@ -1,6 +1,19 @@
 Changelog for python-chess
 ==========================
 
+New in v1.9.2
+-------------
+
+Bugfixes:
+
+* Fix recursive Crazyhouse move generation sometimes failing with
+  with ``RuntimeError``.
+* Fix rendering of black pawn SVG on dark background.
+
+New features:
+
+* Add ``chess.engine.AnalysisResult.would_block()``.
+
 New in v1.9.1
 -------------
 
