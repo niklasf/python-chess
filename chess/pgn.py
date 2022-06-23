@@ -934,7 +934,7 @@ class Headers(MutableMapping[str, str]):
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
         elif not TAG_NAME_REGEX.match(key):
-            raise ValueError(f"non-alphanumeric pgn header tag: {key!r}")
+            raise ValueError(f"invalid pgn header tag: {key!r}")
         elif "\n" in value or "\r" in value:
             raise ValueError(f"line break in pgn header {key}: {value!r}")
         else:

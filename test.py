@@ -2252,6 +2252,16 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["Opening"], "St. George (Baker) defense")
         self.assertEqual(game.end().board(), chess.Board("8/2p2k2/1pR3p1/1P1P4/p1P2P2/P4K2/8/5r2 w - - 7 78"))
 
+    def test_special_tag_names(self):
+        pgn = io.StringIO("""[BlackType: "program"]""")
+        game = chess.pgn.read_game(pgn)
+        self.assertEqual(game.headers["BlackType:"], "program")
+
+        with self.assertRaises(ValueError):
+            game.headers["~"] = "foo"
+
+        game.headers["Equals="] = "bar"
+
     def test_chess960_without_fen(self):
         pgn = io.StringIO(textwrap.dedent("""\
             [Variant "Chess960"]
