@@ -2135,7 +2135,7 @@ class XBoardProtocol(Protocol):
                         raise EngineError("xboard does not support mixing node limits with time limits")
 
                     if "nps" not in engine.features:
-                        LOGGER.warning("%s: Engine did not declare explicit support for node limits (feature nps=?)")
+                        LOGGER.warning("%s: Engine did not explicitly declare support for node limits (feature nps=?)")
                     elif not engine.features["nps"]:
                         raise EngineError("xboard engine does not support node limits (feature nps=0)")
 
