@@ -1538,7 +1538,9 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 if unmanaged_headers is not None:
                     unmanaged_headers[tag_match.group(1)] = tag_match.group(2)
             else:
-                break
+                # Ignore invalid or malformed headers.
+                line = handle.readline()
+                continue
 
         line = handle.readline()
 
