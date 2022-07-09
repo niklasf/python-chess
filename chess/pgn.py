@@ -93,9 +93,9 @@ NAG_BLACK_SEVERE_TIME_PRESSURE = 139
 NAG_NOVELTY = 146
 
 
-TAG_REGEX = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_+#=:-]{,254})\s+\"([^\r]*)\"\]\s*$")
+TAG_REGEX = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+\"([^\r]*)\"\]\s*$")
 
-TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]{,254}\Z")
+TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]*\Z")
 
 MOVETEXT_REGEX = re.compile(r"""
     (
