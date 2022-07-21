@@ -1221,7 +1221,7 @@ class BaseBoard:
 
         return "".join(builder)
 
-    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘") -> str:
+    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", flipped:bool = False) -> str:
         """
         Returns a string representation of the board with Unicode pieces.
         Useful for pretty-printing to a terminal.
@@ -1229,6 +1229,11 @@ class BaseBoard:
         :param invert_color: Invert color of the Unicode pieces.
         :param borders: Show borders and a coordinate margin.
         """
+        board = self.copy()
+        if flipped:
+          board.apply_transform(flip_vertical)
+          board.apply_transform(flip_horizontal)
+
         builder = []
         for rank_index in range(7, -1, -1):
             if borders:
@@ -1247,7 +1252,7 @@ class BaseBoard:
                 elif file_index > 0:
                     builder.append(" ")
 
-                piece = self.piece_at(square_index)
+                piece = board.piece_at(square_index)
 
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
