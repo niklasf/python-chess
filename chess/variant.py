@@ -85,16 +85,25 @@ class SuicideBoard(chess.Board):
             return self.is_stalemate() and self._material_balance() == 0
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
-        if self.occupied != self.bishops:
+        if not self.occupied_co[color]:
             return False
-
-        # In a position with only bishops, check if all our bishops can be
-        # captured.
-        we_some_on_light = bool(self.occupied_co[color] & chess.BB_LIGHT_SQUARES)
-        we_some_on_dark = bool(self.occupied_co[color] & chess.BB_DARK_SQUARES)
-        they_all_on_dark = not (self.occupied_co[not color] & chess.BB_LIGHT_SQUARES)
-        they_all_on_light = not (self.occupied_co[not color] & chess.BB_DARK_SQUARES)
-        return (we_some_on_light and they_all_on_dark) or (we_some_on_dark and they_all_on_light)
+        elif not self.occupied_co[not color]:
+            return True
+        elif self.occupied == self.bishops:
+            # In a position with only bishops, check if all our bishops can be
+            # captured.
+            we_some_on_light = bool(self.occupied_co[color] & chess.BB_LIGHT_SQUARES)
+            we_some_on_dark = bool(self.occupied_co[color] & chess.BB_DARK_SQUARES)
+            they_all_on_dark = not (self.occupied_co[not color] & chess.BB_LIGHT_SQUARES)
+            they_all_on_light = not (self.occupied_co[not color] & chess.BB_DARK_SQUARES)
+            return (we_some_on_light and they_all_on_dark) or (we_some_on_dark and they_all_on_light)
+        elif self.occupied == self.knights and chess.popcount(self.knights) == 2:
+            return (
+                self.turn == color ^
+                bool(self.occupied_co[chess.WHITE] & chess.BB_LIGHT_SQUARES) ^
+                bool(self.occupied_co[chess.BLACK] & chess.BB_DARK_SQUARES))
+        else:
+            return False
 
     def generate_pseudo_legal_moves(self, from_mask: chess.Bitboard = chess.BB_ALL, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
         for move in super().generate_pseudo_legal_moves(from_mask, to_mask):

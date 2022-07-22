@@ -561,6 +561,11 @@ class BoardTestCase(unittest.TestCase):
         _check(chess.variant.GiveawayBoard("8/8/8/6b1/8/3B4/4B3/5B2 w - - 0 1"), True, True)
         _check(chess.variant.GiveawayBoard("8/8/5b2/8/8/3B4/3B4/8 w - - 0 1"), True, False)
         _check(chess.variant.SuicideBoard("8/5p2/5P2/8/3B4/1bB5/8/8 b - - 0 1"), false_negative, false_negative)
+        _check(chess.variant.AntichessBoard("8/8/8/1n2N3/8/8/8/8 w - - 0 32"), True, False)
+        _check(chess.variant.AntichessBoard("8/3N4/8/1n6/8/8/8/8 b - - 1 32"), True, False)
+        _check(chess.variant.AntichessBoard("6n1/8/8/4N3/8/8/8/8 b - - 0 27"), False, True)
+        _check(chess.variant.AntichessBoard("8/8/5n2/4N3/8/8/8/8 w - - 1 28"), False, True)
+        _check(chess.variant.AntichessBoard("8/3n4/8/8/8/8/8/8 w - - 0 29"), False, True)
 
         _check(chess.variant.KingOfTheHillBoard("8/5k2/8/8/8/8/3K4/8 w - - 0 1"), False, False)
 
