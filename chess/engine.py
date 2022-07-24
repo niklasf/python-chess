@@ -1095,6 +1095,12 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def draw(self) -> None:
+        """
+        Tells engine that its opponent has offered a draw.
+        """
+
+    @abc.abstractmethod
     async def configure(self, options: ConfigMapping) -> None:
         """
         Configures global engine options.
@@ -1445,6 +1451,9 @@ class UciProtocol(Protocol):
                     LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
 
         return await self.communicate(UciPingCommand)
+
+    def draw(self) -> None:
+        pass
 
     def _changed_options(self, options: ConfigMapping) -> bool:
         return any(value is None or value != self.config.get(name) for name, value in _chain_config(options, self.target_config))
@@ -2109,6 +2118,10 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardPingCommand)
 
+    def draw(self) -> None:
+        if self.features.get("draw", 1):
+            self.send_line("draw")
+
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
@@ -2150,8 +2163,8 @@ class XBoardProtocol(Protocol):
                 if limit.black_clock is not None:
                     engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, int(limit.black_clock * 100))))
 
-                if draw_offered and engine.features.get("draw", 1):
-                    engine.send_line("draw")
+                if draw_offered:
+                    engine.draw()
 
                 # Start thinking.
                 engine.send_line("post" if info else "nopost")
@@ -2771,6 +2784,9 @@ class SimpleEngine:
             coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
+
+    def draw(self) -> None:
+        self.protocol.draw()
 
     def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         with self._not_shut_down():
