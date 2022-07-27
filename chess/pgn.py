@@ -1470,6 +1470,10 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", encoding="utf-8")
 
+    If you get a UnicodeDecodeError, including the following parameters might help:
+
+    >>> pgn = open("data/pgn/kasparov-deep-blue-1997.pgn", 'r', errors='replace')
+
     Use :class:`~io.StringIO` to parse games from a string.
 
     >>> import io
