@@ -1221,7 +1221,7 @@ class BaseBoard:
 
         return "".join(builder)
 
-    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", flipped:bool = False) -> str:
+    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", orientation:Color = WHITE) -> str:
         """
         Returns a string representation of the board with Unicode pieces.
         Useful for pretty-printing to a terminal.
@@ -1230,12 +1230,9 @@ class BaseBoard:
         :param borders: Show borders and a coordinate margin.
         """
         board = self.copy()
-        if flipped:
-          board.apply_transform(flip_vertical)
-          board.apply_transform(flip_horizontal)
-
         builder = []
-        for rank_index in range(7, -1, -1):
+        indexes = range(7, -1, -1) if orientation else range(8)
+        for rank_index in indexes:
             if borders:
                 builder.append("  ")
                 builder.append("-" * 17)
@@ -1262,14 +1259,15 @@ class BaseBoard:
             if borders:
                 builder.append("|")
 
-            if borders or rank_index > 0:
+            if borders or (rank_index > 0 and orientation) or (rank_index < 7 and not orientation):
                 builder.append("\n")
 
         if borders:
             builder.append("  ")
             builder.append("-" * 17)
             builder.append("\n")
-            builder.append("   a b c d e f g h")
+            letters = "a b c d e f g h" if orientation else "h g f e d c b a"
+            builder.append("   " + letters)
 
         return "".join(builder)
 
