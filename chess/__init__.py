@@ -1229,10 +1229,8 @@ class BaseBoard:
         :param invert_color: Invert color of the Unicode pieces.
         :param borders: Show borders and a coordinate margin.
         """
-        board = self.copy()
         builder = []
-        indexes = range(7, -1, -1) if orientation else range(8)
-        for rank_index in indexes:
+        for rank_index in (range(7, -1, -1) if orientation else range(8)):
             if borders:
                 builder.append("  ")
                 builder.append("-" * 17)
@@ -1249,7 +1247,7 @@ class BaseBoard:
                 elif file_index > 0:
                     builder.append(" ")
 
-                piece = board.piece_at(square_index)
+                piece = self.piece_at(square_index)
 
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
@@ -1259,7 +1257,7 @@ class BaseBoard:
             if borders:
                 builder.append("|")
 
-            if borders or (rank_index > 0 and orientation) or (rank_index < 7 and not orientation):
+            if borders or (rank_index > 0 if orientation else rank_index < 7):
                 builder.append("\n")
 
         if borders:
