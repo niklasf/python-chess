@@ -1221,7 +1221,7 @@ class BaseBoard:
 
         return "".join(builder)
 
-    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘") -> str:
+    def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", orientation:Color = WHITE) -> str:
         """
         Returns a string representation of the board with Unicode pieces.
         Useful for pretty-printing to a terminal.
@@ -1229,8 +1229,10 @@ class BaseBoard:
         :param invert_color: Invert color of the Unicode pieces.
         :param borders: Show borders and a coordinate margin.
         """
+        board = self.copy()
         builder = []
-        for rank_index in range(7, -1, -1):
+        indexes = range(7, -1, -1) if orientation else range(8)
+        for rank_index in indexes:
             if borders:
                 builder.append("  ")
                 builder.append("-" * 17)
@@ -1247,7 +1249,7 @@ class BaseBoard:
                 elif file_index > 0:
                     builder.append(" ")
 
-                piece = self.piece_at(square_index)
+                piece = board.piece_at(square_index)
 
                 if piece:
                     builder.append(piece.unicode_symbol(invert_color=invert_color))
@@ -1257,14 +1259,15 @@ class BaseBoard:
             if borders:
                 builder.append("|")
 
-            if borders or rank_index > 0:
+            if borders or (rank_index > 0 and orientation) or (rank_index < 7 and not orientation):
                 builder.append("\n")
 
         if borders:
             builder.append("  ")
             builder.append("-" * 17)
             builder.append("\n")
-            builder.append("   a b c d e f g h")
+            letters = "a b c d e f g h" if orientation else "h g f e d c b a"
+            builder.append("   " + letters)
 
         return "".join(builder)
 
