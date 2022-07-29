@@ -15,8 +15,11 @@ sys.path.insert(0, os.path.abspath(".."))
 import chess
 
 # Autodoc.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.intersphinx"]
 autodoc_member_order = "bysource"
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
 
 # The suffix of source filenames.
 source_suffix = ".rst"
