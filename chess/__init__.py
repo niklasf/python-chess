@@ -1239,12 +1239,12 @@ class BaseBoard:
                 builder.append(RANK_NAMES[rank_index])
                 builder.append(" ")
 
-            for file_index in range(8):
+            for i, file_index in enumerate(range(8) if orientation else range(7, -1, -1)):
                 square_index = square(file_index, rank_index)
 
                 if borders:
                     builder.append("|")
-                elif file_index > 0:
+                elif i > 0:
                     builder.append(" ")
 
                 piece = self.piece_at(square_index)
