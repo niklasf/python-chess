@@ -332,6 +332,7 @@ If you like, share interesting things you are using python-chess for, for exampl
 |     :target: https://www.pettingzoo.ml/classic/chess                                                 | A multi-agent reinforcement learning environment                                        |
 +------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------+
 
+* extensions to build engines (search and evaluation) – https://github.com/Mk-Chan/python-chess-engine-extensions
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
 * a bridge between Lichess API and chess engines – https://github.com/careless25/lichess-bot
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
