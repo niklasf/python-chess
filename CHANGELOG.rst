@@ -1,6 +1,22 @@
 Changelog for python-chess
 ==========================
 
+New in v1.9.3
+-------------
+
+Bugfixes:
+
+* Fix some valid characters were not accepted in PGN tag names.
+
+Changes:
+
+* Skip over syntactically invalid PGN tags.
+* Detect Antichess insufficient material with two opposing knights.
+
+New features:
+
+* Add `chess.Board.unicode(..., orientation=chess.WHITE)`.
+
 New in v1.9.2
 -------------
 
