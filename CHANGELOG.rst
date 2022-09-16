@@ -15,7 +15,7 @@ Changes:
 
 New features:
 
-* Add `chess.Board.unicode(..., orientation=chess.WHITE)`.
+* Add ``chess.Board.unicode(..., orientation=chess.WHITE)``.
 
 New in v1.9.2
 -------------
