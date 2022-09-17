@@ -1,6 +1,10 @@
 import sys
 import os
 
+# Import the chess module.
+sys.path.insert(0, os.path.abspath(".."))
+import chess
+
 # Do not resolve these.
 autodoc_type_aliases = {
     "Square": "chess.Square",
@@ -9,10 +13,6 @@ autodoc_type_aliases = {
     "Bitboard": "chess.Bitboard",
     "IntoSquareSet": "chess.IntoSquareSet",
 }
-
-# Import the chess module.
-sys.path.insert(0, os.path.abspath(".."))
-import chess
 
 # Autodoc.
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.intersphinx"]
@@ -29,7 +29,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "python-chess"
-copyright = "2014–2021, Niklas Fiekas"
+copyright = "2014–2022, Niklas Fiekas"
 
 # The version.
 version = chess.__version__
