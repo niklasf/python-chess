@@ -1,8 +1,8 @@
 Old Changelog for python-chess up to 1.0.0
 ==========================================
 
-New in v1.0.0
--------------
+New in v1.0.0 (24th Sep 2020)
+-----------------------------
 
 Changes:
 
@@ -38,8 +38,8 @@ New features:
 * Added `chess.Board.apply_mirror()`.
 * Added `chess.svg.board(..., colors)`, to allow overriding the default theme.
 
-New in v0.31.4
---------------
+New in v0.31.4 (9th Aug 2020)
+-----------------------------
 
 Bugfixes:
 
@@ -53,8 +53,8 @@ New features:
 
 * Finish typing and declare support for mypy.
 
-New in v0.31.3
---------------
+New in v0.31.3 (18th Jul 2020)
+------------------------------
 
 Bugfixes:
 
@@ -84,8 +84,8 @@ New features:
   `[%eval ...]` PGN annotations.
 * Added `SquareSet.ray(a, b)` and `SquareSet.between(a, b)`.
 
-New in v0.31.2
---------------
+New in v0.31.2 (2nd Jun 2020)
+-----------------------------
 
 Bugfixes:
 
@@ -99,8 +99,8 @@ Changes:
   `one_king`.
 * Take advantage of `int.bit_count()` coming in Python 3.10.
 
-New in v0.31.1
---------------
+New in v0.31.1 (5th May 2020)
+-----------------------------
 
 Bugfixes:
 
@@ -122,8 +122,8 @@ Features:
 
 * Added `Board.find_move()`, useful for finding moves that match human input.
 
-New in v0.31.0
---------------
+New in v0.31.0 (21st Apr 2020)
+------------------------------
 
 Changes:
 
@@ -160,8 +160,8 @@ Features:
 * Added `empty_square` parameter for `chess.Board.unicode()` with better
   aligned default (⭘).
 
-New in v0.30.1
---------------
+New in v0.30.1 (18th Jan 2020)
+------------------------------
 
 Changes:
 
@@ -187,8 +187,8 @@ Features:
 * Added `board.checkers()`, returning a set of squares with the pieces giving
   check.
 
-New in v0.30.0
---------------
+New in v0.30.0 (1st Jan 2020)
+-----------------------------
 
 Changes:
 
@@ -211,8 +211,8 @@ Features:
   when running on Python 3.9+ and Linux 5.3+.
 * Add `chess.Board.san_and_push()`.
 
-New in v0.29.0
---------------
+New in v0.29.0 (2nd Dec 2019)
+-----------------------------
 
 Changes:
 
@@ -235,8 +235,8 @@ Features:
 
 * Support `wdl` in UCI info (usually activated with `UCI_ShowWDL`).
 
-New in v0.28.3
---------------
+New in v0.28.3 (3rd Sep 2019)
+-----------------------------
 
 Bugfixes:
 
@@ -244,8 +244,8 @@ Bugfixes:
 * Handle self-reported errors by XBoard engines "Error: ..." or
   "Illegal move: ...".
 
-New in v0.28.2
---------------
+New in v0.28.2 (25th Jul 2019)
+------------------------------
 
 Bugfixes:
 
@@ -257,8 +257,8 @@ Changes:
 * `chess.Move.from_uci()` no longer accepts moves from and to the same square,
   for example `a1a1`. `0000` is now the only valid null move notation.
 
-New in v0.28.1
---------------
+New in v0.28.1 (25th May 2019)
+------------------------------
 
 Bugfixes:
 
@@ -273,8 +273,8 @@ Changes:
 * Added `chess.engine.InfoDict` class with typed shorthands for common keys.
 * Support `[Variant "3-check"]` (from chess.com PGNs).
 
-New in v0.28.0
---------------
+New in v0.28.0 (20th May 2019)
+------------------------------
 
 Changes:
 
@@ -314,8 +314,8 @@ New features:
 * `chess.engine.EngineProtocol` and constructors now optionally take
   an explicit `loop` argument.
 
-New in v0.27.3
---------------
+New in v0.27.3 (21st Mar 2019)
+------------------------------
 
 Changes:
 
@@ -343,8 +343,8 @@ New features:
   `chess.pgn.GameNode.dangling_node()` to simplify subclassing `GameNode`.
 * `EngineProtocol.communicate()` is now also available in the synchronous API.
 
-New in v0.27.2
---------------
+New in v0.27.2 (16th Mar 2019)
+------------------------------
 
 Bugfixes:
 
@@ -352,16 +352,16 @@ Bugfixes:
   intended when using `chess.engine.Limit.time`, and searching 100 times more
   nodes than intended when using `chess.engine.Limit.nodes`. Thanks @pascalgeo.
 
-New in v0.27.1
---------------
+New in v0.27.1 (15th Mar 2019)
+------------------------------
 
 Bugfixes:
 
 * `chess.engine.XBoardProtocol.play()` was raising `KeyError` when using time
   controls with increment or remaining moves. Thanks @pascalgeo.
 
-New in v0.27.0
---------------
+New in v0.27.0 (14th Mar 2019)
+------------------------------
 
 This is the second **release candidate for python-chess 1.0**. If you see the
 need for breaking changes, please speak up now!
@@ -389,8 +389,8 @@ New features:
 * Document that `chess.engine.EngineProtocol` is compatible with
   AsyncSSH 1.16.0.
 
-New in v0.26.0
---------------
+New in v0.26.0 (19th Feb 2019)
+------------------------------
 
 This is the first **release candidate for python-chess 1.0**. If you see the
 need for breaking changes, please speak up now!
@@ -414,16 +414,16 @@ Bugfixes:
 
 * Properly handle delayed engine errors, for example unsupported options.
 
-New in v0.25.1
---------------
+New in v0.25.1 (24th Jan 2019)
+------------------------------
 
 Bugfixes:
 
 * `chess.engine` did not correctly handle Windows-style line endings.
   Thanks @Bstylestuff.
 
-New in v0.25.0
---------------
+New in v0.25.0 (18th Jan 2019)
+------------------------------
 
 New features:
 
@@ -443,8 +443,8 @@ Changes:
 * `chess.pgn.read_game()` now ignores BOM at the start of the stream.
 * Removed deprecated items.
 
-New in v0.24.2
---------------
+New in v0.24.2 (5th Jan 2019)
+-----------------------------
 
 Bugfixes:
 
@@ -469,8 +469,8 @@ Features:
 
 * Added `chess.pgn.BaseVisitor.visit_board()` and `chess.pgn.BoardCreator`.
 
-New in v0.24.1, v0.23.11
-------------------------
+New in v0.24.1, v0.23.11 (7th Dec 2018)
+---------------------------------------
 
 Bugfixes:
 
@@ -479,8 +479,8 @@ Bugfixes:
 * `chess.pgn.GameNode.uci()` was always raising an exception.
   Also included in v0.24.0.
 
-New in v0.24.0
---------------
+New in v0.24.0 (3rd Dec 2018)
+-----------------------------
 
 This release **drops support for Python 2**. The *0.23.x* branch will be
 maintained for one more month.
@@ -555,16 +555,16 @@ New features:
   The corresponding `end_game()` or `end_variation()` will still be called.
 * Added `chess.svg.MARGIN`.
 
-New in v0.23.10
----------------
+New in v0.23.10 (31st Oct 2018)
+-------------------------------
 
 Bugfixes:
 
 * `chess.SquareSet` now correctly handles negative masks. Thanks @hasnul.
 * `chess.pgn` now accepts `[Variant "chess 960"]` (with the space).
 
-New in v0.23.9
---------------
+New in v0.23.9 (4th Jul 2018)
+-----------------------------
 
 Changes:
 
@@ -572,16 +572,16 @@ Changes:
   repetition no longer needs to occur on consecutive alternating moves.
   Thanks @LegionMammal978.
 
-New in v0.23.8
---------------
+New in v0.23.8 (1st Jul 2018)
+-----------------------------
 
 Bugfixes:
 
 * `chess.syzygy`: Correctly initialize wide DTZ map for experimental 7 piece
   table KRBBPvKQ.
 
-New in v0.23.7
---------------
+New in v0.23.7 (26th Jun 2018)
+------------------------------
 
 Bugfixes:
 
@@ -604,8 +604,8 @@ New features:
 
 * Added `Board.root()`.
 
-New in v0.23.6
---------------
+New in v0.23.6 (25th May 2018)
+------------------------------
 
 Bugfixes:
 
@@ -628,8 +628,8 @@ New features:
 
 * Added `polyglot.MemoryMappedReader.get(board, default=None)`.
 
-New in v0.23.5
---------------
+New in v0.23.5 (11th May 2018)
+------------------------------
 
 Bugfixes:
 
@@ -642,8 +642,8 @@ Changes:
 * Better error messages when parsing info from UCI engine fails.
 * Better error message for `b.set_board_fen(b.fen())`.
 
-New in v0.23.4
---------------
+New in v0.23.4 (29th Apr 2018)
+------------------------------
 
 New features:
 
@@ -655,15 +655,15 @@ Bugfixes:
 * Implement 16 bit DTZ mapping, which is required for some of the longest
   7 piece endgames.
 
-New in v0.23.3
---------------
+New in v0.23.3 (21st Apr 2018)
+------------------------------
 
 New features:
 
 * XBoard: Support `variant`. Thanks gbtami.
 
-New in v0.23.2
---------------
+New in v0.23.2 (20th Apr 2018)
+------------------------------
 
 Bugfixes:
 
@@ -671,16 +671,16 @@ Bugfixes:
 * XBoard: Ignore debug output prefixed with `#`. Thanks Dan Ravensloft and
   Manik Charan.
 
-New in v0.23.1
---------------
+New in v0.23.1 (13th Apr 2018)
+------------------------------
 
 Bugfixes:
 
 * Fix DTZ in case of mate in 1. This is a cosmetic fix, as the previous
   behavior was only off by one (which is allowed by design).
 
-New in v0.23.0
---------------
+New in v0.23.0 (8th Apr 2018)
+-----------------------------
 
 New features:
 
@@ -694,8 +694,8 @@ Changes:
 * The undocumented constructors of `chess.syzygy.WdlTable` and
   `chess.syzygy.DtzTable` have been changed.
 
-New in v0.22.2
---------------
+New in v0.22.2 (15th Mar 2018)
+------------------------------
 
 Bugfixes:
 
@@ -714,8 +714,8 @@ New features:
 
 * Added `Board.lan()` for long algebraic notation.
 
-New in v0.22.1
---------------
+New in v0.22.1 (1st Jan 2018)
+-----------------------------
 
 New features:
 
@@ -734,8 +734,8 @@ Bugfixes:
 * `chess.pgn`: Allow games without movetext.
 * XBoard: Fixed draw handling.
 
-New in v0.22.0
---------------
+New in v0.22.0 (20th Nov 2017)
+------------------------------
 
 Changes:
 
@@ -749,16 +749,16 @@ New features:
 
 * XBoard: Added `DrawHandler`.
 
-New in v0.21.2
---------------
+New in v0.21.2 (17th Nov 2017)
+------------------------------
 
 Changes:
 
 * `chess.svg` is now fully SVG Tiny 1.2 compatible. Removed
   `chess.svg.DEFAULT_STYLE` which would from now on be always empty.
 
-New in v0.21.1
---------------
+New in v0.21.1 (14th Nov 2017)
+------------------------------
 
 Bugfixes:
 
@@ -779,21 +779,21 @@ Changes:
 * Documentation fixes and tweaks by Boštjan Mejak.
 * Changed unicode character for empty squares in `Board.unicode()`.
 
-New in v0.21.0
---------------
+New in v0.21.0 (13th Nov 2017)
+------------------------------
 
 Release yanked.
 
-New in v0.20.1
---------------
+New in v0.20.1 (16th Oct 2017)
+------------------------------
 
 Bugfixes:
 
 * Fix arrow positioning on SVG boards.
 * Documentation fixes and improvements, making most doctests runnable.
 
-New in v0.20.0
---------------
+New in v0.20.0 (13th Oct 2017)
+------------------------------
 
 Bugfixes:
 
@@ -820,8 +820,8 @@ New features:
 * Factored out some (unstable) low level APIs: `BB_CORNERS`,
   `_carry_rippler()`, `_edges()`.
 
-New in v0.19.0
---------------
+New in v0.19.0 (27th Jul 2017)
+------------------------------
 
 New features:
 
@@ -859,23 +859,23 @@ Changes:
   the extra dependencies are required for both UCI and XBoard engines).
 * Mixed documentation fixes and improvements.
 
-New in v0.18.4
---------------
+New in v0.18.4 (27th Jul 2017)
+------------------------------
 
 Changes:
 
 * Support `[Variant "fischerandom"]` in PGNs for Cutechess compatibility.
   Thanks to Steve Maughan for reporting.
 
-New in v0.18.3
---------------
+New in v0.18.3 (28th Jun 2017)
+------------------------------
 
 Bugfixes:
 
 * `chess.gaviota.NativeTablebases.get_dtm()` and `get_wdl()` were missing.
 
-New in v0.18.2
---------------
+New in v0.18.2 (1st Jun 2017)
+-----------------------------
 
 Bugfixes:
 
@@ -890,8 +890,8 @@ Changes:
 
 * Added more NAG constants in `chess.pgn`.
 
-New in v0.18.1
---------------
+New in v0.18.1 (1st May 2017)
+-----------------------------
 
 Bugfixes:
 
@@ -907,8 +907,8 @@ Changes:
 
 * `ThreeCheckBoard.uci_variant` changed from `threecheck` to `3check`.
 
-New in v0.18.0
---------------
+New in v0.18.0 (20th Apr 2017)
+------------------------------
 
 Bugfixes:
 
@@ -947,8 +947,8 @@ New features:
 * SVGs now have `viewBox` and `chess.svg.board(size=None)` supports and
   defaults to `None` (i.e. scaling to the size of the container).
 
-New in v0.17.0
---------------
+New in v0.17.0 (6th Mar 2017)
+-----------------------------
 
 Changes:
 
@@ -991,8 +991,8 @@ New features:
 * Added `msb()`, `lsb()`, `scan_reversed()` and `scan_forward()`.
 * Added `BB_RAYS` and `BB_BETWEEN`.
 
-New in v0.16.2
---------------
+New in v0.16.2 (15th Jan 2017)
+------------------------------
 
 Changes:
 
@@ -1003,16 +1003,16 @@ Changes:
 * `chess.svg`: Better vector graphics for knights. Thanks to ProgramFox.
 * Documentation improvements.
 
-New in v0.16.1
---------------
+New in v0.16.1 (12th Dec 2016)
+------------------------------
 
 Bugfixes:
 
 * Explosions in atomic chess were not destroying castling rights. Thanks to
   ProgramFOX for finding this issue.
 
-New in v0.16.0
---------------
+New in v0.16.0 (11th Dec 2016)
+------------------------------
 
 Bugfixes:
 
@@ -1061,8 +1061,8 @@ New features:
 
 * Highlight last move and checks when rendering board SVGs.
 
-New in v0.15.3
---------------
+New in v0.15.3 (21st Sep 2016)
+------------------------------
 
 Bugfixes:
 
@@ -1084,8 +1084,8 @@ Bugfixes:
   very similar to the bug fixed in v0.15.1. Thanks to piccoloprogrammatore
   for reporting.
 
-New in v0.15.1
---------------
+New in v0.15.1 (12th Sep 2016)
+------------------------------
 
 Bugfixes:
 
@@ -1094,10 +1094,10 @@ Bugfixes:
 
 New features:
 
-* Replaced __html__ with experimental SVG rendering for IPython.
+* Replaced `__html__` with experimental SVG rendering for IPython.
 
-New in v0.15.0
---------------
+New in v0.15.0 (11th Aug 2016)
+------------------------------
 
 Changes:
 
@@ -1130,8 +1130,8 @@ New features:
 
 * Added `chess.BB_BACKRANKS` and `chess.BB_PAWN_ATTACKS`.
 
-New in v0.14.1
---------------
+New in v0.14.1 (7th Jun 2016)
+-----------------------------
 
 Bugfixes:
 
@@ -1155,8 +1155,8 @@ Changes:
 
 * Documentation improvements.
 
-New in v0.14.0
---------------
+New in v0.14.0 (7th Apr 2016)
+-----------------------------
 
 Changes:
 
@@ -1197,8 +1197,8 @@ New features:
   `Board.generate_legal_captures(from_mask=BB_ALL, to_mask=BB_ALL)`.
 
 
-New in v0.13.3
---------------
+New in v0.13.3 (7th Apr 2016)
+-----------------------------
 
 **This is a bugfix release for a move generation bug.** Other than the bugfix
 itself there are only minimal fully backwardscompatible changes.
@@ -1228,8 +1228,8 @@ Changes:
 
 * Consistently handle tabs in UCI engine output.
 
-New in v0.13.2
---------------
+New in v0.13.2 (19th Jan 2016)
+------------------------------
 
 Changes:
 
@@ -1244,8 +1244,8 @@ Minor new features:
 
 * Added `chess.pgn.Game.from_board()`.
 
-New in v0.13.1
---------------
+New in v0.13.1 (20th Dec 2015)
+------------------------------
 
 Changes:
 
@@ -1267,8 +1267,8 @@ Minor new features:
 
 * Added `chess.SquareSet.from_square(square)`.
 
-New in v0.13.0
---------------
+New in v0.13.0 (10th Nov 2015)
+------------------------------
 
 * `chess.pgn.Game.export()` and `chess.pgn.GameNode.export()` have been
   removed and replaced with a new visitor concept.
@@ -1276,8 +1276,8 @@ New in v0.13.0
 * `chess.pgn.read_game()` no longer takes an `error_handler` argument. Errors
   are now logged. Use the new visitor concept to change this behaviour.
 
-New in v0.12.5
---------------
+New in v0.12.5 (18th Oct 2015)
+------------------------------
 
 Bugfixes:
 
@@ -1288,8 +1288,8 @@ Bugfixes:
 * PGN variation start comments for variations on the very first move were
   assigned to the game. Thanks to Norbert Räcke for reporting.
 
-New in v0.12.4
---------------
+New in v0.12.4 (13th Oct 2015)
+------------------------------
 
 Bugfixes:
 
@@ -1306,24 +1306,24 @@ Changes:
 
 * Added tox.ini to specify test suite and flake8 options.
 
-New in v0.12.3
---------------
+New in v0.12.3 (9th Oct 2015)
+-----------------------------
 
 Bugfixes:
 
 * Some invalid castling rights were silently ignored by `Board.set_fen()`. Now
   it is ensured information is stored for retrieval using `Board.status()`.
 
-New in v0.12.2
---------------
+New in v0.12.2 (7th Oct 2015)
+-----------------------------
 
 Bugfixes:
 
 * Some Gaviota probe results were incorrect for positions where black could
   capture en passant.
 
-New in v0.12.1
---------------
+New in v0.12.1 (7th Oct 2015)
+-----------------------------
 
 Changes:
 
@@ -1331,8 +1331,8 @@ Changes:
   method `Board.clean_castling_rights()` to get the subset of strictly valid
   castling rights.
 
-New in v0.12.0
---------------
+New in v0.12.0 (3rd Oct 2015)
+-----------------------------
 
 New features:
 
@@ -1340,8 +1340,8 @@ New features:
 
 * Pure Python Gaviota tablebase probing. Thanks to Jean-Noël Avila.
 
-New in v0.11.1
---------------
+New in v0.11.1 (7th Sep 2015)
+-----------------------------
 
 Bugfixes:
 
@@ -1352,8 +1352,8 @@ Bugfixes:
 * Ignore extra spaces in UCI `info` lines, as for example sent by the
   Hakkapeliitta engine. Thanks to Jürgen Précour for reporting.
 
-New in v0.11.0
---------------
+New in v0.11.0 (6th Sep 2015)
+-----------------------------
 
 Changes:
 
@@ -1394,15 +1394,15 @@ New features:
 
 * Make `repr(board.legal_moves)` human readable.
 
-New in v0.10.1
---------------
+New in v0.10.1 (30th Aug 2015)
+------------------------------
 
 Bugfixes:
 
 * Fix use-after-free in Gaviota tablebase initialization.
 
-New in v0.10.0
---------------
+New in v0.10.0 (28th Aug 2015)
+------------------------------
 
 New dependencies:
 
@@ -1486,8 +1486,8 @@ New features:
 
 * Support common set operations on `chess.SquareSet()`.
 
-New in v0.9.1
--------------
+New in v0.9.1 (15th Jul 2015)
+-----------------------------
 
 Bugfixes:
 
@@ -1500,8 +1500,8 @@ Bugfixes:
   rank must be empty, additionally. We do not do further retrograde analysis,
   because these are the only cases affecting move generation.
 
-New in v0.8.3
--------------
+New in v0.8.3 (15th Jul 2015)
+-----------------------------
 
 Bugfixes:
 
@@ -1512,8 +1512,8 @@ Bugfixes:
   rank must be empty, additionally. We do not do further retrograde analysis,
   because these are the only cases affecting move generation.
 
-New in v0.9.0
--------------
+New in v0.9.0 (24th Jun 2015)
+-----------------------------
 
 **This is a big update with quite a few breaking changes. Carefully review
 the changes before upgrading. It's no problem if you can not update right now.
@@ -1628,8 +1628,8 @@ New features:
   `Board.__str__()` but with unicode pieces.
 * Patch by Richard C. Gerkin: Added `Board.__html__()`.
 
-New in v0.8.2
--------------
+New in v0.8.2 (21st Jun 2015)
+-----------------------------
 
 Bugfixes:
 
@@ -1642,8 +1642,8 @@ Optimizations:
 * Remove `bswap()` from Syzygy decompression hot path. Directly read integers
   with the correct endianness.
 
-New in v0.8.1
--------------
+New in v0.8.1 (29th May 2015)
+-----------------------------
 
 * Fixed pondering mode in uci module. For example `ponderhit()` was blocking
   indefinitely. Thanks to Valeriy Huz for reporting this.
@@ -1672,8 +1672,8 @@ New in v0.8.1
 * Use containerized tests on Travis CI, test against Stockfish 6, improved
   test coverage amd various minor clean-ups.
 
-New in v0.8.0
--------------
+New in v0.8.0 (25th Mar 2015)
+-----------------------------
 
 * **Implement Syzygy endgame tablebase probing.**
   `https://syzygy-tables.info <https://syzygy-tables.info/apidoc?fen=6N1/5KR1/2n5/8/8/8/2n5/1k6%20w%20-%20-%200%201>`_
@@ -1694,15 +1694,15 @@ New in v0.8.0
   startup sometimes needed to be processed before the Engine object was fully
   initialized.
 
-New in v0.7.0
--------------
+New in v0.7.0 (21st Feb 2015)
+-----------------------------
 
 * **Implement UCI engine communication.**
 
 * Patch by Matthew Lai: `Add caching for gameNode.board()`.
 
-New in v0.6.0
--------------
+New in v0.6.0 (8th Nov 2014)
+----------------------------
 
 * If there are comments in a game before the first move, these are now assigned
   to `Game.comment` instead of `Game.starting_comment`. `Game.starting_comment`
@@ -1725,8 +1725,8 @@ New in v0.6.0
 
 * Remove `next_bit()`. Now use `bit_scan()`.
 
-New in v0.5.0
--------------
+New in v0.5.0 (28th Oct 2014)
+-----------------------------
 
 * PGN parsing is now more robust: `read_game()` ignores invalid tokens.
   Still exceptions are going to be thrown on illegal or ambiguous moves, but
@@ -1772,14 +1772,14 @@ New in v0.5.0
 
 * Minor testcoverage improvements.
 
-New in v0.4.2
--------------
+New in v0.4.2 (11th Oct 2014)
+-----------------------------
 
 * Fix bug where `pawn_moves_from()` and consequently `is_legal()` weren't
   handling en passant correctly. Thanks to Norbert Naskov for reporting.
 
-New in v0.4.1
--------------
+New in v0.4.1 (26th Aug 2014)
+-----------------------------
 
 * Fix `is_fivefold_repitition()`: The new fivefold repetition rule requires
   the repetitions to occur on *alternating consecutive* moves.
@@ -1789,8 +1789,8 @@ New in v0.4.1
 
 * Add recently introduced features to README.
 
-New in v0.4.0
--------------
+New in v0.4.0 (19th Aug 2014)
+-----------------------------
 
 * Introduce `can_claim_draw()`, `can_claim_fifty_moves()` and
   `can_claim_threefold_repitition()`.
@@ -1822,8 +1822,8 @@ New in v0.4.0
 
 * Minor coding style fixes.
 
-New in v0.3.1
--------------
+New in v0.3.1 (15th Aug 2014)
+-----------------------------
 
 * `Bitboard.status()` now correctly detects `STATUS_INVALID_EP_SQUARE`,
   instead of errors or false reports.
@@ -1832,8 +1832,8 @@ New in v0.3.1
 
 * Minor coding style fixes, including removal of unused imports.
 
-New in v0.3.0
--------------
+New in v0.3.0 (13th Aug 2014)
+-----------------------------
 
 * Rename property `half_moves` of `Bitboard` to `halfmove_clock`.
 
