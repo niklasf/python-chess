@@ -989,7 +989,7 @@ class CrazyhouseBoard(chess.Board):
                 uci = "P" + uci
             move = chess.Move.from_uci(uci)
             if not self.is_legal(move):
-                raise ValueError(f"illegal drop san: {san!r} in {self.fen()}")
+                raise chess.IllegalMoveError(f"illegal drop san: {san!r} in {self.fen()}")
             return move
         else:
             return super().parse_san(san)

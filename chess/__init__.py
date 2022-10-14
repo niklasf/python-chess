@@ -165,6 +165,18 @@ class Outcome:
         return "1/2-1/2" if self.winner is None else ("1-0" if self.winner else "0-1")
 
 
+class InvalidMoveError(ValueError):
+    """Raised when the attempted move is invalid in the current position"""
+
+
+class IllegalMoveError(ValueError):
+    """Raised when the attempted move is illegal in the current position"""
+
+
+class AmbiguousMoveError(ValueError):
+    """Raised when the attempted move is ambiguous in the current position"""
+
+
 Square = int
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
@@ -551,23 +563,29 @@ class Move:
         """
         Parses a UCI string.
 
-        :raises: :exc:`ValueError` if the UCI string is invalid.
+        :raises: :exc:`InvalidMoveError` if the UCI string is invalid.
         """
         if uci == "0000":
             return cls.null()
         elif len(uci) == 4 and "@" == uci[1]:
-            drop = PIECE_SYMBOLS.index(uci[0].lower())
-            square = SQUARE_NAMES.index(uci[2:])
+            try:
+                drop = PIECE_SYMBOLS.index(uci[0].lower())
+                square = SQUARE_NAMES.index(uci[2:])
+            except ValueError:
+                raise InvalidMoveError(f"invalid uci: {uci!r}")
             return cls(square, square, drop=drop)
         elif 4 <= len(uci) <= 5:
-            from_square = SQUARE_NAMES.index(uci[0:2])
-            to_square = SQUARE_NAMES.index(uci[2:4])
-            promotion = PIECE_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
+            try:
+                from_square = SQUARE_NAMES.index(uci[0:2])
+                to_square = SQUARE_NAMES.index(uci[2:4])
+                promotion = PIECE_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
+            except ValueError:
+                raise InvalidMoveError(f"invalid uci: {uci!r}")
             if from_square == to_square:
-                raise ValueError(f"invalid uci (use 0000 for null moves): {uci!r}")
+                raise InvalidMoveError(f"invalid uci (use 0000 for null moves): {uci!r}")
             return cls(from_square, to_square, promotion=promotion)
         else:
-            raise ValueError(f"expected uci string to be of length 4 or 5: {uci!r}")
+            raise InvalidMoveError(f"expected uci string to be of length 4 or 5: {uci!r}")
 
     @classmethod
     def null(cls) -> Move:
@@ -2305,14 +2323,14 @@ class Board(BaseBoard):
         Castling moves are normalized to king moves by two steps, except in
         Chess960.
 
-        :raises: :exc:`ValueError` if no matching legal move is found.
+        :raises: :exc:`IllegalMoveError` if no matching legal move is found.
         """
         if promotion is None and self.pawns & BB_SQUARES[from_square] and BB_SQUARES[to_square] & BB_BACKRANKS:
             promotion = QUEEN
 
         move = self._from_chess960(self.chess960, from_square, to_square, promotion)
         if not self.is_legal(move):
-            raise ValueError(f"no matching legal move for {move.uci()} ({SQUARE_NAMES[from_square]} -> {SQUARE_NAMES[to_square]}) in {self.fen()}")
+            raise IllegalMoveError(f"no matching legal move for {move.uci()} ({SQUARE_NAMES[from_square]} -> {SQUARE_NAMES[to_square]}) in {self.fen()}")
 
         return move
 
@@ -2938,14 +2956,14 @@ class Board(BaseBoard):
 
         The board will not be modified as a result of calling this.
 
-        :raises: :exc:`ValueError` if any moves in the sequence are illegal.
+        :raises: :exc:`IllegalMoveError` if any moves in the sequence are illegal.
         """
         board = self.copy(stack=False)
         san = []
 
         for move in variation:
             if not board.is_legal(move):
-                raise ValueError(f"illegal move {move} in position {board.fen()}")
+                raise IllegalMoveError(f"illegal move {move} in position {board.fen()}")
 
             if board.turn == WHITE:
                 san.append(f"{board.fullmove_number}. {board.san_and_push(move)}")
@@ -2966,7 +2984,11 @@ class Board(BaseBoard):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        :raises: :exc:`ValueError` if the SAN is invalid, illegal or ambiguous.
+        :raises:
+            :exc:`ValueError` (or specifically an exception specified below) if the SAN is invalid, illegal or ambiguous.
+                - :exc:`InvalidMoveError` if the SAN is invalid.
+                - :exc:`IllegalMoveError` if the SAN is illegal.
+                - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
         # Castling.
         try:
@@ -2975,7 +2997,7 @@ class Board(BaseBoard):
             elif san in ["O-O-O", "O-O-O+", "O-O-O#", "0-0-0", "0-0-0+", "0-0-0#"]:
                 return next(move for move in self.generate_castling_moves() if self.is_queenside_castling(move))
         except StopIteration:
-            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
+            raise IllegalMoveError(f"illegal san: {san!r} in {self.fen()}")
 
         # Match normal moves.
         match = SAN_REGEX.match(san)
@@ -2984,9 +3006,9 @@ class Board(BaseBoard):
             if san in ["--", "Z0", "0000", "@@@@"]:
                 return Move.null()
             elif "," in san:
-                raise ValueError(f"unsupported multi-leg move: {san!r}")
+                raise InvalidMoveError(f"unsupported multi-leg move: {san!r}")
             else:
-                raise ValueError(f"invalid san: {san!r}")
+                raise InvalidMoveError(f"invalid san: {san!r}")
 
         # Get target square. Mask our own pieces to exclude castling moves.
         to_square = SQUARE_NAMES.index(match.group(4))
@@ -3016,7 +3038,7 @@ class Board(BaseBoard):
             if move.promotion == promotion:
                 return move
             else:
-                raise ValueError(f"missing promotion piece type: {san!r} in {self.fen()}")
+                raise IllegalMoveError(f"missing promotion piece type: {san!r} in {self.fen()}")
         else:
             from_mask &= self.pawns
 
@@ -3031,12 +3053,12 @@ class Board(BaseBoard):
                 continue
 
             if matched_move:
-                raise ValueError(f"ambiguous san: {san!r} in {self.fen()}")
+                raise AmbiguousMoveError(f"ambiguous san: {san!r} in {self.fen()}")
 
             matched_move = move
 
         if not matched_move:
-            raise ValueError(f"illegal san: {san!r} in {self.fen()}")
+            raise IllegalMoveError(f"illegal san: {san!r} in {self.fen()}")
 
         return matched_move
 
@@ -3047,7 +3069,11 @@ class Board(BaseBoard):
 
         Returns the move.
 
-        :raises: :exc:`ValueError` if neither legal nor a null move.
+        :raises:
+            :exc:`ValueError` (or specifically an exception specified below) if neither legal nor a null move.
+                - :exc:`InvalidMoveError` if the SAN is invalid.
+                - :exc:`IllegalMoveError` if the SAN is illegal.
+                - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
         move = self.parse_san(san)
         self.push(move)
@@ -3075,8 +3101,11 @@ class Board(BaseBoard):
 
         The returned move is guaranteed to be either legal or a null move.
 
-        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+        :raises:
+            :exc:`ValueError` (or specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
+                - :exc:`InvalidMoveError` if the UCI is invalid.
+                - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = Move.from_uci(uci)
 
@@ -3087,7 +3116,7 @@ class Board(BaseBoard):
         move = self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop)
 
         if not self.is_legal(move):
-            raise ValueError(f"illegal uci: {uci!r} in {self.fen()}")
+            raise IllegalMoveError(f"illegal uci: {uci!r} in {self.fen()}")
 
         return move
 
@@ -3097,8 +3126,11 @@ class Board(BaseBoard):
 
         Returns the move.
 
-        :raises: :exc:`ValueError` if the move is invalid or illegal in the
+        :raises:
+            :exc:`ValueError` (or specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
+                - :exc:`InvalidMoveError` if the UCI is invalid.
+                - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = self.parse_uci(uci)
         self.push(move)
