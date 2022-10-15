@@ -120,16 +120,16 @@ class MoveTestCase(unittest.TestCase):
         self.assertEqual(chess.Move.from_uci("0000").uci(), "0000")
 
     def test_invalid_uci(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             chess.Move.from_uci("")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             chess.Move.from_uci("N")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             chess.Move.from_uci("z1g3")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             chess.Move.from_uci("Q@g9")
 
     def test_xboard_move(self):
@@ -383,9 +383,9 @@ class BoardTestCase(unittest.TestCase):
     def test_castling_san(self):
         board = chess.Board("4k3/8/8/8/8/8/8/4K2R w K - 0 1")
         self.assertEqual(board.parse_san("O-O"), chess.Move.from_uci("e1g1"))
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.parse_san("Kg1")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.parse_san("Kh1")
 
     def test_ninesixty_castling(self):
@@ -503,9 +503,9 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.find_move(chess.B7, chess.B8, chess.KNIGHT), chess.Move.from_uci("b7b8n"))
 
         # Illegal moves.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.find_move(chess.D2, chess.D8)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.find_move(chess.E1, chess.A1)
 
         # Castling.
@@ -589,6 +589,13 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/8/8/3R1P2/8/2k2K2/3p4/r7 b - - 0 82")
         board.push_san("d1=Q+")
         self.assertEqual(board.fen(), "8/8/8/3R1P2/8/2k2K2/8/r2q4 w - - 0 83")
+
+    def test_ambiguous_move(self):
+        board = chess.Board("8/8/1n6/3R1P2/1n6/2k2K2/3p4/r6r b - - 0 82")
+        with self.assertRaises(chess.AmbiguousMoveError):
+            board.parse_san("Rf1")
+        with self.assertRaises(chess.AmbiguousMoveError):
+            board.parse_san("Nd5")
 
     def test_scholars_mate(self):
         board = chess.Board()
@@ -723,17 +730,17 @@ class BoardTestCase(unittest.TestCase):
 
     def test_san_newline(self):
         board = chess.Board("rnbqk2r/ppppppbp/5np1/8/8/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 4")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             board.parse_san("O-O\n")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.InvalidMoveError):
             board.parse_san("Nc3\n")
 
     def test_pawn_capture_san_without_file(self):
         board = chess.Board("2rq1rk1/pb2bppp/1p2p3/n1ppPn2/2PP4/PP3N2/1B1NQPPP/RB3RK1 b - - 4 13")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.parse_san("c4")
         board = chess.Board("4k3/8/8/4Pp2/8/8/8/4K3 w - f6 0 2")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.parse_san("f6")
 
     def test_variation_san(self):
@@ -763,7 +770,7 @@ class BoardTestCase(unittest.TestCase):
 
         illegal_variation = ['d3h7', 'g8h7', 'f3h6', 'h7g8']
         board = chess.Board(fen)
-        with self.assertRaises(ValueError) as err:
+        with self.assertRaises(chess.IllegalMoveError) as err:
             board.variation_san([chess.Move.from_uci(m) for m in illegal_variation])
         message = str(err.exception)
         self.assertIn('illegal move', message.lower(),
@@ -4018,7 +4025,7 @@ class SuicideTestCase(unittest.TestCase):
         board.push_san("d5")
 
         # Capture is mandatory.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.push_san("Nf3")
 
     def test_is_legal(self):
@@ -4159,15 +4166,15 @@ class AtomicTestCase(unittest.TestCase):
         self.assertEqual(board.fen(), "8/8/8/8/8/8/4k3/2KR3q b - - 1 1")
 
         board = chess.variant.AtomicBoard("8/8/8/8/8/8/5k2/R3K2r w Q - 0 1")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.push_san("O-O-O")
 
         board = chess.variant.AtomicBoard("8/8/8/8/8/8/6k1/R5Kr w Q - 0 1", chess960=True)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.push_san("O-O-O")
 
         board = chess.variant.AtomicBoard("8/8/8/8/8/8/4k3/r2RK2r w D - 0 1", chess960=True)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.push_san("O-O-O")
 
     def test_castling_rights_explode_with_king(self):
@@ -4495,7 +4502,7 @@ class CrazyhouseTestCase(unittest.TestCase):
 
     def test_illegal_drop_uci(self):
         board = chess.variant.CrazyhouseBoard()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(chess.IllegalMoveError):
             board.parse_uci("N@f3")
 
     def test_crazyhouse_fen(self):
