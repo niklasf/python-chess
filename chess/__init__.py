@@ -166,7 +166,7 @@ class Outcome:
 
 
 class InvalidMoveError(ValueError):
-    """Raised when the attempted move is invalid in the current position"""
+    """Raised when move notation is not syntactically valid"""
 
 
 class IllegalMoveError(ValueError):
