@@ -2985,8 +2985,8 @@ class Board(BaseBoard):
         The returned move is guaranteed to be either legal or a null move.
 
         :raises:
-            :exc:`ValueError` (or specifically an exception specified below) if the SAN is invalid, illegal or ambiguous.
-                - :exc:`InvalidMoveError` if the SAN is invalid.
+            :exc:`ValueError` (specifically an exception specified below) if the SAN is invalid, illegal or ambiguous.
+                - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
                 - :exc:`IllegalMoveError` if the SAN is illegal.
                 - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
@@ -3070,8 +3070,8 @@ class Board(BaseBoard):
         Returns the move.
 
         :raises:
-            :exc:`ValueError` (or specifically an exception specified below) if neither legal nor a null move.
-                - :exc:`InvalidMoveError` if the SAN is invalid.
+            :exc:`ValueError` (specifically an exception specified below) if neither legal nor a null move.
+                - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
                 - :exc:`IllegalMoveError` if the SAN is illegal.
                 - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
@@ -3102,9 +3102,9 @@ class Board(BaseBoard):
         The returned move is guaranteed to be either legal or a null move.
 
         :raises:
-            :exc:`ValueError` (or specifically an exception specified below) if the move is invalid or illegal in the
+            :exc:`ValueError` (specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
-                - :exc:`InvalidMoveError` if the UCI is invalid.
+                - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
                 - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = Move.from_uci(uci)
@@ -3127,9 +3127,9 @@ class Board(BaseBoard):
         Returns the move.
 
         :raises:
-            :exc:`ValueError` (or specifically an exception specified below) if the move is invalid or illegal in the
+            :exc:`ValueError` (specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
-                - :exc:`InvalidMoveError` if the UCI is invalid.
+                - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
                 - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = self.parse_uci(uci)
