@@ -210,7 +210,6 @@ class AtomicBoard(chess.Board):
     tbw_magic = b"\x55\x8d\xa4\x49"
     tbz_magic = b"\x91\xa9\x5e\xeb"
     connected_kings = True
-    one_king = True
 
     def is_variant_end(self) -> bool:
         return not all(self.kings & side for side in self.occupied_co)
