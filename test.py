@@ -3893,10 +3893,14 @@ class SyzygyTestCase(unittest.TestCase):
                                        msg=f"Expected dtz {solution['dtz']}, got {dtz} (in l. {l + 1}, fen: {board.fen()})")
 
     def test_antichess_kvk(self):
-        kvk = chess.variant.AntichessBoard("8/8/8/8/8/3K4/8/4k3 w - - 0 30")
+        kvk = chess.variant.AntichessBoard("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
 
         tables = chess.syzygy.Tablebase()
         with self.assertRaises(KeyError):
+            tables.probe_dtz(kvk)
+
+        tables = chess.syzygy.Tablebase(VariantBoard=chess.variant.AntichessBoard)
+        with self.assertRaises(chess.syzygy.MissingTableError):
             tables.probe_dtz(kvk)
 
 
