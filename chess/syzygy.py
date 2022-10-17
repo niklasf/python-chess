@@ -1585,6 +1585,15 @@ class Tablebase:
         return table.probe_wdl_table(board)
 
     def probe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
+        # Check preconditions.
+        if board.uci_variant != self.variant.uci_variant:
+            raise KeyError(f"tablebase has been opened for {self.variant.uci_variant}, probed with: {board.uci_variant}")
+        if board.castling_rights:
+            raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
+        if chess.popcount(board.occupied) > TBPIECES:
+            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+
+        # Special case: Variant with compulsory captures.
         if self.variant.captures_compulsory:
             if board.is_variant_win():
                 return 2, 2
@@ -1701,14 +1710,6 @@ class Tablebase:
 
             Note that probing corrupted table files is undefined behavior.
         """
-        # Positions with castling rights are not in the tablebase.
-        if board.castling_rights:
-            raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
-
-        # Validate piece count.
-        if chess.popcount(board.occupied) > TBPIECES:
-            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
-
         # Probe.
         v, _ = self.probe_ab(board, -2, 2)
 

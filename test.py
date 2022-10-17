@@ -3892,6 +3892,13 @@ class SyzygyTestCase(unittest.TestCase):
                 self.assertAlmostEqual(dtz, solution["dtz"], delta=1,
                                        msg=f"Expected dtz {solution['dtz']}, got {dtz} (in l. {l + 1}, fen: {board.fen()})")
 
+    def test_antichess_kvk(self):
+        kvk = chess.variant.AntichessBoard("8/8/8/8/8/3K4/8/4k3 w - - 0 30")
+
+        tables = chess.syzygy.Tablebase()
+        with self.assertRaises(KeyError):
+            tables.probe_dtz(kvk)
+
 
 class NativeGaviotaTestCase(unittest.TestCase):
 
