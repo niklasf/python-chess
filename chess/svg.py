@@ -280,7 +280,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     >>>
     >>> chess.svg.board(
     ...     board,
-    ...     fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc") | {chess.E4: "#00cc00cc"},
+    ...     fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc"),
     ...     arrows=[chess.svg.Arrow(chess.E4, chess.F6, color="#0000cccc")],
     ...     squares=chess.SquareSet(chess.BB_DARK_SQUARES & chess.BB_FILE_B),
     ...     size=350,
