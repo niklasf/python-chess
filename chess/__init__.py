@@ -2980,7 +2980,8 @@ class Board(BaseBoard):
         algebraic notation and returns the corresponding move object.
 
         Ambiguous moves are rejected. Overspecified moves (including long
-        algebraic notation) are accepted.
+        algebraic notation) are accepted. Some common syntactical deviations
+        are also accepted.
 
         The returned move is guaranteed to be either legal or a null move.
 
