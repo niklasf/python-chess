@@ -44,7 +44,7 @@ from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, It
 
 try:
     from typing import Literal
-    _WdlModel = Literal["sf", "sf15", "sf14", "sf12", "lichess"]
+    _WdlModel = Literal["sf", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 except ImportError:
     # Before Python 3.8.
     _WdlModel = str  # type: ignore
@@ -564,7 +564,8 @@ class Score(abc.ABC):
 
         :param model:
             * ``sf``, the WDL model used by the latest Stockfish
-              (currently ``sf15``).
+              (currently ``sf15.1``).
+            * ``sf15.1``, the WDL model used by Stockfish 15.1.
             * ``sf15``, the WDL model used by Stockfish 15.
             * ``sf14``, the WDL model used by Stockfish 14.
             * ``sf12``, the WDL model used by Stockfish 12.
@@ -628,6 +629,16 @@ class Score(abc.ABC):
             return NotImplemented
 
 
+def _sf15_1_wins(cp: int, *, ply: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_15.1/src/uci.cpp#L200-L224
+    # https://github.com/official-stockfish/Stockfish/blob/sf_15.1/src/uci.h#L38
+    NormalizeToPawnValue = 361
+    m = min(240, max(ply, 0)) / 64
+    a = (((-0.58270499 * m + 2.68512549) * m + 15.24638015) * m) + 344.49745382
+    b = (((-2.65734562 * m + 15.96509799) * m + -20.69040836) * m) + 73.61029937
+    x = min(4000, max(cp * NormalizeToPawnValue / 100, -4000))
+    return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
 def _sf15_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_15/src/uci.cpp#L200-L220
     m = min(240, max(ply, 0)) / 64
@@ -678,9 +689,12 @@ class Cp(Score):
         elif model == "sf14":
             wins = _sf14_wins(self.cp, ply=ply)
             losses = _sf14_wins(-self.cp, ply=ply)
-        else:
+        elif model == "sf15":
             wins = _sf15_wins(self.cp, ply=ply)
             losses = _sf15_wins(-self.cp, ply=ply)
+        else:
+            wins = _sf15_1_wins(self.cp, ply=ply)
+            losses = _sf15_1_wins(-self.cp, ply=ply)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
 
