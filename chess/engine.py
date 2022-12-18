@@ -469,7 +469,7 @@ class PovScore:
 
     def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> PovWdl:
         """See :func:`~chess.engine.Score.wdl()`."""
-        return PovWdl(self.relative.wdl(), self.turn)
+        return PovWdl(self.relative.wdl(model=model, ply=ply), self.turn)
 
     def __repr__(self) -> str:
         return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
