@@ -1,6 +1,20 @@
 Changelog for python-chess
 ==========================
 
+New in v1.9.4 (22nd Dec 2022)
+-----------------------------
+
+Bugfixes:
+
+* Fix ``PovScore.wdl()`` ignored ``model`` and ``ply`` parameters.
+* ``chess.syzygy``: Check that board matches tablebase variant.
+
+New features:
+
+* Add model ``sf15.1`` for ``chess.engine.Score.wdl()``.
+* Raise more specific exceptions: ``chess.IllegalMoveError``,
+  ``chess.AmbiguousMoveError``, and ``chess.InvalidMoveError``.
+
 New in v1.9.3 (16th Sep 2022)
 -----------------------------
 
