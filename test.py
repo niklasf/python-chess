@@ -2997,7 +2997,7 @@ class EngineTestCase(unittest.TestCase):
     def test_sf_analysis(self):
         with chess.engine.SimpleEngine.popen_uci("stockfish", setpgrp=True, debug=True) as engine:
             board = chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1")
-            limit = chess.engine.Limit(depth=28)
+            limit = chess.engine.Limit(depth=40)
             analysis = engine.analysis(board, limit)
             with analysis:
                 for info in iter(analysis.next, None):
