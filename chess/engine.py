@@ -1538,16 +1538,16 @@ class UciProtocol(Protocol):
             builder.append("ponder")
         if limit.white_clock is not None:
             builder.append("wtime")
-            builder.append(str(max(1, int(limit.white_clock * 1000))))
+            builder.append(str(max(1, round(limit.white_clock * 1000))))
         if limit.black_clock is not None:
             builder.append("btime")
-            builder.append(str(max(1, int(limit.black_clock * 1000))))
+            builder.append(str(max(1, round(limit.black_clock * 1000))))
         if limit.white_inc is not None:
             builder.append("winc")
-            builder.append(str(int(limit.white_inc * 1000)))
+            builder.append(str(round(limit.white_inc * 1000)))
         if limit.black_inc is not None:
             builder.append("binc")
-            builder.append(str(int(limit.black_inc * 1000)))
+            builder.append(str(round(limit.black_inc * 1000)))
         if limit.remaining_moves is not None and int(limit.remaining_moves) > 0:
             builder.append("movestogo")
             builder.append(str(int(limit.remaining_moves)))
@@ -1562,7 +1562,7 @@ class UciProtocol(Protocol):
             builder.append(str(max(1, int(limit.mate))))
         if limit.time is not None:
             builder.append("movetime")
-            builder.append(str(max(1, int(limit.time * 1000))))
+            builder.append(str(max(1, round(limit.time * 1000))))
         if infinite:
             builder.append("infinite")
         if root_moves is not None:
@@ -2160,9 +2160,9 @@ class XBoardProtocol(Protocol):
                 if limit.depth is not None:
                     engine.send_line(f"sd {max(1, int(limit.depth))}")
                 if limit.white_clock is not None:
-                    engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, int(limit.white_clock * 100))))
+                    engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, round(limit.white_clock * 100))))
                 if limit.black_clock is not None:
-                    engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, int(limit.black_clock * 100))))
+                    engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, round(limit.black_clock * 100))))
 
                 if draw_offered and engine.features.get("draw", 1):
                     engine.send_line("draw")

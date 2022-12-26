@@ -420,7 +420,7 @@ class GameNode(abc.ABC):
                 # who has been mated.
                 return chess.engine.PovScore(score, turn)
         else:
-            score = chess.engine.Cp(int(float(match.group("cp")) * 100))
+            score = chess.engine.Cp(round(float(match.group("cp")) * 100))
 
         return chess.engine.PovScore(score if turn else -score, turn)
 

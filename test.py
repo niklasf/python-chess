@@ -2806,6 +2806,12 @@ class PgnTestCase(unittest.TestCase):
         game.set_arrows([])
         self.assertEqual(game.comment, "foo [%bar] baz")
 
+    def test_eval(self):
+        game = chess.pgn.Game()
+        for cp in range(199, 220):
+            game.set_eval(chess.engine.PovScore(chess.engine.Cp(cp), chess.WHITE))
+            self.assertEqual(game.eval().white().cp, cp)
+
     def test_float_emt(self):
         game = chess.pgn.Game()
         game.comment = "[%emt 0:00:01.234]"
