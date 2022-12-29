@@ -810,11 +810,11 @@ class Game(GameNode):
             fen = setup.fen()
 
         if fen == type(setup).starting_fen:
-            self.headers.pop("SetUp", None)
             self.headers.pop("FEN", None)
+            self.headers.pop("SetUp", None)
         else:
-            self.headers["SetUp"] = "1"
             self.headers["FEN"] = fen
+            self.headers["SetUp"] = "1"
 
         if type(setup).aliases[0] == "Standard" and setup.chess960:
             self.headers["Variant"] = "Chess960"
@@ -957,7 +957,7 @@ class Headers(MutableMapping[str, str]):
             if key in self._tag_roster:
                 yield key
 
-        yield from sorted(self._others)
+        yield from self._others
 
     def __len__(self) -> int:
         return len(self._tag_roster) + len(self._others)
