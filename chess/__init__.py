@@ -2987,9 +2987,10 @@ class Board(BaseBoard):
 
         :raises:
             :exc:`ValueError` (specifically an exception specified below) if the SAN is invalid, illegal or ambiguous.
-                - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
-                - :exc:`IllegalMoveError` if the SAN is illegal.
-                - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
+
+            - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
+            - :exc:`IllegalMoveError` if the SAN is illegal.
+            - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
         # Castling.
         try:
@@ -3072,9 +3073,10 @@ class Board(BaseBoard):
 
         :raises:
             :exc:`ValueError` (specifically an exception specified below) if neither legal nor a null move.
-                - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
-                - :exc:`IllegalMoveError` if the SAN is illegal.
-                - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
+
+            - :exc:`InvalidMoveError` if the SAN is syntactically invalid.
+            - :exc:`IllegalMoveError` if the SAN is illegal.
+            - :exc:`AmbiguousMoveError` if the SAN is ambiguous.
         """
         move = self.parse_san(san)
         self.push(move)
@@ -3105,8 +3107,9 @@ class Board(BaseBoard):
         :raises:
             :exc:`ValueError` (specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
-                - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
-                - :exc:`IllegalMoveError` if the UCI is illegal.
+
+            - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
+            - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = Move.from_uci(uci)
 
@@ -3130,8 +3133,9 @@ class Board(BaseBoard):
         :raises:
             :exc:`ValueError` (specifically an exception specified below) if the move is invalid or illegal in the
             current position (but not a null move).
-                - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
-                - :exc:`IllegalMoveError` if the UCI is illegal.
+
+            - :exc:`InvalidMoveError` if the UCI is syntactically invalid.
+            - :exc:`IllegalMoveError` if the UCI is illegal.
         """
         move = self.parse_uci(uci)
         self.push(move)
