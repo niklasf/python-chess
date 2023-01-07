@@ -601,13 +601,7 @@ class Table:
                         self.enc_type = 1 + j
 
     def init_mmap(self) -> None:
-        if self.data is not None:
-            return
-
-        with self.write_lock:
-            if self.data is not None:
-                return
-
+        if self.data is None:
             fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
             try:
                 data = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
