@@ -337,12 +337,13 @@ class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
     def __init__(self, filename: PathLike) -> None:
-        self.fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
-
+        fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
         try:
-            self.mmap: Union[mmap.mmap, _EmptyMmap] = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
+            self.mmap: Union[mmap.mmap, _EmptyMmap] = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
         except (ValueError, OSError):
             self.mmap = _EmptyMmap()  # Workaround for empty opening books.
+        finally:
+            os.close(fd)
 
         if self.mmap.size() % ENTRY_STRUCT.size != 0:
             raise IOError(f"invalid file size: ensure {filename!r} is a valid polyglot opening book")
@@ -513,11 +514,6 @@ class MemoryMappedReader:
     def close(self) -> None:
         """Closes the reader."""
         self.mmap.close()
-
-        try:
-            os.close(self.fd)
-        except OSError:
-            pass
 
 
 def open_reader(path: PathLike) -> MemoryMappedReader:
