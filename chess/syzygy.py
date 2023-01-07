@@ -1482,12 +1482,8 @@ class DtzTable(Table):
 class Tablebase:
     """
     Manages a collection of tablebase files for probing.
-
-    If *max_fds* is not ``None``, will at most use *max_fds* open file
-    descriptors at any given time. The least recently used tables are closed,
-    if necessary.
     """
-    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, *, max_fds: Optional[int] = None, VariantBoard: Type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1967,7 +1963,7 @@ class Tablebase:
         self.close()
 
 
-def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = None, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.
@@ -1981,6 +1977,10 @@ def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = Tr
         are often distributed separately, but are both required for 6-piece
         positions. Use :func:`~chess.syzygy.Tablebase.add_directory()` to load
         tables from additional directories.
+
+    :param max_fds: If *max_fds* is not ``None``, will at most use *max_fds*
+        open file descriptors at any given time. The least recently used tables
+        are closed, if necessary.
     """
     tables = Tablebase(max_fds=max_fds, VariantBoard=VariantBoard)
     tables.add_directory(directory, load_wdl=load_wdl, load_dtz=load_dtz)
