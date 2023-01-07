@@ -559,7 +559,6 @@ class Table:
 
         self.write_lock = threading.RLock()
         self.initialized = False
-        self.fd: Optional[int] = None
         self.data: Optional[mmap.mmap] = None
 
         self.read_condition = threading.Condition()
@@ -602,23 +601,29 @@ class Table:
                         self.enc_type = 1 + j
 
     def init_mmap(self) -> None:
+        if self.data is not None:
+            return
+
         with self.write_lock:
-            # Open fd.
-            if self.fd is None:
-                self.fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+            if self.data is not None:
+                return
 
-            # Open mmap.
-            if self.data is None:
-                data = mmap.mmap(self.fd, 0, access=mmap.ACCESS_READ)
-                if data.size() % 64 != 16:
-                    raise IOError(f"invalid file size: ensure {self.path!r} is a valid syzygy tablebase file")
-                self.data = data
+            fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+            try:
+                data = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
+            finally:
+                os.close(fd)
 
-                try:
-                    # Python 3.8
-                    self.data.madvise(mmap.MADV_RANDOM)
-                except AttributeError:
-                    pass
+            if data.size() % 64 != 16:
+                raise IOError(f"invalid file size: ensure {self.path!r} is a valid syzygy tablebase file")
+
+            try:
+                # Python 3.8
+                data.madvise(mmap.MADV_RANDOM)
+            except AttributeError:
+                pass
+
+            self.data = data
 
     def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> None:
         assert self.data
@@ -1044,10 +1049,6 @@ class Table:
                 if self.data is not None:
                     self.data.close()
                     self.data = None
-
-                if self.fd is not None:
-                    os.close(self.fd)
-                    self.fd = None
 
     def __enter__(self: TableT) -> TableT:
         return self
