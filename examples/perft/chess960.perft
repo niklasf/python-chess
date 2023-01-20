@@ -1,6 +1,7 @@
 # https://www.chessprogramming.org/Chess960_Perft_Results
+# https://github.com/AndyGrant/Ethereal/blob/master/src/perft/fischer.epd
 
-id 1
+id 0
 epd bqnb1rkr/pp3ppp/3ppn2/2p5/5P2/P2P4/NPP1P1PP/BQ1BNRKR w HFhf - 2 9
 perft 1 21
 perft 2 528
@@ -18,7 +19,7 @@ perft 4 667366
 perft 5 16253601
 perft 6 590751109
 
-id 1
+id 2
 epd b1q1rrkb/pppppppp/3nn3/8/P7/1PPP4/4PPPP/BQNNRKRB w GE - 1 9
 perft 1 20
 perft 2 479
@@ -27,7 +28,7 @@ perft 4 273318
 perft 5 6417013
 perft 6 177654692
 
-id 1
+id 3
 epd qbbnnrkr/2pp2pp/p7/1p2pp2/8/P3PP2/1PPP1KPP/QBBNNR1R w hf - 0 9
 perft 1 22
 perft 2 593
@@ -36,7 +37,7 @@ perft 4 382958
 perft 5 9183776
 perft 6 274103539
 
-id 1
+id 4
 epd 1nbbnrkr/p1p1ppp1/3p4/1p3P1p/3Pq2P/8/PPP1P1P1/QNBBNRKR w HFhf - 0 9
 perft 1 28
 perft 2 1120
@@ -45,7 +46,7 @@ perft 4 1171749
 perft 5 34030312
 perft 6 1250970898
 
-id 1
+id 5
 epd qnbnr1kr/ppp1b1pp/4p3/3p1p2/8/2NPP3/PPP1BPPP/QNB1R1KR w HEhe - 1 9
 perft 1 29
 perft 2 899
@@ -54,7 +55,7 @@ perft 4 824055
 perft 5 24851983
 perft 6 775718317
 
-id 1
+id 6
 epd q1bnrkr1/ppppp2p/2n2p2/4b1p1/2NP4/8/PPP1PPPP/QNB1RRKB w ge - 1 9
 perft 1 30
 perft 2 860
@@ -63,7 +64,7 @@ perft 4 732757
 perft 5 21093346
 perft 6 649209803
 
-id 1
+id 7
 epd qbn1brkr/ppp1p1p1/2n4p/3p1p2/P7/6PP/QPPPPP2/1BNNBRKR w HFhf - 0 9
 perft 1 25
 perft 2 635
@@ -72,7 +73,7 @@ perft 4 465806
 perft 5 13203304
 perft 6 377184252
 
-id 1
+id 8
 epd qnnbbrkr/1p2ppp1/2pp3p/p7/1P5P/2NP4/P1P1PPP1/Q1NBBRKR w HFhf - 0 9
 perft 1 24
 perft 2 572
@@ -81,7 +82,7 @@ perft 4 384260
 perft 5 11110203
 perft 6 293989890
 
-id 1
+id 9
 epd qn1rbbkr/ppp2p1p/1n1pp1p1/8/3P4/P6P/1PP1PPPK/QNNRBB1R w hd - 2 9
 perft 1 28
 perft 2 811
@@ -90,7 +91,7 @@ perft 4 679699
 perft 5 19836606
 perft 6 594527992
 
-id 1
+id 10
 epd qnr1bkrb/pppp2pp/3np3/5p2/8/P2P2P1/NPP1PP1P/QN1RBKRB w GDg - 3 9
 perft 1 33
 perft 2 823
@@ -99,7 +100,7 @@ perft 4 713420
 perft 5 23114629
 perft 6 646390782
 
-id 1
+id 11
 epd qb1nrkbr/1pppp1p1/1n3p2/p1B4p/8/3P1P1P/PPP1P1P1/QBNNRK1R w HEhe - 0 9
 perft 1 31
 perft 2 855
@@ -108,7 +109,7 @@ perft 4 735703
 perft 5 21796206
 perft 6 651054626
 
-id 1
+id 12
 epd qnnbrk1r/1p1ppbpp/2p5/p4p2/2NP3P/8/PPP1PPP1/Q1NBRKBR w HEhe - 0 9
 perft 1 26
 perft 2 790
@@ -117,7 +118,7 @@ perft 4 642367
 perft 5 17819770
 perft 6 544866674
 
-id 1
+id 13
 epd 1qnrkbbr/1pppppp1/p1n4p/8/P7/1P1N1P2/2PPP1PP/QN1RKBBR w HDhd - 0 9
 perft 1 37
 perft 2 883
@@ -126,7 +127,7 @@ perft 4 815535
 perft 5 29370838
 perft 6 783201510
 
-id 1
+id 14
 epd qn1rkrbb/pp1p1ppp/2p1p3/3n4/4P2P/2NP4/PPP2PP1/Q1NRKRBB w FDfd - 1 9
 perft 1 24
 perft 2 585
@@ -135,7 +136,7 @@ perft 4 356950
 perft 5 9482310
 perft 6 233468620
 
-id 1
+id 15
 epd bb1qnrkr/pp1p1pp1/1np1p3/4N2p/8/1P4P1/P1PPPP1P/BBNQ1RKR w HFhf - 0 9
 perft 1 29
 perft 2 864
@@ -144,7 +145,7 @@ perft 4 799727
 perft 5 24219627
 perft 6 776836316
 
-id 1
+id 16
 epd bnqbnr1r/p1p1ppkp/3p4/1p4p1/P7/3NP2P/1PPP1PP1/BNQB1RKR w HF - 0 9
 perft 1 26
 perft 2 889
@@ -153,7 +154,7 @@ perft 4 832956
 perft 5 23701014
 perft 6 809194268
 
-id 1
+id 17
 epd bnqnrbkr/1pp2pp1/p7/3pP2p/4P1P1/8/PPPP3P/BNQNRBKR w HEhe d6 0 9
 perft 1 31
 perft 2 984
@@ -162,7 +163,7 @@ perft 4 962591
 perft 5 29032175
 perft 6 1008880643
 
-id 1
+id 18
 epd b1qnrrkb/ppp1pp1p/n2p1Pp1/8/8/P7/1PPPP1PP/BNQNRKRB w GE - 0 9
 perft 1 20
 perft 2 484
@@ -171,7 +172,7 @@ perft 4 281606
 perft 5 6718715
 perft 6 193594729
 
-id 1
+id 19
 epd n1bqnrkr/pp1ppp1p/2p5/6p1/2P2b2/PN6/1PNPPPPP/1BBQ1RKR w HFhf - 2 9
 perft 1 23
 perft 2 732
@@ -180,7 +181,7 @@ perft 4 558191
 perft 5 14481581
 perft 6 457140569
 
-id 1
+id 20
 epd n1bb1rkr/qpnppppp/2p5/p7/P1P5/5P2/1P1PPRPP/NQBBN1KR w Hhf - 1 9
 perft 1 27
 perft 2 697
@@ -189,7 +190,7 @@ perft 4 505089
 perft 5 14226907
 perft 6 400942568
 
-id 1
+id 21
 epd nqb1rbkr/pppppp1p/4n3/6p1/4P3/1NP4P/PP1P1PP1/1QBNRBKR w HEhe - 1 9
 perft 1 28
 perft 2 641
@@ -198,7 +199,7 @@ perft 4 456916
 perft 5 13780398
 perft 6 354122358
 
-id 1
+id 22
 epd n1bnrrkb/pp1pp2p/2p2p2/6p1/5B2/3P4/PPP1PPPP/NQ1NRKRB w GE - 2 9
 perft 1 28
 perft 2 606
@@ -207,7 +208,7 @@ perft 4 381646
 perft 5 10815324
 perft 6 254026570
 
-id 1
+id 23
 epd nbqnbrkr/2ppp1p1/pp3p1p/8/4N2P/1N6/PPPPPPP1/1BQ1BRKR w HFhf - 0 9
 perft 1 26
 perft 2 626
@@ -216,7 +217,7 @@ perft 4 437525
 perft 5 12719546
 perft 6 339132046
 
-id 1
+id 24
 epd nq1bbrkr/pp2nppp/2pp4/4p3/1PP1P3/1B6/P2P1PPP/NQN1BRKR w HFhf - 2 9
 perft 1 21
 perft 2 504
@@ -225,7 +226,7 @@ perft 4 302230
 perft 5 7697880
 perft 6 207028745
 
-id 1
+id 25
 epd nqnrb1kr/2pp1ppp/1p1bp3/p1B5/5P2/3N4/PPPPP1PP/NQ1R1BKR w HDhd - 0 9
 perft 1 30
 perft 2 672
@@ -234,7 +235,7 @@ perft 4 465317
 perft 5 13454573
 perft 6 345445468
 
-id 1
+id 26
 epd nqn2krb/p1prpppp/1pbp4/7P/5P2/8/PPPPPKP1/NQNRB1RB w g - 3 9
 perft 1 21
 perft 2 461
@@ -243,7 +244,7 @@ perft 4 248069
 perft 5 6194124
 perft 6 152861936
 
-id 1
+id 27
 epd nb1n1kbr/ppp1rppp/3pq3/P3p3/8/4P3/1PPPRPPP/NBQN1KBR w Hh - 1 9
 perft 1 19
 perft 2 566
@@ -252,7 +253,7 @@ perft 4 358337
 perft 5 8047916
 perft 6 249171636
 
-id 1
+id 28
 epd nqnbrkbr/1ppppp1p/p7/6p1/6P1/P6P/1PPPPP2/NQNBRKBR w HEhe - 1 9
 perft 1 20
 perft 2 382
@@ -261,7 +262,7 @@ perft 4 187263
 perft 5 4708975
 perft 6 112278808
 
-id 1
+id 29
 epd nq1rkb1r/pp1pp1pp/1n2bp1B/2p5/8/5P1P/PPPPP1P1/NQNRKB1R w HDhd - 2 9
 perft 1 24
 perft 2 809
@@ -270,7 +271,7 @@ perft 4 673811
 perft 5 17647882
 perft 6 593457788
 
-id 1
+id 30
 epd nqnrkrb1/pppppp2/7p/4b1p1/8/PN1NP3/1PPP1PPP/1Q1RKRBB w FDfd - 1 9
 perft 1 26
 perft 2 683
@@ -279,7 +280,7 @@ perft 4 473911
 perft 5 13055173
 perft 6 352398011
 
-id 1
+id 31
 epd bb1nqrkr/1pp1ppp1/pn5p/3p4/8/P2NNP2/1PPPP1PP/BB2QRKR w HFhf - 0 9
 perft 1 29
 perft 2 695
@@ -288,7 +289,7 @@ perft 4 552634
 perft 5 17454857
 perft 6 483785639
 
-id 1
+id 32
 epd bnn1qrkr/pp1ppp1p/2p5/b3Q1p1/8/5P1P/PPPPP1P1/BNNB1RKR w HFhf - 2 9
 perft 1 44
 perft 2 920
@@ -297,7 +298,7 @@ perft 4 795317
 perft 5 29742670
 perft 6 702867204
 
-id 1
+id 33
 epd bnnqrbkr/pp1p2p1/2p1p2p/5p2/1P5P/1R6/P1PPPPP1/BNNQRBK1 w Ehe - 0 9
 perft 1 33
 perft 2 1022
@@ -306,7 +307,7 @@ perft 4 1024721
 perft 5 32898113
 perft 6 1047360456
 
-id 1
+id 34
 epd b1nqrkrb/2pppppp/p7/1P6/1n6/P4P2/1P1PP1PP/BNNQRKRB w GEge - 0 9
 perft 1 23
 perft 2 638
@@ -315,7 +316,7 @@ perft 4 446539
 perft 5 11735969
 perft 6 344211589
 
-id 1
+id 35
 epd n1bnqrkr/3ppppp/1p6/pNp1b3/2P3P1/8/PP1PPP1P/NBB1QRKR w HFhf - 1 9
 perft 1 29
 perft 2 728
@@ -324,7 +325,7 @@ perft 4 532084
 perft 5 15621236
 perft 6 415766465
 
-id 1
+id 36
 epd n2bqrkr/p1p1pppp/1pn5/3p1b2/P6P/1NP5/1P1PPPP1/1NBBQRKR w HFhf - 3 9
 perft 1 20
 perft 2 533
@@ -333,7 +334,7 @@ perft 4 325059
 perft 5 8088751
 perft 6 223068417
 
-id 1
+id 37
 epd nnbqrbkr/1pp1p1p1/p2p4/5p1p/2P1P3/N7/PPQP1PPP/N1B1RBKR w HEhe - 0 9
 perft 1 27
 perft 2 619
@@ -342,7 +343,7 @@ perft 4 444421
 perft 5 13755384
 perft 6 357222394
 
-id 1
+id 38
 epd nnbqrkr1/pp1pp2p/2p2b2/5pp1/1P5P/4P1P1/P1PP1P2/NNBQRKRB w GEge - 1 9
 perft 1 32
 perft 2 1046
@@ -351,7 +352,7 @@ perft 4 1111186
 perft 5 36218182
 perft 6 1202830851
 
-id 1
+id 39
 epd nb1qbrkr/p1pppp2/1p1n2pp/8/1P6/2PN3P/P2PPPP1/NB1QBRKR w HFhf - 0 9
 perft 1 25
 perft 2 521
@@ -360,7 +361,7 @@ perft 4 306427
 perft 5 8697700
 perft 6 201455191
 
-id 1
+id 40
 epd nnq1brkr/pp1pppp1/8/2p4P/8/5K2/PPPbPP1P/NNQBBR1R w hf - 0 9
 perft 1 23
 perft 2 724
@@ -369,7 +370,7 @@ perft 4 571072
 perft 5 15338230
 perft 6 484638597
 
-id 1
+id 41
 epd nnqrbb1r/pppppk2/5pp1/7p/1P6/3P2PP/P1P1PP2/NNQRBBKR w HD - 0 9
 perft 1 30
 perft 2 717
@@ -378,7 +379,7 @@ perft 4 547145
 perft 5 17166700
 perft 6 450069742
 
-id 1
+id 42
 epd nnqr1krb/p1p1pppp/2bp4/8/1p1P4/4P3/PPP2PPP/NNQRBKRB w GDgd - 0 9
 perft 1 25
 perft 2 873
@@ -387,7 +388,7 @@ perft 4 728628
 perft 5 18162741
 perft 6 641708630
 
-id 1
+id 43
 epd nbnqrkbr/p2ppp2/1p4p1/2p4p/3P3P/3N4/PPP1PPPR/NB1QRKB1 w Ehe - 0 9
 perft 1 24
 perft 2 589
@@ -396,7 +397,7 @@ perft 4 382317
 perft 5 10630667
 perft 6 279474189
 
-id 1
+id 44
 epd n1qbrkbr/p1ppp2p/2n2pp1/1p6/1P6/2P3P1/P2PPP1P/NNQBRKBR w HEhe - 0 9
 perft 1 22
 perft 2 592
@@ -405,7 +406,7 @@ perft 4 401976
 perft 5 10356818
 perft 6 301583306
 
-id 1
+id 45
 epd 2qrkbbr/ppn1pppp/n1p5/3p4/5P2/P1PP4/1P2P1PP/NNQRKBBR w HDhd - 1 9
 perft 1 27
 perft 2 750
@@ -414,7 +415,7 @@ perft 4 605458
 perft 5 16819085
 perft 6 516796736
 
-id 1
+id 46
 epd 1nqr1rbb/pppkp1pp/1n3p2/3p4/1P6/5P1P/P1PPPKP1/NNQR1RBB w - - 1 9
 perft 1 24
 perft 2 623
@@ -423,7 +424,7 @@ perft 4 429446
 perft 5 11594634
 perft 6 322745925
 
-id 1
+id 47
 epd bbn1rqkr/pp1pp2p/4npp1/2p5/1P6/2BPP3/P1P2PPP/1BNNRQKR w HEhe - 0 9
 perft 1 23
 perft 2 730
@@ -432,7 +433,7 @@ perft 4 565340
 perft 5 14496370
 perft 6 468608864
 
-id 1
+id 48
 epd bn1brqkr/pppp2p1/3npp2/7p/PPP5/8/3PPPPP/BNNBRQKR w HEhe - 0 9
 perft 1 25
 perft 2 673
@@ -441,7 +442,7 @@ perft 4 513696
 perft 5 14284338
 perft 6 434008567
 
-id 1
+id 49
 epd bn1rqbkr/ppp1ppp1/1n6/2p4p/7P/3P4/PPP1PPP1/BN1RQBKR w HDhd - 0 9
 perft 1 25
 perft 2 776
@@ -450,7 +451,7 @@ perft 4 660217
 perft 5 18486027
 perft 6 616653869
 
-id 1
+id 50
 epd bnnr1krb/ppp2ppp/3p4/3Bp3/q1P3PP/8/PP1PPP2/BNNRQKR1 w GDgd - 0 9
 perft 1 29
 perft 2 1040
@@ -459,7 +460,7 @@ perft 4 1053113
 perft 5 31801525
 perft 6 1075147725
 
-id 1
+id 51
 epd 1bbnrqkr/pp1ppppp/8/2p5/n7/3PNPP1/PPP1P2P/NBB1RQKR w HEhe - 1 9
 perft 1 24
 perft 2 598
@@ -468,7 +469,7 @@ perft 4 409766
 perft 5 11394778
 perft 6 310589129
 
-id 1
+id 52
 epd nnbbrqkr/p2ppp1p/1pp5/8/6p1/N1P5/PPBPPPPP/N1B1RQKR w HEhe - 0 9
 perft 1 26
 perft 2 530
@@ -477,7 +478,7 @@ perft 4 326312
 perft 5 8846766
 perft 6 229270702
 
-id 1
+id 53
 epd nnbrqbkr/2p1p1pp/p4p2/1p1p4/8/NP6/P1PPPPPP/N1BRQBKR w HDhd - 0 9
 perft 1 17
 perft 2 496
@@ -486,7 +487,7 @@ perft 4 303310
 perft 5 7103549
 perft 6 217108001
 
-id 1
+id 54
 epd nnbrqk1b/pp2pprp/2pp2p1/8/3PP1P1/8/PPP2P1P/NNBRQRKB w d - 1 9
 perft 1 33
 perft 2 820
@@ -495,7 +496,7 @@ perft 4 706784
 perft 5 24714401
 perft 6 645835197
 
-id 1
+id 55
 epd 1bnrbqkr/ppnpp1p1/2p2p1p/8/1P6/4PPP1/P1PP3P/NBNRBQKR w HDhd - 0 9
 perft 1 27
 perft 2 705
@@ -504,7 +505,7 @@ perft 4 548680
 perft 5 15964771
 perft 6 464662032
 
-id 1
+id 56
 epd n1rbbqkr/pp1pppp1/7p/P1p5/1n6/2PP4/1P2PPPP/NNRBBQKR w HChc - 0 9
 perft 1 22
 perft 2 631
@@ -513,7 +514,7 @@ perft 4 431801
 perft 5 10911545
 perft 6 320838556
 
-id 1
+id 57
 epd n1rqb1kr/p1pppp1p/1pn4b/3P2p1/P7/1P6/2P1PPPP/NNRQBBKR w HChc - 0 9
 perft 1 24
 perft 2 477
@@ -522,7 +523,7 @@ perft 4 263189
 perft 5 7419372
 perft 6 165945904
 
-id 1
+id 58
 epd nnrqbkrb/pppp1pp1/7p/4p3/6P1/2N2B2/PPPPPP1P/NR1QBKR1 w Ggc - 2 9
 perft 1 29
 perft 2 658
@@ -531,7 +532,7 @@ perft 4 476620
 perft 5 14233587
 perft 6 373744834
 
-id 1
+id 59
 epd n1nrqkbr/ppb2ppp/3pp3/2p5/2P3P1/5P2/PP1PPB1P/NBNRQK1R w HDhd - 1 9
 perft 1 32
 perft 2 801
@@ -540,7 +541,7 @@ perft 4 681428
 perft 5 22318948
 perft 6 619857455
 
-id 1
+id 60
 epd 2rbqkbr/p1pppppp/1nn5/1p6/7P/P4P2/1PPPP1PB/NNRBQK1R w HChc - 2 9
 perft 1 27
 perft 2 647
@@ -549,7 +550,7 @@ perft 4 458057
 perft 5 13189156
 perft 6 354689323
 
-id 1
+id 61
 epd nn1qkbbr/pp2ppp1/2rp4/2p4p/P2P4/1N5P/1PP1PPP1/1NRQKBBR w HCh - 1 9
 perft 1 24
 perft 2 738
@@ -558,7 +559,7 @@ perft 4 586009
 perft 5 16420659
 perft 6 519075930
 
-id 1
+id 62
 epd nnrqk1bb/p1ppp2p/5rp1/1p3p2/1P4P1/5P1P/P1PPP3/NNRQKRBB w FCc - 1 9
 perft 1 25
 perft 2 795
@@ -567,7 +568,7 @@ perft 4 648945
 perft 5 17342527
 perft 6 556144017
 
-id 1
+id 63
 epd bb1nrkqr/ppppn2p/4ppp1/8/1P4P1/4P3/P1PPKP1P/BBNNR1QR w he - 0 9
 perft 1 29
 perft 2 664
@@ -576,7 +577,7 @@ perft 4 498376
 perft 5 15373803
 perft 6 406016364
 
-id 1
+id 64
 epd bnnbrkqr/1p1ppp2/8/p1p3pp/1P6/N4P2/PBPPP1PP/2NBRKQR w HEhe - 0 9
 perft 1 31
 perft 2 770
@@ -585,7 +586,7 @@ perft 4 677212
 perft 5 22562080
 perft 6 662029574
 
-id 1
+id 65
 epd 1nnrkbqr/p1pp1ppp/4p3/1p6/1Pb1P3/6PB/P1PP1P1P/BNNRK1QR w HDhd - 0 9
 perft 1 27
 perft 2 776
@@ -594,7 +595,7 @@ perft 4 641002
 perft 5 19153245
 perft 6 562738257
 
-id 1
+id 66
 epd bnr1kqrb/pppp1pp1/1n5p/4p3/P3P3/3P2P1/1PP2P1P/BNNRKQRB w GDg - 0 9
 perft 1 26
 perft 2 624
@@ -603,7 +604,7 @@ perft 4 435426
 perft 5 11906515
 perft 6 338092952
 
-id 1
+id 67
 epd nbbnrkqr/p1ppp1pp/1p3p2/8/2P5/4P3/PP1P1PPP/NBBNRKQR w HEhe - 1 9
 perft 1 25
 perft 2 624
@@ -612,7 +613,7 @@ perft 4 419635
 perft 5 10817378
 perft 6 311138112
 
-id 1
+id 68
 epd nn1brkqr/pp1bpppp/8/2pp4/P4P2/1PN5/2PPP1PP/N1BBRKQR w HEhe - 1 9
 perft 1 23
 perft 2 659
@@ -621,7 +622,7 @@ perft 4 476567
 perft 5 13242252
 perft 6 373557073
 
-id 1
+id 69
 epd n1brkbqr/ppp1pp1p/6pB/3p4/2Pn4/8/PP2PPPP/NN1RKBQR w HDhd - 0 9
 perft 1 32
 perft 2 1026
@@ -630,7 +631,7 @@ perft 4 978278
 perft 5 29436320
 perft 6 957904151
 
-id 1
+id 70
 epd nnbrkqrb/p2ppp2/Q5pp/1pp5/4PP2/2N5/PPPP2PP/N1BRK1RB w GDgd - 0 9
 perft 1 36
 perft 2 843
@@ -639,7 +640,7 @@ perft 4 715537
 perft 5 24321197
 perft 6 630396940
 
-id 1
+id 71
 epd nbnrbk1r/pppppppq/8/7p/8/1N2QPP1/PPPPP2P/NB1RBK1R w HDhd - 2 9
 perft 1 36
 perft 2 973
@@ -648,7 +649,7 @@ perft 4 1018054
 perft 5 37143354
 perft 6 1124883780
 
-id 1
+id 72
 epd nnrbbkqr/2pppp1p/p7/6p1/1p2P3/4QPP1/PPPP3P/NNRBBK1R w HChc - 0 9
 perft 1 36
 perft 2 649
@@ -657,7 +658,7 @@ perft 4 489526
 perft 5 16836636
 perft 6 416139320
 
-id 1
+id 73
 epd nnrkbbqr/1p2pppp/p2p4/2p5/8/1N2P1P1/PPPP1P1P/1NKRBBQR w hc - 0 9
 perft 1 26
 perft 2 672
@@ -666,7 +667,7 @@ perft 4 477801
 perft 5 13342771
 perft 6 363074681
 
-id 1
+id 74
 epd n1rkbqrb/pp1ppp2/2n3p1/2p4p/P5PP/1P6/2PPPP2/NNRKBQRB w GCgc - 0 9
 perft 1 24
 perft 2 804
@@ -675,7 +676,7 @@ perft 4 684001
 perft 5 18761475
 perft 6 617932151
 
-id 1
+id 75
 epd nbkr1qbr/1pp1pppp/pn1p4/8/3P2P1/5R2/PPP1PP1P/NBN1KQBR w H - 2 9
 perft 1 30
 perft 2 627
@@ -684,7 +685,7 @@ perft 4 423329
 perft 5 12815016
 perft 6 312798696
 
-id 1
+id 76
 epd nnr1kqbr/pp1pp1p1/2p5/b4p1p/P7/1PNP4/2P1PPPP/N1RBKQBR w HChc - 1 9
 perft 1 12
 perft 2 421
@@ -693,7 +694,7 @@ perft 4 227044
 perft 5 4266410
 perft 6 149176979
 
-id 1
+id 77
 epd n1rkqbbr/p1pp1pp1/np2p2p/8/8/N4PP1/PPPPP1BP/N1RKQ1BR w HChc - 0 9
 perft 1 27
 perft 2 670
@@ -702,7 +703,7 @@ perft 4 494690
 perft 5 14708490
 perft 6 397268628
 
-id 1
+id 78
 epd nnr1qrbb/p2kpppp/1p1p4/2p5/6P1/PP1P4/2P1PP1P/NNRKQRBB w FC - 0 9
 perft 1 27
 perft 2 604
@@ -711,7 +712,7 @@ perft 4 409665
 perft 5 11993332
 perft 6 308518181
 
-id 1
+id 79
 epd bbnnrkrq/ppp1pp2/6p1/3p4/7p/7P/PPPPPPP1/BBNNRRKQ w ge - 0 9
 perft 1 20
 perft 2 559
@@ -720,7 +721,7 @@ perft 4 355326
 perft 5 8427161
 perft 6 252274233
 
-id 1
+id 80
 epd bnnbrkr1/ppp2p1p/5q2/3pp1p1/4P3/1N4P1/PPPPRP1P/BN1B1KRQ w Gge - 0 9
 perft 1 26
 perft 2 1036
@@ -729,7 +730,7 @@ perft 4 1028084
 perft 5 28286576
 perft 6 1042120495
 
-id 1
+id 81
 epd bn1rkbrq/1pppppp1/p6p/1n6/3P4/6PP/PPPRPP2/BNN1KBRQ w Ggd - 2 9
 perft 1 29
 perft 2 633
@@ -738,7 +739,7 @@ perft 4 455476
 perft 5 14333034
 perft 6 361900466
 
-id 1
+id 82
 epd b1nrkrqb/1p1npppp/p2p4/2p5/5P2/4P2P/PPPP1RP1/BNNRK1QB w Dfd - 1 9
 perft 1 25
 perft 2 475
@@ -747,7 +748,7 @@ perft 4 270909
 perft 5 7545536
 perft 6 179579818
 
-id 1
+id 83
 epd 1bbnrkrq/ppppppp1/8/7p/1n4P1/1PN5/P1PPPP1P/NBBR1KRQ w Gge - 0 9
 perft 1 30
 perft 2 803
@@ -756,7 +757,7 @@ perft 4 709716
 perft 5 23443854
 perft 6 686365049
 
-id 1
+id 84
 epd nnbbrkrq/2pp1pp1/1p5p/pP2p3/7P/N7/P1PPPPP1/N1BBRKRQ w GEge - 0 9
 perft 1 18
 perft 2 432
@@ -765,7 +766,7 @@ perft 4 242350
 perft 5 6131124
 perft 6 160393505
 
-id 1
+id 85
 epd nnbrkbrq/1pppp1p1/p7/7p/1P2Pp2/BN6/P1PP1PPP/1N1RKBRQ w GDgd - 0 9
 perft 1 27
 perft 2 482
@@ -774,7 +775,7 @@ perft 4 282259
 perft 5 8084701
 perft 6 193484216
 
-id 1
+id 86
 epd n1brkrqb/pppp3p/n3pp2/6p1/3P1P2/N1P5/PP2P1PP/N1BRKRQB w FDfd - 0 9
 perft 1 28
 perft 2 642
@@ -783,7 +784,7 @@ perft 4 471729
 perft 5 14529434
 perft 6 384837696
 
-id 1
+id 87
 epd nbnrbk2/p1pppp1p/1p3qr1/6p1/1B1P4/1N6/PPP1PPPP/1BNR1RKQ w d - 2 9
 perft 1 30
 perft 2 796
@@ -792,7 +793,7 @@ perft 4 687302
 perft 5 20120565
 perft 6 641832725
 
-id 1
+id 88
 epd nnrbbrkq/1pp2ppp/3p4/p3p3/3P1P2/1P2P3/P1P3PP/NNRBBKRQ w GC - 1 9
 perft 1 31
 perft 2 827
@@ -801,7 +802,7 @@ perft 4 663082
 perft 5 19979594
 perft 6 549437308
 
-id 1
+id 89
 epd nnrkbbrq/1pp2p1p/p2pp1p1/2P5/8/8/PP1PPPPP/NNRKBBRQ w Ggc - 0 9
 perft 1 24
 perft 2 762
@@ -810,7 +811,7 @@ perft 4 624598
 perft 5 16838099
 perft 6 555230555
 
-id 1
+id 90
 epd nnr1brqb/1ppkp1pp/8/p2p1p2/1P1P4/N1P5/P3PPPP/N1RKBRQB w FC - 1 9
 perft 1 23
 perft 2 640
@@ -819,7 +820,7 @@ perft 4 444905
 perft 5 11343507
 perft 6 334123513
 
-id 1
+id 91
 epd nbnrkrbq/2ppp2p/p4p2/1P4p1/4PP2/8/1PPP2PP/NBNRKRBQ w FDfd - 0 9
 perft 1 31
 perft 2 826
@@ -828,7 +829,7 @@ perft 4 732175
 perft 5 23555139
 perft 6 686250413
 
-id 1
+id 92
 epd 1nrbkr1q/1pppp1pp/1n6/p4p2/N1b4P/8/PPPPPPPB/N1RBKR1Q w FCfc - 2 9
 perft 1 27
 perft 2 862
@@ -837,7 +838,7 @@ perft 4 755171
 perft 5 22027695
 perft 6 696353497
 
-id 1
+id 93
 epd nnrkrbbq/pppp2pp/8/4pp2/4P3/P7/1PPPBPPP/NNKRR1BQ w c - 0 9
 perft 1 25
 perft 2 792
@@ -846,7 +847,7 @@ perft 4 636041
 perft 5 16473376
 perft 6 532214177
 
-id 1
+id 94
 epd n1rk1qbb/pppprpp1/2n4p/4p3/2PP3P/8/PP2PPP1/NNRKRQBB w ECc - 1 9
 perft 1 25
 perft 2 622
@@ -855,7 +856,7 @@ perft 4 425247
 perft 5 11420973
 perft 6 321855685
 
-id 1
+id 95
 epd bbq1rnkr/pnp1pp1p/1p1p4/6p1/2P5/2Q1P2P/PP1P1PP1/BB1NRNKR w HEhe - 2 9
 perft 1 36
 perft 2 870
@@ -864,7 +865,7 @@ perft 4 811047
 perft 5 28127620
 perft 6 799738334
 
-id 1
+id 96
 epd bq1brnkr/1p1ppp1p/1np5/p5p1/8/1N5P/PPPPPPP1/BQ1BRNKR w HEhe - 0 9
 perft 1 22
 perft 2 588
@@ -873,7 +874,7 @@ perft 4 380068
 perft 5 9359618
 perft 6 273795898
 
-id 1
+id 97
 epd bq1rn1kr/1pppppbp/Nn4p1/8/8/P7/1PPPPPPP/BQ1RNBKR w HDhd - 1 9
 perft 1 24
 perft 2 711
@@ -882,7 +883,7 @@ perft 4 542570
 perft 5 14692779
 perft 6 445827351
 
-id 1
+id 98
 epd bqnr1kr1/pppppp1p/6p1/5n2/4B3/3N2PP/PbPPPP2/BQNR1KR1 w GDgd - 2 9
 perft 1 31
 perft 2 1132
@@ -891,7 +892,7 @@ perft 4 1261476
 perft 5 43256823
 perft 6 1456721391
 
-id 1
+id 99
 epd qbb1rnkr/ppp3pp/4n3/3ppp2/1P3PP1/8/P1PPPN1P/QBB1RNKR w HEhe - 0 9
 perft 1 28
 perft 2 696
@@ -900,7 +901,7 @@ perft 4 541886
 perft 5 16492398
 perft 6 456983120
 
-id 1
+id 100
 epd qnbbr1kr/pp1ppp1p/4n3/6p1/2p3P1/2PP1P2/PP2P2P/QNBBRNKR w HEhe - 0 9
 perft 1 25
 perft 2 655
@@ -909,7 +910,7 @@ perft 4 450189
 perft 5 11767038
 perft 6 335414976
 
-id 1
+id 101
 epd 1nbrnbkr/p1ppp1pp/1p6/5p2/4q1PP/3P4/PPP1PP2/QNBRNBKR w HDhd - 1 9
 perft 1 30
 perft 2 1162
@@ -918,7 +919,7 @@ perft 4 1217278
 perft 5 36048727
 perft 6 1290346802
 
-id 1
+id 102
 epd q1brnkrb/p1pppppp/n7/1p6/P7/3P1P2/QPP1P1PP/1NBRNKRB w GDgd - 0 9
 perft 1 32
 perft 2 827
@@ -927,7 +928,7 @@ perft 4 718243
 perft 5 23143989
 perft 6 673147648
 
-id 1
+id 103
 epd qbnrb1kr/ppp1pp1p/3p4/2n3p1/1P6/6N1/P1PPPPPP/QBNRB1KR w HDhd - 2 9
 perft 1 29
 perft 2 751
@@ -936,7 +937,7 @@ perft 4 610397
 perft 5 19555214
 perft 6 530475036
 
-id 1
+id 104
 epd q1rbbnkr/pppp1p2/2n3pp/2P1p3/3P4/8/PP1NPPPP/Q1RBBNKR w HChc - 2 9
 perft 1 29
 perft 2 806
@@ -945,7 +946,7 @@ perft 4 687251
 perft 5 21694330
 perft 6 619907316
 
-id 1
+id 105
 epd q1r1bbkr/pnpp1ppp/2n1p3/1p6/2P2P2/2N1N3/PP1PP1PP/Q1R1BBKR w HChc - 2 9
 perft 1 32
 perft 2 1017
@@ -954,7 +955,7 @@ perft 4 986028
 perft 5 31204371
 perft 6 958455898
 
-id 1
+id 106
 epd 2rnbkrb/pqppppp1/1pn5/7p/2P5/P1R5/QP1PPPPP/1N1NBKRB w Ggc - 4 9
 perft 1 26
 perft 2 625
@@ -963,7 +964,7 @@ perft 4 434635
 perft 5 11856964
 perft 6 336672890
 
-id 1
+id 107
 epd qbnr1kbr/p2ppppp/2p5/1p6/4n2P/P4N2/1PPP1PP1/QBNR1KBR w HDhd - 0 9
 perft 1 27
 perft 2 885
@@ -972,7 +973,7 @@ perft 4 767273
 perft 5 21855658
 perft 6 706272554
 
-id 1
+id 108
 epd qnrbnk1r/pp1pp2p/5p2/2pbP1p1/3P4/1P6/P1P2PPP/QNRBNKBR w HChc - 0 9
 perft 1 26
 perft 2 954
@@ -981,7 +982,7 @@ perft 4 892456
 perft 5 24415089
 perft 6 866744329
 
-id 1
+id 109
 epd qnrnk1br/p1p2ppp/8/1pbpp3/8/PP2N3/1QPPPPPP/1NR1KBBR w HChc - 0 9
 perft 1 26
 perft 2 783
@@ -990,7 +991,7 @@ perft 4 634267
 perft 5 17477825
 perft 6 539674275
 
-id 1
+id 110
 epd qnrnkrbb/Bpppp2p/6p1/5p2/5P2/3PP3/PPP3PP/QNRNKR1B w FCfc - 1 9
 perft 1 28
 perft 2 908
@@ -999,7 +1000,7 @@ perft 4 861240
 perft 5 25251641
 perft 6 869525254
 
-id 1
+id 111
 epd bbnqrn1r/ppppp2k/5p2/6pp/7P/1QP5/PP1PPPP1/B1N1RNKR w HE - 0 9
 perft 1 33
 perft 2 643
@@ -1008,7 +1009,7 @@ perft 4 487109
 perft 5 16693640
 perft 6 410115900
 
-id 1
+id 112
 epd b1qbrnkr/ppp1pp2/2np4/6pp/4P3/2N4P/PPPP1PP1/BQ1BRNKR w HEhe - 0 9
 perft 1 28
 perft 2 837
@@ -1017,7 +1018,7 @@ perft 4 745617
 perft 5 22197063
 perft 6 696399065
 
-id 1
+id 113
 epd bnqr1bkr/pp1ppppp/2p5/4N3/5P2/P7/1PPPPnPP/BNQR1BKR w HDhd - 3 9
 perft 1 25
 perft 2 579
@@ -1026,7 +1027,7 @@ perft 4 341444
 perft 5 8601011
 perft 6 225530258
 
-id 1
+id 114
 epd b1qr1krb/pp1ppppp/n2n4/8/2p5/2P3P1/PP1PPP1P/BNQRNKRB w GDgd - 0 9
 perft 1 28
 perft 2 707
@@ -1035,7 +1036,7 @@ perft 4 549506
 perft 5 15583376
 perft 6 468399900
 
-id 1
+id 115
 epd nbbqr1kr/1pppp1pp/8/p1n2p2/4P3/PN6/1PPPQPPP/1BB1RNKR w HEhe - 0 9
 perft 1 30
 perft 2 745
@@ -1044,7 +1045,7 @@ perft 4 597858
 perft 5 19478789
 perft 6 515473678
 
-id 1
+id 116
 epd nqbbrn1r/p1pppp1k/1p4p1/7p/4P3/1R3B2/PPPP1PPP/NQB2NKR w H - 0 9
 perft 1 24
 perft 2 504
@@ -1053,7 +1054,7 @@ perft 4 317355
 perft 5 9002073
 perft 6 228726497
 
-id 1
+id 117
 epd nqbr1bkr/p1p1ppp1/1p1n4/3pN2p/1P6/8/P1PPPPPP/NQBR1BKR w HDhd - 0 9
 perft 1 29
 perft 2 898
@@ -1062,7 +1063,7 @@ perft 4 809605
 perft 5 24703467
 perft 6 757166494
 
-id 1
+id 118
 epd nqbrn1rb/pppp1kp1/5p1p/4p3/P4B2/3P2P1/1PP1PP1P/NQ1RNKRB w GD - 0 9
 perft 1 34
 perft 2 671
@@ -1071,7 +1072,7 @@ perft 4 473110
 perft 5 15556806
 perft 6 353235120
 
-id 1
+id 119
 epd nb1r1nkr/ppp1ppp1/2bp4/7p/3P2qP/P6R/1PP1PPP1/NBQRBNK1 w Dhd - 1 9
 perft 1 38
 perft 2 1691
@@ -1080,7 +1081,7 @@ perft 4 2526992
 perft 5 88557078
 perft 6 3589649998
 
-id 1
+id 120
 epd n1rbbnkr/1p1pp1pp/p7/2p1qp2/1B3P2/3P4/PPP1P1PP/NQRB1NKR w HChc - 0 9
 perft 1 24
 perft 2 913
@@ -1089,7 +1090,7 @@ perft 4 807544
 perft 5 19866918
 perft 6 737239330
 
-id 1
+id 121
 epd nqrnbbkr/p2p1p1p/1pp5/1B2p1p1/1P3P2/4P3/P1PP2PP/NQRNB1KR w HChc - 0 9
 perft 1 33
 perft 2 913
@@ -1098,7 +1099,7 @@ perft 4 843874
 perft 5 28053260
 perft 6 804687975
 
-id 1
+id 122
 epd nqr1bkrb/ppp1pp2/2np2p1/P6p/8/2P4P/1P1PPPP1/NQRNBKRB w GCgc - 0 9
 perft 1 24
 perft 2 623
@@ -1107,7 +1108,7 @@ perft 4 442531
 perft 5 12681936
 perft 6 351623879
 
-id 1
+id 123
 epd nb1rnkbr/pqppppp1/1p5p/8/1PP4P/8/P2PPPP1/NBQRNKBR w HDhd - 1 9
 perft 1 31
 perft 2 798
@@ -1116,7 +1117,7 @@ perft 4 694386
 perft 5 22616076
 perft 6 666227466
 
-id 1
+id 124
 epd nqrbnkbr/2p1p1pp/3p4/pp3p2/6PP/3P1N2/PPP1PP2/NQRB1KBR w HChc - 0 9
 perft 1 24
 perft 2 590
@@ -1125,7 +1126,7 @@ perft 4 383690
 perft 5 9698432
 perft 6 274064911
 
-id 1
+id 125
 epd nqrnkbbr/pp1p1p1p/4p1p1/1p6/8/5P1P/P1PPP1P1/NQRNKBBR w HChc - 0 9
 perft 1 30
 perft 2 1032
@@ -1134,7 +1135,7 @@ perft 4 1098116
 perft 5 34914919
 perft 6 1233362066
 
-id 1
+id 126
 epd nqrnkrbb/p2ppppp/1p6/2p5/2P3P1/5P2/PP1PPN1P/NQR1KRBB w FCfc - 1 9
 perft 1 30
 perft 2 775
@@ -1143,7 +1144,7 @@ perft 4 668000
 perft 5 21141738
 perft 6 621142773
 
-id 1
+id 127
 epd bbnrqrk1/pp2pppp/4n3/2pp4/P7/1N5P/BPPPPPP1/B2RQNKR w HD - 2 9
 perft 1 23
 perft 2 708
@@ -1152,7 +1153,7 @@ perft 4 554089
 perft 5 14343443
 perft 6 481405144
 
-id 1
+id 128
 epd bnr1qnkr/p1pp1p1p/1p4p1/4p1b1/2P1P3/1P6/PB1P1PPP/1NRBQNKR w HChc - 1 9
 perft 1 30
 perft 2 931
@@ -1161,7 +1162,7 @@ perft 4 921746
 perft 5 30026687
 perft 6 968109774
 
-id 1
+id 129
 epd b1rqnbkr/ppp1ppp1/3p3p/2n5/P3P3/2NP4/1PP2PPP/B1RQNBKR w HChc - 0 9
 perft 1 24
 perft 2 596
@@ -1170,7 +1171,7 @@ perft 4 396123
 perft 5 11099382
 perft 6 294180723
 
-id 1
+id 130
 epd bnrqnr1b/pp1pkppp/2p1p3/P7/2P5/7P/1P1PPPP1/BNRQNKRB w GC - 0 9
 perft 1 24
 perft 2 572
@@ -1179,7 +1180,7 @@ perft 4 390903
 perft 5 11208688
 perft 6 302955778
 
-id 1
+id 131
 epd n1brq1kr/bppppppp/p7/8/4P1Pn/8/PPPP1P2/NBBRQNKR w HDhd - 0 9
 perft 1 20
 perft 2 570
@@ -1188,7 +1189,7 @@ perft 4 371247
 perft 5 9919113
 perft 6 284592289
 
-id 1
+id 132
 epd 1rbbqnkr/ppn1ppp1/3p3p/2p5/3P4/1N4P1/PPPBPP1P/1R1BQNKR w HBhb - 0 9
 perft 1 29
 perft 2 1009
@@ -1197,7 +1198,7 @@ perft 4 1040816
 perft 5 31059587
 perft 6 1111986835
 
-id 1
+id 133
 epd nrbq2kr/ppppppb1/5n1p/5Pp1/8/P5P1/1PPPP2P/NRBQNBKR w HBhb - 1 9
 perft 1 20
 perft 2 520
@@ -1206,7 +1207,7 @@ perft 4 316332
 perft 5 7809837
 perft 6 216997152
 
-id 1
+id 134
 epd nrb1nkrb/pp3ppp/1qBpp3/2p5/8/P5P1/1PPPPP1P/NRBQNKR1 w GBgb - 2 9
 perft 1 32
 perft 2 850
@@ -1215,7 +1216,7 @@ perft 4 734088
 perft 5 21981567
 perft 6 664886187
 
-id 1
+id 135
 epd 1br1bnkr/ppqppp1p/1np3p1/8/1PP4P/4N3/P2PPPP1/NBRQB1KR w HChc - 1 9
 perft 1 32
 perft 2 798
@@ -1224,7 +1225,7 @@ perft 4 691488
 perft 5 22076141
 perft 6 670296871
 
-id 1
+id 136
 epd nrqbb1kr/1p1pp1pp/2p3n1/p4p2/3PP3/P5N1/1PP2PPP/NRQBB1KR w HBhb - 0 9
 perft 1 32
 perft 2 791
@@ -1233,7 +1234,7 @@ perft 4 684890
 perft 5 23239122
 perft 6 634260266
 
-id 1
+id 137
 epd nrqn1bkr/ppppp1pp/4b3/8/4P1p1/5P2/PPPP3P/NRQNBBKR w HBhb - 0 9
 perft 1 29
 perft 2 687
@@ -1242,7 +1243,7 @@ perft 4 506088
 perft 5 15236287
 perft 6 398759980
 
-id 1
+id 138
 epd nrqnbrkb/pppp1p2/4p2p/3B2p1/8/1P4P1/PQPPPP1P/NR1NBKR1 w GB - 0 9
 perft 1 37
 perft 2 764
@@ -1251,7 +1252,7 @@ perft 4 610950
 perft 5 21284835
 perft 6 514864869
 
-id 1
+id 139
 epd nbrq1kbr/Bp3ppp/2pnp3/3p4/5P2/2P4P/PP1PP1P1/NBRQNK1R w HChc - 0 9
 perft 1 40
 perft 2 1271
@@ -1260,7 +1261,7 @@ perft 4 1547741
 perft 5 56588117
 perft 6 1850696281
 
-id 1
+id 140
 epd nrqbnkbr/1p2ppp1/p1p4p/3p4/1P6/8/PQPPPPPP/1RNBNKBR w HBhb - 0 9
 perft 1 28
 perft 2 757
@@ -1269,7 +1270,7 @@ perft 4 668025
 perft 5 21427496
 perft 6 650939962
 
-id 1
+id 141
 epd nrqn1bbr/2ppkppp/4p3/pB6/8/2P1P3/PP1P1PPP/NRQNK1BR w HB - 1 9
 perft 1 27
 perft 2 642
@@ -1278,7 +1279,7 @@ perft 4 442653
 perft 5 11872805
 perft 6 327545120
 
-id 1
+id 142
 epd nrqnkrb1/p1ppp2p/1p4p1/4bp2/4PP1P/4N3/PPPP2P1/NRQ1KRBB w FBfb - 1 9
 perft 1 27
 perft 2 958
@@ -1287,7 +1288,7 @@ perft 4 960350
 perft 5 28520172
 perft 6 995356563
 
-id 1
+id 143
 epd 1bnrnqkr/pbpp2pp/8/1p2pp2/P6P/3P1N2/1PP1PPP1/BBNR1QKR w HDhd - 0 9
 perft 1 27
 perft 2 859
@@ -1296,7 +1297,7 @@ perft 4 773232
 perft 5 21581178
 perft 6 732696327
 
-id 1
+id 144
 epd b1rbnqkr/1pp1ppp1/2n4p/p2p4/5P2/1PBP4/P1P1P1PP/1NRBNQKR w HChc - 0 9
 perft 1 26
 perft 2 545
@@ -1305,7 +1306,7 @@ perft 4 336470
 perft 5 9537260
 perft 6 233549184
 
-id 1
+id 145
 epd 1nrnqbkr/p1pppppp/1p6/8/2b2P2/P1N5/1PP1P1PP/BNR1QBKR w HChc - 2 9
 perft 1 24
 perft 2 668
@@ -1314,7 +1315,7 @@ perft 4 494866
 perft 5 14216070
 perft 6 406225409
 
-id 1
+id 146
 epd 1nrnqkrb/2ppp1pp/p7/1p3p2/5P2/N5K1/PPPPP2P/B1RNQ1RB w gc - 0 9
 perft 1 33
 perft 2 725
@@ -1323,7 +1324,7 @@ perft 4 559823
 perft 5 18547476
 perft 6 471443091
 
-id 1
+id 147
 epd nbbr1qkr/p1pppppp/8/1p1n4/3P4/1N3PP1/PPP1P2P/1BBRNQKR w HDhd - 1 9
 perft 1 28
 perft 2 698
@@ -1332,7 +1333,7 @@ perft 4 539625
 perft 5 16555068
 perft 6 458045505
 
-id 1
+id 148
 epd 1rbbnqkr/1pnppp1p/p5p1/2p5/2P4P/5P2/PP1PP1PR/NRBBNQK1 w Bhb - 1 9
 perft 1 24
 perft 2 554
@@ -1341,7 +1342,7 @@ perft 4 362516
 perft 5 9863080
 perft 6 269284081
 
-id 1
+id 149
 epd nrb1qbkr/2pppppp/2n5/p7/2p5/4P3/PPNP1PPP/1RBNQBKR w HBhb - 0 9
 perft 1 23
 perft 2 618
@@ -1350,7 +1351,7 @@ perft 4 443718
 perft 5 12044358
 perft 6 360311412
 
-id 1
+id 150
 epd nrb1qkrb/2ppppp1/p3n3/1p1B3p/2P5/6P1/PP1PPPRP/NRBNQK2 w Bgb - 2 9
 perft 1 27
 perft 2 593
@@ -1359,7 +1360,7 @@ perft 4 401967
 perft 5 11806808
 perft 6 303338935
 
-id 1
+id 151
 epd nbrn1qkr/ppp1pp2/3p2p1/3Q3P/b7/8/PPPPPP1P/NBRNB1KR w HChc - 2 9
 perft 1 39
 perft 2 1056
@@ -1368,7 +1369,7 @@ perft 4 1133446
 perft 5 42201531
 perft 6 1239888683
 
-id 1
+id 152
 epd nr1bbqkr/pp1pp2p/1n3pp1/2p5/8/1P4P1/P1PPPPQP/NRNBBK1R w hb - 0 9
 perft 1 25
 perft 2 585
@@ -1377,7 +1378,7 @@ perft 4 406544
 perft 5 11582539
 perft 6 320997679
 
-id 1
+id 153
 epd nr2bbkr/ppp1pppp/1n1p4/8/6PP/1NP4q/PP1PPP2/1RNQBBKR w HBhb - 1 9
 perft 1 22
 perft 2 742
@@ -1386,7 +1387,7 @@ perft 4 545231
 perft 5 13287051
 perft 6 457010195
 
-id 1
+id 154
 epd 1rnqbkrb/ppp1p1p1/1n3p2/3p3p/P6P/4P3/1PPP1PP1/NRNQBRKB w gb - 0 9
 perft 1 22
 perft 2 574
@@ -1395,7 +1396,7 @@ perft 4 379648
 perft 5 9968830
 perft 6 281344367
 
-id 1
+id 155
 epd nb1rqkbr/1pppp1pp/4n3/p4p2/6PP/5P2/PPPPPN2/NBR1QKBR w HCh - 0 9
 perft 1 25
 perft 2 621
@@ -1404,7 +1405,7 @@ perft 4 462600
 perft 5 13378840
 perft 6 396575613
 
-id 1
+id 156
 epd nrnbqkbr/2pp2pp/4pp2/pp6/8/1P3P2/P1PPPBPP/NRNBQ1KR w hb - 0 9
 perft 1 25
 perft 2 656
@@ -1413,7 +1414,7 @@ perft 4 466493
 perft 5 12525939
 perft 6 358763789
 
-id 1
+id 157
 epd nrnqkbbr/ppppp1p1/7p/5p2/8/P4PP1/NPPPP2P/NR1QKBBR w HBhb - 0 9
 perft 1 28
 perft 2 723
@@ -1422,7 +1423,7 @@ perft 4 547522
 perft 5 15952533
 perft 6 439046803
 
-id 1
+id 158
 epd 1rnqkr1b/ppppp2p/1n3pp1/8/2P3P1/Pb1N4/1P1PPP1P/NR1QKRBB w FBfb - 0 9
 perft 1 26
 perft 2 713
@@ -1431,7 +1432,7 @@ perft 4 548875
 perft 5 15865528
 perft 6 454532806
 
-id 1
+id 159
 epd bbnrnkqr/1pppp1pp/5p2/p7/7P/1P6/PBPPPPPR/1BNRNKQ1 w D - 2 9
 perft 1 26
 perft 2 649
@@ -1440,7 +1441,7 @@ perft 4 502279
 perft 5 14375839
 perft 6 435585252
 
-id 1
+id 160
 epd bnrbk1qr/1ppp1ppp/p2np3/8/P7/2N2P2/1PPPP1PP/B1RBNKQR w HC - 0 9
 perft 1 26
 perft 2 621
@@ -1449,7 +1450,7 @@ perft 4 451452
 perft 5 13514201
 perft 6 364421088
 
-id 1
+id 161
 epd br1nkbqr/ppppppp1/8/n6p/8/N1P2PP1/PP1PP2P/B1RNKBQR w HCh - 1 9
 perft 1 29
 perft 2 664
@@ -1458,7 +1459,7 @@ perft 4 512316
 perft 5 16125924
 perft 6 442508159
 
-id 1
+id 162
 epd bnr1kqrb/pp1pppp1/2n5/2p5/1P4Pp/4N3/P1PPPP1P/BNKR1QRB w gc - 0 9
 perft 1 36
 perft 2 888
@@ -1467,7 +1468,7 @@ perft 4 789863
 perft 5 27792175
 perft 6 719015345
 
-id 1
+id 163
 epd 1bbrnkqr/pp1p1ppp/2p1p3/1n6/5P2/3Q4/PPPPP1PP/NBBRNK1R w HDhd - 2 9
 perft 1 36
 perft 2 891
@@ -1476,7 +1477,7 @@ perft 4 781792
 perft 5 26998966
 perft 6 702903862
 
-id 1
+id 164
 epd nrbbnk1r/pp2pppq/8/2pp3p/3P2P1/1N6/PPP1PP1P/1RBBNKQR w HBhb - 0 9
 perft 1 29
 perft 2 1036
@@ -1485,7 +1486,7 @@ perft 4 1139166
 perft 5 35627310
 perft 6 1310683359
 
-id 1
+id 165
 epd nr1nkbqr/ppp3pp/5p2/3pp3/6b1/3PP3/PPP2PPP/NRBNKBQR w hb - 0 9
 perft 1 18
 perft 2 664
@@ -1494,7 +1495,7 @@ perft 4 483892
 perft 5 10658989
 perft 6 386307449
 
-id 1
+id 166
 epd nrbnk1rb/ppp1pq1p/3p4/5pp1/2P1P3/1N6/PP1PKPPP/1RBN1QRB w gb - 2 9
 perft 1 25
 perft 2 966
@@ -1503,7 +1504,7 @@ perft 4 920345
 perft 5 23957242
 perft 6 913710194
 
-id 1
+id 167
 epd 1brnbkqr/pppppp2/6p1/7p/1Pn5/P1NP4/2P1PPPP/NBR1BKQR w HChc - 0 9
 perft 1 22
 perft 2 627
@@ -1512,7 +1513,7 @@ perft 4 395829
 perft 5 9627826
 perft 6 285900573
 
-id 1
+id 168
 epd nrnbbk1r/p1pppppq/8/7p/1p6/P5PP/1PPPPPQ1/NRNBBK1R w HBhb - 2 9
 perft 1 29
 perft 2 888
@@ -1521,7 +1522,7 @@ perft 4 874270
 perft 5 27229468
 perft 6 930799376
 
-id 1
+id 169
 epd n1nkb1qr/prppppbp/6p1/1p6/2P2P2/P7/1P1PP1PP/NRNKBBQR w HBh - 1 9
 perft 1 29
 perft 2 804
@@ -1530,7 +1531,7 @@ perft 4 688520
 perft 5 21952444
 perft 6 623156747
 
-id 1
+id 170
 epd nr2bqrb/ppkpp1pp/1np5/5p1P/5P2/2P5/PP1PP1P1/NRNKBQRB w GB - 0 9
 perft 1 22
 perft 2 530
@@ -1539,7 +1540,7 @@ perft 4 347657
 perft 5 9244693
 perft 6 264088392
 
-id 1
+id 171
 epd nbr1kqbr/p3pppp/2ppn3/1p4P1/4P3/1P6/P1PP1P1P/NBRNKQBR w HChc - 1 9
 perft 1 23
 perft 2 555
@@ -1548,7 +1549,7 @@ perft 4 350917
 perft 5 9692630
 perft 6 247479180
 
-id 1
+id 172
 epd nr1bkqbr/1p1pp1pp/pnp2p2/8/6P1/P1PP4/1P2PP1P/NRNBKQBR w HBhb - 0 9
 perft 1 22
 perft 2 565
@@ -1557,7 +1558,7 @@ perft 4 365663
 perft 5 9305533
 perft 6 268612479
 
-id 1
+id 173
 epd nr1kqbbr/np2pppp/p1p5/1B1p1P2/8/4P3/PPPP2PP/NRNKQ1BR w HBhb - 0 9
 perft 1 32
 perft 2 730
@@ -1566,7 +1567,7 @@ perft 4 556995
 perft 5 18103280
 perft 6 454569900
 
-id 1
+id 174
 epd nrnk1rbb/p1p2ppp/3pq3/Qp2p3/1P1P4/8/P1P1PPPP/NRN1KRBB w fb - 2 9
 perft 1 28
 perft 2 873
@@ -1575,7 +1576,7 @@ perft 4 791823
 perft 5 23868737
 perft 6 747991356
 
-id 1
+id 175
 epd bbnrnkrq/pp1ppp1p/6p1/2p5/6P1/P5RP/1PPPPP2/BBNRNK1Q w Dgd - 3 9
 perft 1 37
 perft 2 1260
@@ -1584,7 +1585,7 @@ perft 4 1542086
 perft 5 54843403
 perft 6 1898432768
 
-id 1
+id 176
 epd bnrb1rkq/ppnpppp1/3Q4/2p4p/7P/N7/PPPPPPP1/B1RBNKR1 w GC - 2 9
 perft 1 38
 perft 2 878
@@ -1593,7 +1594,7 @@ perft 4 800440
 perft 5 28784300
 perft 6 784569826
 
-id 1
+id 177
 epd bnrnkbrq/p1ppppp1/1p5p/8/P2PP3/5P2/1PP3PP/BNRNKBRQ w GCgc - 1 9
 perft 1 26
 perft 2 617
@@ -1602,7 +1603,7 @@ perft 4 419099
 perft 5 11965544
 perft 6 311309576
 
-id 1
+id 178
 epd bnrnkrqb/pp2p2p/2pp1pp1/8/P7/2PP1P2/1P2P1PP/BNRNKRQB w FCfc - 0 9
 perft 1 26
 perft 2 721
@@ -1611,7 +1612,7 @@ perft 4 560824
 perft 5 15966934
 perft 6 467132503
 
-id 1
+id 179
 epd nbbrnkr1/1pppp1p1/p6q/P4p1p/8/5P2/1PPPP1PP/NBBRNRKQ w gd - 2 9
 perft 1 18
 perft 2 556
@@ -1620,7 +1621,7 @@ perft 4 316634
 perft 5 6629293
 perft 6 202528241
 
-id 1
+id 180
 epd nrb1nkrq/2pp1ppp/p4b2/1p2p3/P4B2/3P4/1PP1PPPP/NR1BNRKQ w gb - 0 9
 perft 1 24
 perft 2 562
@@ -1629,7 +1630,7 @@ perft 4 355433
 perft 5 9227883
 perft 6 247634489
 
-id 1
+id 181
 epd nrbnkbrq/p3p1pp/1p6/2pp1P2/8/3PP3/PPP2P1P/NRBNKBRQ w GBgb - 0 9
 perft 1 31
 perft 2 746
@@ -1638,7 +1639,7 @@ perft 4 608523
 perft 5 21019301
 perft 6 542954168
 
-id 1
+id 182
 epd nrbnkrqb/pppp1p1p/4p1p1/8/7P/2P1P3/PPNP1PP1/1RBNKRQB w FBfb - 0 9
 perft 1 20
 perft 2 459
@@ -1647,7 +1648,7 @@ perft 4 242762
 perft 5 5760165
 perft 6 146614723
 
-id 1
+id 183
 epd nbrn1krq/ppp1p2p/6b1/3p1pp1/8/4N1PP/PPPPPP2/NBR1BRKQ w gc - 1 9
 perft 1 27
 perft 2 835
@@ -1656,7 +1657,7 @@ perft 4 766397
 perft 5 22667987
 perft 6 760795567
 
-id 1
+id 184
 epd nrnbbkrq/p1pp2pp/5p2/1p6/2P1pP1B/1P6/P2PP1PP/NRNB1KRQ w GBgb - 0 9
 perft 1 24
 perft 2 646
@@ -1665,7 +1666,7 @@ perft 4 444472
 perft 5 11489727
 perft 6 324948755
 
-id 1
+id 185
 epd nrn1bbrq/1ppkppp1/p2p3p/8/1P3N2/4P3/P1PP1PPP/NR1KBBRQ w GB - 2 9
 perft 1 32
 perft 2 591
@@ -1674,7 +1675,7 @@ perft 4 381683
 perft 5 12069159
 perft 6 269922838
 
-id 1
+id 186
 epd n1krbrqb/1ppppppp/p7/8/4n3/P4P1P/1PPPPQP1/NRNKBR1B w FB - 2 9
 perft 1 26
 perft 2 639
@@ -1683,7 +1684,7 @@ perft 4 417190
 perft 5 12167153
 perft 6 312633873
 
-id 1
+id 187
 epd n1rnkrbq/1p1ppp1p/8/p1p1b1p1/3PQ1P1/4N3/PPP1PP1P/NBR1KRB1 w FCfc - 0 9
 perft 1 35
 perft 2 1027
@@ -1692,7 +1693,7 @@ perft 4 1040417
 perft 5 35738410
 perft 6 1060661628
 
-id 1
+id 188
 epd nrnbkrbq/2pp1pp1/pp6/4p2p/P7/5PPP/1PPPP3/NRNBKRBQ w FBfb - 0 9
 perft 1 26
 perft 2 628
@@ -1701,7 +1702,7 @@ perft 4 436075
 perft 5 11920087
 perft 6 331498921
 
-id 1
+id 189
 epd 1rnkrbbq/pp1p2pp/1n3p2/1Bp1p3/1P6/1N2P3/P1PP1PPP/1RNKR1BQ w EBeb - 0 9
 perft 1 33
 perft 2 992
@@ -1710,7 +1711,7 @@ perft 4 983481
 perft 5 31703749
 perft 6 980306735
 
-id 1
+id 190
 epd nr1krqbb/p1ppppp1/8/1p5p/1Pn5/5P2/P1PPP1PP/NRNKRQBB w EBeb - 0 9
 perft 1 24
 perft 2 670
@@ -1719,7 +1720,7 @@ perft 4 445492
 perft 5 11371067
 perft 6 325556465
 
-id 1
+id 191
 epd bbq1rkr1/1ppppppp/p1n2n2/8/2P2P2/1P6/PQ1PP1PP/BB1NRKNR w HEe - 3 9
 perft 1 32
 perft 2 794
@@ -1728,7 +1729,7 @@ perft 4 689334
 perft 5 24085223
 perft 6 645633370
 
-id 1
+id 192
 epd b1nbrknr/1qppp1pp/p4p2/1p6/6P1/P2NP3/1PPP1P1P/BQ1BRKNR w HEhe - 1 9
 perft 1 25
 perft 2 663
@@ -1737,7 +1738,7 @@ perft 4 482994
 perft 5 13157826
 perft 6 389603029
 
-id 1
+id 193
 epd bqnrk1nr/pp2ppbp/6p1/2pp4/2P5/5P2/PPQPP1PP/B1NRKBNR w HDhd - 0 9
 perft 1 26
 perft 2 850
@@ -1746,7 +1747,7 @@ perft 4 759768
 perft 5 21341087
 perft 6 719712622
 
-id 1
+id 194
 epd bqnrknrb/1ppp1p1p/p7/6p1/1P2p3/P1PN4/3PPPPP/BQ1RKNRB w GDgd - 0 9
 perft 1 25
 perft 2 721
@@ -1755,7 +1756,7 @@ perft 4 581913
 perft 5 16391601
 perft 6 511725087
 
-id 1
+id 195
 epd q1b1rknr/pp1pppp1/4n2p/2p1b3/1PP5/4P3/PQ1P1PPP/1BBNRKNR w HEhe - 1 9
 perft 1 32
 perft 2 975
@@ -1764,7 +1765,7 @@ perft 4 955493
 perft 5 32649943
 perft 6 962536105
 
-id 1
+id 196
 epd qnbbrknr/1p1ppppp/8/p1p5/5P2/PP1P4/2P1P1PP/QNBBRKNR w HEhe - 0 9
 perft 1 27
 perft 2 573
@@ -1773,7 +1774,7 @@ perft 4 391656
 perft 5 11562434
 perft 6 301166330
 
-id 1
+id 197
 epd q1brkb1r/p1pppppp/np3B2/8/6n1/1P5N/P1PPPPPP/QN1RKB1R w HDhd - 0 9
 perft 1 32
 perft 2 984
@@ -1782,7 +1783,7 @@ perft 4 1007217
 perft 5 32597704
 perft 6 1075429389
 
-id 1
+id 198
 epd qn1rk1rb/p1pppppp/1p2n3/8/2b5/4NPP1/PPPPP1RP/QNBRK2B w Dgd - 4 9
 perft 1 22
 perft 2 802
@@ -1791,7 +1792,7 @@ perft 4 697722
 perft 5 17761431
 perft 6 650603534
 
-id 1
+id 199
 epd qbnrbknr/ppp2p1p/8/3pp1p1/1PP1B3/5N2/P2PPPPP/Q1NRBK1R w HDhd - 0 9
 perft 1 34
 perft 2 943
@@ -1800,7 +1801,7 @@ perft 4 930619
 perft 5 32523099
 perft 6 955802240
 
-id 1
+id 200
 epd qnrbb1nr/pp1p1ppp/2p2k2/4p3/4P3/5PPP/PPPP4/QNRBBKNR w HC - 0 9
 perft 1 20
 perft 2 460
@@ -1809,7 +1810,7 @@ perft 4 241640
 perft 5 5846781
 perft 6 140714047
 
-id 1
+id 201
 epd qnr1bbnr/ppk1p1pp/3p4/2p2p2/8/2P5/PP1PPPPP/QNKRBBNR w - - 1 9
 perft 1 19
 perft 2 572
@@ -1818,7 +1819,7 @@ perft 4 357340
 perft 5 7994547
 perft 6 243724815
 
-id 1
+id 202
 epd qnrkbnrb/1p1p1ppp/2p5/4p3/p7/N1BP4/PPP1PPPP/Q1R1KNRB w gc - 0 9
 perft 1 27
 perft 2 579
@@ -1827,7 +1828,7 @@ perft 4 375168
 perft 5 10845146
 perft 6 268229097
 
-id 1
+id 203
 epd qbnrkn1r/1pppp1p1/p3bp2/2BN3p/8/5P2/PPPPP1PP/QBNRK2R w HDhd - 0 9
 perft 1 40
 perft 2 1027
@@ -1836,7 +1837,7 @@ perft 4 1059229
 perft 5 38511307
 perft 6 1104094381
 
-id 1
+id 204
 epd qnrbknbr/1pp2ppp/4p3/p6N/2p5/8/PPPPPPPP/Q1RBK1BR w HChc - 0 9
 perft 1 22
 perft 2 510
@@ -1845,7 +1846,7 @@ perft 4 300180
 perft 5 7403327
 perft 6 200581103
 
-id 1
+id 205
 epd 1qkrnbbr/p1pppppp/2n5/1p6/8/5NP1/PPPPPP1P/QNRK1BBR w HC - 4 9
 perft 1 24
 perft 2 549
@@ -1854,7 +1855,7 @@ perft 4 352037
 perft 5 9396521
 perft 6 255676649
 
-id 1
+id 206
 epd q1rknr1b/1ppppppb/2n5/p2B3p/8/1PN3P1/P1PPPP1P/Q1RKNRB1 w FCfc - 3 9
 perft 1 31
 perft 2 924
@@ -1863,7 +1864,7 @@ perft 4 861944
 perft 5 27463479
 perft 6 847726572
 
-id 1
+id 207
 epd bbnqrk1r/pp1pppp1/2p4p/8/6n1/1N1P1P2/PPP1P1PP/BBQ1RKNR w HEhe - 4 9
 perft 1 24
 perft 2 804
@@ -1872,7 +1873,7 @@ perft 4 666341
 perft 5 18024195
 perft 6 595947631
 
-id 1
+id 208
 epd bn1brknr/ppp1p1pp/5p2/3p4/6qQ/3P3P/PPP1PPP1/BN1BRKNR w HEhe - 4 9
 perft 1 25
 perft 2 854
@@ -1881,7 +1882,7 @@ perft 4 704173
 perft 5 20290974
 perft 6 600195008
 
-id 1
+id 209
 epd 1nqrkbnr/2pp1ppp/pp2p3/3b4/2P5/N7/PP1PPPPP/B1QRKBNR w HDhd - 0 9
 perft 1 22
 perft 2 651
@@ -1890,7 +1891,7 @@ perft 4 479152
 perft 5 13133439
 perft 6 390886040
 
-id 1
+id 210
 epd bnqrk1rb/1pp1pppp/p2p4/4n3/2PPP3/8/PP3PPP/BNQRKNRB w GDgd - 1 9
 perft 1 30
 perft 2 950
@@ -1899,7 +1900,7 @@ perft 4 889687
 perft 5 27610213
 perft 6 880739164
 
-id 1
+id 211
 epd nbb1rknr/1ppq1ppp/3p4/p3p3/4P3/1N2R3/PPPP1PPP/1BBQ1KNR w Hhe - 2 9
 perft 1 33
 perft 2 988
@@ -1908,7 +1909,7 @@ perft 4 967575
 perft 5 30894863
 perft 6 985384035
 
-id 1
+id 212
 epd nqbbrknr/2ppp2p/pp4p1/5p2/7P/3P1P2/PPPBP1P1/NQ1BRKNR w HEhe - 0 9
 perft 1 27
 perft 2 492
@@ -1917,7 +1918,7 @@ perft 4 276569
 perft 5 7583292
 perft 6 175376176
 
-id 1
+id 213
 epd 1qbrkb1r/pppppppp/8/3n4/4P1n1/PN6/1PPP1P1P/1QBRKBNR w HDhd - 3 9
 perft 1 28
 perft 2 800
@@ -1926,7 +1927,7 @@ perft 4 630374
 perft 5 17313279
 perft 6 507140861
 
-id 1
+id 214
 epd 1qbrknrb/1p1ppppp/1np5/8/p4P1P/4P1N1/PPPP2P1/NQBRK1RB w GDgd - 0 9
 perft 1 21
 perft 2 482
@@ -1935,7 +1936,7 @@ perft 4 267935
 perft 5 6218644
 perft 6 168704845
 
-id 1
+id 215
 epd nbqrbkr1/ppp1pppp/8/3p4/6n1/2P2PPN/PP1PP2P/NBQRBK1R w HDd - 1 9
 perft 1 29
 perft 2 921
@@ -1944,7 +1945,7 @@ perft 4 840262
 perft 5 24138518
 perft 6 806554650
 
-id 1
+id 216
 epd nqrb1knr/1ppbpp1p/p7/3p2p1/2P3P1/5P1P/PP1PP3/NQRBBKNR w HChc - 1 9
 perft 1 31
 perft 2 803
@@ -1953,7 +1954,7 @@ perft 4 665799
 perft 5 21998733
 perft 6 583349773
 
-id 1
+id 217
 epd 1qrkbbr1/pppp1ppp/1n3n2/4p3/5P2/1N6/PPPPP1PP/1QRKBBNR w HCc - 0 9
 perft 1 25
 perft 2 715
@@ -1962,7 +1963,7 @@ perft 4 556325
 perft 5 15514933
 perft 6 459533767
 
-id 1
+id 218
 epd nqrkb1rb/pp2pppp/2p1n3/3p4/3PP1N1/8/PPP2PPP/NQRKB1RB w GCgc - 0 9
 perft 1 26
 perft 2 795
@@ -1971,7 +1972,7 @@ perft 4 679387
 perft 5 19185851
 perft 6 616508881
 
-id 1
+id 219
 epd nb1rknbr/pp2ppp1/8/2Bp3p/6P1/2P2P1q/PP1PP2P/NBQRKN1R w HDhd - 0 9
 perft 1 35
 perft 2 1391
@@ -1980,7 +1981,7 @@ perft 4 1726888
 perft 5 53033675
 perft 6 2139267832
 
-id 1
+id 220
 epd nqrbkn1r/pp1pp1pp/8/2p2p2/5P2/P3B2P/1PbPP1P1/NQRBKN1R w HChc - 0 9
 perft 1 23
 perft 2 758
@@ -1989,7 +1990,7 @@ perft 4 653854
 perft 5 18296195
 perft 6 628403401
 
-id 1
+id 221
 epd nqrknbbr/pp1pppp1/7p/2p5/7P/1P1N4/P1PPPPPB/NQRK1B1R w HChc - 2 9
 perft 1 29
 perft 2 824
@@ -1998,7 +1999,7 @@ perft 4 683686
 perft 5 19429491
 perft 6 595493802
 
-id 1
+id 222
 epd 1qrknrbb/B1p1pppp/8/1p1p4/2n2P2/1P6/P1PPP1PP/NQRKNR1B w FCfc - 0 9
 perft 1 28
 perft 2 771
@@ -2007,7 +2008,7 @@ perft 4 581721
 perft 5 16065378
 perft 6 483037840
 
-id 1
+id 223
 epd bbnrqk1r/1ppppppp/8/7n/1p6/P6P/1BPPPPP1/1BNRQKNR w HDhd - 0 9
 perft 1 25
 perft 2 601
@@ -2016,7 +2017,7 @@ perft 4 396661
 perft 5 10697065
 perft 6 289472497
 
-id 1
+id 224
 epd bnrbqknr/ppp3p1/3ppp1Q/7p/3P4/1P6/P1P1PPPP/BNRB1KNR w HChc - 0 9
 perft 1 32
 perft 2 845
@@ -2025,7 +2026,7 @@ perft 4 742888
 perft 5 23717883
 perft 6 682154649
 
-id 1
+id 225
 epd bn1qkb1r/pprppppp/8/2p5/2PPP1n1/8/PPR2PPP/BN1QKBNR w Hh - 1 9
 perft 1 32
 perft 2 856
@@ -2034,7 +2035,7 @@ perft 4 768595
 perft 5 25245957
 perft 6 727424329
 
-id 1
+id 226
 epd 1nrqknrb/p1pp1ppp/1p2p3/3N4/5P1P/5b2/PPPPP3/B1RQKNRB w GCgc - 2 9
 perft 1 33
 perft 2 873
@@ -2043,7 +2044,7 @@ perft 4 779473
 perft 5 25128076
 perft 6 745401024
 
-id 1
+id 227
 epd nbbrqrk1/pppppppp/8/2N1n3/P7/6P1/1PPPPP1P/1BBRQKNR w HD - 3 9
 perft 1 25
 perft 2 555
@@ -2052,7 +2053,7 @@ perft 4 342296
 perft 5 9153089
 perft 6 234841945
 
-id 1
+id 228
 epd 1rbbqknr/1ppp1pp1/1n2p3/p6p/4P1P1/P6N/1PPP1P1P/NRBBQK1R w HBhb - 0 9
 perft 1 25
 perft 2 693
@@ -2061,7 +2062,7 @@ perft 4 528070
 perft 5 15133381
 perft 6 439344945
 
-id 1
+id 229
 epd nrq1kbnr/p1pbpppp/3p4/1p6/6P1/1N3N2/PPPPPP1P/1RBQKB1R w HBhb - 4 9
 perft 1 24
 perft 2 648
@@ -2070,7 +2071,7 @@ perft 4 471192
 perft 5 12871967
 perft 6 380436777
 
-id 1
+id 230
 epd nr1qknr1/p1pppp1p/b5p1/1p6/8/P4PP1/1bPPP1RP/NRBQKN1B w Bgb - 0 9
 perft 1 18
 perft 2 533
@@ -2079,7 +2080,7 @@ perft 4 331243
 perft 5 7777833
 perft 6 234905172
 
-id 1
+id 231
 epd nbrqbknr/1ppp2pp/8/4pp2/p2PP1P1/7N/PPP2P1P/NBRQBK1R w HChc - 0 9
 perft 1 29
 perft 2 803
@@ -2088,7 +2089,7 @@ perft 4 706648
 perft 5 22305910
 perft 6 672322762
 
-id 1
+id 232
 epd nr1b1k1r/ppp1pppp/2bp1n2/6P1/2P3q1/5P2/PP1PP2P/NRQBBKNR w HBhb - 1 9
 perft 1 27
 perft 2 1199
@@ -2097,7 +2098,7 @@ perft 4 1296241
 perft 5 35121759
 perft 6 1418677099
 
-id 1
+id 233
 epd nrqkbbnr/2pppp1p/p7/1p6/2P1Pp2/8/PPNP2PP/1RQKBBNR w HBhb - 0 9
 perft 1 28
 perft 2 613
@@ -2106,7 +2107,7 @@ perft 4 432750
 perft 5 13097064
 perft 6 345294379
 
-id 1
+id 234
 epd 1rqkbnrb/pp1ppp1p/1n4p1/B1p5/3PP3/4N3/PPP2PPP/NRQK2RB w GBgb - 0 9
 perft 1 33
 perft 2 723
@@ -2115,7 +2116,7 @@ perft 4 590970
 perft 5 19715083
 perft 6 535650233
 
-id 1
+id 235
 epd nbrqkn1r/1pppp2p/5pp1/p2b4/5P2/P2PN3/1PP1P1PP/NBRQK1BR w HChc - 2 9
 perft 1 23
 perft 2 607
@@ -2124,7 +2125,7 @@ perft 4 400970
 perft 5 11026383
 perft 6 290708878
 
-id 1
+id 236
 epd nrqbknbr/pp1pppp1/8/2p4p/P3PP2/8/1PPP2PP/NRQBKNBR w HBhb - 1 9
 perft 1 26
 perft 2 700
@@ -2133,7 +2134,7 @@ perft 4 556026
 perft 5 16058815
 perft 6 485460242
 
-id 1
+id 237
 epd nrqknbbr/p2pppp1/1pp5/6Qp/3P4/1P3P2/P1P1P1PP/NR1KNBBR w HBhb - 0 9
 perft 1 40
 perft 2 905
@@ -2142,7 +2143,7 @@ perft 4 829746
 perft 5 29263502
 perft 6 791963709
 
-id 1
+id 238
 epd nrqknrbb/1p3ppp/p2p4/2p1p3/1P6/3PP1P1/P1P2P1P/NRQKNRBB w FBfb - 0 9
 perft 1 29
 perft 2 780
@@ -2151,7 +2152,7 @@ perft 4 654495
 perft 5 19532077
 perft 6 593181101
 
-id 1
+id 239
 epd 1bnrkqnr/p1pppp2/7p/1p4p1/4b3/7N/PPPP1PPP/BBNRKQ1R w HDhd - 0 9
 perft 1 25
 perft 2 725
@@ -2160,7 +2161,7 @@ perft 4 565006
 perft 5 16661676
 perft 6 487354613
 
-id 1
+id 240
 epd bnrbkq1r/pp2p1pp/5n2/2pp1p2/P7/N1PP4/1P2PPPP/B1RBKQNR w HChc - 1 9
 perft 1 24
 perft 2 745
@@ -2169,7 +2170,7 @@ perft 4 584015
 perft 5 15079602
 perft 6 488924040
 
-id 1
+id 241
 epd 2rkqbnr/p1pppppp/2b5/1pn5/1P3P1Q/2B5/P1PPP1PP/1NRK1BNR w HChc - 3 9
 perft 1 33
 perft 2 904
@@ -2178,7 +2179,7 @@ perft 4 840025
 perft 5 28194726
 perft 6 801757709
 
-id 1
+id 242
 epd bnrkqnrb/2pppp2/8/pp4pp/1P5P/6P1/P1PPPPB1/BNRKQNR1 w GCgc - 0 9
 perft 1 34
 perft 2 1059
@@ -2187,7 +2188,7 @@ perft 4 1054311
 perft 5 33195397
 perft 6 1036498304
 
-id 1
+id 243
 epd 1bbrkq1r/pppp2pp/1n2pp1n/8/2PP4/1N4P1/PP2PP1P/1BBRKQNR w HDhd - 1 9
 perft 1 33
 perft 2 891
@@ -2196,7 +2197,7 @@ perft 4 814247
 perft 5 26970098
 perft 6 788040469
 
-id 1
+id 244
 epd nrbbkqnr/1p2pp1p/p1p3p1/3p4/8/1PP5/P2PPPPP/NRBBKQNR w HBhb - 0 9
 perft 1 21
 perft 2 567
@@ -2205,7 +2206,7 @@ perft 4 376487
 perft 5 9539687
 perft 6 284426039
 
-id 1
+id 245
 epd 1rbkqbr1/ppp1pppp/1n5n/3p4/3P4/1PP3P1/P3PP1P/NRBKQBNR w HBb - 1 9
 perft 1 27
 perft 2 752
@@ -2214,7 +2215,7 @@ perft 4 606783
 perft 5 16986290
 perft 6 521817800
 
-id 1
+id 246
 epd nrbkq1rb/1ppp1pp1/4p1n1/p6p/2PP4/5P2/PPK1P1PP/NRB1QNRB w gb - 0 9
 perft 1 35
 perft 2 697
@@ -2223,7 +2224,7 @@ perft 4 505836
 perft 5 16906409
 perft 6 390324794
 
-id 1
+id 247
 epd nbrkbqnr/p2pp1p1/5p2/1pp4p/7P/3P2P1/PPP1PP2/NBKRBQNR w hc - 0 9
 perft 1 25
 perft 2 679
@@ -2232,7 +2233,7 @@ perft 4 484921
 perft 5 12879258
 perft 6 376652259
 
-id 1
+id 248
 epd nrkb1qnr/ppppp1p1/6bp/5p2/1PP1P1P1/8/P2P1P1P/NRKBBQNR w HBhb - 1 9
 perft 1 32
 perft 2 761
@@ -2241,7 +2242,7 @@ perft 4 632916
 perft 5 20671433
 perft 6 568524724
 
-id 1
+id 249
 epd nrk1bbnr/p1q1pppp/1ppp4/8/3P3P/4K3/PPP1PPP1/NR1QBBNR w hb - 0 9
 perft 1 30
 perft 2 719
@@ -2250,7 +2251,7 @@ perft 4 541389
 perft 5 16278120
 perft 6 423649784
 
-id 1
+id 250
 epd nrkqbr1b/1pppp1pp/5pn1/p6N/1P3P2/8/P1PPP1PP/NRKQB1RB w GBb - 0 9
 perft 1 26
 perft 2 494
@@ -2259,7 +2260,7 @@ perft 4 296170
 perft 5 8763742
 perft 6 206993496
 
-id 1
+id 251
 epd nbrkq2r/pppp1bpp/4p1n1/5p2/7P/2P3N1/PP1PPPP1/NBKRQ1BR w hc - 0 9
 perft 1 27
 perft 2 701
@@ -2268,7 +2269,7 @@ perft 4 535052
 perft 5 15394667
 perft 6 443506342
 
-id 1
+id 252
 epd nrkbqnbr/2ppp2p/pp6/5pp1/P1P5/8/1P1PPPPP/NRKBQNBR w HBhb - 0 9
 perft 1 21
 perft 2 487
@@ -2277,7 +2278,7 @@ perft 4 285387
 perft 5 7218486
 perft 6 193586674
 
-id 1
+id 253
 epd nr1qnbbr/pk1pppp1/1pp4p/8/3P4/5P1P/PPP1P1P1/NRKQNBBR w HB - 0 9
 perft 1 22
 perft 2 546
@@ -2286,7 +2287,7 @@ perft 4 352855
 perft 5 9587439
 perft 6 259830255
 
-id 1
+id 254
 epd nrkq1rbb/pp1ppp1p/2pn4/8/PP3Pp1/7P/2PPP1P1/NRKQNRBB w FBfb - 0 9
 perft 1 26
 perft 2 839
@@ -2295,7 +2296,7 @@ perft 4 723845
 perft 5 19867117
 perft 6 658535326
 
-id 1
+id 255
 epd b2rknqr/pp1ppppp/8/2P5/n7/P7/1PPNPPPb/BBNRK1QR w HDhd - 2 9
 perft 1 24
 perft 2 699
@@ -2304,7 +2305,7 @@ perft 4 575172
 perft 5 17734818
 perft 6 535094237
 
-id 1
+id 256
 epd bnrbknqr/pp2p2p/2p3p1/3p1p2/8/3P4/PPPNPPPP/B1RBKNQR w HChc - 0 9
 perft 1 23
 perft 2 580
@@ -2313,7 +2314,7 @@ perft 4 385917
 perft 5 10133092
 perft 6 288041554
 
-id 1
+id 257
 epd bnrknb1r/pppp2pp/8/4pp2/6P1/3P3P/qPP1PPQ1/BNRKNB1R w HChc - 0 9
 perft 1 28
 perft 2 1100
@@ -2322,7 +2323,7 @@ perft 4 1217514
 perft 5 36142423
 perft 6 1361341249
 
-id 1
+id 258
 epd b1rknqrb/ppp1p1p1/2np1p1p/8/4N3/6PQ/PPPPPP1P/B1RKN1RB w GCgc - 0 9
 perft 1 36
 perft 2 629
@@ -2331,7 +2332,7 @@ perft 4 453064
 perft 5 16897544
 perft 6 367503974
 
-id 1
+id 259
 epd nb1rknqr/pbppp2p/6p1/1p3p2/5P2/3KP3/PPPP2PP/NBBR1NQR w hd - 2 9
 perft 1 18
 perft 2 557
@@ -2340,7 +2341,7 @@ perft 4 300744
 perft 5 5822387
 perft 6 180936551
 
-id 1
+id 260
 epd nr1bknqr/1ppb1ppp/p7/3pp3/B7/2P3NP/PP1PPPP1/NRB1K1QR w HBhb - 2 9
 perft 1 28
 perft 2 688
@@ -2349,7 +2350,7 @@ perft 4 519785
 perft 5 15153092
 perft 6 425149249
 
-id 1
+id 261
 epd nrbkn2r/pppp1pqp/4p1p1/8/3P2P1/P3B3/P1P1PP1P/NR1KNBQR w HBhb - 1 9
 perft 1 32
 perft 2 808
@@ -2358,7 +2359,7 @@ perft 4 676525
 perft 5 22094260
 perft 6 609377239
 
-id 1
+id 262
 epd nrbknqrb/2p1ppp1/1p6/p2p2Bp/1P6/3P1P2/P1P1P1PP/NR1KNQRB w GBgb - 0 9
 perft 1 30
 perft 2 625
@@ -2367,7 +2368,7 @@ perft 4 418895
 perft 5 12225742
 perft 6 301834282
 
-id 1
+id 263
 epd nbr1knqr/1pp1p1pp/3p1pb1/8/7P/5P2/PPPPPQP1/NBRKBN1R w HC - 2 9
 perft 1 29
 perft 2 863
@@ -2376,7 +2377,7 @@ perft 4 800239
 perft 5 24965592
 perft 6 799182442
 
-id 1
+id 264
 epd n1kbbnqr/prp2ppp/1p1p4/4p3/1P2P3/3P1B2/P1P2PPP/NRK1BNQR w HBh - 2 9
 perft 1 26
 perft 2 653
@@ -2385,7 +2386,7 @@ perft 4 449719
 perft 5 12187583
 perft 6 336872952
 
-id 1
+id 265
 epd nrknbbqr/pp3p1p/B3p1p1/2pp4/4P3/2N3P1/PPPP1P1P/NRK1B1QR w HBhb - 0 9
 perft 1 29
 perft 2 683
@@ -2394,7 +2395,7 @@ perft 4 501807
 perft 5 14684565
 perft 6 394951291
 
-id 1
+id 266
 epd n1knbqrb/pr1p1ppp/Qp6/2p1p3/4P3/6P1/PPPP1P1P/NRKNB1RB w GBg - 2 9
 perft 1 31
 perft 2 552
@@ -2403,7 +2404,7 @@ perft 4 371343
 perft 5 11663330
 perft 6 283583340
 
-id 1
+id 267
 epd nbrknqbr/p3p1pp/1p1p1p2/2p5/2Q1PP2/8/PPPP2PP/NBRKN1BR w HChc - 0 9
 perft 1 37
 perft 2 913
@@ -2412,7 +2413,7 @@ perft 4 825748
 perft 5 28899548
 perft 6 759875563
 
-id 1
+id 268
 epd nrkb1qbr/pp1pppp1/5n2/7p/2p5/1N1NPP2/PPPP2PP/1RKB1QBR w HBhb - 0 9
 perft 1 25
 perft 2 712
@@ -2421,7 +2422,7 @@ perft 4 543870
 perft 5 15045589
 perft 6 445074372
 
-id 1
+id 269
 epd nrk2bbr/pppqpppp/3p4/8/1P3nP1/3P4/P1P1PP1P/NRKNQBBR w HBhb - 1 9
 perft 1 24
 perft 2 814
@@ -2430,7 +2431,7 @@ perft 4 670162
 perft 5 17603960
 perft 6 592121050
 
-id 1
+id 270
 epd nrknqrbb/1p2ppp1/2pp4/Q6p/P2P3P/8/1PP1PPP1/NRKN1RBB w FBfb - 0 9
 perft 1 34
 perft 2 513
@@ -2439,7 +2440,7 @@ perft 4 303908
 perft 5 9569590
 perft 6 206509331
 
-id 1
+id 271
 epd bbnrk1rq/pp2p1pp/2ppn3/5p2/8/3NNP1P/PPPPP1P1/BB1RK1RQ w GDgd - 1 9
 perft 1 28
 perft 2 697
@@ -2448,7 +2449,7 @@ perft 4 517917
 perft 5 15301879
 perft 6 410843713
 
-id 1
+id 272
 epd bnrbknrq/ppppp2p/6p1/5p2/4QPP1/8/PPPPP2P/BNRBKNR1 w GCgc - 0 9
 perft 1 37
 perft 2 901
@@ -2457,7 +2458,7 @@ perft 4 877372
 perft 5 31385912
 perft 6 903831981
 
-id 1
+id 273
 epd bnkrnbrq/ppppp1p1/B6p/5p2/8/4P3/PPPP1PPP/BNKRN1RQ w - - 0 9
 perft 1 26
 perft 2 417
@@ -2466,7 +2467,7 @@ perft 4 217095
 perft 5 5980981
 perft 6 133080499
 
-id 1
+id 274
 epd bnrk1rqb/2pppp1p/3n4/pp4p1/3Q1P2/2N3P1/PPPPP2P/B1RKNR1B w FCfc - 0 9
 perft 1 49
 perft 2 1655
@@ -2475,7 +2476,7 @@ perft 4 2512003
 perft 5 107234294
 perft 6 3651608327
 
-id 1
+id 275
 epd nbbrk1rq/pp2pppp/2pp4/8/2P2n2/6N1/PP1PP1PP/NBBRKR1Q w Dgd - 0 9
 perft 1 28
 perft 2 960
@@ -2484,7 +2485,7 @@ perft 4 884237
 perft 5 26083252
 perft 6 846682836
 
-id 1
+id 276
 epd nrbb2rq/pppk1ppp/4p1n1/3p4/6P1/1BP5/PP1PPPQP/NRB1KNR1 w GB - 0 9
 perft 1 28
 perft 2 735
@@ -2493,7 +2494,7 @@ perft 4 593839
 perft 5 18588316
 perft 6 512048946
 
-id 1
+id 277
 epd nrbk1brq/p1ppppp1/7p/1p6/4P1nP/P7/1PPP1PP1/NRBKNBRQ w GBgb - 0 9
 perft 1 22
 perft 2 572
@@ -2502,7 +2503,7 @@ perft 4 351494
 perft 5 8525056
 perft 6 247615348
 
-id 1
+id 278
 epd nrbk1rqb/1pp2ppp/5n2/p2pp3/5B2/1N1P2P1/PPP1PP1P/1R1KNRQB w FBfb - 0 9
 perft 1 35
 perft 2 927
@@ -2511,7 +2512,7 @@ perft 4 849932
 perft 5 28465693
 perft 6 783048748
 
-id 1
+id 279
 epd nbrkb1rq/p1pp1ppp/4n3/4p3/Pp6/6N1/1PPPPPPP/NBRKBRQ1 w Cgc - 0 9
 perft 1 20
 perft 2 456
@@ -2520,7 +2521,7 @@ perft 4 247733
 perft 5 6124625
 perft 6 154766108
 
-id 1
+id 280
 epd nrkb1nrq/p2pp1pp/1pp2p2/7b/6PP/5P2/PPPPP2N/NRKBB1RQ w GBgb - 0 9
 perft 1 21
 perft 2 479
@@ -2529,7 +2530,7 @@ perft 4 264493
 perft 5 6696458
 perft 6 165253524
 
-id 1
+id 281
 epd nr1nbbr1/pppkpp1p/6p1/3p4/P6P/1P6/1RPPPPP1/N1KNBBRQ w G - 1 9
 perft 1 20
 perft 2 498
@@ -2538,7 +2539,7 @@ perft 4 288813
 perft 5 7197322
 perft 6 188021682
 
-id 1
+id 282
 epd nrknbrqb/3p1ppp/ppN1p3/8/6P1/8/PPPPPP1P/1RKNBRQB w FBfb - 0 9
 perft 1 32
 perft 2 526
@@ -2547,7 +2548,7 @@ perft 4 319836
 perft 5 10755190
 perft 6 220058991
 
-id 1
+id 283
 epd nbrkn1bq/p1pppr1p/1p6/5pp1/8/1N2PP2/PPPP2PP/1BKRNRBQ w c - 1 9
 perft 1 19
 perft 2 491
@@ -2556,7 +2557,7 @@ perft 4 277313
 perft 5 6230616
 perft 6 180748649
 
-id 1
+id 284
 epd nrkbnrbq/ppppppp1/8/8/7p/PP3P2/2PPPRPP/NRKBN1BQ w Bfb - 0 9
 perft 1 16
 perft 2 353
@@ -2565,7 +2566,7 @@ perft 4 156002
 perft 5 3008668
 perft 6 82706705
 
-id 1
+id 285
 epd nrknrbbq/p4ppp/2p1p3/1p1p4/1P2P3/2P5/P1NP1PPP/1RKNRBBQ w EBeb - 0 9
 perft 1 29
 perft 2 728
@@ -2574,7 +2575,7 @@ perft 4 587668
 perft 5 18231199
 perft 6 511686397
 
-id 1
+id 286
 epd nrknr1bb/pppp1p2/7p/2qPp1p1/8/1P5P/P1P1PPP1/NRKNRQBB w EBeb - 0 9
 perft 1 20
 perft 2 714
@@ -2583,7 +2584,7 @@ perft 4 500458
 perft 5 11132758
 perft 6 386064577
 
-id 1
+id 287
 epd bbqnrrkn/ppp2p1p/3pp1p1/8/1PP5/2Q5/P1BPPPPP/B2NRKRN w GE - 0 9
 perft 1 39
 perft 2 593
@@ -2592,7 +2593,7 @@ perft 4 424799
 perft 5 16764576
 perft 6 346185058
 
-id 1
+id 288
 epd bqn1rkrn/p1p2ppp/1p1p4/4p3/3PP2b/8/PPP2PPP/BQNBRKRN w GEge - 2 9
 perft 1 25
 perft 2 773
@@ -2601,7 +2602,7 @@ perft 4 616817
 perft 5 16632403
 perft 6 515838333
 
-id 1
+id 289
 epd bqnrkb1n/p1p1pprp/3p4/1p2P1p1/2PP4/8/PP3PPP/BQNRKBRN w GDd - 1 9
 perft 1 31
 perft 2 860
@@ -2610,7 +2611,7 @@ perft 4 810379
 perft 5 27233018
 perft 6 813751250
 
-id 1
+id 290
 epd bqr1krnb/ppppppp1/7p/3n4/1P4P1/P4N2/2PPPP1P/BQNRKR1B w FDf - 3 9
 perft 1 31
 perft 2 709
@@ -2619,7 +2620,7 @@ perft 4 559830
 perft 5 18608857
 perft 6 480498340
 
-id 1
+id 291
 epd qbbn1krn/pp3ppp/4r3/2ppp3/P1P4P/8/1P1PPPP1/QBBNRKRN w GEg - 1 9
 perft 1 26
 perft 2 775
@@ -2628,7 +2629,7 @@ perft 4 649673
 perft 5 18476807
 perft 6 582542257
 
-id 1
+id 292
 epd qnbbrkrn/1p1pp2p/p7/2p2pp1/8/4P2P/PPPP1PPK/QNBBRR1N w ge - 0 9
 perft 1 25
 perft 2 599
@@ -2637,7 +2638,7 @@ perft 4 389104
 perft 5 10260500
 perft 6 279222412
 
-id 1
+id 293
 epd qnbrkbrn/1ppp2p1/p3p2p/5p2/P4P2/1P6/2PPP1PP/QNBRKBRN w GDgd - 0 9
 perft 1 27
 perft 2 588
@@ -2646,7 +2647,7 @@ perft 4 394829
 perft 5 11640416
 perft 6 293541380
 
-id 1
+id 294
 epd 1nbrkrnb/p1pppp1p/1pq3p1/8/4P3/P1P4N/1P1P1PPP/QNBRKR1B w FDfd - 1 9
 perft 1 18
 perft 2 609
@@ -2655,7 +2656,7 @@ perft 4 406831
 perft 5 8604788
 perft 6 299491047
 
-id 1
+id 295
 epd qb1r1krn/pppp2pp/1n2ppb1/4P3/7P/8/PPPP1PP1/QBNRBKRN w GDgd - 0 9
 perft 1 20
 perft 2 578
@@ -2664,7 +2665,7 @@ perft 4 349453
 perft 5 7939483
 perft 6 229142178
 
-id 1
+id 296
 epd qnr1bkrn/p3pppp/1bpp4/1p6/2P2PP1/8/PP1PPN1P/QNRBBKR1 w GCgc - 0 9
 perft 1 30
 perft 2 865
@@ -2673,7 +2674,7 @@ perft 4 771705
 perft 5 24475596
 perft 6 719842237
 
-id 1
+id 297
 epd 1nkrbbrn/qppppppp/8/8/p2P4/1P5P/P1P1PPP1/QNKRBBRN w - - 0 9
 perft 1 27
 perft 2 672
@@ -2682,7 +2683,7 @@ perft 4 505278
 perft 5 14065717
 perft 6 410130412
 
-id 1
+id 298
 epd 1qrkbrnb/ppp1p1pp/n2p4/5p2/4N3/8/PPPPPPPP/Q1RKBRNB w Ffc - 2 9
 perft 1 25
 perft 2 718
@@ -2691,7 +2692,7 @@ perft 4 536771
 perft 5 14404324
 perft 6 424279467
 
-id 1
+id 299
 epd q1nrkrbn/pp1pppp1/2p4p/8/P7/5Pb1/BPPPPNPP/Q1NRKRB1 w FDfd - 0 9
 perft 1 22
 perft 2 558
@@ -2700,7 +2701,7 @@ perft 4 336042
 perft 5 8516966
 perft 6 228074630
 
-id 1
+id 300
 epd qnrbkrbn/1p1p1pp1/p1p5/4p2p/8/3P1P2/PPP1P1PP/QNRBKRBN w FCfc - 0 9
 perft 1 28
 perft 2 669
@@ -2709,7 +2710,7 @@ perft 4 440930
 perft 5 12055174
 perft 6 313276304
 
-id 1
+id 301
 epd qnrkr1bn/p1pp1ppp/8/1p2p3/3P1P2/bP4P1/P1P1P2P/QNRKRBBN w ECec - 1 9
 perft 1 23
 perft 2 845
@@ -2718,7 +2719,7 @@ perft 4 759778
 perft 5 19939053
 perft 6 718075943
 
-id 1
+id 302
 epd q1krrnbb/p1p1pppp/2np4/1pB5/5P2/8/PPPPP1PP/QNRKRN1B w EC - 0 9
 perft 1 29
 perft 2 776
@@ -2727,7 +2728,7 @@ perft 4 631941
 perft 5 18110831
 perft 6 549019739
 
-id 1
+id 303
 epd bbn1rkrn/pp1p1ppp/8/2p1p1q1/6P1/P7/BPPPPP1P/B1NQRKRN w GEge - 0 9
 perft 1 26
 perft 2 936
@@ -2736,7 +2737,7 @@ perft 4 906801
 perft 5 24984621
 perft 6 901444251
 
-id 1
+id 304
 epd bn1brkrn/pp1qpp1p/2p3p1/3p4/1PPP4/P7/4PPPP/BNQBRKRN w GEge - 1 9
 perft 1 29
 perft 2 755
@@ -2745,7 +2746,7 @@ perft 4 645963
 perft 5 20128587
 perft 6 600207069
 
-id 1
+id 305
 epd b2rkbrn/p1pppppp/qp6/8/1n6/2B2P2/P1PPP1PP/1NQRKBRN w GDgd - 0 9
 perft 1 24
 perft 2 878
@@ -2754,7 +2755,7 @@ perft 4 791007
 perft 5 20840078
 perft 6 775795187
 
-id 1
+id 306
 epd b2rkrnb/pqp1pppp/n7/1p1p4/P7/N1P2N2/1P1PPPPP/B1QRKR1B w FDfd - 4 9
 perft 1 26
 perft 2 724
@@ -2763,7 +2764,7 @@ perft 4 571891
 perft 5 16109522
 perft 6 492933398
 
-id 1
+id 307
 epd 1bbqrkrn/ppppp1p1/8/5p1p/P1n3P1/3P4/1PP1PP1P/NBBQRRKN w ge - 1 9
 perft 1 25
 perft 2 678
@@ -2772,7 +2773,7 @@ perft 4 461211
 perft 5 12173245
 perft 6 329661421
 
-id 1
+id 308
 epd nqb1rrkn/ppp1bppp/3pp3/8/3P4/1P6/PQP1PPPP/N1BBRRKN w - - 1 9
 perft 1 23
 perft 2 503
@@ -2781,7 +2782,7 @@ perft 4 290341
 perft 5 7626054
 perft 6 188215608
 
-id 1
+id 309
 epd nqbrkbr1/p1pppppp/1p6/2N2n2/2P5/5P2/PP1PP1PP/1QBRKBRN w GDgd - 1 9
 perft 1 29
 perft 2 688
@@ -2790,7 +2791,7 @@ perft 4 506302
 perft 5 15167248
 perft 6 399015237
 
-id 1
+id 310
 epd nqbrkrn1/1ppppp2/6pp/p7/1P6/2Q5/P1PPPPPP/N1BRKRNB w FDfd - 0 9
 perft 1 36
 perft 2 602
@@ -2799,7 +2800,7 @@ perft 4 397340
 perft 5 13706856
 perft 6 291708797
 
-id 1
+id 311
 epd nbqrbrkn/pp1p1pp1/2p5/4p2p/2P3P1/1P3P2/P2PP2P/NBQRBKRN w GD - 0 9
 perft 1 34
 perft 2 655
@@ -2808,7 +2809,7 @@ perft 4 474396
 perft 5 16613630
 perft 6 379344541
 
-id 1
+id 312
 epd nqrbbrkn/1p1pppp1/8/p1p4p/4P2P/1N4P1/PPPP1P2/1QRBBKRN w GC - 0 9
 perft 1 23
 perft 2 597
@@ -2817,7 +2818,7 @@ perft 4 400357
 perft 5 10096863
 perft 6 294900903
 
-id 1
+id 313
 epd nqrkbbrn/2p1p1pp/pp1p1p2/8/P2N4/2P5/1P1PPPPP/1QRKBBRN w GCgc - 0 9
 perft 1 32
 perft 2 744
@@ -2826,7 +2827,7 @@ perft 4 550728
 perft 5 17597164
 perft 6 428786656
 
-id 1
+id 314
 epd n1krbrnb/q1pppppp/p7/1p6/3Q4/2P2P2/PP1PP1PP/N1RKBRNB w FC - 1 9
 perft 1 43
 perft 2 1038
@@ -2835,7 +2836,7 @@ perft 4 1074450
 perft 5 40918952
 perft 6 1126603824
 
-id 1
+id 315
 epd nb1rkrbn/p1pp1p1p/qp6/4p1p1/5PP1/P7/1PPPPB1P/NBQRKR1N w FDfd - 2 9
 perft 1 26
 perft 2 645
@@ -2844,7 +2845,7 @@ perft 4 445464
 perft 5 11911314
 perft 6 342563372
 
-id 1
+id 316
 epd nqr1krbn/pppp1ppp/8/8/3pP3/5P2/PPPb1NPP/NQRBKRB1 w FCfc - 3 9
 perft 1 2
 perft 2 51
@@ -2853,7 +2854,7 @@ perft 4 27743
 perft 5 612305
 perft 6 17040200
 
-id 1
+id 317
 epd n1rkrbbn/pqppppp1/7p/1p6/8/1NPP4/PP1KPPPP/1QR1RBBN w ec - 0 9
 perft 1 25
 perft 2 674
@@ -2862,7 +2863,7 @@ perft 4 505337
 perft 5 13421727
 perft 6 403551903
 
-id 1
+id 318
 epd 1qrkrnbb/1p1p1ppp/pnp1p3/8/3PP3/P6P/1PP2PP1/NQRKRNBB w ECec - 0 9
 perft 1 24
 perft 2 688
@@ -2871,7 +2872,7 @@ perft 4 511444
 perft 5 13322502
 perft 6 403441498
 
-id 1
+id 319
 epd 1bnrqkrn/2ppppp1/p7/1p1b3p/3PP1P1/8/PPPQ1P1P/BBNR1KRN w GDgd - 1 9
 perft 1 35
 perft 2 925
@@ -2880,7 +2881,7 @@ perft 4 857060
 perft 5 30458921
 perft 6 824344087
 
-id 1
+id 320
 epd bnrbqkr1/ppp2pp1/6n1/3pp2p/1P6/2N3N1/P1PPPPPP/B1RBQRK1 w gc - 0 9
 perft 1 23
 perft 2 704
@@ -2889,7 +2890,7 @@ perft 4 539587
 perft 5 14154852
 perft 6 450893738
 
-id 1
+id 321
 epd 1nrqkbrn/p1pppppp/8/1p1b4/P6P/5P2/1PPPP1P1/BNRQKBRN w GCgc - 1 9
 perft 1 19
 perft 2 505
@@ -2898,7 +2899,7 @@ perft 4 281422
 perft 5 6450025
 perft 6 175593967
 
-id 1
+id 322
 epd b1rqkrnb/ppppppp1/8/6p1/3n4/NP6/P1PPPP1P/B1RQKRNB w FCfc - 0 9
 perft 1 25
 perft 2 614
@@ -2907,7 +2908,7 @@ perft 4 377660
 perft 5 10391021
 perft 6 259629603
 
-id 1
+id 323
 epd nbbrqkrn/ppp3p1/3pp3/5p1p/1P2P3/P7/2PPQPPP/NBBR1KRN w GDgd - 0 9
 perft 1 30
 perft 2 833
@@ -2916,7 +2917,7 @@ perft 4 717713
 perft 5 22873901
 perft 6 649556666
 
-id 1
+id 324
 epd nr1bqrk1/ppp1pppp/6n1/3pP3/8/5PQb/PPPP2PP/NRBB1KRN w GB - 3 9
 perft 1 26
 perft 2 734
@@ -2925,7 +2926,7 @@ perft 4 582591
 perft 5 17199594
 perft 6 512134836
 
-id 1
+id 325
 epd 1rbqkbr1/ppppp1pp/1n6/4np2/3P1P2/6P1/PPPQP2P/NRB1KBRN w GBgb - 1 9
 perft 1 27
 perft 2 662
@@ -2934,7 +2935,7 @@ perft 4 447464
 perft 5 13038519
 perft 6 338365642
 
-id 1
+id 326
 epd nr1qkr1b/ppp1pp1p/4bn2/3p2p1/4P3/1Q6/PPPP1PPP/NRB1KRNB w FBfb - 4 9
 perft 1 33
 perft 2 939
@@ -2943,7 +2944,7 @@ perft 4 942138
 perft 5 30995969
 perft 6 991509814
 
-id 1
+id 327
 epd nb1qbkrn/pprp1pp1/7p/2p1pB2/Q1PP4/8/PP2PPPP/N1R1BKRN w GCg - 2 9
 perft 1 47
 perft 2 1128
@@ -2952,7 +2953,7 @@ perft 4 1306753
 perft 5 56747878
 perft 6 1560584212
 
-id 1
+id 328
 epd nrqb1rkn/pp2pppp/2bp4/2p5/6P1/2P3N1/PP1PPP1P/NRQBBRK1 w - - 3 9
 perft 1 24
 perft 2 828
@@ -2961,7 +2962,7 @@ perft 4 723705
 perft 5 19506135
 perft 6 668969549
 
-id 1
+id 329
 epd nrq1bbrn/ppkpp2p/2p3p1/P4p2/8/4P1N1/1PPP1PPP/NRQKBBR1 w GB - 0 9
 perft 1 25
 perft 2 525
@@ -2970,7 +2971,7 @@ perft 4 309994
 perft 5 8250997
 perft 6 201795680
 
-id 1
+id 330
 epd Br1kbrn1/pqpppp2/8/6pp/3b2P1/1N6/PPPPPP1P/1RQKBRN1 w FBfb - 3 9
 perft 1 20
 perft 2 790
@@ -2979,7 +2980,7 @@ perft 4 695905
 perft 5 17735648
 perft 6 669854148
 
-id 1
+id 331
 epd nbrqkrbn/2p1p1pp/p7/1p1p1p2/4P1P1/5P2/PPPP3P/NBRQKRBN w FCfc - 0 9
 perft 1 29
 perft 2 771
@@ -2988,7 +2989,7 @@ perft 4 647106
 perft 5 19192982
 perft 6 591335970
 
-id 1
+id 332
 epd 1rqbkrbn/1ppppp1p/1n6/p1N3p1/8/2P4P/PP1PPPP1/1RQBKRBN w FBfb - 0 9
 perft 1 29
 perft 2 502
@@ -2997,7 +2998,7 @@ perft 4 287739
 perft 5 8652810
 perft 6 191762235
 
-id 1
+id 333
 epd 1rqkrbbn/ppnpp1pp/8/2p5/6p1/3P4/PPP1PPPP/NRK1RBBN w eb - 0 9
 perft 1 19
 perft 2 531
@@ -3006,7 +3007,7 @@ perft 4 300384
 perft 5 6506674
 perft 6 184309316
 
-id 1
+id 334
 epd nrqkrnbb/p1pp2pp/5p2/4P3/2p5/4N3/PP1PP1PP/NRQKR1BB w EBeb - 0 9
 perft 1 26
 perft 2 800
@@ -3015,7 +3016,7 @@ perft 4 756695
 perft 5 23952941
 perft 6 809841274
 
-id 1
+id 335
 epd bbnrkqrn/pp3pp1/4p2p/2pp4/4P1P1/1PB5/P1PP1P1P/1BNRKQRN w GDgd - 0 9
 perft 1 33
 perft 2 915
@@ -3024,7 +3025,7 @@ perft 4 878648
 perft 5 29602610
 perft 6 881898159
 
-id 1
+id 336
 epd bnrbkqr1/1p2pppp/6n1/p1pp4/7P/P3P3/1PPPKPP1/BNRB1QRN w gc - 0 9
 perft 1 19
 perft 2 457
@@ -3033,7 +3034,7 @@ perft 4 238944
 perft 5 5356253
 perft 6 144653627
 
-id 1
+id 337
 epd b1rkqbrn/pp1p2pp/2n1p3/2p2p2/3P2PP/8/PPP1PP2/BNKRQBRN w gc - 0 9
 perft 1 30
 perft 2 985
@@ -3042,7 +3043,7 @@ perft 4 1011700
 perft 5 32684185
 perft 6 1080607773
 
-id 1
+id 338
 epd b1rkqrnb/2ppppp1/np6/p6p/1P6/P2P3P/2P1PPP1/BNRKQRNB w FCfc - 0 9
 perft 1 26
 perft 2 692
@@ -3051,7 +3052,7 @@ perft 4 517703
 perft 5 14561181
 perft 6 413226841
 
-id 1
+id 339
 epd nbbrkqrn/1ppp1p2/p6p/4p1p1/5P2/1P5P/P1PPPNP1/NBBRKQR1 w GDgd - 0 9
 perft 1 22
 perft 2 561
@@ -3060,7 +3061,7 @@ perft 4 367487
 perft 5 9307003
 perft 6 273928315
 
-id 1
+id 340
 epd nrbbkqrn/p1pppppp/8/1p6/4P3/7Q/PPPP1PPP/NRBBK1RN w GBgb - 0 9
 perft 1 38
 perft 2 769
@@ -3069,7 +3070,7 @@ perft 4 632310
 perft 5 23091070
 perft 6 560139600
 
-id 1
+id 341
 epd nrbkqbrn/1pppp2p/8/p4pp1/P4PQ1/8/1PPPP1PP/NRBK1BRN w GBgb - 0 9
 perft 1 23
 perft 2 507
@@ -3078,7 +3079,7 @@ perft 4 321423
 perft 5 8887567
 perft 6 237475184
 
-id 1
+id 342
 epd nr1kqr1b/pp2pppp/5n2/2pp4/P5b1/5P2/1PPPPRPP/NRBK1QNB w Bfb - 2 9
 perft 1 18
 perft 2 626
@@ -3087,7 +3088,7 @@ perft 4 434138
 perft 5 9465555
 perft 6 335004239
 
-id 1
+id 343
 epd nbkrbqrn/1pppppp1/8/4P2p/pP6/P7/2PP1PPP/NBRKBQRN w GC - 0 9
 perft 1 22
 perft 2 329
@@ -3096,7 +3097,7 @@ perft 4 148351
 perft 5 4160034
 perft 6 82875306
 
-id 1
+id 344
 epd nrkb1qrn/pp1pp1pp/8/5p1b/P1p4P/6N1/1PPPPPP1/NRKBBQR1 w GBgb - 2 9
 perft 1 16
 perft 2 479
@@ -3105,7 +3106,7 @@ perft 4 275354
 perft 5 5862341
 perft 6 184959796
 
-id 1
+id 345
 epd 1rkq1brn/ppppp1pp/1n6/3b1p2/3N3P/5P2/PPPPP1P1/1RKQBBRN w GBgb - 3 9
 perft 1 23
 perft 2 614
@@ -3114,7 +3115,7 @@ perft 4 418395
 perft 5 11090645
 perft 6 313526088
 
-id 1
+id 346
 epd nrk1brnb/pp1ppppp/2p5/3q4/5P2/PP6/1KPPP1PP/NR1QBRNB w fb - 1 9
 perft 1 25
 perft 2 942
@@ -3123,7 +3124,7 @@ perft 4 792179
 perft 5 19318837
 perft 6 685549171
 
-id 1
+id 347
 epd nbrkqr1n/1pppp2p/p4pp1/2Bb4/5P2/6P1/PPPPP2P/NBRKQ1RN w Cfc - 2 9
 perft 1 30
 perft 2 841
@@ -3132,7 +3133,7 @@ perft 4 677876
 perft 5 20145765
 perft 6 557578726
 
-id 1
+id 348
 epd n1kbqrbn/2p1pppp/1r6/pp1p4/P7/3P4/1PP1PPPP/NRKBQRBN w FBf - 2 9
 perft 1 21
 perft 2 591
@@ -3141,7 +3142,7 @@ perft 4 394289
 perft 5 10295086
 perft 6 292131422
 
-id 1
+id 349
 epd nrkqrbb1/ppp1pppp/3p4/8/4P3/2Pn1P2/PP4PP/NRKQRBBN w EBeb - 0 9
 perft 1 4
 perft 2 88
@@ -3150,7 +3151,7 @@ perft 4 73414
 perft 5 2640555
 perft 6 66958031
 
-id 1
+id 350
 epd nrkqrnbb/ppppp1p1/7p/1P3p2/3P4/2P5/P3PPPP/NRKQRNBB w EBeb - 0 9
 perft 1 29
 perft 2 689
@@ -3159,7 +3160,7 @@ perft 4 508789
 perft 5 16226660
 perft 6 408570219
 
-id 1
+id 351
 epd bbnr1rqn/pp2pkpp/2pp1p2/8/4P1P1/8/PPPP1P1P/BBNRKRQN w FD - 0 9
 perft 1 21
 perft 2 463
@@ -3168,7 +3169,7 @@ perft 4 256244
 perft 5 6826249
 perft 6 165025370
 
-id 1
+id 352
 epd bnrbk1qn/1pppprpp/8/p4p1P/6P1/3P4/PPP1PP2/BNRBKRQN w FCc - 0 9
 perft 1 22
 perft 2 459
@@ -3177,7 +3178,7 @@ perft 4 268157
 perft 5 7371098
 perft 6 190583454
 
-id 1
+id 353
 epd 1nrkrbqn/p1pp1ppp/4p3/1p6/1PP5/6PB/P2PPPbP/BNRKR1QN w ECec - 0 9
 perft 1 30
 perft 2 931
@@ -3186,7 +3187,7 @@ perft 4 887414
 perft 5 28412902
 perft 6 869228014
 
-id 1
+id 354
 epd b1rkr1nb/pppppqp1/n4B2/7p/8/1P4P1/P1PPPP1P/1NKRRQNB w ec - 1 9
 perft 1 36
 perft 2 934
@@ -3195,7 +3196,7 @@ perft 4 930926
 perft 5 30392925
 perft 6 952871799
 
-id 1
+id 355
 epd nbbrkrqn/p1ppp1p1/8/1p3p1p/2P3PP/8/PP1PPPQ1/NBBRKR1N w FDfd - 0 9
 perft 1 34
 perft 2 938
@@ -3204,7 +3205,7 @@ perft 4 921716
 perft 5 31185844
 perft 6 944483246
 
-id 1
+id 356
 epd 1rbbkrqn/ppp1pp2/1n1p2p1/7p/P3P1P1/3P4/1PP2P1P/NRBBKRQN w FBfb - 0 9
 perft 1 26
 perft 2 646
@@ -3213,7 +3214,7 @@ perft 4 472744
 perft 5 14006203
 perft 6 384101783
 
-id 1
+id 357
 epd nrbkrbq1/Qpppp1pp/2n5/5p2/P4P2/6N1/1PPPP1PP/NRBKRB2 w EBeb - 1 9
 perft 1 27
 perft 2 619
@@ -3222,7 +3223,7 @@ perft 4 421845
 perft 5 11718463
 perft 6 313794027
 
-id 1
+id 358
 epd 1rbkr1nb/pppp1qpp/1n6/4pp2/1PP1P3/8/PB1P1PPP/NR1KRQNB w EBeb - 1 9
 perft 1 32
 perft 2 1029
@@ -3231,7 +3232,7 @@ perft 4 1080977
 perft 5 35483796
 perft 6 1181835398
 
-id 1
+id 359
 epd nbrk1rqn/p1ppp2p/1p6/5ppb/8/1N2P2P/PPPP1PP1/1BKRBRQN w fc - 0 9
 perft 1 18
 perft 2 594
@@ -3240,7 +3241,7 @@ perft 4 408544
 perft 5 9329122
 perft 6 315021712
 
-id 1
+id 360
 epd nrkbbrqn/3pppp1/7p/ppp5/P7/1N5P/1PPPPPP1/1RKBBRQN w FBfb - 0 9
 perft 1 19
 perft 2 417
@@ -3249,7 +3250,7 @@ perft 4 218513
 perft 5 5236331
 perft 6 137024458
 
-id 1
+id 361
 epd nrkr1bqn/ppp1pppp/3p4/1b6/7P/P7/1PPPPPP1/NRKRBBQN w DBdb - 1 9
 perft 1 17
 perft 2 457
@@ -3258,7 +3259,7 @@ perft 4 243872
 perft 5 5503579
 perft 6 150091997
 
-id 1
+id 362
 epd nrkrbqnb/p4ppp/1p2p3/2pp4/6P1/2P2N2/PPNPPP1P/1RKRBQ1B w DBdb - 0 9
 perft 1 27
 perft 2 755
@@ -3267,7 +3268,7 @@ perft 4 620093
 perft 5 17883987
 perft 6 547233320
 
-id 1
+id 363
 epd nbkrr1bn/ppB2ppp/4p3/2qp4/4P3/5P2/PPPP2PP/NBRKRQ1N w EC - 1 9
 perft 1 37
 perft 2 1473
@@ -3276,7 +3277,7 @@ perft 4 1956521
 perft 5 68070015
 perft 6 2490912491
 
-id 1
+id 364
 epd n1kbrqbn/p1pp1pp1/4p2p/2B5/1r3P2/8/PPPPP1PP/NRKBRQ1N w EBe - 2 9
 perft 1 30
 perft 2 1029
@@ -3285,7 +3286,7 @@ perft 4 1053163
 perft 5 32318550
 perft 6 1106487743
 
-id 1
+id 365
 epd nrkrqbbn/2pppp1p/8/pp6/1P1P2p1/P5P1/2P1PP1P/NRKRQBBN w DBdb - 0 9
 perft 1 22
 perft 2 421
@@ -3294,7 +3295,7 @@ perft 4 221927
 perft 5 5754555
 perft 6 141245633
 
-id 1
+id 366
 epd nrkr1nbb/1ppp2pp/p3q3/4pp2/2P5/P3P3/1PKP1PPP/NR1RQNBB w db - 0 9
 perft 1 22
 perft 2 619
@@ -3303,7 +3304,7 @@ perft 4 411392
 perft 5 9905109
 perft 6 301403003
 
-id 1
+id 367
 epd bbnrkrnq/1pp1p2p/6p1/p2p1p2/8/1P2P3/P1PP1PPP/BBNRKRNQ w FDfd - 0 9
 perft 1 27
 perft 2 805
@@ -3312,7 +3313,7 @@ perft 4 688224
 perft 5 19133881
 perft 6 620749189
 
-id 1
+id 368
 epd bnrbkrn1/pp1ppp2/2p3pp/8/2Pq4/P4PP1/1P1PP2P/BNRBKRNQ w FCfc - 1 9
 perft 1 20
 perft 2 770
@@ -3321,7 +3322,7 @@ perft 4 577980
 perft 5 13581691
 perft 6 456736500
 
-id 1
+id 369
 epd b1rkrbnq/1pp1pppp/2np4/p5N1/8/1P2P3/P1PP1PPP/BNRKRB1Q w ECec - 0 9
 perft 1 37
 perft 2 740
@@ -3330,7 +3331,7 @@ perft 4 581744
 perft 5 21156664
 perft 6 485803600
 
-id 1
+id 370
 epd b1krrnqb/pp1ppp1p/n1p3p1/2N5/6P1/8/PPPPPP1P/B1RKRNQB w EC - 0 9
 perft 1 34
 perft 2 850
@@ -3339,7 +3340,7 @@ perft 4 752350
 perft 5 25360295
 perft 6 698159474
 
-id 1
+id 371
 epd 1bbr1rnq/ppppkppp/8/3np3/4P3/3P4/PPP1KPPP/NBBRR1NQ w - - 1 9
 perft 1 27
 perft 2 704
@@ -3348,7 +3349,7 @@ perft 4 480474
 perft 5 12817011
 perft 6 341026662
 
-id 1
+id 372
 epd nrbbk1nq/p1p1prpp/1p6/N2p1p2/P7/8/1PPPPPPP/R1BBKRNQ w Fb - 2 9
 perft 1 23
 perft 2 552
@@ -3357,7 +3358,7 @@ perft 4 348593
 perft 5 9236564
 perft 6 248469879
 
-id 1
+id 373
 epd 1rbkrb1q/1pppp1pp/1n5n/p4p2/P3P3/1P6/2PPNPPP/NRBKRB1Q w EBeb - 1 9
 perft 1 22
 perft 2 415
@@ -3366,7 +3367,7 @@ perft 4 217224
 perft 5 5735644
 perft 6 135295774
 
-id 1
+id 374
 epd nrbkr1qb/1pp1pppp/6n1/p2p4/2P1P3/1N4N1/PP1P1PPP/1RBKR1QB w EBeb - 0 9
 perft 1 27
 perft 2 709
@@ -3375,7 +3376,7 @@ perft 4 506214
 perft 5 14192779
 perft 6 380516508
 
-id 1
+id 375
 epd nbrkbrnq/p3p1pp/1pp2p2/3p4/1PP5/4P3/P1KP1PPP/NBR1BRNQ w fc - 0 9
 perft 1 24
 perft 2 715
@@ -3384,7 +3385,7 @@ perft 4 535054
 perft 5 14322279
 perft 6 427269976
 
-id 1
+id 376
 epd nrk1brnq/pp1p1pp1/7p/b1p1p3/1P6/6P1/P1PPPPQP/NRKBBRN1 w FBfb - 2 9
 perft 1 29
 perft 2 675
@@ -3393,7 +3394,7 @@ perft 4 492124
 perft 5 15316285
 perft 6 389051744
 
-id 1
+id 377
 epd nrkr1bnq/1p2pppp/p2p4/1bp5/PP6/1R5N/2PPPPPP/N1KRBB1Q w Ddb - 2 9
 perft 1 27
 perft 2 744
@@ -3402,7 +3403,7 @@ perft 4 571209
 perft 5 16188945
 perft 6 458900901
 
-id 1
+id 378
 epd nrk1b1qb/pppn1ppp/3rp3/3p4/2P3P1/3P4/PPN1PP1P/1RKRBNQB w DBb - 3 9
 perft 1 35
 perft 2 941
@@ -3411,7 +3412,7 @@ perft 4 935791
 perft 5 33150360
 perft 6 968024386
 
-id 1
+id 379
 epd nb1rrnbq/ppkp1ppp/8/2p1p3/P7/1N2P3/1PPP1PPP/1BKRRNBQ w - - 1 9
 perft 1 19
 perft 2 451
@@ -3420,7 +3421,7 @@ perft 4 235472
 perft 5 5506897
 perft 6 139436165
 
-id 1
+id 380
 epd nrkbrnbq/4pppp/1ppp4/p7/2P1P3/3P2N1/PP3PPP/NRKBR1BQ w EBeb - 0 9
 perft 1 29
 perft 2 591
@@ -3429,7 +3430,7 @@ perft 4 384358
 perft 5 11245508
 perft 6 270967202
 
-id 1
+id 381
 epd nrkrnbbq/3p1ppp/1p6/p1p1p3/3P2P1/P4Q2/1PP1PP1P/NRKRNBB1 w DBdb - 0 9
 perft 1 38
 perft 2 792
@@ -3438,7 +3439,7 @@ perft 4 640961
 perft 5 22654797
 perft 6 540864616
 
-id 1
+id 382
 epd nr1rnqbb/ppp1pp1p/3k2p1/3p4/1P5P/3P1N2/P1P1PPP1/NRKR1QBB w DB - 1 9
 perft 1 25
 perft 2 758
@@ -3447,7 +3448,7 @@ perft 4 543643
 perft 5 13890077
 perft 6 402109399
 
-id 1
+id 383
 epd bbqrnnkr/1ppp1p1p/5p2/p5p1/P7/1P4P1/2PPPP1P/1BQRNNKR w HDhd - 0 9
 perft 1 20
 perft 2 322
@@ -3456,7 +3457,7 @@ perft 4 145818
 perft 5 3588435
 perft 6 82754650
 
-id 1
+id 384
 epd bqrb2k1/pppppppr/5nnp/8/3P1P2/4P1N1/PPP3PP/BQRBN1KR w HCc - 1 9
 perft 1 25
 perft 2 597
@@ -3465,7 +3466,7 @@ perft 4 397970
 perft 5 11162476
 perft 6 295682250
 
-id 1
+id 385
 epd bqrnn1kr/1pppbppp/8/4p3/1p6/2P1N2P/P2PPPP1/BQR1NBKR w HChc - 1 9
 perft 1 34
 perft 2 921
@@ -3474,7 +3475,7 @@ perft 4 864023
 perft 5 30126510
 perft 6 850296236
 
-id 1
+id 386
 epd bqr1nkr1/pppppp2/2n3p1/7p/1P1b1P2/8/PQP1P1PP/B1RNNKRB w GCgc - 0 9
 perft 1 23
 perft 2 788
@@ -3483,7 +3484,7 @@ perft 4 686795
 perft 5 20849374
 perft 6 645694580
 
-id 1
+id 387
 epd qbbrnn1r/1pppp1pk/p7/5p1p/P2P3P/3N4/1PP1PPP1/QBBR1NKR w HD - 0 9
 perft 1 34
 perft 2 713
@@ -3492,7 +3493,7 @@ perft 4 562189
 perft 5 19494094
 perft 6 482645160
 
-id 1
+id 388
 epd qrbb2kr/p1pppppp/1p1n4/8/1P3n2/P7/Q1PPP1PP/1RBBNNKR w HBhb - 0 9
 perft 1 28
 perft 2 977
@@ -3501,7 +3502,7 @@ perft 4 949925
 perft 5 27802999
 perft 6 992109168
 
-id 1
+id 389
 epd qrb2bkr/1pp1pppp/2np1n2/pN6/3P4/4B3/PPP1PPPP/QR2NBKR w HBhb - 0 9
 perft 1 27
 perft 2 730
@@ -3510,7 +3511,7 @@ perft 4 585091
 perft 5 17005916
 perft 6 507008968
 
-id 1
+id 390
 epd qrbnnkrb/pp2pp1p/8/2pp2p1/7P/P1P5/QP1PPPP1/1RBNNKRB w GBgb - 0 9
 perft 1 24
 perft 2 813
@@ -3519,7 +3520,7 @@ perft 4 707925
 perft 5 19615756
 perft 6 655850285
 
-id 1
+id 391
 epd 1brnb1kr/p1pppppp/1p6/8/4q2n/1P2P1P1/PNPP1P1P/QBR1BNKR w HChc - 3 9
 perft 1 17
 perft 2 734
@@ -3528,7 +3529,7 @@ perft 4 530809
 perft 5 11032633
 perft 6 416356876
 
-id 1
+id 392
 epd 1rnbbnkr/1pp1pppp/1q1p4/p7/4P3/5PN1/PPPP1BPP/QRNB2KR w HBhb - 1 9
 perft 1 26
 perft 2 809
@@ -3537,7 +3538,7 @@ perft 4 706677
 perft 5 20292750
 perft 6 675408811
 
-id 1
+id 393
 epd qrnnbb1Q/ppp1pk1p/3p2p1/5p2/PP6/5P2/2PPP1PP/1RNNBBKR w HB - 0 9
 perft 1 37
 perft 2 751
@@ -3546,7 +3547,7 @@ perft 4 603931
 perft 5 22443036
 perft 6 515122176
 
-id 1
+id 394
 epd qrnnbkrb/p3p1pp/3p1p2/1pp5/PP2P3/8/2PP1PPP/QRNNBRKB w gb - 0 9
 perft 1 30
 perft 2 906
@@ -3555,7 +3556,7 @@ perft 4 872526
 perft 5 27658191
 perft 6 890966633
 
-id 1
+id 395
 epd qbrnnkbr/1p2pp1p/p1p3p1/3p4/6P1/P1N4P/1PPPPP2/QBR1NKBR w HChc - 0 9
 perft 1 26
 perft 2 701
@@ -3564,7 +3565,7 @@ perft 4 521377
 perft 5 14733245
 perft 6 416881799
 
-id 1
+id 396
 epd qr1b1kbr/1p1ppppp/1n1n4/p1p5/4P3/5NPP/PPPP1P2/QRNB1KBR w HBhb - 1 9
 perft 1 26
 perft 2 649
@@ -3573,7 +3574,7 @@ perft 4 451997
 perft 5 12367604
 perft 6 342165821
 
-id 1
+id 397
 epd qrnnkb1r/1pppppp1/7p/p4b2/4P3/5P1P/PPPP2PR/QRNNKBB1 w Bhb - 1 9
 perft 1 34
 perft 2 941
@@ -3582,7 +3583,7 @@ perft 4 901240
 perft 5 30307554
 perft 6 888709821
 
-id 1
+id 398
 epd qr1nkrbb/p2ppppp/1pp5/8/3Pn3/1NP3P1/PP2PP1P/QR1NKRBB w FBfb - 1 9
 perft 1 19
 perft 2 505
@@ -3591,7 +3592,7 @@ perft 4 294251
 perft 5 7046501
 perft 6 190414579
 
-id 1
+id 399
 epd bbrqn1kr/1pppp1pp/4n3/5p2/p5P1/3P4/PPP1PPKP/BBRQNN1R w hc - 0 9
 perft 1 24
 perft 2 573
@@ -3600,7 +3601,7 @@ perft 4 335845
 perft 5 8191054
 perft 6 227555387
 
-id 1
+id 400
 epd brqb1nkr/pppppp1p/8/4N1pn/5P2/6P1/PPPPP2P/BRQB1NKR w HBhb - 0 9
 perft 1 26
 perft 2 550
@@ -3609,7 +3610,7 @@ perft 4 331666
 perft 5 8903754
 perft 6 223437427
 
-id 1
+id 401
 epd brqnn1kr/pp3ppp/2pbp3/3p4/8/2NPP3/PPP1BPPP/BRQ1N1KR w HBhb - 0 9
 perft 1 27
 perft 2 780
@@ -3618,7 +3619,7 @@ perft 4 589328
 perft 5 16243731
 perft 6 463883447
 
-id 1
+id 402
 epd brq1nkrb/ppp2ppp/8/n2pp2P/P7/4P3/1PPP1PP1/BRQNNKRB w GBgb - 1 9
 perft 1 17
 perft 2 426
@@ -3627,7 +3628,7 @@ perft 4 235162
 perft 5 5048497
 perft 6 153986034
 
-id 1
+id 403
 epd rbbqn1kr/pp2p1pp/6n1/2pp1p2/2P4P/P7/BP1PPPP1/R1BQNNKR w HAha - 0 9
 perft 1 27
 perft 2 916
@@ -3636,7 +3637,7 @@ perft 4 890435
 perft 5 26302461
 perft 6 924181432
 
-id 1
+id 404
 epd 1qbbn1kr/1ppppppp/r3n3/8/p1P5/P7/1P1PPPPP/RQBBNNKR w HAh - 1 9
 perft 1 29
 perft 2 817
@@ -3645,7 +3646,7 @@ perft 4 720277
 perft 5 22147642
 perft 6 670707652
 
-id 1
+id 405
 epd rqbnnbkr/ppp1ppp1/7p/3p4/PP6/7P/1NPPPPP1/RQB1NBKR w HAa - 1 9
 perft 1 23
 perft 2 572
@@ -3654,7 +3655,7 @@ perft 4 381474
 perft 5 10416981
 perft 6 288064942
 
-id 1
+id 406
 epd r1bnnkrb/q1ppp1pp/p7/1p3pB1/2P1P3/3P4/PP3PPP/RQ1NNKRB w GAga - 2 9
 perft 1 31
 perft 2 925
@@ -3663,7 +3664,7 @@ perft 4 860969
 perft 5 26316355
 perft 6 843078864
 
-id 1
+id 407
 epd rbqnb1kr/ppppp1pp/5p2/5N2/7P/1n3P2/PPPPP1P1/RBQNB1KR w HAha - 1 9
 perft 1 32
 perft 2 864
@@ -3672,7 +3673,7 @@ perft 4 766551
 perft 5 24738875
 perft 6 707188107
 
-id 1
+id 408
 epd rqnbbn1r/ppppppp1/6k1/8/6Pp/2PN4/PP1PPPKP/RQ1BBN1R w - - 0 9
 perft 1 27
 perft 2 566
@@ -3681,7 +3682,7 @@ perft 4 347059
 perft 5 9714509
 perft 6 234622128
 
-id 1
+id 409
 epd rqnnbbkr/p1p2pp1/1p1p3p/4p3/4NP2/6P1/PPPPP2P/RQN1BBKR w HAha - 0 9
 perft 1 27
 perft 2 631
@@ -3690,7 +3691,7 @@ perft 4 452734
 perft 5 13307890
 perft 6 356279813
 
-id 1
+id 410
 epd 1qnnbrkb/rppp1ppp/p3p3/8/4P3/2PP1P2/PP4PP/RQNNBKRB w GA - 1 9
 perft 1 24
 perft 2 479
@@ -3699,7 +3700,7 @@ perft 4 271469
 perft 5 7204345
 perft 6 175460841
 
-id 1
+id 411
 epd rbqnn1br/p1pppk1p/1p4p1/5p2/8/P1P2P2/1PBPP1PP/R1QNNKBR w HA - 0 9
 perft 1 31
 perft 2 756
@@ -3708,7 +3709,7 @@ perft 4 625194
 perft 5 20036784
 perft 6 554292502
 
-id 1
+id 412
 epd rqnbnkbr/1ppppp2/p5p1/8/1P4p1/4PP2/P1PP3P/RQNBNKBR w HAha - 0 9
 perft 1 24
 perft 2 715
@@ -3717,7 +3718,7 @@ perft 4 575589
 perft 5 16013189
 perft 6 515078271
 
-id 1
+id 413
 epd rq1nkbbr/1p2pppp/p2n4/2pp4/1P4P1/P2N4/2PPPP1P/RQ1NKBBR w HAha - 1 9
 perft 1 27
 perft 2 694
@@ -3726,7 +3727,7 @@ perft 4 552904
 perft 5 16685687
 perft 6 494574415
 
-id 1
+id 414
 epd r1nnkrbb/pp1pppp1/2p3q1/7p/8/1PPP3P/P3PPP1/RQNNKRBB w FAfa - 1 9
 perft 1 18
 perft 2 520
@@ -3735,7 +3736,7 @@ perft 4 329085
 perft 5 7508201
 perft 6 235103697
 
-id 1
+id 415
 epd bbrnqk1r/pppp3p/6p1/4pp2/3P2P1/8/PPP1PP1P/BBRN1NKR w HC - 0 9
 perft 1 22
 perft 2 566
@@ -3744,7 +3745,7 @@ perft 4 362624
 perft 5 8721079
 perft 6 259069471
 
-id 1
+id 416
 epd brnb1nkr/pppqpp2/3p2pp/8/3PP3/1P6/PBP2PPP/1RNBQNKR w HBhb - 0 9
 perft 1 32
 perft 2 859
@@ -3753,7 +3754,7 @@ perft 4 817464
 perft 5 27734108
 perft 6 829785474
 
-id 1
+id 417
 epd brnq1b1r/ppp1ppkp/3p1np1/8/8/5P1P/PPPPPKPR/BRNQNB2 w - - 0 9
 perft 1 21
 perft 2 511
@@ -3762,7 +3763,7 @@ perft 4 273756
 perft 5 6372681
 perft 6 167139732
 
-id 1
+id 418
 epd brnq1rkb/1pppppp1/3n3p/p7/8/P4NP1/1PPPPPRP/BRNQ1K1B w B - 0 9
 perft 1 25
 perft 2 548
@@ -3771,7 +3772,7 @@ perft 4 341208
 perft 5 9015901
 perft 6 235249649
 
-id 1
+id 419
 epd rbb1qnkr/p1ppp1pp/1p3p2/6n1/8/1PN1P2P/P1PP1PP1/RBB1QNKR w HAha - 0 9
 perft 1 25
 perft 2 673
@@ -3780,7 +3781,7 @@ perft 4 467660
 perft 5 12099119
 perft 6 361714466
 
-id 1
+id 420
 epd rnbb1nkr/1ppp1ppp/4p3/p5q1/6P1/1PP5/PB1PPP1P/RN1BQNKR w HAha - 1 9
 perft 1 19
 perft 2 663
@@ -3789,7 +3790,7 @@ perft 4 489653
 perft 5 11491355
 perft 6 399135495
 
-id 1
+id 421
 epd rnbqnbkr/1pp1p2p/3p1p2/p5p1/5PP1/2P5/PPNPP2P/RNBQ1BKR w HAha - 0 9
 perft 1 24
 perft 2 647
@@ -3798,7 +3799,7 @@ perft 4 461931
 perft 5 12649636
 perft 6 361157611
 
-id 1
+id 422
 epd rnb2krb/pppqppnp/8/3p2p1/1P4P1/7P/P1PPPPB1/RNBQNKR1 w GAga - 1 9
 perft 1 24
 perft 2 722
@@ -3807,7 +3808,7 @@ perft 4 605229
 perft 5 16609220
 perft 6 563558512
 
-id 1
+id 423
 epd rbnqb1kr/pppn1pp1/3p3p/4p3/1P6/P7/R1PPPPPP/1BNQBNKR w Hha - 1 9
 perft 1 20
 perft 2 538
@@ -3816,7 +3817,7 @@ perft 4 345704
 perft 5 8687621
 perft 6 255304141
 
-id 1
+id 424
 epd rnqb1nkr/p1pbp1pp/8/1pPp1p2/P2P4/8/1P2PPPP/RNQBBNKR w HAha - 1 9
 perft 1 35
 perft 2 764
@@ -3825,7 +3826,7 @@ perft 4 632796
 perft 5 22592380
 perft 6 564255328
 
-id 1
+id 425
 epd rnq1bbkr/1p1ppp1p/4n3/p1p3p1/P1PP4/8/RP2PPPP/1NQNBBKR w Hha - 0 9
 perft 1 29
 perft 2 709
@@ -3834,7 +3835,7 @@ perft 4 570580
 perft 5 17597398
 perft 6 506140370
 
-id 1
+id 426
 epd 1nqnbkrb/1pppp2p/r7/p4pp1/3P4/8/PPPBPPPP/RNQNK1RB w g - 0 9
 perft 1 27
 perft 2 1028
@@ -3843,7 +3844,7 @@ perft 4 1050834
 perft 5 30251988
 perft 6 1096869832
 
-id 1
+id 427
 epd rbnqnkbr/p1pp1p1p/8/1p2p3/3P2pP/2P5/PP2PPP1/RBNQNKBR w HAha - 0 9
 perft 1 32
 perft 2 832
@@ -3852,7 +3853,7 @@ perft 4 750336
 perft 5 24945574
 perft 6 724171581
 
-id 1
+id 428
 epd rnq1nkbr/1p1p1ppp/2p1pb2/p7/7P/2P5/PPNPPPPB/RNQB1K1R w HAha - 2 9
 perft 1 31
 perft 2 779
@@ -3861,7 +3862,7 @@ perft 4 638640
 perft 5 19919434
 perft 6 551494771
 
-id 1
+id 429
 epd rnqnk1br/p1ppp1bp/1p3p2/6p1/4N3/P5P1/1PPPPP1P/R1QNKBBR w HAha - 2 9
 perft 1 25
 perft 2 717
@@ -3870,7 +3871,7 @@ perft 4 576577
 perft 5 16525239
 perft 6 507175842
 
-id 1
+id 430
 epd rnq1krbb/p1p1pppp/8/1p1p4/1n5B/2N2P2/PPPPP1PP/RNQ1KR1B w FAfa - 0 9
 perft 1 28
 perft 2 867
@@ -3879,7 +3880,7 @@ perft 4 735686
 perft 5 21112751
 perft 6 654808184
 
-id 1
+id 431
 epd bbrnnqkr/1pp1pppp/3p4/p7/P3P3/7P/1PPP1PP1/BBRNNQKR w HChc - 0 9
 perft 1 24
 perft 2 405
@@ -3888,7 +3889,7 @@ perft 4 210557
 perft 5 6196438
 perft 6 131401224
 
-id 1
+id 432
 epd brnbnqkr/p1ppp3/1p5p/5Pp1/5P2/3N4/PPPPP2P/BRNB1QKR w HBhb g6 0 9
 perft 1 25
 perft 2 785
@@ -3897,7 +3898,7 @@ perft 4 698331
 perft 5 20687969
 perft 6 695850727
 
-id 1
+id 433
 epd br1nqbkr/1ppppp2/pn6/6pp/2PP4/1N4P1/PP2PP1P/BR1NQBKR w HBhb - 0 9
 perft 1 25
 perft 2 596
@@ -3906,7 +3907,7 @@ perft 4 421882
 perft 5 12185361
 perft 6 337805606
 
-id 1
+id 434
 epd 1rnnqkrb/p2ppp1p/1pp5/2N3p1/8/1P6/P1PPPPKP/BR1NQ1RB w gb - 0 9
 perft 1 38
 perft 2 960
@@ -3915,7 +3916,7 @@ perft 4 913665
 perft 5 32490040
 perft 6 880403591
 
-id 1
+id 435
 epd rbbnnqkr/pp3pp1/2p1p3/3p3p/3P3P/1PP5/P3PPP1/RBBNNQKR w HAha - 0 9
 perft 1 30
 perft 2 785
@@ -3924,7 +3925,7 @@ perft 4 656618
 perft 5 19885037
 perft 6 599219582
 
-id 1
+id 436
 epd rn1bnqkr/p1ppppp1/8/1p5p/P4P1P/3N4/1PPPP1b1/RNBB1QKR w HAha - 0 9
 perft 1 27
 perft 2 752
@@ -3933,7 +3934,7 @@ perft 4 613194
 perft 5 18862234
 perft 6 547415271
 
-id 1
+id 437
 epd 1nbnqbkr/1p1p1ppp/r3p3/p1p5/P3P3/3Q4/1PPP1PPP/RNBN1BKR w HAh - 2 9
 perft 1 33
 perft 2 721
@@ -3942,7 +3943,7 @@ perft 4 572535
 perft 5 19648535
 perft 6 496023732
 
-id 1
+id 438
 epd rnbnqkrb/2pppppp/1p6/p7/1PP5/4N2P/P2PPPP1/RNB1QKRB w GAg - 0 9
 perft 1 23
 perft 2 570
@@ -3951,7 +3952,7 @@ perft 4 374196
 perft 5 10022614
 perft 6 279545007
 
-id 1
+id 439
 epd rbnnbq1r/ppppppkp/6p1/N7/4P3/P7/1PPP1PPP/RB1NBQKR w HA - 5 9
 perft 1 27
 perft 2 620
@@ -3960,7 +3961,7 @@ perft 4 440594
 perft 5 13909432
 perft 6 349478320
 
-id 1
+id 440
 epd r1nbbqkr/pppppp1p/8/8/1n3Pp1/3N1QP1/PPPPP2P/RN1BB1KR w HAha - 0 9
 perft 1 31
 perft 2 791
@@ -3969,7 +3970,7 @@ perft 4 682579
 perft 5 22408813
 perft 6 636779732
 
-id 1
+id 441
 epd rnq1bbkr/pp1p1ppp/2pnp3/8/7P/1QP5/PP1PPPPR/RNN1BBK1 w Aha - 2 9
 perft 1 28
 perft 2 559
@@ -3978,7 +3979,7 @@ perft 4 390887
 perft 5 12242780
 perft 6 315431511
 
-id 1
+id 442
 epd rnnqbrkb/2ppppp1/1p1N4/p6p/4P3/8/PPPP1PPP/R1NQBKRB w GA - 0 9
 perft 1 32
 perft 2 638
@@ -3987,7 +3988,7 @@ perft 4 438792
 perft 5 14395828
 perft 6 331782223
 
-id 1
+id 443
 epd rbnnq1br/pppp1kp1/4pp2/7p/PP6/2PP4/4PPPP/RBNNQKBR w HA - 0 9
 perft 1 21
 perft 2 521
@@ -3996,7 +3997,7 @@ perft 4 320429
 perft 5 8239159
 perft 6 227346638
 
-id 1
+id 444
 epd rnnbqkbr/p2ppp2/7p/1pp3p1/2P2N2/8/PP1PPPPP/RN1BQKBR w HAha - 0 9
 perft 1 25
 perft 2 528
@@ -4005,7 +4006,7 @@ perft 4 326094
 perft 5 9079829
 perft 6 232750602
 
-id 1
+id 445
 epd rnn1kbbr/ppppqp2/6p1/2N1p2p/P7/2P5/1P1PPPPP/RN1QKBBR w HAha - 2 9
 perft 1 27
 perft 2 801
@@ -4014,7 +4015,7 @@ perft 4 707078
 perft 5 20334071
 perft 6 682580976
 
-id 1
+id 446
 epd rnnqkrbb/p1p1p1pp/1p3p2/8/3p2Q1/P1P1P3/1P1P1PPP/RNN1KRBB w FAfa - 0 9
 perft 1 37
 perft 2 1014
@@ -4023,7 +4024,7 @@ perft 4 998999
 perft 5 32921537
 perft 6 988770109
 
-id 1
+id 447
 epd bbrnk1qr/1pppppp1/p4n1p/8/P2P2N1/8/1PP1PPPP/BBR1NKQR w HC - 1 9
 perft 1 21
 perft 2 481
@@ -4032,7 +4033,7 @@ perft 4 279993
 perft 5 7015419
 perft 6 187564853
 
-id 1
+id 448
 epd brnbnkqr/1pp1p1p1/p2p1p2/7p/1P4PP/8/PBPPPP2/1RNBNKQR w HBhb - 0 9
 perft 1 31
 perft 2 743
@@ -4041,7 +4042,7 @@ perft 4 660177
 perft 5 22391185
 perft 6 653721389
 
-id 1
+id 449
 epd br2kbqr/ppppp1pp/3n1p2/3P4/3n3P/3N4/PPP1PPP1/BR1NKBQR w HBhb - 3 9
 perft 1 25
 perft 2 872
@@ -4050,7 +4051,7 @@ perft 4 748726
 perft 5 20281962
 perft 6 685749952
 
-id 1
+id 450
 epd br1nkqrb/ppppppp1/8/7p/4P3/n1P2PP1/PP1P3P/BRNNKQRB w GBgb - 0 9
 perft 1 28
 perft 2 607
@@ -4059,7 +4060,7 @@ perft 4 396483
 perft 5 11607818
 perft 6 294181806
 
-id 1
+id 451
 epd rbbn1kqr/pp1pp1p1/2pn3p/5p2/5P2/1P1N4/PNPPP1PP/RBB2KQR w HAha - 1 9
 perft 1 27
 perft 2 725
@@ -4068,7 +4069,7 @@ perft 4 616082
 perft 5 19239812
 perft 6 581716972
 
-id 1
+id 452
 epd rnbbnk1r/pp1ppp1p/6q1/2p5/PP4p1/4P3/2PP1PPP/RNBBNKQR w HAha - 1 9
 perft 1 25
 perft 2 1072
@@ -4077,7 +4078,7 @@ perft 4 1088978
 perft 5 28469879
 perft 6 1122703887
 
-id 1
+id 453
 epd rnbnkbqr/1pp3pp/3p4/p3pp2/3P2P1/2N1N3/PPP1PP1P/R1B1KBQR w HAha - 0 9
 perft 1 31
 perft 2 1028
@@ -4086,7 +4087,7 @@ perft 4 1095472
 perft 5 36025223
 perft 6 1211187800
 
-id 1
+id 454
 epd r1bnkqrb/1ppppppp/p3n3/8/6P1/4N3/PPPPPPRP/RNB1KQ1B w Aga - 1 9
 perft 1 23
 perft 2 457
@@ -4095,7 +4096,7 @@ perft 4 250551
 perft 5 6666787
 perft 6 159759052
 
-id 1
+id 455
 epd rbn1bkqr/p1pp1pp1/1pn5/4p2p/7P/1PBP4/P1P1PPP1/RBNN1KQR w HAha - 0 9
 perft 1 23
 perft 2 470
@@ -4104,7 +4105,7 @@ perft 4 264274
 perft 5 6963287
 perft 6 172833738
 
-id 1
+id 456
 epd rnnbbkqr/3ppppp/p7/1pp5/P6P/6P1/1PPPPP2/RNNBBKQR w HAha - 0 9
 perft 1 26
 perft 2 569
@@ -4113,7 +4114,7 @@ perft 4 375556
 perft 5 11008114
 perft 6 284485303
 
-id 1
+id 457
 epd r1nk1bqr/1pppp1pp/2n5/p4p1b/5P2/1N4B1/PPPPP1PP/RN1K1BQR w HAha - 2 9
 perft 1 25
 perft 2 824
@@ -4122,7 +4123,7 @@ perft 4 738366
 perft 5 20904119
 perft 6 716170771
 
-id 1
+id 458
 epd r1nkbqrb/p2pppp1/npp4p/8/4PP2/2N4P/PPPP2P1/R1NKBQRB w GAga - 0 9
 perft 1 31
 perft 2 548
@@ -4131,7 +4132,7 @@ perft 4 349633
 perft 5 11469548
 perft 6 255067638
 
-id 1
+id 459
 epd rbnnkqbr/ppppp2p/5p2/6p1/2P1B3/P6P/1P1PPPP1/R1NNKQBR w HAha - 1 9
 perft 1 31
 perft 2 809
@@ -4140,7 +4141,7 @@ perft 4 680747
 perft 5 21247414
 perft 6 606221516
 
-id 1
+id 460
 epd 1r1bkqbr/pppp1ppp/2nnp3/8/2P5/N4P2/PP1PP1PP/1RNBKQBR w Hh - 0 9
 perft 1 28
 perft 2 810
@@ -4149,7 +4150,7 @@ perft 4 694599
 perft 5 20188622
 perft 6 636748147
 
-id 1
+id 461
 epd rn1kqbbr/p1pppp1p/1p4p1/1n6/1P2P3/4Q2P/P1PP1PP1/RNNK1BBR w HAha - 1 9
 perft 1 39
 perft 2 848
@@ -4158,7 +4159,7 @@ perft 4 724426
 perft 5 25594662
 perft 6 659615710
 
-id 1
+id 462
 epd rn1kqrbb/pppppppp/8/8/2nP2P1/1P2P3/P1P2P1P/RNNKQRBB w FAfa - 1 9
 perft 1 29
 perft 2 766
@@ -4167,7 +4168,7 @@ perft 4 567971
 perft 5 16944425
 perft 6 456898648
 
-id 1
+id 463
 epd b1rnnkrq/bpppppp1/7p/8/1p6/2B5/PNPPPPPP/1BR1NKRQ w GCgc - 2 9
 perft 1 25
 perft 2 667
@@ -4176,7 +4177,7 @@ perft 4 472678
 perft 5 12865247
 perft 6 365621294
 
-id 1
+id 464
 epd brnb1krq/pppppppp/8/5P2/2P1n2P/8/PP1PP1P1/BRNBNKRQ w GBgb - 1 9
 perft 1 23
 perft 2 620
@@ -4185,7 +4186,7 @@ perft 4 402561
 perft 5 10776855
 perft 6 300125003
 
-id 1
+id 465
 epd b1nnkbrq/pr1pppp1/1p5p/2p5/P2N1P2/8/1PPPP1PP/BR1NKBRQ w GBg - 0 9
 perft 1 24
 perft 2 472
@@ -4194,7 +4195,7 @@ perft 4 267398
 perft 5 7370758
 perft 6 178605165
 
-id 1
+id 466
 epd br1nkrqb/p1p1p1pp/3n4/1p1p1p2/5N1P/4P3/PPPP1PP1/BR1NKRQB w FBfb - 0 9
 perft 1 24
 perft 2 775
@@ -4203,7 +4204,7 @@ perft 4 624309
 perft 5 16429837
 perft 6 539767605
 
-id 1
+id 467
 epd rbbnnkrq/p2pp1pp/2p5/5p2/1pPP1B2/P7/1P2PPPP/RB1NNKRQ w GAga - 0 9
 perft 1 34
 perft 2 921
@@ -4212,7 +4213,7 @@ perft 4 849933
 perft 5 28095833
 perft 6 806446436
 
-id 1
+id 468
 epd rnbbnkr1/1p1ppp1p/2p3p1/p7/2Pq4/1P1P4/P2BPPPP/RN1BNKRQ w GAga - 2 9
 perft 1 26
 perft 2 1139
@@ -4221,7 +4222,7 @@ perft 4 1204863
 perft 5 32825932
 perft 6 1281760240
 
-id 1
+id 469
 epd 1rbnkbrq/pppppp2/n5pp/2P5/P7/4N3/1P1PPPPP/RNB1KBRQ w GAg - 2 9
 perft 1 23
 perft 2 574
@@ -4230,7 +4231,7 @@ perft 4 391413
 perft 5 10203438
 perft 6 301874034
 
-id 1
+id 470
 epd 1nbnkr1b/rppppppq/p7/7p/1P5P/3P2P1/P1P1PP2/RNBNKRQB w FAf - 1 9
 perft 1 33
 perft 2 823
@@ -4239,7 +4240,7 @@ perft 4 724828
 perft 5 23266182
 perft 6 672294132
 
-id 1
+id 471
 epd rbn1bkrq/ppppp3/4n2p/5pp1/1PN5/2P5/P2PPPPP/RBN1BKRQ w GAga - 0 9
 perft 1 27
 perft 2 859
@@ -4248,7 +4249,7 @@ perft 4 796482
 perft 5 23075785
 perft 6 789152120
 
-id 1
+id 472
 epd r1nbbkrq/1ppp2pp/2n2p2/p3p3/5P2/1N4BP/PPPPP1P1/RN1B1KRQ w GAga - 0 9
 perft 1 25
 perft 2 774
@@ -4257,7 +4258,7 @@ perft 4 618805
 perft 5 16718577
 perft 6 515864053
 
-id 1
+id 473
 epd rnnkbbrq/1pppp1p1/5p2/7p/p6P/3N1P2/PPPPP1PQ/RN1KBBR1 w GAga - 0 9
 perft 1 29
 perft 2 673
@@ -4266,7 +4267,7 @@ perft 4 504715
 perft 5 15545590
 perft 6 416359581
 
-id 1
+id 474
 epd r1nkbrqb/pppp1p2/n3p1p1/7p/2P2P2/1P6/P2PPQPP/RNNKBR1B w FAfa - 0 9
 perft 1 27
 perft 2 722
@@ -4275,7 +4276,7 @@ perft 4 593762
 perft 5 18742426
 perft 6 537750982
 
-id 1
+id 475
 epd rbnnkr1q/1ppp2pp/p4p2/P2bp3/4P2P/8/1PPP1PP1/RBNNKRBQ w FAfa - 1 9
 perft 1 26
 perft 2 848
@@ -4284,7 +4285,7 @@ perft 4 741674
 perft 5 21591790
 perft 6 675163653
 
-id 1
+id 476
 epd rn1bkrb1/1ppppp1p/pn4p1/8/P2q3P/3P4/NPP1PPP1/RN1BKRBQ w FAfa - 1 9
 perft 1 22
 perft 2 803
@@ -4293,7 +4294,7 @@ perft 4 632920
 perft 5 15847763
 perft 6 536419559
 
-id 1
+id 477
 epd rn1krbbq/pppp1npp/4pp2/8/4P2P/3P2P1/PPP2P2/RNNKRBBQ w EAea - 1 9
 perft 1 29
 perft 2 810
@@ -4302,7 +4303,7 @@ perft 4 670500
 perft 5 20361517
 perft 6 575069358
 
-id 1
+id 478
 epd rnn1rqbb/ppkp1pp1/2p1p2p/2P5/8/3P1P2/PP2P1PP/RNNKRQBB w EA - 0 9
 perft 1 22
 perft 2 506
@@ -4311,7 +4312,7 @@ perft 4 292344
 perft 5 7287368
 perft 6 189865944
 
-id 1
+id 479
 epd bbqr1knr/pppppp1p/8/4n1p1/2P1P3/6P1/PPQP1P1P/BB1RNKNR w HDhd - 0 9
 perft 1 26
 perft 2 650
@@ -4320,7 +4321,7 @@ perft 4 481200
 perft 5 14301029
 perft 6 394943978
 
-id 1
+id 480
 epd bq1bnknr/pprppp1p/8/2p3p1/4PPP1/8/PPPP3P/BQRBNKNR w HCh - 0 9
 perft 1 24
 perft 2 548
@@ -4329,7 +4330,7 @@ perft 4 347611
 perft 5 9374021
 perft 6 250988458
 
-id 1
+id 481
 epd bqrnkb1r/1p2pppp/p1pp3n/5Q2/2P4P/5N2/PP1PPPP1/B1RNKB1R w HChc - 0 9
 perft 1 46
 perft 2 823
@@ -4338,7 +4339,7 @@ perft 4 673905
 perft 5 26130444
 perft 6 582880996
 
-id 1
+id 482
 epd bq1rknrb/pppppp1p/4n3/6p1/4P1P1/3P1P2/PPP4P/BQRNKNRB w GCg - 0 9
 perft 1 23
 perft 2 618
@@ -4347,7 +4348,7 @@ perft 4 419474
 perft 5 10606831
 perft 6 315124518
 
-id 1
+id 483
 epd q1brnknr/pp1pp1p1/8/2p2p1p/5b2/P4N2/1PPPP1PP/QBBRK1NR w hd - 0 9
 perft 1 22
 perft 2 675
@@ -4356,7 +4357,7 @@ perft 4 473994
 perft 5 12077228
 perft 6 368479752
 
-id 1
+id 484
 epd qrbbnknr/1p1ppp1p/p1p5/8/1P2P1p1/3P1B2/P1P2PPP/QRB1NKNR w HBhb - 0 9
 perft 1 32
 perft 2 722
@@ -4365,7 +4366,7 @@ perft 4 569905
 perft 5 19584539
 perft 6 484814878
 
-id 1
+id 485
 epd qrb1kbnr/p3pppp/2n5/1ppp4/7P/3P1P2/PPP1P1PR/QRBNKBN1 w Bhb - 0 9
 perft 1 26
 perft 2 831
@@ -4374,7 +4375,7 @@ perft 4 724505
 perft 5 20500804
 perft 6 662608969
 
-id 1
+id 486
 epd qrbnknrb/ppp1pp2/6p1/7p/PPNp4/8/2PPPPPP/QRB1KNRB w GBgb - 0 9
 perft 1 31
 perft 2 840
@@ -4383,7 +4384,7 @@ perft 4 742772
 perft 5 24422614
 perft 6 701363800
 
-id 1
+id 487
 epd qbrnbknr/pp1pp1pp/8/2p2p2/3Q4/PP6/2PPPPPP/1BRNBKNR w HChc - 0 9
 perft 1 38
 perft 2 1121
@@ -4392,7 +4393,7 @@ perft 4 1198438
 perft 5 41108769
 perft 6 1285503872
 
-id 1
+id 488
 epd qr1bbk1r/pppppp1p/1n6/5np1/4B3/1PP5/P2PPPPP/QRN1BKNR w HBhb - 0 9
 perft 1 25
 perft 2 694
@@ -4401,7 +4402,7 @@ perft 4 472950
 perft 5 12164609
 perft 6 345122090
 
-id 1
+id 489
 epd qrnkbbnr/1p1pp2p/p7/2p1Npp1/6P1/7P/PPPPPP2/QR1KBBNR w HBhb - 0 9
 perft 1 27
 perft 2 586
@@ -4410,7 +4411,7 @@ perft 4 393391
 perft 5 11409633
 perft 6 298054792
 
-id 1
+id 490
 epd qrnkbnrb/pp1p1p2/2p1p1pp/4N3/P4P2/8/1PPPP1PP/QR1KBNRB w GBgb - 0 9
 perft 1 32
 perft 2 645
@@ -4419,7 +4420,7 @@ perft 4 460319
 perft 5 15037464
 perft 6 358531599
 
-id 1
+id 491
 epd qbrnknbr/1pppppp1/p6p/8/1P6/3PP3/PQP2PPP/1BRNKNBR w HChc - 3 9
 perft 1 26
 perft 2 595
@@ -4428,7 +4429,7 @@ perft 4 415022
 perft 5 12214768
 perft 6 323518628
 
-id 1
+id 492
 epd qrnbk1br/1ppppp1p/p5p1/8/4Pn2/4K1P1/PPPP1P1P/QRNB1NBR w hb - 0 9
 perft 1 24
 perft 2 609
@@ -4437,7 +4438,7 @@ perft 4 359415
 perft 5 8538539
 perft 6 230364479
 
-id 1
+id 493
 epd qrnk1bbr/1pnp1ppp/p1p1p3/8/3Q4/1P1N3P/P1PPPPP1/1RNK1BBR w HBhb - 0 9
 perft 1 43
 perft 2 1106
@@ -4446,7 +4447,7 @@ perft 4 1123080
 perft 5 41695761
 perft 6 1113836402
 
-id 1
+id 494
 epd qrnknrb1/pppppp2/8/6pp/4P2P/3P1P2/PbP3P1/QRNKNRBB w FBfb - 0 9
 perft 1 24
 perft 2 658
@@ -4455,7 +4456,7 @@ perft 4 488373
 perft 5 14457245
 perft 6 400971226
 
-id 1
+id 495
 epd bbrqnrk1/ppp2ppp/7n/3pp3/8/P4N1N/1PPPPPPP/BBRQ1RK1 w - - 1 9
 perft 1 22
 perft 2 503
@@ -4464,7 +4465,7 @@ perft 4 310760
 perft 5 8080951
 perft 6 224960353
 
-id 1
+id 496
 epd brqbnk1r/1ppp1ppp/8/p3pn2/8/2PP1P2/PP2PKPP/BRQBN1NR w hb - 1 9
 perft 1 25
 perft 2 745
@@ -4473,7 +4474,7 @@ perft 4 570459
 perft 5 15520298
 perft 6 460840861
 
-id 1
+id 497
 epd brqnkbnr/pp2pp1p/3p4/2p5/5p2/3P3P/PPP1PPP1/B1RNKBNR w Hhb - 0 9
 perft 1 19
 perft 2 516
@@ -4482,7 +4483,7 @@ perft 4 312996
 perft 5 6995034
 perft 6 214340699
 
-id 1
+id 498
 epd brq1kn1b/1ppppprp/2n3p1/p7/P1N5/6P1/1PPPPP1P/BRQNK1RB w GBb - 2 9
 perft 1 29
 perft 2 557
@@ -4491,7 +4492,7 @@ perft 4 352277
 perft 5 10840256
 perft 6 249999654
 
-id 1
+id 499
 epd rbbq1k1r/ppp1pppp/7n/1n1p4/5P2/P2P4/1PPBP1PP/RB1QNKNR w HAha - 1 9
 perft 1 25
 perft 2 769
@@ -4500,7 +4501,7 @@ perft 4 638340
 perft 5 17438715
 perft 6 570893953
 
-id 1
+id 500
 epd r1bbnk1r/qpp1pppp/p6n/3p4/1P6/5N1P/P1PPPPP1/RQBBK1NR w ha - 0 9
 perft 1 23
 perft 2 728
@@ -4509,7 +4510,7 @@ perft 4 587364
 perft 5 16053564
 perft 6 529082811
 
-id 1
+id 501
 epd rqbnkbnr/1pp2p1p/3p4/p3p1p1/8/2P2P2/PP1PPNPP/RQBNKB1R w HAha - 0 9
 perft 1 26
 perft 2 772
@@ -4518,7 +4519,7 @@ perft 4 653704
 perft 5 19571559
 perft 6 593915677
 
-id 1
+id 502
 epd r1bnknrb/pqppp1p1/1p5p/5p2/7P/3P2N1/PPP1PPP1/RQBNK1RB w GAga - 2 9
 perft 1 27
 perft 2 748
@@ -4527,7 +4528,7 @@ perft 4 597105
 perft 5 16324542
 perft 6 506453626
 
-id 1
+id 503
 epd rbqnbknr/pp1pppp1/8/2p5/3P3p/5N1P/PPP1PPPR/RBQNBK2 w Aha - 0 9
 perft 1 30
 perft 2 859
@@ -4536,7 +4537,7 @@ perft 4 819631
 perft 5 26363334
 perft 6 842796987
 
-id 1
+id 504
 epd rqnbbrk1/ppppppp1/8/5n1p/3P3P/2B3P1/PPP1PP2/RQNB1KNR w HA - 0 9
 perft 1 22
 perft 2 505
@@ -4545,7 +4546,7 @@ perft 4 283464
 perft 5 7055215
 perft 6 186760784
 
-id 1
+id 505
 epd rqnkbbnr/pp2p1p1/8/2pp1p1p/3PPP2/8/PPP1N1PP/RQNKBB1R w HAha - 0 9
 perft 1 28
 perft 2 832
@@ -4554,7 +4555,7 @@ perft 4 722857
 perft 5 20429246
 perft 6 663183060
 
-id 1
+id 506
 epd rqnkbnr1/pppp2bp/6p1/4pp2/1P2P3/3NN3/P1PP1PPP/RQ1KB1RB w GAga - 0 9
 perft 1 28
 perft 2 641
@@ -4563,7 +4564,7 @@ perft 4 459993
 perft 5 14038570
 perft 6 364210162
 
-id 1
+id 507
 epd rbq2kbr/pppppppp/2n5/P7/3P1n2/2P5/1P2PPPP/RBQNKNBR w HA - 1 9
 perft 1 31
 perft 2 889
@@ -4572,7 +4573,7 @@ perft 4 766181
 perft 5 24299415
 perft 6 692180754
 
-id 1
+id 508
 epd rq1bkn1r/ppppp2p/3n4/5pp1/2b3P1/1N1P1P2/PPP1P2P/RQ1BKNBR w HAha - 1 9
 perft 1 28
 perft 2 810
@@ -4581,7 +4582,7 @@ perft 4 657520
 perft 5 18719949
 perft 6 556282676
 
-id 1
+id 509
 epd r1nknbbr/p2ppp1p/1pp3p1/8/1P6/4P3/P1PPNPPq/R1QKNBBR w HAha - 0 9
 perft 1 24
 perft 2 797
@@ -4590,7 +4591,7 @@ perft 4 719069
 perft 5 21862776
 perft 6 716521139
 
-id 1
+id 510
 epd rqnknrbb/ppp1p3/5ppp/2Np4/2P5/4P3/PP1P1PPP/RQNK1RBB w FAfa - 0 9
 perft 1 34
 perft 2 686
@@ -4599,7 +4600,7 @@ perft 4 515541
 perft 5 17664543
 perft 6 423574794
 
-id 1
+id 511
 epd 1brnqknr/2p1pppp/p2p4/1P6/6P1/4Nb2/PP1PPP1P/BBR1QKNR w HChc - 1 9
 perft 1 34
 perft 2 1019
@@ -4608,7 +4609,7 @@ perft 4 1003103
 perft 5 33322477
 perft 6 1043293394
 
-id 1
+id 512
 epd brn1qknr/1p1pppp1/pb5p/Q1p5/3P3P/8/PPP1PPPR/BRNB1KN1 w Bhb - 2 9
 perft 1 32
 perft 2 642
@@ -4617,7 +4618,7 @@ perft 4 464895
 perft 5 15454749
 perft 6 371861782
 
-id 1
+id 513
 epd brnqkbnr/pppppp2/8/6pp/6P1/P2P1P2/1PP1P2P/BRNQKBNR w HBhb - 0 9
 perft 1 20
 perft 2 441
@@ -4626,7 +4627,7 @@ perft 4 240220
 perft 5 5770284
 perft 6 153051835
 
-id 1
+id 514
 epd 2nqknrb/1rpppppp/5B2/pp6/1PP1b3/3P4/P3PPPP/1RNQKNRB w GBg - 1 9
 perft 1 35
 perft 2 1042
@@ -4635,7 +4636,7 @@ perft 4 1101159
 perft 5 38505058
 perft 6 1202668717
 
-id 1
+id 515
 epd rb1nqknr/1pp1pppp/8/3p4/p2P4/6PN/PPPQPP1P/RBBN1K1R w HAha - 0 9
 perft 1 29
 perft 2 692
@@ -4644,7 +4645,7 @@ perft 4 555018
 perft 5 17820605
 perft 6 497251206
 
-id 1
+id 516
 epd rnbbqknr/pppp4/5p2/4p1pp/P7/2N2PP1/1PPPP2P/R1BBQKNR w HAha - 0 9
 perft 1 23
 perft 2 595
@@ -4653,7 +4654,7 @@ perft 4 415772
 perft 5 10881112
 perft 6 329010121
 
-id 1
+id 517
 epd rn1qkbnr/p1p1pp1p/bp4p1/3p4/1P6/4P3/P1PP1PPP/RNBQKBNR w HAha - 0 9
 perft 1 30
 perft 2 794
@@ -4662,7 +4663,7 @@ perft 4 690811
 perft 5 21657601
 perft 6 647745807
 
-id 1
+id 518
 epd r1bqk1rb/pppnpppp/5n2/3p4/2P3PP/2N5/PP1PPP2/R1BQKNRB w GAga - 1 9
 perft 1 32
 perft 2 821
@@ -4671,7 +4672,7 @@ perft 4 733155
 perft 5 24923473
 perft 6 710765657
 
-id 1
+id 519
 epd rbnqbknr/1p1ppp1p/6p1/p1p5/7P/3P4/PPP1PPP1/RBNQBKNR w HAha - 0 9
 perft 1 24
 perft 2 720
@@ -4680,7 +4681,7 @@ perft 4 575027
 perft 5 15992882
 perft 6 501093456
 
-id 1
+id 520
 epd r1qbbk1r/pp1ppppp/n1p5/5n2/B1P3P1/8/PP1PPP1P/RNQ1BKNR w HAha - 0 9
 perft 1 27
 perft 2 831
@@ -4689,7 +4690,7 @@ perft 4 698986
 perft 5 19948650
 perft 6 637973209
 
-id 1
+id 521
 epd rnqkbb1r/p1pppppp/8/8/1p4n1/PP4PP/2PPPP2/RNQKBBNR w HAha - 0 9
 perft 1 18
 perft 2 463
@@ -4698,7 +4699,7 @@ perft 4 256152
 perft 5 6065231
 perft 6 172734380
 
-id 1
+id 522
 epd rnqk1nrb/pppbpp2/7p/3p2p1/4B3/2N1N1P1/PPPPPP1P/R1QKB1R1 w GAga - 0 9
 perft 1 34
 perft 2 1171
@@ -4707,7 +4708,7 @@ perft 4 1318217
 perft 5 42109356
 perft 6 1465473753
 
-id 1
+id 523
 epd rbnqknbr/1pp1ppp1/3p4/7p/p2P2PP/2P5/PP2PP2/RBNQKNBR w HAha - 0 9
 perft 1 32
 perft 2 867
@@ -4716,7 +4717,7 @@ perft 4 798722
 perft 5 26632459
 perft 6 781067145
 
-id 1
+id 524
 epd rn1bknbr/pq2pppp/1p6/2pp4/P7/1P1P4/2PNPPPP/RNQBK1BR w HAha - 0 9
 perft 1 24
 perft 2 627
@@ -4725,7 +4726,7 @@ perft 4 462942
 perft 5 13200921
 perft 6 385193532
 
-id 1
+id 525
 epd r1qk1bbr/ppp1pp1p/2np1n2/6p1/2PP4/3BP3/PP3PPP/RNQKN1BR w HAha - 2 9
 perft 1 31
 perft 2 992
@@ -4734,7 +4735,7 @@ perft 4 986631
 perft 5 30397368
 perft 6 1011631987
 
-id 1
+id 526
 epd r1qknrbb/pppp1p2/2n3p1/4p2p/8/QPP5/P1NPPPPP/RN1K1RBB w FAfa - 2 9
 perft 1 30
 perft 2 702
@@ -4743,7 +4744,7 @@ perft 4 532939
 perft 5 16813114
 perft 6 438096194
 
-id 1
+id 527
 epd bbkr1qnr/2pppppp/2n5/pp6/8/PPN5/1BPPPPPP/1BR1KQNR w HC - 2 9
 perft 1 25
 perft 2 573
@@ -4752,7 +4753,7 @@ perft 4 380910
 perft 5 10554668
 perft 6 283975400
 
-id 1
+id 528
 epd 1rnbkqnr/1bpppppp/1p6/7P/p2P4/5P2/PPP1P1P1/BRNBKQNR w HBhb - 0 9
 perft 1 21
 perft 2 503
@@ -4761,7 +4762,7 @@ perft 4 301084
 perft 5 7679979
 perft 6 207799378
 
-id 1
+id 529
 epd brnkqbnr/2p1pppp/1p6/3p4/1pP5/P6P/3PPPP1/BRNKQBNR w HBhb - 0 9
 perft 1 28
 perft 2 743
@@ -4770,7 +4771,7 @@ perft 4 587192
 perft 5 17354516
 perft 6 507176753
 
-id 1
+id 530
 epd br1kqnrb/npp1pppp/8/3p4/p4N2/PP6/2PPPPPP/BR1KQNRB w GBgb - 0 9
 perft 1 31
 perft 2 808
@@ -4779,7 +4780,7 @@ perft 4 698475
 perft 5 22376575
 perft 6 640362920
 
-id 1
+id 531
 epd rbbnkq1r/pppppp1p/7n/6p1/P5P1/2P2N2/1P1PPP1P/RBBNKQ1R w HAha - 1 9
 perft 1 29
 perft 2 580
@@ -4788,7 +4789,7 @@ perft 4 404831
 perft 5 12730970
 perft 6 325226128
 
-id 1
+id 532
 epd rnbbk1nr/pp2qppp/2ppp3/8/3P4/P1N4N/1PP1PPPP/R1BBKQ1R w HAha - 0 9
 perft 1 29
 perft 2 838
@@ -4797,7 +4798,7 @@ perft 4 721884
 perft 5 21100580
 perft 6 646624429
 
-id 1
+id 533
 epd rnbk1b1r/ppppn1pp/4pp2/7q/7P/P5PB/1PPPPP2/RNBKQ1NR w HAha - 3 9
 perft 1 20
 perft 2 729
@@ -4806,7 +4807,7 @@ perft 4 576199
 perft 5 14507076
 perft 6 498621813
 
-id 1
+id 534
 epd r2kqnrb/pbppppp1/np5p/8/4Q1P1/3P4/PPP1PP1P/RNBK1NRB w GAga - 2 9
 perft 1 47
 perft 2 1219
@@ -4815,7 +4816,7 @@ perft 4 1486353
 perft 5 65239153
 perft 6 1834391369
 
-id 1
+id 535
 epd rbnkbq1r/p1p2ppp/1p2pn2/3p4/P3P3/3P4/1PP1KPPP/RBN1BQNR w ha - 2 9
 perft 1 29
 perft 2 923
@@ -4824,7 +4825,7 @@ perft 4 883866
 perft 5 26202752
 perft 6 868565895
 
-id 1
+id 536
 epd rk1bb1nr/ppppqppp/n7/1N2p3/6P1/7N/PPPPPP1P/R1KBBQ1R w HA - 6 9
 perft 1 27
 perft 2 703
@@ -4833,7 +4834,7 @@ perft 4 559525
 perft 5 16049807
 perft 6 492966455
 
-id 1
+id 537
 epd rnkqbbnr/p1ppp2p/1p4p1/8/1B3p1P/2NP4/PPP1PPP1/R1KQ1BNR w HAha - 0 9
 perft 1 29
 perft 2 610
@@ -4842,7 +4843,7 @@ perft 4 438277
 perft 5 14020041
 perft 6 355083962
 
-id 1
+id 538
 epd rnkqb1rb/pp1p1ppp/4p3/2P3n1/8/1PP5/P3PPPP/RNKQBNRB w GAga - 0 9
 perft 1 29
 perft 2 675
@@ -4851,7 +4852,7 @@ perft 4 535821
 perft 5 17000613
 perft 6 476598337
 
-id 1
+id 539
 epd rb1kqnbr/pp1pp1p1/1np2p2/7p/P1P3PP/8/1P1PPP2/RBNKQNBR w HAha - 0 9
 perft 1 31
 perft 2 1077
@@ -4860,7 +4861,7 @@ perft 4 1183381
 perft 5 37415304
 perft 6 1328374620
 
-id 1
+id 540
 epd rnkbq1br/ppp2ppp/3p4/Q3p1n1/5P2/3P2P1/PPP1P2P/RNKB1NBR w HAha - 0 9
 perft 1 41
 perft 2 1201
@@ -4869,7 +4870,7 @@ perft 4 1420367
 perft 5 52991625
 perft 6 1675608008
 
-id 1
+id 541
 epd rn1qnbbr/pp2pppp/2ppk3/8/2PP4/3Q1N2/PP2PPPP/RNK2BBR w HA - 1 9
 perft 1 34
 perft 2 666
@@ -4878,7 +4879,7 @@ perft 4 472299
 perft 5 15860369
 perft 6 353831792
 
-id 1
+id 542
 epd rnkqnr1b/ppppp1pp/5p2/8/Q1P2P2/8/PP1P2PP/RbK1NRBB w FAfa - 0 9
 perft 1 36
 perft 2 876
@@ -4887,7 +4888,7 @@ perft 4 788580
 perft 5 29022529
 perft 6 736717252
 
-id 1
+id 543
 epd bbrn1nqr/ppp1k1pp/5p2/3pp3/7P/3PN3/PPP1PPP1/BBRK1NQR w - - 1 9
 perft 1 24
 perft 2 583
@@ -4896,7 +4897,7 @@ perft 4 383532
 perft 5 10522064
 perft 6 280707118
 
-id 1
+id 544
 epd brnbkn1r/1pppp1p1/4q3/p4p1p/7P/1N3P2/PPPPP1PQ/BR1BKN1R w HBhb - 2 9
 perft 1 27
 perft 2 935
@@ -4905,7 +4906,7 @@ perft 4 885699
 perft 5 26000648
 perft 6 873063158
 
-id 1
+id 545
 epd br1knbqr/pp2p1pp/1n6/2pp1p2/6P1/2P4B/PP1PPPQP/BRNKN2R w HBhb - 0 9
 perft 1 27
 perft 2 681
@@ -4914,7 +4915,7 @@ perft 4 510687
 perft 5 14954779
 perft 6 415624943
 
-id 1
+id 546
 epd brnk1qrb/p1ppppp1/1p5p/8/P3n3/1N4P1/1PPPPPRP/BR1KNQ1B w Bgb - 0 9
 perft 1 22
 perft 2 638
@@ -4923,7 +4924,7 @@ perft 4 412346
 perft 5 9760752
 perft 6 293499724
 
-id 1
+id 547
 epd rbbnknqr/pppp3p/5pp1/8/1P1pP3/7P/P1P2PP1/RBBNKNQR w HAha - 0 9
 perft 1 29
 perft 2 756
@@ -4932,7 +4933,7 @@ perft 4 614074
 perft 5 17602252
 perft 6 528140595
 
-id 1
+id 548
 epd 1nbbknqr/rpp1ppp1/1Q1p3p/p7/2P2PP1/8/PP1PP2P/RNBBKN1R w HAh - 2 9
 perft 1 37
 perft 2 977
@@ -4941,7 +4942,7 @@ perft 4 944867
 perft 5 33695089
 perft 6 940198007
 
-id 1
+id 549
 epd rnb2bqr/ppkpppp1/3n3p/2p5/6PP/2N2P2/PPPPP3/R1BKNBQR w HA - 2 9
 perft 1 30
 perft 2 647
@@ -4950,7 +4951,7 @@ perft 4 467780
 perft 5 15115531
 perft 6 369257622
 
-id 1
+id 550
 epd rn1k1qrb/p1pppppp/bp6/8/4n3/P4BPP/1PPPPP2/RNBKNQR1 w GAga - 2 9
 perft 1 22
 perft 2 670
@@ -4959,7 +4960,7 @@ perft 4 451517
 perft 5 11199653
 perft 6 339919682
 
-id 1
+id 551
 epd rb2bnqr/nppkpppp/3p4/p7/1P6/P2N2P1/2PPPP1P/RB1KBNQR w HA - 3 9
 perft 1 22
 perft 2 479
@@ -4968,7 +4969,7 @@ perft 4 264739
 perft 5 6831555
 perft 6 167329117
 
-id 1
+id 552
 epd r1kbb1qr/2pppppp/np2n3/p7/2P3P1/8/PP1PPPQP/RNKBBN1R w HAha - 1 9
 perft 1 32
 perft 2 723
@@ -4977,7 +4978,7 @@ perft 4 581832
 perft 5 19472074
 perft 6 504622114
 
-id 1
+id 553
 epd rnknbb1r/p1ppp1pp/8/1p1P1p1q/8/P1P5/1P2PPPP/RNKNBBQR w HAha - 1 9
 perft 1 19
 perft 2 607
@@ -4986,7 +4987,7 @@ perft 4 417451
 perft 5 9753617
 perft 6 325177085
 
-id 1
+id 554
 epd rnkn1qrb/pp1bp1pp/2p5/1N1p1p2/8/2P5/PPKPPPPP/R2NBQRB w ga - 2 9
 perft 1 27
 perft 2 533
@@ -4995,7 +4996,7 @@ perft 4 330747
 perft 5 9206957
 perft 6 232664675
 
-id 1
+id 555
 epd r1nknqbr/pp2p1pp/2p2p2/3p4/6P1/PP1P4/2P1PP1b/RBNKNQBR w HAha - 0 9
 perft 1 20
 perft 2 582
@@ -5004,7 +5005,7 @@ perft 4 409166
 perft 5 10708639
 perft 6 326565393
 
-id 1
+id 556
 epd rnkb1qbr/p1pp1p1p/1p2pn2/1Q4p1/4P3/N4P2/PPPP2PP/R1KBN1BR w HAha - 0 9
 perft 1 40
 perft 2 1038
@@ -5013,7 +5014,7 @@ perft 4 1051441
 perft 5 39145902
 perft 6 1079612614
 
-id 1
+id 557
 epd rn2qbbr/1pkppp1p/p3n1p1/8/8/2P2P2/PP1PP1PP/RNKN1BBR w HA - 0 9
 perft 1 24
 perft 2 605
@@ -5022,7 +5023,7 @@ perft 4 385964
 perft 5 9687507
 perft 6 260874068
 
-id 1
+id 558
 epd rn1nqrbb/p1kppp1p/8/1pp3p1/1P6/2N1P3/P1PP1PPP/RK1NQRBB w - - 0 9
 perft 1 21
 perft 2 540
@@ -5031,7 +5032,7 @@ perft 4 337997
 perft 5 8436136
 perft 6 237525904
 
-id 1
+id 559
 epd bbrnknrq/1pp3pp/p2p1p2/4p3/P7/1P2N3/2PPPPPP/BBRN1RKQ w gc - 0 9
 perft 1 24
 perft 2 527
@@ -5040,7 +5041,7 @@ perft 4 326175
 perft 5 9139962
 perft 6 226253685
 
-id 1
+id 560
 epd brnb1nrq/pppp1kpp/4p3/8/5p1P/P1P3P1/1P1PPP2/BRNBKNRQ w GB - 1 9
 perft 1 29
 perft 2 773
@@ -5049,7 +5050,7 @@ perft 4 638768
 perft 5 20503775
 perft 6 560338709
 
-id 1
+id 561
 epd br1k1brq/ppppp2p/1n1n1pp1/8/P1P5/3P2P1/1P2PP1P/BRNKNBRQ w GBgb - 0 9
 perft 1 28
 perft 2 811
@@ -5058,7 +5059,7 @@ perft 4 664880
 perft 5 19913758
 perft 6 565143976
 
-id 1
+id 562
 epd 1r1knrqb/n1pppppp/p1b5/1p6/8/3N1P2/PPPPP1PP/BRNK1RQB w fb - 3 9
 perft 1 29
 perft 2 753
@@ -5067,7 +5068,7 @@ perft 4 620019
 perft 5 20044474
 perft 6 558383603
 
-id 1
+id 563
 epd rbbnk1rq/pppppppp/8/3Pn3/8/4P1P1/PPP2P1P/RBBNKNRQ w GAga - 1 9
 perft 1 22
 perft 2 551
@@ -5076,7 +5077,7 @@ perft 4 324608
 perft 5 8204171
 perft 6 217689974
 
-id 1
+id 564
 epd rnbbk1rq/2pppp1p/p3n1p1/1p6/P3N3/8/1PPPPPPP/RNBB1KRQ w ga - 0 9
 perft 1 26
 perft 2 742
@@ -5085,7 +5086,7 @@ perft 4 599527
 perft 5 16787080
 perft 6 525678162
 
-id 1
+id 565
 epd rnbkn1rq/ppppppb1/6p1/7p/2B2P2/1P2P3/P1PP2PP/RNBKN1RQ w GAga - 1 9
 perft 1 28
 perft 2 799
@@ -5094,7 +5095,7 @@ perft 4 689436
 perft 5 20755098
 perft 6 639632905
 
-id 1
+id 566
 epd rn1knrqb/p2pppp1/b1p5/1p5p/2P2P2/1P6/P2PP1PP/RNBKNRQB w FAfa - 1 9
 perft 1 30
 perft 2 579
@@ -5103,7 +5104,7 @@ perft 4 397545
 perft 5 13257198
 perft 6 311282465
 
-id 1
+id 567
 epd rbnkbnrq/pp2p1Np/2p2p2/8/3p4/8/PPPPPPPP/RBNKBR1Q w Aga - 0 9
 perft 1 23
 perft 2 670
@@ -5112,7 +5113,7 @@ perft 4 501883
 perft 5 13012378
 perft 6 411860744
 
-id 1
+id 568
 epd rk1bbnrq/ppp1pppp/n7/3p4/5P2/3P2NP/PPP1P1P1/RNKBB1RQ w GA - 0 9
 perft 1 26
 perft 2 597
@@ -5121,7 +5122,7 @@ perft 4 402506
 perft 5 11269462
 perft 6 296701249
 
-id 1
+id 569
 epd r1knbbrq/pppp2p1/2n1p2p/5p2/4P3/P1PP4/1P3PPP/RNKNBBRQ w GAga - 1 9
 perft 1 20
 perft 2 596
@@ -5130,7 +5131,7 @@ perft 4 399069
 perft 5 9416862
 perft 6 293659781
 
-id 1
+id 570
 epd rnknbrqb/p1p1pp1p/3p4/1p1N2p1/8/N7/PPPPPPPP/1RK1BRQB w Ffa - 0 9
 perft 1 26
 perft 2 724
@@ -5139,7 +5140,7 @@ perft 4 552040
 perft 5 15257204
 perft 6 461293885
 
-id 1
+id 571
 epd rbnknrb1/1p1ppp1p/p1p3p1/8/1P3P2/1R6/PqPPP1PP/RBNKN1BQ w Afa - 0 9
 perft 1 31
 perft 2 1183
@@ -5148,7 +5149,7 @@ perft 4 1289502
 perft 5 38722152
 perft 6 1421492227
 
-id 1
+id 572
 epd rnkbnrbq/2p1ppp1/p7/1p1p3p/3P4/1P4P1/P1P1PP1P/RNKBNRBQ w FAfa - 0 9
 perft 1 24
 perft 2 506
@@ -5157,7 +5158,7 @@ perft 4 301464
 perft 5 8086100
 perft 6 207129256
 
-id 1
+id 573
 epd r1knrbbq/pp1ppppp/2p1n3/8/2P3P1/P7/1PKPPP1P/RN1NRBBQ w ea - 0 9
 perft 1 28
 perft 2 570
@@ -5166,7 +5167,7 @@ perft 4 352471
 perft 5 10278695
 perft 6 242592363
 
-id 1
+id 574
 epd rnknrq1b/ppp1p1p1/4b3/3p1p1p/6P1/P4P2/1PPPPQ1P/RNKNR1BB w EAea - 2 9
 perft 1 30
 perft 2 739
@@ -5175,7 +5176,7 @@ perft 4 594962
 perft 5 19252739
 perft 6 521629794
 
-id 1
+id 575
 epd bbqr1krn/pppp1p1p/5n2/4p1p1/3P4/P3QP2/1PP1P1PP/BB1RNKRN w GDgd - 0 9
 perft 1 31
 perft 2 799
@@ -5184,7 +5185,7 @@ perft 4 674913
 perft 5 22172123
 perft 6 609277274
 
-id 1
+id 576
 epd bq1b1krn/pp1ppppp/3n4/2r5/3p3N/6N1/PPP1PPPP/BQRB1KR1 w GCg - 2 9
 perft 1 21
 perft 2 798
@@ -5193,7 +5194,7 @@ perft 4 688429
 perft 5 17546069
 perft 6 647165916
 
-id 1
+id 577
 epd bqrnkbrn/2pp1pp1/p7/1p2p2p/1P6/4N3/P1PPPPPP/BQR1KBRN w GCgc - 0 9
 perft 1 27
 perft 2 783
@@ -5202,7 +5203,7 @@ perft 4 670798
 perft 5 20059741
 perft 6 624462073
 
-id 1
+id 578
 epd bqr1krnb/1np1pppp/8/pp1p4/8/2P2N2/PP1PPPPP/BQRNKR1B w FCfc - 0 9
 perft 1 28
 perft 2 636
@@ -5211,7 +5212,7 @@ perft 4 461104
 perft 5 14237097
 perft 6 372181570
 
-id 1
+id 579
 epd qbb1rkrn/1ppppppp/p7/7n/8/P2P4/1PP1PPPP/QBBRNKRN w Gg - 0 9
 perft 1 25
 perft 2 547
@@ -5220,7 +5221,7 @@ perft 4 332918
 perft 5 8849383
 perft 6 229112926
 
-id 1
+id 580
 epd 1rbbnkrn/p1p1pp1p/2q5/1p1p2p1/8/2P3P1/PP1PPP1P/QRBBNKRN w GBgb - 2 9
 perft 1 24
 perft 2 1010
@@ -5229,7 +5230,7 @@ perft 4 983770
 perft 5 24328258
 perft 6 961371180
 
-id 1
+id 581
 epd qrb1kbrn/ppp1p2p/4npp1/3p4/8/1PP4P/PR1PPPP1/Q1BNKBRN w Ggb - 1 9
 perft 1 18
 perft 2 451
@@ -5238,7 +5239,7 @@ perft 4 247310
 perft 5 5568106
 perft 6 155744022
 
-id 1
+id 582
 epd qr2krnb/p1p1pppp/b1np4/1p6/3NP3/7P/PPPP1PP1/QRBNKR1B w FBfb - 2 9
 perft 1 25
 perft 2 667
@@ -5247,7 +5248,7 @@ perft 4 476030
 perft 5 12458875
 perft 6 361495148
 
-id 1
+id 583
 epd qbrnbkrn/ppp3pp/3p4/5p2/2P1pP2/6PP/PP1PP3/QBRNBKRN w GCgc - 0 9
 perft 1 24
 perft 2 650
@@ -5256,7 +5257,7 @@ perft 4 445263
 perft 5 12187382
 perft 6 326834539
 
-id 1
+id 584
 epd qrnb1krn/ppp1p1pp/5p2/2Np4/b2P4/2P5/PP2PPPP/QR1BBKRN w GBgb - 0 9
 perft 1 27
 perft 2 641
@@ -5265,7 +5266,7 @@ perft 4 432041
 perft 5 12103076
 perft 6 310695797
 
-id 1
+id 585
 epd qrnkbbrn/pp2pp2/8/2pp2pp/6PP/3P4/PPPKPP2/QRN1BBRN w gb - 0 9
 perft 1 22
 perft 2 554
@@ -5274,7 +5275,7 @@ perft 4 357404
 perft 5 9014737
 perft 6 258925091
 
-id 1
+id 586
 epd qrnkbrnb/p1p1ppp1/1p6/3p4/3P3p/5N1P/PPP1PPP1/QRNKBR1B w FBfb - 0 9
 perft 1 24
 perft 2 529
@@ -5283,7 +5284,7 @@ perft 4 318722
 perft 5 8295874
 perft 6 213856651
 
-id 1
+id 587
 epd qbr1krbn/1pppp1pp/p7/5pn1/2PP4/8/PPB1PPPP/Q1RNKRBN w FCfc - 0 9
 perft 1 26
 perft 2 831
@@ -5292,7 +5293,7 @@ perft 4 696830
 perft 5 18961456
 perft 6 621884383
 
-id 1
+id 588
 epd 1rnbkrbn/1qp1pppp/3p4/pp6/4P3/1NP4P/PP1P1PP1/QR1BKRBN w FBfb - 0 9
 perft 1 24
 perft 2 597
@@ -5301,7 +5302,7 @@ perft 4 404761
 perft 5 10832084
 perft 6 307793179
 
-id 1
+id 589
 epd q1rkrbbn/ppp1pppp/8/3p4/1PnP4/P7/1RP1PPPP/Q1NKRBBN w Ee - 1 9
 perft 1 20
 perft 2 520
@@ -5310,7 +5311,7 @@ perft 4 278067
 perft 5 6452205
 perft 6 170268300
 
-id 1
+id 590
 epd qrnkrn1b/ppppp1pp/4b3/7P/6p1/P7/1PPPPP2/QRNKRNBB w EBeb - 0 9
 perft 1 26
 perft 2 566
@@ -5319,7 +5320,7 @@ perft 4 381312
 perft 5 10940750
 perft 6 287987207
 
-id 1
+id 591
 epd bbr1nkrn/ppp1pppp/3q4/3p4/8/P7/1PPPPPPP/BBRQNRKN w gc - 5 9
 perft 1 19
 perft 2 661
@@ -5328,7 +5329,7 @@ perft 4 460396
 perft 5 10870247
 perft 6 356399665
 
-id 1
+id 592
 epd brqbnkrn/pp1pp2p/5pp1/2p5/4P3/P2P1N2/1PP2PPP/BRQB1KRN w GBgb - 0 9
 perft 1 27
 perft 2 679
@@ -5337,7 +5338,7 @@ perft 4 527306
 perft 5 16391730
 perft 6 455940859
 
-id 1
+id 593
 epd 2qnkbrn/p1pppppp/8/1r6/1p2bP2/7N/PPPPP1PP/BR1QKBRN w GBg - 4 9
 perft 1 18
 perft 2 774
@@ -5346,7 +5347,7 @@ perft 4 635461
 perft 5 14371755
 perft 6 559579332
 
-id 1
+id 594
 epd r1qnkr1b/p1pppppp/7n/1p6/8/1P3b1N/PRPPPPPP/B1QNK1RB w f - 5 9
 perft 1 21
 perft 2 677
@@ -5355,7 +5356,7 @@ perft 4 501520
 perft 5 12463801
 perft 6 410795298
 
-id 1
+id 595
 epd rbbqn1rn/pppp1pp1/3k4/4p2Q/2PPP3/8/PP3PPP/RBB1NKRN w GA - 1 9
 perft 1 40
 perft 2 742
@@ -5364,7 +5365,7 @@ perft 4 579833
 perft 5 21852196
 perft 6 471452088
 
-id 1
+id 596
 epd rqbbnkrn/3pppp1/p1p4p/1p6/5P2/P2N4/1PPPP1PP/RQBBK1RN w ga - 0 9
 perft 1 23
 perft 2 665
@@ -5373,7 +5374,7 @@ perft 4 492544
 perft 5 12794736
 perft 6 396640086
 
-id 1
+id 597
 epd r2nkbrn/pp2pppp/8/2ppqb2/2P3P1/5P2/PP1PPN1P/RQB1KBRN w GAga - 3 9
 perft 1 28
 perft 2 1108
@@ -5382,7 +5383,7 @@ perft 4 1194581
 perft 5 34780853
 perft 6 1292405738
 
-id 1
+id 598
 epd rqbnk1nb/p1pppr1p/5p2/1p4p1/1PP1P3/8/P2P1PPP/RQBNKRNB w FAa - 1 9
 perft 1 26
 perft 2 650
@@ -5391,7 +5392,7 @@ perft 4 491403
 perft 5 14565370
 perft 6 416833400
 
-id 1
+id 599
 epd rbqnb1rn/p1pp1kpp/1p2pp2/8/4P2P/P5P1/1PPP1P2/RBQNBKRN w GA - 0 9
 perft 1 20
 perft 2 437
@@ -5400,7 +5401,7 @@ perft 4 222154
 perft 5 5282124
 perft 6 132309824
 
-id 1
+id 600
 epd rqnbbkrn/p1p1pppp/3p4/1p5B/8/1P1NP3/P1PP1PPP/RQ2BKRN w GAga - 0 9
 perft 1 30
 perft 2 606
@@ -5409,7 +5410,7 @@ perft 4 422491
 perft 5 12989786
 perft 6 326601372
 
-id 1
+id 601
 epd rqnkbbr1/ppppp1pp/5p2/7n/8/2PNP2P/PP1P1PP1/RQ1KBBRN w GAga - 1 9
 perft 1 23
 perft 2 482
@@ -5418,7 +5419,7 @@ perft 4 297869
 perft 5 8430874
 perft 6 217797292
 
-id 1
+id 602
 epd r1nkbrnb/2ppppp1/1q6/pp5p/1P6/P3P3/2PPKPPP/RQN1BRNB w fa - 2 9
 perft 1 25
 perft 2 827
@@ -5427,7 +5428,7 @@ perft 4 701071
 perft 5 19290675
 perft 6 632892337
 
-id 1
+id 603
 epd rbqnkrbn/p1ppppp1/7p/1p6/7P/2N1P3/PPPP1PPB/RBQ1KR1N w FAfa - 1 9
 perft 1 30
 perft 2 627
@@ -5436,7 +5437,7 @@ perft 4 440217
 perft 5 12976682
 perft 6 337377291
 
-id 1
+id 604
 epd r1nbkrbn/p1qp1ppp/8/1pp1p3/2P1P3/6P1/PP1PBP1P/RQN1KRBN w FAfa - 2 9
 perft 1 22
 perft 2 616
@@ -5445,7 +5446,7 @@ perft 4 431199
 perft 5 10850952
 perft 6 335943324
 
-id 1
+id 605
 epd rqnkr1bn/ppp1ppb1/3p2pp/8/P7/2P2P2/1PKPP1PP/RQN1RBBN w ea - 1 9
 perft 1 31
 perft 2 679
@@ -5454,7 +5455,7 @@ perft 4 493500
 perft 5 15661072
 perft 6 379844460
 
-id 1
+id 606
 epd r2krnbb/qppp1ppp/1n6/p3p3/PP6/4N3/N1PPPPPP/RQ1KR1BB w EAea - 4 9
 perft 1 24
 perft 2 645
@@ -5463,7 +5464,7 @@ perft 4 487028
 perft 5 13837270
 perft 6 416239106
 
-id 1
+id 607
 epd bbr1qk1n/1ppppp1p/2n5/p7/P7/1P2P3/2PP1PrP/1BRNQKRN w GCc - 0 9
 perft 1 18
 perft 2 520
@@ -5472,7 +5473,7 @@ perft 4 304462
 perft 5 7215306
 perft 6 207612575
 
-id 1
+id 608
 epd brnbq1rn/2ppppkp/p5p1/1p6/8/1BP3P1/PP1PPP1P/BRN1QRKN w - - 0 9
 perft 1 21
 perft 2 625
@@ -5481,7 +5482,7 @@ perft 4 419667
 perft 5 9929336
 perft 6 300902534
 
-id 1
+id 609
 epd brn1kbrn/pp2p1pp/3p4/q1p2p2/2P4P/6P1/PP1PPP2/BRNQKBRN w GBgb - 1 9
 perft 1 18
 perft 2 477
@@ -5490,7 +5491,7 @@ perft 4 273925
 perft 5 6720181
 perft 6 187205941
 
-id 1
+id 610
 epd brn1krnb/p3pppp/1qpp4/1p6/2P3P1/1P6/P2PPP1P/BRNQKRNB w FBfb - 1 9
 perft 1 30
 perft 2 835
@@ -5499,7 +5500,7 @@ perft 4 716151
 perft 5 21806428
 perft 6 654487872
 
-id 1
+id 611
 epd r1b1qkrn/1p1ppppp/p1p1n3/8/4P3/1PN5/P1PPQPPb/RBB2KRN w GAga - 0 9
 perft 1 28
 perft 2 825
@@ -5508,7 +5509,7 @@ perft 4 716585
 perft 5 22079005
 perft 6 647939781
 
-id 1
+id 612
 epd r1bbqk1n/p1pppprp/n7/1p4p1/5P2/2N3N1/PPPPP1PP/1RBBQKR1 w Ga - 4 9
 perft 1 25
 perft 2 545
@@ -5517,7 +5518,7 @@ perft 4 358854
 perft 5 10271111
 perft 6 273864588
 
-id 1
+id 613
 epd rnbqkbrn/p1pp1pp1/4p3/7p/2p4P/2P5/PP1PPPP1/R1BQKBRN w GAga - 0 9
 perft 1 17
 perft 2 445
@@ -5526,7 +5527,7 @@ perft 4 255098
 perft 5 5918310
 perft 6 174733195
 
-id 1
+id 614
 epd rnbqkrnb/1p1pp1p1/2p4p/p4p2/3P2P1/7N/PPPBPP1P/RN1QKR1B w FAfa - 0 9
 perft 1 34
 perft 2 746
@@ -5535,7 +5536,7 @@ perft 4 623133
 perft 5 21285553
 perft 6 569141201
 
-id 1
+id 615
 epd rbnqbkr1/1ppppp2/p5n1/6pp/4P3/1N6/PPPP1PPP/RBQ1BRKN w ga - 2 9
 perft 1 18
 perft 2 466
@@ -5544,7 +5545,7 @@ perft 4 260864
 perft 5 6051500
 perft 6 170135726
 
-id 1
+id 616
 epd rnqb1krn/ppppp1p1/7p/7b/P1P2pPP/8/1P1PPP2/RNQBBKRN w GAga - 0 9
 perft 1 24
 perft 2 575
@@ -5553,7 +5554,7 @@ perft 4 385825
 perft 5 11039042
 perft 6 291243811
 
-id 1
+id 617
 epd rnqkbbr1/p1pp1ppp/4p3/1p6/P3P2n/5P2/1PPP1NPP/RNQKBBR1 w GAga - 2 9
 perft 1 27
 perft 2 803
@@ -5562,7 +5563,7 @@ perft 4 694449
 perft 5 20666099
 perft 6 638696065
 
-id 1
+id 618
 epd rn1kbrnb/1qppp1pp/1p6/p4p2/1B1P4/1P5N/P1P1PPPP/RNQK1R1B w FAfa - 0 9
 perft 1 37
 perft 2 1209
@@ -5571,7 +5572,7 @@ perft 4 1425600
 perft 5 49748034
 perft 6 1671593862
 
-id 1
+id 619
 epd rbnqkrbn/Bppp1p2/p5pp/4p3/5P2/6PP/PPPPP3/RBNQKR1N w FAfa - 0 9
 perft 1 29
 perft 2 720
@@ -5580,7 +5581,7 @@ perft 4 534148
 perft 5 15384362
 perft 6 421343249
 
-id 1
+id 620
 epd rnqbkr1n/1p1ppbpp/3p1p2/p7/8/1P6/P1PPPPPP/R1QBKRBN w FAfa - 0 9
 perft 1 20
 perft 2 657
@@ -5589,7 +5590,7 @@ perft 4 492678
 perft 5 11843134
 perft 6 413965054
 
-id 1
+id 621
 epd rnqkrb1n/ppppp3/6p1/5p1p/2b2P2/P1N5/1PPPP1PP/RQ1KRBBN w EAea - 1 9
 perft 1 28
 perft 2 749
@@ -5598,7 +5599,7 @@ perft 4 543151
 perft 5 15379233
 perft 6 417191461
 
-id 1
+id 622
 epd rnqk1nbb/1pp2ppp/3pr3/p3p3/3P1P2/2N3N1/PPP1P1PP/R1QKR1BB w EAa - 1 9
 perft 1 29
 perft 2 883
@@ -5607,7 +5608,7 @@ perft 4 815098
 perft 5 25144295
 perft 6 789705382
 
-id 1
+id 623
 epd bbr1kqrn/p1p1ppp1/1p2n2p/3p4/1P1P4/2N5/P1P1PPPP/BBR1KQRN w GCgc - 0 9
 perft 1 22
 perft 2 485
@@ -5616,7 +5617,7 @@ perft 4 271271
 perft 5 6825123
 perft 6 171793012
 
-id 1
+id 624
 epd brnbkq1n/ppp1ppr1/7p/3p2p1/2P3PP/8/PPBPPP2/BRN1KQRN w GBb - 2 9
 perft 1 30
 perft 2 634
@@ -5625,7 +5626,7 @@ perft 4 442537
 perft 5 13674310
 perft 6 345386924
 
-id 1
+id 625
 epd brnkqbr1/1pppp1pp/5p2/p7/P1P1P2n/8/1P1P1PP1/BRNKQBRN w GBgb - 0 9
 perft 1 21
 perft 2 504
@@ -5634,7 +5635,7 @@ perft 4 305184
 perft 5 7778289
 perft 6 217596497
 
-id 1
+id 626
 epd b1rkqrnb/p1ppp1pp/1p1n4/5p2/5P2/PN5P/1PPPP1P1/BR1KQRNB w FBf - 0 9
 perft 1 23
 perft 2 688
@@ -5643,7 +5644,7 @@ perft 4 531592
 perft 5 14228372
 perft 6 451842354
 
-id 1
+id 627
 epd 1bbnkqrn/rppppp2/p5p1/7p/7P/P1P1P3/1P1P1PP1/RBBNKQRN w GAg - 1 9
 perft 1 25
 perft 2 450
@@ -5652,7 +5653,7 @@ perft 4 263946
 perft 5 7752404
 perft 6 185393913
 
-id 1
+id 628
 epd rnbbkqr1/1pppppp1/7p/p3n3/PP5P/8/1BPPPPP1/RN1BKQRN w GAga - 0 9
 perft 1 23
 perft 2 543
@@ -5661,7 +5662,7 @@ perft 4 305812
 perft 5 7549008
 perft 6 199883770
 
-id 1
+id 629
 epd r1bkqbrn/ppppp1pp/8/5p2/3nPP2/1P4N1/P1PP2PP/RNBKQBR1 w GAga - 1 9
 perft 1 27
 perft 2 751
@@ -5670,7 +5671,7 @@ perft 4 600417
 perft 5 17989920
 perft 6 527273615
 
-id 1
+id 630
 epd rnbkqr1b/1p1pp1pp/p4p1n/2p5/1P5P/N4P2/P1PPP1P1/R1BKQRNB w FAfa - 0 9
 perft 1 21
 perft 2 498
@@ -5679,7 +5680,7 @@ perft 4 302278
 perft 5 7808375
 perft 6 216224115
 
-id 1
+id 631
 epd rbnkbqrn/p1p3pp/1p1p4/B3pp2/3P2P1/6N1/PPP1PP1P/RBNK1QR1 w GAga - 0 9
 perft 1 34
 perft 2 977
@@ -5688,7 +5689,7 @@ perft 4 961128
 perft 5 33318567
 perft 6 978991050
 
-id 1
+id 632
 epd r1kbbqrn/ppp3pp/2np1p2/1P2p3/3P1P2/8/P1P1P1PP/RNKBBQRN w GAga - 0 9
 perft 1 32
 perft 2 920
@@ -5697,7 +5698,7 @@ perft 4 844881
 perft 5 26763259
 perft 6 797524786
 
-id 1
+id 633
 epd rk1qbbrn/p2npppp/1p6/2p4Q/8/4P3/PPPP1PPP/RNK1B1RN w GA - 2 9
 perft 1 35
 perft 2 657
@@ -5706,7 +5707,7 @@ perft 4 495406
 perft 5 16662477
 perft 6 419496845
 
-id 1
+id 634
 epd rnk1brnb/pp1p1pp1/8/q1p1p2p/5P2/NP6/P1PPP1PP/R1KQBRNB w FAfa - 1 9
 perft 1 26
 perft 2 774
@@ -5715,7 +5716,7 @@ perft 4 610661
 perft 5 16987110
 perft 6 523437649
 
-id 1
+id 635
 epd rb1kqrbn/npp1ppp1/p7/3P3p/2PP4/8/PP3PPP/RBNKQRBN w FAfa - 0 9
 perft 1 35
 perft 2 775
@@ -5724,7 +5725,7 @@ perft 4 661118
 perft 5 23983464
 perft 6 625669222
 
-id 1
+id 636
 epd rnkb1rbn/pp1p2pp/8/2p1pp1q/P6P/1PN5/2PPPPP1/R1KBQRBN w FAfa - 1 9
 perft 1 22
 perft 2 899
@@ -5733,7 +5734,7 @@ perft 4 850597
 perft 5 21518343
 perft 6 857951339
 
-id 1
+id 637
 epd rnkqrbbn/1pppp1p1/8/p2N1p1p/2P4P/8/PP1PPPP1/R1KQRBBN w EAea - 0 9
 perft 1 29
 perft 2 585
@@ -5742,7 +5743,7 @@ perft 4 393221
 perft 5 12238776
 perft 6 299752383
 
-id 1
+id 638
 epd rnk1r1bb/pp1ppppp/1q4n1/2p5/5P1P/3PP3/PPP3P1/RNKQRNBB w EAea - 1 9
 perft 1 27
 perft 2 884
@@ -5751,7 +5752,7 @@ perft 4 811915
 perft 5 23698701
 perft 6 790239502
 
-id 1
+id 639
 epd bbrnkrqn/1ppp1p2/6pp/p3p3/5PP1/2PB4/PP1PP2P/B1RNKRQN w FCfc - 0 9
 perft 1 37
 perft 2 693
@@ -5760,7 +5761,7 @@ perft 4 550527
 perft 5 20138432
 perft 6 481498664
 
-id 1
+id 640
 epd b1rbkrqn/ppp2ppp/1n2p3/3p4/6P1/2PP4/PP2PP1P/BRNBKRQN w FBf - 1 9
 perft 1 21
 perft 2 463
@@ -5769,7 +5770,7 @@ perft 4 253204
 perft 5 6307276
 perft 6 159025909
 
-id 1
+id 641
 epd brnkrb1n/1pp1p1pp/3p4/p1Nq1p2/2P5/8/PP1PPPPP/BRK1RBQN w eb - 2 9
 perft 1 27
 perft 2 725
@@ -5778,7 +5779,7 @@ perft 4 496072
 perft 5 12604078
 perft 6 362747791
 
-id 1
+id 642
 epd brn1r1nb/ppppkppp/4p3/8/2PP1P2/8/PP1KP1PP/BRN1RQNB w - - 1 9
 perft 1 25
 perft 2 623
@@ -5787,7 +5788,7 @@ perft 4 426659
 perft 5 12290985
 perft 6 317097424
 
-id 1
+id 643
 epd rbb1krqn/1pp1pp1p/p3n1p1/3pP3/8/1PN5/P1PP1PPP/RBB1KRQN w FAfa d6 0 9
 perft 1 23
 perft 2 529
@@ -5796,7 +5797,7 @@ perft 4 310277
 perft 5 7861413
 perft 6 202594556
 
-id 1
+id 644
 epd r1bbkrqn/p1pppppp/8/4n3/1p5P/P2P2P1/1PP1PP2/RNBBKRQN w FAfa - 0 9
 perft 1 23
 perft 2 571
@@ -5805,7 +5806,7 @@ perft 4 346793
 perft 5 8699448
 perft 6 243460643
 
-id 1
+id 645
 epd rnbkrbqn/p1pp1ppp/4p3/1p6/8/BPN3P1/P1PPPP1P/R2KRBQN w EAea - 2 9
 perft 1 29
 perft 2 692
@@ -5814,7 +5815,7 @@ perft 4 500375
 perft 5 14904192
 perft 6 386694739
 
-id 1
+id 646
 epd rnbkrqn1/pppppp2/8/1Q2b1pp/P3P3/5P2/1PPP2PP/RNBKR1NB w EAea - 0 9
 perft 1 37
 perft 2 1001
@@ -5823,7 +5824,7 @@ perft 4 987842
 perft 5 35626426
 perft 6 993747544
 
-id 1
+id 647
 epd rbnkbrqn/p1pppp2/7p/1p4pP/3P1P2/8/PPP1P1P1/RBNKBRQN w FAfa - 0 9
 perft 1 30
 perft 2 564
@@ -5832,7 +5833,7 @@ perft 4 381364
 perft 5 11859538
 perft 6 293703269
 
-id 1
+id 648
 epd 1nkbbrqn/3ppppp/r1p5/pp6/8/4PP2/PPPPN1PP/RNKBBRQ1 w FAf - 2 9
 perft 1 26
 perft 2 546
@@ -5841,7 +5842,7 @@ perft 4 344592
 perft 5 9556962
 perft 6 245137199
 
-id 1
+id 649
 epd rnkrbbq1/pppppnp1/7p/8/1B1Q1p2/3P1P2/PPP1P1PP/RNKR1B1N w DAda - 2 9
 perft 1 43
 perft 2 887
@@ -5850,7 +5851,7 @@ perft 4 846858
 perft 5 33185346
 perft 6 851927292
 
-id 1
+id 650
 epd 1rkrbqnb/pppppp2/2n3p1/7p/3P3P/P4N2/1PP1PPP1/RNKRBQ1B w DAd - 0 9
 perft 1 26
 perft 2 622
@@ -5859,7 +5860,7 @@ perft 4 403921
 perft 5 10786140
 perft 6 285233838
 
-id 1
+id 651
 epd rbnkr1bn/pp1pqp1p/2p1p3/6p1/3P4/7P/PPP1PPP1/RBNKRQBN w EAea - 0 9
 perft 1 19
 perft 2 566
@@ -5868,7 +5869,7 @@ perft 4 381197
 perft 5 9107175
 perft 6 293397389
 
-id 1
+id 652
 epd r1kbrqb1/pppp2pp/2n1p1n1/5p1B/4PP2/P7/1PPP2PP/RNK1RQBN w EAea - 2 9
 perft 1 39
 perft 2 1359
@@ -5877,7 +5878,7 @@ perft 4 1876028
 perft 5 73871486
 perft 6 2633945690
 
-id 1
+id 653
 epd rnkrqbbn/p1p3pp/1p1ppp2/8/1P6/3P2P1/PKP1PP1P/RN1RQBBN w da - 0 9
 perft 1 26
 perft 2 776
@@ -5886,7 +5887,7 @@ perft 4 611907
 perft 5 16884013
 perft 6 503561996
 
-id 1
+id 654
 epd rnkrqnbb/ppp2p1p/3p4/4p1p1/3P3P/N1Q5/PPP1PPP1/R1KR1NBB w DAda - 0 9
 perft 1 40
 perft 2 1175
@@ -5895,7 +5896,7 @@ perft 4 1375884
 perft 5 52620163
 perft 6 1633655838
 
-id 1
+id 655
 epd bbrnkrn1/p1pppp2/1p6/6pp/3q4/1P3QP1/P1PPPP1P/BBRNKRN1 w FCfc - 0 9
 perft 1 34
 perft 2 1398
@@ -5904,7 +5905,7 @@ perft 4 1712950
 perft 5 57268492
 perft 6 2059942014
 
-id 1
+id 656
 epd br1bkrnq/1p2pppp/pnp5/3p4/P1P5/5P2/1P1PPKPP/BRNB1RNQ w fb - 2 9
 perft 1 24
 perft 2 501
@@ -5913,7 +5914,7 @@ perft 4 284936
 perft 5 7049659
 perft 6 177940764
 
-id 1
+id 657
 epd brnkrbn1/pppppp1q/B6p/6p1/8/1P2PP2/P1PP2PP/BRNKR1NQ w EBeb - 0 9
 perft 1 34
 perft 2 815
@@ -5922,7 +5923,7 @@ perft 4 700970
 perft 5 22006883
 perft 6 639803952
 
-id 1
+id 658
 epd br1krnqb/pppppp1p/1n4p1/8/8/P2NN3/2PPPPPP/BR1K1RQB w Beb - 2 9
 perft 1 37
 perft 2 1029
@@ -5931,7 +5932,7 @@ perft 4 1025712
 perft 5 36214583
 perft 6 1026195877
 
-id 1
+id 659
 epd rbbnkr1q/p1p2ppp/1p1ppn2/8/1PP4P/8/P2PPPP1/RBBNKRNQ w FAfa - 0 9
 perft 1 28
 perft 2 755
@@ -5940,7 +5941,7 @@ perft 4 605106
 perft 5 18972778
 perft 6 513486101
 
-id 1
+id 660
 epd r1b1krnq/pp2pppp/1bn5/2pp4/4N3/5P2/PPPPPRPP/R1BBK1NQ w Afa - 0 9
 perft 1 24
 perft 2 705
@@ -5949,7 +5950,7 @@ perft 4 532521
 perft 5 13532966
 perft 6 426443376
 
-id 1
+id 661
 epd 1nbkrbn1/rpppppqp/p7/6p1/4P3/3P2P1/PPP1KP1P/RNB1RBNQ w e - 1 9
 perft 1 31
 perft 2 800
@@ -5958,7 +5959,7 @@ perft 4 693366
 perft 5 21193292
 perft 6 625757852
 
-id 1
+id 662
 epd r1bkrnqb/pp3ppp/n1ppp3/8/1P5P/P7/R1PPPPP1/1NBKRNQB w Eea - 0 9
 perft 1 21
 perft 2 482
@@ -5967,7 +5968,7 @@ perft 4 275339
 perft 5 7112890
 perft 6 180378139
 
-id 1
+id 663
 epd rbnkbrnq/ppp1p2p/5p2/3p2p1/1B1P4/1N4P1/PPP1PP1P/RB1K1RNQ w FAfa - 0 9
 perft 1 33
 perft 2 780
@@ -5976,7 +5977,7 @@ perft 4 628945
 perft 5 20756770
 perft 6 535497008
 
-id 1
+id 664
 epd rnk1brnq/pp1ppppp/2p5/b7/8/1P2P2P/P1PP1PPQ/RNKBBRN1 w FAfa - 3 9
 perft 1 29
 perft 2 648
@@ -5985,7 +5986,7 @@ perft 4 449637
 perft 5 13722785
 perft 6 341389148
 
-id 1
+id 665
 epd rnkrbbnq/p1p3pp/5p2/1p1pp3/P7/1PN2P2/2PPP1PP/R1KRBBNQ w DAda - 0 9
 perft 1 26
 perft 2 827
@@ -5994,7 +5995,7 @@ perft 4 683167
 perft 5 18916370
 perft 6 589161126
 
-id 1
+id 666
 epd r1krbnqb/p1pp1ppp/2n1p3/8/1p4P1/PPP5/3PPP1P/RNKRBNQB w DAda - 1 9
 perft 1 25
 perft 2 540
@@ -6003,7 +6004,7 @@ perft 4 331332
 perft 5 9491817
 perft 6 225389422
 
-id 1
+id 667
 epd rbnkrnbq/ppp1pp2/3p2p1/2N5/P6p/2P5/1P1PPPPP/RB1KRNBQ w EAea - 0 9
 perft 1 32
 perft 2 790
@@ -6012,7 +6013,7 @@ perft 4 661207
 perft 5 20906017
 perft 6 578332225
 
-id 1
+id 668
 epd rnkbrn1q/1ppppppb/8/p4N1p/8/P1N5/1PPPPPPP/R1KBR1BQ w EAea - 0 9
 perft 1 31
 perft 2 691
@@ -6021,7 +6022,7 @@ perft 4 510665
 perft 5 15308408
 perft 6 404129987
 
-id 1
+id 669
 epd rnkrnbbq/p1p2ppp/3pp3/1p6/6P1/4PQ1B/PPPP1P1P/RNKRN1B1 w DAda - 0 9
 perft 1 29
 perft 2 558
@@ -6030,7 +6031,7 @@ perft 4 352887
 perft 5 10825379
 perft 6 246965507
 
-id 1
+id 670
 epd rnkrnqbb/pp2p1p1/3p3p/2p2p2/5P2/1P1N4/P1PPPQPP/RNKR2BB w DAda - 0 9
 perft 1 29
 perft 2 762
@@ -6039,7 +6040,7 @@ perft 4 644936
 perft 5 20522675
 perft 6 596067005
 
-id 1
+id 671
 epd bb1rknnr/ppqppppp/8/2p5/3P1N2/1P6/P1P1PPPP/BBQRKN1R w HDhd - 1 9
 perft 1 33
 perft 2 963
@@ -6048,7 +6049,7 @@ perft 4 1000890
 perft 5 34552118
 perft 6 1124738493
 
-id 1
+id 672
 epd bqrbknnr/ppp1p2p/8/3p1p2/5p2/P3N2P/1PPPP1P1/BQRBK1NR w HChc - 0 9
 perft 1 20
 perft 2 398
@@ -6057,7 +6058,7 @@ perft 4 194859
 perft 5 4834319
 perft 6 113660536
 
-id 1
+id 673
 epd b1rk1bnr/qpp1pppp/p4n2/3p4/3PPP2/7N/PPP3PP/BQRKNB1R w HChc - 1 9
 perft 1 25
 perft 2 648
@@ -6066,7 +6067,7 @@ perft 4 455720
 perft 5 12200870
 perft 6 351766307
 
-id 1
+id 674
 epd bqkrnnrb/pppp2p1/4pp2/4P2p/6P1/7P/PPPP1P2/BQRKNNRB w GC - 1 9
 perft 1 30
 perft 2 493
@@ -6075,7 +6076,7 @@ perft 4 280726
 perft 5 8786998
 perft 6 181492621
 
-id 1
+id 675
 epd q1brknnr/1p1ppppp/p7/2p5/8/1PPP4/P2RPPPP/QBB1KNNR w Hhd - 0 9
 perft 1 25
 perft 2 501
@@ -6084,7 +6085,7 @@ perft 4 290463
 perft 5 7982978
 perft 6 192717198
 
-id 1
+id 676
 epd qrb1k1nr/ppppb1pp/6n1/4ppN1/3P4/4N3/PPP1PPPP/QRBBK2R w HBhb - 2 9
 perft 1 31
 perft 2 872
@@ -6093,7 +6094,7 @@ perft 4 739276
 perft 5 22493014
 perft 6 646855304
 
-id 1
+id 677
 epd 1rbknbnr/1ppp1pp1/q6p/p3p3/5P2/2PPB3/PP2P1PP/QR1KNBNR w HBhb - 0 9
 perft 1 28
 perft 2 1020
@@ -6102,7 +6103,7 @@ perft 4 984000
 perft 5 27484692
 perft 6 947786800
 
-id 1
+id 678
 epd qrbk2rb/1ppp1ppp/5nn1/p3p3/1N6/P7/1PPPPPPP/QRB1KNRB w gb - 0 9
 perft 1 23
 perft 2 592
@@ -6111,7 +6112,7 @@ perft 4 395716
 perft 5 10098215
 perft 6 293988585
 
-id 1
+id 679
 epd qbrk1nnr/1pp1pppp/2b5/p2p4/P2P2P1/8/1PP1PP1P/QBKRBNNR w hc - 1 9
 perft 1 26
 perft 2 654
@@ -6120,7 +6121,7 @@ perft 4 471653
 perft 5 13740891
 perft 6 373081138
 
-id 1
+id 680
 epd qrkbbnnr/ppp2p1p/4p3/3p2p1/P7/2PP4/1P2PPPP/QRKBBNNR w HBhb - 0 9
 perft 1 25
 perft 2 626
@@ -6129,7 +6130,7 @@ perft 4 431634
 perft 5 12079406
 perft 6 324006164
 
-id 1
+id 681
 epd qr1kbbnr/ppp1pp1p/4n1p1/2Pp4/6P1/4N3/PP1PPP1P/QRK1BBNR w HB d6 0 9
 perft 1 26
 perft 2 699
@@ -6138,7 +6139,7 @@ perft 4 497152
 perft 5 13353359
 perft 6 375702908
 
-id 1
+id 682
 epd qrk1b1rb/p1pppppp/3nnQ2/1p6/1P3P2/3P4/P1P1P1PP/1RKNBNRB w GBgb - 3 9
 perft 1 43
 perft 2 1369
@@ -6147,7 +6148,7 @@ perft 4 1831200
 perft 5 71514365
 perft 6 2427477375
 
-id 1
+id 683
 epd qbrk1nbr/pppp3p/5n2/4ppp1/3P1P2/4N3/PPP1P1PP/QBKRN1BR w hc - 0 9
 perft 1 25
 perft 2 752
@@ -6156,7 +6157,7 @@ perft 4 615263
 perft 5 17493373
 perft 6 543180234
 
-id 1
+id 684
 epd qrkb1nbr/1pppppQp/3n4/p7/5p2/1P1N4/P1PPP1PP/1RKB1NBR w HBhb - 0 9
 perft 1 45
 perft 2 946
@@ -6165,7 +6166,7 @@ perft 4 966903
 perft 5 39736157
 perft 6 1051910977
 
-id 1
+id 685
 epd qrk1nbbr/ppp1p1p1/4n2p/3p1p2/1P5P/3P2P1/P1P1PP2/QRKNNBBR w HBhb - 1 9
 perft 1 32
 perft 2 770
@@ -6174,7 +6175,7 @@ perft 4 646977
 perft 5 21717615
 perft 6 577979364
 
-id 1
+id 686
 epd qrkn1rbb/pp2pppp/2p5/3p4/P2Qn1P1/1P6/2PPPP1P/1RKNNRBB w FBfb - 0 9
 perft 1 38
 perft 2 943
@@ -6183,7 +6184,7 @@ perft 4 868165
 perft 5 31909835
 perft 6 798405123
 
-id 1
+id 687
 epd bbrqknnr/ppp4p/3pp3/5pp1/4PP2/5Q2/PPPP2PP/BBR1KNNR w HChc - 0 9
 perft 1 36
 perft 2 843
@@ -6192,7 +6193,7 @@ perft 4 758528
 perft 5 26828059
 perft 6 723306114
 
-id 1
+id 688
 epd 1rqbkn1r/p1p1pppp/1p5n/P2p4/3Pb1P1/8/1PP1PP1P/BRQBKNNR w HBhb - 0 9
 perft 1 23
 perft 2 778
@@ -6201,7 +6202,7 @@ perft 4 649789
 perft 5 17337683
 perft 6 579112676
 
-id 1
+id 689
 epd br1knbnr/1qp1pppp/pp1p4/8/8/PP6/2PPPPPP/BRQKNBNR w HBhb - 2 9
 perft 1 26
 perft 2 697
@@ -6210,7 +6211,7 @@ perft 4 546622
 perft 5 15280079
 perft 6 473071890
 
-id 1
+id 690
 epd brqk2rb/ppppp1pp/4np2/8/2n5/3P1Q2/PP2PPPP/BR1KNNRB w GBgb - 0 9
 perft 1 32
 perft 2 948
@@ -6219,7 +6220,7 @@ perft 4 885713
 perft 5 29821322
 perft 6 874251866
 
-id 1
+id 691
 epd r1bqknnr/pp1pp1p1/5p1p/2p1b2N/2P5/8/PPQPPPPP/RBB1K1NR w HAha - 0 9
 perft 1 31
 perft 2 785
@@ -6228,7 +6229,7 @@ perft 4 659952
 perft 5 22244193
 perft 6 592797491
 
-id 1
+id 692
 epd rqbbknnr/ppppp2p/5pp1/8/8/1P3PP1/PQPPP2P/R1BBKNNR w HAha - 0 9
 perft 1 23
 perft 2 391
@@ -6237,7 +6238,7 @@ perft 4 198450
 perft 5 5576671
 perft 6 121267576
 
-id 1
+id 693
 epd rqbknbnr/1pp1p2p/p7/3p1pp1/7N/1PP5/P2PPPPP/RQBK1BNR w HAha - 0 9
 perft 1 27
 perft 2 676
@@ -6246,7 +6247,7 @@ perft 4 522428
 perft 5 15955388
 perft 6 448477218
 
-id 1
+id 694
 epd rqb1nnrb/2ppkppp/1p2p3/p7/2PPP3/1P6/P4PPP/RQBKNNRB w GA - 1 9
 perft 1 31
 perft 2 727
@@ -6255,7 +6256,7 @@ perft 4 570647
 perft 5 18361051
 perft 6 483248153
 
-id 1
+id 695
 epd rb1kbn1r/p1ppppp1/qp5n/7p/P7/RPP5/3PPPPP/1BQKBNNR w Hha - 2 9
 perft 1 29
 perft 2 837
@@ -6264,7 +6265,7 @@ perft 4 730083
 perft 5 21279560
 perft 6 682863811
 
-id 1
+id 696
 epd rqkbb1nr/p1p2ppp/1p1p2n1/3Np3/4P3/5N2/PPPP1PPP/RQKBB2R w HAha - 0 9
 perft 1 28
 perft 2 717
@@ -6273,7 +6274,7 @@ perft 4 550987
 perft 5 16347343
 perft 6 453153783
 
-id 1
+id 697
 epd rqknbbr1/p1pppp1p/1p3np1/8/4P3/2P2P1P/PP1P2P1/RQKNBBNR w HAa - 0 9
 perft 1 27
 perft 2 650
@@ -6282,7 +6283,7 @@ perft 4 475303
 perft 5 13847463
 perft 6 383256006
 
-id 1
+id 698
 epd r1k1bnrb/1qpppppp/1p2n3/p7/1P5P/6P1/P1PPPP2/RQKNBNR1 w GAga - 1 9
 perft 1 24
 perft 2 806
@@ -6291,7 +6292,7 @@ perft 4 713220
 perft 5 19382263
 perft 6 686009788
 
-id 1
+id 699
 epd rb1knnbr/1pp1ppp1/p2p3p/5q2/3B2P1/3P1P2/PPP1P2P/RBQKNN1R w HAha - 0 9
 perft 1 34
 perft 2 1360
@@ -6300,7 +6301,7 @@ perft 4 1605706
 perft 5 51973672
 perft 6 1837704407
 
-id 1
+id 700
 epd rqkb1nbr/p1p1ppp1/1p3n1p/2Qp4/8/2P5/PP1PPPPP/R1KBNNBR w HAha - 2 9
 perft 1 39
 perft 2 983
@@ -6309,7 +6310,7 @@ perft 4 940989
 perft 5 36347815
 perft 6 918801645
 
-id 1
+id 701
 epd rqknnbbr/2pppp2/pp5p/6p1/1P1P4/4PP2/P1P3PP/RQKNNBBR w HAha - 0 9
 perft 1 26
 perft 2 628
@@ -6318,7 +6319,7 @@ perft 4 464924
 perft 5 13787303
 perft 6 386125234
 
-id 1
+id 702
 epd rqkn1rbb/1pp1pppp/p7/3p4/3Pn3/2P1PP2/PP4PP/RQKNNRBB w FAfa - 1 9
 perft 1 20
 perft 2 527
@@ -6327,7 +6328,7 @@ perft 4 321533
 perft 5 8082183
 perft 6 219311659
 
-id 1
+id 703
 epd bbrkqn1r/1pppppp1/5n2/p7/1PP2P1p/7N/P2PP1PP/BBRKQN1R w HChc - 1 9
 perft 1 36
 perft 2 963
@@ -6336,7 +6337,7 @@ perft 4 973839
 perft 5 35907489
 perft 6 1034223364
 
-id 1
+id 704
 epd brkbqn1r/p2ppppp/7n/1p6/P1p3PP/8/1PPPPP1N/BRKBQ1NR w HBhb - 0 9
 perft 1 18
 perft 2 583
@@ -6345,7 +6346,7 @@ perft 4 394603
 perft 5 8858385
 perft 6 304339862
 
-id 1
+id 705
 epd brkq1bnr/pp1ppp1p/8/2p2np1/P7/8/1PPPPPPP/BRKQNBNR w HBhb - 0 9
 perft 1 19
 perft 2 552
@@ -6354,7 +6355,7 @@ perft 4 354260
 perft 5 8432183
 perft 6 262293169
 
-id 1
+id 706
 epd brkqnnrb/1ppppppp/8/8/p3P3/5N2/PPPP1PPP/BRKQ1NRB w GBgb - 3 9
 perft 1 21
 perft 2 397
@@ -6363,7 +6364,7 @@ perft 4 204350
 perft 5 5489836
 perft 6 128389738
 
-id 1
+id 707
 epd rbbkq1nr/1p2pppp/p1p3nB/3p4/1Q1P4/6N1/PPP1PPPP/RB1K2NR w HAha - 0 9
 perft 1 40
 perft 2 1132
@@ -6372,7 +6373,7 @@ perft 4 1260470
 perft 5 47425783
 perft 6 1415578783
 
-id 1
+id 708
 epd rkbbq1nr/1pppp1p1/4np2/p6p/8/PP3P2/1KPPP1PP/R1BBQNNR w ha - 0 9
 perft 1 24
 perft 2 596
@@ -6381,7 +6382,7 @@ perft 4 402121
 perft 5 10822049
 perft 6 302056813
 
-id 1
+id 709
 epd r1bqn1nr/pkpppp1p/1p4pb/8/PN6/R7/1PPPPPPP/1KBQ1BNR w H - 2 9
 perft 1 33
 perft 2 794
@@ -6390,7 +6391,7 @@ perft 4 649150
 perft 5 20919309
 perft 6 561073410
 
-id 1
+id 710
 epd rkb1nnrb/1pppq1pp/p4p2/4p3/5P2/1P1PB3/P1P1P1PP/RK1QNNRB w GAga - 0 9
 perft 1 26
 perft 2 625
@@ -6399,7 +6400,7 @@ perft 4 442036
 perft 5 12515042
 perft 6 342967558
 
-id 1
+id 711
 epd rbkqbn1r/pppp1p1p/2n1p1p1/8/8/1P1PP1N1/P1P2PPP/RBKQB1NR w HAha - 1 9
 perft 1 30
 perft 2 660
@@ -6408,7 +6409,7 @@ perft 4 492714
 perft 5 15348335
 perft 6 403323883
 
-id 1
+id 712
 epd rkqbb1n1/pppppppr/8/6np/5P2/8/PPPPP1PP/RKQBBNNR w HAa - 6 9
 perft 1 23
 perft 2 500
@@ -6417,7 +6418,7 @@ perft 4 292936
 perft 5 7519117
 perft 6 196524441
 
-id 1
+id 713
 epd rkqnbbnr/ppppppp1/8/7p/3N4/6PP/PPPPPP2/RKQNBB1R w HAa - 0 9
 perft 1 24
 perft 2 484
@@ -6426,7 +6427,7 @@ perft 4 284570
 perft 5 7775173
 perft 6 193947530
 
-id 1
+id 714
 epd rkqnb1rb/p1p1pppp/1p1p4/2n5/3P4/2P1N1N1/PP2PPPP/RKQ1B1RB w GAga - 0 9
 perft 1 28
 perft 2 1020
@@ -6435,7 +6436,7 @@ perft 4 1027904
 perft 5 30515456
 perft 6 1073711823
 
-id 1
+id 715
 epd rbk1nnbr/1ppq1ppp/p2p4/4p3/P3B2P/2P5/1P1PPPP1/R1KQNNBR w HAha - 2 9
 perft 1 38
 perft 2 998
@@ -6444,7 +6445,7 @@ perft 4 1047592
 perft 5 38552638
 perft 6 1139322479
 
-id 1
+id 716
 epd r1qbn1br/k1pppppp/6n1/pp6/5P1P/P7/1PPPP1PB/RKQBNN1R w HA - 1 9
 perft 1 22
 perft 2 549
@@ -6453,7 +6454,7 @@ perft 4 348574
 perft 5 8725809
 perft 6 251613569
 
-id 1
+id 717
 epd rkqnn1br/pppp3p/4p1pb/5p2/P2P4/7P/1PP1PPPB/RKQNNB1R w HAha - 1 9
 perft 1 32
 perft 2 659
@@ -6462,7 +6463,7 @@ perft 4 469701
 perft 5 15434721
 perft 6 365761521
 
-id 1
+id 718
 epd rk1nnrbb/p1p1pppp/1p6/3p1q2/P3P3/2NN4/1PPP1PPP/RKQ2RBB w FAfa - 3 9
 perft 1 29
 perft 2 989
@@ -6471,7 +6472,7 @@ perft 4 980477
 perft 5 29643404
 perft 6 998848556
 
-id 1
+id 719
 epd bbrk1q1r/ppppppp1/3n4/7p/3Pn3/6PN/PPP1PPNP/BBRK1Q1R w HChc - 2 9
 perft 1 23
 perft 2 712
@@ -6480,7 +6481,7 @@ perft 4 516177
 perft 5 12995202
 perft 6 411077508
 
-id 1
+id 720
 epd brkbnq1r/p1ppp2p/5ppn/1p6/5P2/1P1P2P1/P1P1P2P/BRKBNQNR w HBhb - 0 9
 perft 1 28
 perft 2 856
@@ -6489,7 +6490,7 @@ perft 4 780503
 perft 5 23529352
 perft 6 754501112
 
-id 1
+id 721
 epd br1k1bnr/ppppp1pp/4np2/1B2P2q/3P4/8/PPP2PPP/BRKNQ1NR w HB - 3 9
 perft 1 36
 perft 2 1214
@@ -6498,7 +6499,7 @@ perft 4 1328331
 perft 5 45096834
 perft 6 1470987023
 
-id 1
+id 722
 epd brk1qnrb/pnppp1p1/1p6/5p1p/8/5PPP/PPPPP1R1/BRKNQN1B w Bgb - 0 9
 perft 1 22
 perft 2 551
@@ -6507,7 +6508,7 @@ perft 4 353317
 perft 5 9040545
 perft 6 259643605
 
-id 1
+id 723
 epd rbbkn1nr/1ppp2pp/p3p3/2q2p2/3P4/6P1/PPPBPP1P/RB1KNQNR w HAha - 0 9
 perft 1 31
 perft 2 1060
@@ -6516,7 +6517,7 @@ perft 4 1015099
 perft 5 30314172
 perft 6 976268967
 
-id 1
+id 724
 epd rkbbn1nr/ppppp1pp/8/6N1/5p2/1q6/P1PPPPPP/RKBBN1QR w HAha - 0 9
 perft 1 3
 perft 2 72
@@ -6525,7 +6526,7 @@ perft 4 50827
 perft 5 1400832
 perft 6 39654253
 
-id 1
+id 725
 epd rkb2bnr/pp2pppp/2p1n3/3p4/q2P4/5NP1/PPP1PP1P/RKBNQBR1 w Aha - 0 9
 perft 1 29
 perft 2 861
@@ -6534,7 +6535,7 @@ perft 4 763454
 perft 5 22763215
 perft 6 731511256
 
-id 1
+id 726
 epd rkbq1nrb/ppppppp1/7p/8/1P1n4/P4P1P/2PPP1P1/RKBNQNRB w GAga - 0 9
 perft 1 25
 perft 2 672
@@ -6543,7 +6544,7 @@ perft 4 473864
 perft 5 12954224
 perft 6 361237536
 
-id 1
+id 727
 epd rbknb1nr/ppp1qp1p/6p1/3pp3/3P3P/2B1P3/PPP2PP1/RBKN1QNR w HAha - 1 9
 perft 1 27
 perft 2 857
@@ -6552,7 +6553,7 @@ perft 4 792538
 perft 5 23790033
 perft 6 768247869
 
-id 1
+id 728
 epd rknbbq1r/p1pppppp/1p2N3/8/3n4/2P5/PP1PPPPP/RK1BBQNR w HAha - 4 9
 perft 1 29
 perft 2 763
@@ -6561,7 +6562,7 @@ perft 4 574054
 perft 5 16926075
 perft 6 447896703
 
-id 1
+id 729
 epd r1nqbbnr/1pppp1pp/1k6/p4p2/8/4P3/PPPP1PPP/RKN1BBNR w HA - 0 9
 perft 1 26
 perft 2 658
@@ -6570,7 +6571,7 @@ perft 4 464039
 perft 5 12380488
 perft 6 349047256
 
-id 1
+id 730
 epd rkn2qrb/ppp1pppp/6n1/1b1p4/1P6/4PPB1/P1PP2PP/RKNQ1NRB w GAga - 3 9
 perft 1 23
 perft 2 574
@@ -6579,7 +6580,7 @@ perft 4 370324
 perft 5 9501401
 perft 6 263870337
 
-id 1
+id 731
 epd rbkn2br/ppppp1p1/4np1p/1P5q/8/2P1N3/P2PPPPP/RBK1QNBR w HAha - 1 9
 perft 1 29
 perft 2 992
@@ -6588,7 +6589,7 @@ perft 4 999564
 perft 5 30148787
 perft 6 1045942540
 
-id 1
+id 732
 epd 1knbqnbr/1ppppp1p/r5p1/p7/7P/2PN2P1/PP1PPP2/RK1BQNBR w HAh - 2 9
 perft 1 26
 perft 2 698
@@ -6597,7 +6598,7 @@ perft 4 512023
 perft 5 14848229
 perft 6 402599313
 
-id 1
+id 733
 epd rk1qnbbr/pnpppp1p/6p1/1p6/3P4/1P6/P1P1PPPP/RKNQNBBR w HAha - 1 9
 perft 1 20
 perft 2 480
@@ -6606,7 +6607,7 @@ perft 4 287539
 perft 5 7425917
 perft 6 203194521
 
-id 1
+id 734
 epd rknqnrbb/pp1p2p1/5p1p/2p1p3/2P1P3/P2P4/1P3PPP/RKNQNRBB w FAfa - 0 9
 perft 1 26
 perft 2 679
@@ -6615,7 +6616,7 @@ perft 4 494953
 perft 5 13790137
 perft 6 392629571
 
-id 1
+id 735
 epd bbrk2qr/pp1p1ppp/3n2n1/2p1p3/3P1P2/6N1/PPP1P1PP/BBRKN1QR w HChc - 0 9
 perft 1 26
 perft 2 790
@@ -6624,7 +6625,7 @@ perft 4 673269
 perft 5 19259490
 perft 6 617563700
 
-id 1
+id 736
 epd b1krnnqr/1p1ppppp/p1p5/b6B/P7/4P1N1/1PPP1PPP/BRK1N1QR w HB - 2 9
 perft 1 26
 perft 2 625
@@ -6633,7 +6634,7 @@ perft 4 415452
 perft 5 11490615
 perft 6 304805107
 
-id 1
+id 737
 epd 1rknnbqr/3ppppp/p7/1pp5/4b2P/P4P2/1PPPP1PR/BRKNNBQ1 w Bhb - 1 9
 perft 1 24
 perft 2 757
@@ -6642,7 +6643,7 @@ perft 4 618777
 perft 5 17275100
 perft 6 544309489
 
-id 1
+id 738
 epd br1nn1rb/pppkpqpp/3p1p2/8/PP6/4N3/1KPPPPPP/BR2NQRB w - - 3 9
 perft 1 24
 perft 2 682
@@ -6651,7 +6652,7 @@ perft 4 482711
 perft 5 13057308
 perft 6 375033550
 
-id 1
+id 739
 epd rbbkn1qr/pppp2p1/6np/4pp2/7N/7P/PPPPPPPR/RBBK1NQ1 w Aha - 0 9
 perft 1 22
 perft 2 586
@@ -6660,7 +6661,7 @@ perft 4 409891
 perft 5 10607781
 perft 6 324452612
 
-id 1
+id 740
 epd rk1bn1qr/pppbpppp/4n3/4p3/4P3/5P2/PPPP2PP/RKBB1NQR w HAha - 1 9
 perft 1 22
 perft 2 530
@@ -6669,7 +6670,7 @@ perft 4 348004
 perft 5 9514787
 perft 6 259898748
 
-id 1
+id 741
 epd rkbnnbqr/1ppp1ppp/p7/4p3/8/QP3P2/P1PPP1PP/RKBNNB1R w HAha - 0 9
 perft 1 29
 perft 2 705
@@ -6678,7 +6679,7 @@ perft 4 551042
 perft 5 17524731
 perft 6 472356665
 
-id 1
+id 742
 epd 1kbnnqrb/1pp1p1pp/r4p2/p2p4/N4P2/3P4/PPP1P1PP/RKB1NQRB w GAg - 2 9
 perft 1 21
 perft 2 623
@@ -6687,7 +6688,7 @@ perft 4 437554
 perft 5 11601134
 perft 6 343214006
 
-id 1
+id 743
 epd rbknbn1r/pppp1p1p/4p1q1/8/P1P3Pp/8/1P1PPP2/RBKNBNQR w HAha - 0 9
 perft 1 30
 perft 2 813
@@ -6696,7 +6697,7 @@ perft 4 708454
 perft 5 23379040
 perft 6 692576573
 
-id 1
+id 744
 epd rk1bb1qr/2pppppp/p2nn3/1p4P1/6QP/8/PPPPPP2/RKNBBN1R w HAha - 2 9
 perft 1 36
 perft 2 857
@@ -6705,7 +6706,7 @@ perft 4 757524
 perft 5 26485812
 perft 6 696999449
 
-id 1
+id 745
 epd rkn1bbqr/p2ppppp/2p1n3/1p6/4PP2/6PP/PPPP4/RKNNBBQR w HAha - 0 9
 perft 1 33
 perft 2 687
@@ -6714,7 +6715,7 @@ perft 4 511018
 perft 5 17101732
 perft 6 412778368
 
-id 1
+id 746
 epd rkn1bqrb/pnp1pppp/3p4/8/Pp6/1N2NP2/1PPPP1PP/RK2BQRB w GAga - 0 9
 perft 1 28
 perft 2 591
@@ -6723,7 +6724,7 @@ perft 4 406025
 perft 5 12182448
 perft 6 312575205
 
-id 1
+id 747
 epd rbk1n1br/ppp1ppqp/2n5/2Np2p1/8/2P5/PPBPPPPP/R1KN1QBR w HAha - 4 9
 perft 1 35
 perft 2 930
@@ -6732,7 +6733,7 @@ perft 4 844433
 perft 5 27160490
 perft 6 780616047
 
-id 1
+id 748
 epd rknbn1br/1ppp1ppp/p3p3/8/1q6/2P2N1P/P2PPPP1/RKNB1QBR w HAha - 0 9
 perft 1 4
 perft 2 157
@@ -6741,7 +6742,7 @@ perft 4 138102
 perft 5 3454704
 perft 6 125373395
 
-id 1
+id 749
 epd rkn1qbbr/pp3ppp/4n3/2ppp3/4P1P1/P2P4/1PP2P1P/RKNNQBBR w HAha - 0 9
 perft 1 28
 perft 2 840
@@ -6750,7 +6751,7 @@ perft 4 771328
 perft 5 23200961
 perft 6 756489357
 
-id 1
+id 750
 epd rkn1qrbb/pp1ppp2/2p1n1p1/7p/2P2P1P/6P1/PP1PP3/RKNNQRBB w FAfa - 1 9
 perft 1 32
 perft 2 867
@@ -6759,7 +6760,7 @@ perft 4 757836
 perft 5 24485663
 perft 6 688115847
 
-id 1
+id 751
 epd b1rknnrq/bpppp1p1/p6p/5p1P/6P1/4N3/PPPPPP2/BBRKN1RQ w GCgc - 1 9
 perft 1 33
 perft 2 851
@@ -6768,7 +6769,7 @@ perft 4 763967
 perft 5 26686205
 perft 6 731944177
 
-id 1
+id 752
 epd brkb1nr1/pppppp2/3n2pp/3B4/1P6/4P3/PqPP1PPP/BRK1NNRQ w GBgb - 2 9
 perft 1 4
 perft 2 98
@@ -6777,7 +6778,7 @@ perft 4 76143
 perft 5 2352530
 perft 6 64251468
 
-id 1
+id 753
 epd brk1nbrq/1ppppn1p/6p1/p4p2/P5P1/5R2/1PPPPP1P/BRKNNB1Q w Bgb - 0 9
 perft 1 29
 perft 2 922
@@ -6786,7 +6787,7 @@ perft 4 879527
 perft 5 27463717
 perft 6 888881062
 
-id 1
+id 754
 epd brkn1rqb/1p1ppppp/3n4/p1p5/1P3P2/8/PNPPP1PP/BR1KNRQB w fb - 1 9
 perft 1 29
 perft 2 633
@@ -6795,7 +6796,7 @@ perft 4 469818
 perft 5 15076198
 perft 6 396737074
 
-id 1
+id 755
 epd rb1k1nrq/pbp1pppp/1p1p1n2/8/5P2/4NN1P/PPPPP1P1/RBBK2RQ w GAga - 2 9
 perft 1 28
 perft 2 841
@@ -6804,7 +6805,7 @@ perft 4 710751
 perft 5 20772996
 perft 6 613798447
 
-id 1
+id 756
 epd rkbbnnrq/p1pp3p/4p1p1/1p3p2/P6P/1P6/1BPPPPP1/RK1BNNRQ w GAga - 0 9
 perft 1 33
 perft 2 957
@@ -6813,7 +6814,7 @@ perft 4 907217
 perft 5 29735654
 perft 6 903933626
 
-id 1
+id 757
 epd rk2nbrq/p1ppppp1/bpn5/7p/6P1/2N2P2/PPPPP1QP/RKB1NBR1 w GAga - 2 9
 perft 1 24
 perft 2 687
@@ -6822,7 +6823,7 @@ perft 4 544627
 perft 5 15518417
 perft 6 484217179
 
-id 1
+id 758
 epd rkbn1r1b/pp1pppnp/6q1/2p3p1/5P1P/4N3/PPPPP1P1/RKB1NRQB w FAfa - 1 9
 perft 1 23
 perft 2 831
@@ -6831,7 +6832,7 @@ perft 4 754622
 perft 5 21126103
 perft 6 744755212
 
-id 1
+id 759
 epd rbknb1rq/ppp1p1p1/3pnp1p/8/6PP/2PP4/PP2PP2/RBKNBNRQ w GAga - 0 9
 perft 1 31
 perft 2 838
@@ -6840,7 +6841,7 @@ perft 4 736910
 perft 5 24008129
 perft 6 677776408
 
-id 1
+id 760
 epd rknbb1rq/p1pn1ppp/4p3/1p1p4/2P5/1P2N1P1/P2PPP1P/RKNBB1RQ w GAga - 1 9
 perft 1 29
 perft 2 830
@@ -6849,7 +6850,7 @@ perft 4 721630
 perft 5 22243832
 perft 6 660040360
 
-id 1
+id 761
 epd rk1nbbrq/pp1p1ppp/3n4/P3p3/2p4P/8/1PPPPPP1/RKNNBBRQ w GAga - 1 9
 perft 1 24
 perft 2 484
@@ -6858,7 +6859,7 @@ perft 4 297419
 perft 5 8379748
 perft 6 214004367
 
-id 1
+id 762
 epd rknnbr1b/ppp2pqp/3p4/4p1p1/7P/3P1P2/PPP1P1P1/RKNNBRQB w FAfa - 0 9
 perft 1 32
 perft 2 838
@@ -6867,7 +6868,7 @@ perft 4 740701
 perft 5 23472124
 perft 6 699211365
 
-id 1
+id 763
 epd rb1k1rbq/ppppN1pp/2nn4/5p2/7P/8/PPPPPPP1/RBK1NRBQ w FA - 1 9
 perft 1 27
 perft 2 800
@@ -6876,7 +6877,7 @@ perft 4 701742
 perft 5 20804424
 perft 6 660917073
 
-id 1
+id 764
 epd r1nbnrbq/kppppp1p/6p1/8/p1PP1P2/4P3/PP4PP/RKNBNRBQ w FA - 1 9
 perft 1 28
 perft 2 757
@@ -6885,7 +6886,7 @@ perft 4 602699
 perft 5 17180857
 perft 6 507618340
 
-id 1
+id 765
 epd rkn1rbbq/p1pppppp/2n5/1pP5/8/1N2P3/PP1P1PPP/RK1NRBBQ w EAea - 1 9
 perft 1 22
 perft 2 483
@@ -6894,7 +6895,7 @@ perft 4 283679
 perft 5 7497674
 perft 6 191130942
 
-id 1
+id 766
 epd rknnrqbb/2pppppp/8/p7/Np3P2/3P4/PPP1P1PP/RKN1RQBB w EAea - 0 9
 perft 1 25
 perft 2 536
@@ -6903,7 +6904,7 @@ perft 4 339180
 perft 5 9694947
 perft 6 245669668
 
-id 1
+id 767
 epd bb1rknrn/1qppppp1/1p4B1/p6N/8/2P5/PP1PPPPP/B1QRK1RN w GDgd - 1 9
 perft 1 32
 perft 2 715
@@ -6912,7 +6913,7 @@ perft 4 575008
 perft 5 17860156
 perft 6 502410909
 
-id 1
+id 768
 epd b1rbknrn/qpp1ppp1/p6p/3p4/2P5/1P1P1P2/P3P1PP/BQRBKNRN w GCgc - 0 9
 perft 1 30
 perft 2 818
@@ -6921,7 +6922,7 @@ perft 4 688711
 perft 5 20981488
 perft 6 611986786
 
-id 1
+id 769
 epd bqkrnbrn/1pp1pp1p/p7/1B1p2p1/4P3/7P/PPPP1PP1/BQKRN1RN w - - 0 9
 perft 1 28
 perft 2 676
@@ -6930,7 +6931,7 @@ perft 4 478054
 perft 5 13126287
 perft 6 363765666
 
-id 1
+id 770
 epd bqrknrnb/1p2ppp1/p1pp3p/8/3P1P2/1PP5/P3P1PP/BQRKNRNB w FCfc - 0 9
 perft 1 31
 perft 2 646
@@ -6939,7 +6940,7 @@ perft 4 455607
 perft 5 14984618
 perft 6 349082278
 
-id 1
+id 771
 epd qbbrkn1r/pppppp1p/8/6p1/2P1Pn1P/6N1/PP1P1PP1/QBBRKNR1 w GDd - 3 9
 perft 1 20
 perft 2 532
@@ -6948,7 +6949,7 @@ perft 4 303586
 perft 5 7512432
 perft 6 202967948
 
-id 1
+id 772
 epd 1rbbknr1/p1ppp1pp/1pq2pn1/8/3P4/P3P3/QPP2PPP/1RBBKNRN w GBgb - 3 9
 perft 1 31
 perft 2 1002
@@ -6957,7 +6958,7 @@ perft 4 999607
 perft 5 30642468
 perft 6 1009228283
 
-id 1
+id 773
 epd qrbkn1rn/pppp1ppp/8/6b1/P1P1Pp2/8/1P1P2PP/QRBKNBRN w GBgb - 0 9
 perft 1 22
 perft 2 505
@@ -6966,7 +6967,7 @@ perft 4 304863
 perft 5 8192621
 perft 6 214730959
 
-id 1
+id 774
 epd qrbk1rnb/p2ppp1p/5n2/1pp3p1/8/7P/PPPPPPPN/QRBKR1NB w Bfb - 0 9
 perft 1 20
 perft 2 619
@@ -6975,7 +6976,7 @@ perft 4 449630
 perft 5 10571176
 perft 6 369603424
 
-id 1
+id 775
 epd qbrkb1r1/ppp2ppp/3pn1n1/P3p3/4P3/3P4/1PP2PPP/QBRKBNRN w GCgc - 1 9
 perft 1 26
 perft 2 755
@@ -6984,7 +6985,7 @@ perft 4 604483
 perft 5 17164382
 perft 6 510878835
 
-id 1
+id 776
 epd qrkbb1r1/ppp1pnpp/3p2n1/5p2/1P3P2/2Q3N1/P1PPP1PP/1RKBB1RN w GBgb - 0 9
 perft 1 35
 perft 2 918
@@ -6993,7 +6994,7 @@ perft 4 870888
 perft 5 30933394
 perft 6 867833733
 
-id 1
+id 777
 epd qrknbbrn/ppp1ppp1/8/7p/2Bp4/4PPP1/PPPP3P/QRKNB1RN w GBgb - 0 9
 perft 1 27
 perft 2 593
@@ -7002,7 +7003,7 @@ perft 4 376808
 perft 5 10422676
 perft 6 258348640
 
-id 1
+id 778
 epd qrk1brnb/ppppp3/4n2p/5pp1/2PP4/2N4P/PP2PPP1/QRK1BRNB w FBfb - 2 9
 perft 1 24
 perft 2 672
@@ -7011,7 +7012,7 @@ perft 4 506189
 perft 5 13765777
 perft 6 414930519
 
-id 1
+id 779
 epd qbrknrb1/p2ppppp/2p3n1/8/p4P2/6PP/1PPPP3/QBRKNRBN w FCfc - 0 9
 perft 1 29
 perft 2 759
@@ -7020,7 +7021,7 @@ perft 4 634493
 perft 5 20416668
 perft 6 584870558
 
-id 1
+id 780
 epd 1rkb1rbn/p1pp1ppp/3np3/1p6/4qP2/3NB3/PPPPPRPP/QRKB3N w Bfb - 0 9
 perft 1 22
 perft 2 923
@@ -7029,7 +7030,7 @@ perft 4 914106
 perft 5 24049880
 perft 6 957218571
 
-id 1
+id 781
 epd 1rknrbbn/p1pp1p1p/8/1p2p1p1/4qPP1/2P5/PP1PP1BP/QRKNR1BN w EBeb - 0 9
 perft 1 28
 perft 2 1309
@@ -7038,7 +7039,7 @@ perft 4 1568968
 perft 5 44576409
 perft 6 1846382333
 
-id 1
+id 782
 epd qrk1rn1b/ppppp2p/4n3/3b1pp1/4P2P/5BP1/PPPP1P2/QRKNRNB1 w EBeb - 3 9
 perft 1 26
 perft 2 839
@@ -7047,7 +7048,7 @@ perft 4 726354
 perft 5 19978260
 perft 6 661207281
 
-id 1
+id 783
 epd bbrqk1rn/pp1ppppp/8/2p5/2P1P3/5n1P/PPBP1PP1/B1RQKNRN w GCgc - 1 9
 perft 1 3
 perft 2 95
@@ -7056,7 +7057,7 @@ perft 4 85038
 perft 5 2518864
 perft 6 80775549
 
-id 1
+id 784
 epd brqbk2n/pppppprp/8/6p1/1P3n2/5P2/P1PPP1PP/R1QBKNRN w Gb - 2 9
 perft 1 22
 perft 2 593
@@ -7065,7 +7066,7 @@ perft 4 362760
 perft 5 8922397
 perft 6 253271592
 
-id 1
+id 785
 epd brqknbr1/pp3ppp/3p2n1/2p1p3/2P5/5P2/PPKPP1PP/BRQ1NBRN w gb - 0 9
 perft 1 21
 perft 2 590
@@ -7074,7 +7075,7 @@ perft 4 397355
 perft 5 9581695
 perft 6 304103516
 
-id 1
+id 786
 epd 1rqknrnb/2pp1ppp/p3p3/1p6/P2P4/5bP1/1PP1PP1P/BRQKNRNB w FBfb - 0 9
 perft 1 24
 perft 2 737
@@ -7083,7 +7084,7 @@ perft 4 598439
 perft 5 17948681
 perft 6 536330341
 
-id 1
+id 787
 epd rbb1k1rn/p1pqpppp/6n1/1p1p4/5P2/3PP3/PPP1K1PP/RBBQ1NRN w ga - 3 9
 perft 1 24
 perft 2 694
@@ -7092,7 +7093,7 @@ perft 4 513782
 perft 5 13094823
 perft 6 419402704
 
-id 1
+id 788
 epd rqbbknr1/1ppp2pp/p5n1/4pp2/P7/1PP5/1Q1PPPPP/R1BBKNRN w GAga - 0 9
 perft 1 24
 perft 2 600
@@ -7101,7 +7102,7 @@ perft 4 408207
 perft 5 11029596
 perft 6 308553169
 
-id 1
+id 789
 epd rqbknbrn/2pppppp/6Q1/pp6/8/2P5/PP1PPPPP/R1BKNBRN w GAga - 2 9
 perft 1 40
 perft 2 949
@@ -7110,7 +7111,7 @@ perft 4 889887
 perft 5 31296485
 perft 6 881529007
 
-id 1
+id 790
 epd rqbknr1b/pp1ppp2/2p2n1p/6p1/8/3P1PPP/PPP1P3/RQBKNRNB w FAfa - 0 9
 perft 1 20
 perft 2 560
@@ -7119,7 +7120,7 @@ perft 4 373921
 perft 5 8687544
 perft 6 277906201
 
-id 1
+id 791
 epd rbqkbnrn/p3pppp/1p6/3p4/P1p3P1/1P6/1QPPPP1P/RB1KBNRN w GAga - 0 9
 perft 1 30
 perft 2 1155
@@ -7128,7 +7129,7 @@ perft 4 1351455
 perft 5 43092716
 perft 6 1614019629
 
-id 1
+id 792
 epd rqkbb1rn/p1p1pppn/1p1p4/7p/4PP2/7P/PPPPB1P1/RQK1BNRN w GAga - 1 9
 perft 1 30
 perft 2 701
@@ -7137,7 +7138,7 @@ perft 4 515942
 perft 5 15450970
 perft 6 401499189
 
-id 1
+id 793
 epd rqknbbrn/1p2pp1p/3p2p1/p1p5/P2P4/1P6/1KP1PPPP/RQ1NBBRN w ga - 0 9
 perft 1 28
 perft 2 756
@@ -7146,7 +7147,7 @@ perft 4 610320
 perft 5 17989811
 perft 6 525585996
 
-id 1
+id 794
 epd rqknbrnb/1pp3pp/5p2/p2pp3/P7/3PPN2/1PP2PPP/RQKNBR1B w FAfa - 0 9
 perft 1 26
 perft 2 731
@@ -7155,7 +7156,7 @@ perft 4 550395
 perft 5 15209404
 perft 6 439767476
 
-id 1
+id 795
 epd rbqkr1bn/p1pppp1p/1p1n4/6p1/7P/3P1PP1/PPP1P3/RBQKNRBN w FAa - 0 9
 perft 1 27
 perft 2 586
@@ -7164,7 +7165,7 @@ perft 4 381604
 perft 5 10905865
 perft 6 274364342
 
-id 1
+id 796
 epd rqk1nrb1/ppbp1ppp/4p1n1/2p5/7P/1PP5/P2PPPP1/RQKBNRBN w FAfa - 1 9
 perft 1 27
 perft 2 749
@@ -7173,7 +7174,7 @@ perft 4 602318
 perft 5 18084787
 perft 6 520547029
 
-id 1
+id 797
 epd rqknrbbn/pp1p1ppp/4p3/2p5/3P2P1/7P/PPP1PP2/RQKNRBBN w EAa - 0 9
 perft 1 20
 perft 2 533
@@ -7182,7 +7183,7 @@ perft 4 336248
 perft 5 8230417
 perft 6 245871540
 
-id 1
+id 798
 epd rqknrnbb/pp1ppp1p/2p3p1/8/8/1P2P1NP/P1PP1PP1/RQKNR1BB w EAea - 0 9
 perft 1 22
 perft 2 633
@@ -7191,7 +7192,7 @@ perft 4 441877
 perft 5 10827868
 perft 6 343525739
 
-id 1
+id 799
 epd 1brkq1rn/2pppppp/1p2n3/p2bN3/8/7P/PPPPPPP1/BBRKQ1RN w GCgc - 2 9
 perft 1 27
 perft 2 748
@@ -7200,7 +7201,7 @@ perft 4 580054
 perft 5 16010135
 perft 6 475206624
 
-id 1
+id 800
 epd brkbqnrn/2pp1ppp/8/1p2p3/Pp2N3/8/2PPPPPP/BRKBQNR1 w GBgb - 0 9
 perft 1 30
 perft 2 827
@@ -7209,7 +7210,7 @@ perft 4 757837
 perft 5 23746165
 perft 6 751690068
 
-id 1
+id 801
 epd brk1nbrn/pp1ppppp/2p5/7P/5P2/q2P4/PPP1P1P1/BRKQNBRN w GBgb - 1 9
 perft 1 15
 perft 2 471
@@ -7218,7 +7219,7 @@ perft 4 276424
 perft 5 5960901
 perft 6 190316951
 
-id 1
+id 802
 epd brkqnrnb/1p1pp1p1/p4p2/2p4p/8/P2PP3/1PP1QPPP/BRK1NRNB w FBfb - 0 9
 perft 1 24
 perft 2 479
@@ -7227,7 +7228,7 @@ perft 4 280081
 perft 5 7830230
 perft 6 190419716
 
-id 1
+id 803
 epd rbbkqnrn/2ppp2p/pp3p2/6p1/P6P/8/RPPPPPP1/1BBKQNRN w Gga - 0 9
 perft 1 21
 perft 2 523
@@ -7236,7 +7237,7 @@ perft 4 328733
 perft 5 8322614
 perft 6 242240658
 
-id 1
+id 804
 epd rkbbqr1n/1ppppppn/7p/p7/4P3/2P2P2/PP1PB1PP/RKB1QNRN w GAa - 3 9
 perft 1 27
 perft 2 563
@@ -7245,7 +7246,7 @@ perft 4 372148
 perft 5 11105151
 perft 6 283211800
 
-id 1
+id 805
 epd rkbqnbrn/ppppp3/8/5ppp/2P3P1/7P/PPQPPP2/RKB1NBRN w GAga - 0 9
 perft 1 28
 perft 2 639
@@ -7254,7 +7255,7 @@ perft 4 469250
 perft 5 14872172
 perft 6 384663405
 
-id 1
+id 806
 epd rkb1nrnb/pppp1pp1/5q1p/8/P3p3/4R1P1/1PPPPP1P/1KBQNRNB w Ffa - 0 9
 perft 1 28
 perft 2 873
@@ -7263,7 +7264,7 @@ perft 4 720814
 perft 5 20209424
 perft 6 625281937
 
-id 1
+id 807
 epd rbkqb1rn/1p1ppppp/4n3/p1p5/8/3PBP2/PPP1P1PP/RBKQ1NRN w GAga - 0 9
 perft 1 26
 perft 2 798
@@ -7272,7 +7273,7 @@ perft 4 667496
 perft 5 18475618
 perft 6 591681956
 
-id 1
+id 808
 epd rk1qbnrn/1p1ppppp/1b6/p1p5/P7/2P3NP/1P1PPPP1/RKQBB1RN w GAga - 0 9
 perft 1 22
 perft 2 506
@@ -7281,7 +7282,7 @@ perft 4 301029
 perft 5 7891676
 perft 6 205739580
 
-id 1
+id 809
 epd rk1nbbrn/ppp1ppp1/8/3p3p/1P1P2q1/5PB1/P1P1P1PP/RKQN1BRN w GAga - 1 9
 perft 1 31
 perft 2 956
@@ -7290,7 +7291,7 @@ perft 4 903799
 perft 5 27827461
 perft 6 876341492
 
-id 1
+id 810
 epd rkqnbr1b/pp1pppp1/7p/2p2n2/P2P4/7N/RPP1PPPP/1KQNBR1B w Ffa - 0 9
 perft 1 31
 perft 2 750
@@ -7299,7 +7300,7 @@ perft 4 646252
 perft 5 21639104
 perft 6 617064197
 
-id 1
+id 811
 epd rbkq1rbn/2p1pppp/pp3n2/3p4/5P2/3N2N1/PPPPP1PP/RBKQR1B1 w Afa - 2 9
 perft 1 26
 perft 2 647
@@ -7308,7 +7309,7 @@ perft 4 465119
 perft 5 13643783
 perft 6 369702807
 
-id 1
+id 812
 epd rkqbr1bn/p2ppppp/1pp2n2/8/5P2/3P1N2/PPP1PRPP/RKQB2BN w Aa - 3 9
 perft 1 24
 perft 2 574
@@ -7317,7 +7318,7 @@ perft 4 371597
 perft 5 10066892
 perft 6 271121237
 
-id 1
+id 813
 epd rk1qrbbn/p1ppp1pp/1p2n3/5p2/1P6/K3N3/P1PPPPPP/R1Q1RBBN w ea - 0 9
 perft 1 25
 perft 2 548
@@ -7326,7 +7327,7 @@ perft 4 340734
 perft 5 9043111
 perft 6 235545764
 
-id 1
+id 814
 epd rkqnrnbb/pp1pp3/2p5/5ppp/8/PP4NP/2PPPPP1/RKQNR1BB w EAea - 0 9
 perft 1 23
 perft 2 727
@@ -7335,7 +7336,7 @@ perft 4 566572
 perft 5 15078056
 perft 6 471296844
 
-id 1
+id 815
 epd bbrknq1r/ppppppp1/8/7p/5n2/3P4/PPP1PNPP/BBKRNQR1 w c - 0 9
 perft 1 21
 perft 2 610
@@ -7344,7 +7345,7 @@ perft 4 394705
 perft 5 9605845
 perft 6 293532398
 
-id 1
+id 816
 epd brkbnqr1/2pppnpp/pp3p2/8/4PPPP/8/PPPP4/BRKBNQRN w GBgb - 1 9
 perft 1 30
 perft 2 757
@@ -7353,7 +7354,7 @@ perft 4 621332
 perft 5 20360394
 perft 6 548380577
 
-id 1
+id 817
 epd brk1qb1n/ppppppr1/2n3pp/8/2P3P1/2N5/PP1PPP1P/BR1KQBRN w b - 1 9
 perft 1 26
 perft 2 570
@@ -7362,7 +7363,7 @@ perft 4 352883
 perft 5 10081351
 perft 6 242864559
 
-id 1
+id 818
 epd brknq1nb/pp2prpp/8/2pP1p2/6P1/2N5/PPPP1P1P/BRK1QRNB w FBb - 1 9
 perft 1 33
 perft 2 830
@@ -7371,7 +7372,7 @@ perft 4 764915
 perft 5 26262884
 perft 6 765831403
 
-id 1
+id 819
 epd rbbk1qrn/ppp1p1pp/5p2/3p1n2/7N/P7/1PPPPPPP/RBB1KQRN w ga - 0 9
 perft 1 21
 perft 2 562
@@ -7380,7 +7381,7 @@ perft 4 378883
 perft 5 9520963
 perft 6 290579255
 
-id 1
+id 820
 epd rk1b1qrn/ppp1pppp/5n2/3pN3/P6P/7b/1PPPPPP1/RKBB1QRN w GAga - 4 9
 perft 1 28
 perft 2 677
@@ -7389,7 +7390,7 @@ perft 4 488740
 perft 5 14354779
 perft 6 383207197
 
-id 1
+id 821
 epd rkbnqbrn/pp1ppp1p/2p5/6p1/P7/4P3/KPPPQPPP/R1BN1BRN w - - 3 9
 perft 1 28
 perft 2 585
@@ -7398,7 +7399,7 @@ perft 4 401483
 perft 5 12574541
 perft 6 310495538
 
-id 1
+id 822
 epd rk1nqrnb/pbpppp2/1p4p1/7p/P7/5NP1/1PPPPPBP/RKBNQR2 w FAfa - 2 9
 perft 1 26
 perft 2 774
@@ -7407,7 +7408,7 @@ perft 4 645200
 perft 5 19093408
 perft 6 576325868
 
-id 1
+id 823
 epd rbknb1rn/p1pp2pp/1p6/4pp2/1q3P1B/2N5/PPPPPNPP/RBK2QR1 w GAga - 2 9
 perft 1 31
 perft 2 1206
@@ -7416,7 +7417,7 @@ perft 4 1374158
 perft 5 42849564
 perft 6 1555711209
 
-id 1
+id 824
 epd rk1bbqrn/pp1pp1pp/3n4/5p2/3p4/1PP5/PK2PPPP/R1NBBQRN w ga - 0 9
 perft 1 21
 perft 2 629
@@ -7425,7 +7426,7 @@ perft 4 429667
 perft 5 10587910
 perft 6 332632033
 
-id 1
+id 825
 epd rknqbbr1/p1pp1pp1/1p4n1/4p2p/4P1P1/6RB/PPPP1P1P/RKNQB2N w Aga - 0 9
 perft 1 27
 perft 2 753
@@ -7434,7 +7435,7 @@ perft 4 593155
 perft 5 17318772
 perft 6 507563675
 
-id 1
+id 826
 epd rknqbr1b/pppp1ppp/4p2n/8/1P3P2/4P3/P1PPN1PP/RKNQBR1B w FAfa - 2 9
 perft 1 26
 perft 2 623
@@ -7443,7 +7444,7 @@ perft 4 460663
 perft 5 13389799
 perft 6 383508368
 
-id 1
+id 827
 epd r2kqrbn/bppppppp/2n5/p4B2/5P2/2P5/PP1PP1PP/1RKNQRBN w F - 2 9
 perft 1 39
 perft 2 1026
@@ -7452,7 +7453,7 @@ perft 4 1011922
 perft 5 35946987
 perft 6 992756232
 
-id 1
+id 828
 epd rk1bqrb1/ppppppp1/1n6/7p/2P2P1n/4P1Q1/PP1P2PP/RKNB1RBN w FAfa - 0 9
 perft 1 35
 perft 2 760
@@ -7461,7 +7462,7 @@ perft 4 610557
 perft 5 21014787
 perft 6 536852043
 
-id 1
+id 829
 epd rkq1rb1n/ppppp1pp/1n6/5p2/PPb2P2/8/1KPPP1PP/R1NQRBBN w ea - 1 9
 perft 1 27
 perft 2 754
@@ -7470,7 +7471,7 @@ perft 4 568788
 perft 5 16461795
 perft 6 448313956
 
-id 1
+id 830
 epd rknqr2b/pppnp1pp/3p4/3b1p2/8/1N1P2N1/PPP1PPPP/RKQ1R1BB w EAea - 1 9
 perft 1 27
 perft 2 803
@@ -7479,7 +7480,7 @@ perft 4 700453
 perft 5 21875031
 perft 6 654754840
 
-id 1
+id 831
 epd bbrknrqn/ppppp1pB/8/2P2p1p/8/5N2/PP1PPPPP/B1RK1RQN w FCfc - 0 9
 perft 1 30
 perft 2 799
@@ -7488,7 +7489,7 @@ perft 4 671112
 perft 5 20532790
 perft 6 603059376
 
-id 1
+id 832
 epd brkbnrq1/1pppp1p1/6np/p4p2/4P3/1PP5/P1KP1PPP/BR1BNRQN w fb - 1 9
 perft 1 27
 perft 2 726
@@ -7497,7 +7498,7 @@ perft 4 555622
 perft 5 15156662
 perft 6 457601127
 
-id 1
+id 833
 epd brknrbq1/1p1p1ppp/p3p1n1/2p5/8/1P1BPP2/P1PP2PP/BRKNR1QN w EBeb - 0 9
 perft 1 36
 perft 2 786
@@ -7506,7 +7507,7 @@ perft 4 655019
 perft 5 22852433
 perft 6 577223409
 
-id 1
+id 834
 epd brknrqnb/p2ppp1p/2p5/1p6/3P2p1/P1P1N3/1P2PPPP/BRK1RQNB w EBeb - 0 9
 perft 1 23
 perft 2 649
@@ -7515,7 +7516,7 @@ perft 4 440504
 perft 5 10687843
 perft 6 320881984
 
-id 1
+id 835
 epd rbbk1rqn/1ppppppp/3n4/p7/2P5/3N4/PP1PPPPP/RBB1KRQN w fa - 1 9
 perft 1 20
 perft 2 478
@@ -7524,7 +7525,7 @@ perft 4 275250
 perft 5 7094988
 perft 6 185488058
 
-id 1
+id 836
 epd rkbbnrqn/p2p1ppp/1p2p3/8/P1p1P3/1BP5/1P1P1PPP/RKB1NRQN w FAfa - 0 9
 perft 1 22
 perft 2 570
@@ -7533,7 +7534,7 @@ perft 4 346811
 perft 5 8671852
 perft 6 229898448
 
-id 1
+id 837
 epd rkb1rb1n/ppppppqp/8/2n3p1/2P1P1P1/8/PP1P1P1P/RKBNRBQN w EAea - 1 9
 perft 1 23
 perft 2 663
@@ -7542,7 +7543,7 @@ perft 4 490748
 perft 5 12900485
 perft 6 404944553
 
-id 1
+id 838
 epd rkb1rqnb/pppp3p/2n3p1/4pp2/P2P3P/2P5/1P2PPP1/RKBNRQNB w EAea - 0 9
 perft 1 25
 perft 2 845
@@ -7551,7 +7552,7 @@ perft 4 741972
 perft 5 20276176
 perft 6 683290790
 
-id 1
+id 839
 epd rbk1brqn/ppp1pppp/8/3p4/7P/1P4P1/2PPPP2/RBKNBRQN w FAfa - 0 9
 perft 1 24
 perft 2 526
@@ -7560,7 +7561,7 @@ perft 4 322175
 perft 5 9054028
 perft 6 222704171
 
-id 1
+id 840
 epd rknbbrqn/pp3pp1/4p3/2pp3p/2P5/8/PPBPPPPP/RKN1BRQN w FAfa - 0 9
 perft 1 26
 perft 2 756
@@ -7569,7 +7570,7 @@ perft 4 559186
 perft 5 14697705
 perft 6 433719427
 
-id 1
+id 841
 epd 1knrbbqn/rp1p1ppp/p3p3/2p5/8/5P1P/PPPPP1P1/RKNRBBQN w DAd - 0 9
 perft 1 26
 perft 2 539
@@ -7578,7 +7579,7 @@ perft 4 345070
 perft 5 10223443
 perft 6 248715580
 
-id 1
+id 842
 epd rknr1qnb/ppp1p1pp/3p2b1/8/4p3/1P3P1P/P1PP2P1/RKNRBQNB w DAda - 0 9
 perft 1 25
 perft 2 701
@@ -7587,7 +7588,7 @@ perft 4 561369
 perft 5 16047041
 perft 6 496340789
 
-id 1
+id 843
 epd rbk1r1bn/ppppp1pp/4n3/5p2/1P3P2/4N2P/PqPPP1P1/RBK1RQBN w EAea - 1 9
 perft 1 2
 perft 2 60
@@ -7596,7 +7597,7 @@ perft 4 41765
 perft 5 1017864
 perft 6 33183408
 
-id 1
+id 844
 epd r1nbrqbn/k1ppp1pp/1p6/p4p2/2P5/6PQ/PP1PPP1P/RKNBR1BN w EA - 0 9
 perft 1 27
 perft 2 699
@@ -7605,7 +7606,7 @@ perft 4 561765
 perft 5 17192121
 perft 6 499247248
 
-id 1
+id 845
 epd rknrqbbn/1pp1pp2/p5p1/3p3p/6P1/PN5P/1PPPPP2/RK1RQBBN w DAda - 0 9
 perft 1 23
 perft 2 611
@@ -7614,7 +7615,7 @@ perft 4 435927
 perft 5 11917036
 perft 6 352885930
 
-id 1
+id 846
 epd rknrqn1b/p1pp1ppb/8/1p2p1Qp/3P4/3N4/PPP1PPPP/RK1R1NBB w DAda - 0 9
 perft 1 45
 perft 2 1170
@@ -7623,7 +7624,7 @@ perft 4 1320341
 perft 5 52213677
 perft 6 1500007485
 
-id 1
+id 847
 epd bbkrnrnq/p2p1ppp/2p1p3/1p6/1P2Q3/6P1/P1PPPP1P/BBKRNRN1 w - - 0 9
 perft 1 41
 perft 2 1035
@@ -7632,7 +7633,7 @@ perft 4 1035610
 perft 5 38555608
 perft 6 1037686769
 
-id 1
+id 848
 epd brkbnr2/1ppppp1p/7n/p5N1/P2q4/8/1PPPPPPP/BRKBNRQ1 w FBfb - 1 9
 perft 1 22
 perft 2 869
@@ -7641,7 +7642,7 @@ perft 4 679754
 perft 5 16453359
 perft 6 567287944
 
-id 1
+id 849
 epd brknrbnq/p1ppppp1/1p6/7p/2PP4/5P2/PPK1P1PP/BR1NRBNQ w eb - 1 9
 perft 1 23
 perft 2 641
@@ -7650,7 +7651,7 @@ perft 4 422240
 perft 5 10192718
 perft 6 302864305
 
-id 1
+id 850
 epd brk1r1qb/pp1ppnpp/2p2pn1/8/6N1/2N3P1/PPPPPP1P/BRK1R1QB w EBeb - 3 9
 perft 1 32
 perft 2 863
@@ -7659,7 +7660,7 @@ perft 4 773191
 perft 5 25848794
 perft 6 720443112
 
-id 1
+id 851
 epd rbbk1rnq/pppp1pp1/4p2p/8/3P2n1/4BN1P/PPP1PPP1/RB1K1RNQ w FAfa - 3 9
 perft 1 26
 perft 2 628
@@ -7668,7 +7669,7 @@ perft 4 411995
 perft 5 11237919
 perft 6 300314373
 
-id 1
+id 852
 epd rkbbnr1q/p1pppppp/5n2/1p5B/PP6/4P3/2PP1PPP/RKB1NRNQ w FAfa - 0 9
 perft 1 30
 perft 2 692
@@ -7677,7 +7678,7 @@ perft 4 519283
 perft 5 16025428
 perft 6 420887328
 
-id 1
+id 853
 epd rkb1rbnq/1pppp1pp/5p2/p7/5n1P/1PN3P1/P1PPPP2/RKB1RBNQ w EAea - 0 9
 perft 1 32
 perft 2 825
@@ -7686,7 +7687,7 @@ perft 4 697251
 perft 5 23593363
 perft 6 622249676
 
-id 1
+id 854
 epd rkbnrnqb/1ppp1p1p/p5p1/4p3/4P3/2N2P2/PPPP2PP/RKBR1NQB w Aea - 0 9
 perft 1 24
 perft 2 487
@@ -7695,7 +7696,7 @@ perft 4 301989
 perft 5 8782713
 perft 6 215787079
 
-id 1
+id 855
 epd rbknbr1q/pppp2pp/4p3/5p1n/1P2P2N/8/P1PP1PPP/RBKNBR1Q w FAfa - 0 9
 perft 1 23
 perft 2 571
@@ -7704,7 +7705,7 @@ perft 4 365272
 perft 5 9224232
 perft 6 257288920
 
-id 1
+id 856
 epd rknbb1nq/pppppr2/5pp1/7p/8/1N4P1/PPPPPP1P/RK1BBRNQ w FAa - 2 9
 perft 1 26
 perft 2 548
@@ -7713,7 +7714,7 @@ perft 4 350173
 perft 5 10587626
 perft 6 253006082
 
-id 1
+id 857
 epd rknr1bnq/p2pp1pp/1p3p2/2p4b/6PP/2P2N2/PP1PPP2/RKNRBB1Q w DAda - 1 9
 perft 1 25
 perft 2 502
@@ -7722,7 +7723,7 @@ perft 4 279098
 perft 5 7824941
 perft 6 175766730
 
-id 1
+id 858
 epd rknrb1qb/ppp1pppp/3p4/8/4P1nP/2P5/PPKP1PP1/R1NRBNQB w da - 1 9
 perft 1 23
 perft 2 643
@@ -7731,7 +7732,7 @@ perft 4 426616
 perft 5 10507328
 perft 6 312096061
 
-id 1
+id 859
 epd rbk1rnbq/pppp1npp/4p3/5p2/4P1P1/7P/PPPP1P1N/RBKNR1BQ w EAea - 1 9
 perft 1 24
 perft 2 591
@@ -7740,7 +7741,7 @@ perft 4 376988
 perft 5 10251465
 perft 6 263574861
 
-id 1
+id 860
 epd rknbrnb1/p1pppp1p/1p6/3N2p1/P3q1P1/8/1PPPPP1P/RKNBR1BQ w EAea - 1 9
 perft 1 28
 perft 2 948
@@ -7749,7 +7750,7 @@ perft 4 864588
 perft 5 26241141
 perft 6 812343987
 
-id 1
+id 861
 epd rknrn1b1/ppppppqp/8/6p1/2P5/2P1BP2/PP2P1PP/RKNRNB1Q w DAda - 1 9
 perft 1 31
 perft 2 807
@@ -7758,7 +7759,7 @@ perft 4 672973
 perft 5 20455205
 perft 6 588518645
 
-id 1
+id 862
 epd 1k1rnqbb/npppppp1/r7/p2B3p/5P2/1N4P1/PPPPP2P/RK1RNQB1 w DAd - 0 9
 perft 1 40
 perft 2 1122
@@ -7767,7 +7768,7 @@ perft 4 1249989
 perft 5 48711073
 perft 6 1412437357
 
-id 1
+id 863
 epd bbqr1rkn/pp1ppppp/8/2p5/1P2P1n1/7N/P1PP1P1P/BBQRKR1N w FD - 0 9
 perft 1 26
 perft 2 841
@@ -7776,7 +7777,7 @@ perft 4 746711
 perft 5 21328001
 perft 6 705170410
 
-id 1
+id 864
 epd bqkr1rnn/1ppp1ppp/p4b2/4p3/P7/3PP2N/1PP2PPP/BQRBKR1N w FC - 3 9
 perft 1 24
 perft 2 500
@@ -7785,7 +7786,7 @@ perft 4 293824
 perft 5 7928916
 perft 6 197806842
 
-id 1
+id 865
 epd bqrkrbnn/1pp1ppp1/8/p6p/3p4/P3P2P/QPPP1PP1/B1RKRBNN w ECec - 0 9
 perft 1 31
 perft 2 592
@@ -7794,7 +7795,7 @@ perft 4 396423
 perft 5 12607528
 perft 6 298629240
 
-id 1
+id 866
 epd bqkrrnnb/2p1pppp/p7/1P1p4/8/2R3P1/PP1PPP1P/BQ1KRNNB w E - 0 9
 perft 1 42
 perft 2 1124
@@ -7803,7 +7804,7 @@ perft 4 1276664
 perft 5 50052573
 perft 6 1483524894
 
-id 1
+id 867
 epd qbbrkrn1/p1pppn1p/8/1p3Pp1/2P5/8/PP1PPP1P/QBBRKRNN w FDfd - 0 9
 perft 1 21
 perft 2 577
@@ -7812,7 +7813,7 @@ perft 4 392131
 perft 5 9683808
 perft 6 300294295
 
-id 1
+id 868
 epd qrbbkrnn/pp1p2pp/4p3/5p2/2p2P1P/2P5/PP1PP1P1/QRBBKRNN w FBfb - 0 9
 perft 1 21
 perft 2 571
@@ -7821,7 +7822,7 @@ perft 4 345681
 perft 5 8239872
 perft 6 228837930
 
-id 1
+id 869
 epd qrbkrbn1/1pp1pppp/p2p4/8/5PPn/2P5/PP1PP3/QRBKRBNN w EBeb - 0 9
 perft 1 18
 perft 2 466
@@ -7830,7 +7831,7 @@ perft 4 257776
 perft 5 5679073
 perft 6 162883949
 
-id 1
+id 870
 epd qrb1rnnb/pp1p1ppp/2pk4/4p3/1P2P3/1R6/P1PP1PPP/Q1BKRNNB w E - 4 9
 perft 1 37
 perft 2 760
@@ -7839,7 +7840,7 @@ perft 4 562201
 perft 5 19486022
 perft 6 421740856
 
-id 1
+id 871
 epd qbrkbrn1/p1pppp1p/6n1/1p4p1/1P6/5P2/P1PPPBPP/QBRK1RNN w FCfc - 1 9
 perft 1 33
 perft 2 824
@@ -7848,7 +7849,7 @@ perft 4 750924
 perft 5 25176664
 perft 6 734656217
 
-id 1
+id 872
 epd qrkbbr2/2pppppp/5nn1/pp1Q4/P7/3P4/1PP1PPPP/1RKBBRNN w FBfb - 0 9
 perft 1 42
 perft 2 1147
@@ -7857,7 +7858,7 @@ perft 4 1311247
 perft 5 48216013
 perft 6 1522548864
 
-id 1
+id 873
 epd qrkrbbnn/pp2pp2/2pp2pp/1B6/P7/4P3/1PPP1PPP/QRKRB1NN w DBdb - 0 9
 perft 1 26
 perft 2 464
@@ -7866,7 +7867,7 @@ perft 4 242892
 perft 5 6928220
 perft 6 142507795
 
-id 1
+id 874
 epd qrkrbnnb/p1pp1pp1/1p5p/4p3/1P6/6PN/PKPPPP1P/QR1RBN1B w db - 0 9
 perft 1 29
 perft 2 705
@@ -7875,7 +7876,7 @@ perft 4 529810
 perft 5 15055365
 perft 6 419552571
 
-id 1
+id 875
 epd qbrkr1bn/p1p1pp1p/1p1p2n1/6p1/3P1P2/4P3/PPP3PP/QBKRRNBN w ec - 2 9
 perft 1 23
 perft 2 613
@@ -7884,7 +7885,7 @@ perft 4 426484
 perft 5 10747407
 perft 6 323905533
 
-id 1
+id 876
 epd qrk1rnb1/p1pp1ppp/1p2Bbn1/8/4P3/6P1/PPPP1P1P/QRK1RNBN w EBeb - 1 9
 perft 1 28
 perft 2 927
@@ -7893,7 +7894,7 @@ perft 4 846839
 perft 5 23063284
 perft 6 807913585
 
-id 1
+id 877
 epd 1qkrnbbn/1rpppppp/pp6/5N2/P4P2/8/1PPPP1PP/QRKRNBB1 w DBd - 3 9
 perft 1 30
 perft 2 542
@@ -7902,7 +7903,7 @@ perft 4 345172
 perft 5 10976745
 perft 6 251694423
 
-id 1
+id 878
 epd qrkr2bb/pppppppp/8/1n2n3/1N5P/1P6/P1PPPPP1/QRKR1NBB w DBdb - 1 9
 perft 1 28
 perft 2 719
@@ -7911,7 +7912,7 @@ perft 4 562015
 perft 5 17351761
 perft 6 479400272
 
-id 1
+id 879
 epd bbrqkrnn/3ppppp/8/ppp5/6P1/4P2N/PPPPKP1P/BBRQ1R1N w fc - 0 9
 perft 1 21
 perft 2 704
@@ -7920,7 +7921,7 @@ perft 4 546215
 perft 5 13676371
 perft 6 470796854
 
-id 1
+id 880
 epd brqbkrnn/1pp2p1p/3pp1p1/p5N1/8/1P6/P1PPPPPP/BRQBK1RN w Bfb - 0 9
 perft 1 34
 perft 2 688
@@ -7929,7 +7930,7 @@ perft 4 505618
 perft 5 16639723
 perft 6 402140795
 
-id 1
+id 881
 epd br1krb1n/2qppppp/pp3n2/8/1P4P1/8/P1PPPP1P/1RQKRBNN w EBeb - 0 9
 perft 1 24
 perft 2 945
@@ -7938,7 +7939,7 @@ perft 4 926427
 perft 5 25019636
 perft 6 959651619
 
-id 1
+id 882
 epd brqkr1nb/2ppp1pp/1p2np2/p7/2P1PN2/8/PP1P1PPP/BRQKRN1B w EBeb - 0 9
 perft 1 28
 perft 2 675
@@ -7947,7 +7948,7 @@ perft 4 504128
 perft 5 15516491
 perft 6 417396563
 
-id 1
+id 883
 epd rbbqkrnn/3pppp1/p7/1pp4p/2P1P2P/8/PP1P1PP1/RBBQKRNN w FAfa - 0 9
 perft 1 26
 perft 2 671
@@ -7956,7 +7957,7 @@ perft 4 496806
 perft 5 14072641
 perft 6 404960259
 
-id 1
+id 884
 epd rqbbkr1n/pp1p1p1p/4pn2/2p3p1/4P1P1/3P3P/PPP2P2/RQBBKRNN w FAfa - 0 9
 perft 1 22
 perft 2 633
@@ -7965,7 +7966,7 @@ perft 4 441809
 perft 5 10776416
 perft 6 335689685
 
-id 1
+id 885
 epd rqbkrbnn/p1ppp3/1p3pp1/7p/3P4/P1P5/1PQ1PPPP/R1BKRBNN w EAea - 0 9
 perft 1 32
 perft 2 607
@@ -7974,7 +7975,7 @@ perft 4 454319
 perft 5 15586203
 perft 6 383515709
 
-id 1
+id 886
 epd rqbkrnn1/pp2ppbp/3p4/2p3p1/2P5/1P3N1P/P2PPPP1/RQBKRN1B w EAea - 1 9
 perft 1 29
 perft 2 943
@@ -7983,7 +7984,7 @@ perft 4 908740
 perft 5 28761841
 perft 6 907579129
 
-id 1
+id 887
 epd rbqkb1nn/1ppppr1p/p5p1/5p2/1P6/2P4P/P1KPPPP1/RBQ1BRNN w a - 1 9
 perft 1 22
 perft 2 441
@@ -7992,7 +7993,7 @@ perft 4 231273
 perft 5 5784206
 perft 6 140934555
 
-id 1
+id 888
 epd rqkb1rnn/1pp1pp1p/p5p1/1b1p4/3P4/P5P1/RPP1PP1P/1QKBBRNN w Ffa - 1 9
 perft 1 21
 perft 2 505
@@ -8001,7 +8002,7 @@ perft 4 290897
 perft 5 7147063
 perft 6 188559137
 
-id 1
+id 889
 epd rq1rbbnn/pkp1ppp1/3p3p/1p2N1P1/8/8/PPPPPP1P/RQKRBB1N w DA - 0 9
 perft 1 27
 perft 2 608
@@ -8010,7 +8011,7 @@ perft 4 387751
 perft 5 10808908
 perft 6 268393274
 
-id 1
+id 890
 epd rqkrb2b/p2ppppp/2p3nn/1p6/5P2/PP1P4/2P1P1PP/RQKRBNNB w DAda - 1 9
 perft 1 30
 perft 2 749
@@ -8019,7 +8020,7 @@ perft 4 581531
 perft 5 16916813
 perft 6 485406712
 
-id 1
+id 891
 epd rbqkr1bn/pp1ppp2/2p1n2p/6p1/8/4BPNP/PPPPP1P1/RBQKRN2 w EAea - 0 9
 perft 1 23
 perft 2 600
@@ -8028,7 +8029,7 @@ perft 4 410057
 perft 5 11041820
 perft 6 314327867
 
-id 1
+id 892
 epd rqkbrnb1/2ppp1pp/pp3pn1/8/5P2/B2P4/PPP1P1PP/RQKBRN1N w EAea - 2 9
 perft 1 22
 perft 2 569
@@ -8037,7 +8038,7 @@ perft 4 371471
 perft 5 9395816
 perft 6 269460607
 
-id 1
+id 893
 epd rqkrnbb1/p1p1pppp/1p4n1/3p4/7P/P3P3/1PPPBPP1/RQKRN1BN w DAda - 0 9
 perft 1 27
 perft 2 579
@@ -8046,7 +8047,7 @@ perft 4 373079
 perft 5 10238486
 perft 6 266047417
 
-id 1
+id 894
 epd rqkrn1bb/p1ppp1pp/4n3/1p6/6p1/4N3/PPPPPPPP/RQKR2BB w DAda - 0 9
 perft 1 20
 perft 2 462
@@ -8055,7 +8056,7 @@ perft 4 274162
 perft 5 6563859
 perft 6 193376359
 
-id 1
+id 895
 epd bbrkqr2/pppp1ppp/6nn/8/2P1p3/3PP2N/PP3PPP/BBRKQR1N w FCfc - 0 9
 perft 1 28
 perft 2 724
@@ -8064,7 +8065,7 @@ perft 4 619064
 perft 5 19318355
 perft 6 593204629
 
-id 1
+id 896
 epd brk1qrnn/1pppbppp/4p3/8/1p6/P1P4P/3PPPP1/BRKBQRNN w FBfb - 1 9
 perft 1 24
 perft 2 662
@@ -8073,7 +8074,7 @@ perft 4 468215
 perft 5 12610387
 perft 6 355969349
 
-id 1
+id 897
 epd 1r1qrbnn/p1pkpppp/1p1p4/8/3P1PP1/P4b2/1PP1P2P/BRKQRBNN w EB - 1 9
 perft 1 22
 perft 2 696
@@ -8082,7 +8083,7 @@ perft 4 510247
 perft 5 13697382
 perft 6 401903030
 
-id 1
+id 898
 epd 1rkqrnnb/p1p1p1pp/1p1p4/3b1p1N/4P3/5N2/PPPP1PPP/BRKQR2B w EBeb - 1 9
 perft 1 29
 perft 2 887
@@ -8091,7 +8092,7 @@ perft 4 816176
 perft 5 26051242
 perft 6 791718847
 
-id 1
+id 899
 epd rbbkq1rn/pppppppp/7n/8/P7/3P3P/1PPKPPP1/RBB1QRNN w a - 3 9
 perft 1 22
 perft 2 417
@@ -8100,7 +8101,7 @@ perft 4 216855
 perft 5 5505063
 perft 6 134818483
 
-id 1
+id 900
 epd rkbbqr1n/1p1pppp1/2p2n2/p4NBp/8/3P4/PPP1PPPP/RK1BQRN1 w FAfa - 0 9
 perft 1 37
 perft 2 832
@@ -8109,7 +8110,7 @@ perft 4 728154
 perft 5 26676373
 perft 6 673756141
 
-id 1
+id 901
 epd rkbqrb1n/3pBppp/ppp2n2/8/8/P2P4/1PP1PPPP/RK1QRBNN w EAea - 0 9
 perft 1 28
 perft 2 685
@@ -8118,7 +8119,7 @@ perft 4 543069
 perft 5 16033316
 perft 6 482288814
 
-id 1
+id 902
 epd rkb1rn1b/ppppqppp/4p3/8/1P2n1P1/5Q2/P1PP1P1P/RKB1RNNB w EAea - 2 9
 perft 1 37
 perft 2 1158
@@ -8127,7 +8128,7 @@ perft 4 1234768
 perft 5 44672979
 perft 6 1389312729
 
-id 1
+id 903
 epd r1kqbrnn/pp1pp1p1/7p/2P2p2/5b2/3P4/P1P1P1PP/RBKQBRNN w FAfa - 0 9
 perft 1 5
 perft 2 161
@@ -8136,7 +8137,7 @@ perft 4 154885
 perft 5 4734999
 perft 6 157499039
 
-id 1
+id 904
 epd rkqbbr1n/ppp1ppp1/8/Q2p3p/4n3/3P1P2/PPP1P1PP/RK1BBRNN w FAfa - 2 9
 perft 1 38
 perft 2 1144
@@ -8145,7 +8146,7 @@ perft 4 1236877
 perft 5 43832975
 perft 6 1366087771
 
-id 1
+id 905
 epd rkqrbbn1/p1ppppp1/Bp5p/8/P6n/2P1P3/1P1P1PPP/RKQRB1NN w DAda - 0 9
 perft 1 28
 perft 2 551
@@ -8154,7 +8155,7 @@ perft 4 350861
 perft 5 9944107
 perft 6 251179183
 
-id 1
+id 906
 epd rkqrb1nb/1ppp1ppp/p7/4p3/5n2/3P2N1/PPPQPPPP/RK1RB1NB w DAda - 0 9
 perft 1 26
 perft 2 690
@@ -8163,7 +8164,7 @@ perft 4 513628
 perft 5 15965907
 perft 6 418191735
 
-id 1
+id 907
 epd rbkqrnbn/pppp1p2/4p1p1/7p/7P/P2P4/BPP1PPP1/R1KQRNBN w EAea - 0 9
 perft 1 27
 perft 2 515
@@ -8172,7 +8173,7 @@ perft 4 309727
 perft 5 8792550
 perft 6 218658292
 
-id 1
+id 908
 epd rkqbrnbn/pp1ppp2/8/2p3p1/P1P4p/5P2/1PKPP1PP/R1QBRNBN w ea - 0 9
 perft 1 27
 perft 2 627
@@ -8181,7 +8182,7 @@ perft 4 431101
 perft 5 11978698
 perft 6 328434174
 
-id 1
+id 909
 epd rkqrnbbn/1p2pp1p/3p2p1/p1p5/P5PP/3N4/1PPPPP2/RKQR1BBN w DAda - 0 9
 perft 1 23
 perft 2 624
@@ -8190,7 +8191,7 @@ perft 4 451860
 perft 5 11960861
 perft 6 367311176
 
-id 1
+id 910
 epd rk2rnbb/ppqppppp/2pn4/8/1P3P2/6P1/P1PPP1NP/RKQR1NBB w DAa - 1 9
 perft 1 27
 perft 2 727
@@ -8199,7 +8200,7 @@ perft 4 581003
 perft 5 16633696
 perft 6 505212747
 
-id 1
+id 911
 epd b1krrqnn/pp1ppp1p/2p3p1/8/P3Pb1P/1P6/2PP1PP1/BBRKRQNN w EC - 0 9
 perft 1 32
 perft 2 943
@@ -8208,7 +8209,7 @@ perft 4 865229
 perft 5 28672582
 perft 6 800922511
 
-id 1
+id 912
 epd 1rkbrqnn/p1pp1ppp/1p6/8/P2Pp3/8/1PPKPPQP/BR1BR1NN w eb - 0 9
 perft 1 28
 perft 2 916
@@ -8217,7 +8218,7 @@ perft 4 817624
 perft 5 22840279
 perft 6 759318058
 
-id 1
+id 913
 epd brkrqb1n/1pppp1pp/p7/3n1p2/P5P1/3PP3/1PP2P1P/BRKRQBNN w DBdb - 0 9
 perft 1 27
 perft 2 669
@@ -8226,7 +8227,7 @@ perft 4 484259
 perft 5 13956472
 perft 6 380267099
 
-id 1
+id 914
 epd brkrqnnb/3pppp1/1p6/p1p4p/2P3P1/6N1/PP1PPP1P/BRKRQ1NB w DBdb - 0 9
 perft 1 29
 perft 2 699
@@ -8235,7 +8236,7 @@ perft 4 512639
 perft 5 15093909
 perft 6 406594531
 
-id 1
+id 915
 epd r1bkrq1n/pp2pppp/3b1n2/2pp2B1/6P1/3P1P2/PPP1P2P/RB1KRQNN w EAea - 2 9
 perft 1 27
 perft 2 835
@@ -8244,7 +8245,7 @@ perft 4 713550
 perft 5 19867800
 perft 6 631209313
 
-id 1
+id 916
 epd rk1brq1n/p1p1pppp/3p1n2/1p3b2/4P3/2NQ4/PPPP1PPP/RKBBR2N w EAea - 4 9
 perft 1 36
 perft 2 1004
@@ -8253,7 +8254,7 @@ perft 4 979608
 perft 5 35143142
 perft 6 966310885
 
-id 1
+id 917
 epd rkbrqbnn/1p2ppp1/B1p5/p2p3p/4P2P/8/PPPP1PP1/RKBRQ1NN w DAda - 0 9
 perft 1 27
 perft 2 748
@@ -8262,7 +8263,7 @@ perft 4 597819
 perft 5 17597073
 perft 6 515304215
 
-id 1
+id 918
 epd rkbrqn1b/pp1pp1pp/2p2p2/5n2/8/2P2P2/PP1PP1PP/RKBRQ1NB w DAda - 0 9
 perft 1 20
 perft 2 479
@@ -8271,7 +8272,7 @@ perft 4 266446
 perft 5 6253775
 perft 6 167767913
 
-id 1
+id 919
 epd rbkrbnn1/ppppp1pp/5q2/5p2/5P2/P3P2N/1PPP2PP/RBKRBQ1N w DAda - 3 9
 perft 1 28
 perft 2 947
@@ -8280,7 +8281,7 @@ perft 4 876068
 perft 5 26007841
 perft 6 838704143
 
-id 1
+id 920
 epd rkr1bqnn/1ppp1p1p/p5p1/4p3/3PP2b/2P2P2/PP4PP/RKRBBQNN w CAca - 0 9
 perft 1 31
 perft 2 1004
@@ -8289,7 +8290,7 @@ perft 4 1006830
 perft 5 32688124
 perft 6 1024529879
 
-id 1
+id 921
 epd rkrqbbnn/pppp3p/8/4ppp1/1PP4P/8/P2PPPP1/RKRQBBNN w CAca - 0 9
 perft 1 24
 perft 2 717
@@ -8298,7 +8299,7 @@ perft 4 564137
 perft 5 15844525
 perft 6 484884485
 
-id 1
+id 922
 epd rkrqbn1b/pppp2pp/8/4pp2/1P1P2n1/5N2/P1P1PP1P/RKRQBN1B w CAca - 0 9
 perft 1 25
 perft 2 718
@@ -8307,7 +8308,7 @@ perft 4 587666
 perft 5 17257753
 perft 6 537354146
 
-id 1
+id 923
 epd rbkrqnbn/p1p1ppp1/1p1p4/8/3PP2p/2PB4/PP3PPP/R1KRQNBN w DAda - 0 9
 perft 1 30
 perft 2 754
@@ -8316,7 +8317,7 @@ perft 4 611322
 perft 5 19338246
 perft 6 532603566
 
-id 1
+id 924
 epd 1krbqnbn/1p2pppp/r1pp4/p7/8/1P1P2PP/P1P1PP2/RKRBQNBN w CAc - 0 9
 perft 1 21
 perft 2 566
@@ -8325,7 +8326,7 @@ perft 4 375128
 perft 5 9700847
 perft 6 279864836
 
-id 1
+id 925
 epd rkrq1b2/pppppppb/3n2np/2N5/4P3/7P/PPPP1PP1/RKRQ1BBN w CAca - 1 9
 perft 1 33
 perft 2 654
@@ -8334,7 +8335,7 @@ perft 4 479678
 perft 5 15990307
 perft 6 382218272
 
-id 1
+id 926
 epd rkr1nnbb/ppp2p1p/3p1qp1/4p3/P5P1/3PN3/1PP1PP1P/RKRQN1BB w CAca - 1 9
 perft 1 28
 perft 2 715
@@ -8343,7 +8344,7 @@ perft 4 555328
 perft 5 16303092
 perft 6 468666425
 
-id 1
+id 927
 epd bbrkrnqn/1p1ppppp/8/8/p2pP3/PP6/2P2PPP/BBRKRNQN w ECec - 0 9
 perft 1 24
 perft 2 757
@@ -8352,7 +8353,7 @@ perft 4 603231
 perft 5 15957628
 perft 6 509307623
 
-id 1
+id 928
 epd brkbrnqn/ppp2p2/4p3/P2p2pp/6P1/5P2/1PPPP2P/BRKBRNQN w EBeb - 0 9
 perft 1 25
 perft 2 548
@@ -8361,7 +8362,7 @@ perft 4 348259
 perft 5 9688526
 perft 6 247750144
 
-id 1
+id 929
 epd brkr1bqn/1pppppp1/3n3p/1p6/P7/4P1P1/1PPP1P1P/BRKRN1QN w DBdb - 0 9
 perft 1 19
 perft 2 359
@@ -8370,7 +8371,7 @@ perft 4 157099
 perft 5 3521652
 perft 6 81787718
 
-id 1
+id 930
 epd brkr1qnb/pppp2pp/2B1p3/5p2/2n5/6PP/PPPPPPN1/BRKR1QN1 w DBdb - 1 9
 perft 1 27
 perft 2 854
@@ -8379,7 +8380,7 @@ perft 4 741626
 perft 5 20558538
 perft 6 667089231
 
-id 1
+id 931
 epd rbbkrnqn/p1p1p1pp/8/1p1p4/1P1Pp3/6N1/P1P2PPP/RBBKRNQ1 w EAea - 0 9
 perft 1 28
 perft 2 723
@@ -8388,7 +8389,7 @@ perft 4 514440
 perft 5 14621108
 perft 6 397454100
 
-id 1
+id 932
 epd rkbbrn1n/pppppp2/5q1p/6p1/3P3P/4P3/PPP2PP1/RKBBRNQN w EAea - 1 9
 perft 1 25
 perft 2 741
@@ -8397,7 +8398,7 @@ perft 4 585198
 perft 5 15605840
 perft 6 485037906
 
-id 1
+id 933
 epd rkbr1bq1/ppnppppp/6n1/2p5/2P1N2P/8/PP1PPPP1/RKBRNBQ1 w DAda - 3 9
 perft 1 24
 perft 2 547
@@ -8406,7 +8407,7 @@ perft 4 339497
 perft 5 9410221
 perft 6 234041078
 
-id 1
+id 934
 epd 1kbrnqnb/r1ppppp1/8/pp5p/8/1P1NP3/P1PP1PPP/RKB1RQNB w Ad - 2 9
 perft 1 26
 perft 2 618
@@ -8415,7 +8416,7 @@ perft 4 442643
 perft 5 13112297
 perft 6 357030697
 
-id 1
+id 935
 epd rbkrb1qn/1pp1ppp1/3pn2p/pP6/8/4N1P1/P1PPPP1P/RBKRB1QN w DAda - 0 9
 perft 1 21
 perft 2 544
@@ -8424,7 +8425,7 @@ perft 4 338832
 perft 5 8381483
 perft 6 236013157
 
-id 1
+id 936
 epd rkrbbnqn/ppppp3/5p2/6pp/5PBP/4P3/PPPP2P1/RKR1BNQN w CAca - 0 9
 perft 1 30
 perft 2 891
@@ -8433,7 +8434,7 @@ perft 4 764356
 perft 5 21894752
 perft 6 669256602
 
-id 1
+id 937
 epd rkr1bb1n/ppppp1pp/5p2/4n3/3QP3/5P2/RPPP2PP/1KRNBB1N w Cca - 1 9
 perft 1 45
 perft 2 1172
@@ -8442,7 +8443,7 @@ perft 4 1332060
 perft 5 57856784
 perft 6 1501852662
 
-id 1
+id 938
 epd rkr1bqnb/pp1ppppp/8/2pN4/1P6/5N2/P1PPnPPP/RKR1BQ1B w CAca - 0 9
 perft 1 28
 perft 2 730
@@ -8451,7 +8452,7 @@ perft 4 559167
 perft 5 16323242
 perft 6 463032124
 
-id 1
+id 939
 epd rbkrnqb1/2ppppp1/p5np/1p6/8/3N4/PPPPPPPP/RBKRQNB1 w DAda - 2 9
 perft 1 20
 perft 2 417
@@ -8460,7 +8461,7 @@ perft 4 217390
 perft 5 5180716
 perft 6 133936564
 
-id 1
+id 940
 epd rkrbnqb1/p1pppnpp/5p2/1p6/2P5/1P1P1N2/P3PPPP/RKRB1QBN w CAca - 0 9
 perft 1 25
 perft 2 546
@@ -8469,7 +8470,7 @@ perft 4 330316
 perft 5 8813781
 perft 6 222026485
 
-id 1
+id 941
 epd rkr1qbbn/ppppppp1/4n3/7p/8/P7/KPPPPPPP/R1RNQBBN w ca - 0 9
 perft 1 22
 perft 2 484
@@ -8478,7 +8479,7 @@ perft 4 267495
 perft 5 6633319
 perft 6 163291279
 
-id 1
+id 942
 epd rkrnqnb1/1ppppp2/p5p1/7p/8/P1bPP3/1PP1QPPP/RKRN1NBB w CAca - 0 9
 perft 1 22
 perft 2 636
@@ -8487,7 +8488,7 @@ perft 4 441001
 perft 5 11614241
 perft 6 331083405
 
-id 1
+id 943
 epd b2krn1q/p1rppppp/1Q3n2/2p1b3/1P4P1/8/P1PPPP1P/BBRKRNN1 w ECe - 3 9
 perft 1 36
 perft 2 1192
@@ -8496,7 +8497,7 @@ perft 4 1406795
 perft 5 50382104
 perft 6 1650202838
 
-id 1
+id 944
 epd brkbrnn1/pp1pppp1/7q/2p5/6Pp/4P1NP/PPPP1P2/BRKBR1NQ w EBeb - 2 9
 perft 1 30
 perft 2 978
@@ -8505,7 +8506,7 @@ perft 4 942398
 perft 5 29205057
 perft 6 936568065
 
-id 1
+id 945
 epd brkrnb1q/pp1p1ppp/2p1p3/5n2/1P6/5N1N/P1PPPPPP/BRKR1B1Q w DBdb - 1 9
 perft 1 31
 perft 2 897
@@ -8514,7 +8515,7 @@ perft 4 810187
 perft 5 25423729
 perft 6 755334868
 
-id 1
+id 946
 epd brkr1nqb/pp1p1pp1/2pn3p/P3p3/4P3/6P1/1PPP1P1P/BRKRNNQB w DBdb - 0 9
 perft 1 19
 perft 2 382
@@ -8523,7 +8524,7 @@ perft 4 182292
 perft 5 4232274
 perft 6 103537333
 
-id 1
+id 947
 epd r1bkrn1q/ppbppppp/5n2/2p5/3P4/P6N/1PP1PPPP/RBBKRNQ1 w EAea - 3 9
 perft 1 27
 perft 2 822
@@ -8532,7 +8533,7 @@ perft 4 678880
 perft 5 19115128
 perft 6 578210135
 
-id 1
+id 948
 epd rkbbrnnq/pp2pppp/8/2pp4/P1P5/1P3P2/3PP1PP/RKBBRNNQ w EAea - 1 9
 perft 1 23
 perft 2 643
@@ -8541,7 +8542,7 @@ perft 4 442070
 perft 5 11170489
 perft 6 329615708
 
-id 1
+id 949
 epd rkbr1b1q/p1pppppp/1p1n4/7n/5QP1/3N4/PPPPPP1P/RKBR1BN1 w DAda - 4 9
 perft 1 37
 perft 2 943
@@ -8550,7 +8551,7 @@ perft 4 880474
 perft 5 31568111
 perft 6 842265141
 
-id 1
+id 950
 epd rkbr1nqb/pppp2np/8/4ppp1/1P6/6N1/P1PPPPPP/RKBRN1QB w DAda - 1 9
 perft 1 23
 perft 2 574
@@ -8559,7 +8560,7 @@ perft 4 362306
 perft 5 9020291
 perft 6 261247606
 
-id 1
+id 951
 epd rbkr1nnq/p1p1pp1p/1p4p1/3p4/b3P3/4N3/PPPPNPPP/RBKRB1Q1 w DAda - 0 9
 perft 1 26
 perft 2 900
@@ -8568,7 +8569,7 @@ perft 4 805006
 perft 5 21653203
 perft 6 745802405
 
-id 1
+id 952
 epd rkrbb1nq/p2pppp1/1p4n1/2p4p/3N4/4P1P1/PPPP1P1P/RKRBBN1Q w CAca - 0 9
 perft 1 32
 perft 2 697
@@ -8577,7 +8578,7 @@ perft 4 531121
 perft 5 17150175
 perft 6 441578567
 
-id 1
+id 953
 epd rkrnbb1q/pp2pp1p/6pn/2pp4/2B1P2P/8/PPPP1PP1/RKRNB1NQ w CAca - 0 9
 perft 1 28
 perft 2 854
@@ -8586,7 +8587,7 @@ perft 4 755990
 perft 5 21823412
 perft 6 712787248
 
-id 1
+id 954
 epd rk2bnqb/pprpppp1/4n2p/2p5/P7/3P2NP/1PP1PPP1/RKRNB1QB w CAa - 1 9
 perft 1 26
 perft 2 596
@@ -8595,7 +8596,7 @@ perft 4 414862
 perft 5 11758184
 perft 6 323043654
 
-id 1
+id 955
 epd r1krnnbq/pp1ppp1p/6p1/2p5/2P5/P3P3/Rb1P1PPP/1BKRNNBQ w Dda - 0 9
 perft 1 2
 perft 2 61
@@ -8604,7 +8605,7 @@ perft 4 40072
 perft 5 937188
 perft 6 28753562
 
-id 1
+id 956
 epd 1krbnnbq/1pp1p1pp/r7/p2p1p2/3PP3/2P3P1/PP3P1P/RKRBNNBQ w CAc - 0 9
 perft 1 30
 perft 2 953
@@ -8613,7 +8614,7 @@ perft 4 860530
 perft 5 25531358
 perft 6 787205262
 
-id 1
+id 957
 epd rkr1nbbq/2ppp1pp/1pn5/p4p2/P6P/3P4/1PP1PPPB/RKRNNB1Q w CAca - 1 9
 perft 1 24
 perft 2 645
@@ -8622,7 +8623,7 @@ perft 4 446423
 perft 5 11484012
 perft 6 341262639
 
-id 1
+id 958
 epd rkrnnqbb/p1ppp2p/Qp6/4Pp2/5p2/8/PPPP2PP/RKRNN1BB w CAca - 0 9
 perft 1 35
 perft 2 929
@@ -8631,7 +8632,7 @@ perft 4 896130
 perft 5 31272517
 perft 6 915268405
 
-id 1
+id 959
 epd bbq1nr1r/pppppk1p/2n2p2/6p1/P4P2/4P1P1/1PPP3P/BBQNNRKR w HF - 1 9
 perft 1 23
 perft 2 589
