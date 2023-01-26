@@ -664,7 +664,9 @@ def _sf12_wins(cp: int, *, ply: int) -> int:
     return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
 
 def _lichess_raw_wins(cp: int) -> int:
-    return round(1000 / (1 + math.exp(-0.004 * cp)))
+    # https://github.com/lichess-org/lila/pull/11148
+    # https://github.com/lichess-org/lila/blob/2242b0a08faa06e7be5508d338ede7bb09049777/modules/analyse/src/main/WinPercent.scala#L26-L30
+    return round(1000 / (1 + math.exp(-0.00368208 * cp)))
 
 
 class Cp(Score):
