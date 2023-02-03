@@ -2073,9 +2073,9 @@ class XBoardProtocol(Protocol):
 
             if self.config.get("random"):
                 self.send_line("random")
-            if "name" in self.config and self.features.get("name", True):
+            if self.config.get("name") and self.features.get("name", True):
                 self.send_line(f"name {self.config['name']}")
-            if "rating" in self.config:
+            if self.config.get("rating"):
                 self.send_line(f"rating {self.config['rating']}")
             if self.config.get("computer"):
                 self.send_line("computer")
