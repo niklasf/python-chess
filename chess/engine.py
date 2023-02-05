@@ -1946,7 +1946,8 @@ class XBoardProtocol(Protocol):
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
             "name": Option("name", "string", "", None, None, None),
-            "rating": Option("rating", "string", "", None, None, None)
+            "engine_rating": Option("engine_rating", "spin", "", None, None, None),
+            "opponent_rating": Option("opponent_rating", "spin", "", None, None, None)
         }
         self.config: Dict[str, ConfigValue] = {}
         self.target_config: Dict[str, ConfigValue] = {}
@@ -2057,7 +2058,7 @@ class XBoardProtocol(Protocol):
 
         # Set up starting position.
         root = board.root()
-        new_options = any(param in options for param in ("random", "computer", "name", "rating"))
+        new_options = any(param in options for param in ("random", "computer", "name", "engine_rating", "opponent_rating"))
         new_game = self.first_game or self.game != game or new_options or root != self.board.root()
         self.game = game
         self.first_game = False
@@ -2075,8 +2076,8 @@ class XBoardProtocol(Protocol):
                 self.send_line("random")
             if self.config.get("name") and self.features.get("name", True):
                 self.send_line(f"name {self.config['name']}")
-            if self.config.get("rating"):
-                self.send_line(f"rating {self.config['rating']}")
+            if self.config.get("engine_rating") or self.config.get("opponent_rating"):
+                self.send_line(f"rating {self.config.get('engine_rating') or 0} {self.config.get('opponent_rating') or 0}")
             if self.config.get("computer"):
                 self.send_line("computer")
 
@@ -2375,7 +2376,7 @@ class XBoardProtocol(Protocol):
 
         self.config[name] = value = option.parse(value)
 
-        if name in ["random", "computer", "name", "rating"]:
+        if name in ["random", "computer", "name", "engine_rating", "opponent_rating"]:
             # Applied in _new.
             pass
         elif name in ["memory", "cores"] or name.startswith("egtpath "):
