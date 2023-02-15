@@ -1377,7 +1377,7 @@ class UciProtocol(Protocol):
                 current_var = None
                 var = []
 
-                for token in arg.split(" "):
+                for token in arg.strip().split(" "):
                     if token == "name" and not name:
                         current_parameter = "name"
                     elif token == "type" and not type:
