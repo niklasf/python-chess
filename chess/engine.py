@@ -2197,6 +2197,8 @@ class XBoardProtocol(Protocol):
                         self.play_result.resigned = True
                     self._ping_after_move(engine)
                 elif line.startswith("1-0") or line.startswith("0-1") or line.startswith("1/2-1/2"):
+                    if "resign" in line and not self.result.done():
+                        self.play_result.resigned = True
                     self._ping_after_move(engine)
                 elif line.startswith("#"):
                     pass
