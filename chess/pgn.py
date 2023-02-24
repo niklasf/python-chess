@@ -872,12 +872,13 @@ class Game(GameNode):
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
-        return "<{} at {:#x} ({!r} vs. {!r}, {!r}{})>".format(
+        return "<{} at {:#x} ({!r} vs. {!r}, {!r} at {!r}{})>".format(
             type(self).__name__,
             id(self),
             self.headers.get("White", "?"),
             self.headers.get("Black", "?"),
             self.headers.get("Date", "????.??.??"),
+            self.headers.get("Site", "?"),
             f", {len(self.errors)} errors" if self.errors else "")
 
 
@@ -1202,7 +1203,7 @@ class GameBuilder(BaseVisitor[GameT]):
         >>>
         >>> game = chess.pgn.read_game(pgn, Visitor=MyGameBuilder)
         """
-        LOGGER.exception("error during pgn parsing")
+        LOGGER.error("%s while parsing %r", error, self.game)
         self.game.errors.append(error)
 
     def result(self) -> GameT:
