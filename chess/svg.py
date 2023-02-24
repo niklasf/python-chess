@@ -330,33 +330,39 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if outer_border:
         outer_border_color, outer_border_opacity = _select_color(colors, "outer border")
         ET.SubElement(svg, "rect", _attrs({
-            "x": 0,
-            "y": 0,
-            "width": full_size,
-            "height": full_size,
-            "fill": outer_border_color,
+            "x": outer_border / 2,
+            "y": outer_border / 2,
+            "width": full_size - outer_border,
+            "height": full_size - outer_border,
+            "fill": "none",
+            "stroke": outer_border_color,
+            "stroke-width": outer_border,
             "opacity": outer_border_opacity if outer_border_opacity < 1.0 else None,
         }))
 
     if margin:
         margin_color, margin_opacity = _select_color(colors, "margin")
         ET.SubElement(svg, "rect", _attrs({
-            "x": outer_border,
-            "y": outer_border,
-            "width": full_size - 2 * outer_border,
-            "height": full_size - 2 * outer_border,
-            "fill": margin_color,
+            "x": outer_border + margin / 2,
+            "y": outer_border + margin / 2,
+            "width": full_size - 2 * outer_border - margin,
+            "height": full_size - 2 * outer_border - margin,
+            "fill": "none",
+            "stroke": margin_color,
+            "stroke-width": margin,
             "opacity": margin_opacity if margin_opacity < 1.0 else None,
         }))
 
     if inner_border:
         inner_border_color, inner_border_opacity = _select_color(colors, "inner border")
         ET.SubElement(svg, "rect", _attrs({
-            "x": outer_border + margin,
-            "y": outer_border + margin,
-            "width": full_size - 2 * outer_border - 2 * margin,
-            "height": full_size - 2 * outer_border - 2 * margin,
-            "fill": inner_border_color,
+            "x": outer_border + margin + inner_border / 2,
+            "y": outer_border + margin + inner_border / 2,
+            "width": full_size - 2 * outer_border - 2 * margin - inner_border,
+            "height": full_size - 2 * outer_border - 2 * margin - inner_border,
+            "fill": "none",
+            "stroke": inner_border_color,
+            "stroke-width": inner_border,
             "opacity": inner_border_opacity if inner_border_opacity < 1.0 else None,
         }))
 
