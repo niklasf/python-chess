@@ -247,8 +247,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           coordinates: bool = True,
           colors: Dict[str, str] = {},
           flipped: bool = False,
-          style: Optional[str] = None,
-          borders: bool = False) -> str:
+          borders: bool = False,
+          style: Optional[str] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -275,9 +275,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         and ``arrow yellow``. Values should look like ``#ffce9e`` (opaque),
         or ``#15781B80`` (transparent).
     :param flipped: Pass ``True`` to flip the board.
-    :param style: A CSS stylesheet to include in the SVG image.
     :param borders: Pass ``True`` to enable a border around the board and,
-       (if ``coordinates`` is enabled) the coordinate margin.
+       (if *coordinates* is enabled) the coordinate margin.
+    :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
     >>> import chess.svg
