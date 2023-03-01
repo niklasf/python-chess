@@ -2436,7 +2436,7 @@ class XBoardProtocol(Protocol):
                                                            "computer": opponent_is_engine}
         
         if opponent_name and self.features.get("name", True):
-            opponent_info["name"] = opponent_name
+            opponent_info["name"] = f"{opponent_title or ''} {opponent_name}".strip()
         
         return await self.configure(opponent_info)
 
