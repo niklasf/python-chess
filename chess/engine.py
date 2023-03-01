@@ -1122,6 +1122,19 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+        """
+        Sends the engine information about its opponent. The information will
+        be sent after a new game is announced and before the first move.
+
+        :param opponent_name: Optional. The opponent's name.
+        :param opponent_rating: Optional. The opponent's ELO rating.
+        :param opponent_title: Optional. The opponent's title, such as GM, IM, and the like.
+        :param opponent_is_engine: Optional. Whether or not the opponent is another engine.
+        :param engine_rating: Optional. This engine's own rating. Only used by XBoard engines.
+        """
+
+    @abc.abstractmethod
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
         """
         Plays a position.
@@ -1435,6 +1448,9 @@ class UciProtocol(Protocol):
 
     def _ucinewgame(self) -> None:
         self.send_line("ucinewgame")
+        opponent_info = self.config.get("UCI_Opponent")
+        if opponent_info:
+            self.send_line(f"setoption name UCI_Opponent value {opponent_info}")
         self.first_game = False
         self.ponderhit = False
 
@@ -1481,7 +1497,8 @@ class UciProtocol(Protocol):
                 builder.append("value")
                 builder.append(str(value))
 
-            self.send_line(" ".join(builder))
+            if name != "UCI_Opponent":  # sent after ucinewgame
+                self.send_line(" ".join(builder))
             self.config[name] = value
 
     def _configure(self, options: ConfigMapping) -> None:
@@ -1499,6 +1516,13 @@ class UciProtocol(Protocol):
                 self.set_finished()
 
         return await self.communicate(UciConfigureCommand)
+
+    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+        if opponent_name and "UCI_Opponent" in self.options:
+            rating = opponent_rating or "none"
+            title = opponent_title or "none"
+            player_type = "computer" if opponent_is_engine else "human"
+            return await self.configure({"UCI_Opponent": f"{title} {rating} {player_type} {opponent_name}"})
 
     def _position(self, board: chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
@@ -2406,6 +2430,16 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardConfigureCommand)
 
+    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[str] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[str] = None) -> None:
+        opponent_info = {"engine_rating": engine_rating or 0,
+                         "opponent_rating": opponent_rating or 0,
+                         "computer": opponent_is_engine}
+        
+        if self.features.get("name", True):
+            opponent_info["name"] = opponent_name
+        
+        return await self.configure(opponent_info)
+
     async def quit(self) -> None:
         self.send_line("quit")
         await asyncio.shield(self.returncode)
@@ -2789,6 +2823,14 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
+    def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+        with self._not_shut_down():
+            coro = asyncio.wait_for(
+                self.protocol.send_opponent_information(opponent_name=opponent_name, opponent_rating=opponent_rating, opponent_title=opponent_title, opponent_is_engine=opponent_is_engine, engine_rating=engine_rating),
+                self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return future.result
+        
     def ping(self) -> None:
         with self._not_shut_down():
             coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
