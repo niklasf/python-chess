@@ -2430,12 +2430,12 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardConfigureCommand)
 
-    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[str] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[str] = None) -> None:
-        opponent_info = {"engine_rating": engine_rating or 0,
-                         "opponent_rating": opponent_rating or 0,
-                         "computer": opponent_is_engine}
+    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+        opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or 0,
+                                                           "opponent_rating": opponent_rating or 0,
+                                                           "computer": opponent_is_engine}
         
-        if self.features.get("name", True):
+        if opponent_name and self.features.get("name", True):
             opponent_info["name"] = opponent_name
         
         return await self.configure(opponent_info)
@@ -2829,7 +2829,7 @@ class SimpleEngine:
                 self.protocol.send_opponent_information(opponent_name=opponent_name, opponent_rating=opponent_rating, opponent_title=opponent_title, opponent_is_engine=opponent_is_engine, engine_rating=engine_rating),
                 self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
-        return future.result
+        return future.result()
         
     def ping(self) -> None:
         with self._not_shut_down():
