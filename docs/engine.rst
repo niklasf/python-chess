@@ -26,9 +26,8 @@ Playing
 
 Example: Let Stockfish play against itself, 100 milliseconds per move.
 
-.. code:: python
-
-    """Using synchronous engine.SimpleEngine."""
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -42,9 +41,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     engine.quit()
 
-.. code:: python
-
-    """Using async engine."""
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -77,9 +75,8 @@ Analysing and evaluating a position
 
 Example:
 
-.. code:: python
-
-    """Using synchronous engine.SimpleEngine."""
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -98,9 +95,8 @@ Example:
 
     engine.quit()
 
-.. code:: python
-
-    """Using async engine."""
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -146,9 +142,8 @@ Indefinite or infinite analysis
 
 Example: Stream information from the engine and stop on an arbitrary condition.
 
-.. code:: python
-
-    """Using synchronous engine.SimpleEngine."""
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -165,9 +160,8 @@ Example: Stream information from the engine and stop on an arbitrary condition.
 
     engine.quit()
 
-.. code:: python
-
-    """Using async engine."""
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -206,9 +200,8 @@ Options
 :func:`~chess.Protocol.analyse()` and
 :func:`~chess.Protocol.analysis()` accept a dictionary of options.
 
-.. code:: python
-
-    """Using synchronous engine.SimpleEngine."""
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess.engine
 
@@ -223,9 +216,8 @@ Options
 
     # [...]
 
-.. code:: python
-
-    """Using async engine."""
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess.engine
