@@ -2442,7 +2442,7 @@ class XBoardProtocol(Protocol):
 
         opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or 0,
                                                            "opponent_rating": opponent.rating or 0,
-                                                           "computer": opponent.is_engine}
+                                                           "computer": opponent.is_engine or False}
         
         if opponent.name and self.features.get("name", True):
             opponent_info["name"] = f"{opponent.title or ''} {opponent.name}".strip()
