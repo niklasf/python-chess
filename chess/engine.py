@@ -444,7 +444,7 @@ class Opponent:
     name: Optional[str]
     title: Optional[str]
     rating: Optional[int]
-    is_engine = False
+    is_engine: Optional[bool]
 
 
 class PovScore:
