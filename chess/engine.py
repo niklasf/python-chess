@@ -438,6 +438,15 @@ INFO_CURRLINE = Info.CURRLINE
 INFO_ALL = Info.ALL
 
 
+@dataclasses.dataclass
+class Opponent:
+    """Used to store information about an engine's opponent."""
+    name: Optional[str]
+    title: Optional[str]
+    rating: Optional[int]
+    is_engine = False
+
+
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
@@ -1122,15 +1131,12 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
         """
         Sends the engine information about its opponent. The information will
         be sent after a new game is announced and before the first move.
 
-        :param opponent_name: Optional. The opponent's name.
-        :param opponent_rating: Optional. The opponent's ELO rating.
-        :param opponent_title: Optional. The opponent's title, such as GM, IM, and the like.
-        :param opponent_is_engine: Optional. Whether or not the opponent is another engine.
+        :param opponent: Optional. The opponent's information.
         :param engine_rating: Optional. This engine's own rating. Only used by XBoard engines.
         """
 
@@ -1517,12 +1523,12 @@ class UciProtocol(Protocol):
 
         return await self.communicate(UciConfigureCommand)
 
-    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
-        if opponent_name and "UCI_Opponent" in self.options:
-            rating = opponent_rating or "none"
-            title = opponent_title or "none"
-            player_type = "computer" if opponent_is_engine else "human"
-            return await self.configure({"UCI_Opponent": f"{title} {rating} {player_type} {opponent_name}"})
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        if opponent and opponent.name and "UCI_Opponent" in self.options:
+            rating = opponent.rating or "none"
+            title = opponent.title or "none"
+            player_type = "computer" if opponent.is_engine else "human"
+            return await self.configure({"UCI_Opponent": f"{title} {rating} {player_type} {opponent.name}"})
 
     def _position(self, board: chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
@@ -2430,13 +2436,16 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardConfigureCommand)
 
-    async def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        if opponent is None:
+            return
+
         opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or 0,
-                                                           "opponent_rating": opponent_rating or 0,
-                                                           "computer": opponent_is_engine}
+                                                           "opponent_rating": opponent.rating or 0,
+                                                           "computer": opponent.is_engine}
         
-        if opponent_name and self.features.get("name", True):
-            opponent_info["name"] = f"{opponent_title or ''} {opponent_name}".strip()
+        if opponent.name and self.features.get("name", True):
+            opponent_info["name"] = f"{opponent.title or ''} {opponent.name}".strip()
         
         return await self.configure(opponent_info)
 
@@ -2823,10 +2832,10 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
-    def send_opponent_information(self, *, opponent_name: Optional[str] = None, opponent_rating: Optional[int] = None, opponent_title: Optional[str] = None, opponent_is_engine: bool = False, engine_rating: Optional[int] = None) -> None:
+    def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
         with self._not_shut_down():
             coro = asyncio.wait_for(
-                self.protocol.send_opponent_information(opponent_name=opponent_name, opponent_rating=opponent_rating, opponent_title=opponent_title, opponent_is_engine=opponent_is_engine, engine_rating=engine_rating),
+                self.protocol.send_opponent_information(opponent=opponent, engine_rating=engine_rating),
                 self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
