@@ -1577,9 +1577,6 @@ class UciProtocol(Protocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
-        same_game = not self.first_game and game == self.game and not options
-        self.last_move = board.move_stack[-1] if (same_game and ponder and board.move_stack) else chess.Move.null()
-
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def __init__(self, engine: UciProtocol):
                 super().__init__(engine)
