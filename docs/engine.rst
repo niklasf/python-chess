@@ -19,13 +19,15 @@ The preferred way to use the API is with an
 The examples also show a synchronous wrapper
 :class:`~chess.engine.SimpleEngine` that automatically spawns an event loop
 in the background.
+:class:`~chess.engine.SimpleEngine` methods block until there is a result.
 
 Playing
 -------
 
 Example: Let Stockfish play against itself, 100 milliseconds per move.
 
-.. code:: python
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -39,7 +41,8 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
     engine.quit()
 
-.. code:: python
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -72,7 +75,8 @@ Analysing and evaluating a position
 
 Example:
 
-.. code:: python
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -91,7 +95,8 @@ Example:
 
     engine.quit()
 
-.. code:: python
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -137,7 +142,8 @@ Indefinite or infinite analysis
 
 Example: Stream information from the engine and stop on an arbitrary condition.
 
-.. code:: python
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
     import chess
     import chess.engine
@@ -154,7 +160,8 @@ Example: Stream information from the engine and stop on an arbitrary condition.
 
     engine.quit()
 
-.. code:: python
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess
@@ -193,20 +200,24 @@ Options
 :func:`~chess.Protocol.analyse()` and
 :func:`~chess.Protocol.analysis()` accept a dictionary of options.
 
->>> import chess.engine
->>>
->>> engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
->>>
->>> # Check available options.
->>> engine.options["Hash"]
-Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
->>>
->>> # Set an option.
->>> engine.configure({"Hash": 32})
->>>
->>> # [...]
+.. code-block:: python
+   :caption: Using synchronous :class:`~chess.engine.SimpleEngine`
 
-.. code:: python
+    import chess.engine
+
+    engine = chess.engine.SimpleEngine.popen_uci("/usr/bin/stockfish")
+
+    # Check available options.
+    engine.options["Hash"]
+    # Option(name='Hash', type='spin', default=16, min=1, max=131072, var=[])
+
+    # Set an option.
+    engine.configure({"Hash": 32})
+
+    # [...]
+
+.. code-block:: python
+   :caption: Using asyncio
 
     import asyncio
     import chess.engine
