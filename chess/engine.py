@@ -1369,6 +1369,8 @@ class UciProtocol(Protocol):
         self.first_game = True
         self.may_ponderhit: Optional[chess.Board] = None
         self.ponderhit = False
+        self.opponent: Optional[Opponent] = None
+        self.play_opponent: Optional[Opponent] = None
 
     async def initialize(self) -> None:
         class UciInitializeCommand(BaseCommand[UciProtocol, None]):
@@ -1456,11 +1458,23 @@ class UciProtocol(Protocol):
     def _isready(self) -> None:
         self.send_line("isready")
 
-    def _ucinewgame(self, *, opponent: Optional[Opponent] = None) -> None:
-        self.send_line("ucinewgame")
-        opponent_info = self._opponent_configuration(opponent=opponent).get("UCI_Opponent") or self.config.get("UCI_Opponent")
+    def _opponent_changed(self, opponent: Optional[Opponent]) -> bool:
+        if self.play_opponent:
+            return opponent != self.play_opponent
+        elif opponent:
+            return opponent != self.opponent
+        
+        return False
+
+    def _opponent_info(self) -> None:
+        opponent = self.play_opponent or self.opponent
+        opponent_info = self._opponent_configuration(opponent=opponent).get("UCI_Opponent")
         if opponent_info:
             self.send_line(f"setoption name UCI_Opponent value {opponent_info}")
+
+    def _ucinewgame(self) -> None:
+        self.send_line("ucinewgame")
+        self._opponent_info()
         self.first_game = False
         self.ponderhit = False
 
@@ -1537,6 +1551,7 @@ class UciProtocol(Protocol):
             return {}
 
     async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        self.opponent = opponent
         return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
 
     def _position(self, board: chess.Board) -> None:
@@ -1623,7 +1638,7 @@ class UciProtocol(Protocol):
                 # May ponderhit only in the same game and with unchanged target
                 # options. The managed options UCI_AnalyseMode, Ponder, and
                 # MultiPV never change between pondering play commands.
-                engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(options) else None
+                engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(options) and not engine._opponent_changed(opponent) else None
 
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
@@ -1645,9 +1660,10 @@ class UciProtocol(Protocol):
 
                 engine._configure(options)
 
-                if engine.first_game or engine.game != game or opponent:
+                if engine.first_game or engine.game != game or engine._opponent_changed(opponent):
                     engine.game = game
-                    engine._ucinewgame(opponent=opponent)
+                    engine.play_opponent = opponent
+                    engine._ucinewgame()
                     self.sent_isready = True
                     engine._isready()
                 else:
