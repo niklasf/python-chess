@@ -1134,7 +1134,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
         """
         Sends the engine information about its opponent. The information will
-        be sent after a new game is announced and before the first move.
+        be sent after a new game is announced and before the first move. This
+        method should be called before the first move of a game--i.e., the
+        first call to :func:`chess.engine.Protocol.play()`.
 
         :param opponent: Optional. The opponent's information.
         :param engine_rating: Optional. This engine's own rating. Only used by XBoard engines.
