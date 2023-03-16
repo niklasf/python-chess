@@ -3542,8 +3542,14 @@ class EngineTestCase(unittest.TestCase):
             board.push_san("d4")
             board.push_san("Nf6")
             board.push_san("c4")
+            opponent = chess.engine.Opponent("Turk", None, 2100, True)
+            engine_rating = 3600
+            await protocol.send_opponent_information(opponent=opponent, engine_rating=engine_rating)
 
             mock.expect("new")
+            mock.expect("name Turk")
+            mock.expect("rating 3600 2100")
+            mock.expect("computer")
             mock.expect("force")
             mock.expect("d2d4")
             mock.expect("g8f6")
