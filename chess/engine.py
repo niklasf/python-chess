@@ -1993,7 +1993,6 @@ class XBoardProtocol(Protocol):
         self.options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
-            "name": Option("name", "string", "", None, None, None),
             "engine_rating": Option("engine_rating", "spin", 0, None, None, None),
             "opponent_rating": Option("opponent_rating", "spin", 0, None, None, None)
         }
