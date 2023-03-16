@@ -2106,7 +2106,7 @@ class XBoardProtocol(Protocol):
 
         # Set up starting position.
         root = board.root()
-        new_options = any(param in options for param in ("random", "computer", "name", "engine_rating", "opponent_rating"))
+        new_options = any(param in options for param in ("random", "computer"))
         new_game = self.first_game or self.game != game or new_options or opponent or root != self.board.root()
         self.game = game
         self.first_game = False
