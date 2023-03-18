@@ -438,6 +438,15 @@ INFO_CURRLINE = Info.CURRLINE
 INFO_ALL = Info.ALL
 
 
+@dataclasses.dataclass
+class Opponent:
+    """Used to store information about an engine's opponent."""
+    name: Optional[str]
+    title: Optional[str]
+    rating: Optional[int]
+    is_engine: Optional[bool]
+
+
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
@@ -1122,7 +1131,19 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        """
+        Sends the engine information about its opponent. The information will
+        be sent after a new game is announced and before the first move. This
+        method should be called before the first move of a game--i.e., the
+        first call to :func:`chess.engine.Protocol.play()`.
+
+        :param opponent: Optional. The opponent's information.
+        :param engine_rating: Optional. This engine's own rating. Only used by XBoard engines.
+        """
+
+    @abc.abstractmethod
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}, opponent: Optional[Opponent] = None) -> PlayResult:
         """
         Plays a position.
 
@@ -1148,6 +1169,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             analysis. The previous configuration will be restored after the
             analysis is complete. You can permanently apply a configuration
             with :func:`~chess.engine.Protocol.configure()`.
+        :param opponent: Optional. Information about a new opponent. Information
+            about the original opponent will be restored once the move is
+            complete. New opponent information can be made permanent with
+            :func:`~chess.engine.Protocol.send_opponent_information()`.
         """
 
     @typing.overload
@@ -1433,8 +1458,14 @@ class UciProtocol(Protocol):
     def _isready(self) -> None:
         self.send_line("isready")
 
+    def _opponent_info(self) -> None:
+        opponent_info = self.config.get("UCI_Opponent") or self.target_config.get("UCI_Opponent")
+        if opponent_info:
+            self.send_line(f"setoption name UCI_Opponent value {opponent_info}")
+
     def _ucinewgame(self) -> None:
         self.send_line("ucinewgame")
+        self._opponent_info()
         self.first_game = False
         self.ponderhit = False
 
@@ -1481,7 +1512,8 @@ class UciProtocol(Protocol):
                 builder.append("value")
                 builder.append(str(value))
 
-            self.send_line(" ".join(builder))
+            if name != "UCI_Opponent":  # sent after ucinewgame
+                self.send_line(" ".join(builder))
             self.config[name] = value
 
     def _configure(self, options: ConfigMapping) -> None:
@@ -1499,6 +1531,18 @@ class UciProtocol(Protocol):
                 self.set_finished()
 
         return await self.communicate(UciConfigureCommand)
+
+    def _opponent_configuration(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> ConfigMapping:
+        if opponent and opponent.name and "UCI_Opponent" in self.options:
+            rating = opponent.rating or "none"
+            title = opponent.title or "none"
+            player_type = "computer" if opponent.is_engine else "human"
+            return {"UCI_Opponent": f"{title} {rating} {player_type} {opponent.name}"}
+        else:
+            return {}
+
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
 
     def _position(self, board: chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
@@ -1576,7 +1620,12 @@ class UciProtocol(Protocol):
                 builder.append("0000")
         self.send_line(" ".join(builder))
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}, opponent: Optional[Opponent] = None) -> PlayResult:
+        new_options: Dict[str, ConfigValue] = {}
+        for name, value in options.items():
+            new_options[name] = value
+        new_options.update(self._opponent_configuration(opponent=opponent))
+
         class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
             def __init__(self, engine: UciProtocol):
                 super().__init__(engine)
@@ -1584,7 +1633,7 @@ class UciProtocol(Protocol):
                 # May ponderhit only in the same game and with unchanged target
                 # options. The managed options UCI_AnalyseMode, Ponder, and
                 # MultiPV never change between pondering play commands.
-                engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(options) else None
+                engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(new_options) else None
 
             def start(self, engine: UciProtocol) -> None:
                 self.info: InfoDict = {}
@@ -1597,16 +1646,18 @@ class UciProtocol(Protocol):
                     engine.send_line("ponderhit")
                     return
 
-                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
+                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in new_options):
                     engine._setoption("UCI_AnalyseMode", False)
                 if "Ponder" in engine.options:
                     engine._setoption("Ponder", ponder)
                 if "MultiPV" in engine.options:
                     engine._setoption("MultiPV", engine.options["MultiPV"].default)
 
-                engine._configure(options)
+                new_opponent = new_options.get("UCI_Opponent") or engine.target_config.get("UCI_Opponent")
+                opponent_changed = new_opponent != engine.config.get("UCI_Opponent")
+                engine._configure(new_options)
 
-                if engine.first_game or engine.game != game:
+                if engine.first_game or engine.game != game or opponent_changed:
                     engine.game = game
                     engine._ucinewgame()
                     self.sent_isready = True
@@ -1942,6 +1993,9 @@ class XBoardProtocol(Protocol):
         self.options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
+            "name": Option("name", "string", "", None, None, None),
+            "engine_rating": Option("engine_rating", "spin", 0, None, None, None),
+            "opponent_rating": Option("opponent_rating", "spin", 0, None, None, None)
         }
         self.config: Dict[str, ConfigValue] = {}
         self.target_config: Dict[str, ConfigValue] = {}
@@ -2047,13 +2101,13 @@ class XBoardProtocol(Protocol):
 
         self.send_line(f"variant {variant}")
 
-    def _new(self, board: chess.Board, game: object, options: ConfigMapping) -> None:
+    def _new(self, board: chess.Board, game: object, options: ConfigMapping, opponent: Optional[Opponent] = None) -> None:
         self._configure(options)
 
         # Set up starting position.
         root = board.root()
-        new_options = "random" in options or "computer" in options
-        new_game = self.first_game or self.game != game or new_options or root != self.board.root()
+        new_options = any(param in options for param in ("random", "computer"))
+        new_game = self.first_game or self.game != game or new_options or opponent or root != self.board.root()
         self.game = game
         self.first_game = False
         if new_game:
@@ -2068,7 +2122,16 @@ class XBoardProtocol(Protocol):
 
             if self.config.get("random"):
                 self.send_line("random")
-            if self.config.get("computer"):
+            
+            opponent_name = (opponent.name if opponent else None) or self.target_config.get("name")
+            if opponent_name and self.features.get("name", True):
+                self.send_line(f"name {opponent_name}")
+
+            opponent_rating = (opponent.rating if opponent else None) or self.target_config.get("opponent_rating") or 0
+            if self.target_config.get("engine_rating") or opponent_rating:
+                self.send_line(f"rating {self.target_config.get('engine_rating') or 0} {opponent_rating}")
+
+            if (opponent and opponent.is_engine) or (self.target_config.get("computer") if self.config.get("computer") is None else self.config.get("computer")):
                 self.send_line("computer")
 
         self.send_line("force")
@@ -2122,7 +2185,7 @@ class XBoardProtocol(Protocol):
 
         return await self.communicate(XBoardPingCommand)
 
-    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}, opponent: Optional[Opponent] = None) -> PlayResult:
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
@@ -2134,7 +2197,7 @@ class XBoardProtocol(Protocol):
                 self.pong_after_ponder: Optional[str] = None
 
                 # Set game, position and configure.
-                engine._new(board, game, options)
+                engine._new(board, game, options, opponent)
 
                 # Limit or time control.
                 clock = limit.white_clock if board.turn else limit.black_clock
@@ -2368,7 +2431,7 @@ class XBoardProtocol(Protocol):
 
         self.config[name] = value = option.parse(value)
 
-        if name in ["random", "computer"]:
+        if name in ["random", "computer", "name", "engine_rating", "opponent_rating"]:
             # Applied in _new.
             pass
         elif name in ["memory", "cores"] or name.startswith("egtpath "):
@@ -2397,6 +2460,22 @@ class XBoardProtocol(Protocol):
                 self.set_finished()
 
         return await self.communicate(XBoardConfigureCommand)
+
+    def _opponent_configuration(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> ConfigMapping:
+        if opponent is None:
+            return {}
+
+        opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or 0,
+                                                           "opponent_rating": opponent.rating or 0,
+                                                           "computer": opponent.is_engine or False}
+        
+        if opponent.name and self.features.get("name", True):
+            opponent_info["name"] = f"{opponent.title or ''} {opponent.name}".strip()
+
+        return opponent_info
+
+    async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
 
     async def quit(self) -> None:
         self.send_line("quit")
@@ -2781,16 +2860,24 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
+    def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
+        with self._not_shut_down():
+            coro = asyncio.wait_for(
+                self.protocol.send_opponent_information(opponent=opponent, engine_rating=engine_rating),
+                self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return future.result()
+        
     def ping(self) -> None:
         with self._not_shut_down():
             coro = asyncio.wait_for(self.protocol.ping(), self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
-    def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> PlayResult:
+    def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}, opponent: Optional[Opponent] = None) -> PlayResult:
         with self._not_shut_down():
             coro = asyncio.wait_for(
-                self.protocol.play(board, limit, game=game, info=info, ponder=ponder, draw_offered=draw_offered, root_moves=root_moves, options=options),
+                self.protocol.play(board, limit, game=game, info=info, ponder=ponder, draw_offered=draw_offered, root_moves=root_moves, options=options, opponent=opponent),
                 self._timeout_for(limit))
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()

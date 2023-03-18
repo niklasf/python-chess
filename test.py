@@ -3271,13 +3271,18 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("uci", [
                 "option name Hash type spin default 16 min 1 max 33554432",
                 "option name Ponder type check default false",
+                "option name UCI_Opponent type string",
                 "uciok",
             ])
             await protocol.initialize()
 
+            primary_opponent = chess.engine.Opponent("Eliza", None, 3500, True)
+            await protocol.send_opponent_information(opponent=primary_opponent)
+
             # First search.
             mock.expect("setoption name Ponder value true")
             mock.expect("ucinewgame")
+            mock.expect("setoption name UCI_Opponent value none 3500 computer Eliza")
             mock.expect("isready", ["readyok"])
             mock.expect("position startpos")
             mock.expect("go movetime 1000", ["bestmove d2d4 ponder g8f6"])
@@ -3338,6 +3343,33 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5")
             mock.expect("go movetime 5000", ["bestmove c4d5 ponder e6d5"])
             mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5")
+            mock.expect("go ponder movetime 5000")
+            await protocol.play(board, chess.engine.Limit(time=5), ponder=True)
+
+            # Ponderhit prevented by new opponent, which starts a new game.
+            board.push(chess.Move.from_uci("c4d5"))
+            board.push(chess.Move.from_uci("e6d5"))
+            mock.expect("stop", ["bestmove c1g5 ponder h7h6"])
+            mock.expect("ucinewgame")
+            mock.expect("setoption name UCI_Opponent value GM 3000 human Guy Chapman")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5")
+            mock.expect("go movetime 5000", ["bestmove c1g5 ponder h7h6"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5 c1g5 h7h6")
+            mock.expect("go ponder movetime 5000")
+            opponent = chess.engine.Opponent("Guy Chapman", "GM", 3000, False)
+            await protocol.play(board, chess.engine.Limit(time=5), ponder=True, opponent=opponent)
+
+            # Ponderhit prevented by restoration of previous opponent, which again starts a new game.
+            board.push(chess.Move.from_uci("c1g5"))
+            board.push(chess.Move.from_uci("h7h6"))
+            mock.expect("stop", ["bestmove g5h4 ponder b8c6"])
+            mock.expect("ucinewgame")
+            mock.expect("setoption name UCI_Opponent value none 3500 computer Eliza")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5 c1g5 h7h6")
+            mock.expect("go movetime 5000", ["bestmove g5h4 ponder b8c6"])
+            mock.expect("position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 d1c2 d7d5 c4d5 e6d5 c1g5 h7h6 g5h4 b8c6")
             mock.expect("go ponder movetime 5000")
             await protocol.play(board, chess.engine.Limit(time=5), ponder=True)
 
@@ -3552,6 +3584,55 @@ class EngineTestCase(unittest.TestCase):
             mock.expect_ping()
             result = await protocol.play(board, limit, game="game")
             self.assertEqual(result.move, board.parse_san("d4"))
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
+    def test_xboard_opponent(self):
+        async def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["feature ping=1 setboard=1 name=1 done=1"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=5)
+            board = chess.Board()
+            opponent = chess.engine.Opponent("Turk", "Mechanical", 2100, True)
+            await protocol.send_opponent_information(opponent=opponent, engine_rating=3600)
+
+            mock.expect("new")
+            mock.expect("name Mechanical Turk")
+            mock.expect("rating 3600 2100")
+            mock.expect("computer")
+            mock.expect("force")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            mock.expect_ping()
+            result = await protocol.play(board, limit, game="game")
+            self.assertEqual(result.move, board.parse_san("e4"))
+            mock.assert_done()
+
+            new_opponent = chess.engine.Opponent("Turochamp", None, 800, True)
+            board.push(result.move)
+            mock.expect("new")
+            mock.expect("name Turochamp")
+            mock.expect("rating 3600 800")
+            mock.expect("computer")
+            mock.expect("force")
+            mock.expect("e2e4")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e7e5"])
+            mock.expect_ping()
+            result = await protocol.play(board, limit, game="game", opponent=new_opponent)
+            self.assertEqual(result.move, board.parse_san("e5"))
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
