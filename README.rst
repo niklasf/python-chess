@@ -331,6 +331,11 @@ If you like, share interesting things you are using python-chess for, for exampl
 |     :height: 64                                                                                      |                                                                                              |
 |     :target: https://pettingzoo.farama.org/environments/classic/chess/                               | A multi-agent reinforcement learning environment                                             |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/cli-chess.png?raw=true    | `cli-chess <https://github.com/trevorbayless/cli-chess>`_                                    |
+|     :width: 64                                                                                       |                                                                                              |
+|     :height: 64                                                                                      |                                                                                              |
+|     :target: https://github.com/trevorbayless/cli-chess                                              | A highly customizable way to play chess in your terminal                                     |
++------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 
 * extensions to build engines (search and evaluation) – https://github.com/Mk-Chan/python-chess-engine-extensions
 * a stand-alone chess computer based on DGT board – http://www.picochess.org/
