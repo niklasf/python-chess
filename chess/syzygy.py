@@ -1483,7 +1483,7 @@ class Tablebase:
     """
     Manages a collection of tablebase files for probing.
     """
-    def __init__(self, *, max_fds: Optional[int] = None, VariantBoard: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1963,7 +1963,7 @@ class Tablebase:
         self.close()
 
 
-def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = None, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.
