@@ -218,9 +218,40 @@ def square_rank(square: Square) -> int:
 
 def square_distance(a: Square, b: Square) -> int:
     """
-    Gets the distance (i.e., the number of king steps) from square *a* to *b*.
+    Gets the Chebyshev distance (i.e., the number of king steps) from square *a* to *b*.
     """
+    if a == b:
+        return 0;
     return max(abs(square_file(a) - square_file(b)), abs(square_rank(a) - square_rank(b)))
+
+def square_manhattan_distance(a: Square, b: Square) -> int:
+    """
+    Gets the Manhattan/Taxicab distance (i.e., the number of orthogonal king steps) from square *a* to *b*.
+    """
+    if a == b:
+        return 0;
+    return abs(square_file(a) - square_file(b)) + abs(square_rank(a) - square_rank(b))
+
+def square_knight_distance(a: Square, b: Square) -> int:
+    """
+    Gets the Knight distance (i.e., the number of knight moves) from square *a* to *b*.
+    """
+    if a == b:
+        return 0;
+
+    dx = abs(square_file(a) - square_file(b))
+    dy = abs(square_rank(a) - square_rank(b))
+
+    if dx + dy == 1:
+        return 3
+    elif dx == dy == 2:
+        return 4
+    elif dx == dy == 1:
+        if 1 << a & BB_CORNERS or 1 << b & BB_CORNERS: # Special case only for corner squares
+            return 4
+
+    m = math.ceil(max(dx / 2, dy / 2, (dx + dy) / 3))
+    return m + ((m + dx + dy) % 2)
 
 def square_mirror(square: Square) -> Square:
     """Mirrors the square vertically."""
