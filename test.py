@@ -93,6 +93,31 @@ class SquareTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.assertEqual(chess.parse_square("a0"))
 
+    def test_square_distance(self):
+        self.assertEqual(chess.square_distance(chess.A1, chess.A1), 0)
+        self.assertEqual(chess.square_distance(chess.A1, chess.H8), 7)
+        self.assertEqual(chess.square_distance(chess.E1, chess.E8), 7)
+        self.assertEqual(chess.square_distance(chess.A4, chess.H4), 7)
+        self.assertEqual(chess.square_distance(chess.D4, chess.E5), 1)
+
+    def test_square_manhattan_distance(self):
+        self.assertEqual(chess.square_manhattan_distance(chess.A1, chess.A1), 0)
+        self.assertEqual(chess.square_manhattan_distance(chess.A1, chess.H8), 14)
+        self.assertEqual(chess.square_manhattan_distance(chess.E1, chess.E8), 7)
+        self.assertEqual(chess.square_manhattan_distance(chess.A4, chess.H4), 7)
+        self.assertEqual(chess.square_manhattan_distance(chess.D4, chess.E5), 2)
+
+    def test_square_knight_distance(self):
+        self.assertEqual(chess.square_knight_distance(chess.A1, chess.A1), 0)
+        self.assertEqual(chess.square_knight_distance(chess.A1, chess.H8), 6)
+        self.assertEqual(chess.square_knight_distance(chess.G1, chess.F3), 1)
+        self.assertEqual(chess.square_knight_distance(chess.E1, chess.E8), 5)
+        self.assertEqual(chess.square_knight_distance(chess.A4, chess.H4), 5)
+        self.assertEqual(chess.square_knight_distance(chess.A1, chess.B1), 3)
+        self.assertEqual(chess.square_knight_distance(chess.A1, chess.C3), 4)
+        self.assertEqual(chess.square_knight_distance(chess.A1, chess.B2), 4)
+        self.assertEqual(chess.square_knight_distance(chess.C1, chess.B2), 2)
+
 
 class MoveTestCase(unittest.TestCase):
 
