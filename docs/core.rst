@@ -85,6 +85,10 @@ and so on to
 
 .. autofunction:: chess.square_distance
 
+.. autofunction:: chess.square_manhattan_distance
+
+.. autofunction:: chess.square_knight_distance
+
 .. autofunction:: chess.square_mirror
 
 Pieces
