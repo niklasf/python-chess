@@ -169,8 +169,6 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     svg = ET.Element("svg", {
         "xmlns": "http://www.w3.org/2000/svg",
         "xmlns:xlink": "http://www.w3.org/1999/xlink",
-        "version": "1.2",
-        "baseProfile": "tiny",
         "viewBox": f"0 0 {viewbox:d} {viewbox:d}",
     })
 
