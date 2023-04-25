@@ -1043,6 +1043,13 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """Called after visiting game headers."""
         pass
 
+    def begin_parse_san(self, board: chess.Board, san: str) -> Optional[SkipType]:
+        """
+        When the visitor is used by a parser, this is called at the start of
+        each standard algebraic notation detailing a move.
+        """
+        pass
+
     def parse_san(self, board: chess.Board, san: str) -> chess.Move:
         """
         When the visitor is used by a parser, this is called to parse a move
@@ -1682,14 +1689,15 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 visitor.visit_result(token)
             else:
                 # Parse SAN tokens.
-                try:
-                    move = visitor.parse_san(board_stack[-1], token)
-                except ValueError as error:
-                    visitor.handle_error(error)
-                    skip_variation_depth = 1
-                else:
-                    visitor.visit_move(board_stack[-1], move)
-                    board_stack[-1].push(move)
+                if visitor.begin_parse_san(board_stack[-1], token) is not SKIP:
+                    try:
+                        move = visitor.parse_san(board_stack[-1], token)
+                    except ValueError as error:
+                        visitor.handle_error(error)
+                        skip_variation_depth = 1
+                    else:
+                        visitor.visit_move(board_stack[-1], move)
+                        board_stack[-1].push(move)
                 visitor.visit_board(board_stack[-1])
 
         if fresh_line:
