@@ -400,6 +400,28 @@ class GameNode(abc.ABC):
 
         return node
 
+    def add_line_by_san(self, sans: Iterable[str], *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> GameNode:
+        """
+        Creates a sequence of child nodes for the given list of moves in standard algebraic notation.
+        Adds *comment* and *nags* to the last node of the line and returns it.
+        """
+        node = self
+
+        # Add line.
+        for san in sans:
+            node = node.add_variation(node.board().parse_san(san), starting_comment=starting_comment)
+            starting_comment = ""
+
+        # Merge comment and NAGs.
+        if node.comment:
+            node.comment += " " + comment
+        else:
+            node.comment = comment
+
+        node.nags.update(nags)
+
+        return node
+
     def eval(self) -> Optional[chess.engine.PovScore]:
         """
         Parses the first valid ``[%eval ...]`` annotation in the comment of
