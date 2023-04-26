@@ -1263,8 +1263,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game_ending: Optional. Text describing the reason for the game
             ending. Similarly to the winner paramter, this overrides any game
             result derivable from the board.
-        :param game_complete: Optional. Whether the game is complete or may resume
-            at a later time.
+        :param game_complete: Optional. Whether the game reached completion.
         """
 
     @abc.abstractmethod
