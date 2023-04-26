@@ -2510,7 +2510,7 @@ class XBoardProtocol(Protocol):
 
                 if not game_complete:
                     result = "*"
-                    ending = game_ending or "Game adjourned"
+                    ending = game_ending or ""
                 elif winner is not None or game_ending:
                     result = "1-0" if winner == chess.WHITE else ("0-1" if winner == chess.BLACK else "1/2-1/2")
                     ending = game_ending or ""
