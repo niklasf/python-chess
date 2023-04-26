@@ -3465,6 +3465,32 @@ class EngineTestCase(unittest.TestCase):
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
         self.assertEqual(info["wdl"], (249, 747, 4))
 
+    def test_uci_result(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=5)
+            checkmate_board = chess.Board("k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position fen k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+            mock.expect("go movetime 5000", ["bestmove g6g8"])
+            result = await protocol.play(checkmate_board, limit, game="checkmate")
+            self.assertEqual(result.move, checkmate_board.parse_uci("g6g8"))
+            checkmate_board.push(result.move)
+            self.assertTrue(checkmate_board.is_checkmate())
+            await protocol.send_game_result(checkmate_board)
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
     def test_hiarcs_bestmove(self):
         async def main():
             protocol = chess.engine.UciProtocol()
