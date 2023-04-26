@@ -634,6 +634,7 @@ class ChildNode(GameNode):
 
     def __init__(self, parent: GameNode, move: chess.Move, *, comment: str = "", starting_comment: str = "", nags: Iterable[int] = []) -> None:
         super().__init__(comment=comment)
+        self._board = None
         self.parent = parent
         self.move = move
         self.parent.variations.append(self)
@@ -642,19 +643,11 @@ class ChildNode(GameNode):
         self.starting_comment = starting_comment
 
     def board(self) -> chess.Board:
-        stack: List[chess.Move] = []
-        node: GameNode = self
-
-        while node.move is not None and node.parent is not None:
-            stack.append(node.move)
-            node = node.parent
-
-        board = node.game().board()
-
-        while stack:
-            board.push(stack.pop())
-
-        return board
+        if self._board is None:
+            board = self.parent.board()
+            board.push(self.move)
+            self._board = board
+        return self._board.copy()
 
     def ply(self) -> int:
         ply = 0
