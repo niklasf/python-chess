@@ -2511,7 +2511,7 @@ class XBoardProtocol(Protocol):
                     result = "*"
                     ending = game_ending or ""
                 elif winner is not None or game_ending:
-                    result = "1-0" if winner == chess.WHITE else ("0-1" if winner == chess.BLACK else "1/2-1/2")
+                    result = "1-0" if winner == chess.WHITE else "0-1" if winner == chess.BLACK else "1/2-1/2"
                     ending = game_ending or ""
                 elif outcome is not None and outcome.winner is not None:
                     result = outcome.result()
