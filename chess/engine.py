@@ -1819,13 +1819,7 @@ class UciProtocol(Protocol):
         return await self.communicate(UciAnalysisCommand)
 
     async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
-        class UciGameResultCommand(BaseCommand[UciProtocol, None]):
-            def start(self, engine: UciProtocol) -> None:
-                engine._position(board)  # Send final board position
-                self.result.set_result(None)
-                self.set_finished()
-
-        return await self.communicate(UciGameResultCommand)
+        pass
 
     async def quit(self) -> None:
         self.send_line("quit")
