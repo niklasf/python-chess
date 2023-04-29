@@ -129,3 +129,15 @@ epd rnbqk1nr/bb3p1p/1q2r3/2pPp3/3P4/7P/1PP1NpPP/R1BQKBNR w KQkq c6
 perft 1 2
 perft 2 92
 perft 3 2528
+
+#
+# Impossible castling rights
+#
+
+id asymmetrical-and-king-on-h
+epd r2r3k/p7/3p4/8/8/P6P/8/R3K2R b KQq -
+perft 1 14
+perft 2 206
+perft 3 3672
+perft 4 64639
+perft 5 1320962
