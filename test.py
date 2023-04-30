@@ -3713,7 +3713,9 @@ class EngineTestCase(unittest.TestCase):
             mock.assert_done()
 
             limit = chess.engine.Limit(black_clock=65, white_clock=100,
-                                       black_inc=4, white_inc=8)
+                                       black_inc=4, white_inc=8,
+                                       clock_id="xboard level")
+            board = chess.Board()
             mock.expect("new")
             mock.expect("force")
             mock.expect("level 0 1:40 8")
@@ -3723,8 +3725,23 @@ class EngineTestCase(unittest.TestCase):
             mock.expect("easy")
             mock.expect("go", ["move e2e4"])
             mock.expect_ping()
-            result = await protocol.play(chess.Board(), limit)
+            result = await protocol.play(board, limit)
             self.assertEqual(result.move, chess.Move.from_uci("e2e4"))
+            mock.assert_done()
+
+            board.push(result.move)
+            board.push_uci("e7e5")
+
+            mock.expect("force")
+            mock.expect("e7e5")
+            mock.expect("time 10000")
+            mock.expect("otim 6500")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move d2d4"])
+            mock.expect_ping()
+            result = await protocol.play(board, limit)
+            self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())

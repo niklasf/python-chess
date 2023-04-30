@@ -332,6 +332,14 @@ class Limit:
     *white_clock* and *black_clock* are, then it is sudden death.
     """
 
+    clock_id: object = None
+    """
+    An identifier to use with XBoard engines to signal that the time
+    control has changed. When this field changes, Xboard engines are
+    send level or st commands as appropriate. Otherwise, only time
+    and otim commands are sent to update the engine's clock.
+    """
+
     def __repr__(self) -> str:
         # Like default __repr__, but without None values.
         return "{}({})".format(
@@ -2001,6 +2009,7 @@ class XBoardProtocol(Protocol):
         self.target_config: Dict[str, ConfigValue] = {}
         self.board = chess.Board()
         self.game: object = None
+        self.clock_id: object = None
         self.first_game = True
 
     async def initialize(self) -> None:
@@ -2202,10 +2211,9 @@ class XBoardProtocol(Protocol):
                 # Limit or time control.
                 clock = limit.white_clock if board.turn else limit.black_clock
                 increment = limit.white_inc if board.turn else limit.black_inc
-                if limit.remaining_moves or clock is not None or increment is not None:
-                    base_mins, base_secs = divmod(int(clock or 0), 60)
-                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
-
+                if limit.clock_id is None or limit.clock_id != engine.clock_id:
+                    self._send_time_control(engine, clock, increment)
+                engine.clock_id = limit.clock_id
                 if limit.nodes is not None:
                     if limit.time is not None or limit.white_clock is not None or limit.black_clock is not None or increment is not None:
                         raise EngineError("xboard does not support mixing node limits with time limits")
@@ -2217,8 +2225,6 @@ class XBoardProtocol(Protocol):
 
                     engine.send_line("nps 1")
                     engine.send_line(f"st {max(1, int(limit.nodes))}")
-                if limit.time is not None:
-                    engine.send_line(f"st {max(0.01, limit.time)}")
                 if limit.depth is not None:
                     engine.send_line(f"sd {max(1, int(limit.depth))}")
                 if limit.white_clock is not None:
@@ -2269,6 +2275,13 @@ class XBoardProtocol(Protocol):
                     self._post(engine, line)
                 else:
                     LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+
+            def _send_time_control(self, engine: XBoardProtocol, clock: Optional[float], increment: Optional[float]) -> None:
+                if limit.remaining_moves or clock is not None or increment is not None:
+                    base_mins, base_secs = divmod(int(clock or 0), 60)
+                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
+                if limit.time is not None:
+                    engine.send_line(f"st {max(0.01, limit.time)}")
 
             def _post(self, engine: XBoardProtocol, line: str) -> None:
                 if not self.result.done():
