@@ -124,6 +124,12 @@ perft 1 6
 perft 2 121
 perft 3 711
 
+id align-ep-pinned
+epd 1b1k4/8/8/1rPpK3/8/8/8/8 w - d6
+perft 1 5
+perft 2 100
+perft 3 555
+
 id ep-unrelated-check
 epd rnbqk1nr/bb3p1p/1q2r3/2pPp3/3P4/7P/1PP1NpPP/R1BQKBNR w KQkq c6
 perft 1 2
