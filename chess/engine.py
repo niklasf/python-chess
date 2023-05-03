@@ -336,7 +336,7 @@ class Limit:
     """
     An identifier to use with XBoard engines to signal that the time
     control has changed. When this field changes, Xboard engines are
-    send level or st commands as appropriate. Otherwise, only time
+    sent level or st commands as appropriate. Otherwise, only time
     and otim commands are sent to update the engine's clock.
     """
 
