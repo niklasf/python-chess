@@ -391,11 +391,8 @@ class MemoryMappedReader:
         return Entry(key, raw_move, weight, learn, move)
 
     def __iter__(self) -> Iterator[Entry]:
-        i = 0
-        size = len(self)
-        while i < size:
+        for i in range(len(self)):
             yield self[i]
-            i += 1
 
     def bisect_key_left(self, key: int) -> int:
         lo = 0

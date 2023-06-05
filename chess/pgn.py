@@ -942,10 +942,7 @@ class Headers(MutableMapping[str, str]):
             self._others[key] = value
 
     def __getitem__(self, key: str) -> str:
-        if key in TAG_ROSTER:
-            return self._tag_roster[key]
-        else:
-            return self._others[key]
+        return self._tag_roster[key] if key in TAG_ROSTER else self._others[key]
 
     def __delitem__(self, key: str) -> None:
         if key in TAG_ROSTER:
