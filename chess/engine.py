@@ -1155,7 +1155,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically inform the engine if the object is not equal
             to the previous game (e.g., ``ucinewgame``, ``new``).
         :param info: Selects which additional information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            engine. ``INFO_NONE``, ``INFO_BASIC`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
@@ -1197,7 +1197,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically inform the engine if the object is not equal
             to the previous game (e.g., ``ucinewgame``, ``new``).
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            engine. ``INFO_NONE``, ``INFO_BASIC`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
@@ -1230,7 +1230,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             Will automatically inform the engine if the object is not equal
             to the previous game (e.g., ``ucinewgame``, ``new``).
         :param info: Selects which information to retrieve from the
-            engine. ``INFO_NONE``, ``INFO_BASE`` (basic information that is
+            engine. ``INFO_NONE``, ``INFO_BASIC`` (basic information that is
             trivial to obtain), ``INFO_SCORE``, ``INFO_PV``,
             ``INFO_REFUTATION``, ``INFO_CURRLINE``, ``INFO_ALL`` or any
             bitwise combination. Some overhead is associated with parsing
