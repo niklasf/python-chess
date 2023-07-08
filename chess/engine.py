@@ -1544,7 +1544,7 @@ class UciProtocol(Protocol):
 
         return await self.communicate(UciConfigureCommand)
 
-    def _opponent_configuration(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> ConfigMapping:
+    def _opponent_configuration(self, *, opponent: Optional[Opponent] = None) -> ConfigMapping:
         if opponent and opponent.name and "UCI_Opponent" in self.options:
             rating = opponent.rating or "none"
             title = opponent.title or "none"
@@ -1554,7 +1554,7 @@ class UciProtocol(Protocol):
             return {}
 
     async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
-        return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
+        return await self.configure(self._opponent_configuration(opponent=opponent))
 
     def _position(self, board: chess.Board) -> None:
         # Select UCI_Variant and UCI_Chess960.
@@ -1944,7 +1944,7 @@ def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterator[Tuple[str, Con
 class UciOptionMap(MutableMapping[str, T]):
     """Dictionary with case-insensitive keys."""
 
-    def __init__(self, data: Optional[Union[Iterable[Tuple[str, T]]]] = None, **kwargs: T) -> None:
+    def __init__(self, data: Optional[Iterable[Tuple[str, T]]] = None, **kwargs: T) -> None:
         self._store: Dict[str, Tuple[str, T]] = {}
         if data is None:
             data = {}
@@ -1960,7 +1960,7 @@ class UciOptionMap(MutableMapping[str, T]):
         del self._store[key.lower()]
 
     def __iter__(self) -> Iterator[str]:
-        return (casedkey for casedkey, mappedvalue in self._store.values())
+        return (casedkey for casedkey, _ in self._store.values())
 
     def __len__(self) -> int:
         return len(self._store)
