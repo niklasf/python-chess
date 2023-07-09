@@ -2508,6 +2508,9 @@ class XBoardProtocol(Protocol):
     async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
         class XBoardGameResultCommand(BaseCommand[XBoardProtocol, None]):
             def start(self, engine: XBoardProtocol) -> None:
+                if game_ending and any(c in game_ending for c in "{}\n\r"):
+                    raise EngineError(f"invalid line break or curly braces in game ending message: {game_ending!r}")
+
                 engine._new(board, engine.game, {})  # Send final moves to engine.
                 
                 outcome = board.outcome(claim_draw=True)

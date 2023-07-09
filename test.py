@@ -3752,6 +3752,22 @@ class EngineTestCase(unittest.TestCase):
             await protocol.send_game_result(timeout_board, chess.BLACK, "Time forfeiture")
             mock.assert_done()
 
+            error_board = chess.Board()
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            mock.expect_ping()
+            result = await protocol.play(error_board, limit, game="error")
+            self.assertEqual(result.move, error_board.parse_uci("e2e4"))
+            error_board.push(result.move)
+            for c in "\n\r{}":
+                with self.assertRaises(chess.engine.EngineError):
+                    await protocol.send_game_result(error_board, chess.BLACK, f"Time{c}forfeiture")
+            mock.assert_done()
+
             material_board = chess.Board("k7/8/8/8/8/8/8/K7 b - - 0 1")
             self.assertTrue(material_board.is_insufficient_material())
             mock.expect("new")
