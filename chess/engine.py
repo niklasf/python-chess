@@ -1251,10 +1251,15 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
         Sends the engine the result of the game.
 
-        UCI engines only recieve the final position of the board. XBoard engines
-        receive the final moves and a line of the form "result <winner> {<ending>}",
-        where <winner> is one of "1-0", "0-1", "1/2-1/2", or "*" to indicate white
-        won, black won, draw, or adjournment, respectively.
+        XBoard engines receive the final moves and a line of the form
+        "result <winner> {<ending>}". The <winner> field is one of "1-0",
+        "0-1", "1/2-1/2", or "*" to indicate white won, black won, draw,
+        or adjournment, respectively. The <ending> field is a description
+        of the specific reason for the end of the game: "White mates",
+        "Time forfeiture", "Stalemate", etc.
+
+        UCI engines do not expect end-of-game information and so are not
+        sent anything.
 
         :param board: The final state of the board.
         :param winner: Optional. Specify the winner of the game. This is useful
