@@ -1267,6 +1267,31 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
+        """
+        Sends the engine the result of the game.
+
+        XBoard engines receive the final moves and a line of the form
+        "result <winner> {<ending>}". The <winner> field is one of "1-0",
+        "0-1", "1/2-1/2", or "*" to indicate white won, black won, draw,
+        or adjournment, respectively. The <ending> field is a description
+        of the specific reason for the end of the game: "White mates",
+        "Time forfeiture", "Stalemate", etc.
+
+        UCI engines do not expect end-of-game information and so are not
+        sent anything.
+
+        :param board: The final state of the board.
+        :param winner: Optional. Specify the winner of the game. This is useful
+            if the result of the game is not evident from the board--e.g., time
+            forfeiture or draw by agreement.
+        :param game_ending: Optional. Text describing the reason for the game
+            ending. Similarly to the winner paramter, this overrides any game
+            result derivable from the board.
+        :param game_complete: Optional. Whether the game reached completion.
+        """
+
+    @abc.abstractmethod
     async def quit(self) -> None:
         """Asks the engine to shut down."""
 
@@ -1816,6 +1841,9 @@ class UciProtocol(Protocol):
                 self.analysis.set_exception(exc)
 
         return await self.communicate(UciAnalysisCommand)
+
+    async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
+        pass
 
     async def quit(self) -> None:
         self.send_line("quit")
@@ -2502,6 +2530,41 @@ class XBoardProtocol(Protocol):
     async def send_opponent_information(self, *, opponent: Optional[Opponent] = None, engine_rating: Optional[int] = None) -> None:
         return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
 
+    async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
+        class XBoardGameResultCommand(BaseCommand[XBoardProtocol, None]):
+            def start(self, engine: XBoardProtocol) -> None:
+                if game_ending and any(c in game_ending for c in "{}\n\r"):
+                    raise EngineError(f"invalid line break or curly braces in game ending message: {game_ending!r}")
+
+                engine._new(board, engine.game, {})  # Send final moves to engine.
+                
+                outcome = board.outcome(claim_draw=True)
+
+                if not game_complete:
+                    result = "*"
+                    ending = game_ending or ""
+                elif winner is not None or game_ending:
+                    result = "1-0" if winner == chess.WHITE else "0-1" if winner == chess.BLACK else "1/2-1/2"
+                    ending = game_ending or ""
+                elif outcome is not None and outcome.winner is not None:
+                    result = outcome.result()
+                    winning_color = "White" if outcome.winner == chess.WHITE else "Black"
+                    is_checkmate = outcome.termination == chess.Termination.CHECKMATE
+                    ending = f"{winning_color} {'mates' if is_checkmate else 'variant win'}"
+                elif outcome is not None:
+                    result = outcome.result()
+                    ending = outcome.termination.name.capitalize().replace("_", " ")
+                else:
+                    result = "*"
+                    ending = ""
+
+                ending_text = f"{{{ending}}}" if ending else ""
+                engine.send_line(f"result {result} {ending_text}".strip())
+                self.result.set_result(None)
+                self.set_finished()
+
+        return await self.communicate(XBoardGameResultCommand)
+
     async def quit(self) -> None:
         self.send_line("quit")
         await asyncio.shield(self.returncode)
@@ -2928,6 +2991,12 @@ class SimpleEngine:
                 self.timeout)  # Timeout until analysis is *started*
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return SimpleAnalysisResult(self, future.result())
+
+    def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
+        with self._not_shut_down():
+            coro = asyncio.wait_for(self.protocol.send_game_result(board, winner, game_ending, game_complete), self.timeout)
+            future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
+        return future.result()
 
     def quit(self) -> None:
         with self._not_shut_down():

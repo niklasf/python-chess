@@ -3466,6 +3466,32 @@ class EngineTestCase(unittest.TestCase):
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
         self.assertEqual(info["wdl"], (249, 747, 4))
 
+    def test_uci_result(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=5)
+            checkmate_board = chess.Board("k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position fen k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+            mock.expect("go movetime 5000", ["bestmove g6g8"])
+            result = await protocol.play(checkmate_board, limit, game="checkmate")
+            self.assertEqual(result.move, checkmate_board.parse_uci("g6g8"))
+            checkmate_board.push(result.move)
+            self.assertTrue(checkmate_board.is_checkmate())
+            await protocol.send_game_result(checkmate_board)
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
     def test_hiarcs_bestmove(self):
         async def main():
             protocol = chess.engine.UciProtocol()
@@ -3660,6 +3686,96 @@ class EngineTestCase(unittest.TestCase):
             mock.expect_ping()
             result = await protocol.play(board, limit, game="game", opponent=new_opponent)
             self.assertEqual(result.move, board.parse_san("e5"))
+            mock.assert_done()
+
+        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
+        asyncio.run(main())
+
+    def test_xboard_result(self):
+        async def main():
+            protocol = chess.engine.XBoardProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("xboard")
+            mock.expect("protover 2", ["feature ping=1 setboard=1 done=1"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            limit = chess.engine.Limit(time=5)
+            checkmate_board = chess.Board("k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("setboard k7/7R/6R1/8/8/8/8/K7 w - - 0 1")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move g6g8"])
+            mock.expect_ping()
+            mock.expect("force")
+            mock.expect("result 1-0 {White mates}")
+            result = await protocol.play(checkmate_board, limit, game="checkmate")
+            self.assertEqual(result.move, checkmate_board.parse_uci("g6g8"))
+            checkmate_board.push(result.move)
+            self.assertTrue(checkmate_board.is_checkmate())
+            await protocol.send_game_result(checkmate_board)
+            mock.assert_done()
+
+            unfinished_board = chess.Board()
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            mock.expect_ping()
+            mock.expect("force")
+            mock.expect("result *")
+            result = await protocol.play(unfinished_board, limit, game="unfinished")
+            self.assertEqual(result.move, unfinished_board.parse_uci("e2e4"))
+            unfinished_board.push(result.move)
+            await protocol.send_game_result(unfinished_board, game_complete=False)
+            mock.assert_done()
+
+            timeout_board = chess.Board()
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            mock.expect_ping()
+            mock.expect("force")
+            mock.expect("result 0-1 {Time forfeiture}")
+            result = await protocol.play(timeout_board, limit, game="timeout")
+            self.assertEqual(result.move, timeout_board.parse_uci("e2e4"))
+            timeout_board.push(result.move)
+            await protocol.send_game_result(timeout_board, chess.BLACK, "Time forfeiture")
+            mock.assert_done()
+
+            error_board = chess.Board()
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("st 5")
+            mock.expect("nopost")
+            mock.expect("easy")
+            mock.expect("go", ["move e2e4"])
+            mock.expect_ping()
+            result = await protocol.play(error_board, limit, game="error")
+            self.assertEqual(result.move, error_board.parse_uci("e2e4"))
+            error_board.push(result.move)
+            for c in "\n\r{}":
+                with self.assertRaises(chess.engine.EngineError):
+                    await protocol.send_game_result(error_board, chess.BLACK, f"Time{c}forfeiture")
+            mock.assert_done()
+
+            material_board = chess.Board("k7/8/8/8/8/8/8/K7 b - - 0 1")
+            self.assertTrue(material_board.is_insufficient_material())
+            mock.expect("new")
+            mock.expect("force")
+            mock.expect("setboard k7/8/8/8/8/8/8/K7 b - - 0 1")
+            mock.expect("result 1/2-1/2 {Insufficient material}")
+            await protocol.send_game_result(material_board)
             mock.assert_done()
 
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
