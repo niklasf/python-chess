@@ -2152,6 +2152,7 @@ class XBoardProtocol(Protocol):
 
     def _new(self, board: chess.Board, game: object, options: ConfigMapping, opponent: Optional[Opponent] = None) -> None:
         self._configure(options)
+        self._configure(self._opponent_configuration(opponent=opponent))
 
         # Set up starting position.
         root = board.root()
@@ -2172,15 +2173,16 @@ class XBoardProtocol(Protocol):
             if self.config.get("random"):
                 self.send_line("random")
             
-            opponent_name = (opponent.name if opponent else None) or self.target_config.get("name")
+            opponent_name = self.config.get("name")
             if opponent_name and self.features.get("name", True):
                 self.send_line(f"name {opponent_name}")
 
-            opponent_rating = (opponent.rating if opponent else None) or self.target_config.get("opponent_rating") or 0
-            if self.target_config.get("engine_rating") or opponent_rating:
-                self.send_line(f"rating {self.target_config.get('engine_rating') or 0} {opponent_rating}")
+            opponent_rating = self.config.get("opponent_rating")
+            engine_rating = self.config.get("engine_rating")
+            if engine_rating or opponent_rating:
+                self.send_line(f"rating {engine_rating or 0} {opponent_rating or 0}")
 
-            if (opponent and opponent.is_engine) or (self.target_config.get("computer") if self.config.get("computer") is None else self.config.get("computer")):
+            if self.config.get("computer"):
                 self.send_line("computer")
 
         self.send_line("force")
@@ -2518,7 +2520,7 @@ class XBoardProtocol(Protocol):
         if opponent is None:
             return {}
 
-        opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or 0,
+        opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or self.target_config.get("engine_rating") or 0,
                                                            "opponent_rating": opponent.rating or 0,
                                                            "computer": opponent.is_engine or False}
         

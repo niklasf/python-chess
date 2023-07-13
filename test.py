@@ -3688,6 +3688,15 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.move, board.parse_san("e5"))
             mock.assert_done()
 
+            bad_opponent = chess.engine.Opponent("New\nLine", "GM", 1, False)
+            with self.assertRaises(chess.engine.EngineError):
+                await protocol.send_opponent_information(opponent=bad_opponent)
+            mock.assert_done()
+
+            with self.assertRaises(chess.engine.EngineError):
+                result = await protocol.play(board, limit, game="bad game", opponent=bad_opponent)
+            mock.assert_done()
+
         asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
