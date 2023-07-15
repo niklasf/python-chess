@@ -1280,9 +1280,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         Sends the engine the result of the game.
 
         XBoard engines receive the final moves and a line of the form
-        "result <winner> {<ending>}". The <winner> field is one of "1-0",
-        "0-1", "1/2-1/2", or "*" to indicate white won, black won, draw,
-        or adjournment, respectively. The <ending> field is a description
+        ``result <winner> {<ending>}``. The ``<winner>`` field is one of ``1-0``,
+        ``0-1``, ``1/2-1/2``, or ``*`` to indicate white won, black won, draw,
+        or adjournment, respectively. The ``<ending>`` field is a description
         of the specific reason for the end of the game: "White mates",
         "Time forfeiture", "Stalemate", etc.
 
@@ -1292,9 +1292,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param board: The final state of the board.
         :param winner: Optional. Specify the winner of the game. This is useful
             if the result of the game is not evident from the board--e.g., time
-            forfeiture or draw by agreement.
+            forfeiture or draw by agreement. If not ``None``, this parameter
+            overrides any winner derivable from the board.
         :param game_ending: Optional. Text describing the reason for the game
-            ending. Similarly to the winner paramter, this overrides any game
+            ending. Similarly to the winner parameter, this overrides any game
             result derivable from the board.
         :param game_complete: Optional. Whether the game reached completion.
         """
