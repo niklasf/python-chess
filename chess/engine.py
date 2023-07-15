@@ -449,10 +449,18 @@ INFO_ALL = Info.ALL
 @dataclasses.dataclass
 class Opponent:
     """Used to store information about an engine's opponent."""
+
     name: Optional[str]
+    """The name of the opponent."""
+
     title: Optional[str]
+    """The opponent's title--for example, GM, IM, or BOT."""
+
     rating: Optional[int]
+    """The opponent's ELO rating."""
+
     is_engine: Optional[bool]
+    """Whether the opponent is a chess engine/computer program."""
 
 
 class PovScore:
@@ -1158,7 +1166,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         method should be called before the first move of a game--i.e., the
         first call to :func:`chess.engine.Protocol.play()`.
 
-        :param opponent: Optional. The opponent's information.
+        :param opponent: Optional. An instance of :class:`chess.engine.Opponent` that has the opponent's information.
         :param engine_rating: Optional. This engine's own rating. Only used by XBoard engines.
         """
 
