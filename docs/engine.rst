@@ -70,6 +70,15 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 .. autoclass:: chess.engine.PlayResult
     :members:
 
+.. autoclass:: chess.engine.Protocol
+    :members: send_opponent_information
+
+.. autoclass:: chess.engine.Opponent
+    :members:
+
+.. autoclass:: chess.engine.Protocol
+    :members: send_game_result
+
 Analysing and evaluating a position
 -----------------------------------
 
