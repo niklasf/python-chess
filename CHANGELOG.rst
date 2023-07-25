@@ -1,6 +1,38 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+New features:
+
+* Use ``chess.engine.Opponent`` to send opponent information to engines.
+* Inform engines about the game result using
+  ``chess.engine.Protocol.send_game_result()``.
+* Add ``chess.engine.Limit.clock_id``.
+* Add ``chess.svg.board(..., borders=True)``.
+* Avoid rendering background behind SVG boards to better support transparency.
+* Add ``chess.pgn.BaseVisitor.begin_parse_san()``.
+* Introduce new distance metrics ``chess.square_manhattan_distance()`` and
+  ``chess.square_knight_distance()``.
+
+Bugfixes:
+
+* Fix ``chess.pgn.GameNode.eval()`` sometimes off by one centipawn.
+* Fix handling of additional spaces between UCI option tokens.
+* Handle implicit XBoard engine resignation via output like
+  ``0-1 {White resigns}``.
+
+Changes:
+
+* Add model ``sf16`` for ``chess.engine.Score.wdl()``, the new default.
+* Update ``lichess`` WDL model.
+* Keep PGN headers that do not belong to the Seven Tag Roster in insertion
+  order.
+* Halve the number of open file descriptors maintained by tablebases
+  and opening books.
+* Reduce verbosity of logged ``chess.pgn`` errors.
+
 New in v1.9.4 (22nd Dec 2022)
 -----------------------------
 
