@@ -2,7 +2,7 @@
 
 echo Download ...
 choco install wget
-wget https://stockfishchess.org/files/stockfish-11-win.zip
+wget https://files.stockfishchess.org/archive/Stockfish%2011/stockfish-11-win.zip
 
 echo Unzip ..
 7z e stockfish-11-win.zip stockfish-11-win/Windows/*.exe
