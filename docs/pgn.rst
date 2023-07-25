@@ -48,6 +48,10 @@ position of the game. The tree consists of one root node
 nodes (:class:`~chess.pgn.ChildNode`).
 Both extend :class:`~chess.pgn.GameNode`.
 
+.. note:: Some basic methods have complexity `O(n)` for a game with n moves.
+  When following a variation, it is often more efficient to use visitors
+  or incrementally update state (like board, ply counter, or turn).
+
 .. autoclass:: chess.pgn.GameNode
     :members:
 

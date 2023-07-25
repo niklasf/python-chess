@@ -215,6 +215,8 @@ class GameNode(abc.ABC):
         ``Variant``) unless the ``FEN`` header tag is set.
 
         It's a copy, so modifying the board will not alter the game.
+
+        Complexity is `O(n)`.
         """
 
     @abc.abstractmethod
@@ -226,11 +228,15 @@ class GameNode(abc.ABC):
 
         Usually this is equal to the number of parent nodes, but it may be
         more if the game was started from a custom position.
+
+        Complexity is `O(n)`.
         """
 
     def turn(self) -> Color:
         """
         Gets the color to move at this node. See :data:`chess.Board.turn`.
+
+        Complexity is `O(n)`.
         """
         return self.ply() % 2 == 0
 
@@ -241,13 +247,21 @@ class GameNode(abc.ABC):
         return node
 
     def game(self) -> Game:
-        """Gets the root node, i.e., the game."""
+        """
+        Gets the root node, i.e., the game.
+
+        Complexity is `O(n)`.
+        """
         root = self.root()
         assert isinstance(root, Game), "GameNode not rooted in Game"
         return root
 
     def end(self) -> GameNode:
-        """Follows the main variation to the end and returns the last node."""
+        """
+        Follows the main variation to the end and returns the last node.
+
+        Complexity is `O(n)`.
+        """
         node = self
 
         while node.variations:
@@ -256,7 +270,11 @@ class GameNode(abc.ABC):
         return node
 
     def is_end(self) -> bool:
-        """Checks if this node is the last node in the current variation."""
+        """
+        Checks if this node is the last node in the current variation.
+
+        Complexity is `O(1)`.
+        """
         return not self.variations
 
     def starts_variation(self) -> bool:
@@ -267,6 +285,8 @@ class GameNode(abc.ABC):
 
         For example, in ``1. e4 e5 (1... c5 2. Nf3) 2. Nf3``, the node holding
         1... c5 starts a variation.
+
+        Complexity is `O(1)`.
         """
         if not self.parent or not self.parent.variations:
             return False
@@ -274,7 +294,11 @@ class GameNode(abc.ABC):
         return self.parent.variations[0] != self
 
     def is_mainline(self) -> bool:
-        """Checks if the node is in the mainline of the game."""
+        """
+        Checks if the node is in the mainline of the game.
+
+        Complexity is `O(n)`.
+        """
         node = self
 
         while node.parent:
@@ -291,6 +315,8 @@ class GameNode(abc.ABC):
         """
         Checks if this node is the first variation from the point of view of its
         parent. The root node is also in the main variation.
+
+        Complexity is `O(1)`.
         """
         if not self.parent:
             return True
@@ -367,6 +393,8 @@ class GameNode(abc.ABC):
         """
         Returns the first node of the mainline after this node, or ``None`` if
         this node does not have any children.
+
+        Complexity is `O(1)`.
         """
         return self.variations[0] if self.variations else None
 
@@ -404,6 +432,8 @@ class GameNode(abc.ABC):
         """
         Parses the first valid ``[%eval ...]`` annotation in the comment of
         this node, if any.
+
+        Complexity is `O(n)`.
         """
         match = EVAL_REGEX.search(self.comment)
         if not match:
@@ -428,6 +458,8 @@ class GameNode(abc.ABC):
         """
         Parses the first valid ``[%eval ...]`` annotation in the comment of
         this node and returns the corresponding depth, if any.
+
+        Complexity is `O(1)`.
         """
         match = EVAL_REGEX.search(self.comment)
         return int(match.group("depth")) if match and match.group("depth") else None
@@ -670,6 +702,8 @@ class ChildNode(GameNode):
         See :func:`chess.Board.san()`.
 
         Do not call this on the root node.
+
+        Complexity is `O(n)`.
         """
         return self.parent.board().san(self.move)
 
@@ -679,11 +713,17 @@ class ChildNode(GameNode):
         See :func:`chess.Board.uci()`.
 
         Do not call this on the root node.
+
+        Complexity is `O(n)`.
         """
         return self.parent.board().uci(self.move, chess960=chess960)
 
     def end(self) -> ChildNode:
-        """Follows the main variation to the end and returns the last node."""
+        """
+        Follows the main variation to the end and returns the last node.
+
+        Complexity is `O(n)`.
+        """
         return typing.cast(ChildNode, super().end())
 
     def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
