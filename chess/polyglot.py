@@ -312,6 +312,9 @@ class _EmptyMmap(bytearray):
     def close(self) -> None:
         pass
 
+    def madvise(self, option: int, start: int = ..., length: int = ...) -> None:
+        pass
+
 
 def _randint(rng: Optional[random.Random], a: int, b: int) -> int:
     return random.randint(a, b) if rng is None else rng.randint(a, b)
@@ -333,7 +336,7 @@ class MemoryMappedReader:
             raise IOError(f"invalid file size: ensure {filename!r} is a valid polyglot opening book")
 
         try:
-            # Linux
+            # Unix
             self.mmap.madvise(mmap.MADV_RANDOM)
         except AttributeError:
             pass

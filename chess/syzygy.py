@@ -596,7 +596,7 @@ class Table:
                 raise IOError(f"invalid file size: ensure {self.path!r} is a valid syzygy tablebase file")
 
             try:
-                # Linux
+                # Unix
                 data.madvise(mmap.MADV_RANDOM)
             except AttributeError:
                 pass
