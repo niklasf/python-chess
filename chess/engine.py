@@ -328,41 +328,37 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-try:
-    class InfoDict(typing.TypedDict, total=False):
-        """
-        Dictionary of aggregated information sent by the engine.
+class InfoDict(typing.TypedDict, total=False):
+    """
+    Dictionary of aggregated information sent by the engine.
 
-        Commonly used keys are: ``score`` (a :class:`~chess.engine.PovScore`),
-        ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
-        ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``
-        (``1`` for the mainline).
+    Commonly used keys are: ``score`` (a :class:`~chess.engine.PovScore`),
+    ``pv`` (a list of :class:`~chess.Move` objects), ``depth``,
+    ``seldepth``, ``time`` (in seconds), ``nodes``, ``nps``, ``multipv``
+    (``1`` for the mainline).
 
-        Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
-        ``cpuload``, ``refutation``, ``currline``, ``ebf`` (effective branching factor),
-        ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
-        """
-        score: PovScore
-        pv: List[chess.Move]
-        depth: int
-        seldepth: int
-        time: float
-        nodes: int
-        nps: int
-        tbhits: int
-        multipv: int
-        currmove: chess.Move
-        currmovenumber: int
-        hashfull: int
-        cpuload: int
-        refutation: Dict[chess.Move, List[chess.Move]]
-        currline: Dict[int, List[chess.Move]]
-        ebf: float
-        wdl: PovWdl
-        string: str
-except AttributeError:
-    # Before Python 3.8.
-    InfoDict = dict  # type: ignore
+    Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
+    ``cpuload``, ``refutation``, ``currline``, ``ebf`` (effective branching factor),
+    ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
+    """
+    score: PovScore
+    pv: List[chess.Move]
+    depth: int
+    seldepth: int
+    time: float
+    nodes: int
+    nps: int
+    tbhits: int
+    multipv: int
+    currmove: chess.Move
+    currmovenumber: int
+    hashfull: int
+    cpuload: int
+    refutation: Dict[chess.Move, List[chess.Move]]
+    currline: Dict[int, List[chess.Move]]
+    ebf: float
+    wdl: PovWdl
+    string: str
 
 
 class PlayResult:
