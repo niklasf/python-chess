@@ -352,8 +352,8 @@ If you like, share interesting things you are using python-chess for, for exampl
 * an accessible chessboard that allows blind and visually impaired  players  to play chess against Stockfish – https://github.com/blindpandas/chessmart
 
 
-Acknowledgements
-----------------
+Prior art
+---------
 
 Thanks to the Stockfish authors and thanks to Sam Tannous for publishing his
 approach to `avoid rotated bitboards with direct lookup (PDF) <http://arxiv.org/pdf/0704.3773.pdf>`_
@@ -371,4 +371,4 @@ License
 -------
 
 python-chess is licensed under the GPL 3 (or any later version at your option).
-Check out LICENSE.txt for the full text.
+Check out `LICENSE.txt` for the full text.
