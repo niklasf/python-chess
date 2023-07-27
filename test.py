@@ -2948,9 +2948,10 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i >= j, a >= b)
                 self.assertEqual(i < j, a.score(mate_score=100000) < b.score(mate_score=100000))
 
-                self.assertTrue(not (i < j) or a.wdl().expectation() <= b.wdl().expectation())
-                self.assertTrue(not (i < j) or a.wdl().winning_chance() <= b.wdl().winning_chance())
-                self.assertTrue(not (i < j) or a.wdl().losing_chance() >= b.wdl().losing_chance())
+                for model in ["sf12", "sf14", "sf15", "sf15.1", "sf16"]:
+                    self.assertTrue(not (i < j) or a.wdl(model=model).expectation() <= b.wdl(model=model).expectation())
+                    self.assertTrue(not (i < j) or a.wdl(model=model).winning_chance() <= b.wdl(model=model).winning_chance())
+                    self.assertTrue(not (i < j) or a.wdl(model=model).losing_chance() >= b.wdl(model=model).losing_chance())
 
     def test_score(self):
         # Negation.
