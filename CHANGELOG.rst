@@ -1,8 +1,8 @@
 Changelog for python-chess
 ==========================
 
-Upcoming in the next release
-----------------------------
+New in v1.10.0 (27th Jul 2023)
+------------------------------
 
 New features:
 
