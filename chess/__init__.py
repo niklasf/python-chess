@@ -240,7 +240,7 @@ def square_knight_distance(a: Square, b: Square) -> int:
     elif dx == dy == 2:
         return 4
     elif dx == dy == 1:
-        if BB_SQUARES[a] & BB_CORNERS or BB_SQUARES[b] & BB_CORNERS: # Special case only for corner squares
+        if BB_SQUARES[a] & BB_CORNERS or BB_SQUARES[b] & BB_CORNERS:  # Special case only for corner squares
             return 4
 
     m = math.ceil(max(dx / 2, dy / 2, (dx + dy) / 3))

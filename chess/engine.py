@@ -2181,7 +2181,7 @@ class XBoardProtocol(Protocol):
 
             if self.config.get("random"):
                 self.send_line("random")
-            
+
             opponent_name = self.config.get("name")
             if opponent_name and self.features.get("name", True):
                 self.send_line(f"name {opponent_name}")
@@ -2532,7 +2532,7 @@ class XBoardProtocol(Protocol):
         opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or self.target_config.get("engine_rating") or 0,
                                                            "opponent_rating": opponent.rating or 0,
                                                            "computer": opponent.is_engine or False}
-        
+
         if opponent.name and self.features.get("name", True):
             opponent_info["name"] = f"{opponent.title or ''} {opponent.name}".strip()
 
@@ -2548,7 +2548,7 @@ class XBoardProtocol(Protocol):
                     raise EngineError(f"invalid line break or curly braces in game ending message: {game_ending!r}")
 
                 engine._new(board, engine.game, {})  # Send final moves to engine.
-                
+
                 outcome = board.outcome(claim_draw=True)
 
                 if not game_complete:
@@ -2966,7 +2966,7 @@ class SimpleEngine:
                 self.timeout)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
-        
+
     def ping(self) -> None:
         with self._not_shut_down():
             coro = asyncio.wait_for(self.protocol.ping(), self.timeout)

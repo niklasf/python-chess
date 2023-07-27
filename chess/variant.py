@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import chess
-import copy
 import itertools
 
 from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
