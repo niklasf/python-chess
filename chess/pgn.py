@@ -804,11 +804,6 @@ class Game(GameNode):
     def board(self) -> chess.Board:
         return self.headers.board()
 
-    # TODO: Consider naming.
-    def _interactive_viewer(self) -> Any:
-        from chess._interactive import InteractiveViewer
-        return InteractiveViewer(self)  # type: ignore
-
     def ply(self) -> int:
         # Optimization: Parse FEN only for custom starting positions.
         return self.board().ply() if "FEN" in self.headers else 0
