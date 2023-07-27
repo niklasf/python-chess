@@ -371,4 +371,4 @@ License
 -------
 
 python-chess is licensed under the GPL 3 (or any later version at your option).
-Check out `LICENSE.txt` for the full text.
+Check out ``LICENSE.txt`` for the full text.
