@@ -108,46 +108,11 @@ class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
             pass
 
         if threading.current_thread() is threading.main_thread():
-            try:
-                watcher = asyncio.ThreadedChildWatcher()
-                LOGGER.debug("Using ThreadedChildWatcher")
-                return watcher
-            except AttributeError:
-                # Before Python 3.8.
-                LOGGER.debug("Using SafeChildWatcher")
-                return asyncio.SafeChildWatcher()
-
-        class PollingChildWatcher(asyncio.SafeChildWatcher):
-            _loop: Optional[asyncio.AbstractEventLoop]
-            _callbacks: Dict[int, Any]
-
-            def __init__(self) -> None:
-                super().__init__()
-                self._poll_handle: Optional[asyncio.Handle] = None
-                self._poll_delay = 0.001
-
-            def attach_loop(self, loop: Optional[asyncio.AbstractEventLoop]) -> None:
-                assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
-
-                if self._loop is not None and loop is None and self._callbacks:
-                    warnings.warn("A loop is being detached from a child watcher with pending handlers", RuntimeWarning)
-
-                if self._poll_handle is not None:
-                    self._poll_handle.cancel()
-
-                self._loop = loop
-                if self._loop is not None:
-                    self._poll_handle = self._loop.call_soon(self._poll)
-                    self._do_waitpid_all()  # type: ignore
-
-            def _poll(self) -> None:
-                if self._loop:
-                    self._do_waitpid_all()  # type: ignore
-                    self._poll_delay = min(self._poll_delay * 2, 1.0)
-                    self._poll_handle = self._loop.call_later(self._poll_delay, self._poll)
-
-        LOGGER.debug("Using PollingChildWatcher")
-        return PollingChildWatcher()
+            LOGGER.debug("Using SafeChildWatcher")
+            return asyncio.SafeChildWatcher()
+        else:
+            LOGGER.debug("Using ThreadedChildWatcher")
+            return asyncio.ThreadedChildWatcher()
 
 
 def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]], *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
