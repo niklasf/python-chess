@@ -453,7 +453,8 @@ class Score(abc.ABC):
 
         :param model:
             * ``sf``, the WDL model used by the latest Stockfish
-              (currently ``sf15.1``).
+              (currently ``sf16``).
+            * ``sf16``, the WDL model used by Stockfish 16.
             * ``sf15.1``, the WDL model used by Stockfish 15.1.
             * ``sf15``, the WDL model used by Stockfish 15.
             * ``sf14``, the WDL model used by Stockfish 14.
