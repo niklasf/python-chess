@@ -18,8 +18,13 @@ if sys.version_info < (3, ):
         end of 2018. Consider upgrading to Python 3.
         """))
 
-if sys.version_info < (3, 7):
-    raise ImportError("Since version 1.0.0, python-chess requires Python 3.7 or later.")
+if sys.version_info < (3, 8):
+    raise ImportError(textwrap.dedent("""\
+        You are trying to install python-chess.
+
+        Since version 1.11.0, python-chess requires Python 3.8 or later.
+        Since version 1.0.0, python-chess requires Python 3.7 or later.
+        """))
 
 import chess
 
