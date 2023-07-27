@@ -24,14 +24,9 @@ import chess
 
 from chess import Color
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
 
-try:
-    from typing import Literal
-    _WdlModel = Literal["sf", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
-except ImportError:
-    # Before Python 3.8.
-    _WdlModel = str  # type: ignore
+WdlModel = Literal["sf", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
 
 T = TypeVar("T")
@@ -476,7 +471,7 @@ class PovScore:
         """Tests if this is a mate score."""
         return self.relative.is_mate()
 
-    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> PovWdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> PovWdl:
         """See :func:`~chess.engine.Score.wdl()`."""
         return PovWdl(self.relative.wdl(model=model, ply=ply), self.turn)
 
@@ -553,7 +548,7 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
-    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
         """
         Returns statistics for the expected outcome of this game, based on
         a *model*, given that this score is reached at *ply*.
@@ -699,7 +694,7 @@ class Cp(Score):
     def score(self, *, mate_score: Optional[int] = None) -> int:
         return self.cp
 
-    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
         if model == "lichess":
             wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
@@ -758,7 +753,7 @@ class Mate(Score):
         else:
             return -mate_score - self.moves
 
-    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
         if model == "lichess":
             cp = (21 - min(10, abs(self.moves))) * 100
             wins = _lichess_raw_wins(cp)
@@ -795,7 +790,7 @@ class MateGivenType(Score):
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
         return mate_score
 
-    def wdl(self, *, model: _WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
         return Wdl(1000, 0, 0)
 
     def __neg__(self) -> Mate:

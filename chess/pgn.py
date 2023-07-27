@@ -11,15 +11,8 @@ import chess
 import chess.engine
 import chess.svg
 
-from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
 from chess import Color, Square
-
-try:
-    from typing import Literal
-    _TrueLiteral = Literal[True]
-except ImportError:
-    # Before Python 3.8.
-    _TrueLiteral = bool  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1289,7 +1282,7 @@ class BoardBuilder(BaseVisitor[chess.Board]):
         return self.board
 
 
-class SkipVisitor(BaseVisitor[_TrueLiteral]):
+class SkipVisitor(BaseVisitor[Literal[True]]):
     """Skips a game."""
 
     def begin_game(self) -> SkipType:
@@ -1301,7 +1294,7 @@ class SkipVisitor(BaseVisitor[_TrueLiteral]):
     def begin_variation(self) -> SkipType:
         return SKIP
 
-    def result(self) -> _TrueLiteral:
+    def result(self) -> Literal[True]:
         return True
 
 
