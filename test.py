@@ -3114,7 +3114,6 @@ class EngineTestCase(unittest.TestCase):
             await protocol.ping()
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_debug(self):
@@ -3130,7 +3129,6 @@ class EngineTestCase(unittest.TestCase):
             protocol.debug(False)
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_go(self):
@@ -3173,7 +3171,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.ponder, None)
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_iota_log(self):
@@ -3196,7 +3193,6 @@ class EngineTestCase(unittest.TestCase):
                 await protocol.play(board, chess.engine.Limit(time=5.0))
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_analyse_mode(self):
@@ -3243,7 +3239,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(best.ponder, chess.Move.from_uci("e7e5"))
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_play_after_analyse(self):
@@ -3271,7 +3266,6 @@ class EngineTestCase(unittest.TestCase):
 
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_ponderhit(self):
@@ -3387,7 +3381,6 @@ class EngineTestCase(unittest.TestCase):
 
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_uci_info(self):
@@ -3474,7 +3467,6 @@ class EngineTestCase(unittest.TestCase):
             await protocol.send_game_result(checkmate_board)
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_hiarcs_bestmove(self):
@@ -3499,7 +3491,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.info["string"], "keep double  space")
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_options(self):
@@ -3562,7 +3553,6 @@ class EngineTestCase(unittest.TestCase):
             await protocol.configure({"buttonvar": None})
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_replay(self):
@@ -3624,7 +3614,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.move, board.parse_san("d4"))
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_opponent(self):
@@ -3682,7 +3671,6 @@ class EngineTestCase(unittest.TestCase):
                 result = await protocol.play(board, limit, game="bad game", opponent=bad_opponent)
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_result(self):
@@ -3772,7 +3760,6 @@ class EngineTestCase(unittest.TestCase):
             await protocol.send_game_result(material_board)
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_analyse(self):
@@ -3810,7 +3797,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(info["pv"], [chess.Move.from_uci(move) for move in ["f7f6", "e2e4", "e7e6"]])
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_level(self):
@@ -3855,7 +3841,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual(result.move, chess.Move.from_uci("d2d4"))
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     def test_xboard_error(self):
@@ -3874,7 +3859,6 @@ class EngineTestCase(unittest.TestCase):
 
             mock.assert_done()
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     @catchAndSkip(FileNotFoundError, "need /bin/bash")
@@ -3886,7 +3870,6 @@ class EngineTestCase(unittest.TestCase):
             self.assertNotEqual(results[0], None)
             self.assertNotEqual(results[1], None)
 
-        asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
         asyncio.run(main())
 
     @catchAndSkip(FileNotFoundError, "need /bin/bash")

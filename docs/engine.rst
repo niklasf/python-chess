@@ -58,7 +58,6 @@ Example: Let Stockfish play against itself, 100 milliseconds per move.
 
         await engine.quit()
 
-    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
 .. autoclass:: chess.engine.Protocol
@@ -126,7 +125,6 @@ Example:
 
         await engine.quit()
 
-    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
 .. autoclass:: chess.engine.Protocol
@@ -189,7 +187,6 @@ Example: Stream information from the engine and stop on an arbitrary condition.
 
         await engine.quit()
 
-    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
 .. autoclass:: chess.engine.Protocol
@@ -243,7 +240,6 @@ Options
 
         # [...]
 
-    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())
 
 .. autoclass:: chess.engine.Protocol
@@ -315,5 +311,3 @@ Reference
 
 .. autoclass:: chess.engine.SimpleAnalysisResult
     :members:
-
-.. autofunction:: chess.engine.EventLoopPolicy

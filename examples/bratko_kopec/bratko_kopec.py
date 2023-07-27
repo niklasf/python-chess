@@ -152,5 +152,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
     asyncio.run(main())

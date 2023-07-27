@@ -7,7 +7,6 @@ from pythonfuzz.main import PythonFuzz
 
 
 logging.getLogger("chess.engine").setLevel(logging.CRITICAL)
-asyncio.set_event_loop_policy(chess.engine.EventLoopPolicy())
 
 
 @PythonFuzz

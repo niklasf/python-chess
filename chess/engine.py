@@ -42,77 +42,8 @@ LOGGER = logging.getLogger(__name__)
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 
 
-class EventLoopPolicy(asyncio.AbstractEventLoopPolicy):
-    """
-    An event loop policy for thread-local event loops and child watchers.
-    Ensures each event loop is capable of spawning and watching subprocesses,
-    even when not running on the main thread.
-
-    Windows: Uses :class:`~asyncio.ProactorEventLoop`.
-
-    Unix: Uses :class:`~asyncio.SelectorEventLoop`. If available,
-    :class:`~asyncio.PidfdChildWatcher` is used to detect subprocess
-    termination (Python 3.9+ on Linux 5.3+). Otherwise, the default child
-    watcher is used on the main thread and relatively slow eager polling
-    is used on all other threads.
-    """
-    class _Local(threading.local):
-        loop: Optional[asyncio.AbstractEventLoop] = None
-        set_called = False
-        watcher: Optional[asyncio.AbstractChildWatcher] = None
-
-    def __init__(self) -> None:
-        self._local = self._Local()
-
-    def get_event_loop(self) -> asyncio.AbstractEventLoop:
-        if self._local.loop is None and not self._local.set_called and threading.current_thread() is threading.main_thread():
-            self.set_event_loop(self.new_event_loop())
-        if self._local.loop is None:
-            raise RuntimeError(f"no current event loop in thread {threading.current_thread().name!r}")
-        return self._local.loop
-
-    def set_event_loop(self, loop: Optional[asyncio.AbstractEventLoop]) -> None:
-        assert loop is None or isinstance(loop, asyncio.AbstractEventLoop)
-        self._local.set_called = True
-        self._local.loop = loop
-        if self._local.watcher is not None:
-            self._local.watcher.attach_loop(loop)
-
-    def new_event_loop(self) -> asyncio.AbstractEventLoop:
-        return asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.SelectorEventLoop()  # type: ignore
-
-    def get_child_watcher(self) -> asyncio.AbstractChildWatcher:
-        if self._local.watcher is None:
-            self._local.watcher = self._init_watcher()
-            self._local.watcher.attach_loop(self._local.loop)
-        return self._local.watcher
-
-    def set_child_watcher(self, watcher: Optional[asyncio.AbstractChildWatcher]) -> None:
-        assert watcher is None or isinstance(watcher, asyncio.AbstractChildWatcher)
-        if self._local.watcher is not None:
-            self._local.watcher.close()
-        self._local.watcher = watcher
-
-    def _init_watcher(self) -> asyncio.AbstractChildWatcher:
-        if sys.platform == "win32":
-            raise NotImplementedError
-
-        try:
-            os.close(os.pidfd_open(os.getpid()))
-            watcher: asyncio.AbstractChildWatcher = asyncio.PidfdChildWatcher()
-            LOGGER.debug("Using PidfdChildWatcher")
-            return watcher
-        except (AttributeError, OSError):
-            # Before Python 3.9 or before Linux 5.3 or the syscall is not
-            # permitted.
-            pass
-
-        if threading.current_thread() is threading.main_thread():
-            LOGGER.debug("Using SafeChildWatcher")
-            return asyncio.SafeChildWatcher()
-        else:
-            LOGGER.debug("Using ThreadedChildWatcher")
-            return asyncio.ThreadedChildWatcher()
+# No longer needed, but alias kept around for compatibility.
+EventLoopPolicy = asyncio.DefaultEventLoopPolicy
 
 
 def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]], *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
@@ -122,15 +53,8 @@ def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Corout
     Blocks on *future* and returns the result as soon as it is resolved.
     The coroutine and all remaining tasks continue running in the background
     until complete.
-
-    Note: This installs a :class:`chess.engine.EventLoopPolicy` for the entire
-    process.
     """
     assert asyncio.iscoroutinefunction(coroutine)
-
-    with _policy_lock:
-        if not isinstance(asyncio.get_event_loop_policy(), EventLoopPolicy):
-            asyncio.set_event_loop_policy(EventLoopPolicy())
 
     future: concurrent.futures.Future[T] = concurrent.futures.Future()
 
