@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+----------------------------
+
+Changes:
+
+* Dropped support for Python 3.7, which had reached its end of life.
+* `chess.engine.EventLoopPolicy` is no longer needed and now merely an alias
+  for the default event loop policy.
+
 New in v1.10.0 (27th Jul 2023)
 ------------------------------
 
