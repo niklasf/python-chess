@@ -46,7 +46,7 @@ MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 EventLoopPolicy = asyncio.DefaultEventLoopPolicy
 
 
-def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]], *, name: Optional[str] = None, debug: bool = False, _policy_lock: threading.Lock = threading.Lock()) -> T:
+def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]], *, name: Optional[str] = None, debug: bool = False) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
 
