@@ -1826,11 +1826,11 @@ def parse_time_control(time_control: str) -> TimeControl:
         moves_time, *bonus = part.split("+")
 
         if bonus:
-            bonus = bonus[0]
-            if bonus.lower().endswith("d"):
-                tcp.delay = float(bonus[:-1])
+            _bonus = bonus[0]
+            if _bonus.lower().endswith("d"):
+                tcp.delay = float(_bonus[:-1])
             else:
-                tcp.increment = float(bonus)
+                tcp.increment = float(_bonus)
 
         moves, *time = moves_time.split("/")
         if time:
