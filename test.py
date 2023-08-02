@@ -2493,6 +2493,53 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(first_drawn_game.headers["Site"], "03")
             self.assertEqual(first_drawn_game[0].move, chess.Move.from_uci("d2d3"))
 
+    def test_parse_time_control(self):
+        with open("data/pgn/nepomniachtchi-liren-game1.pgn") as pgn:
+            game = chess.pgn.read_game(pgn)
+            tc = game.time_control()
+
+            self.assertEqual(tc, chess.pgn.parse_time_control(game.headers["TimeControl"]))
+
+            self.assertEqual(tc.type, chess.pgn.TimeControlType.STANDARD)
+            self.assertEqual(len(tc.parts), 3)
+
+            tcp1, tcp2, tcp3 = tc.parts
+
+            self.assertEqual(tcp1, chess.pgn.TimeControlPart(40, 7200))
+            self.assertEqual(tcp2, chess.pgn.TimeControlPart(20, 3600))
+            self.assertEqual(tcp3, chess.pgn.TimeControlPart(0, 900, 30))
+
+        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.parse_time_control("60").type)
+        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.parse_time_control("60+1").type)
+
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("60+2").type)
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("300").type)
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("300+3").type)
+
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("300+10").type)
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("1800").type)
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("1800+10").type)
+
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("1800+30").type)
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("5400").type)
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("5400+30").type)
+
+        with self.assertRaises(ValueError):
+            chess.pgn.parse_time_control("300+a")
+
+        with self.assertRaises(ValueError):
+            chess.pgn.parse_time_control("300+ad")
+
+        with self.assertRaises(ValueError):
+            chess.pgn.parse_time_control("600:20/180")
+
+        with self.assertRaises(ValueError):
+            chess.pgn.parse_time_control("abc")
+
+        with self.assertRaises(ValueError):
+            chess.pgn.parse_time_control("40/abc")
+
+
     def test_visit_board(self):
         class TraceVisitor(chess.pgn.BaseVisitor):
             def __init__(self):

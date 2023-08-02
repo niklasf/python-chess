@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import dataclasses
 import enum
 import itertools
 import logging
@@ -139,6 +140,39 @@ SKIP = SkipType.SKIP
 
 
 ResultT = TypeVar("ResultT", covariant=True)
+
+
+class TimeControlType(enum.Enum):
+    UNKNOW = 0
+    UNLIMITED = 1
+    STANDARD = 2
+    RAPID = 3
+    BLITZ = 4
+    BULLET = 5
+
+
+@dataclasses.dataclass
+class TimeControlPart:
+    moves: int = 0
+    time: int = 0
+    increment: float = 0
+    delay: float = 0
+
+
+@dataclasses.dataclass
+class TimeControl:
+    """
+    PGN TimeControl Parser
+    Spec: http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm#c9.6
+
+    Not Yet Implemented:
+    - Hourglass/Sandclock ('*' prefix)
+    - Differentiating between Bronstein and Simple Delay (Not part of the PGN Spec)
+      - More Info: https://en.wikipedia.org/wiki/Chess_clock#Timing_methods
+    """
+
+    parts: list[TimeControlPart] = dataclasses.field(default_factory=list)
+    type: TimeControlType = TimeControlType.UNKNOW
 
 
 class _AcceptFrame:
@@ -858,6 +892,14 @@ class Game(GameNode):
 
         visitor.end_game()
         return visitor.result()
+
+    def time_control(self) -> TimeControl:
+        """
+        Returns the time control of the game. If the game has no time control
+        information, the default time control ('UNKNOWN') is returned.
+        """
+        time_control_header = self.headers.get("TimeControl", "")
+        return parse_time_control(time_control_header)
 
     @classmethod
     def from_board(cls: Type[GameT], board: chess.Board) -> GameT:
@@ -1763,3 +1805,61 @@ def skip_game(handle: TextIO) -> bool:
     Skips a game. Returns ``True`` if a game was found and skipped.
     """
     return bool(read_game(handle, Visitor=SkipVisitor))
+
+
+def parse_time_control(time_control: str) -> TimeControl:
+    tc = TimeControl()
+
+    if not time_control:
+        return tc
+
+    if time_control.startswith("?"):
+        return tc
+
+    if time_control.startswith("-"):
+        tc.type = TimeControlType.UNLIMITED
+        return tc
+
+    def _parse_part(part: str) -> TimeControlPart:
+        tcp = TimeControlPart()
+
+        moves_time, *bonus = part.split("+")
+
+        if bonus:
+            bonus = bonus[0]
+            if bonus.lower().endswith("d"):
+                tcp.delay = float(bonus[:-1])
+            else:
+                tcp.increment = float(bonus)
+
+        moves, *time = moves_time.split("/")
+        if time:
+            tcp.moves = int(moves)
+            tcp.time = int(time[0])
+        else:
+            tcp.moves = 0
+            tcp.time = int(moves)
+
+        return tcp
+
+    tc.parts = [_parse_part(part) for part in time_control.split(":")]
+
+    if len(tc.parts) > 1:
+        for part in tc.parts[:-1]:
+            if part.moves == 0:
+                raise ValueError("Only last part can be 'sudden death'.")
+
+    # Classification according to https://www.fide.com/FIDE/handbook/LawsOfChess.pdf
+    # (Bullet added)
+    base_time = tc.parts[0].time
+    increment = tc.parts[0].increment
+    if (base_time + 60 * increment) < 3 * 60:
+        tc.type = TimeControlType.BULLET
+    elif (base_time + 60 * increment) < 15 * 60:
+        tc.type = TimeControlType.BLITZ
+    elif (base_time + 60 * increment) < 60 * 60:
+        tc.type = TimeControlType.RAPID
+    else:
+        tc.type = TimeControlType.STANDARD
+
+    return tc
