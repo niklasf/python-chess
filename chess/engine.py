@@ -24,7 +24,7 @@ import chess
 
 from chess import Color
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
 
 WdlModel = Literal["sf", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
@@ -217,7 +217,7 @@ class Limit:
                       if getattr(self, attr) is not None))
 
 
-class InfoDict(typing.TypedDict, total=False):
+class InfoDict(TypedDict, total=False):
     """
     Dictionary of aggregated information sent by the engine.
 
