@@ -29,7 +29,8 @@ EnPassantSpec = Literal["legal", "fen", "xfen"]
 
 Color = bool
 COLORS = [WHITE, BLACK] = [True, False]
-COLOR_NAMES = ["black", "white"]
+ColorName = Literal["white", "black"]
+COLOR_NAMES: List[ColorName] = ["black", "white"]
 
 PieceType = int
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
