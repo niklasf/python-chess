@@ -1180,7 +1180,11 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["creationflags"] = popen_args.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
             except AttributeError:
                 # Unix.
-                popen_args["start_new_session"] = True
+                if sys.version_info >= (3, 11):
+                    popen_args["process_group"] = 0
+                else:
+                    # Before Python 3.11
+                    popen_args["start_new_session"] = True
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)
 
