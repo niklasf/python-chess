@@ -3610,11 +3610,13 @@ class Board(BaseBoard):
         bb_f = BB_FILE_F & backrank
         bb_g = BB_FILE_G & backrank
 
-        for candidate in scan_reversed(self.clean_castling_rights() & backrank & to_mask):
+        for candidate in scan_reversed(self.clean_castling_rights() & backrank):
             rook = BB_SQUARES[candidate]
 
             a_side = rook < king
             king_to = bb_c if a_side else bb_g
+            if not king_to & to_mask:
+                continue
             rook_to = bb_d if a_side else bb_f
 
             king_path = between(msb(king), msb(king_to))
