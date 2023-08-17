@@ -181,37 +181,36 @@ def parse_square(name: str) -> Square:
     return SQUARE_NAMES.index(name)
 
 def square_name(square: Square) -> str:
-    """Gets the name of the square, like ``a3``."""
+    """Takes a square as a parameter and returns the name of the square as a string --e.g. ``a3``."""
     return SQUARE_NAMES[square]
 
 def square(file_index: int, rank_index: int) -> Square:
-    """Gets a square number by file and rank index."""
+    """Takes a file index(int) and rank index(int) as parameters and returns a square number."""
     return rank_index * 8 + file_index
 
 def square_file(square: Square) -> int:
-    """Gets the file index of the square where ``0`` is the a-file."""
+    """Takes a square as a parameter and returns the file index of the square as an int 
+    where ``0`` is the a-file."""
     return square & 7
 
 def square_rank(square: Square) -> int:
-    """Gets the rank index of the square where ``0`` is the first rank."""
+    """Takes a square as a parameter and returns the rank index of the square as an int 
+    where ``0`` is the first rank."""
     return square >> 3
 
 def square_distance(a: Square, b: Square) -> int:
-    """
-    Gets the Chebyshev distance (i.e., the number of king steps) from square *a* to *b*.
-    """
+    """Takes two squares as a parameter and returns the Chebyshev distance (i.e.the number 
+    of king steps) from square *a* to *b* as an integer."""
     return max(abs(square_file(a) - square_file(b)), abs(square_rank(a) - square_rank(b)))
 
 def square_manhattan_distance(a: Square, b: Square) -> int:
-    """
-    Gets the Manhattan/Taxicab distance (i.e., the number of orthogonal king steps) from square *a* to *b*.
-    """
+    """Takes two squares as a parameter and returns the Manhattan/Taxicab distance (i.e. the 
+    number of orthogonal king steps) from square *a* to *b* as an integer."""
     return abs(square_file(a) - square_file(b)) + abs(square_rank(a) - square_rank(b))
 
 def square_knight_distance(a: Square, b: Square) -> int:
-    """
-    Gets the Knight distance (i.e., the number of knight moves) from square *a* to *b*.
-    """
+    """Takes two squares as parameters and returns the Knight distance (i.e. the number of 
+    knight moves) from square *a* to *b* as an integer."""
     dx = abs(square_file(a) - square_file(b))
     dy = abs(square_rank(a) - square_rank(b))
 
