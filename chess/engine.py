@@ -10,14 +10,12 @@ import dataclasses
 import enum
 import logging
 import math
-import warnings
 import shlex
 import subprocess
 import sys
 import threading
 import time
 import typing
-import os
 import re
 
 import chess
