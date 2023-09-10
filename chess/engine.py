@@ -1323,7 +1323,7 @@ class UciProtocol(Protocol):
                 max = None
                 current_var = None
                 var = []
-                
+
                 def parse_min_max_value(token: str, which: Literal["min", "max"]) -> Optional[int]:
                     try:
                         return int(token)
@@ -1742,7 +1742,7 @@ def _create_variation_line(root_board: chess.Board, line: str) -> tuple[list[che
             line = remaining_line_after_move
         else:
             return currline, line
-        
+
 
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     info: InfoDict = {}
