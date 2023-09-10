@@ -1323,6 +1323,13 @@ class UciProtocol(Protocol):
                 max = None
                 current_var = None
                 var = []
+                
+                def parse_min_max_value(token: str, which: Literal["min", "max"]):
+                    try:
+                        return int(token)
+                    except ValueError:
+                        LOGGER.exception(f"Exception parsing option {which}")
+                        return None
 
                 for token in arg.split():
                     if token == "name" and not name:
@@ -1349,15 +1356,9 @@ class UciProtocol(Protocol):
                     elif current_parameter == "var":
                         current_var.append(token)
                     elif current_parameter == "min":
-                        try:
-                            min = int(token)
-                        except ValueError:
-                            LOGGER.exception("Exception parsing option min")
+                        min = parse_min_max_value(token, "min")
                     elif current_parameter == "max":
-                        try:
-                            max = int(token)
-                        except ValueError:
-                            LOGGER.exception("Exception parsing option max")
+                        max = parse_min_max_value(token, "max")
 
                 if current_var is not None:
                     var.append(" ".join(current_var))
