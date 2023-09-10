@@ -1324,7 +1324,7 @@ class UciProtocol(Protocol):
                 current_var = None
                 var = []
                 
-                def parse_min_max_value(token: str, which: Literal["min", "max"]):
+                def parse_min_max_value(token: str, which: Literal["min", "max"]) -> Optional[int]:
                     try:
                         return int(token)
                     except ValueError:
