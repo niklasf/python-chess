@@ -1732,6 +1732,18 @@ class UciProtocol(Protocol):
 
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
 
+def _create_variation_line(root_board: chess.Board, line: str) -> tuple[list[chess.Move], str]:
+    board = root_board.copy(stack=False)
+    currline: list[chess.Move] = []
+    while True:
+        next_move, remaining_line_after_move = _next_token(line)
+        if UCI_REGEX.match(next_move):
+            currline.append(board.push_uci(next_move))
+            line = remaining_line_after_move
+        else:
+            return currline, line
+        
+
 def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL) -> InfoDict:
     info: InfoDict = {}
     if not selector:
@@ -1791,17 +1803,8 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
 
                 cpunr_text, remaining_line = _next_token(remaining_line)
                 cpunr = int(cpunr_text)
-                currline: List[chess.Move] = []
+                currline, remaining_line = _create_variation_line(root_board, remaining_line)
                 info["currline"][cpunr] = currline
-
-                board = root_board.copy(stack=False)
-                while True:
-                    next_move, remaining_line_after_move = _next_token(remaining_line)
-                    if UCI_REGEX.match(next_move):
-                        currline.append(board.push_uci(next_move))
-                        remaining_line = remaining_line_after_move
-                    else:
-                        break
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing currline from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "refutation" and selector & INFO_REFUTATION:
@@ -1813,30 +1816,14 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
                 refuted_text, remaining_line = _next_token(remaining_line)
                 refuted = board.push_uci(refuted_text)
 
-                refuted_by: List[chess.Move] = []
+                refuted_by, remaining_line = _create_variation_line(board, remaining_line)
                 info["refutation"][refuted] = refuted_by
-
-                while True:
-                    token, remaining_line_after_move = _next_token(remaining_line)
-                    if UCI_REGEX.match(token):
-                        refuted_by.append(board.push_uci(token))
-                        remaining_line = remaining_line_after_move
-                    else:
-                        break
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing refutation from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "pv" and selector & INFO_PV:
             try:
-                pv: List[chess.Move] = []
+                pv, remaining_line = _create_variation_line(root_board, remaining_line)
                 info["pv"] = pv
-                board = root_board.copy(stack=False)
-                while True:
-                    token, remaining_line_after_pv = _next_token(remaining_line)
-                    if UCI_REGEX.match(token):
-                        pv.append(board.push_uci(token))
-                        remaining_line = remaining_line_after_pv
-                    else:
-                        break
             except (ValueError, IndexError):
                 LOGGER.error("Exception parsing pv from info: %r, position at root: %s", arg, root_board.fen())
         elif parameter == "wdl":
