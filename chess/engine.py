@@ -1274,6 +1274,8 @@ class BaseCommand(Generic[ProtocolT, T]):
         return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
 
 
+UCI_OPTION_REGEX = re.compile(r"\s*(name|type|default|min|max|var)\s*")
+
 class UciProtocol(Protocol):
     """
     An implementation of the
@@ -1314,14 +1316,11 @@ class UciProtocol(Protocol):
                     self._id(engine, remaining)
 
             def _option(self, engine: UciProtocol, arg: str) -> None:
-                current_parameter = None
-
-                name: List[str] = []
-                type: List[str] = []
-                default: List[str] = []
+                name = ""
+                type = ""
+                default = ""
                 min = None
                 max = None
-                current_var = None
                 var = []
 
                 def parse_min_max_value(token: str, which: Literal["min", "max"]) -> Optional[int]:
@@ -1331,7 +1330,8 @@ class UciProtocol(Protocol):
                         LOGGER.exception(f"Exception parsing option {which}")
                         return None
 
-                for token in arg.split():
+                current_parameter = None
+                for token in UCI_OPTION_REGEX.split(arg):
                     if token == "name" and not name:
                         current_parameter = "name"
                     elif token == "type" and not type:
@@ -1344,27 +1344,21 @@ class UciProtocol(Protocol):
                         current_parameter = "max"
                     elif token == "var":
                         current_parameter = "var"
-                        if current_var is not None:
-                            var.append(" ".join(current_var))
-                        current_var = []
                     elif current_parameter == "name":
-                        name.append(token)
+                        name = token
                     elif current_parameter == "type":
-                        type.append(token)
+                        type = token
                     elif current_parameter == "default":
-                        default.append(token)
+                        default = token
                     elif current_parameter == "var":
-                        current_var.append(token)
+                        var.append(token)
                     elif current_parameter == "min":
                         min = parse_min_max_value(token, "min")
                     elif current_parameter == "max":
                         max = parse_min_max_value(token, "max")
 
-                if current_var is not None:
-                    var.append(" ".join(current_var))
-
-                without_default = Option(" ".join(name), " ".join(type), None, min, max, var)
-                option = Option(without_default.name, without_default.type, without_default.parse(" ".join(default)), min, max, var)
+                without_default = Option(name, type, None, min, max, var)
+                option = Option(without_default.name, without_default.type, without_default.parse(default), min, max, var)
                 engine.options[option.name] = option
 
                 if option.default is not None:
