@@ -1320,7 +1320,7 @@ class UciProtocol(Protocol):
 
                 parameters = list(option_parts.keys()) + ['var']
                 option_regex = fr"\s*({'|'.join(parameters)})\s*"
-                for token in re.split(option_regex, arg):
+                for token in re.split(option_regex, arg.strip()):
                     if token == "var" or (token in option_parts and not option_parts[token]):
                         current_parameter = token
                     elif current_parameter == "var":
