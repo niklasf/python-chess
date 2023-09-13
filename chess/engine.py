@@ -1276,6 +1276,7 @@ class BaseCommand(Generic[ProtocolT, T]):
 
 UCI_OPTION_REGEX = re.compile(r"\s*(name|type|default|min|max|var)\s*")
 
+
 class UciProtocol(Protocol):
     """
     An implementation of the
@@ -1316,46 +1317,31 @@ class UciProtocol(Protocol):
                     self._id(engine, remaining)
 
             def _option(self, engine: UciProtocol, arg: str) -> None:
-                name = ""
-                type = ""
-                default = ""
-                min = None
-                max = None
+                current_parameter = None
+                option_parts: dict[str, str] = {k: "" for k in ["name", "type", "default", "min", "max"]}
                 var = []
 
-                def parse_min_max_value(token: str, which: Literal["min", "max"]) -> Optional[int]:
+                for token in UCI_OPTION_REGEX.split(arg):
+                    if token == "var" or (token in option_parts and not option_parts[token]):
+                        current_parameter = token
+                    elif current_parameter == "var":
+                        var.append(token)
+                    elif current_parameter:
+                        option_parts[current_parameter] = token
+
+                def parse_min_max_value(option_parts: dict[str, str], which: Literal["min", "max"]) -> Optional[int]:
                     try:
-                        return int(token)
+                        number = option_parts[which]
+                        return int(number) if number else None
                     except ValueError:
                         LOGGER.exception(f"Exception parsing option {which}")
                         return None
 
-                current_parameter = None
-                for token in UCI_OPTION_REGEX.split(arg):
-                    if token == "name" and not name:
-                        current_parameter = "name"
-                    elif token == "type" and not type:
-                        current_parameter = "type"
-                    elif token == "default" and not default:
-                        current_parameter = "default"
-                    elif token == "min" and min is None:
-                        current_parameter = "min"
-                    elif token == "max" and max is None:
-                        current_parameter = "max"
-                    elif token == "var":
-                        current_parameter = "var"
-                    elif current_parameter == "name":
-                        name = token
-                    elif current_parameter == "type":
-                        type = token
-                    elif current_parameter == "default":
-                        default = token
-                    elif current_parameter == "var":
-                        var.append(token)
-                    elif current_parameter == "min":
-                        min = parse_min_max_value(token, "min")
-                    elif current_parameter == "max":
-                        max = parse_min_max_value(token, "max")
+                name = option_parts["name"]
+                type = option_parts["type"]
+                default = option_parts["default"]
+                min = parse_min_max_value(option_parts, "min")
+                max = parse_min_max_value(option_parts, "max")
 
                 without_default = Option(name, type, None, min, max, var)
                 option = Option(without_default.name, without_default.type, without_default.parse(default), min, max, var)
