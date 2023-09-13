@@ -1274,9 +1274,6 @@ class BaseCommand(Generic[ProtocolT, T]):
         return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
 
 
-UCI_OPTION_REGEX = re.compile(r"\s*(name|type|default|min|max|var)\s*")
-
-
 class UciProtocol(Protocol):
     """
     An implementation of the
@@ -1321,7 +1318,9 @@ class UciProtocol(Protocol):
                 option_parts: dict[str, str] = {k: "" for k in ["name", "type", "default", "min", "max"]}
                 var = []
 
-                for token in UCI_OPTION_REGEX.split(arg):
+                parameters = list(option_parts.keys()) + ['var']
+                option_regex = fr"\s*({'|'.join(parameters)})\s*"
+                for token in re.split(option_regex, arg):
                     if token == "var" or (token in option_parts and not option_parts[token]):
                         current_parameter = token
                     elif current_parameter == "var":
