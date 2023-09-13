@@ -1387,7 +1387,7 @@ class UciProtocol(Protocol):
                 engine._isready()
 
             def line_received(self, engine: UciProtocol, line: str) -> None:
-                if line == "readyok":
+                if line.strip() == "readyok":
                     self.result.set_result(None)
                     self.set_finished()
                 else:
