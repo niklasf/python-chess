@@ -338,7 +338,7 @@ If you like, share interesting things you are using python-chess for, for exampl
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 
 * extensions to build engines (search and evaluation) – https://github.com/Mk-Chan/python-chess-engine-extensions
-* a stand-alone chess computer based on DGT board – http://www.picochess.org/
+* a stand-alone chess computer based on DGT board – https://picochess.com/
 * a bridge between Lichess API and chess engines – https://github.com/lichess-bot-devs/lichess-bot
 * a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
 * an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
