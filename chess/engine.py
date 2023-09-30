@@ -2597,7 +2597,7 @@ class AnalysisResult:
     Automatically stops the analysis when used as a context manager.
     """
 
-    multipv: List[chess.engine.InfoDict]
+    multipv: List[InfoDict]
     """
     A list of dictionaries with aggregated information sent by the engine.
     One item for each root move.
