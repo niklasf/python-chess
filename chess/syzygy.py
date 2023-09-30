@@ -1257,7 +1257,7 @@ class DtzTable(Table):
             self.norm = [0 for _ in range(self.num)]
             self.tb_size = [0, 0, 0, 0]
             self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            self.files = [PawnFileDataDtz() for f in range(4)]
+            self.files = [PawnFileDataDtz() for _ in range(4)]
 
             files = 4 if self.data[4] & 0x02 else 1
 
