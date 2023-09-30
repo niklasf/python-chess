@@ -312,7 +312,7 @@ class _EmptyMmap(bytearray):
     def close(self) -> None:
         pass
 
-    def madvise(self, option: int, start: int = ..., length: int = ...) -> None:
+    def madvise(self, option: int) -> None:
         pass
 
 
