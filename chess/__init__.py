@@ -412,8 +412,8 @@ def _carry_rippler(mask: Bitboard) -> Iterator[Bitboard]:
             break
 
 def _attack_table(deltas: List[int]) -> Tuple[List[Bitboard], List[Dict[Bitboard, Bitboard]]]:
-    mask_table = []
-    attack_table = []
+    mask_table: List[Bitboard] = []
+    attack_table: List[Dict[Bitboard, Bitboard]] = []
 
     for square in SQUARES:
         attacks = {}
@@ -433,9 +433,9 @@ BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 
 def _rays() -> List[List[Bitboard]]:
-    rays = []
+    rays: List[List[Bitboard]] = []
     for a, bb_a in enumerate(BB_SQUARES):
-        rays_row = []
+        rays_row: List[Bitboard] = []
         for b, bb_b in enumerate(BB_SQUARES):
             if BB_DIAG_ATTACKS[a][0] & bb_b:
                 rays_row.append((BB_DIAG_ATTACKS[a][0] & BB_DIAG_ATTACKS[b][0]) | bb_a | bb_b)
@@ -961,7 +961,7 @@ class BaseBoard:
         Gets the board FEN (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR``).
         """
-        builder = []
+        builder: List[str] = []
         empty = 0
 
         for square in SQUARES_180:
@@ -1056,7 +1056,7 @@ class BaseBoard:
         """
         Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
         """
-        result = {}
+        result: Dict[Square, Piece] = {}
         for square in scan_reversed(self.occupied & mask):
             result[square] = typing.cast(Piece, self.piece_at(square))
         return result
@@ -1225,7 +1225,7 @@ class BaseBoard:
         return f"{type(self).__name__}({self.board_fen()!r})"
 
     def __str__(self) -> str:
-        builder = []
+        builder: List[str] = []
 
         for square in SQUARES_180:
             piece = self.piece_at(square)
@@ -1251,7 +1251,7 @@ class BaseBoard:
         :param invert_color: Invert color of the Unicode pieces.
         :param borders: Show borders and a coordinate margin.
         """
-        builder = []
+        builder: List[str] = []
         for rank_index in (range(7, -1, -1) if orientation else range(8)):
             if borders:
                 builder.append("  ")
@@ -2094,7 +2094,7 @@ class Board(BaseBoard):
         transpositions.update((transposition_key, ))
 
         # Count positions.
-        switchyard = []
+        switchyard: List[Move] = []
         while self.move_stack:
             move = self.pop()
             switchyard.append(move)
@@ -2147,7 +2147,7 @@ class Board(BaseBoard):
 
         # Check full replay.
         transposition_key = self._transposition_key()
-        switchyard = []
+        switchyard: List[Move] = []
 
         try:
             while True:
@@ -2343,7 +2343,7 @@ class Board(BaseBoard):
         if not castling_rights:
             return "-"
 
-        builder = []
+        builder: List[str] = []
 
         for square in scan_reversed(castling_rights & BB_RANK_1):
             builder.append(FILE_NAMES[square_file(square)].upper())
@@ -2354,7 +2354,7 @@ class Board(BaseBoard):
         return "".join(builder)
 
     def castling_xfen(self) -> str:
-        builder = []
+        builder: List[str] = []
 
         for color in COLORS:
             king = self.king(color)
@@ -2615,7 +2615,7 @@ class Board(BaseBoard):
         return super().chess960_pos()
 
     def _epd_operations(self, operations: Mapping[str, Union[None, str, int, float, Move, Iterable[Move]]]) -> str:
-        epd = []
+        epd: List[str] = []
         first_op = True
 
         for opcode, operand in operations.items():
@@ -2786,7 +2786,7 @@ class Board(BaseBoard):
 
                     if opcode == "pv":
                         # A variation.
-                        variation = []
+                        variation: List[Move] = []
                         for token in operand.split():
                             move = position.parse_xboard(token)
                             variation.append(move)
@@ -2963,7 +2963,7 @@ class Board(BaseBoard):
         :raises: :exc:`IllegalMoveError` if any moves in the sequence are illegal.
         """
         board = self.copy(stack=False)
-        san = []
+        san: List[str] = []
 
         for move in variation:
             if not board.is_legal(move):
@@ -3781,7 +3781,7 @@ class PseudoLegalMoveGenerator:
         return self.board.is_pseudo_legal(move)
 
     def __repr__(self) -> str:
-        builder = []
+        builder: List[str] = []
 
         for move in self:
             if self.board.is_legal(move):
@@ -3898,7 +3898,7 @@ class SquareSet:
 
     def __init__(self, squares: IntoSquareSet = BB_EMPTY) -> None:
         try:
-            self.mask = squares.__int__() & BB_ALL  # type: ignore
+            self.mask: Bitboard = squares.__int__() & BB_ALL  # type: ignore
             return
         except AttributeError:
             self.mask = 0
@@ -4095,7 +4095,7 @@ class SquareSet:
         return f"SquareSet({self.mask:#021_x})"
 
     def __str__(self) -> str:
-        builder = []
+        builder: List[str] = []
 
         for square in SQUARES_180:
             mask = BB_SQUARES[square]
