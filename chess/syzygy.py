@@ -12,7 +12,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Deque, Dict, Iterable, Iterator, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Deque, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union
 
 
 UINT64_BE = struct.Struct(">Q")
@@ -368,7 +368,7 @@ def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int]
 def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
     first = "K" if one_king else "P"
 
-    targets = []
+    targets: List[str] = []
 
     white_pieces = piece_count - 2
     black_pieces = 0
@@ -411,7 +411,7 @@ def _dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
 
 
 def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
-    closed = set()
+    closed: Set[str] = set()
     if one_king:
         closed.add("KvK")
 
@@ -422,7 +422,7 @@ def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
 
 
 def all_dependencies(targets: Iterable[str], *, one_king: bool = True) -> Iterator[str]:
-    closed = set()
+    closed: Set[str] = set()
     if one_king:
         closed.add("KvK")
 
@@ -684,10 +684,7 @@ class Table:
             i += norm[i]
 
     def calc_factors_piece(self, factor: List[int], order: int, norm: List[int]) -> int:
-        if not self.variant.connected_kings:
-            PIVFAC = [31332, 28056, 462]
-        else:
-            PIVFAC = [31332, 0, 518, 278]
+        PIVFAC = [31332, 0, 518, 278] if self.variant.connected_kings else [31332, 28056, 462]
 
         n = 64 - norm[0]
 
@@ -1310,7 +1307,7 @@ class DtzTable(Table):
                     p_data = self._next
                     self.flags.append(self._flags)
 
-                self.map_idx = []
+                self.map_idx: List[List[int]] = []
                 self.p_map = p_data
                 for f in range(files):
                     self.map_idx.append([])
