@@ -434,7 +434,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 })
 
         # Render selected squares.
-        if squares is not None and square in squares:
+        if square in squares:
             ET.SubElement(svg, "use", _attrs({
                 "href": "#xx",
                 "xlink:href": "#xx",

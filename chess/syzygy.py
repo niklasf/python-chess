@@ -1261,7 +1261,7 @@ class DtzTable(Table):
             p_data = 5
 
             if not self.has_pawns:
-                self.map_idx = [[0, 0, 0, 0]]
+                self.map_idx: List[List[int]] = [[0, 0, 0, 0]]
 
                 self.setup_pieces_piece_dtz(p_data, 0)
                 p_data += self.num + 1
@@ -1307,7 +1307,7 @@ class DtzTable(Table):
                     p_data = self._next
                     self.flags.append(self._flags)
 
-                self.map_idx: List[List[int]] = []
+                self.map_idx = []
                 self.p_map = p_data
                 for f in range(files):
                     self.map_idx.append([])
