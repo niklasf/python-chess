@@ -10,7 +10,7 @@ import subprocess
 def system(command):
     print(command)
     exit_code = os.system(command)
-    if exit_code != 0:
+    if exit_code:
         sys.exit(exit_code)
 
 
@@ -21,7 +21,7 @@ def check_git():
 
     system("git fetch origin")
     behind = int(subprocess.check_output(["git", "rev-list", "--count", "master..origin/master"]))
-    if behind > 0:
+    if behind:
         print(f"master is {behind} commit(s) behind origin/master")
         sys.exit(1)
 
@@ -65,15 +65,14 @@ def tag_and_push():
             release_txt.write(headline + os.linesep)
 
             for line in changelog_file:
-                if not first_section:
-                    if line.startswith("-------"):
-                        first_section = True
+                if line.startswith("-------") and not first_section:
+                    first_section = True
                 else:
                     if line.startswith("-------"):
                         break
-                    else:
-                        if not prev_line.startswith("------"):
-                            release_txt.write(prev_line)
+
+                    if not prev_line.startswith("------"):
+                        release_txt.write(prev_line)
 
                 prev_line = line
 
