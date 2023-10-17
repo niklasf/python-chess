@@ -310,28 +310,28 @@ for i in range(5):
     s = 0
     while j < 6:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
+        s += 1 if not i else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][0] = s
 
     s = 0
     while j < 12:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
+        s += 1 if not i else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][1] = s
 
     s = 0
     while j < 18:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
+        s += 1 if not i else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][2] = s
 
     s = 0
     while j < 24:
         PAWNIDX[i][j] = s
-        s += 1 if i == 0 else binom(PTWIST[INVFLAP[j]], i)
+        s += 1 if not i else binom(PTWIST[INVFLAP[j]], i)
         j += 1
     PFACTOR[i][3] = s
 
@@ -343,7 +343,7 @@ for i in range(5):
     s = 0
     for j in range(10):
         MULTIDX[i][j] = s
-        s += 1 if i == 0 else binom(MTWIST[INVTRIANGLE[j]], i)
+        s += 1 if not i else binom(MTWIST[INVTRIANGLE[j]], i)
     MFACTOR[i] = s
 
 WDL_TO_MAP = [1, 3, 0, 2, 0]
@@ -373,7 +373,7 @@ def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
     white_pieces = piece_count - 2
     black_pieces = 0
     while white_pieces >= black_pieces:
-        targets.append(first + "P" * white_pieces + "v" + first + "P" * black_pieces)
+        targets.append(f"{first}{'P' * white_pieces}v{first}{'P'*black_pieces}")
         white_pieces -= 1
         black_pieces += 1
 
@@ -668,7 +668,7 @@ class Table:
         return d
 
     def set_norm_piece(self, norm: List[int], pieces: List[int]) -> None:
-        if self.enc_type == 0:
+        if not self.enc_type:
             norm[0] = 3
         elif self.enc_type == 2:
             norm[0] = 2
@@ -782,11 +782,11 @@ class Table:
             for i in range(n):
                 if offdiag(pos[i]):
                     break
-            if i < (3 if self.enc_type == 0 else 2) and offdiag(pos[i]) > 0:
+            if i < (3 if not self.enc_type else 2) and offdiag(pos[i]) > 0:
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
 
-        if self.enc_type == 0:  # 111
+        if not self.enc_type:  # 111
             i = int(pos[1] > pos[0])
             j = int(pos[2] > pos[0]) + int(pos[2] > pos[1])
 
@@ -822,7 +822,7 @@ class Table:
             if pos[0] & 0x20:
                 for i in range(n):
                     pos[i] ^= 0x38
-            if offdiag(pos[0]) > 0 or (offdiag(pos[0]) == 0 and offdiag(pos[1]) > 0):
+            if offdiag(pos[0]) > 0 or (not offdiag(pos[0]) and offdiag(pos[1]) > 0):
                 for i in range(n):
                     pos[i] = flipdiag(pos[i])
             if test45(pos[1]) and TRIANGLE[pos[0]] == TRIANGLE[pos[1]]:
@@ -1201,7 +1201,7 @@ class WdlTable(Table):
             while i < self.num:
                 piece_type = self.pieces[bside][i] & 0x07
                 color = (self.pieces[bside][i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, chess.WHITE if not color else chess.BLACK)
 
                 for square in chess.scan_forward(bb):
                     p[i] = square
@@ -1379,7 +1379,7 @@ class DtzTable(Table):
             while i < self.num:
                 piece_type = pc[i] & 0x07
                 color = (pc[i] ^ cmirror) >> 3
-                bb = board.pieces_mask(piece_type, chess.WHITE if color == 0 else chess.BLACK)
+                bb = board.pieces_mask(piece_type, chess.WHITE if not color else chess.BLACK)
 
                 for square in chess.scan_forward(bb):
                     p[i] = square
@@ -1707,7 +1707,7 @@ class Tablebase:
         if v1 > -3:
             if v1 >= v:
                 v = v1
-            elif v == 0:
+            elif not v:
                 # If there is not at least one legal non-en-passant move we are
                 # forced to play the losing en passant cature.
                 if all(board.is_en_passant(move) for move in board.generate_legal_moves()):
@@ -1735,7 +1735,7 @@ class Tablebase:
     def probe_dtz_no_ep(self, board: chess.Board) -> int:
         wdl, success = self.probe_ab(board, -2, 2, threats=True)
 
-        if wdl == 0:
+        if not wdl:
             return 0
 
         if success == 2 or not board.occupied_co[board.turn] & ~board.pawns:
