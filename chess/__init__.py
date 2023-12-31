@@ -621,6 +621,7 @@ class BaseBoard:
     """
 
     def __init__(self, board_fen: Optional[str] = STARTING_BOARD_FEN) -> None:
+
         self.occupied_co = [BB_EMPTY, BB_EMPTY]
 
         if board_fen is None:
@@ -1247,6 +1248,7 @@ class BaseBoard:
     def __str__(self) -> str:
         builder: List[str] = []
         row:int = 1
+        print(self.labels)
         if self.labels["up"]:
             #Labels
             if self.labels["left"]:
@@ -1628,25 +1630,35 @@ class Board(BaseBoard):
     manipulation.
     """
 
-    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False, labels:typing.Union[dict,list] = {"left":True, "up":False, "right":False, "down":True}) -> None:
+    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False, labels:typing.Union[dict[str, bool],list[str], bool] = {"left":True, "up":False, "right":False, "down":True}) -> None:
         """
         Inputs:
             - Labels: can be assigned a value of a dict or list. 
                 - Dictionary: it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
                 - List: you list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
+                - Bool:
+                    True - Returns Chess Board with default labels
+                    False - Returns Chess Board with no labels
         """
-        self.labels = {}
-        if isinstance(labels, dict):
-            self.labels = labels
-        else:
-            x = {"l":"left", "u":"up", "r":"right", "d":"down"}
-            for i in labels:
-                self.labels[x[i.lower()]] = True
-                x[i.lower()] = True
-            
-            for v in x:
-                if not v:
-                    self.labels[v] = False
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+
+                print(x,self.labels)
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+                print(x,self.labels)
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
 
         BaseBoard.__init__(self, None)
 
