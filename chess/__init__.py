@@ -1248,7 +1248,6 @@ class BaseBoard:
     def __str__(self) -> str:
         builder: List[str] = []
         row:int = 1
-        print(self.labels)
         if self.labels["up"]:
             #Labels
             if self.labels["left"]:
@@ -1264,7 +1263,7 @@ class BaseBoard:
             if self.labels["right"]:
                 builder.append("+-\n")
         if self.labels["left"]:
-            builder.append("1|")
+            builder.append("8|")
             
         for square in SQUARES_180:
             piece = self.piece_at(square)
@@ -1277,10 +1276,10 @@ class BaseBoard:
             if BB_SQUARES[square] & BB_FILE_H:
                 if square != H1:
                     if self.labels["right"]:
-                        builder.append(f"|{round(row/8)}")
+                        builder.append(f"|{9-round(row/8)}")
                     builder.append("\n")
                     if self.labels["left"]:
-                        builder.append(f"{round(row/8)+1}|")
+                        builder.append(f"{8-round(row/8)}|")
             
             else:
                 builder.append(" ")
@@ -1651,12 +1650,9 @@ class Board(BaseBoard):
                 for i in labels:
                     self.labels[x[i.lower()]] = True
                     x[i.lower()] = True
-
-                print(x,self.labels)
                 for v in x:
                     if not v==True:
                         self.labels[x[v]] = False
-                print(x,self.labels)
         elif not labels:
             self.labels = {"left":False, "up":False, "right":False, "down":False}
 
