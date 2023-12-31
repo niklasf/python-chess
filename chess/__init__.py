@@ -1635,6 +1635,7 @@ class Board(BaseBoard):
                 - Dictionary: it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
                 - List: you list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
         """
+        self.labels = {}
         if isinstance(labels, dict):
             self.labels = labels
         else:
@@ -1643,7 +1644,7 @@ class Board(BaseBoard):
                 self.labels[x[i.lower()]] = True
                 x[i.lower()] = True
             
-            for k,v in x:
+            for v in x:
                 if not v:
                     self.labels[v] = False
 
