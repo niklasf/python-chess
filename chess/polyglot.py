@@ -11,7 +11,7 @@ from types import TracebackType
 from typing import Callable, Container, Iterator, List, NamedTuple, Optional, Type, Union
 
 
-PathLike = Union[str, bytes, os.PathLike]
+StrOrBytesPath = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
@@ -323,7 +323,7 @@ def _randint(rng: Optional[random.Random], a: int, b: int) -> int:
 class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
-    def __init__(self, filename: PathLike) -> None:
+    def __init__(self, filename: StrOrBytesPath) -> None:
         fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
         try:
             self.mmap: Union[mmap.mmap, _EmptyMmap] = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
@@ -500,7 +500,7 @@ class MemoryMappedReader:
         self.mmap.close()
 
 
-def open_reader(path: PathLike) -> MemoryMappedReader:
+def open_reader(path: StrOrBytesPath) -> MemoryMappedReader:
     """
     Creates a reader for the file at the given path.
 

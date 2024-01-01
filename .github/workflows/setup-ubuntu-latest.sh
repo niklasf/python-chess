@@ -1,19 +1,10 @@
 #!/bin/sh -e
 
 # Stockfish
-wget https://files.stockfishchess.org/archive/Stockfish%2011/stockfish-11-linux.zip
-unzip stockfish-11-linux.zip
-mkdir -p bin
-cp stockfish-11-linux/Linux/stockfish_20011801_x64_bmi2 bin/stockfish
-chmod +x bin/stockfish
-echo "`pwd`/bin" >> $GITHUB_PATH
+sudo apt-get install -y stockfish
 
 # Crafty
-git clone https://github.com/lazydroid/crafty-chess --depth 1
-cd crafty-chess
-make unix-gcc
-pwd >> $GITHUB_PATH
-cd ..
+sudo apt-get install -y crafty
 
 # Gaviota libgtb
 git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
