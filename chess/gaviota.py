@@ -144,8 +144,7 @@ FLIPT = init_flipt()
 
 
 def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
-    MAX_I = 48
-    MAX_J = 48
+    MAX_I = MAX_J = 48
     idx = 0
     pp48_idx = [[-1] * MAX_J for _ in range(MAX_I)]
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
@@ -170,9 +169,7 @@ PP48_IDX, PP48_SQ_X, PP48_SQ_Y = init_pp48_idx()
 
 
 def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[int]]:
-    MAX_I = 48
-    MAX_J = 48
-    MAX_K = 48
+    MAX_I = MAX_J = MAX_K = 48
     ppp48_idx = [[[-1] * MAX_I for _ in range(MAX_J)] for _ in range(MAX_K)]
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
     ppp48_sq_y = [NOSQUARE] * MAX_PPP48_INDEX
