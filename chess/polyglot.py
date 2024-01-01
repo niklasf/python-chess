@@ -11,7 +11,7 @@ from types import TracebackType
 from typing import Callable, Container, Iterator, List, NamedTuple, Optional, Type, Union
 
 
-StrOrBytesPath = Union[str, bytes, os.PathLike[str], os.PathLike[bytes]]
+StrOrBytesPath = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
 
 
 ENTRY_STRUCT = struct.Struct(">QHHI")
