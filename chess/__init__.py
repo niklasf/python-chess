@@ -1232,20 +1232,46 @@ class BaseBoard:
                 - dict: it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
                 - list: you list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
         """
-        if isinstance(labels, dict):
-            self.labels = labels
-        else:
-            x = {"l":"left", "u":"up", "r":"right", "d":"down"}
-            for i in labels:
-                self.labels[x[i.lower()]] = True
-                x[i.lower()] = True
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
+
+
+    def __str__(self, labels:typing.Union[list, dict, bool] = True) -> str:
+        df_labels = self.labels
+
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
             
-            for k,v in x:
-                if not v:
-                    self.labels[v] = False
 
 
-    def __str__(self) -> str:
         builder: List[str] = []
         row:int = 1
         if self.labels["up"]:
@@ -1303,7 +1329,7 @@ class BaseBoard:
             if self.labels["right"]:
                 builder.append("| ")
         
-
+        self.labels = df_labels
         return "".join(builder)
 
     def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", orientation: Color = WHITE) -> str:
@@ -3908,6 +3934,11 @@ class LegalMoveGenerator:
     def __repr__(self) -> str:
         sans = ", ".join(self.board.san(move) for move in self)
         return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
+
+    def __getitem__(self):
+        sans = ", ".join(self.board.san(move) for move in self)
+        return list(sans)
+    
 
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
