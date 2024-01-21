@@ -319,6 +319,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     margin = 15 if coordinates else 0
     full_size = 2 * outer_border + 2 * margin + 2 * inner_border + 8 * SQUARE_SIZE
     svg = _svg(full_size, size)
+    defs = ET.SubElement(svg, "defs")
 
     if style:
         ET.SubElement(svg, "style").text = style
@@ -327,9 +328,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         desc = ET.SubElement(svg, "desc")
         asciiboard = ET.SubElement(desc, "pre")
         asciiboard.text = str(board)
-
-    defs = ET.SubElement(svg, "defs")
-    if board:
         for piece_color in chess.COLORS:
             for piece_type in chess.PIECE_TYPES:
                 if board.pieces_mask(piece_type, piece_color):
@@ -338,9 +336,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     squares = chess.SquareSet(squares) if squares else chess.SquareSet()
     if squares:
         defs.append(ET.fromstring(XX))
-
-    if check is not None:
-        defs.append(ET.fromstring(CHECK_GRADIENT))
 
     if outer_border:
         outer_border_color, outer_border_opacity = _select_color(colors, "outer border")
@@ -437,6 +432,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render check mark.
     if check is not None:
+        defs.append(ET.fromstring(CHECK_GRADIENT))
         file_index = chess.square_file(check)
         rank_index = chess.square_rank(check)
 
@@ -453,14 +449,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         }))
 
     # Render pieces and selected squares.
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    if board is not None:
+        for square, bb in enumerate(chess.BB_SQUARES):
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
 
-        if board is not None:
             piece = board.piece_at(square)
             if piece:
                 href = f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}"
@@ -470,14 +466,14 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                     "transform": f"translate({x:d}, {y:d})",
                 })
 
-        # Render selected squares.
-        if square in squares:
-            ET.SubElement(svg, "use", _attrs({
-                "href": "#xx",
-                "xlink:href": "#xx",
-                "x": x,
-                "y": y,
-            }))
+            # Render selected squares.
+            if square in squares:
+                ET.SubElement(svg, "use", _attrs({
+                    "href": "#xx",
+                    "xlink:href": "#xx",
+                    "x": x,
+                    "y": y,
+                }))
 
     # Render arrows.
     for arrow in arrows:
