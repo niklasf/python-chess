@@ -324,19 +324,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if style:
         ET.SubElement(svg, "style").text = style
 
-    if board:
-        desc = ET.SubElement(svg, "desc")
-        asciiboard = ET.SubElement(desc, "pre")
-        asciiboard.text = str(board)
-        for piece_color in chess.COLORS:
-            for piece_type in chess.PIECE_TYPES:
-                if board.pieces_mask(piece_type, piece_color):
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
-
-    squares = chess.SquareSet(squares) if squares else chess.SquareSet()
-    if squares:
-        defs.append(ET.fromstring(XX))
-
     if outer_border:
         outer_border_color, outer_border_opacity = _select_color(colors, "outer border")
         ET.SubElement(svg, "rect", _attrs({
@@ -450,6 +437,15 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render pieces and selected squares.
     if board is not None:
+        desc = ET.SubElement(svg, "desc")
+        asciiboard = ET.SubElement(desc, "pre")
+        asciiboard.text = str(board)
+        # Defining pieces
+        for piece_color in chess.COLORS:
+            for piece_type in chess.PIECE_TYPES:
+                if board.pieces_mask(piece_type, piece_color):
+                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+        # Rendering pieces
         for square, bb in enumerate(chess.BB_SQUARES):
             file_index = chess.square_file(square)
             rank_index = chess.square_rank(square)
@@ -466,14 +462,22 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                     "transform": f"translate({x:d}, {y:d})",
                 })
 
-            # Render selected squares.
-            if square in squares:
-                ET.SubElement(svg, "use", _attrs({
-                    "href": "#xx",
-                    "xlink:href": "#xx",
-                    "x": x,
-                    "y": y,
-                }))
+    # Render X Squares
+    if squares is not None:
+        defs.append(ET.fromstring(XX))
+        squares = chess.SquareSet(squares) if squares else chess.SquareSet()
+        for square in squares:
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+            # Render selected squares
+            ET.SubElement(svg, "use", _attrs({
+                "href": "#xx",
+                "xlink:href": "#xx",
+                "x": x,
+                "y": y,
+            }))
 
     # Render arrows.
     for arrow in arrows:
