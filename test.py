@@ -4299,6 +4299,19 @@ class SvgTestCase(unittest.TestCase):
         svg = chess.svg.piece(chess.Piece.from_symbol("K"))
         self.assertIn("id=\"white-king\"", svg)
 
+    def test_svg_squares(self):
+        svg = chess.svg.board(squares=[1,2])
+        self.assertEqual(svg.count('<use href="#xx"'), 2)
+
+    def test_svg_nag(self):
+        game = chess.pgn.read_game(io.StringIO("1. e4?! e5 2. Nf3 Nc6"))
+        assert game is not None, f"Error: ``handle`` should be a valid pgn file"
+        board = game.board()
+        nodes = (node for node in game.mainline())
+        node = next(nodes)
+        board.push(node.move)
+        svg = chess.svg.board(board, size=800, lastmove=node.move, nag=next(iter(node.nags)))
+        self.assertIn('<use href="#inaccuracy"', svg)
 
 class SuicideTestCase(unittest.TestCase):
 
