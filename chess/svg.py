@@ -551,7 +551,9 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "class": "arrow",
             }))
 
-    if nag is not None and lastmove is not None:
+    if nag is not None and \
+       lastmove is not None and \
+       NAGS.get(str(nag), None) is not None:
         ele = ET.fromstring(NAGS[str(nag)])
         defs.append(ele)
         id = ele.attrib.get("id")
