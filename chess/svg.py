@@ -319,6 +319,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     margin = 15 if coordinates else 0
     full_size = 2 * outer_border + 2 * margin + 2 * inner_border + 8 * SQUARE_SIZE
     svg = _svg(full_size, size)
+    desc = ET.SubElement(svg, "desc")
     defs = ET.SubElement(svg, "defs")
 
     if style:
@@ -437,7 +438,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render pieces and selected squares.
     if board is not None:
-        desc = ET.SubElement(svg, "desc")
         asciiboard = ET.SubElement(desc, "pre")
         asciiboard.text = str(board)
         # Defining pieces
