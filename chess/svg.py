@@ -313,6 +313,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. deprecated:: 1.1
         Use *orientation* with a color instead of the *flipped* toggle.
     """
+    # Bringing GLOBAL Constants in the local scope for a little performance boost 
+    global SQUARE_SIZE, MARGIN, NAG_SIZE, PIECES, COORDS, NAGS, XX, CHECK_GRADIENT, DEFAULT_COLORS
     orientation ^= flipped
     inner_border = 1 if borders and coordinates else 0
     outer_border = 1 if borders else 0
