@@ -292,6 +292,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
        (if *coordinates* is enabled) the coordinate margin.
     :param style: A CSS stylesheet to include in the SVG image.
     :param nag: Pass ``NAG Constant`` to show Numerical Notation Glyphs (NAGs).
+        Supports !(great), !!(brilliant), ?(mistake), ?!(inaccuracy) and ??(blunder)
         (requires ``lastmove`` to be passed along as argument)
 
     >>> import chess
