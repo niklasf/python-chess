@@ -197,13 +197,13 @@ class GameNode(abc.ABC):
     variations: List[ChildNode]
     """A list of child nodes."""
 
-    comments: list[str]
+    comment: list[str]
     """
     Comments that go behind the move leading to this node. Comments
     that occur before any moves are assigned to the root node.
     """
 
-    starting_comments: list[str]
+    starting_comment: list[str]
     nags: Set[int]
 
     def __init__(self, *, comment: Union[str, list[str]] = "") -> None:
