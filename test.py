@@ -2215,6 +2215,14 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(sixth_game.headers["White"], "Deep Blue (Computer)")
         self.assertEqual(sixth_game.headers["Result"], "1-0")
 
+    def test_read_game_with_multicomment_move(self):
+        pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
+        game = chess.pgn.read_game(pgn)
+        first_move = game.variation(0)
+        self.assertEqual(first_move.comment, ["A common opening"])
+        second_move = first_move.variation(0)
+        self.assertEqual(second_move.comment, ["A common response", "An uncommon comment"])
+
     def test_comment_at_eol(self):
         pgn = io.StringIO(textwrap.dedent("""\
             1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
