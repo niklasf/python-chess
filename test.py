@@ -2100,7 +2100,7 @@ class PgnTestCase(unittest.TestCase):
         e4_c5.comment = ["Sicilian"]
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
-        e4_d5_exd5.comment = ["Best"]
+        e4_d5_exd5.comment = ["Best", "and the end of this example"]
 
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
@@ -2125,7 +2125,7 @@ class PgnTestCase(unittest.TestCase):
 
             { Test game: } 1. e4 { Scandinavian Defense: } 1... d5 ( { This } 1... h5 $2
             { is nonsense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
-            { Best } *""")
+            { Best } { and the end of this example } *""")
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
