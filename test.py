@@ -2078,29 +2078,29 @@ class PgnTestCase(unittest.TestCase):
 
     def test_exporter(self):
         game = chess.pgn.Game()
-        game.comment = ["Test game:"]
+        game.comment.set("Test game:")
         game.headers["Result"] = "*"
         game.headers["VeryLongHeader"] = "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
-        e4.comment = ["Scandinavian Defense:"]
+        e4.comment.set("Scandinavian Defense:")
 
         e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
 
         e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
         e4_h5.nags.add(chess.pgn.NAG_MISTAKE)
-        e4_h5.starting_comment = ["This"]
-        e4_h5.comment = ["is nonsense"]
+        e4_h5.starting_comment.set("This")
+        e4_h5.comment.set("is nonsense")
 
         e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
         e4_e5_Qf3 = e4_e5.add_variation(e4_e5.board().parse_san("Qf3"))
         e4_e5_Qf3.nags.add(chess.pgn.NAG_MISTAKE)
 
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
-        e4_c5.comment = ["Sicilian"]
+        e4_c5.comment.set("Sicilian")
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
-        e4_d5_exd5.comment = ["Best", "and the end of this example"]
+        e4_d5_exd5.comment.set(["Best", "and the end of this example"])
 
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
@@ -2828,7 +2828,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_annotations(self):
         game = chess.pgn.Game()
-        game.comment = ["foo [%bar] baz"]
+        game.comment = chess.pgn.GameNodeComment("foo [%bar] baz")
 
         self.assertTrue(game.clock() is None)
         clock = 12345
@@ -2879,7 +2879,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_float_emt(self):
         game = chess.pgn.Game()
-        game.comment = ["[%emt 0:00:01.234]"]
+        game.comment = chess.pgn.GameNodeComment("[%emt 0:00:01.234]")
         self.assertEqual(game.emt(), 1.234)
 
         game.set_emt(6.54321)
@@ -2892,7 +2892,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_float_clk(self):
         game = chess.pgn.Game()
-        game.comment = ["[%clk 0:00:01.234]"]
+        game.comment.set("[%clk 0:00:01.234]")
         self.assertEqual(game.clock(), 1.234)
 
         game.set_clock(6.54321)
