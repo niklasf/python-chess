@@ -209,13 +209,13 @@ class GameNodeComment:
         """Remove empty comments from the comment list."""
         self._comments = list(filter(None, self._comments))
 
-    def append(self, new_comment: str) -> None:
-        """Append a new comment to the end of the comment list."""
-        self._comments.append(new_comment)
-
-    def extend(self, new_comments: list[str]) -> None:
-        """Append several new comments to the end of the comment list."""
-        self._comments.extend(new_comments)
+    def append(self, new_comment: Union[str, list[str]]) -> None:
+        """Append one or more new comments to the end of the comment list."""
+        if new_comment:
+            if isinstance(new_comment, str):
+                self._comments.append(new_comment)
+            else:
+                self._comments.extend(new_comment)
 
     def insert(self, index: int, new_comment: str) -> None:
         """Insert a new comment before the specified index."""
@@ -494,14 +494,7 @@ class GameNode(abc.ABC):
             starting_comment = ""
 
         # Merge comment and NAGs.
-        if node.comment:
-            if isinstance(comment, str):
-                node.comment.append(comment)
-            else:
-                node.comment.extend(comment)
-        else:
-            node.comment.set(comment)
-
+        node.comment.append(comment)
         node.nags.update(nags)
 
         return node
