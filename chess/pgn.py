@@ -199,7 +199,7 @@ class GameNode(abc.ABC):
 
     comment: list[str]
     """
-    Comments that go behind the move leading to this node. Comments
+    A comment that goes behind the move leading to this node. Comments
     that occur before any moves are assigned to the root node.
     """
 
