@@ -239,7 +239,7 @@ class GameNodeComment:
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
-            return len(self) == 1 and self[0] == other
+            return (len(self) == 1 and self[0] == other) or (not self and not other)
         elif isinstance(other, list):
             return self._comments == other
         elif isinstance(other, GameNodeComment):
