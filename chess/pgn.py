@@ -193,7 +193,7 @@ class GameNodeComment:
     def __init__(self, comment: Union[str, list[str]] = ""):
         self.set(comment)
 
-    def set(self, new_comment: Union[str, list[str]]):
+    def set(self, new_comment: Union[str, list[str]]) -> None:
         """Replace the comment with a new comment or a list of comments."""
         self._comments = new_comment if isinstance(new_comment, list) else [new_comment] if new_comment else []
 
