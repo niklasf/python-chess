@@ -2219,7 +2219,7 @@ class PgnTestCase(unittest.TestCase):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
         game = chess.pgn.read_game(pgn)
         first_move = game.variation(0)
-        self.assertEqual(first_move.comment, ["A common opening"])
+        self.assertEqual(first_move.comment, "A common opening")
         second_move = first_move.variation(0)
         self.assertEqual(second_move.comment, ["A common response", "An uncommon comment"])
 
@@ -2237,7 +2237,7 @@ class PgnTestCase(unittest.TestCase):
 
         # Make sure the comment for the second variation is there.
         self.assertIn(5, node[1].nags)
-        self.assertEqual(node[1].comment, ["\n/\\ Ne7, c6"])
+        self.assertEqual(node[1].comment, "\n/\\ Ne7, c6")
 
     def test_promotion_without_equals(self):
         # Example game from https://github.com/rozim/ChessData as originally
@@ -2325,12 +2325,12 @@ class PgnTestCase(unittest.TestCase):
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, ["Game starting comment"])
+        self.assertEqual(game.comment, "Game starting comment")
         self.assertEqual(game[0].san(), "d3")
 
         pgn = io.StringIO("{ Empty game, but has a comment }")
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, ["Empty game, but has a comment"])
+        self.assertEqual(game.comment, "Empty game, but has a comment")
 
     def test_game_starting_variation(self):
         pgn = io.StringIO(textwrap.dedent("""\
@@ -2338,7 +2338,7 @@ class PgnTestCase(unittest.TestCase):
             """))
 
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, ["Start of game"])
+        self.assertEqual(game.comment, "Start of game")
 
         node = game[0]
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
@@ -2348,7 +2348,7 @@ class PgnTestCase(unittest.TestCase):
         node = game[1]
         self.assertEqual(node.move, chess.Move.from_uci("d2d4"))
         self.assertFalse(node.comment)
-        self.assertEqual(node.starting_comment, ["Start of variation"])
+        self.assertEqual(node.starting_comment, "Start of variation")
 
     def test_annotation_symbols(self):
         pgn = io.StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
@@ -2693,12 +2693,12 @@ class PgnTestCase(unittest.TestCase):
         tail = game.add_line(moves, starting_comment="start", comment="end", nags=(17, 42))
 
         self.assertEqual(tail.parent.move, chess.Move.from_uci("g1f3"))
-        self.assertEqual(tail.parent.starting_comment, ["start"])
-        self.assertEqual(tail.parent.comment, [])
+        self.assertEqual(tail.parent.starting_comment, "start")
+        self.assertEqual(tail.parent.comment, "")
         self.assertEqual(len(tail.parent.nags), 0)
 
         self.assertEqual(tail.move, chess.Move.from_uci("d7d5"))
-        self.assertEqual(tail.comment, ["end"])
+        self.assertEqual(tail.comment, "end")
         self.assertIn(42, tail.nags)
 
     def test_mainline(self):
@@ -2828,7 +2828,7 @@ class PgnTestCase(unittest.TestCase):
 
     def test_annotations(self):
         game = chess.pgn.Game()
-        game.comment = chess.pgn.GameNodeComment("foo [%bar] baz")
+        game.comment.set("foo [%bar] baz")
 
         self.assertTrue(game.clock() is None)
         clock = 12345
@@ -2869,7 +2869,7 @@ class PgnTestCase(unittest.TestCase):
 
         game.set_clock(None)
         game.set_arrows([])
-        self.assertEqual(game.comment, ["foo [%bar] baz"])
+        self.assertEqual(game.comment, "foo [%bar] baz")
 
     def test_eval(self):
         game = chess.pgn.Game()
@@ -2879,15 +2879,15 @@ class PgnTestCase(unittest.TestCase):
 
     def test_float_emt(self):
         game = chess.pgn.Game()
-        game.comment = chess.pgn.GameNodeComment("[%emt 0:00:01.234]")
+        game.comment.set("[%emt 0:00:01.234]")
         self.assertEqual(game.emt(), 1.234)
 
         game.set_emt(6.54321)
-        self.assertEqual(game.comment, ["[%emt 0:00:06.543]"])
+        self.assertEqual(game.comment, "[%emt 0:00:06.543]")
         self.assertEqual(game.emt(), 6.543)
 
         game.set_emt(-70)
-        self.assertEqual(game.comment, ["[%emt 0:00:00]"])  # Clamped
+        self.assertEqual(game.comment, "[%emt 0:00:00]")  # Clamped
         self.assertEqual(game.emt(), 0)
 
     def test_float_clk(self):
@@ -2896,11 +2896,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.clock(), 1.234)
 
         game.set_clock(6.54321)
-        self.assertEqual(game.comment, ["[%clk 0:00:06.543]"])
+        self.assertEqual(game.comment, "[%clk 0:00:06.543]")
         self.assertEqual(game.clock(), 6.543)
 
         game.set_clock(-70)
-        self.assertEqual(game.comment, ["[%clk 0:00:00]"])  # Clamped
+        self.assertEqual(game.comment, "[%clk 0:00:00]")  # Clamped
         self.assertEqual(game.clock(), 0)
 
     def test_node_turn(self):
