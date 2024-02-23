@@ -2222,6 +2222,14 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(first_move.comment, "A common opening")
         second_move = first_move.variation(0)
         self.assertEqual(second_move.comment, ["A common response", "An uncommon comment"])
+        second_move.comment.pop()
+        self.assertEqual(second_move.comment, ["A common response"])
+        self.assertEqual(second_move.comment, "A common response")
+        second_move.comment.append("A replaced comment")
+        self.assertEqual(second_move.comment, ["A common response", "A replaced comment"])
+        second_move.comment.pop(0)
+        self.assertEqual(second_move.comment, ["A replaced comment"])
+        self.assertEqual(second_move.comment, "A replaced comment")
 
     def test_comment_at_eol(self):
         pgn = io.StringIO(textwrap.dedent("""\

@@ -220,6 +220,10 @@ class GameNodeComment:
         """Insert a new comment before the specified index."""
         self._comments.insert(index, new_comment)
 
+    def pop(self, index: int = -1) -> None:
+        """Delete comment at the given index (default is the last comment)."""
+        self._comments.pop(index)
+
     def join(self, joiner: str) -> str:
         """Join all of the comments together with a joiner string between each."""
         return joiner.join(self._comments)
