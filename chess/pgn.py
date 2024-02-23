@@ -234,12 +234,12 @@ class GameNodeComment:
         self._comments[index] = new_comment
 
     def __add__(self, other: Union[str, list[str], GameNodeComment]) -> GameNodeComment:
-        if not isinstance(other, GameNodeComment):
-            new_node_comment = GameNodeComment(self._comments)
+        if isinstance(other, GameNodeComment):
+            return GameNodeComment(self._comments + other._comments)
+        else:
+            new_node_comment = GameNodeComment(self._comments.copy())
             new_node_comment.append(other)
             return new_node_comment
-        else:
-            return GameNodeComment(self._comments + other._comments)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
