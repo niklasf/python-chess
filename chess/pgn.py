@@ -233,8 +233,13 @@ class GameNodeComment:
     def __setitem__(self, index: int, new_comment: str) -> None:
         self._comments[index] = new_comment
 
-    def __add__(self, other: GameNodeComment) -> GameNodeComment:
-        return GameNodeComment(self._comments + other._comments)
+    def __add__(self, other: Union[str, list[str], GameNodeComment]) -> GameNodeComment:
+        if not isinstance(other, GameNodeComment):
+            new_node_comment = GameNodeComment(self._comments)
+            new_node_comment.append(other)
+            return new_node_comment
+        else:
+            return GameNodeComment(self._comments + other._comments)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -260,13 +265,37 @@ class GameNode(abc.ABC):
     variations: List[ChildNode]
     """A list of child nodes."""
 
-    comment: GameNodeComment
+    _comment: GameNodeComment
     """
     A comment that goes behind the move leading to this node. Comments
     that occur before any moves are assigned to the root node.
     """
 
-    starting_comment: GameNodeComment
+    @property
+    def comment(self) -> GameNodeComment:
+        return self._comment
+
+    @comment.setter
+    def comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
+        if isinstance(new_comment, GameNodeComment):
+            self._comment = new_comment
+        else:
+            self._comment = GameNodeComment(new_comment)
+
+
+    _starting_comment: GameNodeComment
+
+    @property
+    def starting_comment(self) -> GameNodeComment:
+        return self._starting_comment
+
+    @starting_comment.setter
+    def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
+        if isinstance(new_comment, GameNodeComment):
+            self._starting_comment = new_comment
+        else:
+            self._starting_comment = GameNodeComment(new_comment)
+
     nags: Set[int]
 
     def __init__(self, *, comment: Union[str, list[str]] = "") -> None:
@@ -733,13 +762,24 @@ class ChildNode(GameNode):
     move: chess.Move
     """The move leading to this node."""
 
-    starting_comment: GameNodeComment
+    _starting_comment: GameNodeComment
     """
     A comment for the start of a variation. Only nodes that
     actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
     checks this) can have a starting comment. The root node can not have
     a starting comment.
     """
+
+    @property
+    def starting_comment(self) -> GameNodeComment:
+        return self._starting_comment
+
+    @starting_comment.setter
+    def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
+        if isinstance(new_comment, GameNodeComment):
+            self._starting_comment = new_comment
+        else:
+            self._starting_comment = GameNodeComment(new_comment)
 
     nags: Set[int]
     """
@@ -1767,7 +1807,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     line = line[close_index + 1:]
 
                 if not skip_variation_depth:
-                    visitor.visit_comment(GameNodeComment("".join(comment_lines)))
+                    visitor.visit_comment("".join(comment_lines))
 
                 # Continue with the current line.
                 fresh_line = False
