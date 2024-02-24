@@ -516,7 +516,7 @@ class Score(abc.ABC):
         else:
             return NotImplemented
 
-def _sf16_1_wins(cp: int, *, ply=int) -> int:
+def _sf16_1_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L48
     NormalizeToPawnValue = 356
     # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L383-L384
