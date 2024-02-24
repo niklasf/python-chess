@@ -621,6 +621,7 @@ class BaseBoard:
     """
 
     def __init__(self, board_fen: Optional[str] = STARTING_BOARD_FEN) -> None:
+
         self.occupied_co = [BB_EMPTY, BB_EMPTY]
 
         if board_fen is None:
@@ -1223,10 +1224,73 @@ class BaseBoard:
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.board_fen()!r})"
+    
+    def __call__(self, labels:typing.Union[dict, list] = {"left":True, "up":False, "right":False, "down":True}):
+        """
+        Inputs:
+            - Labels: can be assigned a value of a dict or list. 
+                - dict: it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
+                - list: you list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
+        """
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
 
-    def __str__(self) -> str:
+
+    def __str__(self, labels:typing.Union[list, dict, bool] = True) -> str:
+        df_labels = self.labels
+
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
+            
+
+
         builder: List[str] = []
-
+        row:int = 1
+        if self.labels["up"]:
+            #Labels
+            if self.labels["left"]:
+                builder.append(" |")
+            builder.append("a b c d e f g h")
+            if self.labels["right"]:
+                builder.append("| ")
+            builder.append("\n")
+            #Decoration
+            if self.labels["left"]:
+                builder.append("-+")
+            builder.append("---------------")
+            if self.labels["right"]:
+                builder.append("+-\n")
+        if self.labels["left"]:
+            builder.append("8|")
+            
         for square in SQUARES_180:
             piece = self.piece_at(square)
 
@@ -1237,10 +1301,35 @@ class BaseBoard:
 
             if BB_SQUARES[square] & BB_FILE_H:
                 if square != H1:
+                    if self.labels["right"]:
+                        builder.append(f"|{9-round(row/8)}")
                     builder.append("\n")
+                    if self.labels["left"]:
+                        builder.append(f"{8-round(row/8)}|")
+            
             else:
                 builder.append(" ")
-
+            
+            row+=1
+        if self.labels["right"]:
+            builder.append("|8")
+        #decorations
+        if self.labels["down"]:
+            if self.labels["left"]:
+                builder.append("\n-+")
+            builder.append("---------------")
+            #labels
+            
+            if self.labels["right"]:
+                builder.append("+-")
+            builder.append("\n")
+            if self.labels["left"]:
+                builder.append(" |")
+            builder.append("a b c d e f g h")
+            if self.labels["right"]:
+                builder.append("| ")
+        
+        self.labels = df_labels
         return "".join(builder)
 
     def unicode(self, *, invert_color: bool = False, borders: bool = False, empty_square: str = "⭘", orientation: Color = WHITE) -> str:
@@ -1466,6 +1555,11 @@ class Board(BaseBoard):
     unless otherwise specified in the optional *fen* argument.
     If *fen* is ``None``, an empty board is created.
 
+    Optionally supports labels. Labels can be assigned a value of a dictionary or list. 
+    If :func:`labels` is a dictionary it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
+    If :func:`labels` is a list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
+    By deafault it shows labels on the left and bottom
+
     Optionally supports *chess960*. In Chess960, castling moves are encoded
     by a king move to the corresponding rook square.
     Use :func:`chess.Board.from_chess960_pos()` to create a board with one
@@ -1561,7 +1655,33 @@ class Board(BaseBoard):
     manipulation.
     """
 
-    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
+    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False, labels:typing.Union[dict[str, bool],list[str], bool] = {"left":True, "up":False, "right":False, "down":True}) -> None:
+        """
+        Inputs:
+            - Labels: can be assigned a value of a dict or list. 
+                - Dictionary: it must have 4 keys (Left, Up, Right, Down) with a bool for seeing the value. ({"left":True, "up":False, "right":False, "down":True} would display on the left and bottom side)
+                - List: you list the first letter of the sides you want. (["L", "U", "R", "D"] would display on all sides)
+                - Bool:
+                    True - Returns Chess Board with default labels
+                    False - Returns Chess Board with no labels
+        """
+        if labels == True:
+            self.labels = {"left":True, "up":False, "right":False, "down":True}
+        elif not labels == False:
+            self.labels = {}
+            if isinstance(labels, dict):
+                self.labels = labels
+            else:
+                x = {"l":"left", "u":"up", "r":"right", "d":"down"}
+                for i in labels:
+                    self.labels[x[i.lower()]] = True
+                    x[i.lower()] = True
+                for v in x:
+                    if not v==True:
+                        self.labels[x[v]] = False
+        elif not labels:
+            self.labels = {"left":False, "up":False, "right":False, "down":False}
+
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
@@ -3814,6 +3934,11 @@ class LegalMoveGenerator:
     def __repr__(self) -> str:
         sans = ", ".join(self.board.san(move) for move in self)
         return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
+
+    def __getitem__(self):
+        sans = ", ".join(self.board.san(move) for move in self)
+        return list(sans)
+    
 
 
 IntoSquareSet = Union[SupportsInt, Iterable[Square]]
