@@ -2226,7 +2226,11 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(second_move.comment, ["A common response"])
         self.assertEqual(second_move.comment, "A common response")
         second_move.comment.append("A replaced comment")
-        self.assertEqual(second_move.comment, ["A common response", "A replaced comment"])
+        multiple_comments = ["A common response", "A replaced comment"]
+        self.assertEqual(second_move.comment, multiple_comments)
+        for move_comment, test_comment in zip(second_move.comment, multiple_comments):
+            self.assertEqual(move_comment, test_comment)
+        self.assertEqual(list(second_move.comment), multiple_comments)
         second_move.comment.pop(0)
         self.assertEqual(second_move.comment, ["A replaced comment"])
         self.assertEqual(second_move.comment, "A replaced comment")
