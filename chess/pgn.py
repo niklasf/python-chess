@@ -199,10 +199,9 @@ class GameNodeComment:
 
     def pgn_format(self) -> str:
         """Create a string representation of the comments in PGN format."""
-        comments = list(map(lambda s: s.replace("{", ""), self._comments))
-        comments = list(map(lambda s: s.replace("}", "").strip(), comments))
-        comments = list(filter(None, comments))
-        return "{ " + " } { ".join(comments) + " }"
+        comments = map(lambda s: s.replace("{", ""), self._comments)
+        comments = map(lambda s: s.replace("}", "").strip(), comments)
+        return " ".join(f"{{ {comment} }}" for comment in comments if comment)
 
     def remove_empty(self) -> None:
         """Remove empty comments from the comment list."""
