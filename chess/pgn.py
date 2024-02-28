@@ -190,7 +190,9 @@ class GameNodeComment:
 
     A class that can hold one or more comments for a GameNode.
     """
+
     def __init__(self, comment: Union[str, list[str]] = ""):
+        """Create a new comment."""
         self.set(comment)
 
     def set(self, new_comment: Union[str, list[str]]) -> None:
@@ -224,18 +226,23 @@ class GameNodeComment:
         self._comments.pop(index)
 
     def __len__(self) -> int:
+        """Get the number of comments in this node."""
         return len(self._comments)
 
     def __getitem__(self, index: int) -> str:
+        """Get the comment at the given index."""
         return self._comments[index]
 
     def __setitem__(self, index: int, new_comment: str) -> None:
+        """Change the comment at the given index."""
         self._comments[index] = new_comment
 
     def __iter__(self) -> Iterator[str]:
+        """Return an iterator over all comments."""
         return iter(self._comments)
 
     def __add__(self, other: Union[str, list[str], GameNodeComment]) -> GameNodeComment:
+        """Create a new comment set by adding two comment sets with +."""
         if isinstance(other, GameNodeComment):
             return GameNodeComment(self._comments + other._comments)
         else:
@@ -244,6 +251,7 @@ class GameNodeComment:
             return new_node_comment
 
     def __eq__(self, other: object) -> bool:
+        """Check for equality between two comment sets."""
         if isinstance(other, str):
             return (len(self) == 1 and self[0] == other) or (not self and not other)
         elif isinstance(other, list):
@@ -254,9 +262,11 @@ class GameNodeComment:
             return False
 
     def __repr__(self) -> str:
+        """Return a code-like representation of the class."""
         return f"{self.__class__.__name__}({self._comments})"
 
     def __str__(self) -> str:
+        """Return a string representation of the comments in PGN format."""
         return self.pgn_format()
 
 
@@ -289,7 +299,6 @@ class GameNode(abc.ABC):
             self._comment = new_comment
         else:
             self._comment = GameNodeComment(new_comment)
-
 
     _starting_comment: GameNodeComment
 
