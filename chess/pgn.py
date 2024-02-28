@@ -223,10 +223,6 @@ class GameNodeComment:
         """Delete comment at the given index (default is the last comment)."""
         self._comments.pop(index)
 
-    def join(self, joiner: str) -> str:
-        """Join all of the comments together with a joiner string between each."""
-        return joiner.join(self._comments)
-
     def __len__(self) -> int:
         return len(self._comments)
 
@@ -235,6 +231,9 @@ class GameNodeComment:
 
     def __setitem__(self, index: int, new_comment: str) -> None:
         self._comments[index] = new_comment
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._comments)
 
     def __add__(self, other: Union[str, list[str], GameNodeComment]) -> GameNodeComment:
         if isinstance(other, GameNodeComment):
@@ -543,7 +542,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(n)`.
         """
-        match = EVAL_REGEX.search(self.comment.join(" "))
+        match = EVAL_REGEX.search(" ".join(self.comment))
         if not match:
             return None
 
@@ -569,7 +568,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(1)`.
         """
-        match = EVAL_REGEX.search(self.comment.join(" "))
+        match = EVAL_REGEX.search(" ".join(self.comment))
         return int(match.group("depth")) if match and match.group("depth") else None
 
     def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
@@ -605,7 +604,7 @@ class GameNode(abc.ABC):
         Returns a list of :class:`arrows <chess.svg.Arrow>`.
         """
         arrows = []
-        for match in ARROWS_REGEX.finditer(self.comment.join(" ")):
+        for match in ARROWS_REGEX.finditer(" ".join(self.comment)):
             for group in match.group("arrows").split(","):
                 arrows.append(chess.svg.Arrow.from_pgn(group))
 
@@ -649,7 +648,7 @@ class GameNode(abc.ABC):
         Returns the player's remaining time to the next time control after this
         move, in seconds.
         """
-        match = CLOCK_REGEX.search(self.comment.join(" "))
+        match = CLOCK_REGEX.search(" ".join(self.comment))
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
@@ -687,7 +686,7 @@ class GameNode(abc.ABC):
         Returns the player's elapsed move time use for the comment of this
         move, in seconds.
         """
-        match = EMT_REGEX.search(self.comment.join(" "))
+        match = EMT_REGEX.search(" ".join(self.comment))
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
