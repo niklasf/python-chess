@@ -24,7 +24,7 @@ from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
 
-WdlModel = Literal["sf", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
+WdlModel = Literal["sf", "sf16.1", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
 
 T = TypeVar("T")
@@ -516,6 +516,16 @@ class Score(abc.ABC):
         else:
             return NotImplemented
 
+def _sf16_1_wins(cp: int, *, ply: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L48
+    NormalizeToPawnValue = 356
+    # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L383-L384
+    m = min(120, max(8, ply / 2 + 1)) / 32
+    a = (((-1.06249702 * m + 7.42016937) * m + 0.89425629) * m) + 348.60356174
+    b = (((-5.33122190 * m + 39.57831533) * m + -90.84473771) * m) + 123.40620748
+    x = min(4000, max(cp * NormalizeToPawnValue / 100, -4000))
+    return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+
 def _sf16_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_16/src/uci.h#L38
     NormalizeToPawnValue = 328
@@ -594,9 +604,12 @@ class Cp(Score):
         elif model == "sf15.1":
             wins = _sf15_1_wins(self.cp, ply=ply)
             losses = _sf15_1_wins(-self.cp, ply=ply)
-        else:
+        elif model == "sf16":
             wins = _sf16_wins(self.cp, ply=ply)
             losses = _sf16_wins(-self.cp, ply=ply)
+        else:
+            wins = _sf16_1_wins(self.cp, ply=ply)
+            losses = _sf16_1_wins(-self.cp, ply=ply)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
 
