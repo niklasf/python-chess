@@ -24,15 +24,19 @@ import typing
 
 from typing import ClassVar, Callable, Counter, Dict, Generic, Hashable, Iterable, Iterator, List, Literal, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
+
 EnPassantSpec = Literal["legal", "fen", "xfen"]
 
 
-Color = bool
+Color: TypeAlias = bool
 COLORS = [WHITE, BLACK] = [True, False]
 ColorName = Literal["white", "black"]
 COLOR_NAMES: List[ColorName] = ["black", "white"]
 
-PieceType = int
+PieceType: TypeAlias = int
 PIECE_TYPES = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING] = range(1, 7)
 PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
@@ -157,7 +161,7 @@ class AmbiguousMoveError(ValueError):
     """Raised when the attempted move is ambiguous in the current position"""
 
 
-Square = int
+Square: TypeAlias = int
 SQUARES = [
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -233,7 +237,7 @@ def square_mirror(square: Square) -> Square:
 SQUARES_180 = [square_mirror(sq) for sq in SQUARES]
 
 
-Bitboard = int
+Bitboard: TypeAlias = int
 BB_EMPTY = 0
 BB_ALL = 0xffff_ffff_ffff_ffff
 
@@ -3816,7 +3820,7 @@ class LegalMoveGenerator:
         return f"<LegalMoveGenerator at {id(self):#x} ({sans})>"
 
 
-IntoSquareSet = Union[SupportsInt, Iterable[Square]]
+IntoSquareSet: TypeAlias = Union[SupportsInt, Iterable[Square]]
 
 class SquareSet:
     """
