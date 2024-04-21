@@ -191,9 +191,9 @@ class GameNodeComment:
     A class that can hold one or more comments for a GameNode.
     """
 
-    def __init__(self, comment: Union[str, list[str]] = ""):
+    def __init__(self, comment: Union[str, list[str], GameNodeComment] = ""):
         """Create a new comment."""
-        self.set(comment)
+        self.set(comment._comments if isinstance(comment,GameNodeComment) else comment)
 
     def set(self, new_comment: Union[str, list[str]]) -> None:
         """Replace the comment with a new comment or a list of comments."""
@@ -295,10 +295,7 @@ class GameNode(abc.ABC):
 
     @comment.setter
     def comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        if isinstance(new_comment, GameNodeComment):
-            self._comment = new_comment
-        else:
-            self._comment = GameNodeComment(new_comment)
+        self._comment = GameNodeComment(new_comment)
 
     @property
     def comments(self) -> GameNodeComment:
@@ -306,10 +303,7 @@ class GameNode(abc.ABC):
 
     @comments.setter
     def comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        if isinstance(new_comment, GameNodeComment):
-            self._comment = new_comment
-        else:
-            self._comment = GameNodeComment(new_comment)
+        self._comment = GameNodeComment(new_comment)
 
     _starting_comment: GameNodeComment
 
@@ -319,10 +313,7 @@ class GameNode(abc.ABC):
 
     @starting_comment.setter
     def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        if isinstance(new_comment, GameNodeComment):
-            self._starting_comment = new_comment
-        else:
-            self._starting_comment = GameNodeComment(new_comment)
+        self._starting_comment = GameNodeComment(new_comment)
 
     @property
     def starting_comments(self) -> GameNodeComment:
@@ -330,10 +321,7 @@ class GameNode(abc.ABC):
 
     @starting_comments.setter
     def starting_comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        if isinstance(new_comment, GameNodeComment):
-            self._starting_comment = new_comment
-        else:
-            self._starting_comment = GameNodeComment(new_comment)
+        self._starting_comment = GameNodeComment(new_comment)
 
     nags: Set[int]
 
@@ -815,10 +803,7 @@ class ChildNode(GameNode):
 
     @starting_comment.setter
     def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        if isinstance(new_comment, GameNodeComment):
-            self._starting_comment = new_comment
-        else:
-            self._starting_comment = GameNodeComment(new_comment)
+        self._starting_comment = GameNodeComment(new_comment)
 
     nags: Set[int]
     """
