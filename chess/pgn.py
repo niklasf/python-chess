@@ -306,7 +306,10 @@ class GameNode(abc.ABC):
 
     @comments.setter
     def comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self.comment = new_comment
+        if isinstance(new_comment, GameNodeComment):
+            self._comment = new_comment
+        else:
+            self._comment = GameNodeComment(new_comment)
 
     _starting_comment: GameNodeComment
 
@@ -327,7 +330,10 @@ class GameNode(abc.ABC):
 
     @starting_comments.setter
     def starting_comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._starting_comment = new_comment
+        if isinstance(new_comment, GameNodeComment):
+            self._starting_comment = new_comment
+        else:
+            self._starting_comment = GameNodeComment(new_comment)
 
     nags: Set[int]
 
@@ -335,11 +341,11 @@ class GameNode(abc.ABC):
         self.parent = None
         self.move = None
         self.variations = []
-        self.comment = GameNodeComment(comment)
+        self.comments = GameNodeComment(comment)
 
         # Deprecated: These should be properties of ChildNode, but need to
         # remain here for backwards compatibility.
-        self.starting_comment = GameNodeComment()
+        self.starting_comments = GameNodeComment()
         self.nags = set()
 
     @abc.abstractmethod
@@ -804,8 +810,8 @@ class ChildNode(GameNode):
     """
 
     @property
-    def starting_comment(self) -> GameNodeComment:
-        return self._starting_comment
+    def starting_comment(self) -> str:
+        return " ".join(self._starting_comment)
 
     @starting_comment.setter
     def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
@@ -827,7 +833,7 @@ class ChildNode(GameNode):
         self.parent.variations.append(self)
 
         self.nags.update(nags)
-        self.starting_comment = GameNodeComment(starting_comment)
+        self.starting_comments = GameNodeComment(starting_comment)
 
     def board(self) -> chess.Board:
         stack: List[chess.Move] = []
@@ -1374,7 +1380,7 @@ class GameBuilder(BaseVisitor[GameT]):
 
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
-        self.variation_stack[-1].starting_comment = self.starting_comment
+        self.variation_stack[-1].starting_comments = self.starting_comment
         self.starting_comment = GameNodeComment()
         self.in_variation = True
 
