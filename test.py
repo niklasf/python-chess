@@ -2220,19 +2220,24 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(pgn)
         first_move = game.variation(0)
         self.assertEqual(first_move.comment, "A common opening")
+        self.assertEqual(first_move.comments, "A common opening")
+        self.assertEqual(first_move.comments, ["A common opening"])
         second_move = first_move.variation(0)
-        self.assertEqual(second_move.comment, ["A common response", "An uncommon comment"])
-        second_move.comment.pop()
-        self.assertEqual(second_move.comment, ["A common response"])
+        self.assertEqual(second_move.comments, ["A common response", "An uncommon comment"])
+        second_move.comments.pop()
+        self.assertEqual(second_move.comments, ["A common response"])
+        self.assertEqual(second_move.comments, "A common response")
         self.assertEqual(second_move.comment, "A common response")
-        second_move.comment.append("A replaced comment")
+        second_move.comments.append("A replaced comment")
         multiple_comments = ["A common response", "A replaced comment"]
-        self.assertEqual(second_move.comment, multiple_comments)
-        for move_comment, test_comment in zip(second_move.comment, multiple_comments):
+        self.assertEqual(second_move.comments, multiple_comments)
+        for move_comment, test_comment in zip(second_move.comments, multiple_comments):
             self.assertEqual(move_comment, test_comment)
-        self.assertEqual(list(second_move.comment), multiple_comments)
-        second_move.comment.pop(0)
-        self.assertEqual(second_move.comment, ["A replaced comment"])
+        self.assertEqual(list(second_move.comments), multiple_comments)
+        self.assertEqual(second_move.comment, " ".join(multiple_comments))
+        second_move.comments.pop(0)
+        self.assertEqual(second_move.comments, ["A replaced comment"])
+        self.assertEqual(second_move.comments, "A replaced comment")
         self.assertEqual(second_move.comment, "A replaced comment")
 
     def test_comment_at_eol(self):
@@ -2845,22 +2850,24 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(game.clock() is None)
         clock = 12345
         game.set_clock(clock)
-        self.assertEqual(game.comment, ["foo [%bar] baz", "[%clk 3:25:45]"])
+        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45]")
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]"])
         self.assertEqual(game.clock(), clock)
 
         self.assertTrue(game.eval() is None)
         game.set_eval(chess.engine.PovScore(chess.engine.Cp(-80), chess.WHITE))
-        self.assertEqual(game.comment, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval -0.80]"])
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval -0.80]"])
         self.assertEqual(game.eval().white().score(), -80)
         self.assertEqual(game.eval_depth(), None)
         game.set_eval(chess.engine.PovScore(chess.engine.Mate(1), chess.WHITE), 5)
-        self.assertEqual(game.comment, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
         self.assertEqual(game.eval().white().mate(), 1)
         self.assertEqual(game.eval_depth(), 5)
 
         self.assertEqual(game.arrows(), [])
         game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
-        self.assertEqual(game.comment, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5]")
         arrows = game.arrows()
         self.assertEqual(len(arrows), 3)
         self.assertEqual(arrows[0].color, "green")
@@ -2870,17 +2877,21 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(game.emt() is None)
         emt = 321
         game.set_emt(emt)
-        self.assertEqual(game.comment, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]", "[%emt 0:05:21]"])
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]", "[%emt 0:05:21]"])
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5] [%emt 0:05:21]")
         self.assertEqual(game.emt(), emt)
 
         game.set_eval(None)
-        self.assertEqual(game.comment, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%emt 0:05:21]"])
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%emt 0:05:21]"])
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%emt 0:05:21]")
 
         game.set_emt(None)
-        self.assertEqual(game.comment, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]"])
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]"])
+        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45]")
 
         game.set_clock(None)
         game.set_arrows([])
+        self.assertEqual(game.comments, "foo [%bar] baz")
         self.assertEqual(game.comment, "foo [%bar] baz")
 
     def test_eval(self):

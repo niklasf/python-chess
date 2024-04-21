@@ -290,8 +290,8 @@ class GameNode(abc.ABC):
     """
 
     @property
-    def comment(self) -> GameNodeComment:
-        return self._comment
+    def comment(self) -> str:
+        return " ".join(self._comment)
 
     @comment.setter
     def comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
@@ -300,11 +300,19 @@ class GameNode(abc.ABC):
         else:
             self._comment = GameNodeComment(new_comment)
 
+    @property
+    def comments(self) -> GameNodeComment:
+        return self._comment
+
+    @comments.setter
+    def comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
+        self.comment = new_comment
+
     _starting_comment: GameNodeComment
 
     @property
-    def starting_comment(self) -> GameNodeComment:
-        return self._starting_comment
+    def starting_comment(self) -> str:
+        return " ".join(self._starting_comment)
 
     @starting_comment.setter
     def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
@@ -312,6 +320,14 @@ class GameNode(abc.ABC):
             self._starting_comment = new_comment
         else:
             self._starting_comment = GameNodeComment(new_comment)
+
+    @property
+    def starting_comments(self) -> GameNodeComment:
+        return self._starting_comment
+
+    @starting_comments.setter
+    def starting_comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
+        self._starting_comment = new_comment
 
     nags: Set[int]
 
@@ -539,7 +555,7 @@ class GameNode(abc.ABC):
             starting_comment = ""
 
         # Merge comment and NAGs.
-        node.comment.append(comment)
+        node.comments.append(comment)
         node.nags.update(nags)
 
         return node
@@ -551,7 +567,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(n)`.
         """
-        match = EVAL_REGEX.search(" ".join(self.comment))
+        match = EVAL_REGEX.search(self.comment)
         if not match:
             return None
 
@@ -577,7 +593,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(1)`.
         """
-        match = EVAL_REGEX.search(" ".join(self.comment))
+        match = EVAL_REGEX.search(self.comment)
         return int(match.group("depth")) if match and match.group("depth") else None
 
     def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
@@ -595,15 +611,15 @@ class GameNode(abc.ABC):
                 eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
 
         found = 0
-        for index in range(len(self.comment)):
-            self.comment[index], found = EVAL_REGEX.subn(_condense_affix(eval), self.comment[index], count=1)
+        for index in range(len(self.comments)):
+            self.comments[index], found = EVAL_REGEX.subn(_condense_affix(eval), self.comments[index], count=1)
             if found:
                 break
 
-        self.comment.remove_empty()
+        self.comments.remove_empty()
 
         if not found and eval:
-            self.comment.append(eval)
+            self.comments.append(eval)
 
     def arrows(self) -> List[chess.svg.Arrow]:
         """
@@ -613,7 +629,7 @@ class GameNode(abc.ABC):
         Returns a list of :class:`arrows <chess.svg.Arrow>`.
         """
         arrows = []
-        for match in ARROWS_REGEX.finditer(" ".join(self.comment)):
+        for match in ARROWS_REGEX.finditer(self.comment):
             for group in match.group("arrows").split(","):
                 arrows.append(chess.svg.Arrow.from_pgn(group))
 
@@ -635,10 +651,10 @@ class GameNode(abc.ABC):
                 pass
             (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
 
-        for index in range(len(self.comment)):
-            self.comment[index] = ARROWS_REGEX.sub(_condense_affix(""), self.comment[index])
+        for index in range(len(self.comments)):
+            self.comments[index] = ARROWS_REGEX.sub(_condense_affix(""), self.comments[index])
 
-        self.comment.remove_empty()
+        self.comments.remove_empty()
 
         prefix = ""
         if csl:
@@ -647,7 +663,7 @@ class GameNode(abc.ABC):
             prefix += f"[%cal {','.join(cal)}]"
 
         if prefix:
-            self.comment.insert(0, prefix)
+            self.comments.insert(0, prefix)
 
     def clock(self) -> Optional[float]:
         """
@@ -657,7 +673,7 @@ class GameNode(abc.ABC):
         Returns the player's remaining time to the next time control after this
         move, in seconds.
         """
-        match = CLOCK_REGEX.search(" ".join(self.comment))
+        match = CLOCK_REGEX.search(self.comment)
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
@@ -677,15 +693,15 @@ class GameNode(abc.ABC):
             clk = f"[%clk {hours:d}:{minutes:02d}:{seconds_part}]"
 
         found = 0
-        for index in range(len(self.comment)):
-            self.comment[index], found = CLOCK_REGEX.subn(_condense_affix(clk), self.comment[index], count=1)
+        for index in range(len(self.comments)):
+            self.comments[index], found = CLOCK_REGEX.subn(_condense_affix(clk), self.comments[index], count=1)
             if found:
                 break
 
-        self.comment.remove_empty()
+        self.comments.remove_empty()
 
         if not found and clk:
-            self.comment.append(clk)
+            self.comments.append(clk)
 
     def emt(self) -> Optional[float]:
         """
@@ -695,7 +711,7 @@ class GameNode(abc.ABC):
         Returns the player's elapsed move time use for the comment of this
         move, in seconds.
         """
-        match = EMT_REGEX.search(" ".join(self.comment))
+        match = EMT_REGEX.search(" ".join(self.comments))
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
@@ -715,15 +731,15 @@ class GameNode(abc.ABC):
             emt = f"[%emt {hours:d}:{minutes:02d}:{seconds_part}]"
 
         found = 0
-        for index in range(len(self.comment)):
-            self.comment[index], found = EMT_REGEX.subn(_condense_affix(emt), self.comment[index], count=1)
+        for index in range(len(self.comments)):
+            self.comments[index], found = EMT_REGEX.subn(_condense_affix(emt), self.comments[index], count=1)
             if found:
                 break
 
-        self.comment.remove_empty()
+        self.comments.remove_empty()
 
         if not found and emt:
-            self.comment.append(emt)
+            self.comments.append(emt)
 
     @abc.abstractmethod
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
@@ -868,7 +884,7 @@ class ChildNode(GameNode):
 
     def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
         if self.starting_comment:
-            visitor.visit_comment(self.starting_comment)
+            visitor.visit_comment(self.starting_comments)
 
         visitor.visit_move(parent_board, self.move)
 
@@ -879,8 +895,8 @@ class ChildNode(GameNode):
         for nag in sorted(self.nags):
             visitor.visit_nag(nag)
 
-        if self.comment:
-            visitor.visit_comment(self.comment)
+        if self.comments:
+            visitor.visit_comment(self.comments)
 
     def _accept(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT], *, sidelines: bool = True) -> None:
         stack = [_AcceptFrame(self, sidelines=sidelines)]
@@ -1011,8 +1027,8 @@ class Game(GameNode):
                 board = self.board()
                 visitor.visit_board(board)
 
-                if self.comment:
-                    visitor.visit_comment(self.comment)
+                if self.comments:
+                    visitor.visit_comment(self.comments)
 
                 if self.variations:
                     self.variations[0]._accept(board, visitor)
@@ -1347,14 +1363,14 @@ class GameBuilder(BaseVisitor[GameT]):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game if the comment
             # starts before any move.
-            new_comment = self.variation_stack[-1].comment + comment
-            new_comment.remove_empty()
-            self.variation_stack[-1].comment = new_comment
+            new_comments = self.variation_stack[-1].comments + comment
+            new_comments.remove_empty()
+            self.variation_stack[-1].comments = new_comments
         else:
             # Otherwise, it is a starting comment.
-            new_comment = self.starting_comment + comment
-            new_comment.remove_empty()
-            self.starting_comment = new_comment
+            new_comments = self.starting_comment + comment
+            new_comments.remove_empty()
+            self.starting_comment = new_comments
 
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
