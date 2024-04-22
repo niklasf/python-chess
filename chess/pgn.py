@@ -705,7 +705,7 @@ class GameNode(abc.ABC):
         Returns the player's elapsed move time use for the comment of this
         move, in seconds.
         """
-        match = EMT_REGEX.search(" ".join(self.comments))
+        match = EMT_REGEX.search(self.comment)
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
