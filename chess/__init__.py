@@ -2739,9 +2739,7 @@ class Board(BaseBoard):
         first_op = True
 
         for opcode, operand in operations.items():
-            assert opcode != "-", "dash (-) is not a valid epd opcode"
-            for blacklisted in [" ", "\n", "\t", "\r"]:
-                assert blacklisted not in opcode, f"invalid character {blacklisted!r} in epd opcode: {opcode!r}"
+            self._validate_epd_opcode(opcode)
 
             if not first_op:
                 epd.append(" ")
@@ -2819,6 +2817,17 @@ class Board(BaseBoard):
 
         return " ".join(epd)
 
+    def _validate_epd_opcode(self, opcode: str) -> None:
+        if not opcode:
+            raise ValueError("empty string is not a valid epd opcode")
+        if opcode == "-":
+            raise ValueError("dash (-) is not a valid epd opcode")
+        if not opcode[0].isalpha():
+            raise ValueError(f"expected epd opcode to start with a letter, got: {opcode!r}")
+        for blacklisted in [" ", "\n", "\t", "\r"]:
+            if blacklisted in opcode:
+                raise ValueError(f"invalid character {blacklisted!r} in epd opcode: {opcode!r}")
+
     def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
         operations: Dict[str, Union[None, str, int, float, Move, List[Move]]] = {}
         state = "opcode"
@@ -2832,6 +2841,7 @@ class Board(BaseBoard):
                     if opcode == "-":
                         opcode = ""
                     elif opcode:
+                        self._validate_epd_opcode(opcode)
                         state = "after_opcode"
                 elif ch is None or ch == ";":
                     if opcode == "-":

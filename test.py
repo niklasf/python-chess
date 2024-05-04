@@ -1143,6 +1143,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(ops["id"], "ERET 001 - Entlastung")
         self.assertEqual(ops["bm"], [chess.Move.from_uci("f1f4")])
 
+    def test_set_fen_as_epd(self):
+        board = chess.Board()
+        with self.assertRaises(ValueError):
+            board.set_epd(board.fen())  # Move numbers are not valid opcodes
+
     def test_null_moves(self):
         self.assertEqual(str(chess.Move.null()), "0000")
         self.assertEqual(chess.Move.null().uci(), "0000")
