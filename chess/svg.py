@@ -400,6 +400,27 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                     "transform": f"translate({x:d}, {y:d})",
                 })
 
+    # Render coordinates.
+    if coordinates:
+        light_color, light_opacity = _select_color(colors, "square light")
+        dark_color, dark_opacity = _select_color(colors, "square dark")
+        text_scale = 0.5
+        width = 18
+        height = 18
+        width *= text_scale
+        height *= text_scale
+        for file_index, file_name in enumerate(chess.FILE_NAMES):
+            x = ((file_index if orientation else 7 - file_index) * SQUARE_SIZE) - width 
+            y = full_size - height
+            coord_color, coord_opacity = (light_color, light_opacity) if (file_index+orientation)%2 == 1 else (dark_color, dark_opacity)
+            svg.append(_coord(file_name, x+1.5, y-1, text_scale, color=coord_color, opacity=coord_opacity))
+        x += (7 - file_index if orientation else file_index) * SQUARE_SIZE
+        x += SQUARE_SIZE
+        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+            y = ((7 - rank_index if orientation else rank_index) * SQUARE_SIZE) - height
+            coord_color, coord_opacity = (dark_color, dark_opacity) if (rank_index+orientation)%2 == 1 else (light_color, light_opacity)
+            svg.append(_coord(rank_name, x-1, y+3, text_scale, color=coord_color, opacity=coord_opacity))
+
     # Render X Squares
     if squares is not None:
         defs.append(ET.fromstring(XX))
@@ -510,25 +531,5 @@ def board(board: Optional[chess.BaseBoard] = None, *,
             "x": x,
             "y": y,
         }))
-
-    # Render coordinates.
-    if coordinates:
-        light_color, light_opacity = _select_color(colors, "square light")
-        dark_color, dark_opacity = _select_color(colors, "square dark")
-        text_scale = 0.5
-        width = 18
-        height = 18
-        width *= text_scale
-        height *= text_scale
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = ((file_index if orientation else 7 - file_index) * SQUARE_SIZE) - width 
-            y = full_size - height
-            coord_color, coord_opacity = (light_color, light_opacity) if (file_index+orientation)%2 == 1 else (dark_color, dark_opacity)
-            svg.append(_coord(file_name, x+1.5, y-1, text_scale, color=coord_color, opacity=coord_opacity))
-        x += (7 - file_index if orientation else file_index) * SQUARE_SIZE
-        x += SQUARE_SIZE
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = ((7 - rank_index if orientation else rank_index) * SQUARE_SIZE) - height
-            coord_color, coord_opacity = (dark_color, dark_opacity) if (rank_index+orientation)%2 == 1 else (light_color, light_opacity)
-            svg.append(_coord(rank_name, x-1, y+3, text_scale, color=coord_color, opacity=coord_opacity))
+    
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
