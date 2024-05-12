@@ -519,10 +519,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         rank_index = chess.square_rank(lastmove.to_square)
         x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
-        from_file_index = chess.square_file(lastmove.from_square)
         # Making sure the NAGs doesn't overlap the Last Move Arrow by switching 
         # between top left and top right corner depending upon where the Arrow
         # is coming from.
+        from_file_index = chess.square_file(lastmove.from_square)
+        file_index = (file_index if orientation else 7 - file_index)
+        from_file_index = (from_file_index if orientation else 7 - from_file_index)
         x = x + (SQUARE_SIZE - NAG_SIZE if file_index >= from_file_index else 0)
         ET.SubElement(svg, "use", _attrs({
             "href": f"#{id}",
