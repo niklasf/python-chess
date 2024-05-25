@@ -90,8 +90,6 @@ DEFAULT_COLORS = {
     "square dark lastmove": "#aaa23b",
     "square light lastmove": "#cdd16a",
     "margin": "#212121",
-    "inner border": "#111",
-    "outer border": "#111",
     "coord": "#e5e5e5",
     "arrow green": "#15781B80",
     "arrow red": "#88202080",
@@ -324,8 +322,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
-        if lastmove and square in [lastmove.from_square, lastmove.to_square]:
-            cls.append("lastmove")
         square_color, square_opacity = _select_color(colors, " ".join(cls))
 
         cls.append(chess.SQUARE_NAMES[square])
@@ -354,6 +350,32 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "stroke": "none",
                 "fill": fill_color,
                 "opacity": fill_opacity if fill_opacity < 1.0 else None,
+            }))
+    
+    # Rendering lastmove
+    if lastmove:
+        for square in [lastmove.from_square, lastmove.to_square]:
+            bb = 1 << square
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
+
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+
+            cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark", "lastmove"]
+            square_color, square_opacity = _select_color(colors, " ".join(cls))
+
+            cls.append(chess.SQUARE_NAMES[square])
+
+            ET.SubElement(svg, "rect", _attrs({
+                "x": x,
+                "y": y,
+                "width": SQUARE_SIZE,
+                "height": SQUARE_SIZE,
+                "class": " ".join(cls),
+                "stroke": "none",
+                "fill": square_color,
+                "opacity": square_opacity if square_opacity < 1.0 else None,
             }))
 
     # Render check mark.
