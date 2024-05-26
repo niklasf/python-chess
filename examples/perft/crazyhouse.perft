@@ -18,7 +18,7 @@ perft 3 58057
 perft 4 2083382
 
 id zh-promoted
-epd 4k3/1Q~6/8/8/4b3/8/Kpp5/8/ b - - 0 1
+epd 4k3/1Q~6/8/8/4b3/8/Kpp5/8/ b - -
 perft 1 20
 perft 2 360
 perft 3 5445

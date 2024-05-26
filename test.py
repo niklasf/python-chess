@@ -1143,6 +1143,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(ops["id"], "ERET 001 - Entlastung")
         self.assertEqual(ops["bm"], [chess.Move.from_uci("f1f4")])
 
+    def test_set_fen_as_epd(self):
+        board = chess.Board()
+        with self.assertRaises(ValueError):
+            board.set_epd(board.fen())  # Move numbers are not valid opcodes
+
     def test_null_moves(self):
         self.assertEqual(str(chess.Move.null()), "0000")
         self.assertEqual(chess.Move.null().uci(), "0000")
@@ -3026,7 +3031,7 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i >= j, a >= b)
                 self.assertEqual(i < j, a.score(mate_score=100000) < b.score(mate_score=100000))
 
-                for model in ["sf12", "sf14", "sf15", "sf15.1", "sf16"]:
+                for model in ["sf12", "sf14", "sf15", "sf15.1", "sf16", "sf16.1"]:
                     self.assertTrue(not (i < j) or a.wdl(model=model).expectation() <= b.wdl(model=model).expectation())
                     self.assertTrue(not (i < j) or a.wdl(model=model).winning_chance() <= b.wdl(model=model).winning_chance())
                     self.assertTrue(not (i < j) or a.wdl(model=model).losing_chance() >= b.wdl(model=model).losing_chance())
@@ -3066,6 +3071,7 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(chess.engine.Cp(40).wdl(model="sf15", ply=25), chess.engine.Wdl(58, 937, 5))
         self.assertEqual(chess.engine.Cp(100).wdl(model="sf15.1", ply=64), chess.engine.Wdl(497, 503, 0))
         self.assertEqual(chess.engine.Cp(-52).wdl(model="sf16", ply=63), chess.engine.Wdl(0, 932, 68))
+        self.assertEqual(chess.engine.Cp(51).wdl(model="sf16.1", ply=158), chess.engine.Wdl(36, 964, 0))
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
