@@ -1415,8 +1415,8 @@ class StringExporterMixin:
     def visit_comment(self, comment: Union[str, list[str]]) -> None:
         if self.comments and (self.variations or not self.variation_depth):
             def pgn_format(comments: list[str]) -> str:
-                comments = map(lambda s: s.replace("{", ""), comments)
-                comments = map(lambda s: s.replace("}", ""), comments)
+                comments = list(map(lambda s: s.replace("{", ""), comments))
+                comments = list(map(lambda s: s.replace("}", ""), comments))
                 return " ".join(f"{{ {comment} }}" for comment in comments if comment)
 
             comments = _standardize_comments(comment)
