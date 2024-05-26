@@ -130,6 +130,10 @@ def _condense_affix(infix: str) -> Callable[[typing.Match[str]], str]:
     return repl
 
 
+def _standardize_comments(comment: Union[str, list[str]]) -> list[str]:
+    return [] if not comment else [comment] if isinstance(comment, str) else comment
+
+
 TAG_ROSTER = ["Event", "Site", "Date", "Round", "White", "Black", "Result"]
 
 
@@ -184,92 +188,6 @@ class _AcceptFrame:
         self.in_variation = False
 
 
-class GameNodeComment:
-    """
-    PGN Comment Storage
-
-    A class that can hold one or more comments for a GameNode.
-    """
-
-    def __init__(self, comment: Union[str, list[str], GameNodeComment] = ""):
-        """Create a new comment."""
-        self.set(comment._comments if isinstance(comment,GameNodeComment) else comment)
-
-    def set(self, new_comment: Union[str, list[str]]) -> None:
-        """Replace the comment with a new comment or a list of comments."""
-        self._comments = new_comment if isinstance(new_comment, list) else [new_comment] if new_comment else []
-
-    def pgn_format(self) -> str:
-        """Create a string representation of the comments in PGN format."""
-        comments = map(lambda s: s.replace("{", ""), self._comments)
-        comments = map(lambda s: s.replace("}", "").strip(), comments)
-        return " ".join(f"{{ {comment} }}" for comment in comments if comment)
-
-    def remove_empty(self) -> None:
-        """Remove empty comments from the comment list."""
-        self._comments = list(filter(None, self._comments))
-
-    def append(self, new_comment: Union[str, list[str]]) -> None:
-        """Append one or more new comments to the end of the comment list."""
-        if new_comment:
-            if isinstance(new_comment, str):
-                self._comments.append(new_comment)
-            else:
-                self._comments.extend(new_comment)
-
-    def insert(self, index: int, new_comment: str) -> None:
-        """Insert a new comment before the specified index."""
-        self._comments.insert(index, new_comment)
-
-    def pop(self, index: int = -1) -> None:
-        """Delete comment at the given index (default is the last comment)."""
-        self._comments.pop(index)
-
-    def __len__(self) -> int:
-        """Get the number of comments in this node."""
-        return len(self._comments)
-
-    def __getitem__(self, index: int) -> str:
-        """Get the comment at the given index."""
-        return self._comments[index]
-
-    def __setitem__(self, index: int, new_comment: str) -> None:
-        """Change the comment at the given index."""
-        self._comments[index] = new_comment
-
-    def __iter__(self) -> Iterator[str]:
-        """Return an iterator over all comments."""
-        return iter(self._comments)
-
-    def __add__(self, other: Union[str, list[str], GameNodeComment]) -> GameNodeComment:
-        """Create a new comment set by adding two comment sets with +."""
-        if isinstance(other, GameNodeComment):
-            return GameNodeComment(self._comments + other._comments)
-        else:
-            new_node_comment = GameNodeComment(self._comments.copy())
-            new_node_comment.append(other)
-            return new_node_comment
-
-    def __eq__(self, other: object) -> bool:
-        """Check for equality between two comment sets."""
-        if isinstance(other, str):
-            return (len(self) == 1 and self[0] == other) or (not self and not other)
-        elif isinstance(other, list):
-            return self._comments == other
-        elif isinstance(other, GameNodeComment):
-            return self._comments == other._comments
-        else:
-            return False
-
-    def __repr__(self) -> str:
-        """Return a code-like representation of the class."""
-        return f"{self.__class__.__name__}({self._comments})"
-
-    def __str__(self) -> str:
-        """Return a string representation of the comments in PGN format."""
-        return self.pgn_format()
-
-
 class GameNode(abc.ABC):
     parent: Optional[GameNode]
     """The parent node or ``None`` if this is the root node of the game."""
@@ -283,45 +201,13 @@ class GameNode(abc.ABC):
     variations: List[ChildNode]
     """A list of child nodes."""
 
-    _comment: GameNodeComment
+    comments: list[str]
     """
     A comment that goes behind the move leading to this node. Comments
     that occur before any moves are assigned to the root node.
     """
 
-    @property
-    def comment(self) -> str:
-        return " ".join(self._comment)
-
-    @comment.setter
-    def comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._comment = GameNodeComment(new_comment)
-
-    @property
-    def comments(self) -> GameNodeComment:
-        return self._comment
-
-    @comments.setter
-    def comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._comment = GameNodeComment(new_comment)
-
-    _starting_comment: GameNodeComment
-
-    @property
-    def starting_comment(self) -> str:
-        return " ".join(self._starting_comment)
-
-    @starting_comment.setter
-    def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._starting_comment = GameNodeComment(new_comment)
-
-    @property
-    def starting_comments(self) -> GameNodeComment:
-        return self._starting_comment
-
-    @starting_comments.setter
-    def starting_comments(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._starting_comment = GameNodeComment(new_comment)
+    starting_comments: list[str]
 
     nags: Set[int]
 
@@ -329,11 +215,11 @@ class GameNode(abc.ABC):
         self.parent = None
         self.move = None
         self.variations = []
-        self.comments = GameNodeComment(comment)
+        self.comments = _standardize_comments(comment)
 
         # Deprecated: These should be properties of ChildNode, but need to
         # remain here for backwards compatibility.
-        self.starting_comments = GameNodeComment()
+        self.starting_comments = []
         self.nags = set()
 
     @abc.abstractmethod
@@ -549,7 +435,8 @@ class GameNode(abc.ABC):
             starting_comment = ""
 
         # Merge comment and NAGs.
-        node.comments.append(comment)
+        comments = _standardize_comments(comment)
+        node.comments.extend(comments)
         node.nags.update(nags)
 
         return node
@@ -561,7 +448,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(n)`.
         """
-        match = EVAL_REGEX.search(self.comment)
+        match = EVAL_REGEX.search(" ".join(self.comments))
         if not match:
             return None
 
@@ -587,7 +474,7 @@ class GameNode(abc.ABC):
 
         Complexity is `O(1)`.
         """
-        match = EVAL_REGEX.search(self.comment)
+        match = EVAL_REGEX.search(" ".join(self.comments))
         return int(match.group("depth")) if match and match.group("depth") else None
 
     def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
@@ -610,7 +497,7 @@ class GameNode(abc.ABC):
             if found:
                 break
 
-        self.comments.remove_empty()
+        self.comments = list(filter(None, self.comments))
 
         if not found and eval:
             self.comments.append(eval)
@@ -623,7 +510,7 @@ class GameNode(abc.ABC):
         Returns a list of :class:`arrows <chess.svg.Arrow>`.
         """
         arrows = []
-        for match in ARROWS_REGEX.finditer(self.comment):
+        for match in ARROWS_REGEX.finditer(" ".join(self.comments)):
             for group in match.group("arrows").split(","):
                 arrows.append(chess.svg.Arrow.from_pgn(group))
 
@@ -648,7 +535,7 @@ class GameNode(abc.ABC):
         for index in range(len(self.comments)):
             self.comments[index] = ARROWS_REGEX.sub(_condense_affix(""), self.comments[index])
 
-        self.comments.remove_empty()
+        self.comments = list(filter(None, self.comments))
 
         prefix = ""
         if csl:
@@ -667,7 +554,7 @@ class GameNode(abc.ABC):
         Returns the player's remaining time to the next time control after this
         move, in seconds.
         """
-        match = CLOCK_REGEX.search(self.comment)
+        match = CLOCK_REGEX.search(" ".join(self.comments))
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
@@ -692,7 +579,7 @@ class GameNode(abc.ABC):
             if found:
                 break
 
-        self.comments.remove_empty()
+        self.comments = list(filter(None, self.comments))
 
         if not found and clk:
             self.comments.append(clk)
@@ -705,7 +592,7 @@ class GameNode(abc.ABC):
         Returns the player's elapsed move time use for the comment of this
         move, in seconds.
         """
-        match = EMT_REGEX.search(self.comment)
+        match = EMT_REGEX.search(" ".join(self.comments))
         if match is None:
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
@@ -730,7 +617,7 @@ class GameNode(abc.ABC):
             if found:
                 break
 
-        self.comments.remove_empty()
+        self.comments = list(filter(None, self.comments))
 
         if not found and emt:
             self.comments.append(emt)
@@ -789,21 +676,13 @@ class ChildNode(GameNode):
     move: chess.Move
     """The move leading to this node."""
 
-    _starting_comment: GameNodeComment
+    starting_comments: list[str]
     """
     A comment for the start of a variation. Only nodes that
     actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
     checks this) can have a starting comment. The root node can not have
     a starting comment.
     """
-
-    @property
-    def starting_comment(self) -> str:
-        return " ".join(self._starting_comment)
-
-    @starting_comment.setter
-    def starting_comment(self, new_comment: Union[str, list[str], GameNodeComment]) -> None:
-        self._starting_comment = GameNodeComment(new_comment)
 
     nags: Set[int]
     """
@@ -818,7 +697,7 @@ class ChildNode(GameNode):
         self.parent.variations.append(self)
 
         self.nags.update(nags)
-        self.starting_comments = GameNodeComment(starting_comment)
+        self.starting_comments = _standardize_comments(starting_comment)
 
     def board(self) -> chess.Board:
         stack: List[chess.Move] = []
@@ -874,7 +753,7 @@ class ChildNode(GameNode):
         return typing.cast(ChildNode, super().end())
 
     def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
-        if self.starting_comment:
+        if self.starting_comments:
             visitor.visit_comment(self.starting_comments)
 
         visitor.visit_move(parent_board, self.move)
@@ -1270,7 +1149,7 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """
         pass
 
-    def visit_comment(self, comment: GameNodeComment) -> None:
+    def visit_comment(self, comment: list[str]) -> None:
         """Called for each comment."""
         pass
 
@@ -1324,7 +1203,7 @@ class GameBuilder(BaseVisitor[GameT]):
         self.game: GameT = self.Game()
 
         self.variation_stack: List[GameNode] = [self.game]
-        self.starting_comment = GameNodeComment()
+        self.starting_comments: list[str] = []
         self.in_variation = False
 
     def begin_headers(self) -> Headers:
@@ -1349,24 +1228,23 @@ class GameBuilder(BaseVisitor[GameT]):
         if self.game.headers.get("Result", "*") == "*":
             self.game.headers["Result"] = result
 
-    def visit_comment(self, comment: GameNodeComment) -> None:
+    def visit_comment(self, comment: Union[str, list[str]]) -> None:
+        comments = _standardize_comments(comment)
         if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game if the comment
             # starts before any move.
-            new_comments = self.variation_stack[-1].comments + comment
-            new_comments.remove_empty()
-            self.variation_stack[-1].comments = new_comments
+            self.variation_stack[-1].comments.extend(comments)
+            self.variation_stack[-1].comments = list(filter(None, self.variation_stack[-1].comments))
         else:
             # Otherwise, it is a starting comment.
-            new_comments = self.starting_comment + comment
-            new_comments.remove_empty()
-            self.starting_comment = new_comments
+            self.starting_comments.extend(comments)
+            self.starting_comments = list(filter(None, self.starting_comments))
 
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
-        self.variation_stack[-1].starting_comments = self.starting_comment
-        self.starting_comment = GameNodeComment()
+        self.variation_stack[-1].starting_comments = self.starting_comments
+        self.starting_comments = []
         self.in_variation = True
 
     def handle_error(self, error: Exception) -> None:
@@ -1534,9 +1412,15 @@ class StringExporterMixin:
             self.write_token(") ")
             self.force_movenumber = True
 
-    def visit_comment(self, comment: GameNodeComment) -> None:
+    def visit_comment(self, comment: Union[str, list[str]]) -> None:
         if self.comments and (self.variations or not self.variation_depth):
-            self.write_token(comment.pgn_format() + " ")
+            def pgn_format(comments: list[str]) -> str:
+                comments = map(lambda s: s.replace("{", ""), comments)
+                comments = map(lambda s: s.replace("}", ""), comments)
+                return " ".join(f"{{ {comment} }}" for comment in comments if comment)
+
+            comments = _standardize_comments(comment)
+            self.write_token(pgn_format(comments) + " ")
             self.force_movenumber = True
 
     def visit_nag(self, nag: int) -> None:
