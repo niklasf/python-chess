@@ -1511,27 +1511,23 @@ class Tablebase:
 
         Returns the number of table files that were found.
         """
-        num = 0
         directory = os.path.abspath(directory)
+        return sum(self.add_file(os.path.join(directory, filename), load_wdl=load_wdl, load_dtz=load_dtz) for filename in os.listdir(directory))
 
-        for filename in os.listdir(directory):
-            path = os.path.join(directory, filename)
-            tablename, ext = os.path.splitext(filename)
-
-            if is_tablename(tablename, one_king=self.variant.one_king) and os.path.isfile(path):
-                if load_wdl:
-                    if ext == self.variant.tbw_suffix:
-                        num += self._open_table(self.wdl, WdlTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
-                        num += self._open_table(self.wdl, WdlTable, path)
-
-                if load_dtz:
-                    if ext == self.variant.tbz_suffix:
-                        num += self._open_table(self.dtz, DtzTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
-                        num += self._open_table(self.dtz, DtzTable, path)
-
-        return num
+    def add_file(self, path: str, *, load_wdl: bool = True, load_dtz: bool = True) -> int:
+        tablename, ext = os.path.splitext(os.path.basename(path))
+        if is_tablename(tablename, one_king=self.variant.one_king) and os.path.isfile(path):
+            if load_wdl:
+                if ext == self.variant.tbw_suffix:
+                    return self._open_table(self.wdl, WdlTable, path)
+                elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
+                    return self._open_table(self.wdl, WdlTable, path)
+            if load_dtz:
+                if ext == self.variant.tbz_suffix:
+                    return self._open_table(self.dtz, DtzTable, path)
+                elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
+                    return self._open_table(self.dtz, DtzTable, path)
+        return 0
 
     def probe_wdl_table(self, board: chess.Board) -> int:
         # Test for variant end.
