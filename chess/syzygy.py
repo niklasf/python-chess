@@ -1546,6 +1546,8 @@ class Tablebase:
         try:
             table = typing.cast(WdlTable, self.wdl[key])
         except KeyError:
+            if chess.popcount(board.occupied) > TBPIECES:
+                raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
             raise MissingTableError(f"did not find wdl table {key}")
 
         self._bump_lru(table)
@@ -1558,8 +1560,6 @@ class Tablebase:
             raise KeyError(f"tablebase has been opened for {self.variant.uci_variant}, probed with: {board.uci_variant}")
         if board.castling_rights:
             raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
-        if chess.popcount(board.occupied) > TBPIECES:
-            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         # Special case: Variant with compulsory captures.
         if self.variant.captures_compulsory:
