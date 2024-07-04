@@ -1561,6 +1561,13 @@ class Tablebase:
         if board.castling_rights:
             raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
 
+        # Probing resolves captures, so sometimes we can obtain results for
+        # positions that have more pieces than the maximum number of supported
+        # pieces. We artificially limit this to one additional level, to
+        # make sure search remains somewhat bounded.
+        if chess.popcount(board.occupied) > TBPIECES + 1:
+            raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
+
         # Special case: Variant with compulsory captures.
         if self.variant.captures_compulsory:
             if board.is_variant_win():
