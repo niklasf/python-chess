@@ -350,7 +350,6 @@ If you like, share interesting things you are using python-chess for, for exampl
 * Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
 * a `browser based PGN viewer <https://about.nmstoker.com/chess2.html>`_ written in PyScript – https://github.com/nmstoker/ChessMatchViewer
 * an accessible chessboard that allows blind and visually impaired  players  to play chess against Stockfish – https://github.com/blindpandas/chessmart
-* analyse games to extract various statistics – https://github.com/mvrozanti/chess-playground
 * a web-based chess vision exercise – https://github.com/3d12/rookognition
 
 
