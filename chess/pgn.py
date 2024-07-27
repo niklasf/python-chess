@@ -143,7 +143,7 @@ ResultT = TypeVar("ResultT", covariant=True)
 
 
 class TimeControlType(enum.Enum):
-    UNKNOW = 0
+    UNKNOWN = 0
     UNLIMITED = 1
     STANDARD = 2
     RAPID = 3
@@ -172,7 +172,7 @@ class TimeControl:
     """
 
     parts: list[TimeControlPart] = dataclasses.field(default_factory=list)
-    type: TimeControlType = TimeControlType.UNKNOW
+    type: TimeControlType = TimeControlType.UNKNOWN
 
 
 class _AcceptFrame:
