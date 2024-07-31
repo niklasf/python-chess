@@ -24,6 +24,14 @@ from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
 
+try:
+    from typing import override
+except:
+    # Before Python 3.12
+    F = typing.TypeVar("F", bound=Callable[..., Any])
+    def override(fn: F, /) -> F:
+        return fn
+
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
@@ -1317,16 +1325,16 @@ class UciProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def check_initialized(self) -> None:
                 if self.engine.initialized:
                     raise EngineError("engine already initialized")
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.engine.send_line("uci")
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if line.strip() == "uciok" and not self.result.done():
@@ -1415,7 +1423,7 @@ class UciProtocol(Protocol):
             def start(self) -> None:
                 self.engine._isready()
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 if line.strip() == "readyok":
                     self.result.set_result(None)
@@ -1574,7 +1582,7 @@ class UciProtocol(Protocol):
                 # MultiPV never change between pondering play commands.
                 engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(new_options) else None
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.info: InfoDict = {}
                 self.pondering: Optional[chess.Board] = None
@@ -1605,7 +1613,7 @@ class UciProtocol(Protocol):
                 else:
                     self._readyok()
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "info":
@@ -1662,7 +1670,7 @@ class UciProtocol(Protocol):
                 engine.may_ponderhit = None
                 self.set_finished()
 
-            @typing.override
+            @override
             def cancel(self) -> None:
                 if self.engine.may_ponderhit and self.pondering and self.engine.may_ponderhit.move_stack == self.pondering.move_stack and self.engine.may_ponderhit == self.pondering:
                     self.engine.ponderhit = True
@@ -1670,7 +1678,7 @@ class UciProtocol(Protocol):
                 else:
                     self.engine.send_line("stop")
 
-            @typing.override
+            @override
             def engine_terminated(self, exc: Exception) -> None:
                 # Allow terminating engine while pondering.
                 if not self.result.done():
@@ -1705,7 +1713,7 @@ class UciProtocol(Protocol):
                 else:
                     self._readyok()
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "info":
@@ -1738,11 +1746,11 @@ class UciProtocol(Protocol):
                 self.set_finished()
                 self.analysis.set_finished(best)
 
-            @typing.override
+            @override
             def cancel(self) -> None:
                 self.engine.send_line("stop")
 
-            @typing.override
+            @override
             def engine_terminated(self, exc: Exception) -> None:
                 LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", self.engine, exc)
                 self.analysis.set_exception(exc)
@@ -1978,12 +1986,12 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def check_initialized(self) -> None:
                 if self.engine.initialized:
                     raise EngineError("engine already initialized")
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.engine.send_line("xboard")
                 self.engine.send_line("protover 2")
@@ -1993,7 +2001,7 @@ class XBoardProtocol(Protocol):
                 LOGGER.error("%s: Timeout during initialization", self.engine)
                 self.end()
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token.startswith("#"):
@@ -2152,13 +2160,13 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def start(self) -> None:
                 n = id(self) & 0xffff
                 self.pong = f"pong {n}"
                 self.engine._ping(n)
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 if line == self.pong:
                     self.result.set_result(None)
@@ -2179,7 +2187,7 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.play_result = PlayResult(None, None)
                 self.stopped = False
@@ -2221,7 +2229,7 @@ class XBoardProtocol(Protocol):
                 self.engine.send_line("hard" if ponder else "easy")
                 self.engine.send_line("go")
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "move":
@@ -2301,7 +2309,7 @@ class XBoardProtocol(Protocol):
                     self.pong_after_move = f"pong {n}"
                     self.engine._ping(n)
 
-            @typing.override
+            @override
             def cancel(self) -> None:
                 if self.stopped:
                     return
@@ -2317,7 +2325,7 @@ class XBoardProtocol(Protocol):
                     self.pong_after_ponder = f"pong {n}"
                     self.engine._ping(n)
 
-            @typing.override
+            @override
             def engine_terminated(self, exc: Exception) -> None:
                 # Allow terminating engine while pondering.
                 if not self.result.done():
@@ -2337,7 +2345,7 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.stopped = False
                 self.best_move: Optional[chess.Move] = None
@@ -2364,7 +2372,7 @@ class XBoardProtocol(Protocol):
                 else:
                     self.time_limit_handle = None
 
-            @typing.override
+            @override
             def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token.startswith("#"):
@@ -2405,7 +2413,7 @@ class XBoardProtocol(Protocol):
                 self.set_finished()
                 self.analysis.set_finished(BestMove(self.best_move, None))
 
-            @typing.override
+            @override
             def cancel(self) -> None:
                 if self.stopped:
                     return
@@ -2418,7 +2426,7 @@ class XBoardProtocol(Protocol):
                 self.final_pong = f"pong {n}"
                 self.engine._ping(n)
 
-            @typing.override
+            @override
             def engine_terminated(self, exc: Exception) -> None:
                 LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", self.engine, exc)
 
@@ -2466,7 +2474,7 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def start(self) -> None:
                 self.engine._configure(options)
                 self.engine.target_config.update({name: value for name, value in options.items() if value is not None})
@@ -2497,7 +2505,7 @@ class XBoardProtocol(Protocol):
                 super().__init__(engine)
                 self.engine = engine
 
-            @typing.override
+            @override
             def start(self) -> None:
                 if game_ending and any(c in game_ending for c in "{}\n\r"):
                     raise EngineError(f"invalid line break or curly braces in game ending message: {game_ending!r}")
