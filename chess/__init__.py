@@ -1542,7 +1542,7 @@ class BaseBoard:
 
 BoardT = TypeVar("BoardT", bound="Board")
 
-class _BoardState(Generic[BoardT]):
+class _BoardState:
 
     def __init__(self, board: BoardT) -> None:
         self.pawns = board.pawns
@@ -1701,7 +1701,7 @@ class Board(BaseBoard):
 
         self.ep_square = None
         self.move_stack = []
-        self._stack: List[_BoardState[BoardT]] = []
+        self._stack: List[_BoardState] = []
 
         if fen is None:
             self.clear()
@@ -2304,9 +2304,6 @@ class Board(BaseBoard):
 
         return False
 
-    def _board_state(self: BoardT) -> _BoardState[BoardT]:
-        return _BoardState(self)
-
     def _push_capture(self, move: Move, capture_square: Square, piece_type: PieceType, was_promoted: bool) -> None:
         pass
 
@@ -2335,7 +2332,7 @@ class Board(BaseBoard):
         """
         # Push move and remember board state.
         move = self._to_chess960(move)
-        board_state = self._board_state()
+        board_state = _BoardState(self)
         self.castling_rights = self.clean_castling_rights()  # Before pushing stack
         self.move_stack.append(self._from_chess960(self.chess960, move.from_square, move.to_square, move.promotion, move.drop))
         self._stack.append(board_state)
