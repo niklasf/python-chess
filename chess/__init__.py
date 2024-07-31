@@ -1544,7 +1544,7 @@ BoardT = TypeVar("BoardT", bound="Board")
 
 class _BoardState:
 
-    def __init__(self, board: BoardT) -> None:
+    def __init__(self, board: Board) -> None:
         self.pawns = board.pawns
         self.knights = board.knights
         self.bishops = board.bishops
@@ -1564,7 +1564,7 @@ class _BoardState:
         self.halfmove_clock = board.halfmove_clock
         self.fullmove_number = board.fullmove_number
 
-    def restore(self, board: BoardT) -> None:
+    def restore(self, board: Board) -> None:
         board.pawns = self.pawns
         board.knights = self.knights
         board.bishops = self.bishops

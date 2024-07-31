@@ -406,8 +406,10 @@ class Score(abc.ABC):
     """
 
     @typing.overload
+    @abc.abstractmethod
     def score(self, *, mate_score: int) -> int: ...
     @typing.overload
+    @abc.abstractmethod
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     @abc.abstractmethod
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
@@ -2120,12 +2122,13 @@ class XBoardProtocol(Protocol):
             if self.config.get("computer"):
                 self.send_line("computer")
 
-        self.send_line("force")
+            self.send_line("force")
 
-        if new_game:
             fen = root.fen(shredder=board.chess960, en_passant="fen")
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
                 self.send_line(f"setboard {fen}")
+        else:
+            self.send_line("force")
 
         # Undo moves until common position.
         common_stack_len = 0

@@ -133,7 +133,7 @@ class SuicideBoard(chess.Board):
         else:
             return super()._transposition_key()
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
         if promoted is None:
             promoted = self.has_chess960_castling_rights()
         return super().board_fen(promoted=promoted)
@@ -799,7 +799,7 @@ class ThreeCheckBoard(chess.Board):
         return (super()._transposition_key(),
                 self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
 
-    def copy(self, stack: Union[bool, int] = True) -> Self:
+    def copy(self, *, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.remaining_checks = self.remaining_checks.copy()
         if stack:
@@ -1041,7 +1041,7 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE] = white_pocket
         self.pockets[chess.BLACK] = black_pocket
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
         if promoted is None:
             promoted = True
         return super().board_fen(promoted=promoted)
@@ -1051,7 +1051,7 @@ class CrazyhouseBoard(chess.Board):
         board_part, info_part = epd.split(" ", 1)
         return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
 
-    def copy(self, stack: Union[bool, int] = True) -> Self:
+    def copy(self, *, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
