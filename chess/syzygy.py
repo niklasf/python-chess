@@ -1511,27 +1511,23 @@ class Tablebase:
 
         Returns the number of table files that were found.
         """
-        num = 0
         directory = os.path.abspath(directory)
+        return sum(self.add_file(os.path.join(directory, filename), load_wdl=load_wdl, load_dtz=load_dtz) for filename in os.listdir(directory))
 
-        for filename in os.listdir(directory):
-            path = os.path.join(directory, filename)
-            tablename, ext = os.path.splitext(filename)
-
-            if is_tablename(tablename, one_king=self.variant.one_king) and os.path.isfile(path):
-                if load_wdl:
-                    if ext == self.variant.tbw_suffix:
-                        num += self._open_table(self.wdl, WdlTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
-                        num += self._open_table(self.wdl, WdlTable, path)
-
-                if load_dtz:
-                    if ext == self.variant.tbz_suffix:
-                        num += self._open_table(self.dtz, DtzTable, path)
-                    elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
-                        num += self._open_table(self.dtz, DtzTable, path)
-
-        return num
+    def add_file(self, path: str, *, load_wdl: bool = True, load_dtz: bool = True) -> int:
+        tablename, ext = os.path.splitext(os.path.basename(path))
+        if is_tablename(tablename, one_king=self.variant.one_king) and os.path.isfile(path):
+            if load_wdl:
+                if ext == self.variant.tbw_suffix:
+                    return self._open_table(self.wdl, WdlTable, path)
+                elif "P" not in tablename and ext == self.variant.pawnless_tbw_suffix:
+                    return self._open_table(self.wdl, WdlTable, path)
+            if load_dtz:
+                if ext == self.variant.tbz_suffix:
+                    return self._open_table(self.dtz, DtzTable, path)
+                elif "P" not in tablename and ext == self.variant.pawnless_tbz_suffix:
+                    return self._open_table(self.dtz, DtzTable, path)
+        return 0
 
     def probe_wdl_table(self, board: chess.Board) -> int:
         # Test for variant end.
@@ -1550,6 +1546,8 @@ class Tablebase:
         try:
             table = typing.cast(WdlTable, self.wdl[key])
         except KeyError:
+            if chess.popcount(board.occupied) > TBPIECES:
+                raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
             raise MissingTableError(f"did not find wdl table {key}")
 
         self._bump_lru(table)
@@ -1562,7 +1560,12 @@ class Tablebase:
             raise KeyError(f"tablebase has been opened for {self.variant.uci_variant}, probed with: {board.uci_variant}")
         if board.castling_rights:
             raise KeyError(f"syzygy tables do not contain positions with castling rights: {board.fen()}")
-        if chess.popcount(board.occupied) > TBPIECES:
+
+        # Probing resolves captures, so sometimes we can obtain results for
+        # positions that have more pieces than the maximum number of supported
+        # pieces. We artificially limit this to one additional level, to
+        # make sure search remains somewhat bounded.
+        if chess.popcount(board.occupied) > TBPIECES + 1:
             raise KeyError(f"syzygy tables support up to {TBPIECES} pieces, not {chess.popcount(board.occupied)}: {board.fen()}")
 
         # Special case: Variant with compulsory captures.

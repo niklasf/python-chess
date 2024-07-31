@@ -6,9 +6,26 @@ Upcoming in the next release
 
 Changes:
 
-* Dropped support for Python 3.7, which had reached its end of life.
-* `chess.engine.EventLoopPolicy` is no longer needed and now merely an alias
+* Drop support for Python 3.7, which has reached its end of life.
+* ``chess.engine.EventLoopPolicy`` is no longer needed and now merely an alias
   for the default event loop policy.
+* If available and requested via ``setpgrp``, use ``process_group`` support
+  from Python 3.11 for engine processes.
+* No longer eagerly reject 8 piece positions in ``chess.syzygy``, so that
+  some 8 piece positions with decisive captures can be probed successfully.
+* The string wrapper returned by ``chess.svg`` functions now also implements
+  ``_repr_html_``.
+
+New features:
+
+* Add ``chess.pgn.Game.time_control()`` and related data models.
+* Add model ``sf16.1`` for ``chess.engine.Score.wdl()``, the new default.
+
+Bugfixes:
+
+* Fix handling of whitespace in UCI engine communication.
+* For ``chess.Board.epd()`` and ``chess.Board.set_epd()``, require that EPD
+  opcodes start with a letter.
 
 New in v1.10.0 (27th Jul 2023)
 ------------------------------

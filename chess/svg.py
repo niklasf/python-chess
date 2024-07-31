@@ -144,6 +144,9 @@ class SvgWrapper(str):
     def _repr_svg_(self) -> SvgWrapper:
         return self
 
+    def _repr_html_(self) -> SvgWrapper:
+        return self
+
 
 def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     svg = ET.Element("svg", {

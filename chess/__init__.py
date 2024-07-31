@@ -902,7 +902,9 @@ class BaseBoard:
         """
         return SquareSet(self.attacks_mask(square))
 
-    def _attackers_mask(self, color: Color, square: Square, occupied: Bitboard) -> Bitboard:
+    def attackers_mask(self, color: Color, square: Square, occupied: Optional[Bitboard] = None) -> Bitboard:
+        occupied = self.occupied if occupied is None else occupied
+
         rank_pieces = BB_RANK_MASKS[square] & occupied
         file_pieces = BB_FILE_MASKS[square] & occupied
         diag_pieces = BB_DIAG_MASKS[square] & occupied
@@ -920,27 +922,38 @@ class BaseBoard:
 
         return attackers & self.occupied_co[color]
 
-    def attackers_mask(self, color: Color, square: Square) -> Bitboard:
-        return self._attackers_mask(color, square, self.occupied)
-
-    def is_attacked_by(self, color: Color, square: Square) -> bool:
+    def is_attacked_by(self, color: Color, square: Square, occupied: Optional[IntoSquareSet] = None) -> bool:
         """
         Checks if the given side attacks the given square.
 
         Pinned pieces still count as attackers. Pawns that can be captured
         en passant are **not** considered attacked.
-        """
-        return bool(self.attackers_mask(color, square))
 
-    def attackers(self, color: Color, square: Square) -> SquareSet:
+        *occupied* determines which squares are considered to block attacks.
+        For example,
+        ``board.occupied ^ board.pieces_mask(chess.KING, board.turn)`` can be
+        used to consider X-ray attacks through the king.
+        Defaults to ``board.occupied`` (all pieces including the king,
+        no X-ray attacks).
+        """
+        return bool(self.attackers_mask(color, square, None if occupied is None else SquareSet(occupied).mask))
+
+    def attackers(self, color: Color, square: Square, occupied: Optional[IntoSquareSet] = None) -> SquareSet:
         """
         Gets the set of attackers of the given color for the given square.
 
         Pinned pieces still count as attackers.
 
+        *occupied* determines which squares are considered to block attacks.
+        For example,
+        ``board.occupied ^ board.pieces_mask(chess.KING, board.turn)`` can be
+        used to consider X-ray attacks through the king.
+        Defaults to ``board.occupied`` (all pieces including the king,
+        no X-ray attacks).
+
         Returns a :class:`set of squares <chess.SquareSet>`.
         """
-        return SquareSet(self.attackers_mask(color, square))
+        return SquareSet(self.attackers_mask(color, square, None if occupied is None else SquareSet(occupied).mask))
 
     def pin_mask(self, color: Color, square: Square) -> Bitboard:
         king = self.king(color)
@@ -3723,7 +3736,7 @@ class Board(BaseBoard):
             self.generate_legal_ep(from_mask, to_mask))
 
     def _attacked_for_king(self, path: Bitboard, occupied: Bitboard) -> bool:
-        return any(self._attackers_mask(not self.turn, sq, occupied) for sq in scan_reversed(path))
+        return any(self.attackers_mask(not self.turn, sq, occupied) for sq in scan_reversed(path))
 
     def generate_castling_moves(self, from_mask: Bitboard = BB_ALL, to_mask: Bitboard = BB_ALL) -> Iterator[Move]:
         if self.is_variant_end():

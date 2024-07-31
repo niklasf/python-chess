@@ -703,6 +703,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(board.san(chess.Move.from_uci("h4g6")), "Nh4g6")
         self.assertEqual(board.fen(), fen)
 
+        # Test a bug where shakmaty used overly specific disambiguation.
+        fen = "8/2KN1p2/5p2/3N1B1k/5PNp/7P/7P/8 w - -"
+        board = chess.Board(fen)
+        self.assertEqual(board.san(chess.Move.from_uci("d5f6")), "N5xf6#")
+
         # Do not disambiguate illegal alternatives.
         fen = "8/8/8/R2nkn2/8/8/2K5/8 b - - 0 1"
         board = chess.Board(fen)
