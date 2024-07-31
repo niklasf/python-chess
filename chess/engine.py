@@ -2650,7 +2650,8 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 
 
 def _next_token(line: str) -> tuple[str, str]:
-    """Get the next token in a whitespace-delimited line of text.
+    """
+    Get the next token in a whitespace-delimited line of text.
 
     The result is returned as a 2-part tuple of strings.
 
@@ -2660,10 +2661,10 @@ def _next_token(line: str) -> tuple[str, str]:
     If the input line is not empty and not completely whitespace, then
     the first element of the returned tuple is a single word with
     leading and trailing whitespace removed. The second element is the
-    unchanged rest of the line."""
-
+    unchanged rest of the line.
+    """
     parts = line.split(maxsplit=1)
-    return (parts[0] if parts else "", parts[1] if len(parts) == 2 else "")
+    return parts[0] if parts else "", parts[1] if len(parts) == 2 else ""
 
 
 class BestMove:
