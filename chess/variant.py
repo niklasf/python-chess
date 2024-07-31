@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import chess
 import itertools
+import typing
 
 from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class SuicideBoard(chess.Board):
@@ -129,7 +133,7 @@ class SuicideBoard(chess.Board):
         else:
             return super()._transposition_key()
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
         if promoted is None:
             promoted = self.has_chess960_castling_rights()
         return super().board_fen(promoted=promoted)
@@ -673,14 +677,12 @@ class HordeBoard(chess.Board):
 
 ThreeCheckBoardT = TypeVar("ThreeCheckBoardT", bound="ThreeCheckBoard")
 
-class _ThreeCheckBoardState(Generic[ThreeCheckBoardT], chess._BoardState[ThreeCheckBoardT]):
-    def __init__(self, board: ThreeCheckBoardT) -> None:
-        super().__init__(board)
+class _ThreeCheckBoardState:
+    def __init__(self, board: ThreeCheckBoard) -> None:
         self.remaining_checks_w = board.remaining_checks[chess.WHITE]
         self.remaining_checks_b = board.remaining_checks[chess.BLACK]
 
-    def restore(self, board: ThreeCheckBoardT) -> None:
-        super().restore(board)
+    def restore(self, board: ThreeCheckBoard) -> None:
         board.remaining_checks[chess.WHITE] = self.remaining_checks_w
         board.remaining_checks[chess.BLACK] = self.remaining_checks_b
 
@@ -698,7 +700,12 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
         self.remaining_checks = [3, 3]
+        self._three_check_stack: List[_ThreeCheckBoardState] = []
         super().__init__(fen, chess960=chess960)
+
+    def clear_stack(self) -> None:
+        super().clear_stack()
+        self._three_check_stack.clear()
 
     def reset_board(self) -> None:
         super().reset_board()
@@ -710,13 +717,16 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.WHITE] = 3
         self.remaining_checks[chess.BLACK] = 3
 
-    def _board_state(self: ThreeCheckBoardT) -> _ThreeCheckBoardState[ThreeCheckBoardT]:
-        return _ThreeCheckBoardState(self)
-
     def push(self, move: chess.Move) -> None:
+        self._three_check_stack.append(_ThreeCheckBoardState(self))
         super().push(move)
         if self.is_check():
             self.remaining_checks[not self.turn] -= 1
+
+    def pop(self) -> chess.Move:
+        move = super().pop()
+        self._three_check_stack.pop().restore(self)
+        return move
 
     def has_insufficient_material(self, color: chess.Color) -> bool:
         # Any remaining piece can give check.
@@ -789,12 +799,23 @@ class ThreeCheckBoard(chess.Board):
         return (super()._transposition_key(),
                 self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
 
-    def copy(self: ThreeCheckBoardT, stack: Union[bool, int] = True) -> ThreeCheckBoardT:
+    def copy(self, *, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.remaining_checks = self.remaining_checks.copy()
+        if stack:
+            stack = len(self.move_stack) if stack is True else stack
+            board._three_check_stack = self._three_check_stack[-stack:]
         return board
 
-    def mirror(self: ThreeCheckBoardT) -> ThreeCheckBoardT:
+    def root(self) -> Self:
+        if self._three_check_stack:
+            board = super().root()
+            self._three_check_stack[0].restore(board)
+            return board
+        else:
+            return self.copy(stack=False)
+
+    def mirror(self) -> Self:
         board = super().mirror()
         board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.BLACK]
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
@@ -803,14 +824,12 @@ class ThreeCheckBoard(chess.Board):
 
 CrazyhouseBoardT = TypeVar("CrazyhouseBoardT", bound="CrazyhouseBoard")
 
-class _CrazyhouseBoardState(Generic[CrazyhouseBoardT], chess._BoardState[CrazyhouseBoardT]):
-    def __init__(self, board: CrazyhouseBoardT) -> None:
-        super().__init__(board)
+class _CrazyhouseBoardState:
+    def __init__(self, board: CrazyhouseBoard) -> None:
         self.pockets_w = board.pockets[chess.WHITE].copy()
         self.pockets_b = board.pockets[chess.BLACK].copy()
 
-    def restore(self, board: CrazyhouseBoardT) -> None:
-        super().restore(board)
+    def restore(self, board: CrazyhouseBoard) -> None:
         board.pockets[chess.WHITE] = self.pockets_w
         board.pockets[chess.BLACK] = self.pockets_b
 
@@ -850,7 +869,7 @@ class CrazyhousePocket:
     def __repr__(self) -> str:
         return f"CrazyhousePocket('{self}')"
 
-    def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
+    def copy(self) -> Self:
         """Returns a copy of this pocket."""
         pocket = type(self)()
         pocket._pieces = self._pieces[:]
@@ -870,7 +889,12 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
+        self._crazyhouse_stack: List[_CrazyhouseBoardState] = []
         super().__init__(fen, chess960=chess960)
+
+    def clear_stack(self) -> None:
+        super().clear_stack()
+        self._crazyhouse_stack.clear()
 
     def reset_board(self) -> None:
         super().reset_board()
@@ -882,10 +906,8 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE].reset()
         self.pockets[chess.BLACK].reset()
 
-    def _board_state(self: CrazyhouseBoardT) -> _CrazyhouseBoardState[CrazyhouseBoardT]:
-        return _CrazyhouseBoardState(self)
-
     def push(self, move: chess.Move) -> None:
+        self._crazyhouse_stack.append(_CrazyhouseBoardState(self))
         super().push(move)
         if move.drop:
             self.pockets[not self.turn].remove(move.drop)
@@ -895,6 +917,11 @@ class CrazyhouseBoard(chess.Board):
             self.pockets[self.turn].add(chess.PAWN)
         else:
             self.pockets[self.turn].add(piece_type)
+
+    def pop(self) -> chess.Move:
+        move = super().pop()
+        self._crazyhouse_stack.pop().restore(self)
+        return move
 
     def _is_halfmoves(self, n: int) -> bool:
         # No draw by 50-move rule or 75-move rule.
@@ -1014,7 +1041,7 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE] = white_pocket
         self.pockets[chess.BLACK] = black_pocket
 
-    def board_fen(self, promoted: Optional[bool] = None) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
         if promoted is None:
             promoted = True
         return super().board_fen(promoted=promoted)
@@ -1024,13 +1051,24 @@ class CrazyhouseBoard(chess.Board):
         board_part, info_part = epd.split(" ", 1)
         return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
 
-    def copy(self: CrazyhouseBoardT, stack: Union[bool, int] = True) -> CrazyhouseBoardT:
+    def copy(self, *, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
+        if stack:
+            stack = len(self.move_stack) if stack is True else stack
+            board._crazyhouse_stack = self._crazyhouse_stack[-stack:]
         return board
 
-    def mirror(self: CrazyhouseBoardT) -> CrazyhouseBoardT:
+    def root(self) -> Self:
+        if self._crazyhouse_stack:
+            board = super().root()
+            self._crazyhouse_stack[0].restore(board)
+            return board
+        else:
+            return self.copy(stack=False)
+
+    def mirror(self) -> Self:
         board = super().mirror()
         board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()
