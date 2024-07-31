@@ -989,7 +989,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         if self.returncode.done():
             raise EngineTerminatedError(f"engine process dead (exit code: {self.returncode.result()})")
 
-        assert command.state == CommandState.NEW
+        assert command.state == CommandState.NEW, command.state
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -1253,7 +1253,7 @@ class BaseCommand(Generic[T]):
             self.finished.set_result(None)
 
     def set_finished(self) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.finished.set_result(None)
@@ -1261,12 +1261,12 @@ class BaseCommand(Generic[T]):
 
     def _cancel(self) -> None:
         if self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
-            assert self.state == CommandState.ACTIVE
+            assert self.state == CommandState.ACTIVE, self.state
             self.state = CommandState.CANCELLING
             self.cancel()
 
     def _start(self) -> None:
-        assert self.state == CommandState.NEW
+        assert self.state == CommandState.NEW, self.state
         self.state = CommandState.ACTIVE
         try:
             self.check_initialized()
@@ -1275,7 +1275,7 @@ class BaseCommand(Generic[T]):
             self._handle_exception(err)
 
     def _line_received(self, line: str) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         try:
             self.line_received(line)
         except EngineError as err:
