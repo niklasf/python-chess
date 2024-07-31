@@ -491,16 +491,7 @@ class GameNode(abc.ABC):
             elif score.white().mate():
                 eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
 
-        found = 0
-        for index in range(len(self.comments)):
-            self.comments[index], found = EVAL_REGEX.subn(_condense_affix(eval), self.comments[index], count=1)
-            if found:
-                break
-
-        self.comments = list(filter(None, self.comments))
-
-        if not found and eval:
-            self.comments.append(eval)
+        self._replace_or_add_annotation(eval, EVAL_REGEX)
 
     def arrows(self) -> List[chess.svg.Arrow]:
         """
@@ -573,16 +564,7 @@ class GameNode(abc.ABC):
             seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
             clk = f"[%clk {hours:d}:{minutes:02d}:{seconds_part}]"
 
-        found = 0
-        for index in range(len(self.comments)):
-            self.comments[index], found = CLOCK_REGEX.subn(_condense_affix(clk), self.comments[index], count=1)
-            if found:
-                break
-
-        self.comments = list(filter(None, self.comments))
-
-        if not found and clk:
-            self.comments.append(clk)
+        self._replace_or_add_annotation(clk, CLOCK_REGEX)
 
     def emt(self) -> Optional[float]:
         """
@@ -611,16 +593,19 @@ class GameNode(abc.ABC):
             seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
             emt = f"[%emt {hours:d}:{minutes:02d}:{seconds_part}]"
 
+        self._replace_or_add_annotation(emt, EMT_REGEX)
+
+    def _replace_or_add_annotation(self, text: str, regex: re.Pattern[str]) -> None:
         found = 0
         for index in range(len(self.comments)):
-            self.comments[index], found = EMT_REGEX.subn(_condense_affix(emt), self.comments[index], count=1)
+            self.comments[index], found = regex.subn(_condense_affix(text), self.comments[index], count=1)
             if found:
                 break
 
         self.comments = list(filter(None, self.comments))
 
-        if not found and emt:
-            self.comments.append(emt)
+        if not found and text:
+            self.comments.append(text)
 
     @abc.abstractmethod
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
