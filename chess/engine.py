@@ -24,10 +24,9 @@ from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
 
-try:
-    from typing import override
-except:
-    # Before Python 3.12
+if typing.TYPE_CHECKING:
+    from typing_extensions import override
+else:
     F = typing.TypeVar("F", bound=Callable[..., Any])
     def override(fn: F, /) -> F:
         return fn
