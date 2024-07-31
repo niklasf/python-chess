@@ -2110,7 +2110,7 @@ class PgnTestCase(unittest.TestCase):
         e4_c5.comments = ["Sicilian"]
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
-        e4_d5_exd5.comments = ["Best", "and the end of this example"]
+        e4_d5_exd5.comments = ["Best", "and the end of this {example}"]
 
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
