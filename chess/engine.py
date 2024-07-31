@@ -883,7 +883,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, f"expected {expectation}, got: {line}"
                 if responses:
-                    self.protocol.pipe_data_received(1, "\n".join(responses + [""]).encode("utf-8"))
+                    self.protocol.loop.call_soon(self.protocol.pipe_data_received, 1, "\n".join(responses + [""]).encode("utf-8"))
 
     def get_pid(self) -> int:
         return id(self)
@@ -934,12 +934,12 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
         # Terminate commands.
-        if self.command is not None:
-            self.command._engine_terminated(code)
-            self.command = None
-        if self.next_command is not None:
-            self.next_command._engine_terminated(code)
-            self.next_command = None
+        command, self.command = self.command, None
+        next_command, self.next_command = self.next_command, None
+        if command:
+            command._engine_terminated(code)
+        if next_command:
+            next_command._engine_terminated(code)
 
         self.returncode.set_result(code)
 
@@ -965,9 +965,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 LOGGER.warning("%s: >> %r (%s)", self, bytes(line_bytes), err)
             else:
                 if fd == 1:
-                    self.loop.call_soon(self._line_received, line)
+                    self._line_received(line)
                 else:
-                    self.loop.call_soon(self.error_line_received, line)
+                    self.error_line_received(line)
 
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
@@ -998,7 +998,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         self.next_command = command
 
-        def previous_command_finished(_: Optional[asyncio.Future[None]]) -> None:
+        def previous_command_finished() -> None:
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
@@ -1008,11 +1008,11 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                         cmd._cancel()
 
                 cmd.result.add_done_callback(cancel_if_cancelled)
-                cmd.finished.add_done_callback(previous_command_finished)
                 cmd._start()
+                cmd.add_finished_callback(previous_command_finished)
 
         if self.command is None:
-            previous_command_finished(None)
+            previous_command_finished()
         elif not self.command.result.done():
             self.command.result.cancel()
         elif not self.command.result.cancelled():
@@ -1228,6 +1228,17 @@ class BaseCommand(Generic[T]):
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
 
+        self._finished_callbacks: List[Callable[[], None]] = []
+
+    def add_finished_callback(self, callback: Callable[[], None]) -> None:
+        self._finished_callbacks.append(callback)
+        self._dispatch_finished()
+
+    def _dispatch_finished(self) -> None:
+        if self.finished.done():
+            while self._finished_callbacks:
+                self._finished_callbacks.pop()()
+
     def _engine_terminated(self, code: int) -> None:
         hint = ", binary not compatible with cpu?" if code in [-4, 0xc000001d] else ""
         exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code}{hint})")
@@ -1235,6 +1246,7 @@ class BaseCommand(Generic[T]):
             self.engine_terminated(exc)
         elif self.state == CommandState.CANCELLING:
             self.finished.set_result(None)
+            self._dispatch_finished()
         elif self.state == CommandState.NEW:
             self._handle_exception(exc)
 
@@ -1251,13 +1263,15 @@ class BaseCommand(Generic[T]):
 
         if not self.finished.done():
             self.finished.set_result(None)
+            self._dispatch_finished()
 
     def set_finished(self) -> None:
         assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
-        self.finished.set_result(None)
         self.state = CommandState.DONE
+        self.finished.set_result(None)
+        self._dispatch_finished()
 
     def _cancel(self) -> None:
         if self.state != CommandState.CANCELLING and self.state != CommandState.DONE:

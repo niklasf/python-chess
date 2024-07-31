@@ -3527,6 +3527,24 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.run(main())
 
+    def test_uci_output_after_command(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", [
+                "Arasan v24.0.0-10-g367aa9f Copyright 1994-2023 by Jon Dart.",
+                "All rights reserved.",
+                "id name Arasan v24.0.0-10-g367aa9f",
+                "uciok",
+                "info string out of do_all_pending, list size=0"
+            ])
+            await protocol.initialize()
+
+            mock.assert_done()
+
+        asyncio.run(main())
+
     def test_hiarcs_bestmove(self):
         async def main():
             protocol = chess.engine.UciProtocol()

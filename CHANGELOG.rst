@@ -30,6 +30,8 @@ New features:
 
 Bugfixes:
 
+* Fix unsolicited engine output may cause assertion errors with regard to
+  command states.
 * Fix handling of whitespace in UCI engine communication.
 * For ``chess.Board.epd()`` and ``chess.Board.set_epd()``, require that EPD
   opcodes start with a letter.
