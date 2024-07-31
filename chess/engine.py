@@ -970,7 +970,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
 
-    def _line_received(self: Protocol, line: str) -> None:
+    def _line_received(self, line: str) -> None:
         LOGGER.debug("%s: >> %s", self, line)
 
         self.line_received(line)

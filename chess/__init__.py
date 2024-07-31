@@ -25,7 +25,7 @@ import typing
 from typing import ClassVar, Callable, Counter, Dict, Generic, Hashable, Iterable, Iterator, List, Literal, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import Self, TypeAlias
 
 
 EnPassantSpec = Literal["legal", "fen", "xfen"]
@@ -1455,7 +1455,7 @@ class BaseBoard:
         self.occupied = f(self.occupied)
         self.promoted = f(self.promoted)
 
-    def transform(self: BaseBoardT, f: Callable[[Bitboard], Bitboard]) -> BaseBoardT:
+    def transform(self, f: Callable[[Bitboard], Bitboard]) -> Self:
         """
         Returns a transformed copy of the board (without move stack)
         by applying a bitboard transformation function.
@@ -1473,11 +1473,11 @@ class BaseBoard:
         board.apply_transform(f)
         return board
 
-    def apply_mirror(self: BaseBoardT) -> None:
+    def apply_mirror(self) -> None:
         self.apply_transform(flip_vertical)
         self.occupied_co[WHITE], self.occupied_co[BLACK] = self.occupied_co[BLACK], self.occupied_co[WHITE]
 
-    def mirror(self: BaseBoardT) -> BaseBoardT:
+    def mirror(self) -> Self:
         """
         Returns a mirrored copy of the board (without move stack).
 
@@ -1491,7 +1491,7 @@ class BaseBoard:
         board.apply_mirror()
         return board
 
-    def copy(self: BaseBoardT) -> BaseBoardT:
+    def copy(self) -> Self:
         """Creates a copy of the board."""
         board = type(self)(None)
 
@@ -1509,10 +1509,10 @@ class BaseBoard:
 
         return board
 
-    def __copy__(self: BaseBoardT) -> BaseBoardT:
+    def __copy__(self) -> Self:
         return self.copy()
 
-    def __deepcopy__(self: BaseBoardT, memo: Dict[int, object]) -> BaseBoardT:
+    def __deepcopy__(self, memo: Dict[int, object]) -> Self:
         board = self.copy()
         memo[id(self)] = board
         return board
@@ -1694,7 +1694,7 @@ class Board(BaseBoard):
     manipulation.
     """
 
-    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
+    def __init__(self, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
@@ -1786,7 +1786,7 @@ class Board(BaseBoard):
         self.move_stack.clear()
         self._stack.clear()
 
-    def root(self: BoardT) -> BoardT:
+    def root(self) -> Self:
         """Returns a copy of the root position."""
         if self._stack:
             board = type(self)(None, chess960=self.chess960)
@@ -2307,7 +2307,7 @@ class Board(BaseBoard):
     def _push_capture(self, move: Move, capture_square: Square, piece_type: PieceType, was_promoted: bool) -> None:
         pass
 
-    def push(self: BoardT, move: Move) -> None:
+    def push(self, move: Move) -> None:
         """
         Updates the position with the given *move* and puts it onto the
         move stack.
@@ -2428,7 +2428,7 @@ class Board(BaseBoard):
         # Swap turn.
         self.turn = not self.turn
 
-    def pop(self: BoardT) -> Move:
+    def pop(self) -> Move:
         """
         Restores the previous position and returns the last move from the stack.
 
@@ -2838,7 +2838,7 @@ class Board(BaseBoard):
             if blacklisted in opcode:
                 raise ValueError(f"invalid character {blacklisted!r} in epd opcode: {opcode!r}")
 
-    def _parse_epd_ops(self: BoardT, operation_part: str, make_board: Callable[[], BoardT]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
+    def _parse_epd_ops(self, operation_part: str, make_board: Callable[[], Self]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
         operations: Dict[str, Union[None, str, int, float, Move, List[Move]]] = {}
         state = "opcode"
         opcode = ""
@@ -3831,16 +3831,16 @@ class Board(BaseBoard):
         self.ep_square = None if self.ep_square is None else msb(f(BB_SQUARES[self.ep_square]))
         self.castling_rights = f(self.castling_rights)
 
-    def transform(self: BoardT, f: Callable[[Bitboard], Bitboard]) -> BoardT:
+    def transform(self, f: Callable[[Bitboard], Bitboard]) -> Self:
         board = self.copy(stack=False)
         board.apply_transform(f)
         return board
 
-    def apply_mirror(self: BoardT) -> None:
+    def apply_mirror(self) -> None:
         super().apply_mirror()
         self.turn = not self.turn
 
-    def mirror(self: BoardT) -> BoardT:
+    def mirror(self) -> Self:
         """
         Returns a mirrored copy of the board.
 
@@ -3855,7 +3855,7 @@ class Board(BaseBoard):
         board.apply_mirror()
         return board
 
-    def copy(self: BoardT, *, stack: Union[bool, int] = True) -> BoardT:
+    def copy(self, *, stack: Union[bool, int] = True) -> Self:
         """
         Creates a copy of the board.
 

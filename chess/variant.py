@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import chess
 import itertools
+import typing
 
 from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class SuicideBoard(chess.Board):
@@ -795,7 +799,7 @@ class ThreeCheckBoard(chess.Board):
         return (super()._transposition_key(),
                 self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
 
-    def copy(self: ThreeCheckBoardT, stack: Union[bool, int] = True) -> ThreeCheckBoardT:
+    def copy(self, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.remaining_checks = self.remaining_checks.copy()
         if stack:
@@ -803,7 +807,7 @@ class ThreeCheckBoard(chess.Board):
             board._three_check_stack = self._three_check_stack[-stack:]
         return board
 
-    def root(self: ThreeCheckBoardT) -> ThreeCheckBoardT:
+    def root(self) -> Self:
         if self._three_check_stack:
             board = super().root()
             self._three_check_stack[0].restore(board)
@@ -811,7 +815,7 @@ class ThreeCheckBoard(chess.Board):
         else:
             return self.copy(stack=False)
 
-    def mirror(self: ThreeCheckBoardT) -> ThreeCheckBoardT:
+    def mirror(self) -> Self:
         board = super().mirror()
         board.remaining_checks[chess.WHITE] = self.remaining_checks[chess.BLACK]
         board.remaining_checks[chess.BLACK] = self.remaining_checks[chess.WHITE]
@@ -865,7 +869,7 @@ class CrazyhousePocket:
     def __repr__(self) -> str:
         return f"CrazyhousePocket('{self}')"
 
-    def copy(self: CrazyhousePocketT) -> CrazyhousePocketT:
+    def copy(self) -> Self:
         """Returns a copy of this pocket."""
         pocket = type(self)()
         pocket._pieces = self._pieces[:]
@@ -1047,7 +1051,7 @@ class CrazyhouseBoard(chess.Board):
         board_part, info_part = epd.split(" ", 1)
         return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
 
-    def copy(self: CrazyhouseBoardT, stack: Union[bool, int] = True) -> CrazyhouseBoardT:
+    def copy(self, stack: Union[bool, int] = True) -> Self:
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.BLACK].copy()
@@ -1056,7 +1060,7 @@ class CrazyhouseBoard(chess.Board):
             board._crazyhouse_stack = self._crazyhouse_stack[-stack:]
         return board
 
-    def root(self: CrazyhouseBoardT) -> CrazyhouseBoardT:
+    def root(self) -> Self:
         if self._crazyhouse_stack:
             board = super().root()
             self._crazyhouse_stack[0].restore(board)
@@ -1064,7 +1068,7 @@ class CrazyhouseBoard(chess.Board):
         else:
             return self.copy(stack=False)
 
-    def mirror(self: CrazyhouseBoardT) -> CrazyhouseBoardT:
+    def mirror(self) -> Self:
         board = super().mirror()
         board.pockets[chess.WHITE] = self.pockets[chess.BLACK].copy()
         board.pockets[chess.BLACK] = self.pockets[chess.WHITE].copy()

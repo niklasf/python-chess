@@ -14,6 +14,9 @@ import chess
 from types import TracebackType
 from typing import Deque, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
 
 UINT64_BE = struct.Struct(">Q")
 UINT32 = struct.Struct("<I")
@@ -532,8 +535,6 @@ class PawnFileDataDtz:
     norm: List[int]
 
 
-TableT = TypeVar("TableT", bound="Table")
-
 class Table:
     size: List[int]
 
@@ -1025,7 +1026,7 @@ class Table:
                     self.data.close()
                     self.data = None
 
-    def __enter__(self: TableT) -> TableT:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
