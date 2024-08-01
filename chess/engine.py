@@ -24,6 +24,16 @@ from chess import Color
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import override
+else:
+    F = typing.TypeVar("F", bound=Callable[..., Any])
+    def override(fn: F, /) -> F:
+        return fn
+
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
 WdlModel = Literal["sf", "sf16.1", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
 
@@ -396,8 +406,10 @@ class Score(abc.ABC):
     """
 
     @typing.overload
+    @abc.abstractmethod
     def score(self, *, mate_score: int) -> int: ...
     @typing.overload
+    @abc.abstractmethod
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]: ...
     @abc.abstractmethod
     def score(self, *, mate_score: Optional[int] = None) -> Optional[int]:
@@ -871,7 +883,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
                 expectation, responses = self.expectations.popleft()
                 assert expectation == line, f"expected {expectation}, got: {line}"
                 if responses:
-                    self.protocol.pipe_data_received(1, "\n".join(responses + [""]).encode("utf-8"))
+                    self.protocol.loop.call_soon(self.protocol.pipe_data_received, 1, "\n".join(responses + [""]).encode("utf-8"))
 
     def get_pid(self) -> int:
         return id(self)
@@ -895,7 +907,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     returncode: asyncio.Future[int]
     """Future: Exit code of the process."""
 
-    def __init__(self: ProtocolT) -> None:
+    def __init__(self) -> None:
         self.loop = asyncio.get_running_loop()
         self.transport: Optional[asyncio.SubprocessTransport] = None
 
@@ -904,8 +916,8 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             2: bytearray(),  # stderr
         }
 
-        self.command: Optional[BaseCommand[ProtocolT, Any]] = None
-        self.next_command: Optional[BaseCommand[ProtocolT, Any]] = None
+        self.command: Optional[BaseCommand[Any]] = None
+        self.next_command: Optional[BaseCommand[Any]] = None
 
         self.initialized = False
         self.returncode: asyncio.Future[int] = asyncio.Future()
@@ -915,19 +927,19 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         self.transport = transport  # type: ignore
         LOGGER.debug("%s: Connection made", self)
 
-    def connection_lost(self: ProtocolT, exc: Optional[Exception]) -> None:
+    def connection_lost(self, exc: Optional[Exception]) -> None:
         assert self.transport is not None
         code = self.transport.get_returncode()
         assert code is not None, "connect lost, but got no returncode"
         LOGGER.debug("%s: Connection lost (exit code: %d, error: %s)", self, code, exc)
 
         # Terminate commands.
-        if self.command is not None:
-            self.command._engine_terminated(self, code)
-            self.command = None
-        if self.next_command is not None:
-            self.next_command._engine_terminated(self, code)
-            self.next_command = None
+        command, self.command = self.command, None
+        next_command, self.next_command = self.next_command, None
+        if command:
+            command._engine_terminated(code)
+        if next_command:
+            next_command._engine_terminated(code)
 
         self.returncode.set_result(code)
 
@@ -953,31 +965,31 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 LOGGER.warning("%s: >> %r (%s)", self, bytes(line_bytes), err)
             else:
                 if fd == 1:
-                    self.loop.call_soon(self._line_received, line)
+                    self._line_received(line)
                 else:
-                    self.loop.call_soon(self.error_line_received, line)
+                    self.error_line_received(line)
 
     def error_line_received(self, line: str) -> None:
         LOGGER.warning("%s: stderr >> %s", self, line)
 
-    def _line_received(self: ProtocolT, line: str) -> None:
+    def _line_received(self, line: str) -> None:
         LOGGER.debug("%s: >> %s", self, line)
 
         self.line_received(line)
 
         if self.command:
-            self.command._line_received(self, line)
+            self.command._line_received(line)
 
     def line_received(self, line: str) -> None:
         pass
 
-    async def communicate(self: ProtocolT, command_factory: Callable[[ProtocolT], BaseCommand[ProtocolT, T]]) -> T:
+    async def communicate(self, command_factory: Callable[[Self], BaseCommand[T]]) -> T:
         command = command_factory(self)
 
         if self.returncode.done():
             raise EngineTerminatedError(f"engine process dead (exit code: {self.returncode.result()})")
 
-        assert command.state == CommandState.NEW
+        assert command.state == CommandState.NEW, command.state
 
         if self.next_command is not None:
             self.next_command.result.cancel()
@@ -986,25 +998,25 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
 
         self.next_command = command
 
-        def previous_command_finished(_: Optional[asyncio.Future[None]]) -> None:
+        def previous_command_finished() -> None:
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
 
                 def cancel_if_cancelled(result: asyncio.Future[T]) -> None:
                     if result.cancelled():
-                        cmd._cancel(self)
+                        cmd._cancel()
 
                 cmd.result.add_done_callback(cancel_if_cancelled)
-                cmd.finished.add_done_callback(previous_command_finished)
-                cmd._start(self)
+                cmd._start()
+                cmd.add_finished_callback(previous_command_finished)
 
         if self.command is None:
-            previous_command_finished(None)
+            previous_command_finished()
         elif not self.command.result.done():
             self.command.result.cancel()
         elif not self.command.result.cancelled():
-            self.command._cancel(self)
+            self.command._cancel()
 
         return await command.result
 
@@ -1207,81 +1219,97 @@ class CommandState(enum.Enum):
     DONE = enum.auto()
 
 
-class BaseCommand(Generic[ProtocolT, T]):
-    def __init__(self, engine: ProtocolT) -> None:
+class BaseCommand(Generic[T]):
+    def __init__(self, engine: Protocol) -> None:
+        self._engine = engine
+
         self.state = CommandState.NEW
 
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
 
-    def _engine_terminated(self, engine: ProtocolT, code: int) -> None:
+        self._finished_callbacks: List[Callable[[], None]] = []
+
+    def add_finished_callback(self, callback: Callable[[], None]) -> None:
+        self._finished_callbacks.append(callback)
+        self._dispatch_finished()
+
+    def _dispatch_finished(self) -> None:
+        if self.finished.done():
+            while self._finished_callbacks:
+                self._finished_callbacks.pop()()
+
+    def _engine_terminated(self, code: int) -> None:
         hint = ", binary not compatible with cpu?" if code in [-4, 0xc000001d] else ""
         exc = EngineTerminatedError(f"engine process died unexpectedly (exit code: {code}{hint})")
         if self.state == CommandState.ACTIVE:
-            self.engine_terminated(engine, exc)
+            self.engine_terminated(exc)
         elif self.state == CommandState.CANCELLING:
             self.finished.set_result(None)
+            self._dispatch_finished()
         elif self.state == CommandState.NEW:
-            self._handle_exception(engine, exc)
+            self._handle_exception(exc)
 
-    def _handle_exception(self, engine: ProtocolT, exc: Exception) -> None:
+    def _handle_exception(self, exc: Exception) -> None:
         if not self.result.done():
             self.result.set_exception(exc)
         else:
-            engine.loop.call_exception_handler({
+            self._engine.loop.call_exception_handler({ # XXX
                 "message": f"{type(self).__name__} failed after returning preliminary result ({self.result!r})",
                 "exception": exc,
-                "protocol": engine,
-                "transport": engine.transport,
+                "protocol": self._engine,
+                "transport": self._engine.transport,
             })
 
         if not self.finished.done():
             self.finished.set_result(None)
+            self._dispatch_finished()
 
     def set_finished(self) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
-        self.finished.set_result(None)
         self.state = CommandState.DONE
+        self.finished.set_result(None)
+        self._dispatch_finished()
 
-    def _cancel(self, engine: ProtocolT) -> None:
+    def _cancel(self) -> None:
         if self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
-            assert self.state == CommandState.ACTIVE
+            assert self.state == CommandState.ACTIVE, self.state
             self.state = CommandState.CANCELLING
-            self.cancel(engine)
+            self.cancel()
 
-    def _start(self, engine: ProtocolT) -> None:
-        assert self.state == CommandState.NEW
+    def _start(self) -> None:
+        assert self.state == CommandState.NEW, self.state
         self.state = CommandState.ACTIVE
         try:
-            self.check_initialized(engine)
-            self.start(engine)
+            self.check_initialized()
+            self.start()
         except EngineError as err:
-            self._handle_exception(engine, err)
+            self._handle_exception(err)
 
-    def _line_received(self, engine: ProtocolT, line: str) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING]
+    def _line_received(self, line: str) -> None:
+        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         try:
-            self.line_received(engine, line)
+            self.line_received(line)
         except EngineError as err:
-            self._handle_exception(engine, err)
+            self._handle_exception(err)
 
-    def cancel(self, engine: ProtocolT) -> None:
+    def cancel(self) -> None:
         pass
 
-    def check_initialized(self, engine: ProtocolT) -> None:
-        if not engine.initialized:
+    def check_initialized(self) -> None:
+        if not self._engine.initialized:
             raise EngineError("tried to run command, but engine is not initialized")
 
-    def start(self, engine: ProtocolT) -> None:
+    def start(self) -> None:
         raise NotImplementedError
 
-    def line_received(self, engine: ProtocolT, line: str) -> None:
+    def line_received(self, line: str) -> None:
         pass
 
-    def engine_terminated(self, engine: ProtocolT, exc: Exception) -> None:
-        self._handle_exception(engine, exc)
+    def engine_terminated(self, exc: Exception) -> None:
+        self._handle_exception(exc)
 
     def __repr__(self) -> str:
         return "<{} at {:#x} (state={}, result={}, finished={}>".format(type(self).__name__, id(self), self.state, self.result, self.finished)
@@ -1307,26 +1335,33 @@ class UciProtocol(Protocol):
         self.ponderhit = False
 
     async def initialize(self) -> None:
-        class UciInitializeCommand(BaseCommand[UciProtocol, None]):
-            def check_initialized(self, engine: UciProtocol) -> None:
-                if engine.initialized:
+        class UciInitializeCommand(BaseCommand[None]):
+            def __init__(self, engine: UciProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def check_initialized(self) -> None:
+                if self.engine.initialized:
                     raise EngineError("engine already initialized")
 
-            def start(self, engine: UciProtocol) -> None:
-                engine.send_line("uci")
+            @override
+            def start(self) -> None:
+                self.engine.send_line("uci")
 
-            def line_received(self, engine: UciProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if line.strip() == "uciok" and not self.result.done():
-                    engine.initialized = True
+                    self.engine.initialized = True
                     self.result.set_result(None)
                     self.set_finished()
                 elif token == "option":
-                    self._option(engine, remaining)
+                    self._option(remaining)
                 elif token == "id":
-                    self._id(engine, remaining)
+                    self._id(remaining)
 
-            def _option(self, engine: UciProtocol, arg: str) -> None:
+            def _option(self, arg: str) -> None:
                 current_parameter = None
                 option_parts: dict[str, str] = {k: "" for k in ["name", "type", "default", "min", "max"]}
                 var = []
@@ -1357,16 +1392,16 @@ class UciProtocol(Protocol):
 
                 without_default = Option(name, type, None, min, max, var)
                 option = Option(without_default.name, without_default.type, without_default.parse(default), min, max, var)
-                engine.options[option.name] = option
+                self.engine.options[option.name] = option
 
                 if option.default is not None:
-                    engine.config[option.name] = option.default
+                    self.engine.config[option.name] = option.default
                 if option.default is not None and not option.is_managed() and option.name.lower() != "uci_analysemode":
-                    engine.target_config[option.name] = option.default
+                    self.engine.target_config[option.name] = option.default
 
-            def _id(self, engine: UciProtocol, arg: str) -> None:
+            def _id(self, arg: str) -> None:
                 key, value = _next_token(arg)
-                engine.id[key] = value.strip()
+                self.engine.id[key] = value.strip()
 
         return await self.communicate(UciInitializeCommand)
 
@@ -1395,16 +1430,21 @@ class UciProtocol(Protocol):
             self.send_line("debug off")
 
     async def ping(self) -> None:
-        class UciPingCommand(BaseCommand[UciProtocol, None]):
-            def start(self, engine: UciProtocol) -> None:
-                engine._isready()
+        class UciPingCommand(BaseCommand[None]):
+            def __init__(self, engine: UciProtocol) -> None:
+                super().__init__(engine)
+                self.engine =  engine
 
-            def line_received(self, engine: UciProtocol, line: str) -> None:
+            def start(self) -> None:
+                self.engine._isready()
+
+            @override
+            def line_received(self, line: str) -> None:
                 if line.strip() == "readyok":
                     self.result.set_result(None)
                     self.set_finished()
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
 
         return await self.communicate(UciPingCommand)
 
@@ -1438,10 +1478,14 @@ class UciProtocol(Protocol):
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
-        class UciConfigureCommand(BaseCommand[UciProtocol, None]):
-            def start(self, engine: UciProtocol) -> None:
-                engine._configure(options)
-                engine.target_config.update({name: value for name, value in options.items() if value is not None})
+        class UciConfigureCommand(BaseCommand[None]):
+            def __init__(self, engine: UciProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            def start(self) -> None:
+                self.engine._configure(options)
+                self.engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.result.set_result(None)
                 self.set_finished()
 
@@ -1541,77 +1585,82 @@ class UciProtocol(Protocol):
             new_options[name] = value
         new_options.update(self._opponent_configuration(opponent=opponent))
 
-        class UciPlayCommand(BaseCommand[UciProtocol, PlayResult]):
+        engine = self
+
+        class UciPlayCommand(BaseCommand[PlayResult]):
             def __init__(self, engine: UciProtocol):
                 super().__init__(engine)
+                self.engine = engine
 
                 # May ponderhit only in the same game and with unchanged target
                 # options. The managed options UCI_AnalyseMode, Ponder, and
                 # MultiPV never change between pondering play commands.
                 engine.may_ponderhit = board if ponder and not engine.first_game and game == engine.game and not engine._changed_options(new_options) else None
 
-            def start(self, engine: UciProtocol) -> None:
+            @override
+            def start(self) -> None:
                 self.info: InfoDict = {}
                 self.pondering: Optional[chess.Board] = None
                 self.sent_isready = False
                 self.start_time = time.perf_counter()
 
-                if engine.ponderhit:
-                    engine.ponderhit = False
-                    engine.send_line("ponderhit")
+                if self.engine.ponderhit:
+                    self.engine.ponderhit = False
+                    self.engine.send_line("ponderhit")
                     return
 
-                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in new_options):
-                    engine._setoption("UCI_AnalyseMode", False)
-                if "Ponder" in engine.options:
-                    engine._setoption("Ponder", ponder)
-                if "MultiPV" in engine.options:
-                    engine._setoption("MultiPV", engine.options["MultiPV"].default)
+                if "UCI_AnalyseMode" in self.engine.options and "UCI_AnalyseMode" not in self.engine.target_config and all(name.lower() != "uci_analysemode" for name in new_options):
+                    self.engine._setoption("UCI_AnalyseMode", False)
+                if "Ponder" in self.engine.options:
+                    self.engine._setoption("Ponder", ponder)
+                if "MultiPV" in self.engine.options:
+                    self.engine._setoption("MultiPV", self.engine.options["MultiPV"].default)
 
-                new_opponent = new_options.get("UCI_Opponent") or engine.target_config.get("UCI_Opponent")
-                opponent_changed = new_opponent != engine.config.get("UCI_Opponent")
-                engine._configure(new_options)
+                new_opponent = new_options.get("UCI_Opponent") or self.engine.target_config.get("UCI_Opponent")
+                opponent_changed = new_opponent != self.engine.config.get("UCI_Opponent")
+                self.engine._configure(new_options)
 
-                if engine.first_game or engine.game != game or opponent_changed:
-                    engine.game = game
-                    engine._ucinewgame()
+                if self.engine.first_game or self.engine.game != game or opponent_changed:
+                    self.engine.game = game
+                    self.engine._ucinewgame()
                     self.sent_isready = True
-                    engine._isready()
+                    self.engine._isready()
                 else:
-                    self._readyok(engine)
+                    self._readyok()
 
-            def line_received(self, engine: UciProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "info":
-                    self._info(engine, remaining)
+                    self._info(remaining)
                 elif token == "bestmove":
-                    self._bestmove(engine, remaining)
+                    self._bestmove(remaining)
                 elif line.strip() == "readyok" and self.sent_isready:
-                    self._readyok(engine)
+                    self._readyok()
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
 
-            def _readyok(self, engine: UciProtocol) -> None:
+            def _readyok(self) -> None:
                 self.sent_isready = False
                 engine._position(board)
                 engine._go(limit, root_moves=root_moves)
 
-            def _info(self, engine: UciProtocol, arg: str) -> None:
+            def _info(self, arg: str) -> None:
                 if not self.pondering:
-                    self.info.update(_parse_uci_info(arg, engine.board, info))
+                    self.info.update(_parse_uci_info(arg, self.engine.board, info))
 
-            def _bestmove(self, engine: UciProtocol, arg: str) -> None:
+            def _bestmove(self, arg: str) -> None:
                 if self.pondering:
                     self.pondering = None
                 elif not self.result.cancelled():
-                    best = _parse_uci_bestmove(engine.board, arg)
+                    best = _parse_uci_bestmove(self.engine.board, arg)
                     self.result.set_result(PlayResult(best.move, best.ponder, self.info))
 
                     if ponder and best.move and best.ponder:
                         self.pondering = board.copy()
                         self.pondering.push(best.move)
                         self.pondering.push(best.ponder)
-                        engine._position(self.pondering)
+                        self.engine._position(self.pondering)
 
                         # Adjust clocks for pondering.
                         time_used = time.perf_counter() - self.start_time
@@ -1627,89 +1676,98 @@ class UciProtocol(Protocol):
                         if ponder_limit.remaining_moves:
                             ponder_limit.remaining_moves -= 1
 
-                        engine._go(ponder_limit, ponder=True)
+                        self.engine._go(ponder_limit, ponder=True)
 
                 if not self.pondering:
-                    self.end(engine)
+                    self.end()
 
-            def end(self, engine: UciProtocol) -> None:
+            def end(self) -> None:
                 engine.may_ponderhit = None
                 self.set_finished()
 
-            def cancel(self, engine: UciProtocol) -> None:
-                if engine.may_ponderhit and self.pondering and engine.may_ponderhit.move_stack == self.pondering.move_stack and engine.may_ponderhit == self.pondering:
-                    engine.ponderhit = True
-                    self.end(engine)
+            @override
+            def cancel(self) -> None:
+                if self.engine.may_ponderhit and self.pondering and self.engine.may_ponderhit.move_stack == self.pondering.move_stack and self.engine.may_ponderhit == self.pondering:
+                    self.engine.ponderhit = True
+                    self.end()
                 else:
-                    engine.send_line("stop")
+                    self.engine.send_line("stop")
 
-            def engine_terminated(self, engine: UciProtocol, exc: Exception) -> None:
+            @override
+            def engine_terminated(self, exc: Exception) -> None:
                 # Allow terminating engine while pondering.
                 if not self.result.done():
-                    super().engine_terminated(engine, exc)
+                    super().engine_terminated(exc)
 
         return await self.communicate(UciPlayCommand)
 
     async def analysis(self, board: chess.Board, limit: Optional[Limit] = None, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> AnalysisResult:
-        class UciAnalysisCommand(BaseCommand[UciProtocol, AnalysisResult]):
-            def start(self, engine: UciProtocol) -> None:
-                self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+        class UciAnalysisCommand(BaseCommand[AnalysisResult]):
+            def __init__(self, engine: UciProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            def start(self) -> None:
+                self.analysis = AnalysisResult(stop=lambda: self.cancel())
                 self.sent_isready = False
 
-                if "Ponder" in engine.options:
-                    engine._setoption("Ponder", False)
-                if "UCI_AnalyseMode" in engine.options and "UCI_AnalyseMode" not in engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
-                    engine._setoption("UCI_AnalyseMode", True)
-                if "MultiPV" in engine.options or (multipv and multipv > 1):
-                    engine._setoption("MultiPV", 1 if multipv is None else multipv)
+                if "Ponder" in self.engine.options:
+                    self.engine._setoption("Ponder", False)
+                if "UCI_AnalyseMode" in self.engine.options and "UCI_AnalyseMode" not in self.engine.target_config and all(name.lower() != "uci_analysemode" for name in options):
+                    self.engine._setoption("UCI_AnalyseMode", True)
+                if "MultiPV" in self.engine.options or (multipv and multipv > 1):
+                    self.engine._setoption("MultiPV", 1 if multipv is None else multipv)
 
-                engine._configure(options)
+                self.engine._configure(options)
 
-                if engine.first_game or engine.game != game:
-                    engine.game = game
-                    engine._ucinewgame()
+                if self.engine.first_game or self.engine.game != game:
+                    self.engine.game = game
+                    self.engine._ucinewgame()
                     self.sent_isready = True
-                    engine._isready()
+                    self.engine._isready()
                 else:
-                    self._readyok(engine)
+                    self._readyok()
 
-            def line_received(self, engine: UciProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "info":
-                    self._info(engine, remaining)
+                    self._info(remaining)
                 elif token == "bestmove":
-                    self._bestmove(engine, remaining)
+                    self._bestmove(remaining)
                 elif line.strip() == "readyok" and self.sent_isready:
-                    self._readyok(engine)
+                    self._readyok()
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
 
-            def _readyok(self, engine: UciProtocol) -> None:
+            def _readyok(self) -> None:
                 self.sent_isready = False
-                engine._position(board)
+                self.engine._position(board)
 
                 if limit:
-                    engine._go(limit, root_moves=root_moves)
+                    self.engine._go(limit, root_moves=root_moves)
                 else:
-                    engine._go(Limit(), root_moves=root_moves, infinite=True)
+                    self.engine._go(Limit(), root_moves=root_moves, infinite=True)
 
                 self.result.set_result(self.analysis)
 
-            def _info(self, engine: UciProtocol, arg: str) -> None:
-                self.analysis.post(_parse_uci_info(arg, engine.board, info))
+            def _info(self, arg: str) -> None:
+                self.analysis.post(_parse_uci_info(arg, self.engine.board, info))
 
-            def _bestmove(self, engine: UciProtocol, arg: str) -> None:
+            def _bestmove(self, arg: str) -> None:
                 if not self.result.done():
                     raise EngineError("was not searching, but engine sent bestmove")
-                best = _parse_uci_bestmove(engine.board, arg)
+                best = _parse_uci_bestmove(self.engine.board, arg)
                 self.set_finished()
                 self.analysis.set_finished(best)
 
-            def cancel(self, engine: UciProtocol) -> None:
-                engine.send_line("stop")
+            @override
+            def cancel(self) -> None:
+                self.engine.send_line("stop")
 
-            def engine_terminated(self, engine: UciProtocol, exc: Exception) -> None:
-                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+            @override
+            def engine_terminated(self, exc: Exception) -> None:
+                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", self.engine, exc)
                 self.analysis.set_exception(exc)
 
         return await self.communicate(UciAnalysisCommand)
@@ -1938,89 +1996,96 @@ class XBoardProtocol(Protocol):
         self.first_game = True
 
     async def initialize(self) -> None:
-        class XBoardInitializeCommand(BaseCommand[XBoardProtocol, None]):
-            def check_initialized(self, engine: XBoardProtocol) -> None:
-                if engine.initialized:
+        class XBoardInitializeCommand(BaseCommand[None]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def check_initialized(self) -> None:
+                if self.engine.initialized:
                     raise EngineError("engine already initialized")
 
-            def start(self, engine: XBoardProtocol) -> None:
-                engine.send_line("xboard")
-                engine.send_line("protover 2")
-                self.timeout_handle = engine.loop.call_later(2.0, lambda: self.timeout(engine))
+            @override
+            def start(self) -> None:
+                self.engine.send_line("xboard")
+                self.engine.send_line("protover 2")
+                self.timeout_handle = self.engine.loop.call_later(2.0, lambda: self.timeout())
 
-            def timeout(self, engine: XBoardProtocol) -> None:
-                LOGGER.error("%s: Timeout during initialization", engine)
-                self.end(engine)
+            def timeout(self) -> None:
+                LOGGER.error("%s: Timeout during initialization", self.engine)
+                self.end()
 
-            def line_received(self, engine: XBoardProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token.startswith("#"):
                     pass
                 elif token == "feature":
-                    self._feature(engine, remaining)
+                    self._feature(remaining)
                 elif XBOARD_ERROR_REGEX.match(line):
                     raise EngineError(line)
 
-            def _feature(self, engine: XBoardProtocol, arg: str) -> None:
+            def _feature(self, arg: str) -> None:
                 for feature in shlex.split(arg):
                     key, value = feature.split("=", 1)
                     if key == "option":
                         option = _parse_xboard_option(value)
                         if option.name not in ["random", "computer", "cores", "memory"]:
-                            engine.options[option.name] = option
+                            self.engine.options[option.name] = option
                     else:
                         try:
-                            engine.features[key] = int(value)
+                            self.engine.features[key] = int(value)
                         except ValueError:
-                            engine.features[key] = value
+                            self.engine.features[key] = value
 
-                if "done" in engine.features:
+                if "done" in self.engine.features:
                     self.timeout_handle.cancel()
-                if engine.features.get("done"):
-                    self.end(engine)
+                if self.engine.features.get("done"):
+                    self.end()
 
-            def end(self, engine: XBoardProtocol) -> None:
-                if not engine.features.get("ping", 0):
+            def end(self) -> None:
+                if not self.engine.features.get("ping", 0):
                     self.result.set_exception(EngineError("xboard engine did not declare required feature: ping"))
                     self.set_finished()
                     return
-                if not engine.features.get("setboard", 0):
+                if not self.engine.features.get("setboard", 0):
                     self.result.set_exception(EngineError("xboard engine did not declare required feature: setboard"))
                     self.set_finished()
                     return
 
-                if not engine.features.get("reuse", 1):
-                    LOGGER.warning("%s: Rejecting feature reuse=0", engine)
-                    engine.send_line("rejected reuse")
-                if not engine.features.get("sigterm", 1):
-                    LOGGER.warning("%s: Rejecting feature sigterm=0", engine)
-                    engine.send_line("rejected sigterm")
-                if engine.features.get("san", 0):
-                    LOGGER.warning("%s: Rejecting feature san=1", engine)
-                    engine.send_line("rejected san")
+                if not self.engine.features.get("reuse", 1):
+                    LOGGER.warning("%s: Rejecting feature reuse=0", self.engine)
+                    self.engine.send_line("rejected reuse")
+                if not self.engine.features.get("sigterm", 1):
+                    LOGGER.warning("%s: Rejecting feature sigterm=0", self.engine)
+                    self.engine.send_line("rejected sigterm")
+                if self.engine.features.get("san", 0):
+                    LOGGER.warning("%s: Rejecting feature san=1", self.engine)
+                    self.engine.send_line("rejected san")
 
-                if "myname" in engine.features:
-                    engine.id["name"] = str(engine.features["myname"])
+                if "myname" in self.engine.features:
+                    self.engine.id["name"] = str(self.engine.features["myname"])
 
-                if engine.features.get("memory", 0):
-                    engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
-                    engine.send_line("accepted memory")
-                if engine.features.get("smp", 0):
-                    engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
-                    engine.send_line("accepted smp")
-                if engine.features.get("egt"):
-                    for egt in str(engine.features["egt"]).split(","):
+                if self.engine.features.get("memory", 0):
+                    self.engine.options["memory"] = Option("memory", "spin", 16, 1, None, None)
+                    self.engine.send_line("accepted memory")
+                if self.engine.features.get("smp", 0):
+                    self.engine.options["cores"] = Option("cores", "spin", 1, 1, None, None)
+                    self.engine.send_line("accepted smp")
+                if self.engine.features.get("egt"):
+                    for egt in str(self.engine.features["egt"]).split(","):
                         name = f"egtpath {egt}"
-                        engine.options[name] = Option(name, "path", None, None, None, None)
-                    engine.send_line("accepted egt")
+                        self.engine.options[name] = Option(name, "path", None, None, None, None)
+                    self.engine.send_line("accepted egt")
 
-                for option in engine.options.values():
+                for option in self.engine.options.values():
                     if option.default is not None:
-                        engine.config[option.name] = option.default
+                        self.engine.config[option.name] = option.default
                     if option.default is not None and not option.is_managed():
-                        engine.target_config[option.name] = option.default
+                        self.engine.target_config[option.name] = option.default
 
-                engine.initialized = True
+                self.engine.initialized = True
                 self.result.set_result(None)
                 self.set_finished()
 
@@ -2071,12 +2136,13 @@ class XBoardProtocol(Protocol):
             if self.config.get("computer"):
                 self.send_line("computer")
 
-        self.send_line("force")
+            self.send_line("force")
 
-        if new_game:
             fen = root.fen(shredder=board.chess960, en_passant="fen")
             if variant != "normal" or fen != chess.STARTING_FEN or board.chess960:
                 self.send_line(f"setboard {fen}")
+        else:
+            self.send_line("force")
 
         # Undo moves until common position.
         common_stack_len = 0
@@ -2105,18 +2171,24 @@ class XBoardProtocol(Protocol):
             self.board.push(move)
 
     async def ping(self) -> None:
-        class XBoardPingCommand(BaseCommand[XBoardProtocol, None]):
-            def start(self, engine: XBoardProtocol) -> None:
+        class XBoardPingCommand(BaseCommand[None]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def start(self) -> None:
                 n = id(self) & 0xffff
                 self.pong = f"pong {n}"
-                engine._ping(n)
+                self.engine._ping(n)
 
-            def line_received(self, engine: XBoardProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 if line == self.pong:
                     self.result.set_result(None)
                     self.set_finished()
                 elif not line.startswith("#"):
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
                 elif XBOARD_ERROR_REGEX.match(line):
                     raise EngineError(line)
 
@@ -2126,54 +2198,60 @@ class XBoardProtocol(Protocol):
         if root_moves is not None:
             raise EngineError("play with root_moves, but xboard supports 'include' only in analysis mode")
 
-        class XBoardPlayCommand(BaseCommand[XBoardProtocol, PlayResult]):
-            def start(self, engine: XBoardProtocol) -> None:
+        class XBoardPlayCommand(BaseCommand[PlayResult]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def start(self) -> None:
                 self.play_result = PlayResult(None, None)
                 self.stopped = False
                 self.pong_after_move: Optional[str] = None
                 self.pong_after_ponder: Optional[str] = None
 
                 # Set game, position and configure.
-                engine._new(board, game, options, opponent)
+                self.engine._new(board, game, options, opponent)
 
                 # Limit or time control.
                 clock = limit.white_clock if board.turn else limit.black_clock
                 increment = limit.white_inc if board.turn else limit.black_inc
-                if limit.clock_id is None or limit.clock_id != engine.clock_id:
-                    self._send_time_control(engine, clock, increment)
-                engine.clock_id = limit.clock_id
+                if limit.clock_id is None or limit.clock_id != self.engine.clock_id:
+                    self._send_time_control(clock, increment)
+                self.engine.clock_id = limit.clock_id
                 if limit.nodes is not None:
                     if limit.time is not None or limit.white_clock is not None or limit.black_clock is not None or increment is not None:
                         raise EngineError("xboard does not support mixing node limits with time limits")
 
-                    if "nps" not in engine.features:
+                    if "nps" not in self.engine.features:
                         LOGGER.warning("%s: Engine did not explicitly declare support for node limits (feature nps=?)")
-                    elif not engine.features["nps"]:
+                    elif not self.engine.features["nps"]:
                         raise EngineError("xboard engine does not support node limits (feature nps=0)")
 
-                    engine.send_line("nps 1")
-                    engine.send_line(f"st {max(1, int(limit.nodes))}")
+                    self.engine.send_line("nps 1")
+                    self.engine.send_line(f"st {max(1, int(limit.nodes))}")
                 if limit.depth is not None:
-                    engine.send_line(f"sd {max(1, int(limit.depth))}")
+                    self.engine.send_line(f"sd {max(1, int(limit.depth))}")
                 if limit.white_clock is not None:
-                    engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, round(limit.white_clock * 100))))
+                    self.engine.send_line("{} {}".format("time" if board.turn else "otim", max(1, round(limit.white_clock * 100))))
                 if limit.black_clock is not None:
-                    engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, round(limit.black_clock * 100))))
+                    self.engine.send_line("{} {}".format("otim" if board.turn else "time", max(1, round(limit.black_clock * 100))))
 
-                if draw_offered and engine.features.get("draw", 1):
-                    engine.send_line("draw")
+                if draw_offered and self.engine.features.get("draw", 1):
+                    self.engine.send_line("draw")
 
                 # Start thinking.
-                engine.send_line("post" if info else "nopost")
-                engine.send_line("hard" if ponder else "easy")
-                engine.send_line("go")
+                self.engine.send_line("post" if info else "nopost")
+                self.engine.send_line("hard" if ponder else "easy")
+                self.engine.send_line("go")
 
-            def line_received(self, engine: XBoardProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token == "move":
-                    self._move(engine, remaining.strip())
+                    self._move(remaining.strip())
                 elif token == "Hint:":
-                    self._hint(engine, remaining.strip())
+                    self._hint(remaining.strip())
                 elif token == "pong":
                     pong_line = f"{token} {remaining.strip()}"
                     if pong_line == self.pong_after_move:
@@ -2188,84 +2266,86 @@ class XBoardProtocol(Protocol):
                 elif f"{token} {remaining.strip()}" == "offer draw":
                     if not self.result.done():
                         self.play_result.draw_offered = True
-                    self._ping_after_move(engine)
+                    self._ping_after_move()
                 elif line.strip() == "resign":
                     if not self.result.done():
                         self.play_result.resigned = True
-                    self._ping_after_move(engine)
+                    self._ping_after_move()
                 elif token in ["1-0", "0-1", "1/2-1/2"]:
                     if "resign" in line and not self.result.done():
                         self.play_result.resigned = True
-                    self._ping_after_move(engine)
+                    self._ping_after_move()
                 elif token.startswith("#"):
                     pass
                 elif XBOARD_ERROR_REGEX.match(line):
-                    engine.first_game = True  # Board state might no longer be in sync
+                    self.engine.first_game = True  # Board state might no longer be in sync
                     raise EngineError(line)
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
-                    self._post(engine, line)
+                    self._post(line)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
 
-            def _send_time_control(self, engine: XBoardProtocol, clock: Optional[float], increment: Optional[float]) -> None:
+            def _send_time_control(self, clock: Optional[float], increment: Optional[float]) -> None:
                 if limit.remaining_moves or clock is not None or increment is not None:
                     base_mins, base_secs = divmod(int(clock or 0), 60)
-                    engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
+                    self.engine.send_line(f"level {limit.remaining_moves or 0} {base_mins}:{base_secs:02d} {increment or 0}")
                 if limit.time is not None:
-                    engine.send_line(f"st {max(0.01, limit.time)}")
+                    self.engine.send_line(f"st {max(0.01, limit.time)}")
 
-            def _post(self, engine: XBoardProtocol, line: str) -> None:
+            def _post(self, line: str) -> None:
                 if not self.result.done():
-                    self.play_result.info = _parse_xboard_post(line, engine.board, info)
+                    self.play_result.info = _parse_xboard_post(line, self.engine.board, info)
 
-            def _move(self, engine: XBoardProtocol, arg: str) -> None:
+            def _move(self, arg: str) -> None:
                 if not self.result.done() and self.play_result.move is None:
                     try:
-                        self.play_result.move = engine.board.push_xboard(arg)
+                        self.play_result.move = self.engine.board.push_xboard(arg)
                     except ValueError as err:
                         self.result.set_exception(EngineError(err))
                     else:
-                        self._ping_after_move(engine)
+                        self._ping_after_move()
                 else:
                     try:
-                        engine.board.push_xboard(arg)
+                        self.engine.board.push_xboard(arg)
                     except ValueError:
                         LOGGER.exception("Exception playing unexpected move")
 
-            def _hint(self, engine: XBoardProtocol, arg: str) -> None:
+            def _hint(self, arg: str) -> None:
                 if not self.result.done() and self.play_result.move is not None and self.play_result.ponder is None:
                     try:
-                        self.play_result.ponder = engine.board.parse_xboard(arg)
+                        self.play_result.ponder = self.engine.board.parse_xboard(arg)
                     except ValueError:
                         LOGGER.exception("Exception parsing hint")
                 else:
                     LOGGER.warning("Unexpected hint: %r", arg)
 
-            def _ping_after_move(self, engine: XBoardProtocol) -> None:
+            def _ping_after_move(self) -> None:
                 if self.pong_after_move is None:
                     n = id(self) & 0xffff
                     self.pong_after_move = f"pong {n}"
-                    engine._ping(n)
+                    self.engine._ping(n)
 
-            def cancel(self, engine: XBoardProtocol) -> None:
+            @override
+            def cancel(self) -> None:
                 if self.stopped:
                     return
                 self.stopped = True
 
                 if self.result.cancelled():
-                    engine.send_line("?")
+                    self.engine.send_line("?")
 
                 if ponder:
-                    engine.send_line("easy")
+                    self.engine.send_line("easy")
 
                     n = (id(self) + 1) & 0xffff
                     self.pong_after_ponder = f"pong {n}"
-                    engine._ping(n)
+                    self.engine._ping(n)
 
-            def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
+            @override
+            def engine_terminated(self, exc: Exception) -> None:
                 # Allow terminating engine while pondering.
                 if not self.result.done():
-                    super().engine_terminated(engine, exc)
+                    super().engine_terminated(exc)
 
         return await self.communicate(XBoardPlayCommand)
 
@@ -2276,49 +2356,55 @@ class XBoardProtocol(Protocol):
         if limit is not None and (limit.white_clock is not None or limit.black_clock is not None):
             raise EngineError("xboard analysis does not support clock limits")
 
-        class XBoardAnalysisCommand(BaseCommand[XBoardProtocol, AnalysisResult]):
-            def start(self, engine: XBoardProtocol) -> None:
+        class XBoardAnalysisCommand(BaseCommand[AnalysisResult]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def start(self) -> None:
                 self.stopped = False
                 self.best_move: Optional[chess.Move] = None
-                self.analysis = AnalysisResult(stop=lambda: self.cancel(engine))
+                self.analysis = AnalysisResult(stop=lambda: self.cancel())
                 self.final_pong: Optional[str] = None
 
-                engine._new(board, game, options)
+                self.engine._new(board, game, options)
 
                 if root_moves is not None:
-                    if not engine.features.get("exclude", 0):
+                    if not self.engine.features.get("exclude", 0):
                         raise EngineError("xboard engine does not support root_moves (feature exclude=0)")
 
-                    engine.send_line("exclude all")
+                    self.engine.send_line("exclude all")
                     for move in root_moves:
-                        engine.send_line(f"include {engine.board.xboard(move)}")
+                        self.engine.send_line(f"include {self.engine.board.xboard(move)}")
 
-                engine.send_line("post")
-                engine.send_line("analyze")
+                self.engine.send_line("post")
+                self.engine.send_line("analyze")
 
                 self.result.set_result(self.analysis)
 
                 if limit is not None and limit.time is not None:
-                    self.time_limit_handle: Optional[asyncio.Handle] = engine.loop.call_later(limit.time, lambda: self.cancel(engine))
+                    self.time_limit_handle: Optional[asyncio.Handle] = self.engine.loop.call_later(limit.time, lambda: self.cancel())
                 else:
                     self.time_limit_handle = None
 
-            def line_received(self, engine: XBoardProtocol, line: str) -> None:
+            @override
+            def line_received(self, line: str) -> None:
                 token, remaining = _next_token(line)
                 if token.startswith("#"):
                     pass
                 elif len(line.split()) >= 4 and line.lstrip()[0].isdigit():
-                    self._post(engine, line)
+                    self._post(line)
                 elif f"{token} {remaining.strip()}" == self.final_pong:
-                    self.end(engine)
+                    self.end()
                 elif XBOARD_ERROR_REGEX.match(line):
-                    engine.first_game = True  # Board state might no longer be in sync
+                    self.engine.first_game = True  # Board state might no longer be in sync
                     raise EngineError(line)
                 else:
-                    LOGGER.warning("%s: Unexpected engine output: %r", engine, line)
+                    LOGGER.warning("%s: Unexpected engine output: %r", self.engine, line)
 
-            def _post(self, engine: XBoardProtocol, line: str) -> None:
-                post_info = _parse_xboard_post(line, engine.board, info)
+            def _post(self, line: str) -> None:
+                post_info = _parse_xboard_post(line, self.engine.board, info)
                 self.analysis.post(post_info)
 
                 pv = post_info.get("pv")
@@ -2327,36 +2413,38 @@ class XBoardProtocol(Protocol):
 
                 if limit is not None:
                     if limit.time is not None and post_info.get("time", 0) >= limit.time:
-                        self.cancel(engine)
+                        self.cancel()
                     elif limit.nodes is not None and post_info.get("nodes", 0) >= limit.nodes:
-                        self.cancel(engine)
+                        self.cancel()
                     elif limit.depth is not None and post_info.get("depth", 0) >= limit.depth:
-                        self.cancel(engine)
+                        self.cancel()
                     elif limit.mate is not None and "score" in post_info:
                         if post_info["score"].relative >= Mate(limit.mate):
-                            self.cancel(engine)
+                            self.cancel()
 
-            def end(self, engine: XBoardProtocol) -> None:
+            def end(self) -> None:
                 if self.time_limit_handle:
                     self.time_limit_handle.cancel()
 
                 self.set_finished()
                 self.analysis.set_finished(BestMove(self.best_move, None))
 
-            def cancel(self, engine: XBoardProtocol) -> None:
+            @override
+            def cancel(self) -> None:
                 if self.stopped:
                     return
                 self.stopped = True
 
-                engine.send_line(".")
-                engine.send_line("exit")
+                self.engine.send_line(".")
+                self.engine.send_line("exit")
 
                 n = id(self) & 0xffff
                 self.final_pong = f"pong {n}"
-                engine._ping(n)
+                self.engine._ping(n)
 
-            def engine_terminated(self, engine: XBoardProtocol, exc: Exception) -> None:
-                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", engine, exc)
+            @override
+            def engine_terminated(self, exc: Exception) -> None:
+                LOGGER.debug("%s: Closing analysis because engine has been terminated (error: %s)", self.engine, exc)
 
                 if self.time_limit_handle:
                     self.time_limit_handle.cancel()
@@ -2397,10 +2485,15 @@ class XBoardProtocol(Protocol):
             self._setoption(name, value)
 
     async def configure(self, options: ConfigMapping) -> None:
-        class XBoardConfigureCommand(BaseCommand[XBoardProtocol, None]):
-            def start(self, engine: XBoardProtocol) -> None:
-                engine._configure(options)
-                engine.target_config.update({name: value for name, value in options.items() if value is not None})
+        class XBoardConfigureCommand(BaseCommand[None]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def start(self) -> None:
+                self.engine._configure(options)
+                self.engine.target_config.update({name: value for name, value in options.items() if value is not None})
                 self.result.set_result(None)
                 self.set_finished()
 
@@ -2423,12 +2516,17 @@ class XBoardProtocol(Protocol):
         return await self.configure(self._opponent_configuration(opponent=opponent, engine_rating=engine_rating))
 
     async def send_game_result(self, board: chess.Board, winner: Optional[Color] = None, game_ending: Optional[str] = None, game_complete: bool = True) -> None:
-        class XBoardGameResultCommand(BaseCommand[XBoardProtocol, None]):
-            def start(self, engine: XBoardProtocol) -> None:
+        class XBoardGameResultCommand(BaseCommand[None]):
+            def __init__(self, engine: XBoardProtocol):
+                super().__init__(engine)
+                self.engine = engine
+
+            @override
+            def start(self) -> None:
                 if game_ending and any(c in game_ending for c in "{}\n\r"):
                     raise EngineError(f"invalid line break or curly braces in game ending message: {game_ending!r}")
 
-                engine._new(board, engine.game, {})  # Send final moves to engine.
+                self.engine._new(board, self.engine.game, {})  # Send final moves to engine.
 
                 outcome = board.outcome(claim_draw=True)
 
@@ -2451,7 +2549,7 @@ class XBoardProtocol(Protocol):
                     ending = ""
 
                 ending_text = f"{{{ending}}}" if ending else ""
-                engine.send_line(f"result {result} {ending_text}".strip())
+                self.engine.send_line(f"result {result} {ending_text}".strip())
                 self.result.set_result(None)
                 self.set_finished()
 
@@ -2566,7 +2664,8 @@ def _parse_xboard_post(line: str, root_board: chess.Board, selector: Info = INFO
 
 
 def _next_token(line: str) -> tuple[str, str]:
-    """Get the next token in a whitespace-delimited line of text.
+    """
+    Get the next token in a whitespace-delimited line of text.
 
     The result is returned as a 2-part tuple of strings.
 
@@ -2576,10 +2675,10 @@ def _next_token(line: str) -> tuple[str, str]:
     If the input line is not empty and not completely whitespace, then
     the first element of the returned tuple is a single word with
     leading and trailing whitespace removed. The second element is the
-    unchanged rest of the line."""
-
+    unchanged rest of the line.
+    """
     parts = line.split(maxsplit=1)
-    return (parts[0] if parts else "", parts[1] if len(parts) == 2 else "")
+    return parts[0] if parts else "", parts[1] if len(parts) == 2 else ""
 
 
 class BestMove:
@@ -2845,7 +2944,7 @@ class SimpleEngine:
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)
         return future.result()
 
-    def communicate(self, command_factory: Callable[[Protocol], BaseCommand[Protocol, T]]) -> T:
+    def communicate(self, command_factory: Callable[[Protocol], BaseCommand[T]]) -> T:
         with self._not_shut_down():
             coro = self.protocol.communicate(command_factory)
             future = asyncio.run_coroutine_threadsafe(coro, self.protocol.loop)

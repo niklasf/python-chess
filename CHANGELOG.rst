@@ -15,6 +15,13 @@ Changes:
   some 8 piece positions with decisive captures can be probed successfully.
 * The string wrapper returned by ``chess.svg`` functions now also implements
   ``_repr_html_``.
+* Significant changes to ``chess.engine`` internals:
+  ``chess.engine.BaseCommand`` methods other than the constructor no longer
+  receive ``engine: Protocol``.
+* Significant changes to board state internals: Subclasses of ``chess.Board``
+  can no longer hook into board state recording/restoration and need to
+  override relevant methods instead (``clear_stack``, ``copy``, ``root``,
+  ``push``, ``pop``).
 
 New features:
 
@@ -23,6 +30,8 @@ New features:
 
 Bugfixes:
 
+* Fix unsolicited engine output may cause assertion errors with regard to
+  command states.
 * Fix handling of whitespace in UCI engine communication.
 * For ``chess.Board.epd()`` and ``chess.Board.set_epd()``, require that EPD
   opcodes start with a letter.
