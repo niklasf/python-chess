@@ -11,6 +11,7 @@ from chess import Color, IntoSquareSet, Square
 
 SQUARE_SIZE = 45
 MARGIN = 20
+NAG_SIZE = 15
 
 PIECES = {
     "b": """<g id="black-bishop" class="black bishop" fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2zm6-4c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z" fill="#000" stroke-linecap="butt"/><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#fff" stroke-linejoin="miter"/></g>""",  # noqa: E501
@@ -46,6 +47,39 @@ COORDS = {
     "h": """<path d="M26.164 9.133v5.281h-1.437V9.18q0-1.243-.485-1.86-.484-.617-1.453-.617-1.164 0-1.836.742-.672.742-.672 2.024v4.945h-1.445V2.258h1.445v4.765q.516-.789 1.211-1.18.703-.39 1.617-.39 1.508 0 2.282.938.773.93.773 2.742z"/>""",  # noqa: E501
 }
 
+NAGS = {
+    # "!"
+    "1": """<g id="great_find">
+                <path class="icon-background" fill="#5c8bb0" d="M 7.506 0 C 1.737 0 -1.869 6.25 1.015 11.25 C 3.9 16.25 11.111 16.25 13.996 11.25 C 14.654 10.11 15 8.817 15 7.5 C 15 3.358 11.644 0 7.506 0 Z"/>
+                <path class="icon-component" fill="#fff" d="M 8.605 11.75 C 8.613 11.786 8.613 11.822 8.605 11.858 C 8.587 11.892 8.565 11.923 8.538 11.95 L 8.447 12.017 L 8.339 12.017 L 6.673 12.017 L 6.565 12.017 L 6.473 11.95 C 6.43 11.892 6.407 11.822 6.407 11.75 L 6.407 10.167 C 6.398 10.131 6.398 10.094 6.407 10.058 C 6.421 10.027 6.441 9.999 6.465 9.975 C 6.488 9.948 6.517 9.926 6.548 9.908 L 6.656 9.908 L 8.322 9.908 C 8.398 9.906 8.47 9.936 8.522 9.992 C 8.548 10.016 8.571 10.044 8.588 10.075 C 8.592 10.111 8.592 10.147 8.588 10.183 L 8.605 11.75 Z M 8.505 8.475 C 8.517 8.507 8.517 8.542 8.505 8.575 C 8.49 8.608 8.471 8.639 8.447 8.667 C 8.391 8.708 8.324 8.732 8.255 8.733 L 6.756 8.733 C 6.604 8.748 6.472 8.628 6.473 8.475 L 6.348 2.833 C 6.348 2.76 6.374 2.688 6.423 2.633 C 6.446 2.602 6.478 2.579 6.515 2.567 C 6.55 2.558 6.587 2.558 6.623 2.567 L 8.38 2.567 C 8.458 2.562 8.534 2.593 8.588 2.65 C 8.637 2.705 8.663 2.777 8.663 2.85 L 8.505 8.475 Z"/>
+            </g>""",
+    # "?"
+    "2": """<g id="mistake">
+                <path class="icon-background" fill="#e58f2a" d="M 7.505 0 C 1.736 0 -1.869 6.25 1.015 11.25 C 3.899 16.25 11.111 16.25 13.996 11.25 C 14.653 10.11 15 8.817 15 7.5 C 15 3.357 11.645 0 7.505 0 Z" style=""></path>
+                <path class="icon-component" fill="#fff" d="M 8.272 12.1 C 8.279 12.134 8.279 12.168 8.272 12.2 C 8.258 12.233 8.237 12.264 8.213 12.291 C 8.161 12.342 8.093 12.368 8.022 12.367 L 6.423 12.367 C 6.39 12.375 6.356 12.375 6.323 12.367 C 6.291 12.351 6.261 12.328 6.24 12.299 C 6.191 12.252 6.165 12.185 6.165 12.117 L 6.165 10.575 C 6.163 10.504 6.189 10.435 6.24 10.383 L 6.323 10.325 L 6.423 10.325 L 7.997 10.325 C 8.068 10.323 8.137 10.35 8.188 10.4 C 8.211 10.426 8.23 10.453 8.246 10.483 C 8.254 10.519 8.254 10.555 8.246 10.592 L 8.272 12.1 Z M 10.104 6.125 C 10.03 6.339 9.93 6.545 9.803 6.733 C 9.679 6.909 9.543 7.077 9.396 7.233 C 9.26 7.378 9.115 7.514 8.962 7.642 C 8.772 7.807 8.592 7.982 8.421 8.166 C 8.274 8.325 8.193 8.535 8.197 8.75 L 8.197 8.934 C 8.205 8.966 8.205 9.001 8.197 9.033 C 8.19 9.065 8.172 9.095 8.147 9.116 C 8.124 9.141 8.095 9.162 8.064 9.175 L 7.963 9.175 L 6.498 9.175 L 6.397 9.175 C 6.366 9.162 6.337 9.141 6.314 9.116 C 6.289 9.094 6.268 9.065 6.256 9.033 C 6.25 9 6.25 8.967 6.256 8.934 L 6.256 8.641 C 6.25 8.404 6.287 8.166 6.365 7.941 C 6.429 7.745 6.522 7.561 6.639 7.392 C 6.748 7.226 6.874 7.073 7.014 6.934 C 7.147 6.808 7.289 6.692 7.422 6.583 C 7.61 6.416 7.787 6.238 7.955 6.05 C 8.094 5.898 8.17 5.699 8.171 5.491 C 8.174 5.394 8.154 5.297 8.113 5.208 C 8.062 5.123 7.989 5.052 7.905 5 C 7.734 4.868 7.521 4.798 7.305 4.8 C 7.167 4.799 7.03 4.818 6.897 4.859 C 6.78 4.897 6.665 4.944 6.556 5 C 6.469 5.04 6.388 5.091 6.314 5.15 L 6.223 5.225 C 6.162 5.258 6.093 5.275 6.023 5.275 C 5.948 5.265 5.88 5.223 5.84 5.158 L 5.007 4.166 C 4.918 4.073 4.918 3.927 5.007 3.833 C 5.06 3.772 5.118 3.716 5.182 3.666 C 5.335 3.537 5.503 3.424 5.681 3.334 C 5.919 3.208 6.167 3.105 6.423 3.025 C 6.746 2.924 7.083 2.876 7.422 2.884 C 7.761 2.886 8.098 2.94 8.421 3.041 C 8.746 3.15 9.053 3.308 9.329 3.509 C 9.6 3.712 9.821 3.975 9.979 4.275 C 10.139 4.608 10.218 4.973 10.211 5.342 C 10.217 5.606 10.181 5.872 10.104 6.125 Z" style=""></path>
+            </g>""",
+    # "!!"
+    "3": """<g id="brilliant">
+                <path class="icon-background" fill="#1bada6" d="M 7.506 0 C 1.737 0 -1.869 6.25 1.015 11.25 C 3.9 16.25 11.111 16.25 13.996 11.25 C 14.654 10.11 15 8.817 15 7.5 C 15 3.358 11.644 0 7.506 0 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 10.479 11.75 C 10.483 11.786 10.483 11.822 10.479 11.858 C 10.461 11.892 10.439 11.923 10.412 11.95 L 10.32 12.017 L 10.212 12.017 L 8.547 12.017 L 8.438 12.017 L 8.339 11.95 C 8.319 11.885 8.319 11.815 8.339 11.75 L 8.339 10.167 C 8.32 10.112 8.32 10.054 8.339 10 C 8.362 9.973 8.39 9.951 8.422 9.933 L 8.53 9.933 L 10.195 9.933 C 10.271 9.931 10.344 9.961 10.395 10.017 C 10.422 10.041 10.444 10.069 10.462 10.1 C 10.466 10.136 10.466 10.172 10.462 10.208 L 10.479 11.75 Z M 10.379 8.475 C 10.39 8.507 10.39 8.542 10.379 8.575 C 10.364 8.608 10.344 8.639 10.32 8.667 C 10.265 8.708 10.198 8.732 10.129 8.733 L 8.63 8.733 C 8.478 8.748 8.346 8.628 8.347 8.475 L 8.222 2.833 C 8.232 2.754 8.274 2.682 8.339 2.633 C 8.361 2.602 8.393 2.579 8.43 2.567 C 8.465 2.558 8.503 2.558 8.538 2.567 L 10.254 2.567 C 10.332 2.562 10.408 2.593 10.462 2.65 C 10.51 2.705 10.537 2.777 10.537 2.85 L 10.379 8.475 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 6.731 11.75 C 6.736 11.786 6.736 11.822 6.731 11.858 C 6.714 11.892 6.691 11.923 6.665 11.95 L 6.573 12.017 L 6.465 12.017 L 4.8 12.017 L 4.691 12.017 L 4.6 11.95 C 4.556 11.892 4.533 11.822 4.533 11.75 L 4.533 10.167 C 4.524 10.131 4.524 10.094 4.533 10.058 C 4.547 10.027 4.567 9.999 4.591 9.975 C 4.615 9.948 4.643 9.926 4.675 9.908 L 4.783 9.908 L 6.448 9.908 C 6.533 9.9 6.618 9.934 6.673 10 C 6.7 10.024 6.722 10.052 6.74 10.083 C 6.744 10.119 6.744 10.156 6.74 10.192 L 6.731 11.75 Z M 6.673 8.475 C 6.685 8.507 6.685 8.542 6.673 8.575 C 6.658 8.608 6.639 8.639 6.615 8.667 C 6.559 8.708 6.492 8.732 6.423 8.733 L 4.883 8.733 C 4.73 8.748 4.599 8.628 4.6 8.475 L 4.475 2.833 C 4.474 2.76 4.501 2.688 4.55 2.633 C 4.572 2.602 4.605 2.579 4.641 2.567 C 4.676 2.558 4.714 2.558 4.75 2.567 L 6.507 2.567 C 6.584 2.566 6.659 2.596 6.715 2.65 C 6.763 2.705 6.79 2.777 6.79 2.85 L 6.673 8.475 Z"></path>
+            </g>""",
+    # "??"
+    "4": """<g id="blunder">
+                <path class="icon-background" fill="#ca3431" d="M 7.505 0 C 1.736 0 -1.869 6.25 1.015 11.25 C 3.9 16.25 11.111 16.25 13.996 11.25 C 14.653 10.11 15 8.817 15 7.5 C 15 3.357 11.645 0 7.505 0 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 12.285 4.167 C 12.151 3.842 11.94 3.557 11.669 3.333 C 11.394 3.129 11.088 2.972 10.761 2.867 C 10.438 2.764 10.101 2.711 9.762 2.708 C 9.429 2.705 9.098 2.753 8.779 2.85 C 8.521 2.932 8.271 3.035 8.03 3.158 C 7.938 3.208 7.849 3.264 7.763 3.325 C 7.899 3.487 8.017 3.662 8.113 3.85 C 8.307 4.229 8.41 4.649 8.413 5.075 C 8.47 5.076 8.525 5.058 8.571 5.025 L 8.646 5 C 8.724 4.942 8.804 4.89 8.888 4.842 C 8.999 4.788 9.112 4.741 9.229 4.7 C 9.359 4.66 9.494 4.64 9.629 4.642 C 9.846 4.635 10.058 4.706 10.228 4.842 C 10.309 4.897 10.375 4.972 10.42 5.058 C 10.46 5.147 10.48 5.244 10.478 5.342 C 10.48 5.547 10.406 5.746 10.27 5.9 C 10.1 6.086 9.919 6.261 9.729 6.425 C 9.59 6.537 9.456 6.657 9.329 6.783 C 9.187 6.917 9.061 7.069 8.954 7.233 C 8.837 7.402 8.744 7.587 8.679 7.783 C 8.606 8.007 8.57 8.24 8.571 8.475 L 8.571 8.767 C 8.563 8.799 8.563 8.834 8.571 8.867 C 8.6 8.929 8.65 8.979 8.713 9.008 L 8.813 9.008 L 10.237 9.008 L 10.337 9.008 C 10.369 8.997 10.398 8.977 10.42 8.95 C 10.444 8.927 10.461 8.898 10.47 8.867 C 10.477 8.834 10.477 8.8 10.47 8.767 L 10.47 8.583 C 10.464 8.368 10.541 8.159 10.686 8 C 10.836 7.844 11.019 7.669 11.236 7.475 C 11.386 7.35 11.527 7.217 11.661 7.075 C 11.808 6.92 11.942 6.752 12.06 6.575 C 12.191 6.392 12.293 6.19 12.36 5.975 C 12.449 5.707 12.488 5.424 12.477 5.142 C 12.488 4.807 12.422 4.473 12.285 4.167 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 10.32 10.125 L 8.754 10.125 L 8.654 10.125 C 8.565 10.172 8.508 10.265 8.505 10.367 L 8.505 11.883 C 8.504 11.953 8.528 12.021 8.571 12.075 C 8.594 12.102 8.622 12.122 8.654 12.133 L 8.754 12.133 L 10.32 12.133 C 10.353 12.142 10.387 12.142 10.42 12.133 C 10.455 12.122 10.486 12.102 10.511 12.075 C 10.536 12.051 10.556 12.022 10.57 11.992 C 10.578 11.956 10.578 11.919 10.57 11.883 L 10.57 10.383 C 10.577 10.351 10.577 10.317 10.57 10.283 C 10.553 10.253 10.534 10.226 10.511 10.2 C 10.461 10.15 10.392 10.123 10.32 10.125 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 5.665 10.125 L 4.099 10.125 L 4 10.125 C 3.91 10.172 3.853 10.265 3.85 10.367 L 3.85 11.883 C 3.849 11.953 3.873 12.021 3.916 12.075 C 3.939 12.102 3.967 12.122 4 12.133 L 4.099 12.133 L 5.665 12.133 C 5.698 12.142 5.732 12.142 5.765 12.133 C 5.792 12.125 5.818 12.111 5.84 12.092 C 5.864 12.067 5.884 12.039 5.898 12.008 C 5.906 11.972 5.906 11.936 5.898 11.9 L 5.898 10.383 C 5.906 10.351 5.906 10.317 5.898 10.283 C 5.882 10.253 5.862 10.226 5.84 10.2 C 5.793 10.154 5.731 10.127 5.665 10.125 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 6.997 3.333 C 6.72 3.141 6.414 2.995 6.09 2.9 C 5.767 2.797 5.429 2.744 5.09 2.742 C 4.757 2.738 4.427 2.787 4.108 2.883 C 3.85 2.965 3.599 3.068 3.358 3.192 C 3.196 3.282 3.042 3.387 2.9 3.508 L 2.725 3.667 C 2.643 3.766 2.643 3.909 2.725 4.008 L 3.558 5.008 C 3.595 5.066 3.656 5.103 3.725 5.108 C 3.795 5.109 3.864 5.092 3.925 5.058 L 3.991 5 C 4.069 4.942 4.149 4.89 4.233 4.842 L 4.566 4.7 C 4.708 4.654 4.857 4.632 5.007 4.633 C 5.224 4.627 5.437 4.697 5.607 4.833 C 5.687 4.889 5.753 4.963 5.798 5.05 C 5.833 5.14 5.847 5.237 5.84 5.333 C 5.84 5.54 5.762 5.739 5.623 5.892 C 5.456 6.077 5.279 6.252 5.09 6.417 C 4.949 6.529 4.812 6.648 4.682 6.775 C 4.54 6.909 4.414 7.061 4.308 7.225 C 4.192 7.395 4.099 7.58 4.033 7.775 C 3.96 7.998 3.924 8.232 3.925 8.467 L 3.925 8.758 C 3.92 8.792 3.92 8.825 3.925 8.858 C 3.942 8.89 3.965 8.917 3.991 8.942 C 4.011 8.97 4.041 8.991 4.074 9 C 4.107 9.01 4.142 9.01 4.174 9 L 5.607 9 L 5.707 9 C 5.739 8.988 5.768 8.968 5.79 8.942 C 5.814 8.917 5.834 8.889 5.848 8.858 C 5.852 8.825 5.852 8.792 5.848 8.758 L 5.848 8.583 C 5.845 8.367 5.926 8.157 6.073 8 C 6.263 7.822 6.464 7.655 6.673 7.5 C 6.822 7.375 6.964 7.242 7.106 7.1 C 7.249 6.932 7.382 6.757 7.505 6.575 C 7.63 6.388 7.731 6.187 7.805 5.975 C 7.887 5.705 7.923 5.423 7.913 5.142 C 7.896 4.799 7.799 4.465 7.63 4.167 C 7.491 3.841 7.274 3.555 6.997 3.333 Z"></path>
+            </g>""",
+    # "?!"
+    "6": """<g id="inaccuracy">
+                <path class="icon-background" fill="#e87d00" d="M 7.506 0 C 1.737 0 -1.869 6.25 1.015 11.25 C 3.9 16.25 11.111 16.25 13.996 11.25 C 14.654 10.11 15 8.817 15 7.5 C 15 3.358 11.644 0 7.506 0 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 11.386 11.917 C 11.394 11.952 11.394 11.989 11.386 12.025 C 11.374 12.062 11.35 12.093 11.32 12.117 C 11.295 12.146 11.263 12.169 11.228 12.183 L 11.128 12.183 L 9.463 12.183 L 9.354 12.183 C 9.321 12.168 9.293 12.145 9.271 12.117 C 9.213 12.066 9.177 11.994 9.171 11.917 L 9.171 10.333 C 9.167 10.297 9.167 10.261 9.171 10.225 C 9.185 10.194 9.205 10.166 9.229 10.142 L 9.313 10.075 L 9.421 10.075 L 11.086 10.075 C 11.159 10.077 11.227 10.107 11.278 10.158 C 11.305 10.182 11.327 10.211 11.344 10.242 C 11.353 10.277 11.353 10.314 11.344 10.35 L 11.386 11.917 Z M 11.286 8.642 C 11.294 8.677 11.294 8.714 11.286 8.75 C 11.272 8.782 11.253 8.81 11.228 8.833 C 11.176 8.882 11.106 8.906 11.036 8.9 L 9.529 8.9 C 9.377 8.915 9.245 8.795 9.246 8.642 L 9.121 3 C 9.12 2.93 9.138 2.862 9.171 2.8 L 9.263 2.733 L 9.371 2.733 L 11.128 2.733 C 11.208 2.73 11.287 2.76 11.344 2.817 C 11.387 2.875 11.41 2.945 11.411 3.017 L 11.286 8.642 Z"></path>
+                <path class="icon-component" fill="#fff" d="M 6.382 11.933 C 6.389 11.967 6.389 12.001 6.382 12.033 C 6.37 12.068 6.35 12.1 6.323 12.125 L 6.24 12.183 L 6.132 12.183 L 4.533 12.183 C 4.5 12.192 4.466 12.192 4.433 12.183 C 4.4 12.168 4.372 12.145 4.35 12.117 C 4.302 12.068 4.274 12.002 4.275 11.933 L 4.275 10.408 C 4.277 10.337 4.303 10.27 4.35 10.217 L 4.433 10.158 L 4.533 10.158 L 6.107 10.158 C 6.178 10.157 6.247 10.184 6.298 10.233 C 6.323 10.257 6.343 10.285 6.357 10.317 C 6.365 10.352 6.365 10.389 6.357 10.425 L 6.382 11.933 Z M 8.214 5.958 C 8.14 6.173 8.04 6.378 7.914 6.567 C 7.789 6.742 7.653 6.91 7.506 7.067 C 7.373 7.222 7.228 7.367 7.073 7.5 C 6.882 7.665 6.701 7.84 6.532 8.025 C 6.383 8.183 6.303 8.392 6.307 8.608 L 6.307 8.792 C 6.316 8.824 6.316 8.859 6.307 8.892 C 6.3 8.925 6.283 8.954 6.257 8.975 C 6.234 9.002 6.206 9.022 6.174 9.033 L 6.074 9.033 L 4.616 9.033 C 4.584 9.043 4.549 9.043 4.516 9.033 C 4.482 9.024 4.453 9.003 4.433 8.975 C 4.402 8.955 4.379 8.926 4.367 8.892 C 4.361 8.858 4.361 8.825 4.367 8.792 L 4.367 8.5 C 4.365 8.262 4.402 8.026 4.475 7.8 C 4.542 7.606 4.635 7.421 4.75 7.25 C 4.858 7.085 4.984 6.931 5.124 6.792 C 5.258 6.667 5.399 6.55 5.532 6.442 C 5.723 6.275 5.904 6.097 6.074 5.908 C 6.209 5.754 6.283 5.556 6.282 5.35 C 6.284 5.252 6.264 5.156 6.223 5.067 C 6.181 4.976 6.114 4.898 6.032 4.842 C 5.86 4.71 5.649 4.639 5.432 4.642 C 5.29 4.63 5.147 4.642 5.008 4.675 C 4.89 4.717 4.776 4.767 4.666 4.825 C 4.58 4.875 4.499 4.933 4.425 5 L 4.333 5.075 C 4.282 5.093 4.228 5.102 4.175 5.1 C 4.091 5.104 4.01 5.067 3.959 5 L 3.126 3.992 C 3.041 3.897 3.041 3.753 3.126 3.658 C 3.19 3.592 3.263 3.532 3.342 3.483 C 3.486 3.361 3.642 3.255 3.809 3.167 C 4.049 3.042 4.299 2.939 4.558 2.858 C 4.878 2.757 5.213 2.709 5.549 2.717 C 6.23 2.719 6.895 2.934 7.448 3.333 C 7.713 3.541 7.931 3.802 8.089 4.1 C 8.256 4.433 8.342 4.802 8.339 5.175 C 8.339 5.441 8.296 5.706 8.214 5.958 Z"></path>
+            </g>"""
+}
+
 XX = """<g id="xx"><path d="M35.865 9.135a1.89 1.89 0 0 1 0 2.673L25.173 22.5l10.692 10.692a1.89 1.89 0 0 1 0 2.673 1.89 1.89 0 0 1-2.673 0L22.5 25.173 11.808 35.865a1.89 1.89 0 0 1-2.673 0 1.89 1.89 0 0 1 0-2.673L19.827 22.5 9.135 11.808a1.89 1.89 0 0 1 0-2.673 1.89 1.89 0 0 1 2.673 0L22.5 19.827 33.192 9.135a1.89 1.89 0 0 1 2.673 0z" fill="#000" stroke="#fff" stroke-width="1.688"/></g>"""  # noqa: E501
 
 CHECK_GRADIENT = """<radialGradient id="check_gradient" r="0.5"><stop offset="0%" stop-color="#ff0000" stop-opacity="1.0" /><stop offset="50%" stop-color="#e70000" stop-opacity="1.0" /><stop offset="100%" stop-color="#9e0000" stop-opacity="0.0" /></radialGradient>"""  # noqa: E501
@@ -56,8 +90,6 @@ DEFAULT_COLORS = {
     "square dark lastmove": "#aaa23b",
     "square light lastmove": "#cdd16a",
     "margin": "#212121",
-    "inner border": "#111",
-    "outer border": "#111",
     "coord": "#e5e5e5",
     "arrow green": "#15781B80",
     "arrow red": "#88202080",
@@ -182,14 +214,7 @@ def _color(color: str) -> Tuple[str, float]:
     return color, 1.0
 
 
-def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool, margin: int, *, color: str, opacity: float) -> ET.Element:
-    scale = margin / MARGIN
-
-    if horizontal:
-        x += int(width - scale * width) // 2
-    else:
-        y += int(height - scale * height) // 2
-
+def _coord(text: str, x: float, y: float, scale: float, *, color: str, opacity: float) -> ET.Element:
     t = ET.Element("g", _attrs({
         "transform": f"translate({x}, {y}) scale({scale}, {scale})",
         "fill": color,
@@ -228,8 +253,8 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           coordinates: bool = True,
           colors: Dict[str, str] = {},
           flipped: bool = False,
-          borders: bool = False,
-          style: Optional[str] = None) -> str:
+          style: Optional[str] = None,
+          nag:Optional[int] = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 
@@ -256,9 +281,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         and ``arrow yellow``. Values should look like ``#ffce9e`` (opaque),
         or ``#15781B80`` (transparent).
     :param flipped: Pass ``True`` to flip the board.
-    :param borders: Pass ``True`` to enable a border around the board and,
-       (if *coordinates* is enabled) the coordinate margin.
     :param style: A CSS stylesheet to include in the SVG image.
+    :param nag: Pass ``NAG Constant`` to show Numerical Notation Glyphs (NAGs).
+        Supports !(great), !!(brilliant), ?(mistake), ?!(inaccuracy) and ??(blunder)
+        (requires ``lastmove`` to be passed along as argument)
 
     >>> import chess
     >>> import chess.svg
@@ -279,98 +305,26 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. deprecated:: 1.1
         Use *orientation* with a color instead of the *flipped* toggle.
     """
+    # Bringing GLOBAL Constants in the local scope for a little performance boost 
+    global SQUARE_SIZE, MARGIN, NAG_SIZE, PIECES, COORDS, NAGS, XX, CHECK_GRADIENT, DEFAULT_COLORS
     orientation ^= flipped
-    inner_border = 1 if borders and coordinates else 0
-    outer_border = 1 if borders else 0
-    margin = 15 if coordinates else 0
-    full_size = 2 * outer_border + 2 * margin + 2 * inner_border + 8 * SQUARE_SIZE
+    full_size = 8 * SQUARE_SIZE
     svg = _svg(full_size, size)
+    desc = ET.SubElement(svg, "desc")
+    defs = ET.SubElement(svg, "defs")
 
     if style:
         ET.SubElement(svg, "style").text = style
-
-    if board:
-        desc = ET.SubElement(svg, "desc")
-        asciiboard = ET.SubElement(desc, "pre")
-        asciiboard.text = str(board)
-
-    defs = ET.SubElement(svg, "defs")
-    if board:
-        for piece_color in chess.COLORS:
-            for piece_type in chess.PIECE_TYPES:
-                if board.pieces_mask(piece_type, piece_color):
-                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
-
-    squares = chess.SquareSet(squares) if squares else chess.SquareSet()
-    if squares:
-        defs.append(ET.fromstring(XX))
-
-    if check is not None:
-        defs.append(ET.fromstring(CHECK_GRADIENT))
-
-    if outer_border:
-        outer_border_color, outer_border_opacity = _select_color(colors, "outer border")
-        ET.SubElement(svg, "rect", _attrs({
-            "x": outer_border / 2,
-            "y": outer_border / 2,
-            "width": full_size - outer_border,
-            "height": full_size - outer_border,
-            "fill": "none",
-            "stroke": outer_border_color,
-            "stroke-width": outer_border,
-            "opacity": outer_border_opacity if outer_border_opacity < 1.0 else None,
-        }))
-
-    if margin:
-        margin_color, margin_opacity = _select_color(colors, "margin")
-        ET.SubElement(svg, "rect", _attrs({
-            "x": outer_border + margin / 2,
-            "y": outer_border + margin / 2,
-            "width": full_size - 2 * outer_border - margin,
-            "height": full_size - 2 * outer_border - margin,
-            "fill": "none",
-            "stroke": margin_color,
-            "stroke-width": margin,
-            "opacity": margin_opacity if margin_opacity < 1.0 else None,
-        }))
-
-    if inner_border:
-        inner_border_color, inner_border_opacity = _select_color(colors, "inner border")
-        ET.SubElement(svg, "rect", _attrs({
-            "x": outer_border + margin + inner_border / 2,
-            "y": outer_border + margin + inner_border / 2,
-            "width": full_size - 2 * outer_border - 2 * margin - inner_border,
-            "height": full_size - 2 * outer_border - 2 * margin - inner_border,
-            "fill": "none",
-            "stroke": inner_border_color,
-            "stroke-width": inner_border,
-            "opacity": inner_border_opacity if inner_border_opacity < 1.0 else None,
-        }))
-
-    # Render coordinates.
-    if coordinates:
-        coord_color, coord_opacity = _select_color(colors, "coord")
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + inner_border + margin + outer_border
-            # Keep some padding here to separate the ascender from the border
-            svg.append(_coord(file_name, x, 1, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-            svg.append(_coord(file_name, x, full_size - outer_border - margin, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + inner_border + margin + outer_border
-            svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
-            svg.append(_coord(rank_name, full_size - outer_border - margin, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
 
     # Render board.
     for square, bb in enumerate(chess.BB_SQUARES):
         file_index = chess.square_file(square)
         rank_index = chess.square_rank(square)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + inner_border + margin + outer_border
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + inner_border + margin + outer_border
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
-        if lastmove and square in [lastmove.from_square, lastmove.to_square]:
-            cls.append("lastmove")
         square_color, square_opacity = _select_color(colors, " ".join(cls))
 
         cls.append(chess.SQUARE_NAMES[square])
@@ -400,14 +354,41 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "fill": fill_color,
                 "opacity": fill_opacity if fill_opacity < 1.0 else None,
             }))
+    
+    # Rendering lastmove
+    if lastmove:
+        for square in [lastmove.from_square, lastmove.to_square]:
+            bb = 1 << square
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
+
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+
+            cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark", "lastmove"]
+            square_color, square_opacity = _select_color(colors, " ".join(cls))
+
+            cls.append(chess.SQUARE_NAMES[square])
+
+            ET.SubElement(svg, "rect", _attrs({
+                "x": x,
+                "y": y,
+                "width": SQUARE_SIZE,
+                "height": SQUARE_SIZE,
+                "class": " ".join(cls),
+                "stroke": "none",
+                "fill": square_color,
+                "opacity": square_opacity if square_opacity < 1.0 else None,
+            }))
 
     # Render check mark.
     if check is not None:
+        defs.append(ET.fromstring(CHECK_GRADIENT))
         file_index = chess.square_file(check)
         rank_index = chess.square_rank(check)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
 
         ET.SubElement(svg, "rect", _attrs({
             "x": x,
@@ -419,14 +400,22 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         }))
 
     # Render pieces and selected squares.
-    for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+    if board is not None:
+        asciiboard = ET.SubElement(desc, "pre")
+        asciiboard.text = str(board)
+        # Defining pieces
+        for piece_color in chess.COLORS:
+            for piece_type in chess.PIECE_TYPES:
+                if board.pieces_mask(piece_type, piece_color):
+                    defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
+        # Rendering pieces
+        for square, bb in enumerate(chess.BB_SQUARES):
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + margin
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + margin
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
 
-        if board is not None:
             piece = board.piece_at(square)
             if piece:
                 href = f"#{chess.COLOR_NAMES[piece.color]}-{chess.PIECE_NAMES[piece.piece_type]}"
@@ -436,8 +425,36 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                     "transform": f"translate({x:d}, {y:d})",
                 })
 
-        # Render selected squares.
-        if square in squares:
+    # Render coordinates.
+    if coordinates:
+        light_color, light_opacity = _select_color(colors, "square light")
+        dark_color, dark_opacity = _select_color(colors, "square dark")
+        text_scale = 0.5
+        coord_size = 18
+        width = coord_size * text_scale
+        height = coord_size * text_scale
+        for file_index, file_name in enumerate(chess.FILE_NAMES):
+            x = ((file_index if orientation else 7 - file_index) * SQUARE_SIZE) - width # type: ignore
+            y = full_size - height # type: ignore
+            coord_color, coord_opacity = (light_color, light_opacity) if (file_index+orientation)%2 == 1 else (dark_color, dark_opacity)
+            svg.append(_coord(file_name, x+1.5, y-1, text_scale, color=coord_color, opacity=coord_opacity))
+        x += (7 - file_index if orientation else file_index) * SQUARE_SIZE
+        x += SQUARE_SIZE
+        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+            y = ((7 - rank_index if orientation else rank_index) * SQUARE_SIZE) - height # type: ignore
+            coord_color, coord_opacity = (dark_color, dark_opacity) if (rank_index+orientation)%2 == 1 else (light_color, light_opacity)
+            svg.append(_coord(rank_name, x-1, y+3, text_scale, color=coord_color, opacity=coord_opacity))
+
+    # Render X Squares
+    if squares is not None:
+        defs.append(ET.fromstring(XX))
+        squares = chess.SquareSet(squares) if squares else chess.SquareSet()
+        for square in squares:
+            file_index = chess.square_file(square)
+            rank_index = chess.square_rank(square)
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+            # Render selected squares
             ET.SubElement(svg, "use", _attrs({
                 "href": "#xx",
                 "xlink:href": "#xx",
@@ -463,10 +480,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         head_file = chess.square_file(head)
         head_rank = chess.square_rank(head)
 
-        xtail = outer_border + margin + inner_border + (tail_file + 0.5 if orientation else 7.5 - tail_file) * SQUARE_SIZE
-        ytail = outer_border + margin + inner_border + (7.5 - tail_rank if orientation else tail_rank + 0.5) * SQUARE_SIZE
-        xhead = outer_border + margin + inner_border + (head_file + 0.5 if orientation else 7.5 - head_file) * SQUARE_SIZE
-        yhead = outer_border + margin + inner_border + (7.5 - head_rank if orientation else head_rank + 0.5) * SQUARE_SIZE
+        xtail = (tail_file + 0.5 if orientation else 7.5 - tail_file) * SQUARE_SIZE
+        ytail = (7.5 - tail_rank if orientation else tail_rank + 0.5) * SQUARE_SIZE
+        xhead = (head_file + 0.5 if orientation else 7.5 - head_file) * SQUARE_SIZE
+        yhead = (7.5 - head_rank if orientation else head_rank + 0.5) * SQUARE_SIZE
 
         if (head_file, head_rank) == (tail_file, tail_rank):
             ET.SubElement(svg, "circle", _attrs({
@@ -517,4 +534,28 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "class": "arrow",
             }))
 
+    if nag is not None and \
+       lastmove is not None and \
+       NAGS.get(str(nag), None) is not None:
+        ele = ET.fromstring(NAGS[str(nag)])
+        defs.append(ele)
+        id = ele.attrib.get("id")
+        file_index = chess.square_file(lastmove.to_square)
+        rank_index = chess.square_rank(lastmove.to_square)
+        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
+        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+        # Making sure the NAGs doesn't overlap the Last Move Arrow by switching 
+        # between top left and top right corner depending upon where the Arrow
+        # is coming from.
+        from_file_index = chess.square_file(lastmove.from_square)
+        file_index = (file_index if orientation else 7 - file_index)
+        from_file_index = (from_file_index if orientation else 7 - from_file_index)
+        x = x + (SQUARE_SIZE - NAG_SIZE if file_index >= from_file_index else 0)
+        ET.SubElement(svg, "use", _attrs({
+            "href": f"#{id}",
+            "xlink:href": f"#{id}",
+            "x": x,
+            "y": y,
+        }))
+    
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
