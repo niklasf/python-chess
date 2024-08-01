@@ -2088,29 +2088,29 @@ class PgnTestCase(unittest.TestCase):
 
     def test_exporter(self):
         game = chess.pgn.Game()
-        game.comment = "Test game:"
+        game.comments = ["Test game:"]
         game.headers["Result"] = "*"
         game.headers["VeryLongHeader"] = "This is a very long header, much wider than the 80 columns that PGNs are formatted with by default"
 
         e4 = game.add_variation(game.board().parse_san("e4"))
-        e4.comment = "Scandinavian Defense:"
+        e4.comments = ["Scandinavian Defense:"]
 
         e4_d5 = e4.add_variation(e4.board().parse_san("d5"))
 
         e4_h5 = e4.add_variation(e4.board().parse_san("h5"))
         e4_h5.nags.add(chess.pgn.NAG_MISTAKE)
-        e4_h5.starting_comment = "This"
-        e4_h5.comment = "is nonsense"
+        e4_h5.starting_comments = ["This"]
+        e4_h5.comments = ["is nonsense"]
 
         e4_e5 = e4.add_variation(e4.board().parse_san("e5"))
         e4_e5_Qf3 = e4_e5.add_variation(e4_e5.board().parse_san("Qf3"))
         e4_e5_Qf3.nags.add(chess.pgn.NAG_MISTAKE)
 
         e4_c5 = e4.add_variation(e4.board().parse_san("c5"))
-        e4_c5.comment = "Sicilian"
+        e4_c5.comments = ["Sicilian"]
 
         e4_d5_exd5 = e4_d5.add_main_variation(e4_d5.board().parse_san("exd5"))
-        e4_d5_exd5.comment = "Best"
+        e4_d5_exd5.comments = ["Best", "and the end of this {example}"]
 
         # Test string exporter with various options.
         exporter = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
@@ -2135,7 +2135,7 @@ class PgnTestCase(unittest.TestCase):
 
             { Test game: } 1. e4 { Scandinavian Defense: } 1... d5 ( { This } 1... h5 $2
             { is nonsense } ) ( 1... e5 2. Qf3 $2 ) ( 1... c5 { Sicilian } ) 2. exd5
-            { Best } *""")
+            { Best } { and the end of this example } *""")
         self.assertEqual(str(exporter), pgn)
 
         # Test file exporter.
@@ -2225,6 +2225,14 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(sixth_game.headers["White"], "Deep Blue (Computer)")
         self.assertEqual(sixth_game.headers["Result"], "1-0")
 
+    def test_read_game_with_multicomment_move(self):
+        pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
+        game = chess.pgn.read_game(pgn)
+        first_move = game.variation(0)
+        self.assertEqual(first_move.comments, ["A common opening"])
+        second_move = first_move.variation(0)
+        self.assertEqual(second_move.comments, ["A common response", "An uncommon comment"])
+
     def test_comment_at_eol(self):
         pgn = io.StringIO(textwrap.dedent("""\
             1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 d6 6. Nbd2 a6 $6 (6... Bb6 $5 {
@@ -2239,7 +2247,7 @@ class PgnTestCase(unittest.TestCase):
 
         # Make sure the comment for the second variation is there.
         self.assertIn(5, node[1].nags)
-        self.assertEqual(node[1].comment, "\n/\\ Ne7, c6")
+        self.assertEqual(node[1].comments, ["\n/\\ Ne7, c6"])
 
     def test_promotion_without_equals(self):
         # Example game from https://github.com/rozim/ChessData as originally
@@ -2327,12 +2335,12 @@ class PgnTestCase(unittest.TestCase):
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, "Game starting comment")
+        self.assertEqual(game.comments, ["Game starting comment"])
         self.assertEqual(game[0].san(), "d3")
 
         pgn = io.StringIO("{ Empty game, but has a comment }")
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, "Empty game, but has a comment")
+        self.assertEqual(game.comments, ["Empty game, but has a comment"])
 
     def test_game_starting_variation(self):
         pgn = io.StringIO(textwrap.dedent("""\
@@ -2340,17 +2348,17 @@ class PgnTestCase(unittest.TestCase):
             """))
 
         game = chess.pgn.read_game(pgn)
-        self.assertEqual(game.comment, "Start of game")
+        self.assertEqual(game.comments, ["Start of game"])
 
         node = game[0]
         self.assertEqual(node.move, chess.Move.from_uci("e2e4"))
-        self.assertFalse(node.comment)
-        self.assertFalse(node.starting_comment)
+        self.assertFalse(node.comments)
+        self.assertFalse(node.starting_comments)
 
         node = game[1]
         self.assertEqual(node.move, chess.Move.from_uci("d2d4"))
-        self.assertFalse(node.comment)
-        self.assertEqual(node.starting_comment, "Start of variation")
+        self.assertFalse(node.comments)
+        self.assertEqual(node.starting_comments, ["Start of variation"])
 
     def test_annotation_symbols(self):
         pgn = io.StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
@@ -2695,12 +2703,12 @@ class PgnTestCase(unittest.TestCase):
         tail = game.add_line(moves, starting_comment="start", comment="end", nags=(17, 42))
 
         self.assertEqual(tail.parent.move, chess.Move.from_uci("g1f3"))
-        self.assertEqual(tail.parent.starting_comment, "start")
-        self.assertEqual(tail.parent.comment, "")
+        self.assertEqual(tail.parent.starting_comments, ["start"])
+        self.assertEqual(tail.parent.comments, [])
         self.assertEqual(len(tail.parent.nags), 0)
 
         self.assertEqual(tail.move, chess.Move.from_uci("d7d5"))
-        self.assertEqual(tail.comment, "end")
+        self.assertEqual(tail.comments, ["end"])
         self.assertIn(42, tail.nags)
 
     def test_mainline(self):
@@ -2830,27 +2838,27 @@ class PgnTestCase(unittest.TestCase):
 
     def test_annotations(self):
         game = chess.pgn.Game()
-        game.comment = "foo [%bar] baz"
+        game.comments = ["foo [%bar] baz"]
 
         self.assertTrue(game.clock() is None)
         clock = 12345
         game.set_clock(clock)
-        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45]")
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]"])
         self.assertEqual(game.clock(), clock)
 
         self.assertTrue(game.eval() is None)
         game.set_eval(chess.engine.PovScore(chess.engine.Cp(-80), chess.WHITE))
-        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45] [%eval -0.80]")
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval -0.80]"])
         self.assertEqual(game.eval().white().score(), -80)
         self.assertEqual(game.eval_depth(), None)
         game.set_eval(chess.engine.PovScore(chess.engine.Mate(1), chess.WHITE), 5)
-        self.assertEqual(game.comment, "foo [%bar] baz [%clk 3:25:45] [%eval #1,5]")
+        self.assertEqual(game.comments, ["foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
         self.assertEqual(game.eval().white().mate(), 1)
         self.assertEqual(game.eval_depth(), 5)
 
         self.assertEqual(game.arrows(), [])
         game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5]")
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
         arrows = game.arrows()
         self.assertEqual(len(arrows), 3)
         self.assertEqual(arrows[0].color, "green")
@@ -2860,18 +2868,18 @@ class PgnTestCase(unittest.TestCase):
         self.assertTrue(game.emt() is None)
         emt = 321
         game.set_emt(emt)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5] [%emt 0:05:21]")
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]", "[%emt 0:05:21]"])
         self.assertEqual(game.emt(), emt)
 
         game.set_eval(None)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%emt 0:05:21]")
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%emt 0:05:21]"])
 
         game.set_emt(None)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45]")
+        self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]"])
 
         game.set_clock(None)
         game.set_arrows([])
-        self.assertEqual(game.comment, "foo [%bar] baz")
+        self.assertEqual(game.comments, ["foo [%bar] baz"])
 
     def test_eval(self):
         game = chess.pgn.Game()
@@ -2881,28 +2889,28 @@ class PgnTestCase(unittest.TestCase):
 
     def test_float_emt(self):
         game = chess.pgn.Game()
-        game.comment = "[%emt 0:00:01.234]"
+        game.comments = ["[%emt 0:00:01.234]"]
         self.assertEqual(game.emt(), 1.234)
 
         game.set_emt(6.54321)
-        self.assertEqual(game.comment, "[%emt 0:00:06.543]")
+        self.assertEqual(game.comments, ["[%emt 0:00:06.543]"])
         self.assertEqual(game.emt(), 6.543)
 
         game.set_emt(-70)
-        self.assertEqual(game.comment, "[%emt 0:00:00]")  # Clamped
+        self.assertEqual(game.comments, ["[%emt 0:00:00]"])  # Clamped
         self.assertEqual(game.emt(), 0)
 
     def test_float_clk(self):
         game = chess.pgn.Game()
-        game.comment = "[%clk 0:00:01.234]"
+        game.comments = ["[%clk 0:00:01.234]"]
         self.assertEqual(game.clock(), 1.234)
 
         game.set_clock(6.54321)
-        self.assertEqual(game.comment, "[%clk 0:00:06.543]")
+        self.assertEqual(game.comments, ["[%clk 0:00:06.543]"])
         self.assertEqual(game.clock(), 6.543)
 
         game.set_clock(-70)
-        self.assertEqual(game.comment, "[%clk 0:00:00]")  # Clamped
+        self.assertEqual(game.comments, ["[%clk 0:00:00]"])  # Clamped
         self.assertEqual(game.clock(), 0)
 
     def test_node_turn(self):
