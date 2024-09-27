@@ -2947,6 +2947,18 @@ class PgnTestCase(unittest.TestCase):
         game = chess.pgn.read_game(io.StringIO(pgn)).accept(BlackVariationsOnly())
         self.assertEqual(game.accept(chess.pgn.StringExporter(headers=False)), expected_pgn)
 
+    def test_utf8_bom(self):
+        not_utf8_sig = "utf-8"
+        with open("data/pgn/utf8-bom.pgn", encoding=not_utf8_sig) as pgn:
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.headers["Event"], "A")
+
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game.headers["Event"], "B")
+
+            game = chess.pgn.read_game(pgn)
+            self.assertEqual(game, None)
+
 
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
