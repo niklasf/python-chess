@@ -3402,7 +3402,7 @@ class Board(BaseBoard):
             if white_h_side and msb(white_h_side) < msb(white_king_mask):
                 white_h_side = 0
 
-            black_a_side = (black_castling & -black_castling)
+            black_a_side = black_castling & -black_castling
             black_h_side = BB_SQUARES[msb(black_castling)] if black_castling else BB_EMPTY
 
             if black_a_side and msb(black_a_side) > msb(black_king_mask):
