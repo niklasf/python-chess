@@ -60,7 +60,8 @@ def tag_and_push():
         print(f">>> Creating {release_filename} ...")
         first_section = False
         prev_line = None
-        with open(release_filename, "w") as release_txt, open("CHANGELOG.rst", "r") as changelog_file:
+        with open(release_filename, "w") as release_txt,\
+                open("CHANGELOG.rst", "r") as changelog_file:
             headline = f"python-chess {tagname}"
             release_txt.write(headline + os.linesep)
 
