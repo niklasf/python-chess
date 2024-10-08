@@ -3142,6 +3142,11 @@ class EngineTestCase(unittest.TestCase):
         with self.assertRaises(chess.engine.EngineTerminatedError), engine:
             engine.ping()
 
+    @catchAndSkip(FileNotFoundError, "need fairy-stockfish")
+    def test_fairy_sf_initialize(self):
+        with chess.engine.SimpleEngine.popen_uci("fairy-stockfish", setpgrp=True, debug=True):
+            pass
+
     @catchAndSkip(FileNotFoundError, "need crafty")
     def test_crafty_play_to_mate(self):
         logging.disable(logging.WARNING)
