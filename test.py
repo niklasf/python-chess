@@ -3142,6 +3142,26 @@ class EngineTestCase(unittest.TestCase):
         with self.assertRaises(chess.engine.EngineTerminatedError), engine:
             engine.ping()
 
+    @catchAndSkip(FileNotFoundError, "need fairy-stockfish")
+    def test_fairy_sf_initialize(self):
+        with chess.engine.SimpleEngine.popen_uci("fairy-stockfish", setpgrp=True, debug=True):
+            pass
+
+    def test_uci_option_parse(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["option name UCI_Variant type combo default chess var bughouse var chess var mini var minishogi var threekings", "uciok"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            mock.expect("isready", ["readyok"])
+            await protocol.ping()
+            mock.assert_done()
+
+        asyncio.run(main())
+
     @catchAndSkip(FileNotFoundError, "need crafty")
     def test_crafty_play_to_mate(self):
         logging.disable(logging.WARNING)
