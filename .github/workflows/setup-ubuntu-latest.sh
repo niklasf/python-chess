@@ -6,6 +6,9 @@ sudo apt-get install -y stockfish
 # Crafty
 sudo apt-get install -y crafty
 
+# Fairy-stockfish
+sudo apt-get install -y fairy-stockfish
+
 # Gaviota libgtb
 git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
 cd Gaviota-Tablebases
