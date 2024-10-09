@@ -1104,22 +1104,6 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """
         pass
 
-    def parse_san(self, board: chess.Board, san: str) -> chess.Move:
-        """
-        When the visitor is used by a parser, this is called to parse a move
-        in standard algebraic notation.
-
-        You can override the default implementation to work around specific
-        quirks of your input format.
-
-        .. deprecated:: 1.1
-            This method is very limited, because it is only called on moves
-            that the parser recognizes in the first place. Instead of adding
-            workarounds here, please report common quirks so that
-            they can be handled for everyone.
-        """
-        return board.parse_san(san)
-
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         """
         Called for each move.
@@ -1751,7 +1735,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 # Parse SAN tokens.
                 if visitor.begin_parse_san(board_stack[-1], token) is not SKIP:
                     try:
-                        move = visitor.parse_san(board_stack[-1], token)
+                        move = board_stack[-1].parse_san(token)
                     except ValueError as error:
                         visitor.handle_error(error)
                         skip_variation_depth = 1
