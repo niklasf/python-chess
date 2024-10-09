@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v1.11.1 (9th Oct 2024)
+-----------------------------
+
+Bugfixes:
+
+* ``chess.engine``: Fix parsing of UCI options containing containing ``name``,
+  ``type``, ``default``, ``min``, or ``max``, e.g., ``mini``.
+
 New in v1.11.0 (4th Oct 2024)
 -----------------------------
 
