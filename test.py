@@ -3540,7 +3540,7 @@ class EngineTestCase(unittest.TestCase):
 
         # WDL (activated with UCI_ShowWDL).
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
-        self.assertEqual(info["wdl"], (249, 747, 4))
+        self.assertEqual(info["wdl"].white(), chess.engine.Wdl(249, 747, 4))
 
     def test_uci_result(self):
         async def main():

@@ -720,16 +720,11 @@ class MateGivenType(Score):
 MateGiven = MateGivenType()
 
 
+@dataclasses.dataclass
 class PovWdl:
     """
     Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
     of view.
-
-    .. deprecated:: 1.2
-        Behaves like a tuple
-        ``(wdl.relative.wins, wdl.relative.draws, wdl.relative.losses)``
-        for backwards compatibility. But it is recommended to use the provided
-        fields and methods instead.
     """
 
     relative: Wdl
@@ -737,10 +732,6 @@ class PovWdl:
 
     turn: Color
     """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
-
-    def __init__(self, relative: Wdl, turn: Color) -> None:
-        self.relative = relative
-        self.turn = turn
 
     def white(self) -> Wdl:
         """Gets the :class:`~chess.engine.Wdl` from White's point of view."""
@@ -762,30 +753,6 @@ class PovWdl:
 
     def __repr__(self) -> str:
         return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
-
-    # Unfortunately in python-chess v1.1.0, info["wdl"] was a simple tuple
-    # of the relative permille values, so we have to support __iter__,
-    # __len__, __getitem__, and equality comparisons with other tuples.
-    # Never mind the ordering, because that's not a sensible operation, anyway.
-
-    def __iter__(self) -> Iterator[int]:
-        yield self.relative.wins
-        yield self.relative.draws
-        yield self.relative.losses
-
-    def __len__(self) -> int:
-        return 3
-
-    def __getitem__(self, idx: int) -> int:
-        return (self.relative.wins, self.relative.draws, self.relative.losses)[idx]
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, PovWdl):
-            return self.white() == other.white()
-        elif isinstance(other, tuple):
-            return (self.relative.wins, self.relative.draws, self.relative.losses) == other
-        else:
-            return NotImplemented
 
 
 @dataclasses.dataclass
@@ -829,16 +796,6 @@ class Wdl:
 
     def __bool__(self) -> bool:
         return bool(self.total())
-
-    def __iter__(self) -> Iterator[int]:
-        yield self.wins
-        yield self.draws
-        yield self.losses
-
-    def __reversed__(self) -> Iterator[int]:
-        yield self.losses
-        yield self.draws
-        yield self.wins
 
     def __pos__(self) -> Wdl:
         return self
