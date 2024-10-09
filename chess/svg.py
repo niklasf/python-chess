@@ -227,7 +227,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           size: Optional[int] = None,
           coordinates: bool = True,
           colors: Dict[str, str] = {},
-          flipped: bool = False,
           borders: bool = False,
           style: Optional[str] = None) -> str:
     """
@@ -255,7 +254,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ``outer border``, ``arrow green``, ``arrow blue``, ``arrow red``,
         and ``arrow yellow``. Values should look like ``#ffce9e`` (opaque),
         or ``#15781B80`` (transparent).
-    :param flipped: Pass ``True`` to flip the board.
     :param borders: Pass ``True`` to enable a border around the board and,
        (if *coordinates* is enabled) the coordinate margin.
     :param style: A CSS stylesheet to include in the SVG image.
@@ -275,11 +273,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
-
-    .. deprecated:: 1.1
-        Use *orientation* with a color instead of the *flipped* toggle.
     """
-    orientation ^= flipped
     inner_border = 1 if borders and coordinates else 0
     outer_border = 1 if borders else 0
     margin = 15 if coordinates else 0
