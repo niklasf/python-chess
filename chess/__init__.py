@@ -1218,6 +1218,8 @@ class BaseBoard:
         n, bb = divmod(n, 4)
         n, q = divmod(n, 6)
 
+        n1 = 0
+        n2 = 0
         for n1 in range(0, 4):
             n2 = n + (3 - n1) * (4 - n1) // 2 - 5
             if n1 < n2 and 1 <= n2 <= 4:
@@ -2394,7 +2396,7 @@ class Board(BaseBoard):
             elif move.to_square == ep_square and abs(diff) in [7, 9] and not captured_piece_type:
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
-                capture_square = ep_square + down
+                capture_square = move.to_square + down
                 captured_piece_type = self._remove_piece_at(capture_square)
 
         # Promotion.
@@ -3166,6 +3168,8 @@ class Board(BaseBoard):
 
         # Filter by original square.
         from_mask = BB_ALL
+        from_file = None
+        from_rank = None
         if match.group(2):
             from_file = FILE_NAMES.index(match.group(2))
             from_mask &= BB_FILES[from_file]
@@ -3177,7 +3181,7 @@ class Board(BaseBoard):
         if match.group(1):
             piece_type = PIECE_SYMBOLS.index(match.group(1).lower())
             from_mask &= self.pieces_mask(piece_type, self.turn)
-        elif match.group(2) and match.group(3):
+        elif from_file is not None and from_rank is not None:
             # Allow fully specified moves, even if they are not pawn moves,
             # including castling moves.
             move = self.find_move(square(from_file, from_rank), to_square, promotion)
@@ -3189,7 +3193,7 @@ class Board(BaseBoard):
             from_mask &= self.pawns
 
             # Do not allow pawn captures if file is not specified.
-            if not match.group(2):
+            if from_file is None:
                 from_mask &= BB_FILES[square_file(to_square)]
 
         # Match legal moves.

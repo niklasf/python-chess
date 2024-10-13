@@ -826,7 +826,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
         assert fd == 0, f"expected 0 for stdin, got {fd}"
         return self
 
-    def write(self, data: bytes) -> None:
+    def write(self, data: bytes | bytearray | memoryview) -> None:
         self.stdin_buffer.extend(data)
         while b"\n" in self.stdin_buffer:
             line_bytes, self.stdin_buffer = self.stdin_buffer.split(b"\n", 1)

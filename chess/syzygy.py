@@ -780,6 +780,7 @@ class Table:
                 for i in range(n):
                     pos[i] ^= 0x38
 
+            i = 0
             for i in range(n):
                 if offdiag(pos[i]):
                     break
