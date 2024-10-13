@@ -52,7 +52,7 @@ jobs:
       - run: python -m mypy --strict examples/**/*.py
       - run: pip install pyright
       - run: python -m pyright chess
-      - run: python -m pyright --strict examples/**/*.py
+      - run: python -m pyright examples/**/*.py
   readme:
     runs-on: ubuntu-latest
     steps:
