@@ -35,7 +35,7 @@ jobs:
       - run: python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
       - run: python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
       - run: python examples/perft/perft.py -t 1 --variant 3check examples/perft/3check.perft
-  mypy:
+  typing:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -50,6 +50,9 @@ jobs:
       - run: pip install mypy
       - run: python -m mypy --strict chess
       - run: python -m mypy --strict examples/**/*.py
+      - run: pip install pyright
+      - run: python -m pyright chess
+      - run: python -m pyright --strict examples/**/*.py
   readme:
     runs-on: ubuntu-latest
     steps:
