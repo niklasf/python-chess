@@ -1575,6 +1575,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     skipping_game = False
     managed_headers: Optional[Headers] = None
     unmanaged_headers: Optional[Headers] = None
+    board_stack: List[chess.Board] = []
 
     # Ignore leading empty lines and comments.
     line = handle.readline().lstrip("\ufeff")
