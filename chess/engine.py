@@ -852,9 +852,6 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
 class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
-    options: MutableMapping[str, Option]
-    """Dictionary of available options."""
-
     id: Dict[str, str]
     """
     Dictionary of information about the engine. Common keys are ``name``
@@ -980,6 +977,11 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         pid = self.transport.get_pid() if self.transport is not None else "?"
         return f"<{type(self).__name__} (pid={pid})>"
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> MutableMapping[str, Option]:
+        """Dictionary of available options."""
 
     @abc.abstractmethod
     async def initialize(self) -> None:
@@ -1281,7 +1283,7 @@ class UciProtocol(Protocol):
 
     def __init__(self) -> None:
         super().__init__()
-        self.options: UciOptionMap[Option] = UciOptionMap()
+        self._options: UciOptionMap[Option] = UciOptionMap()
         self.config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.target_config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.id = {}
@@ -1290,6 +1292,11 @@ class UciProtocol(Protocol):
         self.first_game = True
         self.may_ponderhit: Optional[chess.Board] = None
         self.ponderhit = False
+
+    @property
+    @override
+    def options(self) -> UciOptionMap[Option]:
+        return self._options
 
     async def initialize(self) -> None:
         class UciInitializeCommand(BaseCommand[None]):
@@ -1939,7 +1946,7 @@ class XBoardProtocol(Protocol):
         super().__init__()
         self.features: Dict[str, Union[int, str]] = {}
         self.id = {}
-        self.options = {
+        self._options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
             "name": Option("name", "string", "", None, None, None),
@@ -1952,6 +1959,11 @@ class XBoardProtocol(Protocol):
         self.game: object = None
         self.clock_id: object = None
         self.first_game = True
+
+    @property
+    @override
+    def options(self) -> Dict[str, Option]:
+        return self._options
 
     async def initialize(self) -> None:
         class XBoardInitializeCommand(BaseCommand[None]):
