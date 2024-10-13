@@ -699,6 +699,7 @@ class ChildNode(GameNode):
         """The move leading to this node."""
         return self._move
 
+    @override
     def board(self) -> chess.Board:
         stack: List[chess.Move] = []
         node: GameNode = self
@@ -714,6 +715,7 @@ class ChildNode(GameNode):
 
         return board
 
+    @override
     def ply(self) -> int:
         ply = 0
         node: GameNode = self
@@ -744,6 +746,7 @@ class ChildNode(GameNode):
         """
         return self.parent.board().uci(self.move, chess960=chess960)
 
+    @override
     def end(self) -> ChildNode:
         """
         Follows the main variation to the end and returns the last node.
@@ -801,6 +804,7 @@ class ChildNode(GameNode):
             else:
                 stack.pop()
 
+    @override
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         self._accept(self.parent.board(), visitor, sidelines=False)
         return visitor.result()
@@ -1192,10 +1196,11 @@ class GameBuilder(BaseVisitor[GameT]):
     @typing.overload
     def __init__(self: GameBuilder[Game]) -> None: ...
     @typing.overload
-    def __init__(self: GameBuilder[GameT], *, Game: Type[GameT]) -> None: ...
+    def __init__(self, *, Game: Type[GameT]) -> None: ...
     def __init__(self, *, Game: Any = Game) -> None:
         self.Game = Game
 
+    @override
     def begin_game(self) -> None:
         self.game: GameT = self.Game()
 
@@ -1203,28 +1208,35 @@ class GameBuilder(BaseVisitor[GameT]):
         self.starting_comments: list[str] = []
         self.in_variation = False
 
+    @override
     def begin_headers(self) -> Headers:
         return self.game.headers
 
+    @override
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         self.game.headers[tagname] = tagvalue
 
+    @override
     def visit_nag(self, nag: int) -> None:
         self.variation_stack[-1].nags.add(nag)
 
+    @override
     def begin_variation(self) -> None:
         parent = self.variation_stack[-1].parent
         assert parent is not None, "begin_variation called, but root node on top of stack"
         self.variation_stack.append(parent)
         self.in_variation = False
 
+    @override
     def end_variation(self) -> None:
         self.variation_stack.pop()
 
+    @override
     def visit_result(self, result: str) -> None:
         if self.game.headers.get("Result", "*") == "*":
             self.game.headers["Result"] = result
 
+    @override
     def visit_comment(self, comment: Union[str, list[str]]) -> None:
         comments = _standardize_comments(comment)
         if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
@@ -1238,12 +1250,14 @@ class GameBuilder(BaseVisitor[GameT]):
             self.starting_comments.extend(comments)
             self.starting_comments = list(filter(None, self.starting_comments))
 
+    @override
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
         self.variation_stack[-1].starting_comments = self.starting_comments
         self.starting_comments = []
         self.in_variation = True
 
+    @override
     def handle_error(self, error: Exception) -> None:
         """
         Populates :data:`chess.pgn.Game.errors` with encountered errors and
@@ -1277,6 +1291,7 @@ class GameBuilder(BaseVisitor[GameT]):
         LOGGER.error("%s while parsing %r", error, self.game)
         self.game.errors.append(error)
 
+    @override
     def result(self) -> GameT:
         """
         Returns the visited :class:`~chess.pgn.Game()`.
@@ -1290,20 +1305,24 @@ class HeadersBuilder(BaseVisitor[HeadersT]):
     @typing.overload
     def __init__(self: HeadersBuilder[Headers]) -> None: ...
     @typing.overload
-    def __init__(self: HeadersBuilder[HeadersT], *, Headers: Type[Headers]) -> None: ...
+    def __init__(self, *, Headers: Type[HeadersT]) -> None: ...
     def __init__(self, *, Headers: Any = Headers) -> None:
         self.Headers = Headers
 
+    @override
     def begin_headers(self) -> HeadersT:
         self.headers: HeadersT = self.Headers({})
         return self.headers
 
+    @override
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         self.headers[tagname] = tagvalue
 
+    @override
     def end_headers(self) -> SkipType:
         return SKIP
 
+    @override
     def result(self) -> HeadersT:
         return self.headers
 
@@ -1314,20 +1333,25 @@ class BoardBuilder(BaseVisitor[chess.Board]):
     on the move stack.
     """
 
+    @override
     def begin_game(self) -> None:
         self.skip_variation_depth = 0
 
+    @override
     def begin_variation(self) -> SkipType:
         self.skip_variation_depth += 1
         return SKIP
 
+    @override
     def end_variation(self) -> None:
         self.skip_variation_depth = max(self.skip_variation_depth - 1, 0)
 
+    @override
     def visit_board(self, board: chess.Board) -> None:
         if not self.skip_variation_depth:
             self.board = board
 
+    @override
     def result(self) -> chess.Board:
         return self.board
 
@@ -1335,15 +1359,19 @@ class BoardBuilder(BaseVisitor[chess.Board]):
 class SkipVisitor(BaseVisitor[Literal[True]]):
     """Skips a game."""
 
+    @override
     def begin_game(self) -> SkipType:
         return SKIP
 
+    @override
     def end_headers(self) -> SkipType:
         return SKIP
 
+    @override
     def begin_variation(self) -> SkipType:
         return SKIP
 
+    @override
     def result(self) -> Literal[True]:
         return True
 
@@ -1458,6 +1486,7 @@ class StringExporter(StringExporterMixin, BaseVisitor[str]):
     There will be no newline characters at the end of the string.
     """
 
+    @override
     def result(self) -> str:
         if self.current_line:
             return "\n".join(itertools.chain(self.lines, [self.current_line.rstrip()])).rstrip()
@@ -1489,6 +1518,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
+    @override
     def begin_game(self) -> None:
         self.written: int = 0
         super().begin_game()
@@ -1504,6 +1534,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
         self.written += self.handle.write(line.rstrip())
         self.written += self.handle.write("\n")
 
+    @override
     def result(self) -> int:
         return self.written
 
