@@ -16,7 +16,11 @@ from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Liter
 from chess import Color, Square
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import Self, override
+else:
+    F = typing.TypeVar("F", bound=Callable[..., Any])
+    def override(fn: F, /) -> F:
+        return fn
 
 
 LOGGER = logging.getLogger(__name__)
@@ -192,15 +196,6 @@ class _AcceptFrame:
 
 
 class GameNode(abc.ABC):
-    parent: Optional[GameNode]
-    """The parent node or ``None`` if this is the root node of the game."""
-
-    move: Optional[chess.Move]
-    """
-    The move leading to this node or ``None`` if this is the root node of the
-    game.
-    """
-
     variations: List[ChildNode]
     """A list of child nodes."""
 
@@ -215,8 +210,6 @@ class GameNode(abc.ABC):
     nags: Set[int]
 
     def __init__(self, *, comment: Union[str, list[str]] = "") -> None:
-        self.parent = None
-        self.move = None
         self.variations = []
         self.comments = _standardize_comments(comment)
 
@@ -224,6 +217,19 @@ class GameNode(abc.ABC):
         # remain here for backwards compatibility.
         self.starting_comments = []
         self.nags = set()
+
+    @property
+    @abc.abstractmethod
+    def parent(self) -> Optional[GameNode]:
+        """The parent node or ``None`` if this is the root node of the game."""
+
+    @property
+    @abc.abstractmethod
+    def move(self) -> Optional[chess.Move]:
+        """
+        The move leading to this node or ``None`` if this is the root node of
+        the game.
+        """
 
     @abc.abstractmethod
     def board(self) -> chess.Board:
@@ -658,12 +664,6 @@ class ChildNode(GameNode):
     Extends :class:`~chess.pgn.GameNode`.
     """
 
-    parent: GameNode
-    """The parent node."""
-
-    move: chess.Move
-    """The move leading to this node."""
-
     starting_comments: list[str]
     """
     A comment for the start of a variation. Only nodes that
@@ -680,12 +680,24 @@ class ChildNode(GameNode):
 
     def __init__(self, parent: GameNode, move: chess.Move, *, comment: Union[str, list[str]] = "", starting_comment: Union[str, list[str]] = "", nags: Iterable[int] = []) -> None:
         super().__init__(comment=comment)
-        self.parent = parent
-        self.move = move
+        self._parent = parent
+        self._move = move
         self.parent.variations.append(self)
 
         self.nags.update(nags)
         self.starting_comments = _standardize_comments(starting_comment)
+
+    @property
+    @override
+    def parent(self) -> GameNode:
+        """The parent node."""
+        return self._parent
+
+    @property
+    @override
+    def move(self) -> chess.Move:
+        """The move leading to this node."""
+        return self._move
 
     def board(self) -> chess.Board:
         stack: List[chess.Move] = []
@@ -838,9 +850,21 @@ class Game(GameNode):
         self.headers = Headers(headers)
         self.errors = []
 
+    @property
+    @override
+    def parent(self) -> None:
+        return None
+
+    @property
+    @override
+    def move(self) -> None:
+        return None
+
+    @override
     def board(self) -> chess.Board:
         return self.headers.board()
 
+    @override
     def ply(self) -> int:
         # Optimization: Parse FEN only for custom starting positions.
         return self.board().ply() if "FEN" in self.headers else 0
@@ -873,6 +897,7 @@ class Game(GameNode):
         else:
             self.headers.pop("Variant", None)
 
+    @override
     def accept(self, visitor: BaseVisitor[ResultT]) -> ResultT:
         """
         Traverses the game in PGN order using the given *visitor*. Returns
