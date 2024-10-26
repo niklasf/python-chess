@@ -1771,7 +1771,8 @@ def _parse_uci_info(arg: str, root_board: chess.Board, selector: Info = INFO_ALL
         if parameter == "string":
             info["string"] = remaining_line
             break
-        elif parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber", "hashfull", "nps", "tbhits", "cpuload"]:
+        elif parameter in ["depth", "seldepth", "nodes", "multipv", "currmovenumber",
+                           "hashfull", "nps", "tbhits", "cpuload", "movesleft"]:
             try:
                 number, remaining_line = _next_token(remaining_line)
                 info[parameter] = int(number)  # type: ignore
