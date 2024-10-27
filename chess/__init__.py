@@ -1584,6 +1584,8 @@ class _BoardState:
         board.halfmove_clock = self.halfmove_clock
         board.fullmove_number = self.fullmove_number
 
+#from  numba.experimental import jitclass 
+#@jitclass 
 class Board(BaseBoard):
     """
     A :class:`~chess.BaseBoard`, additional information representing
@@ -3817,13 +3819,20 @@ class Board(BaseBoard):
 
     def __eq__(self, board: object) -> bool:
         if isinstance(board, Board):
-            return (
-                self.halfmove_clock == board.halfmove_clock and
-                self.fullmove_number == board.fullmove_number and
-                type(self).uci_variant == type(board).uci_variant and
-                self._transposition_key() == board._transposition_key())
+            return hash(self) == hash(board)
+                
         else:
             return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((
+            self.pawns, self.knights, self.bishops, self.rooks,
+            self.queens, self.kings,
+            self.occupied_co[WHITE], self.occupied_co[BLACK],
+            self.turn, self.castling_rights, self.ep_square,
+            self.halfmove_clock, self.fullmove_number,
+            type(self).uci_variant, self.chess960
+        ))
 
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
         super().apply_transform(f)
