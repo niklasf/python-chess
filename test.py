@@ -3508,14 +3508,15 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(info["seldepth"], 8)
         self.assertEqual(info["score"], chess.engine.PovScore(chess.engine.Mate(+3), chess.WHITE))
 
-        # Info: tbhits, cpuload, hashfull, time, nodes, nps.
-        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 time 987 nodes 654 nps 321", board)
+        # Info: tbhits, cpuload, hashfull, time, nodes, nps, movesleft.
+        info = chess.engine._parse_uci_info("tbhits 123 cpuload 456 hashfull 789 movesleft 42 time 987 nodes 654 nps 321", board)
         self.assertEqual(info["tbhits"], 123)
         self.assertEqual(info["cpuload"], 456)
         self.assertEqual(info["hashfull"], 789)
         self.assertEqual(info["time"], 0.987)
         self.assertEqual(info["nodes"], 654)
         self.assertEqual(info["nps"], 321)
+        self.assertEqual(info["movesleft"], 42)
 
         # Hakkapeliitta double spaces.
         info = chess.engine._parse_uci_info("depth 10 seldepth 9 score cp 22  time 17 nodes 48299 nps 2683000 tbhits 0", board)
