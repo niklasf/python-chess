@@ -705,7 +705,7 @@ class Move:
                 promotion = PIECE_SYMBOLS.index(uci[4]) if len(uci) == 5 else None
             except ValueError:
                 raise InvalidMoveError(f"invalid uci: {uci!r}")
-            if from_square == to_square:
+            if from_square == to_square and from_square != A1:
                 raise InvalidMoveError(f"invalid uci (use 0000 for null moves): {uci!r}")
             return cls(from_square, to_square, promotion=promotion)
         else:
