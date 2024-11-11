@@ -583,7 +583,7 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Piece:
     """A piece with type and color."""
 
@@ -592,6 +592,25 @@ class Piece:
 
     color: Color
     """The piece color."""
+
+    WHITE_PIECE_OBJECTS: List[Piece] = None  # initialized next
+    BLACK_PIECE_OBJECTS: List[Piece] = None  # initialized next
+
+    @classmethod
+    def from_cache(cls, piece_type: PieceType, color: Color) -> 'Piece':
+        """
+        Fetches a :class:`~chess.Piece` instance from a piece type and color.
+
+        :raises: :exc:`ValueError` if the piece type or color is invalid.
+        """
+
+        if piece_type < 1 or piece_type > 6:
+            raise ValueError("invalid piece type")
+        if color == WHITE:
+            return cls.WHITE_PIECE_OBJECTS[piece_type]
+        elif color == BLACK:
+            return cls.BLACK_PIECE_OBJECTS[piece_type]
+        raise NotImplementedError('invalid color')
 
     def symbol(self) -> str:
         """
@@ -629,6 +648,19 @@ class Piece:
         :raises: :exc:`ValueError` if the symbol is invalid.
         """
         return cls(PIECE_SYMBOLS.index(symbol.lower()), symbol.isupper())
+
+    @classmethod
+    def initialize_cache(cls):
+        # There is no piece 0, so just fill that slot in so we don't need to do arithmetic later on.
+        cls.WHITE_PIECE_OBJECTS = [None, *(Piece(piece_type, WHITE) for piece_type in PIECE_TYPES)]
+        cls.BLACK_PIECE_OBJECTS = [None, *(Piece(piece_type, BLACK) for piece_type in PIECE_TYPES)]
+        # Sneak in a trampoline to `cls.from_cache()` method.
+        cls.__new__ = piece_from_cache
+
+def piece_from_cache(cls, piece_type: PieceType, color: Color) -> 'Piece':
+    return cls.from_cache(piece_type, color)
+
+Piece.initialize_cache()
 
 
 @dataclasses.dataclass(unsafe_hash=True)
