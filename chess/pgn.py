@@ -924,7 +924,7 @@ class Game(GameNode):
         return cls(headers={})
 
     @classmethod
-    def builder(cls: Type[GameT]) -> GameBuilder[GameT]:
+    def builder(cls: Type[GameT]) -> GameBuilder[Game]:
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
@@ -1028,7 +1028,7 @@ class Headers(MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls: Type[HeadersT]) -> HeadersBuilder[HeadersT]:
+    def builder(cls: Type[HeadersT]) -> HeadersBuilder[Headers]:
         return HeadersBuilder(Headers=cls)
 
 
@@ -1182,7 +1182,7 @@ class GameBuilder(BaseVisitor[GameT]):
     @typing.overload
     def __init__(self: GameBuilder[Game]) -> None: ...
     @typing.overload
-    def __init__(self: GameBuilder[GameT], *, Game: Type[GameT]) -> None: ...
+    def __init__(self: GameBuilder[Game], *, Game: Type[GameT]) -> None: ...
     def __init__(self, *, Game: Any = Game) -> None:
         self.Game = Game
 
@@ -1279,7 +1279,7 @@ class HeadersBuilder(BaseVisitor[HeadersT]):
     @typing.overload
     def __init__(self: HeadersBuilder[Headers]) -> None: ...
     @typing.overload
-    def __init__(self: HeadersBuilder[HeadersT], *, Headers: Type[Headers]) -> None: ...
+    def __init__(self: HeadersBuilder[Headers], *, Headers: Type[Headers]) -> None: ...
     def __init__(self, *, Headers: Any = Headers) -> None:
         self.Headers = Headers
 

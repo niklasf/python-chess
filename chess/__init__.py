@@ -1340,7 +1340,7 @@ class BaseBoard:
         board.apply_transform(f)
         return board
 
-    def apply_mirror(self: BaseBoardT) -> None:
+    def apply_mirror(self: BaseBoard) -> None:
         self.apply_transform(flip_vertical)
         self.occupied_co[WHITE], self.occupied_co[BLACK] = self.occupied_co[BLACK], self.occupied_co[WHITE]
 
@@ -1561,14 +1561,14 @@ class Board(BaseBoard):
     manipulation.
     """
 
-    def __init__(self: BoardT, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
+    def __init__(self: Board, fen: Optional[str] = STARTING_FEN, *, chess960: bool = False) -> None:
         BaseBoard.__init__(self, None)
 
         self.chess960 = chess960
 
         self.ep_square = None
         self.move_stack = []
-        self._stack: List[_BoardState[BoardT]] = []
+        self._stack: List[_BoardState[Board]] = []
 
         if fen is None:
             self.clear()
@@ -2177,7 +2177,7 @@ class Board(BaseBoard):
     def _push_capture(self, move: Move, capture_square: Square, piece_type: PieceType, was_promoted: bool) -> None:
         pass
 
-    def push(self: BoardT, move: Move) -> None:
+    def push(self: Board, move: Move) -> None:
         """
         Updates the position with the given *move* and puts it onto the
         move stack.
@@ -2262,6 +2262,7 @@ class Board(BaseBoard):
             elif diff == -16 and square_rank(move.from_square) == 6:
                 self.ep_square = move.from_square - 8
             elif move.to_square == ep_square and abs(diff) in [7, 9] and not captured_piece_type:
+                assert ep_square is not None
                 # Remove pawns captured en passant.
                 down = -8 if self.turn == WHITE else 8
                 capture_square = ep_square + down
@@ -2298,7 +2299,7 @@ class Board(BaseBoard):
         # Swap turn.
         self.turn = not self.turn
 
-    def pop(self: BoardT) -> Move:
+    def pop(self: Board) -> Move:
         """
         Restores the previous position and returns the last move from the stack.
 
@@ -3696,7 +3697,7 @@ class Board(BaseBoard):
         board.apply_transform(f)
         return board
 
-    def apply_mirror(self: BoardT) -> None:
+    def apply_mirror(self: Board) -> None:
         super().apply_mirror()
         self.turn = not self.turn
 
