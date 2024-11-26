@@ -92,7 +92,9 @@ MOVETEXT_REGEX = re.compile(r"""
     |(\()
     |(\))
     |(\*|1-0|0-1|1/2-1/2)
+    |(\!N)
     |([\?!]{1,2})
+    |(TN)
     """, re.DOTALL | re.VERBOSE)
 
 SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
@@ -1736,6 +1738,8 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
+            elif token == "TN" or token == "!N":
+                visitor.visit_nag(NAG_NOVELTY)
             elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
                 visitor.visit_result(token)
             else:
