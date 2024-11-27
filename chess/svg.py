@@ -308,8 +308,6 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     .. deprecated:: 1.1
         Use *orientation* with a color instead of the *flipped* toggle.
     """
-    # Bringing GLOBAL Constants in the local scope for a little performance boost 
-    global SQUARE_SIZE, MARGIN, NAG_SIZE, PIECES, COORDS, NAGS, XX, CHECK_GRADIENT, DEFAULT_COLORS
     orientation ^= flipped
     full_size = 8 * SQUARE_SIZE
     svg = _svg(full_size, size)
@@ -321,11 +319,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
 
     # Render board.
     for square, bb in enumerate(chess.BB_SQUARES):
-        file_index = chess.square_file(square)
-        rank_index = chess.square_rank(square)
+        to_file = chess.square_file(square)
+        to_rank = chess.square_rank(square)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+        x = (to_file if orientation else 7 - to_file) * SQUARE_SIZE
+        y = (7 - to_rank if orientation else to_rank) * SQUARE_SIZE
 
         cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark"]
         square_color, square_opacity = _select_color(colors, " ".join(cls))
@@ -362,11 +360,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     if lastmove:
         for square in [lastmove.from_square, lastmove.to_square]:
             bb = 1 << square
-            file_index = chess.square_file(square)
-            rank_index = chess.square_rank(square)
+            to_file = chess.square_file(square)
+            to_rank = chess.square_rank(square)
 
-            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+            x = (to_file if orientation else 7 - to_file) * SQUARE_SIZE
+            y = (7 - to_rank if orientation else to_rank) * SQUARE_SIZE
 
             cls = ["square", "light" if chess.BB_LIGHT_SQUARES & bb else "dark", "lastmove"]
             square_color, square_opacity = _select_color(colors, " ".join(cls))
@@ -387,11 +385,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     # Render check mark.
     if check is not None:
         defs.append(ET.fromstring(CHECK_GRADIENT))
-        file_index = chess.square_file(check)
-        rank_index = chess.square_rank(check)
+        to_file = chess.square_file(check)
+        to_rank = chess.square_rank(check)
 
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+        x = (to_file if orientation else 7 - to_file) * SQUARE_SIZE
+        y = (7 - to_rank if orientation else to_rank) * SQUARE_SIZE
 
         ET.SubElement(svg, "rect", _attrs({
             "x": x,
@@ -413,11 +411,11 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                     defs.append(ET.fromstring(PIECES[chess.Piece(piece_type, piece_color).symbol()]))
         # Rendering pieces
         for square, bb in enumerate(chess.BB_SQUARES):
-            file_index = chess.square_file(square)
-            rank_index = chess.square_rank(square)
+            to_file = chess.square_file(square)
+            to_rank = chess.square_rank(square)
 
-            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+            x = (to_file if orientation else 7 - to_file) * SQUARE_SIZE
+            y = (7 - to_rank if orientation else to_rank) * SQUARE_SIZE
 
             piece = board.piece_at(square)
             if piece:
@@ -436,16 +434,16 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         coord_size = 18
         width = coord_size * text_scale
         height = coord_size * text_scale
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
-            x = ((file_index if orientation else 7 - file_index) * SQUARE_SIZE) - width # type: ignore
+        for to_file, file_name in enumerate(chess.FILE_NAMES):
+            x = ((to_file if orientation else 7 - to_file) * SQUARE_SIZE) - width # type: ignore
             y = full_size - height # type: ignore
-            coord_color, coord_opacity = (light_color, light_opacity) if (file_index+orientation)%2 == 1 else (dark_color, dark_opacity)
+            coord_color, coord_opacity = (light_color, light_opacity) if (to_file+orientation)%2 == 1 else (dark_color, dark_opacity)
             svg.append(_coord(file_name, x+1.5, y-1, text_scale, color=coord_color, opacity=coord_opacity))
-        x += (7 - file_index if orientation else file_index) * SQUARE_SIZE
+        x += (7 - to_file if orientation else to_file) * SQUARE_SIZE
         x += SQUARE_SIZE
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
-            y = ((7 - rank_index if orientation else rank_index) * SQUARE_SIZE) - height # type: ignore
-            coord_color, coord_opacity = (dark_color, dark_opacity) if (rank_index+orientation)%2 == 1 else (light_color, light_opacity)
+        for to_rank, rank_name in enumerate(chess.RANK_NAMES):
+            y = ((7 - to_rank if orientation else to_rank) * SQUARE_SIZE) - height # type: ignore
+            coord_color, coord_opacity = (dark_color, dark_opacity) if (to_rank+orientation)%2 == 1 else (light_color, light_opacity)
             svg.append(_coord(rank_name, x-1, y+3, text_scale, color=coord_color, opacity=coord_opacity))
 
     # Render X Squares
@@ -453,10 +451,10 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         defs.append(ET.fromstring(XX))
         squares = chess.SquareSet(squares) if squares else chess.SquareSet()
         for square in squares:
-            file_index = chess.square_file(square)
-            rank_index = chess.square_rank(square)
-            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+            to_file = chess.square_file(square)
+            to_rank = chess.square_rank(square)
+            x = (to_file if orientation else 7 - to_file) * SQUARE_SIZE
+            y = (7 - to_rank if orientation else to_rank) * SQUARE_SIZE
             # Render selected squares
             ET.SubElement(svg, "use", _attrs({
                 "href": "#xx",
@@ -543,17 +541,36 @@ def board(board: Optional[chess.BaseBoard] = None, *,
         ele = ET.fromstring(NAGS[str(nag)])
         defs.append(ele)
         id = ele.attrib.get("id")
-        file_index = chess.square_file(lastmove.to_square)
-        rank_index = chess.square_rank(lastmove.to_square)
-        x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE
-        y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE
+        to_file = chess.square_file(lastmove.to_square)
+        to_rank = chess.square_rank(lastmove.to_square)
+        to_file = to_file if orientation else 7 - to_file
+        to_rank = 7 - to_rank if orientation else to_rank
+        x = to_file * SQUARE_SIZE
+        y = to_rank * SQUARE_SIZE
+
+        from_file = chess.square_file(lastmove.from_square)
+        from_rank = chess.square_rank(lastmove.from_square)
+        from_file = from_file if orientation else 7 - from_file
+        from_rank = 7 - from_rank if orientation else from_rank
+
+        delta_file = to_file - from_file
+        offset = SQUARE_SIZE - NAG_SIZE
+        corner_offset = NAG_SIZE/2
+
         # Making sure the NAGs doesn't overlap the Last Move Arrow by switching 
-        # between top left and top right corner depending upon where the Arrow
-        # is coming from.
-        from_file_index = chess.square_file(lastmove.from_square)
-        file_index = (file_index if orientation else 7 - file_index)
-        from_file_index = (from_file_index if orientation else 7 - from_file_index)
-        x = x + (SQUARE_SIZE - NAG_SIZE if file_index >= from_file_index else 0)
+        # between appropriate corners depending upon where the Arrow is coming from.
+        if delta_file >= 0:  # Moving towards the right
+            x += offset  # Top-right corner
+            x += corner_offset
+            if to_file == 7:
+                x -= corner_offset
+        else:  # Moving towards the left OR Same File
+            x -= corner_offset
+            if to_file == 0:
+                x += corner_offset
+        y -= corner_offset
+        if to_rank == 0:
+            y += corner_offset
         ET.SubElement(svg, "use", _attrs({
             "href": f"#{id}",
             "xlink:href": f"#{id}",
