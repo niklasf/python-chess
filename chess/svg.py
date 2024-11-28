@@ -498,7 +498,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "class": "circle",
             }))
         else:
-            marker_size = 0.75 * SQUARE_SIZE
+            marker_size = 0.50 * SQUARE_SIZE
             marker_margin = 0.1 * SQUARE_SIZE
 
             dx, dy = xhead - xtail, yhead - ytail
@@ -517,7 +517,7 @@ def board(board: Optional[chess.BaseBoard] = None, *,
                 "y2": shaft_y,
                 "stroke": color,
                 "opacity": opacity if opacity < 1.0 else None,
-                "stroke-width": SQUARE_SIZE * 0.2,
+                "stroke-width": SQUARE_SIZE * 0.15,
                 "stroke-linecap": "butt",
                 "class": "arrow",
             }))
