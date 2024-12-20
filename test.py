@@ -3142,6 +3142,27 @@ class EngineTestCase(unittest.TestCase):
         with self.assertRaises(chess.engine.EngineTerminatedError), engine:
             engine.ping()
 
+    @catchAndSkip(FileNotFoundError, "need stockfish")
+    def test_sf_cancel(self):
+        class TerminateTaskGroup(Exception):
+            pass
+
+        async def terminate_task_group():
+            await asyncio.sleep(0.001)
+            raise TerminateTaskGroup()
+
+        async def main():
+            try:
+                async with asyncio.TaskGroup() as group:
+                    _, engine = await chess.engine.popen_uci("stockfish")
+                    group.create_task(engine.analyse(chess.Board(), chess.engine.Limit()))
+                    group.create_task(engine.analyse(chess.Board(), chess.engine.Limit()))
+                    group.create_task(terminate_task_group())
+            except* TerminateTaskGroup:
+                pass
+
+        asyncio.run(main())
+
     @catchAndSkip(FileNotFoundError, "need fairy-stockfish")
     def test_fairy_sf_initialize(self):
         with chess.engine.SimpleEngine.popen_uci("fairy-stockfish", setpgrp=True, debug=True):
