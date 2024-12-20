@@ -587,7 +587,7 @@ class Table:
 
     def init_mmap(self) -> None:
         if self.data is None:
-            fd = os.open(self.path, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+            fd = os.open(self.path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
             try:
                 data = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
             finally:

@@ -324,7 +324,7 @@ class MemoryMappedReader:
     """Maps a Polyglot opening book to memory."""
 
     def __init__(self, filename: StrOrBytesPath) -> None:
-        fd = os.open(filename, os.O_RDONLY | os.O_BINARY if hasattr(os, "O_BINARY") else os.O_RDONLY)
+        fd = os.open(filename, os.O_RDONLY | getattr(os, "O_BINARY", 0))
         try:
             self.mmap: Union[mmap.mmap, _EmptyMmap] = mmap.mmap(fd, 0, access=mmap.ACCESS_READ)
         except (ValueError, OSError):
