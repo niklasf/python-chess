@@ -2971,6 +2971,17 @@ class PgnTestCase(unittest.TestCase):
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
 
+    @catchAndSkip(FileNotFoundError, "need /bin/bash")
+    def test_simple_engine_id(self):
+        with chess.engine.SimpleEngine.popen_uci(
+            ["/bin/bash", "-c", "read && echo uciok"], debug=True
+        ) as engine:
+            self.assertGreaterEqual(len(engine.id), 0)
+
+    def test_uci_option_map_repr(self):
+        a = chess.engine.UciOptionMap()
+        self.assertTrue(repr(a))
+
     def test_uci_option_map_equality(self):
         a = chess.engine.UciOptionMap()
         b = chess.engine.UciOptionMap()
