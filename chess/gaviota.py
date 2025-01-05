@@ -419,7 +419,7 @@ def kabpk_pctoindex(c: Request) -> int:
     pawn = c.white_piece_squares[3]
     bk = c.black_piece_squares[0]
 
-    pawn, wk, bk, wa, ba = flip_we_col(pawn, wk, bk, wa, ba)
+    pawn, wk, bk, wa, wb = flip_we_col(pawn, wk, bk, wa, wb)
 
     pslice = wsq_to_pidx24(pawn)
 
@@ -441,7 +441,7 @@ def kabkp_pctoindex(c: Request) -> int:
     if not chess.A2 <= pawn < chess.A8:
         return NOINDEX
 
-    pawn, wk, bk, wa, ba = flip_we_col(pawn, wk, bk, wa, ba)
+    pawn, wk, bk, wa, wb = flip_we_col(pawn, wk, bk, wa, wb)
 
     # Down one row
     pslice = ((pawn - 8) + (pawn & 3)) >> 1
@@ -460,7 +460,7 @@ def kaapk_pctoindex(c: Request) -> int:
     pawn = c.white_piece_squares[3]
     bk = c.black_piece_squares[0]
 
-    pawn, wk, bk, wa, ba = flip_we_col(pawn, wk, bk, wa, ba)
+    pawn, wk, bk, wa, wa2 = flip_we_col(pawn, wk, bk, wa, wa2)
 
     pslice = wsq_to_pidx24(pawn)
 
@@ -483,7 +483,7 @@ def kaakp_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     pawn = c.black_piece_squares[1]
 
-    pawn, wk, bk, wa, ba = flip_we_col(pawn, wk, bk, wa, ba)
+    pawn, wk, bk, wa, wa2 = flip_we_col(pawn, wk, bk, wa, wa2)
 
     pawn = flip_ns(pawn)
     pslice = wsq_to_pidx24(pawn)
@@ -556,7 +556,7 @@ def kppka_pctoindex(c: Request) -> int:
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    anchor, loosen, wk, bk, wa = flip_we_col(anchor, loosen, wk, bk, wa)
+    anchor, loosen, wk, bk, ba = flip_we_col(anchor, loosen, wk, bk, ba)
 
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
