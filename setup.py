@@ -47,7 +47,7 @@ def read_description():
         "//readthedocs.org/projects/python-chess/badge/?version=latest",
         "//readthedocs.org/projects/python-chess/badge/?version=v{}".format(chess.__version__))
 
-    # Remove doctest comments.
+    # Remove doctest-specific comments from the README for cleaner output.
     description = re.sub(r"\s*# doctest:.*", "", description)
 
     return description
