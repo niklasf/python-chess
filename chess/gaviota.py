@@ -11,7 +11,7 @@ import os.path
 import struct
 import typing
 
-from itertools import accumulate
+from itertools import accumulate, permutations
 from types import TracebackType
 from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -172,8 +172,8 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
                 i, j, k = ITOSQ[x] - 8, ITOSQ[y] - 8, ITOSQ[z] - 8
 
                 if idx_is_empty(ppp48_idx[i][j][k]):
-                    for p in [(i, j, k), (i, k, j), (j, i, k), (j, k, i), (k, i, j), (k, j, i)]:
-                        ppp48_idx[p[0]][p[1]][p[2]] = idx
+                    for ii, jj, kk in permutations((i, j, k)):
+                        ppp48_idx[ii][jj][kk] = idx
                     ppp48_sq_x[idx], ppp48_sq_y[idx], ppp48_sq_z[idx] = i, j, k
                     idx += 1
 
