@@ -4,6 +4,7 @@ import ctypes
 import ctypes.util
 import dataclasses
 import fnmatch
+import itertools
 import logging
 import lzma
 import os
@@ -11,7 +12,6 @@ import os.path
 import struct
 import typing
 
-from itertools import accumulate, permutations
 from types import TracebackType
 from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
 
@@ -172,7 +172,7 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
                 i, j, k = ITOSQ[x] - 8, ITOSQ[y] - 8, ITOSQ[z] - 8
 
                 if idx_is_empty(ppp48_idx[i][j][k]):
-                    for ii, jj, kk in permutations((i, j, k)):
+                    for ii, jj, kk in itertools.permutations((i, j, k)):
                         ppp48_idx[ii][jj][kk] = idx
                     ppp48_sq_x[idx], ppp48_sq_y[idx], ppp48_sq_z[idx] = i, j, k
                     idx += 1
@@ -204,7 +204,7 @@ AABASE, AAIDX = init_aaidx()
 def init_aaa() -> Tuple[List[int], List[List[int]]]:
     # Get aaa_base.
     comb = [a * (a - 1) // 2 for a in range(64)]
-    aaa_base = list(accumulate(comb))
+    aaa_base = list(itertools.accumulate(comb))
 
     # Get aaa_xyz.
     aaa_xyz = [[x, y, z] for z in range(64) for y in range(z) for x in range(y)]
