@@ -8,6 +8,8 @@ import chess
 from typing import Dict, Iterable, Optional, Tuple, Union
 from chess import Color, IntoSquareSet, Square
 
+from .constants import FILE_NAMES, RANK_NAMES
+
 
 SQUARE_SIZE = 45
 MARGIN = 20
@@ -345,12 +347,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
     # Render coordinates.
     if coordinates:
         coord_color, coord_opacity = _select_color(colors, "coord")
-        for file_index, file_name in enumerate(chess.FILE_NAMES):
+        for file_index, file_name in enumerate(FILE_NAMES):
             x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + board_offset
             # Keep some padding here to separate the ascender from the border
             svg.append(_coord(file_name, x, 1, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(file_name, x, full_size - outer_border - margin, SQUARE_SIZE, margin, True, margin, color=coord_color, opacity=coord_opacity))
-        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+        for rank_index, rank_name in enumerate(RANK_NAMES):
             y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + board_offset
             svg.append(_coord(rank_name, 0, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
             svg.append(_coord(rank_name, full_size - outer_border - margin, y, margin, SQUARE_SIZE, False, margin, color=coord_color, opacity=coord_opacity))
