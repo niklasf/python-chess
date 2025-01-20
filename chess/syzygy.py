@@ -1850,7 +1850,7 @@ class Tablebase:
         +-----+------------------+--------------------------------------------+
 
         The return value can be off by one: a return value -n can mean a
-        losing zeroing move in in n + 1 plies and a return value +n can mean a
+        losing zeroing move in n + 1 plies and a return value +n can mean a
         winning zeroing move in n + 1 plies.
         This implies some primary tablebase lines may waste up to 1 ply.
         Rounding is never used for endgame phases where it would change the
