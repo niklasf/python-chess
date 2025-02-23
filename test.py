@@ -4348,6 +4348,11 @@ class GaviotaTestCase(unittest.TestCase):
         board = chess.Board("K7/8/8/6k1/5pPp/8/8/8 b - g3 0 61")
         self.assertEqual(self.tablebase.probe_dtm(board), 17)
 
+    @catchAndSkip(chess.gaviota.MissingTableError, "need KPvKP.gtb.cp4")
+    def test_ep_is_best(self):
+        board = chess.Board("8/8/7k/8/1pP5/7K/8/8 b - c3 0 1")
+        self.assertEqual(self.tablebase.probe_dtm(board), 19)
+
 
 class SvgTestCase(unittest.TestCase):
 
