@@ -1356,50 +1356,8 @@ iWMATEt = tb_WMATE | 4
 iBMATEt = tb_BMATE | 4
 
 
-def removepiece(ys: List[int], yp: List[int], j: int) -> None:
-    del ys[j]
-    del yp[j]
-
 def opp(side: int) -> int:
     return 1 if side == 0 else 0
-
-def adjust_up(dist: int) -> int:
-    udist = dist
-    sw = udist & INFOMASK
-
-    if sw in [iWMATE, iWMATEt, iBMATE, iBMATEt]:
-        udist += (1 << PLYSHIFT)
-
-    return udist
-
-def bestx(side: int, a: int, b: int) -> int:
-    # 0 = selectfirst
-    # 1 = selectlowest
-    # 2 = selecthighest
-    # 3 = selectsecond
-    comparison = [
-        # draw, wmate, bmate, forbid
-        [0, 3, 0, 0],  # draw
-        [0, 1, 0, 0],  # wmate
-        [3, 3, 2, 0],  # bmate
-        [3, 3, 3, 0],  # forbid
-    ]
-
-    xorkey = [0, 3]
-
-    if a == iFORBID:
-        return b
-    if b == iFORBID:
-        return a
-
-    retu = [a, a, b, b]
-
-    if b < a:
-        retu[1] = b
-        retu[2] = a
-
-    key = comparison[a & 3][b & 3] ^ xorkey[side]
-    return retu[key]
 
 def unpackdist(d: int) -> Tuple[int, int]:
     return d >> PLYSHIFT, d & INFOMASK
@@ -1492,12 +1450,11 @@ class Request:
     black_piece_types: List[int]
     is_reversed: bool
 
-    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int, epsq: int):
+    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
         self.realside = side
         self.side = side
-        self.epsq = epsq
 
 
 @dataclasses.dataclass
@@ -1569,17 +1526,34 @@ class PythonTablebase:
         if board.occupied == board.kings:
             return 0
 
+        # Resolve en passant.
+        dtm = self._probe_dtm_no_ep(board)
+        for move in board.generate_legal_ep():
+            try:
+                board.push(move)
+
+                child_dtm = -self._probe_dtm_no_ep(board)
+                if child_dtm > 0:
+                    child_dtm += 1
+                elif child_dtm < 0:
+                    child_dtm -= 1
+
+                dtm = min(dtm, child_dtm) if dtm * child_dtm > 0 else max(dtm, child_dtm)
+            finally:
+                board.pop()
+        return dtm
+
+    def _probe_dtm_no_ep(self, board: chess.Board) -> int:
         # Prepare the tablebase request.
         white_squares = list(chess.SquareSet(board.occupied_co[chess.WHITE]))
         white_types = [typing.cast(chess.PieceType, board.piece_type_at(sq)) for sq in white_squares]
         black_squares = list(chess.SquareSet(board.occupied_co[chess.BLACK]))
         black_types = [typing.cast(chess.PieceType, board.piece_type_at(sq)) for sq in black_squares]
         side = 0 if (board.turn == chess.WHITE) else 1
-        epsq = board.ep_square if board.ep_square else NOSQUARE
-        req = Request(white_squares, white_types, black_squares, black_types, side, epsq)
+        req = Request(white_squares, white_types, black_squares, black_types, side)
 
         # Probe.
-        dtm = self.egtb_get_dtm(req)
+        dtm = self._tb_probe(req)
         ply, res = unpackdist(dtm)
 
         if res == iWMATE:
@@ -1675,10 +1649,7 @@ class PythonTablebase:
             req.white_piece_types = req.black_types
             req.black_piece_squares = [flip_ns(s) for s in req.white_squares]
             req.black_piece_types = req.white_types
-
             req.side = opp(req.side)
-            if req.epsq != NOSQUARE:
-                req.epsq = flip_ns(req.epsq)
         else:
             raise MissingTableError(f"no gaviota table available for: {white_letters.upper()}v{black_letters.upper()}")
 
@@ -1707,77 +1678,6 @@ class PythonTablebase:
         while self.streams:
             _, stream = self.streams.popitem()
             stream.close()
-
-    def egtb_get_dtm(self, req: Request) -> int:
-        dtm = self._tb_probe(req)
-
-        if req.epsq != NOSQUARE:
-            capturer_a = 0
-            capturer_b = 0
-            xed = 0
-
-            # Flip for move generation.
-            if req.side == 0:
-                xs = list(req.white_piece_squares)
-                xp = list(req.white_piece_types)
-                ys = list(req.black_piece_squares)
-                yp = list(req.black_piece_types)
-            else:
-                xs = list(req.black_piece_squares)
-                xp = list(req.black_piece_types)
-                ys = list(req.white_piece_squares)
-                yp = list(req.white_piece_types)
-
-            # Captured pawn trick: from ep square to captured.
-            xed = req.epsq ^ (1 << 3)
-
-            # Find captured index (j).
-            try:
-                j = ys.index(xed)
-            except ValueError:
-                j = -1
-
-            # Try first possible ep capture.
-            if 0 == (0x88 & (map88(xed) + 1)):
-                capturer_a = xed + 1
-
-            # Try second possible ep capture.
-            if 0 == (0x88 & (map88(xed) - 1)):
-                capturer_b = xed - 1
-
-            if (j > -1) and (ys[j] == xed):
-                # Find capturers (i).
-                for i in range(len(xs)):
-                    if xp[i] == chess.PAWN and (xs[i] == capturer_a or xs[i] == capturer_b):
-                        epscore = iFORBID
-
-                        # Copy position.
-                        xs_after = xs[:]
-                        ys_after = ys[:]
-                        xp_after = xp[:]
-                        yp_after = yp[:]
-
-                        # Execute capture.
-                        xs_after[i] = req.epsq
-                        removepiece(ys_after, yp_after, j)
-
-                        # Flip back.
-                        if req.side == 1:
-                            xs_after, ys_after = ys_after, xs_after
-                            xp_after, yp_after = yp_after, xp_after
-
-                        # Make subrequest.
-                        subreq = Request(xs_after, xp_after, ys_after, yp_after, opp(req.side), NOSQUARE)
-                        try:
-                            epscore = self._tb_probe(subreq)
-                            epscore = adjust_up(epscore)
-
-                            # Choose to ep or not.
-                            dtm = bestx(req.side, epscore, dtm)
-                        except IndexError:
-                            break
-
-        return dtm
 
     def egtb_block_getnumber(self, req: Request, idx: int) -> int:
         maxindex = EGKEY[req.egkey].maxindex
