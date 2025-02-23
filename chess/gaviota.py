@@ -4,7 +4,6 @@ import ctypes
 import ctypes.util
 import dataclasses
 import fnmatch
-import itertools
 import logging
 import lzma
 import os
@@ -12,10 +11,10 @@ import os.path
 import struct
 import typing
 
+import chess
+
 from types import TracebackType
 from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
-
-import chess
 
 
 LOGGER = logging.getLogger(__name__)
@@ -110,19 +109,30 @@ def idx_is_empty(x: int) -> int:
 
 def flip_type(x: chess.Square, y: chess.Square) -> int:
     ret = 0
-    file_x, rank_x = chess.square_file(x), chess.square_rank(x)
-    file_y, rank_y = chess.square_file(y), chess.square_rank(y)
 
-    if file_x > 3:
-        x, y = flip_we(x), flip_we(y)
+    if chess.square_file(x) > 3:
+        x = flip_we(x)
+        y = flip_we(y)
         ret |= 1
 
-    if rank_x > 3:
-        x, y = flip_ns(x), flip_ns(y)
+    if chess.square_rank(x) > 3:
+        x = flip_ns(x)
+        y = flip_ns(y)
         ret |= 2
 
-    if (rank_x, file_x) > (rank_y, file_y):
-        x, y = flip_nw_se(x), flip_nw_se(y)
+    rowx = chess.square_rank(x)
+    colx = chess.square_file(x)
+
+    if rowx > colx:
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
+        ret |= 4
+
+    rowy = chess.square_rank(y)
+    coly = chess.square_file(y)
+    if rowx == colx and rowy > coly:
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
         ret |= 4
 
     return ret
@@ -135,6 +145,7 @@ FLIPT = init_flipt()
 
 def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
     MAX_I = MAX_J = 48
+    idx = 0
     pp48_idx = [[-1] * MAX_J for _ in range(MAX_I)]
     pp48_sq_x = [NOSQUARE] * MAX_PP48_INDEX
     pp48_sq_y = [NOSQUARE] * MAX_PP48_INDEX
@@ -146,8 +157,10 @@ def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
             j = flip_we(flip_ns(b)) - 8
 
             if idx_is_empty(pp48_idx[i][j]):
-                pp48_idx[i][j] = pp48_idx[j][i] = idx
-                pp48_sq_x[idx], pp48_sq_y[idx] = i, j
+                pp48_idx[i][j] = idx
+                pp48_idx[j][i] = idx
+                pp48_sq_x[idx] = i
+                pp48_sq_y[idx] = j
                 idx += 1
 
     return pp48_idx, pp48_sq_x, pp48_sq_y
@@ -166,15 +179,26 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
     for x in range(48):
         for y in range(x + 1, 48):
             for z in range(y + 1, 48):
-                if not (in_queenside(ITOSQ[y]) and in_queenside(ITOSQ[z])):
+                a = ITOSQ[x]
+                b = ITOSQ[y]
+                c = ITOSQ[z]
+                if not in_queenside(b) or not in_queenside(c):
                     continue
 
-                i, j, k = ITOSQ[x] - 8, ITOSQ[y] - 8, ITOSQ[z] - 8
+                i = a - 8
+                j = b - 8
+                k = c - 8
 
                 if idx_is_empty(ppp48_idx[i][j][k]):
-                    for ii, jj, kk in itertools.permutations((i, j, k)):
-                        ppp48_idx[ii][jj][kk] = idx
-                    ppp48_sq_x[idx], ppp48_sq_y[idx], ppp48_sq_z[idx] = i, j, k
+                    ppp48_idx[i][j][k] = idx
+                    ppp48_idx[i][k][j] = idx
+                    ppp48_idx[j][i][k] = idx
+                    ppp48_idx[j][k][i] = idx
+                    ppp48_idx[k][i][j] = idx
+                    ppp48_idx[k][j][i] = idx
+                    ppp48_sq_x[idx] = i
+                    ppp48_sq_y[idx] = j
+                    ppp48_sq_z[idx] = k
                     idx += 1
 
     return ppp48_idx, ppp48_sq_x, ppp48_sq_y, ppp48_sq_z
@@ -192,7 +216,8 @@ def init_aaidx() -> Tuple[List[int], List[List[int]]]:
 
             if idx_is_empty(aaidx[x][y]):
                 # Still empty.
-                aaidx[x][y] = aaidx[y][x] = idx
+                aaidx[x][y] = idx
+                aaidx[y][x] = idx
                 aabase[idx] = x
                 idx += 1
 
@@ -204,10 +229,24 @@ AABASE, AAIDX = init_aaidx()
 def init_aaa() -> Tuple[List[int], List[List[int]]]:
     # Get aaa_base.
     comb = [a * (a - 1) // 2 for a in range(64)]
-    aaa_base = list(itertools.accumulate(comb))
+
+    accum = 0
+    aaa_base = [0] * 64
+    for a in range(64 - 1):
+        accum += comb[a]
+        aaa_base[a + 1] = accum
 
     # Get aaa_xyz.
-    aaa_xyz = [[x, y, z] for z in range(64) for y in range(z) for x in range(y)]
+    aaa_xyz = [[-1] * 3 for _ in range(MAX_AAAINDEX)]
+
+    idx = 0
+    for z in range(64):
+        for y in range(z):
+            for x in range(y):
+                aaa_xyz[idx][0] = x
+                aaa_xyz[idx][1] = y
+                aaa_xyz[idx][2] = z
+                idx += 1
 
     return aaa_base, aaa_xyz
 
@@ -312,33 +351,34 @@ PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
 def norm_kkindex(x: chess.Square, y: chess.Square) -> Tuple[int, int]:
-    file_x, rank_x = chess.square_file(x), chess.square_rank(x)
+    if chess.square_file(x) > 3:
+        x = flip_we(x)
+        y = flip_we(y)
 
-    if file_x > 3:
-        x, y = flip_we(x), flip_we(y)
-
-    if rank_x > 3:
-        x, y = flip_ns(x), flip_ns(y)
+    if chess.square_rank(x) > 3:
+        x = flip_ns(x)
+        y = flip_ns(y)
 
     rowx = chess.square_rank(x)
     colx = chess.square_file(x)
 
     if rowx > colx:
-        x, y = flip_nw_se(x), flip_nw_se(y)
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
 
     rowy = chess.square_rank(y)
     coly = chess.square_file(y)
 
     if rowx == colx and rowy > coly:
-        x, y = flip_nw_se(x), flip_nw_se(y)
+        x = flip_nw_se(x)
+        y = flip_nw_se(y)
 
     return x, y
 
-
 def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
     kkidx = [[-1] * 64 for _ in range(64)]
-    bksq, wksq = [-1] * MAX_KKINDEX, [-1] * MAX_KKINDEX
-
+    bksq = [-1] * MAX_KKINDEX
+    wksq = [-1] * MAX_KKINDEX
     idx = 0
     for x in range(64):
         for y in range(64):
@@ -348,8 +388,10 @@ def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
                 i, j = norm_kkindex(x, y)
 
                 if idx_is_empty(kkidx[i][j]):
-                    kkidx[i][j] = kkidx[x][y] = idx
-                    bksq[idx], wksq[idx] = i, j
+                    kkidx[i][j] = idx
+                    kkidx[x][y] = idx
+                    bksq[idx] = i
+                    wksq[idx] = j
                     idx += 1
 
     return kkidx, wksq, bksq
@@ -362,12 +404,20 @@ def kxk_pctoindex(c: Request) -> int:
 
     ft = flip_type(c.black_piece_squares[0], c.white_piece_squares[0])
 
-    ws, bs = c.white_piece_squares, c.black_piece_squares
+    ws = c.white_piece_squares
+    bs = c.black_piece_squares
 
-    for f, flip in [(1, flip_we), (2, flip_ns), (4, flip_nw_se)]:
-        if ft & f:
-            ws = [flip(b) for b in ws]
-            bs = [flip(b) for b in bs]
+    if (ft & 1) != 0:
+        ws = [flip_we(b) for b in ws]
+        bs = [flip_we(b) for b in bs]
+
+    if (ft & 2) != 0:
+        ws = [flip_ns(b) for b in ws]
+        bs = [flip_ns(b) for b in bs]
+
+    if (ft & 4) != 0:
+        ws = [flip_nw_se(b) for b in ws]
+        bs = [flip_nw_se(b) for b in bs]
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
@@ -375,14 +425,6 @@ def kxk_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ws[1]
-
-
-def flip_we_col(*pieces: int) -> tuple[int, ...]:
-    if (pieces[0] & 7) > 3:
-        # Column is more than 3, i.e., e, f, g or h.
-        pieces = tuple(flip_we(piece) for piece in pieces)
-    return pieces
-
 
 def kapkb_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
@@ -396,16 +438,23 @@ def kapkb_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     ba = c.black_piece_squares[1]
 
-    if not chess.A2 <= pawn < chess.A8:
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
-    pawn, wk, bk, wa, ba = flip_we_col(pawn, wk, bk, wa, ba)
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+        ba = flip_we(ba)
 
-    # flip_ns, down one row
-    pslice = ((pawn ^ 56) - 8 + (pawn & 3)) >> 1
+    sq = pawn
+    sq ^= 56  # flip_ns
+    sq -= 8   # Down one row
+    pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + ba
-
 
 def kabpk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
@@ -419,12 +468,17 @@ def kabpk_pctoindex(c: Request) -> int:
     pawn = c.white_piece_squares[3]
     bk = c.black_piece_squares[0]
 
-    pawn, wk, bk, wa, wb = flip_we_col(pawn, wk, bk, wa, wb)
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+        wb = flip_we(wb)
 
     pslice = wsq_to_pidx24(pawn)
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
-
 
 def kabkp_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64 * 64
@@ -438,16 +492,22 @@ def kabkp_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     wb = c.white_piece_squares[2]
 
-    if not chess.A2 <= pawn < chess.A8:
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
-    pawn, wk, bk, wa, wb = flip_we_col(pawn, wk, bk, wa, wb)
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+        wb = flip_we(wb)
 
-    # Down one row
-    pslice = ((pawn - 8) + (pawn & 3)) >> 1
+    sq = pawn
+    sq -= 8  # Down one row
+    pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa * BLOCK_D + wb
-
 
 def kaapk_pctoindex(c: Request) -> int:
     BLOCK_C = MAX_AAINDEX
@@ -460,7 +520,13 @@ def kaapk_pctoindex(c: Request) -> int:
     pawn = c.white_piece_squares[3]
     bk = c.black_piece_squares[0]
 
-    pawn, wk, bk, wa, wa2 = flip_we_col(pawn, wk, bk, wa, wa2)
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+        wa2 = flip_we(wa2)
 
     pslice = wsq_to_pidx24(pawn)
 
@@ -470,7 +536,6 @@ def kaapk_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
-
 
 def kaakp_pctoindex(c: Request) -> int:
     BLOCK_C = MAX_AAINDEX
@@ -483,7 +548,13 @@ def kaakp_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     pawn = c.black_piece_squares[1]
 
-    pawn, wk, bk, wa, wa2 = flip_we_col(pawn, wk, bk, wa, wa2)
+    if (pawn & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+        wa2 = flip_we(wa2)
 
     pawn = flip_ns(pawn)
     pslice = wsq_to_pidx24(pawn)
@@ -495,7 +566,6 @@ def kaakp_pctoindex(c: Request) -> int:
 
     return pslice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + aa_combo
 
-
 def kapkp_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
     BLOCK_B = 64 * 64
@@ -503,19 +573,29 @@ def kapkp_pctoindex(c: Request) -> int:
 
     wk = c.white_piece_squares[0]
     wa = c.white_piece_squares[1]
-    anchor = c.white_piece_squares[2]
+    pawn_a = c.white_piece_squares[2]
     bk = c.black_piece_squares[0]
-    loosen = c.black_piece_squares[1]
+    pawn_b = c.black_piece_squares[1]
 
-    anchor, loosen, wk, bk, wa = flip_we_col(anchor, loosen, wk, bk, wa)
+    anchor = pawn_a
+    loosen = pawn_b
 
-    pp_slice = wsq_to_pidx24(anchor) * 48 + loosen - 8
+    if (anchor & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        anchor = flip_we(anchor)
+        loosen = flip_we(loosen)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
+
+    m = wsq_to_pidx24(anchor)
+    n = loosen - 8
+    pp_slice = m * 48 + n
 
     if idx_is_empty(pp_slice):
         return NOINDEX
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
-
 
 def kappk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
@@ -530,7 +610,13 @@ def kappk_pctoindex(c: Request) -> int:
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    anchor, loosen, wk, bk, wa = flip_we_col(anchor, loosen, wk, bk, wa)
+    if (anchor & 7) > 3:
+        # Column is more than 3, i.e., e, f, g or h.
+        anchor = flip_we(anchor)
+        loosen = flip_we(loosen)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
 
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
@@ -541,7 +627,6 @@ def kappk_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + wa
-
 
 def kppka_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64 * 64
@@ -556,7 +641,12 @@ def kppka_pctoindex(c: Request) -> int:
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    anchor, loosen, wk, bk, ba = flip_we_col(anchor, loosen, wk, bk, ba)
+    if (anchor & 7) > 3:
+        anchor = flip_we(anchor)
+        loosen = flip_we(loosen)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        ba = flip_we(ba)
 
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
@@ -567,7 +657,6 @@ def kppka_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return pp_slice * BLOCK_A + wk * BLOCK_B + bk * BLOCK_C + ba
-
 
 def kabck_pctoindex(c: Request) -> int:
     N_WHITE = 4
@@ -600,7 +689,6 @@ def kabck_pctoindex(c: Request) -> int:
 
     return ki * BLOCK_A + ws[1] * BLOCK_B + ws[2] * BLOCK_C + ws[3]
 
-
 def kabbk_pctoindex(c: Request) -> int:
     N_WHITE = 4
     N_BLACK = 1
@@ -631,7 +719,6 @@ def kabbk_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[1]
-
 
 def kaabk_pctoindex(c: Request) -> int:
     N_WHITE = 4
@@ -664,23 +751,45 @@ def kaabk_pctoindex(c: Request) -> int:
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + ws[3]
 
-
 def aaa_getsubi(x: int, y: int, z: int) -> int:
-    return x + (y - 1) * y // 2 + AAA_BASE[z]
-
+    bse = AAA_BASE[z]
+    calc_idx = x + (y - 1) * y // 2 + bse
+    return calc_idx
 
 def kaaak_pctoindex(c: Request) -> int:
+    N_WHITE = 4
+    N_BLACK = 1
     BLOCK_Ax = MAX_AAAINDEX
-    ws = c.white_piece_squares[:4]
-    bs = c.black_piece_squares[:1]
+
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
+
     ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    for flag, flip in [(WE_FLAG, flip_we), (NS_FLAG, flip_ns), (NW_SE_FLAG, flip_nw_se)]:
-        if ft & flag:
-            ws = [flip(i) for i in ws]
-            bs = [flip(i) for i in bs]
+    if (ft & WE_FLAG) != 0:
+        ws = [flip_we(i) for i in ws]
+        bs = [flip_we(i) for i in bs]
 
-    ws[1:4] = sorted(ws[1:4])
+    if (ft & NS_FLAG) != 0:
+        ws = [flip_ns(i) for i in ws]
+        bs = [flip_ns(i) for i in bs]
+
+    if (ft & NW_SE_FLAG) != 0:
+        ws = [flip_nw_se(i) for i in ws]
+        bs = [flip_nw_se(i) for i in bs]
+
+    if ws[2] < ws[1]:
+        tmp = ws[1]
+        ws[1] = ws[2]
+        ws[2] = tmp
+    if ws[3] < ws[2]:
+        tmp = ws[2]
+        ws[2] = ws[3]
+        ws[3] = tmp
+    if ws[2] < ws[1]:
+        tmp = ws[1]
+        ws[1] = ws[2]
+        ws[2] = tmp
 
     ki = KKIDX[bs[0]][ws[0]]
 
@@ -694,7 +803,6 @@ def kaaak_pctoindex(c: Request) -> int:
 
     return ki * BLOCK_Ax + ai
 
-
 def kppkp_pctoindex(c: Request) -> int:
     BLOCK_Ax = MAX_PP48_INDEX * 64 * 64
     BLOCK_Bx = 64 * 64
@@ -706,7 +814,12 @@ def kppkp_pctoindex(c: Request) -> int:
     bk = c.black_piece_squares[0]
     pawn_c = c.black_piece_squares[1]
 
-    pawn_c, wk, pawn_a, pawn_b, bk = flip_we_col(pawn_c, wk, pawn_a, pawn_b, bk)
+    if (pawn_c & 7) > 3:
+        wk = flip_we(wk)
+        pawn_a = flip_we(pawn_a)
+        pawn_b = flip_we(pawn_b)
+        bk = flip_we(bk)
+        pawn_c = flip_we(pawn_c)
 
     i = flip_we(flip_ns(pawn_a)) - 8
     j = flip_we(flip_ns(pawn_b)) - 8
@@ -721,19 +834,28 @@ def kppkp_pctoindex(c: Request) -> int:
 
     return k * BLOCK_Ax + pp48_slice * BLOCK_Bx + wk * BLOCK_Cx + bk
 
-
 def kaakb_pctoindex(c: Request) -> int:
+    N_WHITE = 3
+    N_BLACK = 2
     BLOCK_Bx = 64
     BLOCK_Ax = BLOCK_Bx * MAX_AAINDEX
-    ws = c.white_piece_squares[:3]
-    bs = c.black_piece_squares[:2]
 
     ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    for flag, flip in [(WE_FLAG, flip_we), (NS_FLAG, flip_ns), (NW_SE_FLAG, flip_nw_se)]:
-        if ft & flag:
-            ws = [flip(i) for i in ws]
-            bs = [flip(i) for i in bs]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
+
+    if (ft & WE_FLAG) != 0:
+        ws = [flip_we(i) for i in ws]
+        bs = [flip_we(i) for i in bs]
+
+    if (ft & NS_FLAG) != 0:
+        ws = [flip_ns(i) for i in ws]
+        bs = [flip_ns(i) for i in bs]
+
+    if (ft & NW_SE_FLAG) != 0:
+        ws = [flip_nw_se(i) for i in ws]
+        bs = [flip_nw_se(i) for i in bs]
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
@@ -742,7 +864,6 @@ def kaakb_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ai * BLOCK_Bx + bs[1]
-
 
 def kabkc_pctoindex(c: Request) -> int:
     N_WHITE = 3
@@ -757,10 +878,17 @@ def kabkc_pctoindex(c: Request) -> int:
     ws = c.white_piece_squares[:N_WHITE]
     bs = c.black_piece_squares[:N_BLACK]
 
-    for flag, flip in [(WE_FLAG, flip_we), (NS_FLAG, flip_ns), (NW_SE_FLAG, flip_nw_se)]:
-        if ft & flag:
-            ws = [flip(i) for i in ws]
-            bs = [flip(i) for i in bs]
+    if (ft & WE_FLAG) != 0:
+        ws = [flip_we(i) for i in ws]
+        bs = [flip_we(i) for i in bs]
+
+    if (ft & NS_FLAG) != 0:
+        ws = [flip_ns(i) for i in ws]
+        bs = [flip_ns(i) for i in bs]
+
+    if (ft & NW_SE_FLAG) != 0:
+        ws = [flip_nw_se(i) for i in ws]
+        bs = [flip_nw_se(i) for i in bs]
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX [black king] [white king]
 
@@ -769,17 +897,23 @@ def kabkc_pctoindex(c: Request) -> int:
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + ws[2] * BLOCK_Cx + bs[1]
 
-
 def kpkp_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
 
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
-    anchor = c.white_piece_squares[1]
-    loosen = c.black_piece_squares[1]
+    pawn_a = c.white_piece_squares[1]
+    pawn_b = c.black_piece_squares[1]
 
-    anchor, loosen, wk, bk = flip_we_col(anchor, loosen, wk, bk)
+    anchor = pawn_a
+    loosen = pawn_b
+
+    if (anchor & 7) > 3:
+        anchor = flip_we(anchor)
+        loosen = flip_we(loosen)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
 
     m = wsq_to_pidx24(anchor)
     n = loosen - 8
@@ -791,7 +925,6 @@ def kpkp_pctoindex(c: Request) -> int:
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-
 def kppk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
     BLOCK_Bx = 64
@@ -802,7 +935,11 @@ def kppk_pctoindex(c: Request) -> int:
 
     anchor, loosen = pp_putanchorfirst(pawn_a, pawn_b)
 
-    anchor, loosen, wk, bk = flip_we_col(anchor, loosen, wk, bk)
+    if (anchor & 7) > 3:
+        anchor = flip_we(anchor)
+        loosen = flip_we(loosen)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
 
     i = wsq_to_pidx24(anchor)
     j = wsq_to_pidx48(loosen)
@@ -814,7 +951,6 @@ def kppk_pctoindex(c: Request) -> int:
 
     return pp_slice * BLOCK_Ax + wk * BLOCK_Bx + bk
 
-
 def kapk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64 * 64
     BLOCK_Bx = 64 * 64
@@ -825,16 +961,21 @@ def kapk_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not chess.A2 <= pawn < chess.A8:
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
-    pawn, wk, bk, wa = flip_we_col(pawn, wk, bk, wa)
+    if (pawn & 7) > 3:
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
 
-    sq = pawn ^ 56 - 8 # flip_ns and down one row
+    sq = pawn
+    sq ^= 56  # flip_ns
+    sq -= 8   # Down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
-
 
 def kabk_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
@@ -845,10 +986,17 @@ def kabk_pctoindex(c: Request) -> int:
     ws = c.white_piece_squares
     bs = c.black_piece_squares
 
-    for flag, flip in [(1, flip_we), (2, flip_ns), (4, flip_nw_se)]:
-        if ft & flag:
-            ws = [flip(b) for b in ws]
-            bs = [flip(b) for b in bs]
+    if (ft & 1) != 0:
+        ws = [flip_we(b) for b in ws]
+        bs = [flip_we(b) for b in bs]
+
+    if (ft & 2) != 0:
+        ws = [flip_ns(b) for b in ws]
+        bs = [flip_ns(b) for b in bs]
+
+    if (ft & 4) != 0:
+        ws = [flip_nw_se(b) for b in ws]
+        bs = [flip_nw_se(b) for b in bs]
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
@@ -856,7 +1004,6 @@ def kabk_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + ws[2]
-
 
 def kakp_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64 * 64
@@ -868,29 +1015,42 @@ def kakp_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not chess.A2 <= pawn < chess.A8:
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
-    pawn, wk, bk, wa = flip_we_col(pawn, wk, bk, wa)
+    if (pawn & 7) > 3:
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
+        wa = flip_we(wa)
 
-    # Down one row
-    pslice = ((pawn - 8) + ((pawn - 8) & 3)) >> 1
+    sq = pawn
+    sq -= 8  # Down one row
+    pslice = (sq + (sq & 3)) >> 1
 
     return pslice * BLOCK_Ax + wk * BLOCK_Bx + bk * BLOCK_Cx + wa
 
-
 def kaak_pctoindex(c: Request) -> int:
+    N_WHITE = 3
+    N_BLACK = 1
     BLOCK_Ax = MAX_AAINDEX
 
     ft = FLIPT[c.black_piece_squares[0]][c.white_piece_squares[0]]
 
-    ws = c.white_piece_squares[:3]
-    bs = c.black_piece_squares[:1]
+    ws = c.white_piece_squares[:N_WHITE]
+    bs = c.black_piece_squares[:N_BLACK]
 
-    for flag, flip in [(WE_FLAG, flip_we), (NS_FLAG, flip_ns), (NW_SE_FLAG, flip_nw_se)]:
-        if ft & flag:
-            ws = [flip(i) for i in ws]
-            bs = [flip(i) for i in bs]
+    if (ft & WE_FLAG) != 0:
+        ws = [flip_we(i) for i in ws]
+        bs = [flip_we(i) for i in bs]
+
+    if (ft & NS_FLAG) != 0:
+        ws = [flip_ns(i) for i in ws]
+        bs = [flip_ns(i) for i in bs]
+
+    if (ft & NW_SE_FLAG) != 0:
+        ws = [flip_nw_se(i) for i in ws]
+        bs = [flip_nw_se(i) for i in bs]
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
     ai = AAIDX[ws[1]][ws[2]]
@@ -899,7 +1059,6 @@ def kaak_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ai
-
 
 def kakb_pctoindex(c: Request) -> int:
     BLOCK_Ax = 64 * 64
@@ -910,9 +1069,23 @@ def kakb_pctoindex(c: Request) -> int:
     ws = c.white_piece_squares[:]
     bs = c.black_piece_squares[:]
 
-    for bit, flip in [(1, flip_we), (2, flip_ns), (4, flip_nw_se)]:
-        if ft & bit:
-            ws[0], ws[1], bs[0], bs[1] = flip(ws[0]), flip(ws[1]), flip(bs[0]), flip(bs[1])
+    if (ft & 1) != 0:
+        ws[0] = flip_we(ws[0])
+        ws[1] = flip_we(ws[1])
+        bs[0] = flip_we(bs[0])
+        bs[1] = flip_we(bs[1])
+
+    if (ft & 2) != 0:
+        ws[0] = flip_ns(ws[0])
+        ws[1] = flip_ns(ws[1])
+        bs[0] = flip_ns(bs[0])
+        bs[1] = flip_ns(bs[1])
+
+    if (ft & 4) != 0:
+        ws[0] = flip_nw_se(ws[0])
+        ws[1] = flip_nw_se(ws[1])
+        bs[0] = flip_nw_se(bs[0])
+        bs[1] = flip_nw_se(bs[1])
 
     ki = KKIDX[bs[0]][ws[0]]  # KKIDX[black king][white king]
 
@@ -920,7 +1093,6 @@ def kakb_pctoindex(c: Request) -> int:
         return NOINDEX
 
     return ki * BLOCK_Ax + ws[1] * BLOCK_Bx + bs[1]
-
 
 def kpk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64
@@ -930,16 +1102,21 @@ def kpk_pctoindex(c: Request) -> int:
     wk = c.white_piece_squares[0]
     bk = c.black_piece_squares[0]
 
-    if not chess.A2 <= pawn < chess.A8:
+    if not (chess.A2 <= pawn < chess.A8):
         return NOINDEX
 
-    pawn, wk, bk = flip_we_col(pawn, wk, bk)
+    if (pawn & 7) > 3:
+        pawn = flip_we(pawn)
+        wk = flip_we(wk)
+        bk = flip_we(bk)
 
-    sq = (pawn ^ 56) - 8  # flip_ns, down one row
+    sq = pawn
+    sq ^= 56  # flip_ns
+    sq -= 8   # Down one row
     pslice = ((sq + (sq & 3)) >> 1)
 
-    return pslice * BLOCK_A + wk * BLOCK_B + bk
-
+    res = pslice * BLOCK_A + wk * BLOCK_B + bk
+    return res
 
 def kpppk_pctoindex(c: Request) -> int:
     BLOCK_A = 64 * 64
@@ -949,16 +1126,26 @@ def kpppk_pctoindex(c: Request) -> int:
     pawn_a = c.white_piece_squares[1]
     pawn_b = c.white_piece_squares[2]
     pawn_c = c.white_piece_squares[3]
+
     bk = c.black_piece_squares[0]
 
-    i, j, k = [x - 8 for x in (pawn_a, pawn_b, pawn_c)]
+    i = pawn_a - 8
+    j = pawn_b - 8
+    k = pawn_c - 8
+
     ppp48_slice = PPP48_IDX[i][j][k]
 
     if idx_is_empty(ppp48_slice):
-        wk, pawn_a, pawn_b, pawn_c, bk = [flip_we(x) for x in (wk, pawn_a, pawn_b, pawn_c, bk)]
+        wk = flip_we(wk)
+        pawn_a = flip_we(pawn_a)
+        pawn_b = flip_we(pawn_b)
+        pawn_c = flip_we(pawn_c)
+        bk = flip_we(bk)
 
-    # removing this doesn't impact the tests?
-    i, j, k = [x - 8 for x in (pawn_a, pawn_b, pawn_c)]
+    i = pawn_a - 8
+    j = pawn_b - 8
+    k = pawn_c - 8
+
     ppp48_slice = PPP48_IDX[i][j][k]
 
     if idx_is_empty(ppp48_slice):
@@ -1143,14 +1330,12 @@ EGKEY = {
 
 
 def sortlists(ws: List[int], wp: List[int]) -> Tuple[List[int], List[int]]:
-    z = sorted(zip(wp, ws), reverse=True)
+    z = sorted(zip(wp, ws), key=lambda x: x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2)
 
-
 def egtb_block_unpack(side: int, n: int, bp: bytes) -> List[int]:
     return [dtm_unpack(side, i) for i in bp[:n]]
-
 
 def split_index(i: int) -> Tuple[int, int]:
     return divmod(i, ENTRIES_PER_BLOCK)
@@ -1175,23 +1360,19 @@ def removepiece(ys: List[int], yp: List[int], j: int) -> None:
     del ys[j]
     del yp[j]
 
-
 def opp(side: int) -> int:
     return 1 if side == 0 else 0
 
-
 def adjust_up(dist: int) -> int:
-    if (dist & INFOMASK) in [iWMATE, iWMATEt, iBMATE, iBMATEt]:
-        return dist + (1 << PLYSHIFT)
-    return dist
+    udist = dist
+    sw = udist & INFOMASK
 
+    if sw in [iWMATE, iWMATEt, iBMATE, iBMATEt]:
+        udist += (1 << PLYSHIFT)
+
+    return udist
 
 def bestx(side: int, a: int, b: int) -> int:
-    if a == iFORBID:
-        return b
-    if b == iFORBID:
-        return a
-
     # 0 = selectfirst
     # 1 = selectlowest
     # 2 = selecthighest
@@ -1204,25 +1385,33 @@ def bestx(side: int, a: int, b: int) -> int:
         [3, 3, 3, 0],  # forbid
     ]
 
+    xorkey = [0, 3]
+
+    if a == iFORBID:
+        return b
+    if b == iFORBID:
+        return a
+
     retu = [a, a, b, b]
 
     if b < a:
-        retu[1:2] = [b, a]
+        retu[1] = b
+        retu[2] = a
 
-    key = comparison[a & 3][b & 3] ^ [0, 3][side]  # ^ xorkey
+    key = comparison[a & 3][b & 3] ^ xorkey[side]
     return retu[key]
-
 
 def unpackdist(d: int) -> Tuple[int, int]:
     return d >> PLYSHIFT, d & INFOMASK
 
-
 def dtm_unpack(stm: int, packed: int) -> int:
-    if packed in [iDRAW, iFORBID]:
-        return packed
+    p = packed
 
-    info = packed & 3
-    store = packed >> 2
+    if p in [iDRAW, iFORBID]:
+        return p
+
+    info = p & 3
+    store = p >> 2
 
     if stm == 0:
         if info == iWMATE:
@@ -1398,23 +1587,28 @@ class PythonTablebase:
             if req.realside == 1:
                 if req.is_reversed:
                     return ply
-                return -ply
-            if req.is_reversed:
-                return -ply
-            return ply
-
-        if res == iBMATE:
+                else:
+                    return -ply
+            else:
+                if req.is_reversed:
+                    return -ply
+                else:
+                    return ply
+        elif res == iBMATE:
             # Black mates in the stored position.
             if req.realside == 0:
                 if req.is_reversed:
                     return ply
-                return -ply
-            if req.is_reversed:
-                return -ply
-            return ply
-
-        # Draw.
-        return 0
+                else:
+                    return -ply
+            else:
+                if req.is_reversed:
+                    return -ply
+                else:
+                    return ply
+        else:
+            # Draw.
+            return 0
 
     def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
@@ -1450,12 +1644,12 @@ class PythonTablebase:
         if dtm == 0:
             if board.is_checkmate():
                 return -1
-            return 0
-
-        if dtm > 0:
+            else:
+                return 0
+        elif dtm > 0:
             return 1
-
-        return -1
+        else:
+            return -1
 
     def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
         try:
@@ -1601,7 +1795,8 @@ class PythonTablebase:
 
         if (offset + blocksz) > maxindex:
             return maxindex - offset  # Last block size
-        return blocksz  # Size of a normal block
+        else:
+            return blocksz  # Size of a normal block
 
     def _tb_probe(self, req: Request) -> int:
         stream = self._setup_tablebase(req)
