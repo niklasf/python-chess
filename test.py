@@ -4344,6 +4344,16 @@ class GaviotaTestCase(unittest.TestCase):
         board = chess.Board("8/8/7k/8/1pP5/7K/8/8 b - c3 0 1")
         self.assertEqual(self.tablebase.probe_dtm(board), 19)
 
+    @catchAndSkip(chess.gaviota.MissingTableError, "need KQPvKP.gtb.cp4")
+    def test_ep_is_mate(self):
+        # The resulting mate.
+        board = chess.Board("5Q2/7k/6P1/5K2/8/8/8/8 b - - 0 1")
+        self.assertEqual(self.tablebase.probe_dtm(board), 0)
+
+        # Ep leads to the previously tested mate position.
+        board = chess.Board("5Q2/7k/8/5KpP/8/8/8/8 w - g6 0 1")
+        self.assertEqual(self.tablebase.probe_dtm(board), 1)
+
 
 class SvgTestCase(unittest.TestCase):
 
