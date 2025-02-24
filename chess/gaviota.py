@@ -1493,8 +1493,8 @@ class PythonTablebase:
         Probes for depth to mate information.
 
         The absolute value is the number of half-moves until forced mate
-        (or ``0`` in drawn positions). The value is positive if the
-        side to move is winning, otherwise it is negative.
+        (or ``0`` in drawn or checkmated positions). The value is positive if
+        the side to move is winning, otherwise it is negative or 0.
 
         In the example position, white to move will get mated in 10 half-moves:
 
@@ -1532,11 +1532,14 @@ class PythonTablebase:
             try:
                 board.push(move)
 
-                child_dtm = -self._probe_dtm_no_ep(board)
-                if child_dtm > 0:
-                    child_dtm += 1
-                elif child_dtm < 0:
-                    child_dtm -= 1
+                if board.is_checkmate():
+                    child_dtm = 1
+                else:
+                    child_dtm = -self._probe_dtm_no_ep(board)
+                    if child_dtm > 0:
+                        child_dtm += 1
+                    elif child_dtm < 0:
+                        child_dtm -= 1
 
                 dtm = min(dtm, child_dtm) if dtm * child_dtm > 0 else max(dtm, child_dtm)
             finally:
