@@ -1,6 +1,14 @@
 Changelog for python-chess
 ==========================
 
+New in v1.11.2 (25th Feb 2025)
+------------------------------
+
+Bugfixes:
+
+* Fix ``chess.gaviota.PythonTablebase`` does not properly resolve positions
+  where en passant captures are the best move.
+
 New in v1.11.1 (9th Oct 2024)
 -----------------------------
 
