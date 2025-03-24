@@ -1810,11 +1810,13 @@ class Board(BaseBoard):
         return 2 * (self.fullmove_number - 1) + (self.turn == BLACK)
 
     def remove_piece_at(self, square: Square) -> Optional[Piece]:
+        """Remove a piece, if any, from the given square and return the removed piece."""
         piece = super().remove_piece_at(square)
         self.clear_stack()
         return piece
 
     def set_piece_at(self, square: Square, piece: Optional[Piece], promoted: bool = False) -> None:
+        """Place a piece on a square."""
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
 
@@ -1998,6 +2000,7 @@ class Board(BaseBoard):
         return bool(self.attacks_mask(move.from_square) & to_mask)
 
     def is_legal(self, move: Move) -> bool:
+        """Check if a move is legal in the current position."""
         return not self.is_variant_end() and self.is_pseudo_legal(move) and not self.is_into_check(move)
 
     def is_variant_end(self) -> bool:
@@ -2034,9 +2037,27 @@ class Board(BaseBoard):
         return False
 
     def is_game_over(self, *, claim_draw: bool = False) -> bool:
+        """
+        Check if the game is over by any rule.
+
+        The game is not considered to be over by the
+        :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>` or
+        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`,
+        unless *claim_draw* is given. Note that checking the latter can be
+        slow.
+        """
         return self.outcome(claim_draw=claim_draw) is not None
 
     def result(self, *, claim_draw: bool = False) -> str:
+        """
+        Return the result of a game: 1-0, 0-1, 1/2-1/2, or *.
+
+        The game is not considered to be over by the
+        :func:`fifty-move rule <chess.Board.can_claim_fifty_moves()>` or
+        :func:`threefold repetition <chess.Board.can_claim_threefold_repetition()>`,
+        unless *claim_draw* is given. Note that checking the latter can be
+        slow.
+        """
         outcome = self.outcome(claim_draw=claim_draw)
         return outcome.result() if outcome else "*"
 
