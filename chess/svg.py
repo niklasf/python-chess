@@ -437,8 +437,8 @@ def board(board: chess.BaseBoard | None = None, *,
         if not inside_coord_color_dark:
             inside_coord_color_dark = light_square_color
 
-        # render files(a-h)
-        bottom_rank = 0 if orientation else 7
+        # render files (a-h)
+        bottom_rank = 0 if orientation == chess.WHITE else 7
         for file_index in range(8):
             square = chess.square(file_index, bottom_rank)
             is_light_square = bool(chess.BB_LIGHT_SQUARES & chess.BB_SQUARES[square])
@@ -447,10 +447,10 @@ def board(board: chess.BaseBoard | None = None, *,
             )
 
             x = (
-                file_index if orientation else 7 - file_index
+                file_index if orientation == chess.WHITE else 7 - file_index
             ) * SQUARE_SIZE + board_offset
             y = (
-                7 - bottom_rank if orientation else bottom_rank
+                7 - bottom_rank if orientation == chess.WHITE else bottom_rank
             ) * SQUARE_SIZE + board_offset
 
             file_name = chess.FILE_NAMES[file_index]
@@ -472,7 +472,7 @@ def board(board: chess.BaseBoard | None = None, *,
         rank_offset = 0.0 if inside_coord_style == 1 else 0.75
 
         # Select the file for left or right column based on style
-        file_index = rank_file if orientation else 7 - rank_file
+        file_index = rank_file if orientation == chess.WHITE else 7 - rank_file
 
         for rank_index in range(8):
             square = chess.square(file_index, rank_index)
@@ -481,13 +481,21 @@ def board(board: chess.BaseBoard | None = None, *,
                 inside_coord_color_light if is_light_square else inside_coord_color_dark
             )
 
-            x = file_index * SQUARE_SIZE + board_offset
-            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + board_offset
+            x = (
+                file_index if orientation == chess.WHITE else 7 - file_index
+            ) * SQUARE_SIZE + board_offset
+            y = (
+                7 - rank_index if orientation == chess.WHITE else rank_index
+            ) * SQUARE_SIZE + board_offset
 
             rank_name = chess.RANK_NAMES[rank_index]
 
             rx = x + SQUARE_SIZE * rank_offset
             ry = y - SQUARE_SIZE * 0.1
+
+            print(f'{rx}={x}+{SQUARE_SIZE}*{rank_offset}')
+
+            print(f'{rank_name},x={rx},y={ry}')
 
             svg.append(
                 _inside_coord(rank_name, rx, ry, 0.5, color=coord_color, opacity=1.0)
