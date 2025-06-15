@@ -2839,28 +2839,32 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.eval_depth(), 5)
 
         self.assertEqual(game.arrows(), [])
-        game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5]")
+        game.set_cal([chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
+        game.set_csl([(chess.A1, chess.A1)])
+        self.assertEqual(game.comment, "[%csl Ga1] [%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5]")
         arrows = game.arrows()
-        self.assertEqual(len(arrows), 3)
-        self.assertEqual(arrows[0].color, "green")
-        self.assertEqual(arrows[1].color, "red")
-        self.assertEqual(arrows[2].color, "green")
+        self.assertEqual(len(arrows), 2)
+        self.assertEqual(arrows[0].color, "red")
+        self.assertEqual(arrows[1].color, "green")
+        csl = game.csl()
+        self.assertEqual(len(csl), 1)
+        self.assertEqual(csl[0].color, "green")
 
         self.assertTrue(game.emt() is None)
         emt = 321
         game.set_emt(emt)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5] [%emt 0:05:21]")
+        self.assertEqual(game.comment, "[%csl Ga1] [%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%eval #1,5] [%emt 0:05:21]")
         self.assertEqual(game.emt(), emt)
 
         game.set_eval(None)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%emt 0:05:21]")
+        self.assertEqual(game.comment, "[%csl Ga1] [%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45] [%emt 0:05:21]")
 
         game.set_emt(None)
-        self.assertEqual(game.comment, "[%csl Ga1][%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45]")
+        self.assertEqual(game.comment, "[%csl Ga1] [%cal Ra1h1,Gb1b8] foo [%bar] baz [%clk 3:25:45]")
 
         game.set_clock(None)
-        game.set_arrows([])
+        game.set_cal([])
+        game.set_csl([])
         self.assertEqual(game.comment, "foo [%bar] baz")
 
     def test_eval(self):

@@ -114,11 +114,20 @@ EVAL_REGEX = re.compile(r"""
     (?P<suffix>\s?)
     """, re.VERBOSE)
 
-ARROWS_REGEX = re.compile(r"""
+CAL_REGEX = re.compile(r"""
     (?P<prefix>\s?)
-    \[%(?:csl|cal)\s(?P<arrows>
+    \[%(?:cal)\s(?P<arrows>
         [RGYB][a-h][1-8](?:[a-h][1-8])?
         (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
+    )\]
+    (?P<suffix>\s?)
+    """, re.VERBOSE)
+
+CSL_REGEX = re.compile(r"""
+    (?P<prefix>\s?)
+    \[%(?:csl)\s(?P<arrows>
+        [RGYB][a-h][1-8]?
+        (?:,[RGYB][a-h][1-8]?)*
     )\]
     (?P<suffix>\s?)
     """, re.VERBOSE)
@@ -500,24 +509,36 @@ class GameNode(abc.ABC):
 
     def arrows(self) -> List[chess.svg.Arrow]:
         """
-        Parses all ``[%csl ...]`` and ``[%cal ...]`` annotations in the comment
+        Parses all ``[%cal ...]`` annotations in the comment
         of this node.
 
         Returns a list of :class:`arrows <chess.svg.Arrow>`.
         """
         arrows = []
-        for match in ARROWS_REGEX.finditer(self.comment):
+        for match in CAL_REGEX.finditer(self.comment):
             for group in match.group("arrows").split(","):
                 arrows.append(chess.svg.Arrow.from_pgn(group))
 
         return arrows
 
-    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
+    def csl(self) -> List[chess.svg.Arrow]:
         """
-        Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
+        Parses all ``[%csl ...]`` annotations in the comment of this node.
+
+        Returns a list of :class:`arrows <chess.svg.Arrow>`.
+        """
+        arrows = []
+        for match in CSL_REGEX.finditer(self.comment):
+            for group in match.group("arrows").split(","):
+                arrows.append(chess.svg.Arrow.from_pgn(group))
+
+        return arrows
+
+    def set_cal(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
+        """
+        Replaces all valid ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
         """
-        csl: List[str] = []
         cal: List[str] = []
 
         for arrow in arrows:
@@ -526,15 +547,39 @@ class GameNode(abc.ABC):
                 arrow = chess.svg.Arrow(tail, head)
             except TypeError:
                 pass
-            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
+            cal.append(arrow.pgn())  # type: ignore
 
-        self.comment = ARROWS_REGEX.sub(_condense_affix(""), self.comment)
+        self.comment = CAL_REGEX.sub(_condense_affix(""), self.comment)
+
+        prefix = ""
+        if cal:
+            prefix += f"[%cal {','.join(cal)}]"
+
+        if prefix and self.comment and not self.comment.startswith(" ") and not self.comment.startswith("\n"):
+            self.comment = prefix + " " + self.comment
+        else:
+            self.comment = prefix + self.comment
+
+    def set_csl(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
+        """
+        Replaces all valid ``[%csl ...]`` annotations in
+        the comment of this node or adds new ones.
+        """
+        csl: List[str] = []
+
+        for arrow in arrows:
+            try:
+                tail, head = arrow  # type: ignore
+                arrow = chess.svg.Arrow(tail, head)
+            except TypeError:
+                pass
+            csl.append(arrow.pgn())  # type: ignore
+
+        self.comment = CSL_REGEX.sub(_condense_affix(""), self.comment)
 
         prefix = ""
         if csl:
             prefix += f"[%csl {','.join(csl)}]"
-        if cal:
-            prefix += f"[%cal {','.join(cal)}]"
 
         if prefix and self.comment and not self.comment.startswith(" ") and not self.comment.startswith("\n"):
             self.comment = prefix + " " + self.comment
