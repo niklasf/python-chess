@@ -23,3 +23,5 @@ fuzz/corpus
 
 release-v*.txt
 .venv
+
+test_animation
