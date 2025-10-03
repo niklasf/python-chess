@@ -1716,7 +1716,7 @@ class PythonTablebase:
             z = self.egtb_block_getsize_zipped(req.egkey, block)
 
             self.egtb_block_park(req.egkey, block, stream)
-            buffer_zipped = stream.read(z)
+            buffer_zipped: bytearray | bytes = stream.read(z)
 
             if buffer_zipped[0] == 0:
                 # If flag is zero, plain LZMA is following.
