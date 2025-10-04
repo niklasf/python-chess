@@ -110,12 +110,12 @@ def idx_is_empty(x: int) -> int:
 def flip_type(x: chess.Square, y: chess.Square) -> int:
     ret = 0
 
-    if chess.square_file(x) > 3:
+    if chess.square_file(x) > chess.FILE_D:
         x = flip_we(x)
         y = flip_we(y)
         ret |= 1
 
-    if chess.square_rank(x) > 3:
+    if chess.square_rank(x) > chess.RANK_4:
         x = flip_ns(x)
         y = flip_ns(y)
         ret |= 2
@@ -351,11 +351,11 @@ PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
 def norm_kkindex(x: chess.Square, y: chess.Square) -> Tuple[int, int]:
-    if chess.square_file(x) > 3:
+    if chess.square_file(x) > chess.FILE_D:
         x = flip_we(x)
         y = flip_we(y)
 
-    if chess.square_rank(x) > 3:
+    if chess.square_rank(x) > chess.RANK_4:
         x = flip_ns(x)
         y = flip_ns(y)
 

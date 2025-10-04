@@ -761,7 +761,7 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos: List[chess.Square]) -> int:
+    def pawn_file(self, pos: List[chess.Square]) -> chess.File:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
