@@ -275,6 +275,32 @@ def square(file_index: File, rank_index: Rank) -> Square:
     """Gets a square number by file and rank index."""
     return rank_index * 8 + file_index
 
+def parse_file(name: str) -> File:
+    """
+    Gets the file index for the given file *name*
+    (e.g., ``a`` returns ``0``).
+
+    :raises: :exc:`ValueError` if the file name is invalid.
+    """
+    return FILE_NAMES.index(name)
+
+def file_name(file: File) -> str:
+    """Gets the name of the file, like ``a``."""
+    return FILE_NAMES[file]
+
+def parse_rank(name: str) -> File:
+    """
+    Gets the rank index for the given rank *name*
+    (e.g., ``1`` returns ``0``).
+
+    :raises: :exc:`ValueError` if the rank name is invalid.
+    """
+    return FILE_NAMES.index(name)
+
+def rank_name(rank: Rank) -> str:
+    """Gets the name of the rank, like ``1``."""
+    return FILE_NAMES[rank]
+
 def square_file(square: Square) -> File:
     """Gets the file index of the square where ``0`` is the a-file."""
     return square & 7
