@@ -50,10 +50,6 @@ LOGGER = logging.getLogger(__name__)
 MANAGED_OPTIONS = ["uci_chess960", "uci_variant", "multipv", "ponder"]
 
 
-# No longer needed, but alias kept around for compatibility.
-EventLoopPolicy = asyncio.DefaultEventLoopPolicy
-
-
 def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Coroutine[Any, Any, None]], *, name: Optional[str] = None, debug: Optional[bool] = None) -> T:
     """
     Runs ``coroutine(future)`` in a new event loop on a background thread.
