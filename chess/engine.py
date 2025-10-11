@@ -8,6 +8,7 @@ import contextlib
 import copy
 import dataclasses
 import enum
+import inspect
 import logging
 import math
 import shlex
@@ -58,7 +59,7 @@ def run_in_background(coroutine: Callable[[concurrent.futures.Future[T]], Corout
     The coroutine and all remaining tasks continue running in the background
     until complete.
     """
-    assert asyncio.iscoroutinefunction(coroutine)
+    assert inspect.iscoroutinefunction(coroutine)
 
     future: concurrent.futures.Future[T] = concurrent.futures.Future()
 
