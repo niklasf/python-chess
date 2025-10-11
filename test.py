@@ -3079,7 +3079,7 @@ class EngineTestCase(unittest.TestCase):
 
             for epd in epds:
                 operations = board.set_epd(epd)
-                result = engine.play(board, chess.engine.Limit(mate=5), game=object())
+                result = engine.play(board, chess.engine.Limit(mate=3), game=object())
                 self.assertIn(result.move, operations["bm"], operations["id"])
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
