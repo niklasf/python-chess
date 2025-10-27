@@ -1663,7 +1663,7 @@ class PythonTablebase:
 
         if stream is None:
             path = self.available_tables[req.egkey]
-            stream = open(path, "rb+")
+            stream = open(path, "rb")
             self.egtb_loadindexes(req.egkey, stream)
             self.streams[req.egkey] = stream
 
