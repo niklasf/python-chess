@@ -1980,6 +1980,17 @@ class Board(BaseBoard):
         finally:
             self.pop()
 
+    def gives_checkmate(self, move: Move) -> bool:
+        """
+        Probes if the given move would put the opponent in checkmate. The move
+        must be at least pseudo-legal.
+        """
+        self.push(move)
+        try:
+            return self.is_checkmate()
+        finally:
+            self.pop()
+
     def is_into_check(self, move: Move) -> bool:
         king = self.king(self.turn)
         if king is None:
