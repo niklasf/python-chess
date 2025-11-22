@@ -336,6 +336,12 @@ If you like, share interesting things you are using python-chess for, for exampl
 |     :height: 64                                                                                      |                                                                                              |
 |     :target: https://github.com/trevorbayless/cli-chess                                              | A highly customizable way to play chess in your terminal                                     |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| .. image::                                                                                           |                                                                                              |  
+|      https://github.com/leszekhanusz/lichess-board/blob/main/examples/assets/fools_mate.gif?raw=true | `lichess-board <https://github.com/leszekhanusz/lichess-board>`_                             |
+|     :width: 64                                                                                       |                                                                                              |
+|     :height: 64                                                                                      |                                                                                              |
+|     :target: https://github.com/leszekhanusz/lichess-board                                           | A chess board widget for PySide6 with interactive usage and animations                       |
++------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 
 * extensions to build engines (search and evaluation) – https://github.com/Mk-Chan/python-chess-engine-extensions
 * a stand-alone chess computer based on DGT board – https://picochess.com/
