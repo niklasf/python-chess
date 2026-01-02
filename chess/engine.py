@@ -1875,12 +1875,16 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
     return BestMove(move, ponder)
 
 
-def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterator[Tuple[str, ConfigValue]]:
-    for name, value in a.items():
+def _chain_config(a: ConfigMapping, b: ConfigMapping, with_hash_reordering: bool = True) -> Iterator[Tuple[str, ConfigValue]]:
+    merged = dict(a)
+    for k, v in b.items():
+        merged.setdefault(k, v)
+    if with_hash_reordering and 'Hash' in merged and 'Threads' in merged:
+        hash_val = merged['Hash']
+        del merged['Hash']
+        merged['Hash'] = hash_val
+    for name, value in merged.items():
         yield name, value
-    for name, value in b.items():
-        if name not in a:
-            yield name, value
 
 
 class UciOptionMap(MutableMapping[str, T]):
