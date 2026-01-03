@@ -1875,16 +1875,16 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
     return BestMove(move, ponder)
 
 
-def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterator[Tuple[str, ConfigValue]]:
+def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterable[Tuple[str, ConfigValue]]:
     merged = dict(a)
     for k, v in b.items():
         merged.setdefault(k, v)
-    if 'Hash' in merged and 'Threads' in merged:
-        hash_val = merged['Hash']
-        del merged['Hash']
-        merged['Hash'] = hash_val
-    for name, value in merged.items():
-        yield name, value
+    if "Hash" in merged and "Threads" in merged:
+        # Move Hash after Threads, as recommended by Stockfish.
+        hash_val = merged["Hash"]
+        del merged["Hash"]
+        merged["Hash"] = hash_val
+    return merged.items()
 
 
 class UciOptionMap(MutableMapping[str, T]):
