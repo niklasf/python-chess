@@ -916,7 +916,7 @@ class BaseBoard:
         considered.
         """
         king_mask = self.occupied_co[color] & self.kings & ~self.promoted
-        return msb(king_mask) if king_mask else None
+        return msb(king_mask) if king_mask and popcount(self.kings) == 1 else None
 
     def attacks_mask(self, square: Square) -> Bitboard:
         bb_square = BB_SQUARES[square]
@@ -2005,7 +2005,7 @@ class Board(BaseBoard):
 
     def was_into_check(self) -> bool:
         king = self.king(not self.turn)
-        return popcount(self.kings) == 1 and king is not None and self.is_attacked_by(self.turn, king)
+        return king is not None and self.is_attacked_by(self.turn, king)
 
     def is_pseudo_legal(self, move: Move) -> bool:
         # Null moves are not pseudo-legal.
