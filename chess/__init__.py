@@ -2005,7 +2005,7 @@ class Board(BaseBoard):
 
     def was_into_check(self) -> bool:
         king = self.king(not self.turn)
-        return king is not None and self.is_attacked_by(self.turn, king)
+        return popcount(self.kings) == 1 and king is not None and self.is_attacked_by(self.turn, king)
 
     def is_pseudo_legal(self, move: Move) -> bool:
         # Null moves are not pseudo-legal.
