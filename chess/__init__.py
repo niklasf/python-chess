@@ -916,7 +916,7 @@ class BaseBoard:
         considered.
         """
         king_mask = self.occupied_co[color] & self.kings & ~self.promoted
-        return msb(king_mask) if king_mask and popcount(self.kings) == 1 else None
+        return msb(king_mask) if king_mask and popcount(king_mask) == 1 else None
 
     def attacks_mask(self, square: Square) -> Bitboard:
         bb_square = BB_SQUARES[square]
