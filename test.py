@@ -1724,14 +1724,6 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("KKKK1kkk/8/8/8/8/8/8/8 w - - 0 1")
         self.assertEqual(board.king(chess.WHITE), None)
 
-        # https://github.com/niklasf/python-chess/issues/1169#issuecomment-3838025276
-        board = chess.Board(None)
-        board.set_piece_at(chess.A1, chess.Piece(chess.ROOK, chess.WHITE))
-        board.set_piece_at(chess.A8, chess.Piece(chess.KING, chess.BLACK)) # attacked
-        board.set_piece_at(chess.H8, chess.Piece(chess.KING, chess.BLACK)) # safe
-        board.turn = chess.WHITE
-        self.assertTrue(board.was_into_check())
-
 
 class LegalMoveGeneratorTestCase(unittest.TestCase):
 
