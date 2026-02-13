@@ -907,16 +907,19 @@ class BaseBoard:
         else:
             return None
 
+    def _effective_promoted(self) -> Bitboard:
+        return BB_EMPTY
+
     def king(self, color: Color) -> Optional[Square]:
         """
-        Finds the king square of the given side. Returns ``None`` if there
-        is no king of that color.
+        Finds the unique king square of the given side. Returns ``None`` if
+        there is no king or multiple kings of that color.
 
         In variants with king promotions, only non-promoted kings are
         considered.
         """
-        king_mask = self.occupied_co[color] & self.kings & ~self.promoted
-        return msb(king_mask) if king_mask and popcount(king_mask) == 1 else None
+        king_mask = self.occupied_co[color] & self.kings & ~self._effective_promoted()
+        return msb(king_mask) if king_mask and not king_mask & (king_mask - 1) else None
 
     def attacks_mask(self, square: Square) -> Bitboard:
         bb_square = BB_SQUARES[square]
@@ -1135,7 +1138,7 @@ class BaseBoard:
         else:
             self._set_piece_at(square, piece.piece_type, piece.color, promoted)
 
-    def board_fen(self, *, promoted: Optional[bool] = False) -> str:
+    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
         """
         Gets the board FEN (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR``).
@@ -1153,7 +1156,14 @@ class BaseBoard:
                     builder.append(str(empty))
                     empty = 0
                 builder.append(piece.symbol())
-                if promoted and BB_SQUARES[square] & self.promoted:
+
+                if promoted is None:
+                    promoted_mask = self._effective_promoted()
+                elif promoted:
+                    promoted_mask = self.promoted
+                else:
+                    promoted_mask = BB_EMPTY
+                if BB_SQUARES[square] & promoted_mask:
                     builder.append("~")
 
             if BB_SQUARES[square] & BB_FILE_H:
@@ -1335,7 +1345,7 @@ class BaseBoard:
             return None
         if self.pawns != BB_RANK_2 | BB_RANK_7:
             return None
-        if self.promoted:
+        if self._effective_promoted():
             return None
 
         # Piece counts.
@@ -2452,12 +2462,12 @@ class Board(BaseBoard):
 
         # Update castling rights.
         self.castling_rights &= ~to_bb & ~from_bb
-        if piece_type == KING and not promoted:
+        if piece_type == KING and not self._effective_promoted() & from_bb:
             if self.turn == WHITE:
                 self.castling_rights &= ~BB_RANK_1
             else:
                 self.castling_rights &= ~BB_RANK_8
-        elif captured_piece_type == KING and not self.promoted & to_bb:
+        elif captured_piece_type == KING and not self._effective_promoted() & to_bb:
             if self.turn == WHITE and square_rank(move.to_square) == RANK_8:
                 self.castling_rights &= ~BB_RANK_8
             elif self.turn == BLACK and square_rank(move.to_square) == RANK_1:
@@ -3404,8 +3414,8 @@ class Board(BaseBoard):
         cr = self.clean_castling_rights()
         touched = BB_SQUARES[move.from_square] ^ BB_SQUARES[move.to_square]
         return bool(touched & cr or
-                    cr & BB_RANK_1 and touched & self.kings & self.occupied_co[WHITE] & ~self.promoted or
-                    cr & BB_RANK_8 and touched & self.kings & self.occupied_co[BLACK] & ~self.promoted)
+                    cr & BB_RANK_1 and touched & self.kings & self.occupied_co[WHITE] & ~self._effective_promoted() or
+                    cr & BB_RANK_8 and touched & self.kings & self.occupied_co[BLACK] & ~self._effective_promoted())
 
     def is_irreversible(self, move: Move) -> bool:
         """
@@ -3459,16 +3469,16 @@ class Board(BaseBoard):
             black_castling &= (BB_A8 | BB_H8)
 
             # The kings must be on e1 or e8.
-            if not self.occupied_co[WHITE] & self.kings & ~self.promoted & BB_E1:
+            if not self.occupied_co[WHITE] & self.kings & ~self._effective_promoted() & BB_E1:
                 white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & ~self.promoted & BB_E8:
+            if not self.occupied_co[BLACK] & self.kings & ~self._effective_promoted() & BB_E8:
                 black_castling = 0
 
             return white_castling | black_castling
         else:
             # The kings must be on the back rank.
-            white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self.promoted
-            black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self.promoted
+            white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self._effective_promoted()
+            black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self._effective_promoted()
             if not white_king_mask:
                 white_castling = 0
             if not black_king_mask:
@@ -3506,7 +3516,7 @@ class Board(BaseBoard):
         castling rights.
         """
         backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
-        king_mask = self.kings & self.occupied_co[color] & backrank & ~self.promoted
+        king_mask = self.kings & self.occupied_co[color] & backrank & ~self._effective_promoted()
         if not king_mask:
             return False
 
@@ -3527,7 +3537,7 @@ class Board(BaseBoard):
         castling rights.
         """
         backrank = BB_RANK_1 if color == WHITE else BB_RANK_8
-        king_mask = self.kings & self.occupied_co[color] & backrank & ~self.promoted
+        king_mask = self.kings & self.occupied_co[color] & backrank & ~self._effective_promoted()
         if not king_mask:
             return False
 
@@ -3600,11 +3610,11 @@ class Board(BaseBoard):
             errors |= STATUS_EMPTY
 
         # There must be exactly one king of each color.
-        if not self.occupied_co[WHITE] & self.kings:
+        if not self.occupied_co[WHITE] & self.kings & ~self._effective_promoted():
             errors |= STATUS_NO_WHITE_KING
-        if not self.occupied_co[BLACK] & self.kings:
+        if not self.occupied_co[BLACK] & self.kings & ~self._effective_promoted():
             errors |= STATUS_NO_BLACK_KING
-        if popcount(self.occupied & self.kings) > 2:
+        if popcount(self.occupied & self.kings & ~self._effective_promoted()) > 2:
             errors |= STATUS_TOO_MANY_KINGS
 
         # There can not be more than 16 pieces of any color.
@@ -3638,7 +3648,7 @@ class Board(BaseBoard):
 
         # More than the maximum number of possible checkers in the variant.
         checkers = self.checkers_mask()
-        our_kings = self.kings & self.occupied_co[self.turn] & ~self.promoted
+        our_kings = self.kings & self.occupied_co[self.turn] & ~self._effective_promoted()
         if checkers:
             if popcount(checkers) > 2:
                 errors |= STATUS_TOO_MANY_CHECKERS
@@ -3822,7 +3832,7 @@ class Board(BaseBoard):
             return
 
         backrank = BB_RANK_1 if self.turn == WHITE else BB_RANK_8
-        king = self.occupied_co[self.turn] & self.kings & ~self.promoted & backrank & from_mask
+        king = self.occupied_co[self.turn] & self.kings & ~self._effective_promoted() & backrank & from_mask
         king &= -king
         if not king:
             return
@@ -3879,6 +3889,7 @@ class Board(BaseBoard):
     def _transposition_key(self) -> Hashable:
         return (self.pawns, self.knights, self.bishops, self.rooks,
                 self.queens, self.kings,
+                self._effective_promoted(),
                 self.occupied_co[WHITE], self.occupied_co[BLACK],
                 self.turn, self.clean_castling_rights(),
                 self.ep_square if self.has_legal_en_passant() else None)

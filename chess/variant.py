@@ -127,16 +127,8 @@ class SuicideBoard(chess.Board):
         else:
             return not any(self.generate_pseudo_legal_captures())
 
-    def _transposition_key(self) -> Hashable:
-        if self.has_chess960_castling_rights():
-            return (super()._transposition_key(), self.kings & self.promoted)
-        else:
-            return super()._transposition_key()
-
-    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
-        if promoted is None:
-            promoted = self.has_chess960_castling_rights()
-        return super().board_fen(promoted=promoted)
+    def _effective_promoted(self) -> chess.Bitboard:
+        return self.kings & self.promoted if self.castling_rights else chess.BB_EMPTY
 
     def status(self) -> chess.Status:
         status = super().status()
@@ -261,9 +253,9 @@ class AtomicBoard(chess.Board):
 
         # Destroy castling rights.
         self.castling_rights &= ~explosion_radius
-        if explosion_radius & self.kings & self.occupied_co[chess.WHITE] & ~self.promoted:
+        if explosion_radius & self.kings & self.occupied_co[chess.WHITE] & ~self._effective_promoted():
             self.castling_rights &= ~chess.BB_RANK_1
-        if explosion_radius & self.kings & self.occupied_co[chess.BLACK] & ~self.promoted:
+        if explosion_radius & self.kings & self.occupied_co[chess.BLACK] & ~self._effective_promoted():
             self.castling_rights &= ~chess.BB_RANK_8
 
         # Explode the capturing piece.
@@ -930,9 +922,11 @@ class CrazyhouseBoard(chess.Board):
     def is_irreversible(self, move: chess.Move) -> bool:
         return self._reduces_castling_rights(move)
 
+    def _effective_promoted(self) -> chess.Bitboard:
+        return self.promoted & ~self.kings & ~self.pawns
+
     def _transposition_key(self) -> Hashable:
         return (super()._transposition_key(),
-                self.promoted,
                 str(self.pockets[chess.WHITE]), str(self.pockets[chess.BLACK]))
 
     def legal_drop_squares_mask(self) -> chess.Bitboard:
@@ -1009,7 +1003,7 @@ class CrazyhouseBoard(chess.Board):
         # a different color complex.
         return (
             chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
-            not self.promoted and
+            not self._effective_promoted() and
             not self.pawns and
             not self.rooks and
             not self.queens and
@@ -1040,11 +1034,6 @@ class CrazyhouseBoard(chess.Board):
         super().set_fen(position_part + " " + info_part)
         self.pockets[chess.WHITE] = white_pocket
         self.pockets[chess.BLACK] = black_pocket
-
-    def board_fen(self, *, promoted: Optional[bool] = None) -> str:
-        if promoted is None:
-            promoted = True
-        return super().board_fen(promoted=promoted)
 
     def epd(self, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: Optional[bool] = None, **operations: Union[None, str, int, float, chess.Move, Iterable[chess.Move]]) -> str:
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
