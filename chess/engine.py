@@ -1245,7 +1245,10 @@ class BaseCommand(Generic[T]):
             self._handle_exception(err)
 
     def _line_received(self, line: str) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
+        if self.state not in [CommandState.ACTIVE, CommandState.CANCELLING]:
+            LOGGER.warning(f"engine sent unexpected line \"{line}\" in state {self.state}, ignoring")
+            return
+        
         try:
             self.line_received(line)
         except EngineError as err:
