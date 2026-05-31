@@ -3194,7 +3194,7 @@ class Board(BaseBoard):
         """
         Given a sequence of moves, returns a string representing the sequence
         in standard algebraic notation (e.g., ``1. e4 e5 2. Nf3 Nc6`` or
-        ``37...Bg6 38. fxg6``).
+        ``37... Bg6 38. fxg6``).
 
         The board will not be modified as a result of calling this.
 
@@ -3210,7 +3210,7 @@ class Board(BaseBoard):
             if board.turn == WHITE:
                 san.append(f"{board.fullmove_number}. {board.san_and_push(move)}")
             elif not san:
-                san.append(f"{board.fullmove_number}...{board.san_and_push(move)}")
+                san.append(f"{board.fullmove_number}... {board.san_and_push(move)}")
             else:
                 san.append(board.san_and_push(move))
 
