@@ -1042,6 +1042,10 @@ class BoardTestCase(unittest.TestCase):
         board = chess.Board("8/8/5k2/p1q5/PP1rp1P1/3P1N2/2RK1r2/5nN1 w - - 0 3")
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
+        # Multiple stepping checkers.
+        board = chess.Board("8/8/N7/2k5/N7/8/8/3K4 b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+
     def test_one_king_movegen(self):
         board = chess.Board.empty()
         board.set_piece_at(chess.A1, chess.Piece(chess.KING, chess.WHITE))
@@ -4564,6 +4568,11 @@ class AtomicTestCase(unittest.TestCase):
     def test_atomic_validity(self):
         # 14 checkers, the maximum in Atomic chess.
         board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Multiple stepping checkers possible, because opponent king may have
+        # moved away.
+        board = chess.variant.AtomicBoard("8/8/N7/2k1K3/N7/8/8/8 b - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
     def test_atomic960(self):

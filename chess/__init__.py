@@ -3654,7 +3654,8 @@ class Board(BaseBoard):
         if self.was_into_check():
             errors |= STATUS_OPPOSITE_CHECK
 
-        # More than the maximum number of possible checkers in the variant.
+        # More than the maximum number of possible checkers in the variant,
+        # or impossibly aligned checkers.
         checkers = self.checkers_mask()
         our_kings = self.kings & self.occupied_co[self.turn] & ~self._effective_promoted()
         if checkers:
@@ -3672,6 +3673,11 @@ class Board(BaseBoard):
             else:
                 if popcount(checkers) > 2 or (popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & our_kings):
                     errors |= STATUS_IMPOSSIBLE_CHECK
+
+            # Multiple steppers.
+            steppers = self.pawns | self.knights | self.kings
+            if popcount(checkers & steppers) > 1:
+                errors |= STATUS_IMPOSSIBLE_CHECK
 
         return errors
 
