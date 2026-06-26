@@ -5013,6 +5013,22 @@ class ChesstbTestCase(unittest.TestCase):
             with self.assertRaises(chess.chesstb.MissingTableError):
                 tables.probe_wdl(chess.Board("8/8/8/8/8/5k2/3QQQQ1/K7 w - - 0 1"))
 
+    def test_block_cache_reclaim(self):
+        # A tiny budget forces decoded blocks to be evicted from their owning
+        # per-color dicts, while answers stay correct.
+        with chess.chesstb.open_tablebase("data/chesstb", block_cache_bytes=1) as tables:
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm(board), 19)
+            cache = tables._block_cache
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            wdl = tables._open_wdl(cfg)
+            # At most a single decoded WDL block stays resident under the budget.
+            self.assertLessEqual(sum(len(pc._blocks) for pc in wdl.per_color if pc), 1)
+            # close() drops everything tracked.
+            tables.close()
+            self.assertEqual(cache.cur_bytes, 0)
+
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))

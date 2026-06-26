@@ -14,9 +14,11 @@ table files and answers WDL / DTZ-equivalent (DTC) / DTM / DTM50 queries.
 """
 from __future__ import annotations
 
+import collections
 import lzma
 import os
 import struct
+import threading
 from typing import Any, Dict, List, Optional, Tuple
 
 import chess
@@ -715,6 +717,66 @@ def lz4_decompress_block(src: memoryview, expected_size: int, dict_bytes: bytes 
 
 
 # ===========================================================================
+# Decoded-block cache
+# ===========================================================================
+
+#: Default soft budget (bytes) for decoded blocks held resident across all
+#: tables of a :class:`Tablebase`. The cache evicts least-recently-used blocks
+#: once the budget is exceeded, so memory is reclaimed automatically without an
+#: explicit :meth:`Tablebase.close`.
+DEFAULT_BLOCK_CACHE_BYTES = 64 * 1024 * 1024
+
+
+class _BlockCache:
+    """LRU reclaimer shared by every table of a :class:`Tablebase`.
+
+    Decoding a block is expensive, so each per-color object keeps its own
+    ``_blocks`` dict of decoded blocks. This cache tracks those entries in a
+    global least-recently-used order keyed by ``(per_color, block_id)`` and,
+    once the resident byte estimate exceeds ``max_bytes``, evicts the oldest
+    blocks by dropping them from their owning ``_blocks`` dict. Sizes are
+    approximate; the budget is a soft target.
+    """
+
+    def __init__(self, max_bytes: int) -> None:
+        self.max_bytes = max_bytes
+        self.cur_bytes = 0
+        # (per_color, block_id) -> approximate size in bytes, ordered LRU-first.
+        self._lru: "collections.OrderedDict[Tuple[Any, int], int]" = collections.OrderedDict()
+        self._lock = threading.Lock()
+
+    def touch(self, pc: Any, block_id: int) -> None:
+        """Mark an already-cached block as most-recently-used (a cache hit)."""
+        key = (pc, block_id)
+        with self._lock:
+            if key in self._lru:
+                self._lru.move_to_end(key)
+
+    def record(self, pc: Any, block_id: int, size: int) -> None:
+        """Register a freshly decoded block and evict until within budget."""
+        key = (pc, block_id)
+        with self._lock:
+            old = self._lru.pop(key, None)
+            if old is not None:
+                self.cur_bytes -= old
+            self._lru[key] = size
+            self.cur_bytes += size
+            # Keep the just-added block (it is at the end); never empty fully.
+            while self.cur_bytes > self.max_bytes and len(self._lru) > 1:
+                (ev_pc, ev_id), ev_size = self._lru.popitem(last=False)
+                self.cur_bytes -= ev_size
+                ev_pc._blocks.pop(ev_id, None)
+
+    def clear(self) -> None:
+        """Drop every tracked block and reset the budget."""
+        with self._lock:
+            for pc, block_id in self._lru:
+                pc._blocks.pop(block_id, None)
+            self._lru.clear()
+            self.cur_bytes = 0
+
+
+# ===========================================================================
 # WDL table file
 # ===========================================================================
 
@@ -751,9 +813,10 @@ class WDLFile:
     EXT = ".lzw"
     MAGIC = WDL_MAGIC
 
-    def __init__(self, cfg: PieceConfig, path: str):
+    def __init__(self, cfg: PieceConfig, path: str, cache: Optional[_BlockCache] = None):
         self.cfg = cfg
         self.index_cfg = position_index_config(cfg)
+        self.cache = cache if cache is not None else _BlockCache(DEFAULT_BLOCK_CACHE_BYTES)
         self.is_singular = [False, False]
         self.is_dropped = [False, False]
         self.per_color: List[Optional[_WDLPerColor]] = [None, None]
@@ -840,6 +903,7 @@ class WDLFile:
     def _get_block(self, pc: _WDLPerColor, block_id: int) -> bytes:
         blk = pc._blocks.get(block_id)
         if blk is not None:
+            self.cache.touch(pc, block_id)
             return blk
         doff, dnext = pc.offsets.get2(block_id)
         dsz = dnext - doff
@@ -847,6 +911,7 @@ class WDLFile:
                   else pc.block_size)
         blk = lz4_decompress_block(pc.compressed[doff:doff + dsz], out_sz, pc.dict)
         pc._blocks[block_id] = blk
+        self.cache.record(pc, block_id, len(blk))
         return blk
 
     def read(self, color: int, board: chess.Board) -> int:
@@ -1031,9 +1096,10 @@ class DTCFile:
     EXT = ".lzdtc"
     MAGIC = DTC_MAGIC
 
-    def __init__(self, cfg: PieceConfig, path: str):
+    def __init__(self, cfg: PieceConfig, path: str, cache: Optional[_BlockCache] = None):
         self.cfg = cfg
         self.index_cfg = position_index_config(cfg)
+        self.cache = cache if cache is not None else _BlockCache(DEFAULT_BLOCK_CACHE_BYTES)
         self.is_singular = [False, False]
         self.is_dropped = [False, False]
         self.per_color: List[Optional[_RankPerColor]] = [None, None]
@@ -1107,6 +1173,7 @@ class DTCFile:
     def _get_block_raw(self, pc: _RankPerColor, block_id: int) -> bytes:
         blk = pc._blocks.get(block_id)
         if blk is not None:
+            self.cache.touch(pc, block_id)
             return blk
         decode_sz = (pc.tail_size if (block_id == pc.block_cnt - 1 and pc.tail_size != 0)
                      else pc.block_size)
@@ -1114,6 +1181,7 @@ class DTCFile:
         dsz = dnext - doff
         blk = b"" if dsz == 0 else lzma_raw_decompress(pc.compressed[doff:doff + dsz], decode_sz)
         pc._blocks[block_id] = blk
+        self.cache.record(pc, block_id, len(blk))
         return blk
 
     def read(self, color: int, board: chess.Board, wdl: int) -> int:
@@ -1182,9 +1250,10 @@ class DTM50File:
     EXT = ".lzdtm50"
     MAGIC = DTM50_MAGIC
 
-    def __init__(self, cfg: PieceConfig, path: str):
+    def __init__(self, cfg: PieceConfig, path: str, cache: Optional[_BlockCache] = None):
         self.cfg = cfg
         self.index_cfg = position_index_config(cfg)
+        self.cache = cache if cache is not None else _BlockCache(DEFAULT_BLOCK_CACHE_BYTES)
         self.is_singular = [False, False]
         self.is_dropped = [False, False]
         self.per_color: List[Optional[_DTM50PerColor]] = [None, None]
@@ -1263,6 +1332,7 @@ class DTM50File:
     def _get_block(self, pc: _DTM50PerColor, block_id: int) -> Dict[str, Any]:
         blk = pc._blocks.get(block_id)
         if blk is not None:
+            self.cache.touch(pc, block_id)
             return blk
         doff, dnext = pc.offsets.get2(block_id)
         dsz = dnext - doff
@@ -1321,6 +1391,9 @@ class DTM50File:
             "single_short_pre": single_short_pre, "double_short_pre": double_short_pre,
         }
         pc._blocks[block_id] = blk
+        # Approximate resident size: the decoded payload plus the per-position
+        # Python state/index lists derived above.
+        self.cache.record(pc, block_id, len(payload) + 9 * num_positions)
         return blk
 
     @staticmethod
@@ -1524,11 +1597,14 @@ class Tablebase:
     derived from the canonical orientation of the board's material.
     """
 
-    def __init__(self, directory: str):
+    def __init__(self, directory: str, *, block_cache_bytes: int = DEFAULT_BLOCK_CACHE_BYTES):
         self.dirs: Dict[str, List[str]] = {kind: [] for kind in ("wdl", "dtc", "dtm50")}
         self._wdl_cache: Dict[int, Optional[WDLFile]] = {}
         self._dtc_cache: Dict[int, Optional[DTCFile]] = {}
         self._dtm50_cache: Dict[int, Optional[DTM50File]] = {}
+        # Shared LRU so decoded blocks are reclaimed automatically once the
+        # budget is exceeded, rather than growing for the lifetime of the probe.
+        self._block_cache = _BlockCache(block_cache_bytes)
         self.add_directory(directory)
 
     def add_directory(self, directory: str) -> None:
@@ -1539,6 +1615,7 @@ class Tablebase:
 
     def close(self) -> None:
         """Drop all cached decoded blocks and open tables."""
+        self._block_cache.clear()
         self._wdl_cache.clear()
         self._dtc_cache.clear()
         self._dtm50_cache.clear()
@@ -1561,21 +1638,21 @@ class Tablebase:
         k = cfg.min_key
         if k not in self._wdl_cache:
             p = self._find("wdl", cfg.name(), WDLFile.EXT)
-            self._wdl_cache[k] = WDLFile(cfg, p) if p else None
+            self._wdl_cache[k] = WDLFile(cfg, p, self._block_cache) if p else None
         return self._wdl_cache[k]
 
     def _open_dtc(self, cfg: PieceConfig) -> Optional[DTCFile]:
         k = cfg.min_key
         if k not in self._dtc_cache:
             p = self._find("dtc", cfg.name(), DTCFile.EXT)
-            self._dtc_cache[k] = DTCFile(cfg, p) if p else None
+            self._dtc_cache[k] = DTCFile(cfg, p, self._block_cache) if p else None
         return self._dtc_cache[k]
 
     def _open_dtm50(self, cfg: PieceConfig) -> Optional[DTM50File]:
         k = cfg.min_key
         if k not in self._dtm50_cache:
             p = self._find("dtm50", cfg.name(), DTM50File.EXT)
-            self._dtm50_cache[k] = DTM50File(cfg, p) if p else None
+            self._dtm50_cache[k] = DTM50File(cfg, p, self._block_cache) if p else None
         return self._dtm50_cache[k]
 
     def _has_any_table(self, cfg: PieceConfig) -> bool:
@@ -2004,7 +2081,12 @@ class Tablebase:
         return (_WDL_SIGNED[r.dtm50_wdl], r.dtm50)
 
 
-def open_tablebase(directory: str) -> Tablebase:
+def open_tablebase(directory: str, *,
+                   block_cache_bytes: int = DEFAULT_BLOCK_CACHE_BYTES) -> Tablebase:
     """Open a directory tree of chesstb tables (``wdl/``, ``dtc/``, ``dtm50/``
-    subdirectories, or table files directly under `directory`)."""
-    return Tablebase(directory)
+    subdirectories, or table files directly under `directory`).
+
+    Decoded blocks are kept in a least-recently-used cache bounded by
+    `block_cache_bytes`; older blocks are reclaimed automatically once the
+    budget is exceeded."""
+    return Tablebase(directory, block_cache_bytes=block_cache_bytes)
