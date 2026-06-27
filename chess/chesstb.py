@@ -146,6 +146,18 @@ _STRENGTH = {QUEEN: 900, ROOK: 500, BISHOP: 330, KNIGHT: 320, PAWN: 100, KING: 0
 _TYPE_ORDER = {KING: 0, QUEEN: 1, ROOK: 2, BISHOP: 3, KNIGHT: 4, PAWN: 5}
 
 
+def _composition_key(pieces: List[Tuple[int, int]], color: int) -> List[int]:
+    """Per-type piece counts for `color`, indexed by C++ type code so that
+    lexicographic comparison orders by KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN.
+    Mirrors the ``std::array<int8_t, PIECE_TYPE_NB>`` tiebreak key in
+    ``Piece_Config::sort_pieces`` (src/chess/piece_config.cpp)."""
+    counts = [0] * (PAWN + 1)
+    for c, t in pieces:
+        if c == color:
+            counts[t] += 1
+    return counts
+
+
 class PieceConfig:
     """Canonical material config. `pieces` is a list of (cpp_color, type)."""
 
@@ -154,7 +166,10 @@ class PieceConfig:
         # Input may be in any orientation; we canonicalize.
         ws = sum(_STRENGTH[t] for c, t in pieces if c == CPP_WHITE)
         bs = sum(_STRENGTH[t] for c, t in pieces if c == CPP_BLACK)
-        if bs > ws:
+        swap = bs > ws
+        if bs == ws:
+            swap = _composition_key(pieces, CPP_BLACK) > _composition_key(pieces, CPP_WHITE)
+        if swap:
             pieces = [(CPP_BLACK if c == CPP_WHITE else CPP_WHITE, t) for c, t in pieces]
         # sort: white side first then black; within side by type order.
         pieces = sorted(pieces, key=lambda ct: (ct[0], _TYPE_ORDER[ct[1]]))
