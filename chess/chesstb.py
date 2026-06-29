@@ -159,11 +159,15 @@ def _composition_key(pieces: List[Tuple[int, int]], color: int) -> List[int]:
 
 
 class PieceConfig:
-    """Canonical material config. `pieces` is a list of (cpp_color, type)."""
+    """Canonical material config. `pieces` is a list of (cpp_color, type) of the
+    FREE pieces. `has_pair` marks a frozen opposing pawn pair (lowercase 'p'):
+    one white + one black pawn locked on a file, indexed jointly and excluded
+    from `pieces` (mirrors src/chess/piece_config.h)."""
 
-    def __init__(self, pieces: List[Tuple[int, int]]):
+    def __init__(self, pieces: List[Tuple[int, int]], has_pair: bool = False):
         # Determine side ordering by total strength; stronger side -> WHITE.
-        # Input may be in any orientation; we canonicalize.
+        # Input may be in any orientation; we canonicalize. The pair is
+        # strength-neutral (one pawn each side), so it never affects the swap.
         ws = sum(_STRENGTH[t] for c, t in pieces if c == CPP_WHITE)
         bs = sum(_STRENGTH[t] for c, t in pieces if c == CPP_BLACK)
         swap = bs > ws
@@ -174,17 +178,38 @@ class PieceConfig:
         # sort: white side first then black; within side by type order.
         pieces = sorted(pieces, key=lambda ct: (ct[0], _TYPE_ORDER[ct[1]]))
         self.pieces = pieces
+        self.has_pair = has_pair
         self.base_key = material_key_of(pieces)
         self.mirr_key = material_key_of(
             [(CPP_BLACK if c == CPP_WHITE else CPP_WHITE, t) for c, t in pieces])
 
     @property
     def min_key(self) -> int:
+        # Pair-stripped 30-bit value, as serialized in the on-disk header.
         return min(self.base_key, self.mirr_key)
 
+    @property
+    def cache_key(self) -> int:
+        # In-memory key distinguishing a 'p'-material from its free-pieces twin
+        # (which share min_key). Not for disk; canonical min-keys are < 2^31.
+        return self.min_key | (0x80000000 if self.has_pair else 0)
+
     def name(self) -> str:
+        # The pair contributes one pawn to each side; emit a 'p' at the end of
+        # the white side (before the 2nd king) and another at the very end, e.g.
+        # "KQpKp" -- so a board-derived pair config resolves the right filename.
         letters = {KING: "K", QUEEN: "Q", ROOK: "R", BISHOP: "B", KNIGHT: "N", PAWN: "P"}
-        return "".join(letters[t] for c, t in self.pieces)
+        s = []
+        seen_white_king = False
+        for c, t in self.pieces:
+            if t == KING:
+                if seen_white_king and self.has_pair:
+                    s.append("p")
+                seen_white_king = True
+            s.append(letters[t])
+        if self.has_pair:
+            s.append("p")
+        return "".join(s)
 
     @property
     def num_pieces(self) -> int:
@@ -205,6 +230,29 @@ def piece_config_from_board(board: chess.Board) -> Tuple["PieceConfig", bool]:
     cfg = PieceConfig(pieces)
     literal = material_key_of(pieces)
     mirrored = literal != cfg.base_key
+    return cfg, mirrored
+
+
+def pair_config_from_board(board: chess.Board) -> Optional[Tuple["PieceConfig", bool]]:
+    """If `board` has an opposing pawn pair, return (frozen-pair PieceConfig,
+    mirrored?); else None. The pair's two pawns are excluded from the config and
+    flagged via has_pair, mirroring src/probe/probe.cpp pair_config_from_position.
+    Used to prefer a 'p' table over the full material when one is on disk."""
+    wp = list(board.pieces(chess.PAWN, WHITE))
+    bp = list(board.pieces(chess.PAWN, BLACK))
+    found = PairGroup.find_canonical(wp, bp)
+    if found is None:
+        return None
+    pw, pb = found
+    pieces = []
+    for sq in range(64):
+        if sq == pw or sq == pb:
+            continue
+        p = board.piece_at(sq)
+        if p:
+            pieces.append((cpp_color(p.color), _PC_TO_CPP[p.piece_type]))
+    cfg = PieceConfig(pieces, has_pair=True)
+    mirrored = material_key_of(pieces) != cfg.base_key
     return cfg, mirrored
 
 
@@ -357,46 +405,138 @@ def king_slice_mgr(sym: int) -> KingSliceManager:
 # ---------------------------------------------------------------------------
 # Pawn_Slice_Manager
 # ---------------------------------------------------------------------------
+class PairGroup:
+    """Opposing pawn pair (lowercase 'p'): white pawn on rank r, black on rank s,
+    r < s, same file. Enumeration / index_of / find_canonical must match
+    src/egtb/pair_group.h exactly -- the on-disk pawn-slice ids depend on them.
+    White ranks 2..6, black 3..7: C(6,2)=15 rank pairs x 8 files = 120."""
+
+    def __init__(self) -> None:
+        self.white: List[int] = []
+        self.black: List[int] = []
+        self._inv: Dict[Tuple[int, int], int] = {}
+        for f in range(8):
+            for wr in range(1, 6):          # ranks 2..6
+                for br in range(wr + 1, 7):  # ranks 3..7
+                    w = sq_make(wr, f)
+                    b = sq_make(br, f)
+                    self._inv[(w, b)] = len(self.white)
+                    self.white.append(w)
+                    self.black.append(b)
+
+    @property
+    def table_size(self) -> int:
+        return len(self.white)
+
+    def white_square(self, i: int) -> int:
+        return self.white[i]
+
+    def black_square(self, i: int) -> int:
+        return self.black[i]
+
+    def index_of(self, w: int, b: int) -> int:
+        return self._inv[(w, b)]
+
+    @staticmethod
+    def is_opposing_pair(w: int, b: int) -> bool:
+        return (sq_file(w) == sq_file(b)
+                and sq_rank(w) >= 1 and sq_rank(b) <= 6
+                and sq_rank(w) < sq_rank(b))
+
+    @staticmethod
+    def find_canonical(white_sqs: List[int], black_sqs: List[int]
+                       ) -> Optional[Tuple[int, int]]:
+        """The opposing pair minimal by (file, white_rank, black_rank), or None.
+        Both the generator's prune and this lookup use this one rule."""
+        best: Optional[Tuple[Tuple[int, int, int], int, int]] = None
+        for w in white_sqs:
+            for b in black_sqs:
+                if not PairGroup.is_opposing_pair(w, b):
+                    continue
+                key = (sq_file(w), sq_rank(w), sq_rank(b))
+                if best is None or key < best[0]:
+                    best = (key, w, b)
+        return None if best is None else (best[1], best[2])
+
+    @staticmethod
+    def canonical_pair(white_sqs: List[int], black_sqs: List[int]) -> Tuple[int, int]:
+        """For callers that know an opposing pair is present (indexing a stored
+        pair-table position): the canonical pair, asserting one exists."""
+        found = PairGroup.find_canonical(white_sqs, black_sqs)
+        assert found is not None
+        return found
+
+
 class PawnSliceManager:
-    def __init__(self, white_group: Optional[PieceGroup], black_group: Optional[PieceGroup]):
-        self.has_pawns = white_group is not None or black_group is not None
+    def __init__(self, pair_group: Optional[PairGroup],
+                 white_group: Optional[PieceGroup], black_group: Optional[PieceGroup]):
+        self.pair_group = pair_group
         self.white_group = white_group
         self.black_group = black_group
+        self.has_pawns = (pair_group is not None
+                          or white_group is not None or black_group is not None)
         if not self.has_pawns:
             self.num_slices = 1
+            self.pair_table_size = 1
             self.white_table_size = 1
             self.black_table_size = 1
             self.storage_by_cartesian = [0]
             self.cartesian_by_storage = [0]
             return
+        self.pair_table_size = pair_group.table_size if pair_group else 1
         self.white_table_size = white_group.table_size if white_group else 1
         self.black_table_size = black_group.table_size if black_group else 1
-        n_cart = self.white_table_size * self.black_table_size
+        # Mixed radix: cart = pair_idx + w_idx*pair_size + b_idx*pair_size*white_size.
+        n_cart = self.pair_table_size * self.white_table_size * self.black_table_size
         self.storage_by_cartesian = [-1] * n_cart
         self.cartesian_by_storage = []
         for cart in range(n_cart):
-            w_idx = cart % self.white_table_size
-            b_idx = cart // self.white_table_size
-            w_pl = white_group.squares(w_idx) if white_group else []
-            b_pl = black_group.squares(b_idx) if black_group else []
-            if set(w_pl) & set(b_pl):
+            pair_idx = cart % self.pair_table_size
+            rem = cart // self.pair_table_size
+            w_idx = rem % self.white_table_size
+            b_idx = rem // self.white_table_size
+            sqs: List[int] = []
+            if pair_group:
+                sqs.append(pair_group.white_square(pair_idx))
+                sqs.append(pair_group.black_square(pair_idx))
+            if white_group:
+                sqs.extend(white_group.squares(w_idx))
+            if black_group:
+                sqs.extend(black_group.squares(b_idx))
+            if len(set(sqs)) != len(sqs):
                 continue
+            if pair_group:
+                pair_w = pair_group.white_square(pair_idx)
+                pair_b = pair_group.black_square(pair_idx)
+                wsqs = [pair_w]
+                bsqs = [pair_b]
+                if white_group:
+                    wsqs.extend(white_group.squares(w_idx))
+                if black_group:
+                    bsqs.extend(black_group.squares(b_idx))
+                cw, cb = PairGroup.canonical_pair(wsqs, bsqs)
+                if cw != pair_w or cb != pair_b:
+                    continue
             self.storage_by_cartesian[cart] = len(self.cartesian_by_storage)
             self.cartesian_by_storage.append(cart)
         self.num_slices = len(self.cartesian_by_storage)
 
-    def compose(self, w_idx: int, b_idx: int) -> int:
+    def compose(self, pair_idx: int, w_idx: int, b_idx: int) -> int:
         if not self.has_pawns:
             return 0
-        cart = w_idx + b_idx * self.white_table_size
+        cart = (pair_idx
+                + w_idx * self.pair_table_size
+                + b_idx * self.pair_table_size * self.white_table_size)
         return self.storage_by_cartesian[cart]
 
-    def lookup_from_squares(self, white_pawn_sqs: List[int], black_pawn_sqs: List[int]) -> int:
+    def lookup_from_squares(self, pair_w: int, pair_b: int,
+                            white_pawn_sqs: List[int], black_pawn_sqs: List[int]) -> int:
         if not self.has_pawns:
             return 0
+        pair_idx = self.pair_group.index_of(pair_w, pair_b) if self.pair_group else 0
         w_idx = self.white_group.compound_index(white_pawn_sqs) if self.white_group else 0
         b_idx = self.black_group.compound_index(black_pawn_sqs) if self.black_group else 0
-        return self.compose(w_idx, b_idx)
+        return self.compose(pair_idx, w_idx, b_idx)
 
 
 # ---------------------------------------------------------------------------
@@ -432,7 +572,10 @@ class PositionIndexConfig:
         counts: Dict[Tuple[int, int], int] = {}
         for c, t in cfg.pieces:
             counts[(c, t)] = counts.get((c, t), 0) + 1
-        has_pawns = counts.get((CPP_WHITE, PAWN), 0) > 0 or counts.get((CPP_BLACK, PAWN), 0) > 0
+        # A frozen pair is two pawns on the board, so it breaks symmetry to
+        # file-mirror like any pawn even with no free pawns.
+        has_pawns = (counts.get((CPP_WHITE, PAWN), 0) > 0
+                     or counts.get((CPP_BLACK, PAWN), 0) > 0 or cfg.has_pair)
         self.sym = SYM_FILE_MIRROR if has_pawns else SYM_DIHEDRAL_8
         self.ksm = king_slice_mgr(self.sym)
 
@@ -446,10 +589,12 @@ class PositionIndexConfig:
                 pcl = make_piece_class(c, t)
                 self.groups[pcl] = PieceGroup(t, n)
 
+        self.pair_group = PairGroup() if cfg.has_pair else None
         if has_pawns:
-            self.psm = PawnSliceManager(self.groups.get(WHITE_PAWNS), self.groups.get(BLACK_PAWNS))
+            self.psm = PawnSliceManager(self.pair_group,
+                                        self.groups.get(WHITE_PAWNS), self.groups.get(BLACK_PAWNS))
         else:
-            self.psm = PawnSliceManager(None, None)
+            self.psm = PawnSliceManager(None, None, None)
         self.num_pawn_slices = self.psm.num_slices
 
         # populated non-pawn classes in ascending class-id order; native weights.
@@ -489,10 +634,12 @@ class PositionIndexConfig:
             cc, tt = class_to_piece(c)
             color = WHITE if cc == CPP_WHITE else BLACK
             pl[c] = list(board.pieces(_CPP_TO_PC[tt], color))
+        # Collect pawns when a free-pawn class is populated OR a frozen pair adds
+        # pawns with no free-pawn class (e.g. KpKp). The pair members are folded
+        # in here and split out by find_canonical at index time.
         for c in (WHITE_PAWNS, BLACK_PAWNS):
-            if c in self.groups:
-                cc, tt = class_to_piece(c)
-                color = WHITE if cc == CPP_WHITE else BLACK
+            if c in self.groups or self.pair_group is not None:
+                color = WHITE if c == WHITE_PAWNS else BLACK
                 pl[c] = list(board.pieces(chess.PAWN, color))
         return pl
 
@@ -529,7 +676,16 @@ class PositionIndexConfig:
             return None
         pawn_slice = 0
         if self.psm.has_pawns:
-            pawn_slice = self.psm.lookup_from_squares(pl[WHITE_PAWNS], pl[BLACK_PAWNS])
+            w_pl, b_pl = pl[WHITE_PAWNS], pl[BLACK_PAWNS]
+            if self.pair_group is not None:
+                # Identify the pair (canonical opposing pair); the rest are free.
+                pw, pb = PairGroup.canonical_pair(w_pl, b_pl)
+                free_w = [s for s in w_pl if s != pw]
+                free_b = [s for s in b_pl if s != pb]
+            else:
+                pw = pb = -1
+                free_w, free_b = w_pl, b_pl
+            pawn_slice = self.psm.lookup_from_squares(pw, pb, free_w, free_b)
         within_idx = {c: self.groups[c].compound_index(pl[c]) for c in self.populated}
         within = 0
         w = 1
@@ -544,7 +700,7 @@ _INDEX_CFG_CACHE: Dict[int, PositionIndexConfig] = {}
 
 
 def position_index_config(cfg: PieceConfig) -> PositionIndexConfig:
-    k = cfg.base_key
+    k = cfg.cache_key
     if k not in _INDEX_CFG_CACHE:
         _INDEX_CFG_CACHE[k] = PositionIndexConfig(cfg)
     return _INDEX_CFG_CACHE[k]
@@ -1650,42 +1806,57 @@ class Tablebase:
         return None
 
     def _open_wdl(self, cfg: PieceConfig) -> Optional[WDLFile]:
-        k = cfg.min_key
+        k = cfg.cache_key
         if k not in self._wdl_cache:
             p = self._find("wdl", cfg.name(), WDLFile.EXT)
             self._wdl_cache[k] = WDLFile(cfg, p, self._block_cache) if p else None
         return self._wdl_cache[k]
 
     def _open_dtc(self, cfg: PieceConfig) -> Optional[DTCFile]:
-        k = cfg.min_key
+        k = cfg.cache_key
         if k not in self._dtc_cache:
             p = self._find("dtc", cfg.name(), DTCFile.EXT)
             self._dtc_cache[k] = DTCFile(cfg, p, self._block_cache) if p else None
         return self._dtc_cache[k]
 
     def _open_dtm50(self, cfg: PieceConfig) -> Optional[DTM50File]:
-        k = cfg.min_key
+        k = cfg.cache_key
         if k not in self._dtm50_cache:
             p = self._find("dtm50", cfg.name(), DTM50File.EXT)
             self._dtm50_cache[k] = DTM50File(cfg, p, self._block_cache) if p else None
         return self._dtm50_cache[k]
 
     def _has_any_table(self, cfg: PieceConfig) -> bool:
-        return (self._open_wdl(cfg) is not None or self._open_dtc(cfg) is not None
-                or self._open_dtm50(cfg) is not None)
+        return self._open_wdl(cfg) is not None
 
     # --- child construction for the derive / overlay paths ---
     def _make_child(self, parent: chess.Board, move: chess.Move
-                    ) -> Tuple[PieceConfig, chess.Board, bool, bool]:
+                    ) -> Tuple[PieceConfig, chess.Board, Optional[int], bool, bool]:
         zeroing = parent.is_zeroing(move)
+        raw_ep = _ep_square_after_double_push(move) if _is_pawn_double_push(parent, move) else None
         child = parent.copy(stack=False)
         child.push(move)
         child.ep_square = None
-        cfg, mirrored = piece_config_from_board(child)
+
+        # Prefer the child's frozen-pair table when one is on disk: a move that
+        # keeps the pair (any non-capture, including a free-pawn push) stays in a
+        # 'p' material that the board-derived config below would miss -- it sees
+        # the pair pawns as ordinary free pawns. Falls back to the full physical
+        # material for captures/promotions and when no 'p' table is present. Owns
+        # the child ep so the routed/mirrored board and ep can't desync.
+        paired = pair_config_from_board(child)
+        if paired is not None and self._has_any_table(paired[0]):
+            cfg, mirrored = paired
+        else:
+            cfg, mirrored = piece_config_from_board(child)
+
+        ep = raw_ep
         if mirrored:
             child = mirror_for_canonical(child)
+            if ep is not None:
+                ep = sq_rank_mirror(ep)
         is_kk = cfg.num_pieces <= 2
-        return cfg, child, is_kk, zeroing
+        return cfg, child, ep, is_kk, zeroing
 
     # --- WDL ---
     def _read_wdl_stored(self, w: Optional[WDLFile], board: chess.Board) -> int:
@@ -1701,13 +1872,13 @@ class Tablebase:
         color = CPP_WHITE if board.turn == WHITE else CPP_BLACK
         if w.is_dropped[color]:
             if not is_symmetric_material(cfg):
-                return self._derive_wdl(cfg, board, depth)
+                return self._derive_wdl(board, depth)
             mp = mirror_for_canonical(board)
             mc = CPP_WHITE if mp.turn == WHITE else CPP_BLACK
             return wdl_from_storage(w.read(mc, mp))
         return wdl_from_storage(w.read(color, board))
 
-    def _derive_wdl(self, cfg: PieceConfig, board: chess.Board, depth: int) -> int:
+    def _derive_wdl(self, board: chess.Board, depth: int) -> int:
         if depth >= MAX_DERIVE_DEPTH:
             return ILLEGAL
         b = _internal_board(board)
@@ -1715,11 +1886,10 @@ class Tablebase:
         best = LOSE
         for m in b.legal_moves:
             any_legal = True
-            cfg_c, cboard, is_kk, zeroing = self._make_child(b, m)
+            cfg_c, cboard, cep, is_kk, zeroing = self._make_child(b, m)
             if is_kk:
                 mw = DRAW
             elif zeroing:
-                cep = _ep_square_after_double_push(m) if _is_pawn_double_push(b, m) else None
                 cw = self._probe_wdl_impl(cfg_c, cboard, cep, depth + 1)
                 if cw == ILLEGAL:
                     continue
@@ -1748,7 +1918,7 @@ class Tablebase:
         bcopy, eps = _ep_capture_moves(board, ep_square)
         assert bcopy is not None  # ep_square is not None here
         for m in eps:
-            cfg_c, cboard, is_kk, _ = self._make_child(bcopy, m)
+            cfg_c, cboard, _cep, is_kk, _ = self._make_child(bcopy, m)
             cw = DRAW if is_kk else self._probe_wdl_internal(
                 self._open_wdl(cfg_c), cfg_c, cboard, depth + 1)
             if cw == ILLEGAL:
@@ -1766,13 +1936,13 @@ class Tablebase:
         color = CPP_WHITE if board.turn == WHITE else CPP_BLACK
         if d.is_dropped[color]:
             if not is_symmetric_material(cfg):
-                return self._derive_dtc(cfg, board, depth)
+                return self._derive_dtc(board, depth)
             mp = mirror_for_canonical(board)
             mc = CPP_WHITE if mp.turn == WHITE else CPP_BLACK
             return d.read(mc, mp, wdl)
         return d.read(color, board, wdl)
 
-    def _derive_dtc(self, cfg: PieceConfig, board: chess.Board, depth: int) -> Optional[int]:
+    def _derive_dtc(self, board: chess.Board, depth: int) -> Optional[int]:
         if depth >= MAX_DERIVE_DEPTH:
             return None
         b = _internal_board(board)
@@ -1780,11 +1950,10 @@ class Tablebase:
         best_wdl, best_dtc = LOSE, 0
         for m in b.legal_moves:
             any_legal = True
-            cfg_c, cboard, is_kk, zeroing = self._make_child(b, m)
+            cfg_c, cboard, cep, is_kk, zeroing = self._make_child(b, m)
             if is_kk:
                 cw, my_dtc = DRAW, 1
             elif zeroing:
-                cep = _ep_square_after_double_push(m) if _is_pawn_double_push(b, m) else None
                 cw = self._probe_wdl_impl(cfg_c, cboard, cep, depth + 1)
                 if cw == ILLEGAL:
                     continue
@@ -1837,8 +2006,8 @@ class Tablebase:
             val = m.read(color, board, wdl, rule50)
             d = (wdl if flat else fold_dtm50_wdl(wdl), val)
         elif not is_symmetric_material(cfg):
-            d = (self._derive_dtm50_flat(cfg, board, depth) if flat
-                 else self._derive_dtm50(cfg, board, rule50, depth))
+            d = (self._derive_dtm50_flat(board, depth) if flat
+                 else self._derive_dtm50(board, rule50, depth))
         else:
             mp = mirror_for_canonical(board)
             mc = CPP_WHITE if mp.turn == WHITE else CPP_BLACK
@@ -1848,7 +2017,7 @@ class Tablebase:
             return self._recover_mate_at_hmc(board, wdl)
         return d
 
-    def _derive_dtm50_flat(self, cfg: PieceConfig, board: chess.Board,
+    def _derive_dtm50_flat(self, board: chess.Board,
                            depth: int) -> Tuple[int, int]:
         if depth >= MAX_DERIVE_DEPTH:
             return (ILLEGAL, 0)
@@ -1857,12 +2026,11 @@ class Tablebase:
         best_wdl, best_dtm = LOSE, 0
         for mv in b.legal_moves:
             any_legal = True
-            cfg_c, cboard, is_kk, zeroing = self._make_child(b, mv)
+            cfg_c, cboard, cep, is_kk, zeroing = self._make_child(b, mv)
             if is_kk:
                 cw, cd = DRAW, 0
-            elif _is_pawn_double_push(b, mv):
-                cr = self._probe_impl(cfg_c, cboard, IGNORE_50MR,
-                                      _ep_square_after_double_push(mv), depth + 1)
+            elif cep is not None:
+                cr = self._probe_impl(cfg_c, cboard, IGNORE_50MR, cep, depth + 1)
                 if cr.status != "ok" or cr.wdl == ILLEGAL or not cr.has_dtm:
                     continue
                 cw, cd = cr.wdl, cr.dtm
@@ -1891,7 +2059,7 @@ class Tablebase:
             return (best_wdl, best_dtm)
         return (DRAW, 0)
 
-    def _derive_dtm50(self, cfg: PieceConfig, board: chess.Board, rule50: int,
+    def _derive_dtm50(self, board: chess.Board, rule50: int,
                       depth: int) -> Tuple[int, int]:
         if depth >= MAX_DERIVE_DEPTH:
             return (ILLEGAL, 0)
@@ -1900,15 +2068,14 @@ class Tablebase:
         best_wdl, best_dtm = LOSE, 0
         for mv in b.legal_moves:
             any_legal = True
-            cfg_c, cboard, is_kk, zeroing = self._make_child(b, mv)
+            cfg_c, cboard, cep, is_kk, zeroing = self._make_child(b, mv)
             child_rule50 = 0 if zeroing else rule50 + 1
             if is_kk:
                 cd = (DRAW, 0)
             elif child_rule50 >= DTM50_HMC_COUNT:
                 cd = (LOSE, 0) if _is_checkmate(cboard) else (DRAW, 0)
-            elif _is_pawn_double_push(b, mv):
-                cr = self._probe_impl(cfg_c, cboard, child_rule50,
-                                      _ep_square_after_double_push(mv), depth + 1)
+            elif cep is not None:
+                cr = self._probe_impl(cfg_c, cboard, child_rule50, cep, depth + 1)
                 if cr.status != "ok" or not cr.has_dtm50:
                     continue
                 cd = (cr.dtm50_wdl, cr.dtm50)
@@ -1940,33 +2107,35 @@ class Tablebase:
             r.status = "illegal_pos"
             return r
         w = self._open_wdl(cfg)
-        d = self._open_dtc(cfg)
-        m50 = self._open_dtm50(cfg)
         rule50_drawn = (rule50 != IGNORE_50MR and rule50 >= DTM50_HMC_COUNT)
-        if w is None and d is None and m50 is None and not rule50_drawn:
+        # DTC/DTM50 reads are all gated on WDL, so WDL absent (and not a rule50
+        # auto-draw) means there is nothing to return.
+        if w is None and not rule50_drawn:
             return r  # tb_not_found
         r.status = "ok"
         if w is not None:
             r.wdl = self._probe_wdl_internal(w, cfg, board, depth)
-        if d is not None and w is not None:
-            dtc = self._probe_dtc_internal(d, cfg, board, r.wdl, depth)
-            if dtc is not None:
-                r.has_dtc = True
-                r.dtc = dtc
-        if m50 is not None and w is not None:
-            d50w, d50v = self._probe_dtm50_internal(m50, cfg, board, r.wdl, IGNORE_50MR, depth)
-            r.dtm = d50v
-            r.has_dtm = (d50w != ILLEGAL)
-            if rule50_drawn:
-                mated = (r.wdl == LOSE and _is_checkmate(board))
-                r.dtm50_wdl = LOSE if mated else DRAW
-                r.dtm50 = 0
-                r.has_dtm50 = True
-            elif rule50 != IGNORE_50MR:
-                rw, rv = self._probe_dtm50_internal(m50, cfg, board, r.wdl, rule50, depth)
-                r.dtm50_wdl = rw
-                r.dtm50 = rv
-                r.has_dtm50 = (rw != ILLEGAL)
+            d = self._open_dtc(cfg)
+            if d is not None:
+                dtc = self._probe_dtc_internal(d, cfg, board, r.wdl, depth)
+                if dtc is not None:
+                    r.has_dtc = True
+                    r.dtc = dtc
+            m50 = self._open_dtm50(cfg)
+            if m50 is not None:
+                d50w, d50v = self._probe_dtm50_internal(m50, cfg, board, r.wdl, IGNORE_50MR, depth)
+                r.dtm = d50v
+                r.has_dtm = (d50w != ILLEGAL)
+                if rule50_drawn:
+                    mated = (r.wdl == LOSE and _is_checkmate(board))
+                    r.dtm50_wdl = LOSE if mated else DRAW
+                    r.dtm50 = 0
+                    r.has_dtm50 = True
+                elif rule50 != IGNORE_50MR:
+                    rw, rv = self._probe_dtm50_internal(m50, cfg, board, r.wdl, rule50, depth)
+                    r.dtm50_wdl = rw
+                    r.dtm50 = rv
+                    r.has_dtm50 = (rw != ILLEGAL)
 
         if ep_square is None:
             return r
@@ -1983,7 +2152,7 @@ class Tablebase:
         best_dtm50_wdl = r.dtm50_wdl if r.has_dtm50 else fold_dtm50_wdl(r.wdl)
         best_dtm50 = r.dtm50 if r.has_dtm50 else 0
         for mv in eps:
-            cfg_c, cboard, is_kk, _ = self._make_child(bcopy, mv)
+            cfg_c, cboard, _cep, is_kk, _ = self._make_child(bcopy, mv)
             if is_kk:
                 cr = ProbeResult()
                 cr.status = "ok"
@@ -2016,11 +2185,19 @@ class Tablebase:
         return best
 
     # --- public API ---
-    def probe(self, board: chess.Board, rule50: int = 0) -> Optional[ProbeResult]:
-        """Full probe of `board`. `rule50` (the halfmove clock) selects the
-        DTM50 layer. Returns a :class:`ProbeResult`, or ``None`` if no table is
-        available for the material."""
-        cfg, mirrored = piece_config_from_board(board)
+    def probe(self, board: chess.Board, rule50: int = 0) -> ProbeResult:
+        """Full probe of `board`. `rule50` (the halfmove clock) selects the DTM50
+        layer. Returns a :class:`ProbeResult`; its ``status`` is ``"ok"``,
+        ``"tb_not_found"`` (no table for the material), or ``"illegal_pos"``."""
+        # Prefer a frozen-pair table: if the board has an opposing pawn pair and
+        # that 'p' table is on disk, route there; else fall back to the full
+        # material. The pair table is partial and a position has the same value
+        # in either, so preferring the pair table when present is safe.
+        paired = pair_config_from_board(board)
+        if paired is not None and self._has_any_table(paired[0]):
+            cfg, mirrored = paired
+        else:
+            cfg, mirrored = piece_config_from_board(board)
         if mirrored:
             cboard = mirror_for_canonical(board)
             ep = sq_rank_mirror(board.ep_square) if board.ep_square is not None else None
@@ -2028,13 +2205,11 @@ class Tablebase:
             cboard = board.copy(stack=False)
             ep = board.ep_square
         cboard.ep_square = None
-        if not self._has_any_table(cfg):
-            return None
         return self._probe_impl(cfg, cboard, rule50, ep, 0)
 
     def _require(self, board: chess.Board) -> ProbeResult:
         r = self.probe(board)
-        if r is None:
+        if r.status == "tb_not_found":
             cfg, _ = piece_config_from_board(board)
             raise MissingTableError(f"no chesstb table for {cfg.name()}")
         if r.status == "illegal_pos":
@@ -2087,7 +2262,7 @@ class Tablebase:
         hmc = board.halfmove_clock if rule50 is None else rule50
         cfg, _ = piece_config_from_board(board)
         r = self.probe(board, hmc)
-        if r is None:
+        if r.status == "tb_not_found":
             raise MissingTableError(f"no chesstb table for {cfg.name()}")
         if r.status == "illegal_pos":
             raise ValueError("illegal position")

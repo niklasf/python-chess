@@ -5009,9 +5009,10 @@ class ChesstbTestCase(unittest.TestCase):
 
     def test_missing_table(self):
         with chess.chesstb.open_tablebase("data/chesstb") as tables:
-            self.assertIsNone(tables.get_wdl(chess.Board("8/8/8/8/8/5k2/3QQQQ1/K7 w - - 0 1")))
+            # Legal position whose material (KQQQQK) has no table on disk.
+            self.assertIsNone(tables.get_wdl(chess.Board("7k/8/8/8/8/8/3QQQQ1/K7 w - - 0 1")))
             with self.assertRaises(chess.chesstb.MissingTableError):
-                tables.probe_wdl(chess.Board("8/8/8/8/8/5k2/3QQQQ1/K7 w - - 0 1"))
+                tables.probe_wdl(chess.Board("7k/8/8/8/8/8/3QQQQ1/K7 w - - 0 1"))
 
     def test_block_cache_reclaim(self):
         # A tiny budget forces decoded blocks to be evicted from their owning
