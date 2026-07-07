@@ -1,9 +1,7 @@
 python-chess: a chess library for Python
 ========================================
 
-.. image:: https://github.com/niklasf/python-chess/workflows/Test/badge.svg
-    :target: https://github.com/niklasf/python-chess/actions
-    :alt: Test status
+
 
 .. image:: https://badge.fury.io/py/chess.svg
     :target: https://pypi.python.org/pypi/chess
