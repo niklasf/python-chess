@@ -2233,6 +2233,24 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(sixth_game.headers["White"], "Deep Blue (Computer)")
         self.assertEqual(sixth_game.headers["Result"], "1-0")
 
+    def test_read_game_with_leading_whitespace_before_header(self):
+        pgn = io.StringIO(
+            ' [Event "TCEC Season 27 - Entrance League"]\n'
+            '[Site "https://tcec-chess.com"]\n'
+            '[White "Patricia 3.1_dev_ca7ef0a3"]\n'
+            '[Black "Weiss 2.1-dev11"]\n'
+            '[Result "*"]\n'
+            "\n"
+            "1. d4 *"
+        )
+
+        game = chess.pgn.read_game(pgn)
+
+        self.assertEqual(game.headers["Event"], "TCEC Season 27 - Entrance League")
+        self.assertEqual(game.headers["White"], "Patricia 3.1_dev_ca7ef0a3")
+        self.assertEqual(game.next().move, chess.Move.from_uci("d2d4"))
+        self.assertEqual(game.errors, [])
+
     def test_read_game_with_multicomment_move(self):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
         game = chess.pgn.read_game(pgn)
