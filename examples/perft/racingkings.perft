@@ -4,6 +4,7 @@ perft 1 21
 perft 2 421
 perft 3 11264
 perft 4 296242
+perft 5 9472927
 
 id occupied-goal
 epd 4brn1/2K2k2/8/8/8/8/8/8 w - -
@@ -13,3 +14,10 @@ perft 3 178
 perft 4 3151
 perft 5 12981
 perft 6 265932
+
+id near-discovered-check
+epd 8/8/1rk4K/8/8/8/2bnNBR1/qrbnNBRQ b - -
+perft 1 36
+perft 2 697
+perft 3 26592
+perft 4 661533
