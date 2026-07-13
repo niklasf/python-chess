@@ -13,6 +13,7 @@ import unittest
 import io
 
 import chess
+import chess.chesstb
 import chess.gaviota
 import chess.engine
 import chess.pgn
@@ -4971,6 +4972,81 @@ class GiveawayTestCase(unittest.TestCase):
 
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.end().board().fen(), "8/6k1/3K4/8/8/3k4/8/8 w - - 4 33")
+
+
+class ChesstbTestCase(unittest.TestCase):
+
+    def test_probe(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            # KQK: mate distances and the signed WDL convention.
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtz(board), 19)
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm50(board), (2, 19))
+
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), -2)
+            self.assertEqual(tables.probe_dtz(board), -20)
+            self.assertEqual(tables.probe_dtm(board), -20)  # signed: losing side
+            self.assertEqual(tables.probe_dtm50(board), (-2, 20))
+
+    def test_mirrored_material(self):
+        # Stronger side is Black: internally mirrored to the canonical KQK table.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            self.assertEqual(tables.probe_wdl(chess.Board("k7/1q6/8/5K2/8/8/8/8 b - - 0 1")), 2)
+
+    def test_dropped_frame_symmetric(self):
+        # KRKR ships one frame dropped; the missing side is reconstructed by the
+        # symmetric color mirror.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/2r5/8/8/8/1k6/8/K1R5 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtz(board), 1)
+            self.assertEqual(tables.probe_dtm(board), 1)
+
+    def test_dropped_frame_minimax(self):
+        # KBNK ships an asymmetric dropped frame, reconstructed by one-ply minimax.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/8/8/2k5/2N5/KB6 w - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtm(board), 61)
+            board = chess.Board("8/8/8/8/8/2k5/2N5/KB6 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), -2)
+            self.assertEqual(tables.probe_dtm(board), -60)  # signed: losing side
+
+    def test_layered_dtm50(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/4k3/8/8/Q7/K7 w - - 10 30")
+            # Halfmove clock selects the DTM50 layer.
+            self.assertEqual(tables.probe_dtm50(board, 10), (2, 17))
+            # Past the 50-move window the win still has a flat DTM but draws under 50MR.
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), -20)
+            self.assertEqual(tables.probe_dtm50(board, 100), (0, 0))
+
+    def test_missing_table(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            # Legal position whose material (KQQQQK) has no table on disk.
+            self.assertIsNone(tables.get_wdl(chess.Board("7k/8/8/8/8/8/3QQQQ1/K7 w - - 0 1")))
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_wdl(chess.Board("7k/8/8/8/8/8/3QQQQ1/K7 w - - 0 1"))
+
+    def test_block_cache_reclaim(self):
+        # A tiny budget forces decoded blocks to be evicted from their owning
+        # per-color dicts, while answers stay correct.
+        with chess.chesstb.open_tablebase("data/chesstb", block_cache_bytes=1) as tables:
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm(board), 19)
+            cache = tables._block_cache
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            wdl = tables._open_wdl(cfg)
+            # At most a single decoded WDL block stays resident under the budget.
+            self.assertLessEqual(sum(len(pc._blocks) for pc in wdl.per_color if pc), 1)
+            # close() drops everything tracked.
+            tables.close()
+            self.assertEqual(cache.cur_bytes, 0)
 
 
 if __name__ == "__main__":
