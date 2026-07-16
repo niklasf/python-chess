@@ -1414,7 +1414,8 @@ class StringExporterMixin:
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line(f"[{tagname} \"{tagvalue}\"]")
+            escaped_tagvalue = tagvalue.replace("\\", "\\\\").replace('"', '\\"')
+            self.write_line(f"[{tagname} \"{escaped_tagvalue}\"]")
 
     def end_headers(self) -> None:
         if self.found_headers:
@@ -1645,9 +1646,10 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         if not skipping_game:
             tag_match = TAG_REGEX.match(stripped)
             if tag_match:
-                visitor.visit_header(tag_match.group(1), tag_match.group(2))
+                tagvalue = re.sub(r'\\(["\\])', r'\1', tag_match.group(2))
+                visitor.visit_header(tag_match.group(1), tagvalue)
                 if unmanaged_headers is not None:
-                    unmanaged_headers[tag_match.group(1)] = tag_match.group(2)
+                    unmanaged_headers[tag_match.group(1)] = tagvalue
             else:
                 # Ignore invalid or malformed headers.
                 line = handle.readline()

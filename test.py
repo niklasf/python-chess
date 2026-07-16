@@ -2094,6 +2094,30 @@ class PolyglotTestCase(unittest.TestCase):
 
 class PgnTestCase(unittest.TestCase):
 
+    HEADER_VALUE_CASES = [
+        ("Plain", "Plain"),
+        ('The "Open"', r'The \"Open\"'),
+        (r"C:\chess", r"C:\\chess"),
+        ('quote " and slash \\', r'quote \" and slash \\'),
+        ('ends in \\', r'ends in \\'),
+        ("right ] bracket", "right ] bracket"),
+    ]
+
+    def test_exporter_escapes_headers(self):
+        for value, encoded in self.HEADER_VALUE_CASES:
+            with self.subTest(value=value):
+                game = chess.pgn.Game.without_tag_roster()
+                game.headers["Event"] = value
+
+                exported = game.accept(chess.pgn.StringExporter(columns=None))
+                expected = f'[Event "{encoded}"]\n\n*'
+                self.assertEqual(exported, expected)
+                self.assertEqual(chess.pgn.read_headers(io.StringIO(exported))["Event"], value)
+
+                handle = io.StringIO()
+                game.accept(chess.pgn.FileExporter(handle, columns=None))
+                self.assertEqual(handle.getvalue(), expected + "\n\n")
+
     def test_exporter(self):
         game = chess.pgn.Game()
         game.comments = ["Test game:"]
@@ -2250,6 +2274,16 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["White"], "Patricia 3.1_dev_ca7ef0a3")
         self.assertEqual(game.next().move, chess.Move.from_uci("d2d4"))
         self.assertEqual(game.errors, [])
+
+    def test_reader_unescapes_headers(self):
+        for expected, encoded in self.HEADER_VALUE_CASES:
+            with self.subTest(encoded=encoded):
+                text = f'[Event "{encoded}"]\n\n*\n'
+                game = chess.pgn.read_game(io.StringIO(text))
+                headers = chess.pgn.read_headers(io.StringIO(text))
+
+                self.assertEqual(game.headers["Event"], expected)
+                self.assertEqual(headers["Event"], expected)
 
     def test_read_game_with_multicomment_move(self):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
