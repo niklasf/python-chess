@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+# Refresh the package index: the runner image's baked-in lists can reference
+# package versions the mirrors no longer carry (404).
+sudo apt-get update
+
 # Stockfish
 sudo apt-get install -y stockfish
 
