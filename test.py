@@ -1376,6 +1376,15 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.can_claim_fifty_moves())
         self.assertFalse(board.can_claim_draw())
 
+        # Claiming ahead of a move that would itself give checkmate is valid
+        # (FIDE 9.3): the move is only declared, not played.
+        board = chess.Board("6rk/6pp/7N/5p2/6p1/8/2q5/K7 w - - 99 60")
+        self.assertFalse(board.is_game_over())
+        self.assertTrue(board.gives_checkmate(chess.Move.from_uci("h6f7")))
+        self.assertFalse(board.is_fifty_moves())
+        self.assertTrue(board.can_claim_fifty_moves())
+        self.assertTrue(board.can_claim_draw())
+
     def test_promoted_comparison(self):
         board = chess.Board()
         board.set_fen("5R2/3P4/8/8/7r/7r/7k/K7 w - - 0 1")
