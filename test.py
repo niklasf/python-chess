@@ -4985,3 +4985,70 @@ if __name__ == "__main__":
     logging.getLogger().addHandler(raise_log_handler)
 
     unittest.main()
+
+class DuckChessTestCase(unittest.TestCase):
+    def test_duck_blocks_sliding_and_landing(self):
+        board = chess.variant.DuckChessBoard()
+        board.clear_board()
+        board.set_piece_at(chess.A1, chess.Piece(chess.ROOK, chess.WHITE))
+        board.turn = chess.WHITE
+        board.duck_square = chess.A4
+        moves = [m.to_square for m in board.generate_pseudo_legal_moves() if m.from_square == chess.A1]
+        self.assertNotIn(chess.A4, moves)  
+        self.assertNotIn(chess.A5, moves)  
+        self.assertIn(chess.A3, moves)     
+
+    def test_duck_blocks_knight_landing(self):
+        board = chess.variant.DuckChessBoard()
+        board.clear_board()
+        board.set_piece_at(chess.B1, chess.Piece(chess.KNIGHT, chess.WHITE))
+        board.turn = chess.WHITE
+        board.duck_square = chess.C3  
+        moves = [m.to_square for m in board.generate_pseudo_legal_moves() if m.from_square == chess.B1]
+        self.assertNotIn(chess.C3, moves)
+        self.assertIn(chess.A3, moves)  
+
+    def test_turn_stays_until_duck_placed(self):
+        board = chess.variant.DuckChessBoard()
+        self.assertEqual(board.turn, chess.WHITE)
+        self.assertFalse(board.duck_phase)
+        board.push(chess.Move.from_uci("e2e4"))
+        self.assertEqual(board.turn, chess.WHITE) 
+        self.assertTrue(board.duck_phase)
+        board.push(chess.Move(chess.E4, chess.E4))
+        self.assertEqual(board.turn, chess.BLACK)  
+        self.assertFalse(board.duck_phase)
+
+    def test_no_check_or_checkmate(self):
+        board = chess.variant.DuckChessBoard.empty()
+        board.set_piece_at(chess.E1, chess.Piece(chess.KING, chess.WHITE))
+        board.set_piece_at(chess.E8, chess.Piece(chess.KING, chess.BLACK))
+        board.set_piece_at(chess.E7, chess.Piece(chess.ROOK, chess.WHITE))
+        board.turn = chess.BLACK
+        self.assertFalse(board.is_check())
+        self.assertFalse(board.is_checkmate())
+        self.assertGreater(len(list(board.generate_legal_moves())), 0)
+
+    def test_king_capture_ends_game(self):
+        board = chess.variant.DuckChessBoard.empty()
+        board.set_piece_at(chess.E1, chess.Piece(chess.KING, chess.WHITE))
+        board.set_piece_at(chess.E8, chess.Piece(chess.KING, chess.BLACK))
+        board.set_piece_at(chess.E7, chess.Piece(chess.ROOK, chess.WHITE))
+        board.turn = chess.WHITE
+        self.assertFalse(board.is_variant_end())
+        board.push(chess.Move.from_uci("e7e8"))
+        self.assertTrue(board.is_variant_end())
+        self.assertEqual(list(board.generate_legal_moves()), [])
+
+    def test_illegal_duck_placement(self):
+        board = chess.variant.DuckChessBoard()
+        board.push(chess.Move.from_uci("e2e4"))
+        with self.assertRaises(chess.IllegalMoveError):
+            board.parse_uci("@e4")  
+
+    def test_insufficient_material_never_true(self):
+        board = chess.variant.DuckChessBoard.empty()
+        board.set_piece_at(chess.E1, chess.Piece(chess.KING, chess.WHITE))
+        board.set_piece_at(chess.E8, chess.Piece(chess.KING, chess.BLACK))
+        self.assertFalse(board.has_insufficient_material(chess.WHITE))
+        self.assertFalse(board.has_insufficient_material(chess.BLACK))
