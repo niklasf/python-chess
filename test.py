@@ -5052,3 +5052,147 @@ class DuckChessTestCase(unittest.TestCase):
         board.set_piece_at(chess.E8, chess.Piece(chess.KING, chess.BLACK))
         self.assertFalse(board.has_insufficient_material(chess.WHITE))
         self.assertFalse(board.has_insufficient_material(chess.BLACK))
+
+    def test_fen_no_duck_yet(self):
+        board = chess.variant.DuckChessBoard()
+        fen = board.fen()
+        self.assertEqual(fen.split()[4], "-")
+
+    def test_fen_duck_phase_prefix(self):
+        board = chess.variant.DuckChessBoard()
+        board.push(chess.Move.from_uci("e2e4"))
+        fen = board.fen()
+        self.assertEqual(fen.split()[4], "@-")
+        board.push(chess.Move(chess.E4, chess.E4))
+        fen = board.fen()
+        self.assertEqual(fen.split()[4], "e4")
+
+    def test_fen_round_trip_with_duck_placed(self):
+        board = chess.variant.DuckChessBoard()
+        board.push(chess.Move.from_uci("e2e4"))
+        board.push(chess.Move(chess.E4, chess.E4))
+        board.push(chess.Move.from_uci("d7d5"))
+        fen = board.fen()
+        board2 = chess.variant.DuckChessBoard(fen)
+        self.assertEqual(board2.fen(), fen)
+        self.assertEqual(board2.duck_square, chess.E4)
+        self.assertTrue(board2.duck_phase)
+
+    def test_set_fen_without_duck_field_defaults_to_none(self):
+        board = chess.variant.DuckChessBoard()
+        board.set_fen(chess.STARTING_FEN)
+        self.assertIsNone(board.duck_square)
+        self.assertFalse(board.duck_phase)
+
+    def test_push_pop_restores_duck_state(self):
+        board = chess.variant.DuckChessBoard()
+        fen_before = board.fen()
+        board.push(chess.Move.from_uci("e2e4"))
+        board.push(chess.Move(chess.E4, chess.E4))
+        board.push(chess.Move.from_uci("d7d5"))
+        board.pop()
+        self.assertEqual(board.duck_square, chess.E4)
+        self.assertFalse(board.duck_phase)
+        board.pop()
+        self.assertIsNone(board.duck_square)
+        self.assertTrue(board.duck_phase)
+        board.pop()
+        self.assertEqual(board.fen(), fen_before)
+        self.assertFalse(board.duck_phase)
+
+    def test_duck_san_and_uci_notation(self):
+        board = chess.variant.DuckChessBoard()
+        move = chess.Move.from_uci("e2e4")
+        board.push(move)
+        duck_move = chess.Move(chess.D4, chess.D4)
+        self.assertEqual(board.uci(duck_move), "@d4")
+        self.assertEqual(board.san(duck_move), "@d4")
+        parsed = board.parse_san("@d4")
+        self.assertEqual(parsed, duck_move)
+        board.push(parsed)
+        self.assertEqual(board.duck_square, chess.D4)
+
+    def test_push_san_full_turn(self):
+        board = chess.variant.DuckChessBoard()
+        board.push_san("e4")
+        board.push_san("@d4")
+        self.assertEqual(board.duck_square, chess.D4)
+        self.assertEqual(board.turn, chess.BLACK)
+
+    def test_duck_old_square_becomes_free_again(self):
+        board = chess.variant.DuckChessBoard()
+        board.push_san("e4")
+        board.push_san("@e5")
+        board.push_san("Nf6")
+        legal_targets = {m.to_square for m in board.legal_moves}
+        self.assertNotIn(chess.E5, legal_targets)
+        board.push_san("@d5")
+        self.assertEqual(board.duck_square, chess.D5)
+        board.push_san("Nc3")
+        legal_targets = {m.to_square for m in board.legal_moves}
+        self.assertIn(chess.E5, legal_targets)
+
+    def test_find_variant_and_aliases(self):
+        self.assertIs(chess.variant.find_variant("duck"), chess.variant.DuckChessBoard)
+        for alias in ["Duck", "Duck Chess", "Duckchess"]:
+            self.assertIs(chess.variant.find_variant(alias), chess.variant.DuckChessBoard)
+
+    def test_variant_win_loss_perspective(self):
+        board = chess.variant.DuckChessBoard.empty()
+        board.set_piece_at(chess.E1, chess.Piece(chess.KING, chess.WHITE))
+        board.turn = chess.WHITE
+        self.assertTrue(board.is_variant_end())
+        self.assertTrue(board.is_variant_win())
+        board.turn = chess.BLACK
+        self.assertTrue(board.is_variant_loss())
+
+    def test_copy_preserves_duck_state(self):
+        board = chess.variant.DuckChessBoard()
+        board.push_san("e4")
+        board.push_san("@d4")
+        board.push_san("d5")
+        copy = board.copy()
+        self.assertEqual(copy.duck_square, chess.D4)
+        self.assertTrue(copy.duck_phase)
+        self.assertEqual(copy.fen(), board.fen())
+        copy.pop()
+        self.assertEqual(copy.duck_square, chess.D4)
+        self.assertFalse(copy.duck_phase)
+        # Original board is unaffected by mutating the copy's stack.
+        self.assertTrue(board.duck_phase)
+
+    def test_root_preserves_duck_state(self):
+        board = chess.variant.DuckChessBoard()
+        fen_before = board.fen()
+        board.push_san("e4")
+        board.push_san("@d4")
+        board.push_san("d5")
+        root = board.root()
+        self.assertEqual(root.fen(), fen_before)
+        self.assertIsNone(root.duck_square)
+        self.assertFalse(root.duck_phase)
+
+    def test_mirror_flips_duck_square(self):
+        board = chess.variant.DuckChessBoard()
+        board.push_san("e4")
+        board.push_san("@d4")
+        mirrored = board.mirror()
+        self.assertEqual(mirrored.duck_square, chess.D5)
+
+    def test_equality_considers_duck_square(self):
+        board_a = chess.variant.DuckChessBoard()
+        board_a.push_san("e4")
+        board_a.push_san("@a3")
+        board_b = chess.variant.DuckChessBoard()
+        board_b.push_san("e4")
+        board_b.push_san("@h6")
+        self.assertNotEqual(board_a, board_b)
+        board_c = board_a.copy()
+        self.assertEqual(board_a, board_c)
+
+    def test_status_ignores_missing_king_after_capture(self):
+        board = chess.variant.DuckChessBoard.empty()
+        board.set_piece_at(chess.E1, chess.Piece(chess.KING, chess.WHITE))
+        board.turn = chess.BLACK
+        self.assertFalse(board.status() & chess.STATUS_NO_BLACK_KING)
+        self.assertFalse(board.status() & chess.STATUS_NO_WHITE_KING)

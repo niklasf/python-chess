@@ -92,7 +92,7 @@ Features
       :alt: r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR
 
 * Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic,
-  King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse.
+  King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse, Duck Chess.
   `Variant docs <https://python-chess.readthedocs.io/en/latest/variant.html>`_.
 
 * Make and unmake moves.
