@@ -1065,18 +1065,275 @@ class CrazyhouseBoard(chess.Board):
 
     def status(self) -> chess.Status:
         status = super().status()
-
         if chess.popcount(self.pawns) + self.pockets[chess.WHITE].count(chess.PAWN) + self.pockets[chess.BLACK].count(chess.PAWN) <= 16:
             status &= ~chess.STATUS_TOO_MANY_BLACK_PAWNS
             status &= ~chess.STATUS_TOO_MANY_WHITE_PAWNS
-
         if chess.popcount(self.occupied) + len(self.pockets[chess.WHITE]) + len(self.pockets[chess.BLACK]) <= 32:
             status &= ~chess.STATUS_TOO_MANY_BLACK_PIECES
             status &= ~chess.STATUS_TOO_MANY_WHITE_PIECES
-
         return status
 
+class DuckChessBoard(chess.Board):
+    aliases = ["Duck", "Duck Chess", "Duckchess"]
+    uci_variant = "duck"
+    starting_fen = chess.STARTING_FEN
 
+    def __init__(self, fen=starting_fen, chess960=False):
+        self.duck_square = None  # current duck square, or None if not yet placed
+        self.duck_phase = False  # False: about to make a chess move; True: about to place the duck
+        self._duck_history = []  # (duck_square, duck_phase) snapshots so pop() can undo duck placements too
+        super().__init__(fen, chess960=chess960)
+
+    def reset_board(self):
+        super().reset_board()
+        self.duck_square = None
+        self.duck_phase = False
+
+    def clear_board(self):
+        super().clear_board()
+        self.duck_square = None
+        self.duck_phase = False
+
+    def add_duck_as_blocker(self):
+        # Temporarily fold the duck into `occupied` so the base engine's bitboard
+        # move generation treats its square as blocked, without giving it a color
+        # or piece type.
+        self.saved_occupied = self.occupied
+        if self.duck_square is not None:
+            self.occupied |= chess.BB_SQUARES[self.duck_square]
+
+    def remove_duck_as_blocker(self):
+        self.occupied = self.saved_occupied
+
+    def generate_pseudo_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.duck_phase:
+            return  # no chess moves while waiting for a duck placement
+        if self.duck_square is not None:
+            to_mask &= ~chess.BB_SQUARES[self.duck_square]
+        self.add_duck_as_blocker()
+        try:
+            moves = list(super().generate_pseudo_legal_moves(from_mask, to_mask))
+        finally:
+            self.remove_duck_as_blocker()
+        for m in moves:
+            yield m
+
+    def push(self, move):
+        self._duck_history.append((self.duck_square, self.duck_phase))
+        if not self.duck_phase:
+            # Chess-move ply: delegate to the base engine, but undo the turn/
+            # fullmove-number flip it performs
+            mover = self.turn
+            super().push(move)
+            self.turn = mover
+            if mover == chess.BLACK:
+                self.fullmove_number -= 1
+            self.duck_phase = True
+        else:
+            # Duck-placement ply: not a real chess move, so bypass super().push()
+            #  and just record it on the move stack, then hand the turn to the opponent for real.
+            self.duck_square = move.to_square
+            self.move_stack.append(move)
+            if self.turn == chess.BLACK:
+                self.fullmove_number += 1
+            self.turn = not self.turn
+            self.duck_phase = False
+
+    def pop(self):
+        prev_duck_square, prev_duck_phase = self._duck_history.pop()
+        if not prev_duck_phase:
+            move = super().pop()
+        else:
+            # Undo a duck placement
+            move = self.move_stack.pop()
+            self.turn = not self.turn
+            if self.turn == chess.BLACK:
+                self.fullmove_number -= 1
+        self.duck_square = prev_duck_square
+        self.duck_phase = prev_duck_phase
+        return move
+
+    def duck_field(self):
+        # Extra FEN field encoding the duck: square name, "-" if unplaced, and
+        # an "@" prefix if we're mid-turn waiting on a duck placement.
+        prefix = "@" if self.duck_phase else ""
+        if self.duck_square is None:
+            square_part = "-"
+        else:
+            square_part = chess.SQUARE_NAMES[self.duck_square]
+        return prefix + square_part
+
+    def looks_like_duck_field(self, token):
+        # Distinguishes a duck field from the standard FEN field it's inserted before .
+        if token.startswith("@"):
+            return True
+        if token == "-":
+            return True
+        if len(token) == 2 and token in chess.SQUARE_NAMES:
+            return True
+        return False
+
+    def set_duck_field(self, token):
+        if token.startswith("@"):
+            self.duck_phase = True
+            body = token[1:]
+        else:
+            self.duck_phase = False
+            body = token
+        if body == "-":
+            self.duck_square = None
+        else:
+            self.duck_square = chess.SQUARE_NAMES.index(body)
+
+    def fen(self, **kwargs):
+        # Insert the duck field after the en passant field (index 4), keeping
+        # the rest of standard FEN layout intact.
+        base = super().fen(**kwargs)
+        parts = base.split()
+        parts.insert(4, self.duck_field())
+        return " ".join(parts)
+
+    def set_fen(self, fen):
+        parts = fen.split()
+        if len(parts) > 4 and self.looks_like_duck_field(parts[4]):
+            duck_token = parts.pop(4)
+        else:
+            duck_token = "-"
+        super().set_fen(" ".join(parts))
+        self.set_duck_field(duck_token)
+
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.is_variant_end():
+            return
+        if self.duck_phase:
+            yield from self.generate_duck_placements(from_mask, to_mask)
+        else:
+            yield from self.generate_pseudo_legal_moves(from_mask, to_mask)
+
+    def generate_duck_placements(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        # A duck placement is represented as a null-ish move onto
+        # any empty square other than the duck's current one (it must move).
+        empty_squares = chess.BB_ALL & ~self.occupied
+        if self.duck_square is not None:
+            empty_squares &= ~chess.BB_SQUARES[self.duck_square]
+
+        empty_squares &= from_mask & to_mask
+        for square in chess.scan_reversed(empty_squares):
+            yield chess.Move(square, square)
+
+    def is_pseudo_legal(self, move):
+        if self.duck_phase:
+            return False  # only duck placements are legal during the duck phase
+        if move.from_square == move.to_square:
+            return False  # from==to is reserved for duck placements, not a real move
+        if self.duck_square is not None and move.to_square == self.duck_square:
+            return False  # can't capture/land on the duck
+        self.add_duck_as_blocker()
+        try:
+            return super().is_pseudo_legal(move)
+        finally:
+            self.remove_duck_as_blocker()
+
+    def is_legal(self, move):
+        if self.duck_phase:
+            # Duck chess has no pins/checks, so pseudo-legal placements are legal.
+            if move.from_square != move.to_square:
+                return False
+            if chess.BB_SQUARES[move.to_square] & self.occupied:
+                return False
+            if self.duck_square is not None and move.to_square == self.duck_square:
+                return False
+            return True
+        return self.is_pseudo_legal(move)
+    
+    #checks and checkmates are not relevant in duck chess, so we override these methods to always return False
+    def is_check(self):
+        return False
+
+    def gives_check(self, move):
+        return False
+
+    def is_into_check(self, move):
+        return False
+
+    def was_into_check(self):
+        return False
+
+    def is_checkmate(self):
+        return False
+
+    def checkers_mask(self):
+        return chess.BB_EMPTY
+
+    def is_fifty_moves(self):
+        return False
+
+    def is_seventyfive_moves(self):
+        return False
+
+    def is_fivefold_repetition(self):
+        return False
+
+    def is_repetition(self, count=3):
+        return False
+
+    def is_variant_end(self):
+        # Duck chess has no check/checkmate; the game ends only when a king is
+        # actually captured which allows kings to be captured like any other piece.
+        white_has_king = bool(self.kings & self.occupied_co[chess.WHITE])
+        black_has_king = bool(self.kings & self.occupied_co[chess.BLACK])
+        return not white_has_king or not black_has_king
+
+    def is_variant_win(self):
+        my_king_alive = bool(self.kings & self.occupied_co[self.turn])
+        their_king_alive = bool(self.kings & self.occupied_co[not self.turn])
+        return my_king_alive and not their_king_alive
+
+    def is_variant_loss(self):
+        my_king_alive = bool(self.kings & self.occupied_co[self.turn])
+        their_king_alive = bool(self.kings & self.occupied_co[not self.turn])
+        return their_king_alive and not my_king_alive
+
+    def uci(self, move, *, chess960=None):
+        if move.from_square == move.to_square:
+            return "@" + chess.SQUARE_NAMES[move.to_square]
+        return super().uci(move, chess960=chess960)
+
+    def parse_uci(self, uci):
+        if uci.startswith("@"):
+            square_name = uci[1:]
+            square = chess.SQUARE_NAMES.index(square_name)
+            move = chess.Move(square, square)
+            if not self.is_legal(move):
+                raise chess.IllegalMoveError(f"illegal duck placement: {uci!r}")
+            return move
+        return super().parse_uci(uci)
+
+    def _algebraic_without_suffix(self, move, *, long=False):
+        # Mirrors uci(): SAN for a duck placement is also "@<square>".
+        if move.from_square == move.to_square:
+            return "@" + chess.SQUARE_NAMES[move.to_square]
+        return super()._algebraic_without_suffix(move, long=long)
+
+    def parse_san(self, san):
+        if san.startswith("@"):
+            square_name = san[1:].rstrip("+#")
+            square = chess.SQUARE_NAMES.index(square_name)
+            move = chess.Move(square, square)
+            if not self.is_legal(move):
+                raise chess.IllegalMoveError(f"illegal duck san: {san!r}")
+            return move
+        return super().parse_san(san)
+
+    def has_insufficient_material(self, color):
+        # A lone king can still checkmate except duck chess has no 
+        # checkmate, only king capture, so material never forces a draw.
+        return False
+
+    def _attacked_for_king(self, path, occupied):
+        # No check/pins in duck chess, so castling through "attacked" squares is never restricted 
+        return False
+    
 VARIANTS: List[Type[chess.Board]] = [
     chess.Board,
     SuicideBoard, GiveawayBoard, AntichessBoard,
@@ -1086,6 +1343,7 @@ VARIANTS: List[Type[chess.Board]] = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
+    DuckChessBoard
 ]
 
 

@@ -1,6 +1,13 @@
 Changelog for python-chess
 ==========================
 
+Upcoming in the next release
+-----------------------------
+
+New features:
+
+* **Variant support: Duck Chess.**
+
 New in v1.11.2 (25th Feb 2025)
 ------------------------------
 

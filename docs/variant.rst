@@ -28,6 +28,7 @@ Racing Kings     :class:`chess.variant.RacingKingsBoard`   racingkings
 Horde            :class:`chess.variant.HordeBoard`         horde
 Three-check      :class:`chess.variant.ThreeCheckBoard`    3check
 Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
+Duck Chess       :class:`chess.variant.DuckChessBoard`     duck
 ================ ========================================= ============= ============
 
 .. autofunction:: chess.variant.find_variant
@@ -84,6 +85,36 @@ Three-check
 
         Remaining checks until victory for each color. For example,
         ``board.remaining_checks[chess.WHITE] == 0`` implies that White has won.
+
+Duck Chess
+----------
+
+A single "duck" occupies one square on the board at all times (after the
+first move) and blocks movement onto or through that square for both
+sides. After making a normal move, a player must also relocate the duck
+before the turn passes to the opponent. There is no check, checkmate, or
+draw by repetition or the fifty-move rule in this variant: a game ends
+only when a king is captured.
+
+>>> board = chess.variant.DuckChessBoard()
+>>> board.push_san("e4")
+>>> board.push_san("@d4")
+
+.. autoclass:: chess.variant.DuckChessBoard
+    :members: generate_duck_placements
+
+    .. py:attribute:: duck_square
+       :value: None
+
+        The square currently occupied by the duck, or ``None`` if the duck
+        has not been placed yet.
+
+    .. py:attribute:: duck_phase
+       :value: False
+
+        ``True`` if a duck placement is currently pending, i.e. a normal
+        move was just made and the same player still needs to place the
+        duck before the turn passes.
 
 UCI/XBoard
 ----------
