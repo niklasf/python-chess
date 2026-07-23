@@ -1076,7 +1076,244 @@ class CrazyhouseBoard(chess.Board):
 
         return status
 
+class DuckChessBoard(chess.Board):
+    aliases = ["Duck", "Duck Chess", "Duckchess"]
+    uci_variant = "duck"          
+    starting_fen = chess.STARTING_FEN  
 
+    def __init__(self, fen=starting_fen, chess960=False):
+        self.duck_square = None  
+        self.duck_phase = False 
+        self._duck_history = []   
+        super().__init__(fen, chess960=chess960)
+
+    def reset_board(self):
+        super().reset_board()
+        self.duck_square = None
+        self.duck_phase = False
+
+    def clear_board(self):
+        super().clear_board()
+        self.duck_square = None
+        self.duck_phase = False
+
+    def add_duck_as_blocker(self):
+        self.saved_occupied = self.occupied
+        if self.duck_square is not None:
+            self.occupied |= chess.BB_SQUARES[self.duck_square]
+
+    def remove_duck_as_blocker(self):
+        self.occupied = self.saved_occupied
+
+    def generate_pseudo_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.duck_phase:
+            return
+        if self.duck_square is not None:
+            to_mask &= ~chess.BB_SQUARES[self.duck_square]
+        self.add_duck_as_blocker()
+        try:
+            moves = list(super().generate_pseudo_legal_moves(from_mask, to_mask))
+        finally:
+            self.remove_duck_as_blocker()
+        for m in moves:
+            yield m
+
+    def push(self, move):
+        self._duck_history.append((self.duck_square, self.duck_phase))
+        if not self.duck_phase:
+            mover = self.turn
+            super().push(move)
+            self.turn = mover
+            if mover == chess.BLACK:
+                self.fullmove_number -= 1
+            self.duck_phase = True
+        else:
+            self.duck_square = move.to_square
+            self.move_stack.append(move)  
+            if self.turn == chess.BLACK:
+                self.fullmove_number += 1
+            self.turn = not self.turn
+            self.duck_phase = False
+
+    def pop(self):
+        prev_duck_square, prev_duck_phase = self._duck_history.pop()
+        if not prev_duck_phase:
+            move = super().pop()
+        else:
+            move = self.move_stack.pop()  
+            self.turn = not self.turn
+            if self.turn == chess.BLACK:
+                self.fullmove_number -= 1
+        self.duck_square = prev_duck_square
+        self.duck_phase = prev_duck_phase
+        return move
+
+    def duck_field(self):
+        prefix = "@" if self.duck_phase else ""
+        if self.duck_square is None:
+            square_part = "-"
+        else:
+            square_part = chess.SQUARE_NAMES[self.duck_square]
+        return prefix + square_part
+
+    def looks_like_duck_field(self, token):
+        if token.startswith("@"):
+            return True
+        if token == "-":
+            return True
+        if len(token) == 2 and token in chess.SQUARE_NAMES:
+            return True
+        return False
+
+    def set_duck_field(self, token):
+        if token.startswith("@"):
+            self.duck_phase = True
+            body = token[1:]
+        else:
+            self.duck_phase = False
+            body = token
+        if body == "-":
+            self.duck_square = None
+        else:
+            self.duck_square = chess.SQUARE_NAMES.index(body)
+
+    def fen(self, **kwargs):
+        base = super().fen(**kwargs)
+        parts = base.split()
+        parts.insert(4, self.duck_field())
+        return " ".join(parts)
+
+    def set_fen(self, fen):
+        parts = fen.split()
+        if len(parts) > 4 and self.looks_like_duck_field(parts[4]):
+            duck_token = parts.pop(4)
+        else:
+            duck_token = "-"
+        super().set_fen(" ".join(parts))
+        self.set_duck_field(duck_token)
+
+    def generate_legal_moves(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        if self.is_variant_end():
+            return
+        if self.duck_phase:
+            yield from self.generate_duck_placements(from_mask, to_mask)
+        else:
+            yield from self.generate_pseudo_legal_moves(from_mask, to_mask)
+
+    def generate_duck_placements(self, from_mask=chess.BB_ALL, to_mask=chess.BB_ALL):
+        empty_squares = chess.BB_ALL & ~self.occupied
+        if self.duck_square is not None:
+            empty_squares &= ~chess.BB_SQUARES[self.duck_square]
+
+        empty_squares &= from_mask & to_mask
+        for square in chess.scan_reversed(empty_squares):
+            yield chess.Move(square, square)
+
+    def is_pseudo_legal(self, move):
+        if self.duck_phase:
+            return False
+        if move.from_square == move.to_square:
+            return False
+        if self.duck_square is not None and move.to_square == self.duck_square:
+            return False
+        self.add_duck_as_blocker()
+        try:
+            return super().is_pseudo_legal(move)
+        finally:
+            self.remove_duck_as_blocker()
+
+    def is_legal(self, move):
+        if self.duck_phase:
+            if move.from_square != move.to_square:
+                return False 
+            if chess.BB_SQUARES[move.to_square] & self.occupied:
+                return False 
+            if self.duck_square is not None and move.to_square == self.duck_square:
+                return False 
+            return True
+        return self.is_pseudo_legal(move)
+
+    def is_check(self):
+        return False
+
+    def gives_check(self, move):
+        return False
+
+    def is_into_check(self, move):
+        return False
+
+    def was_into_check(self):
+        return False
+
+    def is_checkmate(self):
+        return False
+
+    def checkers_mask(self):
+        return chess.BB_EMPTY
+
+    def is_fifty_moves(self):
+        return False
+
+    def is_seventyfive_moves(self):
+        return False
+
+    def is_fivefold_repetition(self):
+        return False
+
+    def is_repetition(self, count=3):
+        return False
+
+    def is_variant_end(self):
+        white_has_king = bool(self.kings & self.occupied_co[chess.WHITE])
+        black_has_king = bool(self.kings & self.occupied_co[chess.BLACK])
+        return not white_has_king or not black_has_king
+
+    def is_variant_win(self):
+        my_king_alive = bool(self.kings & self.occupied_co[self.turn])
+        their_king_alive = bool(self.kings & self.occupied_co[not self.turn])
+        return my_king_alive and not their_king_alive
+
+    def is_variant_loss(self):
+        my_king_alive = bool(self.kings & self.occupied_co[self.turn])
+        their_king_alive = bool(self.kings & self.occupied_co[not self.turn])
+        return their_king_alive and not my_king_alive
+
+    def uci(self, move, *, chess960=None):
+        if move.from_square == move.to_square:
+            return "@" + chess.SQUARE_NAMES[move.to_square]
+        return super().uci(move, chess960=chess960)
+
+    def parse_uci(self, uci):
+        if uci.startswith("@"):
+            square_name = uci[1:]
+            square = chess.SQUARE_NAMES.index(square_name)
+            move = chess.Move(square, square)
+            if not self.is_legal(move):
+                raise chess.IllegalMoveError(f"illegal duck placement: {uci!r}")
+            return move
+        return super().parse_uci(uci)
+
+    def _algebraic_without_suffix(self, move, *, long=False):
+        if move.from_square == move.to_square:
+            return "@" + chess.SQUARE_NAMES[move.to_square]
+        return super()._algebraic_without_suffix(move, long=long)
+
+    def parse_san(self, san):
+        if san.startswith("@"):
+            square_name = san[1:].rstrip("+#")
+            square = chess.SQUARE_NAMES.index(square_name)
+            move = chess.Move(square, square)
+            if not self.is_legal(move):
+                raise chess.IllegalMoveError(f"illegal duck san: {san!r}")
+            return move
+        return super().parse_san(san)
+
+    def has_insufficient_material(self, color):
+        return False
+
+    def _attacked_for_king(self, path, occupied):
+        return False
+    
 VARIANTS: List[Type[chess.Board]] = [
     chess.Board,
     SuicideBoard, GiveawayBoard, AntichessBoard,
@@ -1086,6 +1323,7 @@ VARIANTS: List[Type[chess.Board]] = [
     HordeBoard,
     ThreeCheckBoard,
     CrazyhouseBoard,
+    DuckChessBoard
 ]
 
 
