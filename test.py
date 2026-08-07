@@ -4469,6 +4469,16 @@ class SuicideTestCase(unittest.TestCase):
         self.assertEqual(board.san(d1K), "d1=K")
         self.assertEqual(board.parse_san("d1=K"), d1K)
 
+    def test_promoted_king_move_preserves_castling_rights(self):
+        board = chess.variant.SuicideBoard("6k1/8/8/8/8/8/1K~6/R3K2R w KQ - 0 1")
+        move = chess.Move.from_uci("b2b3")
+        self.assertTrue(board.is_valid())
+        self.assertIn(move, board.legal_moves)
+
+        board.push(move)
+
+        self.assertEqual(board.castling_xfen(), "KQ")
+
 
 class AtomicTestCase(unittest.TestCase):
 
