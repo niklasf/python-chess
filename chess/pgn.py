@@ -1229,7 +1229,12 @@ class GameBuilder(BaseVisitor[GameT]):
 
     @override
     def end_variation(self) -> None:
-        self.variation_stack.pop()
+        # Keep the root game node on the stack. A malformed PGN (e.g. an error
+        # recovery that skips to an unmatched ")") can call end_variation more
+        # often than begin_variation; popping the root here would empty the
+        # stack and make the next visit_move raise IndexError.
+        if len(self.variation_stack) > 1:
+            self.variation_stack.pop()
 
     @override
     def visit_result(self, result: str) -> None:

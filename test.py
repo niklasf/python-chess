@@ -2358,6 +2358,17 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game[0].san(), "c4")
         self.assertEqual(len(game.errors), 0)
 
+        # Survive a closing bracket reached through error recovery. The illegal
+        # move sends the parser into skip mode, and the unmatched ")" used to
+        # pop the root off the variation stack, so the following move raised an
+        # IndexError instead of being parsed.
+        pgn = io.StringIO("1. e4 Nf3 ) e5 *")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5"])
+        self.assertEqual(len(game.errors), 1)
+
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)
