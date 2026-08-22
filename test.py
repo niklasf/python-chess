@@ -3041,25 +3041,45 @@ class PgnTestCase(unittest.TestCase):
 @unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
 
+    @staticmethod
+    def _with_event_loop(fn):
+        # BaseCommand builds asyncio Futures in __init__; Python 3.14
+        # removed implicit event-loop creation, so provide one explicitly.
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            fn()
+        finally:
+            asyncio.set_event_loop(None)
+            loop.close()
+
     def test_command_set_finished_while_queued_cancelled(self):
         # Regression test for issue #1116: a queued command whose task was
         # cancelled before it could start (result and finished futures
         # already cancelled by Protocol.communicate) must finish cleanly
         # instead of raising AssertionError on CommandState.NEW.
-        cmd = chess.engine.BaseCommand(None)
-        cmd.result.cancel()
-        cmd.finished.cancel()
-        cmd.set_finished()
-        self.assertEqual(cmd.state, chess.engine.CommandState.DONE)
+        def scenario():
+            cmd = chess.engine.BaseCommand(None)
+            cmd.result.cancel()
+            cmd.finished.cancel()
+            cmd.set_finished()
+            self.assertEqual(cmd.state, chess.engine.CommandState.DONE)
+
+        self._with_event_loop(scenario)
 
     def test_command_set_finished_while_queued_pending(self):
         # Replacing a still-queued command that was never awaited should
         # surface an EngineError on its result rather than crash.
-        cmd = chess.engine.BaseCommand(None)
-        cmd.set_finished()
-        self.assertEqual(cmd.state, chess.engine.CommandState.DONE)
-        self.assertTrue(cmd.finished.done())
-        self.assertIsInstance(cmd.result.exception(), chess.engine.EngineError)
+        def scenario():
+            cmd = chess.engine.BaseCommand(None)
+            cmd.set_finished()
+            self.assertEqual(cmd.state, chess.engine.CommandState.DONE)
+            self.assertTrue(cmd.finished.done())
+            self.assertIsInstance(
+                cmd.result.exception(), chess.engine.EngineError
+            )
+
+        self._with_event_loop(scenario)
 
     def test_uci_option_map_equality(self):
         a = chess.engine.UciOptionMap()
