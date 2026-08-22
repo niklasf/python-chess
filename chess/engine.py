@@ -1250,6 +1250,11 @@ class BaseCommand(Generic[T]):
             self._handle_exception(err)
 
     def _line_received(self, line: str) -> None:
+        if self.state == CommandState.DONE:
+            # Some engines send trailing output (e.g. info lines around
+            # bestmove). The command is already finished, so there is
+            # nothing left to feed the line into - ignore it.
+            return
         assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
         try:
             self.line_received(line)

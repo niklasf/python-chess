@@ -3061,6 +3061,16 @@ class EngineTestCase(unittest.TestCase):
         self.assertTrue(cmd.finished.done())
         self.assertIsInstance(cmd.result.exception(), chess.engine.EngineError)
 
+    def test_command_line_received_after_done_is_ignored(self):
+        # Regression test for issue #1161: engines may send trailing
+        # output (e.g. info lines around bestmove) after the finishing
+        # line was processed. Feeding a line to a DONE command used to
+        # raise AssertionError; it should be ignored instead.
+        cmd = chess.engine.BaseCommand(None)
+        cmd.set_finished()
+        self.assertEqual(cmd.state, chess.engine.CommandState.DONE)
+        cmd._line_received("info depth 1 nodes 42")
+
     def test_uci_option_map_equality(self):
         a = chess.engine.UciOptionMap()
         b = chess.engine.UciOptionMap()
