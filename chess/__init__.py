@@ -1154,6 +1154,68 @@ class BaseBoard:
         builder: List[str] = []
         empty = 0
 
+        if promoted is None:
+            promoted_mask = self._effective_promoted()
+        elif promoted:
+            promoted_mask = self.promoted
+        else:
+            promoted_mask = BB_EMPTY
+
+        # Fast path for the standard implementation: read directly from the
+        # board bitboards and avoid allocating Piece objects per occupied square.
+        # If piece_at() is overridden in a subclass, fall back to the original
+        # behavior so custom piece lookup semantics are preserved.
+        if (
+            type(self).piece_at is BaseBoard.piece_at and
+            type(self).piece_type_at is BaseBoard.piece_type_at
+        ):
+            append = builder.append
+            occupied = self.occupied
+            occupied_white = self.occupied_co[WHITE]
+            pawns = self.pawns
+            knights = self.knights
+            bishops = self.bishops
+            rooks = self.rooks
+            queens = self.queens
+
+            for square in SQUARES_180:
+                mask = BB_SQUARES[square]
+
+                if not occupied & mask:
+                    empty += 1
+                else:
+                    if empty:
+                        append(str(empty))
+                        empty = 0
+
+                    color_is_white = bool(occupied_white & mask)
+
+                    if pawns & mask:
+                        append("P" if color_is_white else "p")
+                    elif knights & mask:
+                        append("N" if color_is_white else "n")
+                    elif bishops & mask:
+                        append("B" if color_is_white else "b")
+                    elif rooks & mask:
+                        append("R" if color_is_white else "r")
+                    elif queens & mask:
+                        append("Q" if color_is_white else "q")
+                    else:
+                        append("K" if color_is_white else "k")
+
+                    if mask & promoted_mask:
+                        append("~")
+
+                if mask & BB_FILE_H:
+                    if empty:
+                        append(str(empty))
+                        empty = 0
+
+                    if square != H1:
+                        append("/")
+
+            return "".join(builder)
+
         for square in SQUARES_180:
             piece = self.piece_at(square)
 
@@ -1165,12 +1227,6 @@ class BaseBoard:
                     empty = 0
                 builder.append(piece.symbol())
 
-                if promoted is None:
-                    promoted_mask = self._effective_promoted()
-                elif promoted:
-                    promoted_mask = self.promoted
-                else:
-                    promoted_mask = BB_EMPTY
                 if BB_SQUARES[square] & promoted_mask:
                     builder.append("~")
 
