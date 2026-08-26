@@ -1229,12 +1229,7 @@ class GameBuilder(BaseVisitor[GameT]):
 
     @override
     def end_variation(self) -> None:
-        # Keep the root game node on the stack. A malformed PGN (e.g. an error
-        # recovery that skips to an unmatched ")") can call end_variation more
-        # often than begin_variation; popping the root here would empty the
-        # stack and make the next visit_move raise IndexError.
-        if len(self.variation_stack) > 1:
-            self.variation_stack.pop()
+        self.variation_stack.pop()
 
     @override
     def visit_result(self, result: str) -> None:
@@ -1716,6 +1711,11 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     # Parse movetext.
     skip_variation_depth = 0
+    # Whether the outermost skipped variation was opened by a real
+    # begin_variation() that returned SKIP, as opposed to an error recovery
+    # that set skip_variation_depth without opening a variation. It decides
+    # whether the closing ")" owes the visitor an end_variation().
+    skip_variation_from_begin = False
     fresh_line = True
     while line:
         if fresh_line:
@@ -1760,6 +1760,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 elif board_stack[-1].move_stack:
                     if visitor.begin_variation() is SKIP:
                         skip_variation_depth = 1
+                        skip_variation_from_begin = True
                     else:
                         board = board_stack[-1].copy()
                         board.pop()
@@ -1767,7 +1768,13 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
             elif token == ")":
                 if skip_variation_depth == 1:
                     skip_variation_depth = 0
-                    visitor.end_variation()
+                    # Only balance the visitor when this ")" actually closes a
+                    # variation: one opened by a SKIP begin_variation(), or a
+                    # real (visited) variation whose tail an error skipped. A
+                    # top-level error sets skip_variation_depth without opening
+                    # a variation, so its trailing ")" must not end_variation().
+                    if skip_variation_from_begin or len(board_stack) > 1:
+                        visitor.end_variation()
                 elif skip_variation_depth:
                     skip_variation_depth -= 1
                 elif len(board_stack) > 1:
@@ -1802,6 +1809,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     except ValueError as error:
                         visitor.handle_error(error)
                         skip_variation_depth = 1
+                        skip_variation_from_begin = False
                     else:
                         visitor.visit_move(board_stack[-1], move)
                         board_stack[-1].push(move)

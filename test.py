@@ -2359,15 +2359,44 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(len(game.errors), 0)
 
         # Survive a closing bracket reached through error recovery. The illegal
-        # move sends the parser into skip mode, and the unmatched ")" used to
-        # pop the root off the variation stack, so the following move raised an
-        # IndexError instead of being parsed.
+        # move sends the parser into skip mode without opening a variation, so
+        # the unmatched ")" used to call end_variation() with nothing open. For
+        # GameBuilder that popped the root node and the next move raised an
+        # IndexError; the parser now only ends a variation that was actually
+        # begun, which keeps begin/end_variation balanced for every visitor.
         pgn = io.StringIO("1. e4 Nf3 ) e5 *")
         logging.disable(logging.ERROR)
         game = chess.pgn.read_game(pgn)
         logging.disable(logging.NOTSET)
         self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5"])
         self.assertEqual(len(game.errors), 1)
+
+        # The fix lives in read_game(), so a bare visitor sees balanced
+        # begin_variation()/end_variation() calls too, not an extra close.
+        class VariationCounter(chess.pgn.BaseVisitor):
+            def __init__(self):
+                self.begins = 0
+                self.ends = 0
+
+            def begin_variation(self):
+                self.begins += 1
+
+            def end_variation(self):
+                self.ends += 1
+
+            def handle_error(self, error):
+                pass  # Keep parsing; the default visitor would re-raise.
+
+            def result(self):
+                return None
+
+        pgn = io.StringIO("1. e4 Nf3 ) e5 *")
+        counter = VariationCounter()
+        logging.disable(logging.ERROR)
+        chess.pgn.read_game(pgn, Visitor=lambda: counter)
+        logging.disable(logging.NOTSET)
+        self.assertEqual(counter.begins, 0)
+        self.assertEqual(counter.ends, 0)
 
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
