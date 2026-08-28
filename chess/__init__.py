@@ -2462,6 +2462,7 @@ class Board(BaseBoard):
         from_bb = BB_SQUARES[move.from_square]
         to_bb = BB_SQUARES[move.to_square]
 
+        effective_promoted = self._effective_promoted()
         promoted = bool(self.promoted & from_bb)
         piece_type = self._remove_piece_at(move.from_square)
         assert piece_type is not None, f"push() expects move to be pseudo-legal, but got {move} in {self.board_fen()}"
@@ -2470,12 +2471,12 @@ class Board(BaseBoard):
 
         # Update castling rights.
         self.castling_rights &= ~to_bb & ~from_bb
-        if piece_type == KING and not self._effective_promoted() & from_bb:
+        if piece_type == KING and not effective_promoted & from_bb:
             if self.turn == WHITE:
                 self.castling_rights &= ~BB_RANK_1
             else:
                 self.castling_rights &= ~BB_RANK_8
-        elif captured_piece_type == KING and not self._effective_promoted() & to_bb:
+        elif captured_piece_type == KING and not effective_promoted & to_bb:
             if self.turn == WHITE and square_rank(move.to_square) == RANK_8:
                 self.castling_rights &= ~BB_RANK_8
             elif self.turn == BLACK and square_rank(move.to_square) == RANK_1:
