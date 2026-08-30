@@ -213,6 +213,8 @@ class GameNode(abc.ABC):
         self.variations = []
         self.comments = _standardize_comments(comment)
 
+        self.pre_comment = ""
+
         # Deprecated: These should be properties of ChildNode, but need to
         # remain here for backwards compatibility.
         self.starting_comments = []
@@ -759,6 +761,9 @@ class ChildNode(GameNode):
         if self.starting_comments:
             visitor.visit_comment(self.starting_comments)
 
+        if self.pre_comment:
+            visitor.visit_pre_comment(self.pre_comment)
+
         visitor.visit_move(parent_board, self.move)
 
         parent_board.push(self.move)
@@ -1142,6 +1147,12 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """
         pass
 
+    def visit_pre_comment(self, comment: str) -> None:
+        """
+        Called for a comment that appears immediately before the move token.
+        """
+        pass
+
     def visit_board(self, board: chess.Board) -> None:
         """
         Called for the starting position of the game and after each move.
@@ -1447,6 +1458,11 @@ class StringExporterMixin:
             self.write_token(pgn_format(comments) + " ")
             self.force_movenumber = True
 
+    def visit_pre_comment(self, comment: str) -> None:
+        if self.comments and (self.variations or not self.variation_depth):
+            self.write_token("{ " + comment.replace("}", "").strip() + " } ")
+            self.force_movenumber = True
+    
     def visit_nag(self, nag: int) -> None:
         if self.comments and (self.variations or not self.variation_depth):
             self.write_token("$" + str(nag) + " ")
