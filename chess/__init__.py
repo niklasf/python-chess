@@ -2297,14 +2297,11 @@ class Board(BaseBoard):
             return True
 
         if self.halfmove_clock >= 99:
+            # The claim can also be made ahead of a move that would itself give
+            # checkmate or stalemate (FIDE 9.3): it is declared, not played.
             for move in self.generate_legal_moves():
                 if not self.is_zeroing(move):
-                    self.push(move)
-                    try:
-                        if self.is_fifty_moves():
-                            return True
-                    finally:
-                        self.pop()
+                    return True
 
         return False
 
