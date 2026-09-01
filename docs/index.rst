@@ -11,6 +11,7 @@ Contents
     polyglot
     gaviota
     syzygy
+    chesstb
     engine
     svg
     variant
