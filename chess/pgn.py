@@ -497,7 +497,7 @@ class GameNode(abc.ABC):
             cp = score.white().score()
             if cp is not None:
                 eval = f"[%eval {float(cp) / 100:.2f}{depth_suffix}]"
-            elif score.white().mate():
+            elif score.white().mate() is not None:
                 eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
 
         self._replace_or_add_annotation(eval, EVAL_REGEX)

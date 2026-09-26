@@ -2957,6 +2957,13 @@ class PgnTestCase(unittest.TestCase):
             game.set_eval(chess.engine.PovScore(chess.engine.Cp(cp), chess.WHITE))
             self.assertEqual(game.eval().white().cp, cp)
 
+    def test_eval_mate_zero(self):
+        game = chess.pgn.read_game(io.StringIO("1. f3 e5 2. g4 Qh4# { [%eval #0] } 0-1"))
+        node = game.end()
+        node.set_eval(node.eval())
+        self.assertEqual(node.comments, ["[%eval #0]"])
+        self.assertEqual(node.eval().relative, chess.engine.Mate(0))
+
     def test_float_emt(self):
         game = chess.pgn.Game()
         game.comments = ["[%emt 0:00:01.234]"]
