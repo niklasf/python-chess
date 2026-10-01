@@ -6,13 +6,16 @@ import logging
 import os
 import os.path
 import platform
+import struct
 import sys
 import tempfile
 import textwrap
+import threading
 import unittest
 import io
 
 import chess
+import chess.chesstb
 import chess.gaviota
 import chess.engine
 import chess.pgn
@@ -5016,6 +5019,704 @@ class GiveawayTestCase(unittest.TestCase):
             game = chess.pgn.read_game(pgn)
             self.assertEqual(game.end().board().fen(), "8/6k1/3K4/8/8/3k4/8/8 w - - 4 33")
 
+
+class ChesstbTestCase(unittest.TestCase):
+
+    def open_without_pack(self):
+        # A tablebase with the DTM50 pack out of the search path, which is how
+        # material shipping no pack is probed: the mate distance has to come
+        # from the standalone dtm/ table instead of the pack's flat layer.
+        tables = chess.chesstb.open_tablebase("data/chesstb")
+        tables.dirs["dtm50"].clear()
+        return tables
+
+    # --- The four table kinds, and how a directory is searched for them. ---
+
+    def test_table_kinds(self):
+        # One file class and one search subdirectory per kind. DTZ and DTM share
+        # one on-disk layout and so one reader (_RankFile); the value decode is
+        # the whole of what separates them, so it is asserted directly rather
+        # than through a probe that could pass for other reasons. DTC and DTM50
+        # likewise share the changepoint container (_LayeredFile) and differ in
+        # what a record means, which the DTC tests below cover.
+        classes = [chess.chesstb.WDLFile, chess.chesstb.DTZFile,
+                   chess.chesstb.DTCFile, chess.chesstb.DTMFile,
+                   chess.chesstb.DTM50File]
+        self.assertEqual([c.KIND.lower() for c in classes],
+                         list(chess.chesstb.Tablebase.KINDS))
+        self.assertEqual(len({c.MAGIC for c in classes}), len(classes))
+        self.assertEqual([c.EXT for c in classes],
+                         [".lzw", ".lzdtz", ".lzdtc", ".lzdtm", ".lzdtm50"])
+        # A stored 9 under a WIN: DTZ keeps the count, DTM doubles it and adds
+        # the ply the class implies.
+        self.assertEqual(chess.chesstb.dtz_value_from_storage(9, chess.chesstb.WIN, 1), (9, False))
+        self.assertEqual(chess.chesstb.dtm_value_from_storage(9, chess.chesstb.WIN), 19)
+        self.assertEqual(chess.chesstb.dtm_value_from_storage(9, chess.chesstb.LOSE), 18)
+        # Cell width changes the DTZ decode and never the DTM one, which is why
+        # only one of the two reads it. A one-byte cursed cell reads back
+        # rounded.
+        self.assertEqual(chess.chesstb.dtz_value_from_storage(9, chess.chesstb.CURSED_WIN, 1), (17, True))
+        self.assertEqual(chess.chesstb.dtz_value_from_storage(9, chess.chesstb.CURSED_WIN, 2), (9, False))
+
+    def test_search_directories(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            # Every kind looks in its own subdirectory when there is one, else
+            # in the directory itself, so a flat dump of table files is also
+            # probeable. A directory already searched is not added again.
+            for kind in chess.chesstb.Tablebase.KINDS:
+                self.assertEqual(tables.dirs[kind], [os.path.join("data/chesstb", kind)])
+            tables.add_directory("data")
+            tables.add_directory("data/")
+            tables.add_directory("data/chesstb")
+            for kind in chess.chesstb.Tablebase.KINDS:
+                self.assertEqual(tables.dirs[kind], [os.path.join("data/chesstb", kind), "data"])
+
+        # A directory holding no tables at all is not an error, just an absence.
+        with tempfile.TemporaryDirectory() as empty:
+            with chess.chesstb.open_tablebase(empty) as tables:
+                board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+                self.assertIsNone(tables.get_wdl(board))
+                self.assertEqual(tables.probe(board).status, "tb_not_found")
+
+    # --- What a probe answers, and in what convention. ---
+
+    def test_probe(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            # KQK: mate distances and the signed WDL convention.
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtz(board), 19)
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm50(board), 19)
+
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), -2)
+            self.assertEqual(tables.probe_dtz(board), -20)
+            self.assertEqual(tables.probe_dtm(board), -20)  # signed: losing side
+            self.assertEqual(tables.probe_dtm50(board), -20)
+
+    def test_mirrored_material(self):
+        # Stronger side is Black: internally mirrored to the canonical KQK table.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            self.assertEqual(tables.probe_wdl(chess.Board("k7/1q6/8/5K2/8/8/8/8 b - - 0 1")), 2)
+
+    def test_opposing_pair_child_is_not_bare_kings(self):
+        # An opposing-pair config counts only its free pieces, so KpKp sits at
+        # num_pieces == 2 while holding four: it must not be read as KK (an
+        # unconditional draw) when the walk routes a child into a 'p' table.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            tables._has_any_table = lambda cfg: cfg.has_pair  # pretend KpKp is on disk
+            board = chess.Board("8/8/8/4p3/4P3/8/8/K6k w - - 0 1")
+            cfg, _, _, _ = tables._make_child(board, chess.Move.from_uci("a1a2"))
+            self.assertEqual(cfg.name(), "KpKp")
+            self.assertEqual(cfg.num_pieces, 2)
+            self.assertFalse(cfg.is_bare_kings)
+            # Genuine bare kings still short-circuit.
+            tables._has_any_table = lambda cfg: False
+            board = chess.Board("8/8/8/8/8/8/1r6/K6k w - - 0 1")
+            cfg, _, _, _ = tables._make_child(board, chess.Move.from_uci("a1b2"))
+            self.assertTrue(cfg.is_bare_kings)
+
+    def test_castling_rights_name_their_own_material(self):
+        # A rights-bearing position is a different position from the same men
+        # without the rights -- it has a move the other does not -- so it is
+        # looked up under its 'r' material whether or not that table is on disk.
+        # None ship here, so the answer is a miss naming the material it wanted.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/5k2/8/8/8/R3K3 w Q - 0 1")
+            self.assertEqual(tables.probe(board).status, "tb_not_found")
+            with self.assertRaises(chess.chesstb.MissingTableError) as cm:
+                tables.probe_wdl(board)
+            self.assertIn("KrK", str(cm.exception))
+            # The same men with the rights given up are KRK, which does ship.
+            board.set_castling_fen("-")
+            self.assertEqual(tables.probe_wdl(board), 2)
+
+    def test_case_insensitive_filesystem_does_not_swap_tables(self):
+        real_exists, real_open = os.path.exists, os.open
+
+        def resolve(path):
+            directory, name = os.path.split(path)
+            try:
+                for entry in os.listdir(directory or "."):
+                    if entry.lower() == name.lower():
+                        return os.path.join(directory, entry)
+            except OSError:
+                pass
+            return path
+
+        os.path.exists = lambda p: real_exists(resolve(p))
+        os.open = lambda p, *args, **kwargs: real_open(resolve(p), *args, **kwargs)
+        try:
+            with chess.chesstb.open_tablebase("data/chesstb") as tables:
+                board = chess.Board("4k3/8/8/8/8/8/8/R3K3 w Q - 0 1")
+                self.assertEqual(tables.probe(board).status, "tb_not_found")
+                board.set_castling_fen("-")
+                self.assertEqual(tables.probe_wdl(board), 2)
+        finally:
+            os.path.exists, os.open = real_exists, real_open
+
+    # --- Frames a table does not hold, recovered two ways. ---
+
+    def test_dropped_frame_symmetric(self):
+        # KRKR ships one frame dropped; the missing side is reconstructed by the
+        # symmetric color mirror.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/2r5/8/8/8/1k6/8/K1R5 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtz(board), 1)
+            self.assertEqual(tables.probe_dtm(board), 1)
+
+    def test_dropped_frame_minimax(self):
+        # KBNK ships an asymmetric dropped frame, reconstructed by one-ply minimax.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/8/8/2k5/2N5/KB6 w - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), 2)
+            self.assertEqual(tables.probe_dtm(board), 61)
+            board = chess.Board("8/8/8/8/8/2k5/2N5/KB6 b - - 0 1")
+            self.assertEqual(tables.probe_wdl(board), -2)
+            self.assertEqual(tables.probe_dtm(board), -60)  # signed: losing side
+
+    # --- The DTM50 pack, and the standalone DTM table it stands in for. ---
+
+    def test_dtm_table_without_pack(self):
+        # Without the DTM50 pack the mate distance comes from the standalone
+        # dtm/ table, which must answer exactly what the pack does.
+        with self.open_without_pack() as tables:
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            # The pack alone answers the rule-true layer.
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_dtm50(board)
+            # DTZ still comes from its own table.
+            self.assertEqual(tables.probe_dtz(board), 19)
+            # A DRAW is priced without opening the table at all.
+            self.assertEqual(tables.probe_dtm(chess.Board("8/8/8/8/4k3/8/4P3/4K3 w - - 0 1")), 0)
+            # Each shipped dtm/ table drops one frame (KQK black, KBNK white),
+            # so the other side comes back the same way the pack's frames do.
+            self.assertEqual(tables.probe_dtm(chess.Board("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1")), -20)
+            self.assertEqual(tables.probe_dtm(chess.Board("8/8/8/8/8/2k5/2N5/KB6 w - - 0 1")), 61)
+
+    def test_dtm50_pack_preferred_over_dtm(self):
+        # The pack carries the flat DTM, which is what makes the dtm/ table
+        # redundant: with a pack on disk it must never be opened.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            def fail(cfg):
+                self.fail("dtm/ opened while the DTM50 pack is available")
+            tables._open_dtm = fail
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm50(board), 19)
+
+    def test_dtm50_layer_decoded_at_the_clock(self):
+        # The pack stores a layer per halfmove clock, so a rule-true probe
+        # decodes a different cell than the flat one. Reaching that decode at
+        # all needs material that converts sooner than it mates: where dtz and
+        # dtm agree, a bound settles the layer before any cell is read.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("k7/8/8/1K6/8/8/6P1/8 b - - 0 1")  # dtz 2, dtm 48
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            pack = tables._open_dtm50(cfg)
+            layers = []
+            original = pack.read
+            pack.read = lambda color, b, wdl, hmc: (layers.append(hmc),
+                                                    original(color, b, wdl, hmc))[1]
+
+            self.assertEqual(tables.probe_dtm(board), -48)
+            self.assertEqual(tables.probe_dtz(board), -2)
+            # rule50 + dtm <= 100: the flat layer already answers, nothing else
+            # is decoded.
+            layers.clear()
+            self.assertEqual(tables.probe_dtm50(board, 0), -48)
+            self.assertEqual(layers, [chess.chesstb.IGNORE_50MR])
+            # Past that bound the layer at the clock is decoded on its own.
+            layers.clear()
+            self.assertEqual(tables.probe_dtm50(board, 60), -48)
+            self.assertIn(60, layers)
+            # rule50 + dtz > 100: no line resets the clock in time, so the layer
+            # is a draw and again no cell is read for it. Past the window itself
+            # the flat mate distance still stands while 50MR calls it a draw.
+            layers.clear()
+            self.assertEqual(tables.probe_dtm50(board, 99), 0)
+            self.assertEqual(layers, [chess.chesstb.IGNORE_50MR])
+            self.assertEqual(tables.probe_dtm50(board, 100), 0)
+            self.assertEqual(tables.probe_dtm(board), -48)
+
+    def test_dtm50_stride_index(self):
+        # The stride prefix index has to answer exactly what walking every
+        # position from the start of the block would.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/8/8/2k5/8/K1N1B3 w - - 0 1")
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            dtm50 = tables._open_dtm50(cfg)
+            color = next(c for c in range(2)
+                         if dtm50.per_color[c] is not None
+                         and not dtm50.is_singular[c] and not dtm50.is_dropped[c])
+            pc = dtm50.per_color[color]
+            blk = dtm50._get_block(pc, 0)
+            state_bits, cum = blk["state_bits"], blk["state_cum"]
+
+            counts = [0, 0, 0, 0]
+            for pos in range(4096):
+                state = (state_bits[pos // 4] >> (2 * (pos % 4))) & 3
+                self.assertEqual(chess.chesstb._state_and_index(state_bits, cum, pos),
+                                 (state, counts[state]))
+                counts[state] += 1
+
+            hints, pre = blk["single_hints"], blk["single_pre"]
+            popcount = 0
+            for i in range(min(4096, (len(hints) - 1) * 8)):
+                self.assertEqual(chess.chesstb._hint_prefix(hints, pre, i), popcount)
+                popcount += (hints[i >> 3] >> (i & 7)) & 1
+
+    def test_dtm50_hint_bitmaps(self):
+        # SINGLE and DOUBLE records vary in width and the file stores no bitmap
+        # saying which, so the prober rebuilds one by reading each record's
+        # draw-end bit -- the MSB of byte 0 for SINGLE, of byte 1 for DOUBLE.
+        # Read the wrong byte and every record after the first short one is
+        # located at the wrong offset, which no single probe reveals. Both
+        # walks have to land exactly on the stream sizes the header declares.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/8/4k3/8/4P3/4K3 w - - 0 1")
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            pack = tables._open_dtm50(cfg)
+            color = next(c for c in range(2)
+                         if pack.per_color[c] is not None
+                         and not pack.is_singular[c] and not pack.is_dropped[c])
+            blk = pack._get_block(pack.per_color[color], 0)
+            payload, eb = blk["payload"], blk["eb"]
+            num_single, num_double = struct.unpack_from("<II", payload, 4)
+            single_bytes, double_bytes = struct.unpack_from("<II", payload, 16)
+            # KPK is the material carrying both states; a table without DOUBLE
+            # records would pass this test no matter which byte it read.
+            self.assertGreater(num_double, 0)
+
+            for hints, off, hint_byte, n, short, long, declared in (
+                    (blk["single_hints"], blk["single_stream_off"], 0,
+                     num_single, 1 + eb, 1 + 2 * eb, single_bytes),
+                    (blk["double_hints"], blk["double_stream_off"], 1,
+                     num_double, 2 + 2 * eb, 2 + 3 * eb, double_bytes)):
+                walked = off
+                for j in range(n):
+                    draw_end = (payload[walked + hint_byte] & 0x80) != 0
+                    self.assertEqual(chess.chesstb._bit(hints, j), int(draw_end))
+                    walked += short if draw_end else long
+                self.assertEqual(walked - off, declared)
+                n_short = sum(chess.chesstb._bit(hints, j) for j in range(n))
+                self.assertEqual(n_short * short + (n - n_short) * long, declared)
+
+    # --- The DTC pack: pushes owed, and the DTZ table it embeds. ---
+
+    def test_dtc_clock_picks_the_budget(self):
+        # KPK ships its white frame dropped, so the white-to-move answers here
+        # come from the one-ply minimax over the kept frame, which has to fold
+        # the whole budget curve and not just the pair a read returns.
+        #
+        # The pack is a stack of layers indexed by push budget, and a probe takes
+        # the fewest pushes whose wait still fits the clock. A fresh clock buys
+        # the pawn-sparing line; a tighter one forces the trade the other way;
+        # once nothing fits, that clock has taken the win.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/k7/8/8/K4P2/8 w - - 0 1")
+            self.assertEqual(tables.probe_dtc(board, 0), (4, 23))
+            self.assertEqual(tables.probe_dtc(board, 80), (5, 19))
+            self.assertEqual(tables.probe_dtc(board, 95), (0, 0))
+            # DTZ prices every push at 1 and so cannot tell those lines apart.
+            self.assertEqual(tables.probe_dtz(board), 19)
+            # The board's own clock is the default.
+            self.assertEqual(tables.probe_dtc(chess.Board("8/8/8/k7/8/8/K4P2/8 w - - 80 1")),
+                             (5, 19))
+            # A loss is priced by the defence, which spends none of the winner's
+            # budget, so its wait is short enough to survive any clock.
+            losing = chess.Board("k7/8/8/1K6/8/8/6P1/8 b - - 0 1")
+            self.assertEqual(tables.probe_dtc(losing, 0), (4, -2))
+            self.assertEqual(tables.probe_dtc(losing, 95), (4, -2))
+            # A draw owes nothing at every clock, and is priced without a read.
+            self.assertEqual(tables.probe_dtc(chess.Board("8/8/8/k7/8/8/K4P2/8 b - - 0 1")),
+                             (0, 0))
+
+    def test_dtc_pack_carries_dtz(self):
+        # Layer 0 of the pack *is* the DTZ table, embedded rather than solved
+        # again, so a pawnful material answers DTZ with no dtz/ table in the
+        # search path at all.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            tables.dirs["dtz"].clear()
+            board = chess.Board("8/8/8/k7/8/8/K4P2/8 w - - 0 1")
+            self.assertEqual(tables.probe_dtz(board), 19)
+            self.assertEqual(tables.probe_dtc(board, 0), (4, 23))
+            # Same number the dtz/ table gives when it is there.
+            with chess.chesstb.open_tablebase("data/chesstb") as with_dtz:
+                self.assertEqual(with_dtz.probe_dtz(board), 19)
+
+    def test_dtc_pawnless_material(self):
+        # No push to budget means no pack: the stack would be one layer, whose
+        # every zeroing move is already a conversion, so the answer is DTZ's own
+        # number at nothing owed -- and a draw once the clock outruns it.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            def fail(cfg):
+                self.fail("dtc/ opened for a pawnless material")
+            tables._open_dtc = fail
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtc(board, 0), (0, 19))
+            self.assertEqual(tables.probe_dtc(board, 85), (0, 0))
+            self.assertEqual(tables.probe_dtc(chess.Board("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1"), 0),
+                             (0, -20))
+
+    def test_dtc_missing_pack(self):
+        # A pawnful material with no pack has no DTC answer, and says so rather
+        # than standing in DTZ's number: the two are not the same metric.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            tables.dirs["dtc"].clear()
+            board = chess.Board("8/8/8/k7/8/8/K4P2/8 w - - 0 1")
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_dtc(board)
+            self.assertEqual(tables.probe_dtz(board), 19)
+
+    def test_dtc_record_is_read_whole(self):
+        # DTM50 answers one layer per read; DTC answers a pair off the whole
+        # record, so its decode hands back every changepoint at once -- which is
+        # also what a derive minimaxes over. The curve is budget-indexed, drawn
+        # wherever a point settles nothing, with its DTZ terminal endpoint on
+        # top.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("k7/8/8/1K6/8/8/6P1/8 b - - 0 1")
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            pack = tables._open_dtc(cfg)
+            # KPK ships its white frame dropped, so the kept one is black's.
+            frame, mirror, readable = chess.chesstb.locate_frame(
+                pack, cfg, board, chess.chesstb.LOSE)
+            self.assertTrue(readable)
+            self.assertIsNone(mirror)
+            curve = pack.read_curve(frame, board, chess.chesstb.LOSE)
+            self.assertEqual(len(curve), chess.chesstb.DTC_PACK_LAYERS)
+            # The terminal endpoint is the DTZ table's own plies.
+            self.assertEqual(curve[chess.chesstb.DTC_BUDGET_LAYERS],
+                             tables.probe(board, 0).dtz)
+            # Fewer than four pushes settles nothing here; from four up the wait
+            # is the same, which is why the record needs one changepoint.
+            self.assertTrue(all(v == chess.chesstb.DRAWN_AT_LAYER for v in curve[:4]))
+            self.assertEqual(set(curve[4:]), {2})
+            # The cheapest budget priced is the order a clock-resolved read
+            # returns, with the wait found there.
+            self.assertEqual(tables.probe_dtc(board, 0), (4, -curve[4]))
+
+    def test_mate_on_the_board_reads_as_zero(self):
+        # A signed distance puts a mate already on the board at 0, where a draw
+        # sits too: the one distinction the sign cannot carry. The board settles
+        # it without a table, and probe() keeps the class explicit either way.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            mated = chess.Board("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1")
+            self.assertTrue(mated.is_checkmate())
+            self.assertEqual(tables.probe_dtm(mated), 0)
+            self.assertEqual(tables.probe_dtm50(mated), 0)
+            self.assertEqual(tables.probe_dtc(mated), (0, 0))
+            self.assertEqual(tables.probe_wdl(mated), -2)
+            record = tables.probe(mated, 0)
+            self.assertEqual(record.dtm50_wdl, chess.chesstb.LOSE)
+            self.assertEqual(record.dtc_wdl, chess.chesstb.LOSE)
+
+            stalemated = chess.Board("7k/8/6QK/8/8/8/8/8 b - - 0 1")
+            self.assertFalse(stalemated.is_checkmate())
+            self.assertEqual(tables.probe_dtm50(stalemated), 0)
+            self.assertEqual(tables.probe_dtc(stalemated), (0, 0))
+            self.assertEqual(tables.probe_wdl(stalemated), 0)
+            record = tables.probe(stalemated, 0)
+            self.assertEqual(record.dtm50_wdl, chess.chesstb.DRAW)
+            self.assertEqual(record.dtc_wdl, chess.chesstb.DRAW)
+
+    def test_lz4_native_matches_bundled_decoder(self):
+        # python-lz4 answers WDL blocks wherever it is installed, so the bundled
+        # decoder has to agree with it byte for byte: every block of every
+        # fixture table, dictionary and short tail included.
+        if chess.chesstb._lz4_block is None:
+            self.skipTest("python-lz4 is not installed")
+        blocks = 0
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            for fen in ["8/8/8/5k2/8/8/1B6/K7 w - - 0 1",
+                        "8/8/8/5k2/8/8/1N6/K7 w - - 0 1",
+                        "8/8/8/5k2/8/8/1P6/K7 w - - 0 1",
+                        "8/8/8/5k2/8/8/1Q6/K7 w - - 0 1",
+                        "8/8/8/5k2/8/8/1R6/K7 w - - 0 1",
+                        "8/8/8/5k2/8/8/1BN5/K7 w - - 0 1",
+                        "8/8/6r1/5k2/8/8/1R6/K7 w - - 0 1"]:
+                cfg, _ = chess.chesstb.piece_config_from_board(chess.Board(fen))
+                table = tables._open_wdl(cfg)
+                self.assertIsNotNone(table)
+                for color in (chess.chesstb.CPP_WHITE, chess.chesstb.CPP_BLACK):
+                    if table.is_singular[color] or table.is_dropped[color]:
+                        continue
+                    pc = table.per_color[color]
+                    for block in range(pc.block_cnt):
+                        doff, dnext = pc.offsets.get2(block)
+                        src = chess.chesstb._compressed_block(
+                            pc.buf[pc.data_off + doff:pc.data_off + dnext])
+                        usz = (pc.tail_size
+                               if block == pc.block_cnt - 1 and pc.tail_size
+                               else pc.block_size)
+                        self.assertEqual(
+                            chess.chesstb.lz4_decompress_block(src, usz, pc.dict),
+                            chess.chesstb.lz4_decompress_block_python(src, usz, pc.dict))
+                        blocks += 1
+        self.assertEqual(blocks, 31)
+
+    # --- Input the tables do not cover. ---
+
+    def test_missing_table(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            # Legal position whose material (KQQQQK) has no table on disk. Each
+            # metric raises, and each has a get_* that answers with a default.
+            board = chess.Board("7k/8/8/8/8/8/3QQQQ1/K7 w - - 0 1")
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_wdl(board)
+            self.assertIsNone(tables.get_wdl(board))
+            self.assertIsNone(tables.get_dtz(board))
+            self.assertEqual(tables.get_dtm(board, "none"), "none")
+
+    def test_castling_rights_rejected(self):
+        # The tables are built without castling rights, so such a position has
+        # no cell: reject it rather than answer as if the rights were absent.
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("4k3/8/8/8/8/8/8/R3K3 w Q - 0 1")
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_wdl(board)
+            self.assertIsNone(tables.get_wdl(board))
+            self.assertIsNone(tables.get_dtz(board))
+            with self.assertRaises(chess.chesstb.MissingTableError):
+                tables.probe_dtm50(board)
+            # The same material without the rights probes normally.
+            self.assertEqual(tables.probe_wdl(chess.Board("4k3/8/8/8/8/8/8/R3K3 w - - 0 1")), 2)
+
+    # --- Storage: the block cache, the mapping, and the transport seam. ---
+
+    def test_block_cache_reclaim(self):
+        # A tiny budget forces decoded blocks to be evicted from their owning
+        # per-color dicts, while answers stay correct.
+        with chess.chesstb.open_tablebase("data/chesstb", block_cache_bytes=1) as tables:
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            self.assertEqual(tables.probe_dtm(board), 19)
+            cache = tables._block_cache
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            # One budget is shared by every kind, so at most a single decoded
+            # block stays resident across all of them, not one per table.
+            opened = [tables._open_wdl(cfg), tables._open_dtz(cfg),
+                      tables._open_dtm(cfg), tables._open_dtm50(cfg)]
+            self.assertTrue(all(opened))
+            self.assertLessEqual(
+                sum(len(pc._blocks) for t in opened for pc in t.per_color if pc), 1)
+            # close() drops everything tracked.
+            tables.close()
+            self.assertEqual(cache.cur_bytes, 0)
+            self.assertEqual(
+                sum(len(pc._blocks) for t in opened for pc in t.per_color if pc), 0)
+
+    def test_mmap_lifecycle(self):
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+            self.assertEqual(tables.probe_dtm(board), 19)
+            cfg, _ = chess.chesstb.piece_config_from_board(board)
+            dtm50 = tables._open_dtm50(cfg)
+            # Table data is read through the mapping, not copied into memory.
+            pc = next(pc for pc in dtm50.per_color if pc)
+            self.assertIs(pc.buf.obj, dtm50._data)
+            self.assertIs(pc.offsets.blob.obj, dtm50._data)
+
+            # close() has to release every exported view before unmapping,
+            # otherwise mmap.close() raises BufferError -- and it has to do it
+            # for every kind's cache, not just the one the probe answered from.
+            mapped = [tables._open_wdl(cfg), tables._open_dtz(cfg),
+                      tables._open_dtm(cfg), dtm50]
+            self.assertTrue(all(t._data is not None for t in mapped))
+            tables.close()
+            self.assertEqual([t._data for t in mapped], [None] * 4)
+            tables.close()  # idempotent: nothing left to unmap
+            # A closed tablebase maps the files again on the next probe.
+            self.assertEqual(tables.probe_dtm(board), 19)
+
+    def test_open_source_seam(self):
+        # A source that is not a buffer at all: len(), indexing and slicing to
+        # bytes, nothing more. Everything above _open_source has to work
+        # through just that, and must never ask for more than one block at a
+        # time -- a source that fetches on slice (a remote table, say) would
+        # otherwise pull the whole file to answer one probe.
+        opened = []
+
+        class LazySource:
+            def __init__(self, path):
+                with open(path, "rb") as f:
+                    self.data = f.read()
+                self.path = path
+                self.widest = 0
+                self.closed = False
+
+            def __len__(self):
+                return len(self.data)
+
+            def __getitem__(self, key):
+                if isinstance(key, slice):
+                    start, stop, _ = key.indices(len(self.data))
+                    self.widest = max(self.widest, max(0, stop - start))
+                    return self.data[key]  # bytes, not a view
+                return self.data[key]
+
+            def close(self):
+                self.closed = True
+
+        def open_source(table, path):
+            src = LazySource(path)
+            opened.append(src)
+            table._data = src
+            return src
+
+        board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            expected = tables.probe(board, 0)
+
+        original = chess.chesstb._TableFile._open_source
+        chess.chesstb._TableFile._open_source = open_source
+        try:
+            with chess.chesstb.open_tablebase("data/chesstb") as tables:
+                got = tables.probe(board, 0)
+                cfg = chess.chesstb.piece_config_from_board(board)[0]
+                # The seam is one _open_source for all four kinds, so open the
+                # ones this probe had no reason to (dtm/, which the pack stands
+                # in for) through it as well.
+                for open_kind in (tables._open_wdl, tables._open_dtz,
+                                  tables._open_dtm, tables._open_dtm50):
+                    self.assertIsNotNone(open_kind(cfg))
+                dtm50 = tables._open_dtm50(cfg)
+                block_positions = next(pc for pc in dtm50.per_color if pc).block_positions
+        finally:
+            chess.chesstb._TableFile._open_source = original
+
+        self.assertEqual({os.path.splitext(src.path)[1] for src in opened},
+                         {".lzw", ".lzdtz", ".lzdtm", ".lzdtm50"})
+        self.assertEqual(got.wdl, expected.wdl)
+        self.assertEqual(got.dtm, expected.dtm)
+        self.assertEqual(got.dtz, expected.dtz)
+        self.assertTrue(all(src.closed for src in opened))
+        # Nothing asked for a span wider than one block.
+        self.assertLessEqual(max(src.widest for src in opened), block_positions)
+
+    def test_malformed_table_is_rejected(self):
+        # Table files are validated on open, and a failed open has to release
+        # the source it had already taken -- otherwise a bad file in a
+        # directory leaks a mapping on every probe that reaches it.
+        board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+        cfg, _ = chess.chesstb.piece_config_from_board(board)
+
+        class Recording(chess.chesstb.DTMFile):
+            instances = []
+
+            def _open_source(self, path):
+                Recording.instances.append(self)
+                return super()._open_source(path)
+
+        # DTZ and DTM share a reader, so the magic is what tells them apart and
+        # the complaint has to name the kind that was actually expected.
+        with self.assertRaises(ValueError) as caught:
+            Recording(cfg, "data/chesstb/dtz/KQK.lzdtz")
+        self.assertIn("DTM", str(caught.exception))
+        self.assertIsNone(Recording.instances[-1]._data)
+
+        with tempfile.TemporaryDirectory() as d:
+            with open("data/chesstb/dtm/KQK.lzdtm", "rb") as f:
+                data = f.read()
+            truncated = os.path.join(d, "KQK.lzdtm")
+            with open(truncated, "wb") as f:
+                f.write(data[:len(data) // 2])
+            with self.assertRaises(ValueError) as caught:
+                Recording(cfg, truncated)
+            self.assertIn("size", str(caught.exception))
+            self.assertIsNone(Recording.instances[-1]._data)
+
+        # The block decoder guards its own framing rather than trusting it.
+        with self.assertRaises(ValueError):
+            chess.chesstb.lzma_raw_decompress(memoryview(b"abc"), 64)
+
+    # --- Sharing one Tablebase between threads. ---
+
+    def test_concurrent_probe(self):
+        # Threads sharing one Tablebase must agree with a single-threaded
+        # reference. The barrier puts them all on the *first* open of these
+        # five materials at once (the lazy-open race), and the 1-byte block
+        # budget makes eviction race decoding on essentially every probe.
+        # KRKR is left out on purpose: under that budget its blocks re-decode
+        # per probe at ~100 ms a go, and test_dropped_frame_symmetric covers it.
+        queries = [
+            ("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1", 0),
+            ("8/8/8/5k2/8/8/1Q6/K7 b - - 0 1", 0),
+            ("8/8/8/3k4/8/8/4P3/K7 w - - 0 1", 0),
+            ("8/8/8/4k3/8/8/Q7/K7 w - - 10 30", 10),
+            ("8/8/8/4k3/8/8/2R5/K7 b - - 0 1", 0),
+            ("8/8/8/4k3/8/8/2B5/K7 w - - 0 1", 0),
+            ("8/8/8/4k3/8/8/2N5/K7 w - - 0 1", 0),
+        ]
+
+        def answers(tables):
+            return [tables.probe(chess.Board(fen), rule50).__repr__()
+                    for fen, rule50 in queries]
+
+        with chess.chesstb.open_tablebase("data/chesstb") as tables:
+            expected = answers(tables)
+
+        num_threads = 4
+        barrier = threading.Barrier(num_threads)
+        results = [None] * num_threads
+        errors = []
+
+        with chess.chesstb.open_tablebase("data/chesstb", block_cache_bytes=1) as tables:
+            def worker(i):
+                try:
+                    barrier.wait(timeout=30)
+                    results[i] = answers(tables)
+                except BaseException as e:
+                    errors.append(e)
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(num_threads)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=60)
+            self.assertEqual([t.name for t in threads if t.is_alive()], [], "deadlocked")
+            self.assertEqual(errors, [])
+            for got in results:
+                self.assertEqual(got, expected)
+
+    def test_close_waits_for_probes(self):
+        # close() unmaps files and releases the views into them, so it must
+        # block until in-flight probes are done. Asserted on the read-count
+        # registration directly -- a thread standing in for a probe that is
+        # mid-read -- so the ordering is checked rather than raced for.
+        tables = chess.chesstb.open_tablebase("data/chesstb")
+        tables.probe(chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1"))  # warm and mapped
+
+        registered = threading.Event()
+        may_finish = threading.Event()
+        closed = threading.Event()
+
+        def in_flight_probe():
+            with tables._read_condition:
+                tables._read_count += 1
+            registered.set()
+            may_finish.wait(timeout=30)
+            with tables._read_condition:
+                tables._read_count -= 1
+                tables._read_condition.notify_all()
+
+        reader = threading.Thread(target=in_flight_probe)
+        reader.start()
+        self.assertTrue(registered.wait(timeout=30))
+
+        closer = threading.Thread(target=lambda: (tables.close(), closed.set()))
+        closer.start()
+        self.assertFalse(closed.wait(timeout=0.05), "close() did not wait for the probe")
+        may_finish.set()
+        self.assertTrue(closed.wait(timeout=30), "close() did not resume")
+
+        reader.join(timeout=30)
+        closer.join(timeout=30)
+        self.assertEqual([t.name for t in (reader, closer) if t.is_alive()], [])
 
 if __name__ == "__main__":
     verbosity = sum(arg.count("v") for arg in sys.argv if all(c == "v" for c in arg.lstrip("-")))
