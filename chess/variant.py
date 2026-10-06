@@ -298,6 +298,11 @@ class AtomicBoard(chess.Board):
             if self.is_legal(move):
                 yield move
 
+    def generate_legal_ep(self, from_mask: chess.Bitboard = chess.BB_ALL, to_mask: chess.Bitboard = chess.BB_ALL) -> Iterator[chess.Move]:
+        for move in self.generate_pseudo_legal_ep(from_mask, to_mask):
+            if self.is_legal(move):
+                yield move
+
     def status(self) -> chess.Status:
         status = super().status()
         status &= ~chess.STATUS_OPPOSITE_CHECK

@@ -4551,6 +4551,32 @@ class AtomicTestCase(unittest.TestCase):
         board.push_san("cxb6+")
         self.assertEqual(board.fen(), "rn2kb1r/2p1p2p/p2q1pp1/3P4/Q7/4P3/PP3P1P/R3K3 b Qkq - 0 11")
 
+        # Exploding the opponent's king makes en passant legal even though
+        # the capturing king would otherwise remain in check.
+        board = chess.variant.AtomicBoard("rn3b2/8/p7/1kp5/3p2P1/P2K1P2/2P5/2R2B2 w - - 0 1")
+        board.push_uci("c2c4")
+        move = chess.Move.from_uci("d4c3")
+        self.assertTrue(board.is_legal(move))
+        self.assertIn(move, board.generate_legal_moves())
+        self.assertIn(move, board.generate_legal_ep())
+        self.assertIn(move, board.generate_legal_captures())
+        self.assertTrue(board.has_legal_en_passant())
+        self.assertEqual(board.fen().split()[3], "c3")
+        self.assertEqual(board.epd().split()[3], "c3")
+
+        # Exploding the capturing king makes en passant illegal, even if the
+        # usual check test considers the king safe after the explosion.
+        board = chess.variant.AtomicBoard("8/R7/8/6P1/2p1kP2/2K4N/3P4/8 w - - 0 1")
+        board.push_uci("d2d4")
+        move = chess.Move.from_uci("c4d3")
+        self.assertFalse(board.is_legal(move))
+        self.assertNotIn(move, board.generate_legal_moves())
+        self.assertNotIn(move, board.generate_legal_ep())
+        self.assertNotIn(move, board.generate_legal_captures())
+        self.assertFalse(board.has_legal_en_passant())
+        self.assertEqual(board.fen().split()[3], "-")
+        self.assertEqual(board.epd().split()[3], "-")
+
         # Test the explosion radius.
         board = chess.variant.AtomicBoard("3kK3/8/8/2NNNNN1/2NN1pN1/2NN1NN1/2NNPNN1/2NNNNN1 w - - 0 1")
         board.push_san("e4")
