@@ -1,69 +1,114 @@
-"""Example: clock legal-move generation and perft counting for a position.
+"""Benchmark legal-move generation for a single chess position.
 
-The single most recycled hot loop in chess engines, RL-for-Universal-
-Compiler-Optimization pipelines and chessy is the legal-move generator
-plus the perft* node counters (the same "how many nodes can this machine
-walk" benchmark the RL-for-Universal-Compiler-Optimization README measures
-when tuning offline inference budgets). This example is deliberately tiny:
-copy the FEN, get canonical node counts (perft values that every engine
-test suite checks against), and get a real wall-clock nodes/sec figure for
-this machine and this python-chess build.
+Unlike examples/perft/perft.py, this script takes a FEN directly instead of
+reading a perft-suite file. It reports a timed node count for each depth and
+checks the known start-position counts against a small canonical reference table.
 
-Run:
-    python clocked_perft.py                    # start position, depth 4
-    python clocked_perft.py "<FEN>" 3          # custom position / depth
+Examples:
+    python clocked_perft.py
+    python clocked_perft.py "<FEN>" 3
 
-Output (one parseable line plus per-depth details):
-    total_nodes_per_s=xxx  total_wall_s=yyy  total_nodes=zzz  perft=<dict>
-    d1=<a>  d2=<b>  ...  dN=<z>
-
-perft(W) is defined as the number of distinct lines of play of exactly W
-plies from the given position; the well-known reference values are:
-    start:  d1=20 d2=400 d3=8902 d4=197281 d5=4865609
-    "KiwiPete" (k1q1...):  d1=48 d2=2039 d3=97862 d4=4085603
-Those are exactly the numbers python-chess engines and UCI benches print
-to prove the node counter matches the canonical test suite.
+The start-position reference counts are d1=20, d2=400, d3=8902, d4=197281,
+and d5=4865609.
 """
-import sys
+
+import argparse
 import time
 
 import chess
 
 
-def perft(board, depth):
-    """Return the depth-bounded node count for exactly `depth` plies."""
-    if depth == 0:
+STARTPOS_PERFT = {
+    1: 20,
+    2: 400,
+    3: 8902,
+    4: 197281,
+    5: 4865609,
+}
+
+
+def perft(depth: int, board: chess.Board) -> int:
+    """Return the number of legal move sequences exactly depth plies long."""
+    if depth <= 0:
         return 1
+    if depth == 1:
+        return board.legal_moves.count()
+
     nodes = 0
     for move in board.legal_moves:
         board.push(move)
-        nodes += perft(board, depth - 1)
+        nodes += perft(depth - 1, board)
         board.pop()
     return nodes
 
 
-def clocked_perft(fen, depth):
-    """Return (perft_wall_s, total_nodes, {d: n}) with a per-depth breakdown."""
-    board = chess.Board(fen)
-    t0 = time.perf_counter()
-    per_depth = {}
-    for d in range(1, depth + 1):
-        per_depth[d] = perft(board, d)
-    wall = time.perf_counter() - t0
-    total = sum(per_depth.values())
-    return wall, total, per_depth
+def positive_depth(value: str) -> int:
+    """Parse a positive integer depth for argparse."""
+    try:
+        depth = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("depth must be a positive integer") from exc
+
+    if depth < 1:
+        raise argparse.ArgumentTypeError("depth must be at least 1")
+    return depth
 
 
-def main():
-    fen = sys.argv[1] if len(sys.argv) > 1 else chess.STARTING_FEN
-    depth = int(sys.argv[2]) if len(sys.argv) > 2 else 4
-    wall, total, per_depth = clocked_perft(fen, depth)
-    nps = total / wall if wall else 0.0
-    parts = ["total_nodes_per_s=%.1f" % nps,
-             "total_wall_s=%.3f" % wall,
-             "total_nodes=%d" % total,
-             "perft=" + str(per_depth)]
-    print("  ".join(parts))
+def clocked_perft(
+    board: chess.Board, max_depth: int
+) -> list[tuple[int, int, float]]:
+    """Return per-depth (depth, node_count, elapsed_seconds) measurements."""
+    results = []
+    for depth in range(1, max_depth + 1):
+        start = time.perf_counter()
+        nodes = perft(depth, board)
+        elapsed = time.perf_counter() - start
+        results.append((depth, nodes, elapsed))
+    return results
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "fen",
+        nargs="?",
+        default=chess.STARTING_FEN,
+        help="FEN of the position (default: start position)",
+    )
+    parser.add_argument(
+        "depth",
+        nargs="?",
+        type=positive_depth,
+        default=4,
+        help="maximum depth to measure (default: 4)",
+    )
+    args = parser.parse_args()
+
+    board = chess.Board(args.fen)
+    results = clocked_perft(board, args.depth)
+    is_start_position = args.fen == chess.STARTING_FEN
+
+    total_nodes = 0
+    total_wall_s = 0.0
+    for depth, nodes, elapsed in results:
+        total_nodes += nodes
+        total_wall_s += elapsed
+        nps = nodes / elapsed if elapsed else float("inf")
+        row = (
+            f"depth={depth}  nodes={nodes}  wall_s={elapsed:.6f}  "
+            f"nodes_per_s={nps:.1f}"
+        )
+
+        expected = STARTPOS_PERFT.get(depth) if is_start_position else None
+        if expected is not None:
+            row += f"  reference_nodes={expected}  reference_match={nodes == expected}"
+        print(row)
+
+    total_nps = total_nodes / total_wall_s if total_wall_s else float("inf")
+    print(
+        f"total_nodes={total_nodes}  total_wall_s={total_wall_s:.6f}  "
+        f"total_nodes_per_s={total_nps:.1f}"
+    )
 
 
 if __name__ == "__main__":
