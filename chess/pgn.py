@@ -933,6 +933,40 @@ class Game(GameNode):
         time_control_header = self.headers.get("TimeControl", "")
         return parse_time_control(time_control_header)
 
+    def set_time_control(self, time_control: TimeControl) -> None:
+        """
+        Sets the ``TimeControl`` header of the game.
+
+        A time control without parts is written as ``-`` if its type is
+        ``UNLIMITED``, otherwise as ``?`` (unknown).
+
+        :raises: :exc:`ValueError` if the time control cannot be represented
+            in PGN: only the last part can be sudden death, and a part
+            cannot have both an increment and a delay.
+        """
+        if not time_control.parts:
+            self.headers["TimeControl"] = "-" if time_control.type == TimeControlType.UNLIMITED else "?"
+            return
+
+        def _format_seconds(seconds: float) -> str:
+            return f"{seconds:.3f}".rstrip("0").rstrip(".")
+
+        def _format_part(part: TimeControlPart) -> str:
+            text = f"{part.moves}/{part.time}" if part.moves else f"{part.time}"
+            if part.increment and part.delay:
+                raise ValueError("Time control part cannot have both increment and delay.")
+            elif part.increment:
+                text += f"+{_format_seconds(part.increment)}"
+            elif part.delay:
+                text += f"+{_format_seconds(part.delay)}d"
+            return text
+
+        for part in time_control.parts[:-1]:
+            if part.moves == 0:
+                raise ValueError("Only last part can be 'sudden death'.")
+
+        self.headers["TimeControl"] = ":".join(_format_part(part) for part in time_control.parts)
+
     @classmethod
     def from_board(cls: Type[GameT], board: chess.Board) -> GameT:
         """Creates a game from the move stack of a :class:`~chess.Board()`."""

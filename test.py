@@ -2627,6 +2627,31 @@ class PgnTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             chess.pgn.parse_time_control("40/abc")
 
+    def test_set_time_control(self):
+        game = chess.pgn.Game()
+
+        for header in ["40/7200:20/3600:900+30", "300+2", "180+0.5", "5400+30d", "1800", "-", "?"]:
+            game.set_time_control(chess.pgn.parse_time_control(header))
+            self.assertEqual(game.headers["TimeControl"], header)
+            self.assertEqual(game.time_control(), chess.pgn.parse_time_control(header))
+
+        game.set_time_control(chess.pgn.TimeControl(
+            parts=[chess.pgn.TimeControlPart(moves=40, time=6000, increment=30.0), chess.pgn.TimeControlPart(time=900, increment=30)],
+            type=chess.pgn.TimeControlType.STANDARD))
+        self.assertEqual(game.headers["TimeControl"], "40/6000+30:900+30")
+
+        game.set_time_control(chess.pgn.TimeControl())
+        self.assertEqual(game.headers["TimeControl"], "?")
+        self.assertEqual(game.time_control().type, chess.pgn.TimeControlType.UNKNOWN)
+
+        with self.assertRaises(ValueError):
+            game.set_time_control(chess.pgn.TimeControl(parts=[chess.pgn.TimeControlPart(time=600), chess.pgn.TimeControlPart(moves=20, time=180)]))
+
+        with self.assertRaises(ValueError):
+            game.set_time_control(chess.pgn.TimeControl(parts=[chess.pgn.TimeControlPart(time=600, increment=5, delay=5)]))
+
+        self.assertEqual(game.headers["TimeControl"], "?")
+
 
     def test_visit_board(self):
         class TraceVisitor(chess.pgn.BaseVisitor):
