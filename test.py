@@ -2402,6 +2402,59 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game[0].san(), "c4")
         self.assertEqual(len(game.errors), 0)
 
+    def test_variation_stack_after_illegal_move(self):
+        # Illegal move in the mainline, followed by an unmatched closing
+        # bracket. The rest of the game is skipped.
+        pgn = io.StringIO("1. e4 Nf3 ) e5 *")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual(game.end().board().move_stack, [chess.Move.from_uci("e2e4")])
+        self.assertEqual(len(game.variations), 1)
+        self.assertEqual(len(game[0].variations), 0)
+        self.assertEqual(len(game.errors), 1)
+        self.assertIsInstance(game.errors[0], chess.IllegalMoveError)
+        self.assertIn("Nf3", str(game.errors[0]))
+
+        # Illegal move in a variation. The mainline continues after the
+        # variation is closed.
+        pgn = io.StringIO("1. e4 (1. d4 Nf6 2. Nf6) e5 2. Nf3 *")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5", "Nf3"])
+        variation = game.variations[1]
+        self.assertEqual([variation.san()] + [node.san() for node in variation.mainline()], ["d4", "Nf6"])
+        self.assertEqual(game.headers["Result"], "*")
+        self.assertEqual(len(game.errors), 1)
+        self.assertIsInstance(game.errors[0], chess.IllegalMoveError)
+        self.assertIn("Nf6", str(game.errors[0]))
+
+        pgn = io.StringIO("1. e4 (1. d4 Nf3) e5 2. Nf3 *")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5", "Nf3"])
+        variation = game.variations[1]
+        self.assertEqual([variation.san()] + [node.san() for node in variation.mainline()], ["d4"])
+        self.assertEqual(len(game.errors), 1)
+        self.assertIsInstance(game.errors[0], chess.IllegalMoveError)
+        self.assertIn("Nf3", str(game.errors[0]))
+
+    def test_variation_stack_skip_variation(self):
+        class SkipVariations(chess.pgn.GameBuilder):
+            def begin_variation(self):
+                super().begin_variation()
+                return chess.pgn.SKIP
+
+        pgn = io.StringIO("1. e4 (1. d4 d5 (1... Nf6) 2. Nf6) e5 (1... c5) 2. Nf3 *")
+        game = chess.pgn.read_game(pgn, Visitor=SkipVariations)
+        self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5", "Nf3"])
+        self.assertTrue(all(node.is_mainline() for node in game.mainline()))
+        self.assertEqual(len(game.variations), 1)
+        self.assertEqual(len(game[0].variations), 1)
+        self.assertEqual(len(game.errors), 0)
+
     def test_game_starting_comment(self):
         pgn = io.StringIO("{ Game starting comment } 1. d3")
         game = chess.pgn.read_game(pgn)

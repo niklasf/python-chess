@@ -1711,6 +1711,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     # Parse movetext.
     skip_variation_depth = 0
+    skip_after_error = False
     fresh_line = True
     while line:
         if fresh_line:
@@ -1755,14 +1756,22 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 elif board_stack[-1].move_stack:
                     if visitor.begin_variation() is SKIP:
                         skip_variation_depth = 1
+                        skip_after_error = False
                     else:
                         board = board_stack[-1].copy()
                         board.pop()
                         board_stack.append(board)
             elif token == ")":
                 if skip_variation_depth == 1:
-                    skip_variation_depth = 0
-                    visitor.end_variation()
+                    if not skip_after_error:
+                        skip_variation_depth = 0
+                        visitor.end_variation()
+                    elif len(board_stack) > 1:
+                        skip_variation_depth = 0
+                        visitor.end_variation()
+                        board_stack.pop()
+                    # Otherwise the error was in the mainline. Ignore the
+                    # unmatched closing bracket and keep skipping.
                 elif skip_variation_depth:
                     skip_variation_depth -= 1
                 elif len(board_stack) > 1:
@@ -1797,6 +1806,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     except ValueError as error:
                         visitor.handle_error(error)
                         skip_variation_depth = 1
+                        skip_after_error = True
                     else:
                         visitor.visit_move(board_stack[-1], move)
                         board_stack[-1].push(move)
