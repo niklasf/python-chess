@@ -2430,6 +2430,89 @@ class PgnTestCase(unittest.TestCase):
         self.assertFalse(node.comments)
         self.assertEqual(node.starting_comments, ["Start of variation"])
 
+    def test_starting_comment_in_empty_variation(self):
+        # A comment inside a variation that contains no move must not
+        # leak onto the next move: only nodes that actually start a
+        # variation can have starting comments. Instead, the comment is
+        # preserved on the node the variation branched from.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({lonely}) 2. Nf3 Nc6 *"))
+        e5 = game[0][0]
+        nf3 = e5[0]
+        self.assertFalse(nf3.starts_variation())
+        self.assertEqual(nf3.starting_comments, [])
+        self.assertEqual(e5.comments, ["lonely"])
+
+        # Export round trips are the identity: the comment is no longer
+        # re-attached to a different node by exporting and re-parsing.
+        exporter = chess.pgn.StringExporter(columns=None)
+        game.accept(exporter)
+        reparsed = chess.pgn.read_game(io.StringIO(str(exporter)))
+        self.assertEqual(reparsed[0][0].comments, ["lonely"])
+        self.assertEqual(reparsed[0][0][0].starting_comments, [])
+
+        # Nested empty variation.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 2. Nf3 (2. Bc4 ({lonely}) Bc5 {gioco}) Nc6 *"))
+        bc4 = game[0][0][1]
+        bc5 = bc4[0]
+        self.assertEqual(bc5.starting_comments, [])
+        self.assertEqual(bc4.comments, ["lonely"])
+        self.assertEqual(bc5.comments, ["gioco"])
+
+        # A comment in an empty variation at the end of the game is
+        # preserved, not dropped.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({lonely end}) *"))
+        self.assertEqual(game[0][0].comments, ["lonely end"])
+
+        # A comment in an empty variation does not become the starting
+        # comment of a sibling variation either.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({lonely}) (1... c5 {sic}) 2. Nf3 Nc6 *"))
+        c5 = game[0][1]
+        self.assertEqual(c5.starting_comments, [])
+        self.assertEqual(c5.comments, ["sic"])
+        self.assertEqual(game[0][0].comments, ["lonely"])
+
+        # Pending starting comments are scoped to their variation: an
+        # outer starting comment survives an inner empty variation.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({outer} ({inner-empty}) 1... c5) 2. Nf3 *"))
+        c5 = game[0][1]
+        self.assertTrue(c5.starts_variation())
+        self.assertEqual(c5.starting_comments, ["outer"])
+        all_comments = []
+
+        def collect(node):
+            all_comments.extend(node.comments)
+            for child in node.variations:
+                collect(child)
+
+        collect(game)
+        self.assertIn("inner-empty", all_comments)
+
+        # Invariant: no node carries starting comments without starting
+        # a variation.
+        samples = [
+            "1. e4 e5 ({lonely}) 2. Nf3 Nc6 *",
+            "1. e4 e5 2. Nf3 (2. Bc4 ({lonely}) Bc5) Nc6 *",
+            "1. e4 e5 ({a}) (1... c5) 2. Nf3 *",
+            "1. e4 ({pre} 1. d4 d5) e5 *",
+            "1. e4 e5 ({x} 1... c5 {y} ({z}) 2. Nf3) 2. Bc4 *",
+        ]
+        for movetext in samples:
+            game = chess.pgn.read_game(io.StringIO(movetext))
+
+            def check(node):
+                for child in node.variations:
+                    if child.starting_comments:
+                        self.assertTrue(child.starts_variation())
+                    check(child)
+
+            check(game)
+
+        # Legitimate starting comments are unaffected.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({the french} 1... e6 2. d4 d5) 2. Nf3 Nc6 *"))
+        e6 = game[0][1]
+        self.assertTrue(e6.starts_variation())
+        self.assertEqual(e6.starting_comments, ["the french"])
+
     def test_annotation_symbols(self):
         pgn = io.StringIO("1. b4?! g6 2. Bb2 Nc6? 3. Bxh8!!")
         game = chess.pgn.read_game(pgn)
