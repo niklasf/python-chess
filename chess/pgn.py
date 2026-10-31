@@ -1206,6 +1206,7 @@ class GameBuilder(BaseVisitor[GameT]):
 
         self.variation_stack: List[GameNode] = [self.game]
         self.starting_comments: list[str] = []
+        self.starting_comments_stack: List[list[str]] = []
         self.in_variation = False
 
     @override
@@ -1227,9 +1228,31 @@ class GameBuilder(BaseVisitor[GameT]):
         self.variation_stack.append(parent)
         self.in_variation = False
 
+        # Starting comments are scoped to the variation they were
+        # collected in. Save any pending comments of the enclosing
+        # variation (or game) so they are not mixed with this
+        # variation's starting comments.
+        self.starting_comments_stack.append(self.starting_comments)
+        self.starting_comments = []
+
     @override
     def end_variation(self) -> None:
         self.variation_stack.pop()
+
+        if self.starting_comments:
+            # The variation contained no move that the pending starting
+            # comments could attach to (for example an empty variation,
+            # or a variation whose moves were all skipped after an
+            # error). Attach the comments to the node the variation
+            # branched from, rather than leaking them onto the next
+            # move: that move does not start a variation, so it must
+            # not carry starting comments, and exporting them there
+            # would silently re-attach them to the preceding move.
+            node = self.variation_stack[-1]
+            node.comments.extend(self.starting_comments)
+            node.comments = list(filter(None, node.comments))
+
+        self.starting_comments = self.starting_comments_stack.pop() if self.starting_comments_stack else []
 
     @override
     def visit_result(self, result: str) -> None:
