@@ -566,7 +566,8 @@ class GameNode(abc.ABC):
         """
         clk = ""
         if seconds is not None:
-            seconds = max(0, seconds)
+            # nearest ms, otherwise 59.9996 becomes an invalid :60
+            seconds = round(max(0, seconds), 3)
             hours = int(seconds // 3600)
             minutes = int(seconds % 3600 // 60)
             seconds = seconds % 3600 % 60
@@ -595,7 +596,8 @@ class GameNode(abc.ABC):
         """
         emt = ""
         if seconds is not None:
-            seconds = max(0, seconds)
+            # nearest ms, otherwise 59.9996 becomes an invalid :60
+            seconds = round(max(0, seconds), 3)
             hours = int(seconds // 3600)
             minutes = int(seconds % 3600 // 60)
             seconds = seconds % 3600 % 60

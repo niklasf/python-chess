@@ -2970,6 +2970,14 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.comments, ["[%emt 0:00:00]"])  # Clamped
         self.assertEqual(game.emt(), 0)
 
+        game.set_emt(59.9996)
+        self.assertEqual(game.comments, ["[%emt 0:01:00]"])
+        self.assertEqual(game.emt(), 60)
+
+        game.set_emt(3599.9999)
+        self.assertEqual(game.comments, ["[%emt 1:00:00]"])
+        self.assertEqual(game.emt(), 3600)
+
     def test_float_clk(self):
         game = chess.pgn.Game()
         game.comments = ["[%clk 0:00:01.234]"]
@@ -2982,6 +2990,14 @@ class PgnTestCase(unittest.TestCase):
         game.set_clock(-70)
         self.assertEqual(game.comments, ["[%clk 0:00:00]"])  # Clamped
         self.assertEqual(game.clock(), 0)
+
+        game.set_clock(59.9996)
+        self.assertEqual(game.comments, ["[%clk 0:01:00]"])
+        self.assertEqual(game.clock(), 60)
+
+        game.set_clock(3599.9999)
+        self.assertEqual(game.comments, ["[%clk 1:00:00]"])
+        self.assertEqual(game.clock(), 3600)
 
     def test_node_turn(self):
         game = chess.pgn.Game()
