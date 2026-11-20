@@ -4455,8 +4455,21 @@ class SvgTestCase(unittest.TestCase):
         self.assertIn("id=\"white-king\"", svg)
 
 
-class SuicideTestCase(unittest.TestCase):
+class AntichessTestCase(unittest.TestCase):
 
+    def test_empty_side(self):
+        # The side that just lost all pieces must be to move.
+        self.assertEqual(chess.variant.AntichessBoard("8/8/8/8/8/8/8/K7 w - - 0 1").status(), chess.STATUS_VARIANT)
+        self.assertEqual(chess.variant.AntichessBoard("1b6/8/8/8/8/8/8/8 b - - 0 1").status(), chess.STATUS_VARIANT)
+
+        board = chess.variant.AntichessBoard("8/8/8/8/8/8/8/k7 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        self.assertTrue(board.is_variant_end())
+        self.assertEqual(board.outcome(), chess.Outcome(chess.Termination.VARIANT_WIN, chess.WHITE))
+
+
+class SuicideTestCase(unittest.TestCase):
+    
     def test_parse_san(self):
         board = chess.variant.SuicideBoard()
         board.push_san("e4")

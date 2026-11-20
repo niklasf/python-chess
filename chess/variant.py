@@ -136,6 +136,8 @@ class SuicideBoard(chess.Board):
         status &= ~chess.STATUS_NO_BLACK_KING
         status &= ~chess.STATUS_TOO_MANY_KINGS
         status &= ~chess.STATUS_OPPOSITE_CHECK
+        if not self.occupied_co[not self.turn]:
+            status |= chess.STATUS_VARIANT
         return status
 
 
