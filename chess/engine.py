@@ -1222,11 +1222,12 @@ class BaseCommand(Generic[T]):
             self._dispatch_finished()
 
     def set_finished(self) -> None:
-        assert self.state in [CommandState.ACTIVE, CommandState.CANCELLING], self.state
+        assert self.state in [CommandState.NEW, CommandState.ACTIVE, CommandState.CANCELLING], self.state
         if not self.result.done():
             self.result.set_exception(EngineError(f"engine command finished before returning result: {self!r}"))
         self.state = CommandState.DONE
-        self.finished.set_result(None)
+        if not self.finished.done():
+            self.finished.set_result(None)
         self._dispatch_finished()
 
     def _cancel(self) -> None:
