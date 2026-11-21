@@ -231,6 +231,14 @@ class InfoDict(TypedDict, total=False):
     Others: ``tbhits``, ``currmove``, ``currmovenumber``, ``hashfull``,
     ``cpuload``, ``refutation``, ``currline``, ``ebf`` (effective branching factor),
     ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
+
+    Engines send many ``info`` lines during a search. Each line updates the
+    keys it contains and leaves all other keys unchanged, so every key holds
+    the most recently received value. Values can therefore come from
+    different lines (for example, ``depth`` can be newer than ``pv``), and
+    ``string`` holds only the last ``info string`` message. To receive each
+    line individually, iterate over the result of
+    :func:`chess.engine.Protocol.analysis()`.
     """
     score: PovScore
     pv: list[chess.Move]
