@@ -2441,6 +2441,24 @@ class PgnTestCase(unittest.TestCase):
         self.assertIsInstance(game.errors[0], chess.IllegalMoveError)
         self.assertIn("Nf3", str(game.errors[0]))
 
+    def test_result_after_illegal_move(self):
+        pgn = io.StringIO("1. e4 Nf3 (1... e5 0-1) 2. Nf3 1-0")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual(game.end().board().move_stack, [chess.Move.from_uci("e2e4")])
+        self.assertEqual(game.headers["Result"], "1-0")
+        self.assertEqual(len(game.errors), 1)
+
+        # Results in variations are still ignored.
+        pgn = io.StringIO("1. e4 (1. d4 Nf3 1-0) e5 *")
+        logging.disable(logging.ERROR)
+        game = chess.pgn.read_game(pgn)
+        logging.disable(logging.NOTSET)
+        self.assertEqual([node.san() for node in game.mainline()], ["e4", "e5"])
+        self.assertEqual(game.headers["Result"], "*")
+        self.assertEqual(len(game.errors), 1)
+
     def test_variation_stack_skip_variation(self):
         class SkipVariations(chess.pgn.GameBuilder):
             def begin_variation(self):
