@@ -1111,7 +1111,7 @@ class BaseBoard:
         piece_type = self._remove_piece_at(square)
         return _PIECES[color][piece_type] if piece_type else None
 
-    def _set_piece_at(self, square: Square, piece_type: PieceType, color: Color, promoted: bool = False) -> None:
+    def _set_piece_at(self, square: Square, piece_type: PieceType, color: Color, *, promoted: bool = False) -> None:
         self._remove_piece_at(square)
 
         mask = BB_SQUARES[square]
@@ -1137,7 +1137,7 @@ class BaseBoard:
         if promoted:
             self.promoted ^= mask
 
-    def set_piece_at(self, square: Square, piece: Piece | None, promoted: bool = False) -> None:
+    def set_piece_at(self, square: Square, piece: Piece | None, *, promoted: bool = False) -> None:
         """
         Sets a piece at the given square.
 
@@ -1149,7 +1149,7 @@ class BaseBoard:
         if piece is None:
             self._remove_piece_at(square)
         else:
-            self._set_piece_at(square, piece.piece_type, piece.color, promoted)
+            self._set_piece_at(square, piece.piece_type, piece.color, promoted=promoted)
 
     def board_fen(self, *, promoted: bool | None = None) -> str:
         """
@@ -1886,7 +1886,7 @@ class Board(BaseBoard):
         self.clear_stack()
         return piece
 
-    def set_piece_at(self, square: Square, piece: Piece | None, promoted: bool = False) -> None:
+    def set_piece_at(self, square: Square, piece: Piece | None, *, promoted: bool = False) -> None:
         """Place a piece on a square."""
         super().set_piece_at(square, piece, promoted=promoted)
         self.clear_stack()
@@ -2523,7 +2523,7 @@ class Board(BaseBoard):
         # Put the piece on the target square.
         if not castling:
             was_promoted = bool(self.promoted & to_bb)
-            self._set_piece_at(move.to_square, piece_type, self.turn, promoted)
+            self._set_piece_at(move.to_square, piece_type, self.turn, promoted=promoted)
 
             if captured_piece_type:
                 self._push_capture(move, capture_square, captured_piece_type, was_promoted)
@@ -3390,7 +3390,7 @@ class Board(BaseBoard):
         self.push(move)
         return move
 
-    def xboard(self, move: Move, chess960: bool | None = None) -> str:
+    def xboard(self, move: Move, *, chess960: bool | None = None) -> str:
         if chess960 is None:
             chess960 = self.chess960
 

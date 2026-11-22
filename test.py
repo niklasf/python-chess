@@ -5,6 +5,7 @@ import copy
 import logging
 import os
 import os.path
+import pathlib
 import platform
 import sys
 import tempfile
@@ -4564,7 +4565,7 @@ class SyzygyTestCase(unittest.TestCase):
             self.assertEqual(tables.get_dtz(board, tables.get_wdl(board)), None)
 
     def test_probe_pawnless_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy/regular/KBNvK.rtbw")
+        wdl = chess.syzygy._WdlTable("data/syzygy/regular/KBNvK.rtbw")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/8/5N2/5K2/2kB4/8/8 b - - 0 1")
@@ -4585,7 +4586,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_wdl_table(self):
-        wdl = chess.syzygy.WdlTable("data/syzygy/regular/KRvKP.rtbw")
+        wdl = chess.syzygy._WdlTable("data/syzygy/regular/KRvKP.rtbw")
         wdl.init_table_wdl()
 
         board = chess.Board("8/8/2K5/4P3/8/8/8/3r3k b - - 1 1")
@@ -4597,7 +4598,7 @@ class SyzygyTestCase(unittest.TestCase):
         wdl.close()
 
     def test_probe_dtz_table_piece(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy/regular/KRvKN.rtbz")
+        dtz = chess.syzygy._DtzTable("data/syzygy/regular/KRvKN.rtbz")
         dtz.init_table_dtz()
 
         # Pawnless position with white to move.
@@ -4611,7 +4612,7 @@ class SyzygyTestCase(unittest.TestCase):
         dtz.close()
 
     def test_probe_dtz_table_pawn(self):
-        dtz = chess.syzygy.DtzTable("data/syzygy/regular/KNvKP.rtbz")
+        dtz = chess.syzygy._DtzTable("data/syzygy/regular/KNvKP.rtbz")
         dtz.init_table_dtz()
 
         board = chess.Board("8/1K6/1P6/8/8/8/6n1/7k w - - 0 1")
@@ -4625,15 +4626,15 @@ class SyzygyTestCase(unittest.TestCase):
 
             # Winning KRvKB.
             board = chess.Board("7k/6b1/6K1/8/8/8/8/3R4 b - - 12 7")
-            self.assertEqual(tables.probe_wdl_table(board), -2)
+            self.assertEqual(tables._probe_wdl_table(board), -2)
 
             # Drawn KBBvK.
             board = chess.Board("7k/8/8/4K3/3B4/4B3/8/8 b - - 12 7")
-            self.assertEqual(tables.probe_wdl_table(board), 0)
+            self.assertEqual(tables._probe_wdl_table(board), 0)
 
             # Winning KBBvK.
             board = chess.Board("7k/8/8/4K2B/8/4B3/8/8 w - - 12 7")
-            self.assertEqual(tables.probe_wdl_table(board), 2)
+            self.assertEqual(tables._probe_wdl_table(board), 2)
 
     def test_wdl_ep(self):
         with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
@@ -4641,15 +4642,21 @@ class SyzygyTestCase(unittest.TestCase):
             board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
 
             # If there was no en passant, this would be a draw.
-            self.assertEqual(tables.probe_wdl_table(board), 0)
+            self.assertEqual(tables._probe_wdl_table(board), 0)
 
             # But it is a win.
             self.assertEqual(tables.probe_wdl(board), 2)
 
+    def test_pathlike_directory(self):
+        with chess.syzygy.open_tablebase(pathlib.Path("data/syzygy/regular")) as tables:
+            board = chess.Board("8/8/8/k2Pp3/8/8/8/4K3 w - e6 0 2")
+            self.assertEqual(tables.probe_wdl(board), 2)
+
+
     def test_dtz_ep(self):
         with chess.syzygy.open_tablebase("data/syzygy/regular") as tables:
             board = chess.Board("8/8/8/8/2pP4/2K5/4k3/8 b - d3 0 1")
-            self.assertEqual(tables.probe_dtz_no_ep(board), -1)
+            self.assertEqual(tables._probe_dtz_no_ep(board), -1)
             self.assertEqual(tables.probe_dtz(board), 1)
 
     def test_testsuite(self):
@@ -4659,7 +4666,7 @@ class SyzygyTestCase(unittest.TestCase):
             for line, epd in enumerate(epds):
                 extra = board.set_epd(epd)
 
-                wdl_table = tables.probe_wdl_table(board)
+                wdl_table = tables._probe_wdl_table(board)
                 self.assertEqual(
                     wdl_table, extra["wdl_table"],
                     f"Expecting wdl_table {extra['wdl_table']} for {board.fen()}, got {wdl_table} (at line {line + 1})")
@@ -4703,12 +4710,12 @@ class SyzygyTestCase(unittest.TestCase):
                 dtz = tables.probe_dtz(board)
 
                 if wdl > 0:
-                    self.assertGreaterEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                    self.assertGreaterEqual(dtz, chess.syzygy._dtz_before_zeroing(wdl))
                     self.assertLessEqual(dtz, 2 * solution["max_dtm"])
                 elif wdl == 0:
                     self.assertEqual(dtz, 0)
                 else:
-                    self.assertLessEqual(dtz, chess.syzygy.dtz_before_zeroing(wdl))
+                    self.assertLessEqual(dtz, chess.syzygy._dtz_before_zeroing(wdl))
                     self.assertGreaterEqual(dtz, 2 * solution["max_dtm"])
 
     @catchAndSkip(chess.syzygy.MissingTableError)
@@ -4835,12 +4842,16 @@ class GaviotaTestCase(unittest.TestCase):
         self.assertEqual(self.tablebase.probe_wdl(board), 1)
 
     def test_context_manager(self):
-        self.assertTrue(self.tablebase.available_tables)
+        self.assertTrue(self.tablebase._available_tables)
 
         with self.tablebase:
             pass
 
-        self.assertFalse(self.tablebase.available_tables)
+        self.assertFalse(self.tablebase._available_tables)
+
+    def test_pathlike_directory(self):
+        with chess.gaviota.open_tablebase(pathlib.Path("data/gaviota"), LibraryLoader=None) as tables:
+            self.assertTrue(tables._available_tables)
 
     @catchAndSkip(chess.gaviota.MissingTableError, "need KPPvKP.gtb.cp4")
     def test_two_ep(self):

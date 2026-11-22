@@ -168,7 +168,7 @@ class AntichessBoard(GiveawayBoard):
     uci_variant = "antichess"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
-    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -351,7 +351,7 @@ class RacingKingsBoard(chess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -429,7 +429,7 @@ class HordeBoard(chess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
 
     def reset(self) -> None:
@@ -692,7 +692,7 @@ class ThreeCheckBoard(chess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         self.remaining_checks = [3, 3]
         self._three_check_stack: list[_ThreeCheckBoardState] = []
         super().__init__(fen, chess960=chess960)
@@ -766,7 +766,7 @@ class ThreeCheckBoard(chess.Board):
         self.remaining_checks[chess.WHITE] = wc
         self.remaining_checks[chess.BLACK] = bc
 
-    def epd(self, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: bool | None = None, **operations: None | str | int | float | chess.Move | Iterable[chess.Move]) -> str:
+    def epd(self, *, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: bool | None = None, **operations: None | str | int | float | chess.Move | Iterable[chess.Move]) -> str:
         epd = [super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
                "{:d}+{:d}".format(max(self.remaining_checks[chess.WHITE], 0),
                                   max(self.remaining_checks[chess.BLACK], 0))]
@@ -879,7 +879,7 @@ class CrazyhouseBoard(chess.Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: str | None = starting_fen, chess960: bool = False) -> None:
+    def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
         self._crazyhouse_stack: list[_CrazyhouseBoardState] = []
         super().__init__(fen, chess960=chess960)
@@ -1035,7 +1035,7 @@ class CrazyhouseBoard(chess.Board):
         self.pockets[chess.WHITE] = white_pocket
         self.pockets[chess.BLACK] = black_pocket
 
-    def epd(self, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: bool | None = None, **operations: None | str | int | float | chess.Move | Iterable[chess.Move]) -> str:
+    def epd(self, *, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: bool | None = None, **operations: None | str | int | float | chess.Move | Iterable[chess.Move]) -> str:
         epd = super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted)
         board_part, info_part = epd.split(" ", 1)
         return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
