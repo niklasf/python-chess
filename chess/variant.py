@@ -3,13 +3,14 @@ from __future__ import annotations
 import chess
 import itertools
 from typing import Self
-from collections.abc import Hashable, Iterable, Iterator
+from collections.abc import Callable, Hashable, Iterable, Iterator
 
 
 class SuicideBoard(chess.Board):
 
     aliases = ["Suicide", "Suicide chess"]
     uci_variant = "suicide"
+    packed_variants = [0x80]
     xboard_variant = "suicide"
 
     tbw_suffix = ".stbw"
@@ -126,6 +127,28 @@ class SuicideBoard(chess.Board):
     def _effective_promoted(self) -> chess.Bitboard:
         return self.kings & self.promoted if self.castling_rights else chess.BB_EMPTY
 
+    def _packed_variant_data(self) -> bytes:
+        # Promoted kings are relevant only while there are castling rights.
+        promoted = self.kings & self.promoted if self.clean_castling_rights() else chess.BB_EMPTY
+        return promoted.to_bytes(8, "big") if promoted else b""
+
+    def _read_packed_variant_data(self, data: bytes, occupied: chess.Bitboard, nibbles: list[int]) -> Callable[[], None]:
+        promoted = int.from_bytes(data[0:8], "big")
+        kings = chess.BB_EMPTY
+        for square, nibble in zip(chess.scan_forward(occupied), nibbles):
+            if nibble in [10, 11, 15]:
+                kings |= chess.BB_SQUARES[square]
+        if promoted & ~kings:
+            raise ValueError("promoted pieces other than kings in packed setup")
+
+        def apply() -> None:
+            self.promoted = promoted
+            self.castling_rights = self.clean_castling_rights()
+            if not self.castling_rights:
+                self.promoted = chess.BB_EMPTY
+
+        return apply
+
     def status(self) -> chess.Status:
         status = super().status()
         status &= ~chess.STATUS_MISSING_KING
@@ -141,6 +164,7 @@ class GiveawayBoard(SuicideBoard):
 
     aliases = ["Giveaway", "Giveaway chess", "Give away", "Give away chess"]
     uci_variant = "giveaway"
+    packed_variants = [0x81]
     xboard_variant = "giveaway"
 
     tbw_suffix = ".gtbw"
@@ -166,6 +190,7 @@ class AntichessBoard(GiveawayBoard):
 
     aliases = ["Antichess", "Anti chess", "Anti"]
     uci_variant = "antichess"  # Unofficial
+    packed_variants = [6]
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
@@ -174,6 +199,14 @@ class AntichessBoard(GiveawayBoard):
     def reset(self) -> None:
         super().reset()
         self.castling_rights = chess.BB_EMPTY
+
+    def _packed_variant_data(self) -> bytes:
+        if super()._packed_variant_data():
+            raise ValueError("promoted kings with castling rights cannot be represented in packed antichess setup")
+        return b""
+
+    def _read_packed_variant_data(self, data: bytes, occupied: chess.Bitboard, nibbles: list[int]) -> Callable[[], None]:
+        return lambda: None
 
     def status(self) -> chess.Status:
         status = super().status()
@@ -186,6 +219,7 @@ class AtomicBoard(chess.Board):
 
     aliases = ["Atomic", "Atom", "Atomic chess"]
     uci_variant = "atomic"
+    packed_variants = [7]
     xboard_variant = "atomic"
 
     tbw_suffix = ".atbw"
@@ -329,6 +363,7 @@ class KingOfTheHillBoard(chess.Board):
 
     aliases = ["King of the Hill", "KOTH", "kingOfTheHill"]
     uci_variant = "kingofthehill"
+    packed_variants = [4]
     xboard_variant = "kingofthehill"  # Unofficial
 
     tbw_suffix = None
@@ -353,6 +388,7 @@ class RacingKingsBoard(chess.Board):
 
     aliases = ["Racing Kings", "Racing", "Race", "racingkings"]
     uci_variant = "racingkings"
+    packed_variants = [9]
     xboard_variant = "racingkings"  # Unofficial
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
 
@@ -433,6 +469,7 @@ class HordeBoard(chess.Board):
 
     aliases = ["Horde", "Horde chess"]
     uci_variant = "horde"
+    packed_variants = [8]
     xboard_variant = "horde"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
 
@@ -707,6 +744,7 @@ class ThreeCheckBoard(chess.Board):
 
     aliases = ["Three-check", "Three check", "Threecheck", "Three check chess", "3-check", "3 check", "3check"]
     uci_variant = "3check"
+    packed_variants = [5]
     xboard_variant = "3check"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
 
@@ -816,11 +854,34 @@ class ThreeCheckBoard(chess.Board):
         status = super().status()
         if all(remaining_checks <= 0 for remaining_checks in self.remaining_checks):
             status |= chess.STATUS_VARIANT
+        if any(remaining_checks > 3 for remaining_checks in self.remaining_checks):
+            status |= chess.STATUS_VARIANT
         return status
 
     def _transposition_key(self) -> Hashable:
         return (super()._transposition_key(),
                 self.remaining_checks[chess.WHITE], self.remaining_checks[chess.BLACK])
+
+    def _packed_variant_data(self) -> bytes:
+        # Checks received by white and black, respectively.
+        white_received = 3 - max(self.remaining_checks[chess.BLACK], 0)
+        black_received = 3 - max(self.remaining_checks[chess.WHITE], 0)
+        if white_received < 0 or black_received < 0:
+            raise ValueError(f"remaining checks out of range for packed setup: {self.remaining_checks}")
+        return bytes([white_received | (black_received << 4)])
+
+    def _read_packed_variant_data(self, data: bytes, occupied: chess.Bitboard, nibbles: list[int]) -> Callable[[], None]:
+        # Checks received by white and black, respectively.
+        white_received = data[0] & 0xf
+        black_received = data[0] >> 4
+        if white_received > 3 or black_received > 3:
+            raise ValueError(f"checks received out of range in packed setup: {white_received}, {black_received}")
+
+        def apply() -> None:
+            self.remaining_checks[chess.WHITE] = 3 - black_received
+            self.remaining_checks[chess.BLACK] = 3 - white_received
+
+        return apply
 
     def copy(self, *, stack: bool | int = True) -> Self:
         board = super().copy(stack=stack)
@@ -900,6 +961,7 @@ class CrazyhouseBoard(chess.Board):
 
     aliases = ["Crazyhouse", "Crazy House", "House", "ZH"]
     uci_variant = "crazyhouse"
+    packed_variants = [1]
     xboard_variant = "crazyhouse"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 
@@ -1069,6 +1131,38 @@ class CrazyhouseBoard(chess.Board):
         board_part, info_part = epd.split(" ", 1)
         return f"{board_part}[{str(self.pockets[chess.WHITE]).upper()}{self.pockets[chess.BLACK]}] {info_part}"
 
+    def _packed_variant_data(self) -> bytes:
+        white, black = self.pockets[chess.WHITE], self.pockets[chess.BLACK]
+        if white.count(chess.KING) or black.count(chess.KING):
+            raise ValueError("kings in pockets cannot be represented in packed setup")
+        data = bytearray()
+        for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN]:
+            w, b = white.count(piece_type), black.count(piece_type)
+            if w > 15 or b > 15:
+                raise ValueError(f"more than 15 pocket pieces of a type cannot be represented in packed setup: {white}, {black}")
+            data.append(w | (b << 4))
+        promoted = self.promoted & self.occupied
+        if promoted:
+            data.extend(promoted.to_bytes(8, "big"))
+        return bytes(data)
+
+    def _read_packed_variant_data(self, data: bytes, occupied: chess.Bitboard, nibbles: list[int]) -> Callable[[], None]:
+        white = CrazyhousePocket()
+        black = CrazyhousePocket()
+        for piece_type, byte in zip([chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN], data):
+            white._pieces[piece_type] = byte & 0xf
+            black._pieces[piece_type] = byte >> 4
+        promoted = int.from_bytes(data[5:13], "big")
+        if promoted & ~occupied:
+            raise ValueError("promoted pieces on empty squares in packed setup")
+
+        def apply() -> None:
+            self.pockets[chess.WHITE] = white
+            self.pockets[chess.BLACK] = black
+            self.promoted = promoted
+
+        return apply
+
     def copy(self, *, stack: bool | int = True) -> Self:
         board = super().copy(stack=stack)
         board.pockets[chess.WHITE] = self.pockets[chess.WHITE].copy()
@@ -1139,3 +1233,25 @@ def find_variant(name: str) -> type[chess.Board]:
         if any(alias.lower() == name.lower() for alias in variant.aliases):
             return variant
     raise ValueError(f"unsupported variant: {name}")
+
+
+def from_packed(packed: bytes, *, chess960: bool = False) -> chess.Board:
+    """
+    Creates a new board of the appropriate variant from the compact binary
+    representation produced by :func:`chess.Board.pack()`.
+    See :func:`chess.Board.unpack()`.
+
+    :raises: :exc:`ValueError` if the data is invalid or the variant is not
+        supported.
+
+    >>> import chess.variant
+    >>>
+    >>> board = chess.variant.from_packed(chess.variant.HordeBoard().pack())
+    >>> board.uci_variant
+    'horde'
+    """
+    variant = chess._read_packed(packed)[5]
+    for cls in VARIANTS:
+        if variant in cls.packed_variants:
+            return cls.from_packed(packed, chess960=chess960)
+    raise ValueError(f"unsupported variant in packed setup: {variant}")

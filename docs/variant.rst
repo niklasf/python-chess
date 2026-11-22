@@ -32,6 +32,8 @@ Crazyhouse       :class:`chess.variant.CrazyhouseBoard`    crazyhouse
 
 .. autofunction:: chess.variant.find_variant
 
+.. autofunction:: chess.variant.from_packed
+
 Game end
 --------
 

@@ -2,14 +2,17 @@
 
 import asyncio
 import copy
+import csv
 import logging
 import os
 import os.path
 import pathlib
 import platform
+import random
 import sys
 import tempfile
 import textwrap
+import typing
 import unittest
 import io
 
@@ -228,6 +231,24 @@ class MoveTestCase(unittest.TestCase):
         with self.assertRaises(chess.InvalidMoveError):
             chess.Move.from_uci("Q@g9")
 
+    def test_pack(self):
+        self.assertEqual(chess.Move.from_uci("g7g8q").pack(), (chess.G7 | (chess.G8 << 6) | (chess.QUEEN << 12)).to_bytes(2, "little"))
+        self.assertEqual(chess.Move.from_uci("0000").pack(), b"\x00\x80")
+        self.assertEqual(chess.Move.from_uci("N@f3").pack(), (chess.F3 | (chess.F3 << 6) | (chess.KNIGHT << 12) | 0x8000).to_bytes(2, "little"))
+
+        for uci in ["b5c7", "e7e8q", "a2a1k", "P@e4", "K@h8", "0000"]:
+            move = chess.Move.from_uci(uci)
+            self.assertEqual(chess.Move.from_packed(move.pack()), move)
+
+        for n in range(0x10000):
+            move = chess.Move.from_packed(n.to_bytes(2, "little"))
+            self.assertEqual(chess.Move.from_packed(move.pack()), move)
+
+        with self.assertRaises(ValueError):
+            chess.Move.from_packed(b"\x00")
+        with self.assertRaises(ValueError):
+            chess.Move.from_packed(b"\x00\x00\x00")
+
     def test_xboard_move(self):
         self.assertEqual(chess.Move.from_uci("b5c7").xboard(), "b5c7")
         self.assertEqual(chess.Move.from_uci("e7e8q").xboard(), "e7e8q")
@@ -341,6 +362,64 @@ class BoardTestCase(unittest.TestCase):
 
         board.push(chess.Move.from_uci("f3d2"))
         self.assertEqual(board.fen(), "6k1/pb3pp1/1p2p2p/1Bn1P3/8/8/PP1N1PPP/6K1 b - - 0 24")
+
+    def test_pack(self):
+        for fen, packed, chess960 in [
+            (chess.STARTING_FEN, "ffff00000000ffff2d844ad200000000111111113e955be3", False),
+            ("8/8/8/8/8/8/8/8 w - - 0 1", "", False),
+            ("8/8/8/8/8/8/8/8 b - - 0 1", "00000000000000000001", False),
+            ("8/8/8/8/8/8/8/8 b - - 100 432", "000000000000000064df06", False),
+            ("4k3/8/8/8/3pP3/8/6N1/7K b - e3 0 1", "10000000180040802ac10f", False),
+            ("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", "917d731812a4ff91ad0d004400201801203531111119e5eb", False),
+            ("4rrk1/pbbp2p1/1ppnp3/3n1pqp/3N1PQP/1PPNP3/PBBP2P1/4RRK1 w Ff - 0 3", "704f1ee8e81e4f70d60a44000002020813191113511571be0004", True),
+        ]:
+            with self.subTest(fen=fen):
+                board = chess.Board(fen, chess960=chess960)
+                self.assertEqual(board.pack().hex(), packed)
+                self.assertEqual(chess.Board.from_packed(bytes.fromhex(packed), chess960=chess960), board)
+
+        # En passant square only included if requested.
+        board = chess.Board()
+        board.push_san("e4")
+        self.assertEqual(chess.Board.from_packed(board.pack()).ep_square, None)
+        self.assertEqual(chess.Board.from_packed(board.pack(en_passant="fen")).ep_square, chess.E3)
+
+        # Lichess binary FEN with explicit chess960 or from position headers.
+        board = chess.Board.from_packed(bytes.fromhex("8901080000810091ad0d10e1f7000703"), chess960=True)
+        self.assertEqual(board.fen(), "r2r3k/p7/3p4/8/8/P6P/8/R3K2R b KQq - 0 4")
+        board = chess.Board.from_packed(bytes.fromhex("8901080000810091ad0d10e1f7000702"), chess960=True)
+        self.assertEqual(board.fen(), "r2r3k/p7/3p4/8/8/P6P/8/R3K2R b KQq - 0 4")
+
+        # Ignore move counters.
+        board = chess.Board("4k3/8/8/8/3pP3/8/6N1/7K b - e3 5 42")
+        self.assertEqual(board.pack(ignore_counters=True).hex(), "10000000180040802ac10f")
+        board = chess.Board("8/8/8/8/8/8/8/8 b - - 100 432")
+        self.assertEqual(board.pack(ignore_counters=True).hex(), "00000000000000000001")
+        board.halfmove_clock = -1
+        self.assertEqual(board.pack(ignore_counters=True).hex(), "00000000000000000001")
+
+        # Move stack is cleared.
+        board = chess.Board()
+        board.push_san("e4")
+        board.unpack(chess.Board().pack())
+        self.assertEqual(board, chess.Board())
+        self.assertFalse(board.move_stack)
+
+        # Invalid or unrepresentable.
+        with self.assertRaises(ValueError):
+            chess.Board.from_packed(bytes(65))
+        with self.assertRaises(ValueError):
+            chess.Board.from_packed(bytes.fromhex("0000000000000000000001"))  # Crazyhouse
+        with self.assertRaises(ValueError):
+            chess.Board.from_packed(bytes.fromhex("0000000000000000ffffffff7f"))  # Half-move clock overflow
+        board = chess.Board()
+        board.ep_square = chess.E3
+        with self.assertRaises(ValueError):
+            board.pack(en_passant="fen")
+        board = chess.Board()
+        board.fullmove_number = 0
+        with self.assertRaises(ValueError):
+            board.pack()
 
     def test_xfen(self):
         # https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation#Beispiel
@@ -5078,7 +5157,104 @@ class SvgTestCase(unittest.TestCase):
         self.assertIn("id=\"white-king\"", svg)
 
 
+class PackedSetupTestCase(unittest.TestCase):
+
+    def test_reference(self):
+        variants = {cls.uci_variant: cls for cls in chess.variant.VARIANTS}
+
+        with open("data/packed_setup.csv", newline="") as f:
+            for row in csv.DictReader(f):
+                with self.subTest(variant=row["variant"], fen=row["fen"]):
+                    cls = variants[row["variant"]]
+                    expected = cls(row["fen"], chess960=True)
+
+                    for packed in [row["lichess"], row["packed"]]:
+                        board = chess.variant.from_packed(bytes.fromhex(packed), chess960=True)
+                        self.assertIs(type(board), cls)
+                        self.assertEqual(board, expected)
+                        self.assertEqual(board.fen(en_passant="fen", shredder=True, promoted=True), expected.fen(en_passant="fen", shredder=True, promoted=True))
+
+                    self.assertEqual(expected.pack(en_passant="fen").hex(), row["packed"])
+
+    def test_from_packed(self):
+        for cls in chess.variant.VARIANTS:
+            if cls.packed_variants:
+                board = chess.variant.from_packed(cls().pack())
+                self.assertIs(type(board), cls)
+                self.assertEqual(board, cls())
+
+        self.assertIs(type(chess.variant.from_packed(b"")), chess.Board)
+        self.assertTrue(chess.variant.from_packed(b"", chess960=True).chess960)
+
+        with self.assertRaises(ValueError):
+            chess.variant.from_packed(bytes.fromhex("000000000000000000000a"))
+
+    def test_turn(self):
+        # Black king on move takes precedence over even ply, like shakmaty.
+        board = chess.Board.from_packed(bytes.fromhex("00000000000000800f0002"))
+        self.assertEqual(board.turn, chess.BLACK)
+        self.assertEqual(board.fullmove_number, 2)
+        self.assertEqual(board.pack().hex(), "00000000000000800f0003")
+
+        # Odd ply takes precedence over unmarked black king.
+        board = chess.Board.from_packed(bytes.fromhex("00000000000000800b0001"))
+        self.assertEqual(board.turn, chess.BLACK)
+        self.assertEqual(board.pack().hex(), "00000000000000800f")
+
+    def test_limits(self):
+        # Largest representable move counters.
+        board = chess.Board()
+        board.turn = chess.BLACK
+        board.halfmove_clock = 2**32 - 1
+        board.fullmove_number = 2**32 - 1
+        self.assertEqual(chess.Board.from_packed(board.pack()), board)
+
+        board.halfmove_clock = 2**32
+        with self.assertRaises(ValueError):
+            board.pack()
+        board.halfmove_clock = 0
+        board.fullmove_number = 2**32
+        with self.assertRaises(ValueError):
+            board.pack()
+        self.assertEqual(len(board.pack(ignore_counters=True)), 24)
+
+        # Fullmove number 2**32 is not decoded.
+        data = bytearray(9)
+        chess._write_leb128(data, 2 * (2**32 - 1))
+        with self.assertRaises(ValueError):
+            chess.Board.from_packed(data)
+
+        # Remaining checks.
+        board = chess.variant.ThreeCheckBoard()
+        board.remaining_checks[chess.WHITE] = 4
+        self.assertEqual(board.status(), chess.STATUS_VARIANT)
+        with self.assertRaises(ValueError):
+            board.pack()
+
+        # 15 pieces of a type in a Crazyhouse pocket are representable, but
+        # 16 pawns in a pocket (valid) are not.
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/8/4K3[PPPPPPPPPPPPPPP] w - - 0 1")
+        self.assertEqual(chess.variant.from_packed(board.pack()), board)
+        board.pockets[chess.WHITE].add(chess.PAWN)
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        with self.assertRaises(ValueError):
+            board.pack()
+
+
 class AntichessTestCase(unittest.TestCase):
+
+    def test_pack(self):
+        board = chess.variant.AntichessBoard()
+        self.assertEqual(board.pack().hex(), "ffff00000000ffff26844a62000000001111111137955b73000006")
+        self.assertEqual(chess.variant.from_packed(board.pack()), board)
+
+        # Lichess compatible encoding without promoted kings.
+        board = chess.variant.AntichessBoard("6k1/8/8/8/8/8/1K~6/R3K2R w KQ - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
+        with self.assertRaises(ValueError):
+            board.pack()
+        board.castling_rights = chess.BB_EMPTY
+        self.assertEqual(chess.variant.from_packed(board.pack()), board)
 
     def test_empty_side(self):
         # The side that just lost all pieces must be to move.
@@ -5107,6 +5283,35 @@ class AntichessTestCase(unittest.TestCase):
 
 
 class SuicideTestCase(unittest.TestCase):
+
+    def test_pack(self):
+        board = chess.variant.SuicideBoard()
+        self.assertEqual(board.pack().hex(), "ffff00000000ffff2d844ad200000000111111113e955be3000080")
+        self.assertEqual(chess.variant.from_packed(board.pack()), board)
+
+        # Promoted kings are included while there are castling rights.
+        board = chess.variant.SuicideBoard("6k1/8/8/8/8/8/1K~6/R3K2R w KQ - 0 1")
+        packed = bytes.fromhex("4000000000000291adad0b00008000000000000002")
+        self.assertEqual(board.pack(), packed)
+        unpacked = chess.variant.from_packed(packed)
+        self.assertIs(type(unpacked), chess.variant.SuicideBoard)
+        self.assertEqual(unpacked, board)
+        self.assertEqual(unpacked.promoted, chess.BB_B2)
+        unpacked.push_uci("b2b3")
+        self.assertEqual(unpacked.castling_xfen(), "KQ")
+
+        # Promoted kings are irrelevant without castling rights.
+        self.assertEqual(chess.variant.SuicideBoard.from_packed(bytes.fromhex("00000000000000800a0000800000000000000080")).promoted, chess.BB_EMPTY)
+
+        # Only kings can be promoted.
+        with self.assertRaises(ValueError):
+            chess.variant.SuicideBoard.from_packed(bytes.fromhex("0000000000000080020000800000000000000080"))
+
+        # Not interchangeable with Antichess or Giveaway.
+        with self.assertRaises(ValueError):
+            chess.variant.SuicideBoard.from_packed(b"")
+        with self.assertRaises(ValueError):
+            chess.variant.SuicideBoard.from_packed(chess.variant.GiveawayBoard().pack())
 
     def test_status(self):
         # Castling is allowed in suicide chess.
@@ -5488,6 +5693,12 @@ class RacingKingsTestCase(unittest.TestCase):
 
 class HordeTestCase(unittest.TestCase):
 
+    def test_pack(self):
+        board = chess.variant.HordeBoard()
+        packed = bytes.fromhex("ffff0066ffffffff000000000000000000000000000000000000111111113e955be3000008")
+        self.assertEqual(board.pack(), packed)
+        self.assertEqual(chess.variant.HordeBoard.from_packed(packed), board)
+
     def test_status(self):
         board = chess.variant.HordeBoard()
         self.assertEqual(board.status(), chess.STATUS_VALID)
@@ -5533,10 +5744,21 @@ class HordeTestCase(unittest.TestCase):
 
 class ThreeCheckTestCase(unittest.TestCase):
 
+    def test_pack(self):
+        board = chess.variant.ThreeCheckBoard("3r1r2/ppp2pk1/6R1/5R2/2P1p3/8/P1P3PP/7K b - - 0 27 +2+0")
+        packed = bytes.fromhex("286740201400c5800a0000611611f17700350520")
+        self.assertEqual(board.pack(), packed)
+        self.assertEqual(chess.variant.ThreeCheckBoard.from_packed(packed), board)
+
+        with self.assertRaises(ValueError):
+            chess.variant.ThreeCheckBoard.from_packed(bytes.fromhex("0000000000000000000005f4"))
+
     def test_status(self):
         board = chess.variant.ThreeCheckBoard("4k3/8/8/8/8/8/8/4K3 w - - 0+1 1 1")
         self.assertEqual(board.status(), chess.STATUS_VALID)
         board = chess.variant.ThreeCheckBoard("4k3/8/8/8/8/8/8/4K3 w - - 0+0 1 1")
+        self.assertEqual(board.status(), chess.STATUS_VARIANT)
+        board = chess.variant.ThreeCheckBoard("4k3/8/8/8/8/8/8/4K3 w - - 3+4 1 1")
         self.assertEqual(board.status(), chess.STATUS_VARIANT)
 
     def test_get_fen(self):
@@ -5635,6 +5857,26 @@ class ThreeCheckTestCase(unittest.TestCase):
 
 
 class CrazyhouseTestCase(unittest.TestCase):
+
+    def test_pack(self):
+        board = chess.variant.CrazyhouseBoard("r2N~4/pkpp1pRp/1p2pN2/4P3/8/2B1Bp2/PPP1qP1q/R1K5/NBRppnnb b - - 0 26")
+        packed = bytes.fromhex("09ef32100034b705a6009090440111121f111627003301202111010008")
+        self.assertEqual(board.pack(), packed)
+        board2 = chess.variant.CrazyhouseBoard.from_packed(packed)
+        self.assertEqual(board2, board)
+        self.assertEqual(board2.promoted, chess.BB_D8)
+
+        board = chess.variant.CrazyhouseBoard()
+        self.assertEqual(chess.variant.CrazyhouseBoard.from_packed(board.pack()), board)
+
+        board.pockets[chess.WHITE].add(chess.KING)
+        with self.assertRaises(ValueError):
+            board.pack()
+
+        with self.assertRaises(ValueError):
+            chess.variant.CrazyhouseBoard.from_packed(bytes.fromhex("000000000000000000000100000000000000000000000001"))  # Promoted on empty square
+        with self.assertRaises(ValueError):
+            chess.variant.CrazyhouseBoard.from_packed(chess.Board().pack())
 
     def test_status(self):
         board = chess.variant.CrazyhouseBoard()
@@ -5764,6 +6006,15 @@ class CrazyhouseTestCase(unittest.TestCase):
 
 
 class GiveawayTestCase(unittest.TestCase):
+
+    def test_pack(self):
+        board = chess.variant.GiveawayBoard("6k1/8/8/8/8/8/1K~6/R3K2R w KQ - 0 1")
+        packed = bytes.fromhex("4000000000000291adad0b00008100000000000002")
+        self.assertEqual(board.pack(), packed)
+        unpacked = chess.variant.from_packed(packed)
+        self.assertIs(type(unpacked), chess.variant.GiveawayBoard)
+        self.assertEqual(unpacked, board)
+        self.assertEqual(unpacked.promoted, chess.BB_B2)
 
     def test_antichess_pgn(self):
         with open("data/pgn/antichess-programfox.pgn") as pgn:

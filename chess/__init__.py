@@ -844,6 +844,46 @@ class Move:
     def xboard(self) -> str:
         return self.uci() if self else "@@@@"
 
+    def pack(self) -> bytes:
+        """
+        Packs the move into stable binary representation of exactly 2 bytes.
+
+        >>> import chess
+        >>>
+        >>> chess.Move.from_uci("g7g8q").pack()
+        b'\\xb6_'
+        """
+        if self.drop:
+            packed = self.to_square | (self.to_square << 6) | (self.drop << 12) | 0x8000
+        elif self:
+            packed = self.from_square | (self.to_square << 6) | ((self.promotion or 0) << 12)
+        else:
+            packed = 0x8000
+        return packed.to_bytes(2, "little")
+
+    @classmethod
+    def from_packed(cls, packed: bytes) -> Move:
+        """
+        Unpacks a move from the binary representation produced by
+        :func:`~chess.Move.pack()`.
+
+        :raises: :exc:`ValueError` if *packed* is not exactly 2 bytes long.
+        """
+        if len(packed) != 2:
+            raise ValueError(f"expected 2 bytes for packed uci move: {packed!r}")
+        n = int.from_bytes(packed, "little")
+        from_square = n & 0x3f
+        to_square = (n >> 6) & 0x3f
+        piece_type = (n >> 12) & 0x7
+        if piece_type not in PIECE_TYPES:
+            piece_type = 0
+        if not n & 0x8000:
+            return cls(from_square, to_square, promotion=piece_type or None)
+        elif piece_type:
+            return cls(to_square, to_square, drop=piece_type)
+        else:
+            return cls.null()
+
     def __bool__(self) -> bool:
         return bool(self.from_square or self.to_square or self.promotion or self.drop)
 
@@ -1821,6 +1861,7 @@ class Board(BaseBoard):
     uci_variant: ClassVar[str | None] = "chess"
     xboard_variant: ClassVar[str | None] = "normal"
     starting_fen: ClassVar[str] = STARTING_FEN
+    packed_variants: ClassVar[list[int]] = [0, 2, 3]
 
     tbw_suffix: ClassVar[str | None] = ".rtbw"
     tbz_suffix: ClassVar[str | None] = ".rtbz"
@@ -2752,6 +2793,14 @@ class Board(BaseBoard):
         """Checks if there is a legal en passant capture."""
         return self.ep_square is not None and any(self.generate_legal_ep())
 
+    def _ep_square(self, en_passant: EnPassantSpec) -> Square | None:
+        if en_passant == "fen":
+            return self.ep_square
+        elif en_passant == "xfen":
+            return self.ep_square if self.has_pseudo_legal_en_passant() else None
+        else:
+            return self.ep_square if self.has_legal_en_passant() else None
+
     def fen(self, *, shredder: bool = False, en_passant: EnPassantSpec = "legal", promoted: bool | None = None) -> str:
         """
         Gets a FEN representation of the position.
@@ -2884,6 +2933,171 @@ class Board(BaseBoard):
         self.halfmove_clock = halfmove_clock
         self.fullmove_number = fullmove_number
         self.clear_stack()
+
+    def pack(self, *, en_passant: EnPassantSpec = "legal", ignore_counters: bool = False) -> bytes:
+        """
+        Packs the position into a stable binary representation, balanced for
+        speed and size.
+
+        The representation includes the variant plus the same information as
+        a FEN: piece positions, side to move, castling rights,
+        en passant square, move counters, and variant specific state
+        (pockets, promoted pieces when relevant for the variant,
+        remaining checks). The move stack and the
+        :data:`~chess.Board.chess960` flag are not included.
+
+        Maximum size is 24 bytes for standard legal chess positions without
+        move counters (or default move counters). Maximum size is 64 bytes for
+        not strictly legal variant positions with move counters.
+
+        :param en_passant: Which en passant squares to include. See
+            :func:`~chess.Board.fen()`.
+        :param ignore_counters: Pack as if the
+            :data:`~chess.Board.halfmove_clock` was 0 and the
+            :data:`~chess.Board.fullmove_number` was 1. Useful to identify
+            positions regardless of move counters, similar to
+            :func:`~chess.Board.epd()`.
+
+        :raises: :exc:`ValueError` if the position cannot be packed losslessly:
+
+            * Not using *ignore_counters* and move counters outside of the
+              representable ranges:
+              :data:`~chess.Board.halfmove_clock` in :math:`[0, 2^{32} - 1]`
+              and :data:`~chess.Board.fullmove_number` in
+              :math:`[1, 2^{32} - 1]`.
+            * The en passant square selected by *en_passant* does not have
+              the corresponding pushed pawn. Only possible if
+              :func:`~chess.Board.status()` reports
+              :data:`~chess.STATUS_INVALID_EP_SQUARE`.
+            * Three-check: More than 3 remaining checks for either side.
+              Only possible if :func:`~chess.Board.status()` reports
+              :data:`~chess.STATUS_VARIANT`.
+            * Crazyhouse: Kings in pockets, or more than 15 pieces of any type
+              in any pocket.
+            * Antichess: Promoted kings with castling rights. Only possible
+              if :func:`~chess.Board.status()` reports
+              :data:`~chess.STATUS_INVALID_CASTLING_RIGHTS`.
+
+        >>> import chess
+        >>>
+        >>> chess.Board().pack().hex()
+        'ffff00000000ffff2d844ad200000000111111113e955be3'
+        """
+        if not self.packed_variants:
+            raise ValueError(f"packed setup not supported for variant: {type(self).uci_variant}")
+        variant = self.packed_variants[0]
+
+        halfmove_clock = 0 if ignore_counters else self.halfmove_clock
+        fullmove_number = 1 if ignore_counters else self.fullmove_number
+        if not 0 <= halfmove_clock <= 0xffff_ffff:
+            raise ValueError(f"half-move clock out of range for packed setup: {halfmove_clock}")
+        if not 1 <= fullmove_number <= 0xffff_ffff:
+            raise ValueError(f"fullmove number out of range for packed setup: {fullmove_number}")
+
+        ep_square = self._ep_square(en_passant)
+        pawn_pushed_to = None if ep_square is None else ep_square ^ A2
+        castling_rights = self.clean_castling_rights()
+
+        nibbles: list[int] = []
+        for square in scan_forward(self.occupied):
+            mask = BB_SQUARES[square]
+            piece_type = typing.cast(PieceType, self.piece_type_at(square))
+            color = bool(self.occupied_co[WHITE] & mask)
+            if piece_type == PAWN and square == pawn_pushed_to and color == (square_rank(square) <= 3):
+                nibbles.append(12)
+                pawn_pushed_to = None
+            elif piece_type == ROOK and castling_rights & mask:
+                nibbles.append(13 if color else 14)
+            elif piece_type == KING and not color and self.turn == BLACK:
+                nibbles.append(15)
+            else:
+                nibbles.append((piece_type - 1) * 2 + (not color))
+        if pawn_pushed_to is not None:
+            raise ValueError(f"en passant square without corresponding pawn: {SQUARE_NAMES[typing.cast(Square, ep_square)]}")
+
+        data = bytearray(self.occupied.to_bytes(8, "big"))
+        nibbles.append(0)
+        for i in range(0, len(nibbles) - 1, 2):
+            data.append(nibbles[i] | (nibbles[i + 1] << 4))
+
+        ply = 2 * (fullmove_number - 1) + (self.turn == BLACK)
+        broken_turn = self.turn == BLACK and not (self.kings & self.occupied_co[BLACK])
+        if halfmove_clock > 0 or ply > 1 or broken_turn or variant:
+            _write_leb128(data, halfmove_clock)
+        if ply > 1 or broken_turn or variant:
+            _write_leb128(data, ply)
+        if variant:
+            data.append(variant)
+            data.extend(self._packed_variant_data())
+
+        return bytes(data.rstrip(b"\x00"))
+
+    def _packed_variant_data(self) -> bytes:
+        return b""
+
+    def unpack(self, packed: bytes) -> None:
+        """
+        Sets the position from the compact binary representation produced by
+        :func:`~chess.Board.pack()`.
+
+        Compatible with
+        `Stockfish's nnue-pytorch <https://github.com/official-stockfish/nnue-pytorch>`_
+        position format and `Lichess's binary FEN <https://lichess.org/@/revoof/blog/adapting-nnue-pytorchs-binary-position-format-for-lichess/cpeeAMeY>`_.
+
+        Ignores trailing zero bytes within the maximum size of 64 bytes.
+
+        Clears the move stack. Does not change the
+        :data:`~chess.Board.chess960` flag.
+
+        The side to move is black if the ply is odd, or if a black king is
+        marked as being on move (same as
+        `shakmaty <https://github.com/niklasf/shakmaty>`_).
+
+        :raises: :exc:`ValueError` if the packed data cannot be unpacked:
+
+            * Longer than 64 bytes.
+            * Encodes a different or unknown variant.
+            * Encodes move counters outside of the representable ranges:
+              :data:`~chess.Board.halfmove_clock` in :math:`[0, 2^{32} - 1]`
+              and :data:`~chess.Board.fullmove_number` in
+              :math:`[1, 2^{32} - 1]`.
+            * Three-check: More than 3 checks received by either side.
+            * Crazyhouse: Promoted pieces on empty squares.
+            * Suicide and Giveaway: Promoted pieces other than kings.
+        """
+        buf, occupied, nibbles, halfmove_clock, ply, variant, offset = _read_packed(packed)
+
+        if halfmove_clock > 0xffff_ffff:
+            raise ValueError(f"half-move clock out of range in packed setup: {halfmove_clock}")
+        fullmove_number = 1 + ply // 2
+        if fullmove_number > 0xffff_ffff:
+            raise ValueError(f"fullmove number out of range in packed setup: {fullmove_number}")
+        if variant not in self.packed_variants:
+            raise ValueError(f"unexpected variant in packed setup for {type(self).uci_variant}: {variant}")
+
+        apply_variant_data = self._read_packed_variant_data(buf[offset:], occupied, nibbles)
+
+        self.clear()
+        for square, nibble in zip(scan_forward(occupied), nibbles):
+            if nibble < 12:
+                self._set_piece_at(square, nibble // 2 + 1, not nibble % 2)
+            elif nibble == 12:
+                self.ep_square = square ^ A2
+                self._set_piece_at(square, PAWN, square_rank(square) <= 3)
+            elif nibble == 15:
+                self.turn = BLACK
+                self._set_piece_at(square, KING, BLACK)
+            else:
+                self.castling_rights |= BB_SQUARES[square]
+                self._set_piece_at(square, ROOK, nibble == 13)
+        if ply % 2:
+            self.turn = BLACK
+        self.halfmove_clock = halfmove_clock
+        self.fullmove_number = fullmove_number
+        apply_variant_data()
+
+    def _read_packed_variant_data(self, data: bytes, occupied: Bitboard, nibbles: list[int]) -> Callable[[], None]:
+        return lambda: None
 
     def _set_castling_fen(self, castling_fen: str) -> None:
         if not castling_fen or castling_fen == "-":
@@ -3042,12 +3256,7 @@ class Board(BaseBoard):
         >>> board.epd(hmvc=board.halfmove_clock, fmvn=board.fullmove_number)
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - hmvc 0; fmvn 1;'
         """
-        if en_passant == "fen":
-            ep_square = self.ep_square
-        elif en_passant == "xfen":
-            ep_square = self.ep_square if self.has_pseudo_legal_en_passant() else None
-        else:
-            ep_square = self.ep_square if self.has_legal_en_passant() else None
+        ep_square = self._ep_square(en_passant)
 
         epd = [self.board_fen(promoted=promoted),
                "w" if self.turn == WHITE else "b",
@@ -4154,6 +4363,62 @@ class Board(BaseBoard):
         board = cls.empty(chess960=True)
         board.set_chess960_pos(scharnagl)
         return board
+
+    @classmethod
+    def from_packed(cls, packed: bytes, *, chess960: bool = False) -> Self:
+        """
+        Creates a new board from the compact binary representation produced
+        by :func:`~chess.Board.pack()`. See
+        :func:`~chess.Board.unpack()`.
+
+        >>> import chess
+        >>>
+        >>> board = chess.Board.from_packed(bytes.fromhex("ffff00000000ffff2d844ad200000000111111113e955be3"))
+        >>> board == chess.Board()
+        True
+        """
+        board = cls.empty(chess960=chess960)
+        board.unpack(packed)
+        return board
+
+
+def _write_leb128(data: bytearray, n: int) -> None:
+    while n > 127:
+        data.append((n & 127) | 128)
+        n >>= 7
+    data.append(n)
+
+
+def _read_packed(data: bytes) -> tuple[bytes, Bitboard, list[int], int, int, int, int]:
+    if len(data) > 64:
+        raise ValueError(f"packed setup too long: {len(data)} bytes")
+    buf = bytes(data).ljust(64, b"\x00")
+
+    occupied = int.from_bytes(buf[0:8], "big")
+    offset = 8
+    nibbles: list[int] = []
+    for _ in range((popcount(occupied) + 1) // 2):
+        nibbles.append(buf[offset] & 0xf)
+        nibbles.append(buf[offset] >> 4)
+        offset += 1
+
+    halfmove_clock, offset = _read_leb128(buf, offset)
+    ply, offset = _read_leb128(buf, offset)
+    variant = buf[offset]
+    return buf, occupied, nibbles, halfmove_clock, ply, variant, offset + 1
+
+
+def _read_leb128(data: bytes, offset: int, max_bytes: int = 5) -> tuple[int, int]:
+    n = 0
+    shift = 0
+    for _ in range(max_bytes):
+        byte = data[offset]
+        offset += 1
+        n |= (byte & 127) << shift
+        shift += 7
+        if not byte & 128:
+            break
+    return n, offset
 
 
 class PseudoLegalMoveGenerator:
