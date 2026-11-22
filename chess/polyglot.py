@@ -8,7 +8,8 @@ import random
 import typing
 
 from types import TracebackType
-from typing import Callable, Container, Iterator, List, NamedTuple, Optional, Type, Union
+from typing import Callable, NamedTuple, Optional, Union
+from collections.abc import Container, Iterator
 
 
 StrOrBytesPath = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
@@ -218,7 +219,7 @@ POLYGLOT_RANDOM_ARRAY = [
 
 
 class ZobristHasher:
-    def __init__(self, array: List[int]) -> None:
+    def __init__(self, array: list[int]) -> None:
         assert len(array) >= 781
         self.array = array
 
@@ -344,7 +345,7 @@ class MemoryMappedReader:
     def __enter__(self) -> MemoryMappedReader:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         return self.close()
 
     def __len__(self) -> int:

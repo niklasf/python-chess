@@ -12,7 +12,8 @@ import chess
 import chess.engine
 import chess.svg
 
-from typing import Any, Callable, Dict, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Set, TextIO, Tuple, Type, TypeVar, Optional, Union
+from typing import Any, Callable, Generic, Literal, TextIO, TypeVar, Optional, Union
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping
 from chess import Color, Square
 
 if typing.TYPE_CHECKING:
@@ -128,8 +129,8 @@ ARROWS_REGEX = re.compile(r"""
     (?P<suffix>\s?)
     """, re.VERBOSE)
 
-def _condense_affix(infix: str) -> Callable[[typing.Match[str]], str]:
-    def repl(match: typing.Match[str]) -> str:
+def _condense_affix(infix: str) -> Callable[[re.Match[str]], str]:
+    def repl(match: re.Match[str]) -> str:
         if infix:
             return match.group("prefix") + infix + match.group("suffix")
         else:
@@ -196,7 +197,7 @@ class _AcceptFrame:
 
 
 class GameNode(abc.ABC):
-    variations: List[ChildNode]
+    variations: list[ChildNode]
     """A list of child nodes."""
 
     comments: list[str]
@@ -207,7 +208,7 @@ class GameNode(abc.ABC):
 
     starting_comments: list[str]
 
-    nags: Set[int]
+    nags: set[int]
 
     def __init__(self, *, comment: Union[str, list[str]] = "") -> None:
         self.variations = []
@@ -502,7 +503,7 @@ class GameNode(abc.ABC):
 
         self._replace_or_add_annotation(eval, EVAL_REGEX)
 
-    def arrows(self) -> List[chess.svg.Arrow]:
+    def arrows(self) -> list[chess.svg.Arrow]:
         """
         Parses all ``[%csl ...]`` and ``[%cal ...]`` annotations in the comment
         of this node.
@@ -516,13 +517,13 @@ class GameNode(abc.ABC):
 
         return arrows
 
-    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, Tuple[Square, Square]]]) -> None:
+    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, tuple[Square, Square]]]) -> None:
         """
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
         """
-        csl: List[str] = []
-        cal: List[str] = []
+        csl: list[str] = []
+        cal: list[str] = []
 
         for arrow in arrows:
             try:
@@ -672,7 +673,7 @@ class ChildNode(GameNode):
     a starting comment.
     """
 
-    nags: Set[int]
+    nags: set[int]
     """
     A set of NAGs as integers. NAGs always go behind a move, so the root
     node of the game will never have NAGs.
@@ -701,7 +702,7 @@ class ChildNode(GameNode):
 
     @override
     def board(self) -> chess.Board:
-        stack: List[chess.Move] = []
+        stack: list[chess.Move] = []
         node: GameNode = self
 
         while node.move is not None and node.parent is not None:
@@ -843,13 +844,13 @@ class Game(GameNode):
     Headers(Event='?', Site='?', Date='????.??.??', Round='?', White='?', Black='?', Result='*')
     """
 
-    errors: List[Exception]
+    errors: list[Exception]
     """
     A list of errors (such as illegal or ambiguous moves) encountered while
     parsing the game.
     """
 
-    def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None) -> None:
+    def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[tuple[str, str]]]] = None) -> None:
         super().__init__()
         self.headers = Headers(headers)
         self.errors = []
@@ -934,7 +935,7 @@ class Game(GameNode):
         return parse_time_control(time_control_header)
 
     @classmethod
-    def from_board(cls: Type[GameT], board: chess.Board) -> GameT:
+    def from_board(cls: type[GameT], board: chess.Board) -> GameT:
         """Creates a game from the move stack of a :class:`~chess.Board()`."""
         # Setup the initial position.
         game = cls()
@@ -949,12 +950,12 @@ class Game(GameNode):
         return game
 
     @classmethod
-    def without_tag_roster(cls: Type[GameT]) -> GameT:
+    def without_tag_roster(cls: type[GameT]) -> GameT:
         """Creates an empty game without the default Seven Tag Roster."""
         return cls(headers={})
 
     @classmethod
-    def builder(cls: Type[GameT]) -> GameBuilder[GameT]:
+    def builder(cls: type[GameT]) -> GameBuilder[GameT]:
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
@@ -971,9 +972,9 @@ class Game(GameNode):
 HeadersT = TypeVar("HeadersT", bound="Headers")
 
 class Headers(MutableMapping[str, str]):
-    def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[Tuple[str, str]]]] = None, **kwargs: str) -> None:
-        self._tag_roster: Dict[str, str] = {}
-        self._others: Dict[str, str] = {}
+    def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[tuple[str, str]]]] = None, **kwargs: str) -> None:
+        self._tag_roster: dict[str, str] = {}
+        self._others: dict[str, str] = {}
 
         if data is None:
             data = {
@@ -1003,7 +1004,7 @@ class Headers(MutableMapping[str, str]):
             "wild/0", "wild/1", "wild/2", "wild/3", "wild/4", "wild/5",
             "wild/6", "wild/7", "wild/8", "wild/8a"]
 
-    def variant(self) -> Type[chess.Board]:
+    def variant(self) -> type[chess.Board]:
         if "Variant" not in self or self.is_chess960() or self.is_wild():
             return chess.Board
         else:
@@ -1058,7 +1059,7 @@ class Headers(MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls: Type[HeadersT]) -> HeadersBuilder[HeadersT]:
+    def builder(cls: type[HeadersT]) -> HeadersBuilder[HeadersT]:
         return HeadersBuilder(Headers=cls)
 
 
@@ -1196,7 +1197,7 @@ class GameBuilder(BaseVisitor[GameT]):
     @typing.overload
     def __init__(self: GameBuilder[Game]) -> None: ...
     @typing.overload
-    def __init__(self, *, Game: Type[GameT]) -> None: ...
+    def __init__(self, *, Game: type[GameT]) -> None: ...
     def __init__(self, *, Game: Any = Game) -> None:
         self.Game = Game
 
@@ -1204,7 +1205,7 @@ class GameBuilder(BaseVisitor[GameT]):
     def begin_game(self) -> None:
         self.game: GameT = self.Game()
 
-        self.variation_stack: List[GameNode] = [self.game]
+        self.variation_stack: list[GameNode] = [self.game]
         self.starting_comments: list[str] = []
         self.in_variation = False
 
@@ -1305,7 +1306,7 @@ class HeadersBuilder(BaseVisitor[HeadersT]):
     @typing.overload
     def __init__(self: HeadersBuilder[Headers]) -> None: ...
     @typing.overload
-    def __init__(self, *, Headers: Type[HeadersT]) -> None: ...
+    def __init__(self, *, Headers: type[HeadersT]) -> None: ...
     def __init__(self, *, Headers: Any = Headers) -> None:
         self.Headers = Headers
 
@@ -1387,7 +1388,7 @@ class StringExporterMixin:
 
         self.force_movenumber = True
 
-        self.lines: List[str] = []
+        self.lines: list[str] = []
         self.current_line = ""
         self.variation_depth = 0
 
@@ -1606,7 +1607,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     skipping_game = False
     managed_headers: Optional[Headers] = None
     unmanaged_headers: Optional[Headers] = None
-    board_stack: List[chess.Board] = []
+    board_stack: list[chess.Board] = []
 
     # Ignore leading empty lines and comments.
     line = handle.readline().lstrip("\ufeff")

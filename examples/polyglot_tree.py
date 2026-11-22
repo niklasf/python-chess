@@ -4,13 +4,13 @@
 
 import argparse
 
-from typing import Set
+
 
 import chess
 import chess.polyglot
 
 
-def print_tree(args: argparse.Namespace, visited: Set[int], level: int = 0) -> None:
+def print_tree(args: argparse.Namespace, visited: set[int], level: int = 0) -> None:
     if level >= args.depth:
         return
 

@@ -12,7 +12,8 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Deque, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union
+from typing import Optional, TypeVar, Union
+from collections.abc import Iterable, Iterator
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
@@ -371,7 +372,7 @@ def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int]
 def tablenames(*, one_king: bool = True, piece_count: int = 6) -> Iterator[str]:
     first = "K" if one_king else "P"
 
-    targets: List[str] = []
+    targets: list[str] = []
 
     white_pieces = piece_count - 2
     black_pieces = 0
@@ -414,7 +415,7 @@ def _dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
 
 
 def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
-    closed: Set[str] = set()
+    closed: set[str] = set()
     if one_king:
         closed.add("KvK")
 
@@ -425,7 +426,7 @@ def dependencies(target: str, *, one_king: bool = True) -> Iterator[str]:
 
 
 def all_dependencies(targets: Iterable[str], *, one_king: bool = True) -> Iterator[str]:
-    closed: Set[str] = set()
+    closed: set[str] = set()
     if one_king:
         closed.add("KvK")
 
@@ -463,7 +464,7 @@ def calc_key(board: chess.BaseBoard, *, mirror: bool = False) -> str:
     ])
 
 
-def recalc_key(pieces: List[chess.PieceType], *, mirror: bool = False) -> str:
+def recalc_key(pieces: list[chess.PieceType], *, mirror: bool = False) -> str:
     # Some endgames are stored with a different key than their filename
     # indicates: http://talkchess.com/forum/viewtopic.php?p=695509#695509
 
@@ -512,33 +513,33 @@ class PairsData:
     sizetable: int
     data: int
     offset: int
-    symlen: List[int]
+    symlen: list[int]
     sympat: int
     blocksize: int
     idxbits: int
     min_len: int
-    base: List[int]
+    base: list[int]
 
 
 class PawnFileData:
     def __init__(self) -> None:
-        self.precomp: Dict[int, PairsData] = {}
-        self.factor: Dict[int, List[int]] = {}
-        self.pieces: Dict[int, List[int]] = {}
-        self.norm: Dict[int, List[int]] = {}
+        self.precomp: dict[int, PairsData] = {}
+        self.factor: dict[int, list[int]] = {}
+        self.pieces: dict[int, list[int]] = {}
+        self.norm: dict[int, list[int]] = {}
 
 
 class PawnFileDataDtz:
     precomp: PairsData
-    factor: List[int]
-    pieces: List[int]
-    norm: List[int]
+    factor: list[int]
+    pieces: list[int]
+    norm: list[int]
 
 
 class Table:
-    size: List[int]
+    size: list[int]
 
-    def __init__(self, path: str, *, variant: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, path: str, *, variant: type[chess.Board] = chess.Board) -> None:
         self.path = path
         self.variant = variant
 
@@ -668,7 +669,7 @@ class Table:
 
         return d
 
-    def set_norm_piece(self, norm: List[int], pieces: List[int]) -> None:
+    def set_norm_piece(self, norm: list[int], pieces: list[int]) -> None:
         if self.enc_type == 0:
             norm[0] = 3
         elif self.enc_type == 2:
@@ -684,7 +685,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_factors_piece(self, factor: List[int], order: int, norm: List[int]) -> int:
+    def calc_factors_piece(self, factor: list[int], order: int, norm: list[int]) -> int:
         PIVFAC = [31332, 0, 518, 278] if self.variant.connected_kings else [31332, 28056, 462]
 
         n = 64 - norm[0]
@@ -708,7 +709,7 @@ class Table:
 
         return f
 
-    def calc_factors_pawn(self, factor: List[int], order: int, order2: int, norm: List[int], f: int) -> int:
+    def calc_factors_pawn(self, factor: list[int], order: int, order2: int, norm: list[int], f: int) -> int:
         i = norm[0]
         if order2 < 0x0f:
             i += norm[i]
@@ -732,7 +733,7 @@ class Table:
 
         return fac
 
-    def set_norm_pawn(self, norm: List[int], pieces: List[int]) -> None:
+    def set_norm_pawn(self, norm: list[int], pieces: list[int]) -> None:
         norm[0] = self.pawns[0]
         if self.pawns[1]:
             norm[self.pawns[0]] = self.pawns[1]
@@ -745,7 +746,7 @@ class Table:
                 j += 1
             i += norm[i]
 
-    def calc_symlen(self, d: PairsData, s: int, tmp: List[int]) -> None:
+    def calc_symlen(self, d: PairsData, s: int, tmp: list[int]) -> None:
         assert self.data
 
         w = d.sympat + 3 * s
@@ -761,14 +762,14 @@ class Table:
             d.symlen[s] = d.symlen[s1] + d.symlen[s2] + 1
         tmp[s] = 1
 
-    def pawn_file(self, pos: List[chess.Square]) -> chess.File:
+    def pawn_file(self, pos: list[chess.Square]) -> chess.File:
         for i in range(1, self.pawns[0]):
             if FLAP[pos[0]] > FLAP[pos[i]]:
                 pos[0], pos[i] = pos[i], pos[0]
 
         return FILE_TO_FILE[pos[0] & 0x07]
 
-    def encode_piece(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
+    def encode_piece(self, norm: list[int], pos: list[chess.Square], factor: list[int]) -> int:
         n = self.num
 
         if self.enc_type < 3:
@@ -882,7 +883,7 @@ class Table:
 
         return idx
 
-    def encode_pawn(self, norm: List[int], pos: List[chess.Square], factor: List[int]) -> int:
+    def encode_pawn(self, norm: list[int], pos: list[chess.Square], factor: list[int]) -> int:
         n = self.num
 
         if pos[0] & 0x04:
@@ -1030,7 +1031,7 @@ class Table:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 
@@ -1052,8 +1053,8 @@ class WdlTable(Table):
             self.size = [0 for _ in range(8 * 3)]
 
             # Used if there are only pieces.
-            self.precomp: Dict[int, PairsData] = {}
-            self.pieces: Dict[int, List[int]] = {}
+            self.precomp: dict[int, PairsData] = {}
+            self.pieces: dict[int, list[int]] = {}
             self.factor = [[0 for _ in range(TBPIECES)] for _ in range(2)]
             self.norm = [[0 for _ in range(self.num)] for _ in range(2)]
 
@@ -1263,14 +1264,14 @@ class DtzTable(Table):
             p_data = 5
 
             if not self.has_pawns:
-                self.map_idx: List[List[int]] = [[0, 0, 0, 0]]
+                self.map_idx: list[list[int]] = [[0, 0, 0, 0]]
 
                 self.setup_pieces_piece_dtz(p_data, 0)
                 p_data += self.num + 1
                 p_data += p_data & 0x01
 
                 self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
-                self.flags: Union[int, List[int]] = self._flags
+                self.flags: Union[int, list[int]] = self._flags
                 p_data = self._next
                 self.p_map = p_data
                 if self.flags & 2:
@@ -1340,7 +1341,7 @@ class DtzTable(Table):
 
             self.initialized = True
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: chess.Board, wdl: int) -> tuple[int, int]:
         try:
             with self.read_condition:
                 self.read_count += 1
@@ -1350,7 +1351,7 @@ class DtzTable(Table):
                 self.read_count -= 1
                 self.read_condition.notify()
 
-    def _probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def _probe_dtz_table(self, board: chess.Board, wdl: int) -> tuple[int, int]:
         self.init_table_dtz()
         assert self.data
 
@@ -1466,15 +1467,15 @@ class Tablebase:
     """
     Manages a collection of tablebase files for probing.
     """
-    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> None:
+    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
-        self.lru: Deque[Table] = collections.deque()
+        self.lru: collections.deque[Table] = collections.deque()
         self.lru_lock = threading.Lock()
 
-        self.wdl: Dict[str, Table] = {}
-        self.dtz: Dict[str, Table] = {}
+        self.wdl: dict[str, Table] = {}
+        self.dtz: dict[str, Table] = {}
 
     def _bump_lru(self, table: Table) -> None:
         if self.max_fds is None:
@@ -1490,7 +1491,7 @@ class Tablebase:
                 if len(self.lru) > self.max_fds:
                     self.lru.pop().close()
 
-    def _open_table(self, hashtable: Dict[str, Table], Table: Type[Table], path: str) -> int:
+    def _open_table(self, hashtable: dict[str, Table], Table: type[Table], path: str) -> int:
         table = Table(path, variant=self.variant)
 
         if table.key in hashtable:
@@ -1556,7 +1557,7 @@ class Tablebase:
 
         return table.probe_wdl_table(board)
 
-    def probe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
+    def probe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> tuple[int, int]:
         # Check preconditions.
         if board.uci_variant != self.variant.uci_variant:
             raise KeyError(f"tablebase has been opened for {self.variant.uci_variant}, probed with: {board.uci_variant}")
@@ -1602,7 +1603,7 @@ class Tablebase:
         else:
             return v, 1
 
-    def sprobe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> Tuple[int, int]:
+    def sprobe_ab(self, board: chess.Board, alpha: int, beta: int, threats: bool = False) -> tuple[int, int]:
         if chess.popcount(board.occupied_co[not board.turn]) > 1:
             v, captures_found = self.sprobe_capts(board, alpha, beta)
             if captures_found:
@@ -1634,7 +1635,7 @@ class Tablebase:
         else:
             return alpha, 3 if threats_found else 1
 
-    def sprobe_capts(self, board: chess.Board, alpha: int, beta: int) -> Tuple[int, int]:
+    def sprobe_capts(self, board: chess.Board, alpha: int, beta: int) -> tuple[int, int]:
         captures_found = False
 
         for move in board.generate_legal_captures():
@@ -1726,7 +1727,7 @@ class Tablebase:
         except KeyError:
             return default
 
-    def probe_dtz_table(self, board: chess.Board, wdl: int) -> Tuple[int, int]:
+    def probe_dtz_table(self, board: chess.Board, wdl: int) -> tuple[int, int]:
         key = calc_key(board)
         try:
             table = typing.cast(DtzTable, self.dtz[key])
@@ -1945,11 +1946,11 @@ class Tablebase:
     def __enter__(self) -> Tablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 
-def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: Type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.

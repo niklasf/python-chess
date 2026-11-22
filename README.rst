@@ -57,7 +57,7 @@ python-chess:
 Installing
 ----------
 
-Requires Python 3.8+. Download and install the latest release:
+Requires Python 3.9+. Download and install the latest release:
 
 ::
 

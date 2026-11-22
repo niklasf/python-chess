@@ -3038,7 +3038,6 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(game, None)
 
 
-@unittest.skipIf(sys.platform == "win32" and (3, 8, 0) <= sys.version_info < (3, 8, 1), "https://bugs.python.org/issue34679")
 class EngineTestCase(unittest.TestCase):
 
     def test_uci_option_map_equality(self):

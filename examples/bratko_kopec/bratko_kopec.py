@@ -9,26 +9,26 @@ import logging
 import sys
 import typing
 
-from typing import List, Tuple, Type
+
 
 import chess
 import chess.engine
 import chess.variant
 
 
-def parse_epd(epd: str, VariantBoard: Type[chess.Board]) -> Tuple[chess.Board, str, List[chess.Move], List[chess.Move]]:
+def parse_epd(epd: str, VariantBoard: type[chess.Board]) -> tuple[chess.Board, str, list[chess.Move], list[chess.Move]]:
     board, epd_info = VariantBoard.from_epd(epd)
 
     description = str(epd_info.get("id", board.fen()))
 
     if "am" in epd_info:
-        am = typing.cast(List[chess.Move], epd_info["am"])
+        am = typing.cast(list[chess.Move], epd_info["am"])
         description = "{} (avoid {})".format(description, " and ".join(board.san(m) for m in am))
     else:
         am = []
 
     if "bm" in epd_info:
-        bm = typing.cast(List[chess.Move], epd_info["bm"])
+        bm = typing.cast(list[chess.Move], epd_info["bm"])
         description = "{} (expect {})".format(description, " or ".join(board.san(m) for m in bm))
     else:
         bm = []
@@ -36,7 +36,7 @@ def parse_epd(epd: str, VariantBoard: Type[chess.Board]) -> Tuple[chess.Board, s
     return board, description, am, bm
 
 
-async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: type[chess.Board], movetime: float) -> float:
     board, description, am, bm = parse_epd(epd, VariantBoard)
 
     limit = chess.engine.Limit(time=movetime)
@@ -56,7 +56,7 @@ async def test_epd(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[c
         return 1.0
 
 
-async def test_epd_with_fractional_scores(engine: chess.engine.Protocol, epd: str, VariantBoard: Type[chess.Board], movetime: float) -> float:
+async def test_epd_with_fractional_scores(engine: chess.engine.Protocol, epd: str, VariantBoard: type[chess.Board], movetime: float) -> float:
     board, description, am, bm = parse_epd(epd, VariantBoard)
 
     # Start analysis.

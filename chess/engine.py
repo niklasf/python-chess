@@ -23,7 +23,8 @@ import chess
 
 from chess import Color
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Deque, Dict, Generator, Generic, Iterable, Iterator, List, Literal, Mapping, MutableMapping, Optional, Tuple, Type, TypedDict, TypeVar, Union
+from typing import Any, Callable, Generic, Literal, Optional, TypedDict, TypeVar, Union
+from collections.abc import Coroutine, Generator, Iterable, Iterator, Mapping, MutableMapping
 
 if typing.TYPE_CHECKING:
     from typing_extensions import override
@@ -132,7 +133,7 @@ class Option:
     max: Optional[int]
     """The maximum integer value of a *spin* option."""
 
-    var: Optional[List[str]]
+    var: Optional[list[str]]
     """A list of allowed string values for a *combo* option."""
 
     def parse(self, value: ConfigValue) -> ConfigValue:
@@ -236,7 +237,7 @@ class InfoDict(TypedDict, total=False):
     ``wdl`` (a :class:`~chess.engine.PovWdl`), and ``string``.
     """
     score: PovScore
-    pv: List[chess.Move]
+    pv: list[chess.Move]
     depth: int
     seldepth: int
     time: float
@@ -248,8 +249,8 @@ class InfoDict(TypedDict, total=False):
     currmovenumber: int
     hashfull: int
     cpuload: int
-    refutation: Dict[chess.Move, List[chess.Move]]
-    currline: Dict[int, List[chess.Move]]
+    refutation: dict[chess.Move, list[chess.Move]]
+    currline: dict[int, list[chess.Move]]
     ebf: float
     wdl: PovWdl
     string: str
@@ -485,7 +486,7 @@ class Score(abc.ABC):
     def __abs__(self) -> Score:
         ...
 
-    def _score_tuple(self) -> Tuple[bool, bool, bool, int, Optional[int]]:
+    def _score_tuple(self) -> tuple[bool, bool, bool, int, Optional[int]]:
         mate = self.mate()
         return (
             isinstance(self, MateGivenType),
@@ -805,12 +806,12 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
     def __init__(self, protocol: Protocol) -> None:
         super().__init__()
         self.protocol = protocol
-        self.expectations: Deque[Tuple[str, List[str]]] = collections.deque()
+        self.expectations: collections.deque[tuple[str, list[str]]] = collections.deque()
         self.expected_pings = 0
         self.stdin_buffer = bytearray()
         self.protocol.connection_made(self)
 
-    def expect(self, expectation: str, responses: List[str] = []) -> None:
+    def expect(self, expectation: str, responses: list[str] = []) -> None:
         self.expectations.append((expectation, responses))
 
     def expect_ping(self) -> None:
@@ -849,7 +850,7 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
 class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Protocol for communicating with a chess engine process."""
 
-    id: Dict[str, str]
+    id: dict[str, str]
     """
     Dictionary of information about the engine. Common keys are ``name``
     and ``author``.
@@ -1050,10 +1051,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     @typing.overload
     async def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
     @typing.overload
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
+    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> list[InfoDict]: ...
     @typing.overload
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]: ...
-    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[List[InfoDict], InfoDict]:
+    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[list[InfoDict], InfoDict]: ...
+    async def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[list[InfoDict], InfoDict]:
         """
         Analyses a position and returns a dictionary of
         :class:`information <chess.engine.InfoDict>`.
@@ -1149,7 +1150,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: Type[ProtocolT], command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, ProtocolT]:
+    async def popen(cls: type[ProtocolT], command: Union[str, list[str]], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, ProtocolT]:
         if not isinstance(command, list):
             command = [command]
 
@@ -1184,7 +1185,7 @@ class BaseCommand(Generic[T]):
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
 
-        self._finished_callbacks: List[Callable[[], None]] = []
+        self._finished_callbacks: list[Callable[[], None]] = []
 
     def add_finished_callback(self, callback: Callable[[], None]) -> None:
         self._finished_callbacks.append(callback)
@@ -1542,7 +1543,7 @@ class UciProtocol(Protocol):
         self.send_line(" ".join(builder))
 
     async def play(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_NONE, ponder: bool = False, draw_offered: bool = False, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}, opponent: Optional[Opponent] = None) -> PlayResult:
-        new_options: Dict[str, ConfigValue] = {}
+        new_options: dict[str, ConfigValue] = {}
         for name, value in options.items():
             new_options[name] = value
         new_options.update(self._opponent_configuration(opponent=opponent))
@@ -1875,7 +1876,7 @@ def _parse_uci_bestmove(board: chess.Board, args: str) -> BestMove:
     return BestMove(move, ponder)
 
 
-def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterable[Tuple[str, ConfigValue]]:
+def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterable[tuple[str, ConfigValue]]:
     merged = dict(a)
     for k, v in b.items():
         merged.setdefault(k, v)
@@ -1890,8 +1891,8 @@ def _chain_config(a: ConfigMapping, b: ConfigMapping) -> Iterable[Tuple[str, Con
 class UciOptionMap(MutableMapping[str, T]):
     """Dictionary with case-insensitive keys."""
 
-    def __init__(self, data: Optional[Iterable[Tuple[str, T]]] = None, **kwargs: T) -> None:
-        self._store: Dict[str, Tuple[str, T]] = {}
+    def __init__(self, data: Optional[Iterable[tuple[str, T]]] = None, **kwargs: T) -> None:
+        self._store: dict[str, tuple[str, T]] = {}
         if data is None:
             data = {}
         self.update(data, **kwargs)
@@ -1946,7 +1947,7 @@ class XBoardProtocol(Protocol):
 
     def __init__(self) -> None:
         super().__init__()
-        self.features: Dict[str, Union[int, str]] = {}
+        self.features: dict[str, Union[int, str]] = {}
         self.id = {}
         self._options = {
             "random": Option("random", "check", False, None, None, None),
@@ -1955,8 +1956,8 @@ class XBoardProtocol(Protocol):
             "engine_rating": Option("engine_rating", "spin", 0, None, None, None),
             "opponent_rating": Option("opponent_rating", "spin", 0, None, None, None)
         }
-        self.config: Dict[str, ConfigValue] = {}
-        self.target_config: Dict[str, ConfigValue] = {}
+        self.config: dict[str, ConfigValue] = {}
+        self.target_config: dict[str, ConfigValue] = {}
         self.board = chess.Board()
         self.game: object = None
         self.clock_id: object = None
@@ -1964,7 +1965,7 @@ class XBoardProtocol(Protocol):
 
     @property
     @override
-    def options(self) -> Dict[str, Option]:
+    def options(self) -> dict[str, Option]:
         return self._options
 
     async def initialize(self) -> None:
@@ -2475,7 +2476,7 @@ class XBoardProtocol(Protocol):
         if opponent is None:
             return {}
 
-        opponent_info: Dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or self.target_config.get("engine_rating") or 0,
+        opponent_info: dict[str, Union[int, bool, str]] = {"engine_rating": engine_rating or self.target_config.get("engine_rating") or 0,
                                                            "opponent_rating": opponent.rating or 0,
                                                            "computer": opponent.is_engine or False}
 
@@ -2681,7 +2682,7 @@ class AnalysisResult:
     Automatically stops the analysis when used as a context manager.
     """
 
-    multipv: List[InfoDict]
+    multipv: list[InfoDict]
     """
     A list of dictionaries with aggregated information sent by the engine.
     One item for each root move.
@@ -2804,11 +2805,11 @@ class AnalysisResult:
     def __enter__(self) -> AnalysisResult:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.stop()
 
 
-async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, UciProtocol]:
+async def popen_uci(command: Union[str, list[str]], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, UciProtocol]:
     """
     Spawns and initializes a UCI engine.
 
@@ -2833,7 +2834,7 @@ async def popen_uci(command: Union[str, List[str]], *, setpgrp: bool = False, **
     return transport, protocol
 
 
-async def popen_xboard(command: Union[str, List[str]], *, setpgrp: bool = False, **popen_args: Any) -> Tuple[asyncio.SubprocessTransport, XBoardProtocol]:
+async def popen_xboard(command: Union[str, list[str]], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, XBoardProtocol]:
     """
     Spawns and initializes an XBoard engine.
 
@@ -2953,10 +2954,10 @@ class SimpleEngine:
     @typing.overload
     def analyse(self, board: chess.Board, limit: Limit, *, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> InfoDict: ...
     @typing.overload
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> List[InfoDict]: ...
+    def analyse(self, board: chess.Board, limit: Limit, *, multipv: int, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> list[InfoDict]: ...
     @typing.overload
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]: ...
-    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, List[InfoDict]]:
+    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, list[InfoDict]]: ...
+    def analyse(self, board: chess.Board, limit: Limit, *, multipv: Optional[int] = None, game: object = None, info: Info = INFO_ALL, root_moves: Optional[Iterable[chess.Move]] = None, options: ConfigMapping = {}) -> Union[InfoDict, list[InfoDict]]:
         with self._not_shut_down():
             coro = asyncio.wait_for(
                 self.protocol.analyse(board, limit, multipv=multipv, game=game, info=info, root_moves=root_moves, options=options),
@@ -2998,7 +2999,7 @@ class SimpleEngine:
                 self.protocol.loop.call_soon_threadsafe(_shutdown)
 
     @classmethod
-    def popen(cls, Protocol: Type[Protocol], command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
+    def popen(cls, Protocol: type[Protocol], command: Union[str, list[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
         async def background(future: concurrent.futures.Future[SimpleEngine]) -> None:
             transport, protocol = await Protocol.popen(command, setpgrp=setpgrp, **popen_args)
             threading.current_thread().name = f"{cls.__name__} (pid={transport.get_pid()})"
@@ -3015,7 +3016,7 @@ class SimpleEngine:
         return run_in_background(background, name=f"{cls.__name__} (command={command!r})", debug=debug)
 
     @classmethod
-    def popen_uci(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
+    def popen_uci(cls, command: Union[str, list[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
         """
         Spawns and initializes a UCI engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
@@ -3023,7 +3024,7 @@ class SimpleEngine:
         return cls.popen(UciProtocol, command, timeout=timeout, debug=debug, setpgrp=setpgrp, **popen_args)
 
     @classmethod
-    def popen_xboard(cls, command: Union[str, List[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
+    def popen_xboard(cls, command: Union[str, list[str]], *, timeout: Optional[float] = 10.0, debug: Optional[bool] = None, setpgrp: bool = False, **popen_args: Any) -> SimpleEngine:
         """
         Spawns and initializes an XBoard engine.
         Returns a :class:`~chess.engine.SimpleEngine` instance.
@@ -3033,7 +3034,7 @@ class SimpleEngine:
     def __enter__(self) -> SimpleEngine:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
     def __repr__(self) -> str:
@@ -3059,7 +3060,7 @@ class SimpleAnalysisResult:
         return future.result()
 
     @property
-    def multipv(self) -> List[InfoDict]:
+    def multipv(self) -> list[InfoDict]:
         with self.simple_engine._not_shut_down():
             coro = _async(lambda: [info.copy() for info in self.inner.multipv])
             future = asyncio.run_coroutine_threadsafe(coro, self.simple_engine.protocol.loop)
@@ -3110,5 +3111,5 @@ class SimpleAnalysisResult:
     def __enter__(self) -> SimpleAnalysisResult:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.stop()

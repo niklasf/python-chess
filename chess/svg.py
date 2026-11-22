@@ -5,7 +5,8 @@ import xml.etree.ElementTree as ET
 
 import chess
 
-from typing import Dict, Iterable, Optional, Tuple, Union
+from typing import Optional, Union
+from collections.abc import Iterable
 from chess import Color, IntoSquareSet, Square
 
 
@@ -162,15 +163,15 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     return svg
 
 
-def _attrs(attrs: Dict[str, Union[str, int, float, None]]) -> Dict[str, str]:
+def _attrs(attrs: dict[str, Union[str, int, float, None]]) -> dict[str, str]:
     return {k: str(v) for k, v in attrs.items() if v is not None}
 
 
-def _select_color(colors: Dict[str, str], color: str) -> Tuple[str, float]:
+def _select_color(colors: dict[str, str], color: str) -> tuple[str, float]:
     return _color(colors.get(color, DEFAULT_COLORS[color]))
 
 
-def _color(color: str) -> Tuple[str, float]:
+def _color(color: str) -> tuple[str, float]:
     if color.startswith("#"):
         try:
             if len(color) == 5:
@@ -221,12 +222,12 @@ def board(board: Optional[chess.BaseBoard] = None, *,
           orientation: Color = chess.WHITE,
           lastmove: Optional[chess.Move] = None,
           check: Optional[Square] = None,
-          arrows: Iterable[Union[Arrow, Tuple[Square, Square]]] = [],
-          fill: Dict[Square, str] = {},
+          arrows: Iterable[Union[Arrow, tuple[Square, Square]]] = [],
+          fill: dict[Square, str] = {},
           squares: Optional[IntoSquareSet] = None,
           size: Optional[int] = None,
           coordinates: bool = True,
-          colors: Dict[str, str] = {},
+          colors: dict[str, str] = {},
           borders: bool = False,
           style: Optional[str] = None) -> str:
     """

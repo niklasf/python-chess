@@ -22,7 +22,8 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Callable, Counter, Dict, Hashable, Iterable, Iterator, List, Literal, Mapping, Optional, SupportsInt, Tuple, Type, TypeVar, Union
+from typing import ClassVar, Callable, Literal, Optional, SupportsInt, TypeVar, Union
+from collections.abc import Hashable, Iterable, Iterator, Mapping
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self, TypeAlias
@@ -34,9 +35,9 @@ EnPassantSpec = Literal["legal", "fen", "xfen"]
 Color: TypeAlias = bool
 WHITE: Color = True
 BLACK: Color = False
-COLORS: List[Color] = [WHITE, BLACK]
+COLORS: list[Color] = [WHITE, BLACK]
 ColorName = Literal["white", "black"]
-COLOR_NAMES: List[ColorName] = ["black", "white"]
+COLOR_NAMES: list[ColorName] = ["black", "white"]
 
 PieceType: TypeAlias = int
 PAWN: PieceType = 1
@@ -45,7 +46,7 @@ BISHOP: PieceType = 3
 ROOK: PieceType = 4
 QUEEN: PieceType = 5
 KING: PieceType = 6
-PIECE_TYPES: List[PieceType] = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
+PIECE_TYPES: list[PieceType] = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
 PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
 PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
@@ -256,7 +257,7 @@ E8: Square = 60
 F8: Square = 61
 G8: Square = 62
 H8: Square = 63
-SQUARES: List[Square] = list(range(64))
+SQUARES: list[Square] = list(range(64))
 
 SQUARE_NAMES = [f + r for r in RANK_NAMES for f in FILE_NAMES]
 
@@ -345,7 +346,7 @@ def square_mirror(square: Square) -> Square:
     """Mirrors the square vertically."""
     return square ^ 0x38
 
-SQUARES_180: List[Square] = [square_mirror(sq) for sq in SQUARES]
+SQUARES_180: list[Square] = [square_mirror(sq) for sq in SQUARES]
 
 
 Bitboard: TypeAlias = int
@@ -416,7 +417,7 @@ BB_E8: Bitboard = 1 << E8
 BB_F8: Bitboard = 1 << F8
 BB_G8: Bitboard = 1 << G8
 BB_H8: Bitboard = 1 << H8
-BB_SQUARES: List[Bitboard] = [1 << sq for sq in SQUARES]
+BB_SQUARES: list[Bitboard] = [1 << sq for sq in SQUARES]
 
 BB_CORNERS: Bitboard = BB_A1 | BB_H1 | BB_A8 | BB_H8
 BB_CENTER: Bitboard = BB_D4 | BB_E4 | BB_D5 | BB_E5
@@ -432,7 +433,7 @@ BB_FILE_E: Bitboard = 0x0101_0101_0101_0101 << FILE_E
 BB_FILE_F: Bitboard = 0x0101_0101_0101_0101 << FILE_F
 BB_FILE_G: Bitboard = 0x0101_0101_0101_0101 << FILE_G
 BB_FILE_H: Bitboard = 0x0101_0101_0101_0101 << FILE_H
-BB_FILES: List[Bitboard] = [BB_FILE_A, BB_FILE_B, BB_FILE_C, BB_FILE_D, BB_FILE_E, BB_FILE_F, BB_FILE_G, BB_FILE_H]
+BB_FILES: list[Bitboard] = [BB_FILE_A, BB_FILE_B, BB_FILE_C, BB_FILE_D, BB_FILE_E, BB_FILE_F, BB_FILE_G, BB_FILE_H]
 
 BB_RANK_1: Bitboard = 0xff << (8 * RANK_1)
 BB_RANK_2: Bitboard = 0xff << (8 * RANK_2)
@@ -442,7 +443,7 @@ BB_RANK_5: Bitboard = 0xff << (8 * RANK_5)
 BB_RANK_6: Bitboard = 0xff << (8 * RANK_6)
 BB_RANK_7: Bitboard = 0xff << (8 * RANK_7)
 BB_RANK_8: Bitboard = 0xff << (8 * RANK_8)
-BB_RANKS: List[Bitboard] = [BB_RANK_1, BB_RANK_2, BB_RANK_3, BB_RANK_4, BB_RANK_5, BB_RANK_6, BB_RANK_7, BB_RANK_8]
+BB_RANKS: list[Bitboard] = [BB_RANK_1, BB_RANK_2, BB_RANK_3, BB_RANK_4, BB_RANK_5, BB_RANK_6, BB_RANK_7, BB_RANK_8]
 
 BB_BACKRANKS: Bitboard = BB_RANK_1 | BB_RANK_8
 
@@ -561,9 +562,9 @@ def _sliding_attacks(square: Square, occupied: Bitboard, deltas: Iterable[int]) 
 def _step_attacks(square: Square, deltas: Iterable[int]) -> Bitboard:
     return _sliding_attacks(square, BB_ALL, deltas)
 
-BB_KNIGHT_ATTACKS: List[Bitboard] = [_step_attacks(sq, [17, 15, 10, 6, -17, -15, -10, -6]) for sq in SQUARES]
-BB_KING_ATTACKS: List[Bitboard] = [_step_attacks(sq, [9, 8, 7, 1, -9, -8, -7, -1]) for sq in SQUARES]
-BB_PAWN_ATTACKS: List[List[Bitboard]] = [[_step_attacks(sq, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
+BB_KNIGHT_ATTACKS: list[Bitboard] = [_step_attacks(sq, [17, 15, 10, 6, -17, -15, -10, -6]) for sq in SQUARES]
+BB_KING_ATTACKS: list[Bitboard] = [_step_attacks(sq, [9, 8, 7, 1, -9, -8, -7, -1]) for sq in SQUARES]
+BB_PAWN_ATTACKS: list[list[Bitboard]] = [[_step_attacks(sq, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
 
 
 def _edges(square: Square) -> Bitboard:
@@ -579,9 +580,9 @@ def _carry_rippler(mask: Bitboard) -> Iterator[Bitboard]:
         if not subset:
             break
 
-def _attack_table(deltas: List[int]) -> Tuple[List[Bitboard], List[Dict[Bitboard, Bitboard]]]:
-    mask_table: List[Bitboard] = []
-    attack_table: List[Dict[Bitboard, Bitboard]] = []
+def _attack_table(deltas: list[int]) -> tuple[list[Bitboard], list[dict[Bitboard, Bitboard]]]:
+    mask_table: list[Bitboard] = []
+    attack_table: list[dict[Bitboard, Bitboard]] = []
 
     for square in SQUARES:
         attacks = {}
@@ -600,10 +601,10 @@ BB_FILE_MASKS, BB_FILE_ATTACKS = _attack_table([-8, 8])
 BB_RANK_MASKS, BB_RANK_ATTACKS = _attack_table([-1, 1])
 
 
-def _rays() -> List[List[Bitboard]]:
-    rays: List[List[Bitboard]] = []
+def _rays() -> list[list[Bitboard]]:
+    rays: list[list[Bitboard]] = []
     for a, bb_a in enumerate(BB_SQUARES):
-        rays_row: List[Bitboard] = []
+        rays_row: list[Bitboard] = []
         for b, bb_b in enumerate(BB_SQUARES):
             if BB_DIAG_ATTACKS[a][0] & bb_b:
                 rays_row.append((BB_DIAG_ATTACKS[a][0] & BB_DIAG_ATTACKS[b][0]) | bb_a | bb_b)
@@ -1153,7 +1154,7 @@ class BaseBoard:
         Gets the board FEN (e.g.,
         ``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR``).
         """
-        builder: List[str] = []
+        builder: list[str] = []
         empty = 0
 
         for square in SQUARES_180:
@@ -1251,11 +1252,11 @@ class BaseBoard:
         """
         self._set_board_fen(fen)
 
-    def piece_map(self, *, mask: Bitboard = BB_ALL) -> Dict[Square, Piece]:
+    def piece_map(self, *, mask: Bitboard = BB_ALL) -> dict[Square, Piece]:
         """
         Gets a dictionary of :class:`pieces <chess.Piece>` by square index.
         """
-        result: Dict[Square, Piece] = {}
+        result: dict[Square, Piece] = {}
         for square in scan_reversed(self.occupied & mask):
             result[square] = typing.cast(Piece, self.piece_at(square))
         return result
@@ -1426,7 +1427,7 @@ class BaseBoard:
         return f"{type(self).__name__}({self.board_fen()!r})"
 
     def __str__(self) -> str:
-        builder: List[str] = []
+        builder: list[str] = []
 
         for square in SQUARES_180:
             piece = self.piece_at(square)
@@ -1452,7 +1453,7 @@ class BaseBoard:
         :param invert_color: Invert color of the Unicode pieces.
         :param borders: Show borders and a coordinate margin.
         """
-        builder: List[str] = []
+        builder: list[str] = []
         for rank_index in (range(7, -1, -1) if orientation else range(8)):
             if borders:
                 builder.append("  ")
@@ -1580,13 +1581,13 @@ class BaseBoard:
     def __copy__(self) -> Self:
         return self.copy()
 
-    def __deepcopy__(self, memo: Dict[int, object]) -> Self:
+    def __deepcopy__(self, memo: dict[int, object]) -> Self:
         board = self.copy()
         memo[id(self)] = board
         return board
 
     @classmethod
-    def empty(cls: Type[BaseBoardT]) -> BaseBoardT:
+    def empty(cls: type[BaseBoardT]) -> BaseBoardT:
         """
         Creates a new empty board. Also see
         :func:`~chess.BaseBoard.clear_board()`.
@@ -1594,7 +1595,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BaseBoardT], scharnagl: int) -> BaseBoardT:
+    def from_chess960_pos(cls: type[BaseBoardT], scharnagl: int) -> BaseBoardT:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1683,7 +1684,7 @@ class Board(BaseBoard):
         Use :func:`~chess.Board.is_valid()` to detect invalid positions.
     """
 
-    aliases: ClassVar[List[str]] = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
+    aliases: ClassVar[list[str]] = ["Standard", "Chess", "Classical", "Normal", "Illegal", "From Position"]
     uci_variant: ClassVar[Optional[str]] = "chess"
     xboard_variant: ClassVar[Optional[str]] = "normal"
     starting_fen: ClassVar[str] = STARTING_FEN
@@ -1753,7 +1754,7 @@ class Board(BaseBoard):
     represented as king moves to the corresponding rook square.
     """
 
-    move_stack: List[Move]
+    move_stack: list[Move]
     """
     The move stack. Use :func:`Board.push() <chess.Board.push()>`,
     :func:`Board.pop() <chess.Board.pop()>`,
@@ -1769,7 +1770,7 @@ class Board(BaseBoard):
 
         self.ep_square = None
         self.move_stack = []
-        self._stack: List[_BoardState] = []
+        self._stack: list[_BoardState] = []
 
         if fen is None:
             self.clear()
@@ -2323,11 +2324,11 @@ class Board(BaseBoard):
         be replayed because there is no incremental transposition table.
         """
         transposition_key = self._transposition_key()
-        transpositions: Counter[Hashable] = collections.Counter()
+        transpositions: collections.Counter[Hashable] = collections.Counter()
         transpositions.update((transposition_key, ))
 
         # Count positions.
-        switchyard: List[Move] = []
+        switchyard: list[Move] = []
         while self.move_stack:
             move = self.pop()
             switchyard.append(move)
@@ -2380,7 +2381,7 @@ class Board(BaseBoard):
 
         # Check full replay.
         transposition_key = self._transposition_key()
-        switchyard: List[Move] = []
+        switchyard: list[Move] = []
 
         try:
             while True:
@@ -2573,7 +2574,7 @@ class Board(BaseBoard):
         if not castling_rights:
             return "-"
 
-        builder: List[str] = []
+        builder: list[str] = []
 
         for square in scan_reversed(castling_rights & BB_RANK_1):
             builder.append(FILE_NAMES[square_file(square)].upper())
@@ -2584,7 +2585,7 @@ class Board(BaseBoard):
         return "".join(builder)
 
     def castling_xfen(self) -> str:
-        builder: List[str] = []
+        builder: list[str] = []
 
         for color in COLORS:
             king = self.king(color)
@@ -2845,7 +2846,7 @@ class Board(BaseBoard):
         return super().chess960_pos()
 
     def _epd_operations(self, operations: Mapping[str, Union[None, str, int, float, Move, Iterable[Move]]]) -> str:
-        epd: List[str] = []
+        epd: list[str] = []
         first_op = True
 
         for opcode, operand in operations.items():
@@ -2938,8 +2939,8 @@ class Board(BaseBoard):
             if blacklisted in opcode:
                 raise ValueError(f"invalid character {blacklisted!r} in epd opcode: {opcode!r}")
 
-    def _parse_epd_ops(self, operation_part: str, make_board: Callable[[], Self]) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
-        operations: Dict[str, Union[None, str, int, float, Move, List[Move]]] = {}
+    def _parse_epd_ops(self, operation_part: str, make_board: Callable[[], Self]) -> dict[str, Union[None, str, int, float, Move, list[Move]]]:
+        operations: dict[str, Union[None, str, int, float, Move, list[Move]]] = {}
         state = "opcode"
         opcode = ""
         operand = ""
@@ -3026,7 +3027,7 @@ class Board(BaseBoard):
 
                     if opcode == "pv":
                         # A variation.
-                        variation: List[Move] = []
+                        variation: list[Move] = []
                         for token in operand.split():
                             move = position.parse_xboard(token)
                             variation.append(move)
@@ -3053,7 +3054,7 @@ class Board(BaseBoard):
         assert state == "opcode"
         return operations
 
-    def set_epd(self, epd: str) -> Dict[str, Union[None, str, int, float, Move, List[Move]]]:
+    def set_epd(self, epd: str) -> dict[str, Union[None, str, int, float, Move, list[Move]]]:
         """
         Parses the given EPD string and uses it to set the position.
 
@@ -3203,7 +3204,7 @@ class Board(BaseBoard):
         :raises: :exc:`IllegalMoveError` if any moves in the sequence are illegal.
         """
         board = self.copy(stack=False)
-        san: List[str] = []
+        san: list[str] = []
 
         for move in variation:
             if not board.is_legal(move):
@@ -3989,12 +3990,12 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls: Type[BoardT], *, chess960: bool = False) -> BoardT:
+    def empty(cls: type[BoardT], *, chess960: bool = False) -> BoardT:
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls: Type[BoardT], epd: str, *, chess960: bool = False) -> Tuple[BoardT, Dict[str, Union[None, str, int, float, Move, List[Move]]]]:
+    def from_epd(cls: type[BoardT], epd: str, *, chess960: bool = False) -> tuple[BoardT, dict[str, Union[None, str, int, float, Move, list[Move]]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
@@ -4005,7 +4006,7 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: Type[BoardT], scharnagl: int) -> BoardT:
+    def from_chess960_pos(cls: type[BoardT], scharnagl: int) -> BoardT:
         board = cls.empty(chess960=True)
         board.set_chess960_pos(scharnagl)
         return board
@@ -4030,7 +4031,7 @@ class PseudoLegalMoveGenerator:
         return self.board.is_pseudo_legal(move)
 
     def __repr__(self) -> str:
-        builder: List[str] = []
+        builder: list[str] = []
 
         for move in self:
             if self.board.is_legal(move):
@@ -4301,7 +4302,7 @@ class SquareSet:
         """Returns a vertically mirrored copy of this square set."""
         return SquareSet(flip_vertical(self.mask))
 
-    def tolist(self) -> List[bool]:
+    def tolist(self) -> list[bool]:
         """Converts the set to a list of 64 bools."""
         result = [False] * 64
         for square in self:
@@ -4344,7 +4345,7 @@ class SquareSet:
         return f"SquareSet({self.mask:#021_x})"
 
     def __str__(self) -> str:
-        builder: List[str] = []
+        builder: list[str] = []
 
         for square in SQUARES_180:
             mask = BB_SQUARES[square]

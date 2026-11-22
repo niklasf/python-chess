@@ -14,7 +14,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import BinaryIO, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import BinaryIO, Callable, Optional, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,13 +137,13 @@ def flip_type(x: chess.Square, y: chess.Square) -> int:
 
     return ret
 
-def init_flipt() -> List[List[int]]:
+def init_flipt() -> list[list[int]]:
     return [[flip_type(j, i) for i in range(64)] for j in range(64)]
 
 FLIPT = init_flipt()
 
 
-def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
+def init_pp48_idx() -> tuple[list[list[int]], list[int], list[int]]:
     MAX_I = MAX_J = 48
     idx = 0
     pp48_idx = [[-1] * MAX_J for _ in range(MAX_I)]
@@ -168,7 +168,7 @@ def init_pp48_idx() -> Tuple[List[List[int]], List[int], List[int]]:
 PP48_IDX, PP48_SQ_X, PP48_SQ_Y = init_pp48_idx()
 
 
-def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[int]]:
+def init_ppp48_idx() -> tuple[list[list[list[int]]], list[int], list[int], list[int]]:
     MAX_I = MAX_J = MAX_K = 48
     ppp48_idx = [[[-1] * MAX_I for _ in range(MAX_J)] for _ in range(MAX_K)]
     ppp48_sq_x = [NOSQUARE] * MAX_PPP48_INDEX
@@ -206,7 +206,7 @@ def init_ppp48_idx() -> Tuple[List[List[List[int]]], List[int], List[int], List[
 PPP48_IDX, PPP48_SQ_X, PPP48_SQ_Y, PPP48_SQ_Z = init_ppp48_idx()
 
 
-def init_aaidx() -> Tuple[List[int], List[List[int]]]:
+def init_aaidx() -> tuple[list[int], list[list[int]]]:
     aaidx = [[-1] * 64 for _ in range(64)]
     aabase = [0] * MAX_AAINDEX
 
@@ -226,7 +226,7 @@ def init_aaidx() -> Tuple[List[int], List[List[int]]]:
 AABASE, AAIDX = init_aaidx()
 
 
-def init_aaa() -> Tuple[List[int], List[List[int]]]:
+def init_aaa() -> tuple[list[int], list[list[int]]]:
     # Get aaa_base.
     comb = [a * (a - 1) // 2 for a in range(64)]
 
@@ -253,7 +253,7 @@ def init_aaa() -> Tuple[List[int], List[List[int]]]:
 AAA_BASE, AAA_XYZ = init_aaa()
 
 
-def pp_putanchorfirst(a: int, b: int) -> Tuple[int, int]:
+def pp_putanchorfirst(a: int, b: int) -> tuple[int, int]:
     row_b = b & 56
     row_a = a & 56
 
@@ -315,7 +315,7 @@ def wsq_to_pidx48(pawn: int) -> int:
     idx48 = sq
     return idx48
 
-def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
+def init_ppidx() -> tuple[list[list[int]], list[int], list[int]]:
     ppidx = [[-1] * 48 for _ in range(24)]
     pp_hi24 = [-1] * MAX_PPINDEX
     pp_lo48 = [-1] * MAX_PPINDEX
@@ -350,7 +350,7 @@ def init_ppidx() -> Tuple[List[List[int]], List[int], List[int]]:
 PPIDX, PP_HI24, PP_LO48 = init_ppidx()
 
 
-def norm_kkindex(x: chess.Square, y: chess.Square) -> Tuple[int, int]:
+def norm_kkindex(x: chess.Square, y: chess.Square) -> tuple[int, int]:
     if chess.square_file(x) > chess.FILE_D:
         x = flip_we(x)
         y = flip_we(y)
@@ -375,7 +375,7 @@ def norm_kkindex(x: chess.Square, y: chess.Square) -> Tuple[int, int]:
 
     return x, y
 
-def init_kkidx() -> Tuple[List[List[int]], List[int], List[int]]:
+def init_kkidx() -> tuple[list[list[int]], list[int], list[int]]:
     kkidx = [[-1] * 64 for _ in range(64)]
     bksq = [-1] * MAX_KKINDEX
     wksq = [-1] * MAX_KKINDEX
@@ -1329,15 +1329,15 @@ EGKEY = {
 }
 
 
-def sortlists(ws: List[int], wp: List[int]) -> Tuple[List[int], List[int]]:
+def sortlists(ws: list[int], wp: list[int]) -> tuple[list[int], list[int]]:
     z = sorted(zip(wp, ws), key=lambda x: x[0], reverse=True)
     wp2, ws2 = zip(*z)
     return list(ws2), list(wp2)
 
-def egtb_block_unpack(side: int, n: int, bp: bytes) -> List[int]:
+def egtb_block_unpack(side: int, n: int, bp: bytes) -> list[int]:
     return [dtm_unpack(side, i) for i in bp[:n]]
 
-def split_index(i: int) -> Tuple[int, int]:
+def split_index(i: int) -> tuple[int, int]:
     return divmod(i, ENTRIES_PER_BLOCK)
 
 
@@ -1359,7 +1359,7 @@ iBMATEt = tb_BMATE | 4
 def opp(side: int) -> int:
     return 1 if side == 0 else 0
 
-def unpackdist(d: int) -> Tuple[int, int]:
+def unpackdist(d: int) -> tuple[int, int]:
     return d >> PLYSHIFT, d & INFOMASK
 
 def dtm_unpack(stm: int, packed: int) -> int:
@@ -1433,7 +1433,7 @@ class MissingTableError(KeyError):
 
 
 class TableBlock:
-    pcache: List[int]
+    pcache: list[int]
 
     def __init__(self, egkey: str, side: int, offset: int, age: int):
         self.egkey = egkey
@@ -1444,13 +1444,13 @@ class TableBlock:
 
 class Request:
     egkey: str
-    white_piece_squares: List[int]
-    white_piece_types: List[int]
-    black_piece_squares: List[int]
-    black_piece_types: List[int]
+    white_piece_squares: list[int]
+    white_piece_types: list[int]
+    black_piece_squares: list[int]
+    black_piece_types: list[int]
     is_reversed: bool
 
-    def __init__(self, white_squares: List[int], white_types: List[chess.PieceType], black_squares: List[int], black_types: List[chess.PieceType], side: int):
+    def __init__(self, white_squares: list[int], white_types: list[chess.PieceType], black_squares: list[int], black_types: list[chess.PieceType], side: int):
         self.white_squares, self.white_types = sortlists(white_squares, white_types)
         self.black_squares, self.black_types = sortlists(black_squares, black_types)
         self.realside = side
@@ -1461,19 +1461,19 @@ class Request:
 class ZipInfo:
     extraoffset: int
     totalblocks: int
-    blockindex: List[int]
+    blockindex: list[int]
 
 
 class PythonTablebase:
     """Provides access to Gaviota tablebases using pure Python code."""
 
     def __init__(self) -> None:
-        self.available_tables: Dict[str, str] = {}
+        self.available_tables: dict[str, str] = {}
 
-        self.streams: Dict[str, BinaryIO] = {}
-        self.zipinfo: Dict[str, ZipInfo] = {}
+        self.streams: dict[str, BinaryIO] = {}
+        self.zipinfo: dict[str, ZipInfo] = {}
 
-        self.block_cache: Dict[Tuple[str, int, int], TableBlock] = {}
+        self.block_cache: dict[tuple[str, int, int], TableBlock] = {}
         self.block_age = 0
 
     def add_directory(self, directory: str) -> None:
@@ -1789,7 +1789,7 @@ class PythonTablebase:
     def __enter__(self) -> PythonTablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 
@@ -1800,7 +1800,7 @@ class NativeTablebase:
     """
 
     def __init__(self, libgtb: ctypes.CDLL) -> None:
-        self.paths: List[str] = []
+        self.paths: list[str] = []
 
         self.libgtb = libgtb
         self.libgtb.tb_init.restype = ctypes.c_char_p
@@ -1952,7 +1952,7 @@ class NativeTablebase:
     def __enter__(self) -> NativeTablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         self.close()
 
 

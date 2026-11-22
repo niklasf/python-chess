@@ -4,7 +4,8 @@ import chess
 import itertools
 import typing
 
-from typing import Dict, Generic, Hashable, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Generic, Optional, TypeVar, Union
+from collections.abc import Hashable, Iterable, Iterator
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
@@ -694,7 +695,7 @@ class ThreeCheckBoard(chess.Board):
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
         self.remaining_checks = [3, 3]
-        self._three_check_stack: List[_ThreeCheckBoardState] = []
+        self._three_check_stack: list[_ThreeCheckBoardState] = []
         super().__init__(fen, chess960=chess960)
 
     def clear_stack(self) -> None:
@@ -726,7 +727,7 @@ class ThreeCheckBoard(chess.Board):
         # Any remaining piece can give check.
         return not (self.occupied_co[color] & ~self.kings)
 
-    def set_epd(self, epd: str) -> Dict[str, Union[None, str, int, float, chess.Move, List[chess.Move]]]:
+    def set_epd(self, epd: str) -> dict[str, Union[None, str, int, float, chess.Move, list[chess.Move]]]:
         parts = epd.strip().rstrip(";").split(None, 5)
 
         # Parse ops.
@@ -883,7 +884,7 @@ class CrazyhouseBoard(chess.Board):
 
     def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
         self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
-        self._crazyhouse_stack: List[_CrazyhouseBoardState] = []
+        self._crazyhouse_stack: list[_CrazyhouseBoardState] = []
         super().__init__(fen, chess960=chess960)
 
     def clear_stack(self) -> None:
@@ -1079,7 +1080,7 @@ class CrazyhouseBoard(chess.Board):
         return status
 
 
-VARIANTS: List[Type[chess.Board]] = [
+VARIANTS: list[type[chess.Board]] = [
     chess.Board,
     SuicideBoard, GiveawayBoard, AntichessBoard,
     AtomicBoard,
@@ -1091,7 +1092,7 @@ VARIANTS: List[Type[chess.Board]] = [
 ]
 
 
-def find_variant(name: str) -> Type[chess.Board]:
+def find_variant(name: str) -> type[chess.Board]:
     """
     Looks for a variant board class by variant name. Supports many common
     aliases.
