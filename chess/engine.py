@@ -1227,7 +1227,8 @@ class BaseCommand(Generic[T]):
         if self.state == CommandState.NEW:
             self.state = CommandState.DONE
             self.result.cancel()
-            self.finished.set_result(None)
+            if not self.finished.done():
+                self.finished.set_result(None)
             self._dispatch_finished()
         elif self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
             assert self.state == CommandState.ACTIVE, self.state

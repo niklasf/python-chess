@@ -3611,12 +3611,10 @@ class EngineTestCase(unittest.TestCase):
             board.push_uci("e2e4")
             replacement = asyncio.create_task(protocol.analysis(board))
             await asyncio.sleep(0)
-            if replacement.done():
-                await replacement
             mock.expect("position startpos moves e2e4")
             mock.expect("go infinite")
             protocol.pipe_data_received(1, b"bestmove e2e4\n")
-            result = await asyncio.wait_for(replacement, 1)
+            second = await asyncio.wait_for(replacement, 1)
             with self.assertRaises(asyncio.CancelledError):
                 await pending
             self.assertTrue(queued.finished.done())
@@ -3624,8 +3622,8 @@ class EngineTestCase(unittest.TestCase):
             self.assertEqual((await first.wait()).move, chess.Move.from_uci("e2e4"))
 
             mock.expect("stop", ["bestmove e7e5"])
-            result.stop()
-            await result.wait()
+            second.stop()
+            await second.wait()
             mock.expect("isready", ["readyok"])
             await protocol.ping()
             mock.assert_done()
