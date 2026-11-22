@@ -163,6 +163,27 @@ class SquareTestCase(unittest.TestCase):
                 self.assertEqual(chess.BB_SQUARES[square_flip(square)], flip(chess.BB_SQUARES[square]))
                 self.assertEqual(square_flip(square_flip(square)), square)
 
+    def test_square_rotate(self):
+        self.assertEqual(chess.square_rotate_90(chess.A1), chess.A8)
+        self.assertEqual(chess.square_rotate_90(chess.A3), chess.C8)
+        self.assertEqual(chess.square_rotate_180(chess.A1), chess.H8)
+        self.assertEqual(chess.square_rotate_180(chess.A3), chess.H6)
+        self.assertEqual(chess.square_rotate_270(chess.A1), chess.H1)
+        self.assertEqual(chess.square_rotate_270(chess.A3), chess.F1)
+
+        for square_rotate, rotate in [
+            (chess.square_rotate_90, chess.rotate_90),
+            (chess.square_rotate_180, chess.rotate_180),
+            (chess.square_rotate_270, chess.rotate_270),
+        ]:
+            for square in chess.SQUARES:
+                self.assertEqual(chess.BB_SQUARES[square_rotate(square)], rotate(chess.BB_SQUARES[square]))
+
+        for square in chess.SQUARES:
+            self.assertEqual(chess.square_rotate_90(chess.square_rotate_90(square)), chess.square_rotate_180(square))
+            self.assertEqual(chess.square_rotate_90(chess.square_rotate_270(square)), square)
+            self.assertEqual(chess.square_rotate_180(chess.square_rotate_180(square)), square)
+
     def test_square_mirror(self):
         for square in chess.SQUARES:
             self.assertEqual(chess.square_mirror(square), chess.square_flip_vertical(square))
@@ -2011,6 +2032,16 @@ class SquareSetTestCase(unittest.TestCase):
         self.assertEqual(chess.flip_diagonal(s), 0x0000_6192_8c88_ff00)
         self.assertEqual(chess.flip_anti_diagonal(s), 0x00ff_1131_4986_0000)
 
+    def test_rotate(self):
+        self.assertEqual(chess.rotate_90(chess.BB_ALL), chess.BB_ALL)
+        self.assertEqual(chess.rotate_180(chess.BB_ALL), chess.BB_ALL)
+        self.assertEqual(chess.rotate_270(chess.BB_ALL), chess.BB_ALL)
+
+        s = chess.SquareSet(0x1e22_2212_0e0a_1222)  # Letter R
+        self.assertEqual(chess.rotate_90(s), 0x00ff_888c_9261_0000)
+        self.assertEqual(chess.rotate_180(s), 0x4448_5070_4844_4478)
+        self.assertEqual(chess.rotate_270(s), 0x0000_8649_3111_ff00)
+
     def test_len_of_complenent(self):
         squares = chess.SquareSet(~chess.BB_ALL)
         self.assertEqual(len(squares), 0)
@@ -2029,7 +2060,7 @@ class SquareSetTestCase(unittest.TestCase):
     def test_flip_ducktyping(self):
         bb = 0x1e22_2212_0e0a_1222
         squares = chess.SquareSet(bb)
-        for f in [chess.flip_vertical, chess.flip_horizontal, chess.flip_diagonal, chess.flip_anti_diagonal]:
+        for f in [chess.flip_vertical, chess.flip_horizontal, chess.flip_diagonal, chess.flip_anti_diagonal, chess.rotate_90, chess.rotate_180, chess.rotate_270]:
             self.assertEqual(int(f(squares)), f(bb))
             self.assertEqual(int(squares), bb)  # Not mutated
 

@@ -371,6 +371,30 @@ def square_flip_anti_diagonal(square: Square) -> Square:
     """
     return square_flip_diagonal(square) ^ 0x3f
 
+def square_rotate_90(square: Square) -> Square:
+    """
+    Rotates the square 90 degrees clockwise, e.g., a1 → a8 → h8 → h1 → a1.
+
+    Square-level counterpart of :func:`chess.rotate_90()`.
+    """
+    return square_flip_diagonal(square) ^ 0x38
+
+def square_rotate_180(square: Square) -> Square:
+    """
+    Rotates the square 180 degrees, e.g., a1 ↔ h8.
+
+    Square-level counterpart of :func:`chess.rotate_180()`.
+    """
+    return square ^ 0x3f
+
+def square_rotate_270(square: Square) -> Square:
+    """
+    Rotates the square 270 degrees clockwise, e.g., a1 → h1 → h8 → a8 → a1.
+
+    Square-level counterpart of :func:`chess.rotate_270()`.
+    """
+    return square_flip_diagonal(square) ^ 0x07
+
 def square_mirror(square: Square) -> Square:
     """
     Mirrors the square vertically, e.g., a1 ↔ a8.
@@ -503,6 +527,7 @@ def scan_reversed(bb: Bitboard) -> Iterator[Square]:
 popcount: Callable[[Bitboard], int] = int.bit_count
 
 def flip_vertical(bb: Bitboard) -> Bitboard:
+    """Flips the bitboard vertically, e.g., a1 ↔ a8."""
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
     bb = ((bb >> 8) & 0x00ff_00ff_00ff_00ff) | ((bb & 0x00ff_00ff_00ff_00ff) << 8)
     bb = ((bb >> 16) & 0x0000_ffff_0000_ffff) | ((bb & 0x0000_ffff_0000_ffff) << 16)
@@ -510,6 +535,7 @@ def flip_vertical(bb: Bitboard) -> Bitboard:
     return bb
 
 def flip_horizontal(bb: Bitboard) -> Bitboard:
+    """Flips the bitboard horizontally, e.g., a1 ↔ h1."""
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#MirrorHorizontally
     bb = ((bb >> 1) & 0x5555_5555_5555_5555) | ((bb & 0x5555_5555_5555_5555) << 1)
     bb = ((bb >> 2) & 0x3333_3333_3333_3333) | ((bb & 0x3333_3333_3333_3333) << 2)
@@ -517,6 +543,7 @@ def flip_horizontal(bb: Bitboard) -> Bitboard:
     return bb
 
 def flip_diagonal(bb: Bitboard) -> Bitboard:
+    """Flips the bitboard about the a1-h8 diagonal, e.g., a8 ↔ h1."""
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheDiagonal
     t = (bb ^ (bb << 28)) & 0x0f0f_0f0f_0000_0000
     bb = bb ^ t ^ (t >> 28)
@@ -527,6 +554,7 @@ def flip_diagonal(bb: Bitboard) -> Bitboard:
     return bb
 
 def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
+    """Flips the bitboard about the a8-h1 antidiagonal, e.g., a1 ↔ h8."""
     # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipabouttheAntidiagonal
     t = bb ^ (bb << 36)
     bb = bb ^ ((t ^ (bb >> 36)) & 0xf0f0_f0f0_0f0f_0f0f)
@@ -536,41 +564,65 @@ def flip_anti_diagonal(bb: Bitboard) -> Bitboard:
     bb = bb ^ t ^ (t >> 9)
     return bb
 
+def rotate_90(bb: Bitboard) -> Bitboard:
+    """Rotates the bitboard 90 degrees clockwise, e.g., a1 → a8 → h8 → h1 → a1."""
+    return flip_vertical(flip_diagonal(bb))
+
+def rotate_180(bb: Bitboard) -> Bitboard:
+    """Rotates the bitboard 180 degrees, e.g., a1 ↔ h8."""
+    return flip_vertical(flip_horizontal(bb))
+
+def rotate_270(bb: Bitboard) -> Bitboard:
+    """Rotates the bitboard 270 degrees clockwise, e.g., a1 → h1 → h8 → a8 → a1."""
+    return flip_diagonal(flip_vertical(bb))
+
 
 def shift_down(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one rank down, e.g., a2 → a1. Squares shifted off the board are discarded."""
     return b >> 8
 
 def shift_2_down(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard two ranks down, e.g., a3 → a1. Squares shifted off the board are discarded."""
     return b >> 16
 
 def shift_up(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one rank up, e.g., a1 → a2. Squares shifted off the board are discarded."""
     return (b << 8) & BB_ALL
 
 def shift_2_up(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard two ranks up, e.g., a1 → a3. Squares shifted off the board are discarded."""
     return (b << 16) & BB_ALL
 
 def shift_right(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one file right, e.g., a1 → b1. Squares shifted off the board are discarded."""
     return (b << 1) & ~BB_FILE_A & BB_ALL
 
 def shift_2_right(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard two files right, e.g., a1 → c1. Squares shifted off the board are discarded."""
     return (b << 2) & ~BB_FILE_A & ~BB_FILE_B & BB_ALL
 
 def shift_left(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one file left, e.g., b1 → a1. Squares shifted off the board are discarded."""
     return (b >> 1) & ~BB_FILE_H
 
 def shift_2_left(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard two files left, e.g., c1 → a1. Squares shifted off the board are discarded."""
     return (b >> 2) & ~BB_FILE_G & ~BB_FILE_H
 
 def shift_up_left(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one square up and left, e.g., b1 → a2. Squares shifted off the board are discarded."""
     return (b << 7) & ~BB_FILE_H & BB_ALL
 
 def shift_up_right(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one square up and right, e.g., a1 → b2. Squares shifted off the board are discarded."""
     return (b << 9) & ~BB_FILE_A & BB_ALL
 
 def shift_down_left(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one square down and left, e.g., b2 → a1. Squares shifted off the board are discarded."""
     return (b >> 9) & ~BB_FILE_H
 
 def shift_down_right(b: Bitboard) -> Bitboard:
+    """Shifts the bitboard one square down and right, e.g., a2 → b1. Squares shifted off the board are discarded."""
     return (b >> 7) & ~BB_FILE_A
 
 
@@ -1554,6 +1606,10 @@ class BaseBoard:
             return NotImplemented
 
     def apply_transform(self, f: Callable[[Bitboard], Bitboard]) -> None:
+        """
+        Applies a bitboard transformation function to the board in place.
+        See :func:`~chess.BaseBoard.transform()`.
+        """
         self.pawns = f(self.pawns)
         self.knights = f(self.knights)
         self.bishops = f(self.bishops)
@@ -1573,7 +1629,9 @@ class BaseBoard:
 
         Available transformations include :func:`chess.flip_vertical()`,
         :func:`chess.flip_horizontal()`, :func:`chess.flip_diagonal()`,
-        :func:`chess.flip_anti_diagonal()`, :func:`chess.shift_down()`,
+        :func:`chess.flip_anti_diagonal()`, :func:`chess.rotate_90()`,
+        :func:`chess.rotate_180()`, :func:`chess.rotate_270()`,
+        :func:`chess.shift_down()`,
         :func:`chess.shift_up()`, :func:`chess.shift_left()`, and
         :func:`chess.shift_right()`.
 
@@ -1585,6 +1643,10 @@ class BaseBoard:
         return board
 
     def apply_mirror(self) -> None:
+        """
+        Mirrors the board vertically and swaps piece colors in place.
+        See :func:`~chess.BaseBoard.mirror()`.
+        """
         self.apply_transform(flip_vertical)
         self.occupied_co[WHITE], self.occupied_co[BLACK] = self.occupied_co[BLACK], self.occupied_co[WHITE]
 
@@ -3986,6 +4048,11 @@ class Board(BaseBoard):
         return board
 
     def apply_mirror(self) -> None:
+        """
+        Mirrors the board vertically, swaps piece colors, and also swaps the
+        "en passant" square, castling rights and turn in place. Clears the move
+        stack. See :func:`~chess.Board.mirror()`.
+        """
         super().apply_mirror()
         self.turn = not self.turn
 

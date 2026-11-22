@@ -97,6 +97,12 @@ and so on to
 
 .. autofunction:: chess.square_flip_anti_diagonal
 
+.. autofunction:: chess.square_rotate_90
+
+.. autofunction:: chess.square_rotate_180
+
+.. autofunction:: chess.square_rotate_270
+
 .. autofunction:: chess.square_mirror
 
 Pieces
@@ -179,3 +185,43 @@ Other masks:
     :value: chess.BB_A1 | chess.BB_H1 | chess.BB_A8 | chess.BB_H8
 .. py:data:: chess.BB_CENTER
     :value: chess.BB_D4 | chess.BB_E4 | chess.BB_D5 | chess.BB_E5
+
+Bitboard transformations, also usable with :func:`chess.BaseBoard.transform()`:
+
+.. autofunction:: chess.flip_vertical
+
+.. autofunction:: chess.flip_horizontal
+
+.. autofunction:: chess.flip_diagonal
+
+.. autofunction:: chess.flip_anti_diagonal
+
+.. autofunction:: chess.rotate_90
+
+.. autofunction:: chess.rotate_180
+
+.. autofunction:: chess.rotate_270
+
+.. autofunction:: chess.shift_down
+
+.. autofunction:: chess.shift_2_down
+
+.. autofunction:: chess.shift_up
+
+.. autofunction:: chess.shift_2_up
+
+.. autofunction:: chess.shift_right
+
+.. autofunction:: chess.shift_2_right
+
+.. autofunction:: chess.shift_left
+
+.. autofunction:: chess.shift_2_left
+
+.. autofunction:: chess.shift_up_left
+
+.. autofunction:: chess.shift_up_right
+
+.. autofunction:: chess.shift_down_left
+
+.. autofunction:: chess.shift_down_right
