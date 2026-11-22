@@ -329,6 +329,7 @@ class Opponent:
     """Whether the opponent is a chess engine/computer program."""
 
 
+@dataclasses.dataclass(frozen=True, eq=False, slots=True)
 class PovScore:
     """A relative :class:`~chess.engine.Score` and the point of view."""
 
@@ -337,10 +338,6 @@ class PovScore:
 
     turn: Color
     """The point of view (``chess.WHITE`` or ``chess.BLACK``)."""
-
-    def __init__(self, relative: Score, turn: Color) -> None:
-        self.relative = relative
-        self.turn = turn
 
     def white(self) -> Score:
         """Gets the score from White's point of view."""
@@ -371,6 +368,9 @@ class PovScore:
         else:
             return NotImplemented
 
+    def __hash__(self) -> int:
+        return hash(self.white())
+
 
 class Score(abc.ABC):
     """
@@ -398,6 +398,8 @@ class Score(abc.ABC):
     >>> -Mate(0)
     MateGiven
     """
+
+    __slots__ = ()
 
     @typing.overload
     @abc.abstractmethod
@@ -507,6 +509,9 @@ class Score(abc.ABC):
             return self._score_tuple() == other._score_tuple()
         else:
             return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self._score_tuple())
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, Score):
@@ -628,11 +633,12 @@ def _lichess_raw_wins(cp: int) -> int:
     return round(1000 / (1 + math.exp(-0.00368208 * cp)))
 
 
+@dataclasses.dataclass(frozen=True, eq=False, slots=True)
 class Cp(Score):
     """Centi-pawn score."""
 
-    def __init__(self, cp: int) -> None:
-        self.cp = cp
+    cp: int
+    """The score in centi-pawns."""
 
     def mate(self) -> None:
         return None
@@ -693,11 +699,16 @@ class Cp(Score):
         return Cp(abs(self.cp))
 
 
+@dataclasses.dataclass(frozen=True, eq=False, slots=True)
 class Mate(Score):
     """Mate score."""
 
-    def __init__(self, moves: int) -> None:
-        self.moves = moves
+    moves: int
+    """
+    The number of moves to mate. Positive if the side to move is
+    delivering mate, positive if it is getting mated (``0`` if it is
+    already checkmated).
+    """
 
     def mate(self) -> int:
         return self.moves
@@ -741,6 +752,11 @@ class Mate(Score):
 class MateGivenType(Score):
     """Winning mate score, equivalent to ``-Mate(0)``."""
 
+    __slots__ = ()
+
+    def __reduce__(self) -> str:
+        return "MateGiven"
+
     def mate(self) -> int:
         return 0
 
@@ -772,7 +788,7 @@ class MateGivenType(Score):
 MateGiven = MateGivenType()
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class PovWdl:
     """
     Relative :class:`win/draw/loss statistics <chess.engine.Wdl>` and the point
@@ -807,7 +823,7 @@ class PovWdl:
         return "PovWdl({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Wdl:
     """Win/draw/loss statistics."""
 
