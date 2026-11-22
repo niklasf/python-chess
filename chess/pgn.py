@@ -134,7 +134,7 @@ ARROWS_REGEX = re.compile(r"""
     """, re.VERBOSE)
 
 TIME_CONTROL_PART_REGEX = re.compile(r"""
-    (?:(?P<moves>[0-9]+)/)?
+    (?:(?P<moves>[1-9][0-9]*)/)?
     (?P<time>[0-9]+)
     (?:\+(?P<bonus>[0-9]+(?:\.[0-9]+)?)(?P<delay>[dD])?)?
     """, re.VERBOSE)
@@ -166,29 +166,46 @@ ResultT = TypeVar("ResultT", covariant=True)
 
 @dataclasses.dataclass
 class TimeControlPart:
-    moves: int = 0
+    """A period of a :class:`~chess.pgn.TimeControl`."""
+
+    moves: int | None = None
+    """
+    Number of moves to be played in this period, or ``None`` for the rest
+    of the game (sudden death).
+    """
+
     time: int = 0
+    """Time for the period in seconds."""
+
     increment: float = 0
+    """Seconds (possibly fractional) added after each move."""
+
     delay: float = 0
+    """
+    Seconds (possibly fractional) of delay before the clock starts running
+    on each move. Not part of the PGN standard, but commonly written as
+    ``+5d``.
+    """
 
 
 @dataclasses.dataclass
 class TimeControl:
     """
-    PGN TimeControl Parser
-    Spec: http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm#c9.6
+    A time control, as given in the ``TimeControl`` header of a PGN.
 
-    Not Yet Implemented:
-    - Hourglass/Sandclock ('*' prefix)
-    - Differentiating between Bronstein and Simple Delay (Not part of the PGN Spec)
-      - More Info: https://en.wikipedia.org/wiki/Chess_clock#Timing_methods
+    Use :func:`~chess.pgn.TimeControl.from_pgn()` and
+    :func:`~chess.pgn.TimeControl.pgn()` to convert from and to the
+    `PGN format <https://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm#c9.6>`_,
+    e.g., ``40/7200:3600+30``.
+
+    Sandclock time controls (like ``*180``) are not supported.
     """
 
     parts: list[TimeControlPart] = dataclasses.field(default_factory=list)
     """The periods of the time control. Empty for no time limit."""
 
     @classmethod
-    def from_pgn(cls, time_control: str) -> Self:
+    def from_pgn(cls, pgn: str) -> Self:
         """
         Parses a PGN ``TimeControl`` header value.
 
@@ -199,16 +216,16 @@ class TimeControl:
         """
         tc = cls()
 
-        if time_control == "-":
+        if pgn == "-":
             return tc
 
-        for text in time_control.split(":"):
+        for text in pgn.split(":"):
             match = TIME_CONTROL_PART_REGEX.fullmatch(text)
             if not match:
-                raise ValueError(f"invalid time control: {time_control!r}")
+                raise ValueError(f"invalid time control: {pgn!r}")
 
             part = TimeControlPart(
-                moves=int(match.group("moves") or 0),
+                moves=int(match.group("moves")) if match.group("moves") else None,
                 time=int(match.group("time")))
             if match.group("bonus"):
                 if match.group("delay"):
@@ -218,8 +235,8 @@ class TimeControl:
             tc.parts.append(part)
 
         for part in tc.parts[:-1]:
-            if part.moves == 0:
-                raise ValueError(f"only last part of time control can be sudden death: {time_control!r}")
+            if part.moves is None:
+                raise ValueError(f"only last part of time control can be sudden death: {pgn!r}")
 
         return tc
 
@@ -237,7 +254,7 @@ class TimeControl:
             return "-"
 
         for part in self.parts[:-1]:
-            if part.moves == 0:
+            if part.moves is None:
                 raise ValueError(f"only last part of time control can be sudden death: {self!r}")
 
         def _format_seconds(seconds: float) -> str:
@@ -246,7 +263,7 @@ class TimeControl:
         def _format_part(part: TimeControlPart) -> str:
             if part.increment and part.delay:
                 raise ValueError(f"time control part cannot have both increment and delay: {part!r}")
-            text = f"{part.moves}/{part.time}" if part.moves else f"{part.time}"
+            text = f"{part.time}" if part.moves is None else f"{part.moves}/{part.time}"
             if part.increment:
                 text += f"+{_format_seconds(part.increment)}"
             elif part.delay:

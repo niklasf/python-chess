@@ -2842,7 +2842,7 @@ class PgnTestCase(unittest.TestCase):
 
             self.assertEqual(tcp1, chess.pgn.TimeControlPart(40, 7200))
             self.assertEqual(tcp2, chess.pgn.TimeControlPart(20, 3600))
-            self.assertEqual(tcp3, chess.pgn.TimeControlPart(0, 900, 30))
+            self.assertEqual(tcp3, chess.pgn.TimeControlPart(time=900, increment=30))
 
         with self.assertRaises(ValueError):
             chess.pgn.TimeControl.from_pgn("300+a")
@@ -2859,11 +2859,13 @@ class PgnTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             chess.pgn.TimeControl.from_pgn("40/abc")
 
-        for invalid in ["1/2/3", "300+1+2", "300+inf", "300+nand", "300+-2", "-300", "3_00", "+300", "300+.5", "300:", "40/300::60", " 300", "?300", "-1", "*60", "", "?"]:
+        for invalid in ["1/2/3", "300+1+2", "300+inf", "300+nand", "300+-2", "-300", "3_00", "+300", "300+.5", "300:", "40/300::60", " 300", "?300", "-1", "*60", "", "?", "0/300", "040/300"]:
             with self.assertRaises(ValueError, msg=invalid):
                 chess.pgn.TimeControl.from_pgn(invalid)
 
         self.assertEqual(chess.pgn.TimeControl.from_pgn("300+5D").parts[0].delay, 5)
+        self.assertIsNone(chess.pgn.TimeControl.from_pgn("300").parts[0].moves)
+        self.assertEqual(chess.pgn.TimeControl.from_pgn("1/300:300").parts[0].moves, 1)
 
     def test_time_control_pgn(self):
         for header in ["40/7200:20/3600:900+30", "300+2", "180+0.5", "5400+30d", "1800", "-"]:
