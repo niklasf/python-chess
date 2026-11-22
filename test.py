@@ -563,7 +563,7 @@ class BoardTestCase(unittest.TestCase):
     def test_invalid_castling_rights(self):
         # KQkq is not valid in this standard chess position.
         board = chess.Board("1r2k3/8/8/8/8/8/8/R3KR2 w KQkq - 0 1")
-        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
         self.assertEqual(board.fen(), "1r2k3/8/8/8/8/8/8/R3KR2 w Q - 0 1")
         self.assertTrue(board.has_queenside_castling_rights(chess.WHITE))
         self.assertFalse(board.has_kingside_castling_rights(chess.WHITE))
@@ -571,11 +571,11 @@ class BoardTestCase(unittest.TestCase):
         self.assertFalse(board.has_kingside_castling_rights(chess.BLACK))
 
         board = chess.Board("4k2r/8/8/8/8/8/8/R1K5 w KQkq - 0 1", chess960=True)
-        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
         self.assertEqual(board.fen(), "4k2r/8/8/8/8/8/8/R1K5 w Qk - 0 1")
 
         board = chess.Board("1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQkq - 0 1", chess960=True)
-        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
         self.assertEqual(board.fen(), "1r2k3/8/1p6/8/8/5P2/8/1R2KR2 w KQq - 0 1")
 
     def test_ninesixty_different_king_and_rook_file(self):
@@ -1072,10 +1072,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertTrue(board.is_valid())
 
         board.remove_piece_at(chess.H1)
-        self.assertTrue(board.status() & chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertTrue(board.status() & chess.STATUS_INVALID_CASTLING_RIGHTS)
 
         board.remove_piece_at(chess.E8)
-        self.assertTrue(board.status() & chess.STATUS_NO_BLACK_KING)
+        self.assertTrue(board.status() & chess.STATUS_MISSING_KING)
 
         # The en passant square should be set even if no capture is actually
         # possible.
@@ -1090,14 +1090,14 @@ class BoardTestCase(unittest.TestCase):
 
         # King must be between the two rooks.
         board = chess.Board("2rrk3/8/8/8/8/8/3PPPPP/2RK4 w cd - 0 1")
-        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
 
         # Generally valid position, but not valid standard chess position due
         # to non-standard castling rights. Chess960 start position #0.
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=True)
         self.assertEqual(board.status(), chess.STATUS_VALID)
         board = chess.Board("bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1", chess960=False)
-        self.assertEqual(board.status(), chess.STATUS_BAD_CASTLING_RIGHTS)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
 
         # Opposite check.
         board = chess.Board("4k3/8/8/8/8/8/4Q3/4K3 w - - 0 1")
@@ -1105,15 +1105,15 @@ class BoardTestCase(unittest.TestCase):
 
         # Empty board.
         board = chess.Board(None)
-        self.assertEqual(board.status(), chess.STATUS_EMPTY | chess.STATUS_NO_WHITE_KING | chess.STATUS_NO_BLACK_KING)
+        self.assertEqual(board.status(), chess.STATUS_EMPTY_BOARD | chess.STATUS_MISSING_KING)
 
         # Too many kings.
-        board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1")
-        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS)
+        board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w kq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS | chess.STATUS_TOO_MUCH_MATERIAL)
 
         # Triple check.
         board = chess.Board("4k3/5P2/3N4/8/8/8/4R3/4K3 b - - 0 1")
-        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_CHECKERS | chess.STATUS_IMPOSSIBLE_CHECK)
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
 
         # Impossible checker alignment.
         board = chess.Board("3R4/8/q4k2/2B5/1NK5/3b4/8/8 w - - 0 1")
@@ -1132,6 +1132,27 @@ class BoardTestCase(unittest.TestCase):
         # Multiple stepping checkers.
         board = chess.Board("8/8/N7/2k5/N7/8/8/3K4 b - - 0 1")
         self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
+
+        # Too much material.
+        board = chess.Board("4k3/8/8/8/8/8/PPPPPPPP/QQQ1K3 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
+        board = chess.Board("4k3/8/8/8/8/8/PPPPPPPP/B1B1KB2 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
+        board = chess.Board("4k3/8/8/8/8/8/PPPPPPP1/QQ2K3 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Two kings of the same color, the other missing.
+        board = chess.Board("8/8/8/8/8/8/8/K6K w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_MISSING_KING | chess.STATUS_TOO_MANY_KINGS)
+
+        # No castling rights with multiple kings.
+        board = chess.Board("4k3/8/8/8/8/8/8/R3K1KR w K - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS | chess.STATUS_INVALID_CASTLING_RIGHTS)
+
+        # Castling right without rook.
+        board = chess.Board("4k3/8/8/8/8/8/8/4K3 w Q - 0 1")
+        self.assertEqual(board.castling_rights, chess.BB_A1)
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
 
     def test_one_king_movegen(self):
         board = chess.Board.empty()
@@ -4962,8 +4983,28 @@ class AntichessTestCase(unittest.TestCase):
         self.assertTrue(board.is_variant_end())
         self.assertEqual(board.outcome(), chess.Outcome(chess.Termination.VARIANT_WIN, chess.WHITE))
 
+    def test_status(self):
+        # No castling in antichess.
+        board = chess.variant.AntichessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_INVALID_CASTLING_RIGHTS)
+
+        # Every king beyond the first must have been promoted from a pawn.
+        board = chess.variant.AntichessBoard("4k3/8/8/8/8/K7/PPPPPPPP/RNBKKBNR w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
+        board = chess.variant.AntichessBoard("4k3/8/8/8/8/8/8/KKKKKKKK w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Checks do not matter.
+        board = chess.variant.AntichessBoard("8/8/8/8/8/1n1n4/8/2K5 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
 
 class SuicideTestCase(unittest.TestCase):
+
+    def test_status(self):
+        # Castling is allowed in suicide chess.
+        board = chess.variant.SuicideBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
 
     def test_parse_san(self):
         board = chess.variant.SuicideBoard()
@@ -5033,6 +5074,28 @@ class SuicideTestCase(unittest.TestCase):
 
 
 class AtomicTestCase(unittest.TestCase):
+
+    def test_status(self):
+        # Opposite check.
+        board = chess.variant.AtomicBoard("k7/8/8/8/8/8/8/R3K3 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_OPPOSITE_CHECK)
+
+        # Connected kings are not in check.
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/1k6/R1K5 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Side to move already lost its king.
+        board = chess.variant.AtomicBoard("4k3/8/8/8/8/8/8/R7 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        board = chess.variant.AtomicBoard("4k3/8/8/8/8/8/8/R7 b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_MISSING_KING)
+
+        # Pieces can not give check without their own king.
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/8/r3K3 b - - 0 1")
+        self.assertFalse(board.was_into_check())
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        board = chess.variant.AtomicBoard("8/8/8/8/8/8/8/r3K3 w - - 0 1")
+        self.assertFalse(board.is_check())
 
     def test_atomic_capture(self):
         fen = "rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 3 4"
@@ -5173,7 +5236,8 @@ class AtomicTestCase(unittest.TestCase):
 
     def test_atomic_validity(self):
         # 14 checkers, the maximum in Atomic chess.
-        board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 w - - 0 1")
+        board = chess.variant.AtomicBoard("3N1NB1/2N1Q1N1/3RkR2/2NP1PN1/3NKN2/8/8/n7 b - - 0 1")
+        self.assertEqual(chess.popcount(board.checkers_mask()), 14)
         self.assertEqual(board.status(), chess.STATUS_VALID)
 
         # Multiple stepping checkers possible, because opponent king may have
@@ -5293,14 +5357,14 @@ class RacingKingsTestCase(unittest.TestCase):
         # This position with black to move and both kings on the backrank is
         # invalid because the race should have been over already.
         board = chess.variant.RacingKingsBoard("3krQK1/8/8/8/1q6/3B1N2/1b6/1R4R1 b - - 0 0")
-        self.assertEqual(board.status(), chess.STATUS_RACE_OVER)
+        self.assertEqual(board.status(), chess.STATUS_VARIANT)
 
     def test_race_material(self):
         board = chess.variant.RacingKingsBoard()
 
         # Switch color of the black rook.
         board.set_piece_at(chess.B1, chess.Piece.from_symbol("R"))
-        self.assertEqual(board.status(), chess.STATUS_RACE_MATERIAL)
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
 
     def test_legal_moves_after_end(self):
         board = chess.variant.RacingKingsBoard("1k5b/5b2/8/8/8/8/3N3K/N4B2 w - - 0 1")
@@ -5312,7 +5376,7 @@ class RacingKingsTestCase(unittest.TestCase):
     def test_racing_kings_status_with_check(self):
         board = chess.variant.RacingKingsBoard("8/8/8/8/R7/8/krbnNB1K/qrbnNBRQ b - - 1 1")
         self.assertFalse(board.is_valid())
-        self.assertEqual(board.status(), chess.STATUS_RACE_CHECK | chess.STATUS_TOO_MANY_CHECKERS | chess.STATUS_IMPOSSIBLE_CHECK)
+        self.assertEqual(board.status(), chess.STATUS_IMPOSSIBLE_CHECK)
 
 
 class HordeTestCase(unittest.TestCase):
@@ -5324,6 +5388,24 @@ class HordeTestCase(unittest.TestCase):
         # Black (non-horde) piece on first rank.
         board = chess.variant.HordeBoard("rnb1kbnr/ppp1pppp/2Pp2PP/1P3PPP/PPP1PPPP/PPP1PPPP/PPP1PPP1/PPPqPP2 w kq - 0 1")
         self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Black horde.
+        board = chess.variant.HordeBoard().mirror()
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Exactly one king.
+        board = chess.variant.HordeBoard("4k3/8/8/8/8/8/8/4K3 w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS)
+        board = chess.variant.HordeBoard("8/8/8/8/8/8/8/PPPPPPPP b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_MISSING_KING)
+
+        # Horde pawns can not be on the promotion rank.
+        board = chess.variant.HordeBoard("1P2k3/8/8/8/8/8/8/PPPPPPPP b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_PAWNS_ON_BACKRANK)
+
+        # Too many horde pieces.
+        board = chess.variant.HordeBoard("4k3/8/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP/8 b - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
 
     def test_double_pawn_push(self):
         board = chess.variant.HordeBoard("8/8/8/8/8/3k1p2/8/PPPPPPPP w - - 0 1")
@@ -5343,6 +5425,12 @@ class HordeTestCase(unittest.TestCase):
 
 
 class ThreeCheckTestCase(unittest.TestCase):
+
+    def test_status(self):
+        board = chess.variant.ThreeCheckBoard("4k3/8/8/8/8/8/8/4K3 w - - 0+1 1 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        board = chess.variant.ThreeCheckBoard("4k3/8/8/8/8/8/8/4K3 w - - 0+0 1 1")
+        self.assertEqual(board.status(), chess.STATUS_VARIANT)
 
     def test_get_fen(self):
         board = chess.variant.ThreeCheckBoard()
@@ -5440,6 +5528,24 @@ class ThreeCheckTestCase(unittest.TestCase):
 
 
 class CrazyhouseTestCase(unittest.TestCase):
+
+    def test_status(self):
+        board = chess.variant.CrazyhouseBoard()
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+
+        # Too many pieces of a type, counting pockets.
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/8/4K3[QQQ] w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
+
+        # Promoted pieces count as pawns.
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/8/Q~Q~Q~1K3[Q] w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_VALID)
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/PPPPPPPP/Q~Q~Q~1K3[pppppppp] w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MUCH_MATERIAL)
+
+        # No kings in pockets.
+        board = chess.variant.CrazyhouseBoard("4k3/8/8/8/8/8/8/4K3[K] w - - 0 1")
+        self.assertEqual(board.status(), chess.STATUS_TOO_MANY_KINGS)
 
     def test_pawn_drop(self):
         board = chess.variant.CrazyhouseBoard("r2q1rk1/ppp2pp1/1bnp3p/3B4/3PP1b1/4PN2/PP4PP/R2Q1RK1[BNPnp] b - - 0 13")

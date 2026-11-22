@@ -140,6 +140,12 @@ Outcome
 .. autoclass:: chess.Termination
     :members:
 
+Validity
+--------
+
+.. autoclass:: chess.Status
+    :members:
+
 Square sets
 -----------
 

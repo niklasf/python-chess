@@ -94,44 +94,74 @@ STARTING_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 
 class Status(enum.IntFlag):
+    """
+    Bitmask of reasons why a position is invalid. See
+    :func:`chess.Board.status()`.
+    """
+
     VALID = 0
-    NO_WHITE_KING = 1 << 0
-    NO_BLACK_KING = 1 << 1
+    """All basic validity requirements are met."""
+
+    EMPTY_BOARD = 1 << 0
+    """There are no pieces on the board."""
+
+    MISSING_KING = 1 << 1
+    """A king is required but missing."""
+
     TOO_MANY_KINGS = 1 << 2
-    TOO_MANY_WHITE_PAWNS = 1 << 3
-    TOO_MANY_BLACK_PAWNS = 1 << 4
-    PAWNS_ON_BACKRANK = 1 << 5
-    TOO_MANY_WHITE_PIECES = 1 << 6
-    TOO_MANY_BLACK_PIECES = 1 << 7
-    BAD_CASTLING_RIGHTS = 1 << 8
-    INVALID_EP_SQUARE = 1 << 9
-    OPPOSITE_CHECK = 1 << 10
-    EMPTY = 1 << 11
-    RACE_CHECK = 1 << 12
-    RACE_OVER = 1 << 13
-    RACE_MATERIAL = 1 << 14
-    TOO_MANY_CHECKERS = 1 << 15
-    IMPOSSIBLE_CHECK = 1 << 16
-    VARIANT = 1 << 17
+    """A player has too many kings."""
+
+    PAWNS_ON_BACKRANK = 1 << 3
+    """
+    There are pawns on the backrank. Only horde allows players to have pawns
+    on their own backrank.
+    """
+
+    INVALID_CASTLING_RIGHTS = 1 << 4
+    """
+    Some castling rights are invalid. See
+    :func:`chess.Board.clean_castling_rights()`.
+    """
+
+    INVALID_EP_SQUARE = 1 << 5
+    """
+    The en passant square is on the wrong rank, not empty, or the allegedly
+    pushed pawn is not present.
+    """
+
+    OPPOSITE_CHECK = 1 << 6
+    """The player not to move is in check."""
+
+    IMPOSSIBLE_CHECK = 1 << 7
+    """
+    There are impossibly many checkers, two stepping checkers, two sliding
+    checkers are aligned, or check is not possible because the en passant
+    square implies that the last move was a double pawn push.
+    """
+
+    TOO_MUCH_MATERIAL = 1 << 8
+    """
+    The material configuration cannot be reached with any sequence of legal
+    moves, because there is *too much* material.
+
+    Distinguishes light-squared and dark-squared bishops, pockets and promoted
+    pieces in Crazyhouse, and pieces on the board. Does not consider their
+    positions. Does not consider missing pieces in Crazyhouse.
+    """
+
+    VARIANT = 1 << 9
+    """A variant specific rule is violated."""
 
 STATUS_VALID = Status.VALID
-STATUS_NO_WHITE_KING = Status.NO_WHITE_KING
-STATUS_NO_BLACK_KING = Status.NO_BLACK_KING
+STATUS_EMPTY_BOARD = Status.EMPTY_BOARD
+STATUS_MISSING_KING = Status.MISSING_KING
 STATUS_TOO_MANY_KINGS = Status.TOO_MANY_KINGS
-STATUS_TOO_MANY_WHITE_PAWNS = Status.TOO_MANY_WHITE_PAWNS
-STATUS_TOO_MANY_BLACK_PAWNS = Status.TOO_MANY_BLACK_PAWNS
 STATUS_PAWNS_ON_BACKRANK = Status.PAWNS_ON_BACKRANK
-STATUS_TOO_MANY_WHITE_PIECES = Status.TOO_MANY_WHITE_PIECES
-STATUS_TOO_MANY_BLACK_PIECES = Status.TOO_MANY_BLACK_PIECES
-STATUS_BAD_CASTLING_RIGHTS = Status.BAD_CASTLING_RIGHTS
+STATUS_INVALID_CASTLING_RIGHTS = Status.INVALID_CASTLING_RIGHTS
 STATUS_INVALID_EP_SQUARE = Status.INVALID_EP_SQUARE
 STATUS_OPPOSITE_CHECK = Status.OPPOSITE_CHECK
-STATUS_EMPTY = Status.EMPTY
-STATUS_RACE_CHECK = Status.RACE_CHECK
-STATUS_RACE_OVER = Status.RACE_OVER
-STATUS_RACE_MATERIAL = Status.RACE_MATERIAL
-STATUS_TOO_MANY_CHECKERS = Status.TOO_MANY_CHECKERS
 STATUS_IMPOSSIBLE_CHECK = Status.IMPOSSIBLE_CHECK
+STATUS_TOO_MUCH_MATERIAL = Status.TOO_MUCH_MATERIAL
 STATUS_VARIANT = Status.VARIANT
 
 
@@ -2874,7 +2904,7 @@ class Board(BaseBoard):
 
             if flag == "q":
                 # Select the leftmost rook.
-                if king is not None and lsb(rooks) < king:
+                if king is not None and rooks and lsb(rooks) < king:
                     self.castling_rights |= rooks & -rooks
                 else:
                     self.castling_rights |= BB_FILE_A & backrank
@@ -3580,17 +3610,19 @@ class Board(BaseBoard):
             white_castling &= (BB_A1 | BB_H1)
             black_castling &= (BB_A8 | BB_H8)
 
-            # The kings must be on e1 or e8.
-            if not self.occupied_co[WHITE] & self.kings & ~self._effective_promoted() & BB_E1:
+            # There must be a unique king on e1 or e8.
+            if self.king(WHITE) != E1:
                 white_castling = 0
-            if not self.occupied_co[BLACK] & self.kings & ~self._effective_promoted() & BB_E8:
+            if self.king(BLACK) != E8:
                 black_castling = 0
 
             return white_castling | black_castling
         else:
-            # The kings must be on the back rank.
-            white_king_mask = self.occupied_co[WHITE] & self.kings & BB_RANK_1 & ~self._effective_promoted()
-            black_king_mask = self.occupied_co[BLACK] & self.kings & BB_RANK_8 & ~self._effective_promoted()
+            # There must be a unique king on the back rank.
+            white_king = self.king(WHITE)
+            black_king = self.king(BLACK)
+            white_king_mask = BB_SQUARES[white_king] & BB_RANK_1 if white_king is not None else BB_EMPTY
+            black_king_mask = BB_SQUARES[black_king] & BB_RANK_8 if black_king is not None else BB_EMPTY
             if not white_king_mask:
                 white_castling = 0
             if not black_king_mask:
@@ -3697,62 +3729,54 @@ class Board(BaseBoard):
         series of legal moves from the starting position.
 
         Otherwise, bitwise combinations of:
-        :data:`~chess.STATUS_NO_WHITE_KING`,
-        :data:`~chess.STATUS_NO_BLACK_KING`,
+        :data:`~chess.STATUS_EMPTY_BOARD`,
+        :data:`~chess.STATUS_MISSING_KING`,
         :data:`~chess.STATUS_TOO_MANY_KINGS`,
-        :data:`~chess.STATUS_TOO_MANY_WHITE_PAWNS`,
-        :data:`~chess.STATUS_TOO_MANY_BLACK_PAWNS`,
         :data:`~chess.STATUS_PAWNS_ON_BACKRANK`,
-        :data:`~chess.STATUS_TOO_MANY_WHITE_PIECES`,
-        :data:`~chess.STATUS_TOO_MANY_BLACK_PIECES`,
-        :data:`~chess.STATUS_BAD_CASTLING_RIGHTS`,
+        :data:`~chess.STATUS_INVALID_CASTLING_RIGHTS`,
         :data:`~chess.STATUS_INVALID_EP_SQUARE`,
         :data:`~chess.STATUS_OPPOSITE_CHECK`,
-        :data:`~chess.STATUS_EMPTY`,
-        :data:`~chess.STATUS_RACE_CHECK`,
-        :data:`~chess.STATUS_RACE_OVER`,
-        :data:`~chess.STATUS_RACE_MATERIAL`,
-        :data:`~chess.STATUS_TOO_MANY_CHECKERS`,
-        :data:`~chess.STATUS_IMPOSSIBLE_CHECK`.
+        :data:`~chess.STATUS_IMPOSSIBLE_CHECK`,
+        :data:`~chess.STATUS_TOO_MUCH_MATERIAL`,
+        :data:`~chess.STATUS_VARIANT`.
+
+        See :class:`~chess.Status` for details.
         """
         errors = STATUS_VALID
 
-        # There must be at least one piece.
-        if not self.occupied:
-            errors |= STATUS_EMPTY
-
-        # There must be exactly one king of each color.
-        if not self.occupied_co[WHITE] & self.kings & ~self._effective_promoted():
-            errors |= STATUS_NO_WHITE_KING
-        if not self.occupied_co[BLACK] & self.kings & ~self._effective_promoted():
-            errors |= STATUS_NO_BLACK_KING
-        if popcount(self.occupied & self.kings & ~self._effective_promoted()) > 2:
-            errors |= STATUS_TOO_MANY_KINGS
-
-        # There can not be more than 16 pieces of any color.
-        if popcount(self.occupied_co[WHITE]) > 16:
-            errors |= STATUS_TOO_MANY_WHITE_PIECES
-        if popcount(self.occupied_co[BLACK]) > 16:
-            errors |= STATUS_TOO_MANY_BLACK_PIECES
-
-        # There can not be more than 8 pawns of any color.
-        if popcount(self.occupied_co[WHITE] & self.pawns) > 8:
-            errors |= STATUS_TOO_MANY_WHITE_PAWNS
-        if popcount(self.occupied_co[BLACK] & self.pawns) > 8:
-            errors |= STATUS_TOO_MANY_BLACK_PAWNS
-
-        # Pawns can not be on the back rank.
-        if self.pawns & BB_BACKRANKS:
-            errors |= STATUS_PAWNS_ON_BACKRANK
-
         # Castling rights.
         if self.castling_rights != self.clean_castling_rights():
-            errors |= STATUS_BAD_CASTLING_RIGHTS
+            errors |= STATUS_INVALID_CASTLING_RIGHTS
 
         # En passant.
         valid_ep_square = self._valid_ep_square()
         if self.ep_square != valid_ep_square:
             errors |= STATUS_INVALID_EP_SQUARE
+
+        return errors | self._validate(valid_ep_square)
+
+    def _validate(self, valid_ep_square: Square | None) -> Status:
+        errors = STATUS_VALID
+
+        # There must be at least one piece.
+        if not self.occupied:
+            errors |= STATUS_EMPTY_BOARD
+
+        # Pawns can not be on the back rank.
+        if self.pawns & BB_BACKRANKS:
+            errors |= STATUS_PAWNS_ON_BACKRANK
+
+        for color in COLORS:
+            # There must be exactly one king of each color.
+            kings = self.kings & self.occupied_co[color] & ~self._effective_promoted()
+            if not kings:
+                errors |= STATUS_MISSING_KING
+            elif kings & (kings - 1):
+                errors |= STATUS_TOO_MANY_KINGS
+
+            # Material must be reachable by promotions.
+            if not self._is_standard_material(color):
+                errors |= STATUS_TOO_MUCH_MATERIAL
 
         # Side to move giving check.
         if self.was_into_check():
@@ -3763,10 +3787,9 @@ class Board(BaseBoard):
         checkers = self.checkers_mask()
         our_kings = self.kings & self.occupied_co[self.turn] & ~self._effective_promoted()
         if checkers:
-            if popcount(checkers) > 2:
-                errors |= STATUS_TOO_MANY_CHECKERS
-
             if valid_ep_square is not None:
+                # The pushed pawn must be the only checker, or it has uncovered
+                # check by a single sliding piece.
                 pushed_to = valid_ep_square ^ A2
                 pushed_from = valid_ep_square ^ A4
                 occupied_before = (self.occupied & ~BB_SQUARES[pushed_to]) | BB_SQUARES[pushed_from]
@@ -3775,15 +3798,30 @@ class Board(BaseBoard):
                         self._attacked_for_king(our_kings, occupied_before)):
                     errors |= STATUS_IMPOSSIBLE_CHECK
             else:
+                # There can be at most two checkers, and discovered checkers
+                # cannot be aligned.
                 if popcount(checkers) > 2 or (popcount(checkers) == 2 and ray(lsb(checkers), msb(checkers)) & our_kings):
                     errors |= STATUS_IMPOSSIBLE_CHECK
 
-            # Multiple steppers.
+            # Multiple steppers cannot be checkers.
             steppers = self.pawns | self.knights | self.kings
             if popcount(checkers & steppers) > 1:
                 errors |= STATUS_IMPOSSIBLE_CHECK
 
         return errors
+
+    def _is_standard_material(self, color: Color) -> bool:
+        # Each piece beyond the starting material must have been promoted
+        # from a pawn.
+        ours = self.occupied_co[color]
+        promoted_pieces = (
+            max(popcount(self.kings & ours) - 1, 0) +
+            max(popcount(self.queens & ours) - 1, 0) +
+            max(popcount(self.rooks & ours) - 2, 0) +
+            max(popcount(self.knights & ours) - 2, 0) +
+            max(popcount(self.bishops & ours & BB_LIGHT_SQUARES) - 1, 0) +
+            max(popcount(self.bishops & ours & BB_DARK_SQUARES) - 1, 0))
+        return popcount(self.pawns & ours) + promoted_pieces <= 8
 
     def _valid_ep_square(self) -> Square | None:
         if not self.ep_square:
