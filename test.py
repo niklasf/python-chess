@@ -3695,6 +3695,87 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.run(main())
 
+    def test_uci_replace_pending_analysis(self):
+        async def main(cancel_pending):
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go infinite")
+            first = await protocol.analysis(chess.Board())
+
+            # Keep the first search stopping while two new requests arrive.
+            mock.expect("stop")
+            pending = asyncio.create_task(protocol.analysis(chess.Board()))
+            await asyncio.sleep(0)
+            queued = protocol.next_command
+            self.assertEqual(queued.state, chess.engine.CommandState.NEW)
+            if cancel_pending:
+                pending.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await pending
+
+            board = chess.Board()
+            board.push_uci("e2e4")
+            replacement = asyncio.create_task(protocol.analysis(board))
+            await asyncio.sleep(0)
+            mock.expect("position startpos moves e2e4")
+            mock.expect("go infinite")
+            protocol.pipe_data_received(1, b"bestmove e2e4\n")
+            second = await asyncio.wait_for(replacement, 1)
+            with self.assertRaises(asyncio.CancelledError):
+                await pending
+            self.assertTrue(queued.finished.done())
+            self.assertEqual(queued.state, chess.engine.CommandState.DONE)
+            self.assertEqual((await first.wait()).move, chess.Move.from_uci("e2e4"))
+
+            mock.expect("stop", ["bestmove e7e5"])
+            second.stop()
+            await second.wait()
+            mock.expect("isready", ["readyok"])
+            await protocol.ping()
+            mock.assert_done()
+
+        for cancel_pending in [False, True]:
+            with self.subTest(cancel_pending=cancel_pending):
+                asyncio.run(main(cancel_pending))
+
+    def test_uci_cancel_pending_analysis(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go infinite")
+            first = await protocol.analysis(chess.Board())
+
+            mock.expect("stop")
+            pending = asyncio.create_task(protocol.analysis(chess.Board()))
+            await asyncio.sleep(0)
+            queued = protocol.next_command
+            pending.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await pending
+
+            # A cancelled queued search must not send position/go at all.
+            protocol.pipe_data_received(1, b"bestmove e2e4\n")
+            await first.wait()
+            self.assertTrue(queued.finished.done())
+            self.assertEqual(queued.state, chess.engine.CommandState.DONE)
+            self.assertIsNone(protocol.command)
+            mock.expect("isready", ["readyok"])
+            await protocol.ping()
+            mock.assert_done()
+
+        asyncio.run(main())
+
     def test_uci_play_after_analyse(self):
         async def main():
             protocol = chess.engine.UciProtocol()

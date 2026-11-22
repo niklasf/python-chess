@@ -940,9 +940,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         assert command.state == CommandState.NEW, command.state
 
         if self.next_command is not None:
-            self.next_command.result.cancel()
-            self.next_command.finished.cancel()
-            self.next_command.set_finished()
+            self.next_command._cancel()
 
         self.next_command = command
 
@@ -950,6 +948,11 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             self.command, self.next_command = self.next_command, None
             if self.command is not None:
                 cmd = self.command
+
+                if cmd.result.cancelled():
+                    cmd._cancel()
+                    self.command = None
+                    return
 
                 def cancel_if_cancelled(result: asyncio.Future[T]) -> None:
                     if result.cancelled():
@@ -1221,7 +1224,13 @@ class BaseCommand(Generic[T]):
         self._dispatch_finished()
 
     def _cancel(self) -> None:
-        if self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
+        if self.state == CommandState.NEW:
+            self.state = CommandState.DONE
+            self.result.cancel()
+            if not self.finished.done():
+                self.finished.set_result(None)
+            self._dispatch_finished()
+        elif self.state != CommandState.CANCELLING and self.state != CommandState.DONE:
             assert self.state == CommandState.ACTIVE, self.state
             self.state = CommandState.CANCELLING
             self.cancel()
