@@ -4062,7 +4062,7 @@ class EngineTestCase(unittest.TestCase):
     def test_quit_timeout(self):
         with chess.engine.SimpleEngine.popen_uci(["/bin/bash", "-c", "read && echo uciok && sleep 86400"], debug=True) as engine:
             engine.timeout = 0.01
-            with self.assertRaises(asyncio.TimeoutError):
+            with self.assertRaises(TimeoutError):
                 engine.quit()
 
     def test_run_in_background(self):

@@ -12,12 +12,12 @@ import chess
 import chess.engine
 import chess.svg
 
-from typing import Any, Generic, Literal, TextIO, TypeVar
+from typing import Any, Generic, Literal, Self, TextIO, TypeVar
 from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
 from chess import Color, Square
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import Self, override
+    from typing_extensions import override
 else:
     F = typing.TypeVar("F", bound=Callable[..., Any])
     def override(fn: F, /) -> F:
@@ -935,7 +935,7 @@ class Game(GameNode):
         return parse_time_control(time_control_header)
 
     @classmethod
-    def from_board(cls: type[GameT], board: chess.Board) -> GameT:
+    def from_board(cls, board: chess.Board) -> Self:
         """Creates a game from the move stack of a :class:`~chess.Board()`."""
         # Setup the initial position.
         game = cls()
@@ -950,12 +950,12 @@ class Game(GameNode):
         return game
 
     @classmethod
-    def without_tag_roster(cls: type[GameT]) -> GameT:
+    def without_tag_roster(cls) -> Self:
         """Creates an empty game without the default Seven Tag Roster."""
         return cls(headers={})
 
     @classmethod
-    def builder(cls: type[GameT]) -> GameBuilder[GameT]:
+    def builder(cls) -> GameBuilder[Self]:
         return GameBuilder(Game=cls)
 
     def __repr__(self) -> str:
@@ -1059,7 +1059,7 @@ class Headers(MutableMapping[str, str]):
             ", ".join("{}={!r}".format(key, value) for key, value in self.items()))
 
     @classmethod
-    def builder(cls: type[HeadersT]) -> HeadersBuilder[HeadersT]:
+    def builder(cls) -> HeadersBuilder[Self]:
         return HeadersBuilder(Headers=cls)
 
 

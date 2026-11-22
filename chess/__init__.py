@@ -22,11 +22,8 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Literal, SupportsInt, TypeAlias, TypeVar
+from typing import ClassVar, Literal, Self, SupportsInt, TypeAlias
 from collections.abc import Callable, Hashable, Iterable, Iterator, Mapping
-
-if typing.TYPE_CHECKING:
-    from typing_extensions import Self
 
 
 EnPassantSpec = Literal["legal", "fen", "xfen"]
@@ -776,7 +773,6 @@ class Move:
         return cls(0, 0)
 
 
-BaseBoardT = TypeVar("BaseBoardT", bound="BaseBoard")
 
 class BaseBoard:
     """
@@ -1586,7 +1582,7 @@ class BaseBoard:
         return board
 
     @classmethod
-    def empty(cls: type[BaseBoardT]) -> BaseBoardT:
+    def empty(cls) -> Self:
         """
         Creates a new empty board. Also see
         :func:`~chess.BaseBoard.clear_board()`.
@@ -1594,7 +1590,7 @@ class BaseBoard:
         return cls(None)
 
     @classmethod
-    def from_chess960_pos(cls: type[BaseBoardT], scharnagl: int) -> BaseBoardT:
+    def from_chess960_pos(cls, scharnagl: int) -> Self:
         """
         Creates a new board, initialized with a Chess960 starting position.
 
@@ -1608,7 +1604,6 @@ class BaseBoard:
         return board
 
 
-BoardT = TypeVar("BoardT", bound="Board")
 
 class _BoardState:
 
@@ -3989,12 +3984,12 @@ class Board(BaseBoard):
         return board
 
     @classmethod
-    def empty(cls: type[BoardT], *, chess960: bool = False) -> BoardT:
+    def empty(cls, *, chess960: bool = False) -> Self:
         """Creates a new empty board. Also see :func:`~chess.Board.clear()`."""
         return cls(None, chess960=chess960)
 
     @classmethod
-    def from_epd(cls: type[BoardT], epd: str, *, chess960: bool = False) -> tuple[BoardT, dict[str, None | str | int | float | Move | list[Move]]]:
+    def from_epd(cls, epd: str, *, chess960: bool = False) -> tuple[Self, dict[str, None | str | int | float | Move | list[Move]]]:
         """
         Creates a new board from an EPD string. See
         :func:`~chess.Board.set_epd()`.
@@ -4005,7 +4000,7 @@ class Board(BaseBoard):
         return board, board.set_epd(epd)
 
     @classmethod
-    def from_chess960_pos(cls: type[BoardT], scharnagl: int) -> BoardT:
+    def from_chess960_pos(cls, scharnagl: int) -> Self:
         board = cls.empty(chess960=True)
         board.set_chess960_pos(scharnagl)
         return board

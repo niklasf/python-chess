@@ -2,13 +2,8 @@ from __future__ import annotations
 
 import chess
 import itertools
-import typing
-
-from typing import Generic, TypeVar
+from typing import Self
 from collections.abc import Hashable, Iterable, Iterator
-
-if typing.TYPE_CHECKING:
-    from typing_extensions import Self
 
 
 class SuicideBoard(chess.Board):
@@ -670,7 +665,6 @@ class HordeBoard(chess.Board):
         return status
 
 
-ThreeCheckBoardT = TypeVar("ThreeCheckBoardT", bound="ThreeCheckBoard")
 
 class _ThreeCheckBoardState:
     def __init__(self, board: ThreeCheckBoard) -> None:
@@ -817,7 +811,6 @@ class ThreeCheckBoard(chess.Board):
         return board
 
 
-CrazyhouseBoardT = TypeVar("CrazyhouseBoardT", bound="CrazyhouseBoard")
 
 class _CrazyhouseBoardState:
     def __init__(self, board: CrazyhouseBoard) -> None:
@@ -828,7 +821,6 @@ class _CrazyhouseBoardState:
         board.pockets[chess.WHITE] = self.pockets_w
         board.pockets[chess.BLACK] = self.pockets_b
 
-CrazyhousePocketT = TypeVar("CrazyhousePocketT", bound="CrazyhousePocket")
 
 class CrazyhousePocket:
     """A Crazyhouse pocket with a counter for each piece type."""

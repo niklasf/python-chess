@@ -13,7 +13,6 @@ import logging
 import math
 import shlex
 import subprocess
-import sys
 import threading
 import time
 import typing
@@ -23,7 +22,7 @@ import chess
 
 from chess import Color
 from types import TracebackType
-from typing import Any, Generic, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, Generic, Literal, Self, TypeAlias, TypedDict, TypeVar
 from collections.abc import Callable, Coroutine, Generator, Iterable, Iterator, Mapping, MutableMapping
 
 if typing.TYPE_CHECKING:
@@ -33,14 +32,10 @@ else:
     def override(fn: F, /) -> F:
         return fn
 
-if typing.TYPE_CHECKING:
-    from typing_extensions import Self
-
 WdlModel = Literal["sf", "sf16.1", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
 
 T = TypeVar("T")
-ProtocolT = TypeVar("ProtocolT", bound="Protocol")
 
 ConfigValue: TypeAlias = str | int | bool | None
 ConfigMapping: TypeAlias = Mapping[str, ConfigValue]
@@ -1150,7 +1145,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         """Asks the engine to shut down."""
 
     @classmethod
-    async def popen(cls: type[ProtocolT], command: str | list[str], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, ProtocolT]:
+    async def popen(cls, command: str | list[str], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, Self]:
         if not isinstance(command, list):
             command = [command]
 
@@ -1160,11 +1155,7 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
                 popen_args["creationflags"] = popen_args.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
             except AttributeError:
                 # Unix.
-                if sys.version_info >= (3, 11):
-                    popen_args["process_group"] = 0
-                else:
-                    # Before Python 3.11
-                    popen_args["start_new_session"] = True
+                popen_args["process_group"] = 0
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)
 
@@ -2874,7 +2865,7 @@ class SimpleEngine:
     a new command to the engine, any previous running command will be cancelled
     as soon as possible.
 
-    Methods will raise :class:`asyncio.TimeoutError` if an operation takes
+    Methods will raise :class:`TimeoutError` if an operation takes
     *timeout* seconds longer than expected (unless *timeout* is ``None``).
 
     Automatically closes the transport when used as a context manager.

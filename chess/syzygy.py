@@ -12,11 +12,8 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import TypeVar
+from typing import Self
 from collections.abc import Iterable, Iterator
-
-if typing.TYPE_CHECKING:
-    from typing_extensions import Self
 
 
 UINT64_BE = struct.Struct(">Q")

@@ -18,11 +18,11 @@ if sys.version_info < (3, ):
         end of 2018. Consider upgrading to Python 3.
         """))
 
-if sys.version_info < (3, 10):
+if sys.version_info < (3, 11):
     raise ImportError(textwrap.dedent("""\
         You are trying to install python-chess.
 
-        Since version 2.0.0, python-chess requires Python 3.10 or later.
+        Since version 2.0.0, python-chess requires Python 3.11 or later.
         Since version 1.11.0, python-chess requires Python 3.8 or later.
         Since version 1.0.0, python-chess requires Python 3.7 or later.
         """))
@@ -71,7 +71,7 @@ setuptools.setup(
     package_data={
         "chess": ["py.typed"],
     },
-    python_requires=">=3.10",
+    python_requires=">=3.11",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -79,7 +79,6 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
