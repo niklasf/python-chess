@@ -59,7 +59,7 @@ Both extend :class:`~chess.pgn.GameNode`.
     :members: headers, errors, setup, accept, time_control, set_time_control, from_board, without_tag_roster
 
 .. autoclass:: chess.pgn.ChildNode
-    :members: parent, move, starting_comment, nags, san, uci, end
+    :members: parent, move, starting_comments, starting_nags, san, uci, end
 
 Visitors
 --------

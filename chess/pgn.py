@@ -364,22 +364,21 @@ class GameNode(abc.ABC):
 
     comments: list[str]
     """
-    A comment that goes behind the move leading to this node. Comments
+    Comments that go behind the move leading to this node. Comments
     that occur before any moves are assigned to the root node.
     """
 
-    starting_comments: list[str]
-
     nags: set[int]
+    """
+    A set of NAGs as integers, going behind the move leading to this node.
+    NAGs that occur before any moves are assigned to the root node, where
+    they annotate the starting position.
+    """
 
-    def __init__(self, *, comment: str | list[str] = "") -> None:
+    def __init__(self, *, comment: str | list[str] = "", nags: Iterable[int] = []) -> None:
         self.variations = []
         self.comments = _standardize_comments(comment)
-
-        # Deprecated: These should be properties of ChildNode, but need to
-        # remain here for backwards compatibility.
-        self.starting_comments = []
-        self.nags = set()
+        self.nags = set(nags)
 
     @property
     @abc.abstractmethod
@@ -563,10 +562,10 @@ class GameNode(abc.ABC):
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> ChildNode:
+    def add_variation(self, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = [], starting_nags: Iterable[int] = []) -> ChildNode:
         """Creates a child node with the given attributes."""
         # Instantiate ChildNode only in this method.
-        return ChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags)
+        return ChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags, starting_nags=starting_nags)
 
     def add_main_variation(self, move: chess.Move, *, comment: str = "", nags: Iterable[int] = []) -> ChildNode:
         """
@@ -594,17 +593,24 @@ class GameNode(abc.ABC):
         """Returns an iterable over the main moves after this node."""
         return Mainline(self, lambda node: node.move)
 
-    def add_line(self, moves: Iterable[chess.Move], *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> GameNode:
+    def add_line(self, moves: Iterable[chess.Move], *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = [], starting_nags: Iterable[int] = []) -> GameNode:
         """
         Creates a sequence of child nodes for the given list of moves.
-        Adds *comment* and *nags* to the last node of the line and returns it.
+        Adds *starting_comment* and *starting_nags* to the first node of the
+        line, *comment* and *nags* to the last node of the line, and returns
+        the last node.
         """
         node = self
 
         # Add line.
+        first = True
         for move in moves:
             node = node.add_variation(move, starting_comment=starting_comment)
             starting_comment = ""
+            if first:
+                assert isinstance(node, ChildNode)
+                node.starting_nags.update(starting_nags)
+                first = False
 
         # Merge comment and NAGs.
         comments = _standardize_comments(comment)
@@ -832,26 +838,34 @@ class ChildNode(GameNode):
 
     starting_comments: list[str]
     """
-    A comment for the start of a variation. Only nodes that
-    actually start a variation (:func:`~chess.pgn.GameNode.starts_variation()`
-    checks this) can have a starting comment. The root node can not have
-    a starting comment.
+    Comments that go before the move leading to this node.
+
+    Starting comments can be set on any node, but in PGN they can only be
+    told apart at the start of a variation (see
+    :func:`~chess.pgn.GameNode.starts_variation()`). Elsewhere they are
+    written before the move, but when the PGN is read again, they become
+    :data:`~chess.pgn.GameNode.comments` of the parent node.
     """
 
-    nags: set[int]
+    starting_nags: set[int]
     """
-    A set of NAGs as integers. NAGs always go behind a move, so the root
-    node of the game will never have NAGs.
+    A set of NAGs as integers, going before the move leading to this node,
+    like ``$142`` (better is) in ``( $142 1... c5 )``.
+
+    Round trips through PGN like
+    :data:`~chess.pgn.ChildNode.starting_comments`: Exactly at the start of
+    a variation, otherwise they become
+    :data:`~chess.pgn.GameNode.nags` of the parent node.
     """
 
-    def __init__(self, parent: GameNode, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> None:
-        super().__init__(comment=comment)
+    def __init__(self, parent: GameNode, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = [], starting_nags: Iterable[int] = []) -> None:
+        super().__init__(comment=comment, nags=nags)
         self._parent = parent
         self._move = move
         self.parent.variations.append(self)
 
-        self.nags.update(nags)
         self.starting_comments = _standardize_comments(starting_comment)
+        self.starting_nags = set(starting_nags)
 
     @property
     @override
@@ -924,6 +938,9 @@ class ChildNode(GameNode):
     def _accept_node(self, parent_board: chess.Board, visitor: BaseVisitor[ResultT]) -> None:
         if self.starting_comments:
             visitor.visit_comment(self.starting_comments)
+
+        for nag in sorted(self.starting_nags):
+            visitor.visit_nag(nag)
 
         visitor.visit_move(parent_board, self.move)
 
@@ -1079,6 +1096,9 @@ class Game(GameNode):
             if visitor.end_headers() is not SKIP:
                 board = self.board()
                 visitor.visit_board(board)
+
+                for nag in sorted(self.nags):
+                    visitor.visit_nag(nag)
 
                 if self.comments:
                     visitor.visit_comment(self.comments)
@@ -1374,11 +1394,18 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
 class _GameBuilderFrame:
     node: GameNode
     starting_comments: list[str] = dataclasses.field(default_factory=list)
+    starting_nags: set[int] = dataclasses.field(default_factory=set)
     in_variation: bool = False
 
     def add_comments(self, comments: list[str]) -> None:
         self.node.comments.extend(comments)
         self.node.comments = list(filter(None, self.node.comments))
+
+    def at_variation_start(self) -> bool:
+        # Comments and NAGs at the start of a variation go before its first
+        # move. Otherwise, they go behind the current move, or to the root
+        # node if they occur before any move of the game.
+        return not self.in_variation and not (self.node.parent is None and self.node.is_end())
 
 
 class GameBuilder(BaseVisitor[GameT]):
@@ -1408,7 +1435,11 @@ class GameBuilder(BaseVisitor[GameT]):
 
     @override
     def visit_nag(self, nag: int) -> None:
-        self.variation_stack[-1].node.nags.add(nag)
+        frame = self.variation_stack[-1]
+        if frame.at_variation_start():
+            frame.starting_nags.add(nag)
+        else:
+            frame.node.nags.add(nag)
 
     @override
     def begin_variation(self) -> None:
@@ -1424,6 +1455,9 @@ class GameBuilder(BaseVisitor[GameT]):
             # could be attached to. Keep them as comments of the move
             # that the variation is an alternative to.
             self.variation_stack[-1].add_comments(frame.starting_comments)
+        if frame.starting_nags:
+            # Likewise for starting NAGs.
+            self.variation_stack[-1].node.nags.update(frame.starting_nags)
 
     @override
     def visit_result(self, result: str) -> None:
@@ -1434,22 +1468,20 @@ class GameBuilder(BaseVisitor[GameT]):
     def visit_comment(self, comment: str | list[str]) -> None:
         comments = _standardize_comments(comment)
         frame = self.variation_stack[-1]
-        if frame.in_variation or (frame.node.parent is None and frame.node.is_end()):
-            # Add as a comment for the current node if in the middle of
-            # a variation. Add as a comment for the game if the comment
-            # starts before any move.
-            frame.add_comments(comments)
-        else:
-            # Otherwise, it is a starting comment.
+        if frame.at_variation_start():
             frame.starting_comments.extend(comments)
             frame.starting_comments = list(filter(None, frame.starting_comments))
+        else:
+            frame.add_comments(comments)
 
     @override
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
         frame = self.variation_stack[-1]
         frame.node = frame.node.add_variation(move)
         frame.node.starting_comments = frame.starting_comments
+        frame.node.starting_nags = frame.starting_nags
         frame.starting_comments = []
+        frame.starting_nags = set()
         frame.in_variation = True
 
     @override

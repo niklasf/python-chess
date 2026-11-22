@@ -2783,6 +2783,54 @@ class PgnTestCase(unittest.TestCase):
         self.assertIn(chess.pgn.NAG_BRILLIANT_MOVE, node.nags)
         self.assertEqual(len(node.nags), 1)
 
+    def test_nags_before_move(self):
+        pgn = "$18 { intro } 1. e4 ( { better is } $142 1. d4 $1 ) 1... e5 ( $143 1... c5 ) ( $10 ) *"
+        game = chess.pgn.read_game(io.StringIO(pgn))
+        self.assertEqual(game.nags, {18})
+        self.assertEqual(game.comments, ["intro"])
+        e4, d4 = game.variations
+        self.assertEqual(e4.starting_nags, set())
+        self.assertEqual(d4.starting_comments, ["better is"])
+        self.assertEqual(d4.starting_nags, {142})
+        self.assertEqual(d4.nags, {1})
+        e5, c5 = e4.variations
+        self.assertEqual(c5.starting_nags, {143})
+        # Previously attached to the move before the variation.
+        self.assertEqual(e4.nags, set())
+        # NAGs of a variation without moves go to the move it is an
+        # alternative to.
+        self.assertEqual(e5.nags, {10})
+        self.assertFalse(hasattr(game, "starting_nags"))
+        self.assertFalse(hasattr(game, "starting_comments"))
+
+        exported = game.accept(chess.pgn.StringExporter(headers=False, columns=None))
+        self.assertEqual(exported, "$18 { intro } 1. e4 ( { better is } $142 1. d4 $1 ) 1... e5 $10 ( $143 1... c5 ) *")
+        reparsed = chess.pgn.read_game(io.StringIO(exported))
+        self.assertEqual(reparsed.accept(chess.pgn.StringExporter(headers=False, columns=None)), exported)
+
+    def test_starting_nags_outside_variation_start(self):
+        game = chess.pgn.Game()
+        e4 = game.add_variation(chess.Move.from_uci("e2e4"))
+        e4.add_variation(chess.Move.from_uci("e7e5"), starting_nags=[142])
+        exported = game.accept(chess.pgn.StringExporter(headers=False, columns=None))
+        self.assertEqual(exported, "1. e4 $142 e5 *")
+        reparsed = chess.pgn.read_game(io.StringIO(exported))
+        self.assertEqual(reparsed.next().nags, {142})
+        self.assertEqual(reparsed.next().next().starting_nags, set())
+
+    def test_add_line_nags(self):
+        game = chess.pgn.Game()
+        self.assertIs(game.add_line([], comment="c", nags=[18]), game)
+        self.assertEqual(game.comments, ["c"])
+        self.assertEqual(game.nags, {18})
+
+        moves = [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")]
+        tail = game.add_line(moves, starting_nags=[146], nags=[1])
+        self.assertEqual(tail.parent.starting_nags, {146})
+        self.assertEqual(tail.parent.nags, set())
+        self.assertEqual(tail.starting_nags, set())
+        self.assertEqual(tail.nags, {1})
+
     def test_tree_traversal(self):
         game = chess.pgn.Game()
         node = game.add_variation(chess.Move(chess.E2, chess.E4))
