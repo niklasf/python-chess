@@ -628,7 +628,7 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Piece:
     """A piece with type and color."""
 
@@ -674,6 +674,13 @@ class Piece:
         :raises: :exc:`ValueError` if the symbol is invalid.
         """
         return cls(PIECE_SYMBOLS.index(symbol.lower()), symbol.isupper())
+
+
+# Shared immutable instances: _PIECES[color][piece_type]
+_PIECES: list[list[Piece | None]] = [
+    [None, *(Piece(piece_type, color) for piece_type in PIECE_TYPES)]
+    for color in [BLACK, WHITE]
+]
 
 
 @dataclasses.dataclass(unsafe_hash=True)
@@ -880,7 +887,7 @@ class BaseBoard:
         if piece_type:
             mask = BB_SQUARES[square]
             color = bool(self.occupied_co[WHITE] & mask)
-            return Piece(piece_type, color)
+            return _PIECES[color][piece_type]
         else:
             return None
 
@@ -1102,7 +1109,7 @@ class BaseBoard:
         """
         color = bool(self.occupied_co[WHITE] & BB_SQUARES[square])
         piece_type = self._remove_piece_at(square)
-        return Piece(piece_type, color) if piece_type else None
+        return _PIECES[color][piece_type] if piece_type else None
 
     def _set_piece_at(self, square: Square, piece_type: PieceType, color: Color, promoted: bool = False) -> None:
         self._remove_piece_at(square)
