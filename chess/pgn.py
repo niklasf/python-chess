@@ -1763,15 +1763,13 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                         board_stack.append(board)
             elif token == ")":
                 if skip_variation_depth == 1:
-                    if not skip_after_error:
+                    # After an error in the mainline, ignore the unmatched
+                    # closing bracket and keep skipping.
+                    if not skip_after_error or len(board_stack) > 1:
                         skip_variation_depth = 0
                         visitor.end_variation()
-                    elif len(board_stack) > 1:
-                        skip_variation_depth = 0
-                        visitor.end_variation()
-                        board_stack.pop()
-                    # Otherwise the error was in the mainline. Ignore the
-                    # unmatched closing bracket and keep skipping.
+                        if skip_after_error:
+                            board_stack.pop()
                 elif skip_variation_depth:
                     skip_variation_depth -= 1
                 elif len(board_stack) > 1:
