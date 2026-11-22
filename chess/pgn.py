@@ -133,6 +133,12 @@ ARROWS_REGEX = re.compile(r"""
     (?P<suffix>\s?)
     """, re.VERBOSE)
 
+TIME_CONTROL_PART_REGEX = re.compile(r"""
+    (?:(?P<moves>[0-9]+)/)?
+    (?P<time>[0-9]+)
+    (?:\+(?P<bonus>[0-9]+(?:\.[0-9]+)?)(?P<delay>[dD])?)?
+    """, re.VERBOSE)
+
 def _condense_affix(infix: str) -> Callable[[re.Match[str]], str]:
     def repl(match: re.Match[str]) -> str:
         if infix:
@@ -203,44 +209,31 @@ class TimeControl:
         """
         tc = cls()
 
-        if not time_control:
+        if time_control in ["", "?"]:
             return tc
 
-        if time_control.startswith("?"):
-            return tc
-
-        if time_control.startswith("-"):
+        if time_control == "-":
             tc.type = TimeControlType.UNLIMITED
             return tc
 
-        def _parse_part(part: str) -> TimeControlPart:
-            tcp = TimeControlPart()
+        for text in time_control.split(":"):
+            match = TIME_CONTROL_PART_REGEX.fullmatch(text)
+            if not match:
+                raise ValueError(f"invalid time control: {time_control!r}")
 
-            moves_time, *bonus = part.split("+")
-
-            if bonus:
-                _bonus = bonus[0]
-                if _bonus.lower().endswith("d"):
-                    tcp.delay = float(_bonus[:-1])
+            part = TimeControlPart(
+                moves=int(match.group("moves") or 0),
+                time=int(match.group("time")))
+            if match.group("bonus"):
+                if match.group("delay"):
+                    part.delay = float(match.group("bonus"))
                 else:
-                    tcp.increment = float(_bonus)
+                    part.increment = float(match.group("bonus"))
+            tc.parts.append(part)
 
-            moves, *time = moves_time.split("/")
-            if time:
-                tcp.moves = int(moves)
-                tcp.time = int(time[0])
-            else:
-                tcp.moves = 0
-                tcp.time = int(moves)
-
-            return tcp
-
-        tc.parts = [_parse_part(part) for part in time_control.split(":")]
-
-        if len(tc.parts) > 1:
-            for part in tc.parts[:-1]:
-                if part.moves == 0:
-                    raise ValueError("Only last part can be 'sudden death'.")
+        for part in tc.parts[:-1]:
+            if part.moves == 0:
+                raise ValueError(f"only last part of time control can be sudden death: {time_control!r}")
 
         # Classification according to https://www.fide.com/FIDE/handbook/LawsOfChess.pdf
         # (Bullet added)
@@ -274,14 +267,14 @@ class TimeControl:
 
         for part in self.parts[:-1]:
             if part.moves == 0:
-                raise ValueError("Only last part can be 'sudden death'.")
+                raise ValueError(f"only last part of time control can be sudden death: {self!r}")
 
         def _format_seconds(seconds: float) -> str:
             return f"{seconds:.3f}".rstrip("0").rstrip(".")
 
         def _format_part(part: TimeControlPart) -> str:
             if part.increment and part.delay:
-                raise ValueError("Time control part cannot have both increment and delay.")
+                raise ValueError(f"time control part cannot have both increment and delay: {part!r}")
             text = f"{part.moves}/{part.time}" if part.moves else f"{part.time}"
             if part.increment:
                 text += f"+{_format_seconds(part.increment)}"

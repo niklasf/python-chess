@@ -2875,6 +2875,12 @@ class PgnTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             chess.pgn.TimeControl.parse("40/abc")
 
+        for invalid in ["1/2/3", "300+1+2", "300+inf", "300+nand", "300+-2", "-300", "3_00", "+300", "300+.5", "300:", "40/300::60", " 300", "?300", "-1", "*60"]:
+            with self.assertRaises(ValueError, msg=invalid):
+                chess.pgn.TimeControl.parse(invalid)
+
+        self.assertEqual(chess.pgn.TimeControl.parse("300+5D").parts[0].delay, 5)
+
     def test_time_control_str(self):
         for header in ["40/7200:20/3600:900+30", "300+2", "180+0.5", "5400+30d", "1800", "-", "?"]:
             tc = chess.pgn.TimeControl.parse(header)
