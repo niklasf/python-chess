@@ -1719,6 +1719,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     # Parse movetext.
     skip_variation_depth = 0
+    skip_after_error = False
     fresh_line = True
     while line:
         if fresh_line:
@@ -1763,19 +1764,27 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 elif board_stack[-1].move_stack:
                     if visitor.begin_variation() is SKIP:
                         skip_variation_depth = 1
+                        skip_after_error = False
                     else:
                         board = board_stack[-1].copy()
                         board.pop()
                         board_stack.append(board)
             elif token == ")":
                 if skip_variation_depth == 1:
-                    skip_variation_depth = 0
-                    visitor.end_variation()
+                    # After an error in the mainline, ignore the unmatched
+                    # closing bracket and keep skipping.
+                    if not skip_after_error or len(board_stack) > 1:
+                        skip_variation_depth = 0
+                        visitor.end_variation()
+                        if skip_after_error:
+                            board_stack.pop()
                 elif skip_variation_depth:
                     skip_variation_depth -= 1
                 elif len(board_stack) > 1:
                     visitor.end_variation()
                     board_stack.pop()
+            elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1 and (not skip_variation_depth or (skip_after_error and skip_variation_depth == 1)):
+                visitor.visit_result(token)
             elif skip_variation_depth:
                 continue
             elif token.startswith(";"):
@@ -1795,8 +1804,6 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 visitor.visit_nag(NAG_SPECULATIVE_MOVE)
             elif token == "?!":
                 visitor.visit_nag(NAG_DUBIOUS_MOVE)
-            elif token in ["1-0", "0-1", "1/2-1/2", "*"] and len(board_stack) == 1:
-                visitor.visit_result(token)
             else:
                 # Parse SAN tokens.
                 if visitor.begin_parse_san(board_stack[-1], token) is not SKIP:
@@ -1805,6 +1812,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     except ValueError as error:
                         visitor.handle_error(error)
                         skip_variation_depth = 1
+                        skip_after_error = True
                     else:
                         visitor.visit_move(board_stack[-1], move)
                         board_stack[-1].push(move)
