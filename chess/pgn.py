@@ -1194,6 +1194,17 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         raise error
 
 
+@dataclasses.dataclass
+class _GameBuilderFrame:
+    node: GameNode
+    starting_comments: list[str] = dataclasses.field(default_factory=list)
+    in_variation: bool = False
+
+    def add_comments(self, comments: list[str]) -> None:
+        self.node.comments.extend(comments)
+        self.node.comments = list(filter(None, self.node.comments))
+
+
 class GameBuilder(BaseVisitor[GameT]):
     """
     Creates a game model. Default visitor for :func:`~chess.pgn.read_game()`.
@@ -1209,10 +1220,7 @@ class GameBuilder(BaseVisitor[GameT]):
     @override
     def begin_game(self) -> None:
         self.game: GameT = self.Game()
-
-        self.variation_stack: list[GameNode] = [self.game]
-        self.starting_comments: list[str] = []
-        self.in_variation = False
+        self.variation_stack: list[_GameBuilderFrame] = [_GameBuilderFrame(self.game)]
 
     @override
     def begin_headers(self) -> Headers:
@@ -1224,18 +1232,22 @@ class GameBuilder(BaseVisitor[GameT]):
 
     @override
     def visit_nag(self, nag: int) -> None:
-        self.variation_stack[-1].nags.add(nag)
+        self.variation_stack[-1].node.nags.add(nag)
 
     @override
     def begin_variation(self) -> None:
-        parent = self.variation_stack[-1].parent
+        parent = self.variation_stack[-1].node.parent
         assert parent is not None, "begin_variation called, but root node on top of stack"
-        self.variation_stack.append(parent)
-        self.in_variation = False
+        self.variation_stack.append(_GameBuilderFrame(parent))
 
     @override
     def end_variation(self) -> None:
-        self.variation_stack.pop()
+        frame = self.variation_stack.pop()
+        if frame.starting_comments:
+            # The variation contained no move that its starting comments
+            # could be attached to. Keep them as comments of the move
+            # that the variation is an alternative to.
+            self.variation_stack[-1].add_comments(frame.starting_comments)
 
     @override
     def visit_result(self, result: str) -> None:
@@ -1245,23 +1257,24 @@ class GameBuilder(BaseVisitor[GameT]):
     @override
     def visit_comment(self, comment: str | list[str]) -> None:
         comments = _standardize_comments(comment)
-        if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
+        frame = self.variation_stack[-1]
+        if frame.in_variation or (frame.node.parent is None and frame.node.is_end()):
             # Add as a comment for the current node if in the middle of
             # a variation. Add as a comment for the game if the comment
             # starts before any move.
-            self.variation_stack[-1].comments.extend(comments)
-            self.variation_stack[-1].comments = list(filter(None, self.variation_stack[-1].comments))
+            frame.add_comments(comments)
         else:
             # Otherwise, it is a starting comment.
-            self.starting_comments.extend(comments)
-            self.starting_comments = list(filter(None, self.starting_comments))
+            frame.starting_comments.extend(comments)
+            frame.starting_comments = list(filter(None, frame.starting_comments))
 
     @override
     def visit_move(self, board: chess.Board, move: chess.Move) -> None:
-        self.variation_stack[-1] = self.variation_stack[-1].add_variation(move)
-        self.variation_stack[-1].starting_comments = self.starting_comments
-        self.starting_comments = []
-        self.in_variation = True
+        frame = self.variation_stack[-1]
+        frame.node = frame.node.add_variation(move)
+        frame.node.starting_comments = frame.starting_comments
+        frame.starting_comments = []
+        frame.in_variation = True
 
     @override
     def handle_error(self, error: Exception) -> None:
