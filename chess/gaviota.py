@@ -14,7 +14,8 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import BinaryIO, Callable, Optional, Union
+from typing import BinaryIO
+from collections.abc import Callable
 
 
 LOGGER = logging.getLogger(__name__)
@@ -1587,7 +1588,7 @@ class PythonTablebase:
             # Draw.
             return 0
 
-    def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtm(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_dtm(board)
         except KeyError:
@@ -1628,7 +1629,7 @@ class PythonTablebase:
         else:
             return -1
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_wdl(board)
         except KeyError:
@@ -1789,7 +1790,7 @@ class PythonTablebase:
     def __enter__(self) -> PythonTablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None) -> None:
         self.close()
 
 
@@ -1866,13 +1867,13 @@ class NativeTablebase:
     def probe_wdl(self, board: chess.Board) -> int:
         return self._probe_hard(board, wdl_only=True)
 
-    def get_dtm(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtm(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_dtm(board)
         except KeyError:
             return default
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_wdl(board)
         except KeyError:
@@ -1952,11 +1953,11 @@ class NativeTablebase:
     def __enter__(self) -> NativeTablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None) -> None:
         self.close()
 
 
-def open_tablebase_native(directory: str, *, libgtb: Optional[str] = None, LibraryLoader: ctypes.LibraryLoader[ctypes.CDLL] = ctypes.cdll) -> NativeTablebase:
+def open_tablebase_native(directory: str, *, libgtb: str | None = None, LibraryLoader: ctypes.LibraryLoader[ctypes.CDLL] = ctypes.cdll) -> NativeTablebase:
     """
     Opens a collection of tables for probing using libgtb.
 
@@ -1972,7 +1973,7 @@ def open_tablebase_native(directory: str, *, libgtb: Optional[str] = None, Libra
     return tables
 
 
-def open_tablebase(directory: str, *, libgtb: Optional[str] = None, LibraryLoader: ctypes.LibraryLoader[ctypes.CDLL] = ctypes.cdll) -> Union[NativeTablebase, PythonTablebase]:
+def open_tablebase(directory: str, *, libgtb: str | None = None, LibraryLoader: ctypes.LibraryLoader[ctypes.CDLL] = ctypes.cdll) -> NativeTablebase | PythonTablebase:
     """
     Opens a collection of tables for probing.
 

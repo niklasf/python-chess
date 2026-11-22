@@ -11,8 +11,8 @@ import time
 import argparse
 import sys
 
-from typing import Callable, Optional, TextIO
-from collections.abc import Iterator
+from typing import TextIO
+from collections.abc import Callable, Iterator
 
 import chess
 import chess.variant
@@ -56,7 +56,7 @@ def sdiv(a: float, b: float) -> float:
         return float("Inf")
 
 
-def main(perft_file: TextIO, VariantBoard: type[chess.Board], perft_f: Callable[[int, chess.Board], int], max_depth: Optional[int], max_nodes: Optional[int]) -> None:
+def main(perft_file: TextIO, VariantBoard: type[chess.Board], perft_f: Callable[[int, chess.Board], int], max_depth: int | None, max_nodes: int | None) -> None:
     current_id = None
     board = VariantBoard(chess960=True)
     column = 0

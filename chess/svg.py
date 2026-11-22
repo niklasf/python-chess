@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 import chess
 
-from typing import Optional, Union
+
 from collections.abc import Iterable
 from chess import Color, IntoSquareSet, Square
 
@@ -149,7 +149,7 @@ class SvgWrapper(str):
         return self
 
 
-def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
+def _svg(viewbox: int, size: int | None) -> ET.Element:
     svg = ET.Element("svg", {
         "xmlns": "http://www.w3.org/2000/svg",
         "xmlns:xlink": "http://www.w3.org/1999/xlink",
@@ -163,7 +163,7 @@ def _svg(viewbox: int, size: Optional[int]) -> ET.Element:
     return svg
 
 
-def _attrs(attrs: dict[str, Union[str, int, float, None]]) -> dict[str, str]:
+def _attrs(attrs: dict[str, str | int | float | None]) -> dict[str, str]:
     return {k: str(v) for k, v in attrs.items() if v is not None}
 
 
@@ -201,7 +201,7 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
     return t
 
 
-def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
+def piece(piece: chess.Piece, size: int | None = None) -> str:
     """
     Renders the given :class:`chess.Piece` as an SVG image.
 
@@ -218,18 +218,18 @@ def piece(piece: chess.Piece, size: Optional[int] = None) -> str:
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(board: Optional[chess.BaseBoard] = None, *,
+def board(board: chess.BaseBoard | None = None, *,
           orientation: Color = chess.WHITE,
-          lastmove: Optional[chess.Move] = None,
-          check: Optional[Square] = None,
-          arrows: Iterable[Union[Arrow, tuple[Square, Square]]] = [],
+          lastmove: chess.Move | None = None,
+          check: Square | None = None,
+          arrows: Iterable[Arrow | tuple[Square, Square]] = [],
           fill: dict[Square, str] = {},
-          squares: Optional[IntoSquareSet] = None,
-          size: Optional[int] = None,
+          squares: IntoSquareSet | None = None,
+          size: int | None = None,
           coordinates: bool = True,
           colors: dict[str, str] = {},
           borders: bool = False,
-          style: Optional[str] = None) -> str:
+          style: str | None = None) -> str:
     """
     Renders a board with pieces and/or selected squares as an SVG image.
 

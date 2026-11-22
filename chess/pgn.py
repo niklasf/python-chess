@@ -12,8 +12,8 @@ import chess
 import chess.engine
 import chess.svg
 
-from typing import Any, Callable, Generic, Literal, TextIO, TypeVar, Optional, Union
-from collections.abc import Iterable, Iterator, Mapping, MutableMapping
+from typing import Any, Generic, Literal, TextIO, TypeVar
+from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
 from chess import Color, Square
 
 if typing.TYPE_CHECKING:
@@ -138,7 +138,7 @@ def _condense_affix(infix: str) -> Callable[[re.Match[str]], str]:
     return repl
 
 
-def _standardize_comments(comment: Union[str, list[str]]) -> list[str]:
+def _standardize_comments(comment: str | list[str]) -> list[str]:
     return [] if not comment else [comment] if isinstance(comment, str) else comment
 
 
@@ -210,7 +210,7 @@ class GameNode(abc.ABC):
 
     nags: set[int]
 
-    def __init__(self, *, comment: Union[str, list[str]] = "") -> None:
+    def __init__(self, *, comment: str | list[str] = "") -> None:
         self.variations = []
         self.comments = _standardize_comments(comment)
 
@@ -221,12 +221,12 @@ class GameNode(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parent(self) -> Optional[GameNode]:
+    def parent(self) -> GameNode | None:
         """The parent node or ``None`` if this is the root node of the game."""
 
     @property
     @abc.abstractmethod
-    def move(self) -> Optional[chess.Move]:
+    def move(self) -> chess.Move | None:
         """
         The move leading to this node or ``None`` if this is the root node of
         the game.
@@ -349,7 +349,7 @@ class GameNode(abc.ABC):
 
         return not self.parent.variations or self.parent.variations[0] == self
 
-    def __getitem__(self, move: Union[int, chess.Move, GameNode]) -> ChildNode:
+    def __getitem__(self, move: int | chess.Move | GameNode) -> ChildNode:
         try:
             return self.variations[move]  # type: ignore
         except TypeError:
@@ -359,7 +359,7 @@ class GameNode(abc.ABC):
 
         raise KeyError(move)
 
-    def __contains__(self, move: Union[int, chess.Move, GameNode]) -> bool:
+    def __contains__(self, move: int | chess.Move | GameNode) -> bool:
         try:
             self[move]
         except KeyError:
@@ -367,41 +367,41 @@ class GameNode(abc.ABC):
         else:
             return True
 
-    def variation(self, move: Union[int, chess.Move, GameNode]) -> ChildNode:
+    def variation(self, move: int | chess.Move | GameNode) -> ChildNode:
         """
         Gets a child node by either the move or the variation index.
         """
         return self[move]
 
-    def has_variation(self, move: Union[int, chess.Move, GameNode]) -> bool:
+    def has_variation(self, move: int | chess.Move | GameNode) -> bool:
         """Checks if this node has the given variation."""
         return move in self
 
-    def promote_to_main(self, move: Union[int, chess.Move, GameNode]) -> None:
+    def promote_to_main(self, move: int | chess.Move | GameNode) -> None:
         """Promotes the given *move* to the main variation."""
         variation = self[move]
         self.variations.remove(variation)
         self.variations.insert(0, variation)
 
-    def promote(self, move: Union[int, chess.Move, GameNode]) -> None:
+    def promote(self, move: int | chess.Move | GameNode) -> None:
         """Moves a variation one up in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i > 0:
             self.variations[i - 1], self.variations[i] = self.variations[i], self.variations[i - 1]
 
-    def demote(self, move: Union[int, chess.Move, GameNode]) -> None:
+    def demote(self, move: int | chess.Move | GameNode) -> None:
         """Moves a variation one down in the list of variations."""
         variation = self[move]
         i = self.variations.index(variation)
         if i < len(self.variations) - 1:
             self.variations[i + 1], self.variations[i] = self.variations[i], self.variations[i + 1]
 
-    def remove_variation(self, move: Union[int, chess.Move, GameNode]) -> None:
+    def remove_variation(self, move: int | chess.Move | GameNode) -> None:
         """Removes a variation."""
         self.variations.remove(self.variation(move))
 
-    def add_variation(self, move: chess.Move, *, comment: Union[str, list[str]] = "", starting_comment: Union[str, list[str]] = "", nags: Iterable[int] = []) -> ChildNode:
+    def add_variation(self, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> ChildNode:
         """Creates a child node with the given attributes."""
         # Instantiate ChildNode only in this method.
         return ChildNode(self, move, comment=comment, starting_comment=starting_comment, nags=nags)
@@ -415,7 +415,7 @@ class GameNode(abc.ABC):
         self.variations.insert(0, self.variations.pop())
         return node
 
-    def next(self) -> Optional[ChildNode]:
+    def next(self) -> ChildNode | None:
         """
         Returns the first node of the mainline after this node, or ``None`` if
         this node does not have any children.
@@ -432,7 +432,7 @@ class GameNode(abc.ABC):
         """Returns an iterable over the main moves after this node."""
         return Mainline(self, lambda node: node.move)
 
-    def add_line(self, moves: Iterable[chess.Move], *, comment: Union[str, list[str]] = "", starting_comment: Union[str, list[str]] = "", nags: Iterable[int] = []) -> GameNode:
+    def add_line(self, moves: Iterable[chess.Move], *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> GameNode:
         """
         Creates a sequence of child nodes for the given list of moves.
         Adds *comment* and *nags* to the last node of the line and returns it.
@@ -451,7 +451,7 @@ class GameNode(abc.ABC):
 
         return node
 
-    def eval(self) -> Optional[chess.engine.PovScore]:
+    def eval(self) -> chess.engine.PovScore | None:
         """
         Parses the first valid ``[%eval ...]`` annotation in the comment of
         this node, if any.
@@ -477,7 +477,7 @@ class GameNode(abc.ABC):
 
         return chess.engine.PovScore(score if turn else -score, turn)
 
-    def eval_depth(self) -> Optional[int]:
+    def eval_depth(self) -> int | None:
         """
         Parses the first valid ``[%eval ...]`` annotation in the comment of
         this node and returns the corresponding depth, if any.
@@ -487,7 +487,7 @@ class GameNode(abc.ABC):
         match = EVAL_REGEX.search(" ".join(self.comments))
         return int(match.group("depth")) if match and match.group("depth") else None
 
-    def set_eval(self, score: Optional[chess.engine.PovScore], depth: Optional[int] = None) -> None:
+    def set_eval(self, score: chess.engine.PovScore | None, depth: int | None = None) -> None:
         """
         Replaces the first valid ``[%eval ...]`` annotation in the comment of
         this node or adds a new one.
@@ -517,7 +517,7 @@ class GameNode(abc.ABC):
 
         return arrows
 
-    def set_arrows(self, arrows: Iterable[Union[chess.svg.Arrow, tuple[Square, Square]]]) -> None:
+    def set_arrows(self, arrows: Iterable[chess.svg.Arrow | tuple[Square, Square]]) -> None:
         """
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
@@ -547,7 +547,7 @@ class GameNode(abc.ABC):
         if prefix:
             self.comments.insert(0, prefix)
 
-    def clock(self) -> Optional[float]:
+    def clock(self) -> float | None:
         """
         Parses the first valid ``[%clk ...]`` annotation in the comment of
         this node, if any.
@@ -560,7 +560,7 @@ class GameNode(abc.ABC):
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
 
-    def set_clock(self, seconds: Optional[float]) -> None:
+    def set_clock(self, seconds: float | None) -> None:
         """
         Replaces the first valid ``[%clk ...]`` annotation in the comment of
         this node or adds a new one.
@@ -576,7 +576,7 @@ class GameNode(abc.ABC):
 
         self._replace_or_add_annotation(clk, CLOCK_REGEX)
 
-    def emt(self) -> Optional[float]:
+    def emt(self) -> float | None:
         """
         Parses the first valid ``[%emt ...]`` annotation in the comment of
         this node, if any.
@@ -589,7 +589,7 @@ class GameNode(abc.ABC):
             return None
         return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
 
-    def set_emt(self, seconds: Optional[float]) -> None:
+    def set_emt(self, seconds: float | None) -> None:
         """
         Replaces the first valid ``[%emt ...]`` annotation in the comment of
         this node or adds a new one.
@@ -679,7 +679,7 @@ class ChildNode(GameNode):
     node of the game will never have NAGs.
     """
 
-    def __init__(self, parent: GameNode, move: chess.Move, *, comment: Union[str, list[str]] = "", starting_comment: Union[str, list[str]] = "", nags: Iterable[int] = []) -> None:
+    def __init__(self, parent: GameNode, move: chess.Move, *, comment: str | list[str] = "", starting_comment: str | list[str] = "", nags: Iterable[int] = []) -> None:
         super().__init__(comment=comment)
         self._parent = parent
         self._move = move
@@ -736,7 +736,7 @@ class ChildNode(GameNode):
         """
         return self.parent.board().san(self.move)
 
-    def uci(self, *, chess960: Optional[bool] = None) -> str:
+    def uci(self, *, chess960: bool | None = None) -> str:
         """
         Gets the UCI notation of the move leading to this node.
         See :func:`chess.Board.uci()`.
@@ -850,7 +850,7 @@ class Game(GameNode):
     parsing the game.
     """
 
-    def __init__(self, headers: Optional[Union[Mapping[str, str], Iterable[tuple[str, str]]]] = None) -> None:
+    def __init__(self, headers: Mapping[str, str] | Iterable[tuple[str, str]] | None = None) -> None:
         super().__init__()
         self.headers = Headers(headers)
         self.errors = []
@@ -874,7 +874,7 @@ class Game(GameNode):
         # Optimization: Parse FEN only for custom starting positions.
         return self.board().ply() if "FEN" in self.headers else 0
 
-    def setup(self, board: Union[chess.Board, str]) -> None:
+    def setup(self, board: chess.Board | str) -> None:
         """
         Sets up a specific starting position. This sets (or resets) the
         ``FEN``, ``SetUp``, and ``Variant`` header tags.
@@ -972,7 +972,7 @@ class Game(GameNode):
 HeadersT = TypeVar("HeadersT", bound="Headers")
 
 class Headers(MutableMapping[str, str]):
-    def __init__(self, data: Optional[Union[Mapping[str, str], Iterable[tuple[str, str]]]] = None, **kwargs: str) -> None:
+    def __init__(self, data: Mapping[str, str] | Iterable[tuple[str, str]] | None = None, **kwargs: str) -> None:
         self._tag_roster: dict[str, str] = {}
         self._others: dict[str, str] = {}
 
@@ -1111,11 +1111,11 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
     The methods are called in PGN order.
     """
 
-    def begin_game(self) -> Optional[SkipType]:
+    def begin_game(self) -> SkipType | None:
         """Called at the start of a game."""
         pass
 
-    def begin_headers(self) -> Optional[Headers]:
+    def begin_headers(self) -> Headers | None:
         """Called before visiting game headers."""
         pass
 
@@ -1123,11 +1123,11 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """Called for each game header."""
         pass
 
-    def end_headers(self) -> Optional[SkipType]:
+    def end_headers(self) -> SkipType | None:
         """Called after visiting game headers."""
         pass
 
-    def begin_parse_san(self, board: chess.Board, san: str) -> Optional[SkipType]:
+    def begin_parse_san(self, board: chess.Board, san: str) -> SkipType | None:
         """
         When the visitor is used by a parser, this is called at the start of
         each standard algebraic notation detailing a move.
@@ -1159,7 +1159,7 @@ class BaseVisitor(abc.ABC, Generic[ResultT]):
         """Called for each NAG."""
         pass
 
-    def begin_variation(self) -> Optional[SkipType]:
+    def begin_variation(self) -> SkipType | None:
         """
         Called at the start of a new variation. It is not called for the
         mainline of the game.
@@ -1238,7 +1238,7 @@ class GameBuilder(BaseVisitor[GameT]):
             self.game.headers["Result"] = result
 
     @override
-    def visit_comment(self, comment: Union[str, list[str]]) -> None:
+    def visit_comment(self, comment: str | list[str]) -> None:
         comments = _standardize_comments(comment)
         if self.in_variation or (self.variation_stack[-1].parent is None and self.variation_stack[-1].is_end()):
             # Add as a comment for the current node if in the middle of
@@ -1378,7 +1378,7 @@ class SkipVisitor(BaseVisitor[Literal[True]]):
 
 
 class StringExporterMixin:
-    def __init__(self, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True, variations: bool = True):
+    def __init__(self, *, columns: int | None = 80, headers: bool = True, comments: bool = True, variations: bool = True):
         self.columns = columns
         self.headers = headers
         self.comments = comments
@@ -1421,7 +1421,7 @@ class StringExporterMixin:
         if self.found_headers:
             self.write_line()
 
-    def begin_variation(self) -> Optional[SkipType]:
+    def begin_variation(self) -> SkipType | None:
         self.variation_depth += 1
 
         if self.variations:
@@ -1438,7 +1438,7 @@ class StringExporterMixin:
             self.write_token(") ")
             self.force_movenumber = True
 
-    def visit_comment(self, comment: Union[str, list[str]]) -> None:
+    def visit_comment(self, comment: str | list[str]) -> None:
         if self.comments and (self.variations or not self.variation_depth):
             def pgn_format(comments: list[str]) -> str:
                 edit = map(lambda s: s.replace("{", "").replace("}", ""), comments)
@@ -1515,7 +1515,7 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
     >>> game.accept(exporter)
     """
 
-    def __init__(self, handle: TextIO, *, columns: Optional[int] = 80, headers: bool = True, comments: bool = True, variations: bool = True):
+    def __init__(self, handle: TextIO, *, columns: int | None = 80, headers: bool = True, comments: bool = True, variations: bool = True):
         super().__init__(columns=columns, headers=headers, comments=comments, variations=variations)
         self.handle = handle
 
@@ -1547,9 +1547,9 @@ class FileExporter(StringExporterMixin, BaseVisitor[int]):
 
 
 @typing.overload
-def read_game(handle: TextIO) -> Optional[Game]: ...
+def read_game(handle: TextIO) -> Game | None: ...
 @typing.overload
-def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]]) -> Optional[ResultT]: ...
+def read_game(handle: TextIO, *, Visitor: Callable[[], BaseVisitor[ResultT]]) -> ResultT | None: ...
 def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     """
     Reads a game from a file opened in text mode.
@@ -1605,8 +1605,8 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
 
     found_game = False
     skipping_game = False
-    managed_headers: Optional[Headers] = None
-    unmanaged_headers: Optional[Headers] = None
+    managed_headers: Headers | None = None
+    unmanaged_headers: Headers | None = None
     board_stack: list[chess.Board] = []
 
     # Ignore leading empty lines and comments.
@@ -1810,7 +1810,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
     return visitor.result()
 
 
-def read_headers(handle: TextIO) -> Optional[Headers]:
+def read_headers(handle: TextIO) -> Headers | None:
     """
     Reads game headers from a PGN file opened in text mode. Skips the rest of
     the game.

@@ -12,7 +12,7 @@ import typing
 import chess
 
 from types import TracebackType
-from typing import Optional, TypeVar, Union
+from typing import TypeVar
 from collections.abc import Iterable, Iterator
 
 if typing.TYPE_CHECKING:
@@ -361,7 +361,7 @@ PCHR = ["K", "Q", "R", "B", "N", "P"]
 TABLENAME_REGEX = re.compile(r"^[KQRBNP]+v[KQRBNP]+\Z")
 
 
-def is_tablename(name: str, *, one_king: bool = True, piece_count: Optional[int] = TBPIECES, normalized: bool = True) -> bool:
+def is_tablename(name: str, *, one_king: bool = True, piece_count: int | None = TBPIECES, normalized: bool = True) -> bool:
     return (
         (piece_count is None or len(name) <= piece_count + 1) and
         bool(TABLENAME_REGEX.match(name)) and
@@ -545,7 +545,7 @@ class Table:
 
         self.write_lock = threading.RLock()
         self.initialized = False
-        self.data: Optional[mmap.mmap] = None
+        self.data: mmap.mmap | None = None
 
         self.read_condition = threading.Condition()
         self.read_count = 0
@@ -605,7 +605,7 @@ class Table:
 
             self.data = data
 
-    def check_magic(self, magic: Optional[bytes], pawnless_magic: Optional[bytes]) -> None:
+    def check_magic(self, magic: bytes | None, pawnless_magic: bytes | None) -> None:
         assert self.data
 
         valid_magics = [magic, self.has_pawns and pawnless_magic]
@@ -1031,7 +1031,7 @@ class Table:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None) -> None:
         self.close()
 
 
@@ -1271,7 +1271,7 @@ class DtzTable(Table):
                 p_data += p_data & 0x01
 
                 self.precomp = self.setup_pairs(p_data, self.tb_size[0], 0, False)
-                self.flags: Union[int, list[int]] = self._flags
+                self.flags: int | list[int] = self._flags
                 p_data = self._next
                 self.p_map = p_data
                 if self.flags & 2:
@@ -1467,7 +1467,7 @@ class Tablebase:
     """
     Manages a collection of tablebase files for probing.
     """
-    def __init__(self, *, max_fds: Optional[int] = 128, VariantBoard: type[chess.Board] = chess.Board) -> None:
+    def __init__(self, *, max_fds: int | None = 128, VariantBoard: type[chess.Board] = chess.Board) -> None:
         self.variant = VariantBoard
 
         self.max_fds = max_fds
@@ -1721,7 +1721,7 @@ class Tablebase:
 
         return v
 
-    def get_wdl(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_wdl(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_wdl(board)
         except KeyError:
@@ -1925,7 +1925,7 @@ class Tablebase:
 
         return v
 
-    def get_dtz(self, board: chess.Board, default: Optional[int] = None) -> Optional[int]:
+    def get_dtz(self, board: chess.Board, default: int | None = None) -> int | None:
         try:
             return self.probe_dtz(board)
         except KeyError:
@@ -1946,11 +1946,11 @@ class Tablebase:
     def __enter__(self) -> Tablebase:
         return self
 
-    def __exit__(self, exc_type: Optional[type[BaseException]], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None) -> None:
         self.close()
 
 
-def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: Optional[int] = 128, VariantBoard: type[chess.Board] = chess.Board) -> Tablebase:
+def open_tablebase(directory: str, *, load_wdl: bool = True, load_dtz: bool = True, max_fds: int | None = 128, VariantBoard: type[chess.Board] = chess.Board) -> Tablebase:
     """
     Opens a collection of tables for probing. See
     :class:`~chess.syzygy.Tablebase`.
