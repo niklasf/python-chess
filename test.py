@@ -2329,6 +2329,19 @@ class PgnTestCase(unittest.TestCase):
                 self.assertEqual(game.headers["Event"], expected)
                 self.assertEqual(headers["Event"], expected)
 
+    def test_reader_tolerates_malformed_header_escapes(self):
+        for line, expected, reencoded in [
+            (r'[Event "foo\"]', "foo\\", r'[Event "foo\\"]'),
+            (r'[Event "C:\chess"]', r"C:\chess", r'[Event "C:\\chess"]'),
+            (r'[Event "x\\\"]', r"x\\", r'[Event "x\\\\"]'),
+        ]:
+            with self.subTest(line=line):
+                game = chess.pgn.read_game(io.StringIO(f"{line}\n\n*\n"))
+                self.assertEqual(game.headers["Event"], expected)
+
+                exported = game.accept(chess.pgn.StringExporter(columns=None))
+                self.assertIn(reencoded, exported)
+
     def test_read_game_with_multicomment_move(self):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
         game = chess.pgn.read_game(pgn)
@@ -4502,7 +4515,7 @@ class AntichessTestCase(unittest.TestCase):
 
 
 class SuicideTestCase(unittest.TestCase):
-    
+
     def test_parse_san(self):
         board = chess.variant.SuicideBoard()
         board.push_san("e4")

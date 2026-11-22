@@ -83,6 +83,8 @@ TAG_REGEX = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+\"([^\r]*)\"\]\s*$
 
 TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]*\Z")
 
+TAG_UNESCAPE_REGEX = re.compile(r"\\([\"\\])")
+
 MOVETEXT_REGEX = re.compile(r"""
     (
         [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
@@ -1647,7 +1649,9 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         if not skipping_game:
             tag_match = TAG_REGEX.match(stripped)
             if tag_match:
-                tagvalue = re.sub(r'\\(["\\])', r'\1', tag_match.group(2))
+                tagvalue = tag_match.group(2)
+                if "\\" in tagvalue:
+                    tagvalue = TAG_UNESCAPE_REGEX.sub(r"\1", tagvalue)
                 visitor.visit_header(tag_match.group(1), tagvalue)
                 if unmanaged_headers is not None:
                     unmanaged_headers[tag_match.group(1)] = tagvalue
