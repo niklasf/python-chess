@@ -6,7 +6,6 @@ import asyncio
 import argparse
 import itertools
 import logging
-import sys
 import typing
 
 
