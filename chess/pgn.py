@@ -164,15 +164,6 @@ SKIP = SkipType.SKIP
 ResultT = TypeVar("ResultT", covariant=True)
 
 
-class TimeControlType(enum.Enum):
-    UNKNOWN = 0
-    UNLIMITED = 1
-    STANDARD = 2
-    RAPID = 3
-    BLITZ = 4
-    BULLET = 5
-
-
 @dataclasses.dataclass
 class TimeControlPart:
     moves: int = 0
@@ -194,26 +185,21 @@ class TimeControl:
     """
 
     parts: list[TimeControlPart] = dataclasses.field(default_factory=list)
-    type: TimeControlType = TimeControlType.UNKNOWN
+    """The periods of the time control. Empty for no time limit."""
 
     @classmethod
-    def parse(cls, time_control: str) -> Self:
+    def from_pgn(cls, time_control: str) -> Self:
         """
         Parses a PGN ``TimeControl`` header value.
 
-        ``?`` or an empty string yields an empty time control of type
-        ``UNKNOWN``, ``-`` one of type ``UNLIMITED``. Otherwise the type is
-        classified according to the FIDE Laws of Chess (with bullet added).
+        ``-`` yields a time control without parts (no time limit).
 
-        :raises: :exc:`ValueError` if the time control is invalid.
+        :raises: :exc:`ValueError` if the time control is invalid. This
+            includes ``?`` (unknown), which is not a time control.
         """
         tc = cls()
 
-        if time_control in ["", "?"]:
-            return tc
-
         if time_control == "-":
-            tc.type = TimeControlType.UNLIMITED
             return tc
 
         for text in time_control.split(":"):
@@ -235,35 +221,20 @@ class TimeControl:
             if part.moves == 0:
                 raise ValueError(f"only last part of time control can be sudden death: {time_control!r}")
 
-        # Classification according to https://www.fide.com/FIDE/handbook/LawsOfChess.pdf
-        # (Bullet added)
-        base_time = tc.parts[0].time
-        increment = tc.parts[0].increment
-        if (base_time + 60 * increment) < 3 * 60:
-            tc.type = TimeControlType.BULLET
-        elif (base_time + 60 * increment) < 15 * 60:
-            tc.type = TimeControlType.BLITZ
-        elif (base_time + 60 * increment) < 60 * 60:
-            tc.type = TimeControlType.RAPID
-        else:
-            tc.type = TimeControlType.STANDARD
-
         return tc
 
-    def __str__(self) -> str:
+    def pgn(self) -> str:
         """
         Formats the time control as a PGN ``TimeControl`` header value.
 
-        A time control without parts is formatted as ``-`` if its type is
-        ``UNLIMITED``, otherwise as ``?`` (unknown). If there are parts,
-        :data:`~chess.pgn.TimeControl.type` is ignored.
+        A time control without parts (no time limit) is formatted as ``-``.
 
         :raises: :exc:`ValueError` if the time control cannot be represented
             in PGN: only the last part can be sudden death, and a part
             cannot have both an increment and a delay.
         """
         if not self.parts:
-            return "-" if self.type == TimeControlType.UNLIMITED else "?"
+            return "-"
 
         for part in self.parts[:-1]:
             if part.moves == 0:
@@ -283,6 +254,9 @@ class TimeControl:
             return text
 
         return ":".join(_format_part(part) for part in self.parts)
+
+    def __str__(self) -> str:
+        return self.pgn()
 
 
 class _AcceptFrame:
@@ -1027,22 +1001,29 @@ class Game(GameNode):
         visitor.end_game()
         return visitor.result()
 
-    def time_control(self) -> TimeControl:
+    def time_control(self) -> TimeControl | None:
         """
-        Returns the time control of the game. If the game has no time control
-        information, the default time control ('UNKNOWN') is returned.
+        Parses the ``TimeControl`` header of the game.
+
+        Returns ``None`` if the time control is unknown, i.e., the header
+        is missing, empty, or ``?``.
+
+        :raises: :exc:`ValueError` if the header is invalid.
         """
         time_control_header = self.headers.get("TimeControl", "")
-        return TimeControl.parse(time_control_header)
+        if time_control_header in ["", "?"]:
+            return None
+        return TimeControl.from_pgn(time_control_header)
 
-    def set_time_control(self, time_control: TimeControl) -> None:
+    def set_time_control(self, time_control: TimeControl | None) -> None:
         """
-        Sets the ``TimeControl`` header of the game.
+        Sets the ``TimeControl`` header of the game, or ``?`` if the time
+        control is ``None`` (unknown).
 
         :raises: :exc:`ValueError` if the time control cannot be represented
-            in PGN. See :func:`TimeControl.__str__() <chess.pgn.TimeControl.__str__>`.
+            in PGN. See :func:`TimeControl.pgn() <chess.pgn.TimeControl.pgn>`.
         """
-        self.headers["TimeControl"] = str(time_control)
+        self.headers["TimeControl"] = "?" if time_control is None else time_control.pgn()
 
     @classmethod
     def from_board(cls, board: chess.Board) -> Self:

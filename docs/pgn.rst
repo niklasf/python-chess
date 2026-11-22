@@ -102,12 +102,9 @@ Time control
 ------------
 
 .. autoclass:: chess.pgn.TimeControl
-    :members: parts, type, parse, __str__
-
-.. autoclass:: chess.pgn.TimeControlPart
     :members:
 
-.. autoclass:: chess.pgn.TimeControlType
+.. autoclass:: chess.pgn.TimeControlPart
     :members:
 
 
