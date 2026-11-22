@@ -107,6 +107,12 @@ Time control
 .. autoclass:: chess.pgn.TimeControlPart
     :members:
 
+Comments
+--------
+
+.. autoclass:: chess.pgn.Comment
+    :members:
+
 Arrows
 ------
 

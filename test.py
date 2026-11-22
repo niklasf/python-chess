@@ -3397,6 +3397,65 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(node.comments, ["foo bar"])
         self.assertIsNone(node.eval())
 
+    def test_comment_parsing(self):
+        comment = chess.pgn.Comment.from_pgn("[%eval -0.50,12] [%clk 0:01:23.5] Black is [%evp 1,2] slightly worse [%csl Ga1][%cal Rd1d4] [%emt 0:00:07]")
+        self.assertEqual(comment.text, "Black is [%evp 1,2] slightly worse")
+        self.assertEqual(comment.arrows, [chess.pgn.Arrow(chess.A1, chess.A1), chess.pgn.Arrow(chess.D1, chess.D4, color="red")])
+        self.assertEqual(comment.eval, chess.engine.PovScore(chess.engine.Cp(-50), chess.WHITE))
+        self.assertEqual(comment.eval_depth, 12)
+        self.assertEqual(comment.clock, 83.5)
+        self.assertEqual(comment.emt, 7)
+        self.assertEqual(comment.pgn(), "Black is [%evp 1,2] slightly worse [%csl Ga1] [%cal Rd1d4] [%eval -0.50,12] [%emt 0:00:07] [%clk 0:01:23.5]")
+        self.assertEqual(chess.pgn.Comment.from_pgn(comment.pgn()), comment)
+
+        # Unknown and invalid commands remain in the text, like in chessops.
+        self.assertEqual(chess.pgn.Comment.from_pgn("foo [%bar] [%eval abc] baz"), chess.pgn.Comment("foo [%bar] [%eval abc] baz"))
+        self.assertEqual(chess.pgn.Comment.from_pgn("[%x][%clk 0:00:01][%y]"), chess.pgn.Comment("[%x] [%y]", clock=1))
+
+        # Whitespace around removed annotations is collapsed, but line breaks
+        # are preserved.
+        self.assertEqual(chess.pgn.Comment.from_pgn("a [%clk 0:00:01]  [%emt 0:00:02]   [%eval 0.10] b").text, "a b")
+        self.assertEqual(chess.pgn.Comment.from_pgn("line 1\n[%clk 0:00:01]\nline 2").text, "line 1\nline 2")
+        self.assertEqual(chess.pgn.Comment.from_pgn("line 1 [%clk 0:00:01]\n\n[%emt 0:00:02] line 2").text, "line 1\nline 2")
+        self.assertEqual(chess.pgn.Comment.from_pgn("  [%clk 0:00:01] text [%emt 0:00:02]  ").text, "text")
+
+        # The last annotation wins.
+        comment = chess.pgn.Comment.from_pgn("[%eval 1.00,20] [%clk 1:00:00] [%eval #-3] [%clk 0:30:00]")
+        self.assertEqual(comment.eval, chess.engine.PovScore(chess.engine.Mate(-3), chess.WHITE))
+        self.assertIsNone(comment.eval_depth)
+        self.assertEqual(comment.clock, 1800)
+
+        # Mate needs to know the side to move.
+        self.assertIsNone(chess.pgn.Comment.from_pgn("[%eval #0]").eval)
+        self.assertEqual(chess.pgn.Comment.from_pgn("[%eval #0]", turn=chess.BLACK).eval, chess.engine.PovScore(chess.engine.Mate(0), chess.BLACK))
+        self.assertEqual(chess.pgn.Comment(eval=chess.engine.PovScore(chess.engine.Mate(0), chess.BLACK)).pgn(), "[%eval #0]")
+
+        # Braces can not be represented.
+        self.assertEqual(chess.pgn.Comment("{ braces }").pgn(), " braces ")
+
+        # Only the text is positional.
+        with self.assertRaises(TypeError):
+            chess.pgn.Comment("text", [])  # type: ignore
+
+    def test_annotations_last_wins(self):
+        game = chess.pgn.Game()
+        game.comments = ["[%clk 0:01:00] [%eval 0.10] a", "b [%clk 0:02:00] [%eval -0.20,5] [%emt 0:00:01] [%emt 0:00:02]"]
+        self.assertEqual(game.clock(), 120)
+        self.assertEqual(game.eval(), chess.engine.PovScore(chess.engine.Cp(-20), chess.WHITE))
+        self.assertEqual(game.eval_depth(), 5)
+        self.assertEqual(game.emt(), 2)
+
+        # Setting replaces the last occurrence and removes the others.
+        game.set_clock(5)
+        game.set_eval(chess.engine.PovScore(chess.engine.Cp(30), chess.WHITE))
+        game.set_emt(None)
+        self.assertEqual(game.comments, ["a", "b [%clk 0:00:05] [%eval 0.30]"])
+
+    def test_arrow_equality(self):
+        self.assertEqual(chess.pgn.Arrow(chess.A1, chess.H8), chess.pgn.Arrow.from_pgn("Ga1h8"))
+        self.assertNotEqual(chess.pgn.Arrow(chess.A1, chess.H8), chess.pgn.Arrow(chess.A1, chess.H8, color="red"))
+        self.assertEqual(len({chess.pgn.Arrow(chess.A1, chess.A1), chess.pgn.Arrow.from_pgn("a1")}), 1)
+
     def test_float_emt(self):
         game = chess.pgn.Game()
         game.comments = ["[%emt 0:00:01.234]"]

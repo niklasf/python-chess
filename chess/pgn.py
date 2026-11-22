@@ -80,13 +80,13 @@ NAG_NOVELTY = 146
 
 # Until a quote closes the value, but only if followed by ] or the end of the
 # line (ignoring whitespace).
-TAG_REGEX = re.compile(r"""\s*\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+"([^"\\\r\n]*(?:(?:\\.|"(?![ \t\r]*(?:\]|$)))[^"\\\r\n]*)*)"[ \t\r]*(?:\]|$)""")
+_TAG_REGEX = re.compile(r"""\s*\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+"([^"\\\r\n]*(?:(?:\\.|"(?![ \t\r]*(?:\]|$)))[^"\\\r\n]*)*)"[ \t\r]*(?:\]|$)""")
 
-TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]*\Z")
+_TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]*\Z")
 
-TAG_UNESCAPE_REGEX = re.compile(r"\\([\"\\])")
+_TAG_UNESCAPE_REGEX = re.compile(r"\\([\"\\])")
 
-MOVETEXT_REGEX = re.compile(r"""
+_MOVETEXT_REGEX = re.compile(r"""
     (
         [NBKRQ]?[a-h]?[1-8]?[\-x]?[a-h][1-8](?:=?[nbrqkNBRQK])?
         |[PNBRQK]?@[a-h][1-8]
@@ -106,33 +106,35 @@ MOVETEXT_REGEX = re.compile(r"""
     |([\?!]{1,2})
     """, re.DOTALL | re.VERBOSE)
 
-SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
+_SKIP_MOVETEXT_REGEX = re.compile(r""";|\{|\}""")
 
 
-CLOCK_REGEX = re.compile(r"""(?P<prefix>\s?)\[%clk\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\](?P<suffix>\s?)""")
-EMT_REGEX = re.compile(r"""(?P<prefix>\s?)\[%emt\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)\](?P<suffix>\s?)""")
-
-EVAL_REGEX = re.compile(r"""
-    (?P<prefix>\s?)
-    \[%eval\s(?:
-        \#(?P<mate>[+-]?\d+)
-        |(?P<cp>[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
-    )(?:
-        ,(?P<depth>\d+)
-    )?\]
-    (?P<suffix>\s?)
-    """, re.VERBOSE)
-
-ARROWS_REGEX = re.compile(r"""
-    (?P<prefix>\s?)
-    \[%(?:csl|cal)\s(?P<arrows>
-        [RGYB][a-h][1-8](?:[a-h][1-8])?
-        (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
+_ANNOTATION_PATTERN = r"""
+    \[%(?:
+        eval\s(?:
+            \#(?P<mate>[+-]?\d+)
+            |(?P<cp>[+-]?(?:\d{0,10}\.\d{1,2}|\d{1,10}\.?))
+        )(?:
+            ,(?P<depth>\d+)
+        )?
+        |(?P<clock>clk|emt)\s(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+(?:\.\d*)?)
+        |(?:csl|cal)\s(?P<arrows>
+            [RGYB][a-h][1-8](?:[a-h][1-8])?
+            (?:,[RGYB][a-h][1-8](?:[a-h][1-8])?)*
+        )
     )\]
-    (?P<suffix>\s?)
-    """, re.VERBOSE)
+"""
 
-TIME_CONTROL_PART_REGEX = re.compile(r"""
+# A single annotation, with at most one surrounding whitespace character on
+# each side.
+_ANNOTATION_REGEX = re.compile(rf"(?P<prefix>\s?){_ANNOTATION_PATTERN}(?P<suffix>\s?)", re.VERBOSE)
+
+# A run of annotations, including all surrounding whitespace.
+_ANNOTATIONS_REGEX = re.compile(rf"\s*(?:{_ANNOTATION_PATTERN}\s*)+", re.VERBOSE)
+
+_AnnotationKind = Literal["eval", "clk", "emt", "arrows"]
+
+_TIME_CONTROL_PART_REGEX = re.compile(r"""
     (?:(?P<moves>[1-9][0-9]*)/)?
     (?P<time>[0-9]+)
     (?:\+(?P<bonus>[0-9]+(?:\.[0-9]+)?)(?P<delay>[dD])?)?
@@ -145,6 +147,93 @@ def _condense_affix(infix: str) -> Callable[[re.Match[str]], str]:
         else:
             return match.group("prefix") and match.group("suffix")
     return repl
+
+
+def _annotation_kind(match: re.Match[str]) -> _AnnotationKind:
+    if match.group("clock"):
+        return typing.cast(_AnnotationKind, match.group("clock"))
+    elif match.group("arrows"):
+        return "arrows"
+    else:
+        return "eval"
+
+
+def _annotations(kind: _AnnotationKind, text: str) -> Iterator[re.Match[str]]:
+    return (match for match in _ANNOTATION_REGEX.finditer(text) if _annotation_kind(match) == kind)
+
+
+def _last_annotation(kind: _AnnotationKind, text: str) -> re.Match[str] | None:
+    match = None
+    for match in _annotations(kind, text):
+        pass
+    return match
+
+
+def _remove_annotations(comment: str) -> str:
+    # Remove all valid annotations. Whitespace around removed annotations is
+    # collapsed into a single space, or a line break if there was one.
+    return _ANNOTATIONS_REGEX.sub(lambda match: "\n" if "\n" in match.group(0) else " ", comment).strip()
+
+
+def _parse_eval(match: re.Match[str], turn: Color | None) -> chess.engine.PovScore | None:
+    # Returns the score from the point of view of White.
+    if match.group("mate"):
+        mate = int(match.group("mate"))
+        if mate == 0:
+            # Resolve this ambiguity in the specification in favor of
+            # standard chess: The player to move after mate is the player
+            # who has been mated.
+            if turn is None:
+                return None
+            score: chess.engine.Score = chess.engine.Mate(0) if turn == chess.WHITE else chess.engine.MateGiven
+        else:
+            score = chess.engine.Mate(mate)
+    else:
+        score = chess.engine.Cp(round(float(match.group("cp")) * 100))
+    return chess.engine.PovScore(score, chess.WHITE)
+
+
+def _parse_eval_depth(match: re.Match[str]) -> int | None:
+    return int(match.group("depth")) if match.group("depth") else None
+
+
+def _format_eval(score: chess.engine.PovScore, depth: int | None, turn: Color | None) -> str:
+    depth_suffix = "" if depth is None else f",{max(depth, 0):d}"
+    cp = score.white().score()
+    mate = score.white().mate()
+    if cp is not None:
+        return f"[%eval {float(cp) / 100:.2f}{depth_suffix}]"
+    elif mate is not None and (mate != 0 or turn is None or score.pov(turn) == chess.engine.Mate(0)):
+        return f"[%eval #{mate}{depth_suffix}]"
+    else:
+        return ""
+
+
+def _parse_clock(match: re.Match[str]) -> float:
+    return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
+
+
+def _format_clock(command: str, seconds: float) -> str:
+    # nearest ms, otherwise 59.9996 becomes an invalid :60
+    seconds = round(max(0, seconds), 3)
+    hours = int(seconds // 3600)
+    minutes = int(seconds % 3600 // 60)
+    seconds = seconds % 3600 % 60
+    seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
+    return f"[%{command} {hours:d}:{minutes:02d}:{seconds_part}]"
+
+
+def _format_arrows(arrows: Iterable[Arrow]) -> list[str]:
+    csl: list[str] = []
+    cal: list[str] = []
+    for arrow in arrows:
+        (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())
+    commands = []
+    if csl:
+        commands.append(f"[%csl {','.join(csl)}]")
+    if cal:
+        commands.append(f"[%cal {','.join(cal)}]")
+    return commands
 
 
 def _standardize_comments(comment: str | list[str]) -> list[str]:
@@ -219,7 +308,7 @@ class TimeControl:
             return tc
 
         for text in pgn.split(":"):
-            match = TIME_CONTROL_PART_REGEX.fullmatch(text)
+            match = _TIME_CONTROL_PART_REGEX.fullmatch(text)
             if not match:
                 raise ValueError(f"invalid time control: {pgn!r}")
 
@@ -319,6 +408,14 @@ class Arrow:
     def __repr__(self) -> str:
         return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Arrow):
+            return NotImplemented
+        return (self.tail, self.head, self.color) == (other.tail, other.head, other.color)
+
+    def __hash__(self) -> int:
+        return hash((self.tail, self.head, self.color))
+
     @classmethod
     def from_pgn(cls, pgn: str) -> Arrow:
         """
@@ -347,6 +444,100 @@ class Arrow:
         tail = chess.parse_square(pgn[:2])
         head = chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
         return cls(tail, head, color=color)
+
+
+@dataclasses.dataclass
+class Comment:
+    """
+    A PGN comment, split into its text and the embedded annotations, like
+    ``[%eval ...]``, ``[%clk ...]``, ``[%emt ...]``, ``[%csl ...]``, and
+    ``[%cal ...]``.
+
+    >>> import chess.pgn
+    >>>
+    >>> comment = chess.pgn.Comment.from_pgn("[%eval -0.50] [%clk 0:01:23] Black is slightly worse [%cal Rd1d4]")
+    >>> comment.text
+    'Black is slightly worse'
+    >>> comment.clock
+    83.0
+    >>> comment.pgn()
+    'Black is slightly worse [%cal Rd1d4] [%eval -0.50] [%clk 0:01:23]'
+    """
+
+    text: str = ""
+    """
+    The text of the comment, with the annotations that are parsed into the
+    other fields removed. Unknown commands remain in the text.
+    """
+
+    _: dataclasses.KW_ONLY
+
+    arrows: list[Arrow] = dataclasses.field(default_factory=list)
+    """Arrows and highlighted squares from ``[%csl ...]`` and ``[%cal ...]``."""
+
+    eval: chess.engine.PovScore | None = None
+    """The evaluation from ``[%eval ...]``."""
+
+    eval_depth: int | None = None
+    """The depth of the evaluation from ``[%eval ...]``, if any."""
+
+    clock: float | None = None
+    """
+    The player's remaining time to the next time control after the move, in
+    seconds, from ``[%clk ...]``.
+    """
+
+    emt: float | None = None
+    """The player's elapsed move time in seconds, from ``[%emt ...]``."""
+
+    @classmethod
+    def from_pgn(cls, comment: str, *, turn: Color | None = None) -> Self:
+        """
+        Parses a comment (without the surrounding braces).
+
+        Valid annotations are removed from the text. Unknown and invalid
+        commands remain in the text. If an annotation that can only have a single
+        value occurs multiple times, the last one wins.
+
+        PGN represents mate with ``[%eval #0]``, from the point of view of the
+        side to move. Pass *turn* to resolve it. Otherwise ``[%eval #0]`` is
+        ignored.
+        """
+        eval_match = _last_annotation("eval", comment)
+        clock_match = _last_annotation("clk", comment)
+        emt_match = _last_annotation("emt", comment)
+        eval = _parse_eval(eval_match, turn) if eval_match else None
+
+        text = _remove_annotations(comment)
+
+        return cls(
+            text,
+            arrows=[Arrow.from_pgn(arrow) for match in _annotations("arrows", comment) for arrow in match.group("arrows").split(",")],
+            eval=eval,
+            eval_depth=_parse_eval_depth(eval_match) if eval_match and eval is not None else None,
+            clock=_parse_clock(clock_match) if clock_match else None,
+            emt=_parse_clock(emt_match) if emt_match else None,
+        )
+
+    def pgn(self) -> str:
+        """
+        Returns the comment in PGN format (without the surrounding braces):
+        The text followed by the annotations.
+        """
+        parts = [self.text.replace("{", "").replace("}", "")] if self.text else []
+        parts.extend(_format_arrows(self.arrows))
+        if self.eval is not None:
+            eval = _format_eval(self.eval, self.eval_depth, None)
+            if eval:
+                parts.append(eval)
+        if self.emt is not None:
+            parts.append(_format_clock("emt", self.emt))
+        if self.clock is not None:
+            parts.append(_format_clock("clk", self.clock))
+        return " ".join(parts)
+
+    def __str__(self) -> str:
+        return self.pgn()
 
 
 class _AcceptFrame:
@@ -621,56 +812,37 @@ class GameNode(abc.ABC):
 
     def eval(self) -> chess.engine.PovScore | None:
         """
-        Parses the first valid ``[%eval ...]`` annotation in the comment of
+        Parses the last valid ``[%eval ...]`` annotation in the comment of
         this node, if any.
 
         Complexity is `O(n)`.
         """
-        match = EVAL_REGEX.search(" ".join(self.comments))
+        match = _last_annotation("eval", " ".join(self.comments))
         if not match:
             return None
 
         turn = self.turn()
-
-        if match.group("mate"):
-            mate = int(match.group("mate"))
-            score: chess.engine.Score = chess.engine.Mate(mate)
-            if mate == 0:
-                # Resolve this ambiguity in the specification in favor of
-                # standard chess: The player to move after mate is the player
-                # who has been mated.
-                return chess.engine.PovScore(score, turn)
-        else:
-            score = chess.engine.Cp(round(float(match.group("cp")) * 100))
-
-        return chess.engine.PovScore(score if turn else -score, turn)
+        score = _parse_eval(match, turn)
+        assert score is not None
+        return chess.engine.PovScore(score.pov(turn), turn)
 
     def eval_depth(self) -> int | None:
         """
-        Parses the first valid ``[%eval ...]`` annotation in the comment of
+        Parses the last valid ``[%eval ...]`` annotation in the comment of
         this node and returns the corresponding depth, if any.
 
         Complexity is `O(1)`.
         """
-        match = EVAL_REGEX.search(" ".join(self.comments))
-        return int(match.group("depth")) if match and match.group("depth") else None
+        match = _last_annotation("eval", " ".join(self.comments))
+        return _parse_eval_depth(match) if match else None
 
     def set_eval(self, score: chess.engine.PovScore | None, depth: int | None = None) -> None:
         """
-        Replaces the first valid ``[%eval ...]`` annotation in the comment of
-        this node or adds a new one.
+        Replaces the last valid ``[%eval ...]`` annotation in the comment of
+        this node (removing any others) or adds a new one.
         """
-        eval = ""
-        if score is not None:
-            depth_suffix = "" if depth is None else f",{max(depth, 0):d}"
-            cp = score.white().score()
-            mate = score.white().mate()
-            if cp is not None:
-                eval = f"[%eval {float(cp) / 100:.2f}{depth_suffix}]"
-            elif mate is not None and (mate != 0 or score.pov(self.turn()) == chess.engine.Mate(0)):
-                eval = f"[%eval #{mate}{depth_suffix}]"
-
-        self._replace_or_add_annotation(eval, EVAL_REGEX)
+        eval = "" if score is None else _format_eval(score, depth, self.turn())
+        self._replace_or_add_annotation(eval, "eval")
 
     def arrows(self) -> list[Arrow]:
         """
@@ -680,7 +852,7 @@ class GameNode(abc.ABC):
         Returns a list of :class:`arrows <chess.pgn.Arrow>`.
         """
         arrows = []
-        for match in ARROWS_REGEX.finditer(" ".join(self.comments)):
+        for match in _annotations("arrows", " ".join(self.comments)):
             for group in match.group("arrows").split(","):
                 arrows.append(Arrow.from_pgn(group))
 
@@ -691,101 +863,80 @@ class GameNode(abc.ABC):
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
         """
-        csl: list[str] = []
-        cal: list[str] = []
-
+        standardized: list[Arrow] = []
         for arrow in arrows:
             try:
                 tail, head = arrow  # type: ignore
                 arrow = Arrow(tail, head)
             except TypeError:
                 pass
-            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
+            standardized.append(arrow)  # type: ignore
 
-        for index in range(len(self.comments)):
-            self.comments[index] = ARROWS_REGEX.sub(_condense_affix(""), self.comments[index])
+        self._replace_or_add_annotation("", "arrows")
 
-        self.comments = list(filter(None, self.comments))
-
-        prefix = ""
-        if csl:
-            prefix += f"[%csl {','.join(csl)}]"
-        if cal:
-            prefix += f"[%cal {','.join(cal)}]"
+        prefix = "".join(_format_arrows(standardized))
 
         if prefix:
             self.comments.insert(0, prefix)
 
     def clock(self) -> float | None:
         """
-        Parses the first valid ``[%clk ...]`` annotation in the comment of
+        Parses the last valid ``[%clk ...]`` annotation in the comment of
         this node, if any.
 
         Returns the player's remaining time to the next time control after this
         move, in seconds.
         """
-        match = CLOCK_REGEX.search(" ".join(self.comments))
-        if match is None:
-            return None
-        return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
+        match = _last_annotation("clk", " ".join(self.comments))
+        return _parse_clock(match) if match else None
 
     def set_clock(self, seconds: float | None) -> None:
         """
-        Replaces the first valid ``[%clk ...]`` annotation in the comment of
-        this node or adds a new one.
+        Replaces the last valid ``[%clk ...]`` annotation in the comment of
+        this node (removing any others) or adds a new one.
         """
-        clk = ""
-        if seconds is not None:
-            # nearest ms, otherwise 59.9996 becomes an invalid :60
-            seconds = round(max(0, seconds), 3)
-            hours = int(seconds // 3600)
-            minutes = int(seconds % 3600 // 60)
-            seconds = seconds % 3600 % 60
-            seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
-            clk = f"[%clk {hours:d}:{minutes:02d}:{seconds_part}]"
-
-        self._replace_or_add_annotation(clk, CLOCK_REGEX)
+        clk = "" if seconds is None else _format_clock("clk", seconds)
+        self._replace_or_add_annotation(clk, "clk")
 
     def emt(self) -> float | None:
         """
-        Parses the first valid ``[%emt ...]`` annotation in the comment of
+        Parses the last valid ``[%emt ...]`` annotation in the comment of
         this node, if any.
 
         Returns the player's elapsed move time use for the comment of this
         move, in seconds.
         """
-        match = EMT_REGEX.search(" ".join(self.comments))
-        if match is None:
-            return None
-        return int(match.group("hours")) * 3600 + int(match.group("minutes")) * 60 + float(match.group("seconds"))
+        match = _last_annotation("emt", " ".join(self.comments))
+        return _parse_clock(match) if match else None
 
     def set_emt(self, seconds: float | None) -> None:
         """
-        Replaces the first valid ``[%emt ...]`` annotation in the comment of
-        this node or adds a new one.
+        Replaces the last valid ``[%emt ...]`` annotation in the comment of
+        this node (removing any others) or adds a new one.
         """
-        emt = ""
-        if seconds is not None:
-            # nearest ms, otherwise 59.9996 becomes an invalid :60
-            seconds = round(max(0, seconds), 3)
-            hours = int(seconds // 3600)
-            minutes = int(seconds % 3600 // 60)
-            seconds = seconds % 3600 % 60
-            seconds_part = f"{seconds:06.3f}".rstrip("0").rstrip(".")
-            emt = f"[%emt {hours:d}:{minutes:02d}:{seconds_part}]"
+        emt = "" if seconds is None else _format_clock("emt", seconds)
+        self._replace_or_add_annotation(emt, "emt")
 
-        self._replace_or_add_annotation(emt, EMT_REGEX)
+    def _replace_or_add_annotation(self, text: str, kind: _AnnotationKind) -> None:
+        # Replace the last occurrence, which is the one that counts, and
+        # remove all others.
+        total = sum(1 for comment in self.comments for _ in _annotations(kind, comment))
+        seen = 0
 
-    def _replace_or_add_annotation(self, text: str, regex: re.Pattern[str]) -> None:
-        found = 0
-        for index in range(len(self.comments)):
-            self.comments[index], found = regex.subn(_condense_affix(text), self.comments[index], count=1)
-            if found:
-                break
+        def repl(match: re.Match[str]) -> str:
+            nonlocal seen
+            if _annotation_kind(match) != kind:
+                return match.group(0)
+            seen += 1
+            return _condense_affix(text if seen == total else "")(match)
 
+        for index, comment in enumerate(self.comments):
+            edited = _ANNOTATION_REGEX.sub(repl, comment)
+            # Removing adjacent annotations can leave behind whitespace.
+            self.comments[index] = edited.strip() if edited != comment else comment
         self.comments = list(filter(None, self.comments))
 
-        if not found and text:
+        if not total and text:
             self.comments.append(text)
 
     @abc.abstractmethod
@@ -1222,7 +1373,7 @@ class Headers(MutableMapping[str, str]):
     def __setitem__(self, key: str, value: str) -> None:
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
-        elif not TAG_NAME_REGEX.match(key):
+        elif not _TAG_NAME_REGEX.match(key):
             raise ValueError(f"invalid pgn header tag: {key!r}")
         elif "\n" in value or "\r" in value:
             raise ValueError(f"line break in pgn header {key}: {value!r}")
@@ -1873,10 +2024,10 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         if not skipping_game:
             # Stop at invalid or malformed headers, ignoring the rest of the line.
             pos = 0
-            while tag_match := TAG_REGEX.match(stripped, pos):
+            while tag_match := _TAG_REGEX.match(stripped, pos):
                 tagvalue = tag_match.group(2)
                 if "\\" in tagvalue:
-                    tagvalue = TAG_UNESCAPE_REGEX.sub(r"\1", tagvalue)
+                    tagvalue = _TAG_UNESCAPE_REGEX.sub(r"\1", tagvalue)
                 visitor.visit_header(tag_match.group(1), tagvalue)
                 if unmanaged_headers is not None:
                     unmanaged_headers[tag_match.group(1)] = tagvalue
@@ -1924,7 +2075,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                     line = handle.readline()
                     continue
 
-            for match in SKIP_MOVETEXT_REGEX.finditer(line):
+            for match in _SKIP_MOVETEXT_REGEX.finditer(line):
                 token = match.group(0)
                 if token == "{":
                     in_comment = True
@@ -1954,7 +2105,7 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
                 return visitor.result()
         fresh_line = True
 
-        for match in MOVETEXT_REGEX.finditer(line):
+        for match in _MOVETEXT_REGEX.finditer(line):
             token = match.group(0)
 
             if token.startswith("{"):
