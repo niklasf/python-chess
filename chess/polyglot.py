@@ -5,6 +5,7 @@ import struct
 import os
 import mmap
 import random
+import sys
 import typing
 
 from types import TracebackType
@@ -336,11 +337,11 @@ class MemoryMappedReader:
         if self.mmap.size() % ENTRY_STRUCT.size != 0:
             raise IOError(f"invalid file size: ensure {filename!r} is a valid polyglot opening book")
 
-        try:
-            # Unix
-            self.mmap.madvise(mmap.MADV_RANDOM)
-        except AttributeError:
-            pass
+        if sys.platform != "win32":
+            try:
+                self.mmap.madvise(mmap.MADV_RANDOM)
+            except AttributeError:
+                pass  # _EmptyMmap, or platform without madvise
 
     def __enter__(self) -> MemoryMappedReader:
         return self

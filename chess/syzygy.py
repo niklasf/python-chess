@@ -6,6 +6,7 @@ import mmap
 import os
 import re
 import struct
+import sys
 import threading
 import typing
 
@@ -594,11 +595,11 @@ class Table:
             if data.size() % 64 != 16:
                 raise IOError(f"invalid file size: ensure {self.path!r} is a valid syzygy tablebase file")
 
-            try:
-                # Unix
-                data.madvise(mmap.MADV_RANDOM)
-            except AttributeError:
-                pass
+            if sys.platform != "win32":
+                try:
+                    data.madvise(mmap.MADV_RANDOM)
+                except AttributeError:
+                    pass  # Platform without madvise
 
             self.data = data
 

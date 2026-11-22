@@ -13,6 +13,7 @@ import logging
 import math
 import shlex
 import subprocess
+import sys
 import threading
 import time
 import typing
@@ -1150,11 +1151,9 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
             command = [command]
 
         if setpgrp:
-            try:
-                # Windows.
-                popen_args["creationflags"] = popen_args.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
-            except AttributeError:
-                # Unix.
+            if sys.platform == "win32":
+                popen_args["creationflags"] = popen_args.get("creationflags", 0) | subprocess.CREATE_NEW_PROCESS_GROUP
+            else:
                 popen_args["process_group"] = 0
 
         return await asyncio.get_running_loop().subprocess_exec(cls, *command, **popen_args)

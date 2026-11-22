@@ -1,17 +1,17 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Stockfish
-sudo apt-get install -y stockfish
+# Stockfish, Crafty, Fairy-Stockfish
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends stockfish crafty fairy-stockfish
 
-# Crafty
-sudo apt-get install -y crafty
-
-# Fairy-stockfish
-sudo apt-get install -y fairy-stockfish
+# Sanity check, because the test suite silently skips missing engines
+command -v stockfish crafty fairy-stockfish
 
 # Gaviota libgtb
-git clone https://github.com/michiguel/Gaviota-Tablebases.git --depth 1
-cd Gaviota-Tablebases
-make
-echo "LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
-cd ..
+GAVIOTA_REV=981472cc83e3a8b6e996191e564295609ea4ce30
+git init -q Gaviota-Tablebases
+git -C Gaviota-Tablebases fetch -q --depth 1 https://github.com/michiguel/Gaviota-Tablebases.git "$GAVIOTA_REV"
+git -C Gaviota-Tablebases checkout -q FETCH_HEAD
+make -C Gaviota-Tablebases
+echo "LD_LIBRARY_PATH=$PWD/Gaviota-Tablebases${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
