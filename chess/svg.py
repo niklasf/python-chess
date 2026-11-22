@@ -7,6 +7,7 @@ import chess
 
 
 from collections.abc import Iterable
+from typing import Literal
 from chess import Color, IntoSquareSet, Square
 
 
@@ -201,6 +202,16 @@ def _coord(text: str, x: int, y: int, width: int, height: int, horizontal: bool,
     return t
 
 
+def _inside_coord(text: str, x: float, y: float, *, color: str) -> ET.Element:
+    t = ET.Element("g", {
+        "transform": f"translate({x:g}, {y:g}) scale(0.5, 0.5)",
+        "fill": color,
+        "stroke": color,
+    })
+    t.append(ET.fromstring(COORDS[text]))
+    return t
+
+
 def piece(piece: chess.Piece, size: int | None = None) -> str:
     """
     Renders the given :class:`chess.Piece` as an SVG image.
@@ -226,7 +237,7 @@ def board(board: chess.BaseBoard | None = None, *,
           fill: dict[Square, str] = {},
           squares: IntoSquareSet | None = None,
           size: int | None = None,
-          coordinates: bool = True,
+          coordinates: bool | Literal["inside", "outside"] = True,
           colors: dict[str, str] = {},
           borders: bool = False,
           style: str | None = None) -> str:
@@ -248,7 +259,10 @@ def board(board: chess.BaseBoard | None = None, *,
         with an X.
     :param size: The size of the image in pixels (e.g., ``400`` for a 400 by
         400 board), or ``None`` (the default) for no size limit.
-    :param coordinates: Pass ``False`` to disable the coordinate margin.
+    :param coordinates: Pass ``False`` to disable coordinates, or
+        ``"inside"`` to render coordinates on the edge squares of the board
+        instead of in a margin around it. ``True`` (the default) is the same
+        as ``"outside"``.
     :param colors: A dictionary to override default colors. Possible keys are
         ``square light``, ``square dark``, ``square light lastmove``,
         ``square dark lastmove``, ``margin``, ``coord``, ``inner border``,
@@ -256,7 +270,7 @@ def board(board: chess.BaseBoard | None = None, *,
         and ``arrow yellow``. Values should look like ``#ffce9e`` (opaque),
         or ``#15781B80`` (transparent).
     :param borders: Pass ``True`` to enable a border around the board and,
-       (if *coordinates* is enabled) the coordinate margin.
+       (if *coordinates* are outside) the coordinate margin.
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
@@ -275,9 +289,18 @@ def board(board: chess.BaseBoard | None = None, *,
     .. image:: ../docs/Ne4.svg
         :alt: 8/8/8/8/4N3/8/8/8
     """
-    inner_border = 1 if borders and coordinates else 0
+    if coordinates == "inside":
+        inside_coordinates, outside_coordinates = True, False
+    elif coordinates == "outside" or coordinates is True:
+        inside_coordinates, outside_coordinates = False, True
+    elif coordinates is False:
+        inside_coordinates, outside_coordinates = False, False
+    else:
+        raise ValueError(f"expected coordinates to be bool, 'inside', or 'outside', got {coordinates!r}")
+
+    inner_border = 1 if borders and outside_coordinates else 0
     outer_border = 1 if borders else 0
-    margin = 15 if coordinates else 0
+    margin = 15 if outside_coordinates else 0
     board_offset = inner_border + margin + outer_border
     full_size = 2 * outer_border + 2 * margin + 2 * inner_border + 8 * SQUARE_SIZE
     svg = _svg(full_size, size)
@@ -344,7 +367,7 @@ def board(board: chess.BaseBoard | None = None, *,
         }))
 
     # Render coordinates.
-    if coordinates:
+    if outside_coordinates:
         coord_color, coord_opacity = _select_color(colors, "coord")
         for file_index, file_name in enumerate(chess.FILE_NAMES):
             x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + board_offset
@@ -396,6 +419,28 @@ def board(board: chess.BaseBoard | None = None, *,
                 "fill": fill_color,
                 "opacity": fill_opacity if fill_opacity < 1.0 else None,
             }))
+
+    # Render inside coordinates, using the color of light squares on dark
+    # squares and vice versa.
+    if inside_coordinates:
+        light_color, _ = _select_color(colors, "square light")
+        dark_color, _ = _select_color(colors, "square dark")
+
+        # Files at the bottom right of the bottom rank.
+        bottom_rank_index = 0 if orientation else 7
+        for file_index, file_name in enumerate(chess.FILE_NAMES):
+            x = (file_index if orientation else 7 - file_index) * SQUARE_SIZE + board_offset
+            y = 7 * SQUARE_SIZE + board_offset
+            light = chess.BB_LIGHT_SQUARES & chess.BB_SQUARES[chess.square(file_index, bottom_rank_index)]
+            svg.append(_inside_coord(file_name, x + SQUARE_SIZE * 0.67, y + SQUARE_SIZE * 0.73, color=dark_color if light else light_color))
+
+        # Ranks at the top left of the leftmost file.
+        left_file_index = 0 if orientation else 7
+        for rank_index, rank_name in enumerate(chess.RANK_NAMES):
+            x = board_offset
+            y = (7 - rank_index if orientation else rank_index) * SQUARE_SIZE + board_offset
+            light = chess.BB_LIGHT_SQUARES & chess.BB_SQUARES[chess.square(left_file_index, rank_index)]
+            svg.append(_inside_coord(rank_name, x, y - SQUARE_SIZE * 0.1, color=dark_color if light else light_color))
 
     # Render check mark.
     if check is not None:
