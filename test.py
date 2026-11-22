@@ -3038,6 +3038,29 @@ class PgnTestCase(unittest.TestCase):
             game.set_eval(chess.engine.PovScore(chess.engine.Cp(cp), chess.WHITE))
             self.assertEqual(game.eval().white().cp, cp)
 
+    def test_eval_mate_zero(self):
+        game = chess.pgn.read_game(io.StringIO("1. f3 e5 2. g4 Qh4# { [%eval #0] } 0-1"))
+        node = game.end()
+        node.set_eval(node.eval())
+        self.assertEqual(node.comments, ["[%eval #0]"])
+        self.assertEqual(node.eval().relative, chess.engine.Mate(0))
+
+        # Equivalent: The opponent has given mate.
+        node.set_eval(chess.engine.PovScore(chess.engine.MateGiven, chess.BLACK))
+        self.assertEqual(node.comments, ["[%eval #0]"])
+        self.assertEqual(node.eval(), chess.engine.PovScore(chess.engine.Mate(0), chess.WHITE))
+
+        # PGN can only represent the side to move being mated. Drop
+        # unrepresentable scores.
+        node.set_eval(chess.engine.PovScore(chess.engine.Mate(0), chess.BLACK))
+        self.assertEqual(node.comments, [])
+        self.assertIsNone(node.eval())
+
+        node.comments = ["foo [%eval #0] bar"]
+        node.set_eval(chess.engine.PovScore(chess.engine.MateGiven, chess.WHITE))
+        self.assertEqual(node.comments, ["foo bar"])
+        self.assertIsNone(node.eval())
+
     def test_float_emt(self):
         game = chess.pgn.Game()
         game.comments = ["[%emt 0:00:01.234]"]
