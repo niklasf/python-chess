@@ -1159,27 +1159,30 @@ class BaseBoard:
         builder: list[str] = []
         empty = 0
 
-        for square in SQUARES_180:
-            piece = self.piece_at(square)
+        if promoted is None:
+            promoted_mask = self._effective_promoted()
+        elif promoted:
+            promoted_mask = self.promoted
+        else:
+            promoted_mask = BB_EMPTY
 
-            if not piece:
+        for square in SQUARES_180:
+            mask = BB_SQUARES[square]
+            piece_type = self.piece_type_at(square)
+
+            if not piece_type:
                 empty += 1
             else:
                 if empty:
                     builder.append(str(empty))
                     empty = 0
-                builder.append(piece.symbol())
+                symbol = piece_symbol(piece_type)
+                builder.append(symbol.upper() if self.occupied_co[WHITE] & mask else symbol)
 
-                if promoted is None:
-                    promoted_mask = self._effective_promoted()
-                elif promoted:
-                    promoted_mask = self.promoted
-                else:
-                    promoted_mask = BB_EMPTY
-                if BB_SQUARES[square] & promoted_mask:
+                if mask & promoted_mask:
                     builder.append("~")
 
-            if BB_SQUARES[square] & BB_FILE_H:
+            if mask & BB_FILE_H:
                 if empty:
                     builder.append(str(empty))
                     empty = 0
