@@ -495,10 +495,11 @@ class GameNode(abc.ABC):
         if score is not None:
             depth_suffix = "" if depth is None else f",{max(depth, 0):d}"
             cp = score.white().score()
+            mate = score.white().mate()
             if cp is not None:
                 eval = f"[%eval {float(cp) / 100:.2f}{depth_suffix}]"
-            elif score.white().mate() is not None:
-                eval = f"[%eval #{score.white().mate()}{depth_suffix}]"
+            elif mate is not None and (mate != 0 or score.pov(self.turn()) == chess.engine.Mate(0)):
+                eval = f"[%eval #{mate}{depth_suffix}]"
 
         self._replace_or_add_annotation(eval, EVAL_REGEX)
 
