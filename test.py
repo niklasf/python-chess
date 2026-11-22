@@ -2639,6 +2639,16 @@ class PgnTestCase(unittest.TestCase):
         collect(game)
         self.assertIn("inner-empty", all_comments)
 
+        # A comment following an empty variation is a regular comment of
+        # the preceding move, as it would be after a non-empty variation.
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 ({lonely}) {after} 2. Nf3 *"))
+        self.assertEqual(game[0][0].comments, ["lonely", "after"])
+        self.assertEqual(game[0][0][0].starting_comments, [])
+
+        game = chess.pgn.read_game(io.StringIO("1. e4 e5 () {after} 2. Nf3 *"))
+        self.assertEqual(game[0][0].comments, ["after"])
+        self.assertEqual(game[0][0][0].starting_comments, [])
+
         # Invariant: no node carries starting comments without starting
         # a variation.
         samples = [
@@ -2647,6 +2657,9 @@ class PgnTestCase(unittest.TestCase):
             "1. e4 e5 ({a}) (1... c5) 2. Nf3 *",
             "1. e4 ({pre} 1. d4 d5) e5 *",
             "1. e4 e5 ({x} 1... c5 {y} ({z}) 2. Nf3) 2. Bc4 *",
+            "1. e4 e5 ({x}) {y} 2. Nf3 *",
+            "1. e4 e5 () {y} 2. Nf3 *",
+            "1. e4 e5 ({x} 1... c5 () {y} 2. Nf3) 2. Bc4 *",
         ]
         for movetext in samples:
             game = chess.pgn.read_game(io.StringIO(movetext))
@@ -3260,7 +3273,7 @@ class PgnTestCase(unittest.TestCase):
     def test_skip_inner_variation(self):
         class BlackVariationsOnly(chess.pgn.GameBuilder):
             def begin_variation(self):
-                self.skipping = self.variation_stack[-1].turn() != chess.WHITE
+                self.skipping = self.variation_stack[-1].node.turn() != chess.WHITE
                 if self.skipping:
                     return chess.pgn.SKIP
                 else:
