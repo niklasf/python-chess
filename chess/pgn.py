@@ -79,9 +79,13 @@ NAG_BLACK_SEVERE_TIME_PRESSURE = 139
 NAG_NOVELTY = 146
 
 
-TAG_REGEX = re.compile(r"^\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+\"([^\r]*)\"\]\s*$")
+# Until a quote closes the value, but only if followed by ] or the end of the
+# line (ignoring whitespace).
+TAG_REGEX = re.compile(r"""\s*\[([A-Za-z0-9][A-Za-z0-9_+#=:-]*)\s+"([^"\\\r\n]*(?:(?:\\.|"(?![ \t\r]*(?:\]|$)))[^"\\\r\n]*)*)"[ \t\r]*(?:\]|$)""")
 
 TAG_NAME_REGEX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#=:-]*\Z")
+
+TAG_UNESCAPE_REGEX = re.compile(r"\\([\"\\])")
 
 MOVETEXT_REGEX = re.compile(r"""
     (
@@ -1415,7 +1419,8 @@ class StringExporterMixin:
     def visit_header(self, tagname: str, tagvalue: str) -> None:
         if self.headers:
             self.found_headers = True
-            self.write_line(f"[{tagname} \"{tagvalue}\"]")
+            escaped_tagvalue = tagvalue.replace("\\", "\\\\").replace('"', '\\"')
+            self.write_line(f"[{tagname} \"{escaped_tagvalue}\"]")
 
     def end_headers(self) -> None:
         if self.found_headers:
@@ -1644,15 +1649,16 @@ def read_game(handle: TextIO, *, Visitor: Any = GameBuilder) -> Any:
         consecutive_empty_lines = 0
 
         if not skipping_game:
-            tag_match = TAG_REGEX.match(stripped)
-            if tag_match:
-                visitor.visit_header(tag_match.group(1), tag_match.group(2))
+            # Stop at invalid or malformed headers, ignoring the rest of the line.
+            pos = 0
+            while tag_match := TAG_REGEX.match(stripped, pos):
+                tagvalue = tag_match.group(2)
+                if "\\" in tagvalue:
+                    tagvalue = TAG_UNESCAPE_REGEX.sub(r"\1", tagvalue)
+                visitor.visit_header(tag_match.group(1), tagvalue)
                 if unmanaged_headers is not None:
-                    unmanaged_headers[tag_match.group(1)] = tag_match.group(2)
-            else:
-                # Ignore invalid or malformed headers.
-                line = handle.readline()
-                continue
+                    unmanaged_headers[tag_match.group(1)] = tagvalue
+                pos = tag_match.end()
 
         line = handle.readline()
 

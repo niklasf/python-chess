@@ -2138,6 +2138,30 @@ class PolyglotTestCase(unittest.TestCase):
 
 class PgnTestCase(unittest.TestCase):
 
+    HEADER_VALUE_CASES = [
+        ("Plain", "Plain"),
+        ('The "Open"', r'The \"Open\"'),
+        (r"C:\chess", r"C:\\chess"),
+        ('quote " and slash \\', r'quote \" and slash \\'),
+        ('ends in \\', r'ends in \\'),
+        ("right ] bracket", "right ] bracket"),
+    ]
+
+    def test_exporter_escapes_headers(self):
+        for value, encoded in self.HEADER_VALUE_CASES:
+            with self.subTest(value=value):
+                game = chess.pgn.Game.without_tag_roster()
+                game.headers["Event"] = value
+
+                exported = game.accept(chess.pgn.StringExporter(columns=None))
+                expected = f'[Event "{encoded}"]\n\n*'
+                self.assertEqual(exported, expected)
+                self.assertEqual(chess.pgn.read_headers(io.StringIO(exported))["Event"], value)
+
+                handle = io.StringIO()
+                game.accept(chess.pgn.FileExporter(handle, columns=None))
+                self.assertEqual(handle.getvalue(), expected + "\n\n")
+
     def test_exporter(self):
         game = chess.pgn.Game()
         game.comments = ["Test game:"]
@@ -2294,6 +2318,63 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.headers["White"], "Patricia 3.1_dev_ca7ef0a3")
         self.assertEqual(game.next().move, chess.Move.from_uci("d2d4"))
         self.assertEqual(game.errors, [])
+
+    def test_reader_unescapes_headers(self):
+        for expected, encoded in self.HEADER_VALUE_CASES:
+            with self.subTest(encoded=encoded):
+                text = f'[Event "{encoded}"]\n\n*\n'
+                game = chess.pgn.read_game(io.StringIO(text))
+                headers = chess.pgn.read_headers(io.StringIO(text))
+
+                self.assertEqual(game.headers["Event"], expected)
+                self.assertEqual(headers["Event"], expected)
+
+    def test_reader_header_escape_edge_cases(self):
+        # Backslashes that do not start an escape sequence are kept.
+        game = chess.pgn.read_game(io.StringIO('[Event "C:\\chess"]\n\n*\n'))
+        self.assertEqual(game.headers["Event"], r"C:\chess")
+        self.assertIn(r'[Event "C:\\chess"]', str(game))
+
+        # An escaped quote does not close the value.
+        for line in [r'[Event "foo\"]', r'[Event "x\\\"]']:
+            with self.subTest(line=line):
+                game = chess.pgn.read_game(io.StringIO(f"{line}\n\n*\n"))
+                self.assertEqual(game.headers["Event"], "?")
+
+    def test_unescaped_quotes_in_header_values(self):
+        pgn = textwrap.dedent("""\
+            [WhiteTeam "United States "B" Olympiad"]
+            [BlackTeam "United States "A" Olympiad"]
+            [Site "a "b" c" ]
+            [Annotator "The "Annotator""]
+            [Round ""]
+            [A "a "b" c"] [B "d"][C "e "f""] [D "g" ]
+            [Event "x "y"
+
+            1. e4 """)
+
+        self.assertEqual(dict(chess.pgn.read_headers(io.StringIO(pgn))), {
+            "WhiteTeam": 'United States "B" Olympiad',
+            "BlackTeam": 'United States "A" Olympiad',
+            "Site": 'a "b" c',
+            "Annotator": 'The "Annotator"',
+            "Round": "",
+            "A": 'a "b" c',
+            "B": "d",
+            "C": 'e "f"',
+            "D": "g",
+            "Event": 'x "y',
+        })
+
+        game = chess.pgn.read_game(io.StringIO(pgn))
+        self.assertEqual(game.next().move, chess.Move.from_uci("e2e4"))
+        self.assertEqual(game.errors, [])
+
+        # Exported with proper escaping, and read back the same.
+        exported = str(game)
+        self.assertIn(r'[WhiteTeam "United States \"B\" Olympiad"]', exported)
+        self.assertIn(r'[Annotator "The \"Annotator\""]', exported)
+        self.assertEqual(chess.pgn.read_headers(io.StringIO(exported)), game.headers)
 
     def test_read_game_with_multicomment_move(self):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
@@ -4468,7 +4549,7 @@ class AntichessTestCase(unittest.TestCase):
 
 
 class SuicideTestCase(unittest.TestCase):
-    
+
     def test_parse_san(self):
         board = chess.variant.SuicideBoard()
         board.push_san("e4")
