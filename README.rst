@@ -1,8 +1,6 @@
 python-chess: a chess library for Python
 ========================================
 
-
-
 .. image:: https://badge.fury.io/py/chess.svg
     :target: https://pypi.python.org/pypi/chess
     :alt: PyPI package
@@ -10,10 +8,6 @@ python-chess: a chess library for Python
 .. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
     :alt: Docs
-
-.. image:: https://badges.gitter.im/python-chess/community.svg
-    :target: https://gitter.im/python-chess/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
-    :alt: Chat on Gitter
 
 Introduction
 ------------
@@ -293,10 +287,10 @@ Features
 
       >>> engine.quit()
 
-Selected projects
+Related projects
 -----------------
 
-If you like, share interesting things you are using python-chess for, for example:
+Some interesting applications:
 
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info/                                                                  |
@@ -309,20 +303,10 @@ If you like, share interesting things you are using python-chess for, for exampl
 |     :width: 64                                                                                       |                                                                                              |
 |     :target: https://maiachess.com/                                                                  | A human-like neural network chess engine                                                     |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | `clente/chess <https://github.com/clente/chess>`_                                            |
-|     :height: 64                                                                                      |                                                                                              |
-|     :width: 64                                                                                       |                                                                                              |
-|     :target: https://github.com/clente/chess                                                         | Opinionated wrapper to use python-chess from the R programming language                      |
-+------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/crazyara.png?raw=true     | https://crazyara.org/                                                                        |
 |     :height: 64                                                                                      |                                                                                              |
 |     :width: 64                                                                                       |                                                                                              |
 |     :target: https://crazyara.org/                                                                   | Deep learning for Crazyhouse                                                                 |
-+------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/jcchess.png?raw=true      | `http://johncheetham.com <http://johncheetham.com/projects/jcchess/>`_                       |
-|     :height: 64                                                                                      |                                                                                              |
-|     :width: 64                                                                                       |                                                                                              |
-|     :target: http://johncheetham.com/projects/jcchess/                                               | A GUI to play against UCI chess engines                                                      |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | `https://pettingzoo.farama.org <https://pettingzoo.farama.org/environments/classic/chess/>`_ |
 |     :width: 64                                                                                       |                                                                                              |
@@ -334,22 +318,6 @@ If you like, share interesting things you are using python-chess for, for exampl
 |     :height: 64                                                                                      |                                                                                              |
 |     :target: https://github.com/trevorbayless/cli-chess                                              | A highly customizable way to play chess in your terminal                                     |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-
-* extensions to build engines (search and evaluation) – https://github.com/Mk-Chan/python-chess-engine-extensions
-* a stand-alone chess computer based on DGT board – https://picochess.com/
-* a bridge between Lichess API and chess engines – https://github.com/lichess-bot-devs/lichess-bot
-* a command-line PGN annotator – https://github.com/rpdelaney/python-chess-annotator
-* an HTTP microservice to render board images – https://github.com/niklasf/web-boardimage
-* building a toy chess engine with alpha-beta pruning, piece-square tables, and move ordering – https://healeycodes.com/building-my-own-chess-engine/
-* a JIT compiled chess engine – https://github.com/SamRagusa/Batch-First
-* teaching Cognitive Science – `https://jupyter.brynmawr.edu <https://jupyter.brynmawr.edu/services/public/dblank/CS371%20Cognitive%20Science/2016-Fall/Programming%20a%20Chess%20Player.ipynb>`_
-* an `Alexa skill to play blindfold chess <https://www.amazon.com/Laynr-blindfold-chess/dp/B0859QF8YL>`_ – https://github.com/laynr/blindfold-chess
-* a chessboard widget for PySide2 – https://github.com/H-a-y-k/hichesslib
-* Django Rest Framework API for multiplayer chess – https://github.com/WorkShoft/capablanca-api
-* a `browser based PGN viewer <https://about.nmstoker.com/chess2.html>`_ written in PyScript – https://github.com/nmstoker/ChessMatchViewer
-* an accessible chessboard that allows blind and visually impaired  players  to play chess against Stockfish – https://github.com/blindpandas/chessmart
-* a web-based chess vision exercise – https://github.com/3d12/rookognition
-
 
 Prior art
 ---------
