@@ -27,6 +27,9 @@ if sys.version_info < (3, 11):
         Since version 1.0.0, python-chess requires Python 3.7 or later.
         """))
 
+if int(setuptools.__version__.split(".", 1)[0]) < 77:
+    raise ImportError("Building python-chess requires setuptools 77 or later (for SPDX license expressions).")
+
 import chess
 
 
@@ -62,11 +65,10 @@ setuptools.setup(
     description=chess.__doc__.replace("\n", " ").strip(),
     long_description=read_description(),
     long_description_content_type="text/x-rst",
-    license="GPL-3.0+",
+    license_expression="GPL-3.0-or-later",
     keywords="chess fen epd pgn polyglot syzygy gaviota uci xboard",
     url="https://github.com/niklasf/python-chess",
     packages=["chess"],
-    test_suite="test",
     zip_safe=False,  # For mypy
     package_data={
         "chess": ["py.typed"],
@@ -76,13 +78,13 @@ setuptools.setup(
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "Topic :: Games/Entertainment :: Board Games",
         "Topic :: Games/Entertainment :: Turn Based Strategy",
         "Topic :: Software Development :: Libraries :: Python Modules",

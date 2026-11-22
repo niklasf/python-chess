@@ -312,7 +312,7 @@ If you like, share interesting things you are using python-chess for, for exampl
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/clente-chess.png?raw=true | `clente/chess <https://github.com/clente/chess>`_                                            |
 |     :height: 64                                                                                      |                                                                                              |
 |     :width: 64                                                                                       |                                                                                              |
-|     :target: https://github.com/clente/chess                                                         | Opinionated wrapper to use python-chess from the R programming language                     |
+|     :target: https://github.com/clente/chess                                                         | Opinionated wrapper to use python-chess from the R programming language                      |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/crazyara.png?raw=true     | https://crazyara.org/                                                                        |
 |     :height: 64                                                                                      |                                                                                              |
