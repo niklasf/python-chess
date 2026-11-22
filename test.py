@@ -2342,6 +2342,33 @@ class PgnTestCase(unittest.TestCase):
                 exported = game.accept(chess.pgn.StringExporter(columns=None))
                 self.assertIn(reencoded, exported)
 
+    def test_unescaped_quotes_in_header_values(self):
+        # Same example as in pgn-reader.
+        pgn = textwrap.dedent("""\
+            [WhiteTeam "United States "B" Olympiad"]
+            [BlackTeam "United States "A" Olympiad"]
+            [Site "a "b" c" ]
+            [Annotator "The "Annotator""]
+            [Round ""]
+            [A "a "b" c"] [B "d"][C "e "f""] [D "g" ]
+            [Event "x "y"
+
+            1. e4 """)
+
+        game = chess.pgn.read_game(io.StringIO(pgn))
+        self.assertEqual(game.headers["WhiteTeam"], 'United States "B" Olympiad')
+        self.assertEqual(game.headers["BlackTeam"], 'United States "A" Olympiad')
+        self.assertEqual(game.headers["Annotator"], 'The "Annotator"')
+        self.assertEqual(game.headers["Round"], "")
+        self.assertEqual(game.next().move, chess.Move.from_uci("e2e4"))
+        self.assertEqual(game.errors, [])
+
+        # Exported with proper escaping, and read back the same.
+        exported = str(game)
+        self.assertIn(r'[WhiteTeam "United States \"B\" Olympiad"]', exported)
+        self.assertIn(r'[Annotator "The \"Annotator\""]', exported)
+        self.assertEqual(chess.pgn.read_headers(io.StringIO(exported)), game.headers)
+
     def test_read_game_with_multicomment_move(self):
         pgn = io.StringIO("1. e4 {A common opening} 1... e5 {A common response} {An uncommon comment}")
         game = chess.pgn.read_game(pgn)
