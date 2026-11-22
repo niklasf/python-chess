@@ -5,7 +5,7 @@ python-chess: a chess library for Python
     :target: https://pypi.python.org/pypi/chess
     :alt: PyPI package
 
-.. image:: https://readthedocs.org/projects/python-chess/badge/?version=latest
+.. image:: https://app.readthedocs.org/projects/python-chess/badge/?version=latest
     :target: https://python-chess.readthedocs.io/en/latest/
     :alt: Docs
 
