@@ -33,7 +33,7 @@ else:
     def override(fn: F, /) -> F:
         return fn
 
-WdlModel = Literal["sf", "sf16.1", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
+WdlModel = Literal["sf", "sf19", "sf18", "sf17.1", "sf17", "sf16.1", "sf16", "sf15.1", "sf15", "sf14", "sf12", "lichess"]
 
 
 T = TypeVar("T")
@@ -358,9 +358,9 @@ class PovScore:
         """Tests if this is a mate score."""
         return self.relative.is_mate()
 
-    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> PovWdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> PovWdl:
         """See :func:`~chess.engine.Score.wdl()`."""
-        return PovWdl(self.relative.wdl(model=model, ply=ply), self.turn)
+        return PovWdl(self.relative.wdl(model=model, ply=ply, material=material), self.turn)
 
     def __repr__(self) -> str:
         return "PovScore({!r}, {})".format(self.relative, "WHITE" if self.turn else "BLACK")
@@ -437,27 +437,33 @@ class Score(abc.ABC):
         return self.mate() is not None
 
     @abc.abstractmethod
-    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
         """
         Returns statistics for the expected outcome of this game, based on
-        a *model*, given that this score is reached at *ply*.
+        a *model*, given that this score is reached at *ply* or with
+        the given amount of *material* on the board.
 
         Scores have a total order, but it makes little sense to compute
         the difference between two scores. For example, going from
-        ``Cp(-100)`` to ``Cp(+100)`` is much more significant than going
-        from ``Cp(+300)`` to ``Cp(+500)``. It is better to compute differences
+        ``Cp(+100)`` to ``Cp(+200)`` is much more significant than going
+        from ``Cp(+200)`` to ``Cp(+400)``. It is better to compute differences
         of the expectation values for the outcome of the game (based on winning
         chances and drawing chances).
 
-        >>> Cp(100).wdl().expectation() - Cp(-100).wdl().expectation()  # doctest: +ELLIPSIS
-        0.379...
+        >>> Cp(200).wdl().expectation() - Cp(100).wdl().expectation()  # doctest: +ELLIPSIS
+        0.246...
 
-        >>> Cp(500).wdl().expectation() - Cp(300).wdl().expectation()  # doctest: +ELLIPSIS
-        0.015...
+        >>> Cp(400).wdl().expectation() - Cp(200).wdl().expectation()  # doctest: +ELLIPSIS
+        0.003...
 
         :param model:
             * ``sf``, the WDL model used by the latest Stockfish
-              (currently ``sf16``).
+              (currently ``sf19``).
+            * ``sf19``, the WDL model used by Stockfish 19.
+            * ``sf18``, the WDL model used by Stockfish 18.
+            * ``sf17.1``, the WDL model used by Stockfish 17.1.
+            * ``sf17``, the WDL model used by Stockfish 17.
+            * ``sf16.1``, the WDL model used by Stockfish 16.1.
             * ``sf16``, the WDL model used by Stockfish 16.
             * ``sf15.1``, the WDL model used by Stockfish 15.1.
             * ``sf15``, the WDL model used by Stockfish 15.
@@ -466,8 +472,12 @@ class Score(abc.ABC):
             * ``lichess``, the win rate model used by Lichess.
               Does not use *ply*, and does not consider drawing chances.
         :param ply: The number of half-moves played since the starting
-            position. Models may scale scores slightly differently based on
-            this. Defaults to middle game.
+            position. Models up to ``sf16.1`` may scale scores slightly
+            differently based on this. Defaults to middle game.
+        :param material: The material count on the board, where pawns count
+            1, knights and bishops 3, rooks 5, and queens 9 (for both sides,
+            so the starting position has 78). Used by models since ``sf17``
+            instead of *ply*. Defaults to middle game.
         """
 
     @abc.abstractmethod
@@ -522,11 +532,47 @@ class Score(abc.ABC):
         else:
             return NotImplemented
 
+def _sf_material_wins(cp: int, *, material: int, as_: tuple[float, float, float, float], bs: tuple[float, float, float, float]) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_17/src/uci.cpp#L333-L359
+    m = min(78, max(17, material)) / 58
+    a = (((as_[0] * m + as_[1]) * m + as_[2]) * m) + as_[3]
+    b = (((bs[0] * m + bs[1]) * m + bs[2]) * m) + bs[3]
+    # Undo the dynamic normalization of UCIEngine::to_cp().
+    x = cp * a / 100
+    try:
+        return int(0.5 + 1000 / (1 + math.exp((a - x) / b)))
+    except OverflowError:
+        return 0
+
+def _sf19_wins(cp: int, *, material: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_19/src/uci.cpp#L546-L547
+    return _sf_material_wins(cp, material=material,
+                             as_=(-142.72052667, 372.35176398, -340.71073572, 415.23490212),
+                             bs=(5.93832785, 15.61267078, -30.57816876, 69.63866711))
+
+def _sf18_wins(cp: int, *, material: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_18/src/uci.cpp#L510-L511
+    return _sf_material_wins(cp, material=material,
+                             as_=(-72.32565836, 185.93832038, -144.58862193, 416.44950446),
+                             bs=(83.86794042, -136.06112997, 69.98820887, 47.62901433))
+
+def _sf17_1_wins(cp: int, *, material: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_17.1/src/uci.cpp#L516-L517
+    return _sf_material_wins(cp, material=material,
+                             as_=(-13.50030198, 40.92780883, -36.82753545, 386.83004070),
+                             bs=(96.53354896, -165.79058388, 90.89679019, 49.29561889))
+
+def _sf17_wins(cp: int, *, material: int) -> int:
+    # https://github.com/official-stockfish/Stockfish/blob/sf_17/src/uci.cpp#L342-L343
+    return _sf_material_wins(cp, material=material,
+                             as_=(-37.45051876, 121.19101539, -132.78783573, 420.70576692),
+                             bs=(90.26261072, -137.26549898, 71.10130540, 51.35259597))
+
 def _sf16_1_wins(cp: int, *, ply: int) -> int:
     # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L48
     NormalizeToPawnValue = 356
     # https://github.com/official-stockfish/Stockfish/blob/sf_16.1/src/uci.cpp#L383-L384
-    m = min(120, max(8, ply / 2 + 1)) / 32
+    m = min(120, max(8, ply // 2 + 1)) / 32
     a = (((-1.06249702 * m + 7.42016937) * m + 0.89425629) * m) + 348.60356174
     b = (((-5.33122190 * m + 39.57831533) * m + -90.84473771) * m) + 123.40620748
     x = min(4000, max(cp * NormalizeToPawnValue / 100, -4000))
@@ -594,7 +640,7 @@ class Cp(Score):
     def score(self, *, mate_score: int | None = None) -> int:
         return self.cp
 
-    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
         if model == "lichess":
             wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
             losses = 1000 - wins
@@ -613,9 +659,21 @@ class Cp(Score):
         elif model == "sf16":
             wins = _sf16_wins(self.cp, ply=ply)
             losses = _sf16_wins(-self.cp, ply=ply)
-        else:
+        elif model == "sf16.1":
             wins = _sf16_1_wins(self.cp, ply=ply)
             losses = _sf16_1_wins(-self.cp, ply=ply)
+        elif model == "sf17":
+            wins = _sf17_wins(self.cp, material=material)
+            losses = _sf17_wins(-self.cp, material=material)
+        elif model == "sf17.1":
+            wins = _sf17_1_wins(self.cp, material=material)
+            losses = _sf17_1_wins(-self.cp, material=material)
+        elif model == "sf18":
+            wins = _sf18_wins(self.cp, material=material)
+            losses = _sf18_wins(-self.cp, material=material)
+        else:
+            wins = _sf19_wins(self.cp, material=material)
+            losses = _sf19_wins(-self.cp, material=material)
         draws = 1000 - wins - losses
         return Wdl(wins, draws, losses)
 
@@ -656,7 +714,7 @@ class Mate(Score):
         else:
             return -mate_score - self.moves
 
-    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
         if model == "lichess":
             cp = (21 - min(10, abs(self.moves))) * 100
             wins = _lichess_raw_wins(cp)
@@ -693,7 +751,7 @@ class MateGivenType(Score):
     def score(self, *, mate_score: int | None = None) -> int | None:
         return mate_score
 
-    def wdl(self, *, model: WdlModel = "sf", ply: int = 30) -> Wdl:
+    def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
         return Wdl(1000, 0, 0)
 
     def __neg__(self) -> Mate:

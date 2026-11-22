@@ -3419,7 +3419,7 @@ class EngineTestCase(unittest.TestCase):
                 self.assertEqual(i >= j, a >= b)
                 self.assertEqual(i < j, a.score(mate_score=100000) < b.score(mate_score=100000))
 
-                for model in ["sf12", "sf14", "sf15", "sf15.1", "sf16", "sf16.1"]:
+                for model in ["sf12", "sf14", "sf15", "sf15.1", "sf16", "sf16.1", "sf17", "sf17.1", "sf18", "sf19"]:
                     self.assertTrue(not (i < j) or a.wdl(model=model).expectation() <= b.wdl(model=model).expectation())
                     self.assertTrue(not (i < j) or a.wdl(model=model).winning_chance() <= b.wdl(model=model).winning_chance())
                     self.assertTrue(not (i < j) or a.wdl(model=model).losing_chance() >= b.wdl(model=model).losing_chance())
@@ -3460,6 +3460,24 @@ class EngineTestCase(unittest.TestCase):
         self.assertEqual(chess.engine.Cp(100).wdl(model="sf15.1", ply=64), chess.engine.Wdl(497, 503, 0))
         self.assertEqual(chess.engine.Cp(-52).wdl(model="sf16", ply=63), chess.engine.Wdl(0, 932, 68))
         self.assertEqual(chess.engine.Cp(51).wdl(model="sf16.1", ply=158), chess.engine.Wdl(36, 964, 0))
+
+        # Odd ply uses integer division, like Stockfish.
+        self.assertEqual(chess.engine.Cp(80).wdl(model="sf16.1", ply=41), chess.engine.Wdl(300, 700, 0))
+
+        # Since Stockfish 17, the model depends on material instead of ply.
+        # Values cross-checked with Stockfish 19 (UCI_ShowWDL).
+        self.assertEqual(chess.engine.Cp(19).wdl(model="sf19", material=78), chess.engine.Wdl(38, 953, 9))
+        self.assertEqual(chess.engine.Cp(-56).wdl(model="sf19", material=77), chess.engine.Wdl(2, 854, 144))
+        self.assertEqual(chess.engine.Cp(103).wdl(model="sf19", material=66), chess.engine.Wdl(535, 465, 0))
+        self.assertEqual(chess.engine.Cp(103).wdl(model="sf18", material=66), chess.engine.Wdl(539, 461, 0))
+        self.assertEqual(chess.engine.Cp(103).wdl(model="sf17.1", material=66), chess.engine.Wdl(535, 465, 0))
+        self.assertEqual(chess.engine.Cp(103).wdl(model="sf17", material=66), chess.engine.Wdl(532, 468, 0))
+        self.assertEqual(chess.engine.Cp(100).wdl(), chess.engine.Cp(100).wdl(model="sf19", material=58))
+
+        # Extreme scores (no overflow).
+        for model in ["sf17", "sf17.1", "sf18", "sf19"]:
+            self.assertEqual(chess.engine.Cp(-20000).wdl(model=model, material=3), chess.engine.Wdl(0, 0, 1000))
+            self.assertEqual(chess.engine.Cp(20000).wdl(model=model, material=100), chess.engine.Wdl(1000, 0, 0))
 
     @catchAndSkip(FileNotFoundError, "need stockfish")
     def test_sf_forced_mates(self):
