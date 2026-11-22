@@ -10,6 +10,3 @@ licensed under the GFDL, BSD and GPL.
 .. autofunction:: chess.svg.piece
 
 .. autofunction:: chess.svg.board
-
-.. autoclass:: chess.svg.Arrow
-    :members:

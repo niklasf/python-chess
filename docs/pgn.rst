@@ -107,6 +107,12 @@ Time control
 .. autoclass:: chess.pgn.TimeControlPart
     :members:
 
+Arrows
+------
+
+.. autoclass:: chess.pgn.Arrow
+    :members:
+
 
 Skimming
 --------

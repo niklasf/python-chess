@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import typing
 import xml.etree.ElementTree as ET
 
 import chess
@@ -9,6 +10,9 @@ import chess
 from collections.abc import Iterable
 from typing import Literal
 from chess import Color, IntoSquareSet, Square
+
+if typing.TYPE_CHECKING:
+    from chess.pgn import Arrow
 
 
 SQUARE_SIZE = 45
@@ -66,80 +70,6 @@ DEFAULT_COLORS = {
     "arrow yellow": "#e68f00b3",
     "arrow blue": "#00308880",
 }
-
-
-class Arrow:
-    """Details of an arrow to be drawn."""
-
-    tail: Square
-    """Start square of the arrow."""
-
-    head: Square
-    """End square of the arrow."""
-
-    color: str
-    """Arrow color."""
-
-    def __init__(self, tail: Square, head: Square, *, color: str = "green") -> None:
-        self.tail = tail
-        self.head = head
-        self.color = color
-
-    def pgn(self) -> str:
-        """
-        Returns the arrow in the format used by ``[%csl ...]`` and
-        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
-
-        Colors other than ``red``, ``yellow``, and ``blue`` default to green.
-        """
-        if self.color == "red":
-            color = "R"
-        elif self.color == "yellow":
-            color = "Y"
-        elif self.color == "blue":
-            color = "B"
-        else:
-            color = "G"
-
-        if self.tail == self.head:
-            return f"{color}{chess.SQUARE_NAMES[self.tail]}"
-        else:
-            return f"{color}{chess.SQUARE_NAMES[self.tail]}{chess.SQUARE_NAMES[self.head]}"
-
-    def __str__(self) -> str:
-        return self.pgn()
-
-    def __repr__(self) -> str:
-        return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
-
-    @classmethod
-    def from_pgn(cls, pgn: str) -> Arrow:
-        """
-        Parses an arrow from the format used by ``[%csl ...]`` and
-        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
-
-        Also allows skipping the color prefix, defaulting to green.
-
-        :raises: :exc:`ValueError` if the format is invalid.
-        """
-        if pgn.startswith("G"):
-            color = "green"
-            pgn = pgn[1:]
-        elif pgn.startswith("R"):
-            color = "red"
-            pgn = pgn[1:]
-        elif pgn.startswith("Y"):
-            color = "yellow"
-            pgn = pgn[1:]
-        elif pgn.startswith("B"):
-            color = "blue"
-            pgn = pgn[1:]
-        else:
-            color = "green"
-
-        tail = chess.parse_square(pgn[:2])
-        head = chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
-        return cls(tail, head, color=color)
 
 
 class SvgWrapper(str):
@@ -249,8 +179,8 @@ def board(board: chess.BaseBoard | None = None, *,
     :param orientation: The point of view, defaulting to ``chess.WHITE``.
     :param lastmove: A :class:`chess.Move` to be highlighted.
     :param check: A square to be marked indicating a check.
-    :param arrows: A list of :class:`~chess.svg.Arrow` objects, like
-        ``[chess.svg.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
+    :param arrows: A list of :class:`~chess.pgn.Arrow` objects, like
+        ``[chess.pgn.Arrow(chess.E2, chess.E4)]``, or a list of tuples, like
         ``[(chess.E2, chess.E4)]``. An arrow from a square pointing to the same
         square is drawn as a circle, like ``[(chess.E2, chess.E2)]``.
     :param fill: A dictionary mapping squares to a colors that they should be
@@ -274,6 +204,7 @@ def board(board: chess.BaseBoard | None = None, *,
     :param style: A CSS stylesheet to include in the SVG image.
 
     >>> import chess
+    >>> import chess.pgn
     >>> import chess.svg
     >>>
     >>> board = chess.Board("8/8/8/8/4N3/8/8/8 w - - 0 1")
@@ -281,7 +212,7 @@ def board(board: chess.BaseBoard | None = None, *,
     >>> chess.svg.board(
     ...     board,
     ...     fill=dict.fromkeys(board.attacks(chess.E4), "#cc0000cc"),
-    ...     arrows=[chess.svg.Arrow(chess.E4, chess.F6, color="#0000cccc")],
+    ...     arrows=[chess.pgn.Arrow(chess.E4, chess.F6, color="#0000cccc")],
     ...     squares=chess.SquareSet(chess.BB_DARK_SQUARES & chess.BB_FILE_B),
     ...     size=350,
     ... )  # doctest: +SKIP

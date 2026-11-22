@@ -3296,7 +3296,7 @@ class PgnTestCase(unittest.TestCase):
         self.assertEqual(game.eval_depth(), 5)
 
         self.assertEqual(game.arrows(), [])
-        game.set_arrows([(chess.A1, chess.A1), chess.svg.Arrow(chess.A1, chess.H1, color="red"), chess.svg.Arrow(chess.B1, chess.B8)])
+        game.set_arrows([(chess.A1, chess.A1), chess.pgn.Arrow(chess.A1, chess.H1, color="red"), chess.pgn.Arrow(chess.B1, chess.B8)])
         self.assertEqual(game.comments, ["[%csl Ga1][%cal Ra1h1,Gb1b8]", "foo [%bar] baz", "[%clk 3:25:45]", "[%eval #1,5]"])
         arrows = game.arrows()
         self.assertEqual(len(arrows), 3)
@@ -4962,7 +4962,7 @@ class SvgTestCase(unittest.TestCase):
         self.assertIn("<circle", svg)
         self.assertNotIn("<line", svg)
 
-        svg = chess.svg.board(arrows=[chess.svg.Arrow(chess.A1, chess.H8)])
+        svg = chess.svg.board(arrows=[chess.pgn.Arrow(chess.A1, chess.H8)])
         self.assertNotIn("<circle", svg)
         self.assertIn("<line", svg)
 

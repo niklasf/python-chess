@@ -10,7 +10,6 @@ import typing
 
 import chess
 import chess.engine
-import chess.svg
 
 from typing import Any, Generic, Literal, Self, TextIO, TypeVar
 from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
@@ -274,6 +273,80 @@ class TimeControl:
 
     def __str__(self) -> str:
         return self.pgn()
+
+
+class Arrow:
+    """Details of an arrow to be drawn."""
+
+    tail: Square
+    """Start square of the arrow."""
+
+    head: Square
+    """End square of the arrow."""
+
+    color: str
+    """Arrow color."""
+
+    def __init__(self, tail: Square, head: Square, *, color: str = "green") -> None:
+        self.tail = tail
+        self.head = head
+        self.color = color
+
+    def pgn(self) -> str:
+        """
+        Returns the arrow in the format used by ``[%csl ...]`` and
+        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
+
+        Colors other than ``red``, ``yellow``, and ``blue`` default to green.
+        """
+        if self.color == "red":
+            color = "R"
+        elif self.color == "yellow":
+            color = "Y"
+        elif self.color == "blue":
+            color = "B"
+        else:
+            color = "G"
+
+        if self.tail == self.head:
+            return f"{color}{chess.SQUARE_NAMES[self.tail]}"
+        else:
+            return f"{color}{chess.SQUARE_NAMES[self.tail]}{chess.SQUARE_NAMES[self.head]}"
+
+    def __str__(self) -> str:
+        return self.pgn()
+
+    def __repr__(self) -> str:
+        return f"Arrow({chess.SQUARE_NAMES[self.tail].upper()}, {chess.SQUARE_NAMES[self.head].upper()}, color={self.color!r})"
+
+    @classmethod
+    def from_pgn(cls, pgn: str) -> Arrow:
+        """
+        Parses an arrow from the format used by ``[%csl ...]`` and
+        ``[%cal ...]`` PGN annotations, e.g., ``Ga1`` or ``Ya2h2``.
+
+        Also allows skipping the color prefix, defaulting to green.
+
+        :raises: :exc:`ValueError` if the format is invalid.
+        """
+        if pgn.startswith("G"):
+            color = "green"
+            pgn = pgn[1:]
+        elif pgn.startswith("R"):
+            color = "red"
+            pgn = pgn[1:]
+        elif pgn.startswith("Y"):
+            color = "yellow"
+            pgn = pgn[1:]
+        elif pgn.startswith("B"):
+            color = "blue"
+            pgn = pgn[1:]
+        else:
+            color = "green"
+
+        tail = chess.parse_square(pgn[:2])
+        head = chess.parse_square(pgn[2:]) if len(pgn) > 2 else tail
+        return cls(tail, head, color=color)
 
 
 class _AcceptFrame:
@@ -593,21 +666,21 @@ class GameNode(abc.ABC):
 
         self._replace_or_add_annotation(eval, EVAL_REGEX)
 
-    def arrows(self) -> list[chess.svg.Arrow]:
+    def arrows(self) -> list[Arrow]:
         """
         Parses all ``[%csl ...]`` and ``[%cal ...]`` annotations in the comment
         of this node.
 
-        Returns a list of :class:`arrows <chess.svg.Arrow>`.
+        Returns a list of :class:`arrows <chess.pgn.Arrow>`.
         """
         arrows = []
         for match in ARROWS_REGEX.finditer(" ".join(self.comments)):
             for group in match.group("arrows").split(","):
-                arrows.append(chess.svg.Arrow.from_pgn(group))
+                arrows.append(Arrow.from_pgn(group))
 
         return arrows
 
-    def set_arrows(self, arrows: Iterable[chess.svg.Arrow | tuple[Square, Square]]) -> None:
+    def set_arrows(self, arrows: Iterable[Arrow | tuple[Square, Square]]) -> None:
         """
         Replaces all valid ``[%csl ...]`` and ``[%cal ...]`` annotations in
         the comment of this node or adds new ones.
@@ -618,7 +691,7 @@ class GameNode(abc.ABC):
         for arrow in arrows:
             try:
                 tail, head = arrow  # type: ignore
-                arrow = chess.svg.Arrow(tail, head)
+                arrow = Arrow(tail, head)
             except TypeError:
                 pass
             (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())  # type: ignore
