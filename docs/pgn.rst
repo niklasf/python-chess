@@ -98,6 +98,19 @@ like ``!``, ``?``, ``!!``, etc., are also converted to NAGs.
 .. autodata:: chess.pgn.NAG_SPECULATIVE_MOVE
 .. autodata:: chess.pgn.NAG_DUBIOUS_MOVE
 
+Time control
+------------
+
+.. autoclass:: chess.pgn.TimeControl
+    :members: parts, type, parse, __str__
+
+.. autoclass:: chess.pgn.TimeControlPart
+    :members:
+
+.. autoclass:: chess.pgn.TimeControlType
+    :members:
+
+
 Skimming
 --------
 
