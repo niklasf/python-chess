@@ -147,6 +147,27 @@ class SquareTestCase(unittest.TestCase):
         self.assertEqual(chess.square_knight_distance(chess.A1, chess.B2), 4)
         self.assertEqual(chess.square_knight_distance(chess.C1, chess.B2), 2)
 
+    def test_square_flip(self):
+        self.assertEqual(chess.square_flip_vertical(chess.B1), chess.B8)
+        self.assertEqual(chess.square_flip_horizontal(chess.B1), chess.G1)
+        self.assertEqual(chess.square_flip_diagonal(chess.B1), chess.A2)
+        self.assertEqual(chess.square_flip_anti_diagonal(chess.B1), chess.H7)
+
+        for square_flip, flip in [
+            (chess.square_flip_vertical, chess.flip_vertical),
+            (chess.square_flip_horizontal, chess.flip_horizontal),
+            (chess.square_flip_diagonal, chess.flip_diagonal),
+            (chess.square_flip_anti_diagonal, chess.flip_anti_diagonal),
+        ]:
+            for square in chess.SQUARES:
+                self.assertEqual(chess.BB_SQUARES[square_flip(square)], flip(chess.BB_SQUARES[square]))
+                self.assertEqual(square_flip(square_flip(square)), square)
+
+    def test_square_mirror(self):
+        for square in chess.SQUARES:
+            self.assertEqual(chess.square_mirror(square), chess.square_flip_vertical(square))
+            self.assertEqual(chess.SQUARES_MIRRORED[square], chess.square_flip_vertical(square))
+
 
 class MoveTestCase(unittest.TestCase):
 

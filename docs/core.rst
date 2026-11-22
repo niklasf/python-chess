@@ -89,6 +89,14 @@ and so on to
 
 .. autofunction:: chess.square_knight_distance
 
+.. autofunction:: chess.square_flip_vertical
+
+.. autofunction:: chess.square_flip_horizontal
+
+.. autofunction:: chess.square_flip_diagonal
+
+.. autofunction:: chess.square_flip_anti_diagonal
+
 .. autofunction:: chess.square_mirror
 
 Pieces

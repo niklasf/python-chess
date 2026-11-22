@@ -339,11 +339,48 @@ def square_knight_distance(a: Square, b: Square) -> int:
     m = math.ceil(max(dx / 2, dy / 2, (dx + dy) / 3))
     return m + ((m + dx + dy) % 2)
 
-def square_mirror(square: Square) -> Square:
-    """Mirrors the square vertically."""
+def square_flip_vertical(square: Square) -> Square:
+    """
+    Flips the square vertically, e.g., a1 ↔ a8.
+
+    Square-level counterpart of :func:`chess.flip_vertical()`.
+    """
     return square ^ 0x38
 
-SQUARES_180: list[Square] = [square_mirror(sq) for sq in SQUARES]
+def square_flip_horizontal(square: Square) -> Square:
+    """
+    Flips the square horizontally, e.g., a1 ↔ h1.
+
+    Square-level counterpart of :func:`chess.flip_horizontal()`.
+    """
+    return square ^ 0x07
+
+def square_flip_diagonal(square: Square) -> Square:
+    """
+    Flips the square about the a1-h8 diagonal, e.g., a8 ↔ h1.
+
+    Square-level counterpart of :func:`chess.flip_diagonal()`.
+    """
+    return ((square >> 3) | (square << 3)) & 0x3f
+
+def square_flip_anti_diagonal(square: Square) -> Square:
+    """
+    Flips the square about the a8-h1 antidiagonal, e.g., a1 ↔ h8.
+
+    Square-level counterpart of :func:`chess.flip_anti_diagonal()`.
+    """
+    return square_flip_diagonal(square) ^ 0x3f
+
+def square_mirror(square: Square) -> Square:
+    """
+    Mirrors the square vertically, e.g., a1 ↔ a8.
+
+    Same as :func:`chess.square_flip_vertical()`. Consistent with
+    :func:`chess.Board.mirror()`.
+    """
+    return square ^ 0x38
+
+SQUARES_MIRRORED: list[Square] = [square_flip_vertical(sq) for sq in SQUARES]
 
 
 Bitboard: TypeAlias = int
@@ -1166,7 +1203,7 @@ class BaseBoard:
         else:
             promoted_mask = BB_EMPTY
 
-        for square in SQUARES_180:
+        for square in SQUARES_MIRRORED:
             mask = BB_SQUARES[square]
             piece_type = self.piece_type_at(square)
 
@@ -1241,10 +1278,10 @@ class BaseBoard:
                 square_index += int(c)
             elif c.lower() in PIECE_SYMBOLS:
                 piece = Piece.from_symbol(c)
-                self._set_piece_at(SQUARES_180[square_index], piece.piece_type, piece.color)
+                self._set_piece_at(SQUARES_MIRRORED[square_index], piece.piece_type, piece.color)
                 square_index += 1
             elif c == "~":
-                self.promoted |= BB_SQUARES[SQUARES_180[square_index - 1]]
+                self.promoted |= BB_SQUARES[SQUARES_MIRRORED[square_index - 1]]
 
     def set_board_fen(self, fen: str) -> None:
         """
@@ -1434,7 +1471,7 @@ class BaseBoard:
     def __str__(self) -> str:
         builder: list[str] = []
 
-        for square in SQUARES_180:
+        for square in SQUARES_MIRRORED:
             piece = self.piece_at(square)
 
             if piece:
@@ -4349,7 +4386,7 @@ class SquareSet:
     def __str__(self) -> str:
         builder: list[str] = []
 
-        for square in SQUARES_180:
+        for square in SQUARES_MIRRORED:
             mask = BB_SQUARES[square]
             builder.append("1" if self.mask & mask else ".")
 
