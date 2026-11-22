@@ -2834,7 +2834,7 @@ class PgnTestCase(unittest.TestCase):
             game = chess.pgn.read_game(pgn)
             tc = game.time_control()
 
-            self.assertEqual(tc, chess.pgn.parse_time_control(game.headers["TimeControl"]))
+            self.assertEqual(tc, chess.pgn.TimeControl.parse(game.headers["TimeControl"]))
 
             self.assertEqual(tc.type, chess.pgn.TimeControlType.STANDARD)
             self.assertEqual(len(tc.parts), 3)
@@ -2845,36 +2845,72 @@ class PgnTestCase(unittest.TestCase):
             self.assertEqual(tcp2, chess.pgn.TimeControlPart(20, 3600))
             self.assertEqual(tcp3, chess.pgn.TimeControlPart(0, 900, 30))
 
-        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.parse_time_control("60").type)
-        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.parse_time_control("60+1").type)
+        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.TimeControl.parse("60").type)
+        self.assertEqual(chess.pgn.TimeControlType.BULLET, chess.pgn.TimeControl.parse("60+1").type)
 
-        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("60+2").type)
-        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("300").type)
-        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.parse_time_control("300+3").type)
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.TimeControl.parse("60+2").type)
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.TimeControl.parse("300").type)
+        self.assertEqual(chess.pgn.TimeControlType.BLITZ, chess.pgn.TimeControl.parse("300+3").type)
 
-        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("300+10").type)
-        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("1800").type)
-        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.parse_time_control("1800+10").type)
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.TimeControl.parse("300+10").type)
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.TimeControl.parse("1800").type)
+        self.assertEqual(chess.pgn.TimeControlType.RAPID, chess.pgn.TimeControl.parse("1800+10").type)
 
-        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("1800+30").type)
-        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("5400").type)
-        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.parse_time_control("5400+30").type)
-
-        with self.assertRaises(ValueError):
-            chess.pgn.parse_time_control("300+a")
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.TimeControl.parse("1800+30").type)
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.TimeControl.parse("5400").type)
+        self.assertEqual(chess.pgn.TimeControlType.STANDARD, chess.pgn.TimeControl.parse("5400+30").type)
 
         with self.assertRaises(ValueError):
-            chess.pgn.parse_time_control("300+ad")
+            chess.pgn.TimeControl.parse("300+a")
 
         with self.assertRaises(ValueError):
-            chess.pgn.parse_time_control("600:20/180")
+            chess.pgn.TimeControl.parse("300+ad")
 
         with self.assertRaises(ValueError):
-            chess.pgn.parse_time_control("abc")
+            chess.pgn.TimeControl.parse("600:20/180")
 
         with self.assertRaises(ValueError):
-            chess.pgn.parse_time_control("40/abc")
+            chess.pgn.TimeControl.parse("abc")
 
+        with self.assertRaises(ValueError):
+            chess.pgn.TimeControl.parse("40/abc")
+
+    def test_time_control_str(self):
+        for header in ["40/7200:20/3600:900+30", "300+2", "180+0.5", "5400+30d", "1800", "-", "?"]:
+            tc = chess.pgn.TimeControl.parse(header)
+            self.assertEqual(str(tc), header)
+            self.assertEqual(chess.pgn.TimeControl.parse(str(tc)), tc)
+
+        self.assertEqual(str(chess.pgn.TimeControl()), "?")
+        self.assertEqual(str(chess.pgn.TimeControl(type=chess.pgn.TimeControlType.UNLIMITED)), "-")
+
+        with self.assertRaises(ValueError):
+            str(chess.pgn.TimeControl(parts=[chess.pgn.TimeControlPart(time=600), chess.pgn.TimeControlPart(moves=20, time=180)]))
+
+    def test_set_time_control(self):
+        game = chess.pgn.Game()
+
+        for header in ["40/7200:20/3600:900+30", "300+2", "180+0.5", "5400+30d", "1800", "-", "?"]:
+            game.set_time_control(chess.pgn.TimeControl.parse(header))
+            self.assertEqual(game.headers["TimeControl"], header)
+            self.assertEqual(game.time_control(), chess.pgn.TimeControl.parse(header))
+
+        game.set_time_control(chess.pgn.TimeControl(
+            parts=[chess.pgn.TimeControlPart(moves=40, time=6000, increment=30.0), chess.pgn.TimeControlPart(time=900, increment=30)],
+            type=chess.pgn.TimeControlType.STANDARD))
+        self.assertEqual(game.headers["TimeControl"], "40/6000+30:900+30")
+
+        game.set_time_control(chess.pgn.TimeControl())
+        self.assertEqual(game.headers["TimeControl"], "?")
+        self.assertEqual(game.time_control().type, chess.pgn.TimeControlType.UNKNOWN)
+
+        with self.assertRaises(ValueError):
+            game.set_time_control(chess.pgn.TimeControl(parts=[chess.pgn.TimeControlPart(time=600), chess.pgn.TimeControlPart(moves=20, time=180)]))
+
+        with self.assertRaises(ValueError):
+            game.set_time_control(chess.pgn.TimeControl(parts=[chess.pgn.TimeControlPart(time=600, increment=5, delay=5)]))
+
+        self.assertEqual(game.headers["TimeControl"], "?")
 
     def test_visit_board(self):
         class TraceVisitor(chess.pgn.BaseVisitor):

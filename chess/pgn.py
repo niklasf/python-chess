@@ -190,6 +190,107 @@ class TimeControl:
     parts: list[TimeControlPart] = dataclasses.field(default_factory=list)
     type: TimeControlType = TimeControlType.UNKNOWN
 
+    @classmethod
+    def parse(cls, time_control: str) -> Self:
+        """
+        Parses a PGN ``TimeControl`` header value.
+
+        ``?`` or an empty string yields an empty time control of type
+        ``UNKNOWN``, ``-`` one of type ``UNLIMITED``. Otherwise the type is
+        classified according to the FIDE Laws of Chess (with bullet added).
+
+        :raises: :exc:`ValueError` if the time control is invalid.
+        """
+        tc = cls()
+
+        if not time_control:
+            return tc
+
+        if time_control.startswith("?"):
+            return tc
+
+        if time_control.startswith("-"):
+            tc.type = TimeControlType.UNLIMITED
+            return tc
+
+        def _parse_part(part: str) -> TimeControlPart:
+            tcp = TimeControlPart()
+
+            moves_time, *bonus = part.split("+")
+
+            if bonus:
+                _bonus = bonus[0]
+                if _bonus.lower().endswith("d"):
+                    tcp.delay = float(_bonus[:-1])
+                else:
+                    tcp.increment = float(_bonus)
+
+            moves, *time = moves_time.split("/")
+            if time:
+                tcp.moves = int(moves)
+                tcp.time = int(time[0])
+            else:
+                tcp.moves = 0
+                tcp.time = int(moves)
+
+            return tcp
+
+        tc.parts = [_parse_part(part) for part in time_control.split(":")]
+
+        if len(tc.parts) > 1:
+            for part in tc.parts[:-1]:
+                if part.moves == 0:
+                    raise ValueError("Only last part can be 'sudden death'.")
+
+        # Classification according to https://www.fide.com/FIDE/handbook/LawsOfChess.pdf
+        # (Bullet added)
+        base_time = tc.parts[0].time
+        increment = tc.parts[0].increment
+        if (base_time + 60 * increment) < 3 * 60:
+            tc.type = TimeControlType.BULLET
+        elif (base_time + 60 * increment) < 15 * 60:
+            tc.type = TimeControlType.BLITZ
+        elif (base_time + 60 * increment) < 60 * 60:
+            tc.type = TimeControlType.RAPID
+        else:
+            tc.type = TimeControlType.STANDARD
+
+        return tc
+
+    def __str__(self) -> str:
+        """
+        Formats the time control as a PGN ``TimeControl`` header value.
+
+        A time control without parts is formatted as ``-`` if its type is
+        ``UNLIMITED``, otherwise as ``?`` (unknown). If there are parts,
+        :data:`~chess.pgn.TimeControl.type` is ignored.
+
+        :raises: :exc:`ValueError` if the time control cannot be represented
+            in PGN: only the last part can be sudden death, and a part
+            cannot have both an increment and a delay.
+        """
+        if not self.parts:
+            return "-" if self.type == TimeControlType.UNLIMITED else "?"
+
+        for part in self.parts[:-1]:
+            if part.moves == 0:
+                raise ValueError("Only last part can be 'sudden death'.")
+
+        def _format_seconds(seconds: float) -> str:
+            return f"{seconds:.3f}".rstrip("0").rstrip(".")
+
+        def _format_part(part: TimeControlPart) -> str:
+            if part.increment and part.delay:
+                raise ValueError("Time control part cannot have both increment and delay.")
+            text = f"{part.moves}/{part.time}" if part.moves else f"{part.time}"
+            if part.increment:
+                text += f"+{_format_seconds(part.increment)}"
+            elif part.delay:
+                text += f"+{_format_seconds(part.delay)}d"
+            return text
+
+        return ":".join(_format_part(part) for part in self.parts)
+
 
 class _AcceptFrame:
     def __init__(self, node: ChildNode, *, is_variation: bool = False, sidelines: bool = True):
@@ -939,7 +1040,16 @@ class Game(GameNode):
         information, the default time control ('UNKNOWN') is returned.
         """
         time_control_header = self.headers.get("TimeControl", "")
-        return parse_time_control(time_control_header)
+        return TimeControl.parse(time_control_header)
+
+    def set_time_control(self, time_control: TimeControl) -> None:
+        """
+        Sets the ``TimeControl`` header of the game.
+
+        :raises: :exc:`ValueError` if the time control cannot be represented
+            in PGN. See :func:`TimeControl.__str__() <chess.pgn.TimeControl.__str__>`.
+        """
+        self.headers["TimeControl"] = str(time_control)
 
     @classmethod
     def from_board(cls, board: chess.Board) -> Self:
@@ -1887,61 +1997,3 @@ def skip_game(handle: TextIO) -> bool:
     Skips a game. Returns ``True`` if a game was found and skipped.
     """
     return bool(read_game(handle, Visitor=SkipVisitor))
-
-
-def parse_time_control(time_control: str) -> TimeControl:
-    tc = TimeControl()
-
-    if not time_control:
-        return tc
-
-    if time_control.startswith("?"):
-        return tc
-
-    if time_control.startswith("-"):
-        tc.type = TimeControlType.UNLIMITED
-        return tc
-
-    def _parse_part(part: str) -> TimeControlPart:
-        tcp = TimeControlPart()
-
-        moves_time, *bonus = part.split("+")
-
-        if bonus:
-            _bonus = bonus[0]
-            if _bonus.lower().endswith("d"):
-                tcp.delay = float(_bonus[:-1])
-            else:
-                tcp.increment = float(_bonus)
-
-        moves, *time = moves_time.split("/")
-        if time:
-            tcp.moves = int(moves)
-            tcp.time = int(time[0])
-        else:
-            tcp.moves = 0
-            tcp.time = int(moves)
-
-        return tcp
-
-    tc.parts = [_parse_part(part) for part in time_control.split(":")]
-
-    if len(tc.parts) > 1:
-        for part in tc.parts[:-1]:
-            if part.moves == 0:
-                raise ValueError("Only last part can be 'sudden death'.")
-
-    # Classification according to https://www.fide.com/FIDE/handbook/LawsOfChess.pdf
-    # (Bullet added)
-    base_time = tc.parts[0].time
-    increment = tc.parts[0].increment
-    if (base_time + 60 * increment) < 3 * 60:
-        tc.type = TimeControlType.BULLET
-    elif (base_time + 60 * increment) < 15 * 60:
-        tc.type = TimeControlType.BLITZ
-    elif (base_time + 60 * increment) < 60 * 60:
-        tc.type = TimeControlType.RAPID
-    else:
-        tc.type = TimeControlType.STANDARD
-
-    return tc

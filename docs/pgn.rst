@@ -56,7 +56,7 @@ Both extend :class:`~chess.pgn.GameNode`.
     :members:
 
 .. autoclass:: chess.pgn.Game
-    :members: headers, errors, setup, accept, from_board, without_tag_roster
+    :members: headers, errors, setup, accept, time_control, set_time_control, from_board, without_tag_roster
 
 .. autoclass:: chess.pgn.ChildNode
     :members: parent, move, starting_comment, nags, san, uci, end
@@ -97,6 +97,19 @@ like ``!``, ``?``, ``!!``, etc., are also converted to NAGs.
 .. autodata:: chess.pgn.NAG_BLUNDER
 .. autodata:: chess.pgn.NAG_SPECULATIVE_MOVE
 .. autodata:: chess.pgn.NAG_DUBIOUS_MOVE
+
+Time control
+------------
+
+.. autoclass:: chess.pgn.TimeControl
+    :members: parts, type, parse, __str__
+
+.. autoclass:: chess.pgn.TimeControlPart
+    :members:
+
+.. autoclass:: chess.pgn.TimeControlType
+    :members:
+
 
 Skimming
 --------
