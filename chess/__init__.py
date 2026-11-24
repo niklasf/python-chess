@@ -747,7 +747,7 @@ SAN_REGEX = re.compile(r"^([NBKRQ])?([a-h])?([1-8])?[\-x]?([a-h][1-8])(=?[nbrqkN
 FEN_CASTLING_REGEX = re.compile(r"^(?:-|[KQABCDEFGH]{0,2}[kqabcdefgh]{0,2})\Z")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Piece:
     """A piece with type and color."""
 
@@ -802,7 +802,7 @@ _PIECES: list[list[Piece | None]] = [
 ]
 
 
-@dataclasses.dataclass(unsafe_hash=True)
+@dataclasses.dataclass(unsafe_hash=True, slots=True)
 class Move:
     """
     Represents a move from a square to a square and possibly the promotion
@@ -1193,21 +1193,28 @@ class BaseBoard:
         return self.pin_mask(color, square) != BB_ALL
 
     def _remove_piece_at(self, square: Square) -> PieceType | None:
-        piece_type = self.piece_type_at(square)
         mask = BB_SQUARES[square]
+        if not self.occupied & mask:
+            return None
 
-        if piece_type == PAWN:
+        if self.pawns & mask:
             self.pawns ^= mask
-        elif piece_type == KNIGHT:
+            piece_type = PAWN
+        elif self.knights & mask:
             self.knights ^= mask
-        elif piece_type == BISHOP:
+            piece_type = KNIGHT
+        elif self.bishops & mask:
             self.bishops ^= mask
-        elif piece_type == ROOK:
+            piece_type = BISHOP
+        elif self.rooks & mask:
             self.rooks ^= mask
-        elif piece_type == QUEEN:
+            piece_type = ROOK
+        elif self.queens & mask:
             self.queens ^= mask
-        elif piece_type == KING:
+            piece_type = QUEEN
+        elif self.kings & mask:
             self.kings ^= mask
+            piece_type = KING
         else:
             return None
 
@@ -1745,6 +1752,12 @@ class BaseBoard:
 
 
 class _BoardState:
+
+    __slots__ = (
+        "pawns", "knights", "bishops", "rooks", "queens", "kings",
+        "occupied_w", "occupied_b", "occupied", "promoted",
+        "turn", "castling_rights", "ep_square", "halfmove_clock", "fullmove_number",
+    )
 
     def __init__(self, board: Board) -> None:
         self.pawns = board.pawns
