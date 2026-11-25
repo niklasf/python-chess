@@ -16,6 +16,8 @@ Constants for the side to move or the color of a piece.
 
 You can get the opposite *color* using ``not color``.
 
+.. autoclass:: chess.ByColor
+
 Piece types
 -----------
 

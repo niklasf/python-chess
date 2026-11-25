@@ -755,7 +755,7 @@ class ThreeCheckBoard(chess.Board):
     tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
-        self.remaining_checks: list[int] = [3, 3]
+        self.remaining_checks: chess.ByColor[int] = [3, 3]
         self._three_check_stack: list[_ThreeCheckBoardState] = []
         super().__init__(fen, chess960=chess960)
 
@@ -886,7 +886,7 @@ class ThreeCheckBoard(chess.Board):
 
     def copy(self, *, stack: bool | int = True) -> Self:
         board = super().copy(stack=stack)
-        board.remaining_checks = self.remaining_checks.copy()
+        board.remaining_checks = list(self.remaining_checks)
         if stack:
             stack = len(self.move_stack) if stack is True else stack
             board._three_check_stack = self._three_check_stack[-stack:]
@@ -972,7 +972,7 @@ class CrazyhouseBoard(chess.Board):
     tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
-        self.pockets: list[CrazyhousePocket] = [CrazyhousePocket(), CrazyhousePocket()]
+        self.pockets: chess.ByColor[CrazyhousePocket] = [CrazyhousePocket(), CrazyhousePocket()]
         self._crazyhouse_stack: list[_CrazyhouseBoardState] = []
         super().__init__(fen, chess960=chess960)
 

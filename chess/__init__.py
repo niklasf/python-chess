@@ -22,7 +22,7 @@ import re
 import itertools
 import typing
 
-from typing import ClassVar, Literal, Self, SupportsInt, TypeAlias
+from typing import ClassVar, Literal, Protocol, Self, SupportsInt, TypeAlias, TypeVar
 from collections.abc import Callable, Hashable, Iterable, Iterator, Mapping
 
 
@@ -34,7 +34,16 @@ WHITE: Color = True
 BLACK: Color = False
 COLORS: list[Color] = [WHITE, BLACK]
 ColorName = Literal["white", "black"]
-COLOR_NAMES: list[ColorName] = ["black", "white"]
+
+_T = TypeVar("_T")
+
+class ByColor(Protocol[_T]):
+    """A pair of values indexed by :data:`~chess.Color`."""
+    def __getitem__(self, color: Color, /) -> _T: ...
+    def __setitem__(self, color: Color, value: _T, /) -> None: ...
+    def __iter__(self) -> Iterator[_T]: ...
+
+COLOR_NAMES: ByColor[ColorName] = typing.cast(list[ColorName], ["black", "white"])
 
 PieceType: TypeAlias = int
 PAWN: PieceType = 1
@@ -679,7 +688,7 @@ def _step_attacks(square: Square, deltas: Iterable[int]) -> Bitboard:
 
 BB_KNIGHT_ATTACKS: list[Bitboard] = [_step_attacks(sq, [17, 15, 10, 6, -17, -15, -10, -6]) for sq in SQUARES]
 BB_KING_ATTACKS: list[Bitboard] = [_step_attacks(sq, [9, 8, 7, 1, -9, -8, -7, -1]) for sq in SQUARES]
-BB_PAWN_ATTACKS: list[list[Bitboard]] = [[_step_attacks(sq, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
+BB_PAWN_ATTACKS: ByColor[list[Bitboard]] = [[_step_attacks(sq, deltas) for sq in SQUARES] for deltas in [[-7, -9], [7, 9]]]
 
 
 def _edges(square: Square) -> Bitboard:
@@ -957,7 +966,7 @@ class BaseBoard:
     queens: Bitboard
     kings: Bitboard
     promoted: Bitboard
-    occupied_co: list[Bitboard]
+    occupied_co: ByColor[Bitboard]
     occupied: Bitboard
 
     def __init__(self, board_fen: str | None = STARTING_BOARD_FEN) -> None:
