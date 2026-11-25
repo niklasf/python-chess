@@ -315,27 +315,27 @@ Related projects
 Some interesting applications:
 
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/syzygy.png?raw=true       | https://syzygy-tables.info/                                                                  |
+| .. image:: https://github.com/niklasf/python-chess/blob/main/docs/images/syzygy.png?raw=true         | https://syzygy-tables.info/                                                                  |
 |     :height: 64                                                                                      |                                                                                              |
 |     :width: 64                                                                                       |                                                                                              |
 |     :target: https://syzygy-tables.info/                                                             | A website to probe Syzygy endgame tablebases                                                 |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/maia.png?raw=true         | https://maiachess.com/                                                                       |
+| .. image:: https://github.com/niklasf/python-chess/blob/main/docs/images/maia.png?raw=true           | https://maiachess.com/                                                                       |
 |     :height: 64                                                                                      |                                                                                              |
 |     :width: 64                                                                                       |                                                                                              |
 |     :target: https://maiachess.com/                                                                  | A human-like neural network chess engine                                                     |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/crazyara.png?raw=true     | https://crazyara.org/                                                                        |
+| .. image:: https://github.com/niklasf/python-chess/blob/main/docs/images/crazyara.png?raw=true       | https://crazyara.org/                                                                        |
 |     :height: 64                                                                                      |                                                                                              |
 |     :width: 64                                                                                       |                                                                                              |
 |     :target: https://crazyara.org/                                                                   | Deep learning for Crazyhouse                                                                 |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/pettingzoo.png?raw=true   | `https://pettingzoo.farama.org <https://pettingzoo.farama.org/environments/classic/chess/>`_ |
+| .. image:: https://github.com/niklasf/python-chess/blob/main/docs/images/pettingzoo.png?raw=true     | `https://pettingzoo.farama.org <https://pettingzoo.farama.org/environments/classic/chess/>`_ |
 |     :width: 64                                                                                       |                                                                                              |
 |     :height: 64                                                                                      |                                                                                              |
 |     :target: https://pettingzoo.farama.org/environments/classic/chess/                               | A multi-agent reinforcement learning environment                                             |
 +------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| .. image:: https://github.com/niklasf/python-chess/blob/master/docs/images/cli-chess.png?raw=true    | `cli-chess <https://github.com/trevorbayless/cli-chess>`_                                    |
+| .. image:: https://github.com/niklasf/python-chess/blob/main/docs/images/cli-chess.png?raw=true      | `cli-chess <https://github.com/trevorbayless/cli-chess>`_                                    |
 |     :width: 64                                                                                       |                                                                                              |
 |     :height: 64                                                                                      |                                                                                              |
 |     :target: https://github.com/trevorbayless/cli-chess                                              | A highly customizable way to play chess in your terminal                                     |

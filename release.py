@@ -20,9 +20,9 @@ def check_git():
     system("git diff --cached --exit-code")
 
     system("git fetch origin")
-    behind = int(subprocess.check_output(["git", "rev-list", "--count", "master..origin/master"]))
+    behind = int(subprocess.check_output(["git", "rev-list", "--count", "main..origin/main"]))
     if behind > 0:
-        print(f"master is {behind} commit(s) behind origin/master")
+        print(f"main is {behind} commit(s) behind origin/main")
         sys.exit(1)
 
 
@@ -90,7 +90,7 @@ def tag_and_push():
         sys.exit(1)
 
     system(f"git tag {tagname} -s -F {release_filename}")
-    system(f"git push --atomic origin master {tagname}")
+    system(f"git push --atomic origin main {tagname}")
     return tagname
 
 
