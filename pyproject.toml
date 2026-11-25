@@ -34,6 +34,22 @@ Homepage = "https://github.com/niklasf/python-chess"
 Documentation = "https://python-chess.readthedocs.io"
 Changelog = "https://python-chess.readthedocs.io/en/stable/changelog.html"
 
+[dependency-groups]
+docs = [
+    "Sphinx==8.1.2",
+    "sphinxcontrib-jquery==4.1",
+    "sphinx-rtd-theme==3.0.1",
+]
+dev = [
+    "build",
+    "mypy",
+    "pyright",
+    "ruff",
+    "tox>=4.21",
+    "twine",
+    { include-group = "docs" },
+]
+
 [tool.setuptools]
 packages = ["chess"]
 
