@@ -5,8 +5,8 @@ python-chess: a chess library for Python
     :target: https://pypi.python.org/pypi/chess
     :alt: PyPI package
 
-.. image:: https://app.readthedocs.org/projects/python-chess/badge/?version=latest
-    :target: https://python-chess.readthedocs.io/en/latest/
+.. image:: https://app.readthedocs.org/projects/python-chess/badge/?version=stable
+    :target: https://python-chess.readthedocs.io/en/stable/
     :alt: Docs
 
 Introduction
@@ -58,17 +58,17 @@ Requires Python 3.11+. Download and install the latest release:
     pip install chess
 
 
-`Documentation <https://python-chess.readthedocs.io/en/latest/>`__
+`Documentation <https://python-chess.readthedocs.io/en/stable/>`__
 --------------------------------------------------------------------
 
-* `Core <https://python-chess.readthedocs.io/en/latest/core.html>`_
-* `PGN parsing and writing <https://python-chess.readthedocs.io/en/latest/pgn.html>`_
-* `Polyglot opening book reading <https://python-chess.readthedocs.io/en/latest/polyglot.html>`_
-* `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/gaviota.html>`_
-* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/syzygy.html>`_
-* `UCI/XBoard engine communication <https://python-chess.readthedocs.io/en/latest/engine.html>`_
-* `Variants <https://python-chess.readthedocs.io/en/latest/variant.html>`_
-* `Changelog <https://python-chess.readthedocs.io/en/latest/changelog.html>`_
+* `Core <https://python-chess.readthedocs.io/en/stable/core.html>`_
+* `PGN parsing and writing <https://python-chess.readthedocs.io/en/stable/pgn.html>`_
+* `Polyglot opening book reading <https://python-chess.readthedocs.io/en/stable/polyglot.html>`_
+* `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/stable/gaviota.html>`_
+* `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/stable/syzygy.html>`_
+* `UCI/XBoard engine communication <https://python-chess.readthedocs.io/en/stable/engine.html>`_
+* `Variants <https://python-chess.readthedocs.io/en/stable/variant.html>`_
+* `Changelog <https://python-chess.readthedocs.io/en/stable/changelog.html>`_
 
 Features
 --------
@@ -76,7 +76,7 @@ Features
 * Includes mypy typings.
 
 * IPython/Jupyter Notebook integration.
-  `SVG rendering docs <https://python-chess.readthedocs.io/en/latest/svg.html>`_.
+  `SVG rendering docs <https://python-chess.readthedocs.io/en/stable/svg.html>`_.
 
   .. code:: python
 
@@ -87,7 +87,7 @@ Features
 
 * Chess variants: Standard, Chess960, Suicide, Giveaway, Atomic,
   King of the Hill, Racing Kings, Horde, Three-check, Crazyhouse.
-  `Variant docs <https://python-chess.readthedocs.io/en/latest/variant.html>`_.
+  `Variant docs <https://python-chess.readthedocs.io/en/stable/variant.html>`_.
 
 * Make and unmake moves.
 
@@ -209,10 +209,10 @@ Features
       >>> ops == {'bm': [chess.Move.from_uci('d6d1')], 'id': 'BK.01'}
       True
 
-* Detects `absolute pins and their directions <https://python-chess.readthedocs.io/en/latest/core.html#chess.Board.pin>`_.
+* Detects `absolute pins and their directions <https://python-chess.readthedocs.io/en/stable/core.html#chess.Board.pin>`_.
 
 * Reads Polyglot opening books.
-  `Docs <https://python-chess.readthedocs.io/en/latest/polyglot.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/polyglot.html>`__.
 
   .. code:: python
 
@@ -231,7 +231,7 @@ Features
 
 * Reads and writes PGNs. Supports headers, comments, NAGs and a tree of
   variations.
-  `Docs <https://python-chess.readthedocs.io/en/latest/pgn.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/pgn.html>`__.
 
   .. code:: python
 
@@ -252,10 +252,10 @@ Features
       '0-1'
 
 * Probe Gaviota endgame tablebases (DTM, WDL).
-  `Docs <https://python-chess.readthedocs.io/en/latest/gaviota.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/gaviota.html>`__.
 
 * Probe Syzygy endgame tablebases (DTZ, WDL).
-  `Docs <https://python-chess.readthedocs.io/en/latest/syzygy.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/syzygy.html>`__.
 
   .. code:: python
 
@@ -272,7 +272,7 @@ Features
       >>> tablebase.close()
 
 * Probe chesstb endgame tablebases (WDL, DTZ, DTC, DTM, DTM50).
-  `Docs <https://python-chess.readthedocs.io/en/latest/chesstb.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/chesstb.html>`__.
 
   .. code:: python
 
@@ -294,7 +294,7 @@ Features
       >>> tablebase.close()
 
 * Communicate with UCI/XBoard engines. Based on ``asyncio``.
-  `Docs <https://python-chess.readthedocs.io/en/latest/engine.html>`__.
+  `Docs <https://python-chess.readthedocs.io/en/stable/engine.html>`__.
 
   .. code:: python
 

@@ -48,7 +48,9 @@ def check_changelog():
 
 def check_docs():
     print("--- CHECK DOCS ---------------------------------------------------")
-    system("python3 setup.py --long-description | rst2html --strict --no-raw > /dev/null")
+    system("rm -rf dist")
+    system("python3 -m build")
+    system("twine check --strict dist/*")
 
 
 def tag_and_push():
@@ -96,9 +98,9 @@ def tag_and_push():
 
 def pypi():
     print("--- PYPI ---------------------------------------------------------")
-    system("rm -rf build")
-    system("python3 setup.py sdist")
-    system("twine check dist/*")
+    system("rm -rf dist")
+    system("python3 -m build")
+    system("twine check --strict dist/*")
     system("twine upload --skip-existing dist/*")
 
 

@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chess"
+description = "A chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Gaviota tablebase probing, Syzygy tablebase probing, and XBoard/UCI engine communication."
+authors = [{ name = "Niklas Fiekas", email = "niklas.fiekas@backscattering.de" }]
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.11"
+keywords = ["chess", "fen", "epd", "pgn", "polyglot", "syzygy", "gaviota", "uci", "xboard"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Topic :: Games/Entertainment :: Turn Based Strategy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+readme = "README.rst"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/niklasf/python-chess"
+Documentation = "https://python-chess.readthedocs.io"
+Changelog = "https://python-chess.readthedocs.io/en/stable/changelog.html"
+
+[tool.setuptools]
+packages = ["chess"]
+
+[tool.setuptools.package-data]
+chess = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = { attr = "chess.__version__" }
+
+[tool.tox]
+requires = ["tox>=4.21"]
+env_list = ["3.11", "3.12", "3.13", "3.14", "3.15", "3.16"]
+
+[tool.tox.env_run_base]
+pass_env = ["LD_LIBRARY_PATH"]
+commands = [
+    ["python", "test.py", "--verbose"],
+    ["python", "-m", "doctest", "README.rst", "--verbose"],
+]
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]  # pycodestyle and pyflakes, like flake8
+ignore = [
+    "E722",  # Bare except (with or without reraise)
+    "E741",  # Allow "ambiguous" variable names
+]
