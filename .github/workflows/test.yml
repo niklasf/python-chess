@@ -5,6 +5,9 @@ on: [push, pull_request]
 permissions:
   contents: read
 
+env:
+  UV_LOCKED: 1
+
 jobs:
   test:
     strategy:
@@ -16,31 +19,28 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
       - run: .github/workflows/setup-${{ matrix.os }}.sh
         shell: bash
-      - run: pip install -e .
-      - run: python test.py -v
+      - run: uv run --no-dev python test.py -v
   perft:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           python-version: "3.15"
-      - run: pip install -e .
-      - run: python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
-      - run: python examples/perft/perft.py -t 1 examples/perft/chess960.perft --max-nodes 100000
-      - run: python examples/perft/perft.py -t 1 examples/perft/tricky.perft
-      - run: python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft
-      - run: python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft
-      - run: python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft
-      - run: python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
-      - run: python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
-      - run: python examples/perft/perft.py -t 1 --variant 3check examples/perft/3check.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 examples/perft/chess960.perft --max-nodes 100000
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 examples/perft/tricky.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant giveaway examples/perft/giveaway.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant atomic examples/perft/atomic.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant racingkings examples/perft/racingkings.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant horde examples/perft/horde.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant crazyhouse examples/perft/crazyhouse.perft
+      - run: uv run --no-dev python examples/perft/perft.py -t 1 --variant 3check examples/perft/3check.perft
   typing:
     strategy:
       matrix:
@@ -54,27 +54,21 @@ jobs:
         shell: bash --noprofile --norc -O globstar -eo pipefail {0}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-      - run: pip install -e .
-      - run: pip install mypy
-      - run: python -m mypy --strict chess
-      - run: python -m mypy --strict examples/**/*.py
-      - run: pip install pyright
-      - run: python -m pyright chess
-      - run: python -m pyright examples/**/*.py
+      - run: uv run mypy --strict chess
+      - run: uv run mypy --strict examples/**/*.py
+      - run: uv run pyright chess
+      - run: uv run pyright examples/**/*.py
   readme:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           python-version: "3.15"
-      - run: pip install build twine
-      - run: python -m build
-      - run: python -m twine check --strict dist/*
-      - run: pip install -e .
+      - run: uv build
+      - run: uv run twine check --strict dist/*
       - run: .github/workflows/setup-ubuntu-latest.sh
-      - run: python -m doctest README.rst
+      - run: uv run --no-dev python -m doctest README.rst

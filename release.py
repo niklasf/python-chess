@@ -28,7 +28,9 @@ def check_git():
 
 def test():
     print("--- TEST ---------------------------------------------------------")
-    system("tox --skip-missing-interpreters")
+    for python in ["3.11", "3.12", "3.13", "3.14", "3.15", "3.16"]:
+        system(f"uv run --locked --isolated --no-dev --python {python} python test.py")
+        system(f"uv run --locked --isolated --no-dev --python {python} python -m doctest README.rst")
 
 
 def check_changelog():
@@ -49,8 +51,8 @@ def check_changelog():
 def check_docs():
     print("--- CHECK DOCS ---------------------------------------------------")
     system("rm -rf dist")
-    system("python3 -m build")
-    system("twine check --strict dist/*")
+    system("uv build")
+    system("uv run --locked twine check --strict dist/*")
 
 
 def tag_and_push():
@@ -99,9 +101,9 @@ def tag_and_push():
 def pypi():
     print("--- PYPI ---------------------------------------------------------")
     system("rm -rf dist")
-    system("python3 -m build")
-    system("twine check --strict dist/*")
-    system("twine upload --skip-existing dist/*")
+    system("uv build")
+    system("uv run --locked twine check --strict dist/*")
+    system("uv run --locked twine upload --skip-existing dist/*")
 
 
 def github_release(tagname):
