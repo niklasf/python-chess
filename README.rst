@@ -271,6 +271,28 @@ Features
 
       >>> tablebase.close()
 
+* Probe chesstb endgame tablebases (WDL, DTZ, DTC, DTM, DTM50).
+  `Docs <https://python-chess.readthedocs.io/en/latest/chesstb.html>`__.
+
+  .. code:: python
+
+      >>> import chess.chesstb
+
+      >>> tablebase = chess.chesstb.open_tablebase("data/chesstb")
+
+      >>> # White mates in 19 half moves in this KQvK endgame.
+      >>> board = chess.Board("8/8/8/5k2/8/8/1Q6/K7 w - - 0 1")
+      >>> tablebase.probe_dtm(board)
+      19
+
+      >>> # This KPvK win still owes 4 pawn pushes, the next zeroing move
+      >>> # 23 half moves away.
+      >>> board = chess.Board("8/8/8/k7/8/8/K4P2/8 w - - 0 1")
+      >>> tablebase.probe_dtc(board)
+      (4, 23)
+
+      >>> tablebase.close()
+
 * Communicate with UCI/XBoard engines. Based on ``asyncio``.
   `Docs <https://python-chess.readthedocs.io/en/latest/engine.html>`__.
 
