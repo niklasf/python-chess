@@ -44,8 +44,8 @@ ROOK: PieceType = 4
 QUEEN: PieceType = 5
 KING: PieceType = 6
 PIECE_TYPES: list[PieceType] = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
-PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]
-PIECE_NAMES = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
+PIECE_SYMBOLS: list[str | None] = [None, "p", "n", "b", "r", "q", "k"]
+PIECE_NAMES: list[str | None] = [None, "pawn", "knight", "bishop", "rook", "queen", "king"]
 
 def piece_symbol(piece_type: PieceType) -> str:
     return typing.cast(str, PIECE_SYMBOLS[piece_type])
@@ -949,6 +949,16 @@ class BaseBoard:
     otherwise specified in the optional *board_fen* argument. If *board_fen*
     is ``None``, an empty board is created.
     """
+
+    pawns: Bitboard
+    knights: Bitboard
+    bishops: Bitboard
+    rooks: Bitboard
+    queens: Bitboard
+    kings: Bitboard
+    promoted: Bitboard
+    occupied_co: list[Bitboard]
+    occupied: Bitboard
 
     def __init__(self, board_fen: str | None = STARTING_BOARD_FEN) -> None:
         self.occupied_co = [BB_EMPTY, BB_EMPTY]

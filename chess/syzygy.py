@@ -309,47 +309,47 @@ _PAWNIDX = [[0 for _ in range(24)] for _ in range(5)]
 
 _PFACTOR = [[0 for _ in range(4)] for _ in range(5)]
 
-for i in range(5):
-    j = 0
+for _i in range(5):
+    _j = 0
 
-    s = 0
-    while j < 6:
-        _PAWNIDX[i][j] = s
-        s += 1 if i == 0 else _binom(_PTWIST[_INVFLAP[j]], i)
-        j += 1
-    _PFACTOR[i][0] = s
+    _s = 0
+    while _j < 6:
+        _PAWNIDX[_i][_j] = _s
+        _s += 1 if _i == 0 else _binom(_PTWIST[_INVFLAP[_j]], _i)
+        _j += 1
+    _PFACTOR[_i][0] = _s
 
-    s = 0
-    while j < 12:
-        _PAWNIDX[i][j] = s
-        s += 1 if i == 0 else _binom(_PTWIST[_INVFLAP[j]], i)
-        j += 1
-    _PFACTOR[i][1] = s
+    _s = 0
+    while _j < 12:
+        _PAWNIDX[_i][_j] = _s
+        _s += 1 if _i == 0 else _binom(_PTWIST[_INVFLAP[_j]], _i)
+        _j += 1
+    _PFACTOR[_i][1] = _s
 
-    s = 0
-    while j < 18:
-        _PAWNIDX[i][j] = s
-        s += 1 if i == 0 else _binom(_PTWIST[_INVFLAP[j]], i)
-        j += 1
-    _PFACTOR[i][2] = s
+    _s = 0
+    while _j < 18:
+        _PAWNIDX[_i][_j] = _s
+        _s += 1 if _i == 0 else _binom(_PTWIST[_INVFLAP[_j]], _i)
+        _j += 1
+    _PFACTOR[_i][2] = _s
 
-    s = 0
-    while j < 24:
-        _PAWNIDX[i][j] = s
-        s += 1 if i == 0 else _binom(_PTWIST[_INVFLAP[j]], i)
-        j += 1
-    _PFACTOR[i][3] = s
+    _s = 0
+    while _j < 24:
+        _PAWNIDX[_i][_j] = _s
+        _s += 1 if _i == 0 else _binom(_PTWIST[_INVFLAP[_j]], _i)
+        _j += 1
+    _PFACTOR[_i][3] = _s
 
 _MULTIDX = [[0 for _ in range(10)] for _ in range(5)]
 
 _MFACTOR = [0 for _ in range(5)]
 
-for i in range(5):
-    s = 0
-    for j in range(10):
-        _MULTIDX[i][j] = s
-        s += 1 if i == 0 else _binom(_MTWIST[_INVTRIANGLE[j]], i)
-    _MFACTOR[i] = s
+for _i in range(5):
+    _s = 0
+    for _j in range(10):
+        _MULTIDX[_i][_j] = _s
+        _s += 1 if _i == 0 else _binom(_MTWIST[_INVTRIANGLE[_j]], _i)
+    _MFACTOR[_i] = _s
 
 _WDL_TO_MAP = [1, 3, 0, 2, 0]
 

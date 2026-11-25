@@ -785,7 +785,7 @@ class MateGivenType(Score):
     def __str__(self) -> str:
         return "#+0"
 
-MateGiven = MateGivenType()
+MateGiven: MateGivenType = MateGivenType()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -877,8 +877,8 @@ class MockTransport(asyncio.SubprocessTransport, asyncio.WriteTransport):
         super().__init__()
         self.protocol = protocol
         self.expectations: collections.deque[tuple[str, list[str]]] = collections.deque()
-        self.expected_pings = 0
-        self.stdin_buffer = bytearray()
+        self.expected_pings: int = 0
+        self.stdin_buffer: bytearray = bytearray()
         self.protocol.connection_made(self)
 
     def expect(self, expectation: str, responses: list[str] = []) -> None:
@@ -930,10 +930,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
     """Future: Exit code of the process."""
 
     def __init__(self) -> None:
-        self.loop = asyncio.get_running_loop()
+        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
         self.transport: asyncio.SubprocessTransport | None = None
 
-        self.buffer = {
+        self.buffer: dict[int, bytearray] = {
             1: bytearray(),  # stdout
             2: bytearray(),  # stderr
         }
@@ -1247,7 +1247,7 @@ class BaseCommand(Generic[T]):
     def __init__(self, engine: Protocol) -> None:
         self._engine = engine
 
-        self.state = CommandState.NEW
+        self.state: CommandState = CommandState.NEW
 
         self.result: asyncio.Future[T] = asyncio.Future()
         self.finished: asyncio.Future[None] = asyncio.Future()
@@ -1357,12 +1357,12 @@ class UciProtocol(Protocol):
         self._options: UciOptionMap[Option] = UciOptionMap()
         self.config: UciOptionMap[ConfigValue] = UciOptionMap()
         self.target_config: UciOptionMap[ConfigValue] = UciOptionMap()
-        self.id = {}
-        self.board = chess.Board()
+        self.id: dict[str, str] = {}
+        self.board: chess.Board = chess.Board()
         self.game: object = None
-        self.first_game = True
+        self.first_game: bool = True
         self.may_ponderhit: chess.Board | None = None
-        self.ponderhit = False
+        self.ponderhit: bool = False
 
     @property
     @override
@@ -2021,7 +2021,7 @@ class XBoardProtocol(Protocol):
     def __init__(self) -> None:
         super().__init__()
         self.features: dict[str, int | str] = {}
-        self.id = {}
+        self.id: dict[str, str] = {}
         self._options = {
             "random": Option("random", "check", False, None, None, None),
             "computer": Option("computer", "check", False, None, None, None),
@@ -2031,10 +2031,10 @@ class XBoardProtocol(Protocol):
         }
         self.config: dict[str, ConfigValue] = {}
         self.target_config: dict[str, ConfigValue] = {}
-        self.board = chess.Board()
+        self.board: chess.Board = chess.Board()
         self.game: object = None
         self.clock_id: object = None
-        self.first_game = True
+        self.first_game: bool = True
 
     @property
     @override
@@ -2960,7 +2960,7 @@ class SimpleEngine:
 
         self._shutdown_lock = threading.Lock()
         self._shutdown = False
-        self.shutdown_event = asyncio.Event()
+        self.shutdown_event: asyncio.Event = asyncio.Event()
 
         self.returncode: concurrent.futures.Future[int] = concurrent.futures.Future()
 

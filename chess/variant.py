@@ -2,25 +2,25 @@ from __future__ import annotations
 
 import chess
 import itertools
-from typing import Self
+from typing import ClassVar, Self
 from collections.abc import Callable, Hashable, Iterable, Iterator
 
 
 class SuicideBoard(chess.Board):
 
-    aliases = ["Suicide", "Suicide chess"]
-    uci_variant = "suicide"
-    packed_variants = [0x80]
-    xboard_variant = "suicide"
+    aliases: ClassVar[list[str]] = ["Suicide", "Suicide chess"]
+    uci_variant: ClassVar[str | None] = "suicide"
+    packed_variants: ClassVar[list[int]] = [0x80]
+    xboard_variant: ClassVar[str | None] = "suicide"
 
-    tbw_suffix = ".stbw"
-    tbz_suffix = ".stbz"
-    tbw_magic = b"\x7b\xf6\x93\x15"
-    tbz_magic = b"\xe4\xcf\xe7\x23"
-    pawnless_tbw_suffix = ".gtbw"
-    pawnless_tbz_suffix = ".gtbz"
-    pawnless_tbw_magic = b"\xbc\x55\xbc\x21"
-    pawnless_tbz_magic = b"\xd6\xf5\x1b\x50"
+    tbw_suffix: ClassVar[str | None] = ".stbw"
+    tbz_suffix: ClassVar[str | None] = ".stbz"
+    tbw_magic: ClassVar[bytes | None] = b"\x7b\xf6\x93\x15"
+    tbz_magic: ClassVar[bytes | None] = b"\xe4\xcf\xe7\x23"
+    pawnless_tbw_suffix: ClassVar[str | None] = ".gtbw"
+    pawnless_tbz_suffix: ClassVar[str | None] = ".gtbz"
+    pawnless_tbw_magic: ClassVar[bytes | None] = b"\xbc\x55\xbc\x21"
+    pawnless_tbz_magic: ClassVar[bytes | None] = b"\xd6\xf5\x1b\x50"
     connected_kings = True
     one_king = False
     captures_compulsory = True
@@ -162,19 +162,19 @@ class SuicideBoard(chess.Board):
 
 class GiveawayBoard(SuicideBoard):
 
-    aliases = ["Giveaway", "Giveaway chess", "Give away", "Give away chess"]
-    uci_variant = "giveaway"
-    packed_variants = [0x81]
-    xboard_variant = "giveaway"
+    aliases: ClassVar[list[str]] = ["Giveaway", "Giveaway chess", "Give away", "Give away chess"]
+    uci_variant: ClassVar[str | None] = "giveaway"
+    packed_variants: ClassVar[list[int]] = [0x81]
+    xboard_variant: ClassVar[str | None] = "giveaway"
 
-    tbw_suffix = ".gtbw"
-    tbz_suffix = ".gtbz"
-    tbw_magic = b"\xbc\x55\xbc\x21"
-    tbz_magic = b"\xd6\xf5\x1b\x50"
-    pawnless_tbw_suffix = ".stbw"
-    pawnless_tbz_suffix = ".stbz"
-    pawnless_tbw_magic = b"\x7b\xf6\x93\x15"
-    pawnless_tbz_magic = b"\xe4\xcf\xe7\x23"
+    tbw_suffix: ClassVar[str | None] = ".gtbw"
+    tbz_suffix: ClassVar[str | None] = ".gtbz"
+    tbw_magic: ClassVar[bytes | None] = b"\xbc\x55\xbc\x21"
+    tbz_magic: ClassVar[bytes | None] = b"\xd6\xf5\x1b\x50"
+    pawnless_tbw_suffix: ClassVar[str | None] = ".stbw"
+    pawnless_tbz_suffix: ClassVar[str | None] = ".stbz"
+    pawnless_tbw_magic: ClassVar[bytes | None] = b"\x7b\xf6\x93\x15"
+    pawnless_tbz_magic: ClassVar[bytes | None] = b"\xe4\xcf\xe7\x23"
 
     def is_variant_win(self) -> bool:
         return not self.occupied_co[self.turn] or self.is_stalemate()
@@ -188,9 +188,9 @@ class GiveawayBoard(SuicideBoard):
 
 class AntichessBoard(GiveawayBoard):
 
-    aliases = ["Antichess", "Anti chess", "Anti"]
-    uci_variant = "antichess"  # Unofficial
-    packed_variants = [6]
+    aliases: ClassVar[list[str]] = ["Antichess", "Anti chess", "Anti"]
+    uci_variant: ClassVar[str | None] = "antichess"  # Unofficial
+    packed_variants: ClassVar[list[int]] = [6]
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1"
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
@@ -198,7 +198,7 @@ class AntichessBoard(GiveawayBoard):
 
     def reset(self) -> None:
         super().reset()
-        self.castling_rights = chess.BB_EMPTY
+        self.castling_rights: chess.Bitboard = chess.BB_EMPTY
 
     def _packed_variant_data(self) -> bytes:
         if super()._packed_variant_data():
@@ -217,15 +217,15 @@ class AntichessBoard(GiveawayBoard):
 
 class AtomicBoard(chess.Board):
 
-    aliases = ["Atomic", "Atom", "Atomic chess"]
-    uci_variant = "atomic"
-    packed_variants = [7]
-    xboard_variant = "atomic"
+    aliases: ClassVar[list[str]] = ["Atomic", "Atom", "Atomic chess"]
+    uci_variant: ClassVar[str | None] = "atomic"
+    packed_variants: ClassVar[list[int]] = [7]
+    xboard_variant: ClassVar[str | None] = "atomic"
 
-    tbw_suffix = ".atbw"
-    tbz_suffix = ".atbz"
-    tbw_magic = b"\x55\x8d\xa4\x49"
-    tbz_magic = b"\x91\xa9\x5e\xeb"
+    tbw_suffix: ClassVar[str | None] = ".atbw"
+    tbz_suffix: ClassVar[str | None] = ".atbz"
+    tbw_magic: ClassVar[bytes | None] = b"\x55\x8d\xa4\x49"
+    tbz_magic: ClassVar[bytes | None] = b"\x91\xa9\x5e\xeb"
     connected_kings = True
 
     def is_variant_end(self) -> bool:
@@ -290,11 +290,12 @@ class AtomicBoard(chess.Board):
         explosion_radius = chess.BB_KING_ATTACKS[move.to_square] & ~self.pawns
 
         # Destroy castling rights.
-        self.castling_rights &= ~explosion_radius
+        destroyed = explosion_radius
         if explosion_radius & self.kings & self.occupied_co[chess.WHITE] & ~self._effective_promoted():
-            self.castling_rights &= ~chess.BB_RANK_1
+            destroyed |= chess.BB_RANK_1
         if explosion_radius & self.kings & self.occupied_co[chess.BLACK] & ~self._effective_promoted():
-            self.castling_rights &= ~chess.BB_RANK_8
+            destroyed |= chess.BB_RANK_8
+        self.castling_rights: chess.Bitboard = self.castling_rights & ~destroyed
 
         # Explode the capturing piece.
         self._remove_piece_at(move.to_square)
@@ -361,15 +362,15 @@ class AtomicBoard(chess.Board):
 
 class KingOfTheHillBoard(chess.Board):
 
-    aliases = ["King of the Hill", "KOTH", "kingOfTheHill"]
-    uci_variant = "kingofthehill"
-    packed_variants = [4]
-    xboard_variant = "kingofthehill"  # Unofficial
+    aliases: ClassVar[list[str]] = ["King of the Hill", "KOTH", "kingOfTheHill"]
+    uci_variant: ClassVar[str | None] = "kingofthehill"
+    packed_variants: ClassVar[list[int]] = [4]
+    xboard_variant: ClassVar[str | None] = "kingofthehill"  # Unofficial
 
-    tbw_suffix = None
-    tbz_suffix = None
-    tbw_magic = None
-    tbz_magic = None
+    tbw_suffix: ClassVar[str | None] = None
+    tbz_suffix: ClassVar[str | None] = None
+    tbw_magic: ClassVar[bytes | None] = None
+    tbz_magic: ClassVar[bytes | None] = None
 
     def is_variant_end(self) -> bool:
         return bool(self.kings & chess.BB_CENTER)
@@ -386,16 +387,16 @@ class KingOfTheHillBoard(chess.Board):
 
 class RacingKingsBoard(chess.Board):
 
-    aliases = ["Racing Kings", "Racing", "Race", "racingkings"]
-    uci_variant = "racingkings"
-    packed_variants = [9]
-    xboard_variant = "racingkings"  # Unofficial
+    aliases: ClassVar[list[str]] = ["Racing Kings", "Racing", "Race", "racingkings"]
+    uci_variant: ClassVar[str | None] = "racingkings"
+    packed_variants: ClassVar[list[int]] = [9]
+    xboard_variant: ClassVar[str | None] = "racingkings"  # Unofficial
     starting_fen = "8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1"
 
-    tbw_suffix = None
-    tbz_suffix = None
-    tbw_magic = None
-    tbz_magic = None
+    tbw_suffix: ClassVar[str | None] = None
+    tbz_suffix: ClassVar[str | None] = None
+    tbw_magic: ClassVar[bytes | None] = None
+    tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
@@ -467,16 +468,16 @@ class RacingKingsBoard(chess.Board):
 
 class HordeBoard(chess.Board):
 
-    aliases = ["Horde", "Horde chess"]
-    uci_variant = "horde"
-    packed_variants = [8]
-    xboard_variant = "horde"  # Unofficial
+    aliases: ClassVar[list[str]] = ["Horde", "Horde chess"]
+    uci_variant: ClassVar[str | None] = "horde"
+    packed_variants: ClassVar[list[int]] = [8]
+    xboard_variant: ClassVar[str | None] = "horde"  # Unofficial
     starting_fen = "rnbqkbnr/pppppppp/8/1PP2PP1/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w kq - 0 1"
 
-    tbw_suffix = None
-    tbz_suffix = None
-    tbw_magic = None
-    tbz_magic = None
+    tbw_suffix: ClassVar[str | None] = None
+    tbz_suffix: ClassVar[str | None] = None
+    tbw_magic: ClassVar[bytes | None] = None
+    tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
         super().__init__(fen, chess960=chess960)
@@ -742,19 +743,19 @@ class _ThreeCheckBoardState:
 
 class ThreeCheckBoard(chess.Board):
 
-    aliases = ["Three-check", "Three check", "Threecheck", "Three check chess", "3-check", "3 check", "3check"]
-    uci_variant = "3check"
-    packed_variants = [5]
-    xboard_variant = "3check"
+    aliases: ClassVar[list[str]] = ["Three-check", "Three check", "Threecheck", "Three check chess", "3-check", "3 check", "3check"]
+    uci_variant: ClassVar[str | None] = "3check"
+    packed_variants: ClassVar[list[int]] = [5]
+    xboard_variant: ClassVar[str | None] = "3check"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1"
 
-    tbw_suffix = None
-    tbz_suffix = None
-    tbw_magic = None
-    tbz_magic = None
+    tbw_suffix: ClassVar[str | None] = None
+    tbz_suffix: ClassVar[str | None] = None
+    tbw_magic: ClassVar[bytes | None] = None
+    tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
-        self.remaining_checks = [3, 3]
+        self.remaining_checks: list[int] = [3, 3]
         self._three_check_stack: list[_ThreeCheckBoardState] = []
         super().__init__(fen, chess960=chess960)
 
@@ -959,19 +960,19 @@ class CrazyhousePocket:
 
 class CrazyhouseBoard(chess.Board):
 
-    aliases = ["Crazyhouse", "Crazy House", "House", "ZH"]
-    uci_variant = "crazyhouse"
-    packed_variants = [1]
-    xboard_variant = "crazyhouse"
+    aliases: ClassVar[list[str]] = ["Crazyhouse", "Crazy House", "House", "ZH"]
+    uci_variant: ClassVar[str | None] = "crazyhouse"
+    packed_variants: ClassVar[list[int]] = [1]
+    xboard_variant: ClassVar[str | None] = "crazyhouse"
     starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
 
-    tbw_suffix = None
-    tbz_suffix = None
-    tbw_magic = None
-    tbz_magic = None
+    tbw_suffix: ClassVar[str | None] = None
+    tbz_suffix: ClassVar[str | None] = None
+    tbw_magic: ClassVar[bytes | None] = None
+    tbz_magic: ClassVar[bytes | None] = None
 
     def __init__(self, fen: str | None = starting_fen, *, chess960: bool = False) -> None:
-        self.pockets = [CrazyhousePocket(), CrazyhousePocket()]
+        self.pockets: list[CrazyhousePocket] = [CrazyhousePocket(), CrazyhousePocket()]
         self._crazyhouse_stack: list[_CrazyhouseBoardState] = []
         super().__init__(fen, chess960=chess960)
 

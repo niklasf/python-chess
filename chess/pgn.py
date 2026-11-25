@@ -1713,7 +1713,7 @@ class BoardBuilder(BaseVisitor[chess.Board]):
 
     @override
     def begin_game(self) -> None:
-        self.skip_variation_depth = 0
+        self.skip_variation_depth: int = 0
 
     @override
     def begin_variation(self) -> SkipType:
@@ -1761,13 +1761,13 @@ class StringExporterMixin:
         self.comments = comments
         self.variations = variations
 
-        self.found_headers = False
+        self.found_headers: bool = False
 
-        self.force_movenumber = True
+        self.force_movenumber: bool = True
 
         self.lines: list[str] = []
-        self.current_line = ""
-        self.variation_depth = 0
+        self.current_line: str = ""
+        self.variation_depth: int = 0
 
     def flush_current_line(self) -> None:
         if self.current_line:
