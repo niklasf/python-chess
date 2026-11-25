@@ -9,6 +9,7 @@ import os.path
 import pathlib
 import platform
 import random
+import struct
 import sys
 import tempfile
 import textwrap
@@ -2222,6 +2223,58 @@ class PolyglotTestCase(unittest.TestCase):
             pos = chess.Board("1r1qr1k1/1b2bp1n/p2p2pB/1pnPp2p/P1p1P3/R1P2NNP/1PBQ1PP1/4R1K1 w - - 0 1")
             entry = book.find(pos)
             self.assertEqual(entry.move, chess.Move.from_uci("e1a1"))
+
+    def test_write_book(self):
+        with tempfile.TemporaryDirectory() as directory:
+            # Rewriting a book gives the same file.
+            path = os.path.join(directory, "performance.bin")
+            with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
+                entries = list(book)
+            chess.polyglot.write_book(path, entries)
+            with open(path, "rb") as written, open("data/polyglot/performance.bin", "rb") as original:
+                self.assertEqual(written.read(), original.read())
+
+            # Shuffled entries come out by position, then weight, highest first.
+            random.Random(1).shuffle(entries)
+            chess.polyglot.write_book(path, entries)
+            with chess.polyglot.open_reader(path) as book:
+                order = [(entry.key, -entry.weight) for entry in book]
+            self.assertEqual(order, sorted(order))
+            self.assertEqual(len(order), len(entries))
+
+            # Entries made from moves read back as those moves.
+            boards_and_sans = [
+                (chess.Board(), "e4", 7, 3),
+                (chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"), "O-O", 1, 0),
+                (chess.Board("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"), "O-O-O", 65535, 4294967295),
+                (chess.Board("4k3/8/8/8/8/8/8/RK5R w AH - 0 1", chess960=True), "O-O-O", 1, 0),
+                (chess.Board("8/5P2/8/8/8/2k5/8/K7 w - - 0 1"), "f8=N", 1, 0),
+                (chess.Board("4k3/8/8/8/8/8/8/R3K3 w - - 0 1"), "Ra2", 1, 0),
+            ]
+            entries = [chess.polyglot.make_entry(board, board.parse_san(san), weight=weight, learn=learn)
+                       for board, san, weight, learn in boards_and_sans]
+            path = os.path.join(directory, "written.bin")
+            chess.polyglot.write_book(path, entries)
+            with chess.polyglot.open_reader(path) as book:
+                self.assertEqual(len(book), len(entries))
+                for (board, san, weight, learn), entry in zip(boards_and_sans, entries):
+                    found = book.find(board)
+                    self.assertEqual(found, entry)
+                    self.assertEqual(found.move, board.parse_san(san))
+                    self.assertEqual((found.weight, found.learn), (weight, learn))
+
+            # Drops, except pawn drops, which have no encoding.
+            board = chess.variant.CrazyhouseBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Np] w KQkq - 0 1")
+            chess.polyglot.write_book(path, [chess.polyglot.make_entry(board, chess.Move.from_uci("N@e4"))])
+            with chess.polyglot.open_reader(path) as book:
+                self.assertEqual(book.find(board).move, chess.Move.from_uci("N@e4"))
+            board.push_uci("N@e4")
+            with self.assertRaises(ValueError):
+                chess.polyglot.make_entry(board, chess.Move.from_uci("P@e5"))
+
+            # Weights must fit.
+            with self.assertRaises(struct.error):
+                chess.polyglot.write_book(path, [chess.polyglot.make_entry(chess.Board(), chess.Move.from_uci("e2e4"), weight=65536)])
 
     def test_empty_book(self):
         with chess.polyglot.open_reader(os.devnull) as book:

@@ -1,5 +1,5 @@
-Polyglot opening book reading
-=============================
+Polyglot opening books
+======================
 
 .. autofunction:: chess.polyglot.open_reader
 
@@ -9,6 +9,10 @@ Polyglot opening book reading
 
 .. autoclass:: chess.polyglot.MemoryMappedReader
     :members:
+
+.. autofunction:: chess.polyglot.make_entry
+
+.. autofunction:: chess.polyglot.write_book
 
 .. py:data:: chess.polyglot.POLYGLOT_RANDOM_ARRAY
     :value: [0x9D39247E33776D41, ..., 0xF8D626AAAF278509]
