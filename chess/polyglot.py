@@ -10,7 +10,7 @@ import typing
 
 from types import TracebackType
 from typing import NamedTuple, TypeAlias
-from collections.abc import Callable, Container, Iterator
+from collections.abc import Callable, Container, Iterable, Iterator
 
 
 StrOrBytesPath: TypeAlias = str | bytes | os.PathLike[str] | os.PathLike[bytes]
@@ -500,6 +500,49 @@ class MemoryMappedReader:
     def close(self) -> None:
         """Closes the reader."""
         self.mmap.close()
+
+
+def make_entry(board: chess.Board, move: chess.Move, *, weight: int = 1, learn: int = 0) -> Entry:
+    """
+    Creates an entry for playing *move* in the position *board*.
+
+    :param weight: Up to 65535. Readers pick higher weights more often.
+    :param learn: Up to 4294967295, for any extra information.
+    :raises: :exc:`ValueError` for a pawn drop, which has no encoding.
+    """
+    # Castling as king takes rook; a drop as a move from and to its square.
+    stored = move if board.chess960 else board._to_chess960(move)
+    if stored.drop == chess.PAWN:
+        raise ValueError(f"pawn drops have no polyglot encoding: {move.uci()}")
+    piece = stored.drop or stored.promotion
+    raw_move = stored.to_square | stored.from_square << 6 | (piece - 1 if piece else 0) << 12
+    return Entry(zobrist_hash(board), raw_move, weight, learn, move)
+
+
+def write_book(path: StrOrBytesPath, entries: Iterable[Entry]) -> None:
+    """
+    Writes a book with the given entries, as created by :func:`make_entry()`
+    or read from another book, to the file at the given path.
+
+    Entries are sorted by position, then by weight, highest first, as
+    Polyglot writes them. Choosing and weighting the entries is up to the
+    caller. The following example writes a book with the moves of a game:
+
+    >>> import chess
+    >>> import chess.polyglot
+    >>>
+    >>> board = chess.Board()
+    >>> entries = []
+    >>> for san in ["e4", "e5", "Nf3", "Nc6", "Bb5"]:
+    ...     move = board.parse_san(san)
+    ...     entries.append(chess.polyglot.make_entry(board, move))
+    ...     board.push(move)
+    >>>
+    >>> chess.polyglot.write_book("ruy-lopez.bin", entries)
+    """
+    with open(path, "wb") as f:
+        for entry in sorted(entries, key=lambda entry: (entry.key, -entry.weight)):
+            f.write(ENTRY_STRUCT.pack(entry.key, entry.raw_move, entry.weight, entry.learn))
 
 
 def open_reader(path: StrOrBytesPath) -> MemoryMappedReader:
