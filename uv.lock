@@ -321,6 +321,10 @@ docs = [
     { name = "sphinx-rtd-theme" },
     { name = "sphinxcontrib-jquery" },
 ]
+typing = [
+    { name = "mypy" },
+    { name = "pyright" },
+]
 
 [package.metadata]
 
@@ -338,6 +342,10 @@ docs = [
     { name = "sphinx", specifier = "~=8.1" },
     { name = "sphinx-rtd-theme", specifier = "~=3.0" },
     { name = "sphinxcontrib-jquery", specifier = "~=4.1" },
+]
+typing = [
+    { name = "mypy", specifier = "~=2.4" },
+    { name = "pyright", specifier = "~=1.1.414" },
 ]
 
 [[package]]

@@ -57,10 +57,10 @@ jobs:
       - uses: astral-sh/setup-uv@v10.4.0
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv run mypy --strict chess
-      - run: uv run mypy --strict examples/**/*.py
-      - run: uv run pyright chess
-      - run: uv run pyright examples/**/*.py
+      - run: uv run --no-dev --group typing mypy --strict chess
+      - run: uv run --no-dev --group typing mypy --strict examples/**/*.py
+      - run: uv run --no-dev --group typing pyright chess
+      - run: uv run --no-dev --group typing pyright examples/**/*.py
   readme:
     runs-on: ubuntu-latest
     steps:

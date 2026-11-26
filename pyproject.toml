@@ -40,12 +40,15 @@ docs = [
     "sphinxcontrib-jquery~=4.1",
     "sphinx-rtd-theme~=3.0",
 ]
-dev = [
+typing = [
     "mypy~=2.4",
     "pyright~=1.1.414",
+]
+dev = [
     "ruff~=0.17.6",
     "twine~=7.0",
     { include-group = "docs" },
+    { include-group = "typing" },
 ]
 
 [tool.setuptools]
