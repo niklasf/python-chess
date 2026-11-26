@@ -9,6 +9,7 @@ import os.path
 import pathlib
 import platform
 import random
+import struct
 import sys
 import tempfile
 import textwrap
@@ -21,6 +22,7 @@ import chess.chesstb
 import chess.gaviota
 import chess.engine
 import chess.pgn
+import chess.ctg
 import chess.polyglot
 import chess.svg
 import chess.syzygy
@@ -2297,6 +2299,125 @@ class PolyglotTestCase(unittest.TestCase):
         with chess.polyglot.open_reader("data/polyglot/performance.bin") as book:
             with self.assertRaises(IndexError):
                 book.find(chess.Board(), minimum_weight=2)
+
+
+class CtgTestCase(unittest.TestCase):
+
+    def write_book(self, directory, positions, suffix=""):
+        # One page holding every position, under the unsplit key 0.
+        page = bytearray(4)
+        for fen, moves, stats in positions:
+            board = chess.Board(fen, chess960=suffix == "-960")
+            page += chess.ctg._signature(board, chess.ctg._transform(board), False, suffix == "-960")
+            page += bytes([1 + 2 * len(moves)]) + b"".join(bytes(move) for move in moves)
+            games, wins, draws, losses, rating, opponent_rating, recommendation, learn, evaluation = stats
+            page += b"".join(n.to_bytes(3, "big") for n in [games, losses, wins, draws]) + bytes(4)
+            for average in [opponent_rating, rating]:
+                rated = games if average else 0
+                page += rated.to_bytes(3, "big") + (rated * average).to_bytes(4, "big")
+            page += bytes([recommendation, learn & 0xff, evaluation])
+        page[0:4] = struct.pack(">HH", len(positions), len(page))
+        path = os.path.join(directory, "book.ctg" + suffix)
+        with open(path, "wb") as f:
+            f.write(struct.pack(">HHHHHHHHI", 0x20, 4096, 1, 1, 0, 4096, 0x7fff, 0x7fff, 1).ljust(4096, b"\0"))
+            f.write(page.ljust(4096, b"\0"))
+        with open(os.path.join(directory, "book.cto" + suffix), "wb") as f:
+            f.write(struct.pack(">HHIIIi", 16, 1, 1, 0, 0, 0))
+        with open(os.path.join(directory, "book.ctb" + suffix), "wb") as f:
+            f.write(struct.pack(">HHII", 12, 1, 0, 0))
+        return path
+
+    def test_signature(self):
+        # Signatures as stored in published books.
+        for fen, signature in [
+            (chess.STARTING_FEN, "56b60f7960f3a60f58b078e0c1e1a60f5960f3b60f7f"),
+            ("rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq - 1 1", "56b60f7960f3a60f58b078e0c1e1a60f5960eb613f7f"),
+            ("r1bq2kr/ppp3pp/4p3/3nPp1Q/8/P2B4/2PB2PP/R3K2R w KQ f6 0 15", "74b30f703983d54a264700dc0e183c36c44f7053"),
+            ("rnbqk3/ppp2pp1/3b1n2/3p2B1/3P1N2/6P1/PPP1P1B1/RN1QK2r w Qq - 0 11", "55b60f7960f360f588dea8e0c084493e5328eb8005"),
+            ("r4k2/pp3p2/1npb1p2/q2p4/3P1Nb1/P1N1Q1P1/1PP1P3/1R1K3B w - - 5 21", "13a00354049fc2d102037a8d2396c27c646f70"),
+            ("r1b4r/ppp1kpp1/7p/3pP3/3P1n2/3B1N2/PPP3PP/2KR3R w - d6 0 16", "33b61d760e25338321594dc4183d583983dc04"),
+        ]:
+            board = chess.Board(fen)
+            self.assertEqual(chess.ctg._signature(board, chess.ctg._transform(board), False, False).hex(), signature)
+
+        # Chess960 and the alternate format.
+        for fen, chess960, alternate, signature in [
+            ("bqnbrkrn/pppppppp/8/8/8/8/PPPPPPPP/BQNBRKRN w KQkq - 0 1", True, False, "d8a60f58b078e583ce983d6d83de0c1e1b60f7960f3d340f"),
+            ("bqnbrkr1/pppppppp/7n/8/8/5N2/PPPPPPPP/BQ1BRKRN b Gq - 3 2", True, False, "d8a60f58b078e583a983d6d83de0c27e1b60f7690f3c3c09"),
+            ("4k3/8/8/8/8/8/P7/1K1N4 w - - 0 1", True, False, "8d000000010c8000400180e380"),
+            (chess.STARTING_FEN, False, True, "575b07bcb079d307ac583c7060f0d307acb079db07b80f"),
+            ("r1b4r/ppp1kpp1/7p/3pP3/3P1n2/3B1N2/PPP3PP/2KR3R w - d6 0 16", False, True, "335b0ebb071299c190aca6e20c1eac1cc1ee04"),
+        ]:
+            board = chess.Board(fen, chess960=chess960)
+            self.assertEqual(chess.ctg._signature(board, chess.ctg._transform(board), alternate, chess960).hex(), signature)
+
+    def test_transform(self):
+        for fen, stored in [
+            ("1k6/8/8/8/8/8/P7/3NK3 b - - 0 1", "3kn3/7p/8/8/8/8/8/6K1"),
+            ("4k3/8/8/8/8/8/8/4K2R w - - 0 1", "R7/8/8/K6k/8/8/8/8"),
+            ("4k3/8/8/8/8/8/8/1K1N4 w - - 0 1", "8/K7/8/N7/7k/8/8/8"),
+        ]:
+            board = chess.Board(fen)
+            squares = chess.ctg._transform(board)
+            transformed = chess.Board(None)
+            for square in chess.SQUARES:
+                piece = board.piece_at(squares[square])
+                if piece:
+                    transformed.set_piece_at(square, chess.Piece(piece.piece_type, piece.color == board.turn))
+            self.assertEqual(transformed.board_fen(), stored)
+
+    def test_find_all(self):
+        e2e4, d2d4, castle, queen = 0x5f, 0xe6, 0x6b, 0xf9
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_book(directory, [
+                (chess.STARTING_FEN, [(e2e4, 0x61), (d2d4, 0x00)], (100, 40, 30, 30, 2450, 2450, 0, 0, 0)),
+                ("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1", [(e2e4, 0x00)], (60, 25, 20, 15, 2500, 2400, 0x80, -5, 14)),
+                ("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", [], (50, 20, 20, 10, 0, 0, 0x40, 0, 14)),
+                ("4k3/8/8/8/8/8/8/4K2R w K - 0 1", [(castle, 0x08)], (1, 1, 0, 0, 0, 0, 0, 0, 0)),
+                ("4k3/8/8/8/8/8/8/5RK1 b - - 1 1", [], (1, 1, 0, 0, 0, 0, 0, 0, 0)),
+                ("4k3/p7/8/8/8/8/1Q6/Q3K3 w - - 0 1", [(queen, 0x00)], (1, 1, 0, 0, 0, 0, 0, 0, 0)),
+                ("4k3/p7/8/8/8/8/7Q/Q3K3 b - - 1 1", [], (1, 1, 0, 0, 0, 0, 0, 0, 0)),
+            ])
+            with chess.ctg.open_reader(path) as book:
+                # d4 is dropped: its position is not in the book.
+                board = chess.Board()
+                e4, = book.find_all(board)
+                self.assertEqual(e4, chess.ctg.Entry(
+                    move=chess.Move.from_uci("e2e4"), games=60, wins=25, draws=20, losses=15, rating=2500, opponent_rating=2400,
+                    nag=chess.pgn.NAG_GOOD_MOVE, weight=3, recommendation=0x80, learn=-5, evaluation=chess.pgn.NAG_BLACK_SLIGHT_ADVANTAGE))
+
+                board.push(e4.move)
+                e5, = book.find_all(board)
+                self.assertEqual(e5.move, chess.Move.from_uci("e7e5"))
+                self.assertEqual((e5.games, e5.wins, e5.draws, e5.losses), (50, 20, 20, 10))
+                self.assertEqual((e5.rating, e5.opponent_rating, e5.recommendation), (None, None, 0x40))
+                self.assertEqual(e5.evaluation, chess.pgn.NAG_WHITE_SLIGHT_ADVANTAGE)
+
+                board.push(e5.move)
+                self.assertEqual(list(book.find_all(board)), [])
+
+                board = chess.Board("4k3/8/8/8/8/8/8/4K2R w K - 0 1")
+                entry, = book.find_all(board)
+                self.assertTrue(board.is_kingside_castling(entry.move))
+                self.assertEqual(entry.nag, chess.pgn.NAG_SINGULAR_MOVE)
+
+                entry, = book.find_all(chess.Board("4k3/p7/8/8/8/8/1Q6/Q3K3 w - - 0 1"))
+                self.assertEqual(entry.move, chess.Move.from_uci("b2h2"))
+
+                self.assertEqual(list(book.find_all(chess.Board("8/8/8/8/8/8/8/K6k w - - 0 1"))), [])
+
+    def test_chess960(self):
+        fen = "bqnbrkrn/pppppppp/8/8/8/8/PPPPPPPP/BQNBRKRN w KQkq - 0 1"
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_book(directory, [
+                (fen, [(0x5f, 0x00)], (2, 1, 1, 0, 0, 0, 0, 0, 0)),
+                ("bqnbrkrn/pppppppp/8/8/4P3/8/PPPP1PPP/BQNBRKRN b KQkq - 0 1", [], (2, 1, 1, 0, 0, 0, 0, 0, 0)),
+            ], suffix="-960")
+            with chess.ctg.open_reader(path) as book:
+                entry, = book.find_all(chess.Board(fen, chess960=True))
+                self.assertEqual(entry.move, chess.Move.from_uci("e2e4"))
+            with self.assertRaises(ValueError):
+                chess.ctg.open_reader(os.path.join(directory, "book.ctg-g"))
 
 
 class PgnTestCase(unittest.TestCase):
