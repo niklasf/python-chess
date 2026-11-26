@@ -1678,6 +1678,10 @@ class UciProtocol(Protocol):
 
             def _readyok(self) -> None:
                 self.sent_isready = False
+                if self.state == CommandState.CANCELLING:
+                    # Cancelled while waiting for readyok. Do not start searching.
+                    self.end()
+                    return
                 engine._position(board)
                 engine._go(limit, root_moves=root_moves)
 
@@ -1726,7 +1730,7 @@ class UciProtocol(Protocol):
                 if self.engine.may_ponderhit and self.pondering and self.engine.may_ponderhit.move_stack == self.pondering.move_stack and self.engine.may_ponderhit == self.pondering:
                     self.engine.ponderhit = True
                     self.end()
-                else:
+                elif not self.sent_isready:
                     self.engine.send_line("stop")
 
             @override
@@ -1778,6 +1782,10 @@ class UciProtocol(Protocol):
 
             def _readyok(self) -> None:
                 self.sent_isready = False
+                if self.state == CommandState.CANCELLING:
+                    # Cancelled while waiting for readyok. Do not start searching.
+                    self.set_finished()
+                    return
                 self.engine._position(board)
 
                 if limit:
@@ -1799,7 +1807,8 @@ class UciProtocol(Protocol):
 
             @override
             def cancel(self) -> None:
-                self.engine.send_line("stop")
+                if not self.sent_isready:
+                    self.engine.send_line("stop")
 
             @override
             def engine_terminated(self, exc: Exception) -> None:

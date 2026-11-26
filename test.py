@@ -3979,6 +3979,41 @@ class EngineTestCase(unittest.TestCase):
 
         asyncio.run(main())
 
+    def test_uci_cancel_while_waiting_for_readyok(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            # Initialize.
+            mock.expect("uci", ["uciok"])
+            await protocol.initialize()
+
+            for start in [
+                lambda: protocol.analysis(chess.Board()),
+                lambda: protocol.play(chess.Board(), chess.engine.Limit(time=1.0)),
+            ]:
+                protocol.first_game = True
+
+                # Cancel before the engine answers isready.
+                mock.expect("ucinewgame")
+                mock.expect("isready")
+                task = asyncio.create_task(start())
+                await asyncio.sleep(0)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+
+                # Late readyok must not start a search.
+                protocol.pipe_data_received(1, b"readyok\n")
+                mock.assert_done()
+
+                # Engine is usable again.
+                mock.expect("isready", ["readyok"])
+                await asyncio.wait_for(protocol.ping(), 1.0)
+                mock.assert_done()
+
+        asyncio.run(main())
+
     def test_uci_analyse_mode(self):
         async def main():
             protocol = chess.engine.UciProtocol()
