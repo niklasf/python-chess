@@ -36,7 +36,7 @@ Changelog = "https://python-chess.readthedocs.io/en/stable/changelog.html"
 
 [dependency-groups]
 docs = [
-    "sphinx~=8.1",
+    "sphinx>=8.1,<10.0",
     "sphinxcontrib-jquery~=4.1",
     "sphinx-rtd-theme~=3.0",
 ]
