@@ -50,6 +50,9 @@ dev = [
     { include-group = "docs" },
     { include-group = "typing" },
 ]
+fuzz = [
+    "atheris~=3.1; sys_platform == 'linux' and platform_machine == 'x86_64' and python_version >= '3.12' and python_version < '3.15'",
+]
 
 [tool.setuptools]
 packages = ["chess"]

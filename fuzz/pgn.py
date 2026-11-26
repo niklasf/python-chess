@@ -1,31 +1,33 @@
 import io
 import logging
+import sys
 
-import chess.pgn
+import atheris
 
-from pythonfuzz.main import PythonFuzz
+with atheris.instrument_imports():
+    import chess.pgn
 
 
 # The default parser logs errors for syntax errors.
 logging.getLogger("chess.pgn").setLevel(logging.CRITICAL)
 
 
-@PythonFuzz
-def fuzz(buf):
+def fuzz(buf: bytes) -> None:
     try:
         pgn = io.StringIO(buf.decode("utf-8"))
     except UnicodeDecodeError:
-        pass
-    else:
-        while True:
-            game = chess.pgn.read_game(pgn)
-            if game is None:
-                break
+        return
 
-            repr(game)
-            if not game.errors:
-                str(game)
+    while True:
+        game = chess.pgn.read_game(pgn)
+        if game is None:
+            break
+
+        repr(game)
+        if not game.errors:
+            str(game)
 
 
 if __name__ == "__main__":
-    fuzz()
+    atheris.Setup(sys.argv, fuzz)
+    atheris.Fuzz()

@@ -1,16 +1,17 @@
 import asyncio
 import logging
+import sys
 
-import chess.engine
+import atheris
 
-from pythonfuzz.main import PythonFuzz
+with atheris.instrument_imports():
+    import chess.engine
 
 
 logging.getLogger("chess.engine").setLevel(logging.CRITICAL)
 
 
-@PythonFuzz
-def fuzz(buf):
+def fuzz(buf: bytes) -> None:
     lines = buf.split(b"!")
 
     class FuzzTransport:
@@ -24,7 +25,7 @@ def fuzz(buf):
 
         def write(self, data):
             if lines:
-                self.protocol.pipe_data_received(1, lines.pop(0))
+                asyncio.get_running_loop().call_soon(self.protocol.pipe_data_received, 1, lines.pop(0))
 
         def get_pid(self) -> int:
             return id(self)
@@ -50,4 +51,5 @@ def fuzz(buf):
 
 
 if __name__ == "__main__":
-    fuzz()
+    atheris.Setup(sys.argv, fuzz)
+    atheris.Fuzz()

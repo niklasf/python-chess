@@ -61,6 +61,21 @@ jobs:
       - run: uv run --no-dev --group typing mypy --strict examples/**/*.py
       - run: uv run --no-dev --group typing pyright chess
       - run: uv run --no-dev --group typing pyright examples/**/*.py
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
+        with:
+          python-version: "3.14"
+      - run: |
+          for target in engine epd fen packed pgn; do
+            echo "::group::$target"
+            seeds="fuzz/corpus/$target"
+            [ -d "$seeds" ] || seeds=""
+            uv run --no-dev --group fuzz python "fuzz/$target.py" -runs=200 "$(mktemp -d)" $seeds
+            echo "::endgroup::"
+          done
   readme:
     runs-on: ubuntu-latest
     steps:
