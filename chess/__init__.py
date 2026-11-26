@@ -3330,6 +3330,7 @@ class Board(BaseBoard):
                     if opcode == "-":
                         opcode = ""
                     elif opcode:
+                        self._validate_epd_opcode(opcode)
                         operations[opcode] = [] if opcode in ["pv", "am", "bm"] else None
                         opcode = ""
                 else:

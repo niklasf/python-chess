@@ -1333,6 +1333,10 @@ class BoardTestCase(unittest.TestCase):
         self.assertEqual(operations["id"], "")
         self.assertEqual(board.epd(**operations), "1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - bm Qd1+; id \"\";")
 
+        # Test invalid opcode without operand.
+        with self.assertRaises(ValueError):
+            chess.Board.from_epd("4k3/8/8/8/8/8/8/4K3 w - - ,;")
+
     def test_eret_epd(self):
         # Too many dashes.
         epd = """r1bqk1r1/1p1p1n2/p1n2pN1/2p1b2Q/2P1Pp2/1PN5/PB4PP/R4RK1 w q - - bm Rxf4; id "ERET 001 - Entlastung";"""
