@@ -18,8 +18,8 @@ jobs:
     continue-on-error: ${{ matrix.python-version == '3.16' }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v10
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           python-version: ${{ matrix.python-version }}
       - run: .github/workflows/setup-${{ matrix.os }}.sh
@@ -28,8 +28,8 @@ jobs:
   perft:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v10
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           python-version: "3.15"
       - run: uv run --no-dev python examples/perft/perft.py -t 1 examples/perft/random.perft --max-nodes 10000
@@ -53,8 +53,8 @@ jobs:
       run:
         shell: bash --noprofile --norc -O globstar -eo pipefail {0}
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v10
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv run mypy --strict chess
@@ -64,8 +64,8 @@ jobs:
   readme:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v10
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           python-version: "3.15"
       - run: uv build
