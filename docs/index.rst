@@ -9,6 +9,7 @@ Contents
     core
     pgn
     polyglot
+    ctg
     gaviota
     syzygy
     chesstb

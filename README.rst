@@ -64,6 +64,7 @@ Requires Python 3.11+. Download and install the latest release:
 * `Core <https://python-chess.readthedocs.io/en/latest/core.html>`_
 * `PGN parsing and writing <https://python-chess.readthedocs.io/en/latest/pgn.html>`_
 * `Polyglot opening book reading <https://python-chess.readthedocs.io/en/latest/polyglot.html>`_
+* `CTG opening book reading <https://python-chess.readthedocs.io/en/latest/ctg.html>`_
 * `Gaviota endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/gaviota.html>`_
 * `Syzygy endgame tablebase probing <https://python-chess.readthedocs.io/en/latest/syzygy.html>`_
 * `UCI/XBoard engine communication <https://python-chess.readthedocs.io/en/latest/engine.html>`_
