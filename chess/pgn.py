@@ -1371,12 +1371,12 @@ class Headers(MutableMapping[str, str]):
         return board
 
     def __setitem__(self, key: str, value: str) -> None:
+        if key not in TAG_ROSTER and not _TAG_NAME_REGEX.match(key):
+            raise ValueError(f"invalid pgn header tag: {key!r}")
+        if "\n" in value or "\r" in value:
+            raise ValueError(f"line break in pgn header {key}: {value!r}")
         if key in TAG_ROSTER:
             self._tag_roster[key] = value
-        elif not _TAG_NAME_REGEX.match(key):
-            raise ValueError(f"invalid pgn header tag: {key!r}")
-        elif "\n" in value or "\r" in value:
-            raise ValueError(f"line break in pgn header {key}: {value!r}")
         else:
             self._others[key] = value
 

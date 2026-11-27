@@ -2330,6 +2330,14 @@ class PgnTestCase(unittest.TestCase):
                 game.accept(chess.pgn.FileExporter(handle, columns=None))
                 self.assertEqual(handle.getvalue(), expected + "\n\n")
 
+    def test_headers_reject_line_breaks(self):
+        for tagname in chess.pgn.TAG_ROSTER + ["Annotator"]:
+            for value in ["a\nb", "a\rb"]:
+                with self.subTest(tagname=tagname, value=value):
+                    game = chess.pgn.Game()
+                    with self.assertRaises(ValueError):
+                        game.headers[tagname] = value
+
     def test_exporter(self):
         game = chess.pgn.Game()
         game.comments = ["Test game:"]
