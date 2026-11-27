@@ -223,19 +223,6 @@ def _format_clock(command: str, seconds: float) -> str:
     return f"[%{command} {hours:d}:{minutes:02d}:{seconds_part}]"
 
 
-def _format_arrows(arrows: Iterable[Arrow]) -> list[str]:
-    csl: list[str] = []
-    cal: list[str] = []
-    for arrow in arrows:
-        (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())
-    commands = []
-    if csl:
-        commands.append(f"[%csl {','.join(csl)}]")
-    if cal:
-        commands.append(f"[%cal {','.join(cal)}]")
-    return commands
-
-
 def _standardize_comments(comment: str | list[str]) -> list[str]:
     return [] if not comment else [comment] if isinstance(comment, str) else comment
 
@@ -416,6 +403,23 @@ class Arrow:
     def __hash__(self) -> int:
         return hash((self.tail, self.head, self.color))
 
+    @staticmethod
+    def _format_commands(arrows: Iterable[Arrow]) -> list[str]:
+        """
+        Formats *arrows* as ``[%csl ...]`` (highlighted squares) and
+        ``[%cal ...]`` (arrows) PGN annotations.
+        """
+        csl: list[str] = []
+        cal: list[str] = []
+        for arrow in arrows:
+            (csl if arrow.tail == arrow.head else cal).append(arrow.pgn())
+        commands = []
+        if csl:
+            commands.append(f"[%csl {','.join(csl)}]")
+        if cal:
+            commands.append(f"[%cal {','.join(cal)}]")
+        return commands
+
     @classmethod
     def from_pgn(cls, pgn: str) -> Arrow:
         """
@@ -525,7 +529,7 @@ class Comment:
         The text followed by the annotations.
         """
         parts = [self.text.replace("{", "").replace("}", "")] if self.text else []
-        parts.extend(_format_arrows(self.arrows))
+        parts.extend(Arrow._format_commands(self.arrows))
         if self.eval is not None:
             eval = _format_eval(self.eval, self.eval_depth, None)
             if eval:
@@ -874,7 +878,7 @@ class GameNode(abc.ABC):
 
         self._replace_or_add_annotation("", "arrows")
 
-        prefix = "".join(_format_arrows(standardized))
+        prefix = "".join(Arrow._format_commands(standardized))
 
         if prefix:
             self.comments.insert(0, prefix)

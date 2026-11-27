@@ -633,6 +633,92 @@ def _lichess_raw_wins(cp: int) -> int:
     return round(1000 / (1 + math.exp(-0.00368208 * cp)))
 
 
+class _WdlModel(abc.ABC):
+    """Converts engine scores to win/draw/loss statistics."""
+
+    @abc.abstractmethod
+    def cp_wdl(self, cp: int, *, ply: int, material: int) -> Wdl:
+        """Win/draw/loss statistics for a centi-pawn score."""
+
+    def mate_wdl(self, moves: int) -> Wdl:
+        """Win/draw/loss statistics for a mate in *moves*."""
+        return Wdl(1000, 0, 0) if moves > 0 else Wdl(0, 0, 1000)
+
+
+class _LichessWdlModel(_WdlModel):
+    def cp_wdl(self, cp: int, *, ply: int, material: int) -> Wdl:
+        wins = _lichess_raw_wins(max(-1000, min(cp, 1000)))
+        return Wdl(wins, 0, 1000 - wins)
+
+    def mate_wdl(self, moves: int) -> Wdl:
+        cp = (21 - min(10, abs(moves))) * 100
+        wins = _lichess_raw_wins(cp)
+        return Wdl(wins, 0, 1000 - wins) if moves > 0 else Wdl(1000 - wins, 0, wins)
+
+
+class _StockfishWdlModel(_WdlModel):
+    """Stockfish models: wins and losses are the win rates of both sides."""
+
+    def cp_wdl(self, cp: int, *, ply: int, material: int) -> Wdl:
+        wins = self.wins(cp, ply=ply, material=material)
+        losses = self.wins(-cp, ply=ply, material=material)
+        return Wdl(wins, 1000 - wins - losses, losses)
+
+    @abc.abstractmethod
+    def wins(self, cp: int, *, ply: int, material: int) -> int:
+        """Expected wins per mille for a centi-pawn score."""
+
+
+class _PlyWins(typing.Protocol):
+    def __call__(self, cp: int, *, ply: int) -> int: ...
+
+
+class _MaterialWins(typing.Protocol):
+    def __call__(self, cp: int, *, material: int) -> int: ...
+
+
+class _PlyStockfishWdlModel(_StockfishWdlModel):
+    """Stockfish 12 to 16.1: the win rate depends on the game ply."""
+
+    def __init__(self, wins: _PlyWins) -> None:
+        self._wins = wins
+
+    def wins(self, cp: int, *, ply: int, material: int) -> int:
+        return self._wins(cp, ply=ply)
+
+
+class _MaterialStockfishWdlModel(_StockfishWdlModel):
+    """Stockfish 17 and later: the win rate depends on the material count."""
+
+    def __init__(self, wins: _MaterialWins) -> None:
+        self._wins = wins
+
+    def wins(self, cp: int, *, ply: int, material: int) -> int:
+        return self._wins(cp, material=material)
+
+
+_DEFAULT_WDL_MODEL = _MaterialStockfishWdlModel(_sf19_wins)
+
+_WDL_MODELS: dict[str, _WdlModel] = {
+    "sf": _DEFAULT_WDL_MODEL,
+    "sf19": _DEFAULT_WDL_MODEL,
+    "sf18": _MaterialStockfishWdlModel(_sf18_wins),
+    "sf17.1": _MaterialStockfishWdlModel(_sf17_1_wins),
+    "sf17": _MaterialStockfishWdlModel(_sf17_wins),
+    "sf16.1": _PlyStockfishWdlModel(_sf16_1_wins),
+    "sf16": _PlyStockfishWdlModel(_sf16_wins),
+    "sf15.1": _PlyStockfishWdlModel(_sf15_1_wins),
+    "sf15": _PlyStockfishWdlModel(_sf15_wins),
+    "sf14": _PlyStockfishWdlModel(_sf14_wins),
+    "sf12": _PlyStockfishWdlModel(_sf12_wins),
+    "lichess": _LichessWdlModel(),
+}
+
+
+def _wdl_model(model: WdlModel) -> _WdlModel:
+    return _WDL_MODELS.get(model, _DEFAULT_WDL_MODEL)
+
+
 @dataclasses.dataclass(frozen=True, eq=False, slots=True)
 class Cp(Score):
     """Centi-pawn score."""
@@ -647,41 +733,7 @@ class Cp(Score):
         return self.cp
 
     def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
-        if model == "lichess":
-            wins = _lichess_raw_wins(max(-1000, min(self.cp, 1000)))
-            losses = 1000 - wins
-        elif model == "sf12":
-            wins = _sf12_wins(self.cp, ply=ply)
-            losses = _sf12_wins(-self.cp, ply=ply)
-        elif model == "sf14":
-            wins = _sf14_wins(self.cp, ply=ply)
-            losses = _sf14_wins(-self.cp, ply=ply)
-        elif model == "sf15":
-            wins = _sf15_wins(self.cp, ply=ply)
-            losses = _sf15_wins(-self.cp, ply=ply)
-        elif model == "sf15.1":
-            wins = _sf15_1_wins(self.cp, ply=ply)
-            losses = _sf15_1_wins(-self.cp, ply=ply)
-        elif model == "sf16":
-            wins = _sf16_wins(self.cp, ply=ply)
-            losses = _sf16_wins(-self.cp, ply=ply)
-        elif model == "sf16.1":
-            wins = _sf16_1_wins(self.cp, ply=ply)
-            losses = _sf16_1_wins(-self.cp, ply=ply)
-        elif model == "sf17":
-            wins = _sf17_wins(self.cp, material=material)
-            losses = _sf17_wins(-self.cp, material=material)
-        elif model == "sf17.1":
-            wins = _sf17_1_wins(self.cp, material=material)
-            losses = _sf17_1_wins(-self.cp, material=material)
-        elif model == "sf18":
-            wins = _sf18_wins(self.cp, material=material)
-            losses = _sf18_wins(-self.cp, material=material)
-        else:
-            wins = _sf19_wins(self.cp, material=material)
-            losses = _sf19_wins(-self.cp, material=material)
-        draws = 1000 - wins - losses
-        return Wdl(wins, draws, losses)
+        return _wdl_model(model).cp_wdl(self.cp, ply=ply, material=material)
 
     def __str__(self) -> str:
         return f"+{self.cp:d}" if self.cp > 0 else str(self.cp)
@@ -726,12 +778,7 @@ class Mate(Score):
             return -mate_score - self.moves
 
     def wdl(self, *, model: WdlModel = "sf", ply: int = 30, material: int = 58) -> Wdl:
-        if model == "lichess":
-            cp = (21 - min(10, abs(self.moves))) * 100
-            wins = _lichess_raw_wins(cp)
-            return Wdl(wins, 0, 1000 - wins) if self.moves > 0 else Wdl(1000 - wins, 0, wins)
-        else:
-            return Wdl(1000, 0, 0) if self.moves > 0 else Wdl(0, 0, 1000)
+        return _wdl_model(model).mate_wdl(self.moves)
 
     def __str__(self) -> str:
         return f"#+{self.moves}" if self.moves > 0 else f"#-{abs(self.moves)}"
@@ -1218,9 +1265,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game_complete: Optional. Whether the game reached completion.
         """
 
-    @abc.abstractmethod
     async def quit(self) -> None:
         """Asks the engine to shut down."""
+        self.send_line("quit")
+        await asyncio.shield(self.returncode)
 
     @classmethod
     async def popen(cls, command: str | list[str], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, Self]:
@@ -1819,10 +1867,6 @@ class UciProtocol(Protocol):
 
     async def send_game_result(self, board: chess.Board, winner: Color | None = None, game_ending: str | None = None, game_complete: bool = True) -> None:
         pass
-
-    async def quit(self) -> None:
-        self.send_line("quit")
-        await asyncio.shield(self.returncode)
 
 
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
@@ -2609,10 +2653,6 @@ class XBoardProtocol(Protocol):
                 self.set_finished()
 
         return await self.communicate(XBoardGameResultCommand)
-
-    async def quit(self) -> None:
-        self.send_line("quit")
-        await asyncio.shield(self.returncode)
 
 
 def _parse_xboard_option(feature: str) -> Option:
