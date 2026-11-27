@@ -1059,13 +1059,23 @@ class CrazyhouseBoard(chess.Board):
 
     def is_pseudo_legal(self, move: chess.Move) -> bool:
         if move.drop and move.from_square == move.to_square:
-            return (
-                move.drop != chess.KING and
-                not chess.BB_SQUARES[move.to_square] & self.occupied and
-                not (move.drop == chess.PAWN and chess.BB_SQUARES[move.to_square] & chess.BB_BACKRANKS) and
-                self.pockets[self.turn].count(move.drop) > 0)
+            return self._is_pseudo_legal_drop(move.drop, move.to_square)
         else:
             return super().is_pseudo_legal(move)
+
+    def _is_pseudo_legal_drop(self, piece_type: chess.PieceType, square: chess.Square) -> bool:
+        return (
+            piece_type != chess.KING and
+            self._is_drop_target(piece_type, square) and
+            self.pockets[self.turn].count(piece_type) > 0)
+
+    def _is_drop_target(self, piece_type: chess.PieceType, square: chess.Square) -> bool:
+        # Pieces can only be dropped onto empty squares, and pawns not onto
+        # the back ranks.
+        target = chess.BB_SQUARES[square]
+        if target & self.occupied:
+            return False
+        return not (piece_type == chess.PAWN and target & chess.BB_BACKRANKS)
 
     def is_legal(self, move: chess.Move) -> bool:
         if move.drop:
