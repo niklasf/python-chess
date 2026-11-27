@@ -804,29 +804,39 @@ class ThreeCheckBoard(chess.Board):
 
     def set_fen(self, fen: str) -> None:
         parts = fen.split()
+        wc, bc = self._pop_remaining_checks(parts)
 
-        # Extract check part.
+        # Set fen.
+        super().set_fen(" ".join(parts))
+        self.remaining_checks[chess.WHITE] = wc
+        self.remaining_checks[chess.BLACK] = bc
+
+    @staticmethod
+    def _pop_remaining_checks(parts: list[str]) -> tuple[int, int]:
+        """
+        Removes the check part from the split *parts* of a three-check FEN
+        and returns the remaining checks for white and black.
+
+        Supports the lichess style (``+W+B`` after the move counters,
+        counting checks given) and the standard style (``W+B`` after the
+        en passant square, counting checks remaining).
+        """
         if len(parts) >= 7 and parts[6][0] == "+":
             check_part = parts.pop(6)
             try:
                 w, b = check_part[1:].split("+", 1)
-                wc, bc = 3 - int(w), 3 - int(b)
+                return 3 - int(w), 3 - int(b)
             except ValueError:
                 raise ValueError(f"invalid check part in lichess three-check fen: {check_part!r}")
         elif len(parts) >= 5 and "+" in parts[4]:
             check_part = parts.pop(4)
             try:
                 w, b = check_part.split("+", 1)
-                wc, bc = int(w), int(b)
+                return int(w), int(b)
             except ValueError:
                 raise ValueError(f"invalid check part in three-check fen: {check_part!r}")
         else:
-            wc, bc = 3, 3
-
-        # Set fen.
-        super().set_fen(" ".join(parts))
-        self.remaining_checks[chess.WHITE] = wc
-        self.remaining_checks[chess.BLACK] = bc
+            return 3, 3
 
     def epd(self, *, shredder: bool = False, en_passant: chess.EnPassantSpec = "legal", promoted: bool | None = None, **operations: None | str | int | float | chess.Move | Iterable[chess.Move]) -> str:
         epd = [super().epd(shredder=shredder, en_passant=en_passant, promoted=promoted),
