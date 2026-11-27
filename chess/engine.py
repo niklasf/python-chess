@@ -1218,9 +1218,10 @@ class Protocol(asyncio.SubprocessProtocol, metaclass=abc.ABCMeta):
         :param game_complete: Optional. Whether the game reached completion.
         """
 
-    @abc.abstractmethod
     async def quit(self) -> None:
         """Asks the engine to shut down."""
+        self.send_line("quit")
+        await asyncio.shield(self.returncode)
 
     @classmethod
     async def popen(cls, command: str | list[str], *, setpgrp: bool = False, **popen_args: Any) -> tuple[asyncio.SubprocessTransport, Self]:
@@ -1819,10 +1820,6 @@ class UciProtocol(Protocol):
 
     async def send_game_result(self, board: chess.Board, winner: Color | None = None, game_ending: str | None = None, game_complete: bool = True) -> None:
         pass
-
-    async def quit(self) -> None:
-        self.send_line("quit")
-        await asyncio.shield(self.returncode)
 
 
 UCI_REGEX = re.compile(r"^[a-h][1-8][a-h][1-8][pnbrqk]?|[PNBRQK]@[a-h][1-8]|0000\Z")
@@ -2609,10 +2606,6 @@ class XBoardProtocol(Protocol):
                 self.set_finished()
 
         return await self.communicate(XBoardGameResultCommand)
-
-    async def quit(self) -> None:
-        self.send_line("quit")
-        await asyncio.shield(self.returncode)
 
 
 def _parse_xboard_option(feature: str) -> Option:
