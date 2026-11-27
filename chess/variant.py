@@ -1113,15 +1113,17 @@ class CrazyhouseBoard(chess.Board):
         # In practice, no material can leave the game, but this is easy to
         # implement, anyway. Note that bishops can be captured and put onto
         # a different color complex.
+        total_material = chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets)
+        has_promoted_pieces = bool(self._effective_promoted())
+        has_pawns_or_majors_on_board = bool(self.pawns | self.rooks | self.queens)
+        has_pawns_or_majors_in_pockets = any(
+            pocket.count(chess.PAWN) or pocket.count(chess.ROOK) or pocket.count(chess.QUEEN)
+            for pocket in self.pockets)
         return (
-            chess.popcount(self.occupied) + sum(len(pocket) for pocket in self.pockets) <= 3 and
-            not self._effective_promoted() and
-            not self.pawns and
-            not self.rooks and
-            not self.queens and
-            not any(pocket.count(chess.PAWN) for pocket in self.pockets) and
-            not any(pocket.count(chess.ROOK) for pocket in self.pockets) and
-            not any(pocket.count(chess.QUEEN) for pocket in self.pockets))
+            total_material <= 3 and
+            not has_promoted_pieces and
+            not has_pawns_or_majors_on_board and
+            not has_pawns_or_majors_in_pockets)
 
     def set_fen(self, fen: str) -> None:
         position_part, info_part = fen.split(None, 1)
