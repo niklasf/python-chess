@@ -1,6 +1,15 @@
 Changelog for python-chess
 ==========================
 
+Unreleased
+----------
+
+Bugfixes:
+
+* ``chess.engine``: Clear stale ``lowerbound``/``upperbound`` flags from
+  aggregated info when a subsequent exact score is received. See
+  `#1086 <https://github.com/niklasf/python-chess/issues/1086>`_.
+
 New in v1.11.2 (25th Feb 2025)
 ------------------------------
 
