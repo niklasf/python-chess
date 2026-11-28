@@ -293,7 +293,7 @@ Features
 
       >>> tablebase.close()
 
-* Communicate with UCI/XBoard engines. Based on ``asyncio``.
+* Communicate with UCI/XBoard engines. Based on ``asyncio``. The example below needs a UCI engine such as Stockfish installed and on your PATH.
   `Docs <https://python-chess.readthedocs.io/en/stable/engine.html>`__.
 
   .. code:: python
