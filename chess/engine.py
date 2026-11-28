@@ -2786,6 +2786,9 @@ class AnalysisResult:
         multipv = info.get("multipv", 1)
         while len(self.multipv) < multipv:
             self.multipv.append({})
+        if "score" in info:
+            self.multipv[multipv - 1].pop("lowerbound", None)  # type: ignore[typeddict-item]
+            self.multipv[multipv - 1].pop("upperbound", None)  # type: ignore[typeddict-item]
         self.multipv[multipv - 1].update(info)
 
         self._queue.put_nowait(info)

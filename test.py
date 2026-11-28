@@ -4346,6 +4346,64 @@ class EngineTestCase(unittest.TestCase):
         info = chess.engine._parse_uci_info("depth 1 seldepth 2 time 16 nodes 1 score cp 72 wdl 249 747 4 hashfull 0 nps 400 tbhits 0 multipv 1", board)
         self.assertEqual(info["wdl"].white(), chess.engine.Wdl(249, 747, 4))
 
+    def test_uci_info_bound_flags(self):
+        async def main():
+            protocol = chess.engine.UciProtocol()
+            mock = chess.engine.MockTransport(protocol)
+
+            mock.expect("uci", ["option name MultiPV type spin default 1 min 1 max 500", "uciok"])
+            await protocol.initialize()
+            mock.assert_done()
+
+            board = chess.Board()
+            mock.expect("ucinewgame")
+            mock.expect("isready", ["readyok"])
+            mock.expect("position startpos")
+            mock.expect("go depth 5", [
+                "info depth 5 score cp 30 lowerbound pv e2e4",
+                "info depth 5 score cp 20 upperbound pv e2e4",
+                "info depth 5 score cp 25 pv e2e4",
+                "bestmove e2e4",
+            ])
+            info = await protocol.analyse(board, chess.engine.Limit(depth=5))
+            self.assertEqual(info["score"], chess.engine.PovScore(chess.engine.Cp(25), chess.WHITE))
+            self.assertNotIn("lowerbound", info)
+            self.assertNotIn("upperbound", info)
+            mock.assert_done()
+
+            # Non-score info lines should preserve the current bound flag.
+            mock.expect("position startpos")
+            mock.expect("go depth 6", [
+                "info depth 6 score cp 40 lowerbound pv d2d4",
+                "info currmove d2d4",
+                "bestmove d2d4",
+            ])
+            info = await protocol.analyse(board, chess.engine.Limit(depth=6))
+            self.assertEqual(info["score"], chess.engine.PovScore(chess.engine.Cp(40), chess.WHITE))
+            self.assertTrue(info.get("lowerbound"))
+            self.assertNotIn("upperbound", info)
+            mock.assert_done()
+
+            # Bound flags are cleared per-multipv line independently.
+            mock.expect("setoption name MultiPV value 2")
+            mock.expect("position startpos")
+            mock.expect("go depth 5", [
+                "info depth 5 multipv 1 score cp 30 lowerbound pv e2e4",
+                "info depth 5 multipv 2 score cp 10 upperbound pv d2d4",
+                "info depth 5 multipv 1 score cp 25 pv e2e4",
+                "bestmove e2e4",
+            ])
+            infos = await protocol.analyse(board, chess.engine.Limit(depth=5), multipv=2)
+            self.assertEqual(infos[0]["score"], chess.engine.PovScore(chess.engine.Cp(25), chess.WHITE))
+            self.assertNotIn("lowerbound", infos[0])
+            self.assertNotIn("upperbound", infos[0])
+            self.assertEqual(infos[1]["score"], chess.engine.PovScore(chess.engine.Cp(10), chess.WHITE))
+            self.assertTrue(infos[1].get("upperbound"))
+            self.assertNotIn("lowerbound", infos[1])
+            mock.assert_done()
+
+        asyncio.run(main())
+
     def test_uci_result(self):
         async def main():
             protocol = chess.engine.UciProtocol()
